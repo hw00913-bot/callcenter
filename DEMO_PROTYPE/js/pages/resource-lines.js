@@ -1,0 +1,85 @@
+/** 线路与号码：供应商线路、号码用途和租户使用范围。 */
+(function(){
+  'use strict';const ui=PlatformUI,esc=ui.escape;let view='lines';
+  const filters={lines:{keyword:'',status:'全部状态'},numbers:{keyword:'',status:'全部状态'},grants:{keyword:'',status:'全部状态'}};
+  const pages={lines:1,numbers:1,grants:1};const pageSize=8;
+  const numberStateKey='cloud-number-resource-state-v1';
+  let savedNumbers=[];
+  // Per-tab demo state only, never a vendor provisioning result.
+  try{const rows=JSON.parse(sessionStorage.getItem(numberStateKey)||'[]');if(Array.isArray(rows))savedNumbers=rows.filter(row=>row&&typeof row.numberId==='string'&&typeof row.instanceId==='string'&&['正常','已隔离'].includes(row.businessStatus)&&Array.isArray(row.authorizedTenantIds));}catch(error){}
+  const stateFields=['businessStatus','status','usage','aliyunUsage','contactFlowId','authorizedTenantIds','restoreSnapshot'];
+  savedNumbers.forEach(saved=>{const row=CloudCallData.phoneNumbers.find(n=>n.numberId===saved.numberId&&n.instanceId===saved.instanceId);if(!row||!saved.authorizedTenantIds.every(id=>CloudCallRuntime.tenant(id)?.instanceId===row.instanceId))return;if(saved.businessStatus==='已隔离'&&(!saved.restoreSnapshot||!Array.isArray(saved.restoreSnapshot.authorizedTenantIds)))return;stateFields.forEach(key=>{if(Object.hasOwn(saved,key))row[key]=structuredClone(saved[key]);});});
+  function persistNumber(row){const saved={numberId:row.numberId,instanceId:row.instanceId};stateFields.forEach(key=>saved[key]=structuredClone(row[key]));const index=savedNumbers.findIndex(n=>n.numberId===row.numberId);if(index<0)savedNumbers.push(saved);else savedNumbers[index]=saved;sessionStorage.setItem(numberStateKey,JSON.stringify(savedNumbers));}
+  function canManageNumber(row){return !!row&&AppState.effectiveAccess().valid&&AppState.isSuper()&&AppState.canMenu('resources.numbers')&&row.instanceId===AppState.get().instanceId;}
+  function instanceRows(rows){return (rows||[]).filter(x=>(x.instanceIds||[x.instanceId]).includes(AppState.get().instanceId));}
+  function tenantNames(ids){return (ids||[]).map(id=>CloudCallRuntime.tenant(id)?.name||id).join('、');}
+  function lineName(id){return CloudCallData.lines.find(x=>x.lineId===id)?.name||id;}
+  function filterPanel(key,label){const current=filters[key];return `<div class="filter-panel"><label class="field grow"><span>${label}</span><input id="${key}Keyword" value="${esc(current.keyword)}" placeholder="输入名称或供应商"></label><label class="field"><span>状态</span><select id="${key}Status"><option>全部状态</option>${['正常','待配置','启用','联调中','待加白','已隔离','已解绑','待验证'].map(value=>`<option ${current.status===value?'selected':''}>${value}</option>`).join('')}</select></label><div class="filter-actions"><button class="btn" onclick="window.Pages['resource-lines'].resetFilters('${key}')">重置</button><button class="btn btn-primary" onclick="window.Pages['resource-lines'].query('${key}')">查询</button></div></div>`;}
+  function filtered(key,rows,text,status){const current=filters[key],keyword=current.keyword.toLowerCase();return rows.filter(row=>(!keyword||text(row).toLowerCase().includes(keyword))&&(current.status==='全部状态'||status(row)===current.status));}
+  function shell(key,rows,columns,primary,help){const start=(pages[key]-1)*pageSize;return `<div class="management-list-shell">${ui.toolbar(primary,`<button class="btn" onclick="window.Pages['resource-lines'].refresh('${key}')">刷新</button>${ui.help(help)}`)}${ui.table(columns,rows.slice(start,start+pageSize),{emptyText:'没有符合条件的数据',rowOffset:start})}${ui.pagination(rows.length,pages[key],pageSize,`window.Pages['resource-lines'].setPage.bind(null,'${key}')`)}</div>`;}
+  function numberActions(row){if(row.businessStatus==='待配置')return `<button onclick="window.Pages['resource-lines'].openGrant('${row.numberId}')">设置使用范围</button>`;if(row.businessStatus==='已解绑')return '';if(row.businessStatus==='已隔离')return `<button onclick="window.Pages['resource-lines'].restore('${row.numberId}')">恢复服务</button><button onclick="window.Pages['resource-lines'].unbind('${row.numberId}')">从实例解绑</button>`;return `<button onclick="window.Pages['resource-lines'].isolate('${row.numberId}')">业务隔离</button><button onclick="window.Pages['resource-lines'].unbind('${row.numberId}')">从实例解绑</button>`;}
+  function renderNumbers(){const rows=filtered('numbers',instanceRows(CloudCallData.phoneNumbers),row=>`${row.number} ${lineName(row.lineId)} ${tenantNames(row.authorizedTenantIds)}`,row=>row.businessStatus);return `<section class="platform-page resource-page" data-anno-page="numbers" data-anno-label="号码隔离恢复与永久解绑" data-anno-kind="region" data-anno-fields="FLD-043,FLD-044,FLD-045,FLD-046,FLD-047,FLD-048,FLD-049,FLD-050,FLD-051,FLD-052">${ui.pageHeader('号码管理','查看号码所属线路、呼入呼出用途、租户使用范围和服务状态。')}${filterPanel('numbers','号码 / 线路 / 租户')}${shell('numbers',rows,[
+    {key:'number',label:'号码',render:(v,r)=>`<button class="table-link" onclick="window.Pages['resource-lines'].openNumber('${r.numberId}')"><strong>${esc(v)}</strong><small>${esc(lineName(r.lineId))}</small></button>`},{key:'usage',label:'用途'},{key:'authorizedTenantIds',label:'可用租户',render:v=>!v?.length?'尚未授权':`<div class="tenant-tags">${v.map(id=>`<span>${esc(CloudCallRuntime.tenant(id)?.organizationLabel||'租户')} · ${esc(CloudCallRuntime.tenant(id)?.name||id)}</span>`).join('')}</div>`},{key:'referenceCount',label:'使用中业务'},{key:'businessStatus',label:'服务状态',render:v=>ui.status(v)},{key:'numberId',label:'操作',className:'action-column',render:(v,r)=>`<div class="table-actions"><button onclick="window.Pages['resource-lines'].openNumber('${v}')">查看</button>${numberActions(r)}</div>`}
+  ],'<button class="btn btn-primary" onclick="LineOnboarding.openNumbers()">添加号码</button><button class="btn" onclick="LineOnboarding.openHistory()">添加记录</button>','业务隔离阻断新外呼，来电进入暂停服务 IVR，不再进入人工业务；号码仍可接通，并非线路停机。进行中通话继续完成。')}</section>`;}
+  function renderGrants(){const rows=filtered('grants',instanceRows(CloudCallData.phoneNumbers),row=>`${row.number} ${tenantNames(row.authorizedTenantIds)}`,row=>row.businessStatus);return `<section class="platform-page resource-page" data-anno-page="number-grants" data-anno-label="客户品牌号码多租户授权" data-anno-kind="region" data-anno-fields="FLD-009,FLD-043,FLD-044,FLD-047">${ui.pageHeader('号码使用范围','同一客户/品牌下的号码可供一个或多个租户共同使用。')}${filterPanel('grants','号码 / 租户')}${shell('grants',rows,[
+    {key:'number',label:'号码'},{key:'usage',label:'用途'},{key:'authorizedTenantIds',label:'已授权租户',render:v=>`<div class="tenant-tags">${v.map(id=>`<span>${esc(CloudCallRuntime.tenant(id)?.name||id)}</span>`).join('')}</div>`},{key:'referenceCount',label:'使用中业务'},{key:'businessStatus',label:'状态',render:v=>ui.status(v)},{key:'numberId',label:'操作',className:'action-column',render:v=>`<div class="table-actions"><button onclick="window.Pages['resource-lines'].openGrant('${v}')">配置范围</button></div>`}
+  ],'', '号码只能授权给当前客户/品牌下的租户；共享号码的呼入会先识别并锁定唯一租户。')}</section>`;}
+  function render(options){view=options?.view||view;if(view==='numbers')return renderNumbers();if(view==='grants')return renderGrants();return LineOnboarding.renderLines();}
+  function openNumber(id){const row=CloudCallData.phoneNumbers.find(x=>x.numberId===id);if(!row)return;const basic=`<dl class="detail-grid"><dt>客户 / 品牌</dt><dd>${esc(CloudCallRuntime.instance(row.instanceId)?.brandCustomerName||'—')}</dd><dt>所属线路</dt><dd>${esc(lineName(row.lineId))}</dd><dt>当前用途</dt><dd>${esc(row.usage)}</dd><dt>可用租户</dt><dd>${esc(tenantNames(row.authorizedTenantIds)||'尚未授权')}</dd><dt>使用中业务</dt><dd>${row.referenceCount} 项</dd><dt>服务状态</dt><dd>${ui.status(row.businessStatus)}</dd></dl>`;const tech=`<details class="technical-details"><summary>技术信息</summary><dl class="detail-grid"><dt>号码编号</dt><dd><code>${esc(row.numberId)}</code></dd><dt>平台用途值</dt><dd><code>${esc(row.aliyunUsage)}</code></dd><dt>自动语音流程</dt><dd><code>${esc(row.contactFlowId||'—')}</code></dd><dt>恢复记录</dt><dd>${row.restoreSnapshot?`<code>${esc(row.restoreSnapshot.snapshotId)}</code> · ${esc(row.restoreSnapshot.createdAt)}`:'无'}</dd></dl></details>`;ui.openLayer('number-detail',`<div class="layer-header"><div><h2>${esc(row.number)}</h2><p>${esc(row.businessStatus)} · ${esc(row.usage)}</p></div><button onclick="PlatformUI.closeLayer('number-detail')">×</button></div><div class="layer-body">${ui.detailSection('号码信息',basic)}${numberBindings(row)}${row.businessStatus==='待配置'?ui.alert('info','待完成业务配置与验证','当前号码不提供呼叫服务；导入和加入品牌不等于正式开通。'):''}${tech}</div><div class="layer-footer">${canManageNumber(row)?`<button class="btn btn-primary" onclick="PlatformUI.closeLayer('number-detail');window.Pages['resource-lines'].openGrant('${row.numberId}')">设置租户使用范围</button>`:''}<button class="btn" onclick="PlatformUI.closeLayer('number-detail')">关闭</button></div>`,'wide');}
+  function numberBindings(row){
+    if(row.aliyunUsage==='Inbound')return ui.detailSection('呼入配置',`<p>${esc(CloudCallData.contactFlows.find(f=>f.contactFlowId===row.contactFlowId)?.name||'尚未配置呼入流程')}</p><button class="btn" onclick="navigateTo('inbound-routes')">配置呼入路由</button>`);
+    const groups=CloudCallData.physicalSkillGroups.filter(g=>g.instanceId===row.instanceId&&row.authorizedTenantIds.includes(g.tenantId)&&g.status==='已启用');
+    const canEdit=AppState.isSuper()&&AppState.canMenu('resources.numbers');
+    return ui.detailSection('外呼团队绑定',`<div class="checkbox-stack">${groups.map(g=>`<label><input type="checkbox" name="boundNumberGroup" value="${g.skillGroupId}" ${(row.boundSkillGroupIds||[]).includes(g.skillGroupId)?'checked':''} ${canEdit?'':'disabled'}> ${esc(g.name)}</label>`).join('')||'暂无已授权租户的可用团队'}</div><p class="form-help">租户使用授权和云端团队绑定都满足后，号码才可发起外呼。${ui.help('此处保存的是绑定演示配置；正式环境须提交阿里并回查成功，同时校验坐席当前签入组。')}</p>${canEdit?`<button class="btn" onclick="window.Pages['resource-lines'].saveNumberBinding('${row.numberId}')">保存演示绑定</button>`:''}`);
+  }
+  function saveNumberBinding(id){
+    const row=CloudCallData.phoneNumbers.find(n=>n.numberId===id);
+    if(!row||!AppState.isSuper()||!AppState.canMenu('resources.numbers')||row.instanceId!==AppState.get().instanceId)return;
+    const ids=[...document.querySelectorAll('[name="boundNumberGroup"]:checked')].map(el=>el.value);
+    if(!ids.every(id=>CloudCallData.physicalSkillGroups.some(g=>g.skillGroupId===id&&g.instanceId===row.instanceId&&row.authorizedTenantIds.includes(g.tenantId)&&g.status==='已启用')))return showToast('绑定范围有误，请重新选择同品牌授权租户的团队','warning');
+    row.boundSkillGroupIds=[...new Set(ids)];
+    row.authorizedTenantIds.forEach(id=>CloudResourceRules.changed(id));
+    showToast('演示绑定已保存；真实阿里绑定仍需回查','info');openNumber(id);
+  }
+  function openGrant(id){const row=CloudCallData.phoneNumbers.find(x=>x.numberId===id);if(!row)return;const candidates=AppState.availableTenants().filter(x=>x.instanceId===row.instanceId);ui.openLayer('number-grant',`<div class="layer-header"><div><h2>配置号码使用范围</h2><p>${esc(row.number)} · ${esc(CloudCallRuntime.instance(row.instanceId)?.brandCustomerName||'当前客户/品牌')}</p></div><button onclick="PlatformUI.closeLayer('number-grant')">×</button></div><div class="layer-body"><div class="checkbox-stack">${candidates.map(x=>`<label><input type="checkbox" name="numberTenant" value="${x.tenantId}" ${row.authorizedTenantIds.includes(x.tenantId)?'checked':''}> <strong>${esc(x.name)}</strong><small>${esc(x.organizationLabel)}</small></label>`).join('')}</div><p class="form-help">可供多个租户共同使用；客户呼入时系统会先识别并锁定唯一租户。</p></div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer('number-grant')">取消</button><button class="btn btn-primary" onclick="window.Pages['resource-lines'].saveGrant('${id}')">保存</button></div>`,'small');}
+  function saveGrant(id){
+    const row=CloudCallData.phoneNumbers.find(x=>x.numberId===id);if(!canManageNumber(row))return;
+    const ids=[...new Set([...document.querySelectorAll('input[name="numberTenant"]:checked')].map(x=>x.value))];
+    if(!ids.length)return showToast('至少授权一个当前实例租户','warning');
+    if(!ids.every(id=>CloudCallRuntime.tenant(id)?.instanceId===row.instanceId))return showToast('只能授权当前品牌下的租户','warning');
+    const removed=row.authorizedTenantIds.filter(id=>!ids.includes(id));
+    const routes=CloudCallData.inboundRoutes.filter(route=>route.numberId===row.numberId&&route.status==='已发布'&&[route.defaultTenantId,...(route.branches||[]).map(branch=>branch.tenantId)].some(id=>removed.includes(id)));
+    if(routes.length)return showToast('不能撤销仍被已发布路由引用的授权：'+routes.map(route=>route.name||`${row.number} 呼入路由（${route.routeId}）`).join('、')+'。请先调整路由后重试。','warning');
+    const affected=[...new Set([...row.authorizedTenantIds,...ids])];
+    row.authorizedTenantIds=ids;persistNumber(row);affected.forEach(id=>CloudResourceRules.changed(id));
+    ui.closeLayer('number-grant');showToast('号码租户授权演示配置已更新；未提交阿里变更','success');navigateTo('number-grants');
+  }
+  function isolate(id){
+    const row=CloudCallData.phoneNumbers.find(x=>x.numberId===id);if(!canManageNumber(row))return;
+    if(row.businessStatus!=='正常')return showToast('号码不是正常服务状态，不能重复隔离；原恢复快照保留','warning');
+    const plans=CloudCallData.callPlans.filter(x=>x.allowedCallerNumberIds.includes(id)),routes=CloudCallData.inboundRoutes.filter(x=>x.numberId===id);
+    ui.confirm({id:'number-isolate',title:'确认业务隔离号码',danger:true,confirmText:'开始隔离',body:`${ui.alert('warning','影响范围必须确认',`授权 ${row.authorizedTenantIds.length} 个租户、引用 ${row.referenceCount} 项、${plans.length} 个方案、${routes.length} 条呼入路由。引用此号码的运行及待启动任务停止新拨号；进行中通话允许完成。`)}<div class="snapshot-grid"><div><span>当前用途</span><strong>${esc(row.aliyunUsage)}</strong></div><div><span>入口联系流</span><strong>${esc(row.contactFlowId)}</strong></div><div><span>授权租户</span><strong>${esc(tenantNames(row.authorizedTenantIds)||'尚未授权')}</strong></div><div><span>隔离后</span><strong>Inbound + 暂停服务 IVR</strong></div></div>`,onConfirm(){
+      if(!canManageNumber(row)||row.businessStatus!=='正常')return;
+      row.restoreSnapshot={snapshotId:`NS-${Date.now()}`,previousUsage:row.aliyunUsage,previousStatus:row.status,previousContactFlowId:row.contactFlowId,authorizedTenantIds:[...row.authorizedTenantIds],reason:'管理员手工隔离（本地模拟）',createdAt:new Date().toLocaleString('zh-CN')};
+      row.businessStatus='已隔离';row.status='已隔离';row.usage='仅呼入';row.aliyunUsage='Inbound';row.contactFlowId='FLOW-MAINTENANCE-IVR-V2';
+      const affected=CloudTaskWorkspace.pauseForNumber(id);persistNumber(row);row.authorizedTenantIds.forEach(id=>CloudResourceRules.changed(id));
+      CloudCallRuntime.addAudit('号码业务隔离',id,'',row.restoreSnapshot.previousUsage+' / 原联系流','Inbound / 暂停服务 IVR');
+      showToast(`演示隔离完成：${affected} 个任务停止新拨号，进行中通话继续；来电进入暂停服务提示`,'success');navigateTo('numbers');
+    }});
+  }
+  function restore(id){
+    const row=CloudCallData.phoneNumbers.find(x=>x.numberId===id);if(!canManageNumber(row))return;
+    const snapshot=row.restoreSnapshot;
+    if(row.businessStatus!=='已隔离'||!snapshot||!['Bidirection','Outbound','Inbound'].includes(snapshot.previousUsage)||!Array.isArray(snapshot.authorizedTenantIds)||!snapshot.authorizedTenantIds.every(id=>CloudCallRuntime.tenant(id)?.instanceId===row.instanceId))return showToast('缺少有效恢复快照，不能恢复','warning');
+    row.aliyunUsage=snapshot.previousUsage;row.usage=({Bidirection:'呼入+呼出',Outbound:'仅呼出',Inbound:'仅呼入'})[row.aliyunUsage];row.contactFlowId=snapshot.previousContactFlowId;row.authorizedTenantIds=[...snapshot.authorizedTenantIds];row.businessStatus='正常';row.status=snapshot.previousStatus||'正常';row.restoreSnapshot=null;
+    persistNumber(row);row.authorizedTenantIds.forEach(id=>CloudResourceRules.changed(id));
+    CloudCallRuntime.addAudit('号码配置恢复',id,'','已隔离','配置恢复，任务仍暂停');
+    showToast('演示号码配置已恢复；受影响任务仍暂停，复检后需有权管理员逐项恢复','success');navigateTo('numbers');
+  }
+  function unbind(id){const row=CloudCallData.phoneNumbers.find(x=>x.numberId===id);if(!row)return;ui.confirm({id:'number-unbind',title:'从实例永久解绑',danger:true,confirmText:'永久解绑',body:`<p>这不是临时停用。执行后会解除实例关联配置，且不会自动保留可恢复状态。</p><p><strong>${esc(row.number)}</strong> 当前有 ${row.referenceCount} 项业务引用，必须先解除引用。</p>`,onConfirm(){if(row.referenceCount>0){showToast('存在业务引用，永久解绑已阻断','warning');return;}row.businessStatus='已解绑';row.status='已解绑';showToast('号码已从实例解绑','success');navigateTo('numbers');}});}
+  function query(key){filters[key].keyword=document.getElementById(`${key}Keyword`)?.value||'';filters[key].status=document.getElementById(`${key}Status`)?.value||'全部状态';pages[key]=1;navigateTo(key==='lines'?'lines':key==='numbers'?'numbers':'number-grants');}
+  function resetFilters(key){filters[key]={keyword:'',status:'全部状态'};pages[key]=1;navigateTo(key==='lines'?'lines':key==='numbers'?'numbers':'number-grants');}
+  function setPage(key,value){pages[key]=Math.max(1,Number(value)||1);navigateTo(key==='lines'?'lines':key==='numbers'?'numbers':'number-grants');}
+  function refresh(key){showToast('数据已刷新','success');navigateTo(key==='lines'?'lines':key==='numbers'?'numbers':'number-grants');}
+  window.Pages=window.Pages||{};window.Pages['resource-lines']={render,init(){},openLine: id=>LineOnboarding.openLine(id),saveLine: id=>LineOnboarding.saveLine(id),openNumber,saveNumberBinding,openGrant,saveGrant,isolate,restore,unbind,query,resetFilters,setPage,refresh};
+})();

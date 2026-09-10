@@ -1,0 +1,30 @@
+const assert=require('node:assert/strict'),{setup}=require('./fixtures/prototype-vm.cjs');
+const key='customer-task-batches-v1',a=setup('admin'),api=a.ctx.CustomerTasks;
+a.local.set(key,'[]'); // This test owns its imported batch; dashboard fixtures are tested separately.
+const bind=x=>{const s=x.d.agents.find(s=>s.contactCenterIdentityId==='CCI-N-001');s.accountId='ACC-OPS-108';return s;};bind(a);
+assert.equal(api.owners('TEN-NISSAN-HQ').length,1);
+const text='客户称呼,客户号码,联系备注\n测试甲,13800000003,邀约\n重复,13800000003,\n错误,abc,\n测试乙,13800000004,';
+const p=api.prepare('批次验收',text);assert.equal(p.good.length,2);assert.equal(p.errors.length,2);
+assert.throws(()=>api.prepare('','x'));assert.throws(()=>api.prepare('x','"bad'));
+a.field('customer-batch-name','批次验收');a.field('customer-import-text',text);a.field('customer-import-preview','');a.field('customer-import-confirm','');api.previewImport();api.confirmImport();
+let b=JSON.parse(a.local.get(key))[0];assert.equal(b.rows.length,2);assert.equal(b.errors.length,2);api.open(b.id);
+assert.equal(api.assign([b.rows[0].id],'人工外呼','ACC-OPS-066'),false);
+assert.equal(api.assign([b.rows[0].id],'人工外呼','ACC-OPS-108'),true);
+assert.equal(api.assign([b.rows[1].id],'IVR 外呼','ACC-OPS-108'),false);
+const target={taskId:'QA-IVR-PENDING',tenantId:'TEN-NISSAN-HQ',instanceId:'CCC-NISSAN',callType:'IVR 外呼',name:'IVR待启动',status:'待启动',completed:0};a.d.tasks.push(target);
+assert.equal(api.assign([b.rows[1].id],'IVR 外呼',target.taskId),true);
+assert.equal(api.taskCustomers(target).length,1);
+target.status='执行中';assert.equal(api.assign([b.rows[1].id],'人工外呼','ACC-OPS-108'),false);
+const o=setup('operator-hq');bind(o);o.local.set(key,a.local.get(key));const ow=o.ctx.CustomerTasks,w=o.ctx.AgentWorkbench;
+assert.equal(ow.mine().length,1);assert.throws(()=>ow.prepare('x',text));ow.open(b.id);assert.equal(ow.assign([b.rows[0].id],'人工外呼','ACC-OPS-108'),false);
+const other=setup('operator');other.local.set(key,a.local.get(key));assert.equal(other.ctx.CustomerTasks.mine().length,0);assert(!other.ctx.CustomerTasks.render().includes('批次验收'));
+async function run(){
+ ow.pick(b.rows[0].id);w.updateField('skillGroupId','SG-ALI-HQ-SALES');w.updateField('phone','13811111111');assert(o.layers.get('assigned-call-dialog').includes('13800000003'));w.signIn();await Promise.resolve();
+ assert.equal(w.dial(),true);assert.equal(ow.mine().length,0);w.end('接通');
+ let saved=JSON.parse(o.local.get(key))[0].rows[0];assert.equal(saved.calls.length,1);assert.equal(saved.followup,'待联系');assert(saved.activeCallId);
+ w.setDisposition('需要再次联系');w.setRemark('明天再联系');w.saveDisposition();saved=JSON.parse(o.local.get(key))[0].rows[0];assert.equal(saved.followup,'待继续跟进');assert.equal(ow.mine().length,1);
+ ow.pick(b.rows[0].id);assert.equal(w.dial(),true);w.end('接通');w.setDisposition('已完成沟通');w.saveDisposition();saved=JSON.parse(o.local.get(key))[0].rows[0];assert.equal(saved.calls.length,2);assert.equal(saved.followup,'已完成');assert.equal(ow.mine().length,0);
+ a.local.set(key,o.local.get(key));assert(api.render({batchId:b.id}).includes('跟进完成 1'));assert.equal(api.assign([b.rows[0].id],'人工外呼','ACC-OPS-108'),false);
+ const reload=setup('operator-hq');bind(reload);reload.local.set(key,o.local.get(key));assert(reload.ctx.CustomerTasks.render({batchId:b.id}).includes('已完成'));w.signOut();
+ console.log('PASS: 导入预览/错误行/去重、租户角色与分配隔离、客户锁定、两次通话回批次、接通与跟进分离、刷新恢复、非人工不进入拨号');
+}run().catch(e=>{console.error(e);process.exitCode=1;});
