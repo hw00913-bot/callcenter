@@ -1,0 +1,1373 @@
+{
+  "retrievedAt": "2026-09-15T08:26:12.830061+00:00",
+  "source": "Live public AliCti documentation; no vendor operational API calls",
+  "pages": [
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/新增呼入路由设置接口.html",
+      "status": 200,
+      "text": "新增呼入路由设置接口 接口说明： API URL 接口请求地址： https://api-{region}.alicti.cn/interface/{version}/ivrRouter/create 地址参数说明： {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 {version}为接口版本，当前{version}=v10 接口请求方式：GET/POST 相关参数 参数 类型 要求 描述 备注 validateType Int 必选 验证类型 说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证； departmentId String 必选 部门编号 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 enterpriseId Int 必选 呼叫中心编号 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 timestamp Long 必选 当前时间戳 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 sign String 必选 验证值 说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 name String 可选 路由名称 名称可选，如果未选，则随机生成一个唯一的名称 routerType Int 必选 路由目的 1：转接语音导航、2：转电话号码、3转分机 ivrId Int 可选 语音导航id 当routerType=1时必选，可通过 获取IVR列表接口 获取语音导航id tel String 可选 电话号码 当 routerType=2时必选 exten String 可选 分机号 当routerType=3时必选 可通过 获取分机列表 获取分机号 description String 可选 路由说明 active Int 可选 是否启用 1：启用、2：停用 默认为1 priority Int 必选 路由优先级 优先级，值大于0，值越小优先级越高，同一呼叫中心下不能重复 ruleAreaProperty String 可选 来电地区规则 来电地区规则，传来电号码，号码前缀或地区区号，多个用分号;分隔 例如： 010;0218700 ruleTimeProperty String 可选 时间条件规则 时间条件规则，传时间条件id，多个用分号;分隔 例如： 1;2;3 时间条件id可从 获取时间条件设置列表接口 获取 ruleTrunkProperty String 可选 中继号码规则 中继号码规则，传中继号码（不含区号），多个用分号;分隔 例如： 87120766 中继号码可从 获取中继号码列表 中获取 接口请求示例： https://api-{region}.alicti.cn/interface/v10/ivrRouter/create?validateType=1&departmentId=BM3000003&sign=fc0dac58690fb19fe56666378c4f9c26&timestamp=1505885556&routerType=2&tel=13641413232&description=test&active=1&priority=16&ruleTimeProperty=118 接口返回 data定义： 字段 类型 描述 enterpriseIvrRouter EnterpriseIvrRouter 呼入路由设置 enterpriseTimeList List< EnterpriseTime > 时间条件规则对应的时间条件名称 返回示例： { \"result\": \"0\", \"description\": \"成功\", \"data\": { \"enterpriseIvrRouter\": { \"id\": \"6079\", \"enterpriseId\": \"7122600\", \"name\": \"呼入路由1774822146723\", \"active\": \"2\", \"routerType\": \"1\", \"routerProperty\": \"9618\", \"description\": \"\", \"priority\": \"5\", \"ruleTimeProperty\": \"\", \"ruleAreaProperty\": \"\", \"ruleTrunkProperty\": \"\", \"createTime\": \"2026-03-30 06:09:06\" }, \"enterpriseTimeList\": null } }",
+      "tables": [
+        [
+          [
+            "参数",
+            "类型",
+            "要求",
+            "描述",
+            "备注"
+          ],
+          [
+            "validateType",
+            "Int",
+            "必选",
+            "验证类型",
+            "说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证；"
+          ],
+          [
+            "departmentId",
+            "String",
+            "必选",
+            "部门编号",
+            "说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "必选",
+            "呼叫中心编号",
+            "说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101"
+          ],
+          [
+            "timestamp",
+            "Long",
+            "必选",
+            "当前时间戳",
+            "说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟"
+          ],
+          [
+            "sign",
+            "String",
+            "必选",
+            "验证值",
+            "说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写"
+          ],
+          [
+            "name",
+            "String",
+            "可选",
+            "路由名称",
+            "名称可选，如果未选，则随机生成一个唯一的名称"
+          ],
+          [
+            "routerType",
+            "Int",
+            "必选",
+            "路由目的",
+            "1：转接语音导航、2：转电话号码、3转分机"
+          ],
+          [
+            "ivrId",
+            "Int",
+            "可选",
+            "语音导航id",
+            "当routerType=1时必选，可通过 获取IVR列表接口 获取语音导航id"
+          ],
+          [
+            "tel",
+            "String",
+            "可选",
+            "电话号码",
+            "当 routerType=2时必选"
+          ],
+          [
+            "exten",
+            "String",
+            "可选",
+            "分机号",
+            "当routerType=3时必选 可通过 获取分机列表 获取分机号"
+          ],
+          [
+            "description",
+            "String",
+            "可选",
+            "路由说明",
+            ""
+          ],
+          [
+            "active",
+            "Int",
+            "可选",
+            "是否启用",
+            "1：启用、2：停用 默认为1"
+          ],
+          [
+            "priority",
+            "Int",
+            "必选",
+            "路由优先级",
+            "优先级，值大于0，值越小优先级越高，同一呼叫中心下不能重复"
+          ],
+          [
+            "ruleAreaProperty",
+            "String",
+            "可选",
+            "来电地区规则",
+            "来电地区规则，传来电号码，号码前缀或地区区号，多个用分号;分隔 例如： 010;0218700"
+          ],
+          [
+            "ruleTimeProperty",
+            "String",
+            "可选",
+            "时间条件规则",
+            "时间条件规则，传时间条件id，多个用分号;分隔 例如： 1;2;3 时间条件id可从 获取时间条件设置列表接口 获取"
+          ],
+          [
+            "ruleTrunkProperty",
+            "String",
+            "可选",
+            "中继号码规则",
+            "中继号码规则，传中继号码（不含区号），多个用分号;分隔 例如： 87120766 中继号码可从 获取中继号码列表 中获取"
+          ]
+        ],
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "enterpriseIvrRouter",
+            "EnterpriseIvrRouter",
+            "呼入路由设置"
+          ],
+          [
+            "enterpriseTimeList",
+            "List< EnterpriseTime >",
+            "时间条件规则对应的时间条件名称"
+          ]
+        ]
+      ],
+      "examples": [
+        "https://api-{region}.alicti.cn/interface/v10/ivrRouter/create?validateType=1&departmentId=BM3000003&sign=fc0dac58690fb19fe56666378c4f9c26&timestamp=1505885556&routerType=2&tel=13641413232&description=test&active=1&priority=16&ruleTimeProperty=118",
+        "{\n    \"result\": \"0\",\n    \"description\": \"成功\",\n    \"data\": {\n        \"enterpriseIvrRouter\": {\n            \"id\": \"6079\",\n            \"enterpriseId\": \"7122600\",\n            \"name\": \"呼入路由1774822146723\",\n            \"active\": \"2\",\n            \"routerType\": \"1\",\n            \"routerProperty\": \"9618\",\n            \"description\": \"\",\n            \"priority\": \"5\",\n            \"ruleTimeProperty\": \"\",\n            \"ruleAreaProperty\": \"\",\n            \"ruleTrunkProperty\": \"\",\n            \"createTime\": \"2026-03-30 06:09:06\"\n        },\n        \"enterpriseTimeList\": null\n    }\n}"
+      ]
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/更新呼入路由设置接口.html",
+      "status": 200,
+      "text": "更新呼入路由设置接口 接口说明： API URL 接口请求地址： https://api-{region}.alicti.cn/interface/{version}/ivrRouter/update 地址参数说明： {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 {version}为接口版本，当前{version}=v10 接口请求方式：GET/POST 相关参数 参数 类型 要求 描述 备注 validateType Int 必选 验证类型 说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证； departmentId String 必选 部门编号 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 enterpriseId Int 必选 呼叫中心编号 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 timestamp Long 必选 当前时间戳 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 sign String 必选 验证值 说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 id Int 可选 呼入路由id id和name二选一，优先选择id name String 可选 呼入路由名称 id和name二选一，优先选择id，要修改的呼入路由名称为空时不可使用name routerType Int 可选 路由目的 1：转接语音导航、2：转电话号码、3转分机 ivrId Int 可选 语音导航id 更新ivr时，routerType必选，并且routerType值为1，可通过 获取IVR列表接口 获取语音导航id tel String 可选 电话号码 更新tel时，routerType必选，并且routerType值为2 exten String 可选 分机号 更新exten时，routerType必选，并且routerType值为3 可通过 获取分机列表 获取分机号 description String 可选 路由说明 active Int 可选 是否启用 1：启用、2：停用 默认为2 priority Int 可选 路由优先级 优先级，值越小优先级越高，同一呼叫中心下不能重复 ruleAreaProperty String 可选 来电地区规则 来电地区规则，传来电号码，号码前缀或地区区号，多个用分号;分隔 例如： 010;0218700 ruleTimeProperty String 可选 时间条件规则 时间条件规则，传时间条件id，多个用分号;分隔 例如： 1;2;3 时间条件id可从 获取时间条件设置列表接口 获取 ruleTrunkProperty String 可选 中继号码规则 中继号码规则，传中继号码（不含区号），多个用分号;分隔 例如： 87120766 中继号码可从 获取中继号码列表 中获取 注意 可以通过更新active字段来改变语音导航是否使用 接口请求示例： https://api-{region}.alicti.cn/interface/v10/ivrRouter/update?validateType=1&departmentId=BM3000003&sign=fc0dac58690fb19fe56666378c4f9c26&timestamp=1505885556&routerType=1&ivrId=10328&description=test&active=1&priority=16&ruleTimeProperty=118&id=230 接口返回 data定义： 字段 类型 描述 enterpriseIvrRouter EnterpriseIvrRouter 呼入路由设置 enterpriseTimeList List< EnterpriseTime > 时间条件规则对应的时间条件名称 返回示例： { \"result\": \"0\", \"description\": \"成功\", \"data\": { \"enterpriseIvrRouter\": { \"id\": \"6079\", \"enterpriseId\": \"7122600\", \"name\": \"呼入路由1774822146723\", \"active\": \"2\", \"routerType\": \"1\", \"routerProperty\": \"9618\", \"description\": \"666\", \"priority\": \"5\", \"ruleTimeProperty\": \"\", \"ruleAreaProperty\": \"\", \"ruleTrunkProperty\": \"\", \"createTime\": \"2026-03-30 06:09:06\" }, \"enterpriseTimeList\": null } }",
+      "tables": [
+        [
+          [
+            "参数",
+            "类型",
+            "要求",
+            "描述",
+            "备注"
+          ],
+          [
+            "validateType",
+            "Int",
+            "必选",
+            "验证类型",
+            "说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证；"
+          ],
+          [
+            "departmentId",
+            "String",
+            "必选",
+            "部门编号",
+            "说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "必选",
+            "呼叫中心编号",
+            "说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101"
+          ],
+          [
+            "timestamp",
+            "Long",
+            "必选",
+            "当前时间戳",
+            "说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟"
+          ],
+          [
+            "sign",
+            "String",
+            "必选",
+            "验证值",
+            "说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写"
+          ],
+          [
+            "id",
+            "Int",
+            "可选",
+            "呼入路由id",
+            "id和name二选一，优先选择id"
+          ],
+          [
+            "name",
+            "String",
+            "可选",
+            "呼入路由名称",
+            "id和name二选一，优先选择id，要修改的呼入路由名称为空时不可使用name"
+          ],
+          [
+            "routerType",
+            "Int",
+            "可选",
+            "路由目的",
+            "1：转接语音导航、2：转电话号码、3转分机"
+          ],
+          [
+            "ivrId",
+            "Int",
+            "可选",
+            "语音导航id",
+            "更新ivr时，routerType必选，并且routerType值为1，可通过 获取IVR列表接口 获取语音导航id"
+          ],
+          [
+            "tel",
+            "String",
+            "可选",
+            "电话号码",
+            "更新tel时，routerType必选，并且routerType值为2"
+          ],
+          [
+            "exten",
+            "String",
+            "可选",
+            "分机号",
+            "更新exten时，routerType必选，并且routerType值为3 可通过 获取分机列表 获取分机号"
+          ],
+          [
+            "description",
+            "String",
+            "可选",
+            "路由说明",
+            ""
+          ],
+          [
+            "active",
+            "Int",
+            "可选",
+            "是否启用",
+            "1：启用、2：停用 默认为2"
+          ],
+          [
+            "priority",
+            "Int",
+            "可选",
+            "路由优先级",
+            "优先级，值越小优先级越高，同一呼叫中心下不能重复"
+          ],
+          [
+            "ruleAreaProperty",
+            "String",
+            "可选",
+            "来电地区规则",
+            "来电地区规则，传来电号码，号码前缀或地区区号，多个用分号;分隔 例如： 010;0218700"
+          ],
+          [
+            "ruleTimeProperty",
+            "String",
+            "可选",
+            "时间条件规则",
+            "时间条件规则，传时间条件id，多个用分号;分隔 例如： 1;2;3 时间条件id可从 获取时间条件设置列表接口 获取"
+          ],
+          [
+            "ruleTrunkProperty",
+            "String",
+            "可选",
+            "中继号码规则",
+            "中继号码规则，传中继号码（不含区号），多个用分号;分隔 例如： 87120766 中继号码可从 获取中继号码列表 中获取"
+          ]
+        ],
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "enterpriseIvrRouter",
+            "EnterpriseIvrRouter",
+            "呼入路由设置"
+          ],
+          [
+            "enterpriseTimeList",
+            "List< EnterpriseTime >",
+            "时间条件规则对应的时间条件名称"
+          ]
+        ]
+      ],
+      "examples": [
+        "可以通过更新active字段来改变语音导航是否使用",
+        "https://api-{region}.alicti.cn/interface/v10/ivrRouter/update?validateType=1&departmentId=BM3000003&sign=fc0dac58690fb19fe56666378c4f9c26&timestamp=1505885556&routerType=1&ivrId=10328&description=test&active=1&priority=16&ruleTimeProperty=118&id=230",
+        "{\n    \"result\": \"0\",\n    \"description\": \"成功\",\n    \"data\": {\n        \"enterpriseIvrRouter\": {\n            \"id\": \"6079\",\n            \"enterpriseId\": \"7122600\",\n            \"name\": \"呼入路由1774822146723\",\n            \"active\": \"2\",\n            \"routerType\": \"1\",\n            \"routerProperty\": \"9618\",\n            \"description\": \"666\",\n            \"priority\": \"5\",\n            \"ruleTimeProperty\": \"\",\n            \"ruleAreaProperty\": \"\",\n            \"ruleTrunkProperty\": \"\",\n            \"createTime\": \"2026-03-30 06:09:06\"\n        },\n        \"enterpriseTimeList\": null\n    }\n}"
+      ]
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/获取呼入路由设置列表接口.html",
+      "status": 200,
+      "text": "获取呼入路由设置列表接口 接口说明： API URL 接口请求地址： https://api-{region}.alicti.cn/interface/{version}/ivrRouter/list 地址参数说明： {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 {version}为接口版本，当前{version}=v10 接口请求方式：GET/POST 相关参数 参数 类型 要求 描述 备注 validateType Int 必选 验证类型 说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证； departmentId String 必选 部门编号 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 enterpriseId Int 必选 呼叫中心编号 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 timestamp Long 必选 当前时间戳 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 sign String 必选 验证值 说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 接口请求示例： https://api-{region}.alicti.cn/interface/v10/ivrRouter/list?validateType=1&departmentId=BM3000003&sign=d2c46893c699fe112f76c11e2e701151&timestamp=1505809616 接口返回 data定义： 字段 类型 描述 data List<IvrRouter> 语音导航设置 IvrRouter字段定义 字段 类型 描述 enterpriseIvrRouter EnterpriseIvrRouter 呼入路由设置 enterpriseTimeList List< EnterpriseTime > 时间条件规则对应的时间条件名称 注意 返回值按照priority从小到大的顺序排列 返回示例： { \"result\": \"0\", \"description\": \"成功\", \"data\": [ { \"enterpriseIvrRouter\": { \"id\": \"5517\", \"enterpriseId\": \"7122600\", \"name\": \"呼入\", \"active\": \"1\", \"routerType\": \"1\", \"routerProperty\": \"9639\", \"description\": \"\", \"priority\": \"1\", \"ruleTimeProperty\": \"11249\", \"ruleAreaProperty\": \"02138277879\", \"ruleTrunkProperty\": \"02138276106\", \"createTime\": \"2025-09-13 17:18:30\" }, \"enterpriseTimeList\": [ { \"id\": \"11249\", \"enterpriseId\": \"7122600\", \"name\": \"24H\", \"type\": \"1\", \"fromDay\": \"\", \"toDay\": \"\", \"dayOfWeek\": \"1,2,3,4,5,6,7\", \"startTime\": \"00:00\", \"endTime\": \"23:59\", \"timeType\": null, \"priority\": \"1\", \"createTime\": \"2025-09-13 17:19:48\" } ] }, { \"enterpriseIvrRouter\": { \"id\": \"6079\", \"enterpriseId\": \"7122600\", \"name\": \"呼入路由1774822146723\", \"active\": \"2\", \"routerType\": \"1\", \"routerProperty\": \"9618\", \"description\": \"\", \"priority\": \"5\", \"ruleTimeProperty\": \"\", \"ruleAreaProperty\": \"\", \"ruleTrunkProperty\": \"\", \"createTime\": \"2026-03-30 06:09:06\" }, \"enterpriseTimeList\": null } ] }",
+      "tables": [
+        [
+          [
+            "参数",
+            "类型",
+            "要求",
+            "描述",
+            "备注"
+          ],
+          [
+            "validateType",
+            "Int",
+            "必选",
+            "验证类型",
+            "说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证；"
+          ],
+          [
+            "departmentId",
+            "String",
+            "必选",
+            "部门编号",
+            "说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "必选",
+            "呼叫中心编号",
+            "说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101"
+          ],
+          [
+            "timestamp",
+            "Long",
+            "必选",
+            "当前时间戳",
+            "说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟"
+          ],
+          [
+            "sign",
+            "String",
+            "必选",
+            "验证值",
+            "说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写"
+          ]
+        ],
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "data",
+            "List<IvrRouter>",
+            "语音导航设置"
+          ]
+        ],
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "enterpriseIvrRouter",
+            "EnterpriseIvrRouter",
+            "呼入路由设置"
+          ],
+          [
+            "enterpriseTimeList",
+            "List< EnterpriseTime >",
+            "时间条件规则对应的时间条件名称"
+          ]
+        ]
+      ],
+      "examples": [
+        "https://api-{region}.alicti.cn/interface/v10/ivrRouter/list?validateType=1&departmentId=BM3000003&sign=d2c46893c699fe112f76c11e2e701151&timestamp=1505809616",
+        "返回值按照priority从小到大的顺序排列",
+        "{\n    \"result\": \"0\",\n    \"description\": \"成功\",\n    \"data\": [\n        {\n            \"enterpriseIvrRouter\": {\n                \"id\": \"5517\",\n                \"enterpriseId\": \"7122600\",\n                \"name\": \"呼入\",\n                \"active\": \"1\",\n                \"routerType\": \"1\",\n                \"routerProperty\": \"9639\",\n                \"description\": \"\",\n                \"priority\": \"1\",\n                \"ruleTimeProperty\": \"11249\",\n                \"ruleAreaProperty\": \"02138277879\",\n                \"ruleTrunkProperty\": \"02138276106\",\n                \"createTime\": \"2025-09-13 17:18:30\"\n            },\n            \"enterpriseTimeList\": [\n                {\n                    \"id\": \"11249\",\n                    \"enterpriseId\": \"7122600\",\n                    \"name\": \"24H\",\n                    \"type\": \"1\",\n                    \"fromDay\": \"\",\n                    \"toDay\": \"\",\n                    \"dayOfWeek\": \"1,2,3,4,5,6,7\",\n                    \"startTime\": \"00:00\",\n                    \"endTime\": \"23:59\",\n                    \"timeType\": null,\n                    \"priority\": \"1\",\n                    \"createTime\": \"2025-09-13 17:19:48\"\n                }\n            ]\n        },\n        {\n            \"enterpriseIvrRouter\": {\n                \"id\": \"6079\",\n                \"enterpriseId\": \"7122600\",\n                \"name\": \"呼入路由1774822146723\",\n                \"active\": \"2\",\n                \"routerType\": \"1\",\n                \"routerProperty\": \"9618\",\n                \"description\": \"\",\n                \"priority\": \"5\",\n                \"ruleTimeProperty\": \"\",\n                \"ruleAreaProperty\": \"\",\n                \"ruleTrunkProperty\": \"\",\n                \"createTime\": \"2026-03-30 06:09:06\"\n            },\n            \"enterpriseTimeList\": null\n        }\n    ]\n}"
+      ]
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/获取呼入路由设置信息接口.html",
+      "status": 200,
+      "text": "获取呼入路由设置信息接口 接口说明： API URL 接口请求地址： https://api-{region}.alicti.cn/interface/{version}/ivrRouter/get 地址参数说明： {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 {version}为接口版本，当前{version}=v10 接口请求方式：GET/POST 相关参数 参数 类型 要求 描述 备注 validateType Int 必选 验证类型 说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证； departmentId String 必选 部门编号 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 enterpriseId Int 必选 呼叫中心编号 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 timestamp Long 必选 当前时间戳 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 sign String 必选 验证值 说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 id Int 必选 呼入路由id 接口请求示例： https://api-{region}.alicti.cn/interface/v10/ivrRouter/get?validateType=1&departmentId=BM3000003&sign=fc0dac58690fb19fe56666378c4f9c26&timestamp=1505885556&id=230 接口返回 data定义： 字段 类型 描述 enterpriseIvrRouter EnterpriseIvrRouter 呼入路由设置 enterpriseTimeList List< EnterpriseTime > 时间条件规则对应的时间条件名称 返回示例： { \"result\": \"0\", \"description\": \"成功\", \"data\": { \"enterpriseIvrRouter\": { \"id\": \"6079\", \"enterpriseId\": \"7122600\", \"name\": \"呼入路由1774822146723\", \"active\": \"2\", \"routerType\": \"1\", \"routerProperty\": \"9618\", \"description\": \"666\", \"priority\": \"5\", \"ruleTimeProperty\": \"\", \"ruleAreaProperty\": \"\", \"ruleTrunkProperty\": \"\", \"createTime\": \"2026-03-30 06:09:06\" }, \"enterpriseTimeList\": null } }",
+      "tables": [
+        [
+          [
+            "参数",
+            "类型",
+            "要求",
+            "描述",
+            "备注"
+          ],
+          [
+            "validateType",
+            "Int",
+            "必选",
+            "验证类型",
+            "说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证；"
+          ],
+          [
+            "departmentId",
+            "String",
+            "必选",
+            "部门编号",
+            "说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "必选",
+            "呼叫中心编号",
+            "说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101"
+          ],
+          [
+            "timestamp",
+            "Long",
+            "必选",
+            "当前时间戳",
+            "说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟"
+          ],
+          [
+            "sign",
+            "String",
+            "必选",
+            "验证值",
+            "说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写"
+          ],
+          [
+            "id",
+            "Int",
+            "必选",
+            "呼入路由id",
+            ""
+          ]
+        ],
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "enterpriseIvrRouter",
+            "EnterpriseIvrRouter",
+            "呼入路由设置"
+          ],
+          [
+            "enterpriseTimeList",
+            "List< EnterpriseTime >",
+            "时间条件规则对应的时间条件名称"
+          ]
+        ]
+      ],
+      "examples": [
+        "https://api-{region}.alicti.cn/interface/v10/ivrRouter/get?validateType=1&departmentId=BM3000003&sign=fc0dac58690fb19fe56666378c4f9c26&timestamp=1505885556&id=230",
+        "{\n    \"result\": \"0\",\n    \"description\": \"成功\",\n    \"data\": {\n        \"enterpriseIvrRouter\": {\n            \"id\": \"6079\",\n            \"enterpriseId\": \"7122600\",\n            \"name\": \"呼入路由1774822146723\",\n            \"active\": \"2\",\n            \"routerType\": \"1\",\n            \"routerProperty\": \"9618\",\n            \"description\": \"666\",\n            \"priority\": \"5\",\n            \"ruleTimeProperty\": \"\",\n            \"ruleAreaProperty\": \"\",\n            \"ruleTrunkProperty\": \"\",\n            \"createTime\": \"2026-03-30 06:09:06\"\n        },\n        \"enterpriseTimeList\": null\n    }\n}"
+      ]
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/删除呼入路由设置接口.html",
+      "status": 200,
+      "text": "删除呼入路由设置接口 接口说明 通过本接口，第三方平台可以删除单个呼入路由设置配置 API URL 接口请求地址： https://api-{region}.alicti.cn/interface/{version}/ivrRouter/delete 地址参数说明： {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 {version}为接口版本，当前{version}=v10 接口请求方式： GET/POST 请求参数 参数 类型 要求 描述 备注 validateType Int 必选 验证类型 说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证； departmentId String 必选 部门编号 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 enterpriseId Int 必选 呼叫中心编号 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 timestamp Long 必选 当前时间戳 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 sign String 必选 验证值 说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 id Int 可选 呼入路由id id和name二选一，优先选择id name String 可选 呼入路由名称 id和name二选一，优先选择id，要删除的呼入路由名称为空时不可使用name 注意 只能删除处于停用状态下的呼入路由设置 接口请求示例 https://api-{region}.alicti.cn/interface/v10/ivrRouter/delete?validateType=1&departmentId=BM3000003&sign=ea56297640e30db2ec4ee446596b5621&timestamp=1505811508&id=225 接口返回 JSON格式数据： 参数 类型 说明 result Int 0 成功, -1 失败 description String 返回结果描述 data JSON 返回数据JSON格式 description给出成功或失败时的文本描述： description 返回结果说明 验证失败，参数[{param}]不能为空 {param}为接口参数中必选字段 验证失败，参数[{param}]格式不正确 {param}为接口参数中格式有要求的字段 验证失败，参数[{param}]取值不正确 {param}为接口参数中有固定取值的字段 验证失败，参数[{param}]取值范围不正确 {param}为接口参数中有固定范围的字段 验证失败，超过频次限制 接口调用超过接口的访问频次限制 成功，{param} {param}为成功描述 失败，{param} {param}为失败描述 data定义： 无data定义 返回示例： { \"result\": \"0\", \"description\": \"成功\" }",
+      "tables": [
+        [
+          [
+            "参数",
+            "类型",
+            "要求",
+            "描述",
+            "备注"
+          ],
+          [
+            "validateType",
+            "Int",
+            "必选",
+            "验证类型",
+            "说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证；"
+          ],
+          [
+            "departmentId",
+            "String",
+            "必选",
+            "部门编号",
+            "说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "必选",
+            "呼叫中心编号",
+            "说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101"
+          ],
+          [
+            "timestamp",
+            "Long",
+            "必选",
+            "当前时间戳",
+            "说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟"
+          ],
+          [
+            "sign",
+            "String",
+            "必选",
+            "验证值",
+            "说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写"
+          ],
+          [
+            "id",
+            "Int",
+            "可选",
+            "呼入路由id",
+            "id和name二选一，优先选择id"
+          ],
+          [
+            "name",
+            "String",
+            "可选",
+            "呼入路由名称",
+            "id和name二选一，优先选择id，要删除的呼入路由名称为空时不可使用name"
+          ]
+        ],
+        [
+          [
+            "参数",
+            "类型",
+            "说明"
+          ],
+          [
+            "result",
+            "Int",
+            "0 成功, -1 失败"
+          ],
+          [
+            "description",
+            "String",
+            "返回结果描述"
+          ],
+          [
+            "data",
+            "JSON",
+            "返回数据JSON格式"
+          ]
+        ],
+        [
+          [
+            "description",
+            "返回结果说明"
+          ],
+          [
+            "验证失败，参数[{param}]不能为空",
+            "{param}为接口参数中必选字段"
+          ],
+          [
+            "验证失败，参数[{param}]格式不正确",
+            "{param}为接口参数中格式有要求的字段"
+          ],
+          [
+            "验证失败，参数[{param}]取值不正确",
+            "{param}为接口参数中有固定取值的字段"
+          ],
+          [
+            "验证失败，参数[{param}]取值范围不正确",
+            "{param}为接口参数中有固定范围的字段"
+          ],
+          [
+            "验证失败，超过频次限制",
+            "接口调用超过接口的访问频次限制"
+          ],
+          [
+            "成功，{param}",
+            "{param}为成功描述"
+          ],
+          [
+            "失败，{param}",
+            "{param}为失败描述"
+          ]
+        ]
+      ],
+      "examples": [
+        "只能删除处于停用状态下的呼入路由设置",
+        "https://api-{region}.alicti.cn/interface/v10/ivrRouter/delete?validateType=1&departmentId=BM3000003&sign=ea56297640e30db2ec4ee446596b5621&timestamp=1505811508&id=225",
+        "{\n    \"result\": \"0\",\n    \"description\": \"成功\"\n}"
+      ]
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/分机管理/获取分机列表.html",
+      "status": 200,
+      "text": "获取分机列表 接口说明： API URL 接口请求地址： https://api-{region}.alicti.cn/interface/{version}/exten/list 地址参数说明： {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 {version}为接口版本，当前{version}=v10 接口请求方式：GET/POST 相关参数 字段 类型 要求 描述 备注 validateType Int 必选 验证类型 取值1，2； 取值说明： validateType=1时使用部门编号(departmentId)进行验证； validateType=2时使用呼叫中心编号(enterpriseId)进行验证； departmentId String 必选 部门编号 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001； enterpriseId Int 必选 呼叫中心编号 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101； timestamp Int 必选 当前时间戳 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 sign String 必选 验证值 说明： validateType=1时，sign=MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，sign=MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 exten String 可选,3-11位 分机号 callPower String 可选 呼叫权限，0：无限制，1：国内长途，2：国内本市，3：内部呼叫，默认无限制 isOb String 可选 是否允许外呼，0：不允许，1：可以，默认允许 ibRecord Int 可选 呼入是否录音，0：不录用，1：录音，默认录音 obRecord Int 可选 外呼是否录音，0：不录音，1：录音，默认录音 areaCode String 可选 区号 jitterBuffer Int 可选 网络防抖 type Int 可选 类型，1. 注册到IAD分机 2.注册到webrtc 3.注册到远程话机 isBind Int 可选 是否被座席绑定，1 绑定 0未绑定 active Int 可选 是否启用，1 启用 0 停用 默认查询全部 limit Int 可选 条数 正整数 大于0 小于等于500 默认为10条 offset Int 可选 从第几条开始 正整数 默认为0 接口请求示例： https://api-{region}.alicti.cn/interface/v10/exten/list?validateType=2&departmentId=BM3000000&timestamp=1484649817&enterpriseId=7000001 &sign=7052c0c538344f2e018ebf2baec3d090&limit=10&offset=0 接口返回 data list定义： 字段 类型 描述 id Int 分机号id enterpriseId String 企业编号 exten String 分机号,3-11位 password String 密码 callPower String 呼叫权限，0：无限制，1：国内长途，2：国内本市，3：内部呼叫，默认无限制 isOb Int 是否允许外呼，0：不允许，1：可以，默认允许 isDirect Int 是否允许摘机外呼，0：不允许，1：可以，默认允许 ibRecord Int 呼入是否录音，0：不录用，1：录音，默认录音 obRecord Int 外呼是否录音，0：不录音，1：录音，默认录音 areaCode String 区号 jitterBuffer Int 网络防抖 denoise Int 降噪开关 0:关闭 1:开启 默认关闭(该参数只有在类型为注册到webrtc才有效) type Int 类型，1. 注册到IAD分机 2.注册到webrtc 3.注册到远程话机 allow String 允许的语音编码,支持格式: 1. g729 2. g729,alaw,ulaw 3. alaw,ulaw,g729 4. alaw,ulaw 5. myopus,alaw,ulaw 公网+远程话机支持配置1/2/3; 专线+远程话机支持配置1/2; 公网+软电话支持配置4; 专线+软电话支持配置5; createTime String 创建时间 返回示例： { \"result\": \"0\", \"description\": \"成功\", \"data\": { \"pageNum\": \"1\", \"pageSize\": \"10\", \"size\": \"3\", \"orderBy\": \"exten\", \"startRow\": \"1\", \"endRow\": \"3\", \"total\": \"3\", \"pages\": \"1\", \"list\": [ { \"id\": \"336436\", \"enterpriseId\": \"7122600\", \"exten\": \"66747\", \"password\": \"Aa626670\", \"encryptPassword\": \"TYTZiMjhmMzE3NmY0OTM0MDI3Y2RkMjZhOWNkZWU0Yjk=\", \"callPower\": \"0\", \"isOb\": \"1\", \"isDirect\": \"0\", \"ibRecord\": \"1\", \"obRecord\": \"1\", \"areaCode\": \"010\", \"type\": \"2\", \"jitterBuffer\": \"0\", \"allow\": \"alaw,ulaw\", \"disallow\": \"\", \"iadName\": \"\", \"property\": \"\", \"bindGatewayId\": null, \"bindGatewayIp\": null, \"expirationTime\": null, \"uri\": null, \"contactId\": null, \"sipjsId\": null, \"state\": null, \"stateTime\": null, \"registerTime\": null, \"bindCno\": null, \"lastBindCno\": null, \"userAgent\": null, \"viaAddr\": null, \"backupEnterpriseId\": null, \"stalePassword\": null, \"denoise\": \"0\", \"createTime\": \"2026-03-30 06:09:02\", \"passwordUpdateTime\": \"1774822142899\", \"active\": \"1\", \"mac\": null, \"updateTime\": \"1774822142897\" }, { \"id\": \"336437\", \"enterpriseId\": \"7122600\", \"exten\": \"66748\", \"password\": \"Aa626670\", \"encryptPassword\": \"TYTZiMjhmMzE3NmY0OTM0MDI3Y2RkMjZhOWNkZWU0Yjk=\", \"callPower\": \"0\", \"isOb\": \"1\", \"isDirect\": \"0\", \"ibRecord\": \"1\", \"obRecord\": \"1\", \"areaCode\": \"010\", \"type\": \"2\", \"jitterBuffer\": \"0\", \"allow\": \"alaw,ulaw\", \"disallow\": \"\", \"iadName\": \"\", \"property\": \"\", \"bindGatewayId\": null, \"bindGatewayIp\": null, \"expirationTime\": null, \"uri\": null, \"contactId\": null, \"sipjsId\": null, \"state\": null, \"stateTime\": null, \"registerTime\": null, \"bindCno\": null, \"lastBindCno\": null, \"userAgent\": null, \"viaAddr\": null, \"backupEnterpriseId\": null, \"stalePassword\": null, \"denoise\": \"0\", \"createTime\": \"2026-03-30 06:09:02\", \"passwordUpdateTime\": \"1774822142906\", \"active\": \"1\", \"mac\": null, \"updateTime\": \"1774822142897\" }, { \"id\": \"336438\", \"enterpriseId\": \"7122600\", \"exten\": \"66749\", \"password\": \"Aa626670\", \"encryptPassword\": \"TYTZiMjhmMzE3NmY0OTM0MDI3Y2RkMjZhOWNkZWU0Yjk=\", \"callPower\": \"0\", \"isOb\": \"1\", \"isDirect\": \"0\", \"ibRecord\": \"1\", \"obRecord\": \"1\", \"areaCode\": \"010\", \"type\": \"2\", \"jitterBuffer\": \"0\", \"allow\": \"alaw,ulaw\", \"disallow\": \"\", \"iadName\": \"\", \"property\": \"\", \"bindGatewayId\": null, \"bindGatewayIp\": null, \"expirationTime\": null, \"uri\": null, \"contactId\": null, \"sipjsId\": null, \"state\": null, \"stateTime\": null, \"registerTime\": null, \"bindCno\": null, \"lastBindCno\": null, \"userAgent\": null, \"viaAddr\": null, \"backupEnterpriseId\": null, \"stalePassword\": null, \"denoise\": \"0\", \"createTime\": \"2026-03-30 06:09:02\", \"passwordUpdateTime\": \"1774822142907\", \"active\": \"1\", \"mac\": null, \"updateTime\": \"1774822142897\" } ], \"firstPage\": \"1\", \"prePage\": \"0\", \"nextPage\": \"0\", \"lastPage\": \"1\", \"isFirstPage\": true, \"isLastPage\": true, \"hasPreviousPage\": false, \"hasNextPage\": false, \"navigatePages\": \"8\", \"navigatepageNums\": [ \"1\" ] } }",
+      "tables": [
+        [
+          [
+            "字段",
+            "类型",
+            "要求",
+            "描述",
+            "备注"
+          ],
+          [
+            "validateType",
+            "Int",
+            "必选",
+            "验证类型",
+            "取值1，2； 取值说明： validateType=1时使用部门编号(departmentId)进行验证； validateType=2时使用呼叫中心编号(enterpriseId)进行验证；"
+          ],
+          [
+            "departmentId",
+            "String",
+            "必选",
+            "部门编号",
+            "说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001；"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "必选",
+            "呼叫中心编号",
+            "说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101；"
+          ],
+          [
+            "timestamp",
+            "Int",
+            "必选",
+            "当前时间戳",
+            "说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟"
+          ],
+          [
+            "sign",
+            "String",
+            "必选",
+            "验证值",
+            "说明： validateType=1时，sign=MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，sign=MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写"
+          ],
+          [
+            "exten",
+            "String",
+            "可选,3-11位",
+            "分机号",
+            ""
+          ],
+          [
+            "callPower",
+            "String",
+            "可选",
+            "呼叫权限，0：无限制，1：国内长途，2：国内本市，3：内部呼叫，默认无限制",
+            ""
+          ],
+          [
+            "isOb",
+            "String",
+            "可选",
+            "是否允许外呼，0：不允许，1：可以，默认允许",
+            ""
+          ],
+          [
+            "ibRecord",
+            "Int",
+            "可选",
+            "呼入是否录音，0：不录用，1：录音，默认录音",
+            ""
+          ],
+          [
+            "obRecord",
+            "Int",
+            "可选",
+            "外呼是否录音，0：不录音，1：录音，默认录音",
+            ""
+          ],
+          [
+            "areaCode",
+            "String",
+            "可选",
+            "区号",
+            ""
+          ],
+          [
+            "jitterBuffer",
+            "Int",
+            "可选",
+            "网络防抖",
+            ""
+          ],
+          [
+            "type",
+            "Int",
+            "可选",
+            "类型，1. 注册到IAD分机 2.注册到webrtc 3.注册到远程话机",
+            ""
+          ],
+          [
+            "isBind",
+            "Int",
+            "可选",
+            "是否被座席绑定，1 绑定 0未绑定",
+            ""
+          ],
+          [
+            "active",
+            "Int",
+            "可选",
+            "是否启用，1 启用 0 停用",
+            "默认查询全部"
+          ],
+          [
+            "limit",
+            "Int",
+            "可选",
+            "条数",
+            "正整数 大于0 小于等于500 默认为10条"
+          ],
+          [
+            "offset",
+            "Int",
+            "可选",
+            "从第几条开始",
+            "正整数 默认为0"
+          ]
+        ],
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "id",
+            "Int",
+            "分机号id"
+          ],
+          [
+            "enterpriseId",
+            "String",
+            "企业编号"
+          ],
+          [
+            "exten",
+            "String",
+            "分机号,3-11位"
+          ],
+          [
+            "password",
+            "String",
+            "密码"
+          ],
+          [
+            "callPower",
+            "String",
+            "呼叫权限，0：无限制，1：国内长途，2：国内本市，3：内部呼叫，默认无限制"
+          ],
+          [
+            "isOb",
+            "Int",
+            "是否允许外呼，0：不允许，1：可以，默认允许"
+          ],
+          [
+            "isDirect",
+            "Int",
+            "是否允许摘机外呼，0：不允许，1：可以，默认允许"
+          ],
+          [
+            "ibRecord",
+            "Int",
+            "呼入是否录音，0：不录用，1：录音，默认录音"
+          ],
+          [
+            "obRecord",
+            "Int",
+            "外呼是否录音，0：不录音，1：录音，默认录音"
+          ],
+          [
+            "areaCode",
+            "String",
+            "区号"
+          ],
+          [
+            "jitterBuffer",
+            "Int",
+            "网络防抖"
+          ],
+          [
+            "denoise",
+            "Int",
+            "降噪开关 0:关闭 1:开启 默认关闭(该参数只有在类型为注册到webrtc才有效)"
+          ],
+          [
+            "type",
+            "Int",
+            "类型，1. 注册到IAD分机 2.注册到webrtc 3.注册到远程话机"
+          ],
+          [
+            "allow",
+            "String",
+            "允许的语音编码,支持格式: 1. g729 2. g729,alaw,ulaw 3. alaw,ulaw,g729 4. alaw,ulaw 5. myopus,alaw,ulaw 公网+远程话机支持配置1/2/3; 专线+远程话机支持配置1/2; 公网+软电话支持配置4; 专线+软电话支持配置5;"
+          ],
+          [
+            "createTime",
+            "String",
+            "创建时间"
+          ]
+        ]
+      ],
+      "examples": [
+        "https://api-{region}.alicti.cn/interface/v10/exten/list?validateType=2&departmentId=BM3000000&timestamp=1484649817&enterpriseId=7000001\n&sign=7052c0c538344f2e018ebf2baec3d090&limit=10&offset=0",
+        "{\n    \"result\": \"0\",\n    \"description\": \"成功\",\n    \"data\": {\n        \"pageNum\": \"1\",\n        \"pageSize\": \"10\",\n        \"size\": \"3\",\n        \"orderBy\": \"exten\",\n        \"startRow\": \"1\",\n        \"endRow\": \"3\",\n        \"total\": \"3\",\n        \"pages\": \"1\",\n        \"list\": [\n            {\n                \"id\": \"336436\",\n                \"enterpriseId\": \"7122600\",\n                \"exten\": \"66747\",\n                \"password\": \"Aa626670\",\n                \"encryptPassword\": \"TYTZiMjhmMzE3NmY0OTM0MDI3Y2RkMjZhOWNkZWU0Yjk=\",\n                \"callPower\": \"0\",\n                \"isOb\": \"1\",\n                \"isDirect\": \"0\",\n                \"ibRecord\": \"1\",\n                \"obRecord\": \"1\",\n                \"areaCode\": \"010\",\n                \"type\": \"2\",\n                \"jitterBuffer\": \"0\",\n                \"allow\": \"alaw,ulaw\",\n                \"disallow\": \"\",\n                \"iadName\": \"\",\n                \"property\": \"\",\n                \"bindGatewayId\": null,\n                \"bindGatewayIp\": null,\n                \"expirationTime\": null,\n                \"uri\": null,\n                \"contactId\": null,\n                \"sipjsId\": null,\n                \"state\": null,\n                \"stateTime\": null,\n                \"registerTime\": null,\n                \"bindCno\": null,\n                \"lastBindCno\": null,\n                \"userAgent\": null,\n                \"viaAddr\": null,\n                \"backupEnterpriseId\": null,\n                \"stalePassword\": null,\n                \"denoise\": \"0\",\n                \"createTime\": \"2026-03-30 06:09:02\",\n                \"passwordUpdateTime\": \"1774822142899\",\n                \"active\": \"1\",\n                \"mac\": null,\n                \"updateTime\": \"1774822142897\"\n            },\n            {\n                \"id\": \"336437\",\n                \"enterpriseId\": \"7122600\",\n                \"exten\": \"66748\",\n                \"password\": \"Aa626670\",\n                \"encryptPassword\": \"TYTZiMjhmMzE3NmY0OTM0MDI3Y2RkMjZhOWNkZWU0Yjk=\",\n                \"callPower\": \"0\",\n                \"isOb\": \"1\",\n                \"isDirect\": \"0\",\n                \"ibRecord\": \"1\",\n                \"obRecord\": \"1\",\n                \"areaCode\": \"010\",\n                \"type\": \"2\",\n                \"jitterBuffer\": \"0\",\n                \"allow\": \"alaw,ulaw\",\n                \"disallow\": \"\",\n                \"iadName\": \"\",\n                \"property\": \"\",\n                \"bindGatewayId\": null,\n                \"bindGatewayIp\": null,\n                \"expirationTime\": null,\n                \"uri\": null,\n                \"contactId\": null,\n                \"sipjsId\": null,\n                \"state\": null,\n                \"stateTime\": null,\n                \"registerTime\": null,\n                \"bindCno\": null,\n                \"lastBindCno\": null,\n                \"userAgent\": null,\n                \"viaAddr\": null,\n                \"backupEnterpriseId\": null,\n                \"stalePassword\": null,\n                \"denoise\": \"0\",\n                \"createTime\": \"2026-03-30 06:09:02\",\n                \"passwordUpdateTime\": \"1774822142906\",\n                \"active\": \"1\",\n                \"mac\": null,\n                \"updateTime\": \"1774822142897\"\n            },\n            {\n                \"id\": \"336438\",\n                \"enterpriseId\": \"7122600\",\n                \"exten\": \"66749\",\n                \"password\": \"Aa626670\",\n                \"encryptPassword\": \"TYTZiMjhmMzE3NmY0OTM0MDI3Y2RkMjZhOWNkZWU0Yjk=\",\n                \"callPower\": \"0\",\n                \"isOb\": \"1\",\n                \"isDirect\": \"0\",\n                \"ibRecord\": \"1\",\n                \"obRecord\": \"1\",\n                \"areaCode\": \"010\",\n                \"type\": \"2\",\n                \"jitterBuffer\": \"0\",\n                \"allow\": \"alaw,ulaw\",\n                \"disallow\": \"\",\n                \"iadName\": \"\",\n                \"property\": \"\",\n                \"bindGatewayId\": null,\n                \"bindGatewayIp\": null,\n                \"expirationTime\": null,\n                \"uri\": null,\n                \"contactId\": null,\n                \"sipjsId\": null,\n                \"state\": null,\n                \"stateTime\": null,\n                \"registerTime\": null,\n                \"bindCno\": null,\n                \"lastBindCno\": null,\n                \"userAgent\": null,\n                \"viaAddr\": null,\n                \"backupEnterpriseId\": null,\n                \"stalePassword\": null,\n                \"denoise\": \"0\",\n                \"createTime\": \"2026-03-30 06:09:02\",\n                \"passwordUpdateTime\": \"1774822142907\",\n                \"active\": \"1\",\n                \"mac\": null,\n                \"updateTime\": \"1774822142897\"\n            }\n        ],\n        \"firstPage\": \"1\",\n        \"prePage\": \"0\",\n        \"nextPage\": \"0\",\n        \"lastPage\": \"1\",\n        \"isFirstPage\": true,\n        \"isLastPage\": true,\n        \"hasPreviousPage\": false,\n        \"hasNextPage\": false,\n        \"navigatePages\": \"8\",\n        \"navigatepageNums\": [\n            \"1\"\n        ]\n    }\n}"
+      ]
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/时间管理/获取时间条件设置列表接口.html",
+      "status": 200,
+      "text": "获取时间条件设置列表接口 接口说明 通过本接口，第三方平台可以获取时间条件设置列表 API URL 接口请求地址： https://api-{region}.alicti.cn/interface/{version}/enterpriseTime/list 地址参数说明： {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 {version}为接口版本，当前{version}=v10 接口请求方式： GET/POST 请求参数 参数 类型 要求 描述 备注 validateType Int 必选 验证类型 说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证； departmentId String 必选 部门编号 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 enterpriseId Int 必选 呼叫中心编号 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 timestamp Long 必选 当前时间戳 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 sign String 必选 验证值 说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 name String 可选 时间条件名称 同一呼叫中心下不能重复 type Int 可选 时间条件类型 1:按照星期配置 2:按照固定时间配置 priority Int 可选 时间条件优先级 同一呼叫中心下不能重复、 值从1开始，值越小优先级越高 接口请求示例 https://api-{region}.alicti.cn/interface/v10/enterpriseTime/list?validateType=1&departmentId=BM3000003&sign=9051776078b1c5583c28dd278821faf3&timestamp=1502172748 接口返回 JSON格式数据： 参数 类型 说明 result Int 0 成功, -1 失败 description String 返回结果描述 data JSON 返回数据JSON格式 description给出成功或失败时的文本描述： description 返回结果说明 验证失败，参数[{param}]不能为空 {param}为接口参数中必选字段 验证失败，参数[{param}]格式不正确 {param}为接口参数中格式有要求的字段 验证失败，参数[{param}]取值不正确 {param}为接口参数中有固定取值的字段 验证失败，参数[{param}]取值范围不正确 {param}为接口参数中有固定范围的字段 验证失败，超过频次限制 接口调用超过接口的访问频次限制 成功，{param} {param}为成功描述 失败，{param} {param}为失败描述 data定义： 字段 类型 描述 data List< EnterpriseTime > 时间条件设置列表 返回示例： { \"result\": \"0\", \"description\": \"成功\", \"data\": [ { \"id\": \"11249\", \"enterpriseId\": \"7122600\", \"name\": \"24H\", \"type\": \"1\", \"fromDay\": \"\", \"toDay\": \"\", \"dayOfWeek\": \"1,2,3,4,5,6,7\", \"startTime\": \"00:00\", \"endTime\": \"23:59\", \"timeType\": \"1\", \"priority\": \"1\", \"createTime\": \"2025-09-13 17:19:48\" }, { \"id\": \"17345\", \"enterpriseId\": \"7122600\", \"name\": \"按星期\", \"type\": \"1\", \"fromDay\": \"\", \"toDay\": \"\", \"dayOfWeek\": \"1,2,3,4,5,6,7\", \"startTime\": \"00:00\", \"endTime\": \"23:59\", \"timeType\": \"1\", \"priority\": \"4\", \"createTime\": \"2026-03-30 06:12:44\" }, { \"id\": \"17346\", \"enterpriseId\": \"7122600\", \"name\": \"按固定时间\", \"type\": \"2\", \"fromDay\": \"2025-06-01\", \"toDay\": \"2025-08-01\", \"dayOfWeek\": \"\", \"startTime\": \"00:00\", \"endTime\": \"23:59\", \"timeType\": \"1\", \"priority\": \"5\", \"createTime\": \"2026-03-30 06:12:44\" } ] }",
+      "tables": [
+        [
+          [
+            "参数",
+            "类型",
+            "要求",
+            "描述",
+            "备注"
+          ],
+          [
+            "validateType",
+            "Int",
+            "必选",
+            "验证类型",
+            "说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证；"
+          ],
+          [
+            "departmentId",
+            "String",
+            "必选",
+            "部门编号",
+            "说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "必选",
+            "呼叫中心编号",
+            "说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101"
+          ],
+          [
+            "timestamp",
+            "Long",
+            "必选",
+            "当前时间戳",
+            "说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟"
+          ],
+          [
+            "sign",
+            "String",
+            "必选",
+            "验证值",
+            "说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写"
+          ],
+          [
+            "name",
+            "String",
+            "可选",
+            "时间条件名称",
+            "同一呼叫中心下不能重复"
+          ],
+          [
+            "type",
+            "Int",
+            "可选",
+            "时间条件类型",
+            "1:按照星期配置 2:按照固定时间配置"
+          ],
+          [
+            "priority",
+            "Int",
+            "可选",
+            "时间条件优先级",
+            "同一呼叫中心下不能重复、 值从1开始，值越小优先级越高"
+          ]
+        ],
+        [
+          [
+            "参数",
+            "类型",
+            "说明"
+          ],
+          [
+            "result",
+            "Int",
+            "0 成功, -1 失败"
+          ],
+          [
+            "description",
+            "String",
+            "返回结果描述"
+          ],
+          [
+            "data",
+            "JSON",
+            "返回数据JSON格式"
+          ]
+        ],
+        [
+          [
+            "description",
+            "返回结果说明"
+          ],
+          [
+            "验证失败，参数[{param}]不能为空",
+            "{param}为接口参数中必选字段"
+          ],
+          [
+            "验证失败，参数[{param}]格式不正确",
+            "{param}为接口参数中格式有要求的字段"
+          ],
+          [
+            "验证失败，参数[{param}]取值不正确",
+            "{param}为接口参数中有固定取值的字段"
+          ],
+          [
+            "验证失败，参数[{param}]取值范围不正确",
+            "{param}为接口参数中有固定范围的字段"
+          ],
+          [
+            "验证失败，超过频次限制",
+            "接口调用超过接口的访问频次限制"
+          ],
+          [
+            "成功，{param}",
+            "{param}为成功描述"
+          ],
+          [
+            "失败，{param}",
+            "{param}为失败描述"
+          ]
+        ],
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "data",
+            "List< EnterpriseTime >",
+            "时间条件设置列表"
+          ]
+        ]
+      ],
+      "examples": [
+        "https://api-{region}.alicti.cn/interface/v10/enterpriseTime/list?validateType=1&departmentId=BM3000003&sign=9051776078b1c5583c28dd278821faf3&timestamp=1502172748",
+        "{\n    \"result\": \"0\",\n    \"description\": \"成功\",\n    \"data\": [\n        {\n            \"id\": \"11249\",\n            \"enterpriseId\": \"7122600\",\n            \"name\": \"24H\",\n            \"type\": \"1\",\n            \"fromDay\": \"\",\n            \"toDay\": \"\",\n            \"dayOfWeek\": \"1,2,3,4,5,6,7\",\n            \"startTime\": \"00:00\",\n            \"endTime\": \"23:59\",\n            \"timeType\": \"1\",\n            \"priority\": \"1\",\n            \"createTime\": \"2025-09-13 17:19:48\"\n        },\n        {\n            \"id\": \"17345\",\n            \"enterpriseId\": \"7122600\",\n            \"name\": \"按星期\",\n            \"type\": \"1\",\n            \"fromDay\": \"\",\n            \"toDay\": \"\",\n            \"dayOfWeek\": \"1,2,3,4,5,6,7\",\n            \"startTime\": \"00:00\",\n            \"endTime\": \"23:59\",\n            \"timeType\": \"1\",\n            \"priority\": \"4\",\n            \"createTime\": \"2026-03-30 06:12:44\"\n        },\n        {\n            \"id\": \"17346\",\n            \"enterpriseId\": \"7122600\",\n            \"name\": \"按固定时间\",\n            \"type\": \"2\",\n            \"fromDay\": \"2025-06-01\",\n            \"toDay\": \"2025-08-01\",\n            \"dayOfWeek\": \"\",\n            \"startTime\": \"00:00\",\n            \"endTime\": \"23:59\",\n            \"timeType\": \"1\",\n            \"priority\": \"5\",\n            \"createTime\": \"2026-03-30 06:12:44\"\n        }\n    ]\n}"
+      ]
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/企业管理/获取中继号码列表.html",
+      "status": 200,
+      "text": "获取中继号码列表 接口说明：获取中继号码列表接口 API URL 接口请求地址： https://api-{region}.alicti.cn/interface/{version}/trunk/list 地址参数说明： {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 {version}为接口版本，当前{version}=v10 接口请求方式：GET/POST 相关参数 参数 类型 要求 描述 备注 validateType Int 必选 验证类型 说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证； departmentId String 必选 部门编号 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 enterpriseId Int 必选 呼叫中心编号 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 timestamp Long 必选 当前时间戳 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 sign String 必选 验证值 说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 接口请求示例： https://api-{region}.alicti.cn/interface/v10/trunk/list?validateType=2&departmentId=BM3000000&timestamp=1484649817&enterpriseId=7000001 &sign=7052c0c538344f2e018ebf2baec3d090 接口返回 data定义： 字段 类型 描述 id Int 中继号码id enterpriseId String 企业编号 sipGroup String sipGroup areaCode String 目的码的区号 numberTrunk String 目的码（不含区号） type String 目的码类型：0--未绑定400或1010号码 1--绑定400或1010号码 2--手机虚拟号码 comment String 备注 createTime String 创建时间，时间戳，到毫秒 返回示例： { \"result\": \"0\", \"description\": \"成功\", \"data\": [ { \"id\": \"336339\", \"enterpriseId\": \"7122600\", \"sipGroupId\": \"-1\", \"numberTrunk\": \"2025070841\", \"areaCode\": \"010\", \"type\": \"0\", \"numberType\": null, \"comment\": null, \"createTime\": \"2025-09-03 11:37:10\" }, { \"id\": \"336541\", \"enterpriseId\": \"7122600\", \"sipGroupId\": \"-1\", \"numberTrunk\": \"38276106\", \"areaCode\": \"021\", \"type\": \"0\", \"numberType\": null, \"comment\": null, \"createTime\": null }, { \"id\": \"365859\", \"enterpriseId\": \"7122600\", \"sipGroupId\": \"-1\", \"numberTrunk\": \"95111111\", \"areaCode\": \"010\", \"type\": \"0\", \"numberType\": null, \"comment\": null, \"createTime\": null } ] }",
+      "tables": [
+        [
+          [
+            "参数",
+            "类型",
+            "要求",
+            "描述",
+            "备注"
+          ],
+          [
+            "validateType",
+            "Int",
+            "必选",
+            "验证类型",
+            "说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证；"
+          ],
+          [
+            "departmentId",
+            "String",
+            "必选",
+            "部门编号",
+            "说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "必选",
+            "呼叫中心编号",
+            "说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101"
+          ],
+          [
+            "timestamp",
+            "Long",
+            "必选",
+            "当前时间戳",
+            "说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟"
+          ],
+          [
+            "sign",
+            "String",
+            "必选",
+            "验证值",
+            "说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写"
+          ]
+        ],
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "id",
+            "Int",
+            "中继号码id"
+          ],
+          [
+            "enterpriseId",
+            "String",
+            "企业编号"
+          ],
+          [
+            "sipGroup",
+            "String",
+            "sipGroup"
+          ],
+          [
+            "areaCode",
+            "String",
+            "目的码的区号"
+          ],
+          [
+            "numberTrunk",
+            "String",
+            "目的码（不含区号）"
+          ],
+          [
+            "type",
+            "String",
+            "目的码类型：0--未绑定400或1010号码 1--绑定400或1010号码 2--手机虚拟号码"
+          ],
+          [
+            "comment",
+            "String",
+            "备注"
+          ],
+          [
+            "createTime",
+            "String",
+            "创建时间，时间戳，到毫秒"
+          ]
+        ]
+      ],
+      "examples": [
+        "https://api-{region}.alicti.cn/interface/v10/trunk/list?validateType=2&departmentId=BM3000000&timestamp=1484649817&enterpriseId=7000001\n&sign=7052c0c538344f2e018ebf2baec3d090",
+        "{\n    \"result\": \"0\",\n    \"description\": \"成功\",\n    \"data\": [\n        {\n            \"id\": \"336339\",\n            \"enterpriseId\": \"7122600\",\n            \"sipGroupId\": \"-1\",\n            \"numberTrunk\": \"2025070841\",\n            \"areaCode\": \"010\",\n            \"type\": \"0\",\n            \"numberType\": null,\n            \"comment\": null,\n            \"createTime\": \"2025-09-03 11:37:10\"\n        },\n        {\n            \"id\": \"336541\",\n            \"enterpriseId\": \"7122600\",\n            \"sipGroupId\": \"-1\",\n            \"numberTrunk\": \"38276106\",\n            \"areaCode\": \"021\",\n            \"type\": \"0\",\n            \"numberType\": null,\n            \"comment\": null,\n            \"createTime\": null\n        },\n        {\n            \"id\": \"365859\",\n            \"enterpriseId\": \"7122600\",\n            \"sipGroupId\": \"-1\",\n            \"numberTrunk\": \"95111111\",\n            \"areaCode\": \"010\",\n            \"type\": \"0\",\n            \"numberType\": null,\n            \"comment\": null,\n            \"createTime\": null\n        }\n    ]\n}"
+      ]
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/语音导航管理/获取IVR列表信息接口.html",
+      "status": 200,
+      "text": "获取IVR列表信息接口 接口说明 通过本接口，第三方平台可以查询ivr列表信息 API URL 接口请求地址： https://api-{region}.alicti.cn/interface/{version}/ivrProfile/list 地址参数说明： {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 {version}为接口版本，当前{version}=v10 接口请求方式： GET/POST 请求参数 参数 类型 要求 描述 备注 validateType Int 必选 验证类型 说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证； departmentId String 必选 部门编号 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 enterpriseId Int 必选 呼叫中心编号 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 timestamp Long 必选 当前时间戳 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 sign String 必选 验证值 说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 接口请求示例 https://api-{region}.alicti.cn/interface/v10/ivrProfile/list?validateType=1&departmentId=BM3000003&sign=fe8479043c5caa8a948a653a1c06a73f&timestamp=1501480021 接口返回 JSON格式数据： 参数 类型 说明 result Int 0 成功, -1 失败 description String 返回结果描述 data JSON 返回数据JSON格式 description给出成功或失败时的文本描述： description 返回结果说明 验证失败，参数[{param}]不能为空 {param}为接口参数中必选字段 验证失败，参数[{param}]格式不正确 {param}为接口参数中格式有要求的字段 验证失败，参数[{param}]取值不正确 {param}为接口参数中有固定取值的字段 验证失败，参数[{param}]取值范围不正确 {param}为接口参数中有固定范围的字段 验证失败，超过频次限制 接口调用超过接口的访问频次限制 成功，{param} {param}为成功描述 失败，{param} {param}为失败描述 data定义： 字段 类型 描述 id 必选 语音导航id ivrName 必选 IVR名称 ivrType 必选 IVR 类型/模板 1:IVR 2:彩铃 ivrDescription 可选 IVR描述 enterpriseId 必选 企业编号 createTime 必选 创建时间 返回示例： { \"result\": \"0\", \"description\": \"成功\", \"data\": [ { \"id\": \"9618\", \"ivrName\": \"transfer\", \"ivrType\": \"1\", \"ivrDescription\": null, \"enterpriseId\": \"7122600\", \"updateTime\": \"2025-09-11 09:41:30\", \"createTime\": \"2025-09-05 14:26:06\", \"statistic\": \"0\", \"showType\": \"0\", \"flow\": null }, { \"id\": \"9636\", \"ivrName\": \"interact\", \"ivrType\": \"1\", \"ivrDescription\": null, \"enterpriseId\": \"7122600\", \"updateTime\": \"2025-09-11 16:01:25\", \"createTime\": \"2025-09-11 16:01:15\", \"statistic\": \"0\", \"showType\": \"0\", \"flow\": null }, { \"id\": \"9638\", \"ivrName\": \"webcall\", \"ivrType\": \"1\", \"ivrDescription\": null, \"enterpriseId\": \"7122600\", \"updateTime\": \"2025-09-13 13:32:10\", \"createTime\": \"2025-09-13 13:31:59\", \"statistic\": \"0\", \"showType\": \"0\", \"flow\": null }, { \"id\": \"9639\", \"ivrName\": \"呼入\", \"ivrType\": \"1\", \"ivrDescription\": null, \"enterpriseId\": \"7122600\", \"updateTime\": \"2025-09-13 17:18:52\", \"createTime\": \"2025-09-13 17:18:40\", \"statistic\": \"0\", \"showType\": \"0\", \"flow\": null }, { \"id\": \"9843\", \"ivrName\": \"wwd\", \"ivrType\": \"1\", \"ivrDescription\": null, \"enterpriseId\": \"7122600\", \"updateTime\": \"2025-10-17 01:38:58\", \"createTime\": \"2025-09-24 20:08:54\", \"statistic\": \"0\", \"showType\": \"0\", \"flow\": null }, { \"id\": \"10366\", \"ivrName\": \"自动外呼\", \"ivrType\": \"1\", \"ivrDescription\": \"\", \"enterpriseId\": \"7122600\", \"updateTime\": \"2025-12-30 16:56:27\", \"createTime\": \"2025-12-30 16:56:17\", \"statistic\": \"0\", \"showType\": \"0\", \"flow\": null }, { \"id\": \"11180\", \"ivrName\": \"导入测试\", \"ivrType\": \"1\", \"ivrDescription\": null, \"enterpriseId\": \"7122600\", \"updateTime\": \"2026-03-30 06:09:05\", \"createTime\": \"2026-03-30 06:09:05\", \"statistic\": \"0\", \"showType\": \"0\", \"flow\": null } ] }",
+      "tables": [
+        [
+          [
+            "参数",
+            "类型",
+            "要求",
+            "描述",
+            "备注"
+          ],
+          [
+            "validateType",
+            "Int",
+            "必选",
+            "验证类型",
+            "说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证；"
+          ],
+          [
+            "departmentId",
+            "String",
+            "必选",
+            "部门编号",
+            "说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "必选",
+            "呼叫中心编号",
+            "说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101"
+          ],
+          [
+            "timestamp",
+            "Long",
+            "必选",
+            "当前时间戳",
+            "说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟"
+          ],
+          [
+            "sign",
+            "String",
+            "必选",
+            "验证值",
+            "说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写"
+          ]
+        ],
+        [
+          [
+            "参数",
+            "类型",
+            "说明"
+          ],
+          [
+            "result",
+            "Int",
+            "0 成功, -1 失败"
+          ],
+          [
+            "description",
+            "String",
+            "返回结果描述"
+          ],
+          [
+            "data",
+            "JSON",
+            "返回数据JSON格式"
+          ]
+        ],
+        [
+          [
+            "description",
+            "返回结果说明"
+          ],
+          [
+            "验证失败，参数[{param}]不能为空",
+            "{param}为接口参数中必选字段"
+          ],
+          [
+            "验证失败，参数[{param}]格式不正确",
+            "{param}为接口参数中格式有要求的字段"
+          ],
+          [
+            "验证失败，参数[{param}]取值不正确",
+            "{param}为接口参数中有固定取值的字段"
+          ],
+          [
+            "验证失败，参数[{param}]取值范围不正确",
+            "{param}为接口参数中有固定范围的字段"
+          ],
+          [
+            "验证失败，超过频次限制",
+            "接口调用超过接口的访问频次限制"
+          ],
+          [
+            "成功，{param}",
+            "{param}为成功描述"
+          ],
+          [
+            "失败，{param}",
+            "{param}为失败描述"
+          ]
+        ],
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "id",
+            "必选",
+            "语音导航id"
+          ],
+          [
+            "ivrName",
+            "必选",
+            "IVR名称"
+          ],
+          [
+            "ivrType",
+            "必选",
+            "IVR 类型/模板 1:IVR 2:彩铃"
+          ],
+          [
+            "ivrDescription",
+            "可选",
+            "IVR描述"
+          ],
+          [
+            "enterpriseId",
+            "必选",
+            "企业编号"
+          ],
+          [
+            "createTime",
+            "必选",
+            "创建时间"
+          ]
+        ]
+      ],
+      "examples": [
+        "https://api-{region}.alicti.cn/interface/v10/ivrProfile/list?validateType=1&departmentId=BM3000003&sign=fe8479043c5caa8a948a653a1c06a73f&timestamp=1501480021",
+        "{\n    \"result\": \"0\",\n    \"description\": \"成功\",\n    \"data\": [\n        {\n            \"id\": \"9618\",\n            \"ivrName\": \"transfer\",\n            \"ivrType\": \"1\",\n            \"ivrDescription\": null,\n            \"enterpriseId\": \"7122600\",\n            \"updateTime\": \"2025-09-11 09:41:30\",\n            \"createTime\": \"2025-09-05 14:26:06\",\n            \"statistic\": \"0\",\n            \"showType\": \"0\",\n            \"flow\": null\n        },\n        {\n            \"id\": \"9636\",\n            \"ivrName\": \"interact\",\n            \"ivrType\": \"1\",\n            \"ivrDescription\": null,\n            \"enterpriseId\": \"7122600\",\n            \"updateTime\": \"2025-09-11 16:01:25\",\n            \"createTime\": \"2025-09-11 16:01:15\",\n            \"statistic\": \"0\",\n            \"showType\": \"0\",\n            \"flow\": null\n        },\n        {\n            \"id\": \"9638\",\n            \"ivrName\": \"webcall\",\n            \"ivrType\": \"1\",\n            \"ivrDescription\": null,\n            \"enterpriseId\": \"7122600\",\n            \"updateTime\": \"2025-09-13 13:32:10\",\n            \"createTime\": \"2025-09-13 13:31:59\",\n            \"statistic\": \"0\",\n            \"showType\": \"0\",\n            \"flow\": null\n        },\n        {\n            \"id\": \"9639\",\n            \"ivrName\": \"呼入\",\n            \"ivrType\": \"1\",\n            \"ivrDescription\": null,\n            \"enterpriseId\": \"7122600\",\n            \"updateTime\": \"2025-09-13 17:18:52\",\n            \"createTime\": \"2025-09-13 17:18:40\",\n            \"statistic\": \"0\",\n            \"showType\": \"0\",\n            \"flow\": null\n        },\n        {\n            \"id\": \"9843\",\n            \"ivrName\": \"wwd\",\n            \"ivrType\": \"1\",\n            \"ivrDescription\": null,\n            \"enterpriseId\": \"7122600\",\n            \"updateTime\": \"2025-10-17 01:38:58\",\n            \"createTime\": \"2025-09-24 20:08:54\",\n            \"statistic\": \"0\",\n            \"showType\": \"0\",\n            \"flow\": null\n        },\n        {\n            \"id\": \"10366\",\n            \"ivrName\": \"自动外呼\",\n            \"ivrType\": \"1\",\n            \"ivrDescription\": \"\",\n            \"enterpriseId\": \"7122600\",\n            \"updateTime\": \"2025-12-30 16:56:27\",\n            \"createTime\": \"2025-12-30 16:56:17\",\n            \"statistic\": \"0\",\n            \"showType\": \"0\",\n            \"flow\": null\n        },\n        {\n            \"id\": \"11180\",\n            \"ivrName\": \"导入测试\",\n            \"ivrType\": \"1\",\n            \"ivrDescription\": null,\n            \"enterpriseId\": \"7122600\",\n            \"updateTime\": \"2026-03-30 06:09:05\",\n            \"createTime\": \"2026-03-30 06:09:05\",\n            \"statistic\": \"0\",\n            \"showType\": \"0\",\n            \"flow\": null\n        }\n    ]\n}"
+      ]
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/dataType/EnterpriseIvrRouter.html",
+      "status": 200,
+      "text": "EnterpriseIvrRouter数据类型定义： 字段 类型 描述 id Int 呼入路由Id enterpriseId Int 呼叫中心id name String 路由名称 active Int 是否启用 1：启用、2：停用 默认为2 routerType Int 路由目的 1：转接语音导航、2：转电话号码、3转分机 routerProperty Int 当routerType=1时代表语音导航id，当routerType=2时代表电话号码，当routerType=3时代表分机号码 description String 路由说明 priority Int 路由优先级 优先级，值越小优先级越高，同一呼叫中心下不能重复 ruleAreaProperty String 来电地区规则 传来电号码，号码前缀或地区区号，多个用分号;分隔 例如： 010;0218700 ruleTimeProperty String 时间条件规则 传时间条件id，多个用分号;分隔 例如： 1;2;3 ruleTrunkProperty String 中继号码规则 传中继号码，多个用分号;分隔 例如： 01087120766 createTime String 创建时间，格式为格式为： yyyy-MM-dd HH:mm:ss",
+      "tables": [
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "id",
+            "Int",
+            "呼入路由Id"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "呼叫中心id"
+          ],
+          [
+            "name",
+            "String",
+            "路由名称"
+          ],
+          [
+            "active",
+            "Int",
+            "是否启用 1：启用、2：停用 默认为2"
+          ],
+          [
+            "routerType",
+            "Int",
+            "路由目的 1：转接语音导航、2：转电话号码、3转分机"
+          ],
+          [
+            "routerProperty",
+            "Int",
+            "当routerType=1时代表语音导航id，当routerType=2时代表电话号码，当routerType=3时代表分机号码"
+          ],
+          [
+            "description",
+            "String",
+            "路由说明"
+          ],
+          [
+            "priority",
+            "Int",
+            "路由优先级 优先级，值越小优先级越高，同一呼叫中心下不能重复"
+          ],
+          [
+            "ruleAreaProperty",
+            "String",
+            "来电地区规则 传来电号码，号码前缀或地区区号，多个用分号;分隔 例如： 010;0218700"
+          ],
+          [
+            "ruleTimeProperty",
+            "String",
+            "时间条件规则 传时间条件id，多个用分号;分隔 例如： 1;2;3"
+          ],
+          [
+            "ruleTrunkProperty",
+            "String",
+            "中继号码规则 传中继号码，多个用分号;分隔 例如： 01087120766"
+          ],
+          [
+            "createTime",
+            "String",
+            "创建时间，格式为格式为： yyyy-MM-dd HH:mm:ss"
+          ]
+        ]
+      ],
+      "examples": []
+    },
+    {
+      "url": "https://wiki.alicti.cn/html/wiki/API/dataType/EnterpriseTime.html",
+      "status": 200,
+      "text": "EnterpriseTime数据类型定义： 字段 类型 描述 id Int 时间条件id enterpriseId Int 呼叫中心编号 name String 时间条件名称 、同一呼叫中心下不能重复 type Int 时间条件类型 1:按照星期配置 2:按照固定时间配置 fromDay String 起始日期 格式为：yyyy-MM-dd、type=1时为空串 fromDay不能大于toDay toDay String 终止日期 格式为：yyyy-MM-dd、type=1时为空串 fromDay不能大于toDay dayOfWeek String 星期 周一：2、周二：3、周三：4、周四：5、周五：6、周六：7、周日：1、使用\",\"进行分割、type=2时为空串 startTime String 开始时间 格式为 HH:mm startTime不能大于endTime endTime String 结束时间 格式为 HH:mm startTime不能大于endTime priority Int 优先级、同一呼叫中心下不能重复，值从1开始，值越小优先级越高 createTime Date 创建时间，格式为： yyyy-MM-dd HH:mm:ss",
+      "tables": [
+        [
+          [
+            "字段",
+            "类型",
+            "描述"
+          ],
+          [
+            "id",
+            "Int",
+            "时间条件id"
+          ],
+          [
+            "enterpriseId",
+            "Int",
+            "呼叫中心编号"
+          ],
+          [
+            "name",
+            "String",
+            "时间条件名称 、同一呼叫中心下不能重复"
+          ],
+          [
+            "type",
+            "Int",
+            "时间条件类型 1:按照星期配置 2:按照固定时间配置"
+          ],
+          [
+            "fromDay",
+            "String",
+            "起始日期 格式为：yyyy-MM-dd、type=1时为空串 fromDay不能大于toDay"
+          ],
+          [
+            "toDay",
+            "String",
+            "终止日期 格式为：yyyy-MM-dd、type=1时为空串 fromDay不能大于toDay"
+          ],
+          [
+            "dayOfWeek",
+            "String",
+            "星期 周一：2、周二：3、周三：4、周四：5、周五：6、周六：7、周日：1、使用\",\"进行分割、type=2时为空串"
+          ],
+          [
+            "startTime",
+            "String",
+            "开始时间 格式为 HH:mm startTime不能大于endTime"
+          ],
+          [
+            "endTime",
+            "String",
+            "结束时间 格式为 HH:mm startTime不能大于endTime"
+          ],
+          [
+            "priority",
+            "Int",
+            "优先级、同一呼叫中心下不能重复，值从1开始，值越小优先级越高"
+          ],
+          [
+            "createTime",
+            "Date",
+            "创建时间，格式为： yyyy-MM-dd HH:mm:ss"
+          ]
+        ]
+      ],
+      "examples": []
+    }
+  ],
+  "reviewNotes": {
+    "routeMethods": "create/update/list/get/delete all GET/POST; list no pagination/filter beyond auth parameters; get requires id; delete id/name either, id preferred, only inactive routes",
+    "trunkContradiction": "create/update request text: ruleTrunkProperty is trunk number without area code, multiple semicolon separated. EnterpriseIvrRouter model and list example contain area code. Write per request contract numberTrunk from trunk/list; preserve raw response without stripping. Do not auto-prefix account areaCode.",
+    "conditionRelationship": "Docs name area/time/trunk conditions and semicolon multiple values, but do NOT explicitly define AND/OR between categories, matching algorithm, blank-rule wildcard semantics, or fallthrough when no match. Priority must be account-unique, smaller is higher, list sorted ascending. Avoid inventing preview simulator engine.",
+    "timeFields": "enterpriseTime/list returns data array. EnterpriseTime says weekday Sun=1,Mon=2,...Sat=7; type1 weekly,type2 fixed dates. list optional name/type/priority; no limit/offset in doc.",
+    "extensionFields": "exten/list GET/POST data.list array, limit positive <=500(default10), offset default0. Filters exten/callPower/isOb/ibRecord/obRecord/areaCode/jitterBuffer/type/isBind/active. Route target submits exten string, not id. Avoid rendering returned password/encryptPassword.",
+    "ivrFields": "ivrProfile/list GET/POST data array; no pagination or filter other than auth. Filter ivrType=1 and enterpriseId locally. Type1 IVR/type2 ringback, no published/use direction field.",
+    "routeTarget": "Request routerType1 + ivrId;2+tel;3+exten. Response routerProperty represents target. Response samples encode numeric values as strings; preserving tel/exten string avoids leading zero loss.",
+    "active": "create optional active default1; update optional active default2; explicitly submit selected1/2. delete requires inactive2.",
+    "name": "create optional name random unique when omitted; update name is route selector alternative to id, not documented renaming field. Better keep existing name read-only during edit unless clarified."
+  }
+}

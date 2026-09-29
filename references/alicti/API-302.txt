@@ -1,0 +1,211 @@
+座席前端登录鉴权
+
+接口说明
+
+agent工具条登陆权限验证，获取sessionKey
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/agentLogin/authenticateJsonp
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+接口请求方式：
+
+GET/POST
+
+请求参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+取值1，2； 取值说明：
+validateType=1时使用部门编号(departmentId)进行验证；
+validateType=2时使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001； | 
+
+crmId | 
+String | 
+必选 | 
+员工编号 | 
+说明：validateType=1时，此参数为必选参数，例如：crmId=crm1001； | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101； | 
+
+cno | 
+Int | 
+必选 | 
+座席工号 | 
+说明：validateType=2时，此参数为必选参数，3-10位数字 | 
+
+timestamp | 
+Int | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明： 
+validateType=1时，sign=MD5({departmentId}+{timestamp}+{部门token值})； 
+validateType=2时，sign=MD5({enterpriseId}+{timestamp}+{部门token值})； 
+格式要求：32位全小写 | 
+
+pwd | 
+String | 
+可选 | 
+员工密码 | 
+如果pwd值不为空，则使用密码验证,pwd=MD5(pwd)
+sign值未生效 | 
+
+接口请求示例
+
+https://api-{region}.alicti.cn/interface/v10/agentLogin/authenticateJsonp?validateType=1&departmentId=BM3000000&crmId=10098&pwd=afdd0b4ad2ec172c586e2150770fbf9e
+&timestamp=1481199531&sign=f23d54af193b71e5cb3bbc1a5e777136
+
+接口返回
+
+JSON格式数据
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+Int | 
+0 成功, -1 失败 | 
+
+description | 
+String | 
+返回结果描述 | 
+
+validateType | 
+Int | 
+验证类型 | 
+
+departmentId | 
+String | 
+部门编号,validateType=2时,输入{enterpriseId}绑定部门编号 | 
+
+crmId | 
+String | 
+员工编号,validateType=2时,输入{cno}绑定员工编号 | 
+
+enterpriseId | 
+Int | 
+呼叫中心编号,validateType=1时,输入{departmentId}绑定呼叫中心编号 | 
+
+cno | 
+String | 
+座席工号,validateType=1时,输入{crmId}绑定座席工号 | 
+
+timestamp | 
+String | 
+成功时常见为请求中 timestamp 的回显（内层 JSON 中多为字符串） | 
+
+sign | 
+String | 
+成功时常见为请求中 sign 的回显 | 
+
+sessionKey | 
+String | 
+建立webSocket的序列号,30秒过期 | 
+
+agentGateWayUrl | 
+String | 
+webSocket服务器域名 | 
+
+qids | 
+String | 
+当cno为班长席时，监听订阅消息的队列 | 
+
+errorCode | 
+Int | 
+错误码,当返回result=-1时，返回该参数 | 
+
+description给出成功或失败时的文本描述：
+
+description | 
+返回结果说明 | 
+
+验证失败，参数[{param}]不能为空 | 
+{param}为接口参数中必选字段 | 
+
+验证失败，参数[{param}]格式不正确 | 
+{param}为接口参数中格式有要求的字段 | 
+
+验证失败，参数[{param}]取值不正确 | 
+{param}为接口参数中有固定取值的字段 | 
+
+验证失败，参数[param]取值范围不正确 | 
+{param}为接口参数中有固定范围的字段 | 
+
+验证失败，超过频次限制 | 
+接口调用超过接口的访问频次限制 | 
+
+查询成功，{param} | 
+{param}为成功描述 | 
+
+查询失败，{param} | 
+{param}为失败描述 | 
+
+errorCode说明：
+
+代码 | 
+说明 | 
+
+10001 | 
+系统异常 | 
+
+10002 | 
+超出请求频度限制 | 
+
+10003 | 
+权限验证失败 | 
+
+10004 | 
+企业状态异常 | 
+
+实际 HTTP 响应为 JSONP：函数名可能为 callback、null 等，参数为 单引号包裹的 JSON 字符串，前端需取出内层字符串再 JSON.parse。Flow 实测示例：null('{"validateType":"1","departmentId":"...", ...}')。
+
+以下为解析 JSONP 内层字符串后的对象（便于对照字段；成功时 timestamp、sign 常与请求回显一致）。
+
+返回示例：
+
+{
+    "result": 0,
+    "validateType": 1,
+    "departmentId": "BM3000000",
+    "crmId": "10097",
+    "cno": "2000",
+    "enterpriseId": 7000000,
+    "timestamp": "1481199531",
+    "sign": "f23d54af193b71e5cb3bbc1a5e777136",
+    "agentGateWayUrl": "https://agent-gateway-1.alicti.cn",
+    "sessionKey": "548cbc82-4304-4499-ad5a-3e604245bcd1",
+    "qids": "70000000032"
+}

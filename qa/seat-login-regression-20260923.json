@@ -1,0 +1,43 @@
+{
+  "date": "2026-09-23",
+  "result": "pass",
+  "scope": "坐席登录单步交互专项回归；本地原型与模拟电话服务",
+  "changed": [
+    "点击座席登录直接打开同一表单，选择登录状态和工作模式后点击登录，单次提交完成上线；不再要求先保存登录设置。",
+    "每次普通登录均须显式选择工作模式；默认登录状态为置闲，置忙描述选填，软电话分机由租户管理员维护。",
+    "登录成功后工具条显示当前状态和工作模式；置忙时禁用预览外呼，置闲后恢复；在线仍可切换工作模式。",
+    "修正浏览器坐席锁的登录等待：登录按钮在登录回执到达后结束处理，不再等到坐席退出。"
+  ],
+  "verification": {
+    "scripts": [
+      {"name": "qa/verify-working-mode.cjs", "result": "pass"},
+      {"name": "qa/verify-seat-reconnect-workbench.cjs", "checks": 5, "result": "pass"},
+      {"name": "qa/verify-incall-followup.cjs", "checks": 40, "result": "pass"},
+      {"name": "qa/verify-seat-operations.cjs", "checks": 46, "result": "pass"},
+      {"name": "qa/verify-phone-toolbar-actions.cjs", "result": "pass"},
+      {"name": "qa/verify-supervisor-workbench.cjs", "checks": 13, "result": "pass"},
+      {"name": "qa/verify-caller-navigation-simulation.cjs", "checks": 12, "result": "pass"},
+      {"name": "qa/verify-seat-reconnect.cjs", "checks": 15, "result": "pass"}
+    ],
+    "namedChecks": 131,
+    "syntax": "agent-workbench.js 与 seat-operation-ui.js 均通过语法检查",
+    "documentation": {"result": "pass", "checks": 632, "links": 3388, "officialSources": 100, "version": "2026-09-23-seat-login-1"},
+    "browser": {
+      "origin": "http://127.0.0.1:8776",
+      "account": "hq-operator，本地演示账号",
+      "checks": [
+        "点击座席登录即见工作模式和登录状态，无设置保存步骤",
+        "未选工作模式不能提交登录",
+        "选择置忙、模式4后直接提交，登录成功且面板自动关闭",
+        "置忙时预览外呼禁用，置闲后恢复可用；退出后再次登录，工作模式重新要求选择",
+        "工作模式下拉默认提示位于选项首位"
+      ],
+      "consoleErrors": 0,
+      "temporaryTabClosed": true
+    }
+  },
+  "limits": [
+    "未调用真实 AliCti，供应商登录回执与话务分配仍须联调验证。",
+    "本轮为登录及关联坐席流程专项回归，不代表全模块验收；未推送 GitLab。"
+  ]
+}

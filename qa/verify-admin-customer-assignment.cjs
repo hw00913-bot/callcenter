@@ -1,0 +1,19 @@
+// Local role and assignment regression; no supplier calls.
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const state={accountId:'ADMIN',tenantId:'T',enterpriseId:'E',activeDomain:'CLOUD_CONTACT_CENTER'},store=new Map(),nodes=new Map(),checks=[];
+const ctx={Pages:{},console,structuredClone,crypto:require('crypto'),Date,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},AppState:{get:()=>state,isReady:()=>true,effectiveAccess:()=>({valid:true,roleCode:'ADMIN'}),scoped:rows=>rows.filter(r=>r.tenantId===state.tenantId&&r.enterpriseId===state.enterpriseId)},PlatformUI:{escape:String,empty:String,pageHeader:()=>'',help:()=>'',table:()=>'',openLayer(){},closeLayer(){},callTypeLabel:String},CustomerBusiness:{typeLabel:()=>'',codeLabel:()=>''},document:{getElementById:id=>{if(!nodes.has(id))nodes.set(id,{});return nodes.get(id);},querySelectorAll:()=>[]},showToast(){},CloudTaskWorkspace:{syncAssignedCustomers(){}},RouteRuntime:{snapshot:()=>({key:'customer-tasks'})},navigateTo(){}};
+ctx.window=ctx;ctx.CloudCallData={tenants:[{tenantId:'T',enterpriseId:'E'}],accounts:[],memberships:[],agents:[],agentSkills:[],physicalSkillGroups:[],tasks:[]};
+for(const [id,role,tenant] of [['ADMIN','ADMIN','T'],['OPS','OPERATOR','T'],['OTHER','ADMIN','OTHER'],['SUPER','SUPER_ADMIN','T']]){ctx.CloudCallData.accounts.push({accountId:id,name:id,status:'启用'});ctx.CloudCallData.memberships.push({accountId:id,tenantId:tenant,status:'启用',roleCode:role});ctx.CloudCallData.agents.push({accountId:id,contactCenterIdentityId:id,userName:id,tenantId:tenant,enterpriseId:'E',lifecycleStatus:'已启用',syncStatus:'同步成功',acceptNewTasks:true});}
+store.set('customer-task-batches-v1',JSON.stringify([{id:'B',tenantId:'T',enterpriseId:'E',name:'名单',rows:[{id:'R',name:'客户',phone:'13800000000',followup:'待联系',history:[],calls:[]}]}]));
+vm.createContext(ctx);vm.runInContext(fs.readFileSync(require('path').join(__dirname,'../js/pages/customer-tasks.js'),'utf8'),ctx);
+const api=ctx.CustomerTasks;
+assert.deepEqual(Array.from(api.owners('T'),a=>a.accountId),['ADMIN','OPS']);checks.push('管理员和运营可选，跨租户及内置超管不混入');
+api.render({batchId:'B'});api.assignSelected('R');ctx.document.getElementById('customer-method').value='人工外呼';api.assignmentTarget();assert.match(ctx.document.getElementById('customer-assignment-target').innerHTML,/ADMIN · 租户管理员/);checks.push('候选明确标识租户管理员');
+assert(api.assign(['R'],'人工外呼','ADMIN'));assert.equal(api.mine()[0].id,'R');checks.push('可实际分配给管理员并进入本人待联系名单');
+state.accountId='OPS';assert.equal(api.mine().length,0);state.accountId='ADMIN';checks.push('管理员工作台不混入其他账号的分配客户');
+for(const mutation of [()=>ctx.CloudCallData.accounts[0].status='停用',()=>ctx.CloudCallData.memberships[0].status='停用',()=>ctx.CloudCallData.agents[0].lifecycleStatus='已停用',()=>ctx.CloudCallData.agents[0].acceptNewTasks=false,()=>ctx.CloudCallData.agents[0].accountId='']){const before=structuredClone(ctx.CloudCallData);mutation();assert(!api.assign(['R'],'人工外呼','ADMIN'));Object.assign(ctx.CloudCallData,before);}checks.push('提交时复检账号、成员、坐席启停、接单许可和关联');
+const savedBatches=store.get('customer-task-batches-v1');
+api.render({batchId:'B'});api.render({routeKey:'customer-tasks'});assert.equal(ctx.Pages['customer-tasks'].captureNavigationState().selectedBatch,'');checks.push('重新进入导入与分配菜单清除旧批次详情状态');
+api.render({batchId:'B'});api.render({preserveFilters:true});assert.equal(ctx.Pages['customer-tasks'].captureNavigationState().selectedBatch,'B');checks.push('详情刷新仍保留当前批次');
+let opened;ctx.RouteRuntime.openSecondary=(route,options)=>opened={route,options};ctx.RouteRuntime.snapshot=()=>({key:'customer-tasks',options:{batchId:''}});api.open('B');assert.equal(opened.options.batchId,'B');assert.equal(opened.options.refreshOnClose,true);assert.equal(store.get('customer-task-batches-v1'),savedBatches);checks.push('按实际路由打开详情并请求返回刷新，导航不改写批次');
+console.log(JSON.stringify({passed:checks.length,checks},null,2));

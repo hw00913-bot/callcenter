@@ -1,0 +1,114 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>原型回归与开发包更新报告</title><style>body{margin:0;background:#f3f5f9;color:#243247;font:15px/1.8 system-ui,sans-serif}main{max-width:1180px;margin:30px auto;padding:36px;background:#fff;border-radius:12px}h1{font-size:28px}h2{margin-top:32px;font-size:20px}a{color:#1765d1}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:12px;border:1px solid #dce2e9;text-align:left;vertical-align:top}th{background:#f0f4fa}.table-wrap{overflow:auto}code{background:#f0f3f8;padding:2px 4px}</style><main><a href="../index.html">返回原型</a> · <a href="full-regression-20260920.md">Markdown</a><h1 id="原型回归与开发包更新报告">原型回归与开发包更新报告</h1>
+<p>版本：<code>2026-09-20-regression-delivery-1</code> · 日期：2026-09-20。</p>
+<p>本轮围绕当前原型和 D-046–D-053 已确认规则执行本地回归，并修复号码识别读取与字段目录追溯两类问题。既有历史报告独立保留，不覆盖或改写其结果。</p>
+<p><strong>回归结果：通过。</strong> 离线检查 44 组、1075 个声明检查项，失败 0 组；87 个 JS 文件语法检查，失败 0 个；141 处本地资源引用检查，缺失 0 处。</p>
+<p>另记录 19 项本机浏览器检查，失败 0 项。检查项按各组真实输出计数，不把循环内断言另行累计。</p>
+<h2 id="本轮修复">本轮修复</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">范围</th><th scope="col">回归发现</th><th scope="col">修复后的规则</th><th scope="col">关联内容</th></tr></thead><tbody>
+<tr><td>预测话单号码识别与上下文校验</td><td>号码识别读取未完整核对话单类型、账号与供应商通话身份；本地通话/会话 contactId 若被当作供应商 mainUniqueId，会误拒绝本通合法话单。现有字典还保留异步语义待确认的旧说明。</td><td>按真实字段归属核对类型、账号及已明确的供应商通话标识；本地通话/会话 contactId 不参与供应商主通话 ID 比较。预测话单 0 表示同步、1 表示结果已异步写回 sipCause；未知标识和未识别结果原样保留。不以标识判断接通、不设置两分钟必完成时限，读取不产生新话单或重呼。</td><td>D-053 / SRC-083；FA-070、FA-071；号码识别、通话记录与统计</td></tr>
+<tr><td>FA-071 字段目录追溯</td><td>应用最新字段映射后，接口字段目录的 mappingIds 与 adoption 未同步重算，sipCauseAsyncUpdateFlag 的采用关系落后于 FA-071。</td><td>以当前字段映射统一重算目录关联；API-318 的 sipCauseAsyncUpdateFlag 明确关联 FA-071。供应商原文字段类型、描述及官方快照保持原样；本轮更新采用规则和追溯关系。</td><td>API-318 / FA-071；字段对齐、接口契约、交付核验</td></tr>
+</tbody></table></div>
+<h2 id="本地自动回归">本地自动回归</h2>
+<p>覆盖任务创建与重呼、暂停与结束、号码授权与启停、坐席分机与配置、技能与队列、班长管理、通话中记录、线索统计、删除重建及断线恢复等现有套件；新增预测话单号码识别专项。完整明细见各组实际检查名称。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">检查组</th><th scope="col">声明检查项</th><th scope="col">结果</th></tr></thead><tbody>
+<tr><td>skill-group-management</td><td>8</td><td>通过</td></tr>
+<tr><td>alicti-fields</td><td>71</td><td>通过</td></tr>
+<tr><td>alicti-retry</td><td>26</td><td>通过</td></tr>
+<tr><td>alicti-ivr</td><td>24</td><td>通过</td></tr>
+<tr><td>alicti-task-control</td><td>33</td><td>通过</td></tr>
+<tr><td>demo-fixtures</td><td>28</td><td>通过</td></tr>
+<tr><td>regression-fields</td><td>6</td><td>通过</td></tr>
+<tr><td>call-regression-fixes</td><td>9</td><td>通过</td></tr>
+<tr><td>task-attachment-transaction</td><td>9</td><td>通过</td></tr>
+<tr><td>alicti-report-facts</td><td>40</td><td>通过</td></tr>
+<tr><td>lead-report</td><td>67</td><td>通过</td></tr>
+<tr><td>alicti-report-summary</td><td>28</td><td>通过</td></tr>
+<tr><td>customer-followup-version</td><td>13</td><td>通过</td></tr>
+<tr><td>alicti-receiving</td><td>33</td><td>通过</td></tr>
+<tr><td>repeat-predictive</td><td>63</td><td>通过</td></tr>
+<tr><td>alicti-number-import</td><td>35</td><td>通过</td></tr>
+<tr><td>alicti-accounts</td><td>50</td><td>通过</td></tr>
+<tr><td>alicti-account-context</td><td>23</td><td>通过</td></tr>
+<tr><td>incall-followup</td><td>30</td><td>通过</td></tr>
+<tr><td>alicti-queue-contracts</td><td>17</td><td>通过</td></tr>
+<tr><td>alicti-queues</td><td>29</td><td>通过</td></tr>
+<tr><td>queue-config</td><td>21</td><td>通过</td></tr>
+<tr><td>predictive-strategy</td><td>12</td><td>通过</td></tr>
+<tr><td>seat-operations</td><td>41</td><td>通过</td></tr>
+<tr><td>seat-phone-config</td><td>15</td><td>通过</td></tr>
+<tr><td>tenant-call-monitor</td><td>18</td><td>通过</td></tr>
+<tr><td>tenant-supervisor-migration</td><td>12</td><td>通过</td></tr>
+<tr><td>supervisor-management</td><td>28</td><td>通过</td></tr>
+<tr><td>supervisor-workbench</td><td>13</td><td>通过</td></tr>
+<tr><td>number-resource-rules</td><td>21</td><td>通过</td></tr>
+<tr><td>number-tenant-scope</td><td>31</td><td>通过</td></tr>
+<tr><td>queue-catalog</td><td>24</td><td>通过</td></tr>
+<tr><td>queue-detail</td><td>28</td><td>通过</td></tr>
+<tr><td>queue-management</td><td>22</td><td>通过</td></tr>
+<tr><td>queue-multi-skills</td><td>15</td><td>通过</td></tr>
+<tr><td>outbound-groups</td><td>26</td><td>通过</td></tr>
+<tr><td>task-direct-import</td><td>1</td><td>通过</td></tr>
+<tr><td>delivery-navigation</td><td>9</td><td>通过</td></tr>
+<tr><td>seat-recreation</td><td>13</td><td>通过</td></tr>
+<tr><td>seat-batch-clarification</td><td>13</td><td>通过</td></tr>
+<tr><td>seat-reconnect</td><td>15</td><td>通过</td></tr>
+<tr><td>seat-reconnect-workbench</td><td>4</td><td>通过</td></tr>
+<tr><td>seat-cno-report</td><td>31</td><td>通过</td></tr>
+<tr><td>predictive-recognition</td><td>20</td><td>通过</td></tr>
+</tbody></table></div>
+<h2 id="浏览器检查">浏览器检查</h2>
+<p>使用本机静态原型和演示账号执行。页面、菜单和抽屉的检查范围以本表为准；没有将这些冒烟检查写成所有按钮的浏览器端到端验收。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">检查</th><th scope="col">结果</th></tr></thead><tbody>
+<tr><td>演示登录、工作范围及云联络中心选择</td><td>通过</td></tr>
+<tr><td>预外呼创建抽屉：右侧打开、左上返回、右上关闭</td><td>通过</td></tr>
+<tr><td>重呼开启后不选状态阻止下一步；选择710和718后确认页显示两项、1次和10分钟</td><td>通过</td></tr>
+<tr><td>创建草稿关闭后可在列表看到，刷新后仍保留</td><td>通过</td></tr>
+<tr><td>自动外呼创建先选择当前组织可用语音流程</td><td>通过</td></tr>
+<tr><td>呼入新建规则包含优先级、三类去向及可选匹配条件</td><td>通过</td></tr>
+<tr><td>坐席维护列表显示软电话分机；王静工号0012、分机000612在抽屉目视核对一致</td><td>通过</td></tr>
+<tr><td>技能组、外呼组、队列与配置记录页面可打开并有演示数据</td><td>通过</td></tr>
+<tr><td>队列多选两个技能；取消时提示未保存，放弃后返回原列表且关联保持原值</td><td>通过</td></tr>
+<tr><td>通话总览、线索成效、客户跟进、外呼任务、坐席成效、服务技能六类报表可打开</td><td>通过</td></tr>
+<tr><td>预外呼通话记录显示718号码状态；在途详情区分通话进度、客户接通、号码识别及六项业务信息</td><td>通过</td></tr>
+<tr><td>号码管理从AliCti导入、总部门店使用范围；无设置坐席操作</td><td>通过</td></tr>
+<tr><td>通话数据异常、操作审计、AliCti账号管理可打开</td><td>通过</td></tr>
+<tr><td>AliCti账号详情仅资料与只读租户表格，没有新增租户或管理租户嵌套操作</td><td>通过</td></tr>
+<tr><td>账号管理、租户管理、客户档案、导入与分配及运营工作台可打开</td><td>通过</td></tr>
+<tr><td>总部租户管理员可进入坐席工作台的外呼坐席与班长监控页签</td><td>通过</td></tr>
+<tr><td>总部管理员队列管理仅显示本租户5个队列，并有新增入口</td><td>通过</td></tr>
+<tr><td>本轮浏览器控制台未捕获error/warn</td><td>通过</td></tr>
+<tr><td>最终运行修复后刷新原型、打开嵌入说明与独立开发入口，版本为2026-09-20-regression-delivery-1；51模型、21任务、331计划验收展示正确，布局目视正常</td><td>通过</td></tr>
+</tbody></table></div>
+<p>本轮浏览器记录中未捕获控制台 error/warn。</p>
+<p>浏览器本地保留一条名称为回归检查临时草稿的空客户草稿；未启动，不属于随包mock数据。队列多选测试已放弃修改。</p>
+<h2 id="开发资料与交付核验">开发资料与交付核验</h2>
+<p>当前功能说明、附表、字段映射、流程与时序、系统蓝图以及开发契约按本轮规则同步。开发任务和生产验收用例继续用于后续实现，不能用本地演示检查替代真实接入验收。</p>
+<ul>
+<li><a href="../docs/functional-spec.html">完整功能说明</a> · <a href="../docs/interaction.html">规则附表</a> · <a href="../docs/field-alignment.html">字段对齐</a>。</li>
+<li><a href="../flowcharts/business-process.html">业务流程</a> · <a href="../flowcharts/sequence-interaction.html">交互时序</a> · <a href="../related-systems/index.html">系统蓝图</a>。</li>
+<li><a href="../docs/development.html">开发入口</a> · <a href="../docs/change-log.html">版本与变更记录</a>。</li>
+<li><a href="../qa/regression-delivery-verification-20260920.json">本轮检查总表</a>：最终文档一致性、开发包完整性及解压重建结果以该表所引用的证据为准。</li>
+</ul>
+<h2 id="待确认与验证边界">待确认与验证边界</h2>
+<p>保留 5 个供应商确认主题及 3 类接入准备，主题数与待确认字段数分开统计。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">编号</th><th scope="col">主题</th></tr></thead><tbody>
+<tr><td>CF-07</td><td>供应商任务删除</td></tr>
+<tr><td>CF-10</td><td>呼入条件匹配与共享来电归属证据</td></tr>
+<tr><td>CF-11</td><td>电话连接生命周期</td></tr>
+<tr><td>CF-12</td><td>事件交付与来源回传</td></tr>
+<tr><td>CF-13</td><td>号码识别异步结果与覆盖范围</td></tr>
+</tbody></table></div>
+<p>CF-13 中预测话单异步标识已经明确，自动外呼与呼入的识别字段覆盖和编码对应仍单独保留；不把 1–2 分钟描述成固定完成时限。</p>
+<ul>
+<li>仅验证本地原型、演示数据、源码与交付资料，未执行真实供应商接口、电话媒体、生产并发或生产安全验收。</li>
+<li>没有声明所有按钮均完成浏览器端到端操作，也没有声明 Loop S8 阶段门禁通过。</li>
+<li>资源检查覆盖入口页、脚本中的固定资源路径和 CSS URL；语法检查不替代所有运行时路径检查。</li>
+<li>本轮没有请求 GitLab 提交；交付更新保存在当前本地项目。</li>
+</ul>
+<h2 id="可独立阅读的证据">可独立阅读的证据</h2>
+<ul>
+<li><a href="evidence-20260920/offline-checks.json">离线检查明细</a>。</li>
+<li><a href="evidence-20260920/source-integrity.json">源码语法与资源引用</a>。</li>
+<li><a href="evidence-20260920/browser-checks.json">浏览器检查事实</a>。</li>
+<li><a href="../qa/regression-delivery-verification-20260920.json">检查总表</a>。</li>
+</ul></main></html>

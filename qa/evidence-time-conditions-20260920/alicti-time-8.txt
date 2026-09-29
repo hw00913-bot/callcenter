@@ -1,0 +1,132 @@
+座席实时状态批量获取接口
+接口说明
+座席实时状态批量获取接口
+API URL
+接口请求地址：
+https://api-{region}.alicti.cn/interface/{version}/agentStatus/batchGet
+地址参数说明：
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+{version}为接口版本，当前{version}=v10
+接口请求方式：
+GET/POST
+相关参数
+参数 |
+类型 |
+要求 |
+描述 |
+备注 |
+validateType |
+Int |
+必选 |
+验证类型 |
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； |
+departmentId |
+String |
+必选 |
+部门编号 |
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+enterpriseId |
+Int |
+必选 |
+呼叫中心编号 |
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+timestamp |
+Long |
+必选 |
+当前时间戳 |
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+sign |
+String |
+必选 |
+验证值 |
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 |
+cnos |
+String |
+必选 |
+座席号列表 |
+座席号之间用,分隔，如：cnos=2000,20001 最多支持100个座席 |
+接口请求示例
+https://api-{region}.alicti.cn/interface/v10/agentStatus/batchGet?validateType=1&departmentId=BM3000003&timestamp=1493031787&sign=8c0721422ce6fe02105ccdd5eaabb8b0
+&cnos=2000,20001
+接口返回
+JSON格式数据：
+参数 |
+类型 |
+说明 |
+result |
+Int |
+0 成功, -1 失败 |
+description |
+String |
+返回结果描述 |
+data |
+JSON |
+返回数据JSON格式 |
+errorCode |
+Int |
+错误码,当返回result=-1时，返回该参数 |
+description给出成功或失败时的文本描述：
+description |
+返回结果说明 |
+验证失败，参数[{param}]不能为空 |
+{param}为接口参数中必选字段 |
+验证失败，参数[{param}]格式不正确 |
+{param}为接口参数中格式有要求的字段 |
+验证失败，参数[{param}]取值不正确 |
+{param}为接口参数中有固定取值的字段 |
+验证失败，参数[param]取值范围不正确 |
+{param}为接口参数中有固定范围的字段 |
+验证失败，超过频次限制 |
+接口调用超过接口的访问频次限制 |
+成功，{param} |
+{param}为成功描述 |
+失败，{param} |
+{param}为失败描述 |
+data定义：
+key 为座席号, value 为座席状态信息
+座席状态信息:
+字段 |
+类型 |
+描述 |
+state |
+String |
+座席状态描述（结合了登录状态和设备状态），离线，空闲，置忙，整理，呼叫中，响铃，保持，通话 |
+stateAction |
+String |
+状态对应的动作，座席登录状态不是离线时返回。详见座席状态动作说明 |
+loginStatus |
+String |
+座席登录状态   0：离线状态  1：在线状态  2：置忙状态  3：整理状态 |
+deviceStatus |
+String |
+座席设备状态，座席登录状态不是离线时返回  -1：错误的状态  0：空闲状态  1：锁定状态   2：邀请中状态  3：响铃状态  4：使用中状态 |
+mainUniqueId |
+String |
+座席当前参与的通话唯一标识，座席设备状态为1/2/3/4时返回 |
+extenReachable |
+Boolean |
+座席当前绑定终端是否可达，true 表示可达，false 表示不可达 |
+返回示例：
+{
+"result": "0",
+"description": "success",
+"data": {
+"2000": {
+"state": "空闲",
+"stateAction": "idle",
+"loginStatus": "1",
+"deviceStatus": "0",
+"extenReachable": true
+},
+"20001": {
+"state": "离线",
+"loginStatus": "0",
+"extenReachable": false
+}
+}
+}

@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-23",
+  "result": "pass_after_fixes",
+  "scope": "TRAE 实现的坐席工具条工作模式专项回归；本地原型，不连接真实 AliCti",
+  "contract": {
+    "source": "references/alicti/API-304.txt",
+    "loginField": "workingMode: String; 0=预览与预测同时, 4=预览外呼, 5=预测外呼",
+    "onlineMethod": "CTILink.Agent.changeWorkingMode",
+    "openQuestion": "CF-16：呼入是否受工作模式限制仍待供应商确认"
+  },
+  "fixed": [
+    "非法原型属性名不再被当作工作模式并发送到登录或切换请求",
+    "软电话断线重登沿用当前在线已选模式，不回退到上次保存的下次登录偏好",
+    "话后整理尚未完成时禁止切换；切换请求期间来电则保留待核对状态并按实际快照确认",
+    "通话、整理或电话操作处理中禁用工具条模式选择",
+    "更新修改资源的页面缓存版本，避免浏览器沿用旧脚本；现行说明与接口映射不再规定固定模式 0"
+  ],
+  "verification": {
+    "scripts": [
+      {"name": "qa/verify-seat-operations.cjs", "checks": 46, "result": "pass"},
+      {"name": "qa/verify-working-mode.cjs", "result": "pass"},
+      {"name": "qa/verify-phone-toolbar-actions.cjs", "result": "pass"},
+      {"name": "qa/verify-seat-reconnect.cjs", "checks": 15, "result": "pass"},
+      {"name": "qa/verify-seat-reconnect-workbench.cjs", "checks": 4, "result": "pass"},
+      {"name": "qa/verify-incall-followup.cjs", "checks": 40, "result": "pass"}
+    ],
+    "syntax": "3 个相关 JS 文件通过",
+    "documentation": {"result": "pass", "checks": 630, "links": 3384, "officialSources": 100},
+    "browser": {
+      "origin": "http://127.0.0.1:8776",
+      "account": "hq-operator，本地演示账号",
+      "checks": [
+        "首次未选择模式时登录引导至登录设置",
+        "保存模式 4 后登录，工具条直接显示当前模式",
+        "在线切换到模式 5 成功，预览外呼入口禁用",
+        "工具条状态及桌面布局正常"
+      ],
+      "consoleErrors": 0,
+      "temporaryTabClosed": true
+    }
+  },
+  "limits": [
+    "供应商登录、切换回执及真实呼入分配未联调；本次只验证本地模拟和官方文档字段。",
+    "CF-16 的呼入模式影响仍待确认。",
+    "未执行完整原型的全模块回归，也未推送 GitLab。"
+  ]
+}

@@ -1,0 +1,129 @@
+更新技能
+
+接口说明：
+
+API URL
+
+接口请求地址： https://api-{region}.alicti.cn/interface/{version}/skill/update 
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10 
+
+接口请求方式：GET/POST
+
+相关参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+id | 
+Int | 
+可选 | 
+技能id | 
+正整数，id和preName可选，但必须二选一。两者都选时，以id为主。 | 
+
+preName | 
+String | 
+可选 | 
+修改前的技能名称 | 
+ | 
+
+name | 
+String | 
+必选 | 
+修改后的技能名称 | 
+ | 
+
+comment | 
+String | 
+可选 | 
+修改后的描述 | 
+ | 
+
+接口请求示例：
+
+https://api-{region}.alicti.cn/interface/v10/skill/update?validateType=2&departmentId=BM3000000&timestamp=1484649817&enterpriseId=7000001
+&sign=7052c0c538344f2e018ebf2baec3d090&id=28&name=处理投诉&comment=具备处理投诉的技能
+
+接口返回
+
+data定义：
+
+字段           | 
+类型     | 
+描述         | 
+
+id | 
+Int | 
+技能id | 
+
+enterpriseId | 
+Int | 
+企业编号 | 
+
+name | 
+String | 
+技能名称 | 
+
+comment | 
+String | 
+描述 | 
+
+createTime | 
+String | 
+创建时间,精确到秒 | 
+
+返回示例：
+
+	{
+    "result": "0",
+    "description": "成功",
+    "data": {
+        "id": "52593",
+        "enterpriseId": "7122600",
+        "name": "2902JnD更新技能",
+        "comment": "7067sjz技能描述",
+        "createTime": "2026-03-30 06:12:41"
+    }
+}

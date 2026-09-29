@@ -1,0 +1,339 @@
+创建座席员工分机并进行绑定
+接口说明
+根据传入数据创建座席、员工和分机并进行绑定的接口
+API URL
+接口请求地址：
+https://api-{region}.alicti.cn/interface/{version}/personnel/createAndBind
+地址参数说明：
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+{version}为接口版本，当前{version}=v10
+接口请求方式：
+GET/POST
+相关参数
+参数 |
+类型 |
+要求 |
+描述 |
+备注 |
+validateType |
+Int |
+必选 |
+验证类型 |
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； |
+departmentId |
+String |
+必选 |
+部门编号 |
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+enterpriseId |
+Int |
+必选 |
+呼叫中心编号 |
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+timestamp |
+Long |
+必选 |
+当前时间戳 |
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+sign |
+String |
+必选 |
+验证值 |
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 |
+crmId |
+String |
+必选 |
+员工编号 |
+同一企业员工编号不能重复 |
+presonnelName |
+String |
+必选 |
+员工姓名 |
+|
+presonnelPassword |
+String |
+必选 |
+员工密码 |
+密码长度在5-30位之间，用户需要自己进行md5加密,加密后密码为32为字符串 |
+exten |
+String |
+必选 |
+分机号,3-11位 |
+|
+extenType |
+Int |
+必选 |
+类型 |
+1. 注册到IAD分机 2.注册到webrtc 3.注册到远程话机 |
+extenPassword |
+String |
+必选 |
+密码 |
+|
+extenAreaCode |
+String |
+必选 |
+区号 |
+|
+allow |
+String |
+可选 |
+语音编码 |
+允许的语音编码,支持格式:
+1. g729
+2. g729,alaw,ulaw
+3. alaw,ulaw,g729
+4. alaw,ulaw
+5. myopus,alaw,ulaw
+5. myopus,alaw,ulaw
+6. myopus,g729,alaw,ulaw
+7. myopus,g729
+公网+远程话机支持配置1/2/3;
+专线+远程话机支持配置1/2;
+公网+软电话支持配置4;
+专线+软电话支持配置5; |
+cno |
+String |
+必选 |
+座席工号 |
+正整数，取值3-10位数字 |
+agentName |
+String |
+必选 |
+座席姓名 |
+需进行UTF-8格式的URLEncode编码 |
+agentAreaCode |
+String |
+必选 |
+座席所属区号 |
+区号格式 |
+power |
+Int |
+可选 |
+座席权限 |
+取值1或0，取值说明 1：班长席，0：普通座席，默认为0 普通座席 |
+wrapup |
+Int |
+可选 |
+整理时间 |
+单位秒数，默认10秒 |
+agentCallPower |
+Int |
+可选 |
+呼叫权限 |
+取值说明 0：无限制，1：国内长途，2：国内本市，3：内部呼叫，默认无限制 |
+obClidType |
+Int |
+可选 |
+外显规则 |
+取值：1:默认 2:随机 3:按区号 4 动态外显 ，默认值为1 |
+obClid |
+String |
+可选 |
+透传号码 |
+可传入企业中继号码或设置好的客户侧外显号码，当obClidType值为2或3时必选 |
+isRandom |
+String |
+可选 |
+随机外显 |
+取值说明 0:否，1:是。当obClidType值为4时需要传值，默认值为0 |
+obClidProperty |
+JSON |
+可选 |
+外显属性 |
+取值：{"isMatchCapital":0,"areaCodeRule":1}；obClidType=4时，isMatchCapital表示是否匹配省会号码，1是 0否，areaCodeRule表示区号匹配规则，1座席区号 2客户号码区号 |
+skillIds |
+String |
+必选 |
+所选的技能id |
+可选择多个，多个之间使用英文标点逗号间隔.例如:"1,2,3"；传入skillIds时，需要同时传入skillLevels |
+skillLevels |
+String |
+必选 |
+所选的技能的等级 |
+值越小技能越高，多个间用英文标点逗号间隔。(与技能id相对应) 例如:"5,1,1"表示技能id为1的等级是5; 技能id为2的等级是1; 技能id为3的等级是1. |
+isAsr |
+Int |
+可选 |
+是否开启ASR转写 |
+取值说明：0：不开启，1：开启，默认不开启 |
+webrtcUrlType |
+Int |
+可选 |
+webrtc软电话返回地址 |
+取值说明：0：企业默认 1：公网域名 2：专线域名 3：公网IP 4：专线IP |
+isObRemember |
+String |
+可选 |
+外呼主叫记忆开关 |
+取值说明：0：关闭 1：开启；默认开启 |
+接口请求示例
+https://api-{region}.alicti.cn/interface/v10/personnel/createAndBind?validateType=1&departmentId=BM3000003&timestamp=1491369811&sign=36f19f740bb3e1f0087e79552cf02cb0
+&cno=20190&agentName=test&agentAreaCode=010&skillLevels=1&skillIds=25&webrtcUrlType=0&crmId=8888&presonnelName=111&presonnelPassword=afdd0b4ad2ec172c586e2150770fbf9e
+&exten=1212&extenPassword=afdd0b4ad2ec172c586e2150770fbf9e&extenAreaCode=010&allow=g729&extenType=1
+接口返回
+JSON格式数据：
+参数 |
+类型 |
+说明 |
+result |
+Int |
+0 成功, -1 失败 |
+description |
+String |
+返回结果描述 |
+data |
+JSON |
+返回数据JSON格式 |
+errorCode |
+Int |
+错误码,当返回result=-1时，返回该参数 |
+description给出成功或失败时的文本描述：
+description |
+返回结果说明 |
+验证失败，参数[{param}]不能为空 |
+{param}为接口参数中必选字段 |
+验证失败，参数[{param}]格式不正确 |
+{param}为接口参数中格式有要求的字段 |
+验证失败，参数[{param}]取值不正确 |
+{param}为接口参数中有固定取值的字段 |
+验证失败，参数[param]取值范围不正确 |
+{param}为接口参数中有固定范围的字段 |
+验证失败，超过频次限制 |
+接口调用超过接口的访问频次限制 |
+成功，{param} |
+{param}为成功描述 |
+失败，{param} |
+{param}为失败描述 |
+data定义：
+字段 |
+类型 |
+描述 |
+agent |
+Agent |
+座席配置信息 |
+agentSkills |
+AgentSkill |
+座席所需技能数组 |
+errorCode说明：
+代码 |
+说明 |
+10001 |
+系统异常 |
+10002 |
+超出请求频度限制 |
+10003 |
+权限验证失败 |
+10004 |
+企业状态异常 |
+20000 |
+参数不正确 |
+20022 |
+超出最大座席限制数 |
+返回示例：
+{
+"result": "0",
+"description": "操作成功",
+"data": {
+"exten": {
+"id": "12447",
+"enterpriseId": "6000001",
+"exten": "8899",
+"password": "afdd0b4ad2ec172c586e2150770fbf9e",
+"callPower": "0",
+"isOb": "1",
+"isDirect": "1",
+"ibRecord": "1",
+"obRecord": "1",
+"areaCode": "010",
+"type": "2",
+"allow": "g729",
+"disallow": "",
+"iadName": "",
+"bindGatewayId": null,
+"bindGatewayIp": null,
+"expirationTime": null,
+"uri": null,
+"contactId": null,
+"state": null,
+"stateTime": null,
+"registerTime": null,
+"bindCno": null,
+"userAgent": null,
+"viaAddr": null,
+"backupEnterpriseId": null,
+"createTime": "2020-02-19 19:01:26"
+},
+"agent": {
+"agent": {
+"id": "118282",
+"enterpriseId": "6000001",
+"cno": "6655",
+"active": "1",
+"wrapup": "10",
+"areaCode": "010",
+"name": "测试测试",
+"power": "0",
+"callPower": "0",
+"agentType": "2",
+"isOb": "1",
+"obClid": null,
+"obClidType": "1",
+"obClidProperty": null,
+"ibRecord": "1",
+"obRecord": "1",
+"status": "0",
+"bindTel": "8899",
+"bindTelType": null,
+"isAsr": "0",
+"asrCallType": null,
+"webrtcUrlType": "0",
+"comment": null,
+"updateTime": "1582110086431",
+"createTime": "2020-02-19 19:01:26"
+},
+"agentSkills": [
+{
+"id": "123481",
+"enterpriseId": "6000001",
+"agentId": "118282",
+"cno": "6655",
+"skillId": "737",
+"skillLevel": "1",
+"skillName": null,
+"createTime": "2020-02-19 19:01:26"
+}
+]
+},
+"personnel": {
+"id": "4028",
+"crmId": "0033",
+"name": "XXX",
+"pwd": "afdd0b4ad2ec172c586e2150770fbf9e",
+"sex": null,
+"birth": null,
+"certificateId": null,
+"mobile": null,
+"otherTel": null,
+"fax": null,
+"email": null,
+"address": null,
+"post": null,
+"isDistributionAgent": "1",
+"callCenterId": "6000001",
+"agent": "6655",
+"departmentId": "4",
+"enabled": "1",
+"createTime": "1582110086296",
+"tenancyName": null,
+"organizationName": null,
+"departmentName": null,
+"tccConfDepartment": null
+}
+}
+}

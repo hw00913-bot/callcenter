@@ -1,0 +1,86 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>通话数据异常与操作审计定义表</title><link rel="stylesheet" href="../assets/css/delivery-docs.css?v=2026-09-24-business-category-fields-1"><style>.doc-exceptions .table-wrap{overflow:auto}.doc-exceptions table{min-width:1120px}.doc-exceptions th,.doc-exceptions td{min-width:130px;vertical-align:top}.doc-exceptions th:first-child,.doc-exceptions td:first-child{min-width:76px}.doc-exceptions td:nth-child(3),.doc-exceptions td:nth-child(5){min-width:230px}</style></head><body class="doc-page doc-exceptions"><aside class="doc-sidebar" aria-label="文档目录"><h2>交付文档</h2><div class="doc-catalog"><a href="change-log.html">版本与变更记录</a><a href="functional-spec.html">完整功能说明</a><a href="interaction.html">规则附表 A–M</a><a href="exception-definitions.html">异常定义表</a><a href="field-alignment.html">字段级对齐清单</a><a href="remaining-confirmations.html">待确认与接入准备</a><a href="development.html">开发阅读指引</a></div><label class="doc-search-label" for="doc-search">查找目录</label><input id="doc-search" type="search" placeholder="输入功能名称或编号"><nav><a href="#定义口径" data-search="定义口径">定义口径</a><a href="#通话数据异常定义" data-search="通话数据异常定义">通话数据异常定义</a><a href="#操作审计判定" data-search="操作审计判定">操作审计判定</a><a href="#不直接归为异常的情况" data-search="不直接归为异常的情况">不直接归为异常的情况</a><a href="#通话异常处理状态" data-search="通话异常处理状态">通话异常处理状态</a><a href="#当前实现边界与待定义项" data-search="当前实现边界与待定义项">当前实现边界与待定义项</a><a href="#核验依据" data-search="核验依据">核验依据</a></nav><p id="doc-search-empty" hidden>没有匹配的目录项</p></aside><main class="doc-main"><div class="doc-actions"><a href="exception-definitions.md" download>下载 Markdown</a><button type="button" onclick="window.print()">打印 / 保存 PDF</button><a href="../index.html" data-delivery-switch="prototype">返回原型 →</a></div><h1 id="通话数据异常与操作审计定义表">通话数据异常与操作审计定义表</h1>
+<p>版本 2026-09-16-reports-delivery-1 · 核对日期 2026-09-16</p>
+<p><a href="通话数据异常与操作审计定义表.xlsx">下载异常定义表 Excel</a></p>
+<h2 id="定义口径">定义口径</h2>
+<p>当前原型实现、功能说明 FS-18 / FS-19、规则附表及开发设计。CD / AU 为本表编号，不是 AliCti 错误码。</p>
+<ul>
+<li>通话数据异常关注通话数据的完整性、归属与一致性。当前异常页面只有 2 种字段完整的预置类型，尚未实现自动检测并生成异常待办。</li>
+<li>操作审计记录谁在何时对什么对象做了什么操作。当前没有独立的异常标志、严重等级或结果枚举，不能按动作名称或文字颜色认定异常。</li>
+<li>下面的审计分类用于解释已有操作分支，供开发统一结果标签时参考。分类建议尚未成为原型字段或供应商规则。</li>
+<li>异常处理与审计留痕分别管理：业务问题解决后关闭对应待办，原失败记录和操作历史保留。</li>
+</ul>
+<h2 id="通话数据异常定义">通话数据异常定义</h2>
+<p>CD-01、CD-02 是当前页面已有的完整异常类型。CD-03 至 CD-11 是已实现的内部校验，尚未自动生成人工异常待办。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">编号</th><th scope="col">异常或情况</th><th scope="col">判定条件</th><th scope="col">业务影响</th><th scope="col">处理与恢复标准</th><th scope="col">当前实现范围</th><th scope="col">责任与权限</th><th scope="col">核验依据</th></tr></thead><tbody>
+<tr><td>CD-01</td><td>结束信息缺失</td><td>已有通话在自动核对后仍缺结束信息，无法完整展示结束结果及有效时长。升级等待时限尚未定义。</td><td>通话结束展示或时长统计不完整。不能把缺失时长当作 0 秒。</td><td>补查同一原通话的结束信息、结果和时长。当前演示以找到原通话，且返回非空结果、结束时间及有限非负时长作为已恢复条件。生产还需校准统一状态证据。</td><td>页面已有类型，来自预置样例。未实现自动检测入队。</td><td>当前供应商账号的超级管理员处理；不能回写其他账号或租户通话。</td><td>原型异常样例 S02；补查逻辑 S01；FS-18</td></tr>
+<tr><td>CD-02</td><td>通话结果待确认</td><td>自动核对后仍无足够有效资料，不能确认客户是否接通。不是把所有未接通电话都列为异常。</td><td>接通结果保留未知，不计入已接通或未接通，也不计入接通率的已知结果分母。</td><td>补查原通话，取得有效客户接听或未接听证据后校准。没有资料则继续待确认，不猜测结果。当前演示的恢复条件同 CD-01。</td><td>页面已有类型，来自预置样例。未实现自动检测入队。</td><td>超级管理员处理；供应商结果无法取得时由技术人员协同查证。</td><td>原型异常样例 S02；FS-18；附表 K-15</td></tr>
+<tr><td>CD-03</td><td>客户接通证据与最终未接通结果冲突</td><td>已经有明确客户接听证据，最终资料又声明客户未接通。</td><td>客户接通事实保留，结束原因需要核对。</td><td>保留已确认的客户接通证据，核对原通话最终话单。不得用迟到的失败描述覆盖接通事实。冲突关闭的人工队列流程尚未接通。</td><td>内部状态校验已实现，保存冲突标记；不会自动出现在异常待办页。</td><td>内部校验自动处理；人工处置入口需开发接通。</td><td>通话状态归一 S03；附表 B 通话状态规则</td></tr>
+<tr><td>CD-04</td><td>话单接听状态与接听时间冲突</td><td>同一参与方的状态表示未接听，但该参与方同时有有效接听时间。人工、预测、呼入话单分别识别客户侧与坐席侧。</td><td>保留该侧接听时间对应的已接听判定，同时标记状态与时间冲突，校准仍待确认。客户与坐席独立判断。</td><td>保留原字段及接听时间证据，核对该侧含义和最终话单。不能把坐席接起直接当客户接通。</td><td>话单字段归一已实现；尚未自动生成异常待办。</td><td>内部归一检查；技术人员核对字段来源。</td><td>话单字段归一 S04；字段对齐清单</td></tr>
+<tr><td>CD-05</td><td>同一事件编号内容冲突</td><td>同一已核实通话内，相同事件编号再次出现，但通道、参与方、事件类型或时间不同。</td><td>矛盾事件可能污染通话状态。</td><td>拒绝本次矛盾事件修改聚合状态，保存原始事件及冲突原因，再核对事件内容。完全相同的重复事件直接忽略。</td><td>内部校验及冲突标记已实现；尚未自动生成异常待办。</td><td>内部事件校验；技术人员协同查证。</td><td>事件去重与冲突逻辑 S03</td></tr>
+<tr><td>CD-06</td><td>同一通道参与方冲突</td><td>同一通道已明确属于客户或坐席，后续事件又将其明确声明为另一方。</td><td>可能混淆客户接听与坐席接听。</td><td>拒绝矛盾事件，保留已知参与方及原证据。未知参与方后续补充为已知属于正常补全。</td><td>内部校验及冲突标记已实现；尚未自动生成异常待办。</td><td>内部事件校验；技术人员核对通道归属。</td><td>通道角色校验 S03</td></tr>
+<tr><td>CD-07</td><td>事件归属缺失或不一致</td><td>事件缺少供应商账号或通话标识，或标识与目标通话不一致。</td><td>存在误合并到其他通话、账号或租户的风险。</td><td>拒绝用于目标通话归一，保留拒收原因。确认唯一归属后再处理，不按相同手机号跨批次关联。</td><td>已实现事件拒收轨迹；尚未自动生成异常待办。</td><td>内部归属校验；需要人工时由超级管理员及技术人员处理。</td><td>归属校验 S03；FS-18；附表 M-12</td></tr>
+<tr><td>CD-08</td><td>事件必要字段无效</td><td>缺少通道标识、事件类型不受支持，或缺少有效事件时间。</td><td>无法可靠用于通话进度和接听判断。</td><td>拒绝参与当前状态计算，保留原事件与具体原因。字段补齐或适配规则明确后再处理。</td><td>已实现拒收轨迹；尚未自动生成异常待办。</td><td>内部事件校验；技术人员核对字段。</td><td>事件字段校验 S03</td></tr>
+<tr><td>CD-09</td><td>补查资料失败或身份不匹配</td><td>本地聚合器收到失败补查结果；或合并顶层与数据对象的归属信息后仍缺账号、通话标识；或任一已提供标识与目标不一致。</td><td>该响应不能证明原通话的最终状态。</td><td>拒绝用该响应校准，保留原记录、响应和原因。后续取得属于同一通话的有效资料再处理。</td><td>本地聚合器已有校验；不等于异常页已调用官方话单接口。</td><td>内部补查校验；超级管理员发起核对，技术人员协同。</td><td>补查响应校验 S03；FS-18</td></tr>
+<tr><td>CD-10</td><td>补查参与方归属不一致</td><td>补查资料内客户或坐席参与组附带的账号、通话标识，与当前目标不一致。</td><td>该参与组的接听证据不可信。</td><td>跳过错误参与组并留存标记。只采用归属已确认的资料，不将错误组写入其他客户。</td><td>内部参与组校验已实现；尚未自动生成异常待办。</td><td>内部校验；技术人员核对参与组来源。</td><td>补查参与方校验 S03</td></tr>
+<tr><td>CD-11</td><td>供应商话单账号不一致</td><td>供应商原始话单中的 enterpriseId 与当前通话对应的供应商账号不同。</td><td>该话单不能用于当前客户接听判断。</td><td>展示未知并保留账号不匹配原因，重新获取同账号原通话资料。</td><td>供应商话单展示归一已实现；尚未自动生成异常待办。</td><td>内部校验；超级管理员及技术人员处理。</td><td>供应商话单归属校验 S03</td></tr>
+</tbody></table></div>
+<h2 id="操作审计判定">操作审计判定</h2>
+<p>以下按已有操作分支解释正常、失败、未知等情况。当前审计没有这些统一分类字段。成功处理原问题后，应追加审计记录并保留原历史。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">编号</th><th scope="col">异常或情况</th><th scope="col">判定条件</th><th scope="col">业务影响</th><th scope="col">处理与恢复标准</th><th scope="col">当前实现范围</th><th scope="col">责任与权限</th><th scope="col">核验依据</th></tr></thead><tbody>
+<tr><td>AU-01</td><td>正常配置变更</td><td>有权用户完成坐席技能、号码授权、呼入规则等配置修改。</td><td>配置按有效操作发生变化。</td><td>保留操作人、对象、时间及前后差异。无需建立异常待办。</td><td>已有操作记录。正常操作，不属于异常。</td><td>超级管理员查看当前账号范围；租户管理员查看本租户；运营无入口。</td><td>操作审计 S05；审计写入 S06；FS-19</td></tr>
+<tr><td>AU-02</td><td>敏感但正常的状态变更</td><td>有权用户主动停用号码、停用坐席或结束任务，并取得所需确认。</td><td>对应服务暂停或后续呼叫停止。</td><td>保留操作历史。号码可按规则重新启用；任务结束后不可重新开启。不能仅因动作是停用或终止就判异常。</td><td>已有操作记录。敏感操作本身不等于失败。</td><td>操作人按对象权限执行；管理员复核必要差异。</td><td>号码状态 S08；任务控制 S07；FS-19</td></tr>
+<tr><td>AU-03</td><td>明确操作失败</td><td>操作返回明确拒绝或失败结果。例如任务控制写入失败。</td><td>本次期望操作未成功，不能显示已生效。</td><td>保留失败原因及已查询状态。排除原因后重新按当前状态操作，新增处理记录，保留原失败历史。</td><td>部分流程会写入审计文本；没有统一失败枚举，也不保证所有失败都留审计。</td><td>有权限的原操作人处理，管理员或技术人员协同。</td><td>任务控制 S07；审计写入 S06</td></tr>
+<tr><td>AU-04</td><td>操作结果待核对</td><td>操作前后查询失败、标识不匹配或状态未知，无法取得原任务的有效状态。受理本身不能证明实际生效。</td><td>不能确定操作已生效，保留最后已知状态并阻止不安全的后续执行。</td><td>重新查询原对象，取得匹配的有效结果后更新业务状态。不能自动重放创建或把未知当成功。原审计不删除。</td><td>任务控制已有对应分支及文本记录；统一结果标签属于开发建议。</td><td>有权限的操作人重新核对，技术人员协同。</td><td>任务控制 S07；附表 M-06</td></tr>
+<tr><td>AU-05</td><td>实际状态与操作要求不一致</td><td>操作前查到已结束，或继续时查到不是暂停态；也包括操作后取得有效状态，但未达到本次操作目标。</td><td>前置不符时不提交；操作后不符时不确认本次成功，按查到的实际状态显示，不一律归为未知或停止执行。</td><td>查看实际状态再决定下一步。已结束不可重启，其他按允许动作处理。状态保护本身不必另建异常待办，持续未达预期时核对原因。</td><td>任务远端状态检查已有审计路径；本地前置拦截不一定记录。</td><td>有任务操作权限的用户；管理员复核必要差异。</td><td>任务控制 S07</td></tr>
+<tr><td>AU-06</td><td>批量部分失败</td><td>批量坐席新增或导入同时存在成功项与失败项。跳过已有工号不算失败；全部失败按明确失败或待核对解释。</td><td>成功项保留，失败项尚未完成。不能把整批显示为全部成功。</td><td>逐项核对失败原因，只处理未完成项。不重复创建成功或已存在坐席，保留每次处理结果。</td><td>已有成功、跳过、失败汇总文本；没有统一部分失败枚举。</td><td>当前范围内有坐席管理权限的管理员。</td><td>批量坐席处理 S09；附表 G-25、H-12</td></tr>
+<tr><td>AU-07</td><td>原配置异常的处理记录</td><td>管理员对工号重复、技能创建结果未知等原业务问题执行修正或核对。</td><td>原问题影响对应坐席或技能配置。审计记录处理过程。</td><td>原配置查证成功才解除该配置问题。仍未知则继续待处理，不重复创建。历史处理记录保留。</td><td>配置异常与审计分开保存；处理动作名称不能证明异常已解决。</td><td>有原配置对象处理权限的管理员。</td><td>配置问题处理 S10；审计写入 S06</td></tr>
+<tr><td>AU-08</td><td>原通话数据异常的核对记录</td><td>超级管理员对异常通话执行重新核对，产生已恢复或仍需处理结果。</td><td>审计只记录核对操作及结果，业务待办仍在通话数据异常页面。</td><td>按 CD-01 / CD-02 的恢复规则更新原问题。一次核对失败不删除历史；恢复后也保留原审计。</td><td>当前演示会记录操作时间、操作人和处理结果；补查能力边界见通用说明。</td><td>当前账号范围的超级管理员。</td><td>通话异常补查 S01；审计写入 S06</td></tr>
+<tr><td>AU-09</td><td>权限、资源或参数前置拦截</td><td>权限不足、工作范围变化、资源不可用、参数非法，或本地任务状态不允许提交。</td><td>本次操作没有继续提交。应向用户提示明确原因。</td><td>满足合法权限、资源和状态条件后重新发起。是否需要建立安全或运营告警须另行定义。</td><td>已有多处分支拦截，但并非全部写审计。统一“已拦截”结果分类为开发建议。</td><td>按对象权限处理；不能通过绕过校验解除。</td><td>任务控制 S07；号码状态 S08；批量坐席处理 S09</td></tr>
+</tbody></table></div>
+<h2 id="不直接归为异常的情况">不直接归为异常的情况</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">情况</th><th scope="col">判断边界</th><th scope="col">依据</th></tr></thead><tbody>
+<tr><td>占线、无人接听、拒接、空号、关机等</td><td>属于号码状态或正常通话业务结果，不能据此判断数据处理异常。</td><td>官方号码状态字典；附表 B</td></tr>
+<tr><td>号码编码缺失、未知或同码多义</td><td>保留原码并显示待确认。715、183 无法细分时不猜描述；当前不会自动创建异常待办。</td><td>号码状态归一 S11；附表 M-16</td></tr>
+<tr><td>完全相同的重复事件或话单</td><td>成功去重后不再创建人工待办，也不增加通话次数。</td><td>通话状态归一 S03；FS-18</td></tr>
+<tr><td>可以正常整理的乱序事件</td><td>状态按已有规则向前推进，必要时补全先前接听证据。乱序本身不等于异常。</td><td>通话状态归一 S03</td></tr>
+<tr><td>只有坐席接起、单一通道结束</td><td>坐席接起不能证明客户接听；单一通道结束不能证明整通通话已结束。</td><td>通话状态归一 S03；附表 B</td></tr>
+<tr><td>通话进行中、正在等待最终话单</td><td>属于过程状态。尚未定义等待多久后升级人工异常。</td><td>附表 B；开发架构 S12</td></tr>
+<tr><td>暂无录音或转写文本</td><td>录音、文本和接听结果分别判断。缺少录音或文本不能直接归为未接通。</td><td>规则附表 L（录音与文本）</td></tr>
+<tr><td>停用、隔离、终止、重试等审计动作</td><td>动作名称反映用户做了什么。是否失败、待核对或已恢复要看原业务处理结果。</td><td>操作审计 S05；FS-19</td></tr>
+</tbody></table></div>
+<h2 id="通话异常处理状态">通话异常处理状态</h2>
+<p>权限：仅当前供应商账号的超级管理员处理通话数据异常。核对前后工作范围变化时，不应用旧结果。审计查询则允许超级管理员查看当前账号范围、管理员查看本租户，运营无入口。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">状态</th><th scope="col">当前含义</th><th scope="col">处理规则</th></tr></thead><tbody>
+<tr><td>待处理</td><td>页面筛选时包含所有尚未“已恢复”的记录，并非只筛字面为待处理的状态。</td><td>可发起核对。</td></tr>
+<tr><td>核对中</td><td>本次核对已开始，等待该次结果。</td><td>禁止重复发起同一记录核对。</td></tr>
+<tr><td>仍需处理</td><td>没有取得完整结果，或核对期间工作范围变化导致结果不能应用。</td><td>保留原通话，后续可重新核对。</td></tr>
+<tr><td>已恢复</td><td>当前演示满足原通话存在、结果和结束时间非空、时长为有限非负值的条件。</td><td>不再展示重新核对按钮，处理与审计历史保留。生产应以完整可信证据校准为关闭标准。</td></tr>
+</tbody></table></div>
+<h2 id="当前实现边界与待定义项">当前实现边界与待定义项</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">事项</th><th scope="col">当前情况</th><th scope="col">后续要求</th></tr></thead><tbody>
+<tr><td>自动检测与人工队列</td><td>当前页面读取预置异常集合。内部冲突标记、拒收轨迹和人工待办尚未自动贯通。</td><td>开发需明确哪些内部问题进入人工队列，并关联原通话。</td></tr>
+<tr><td>补查与恢复一致性</td><td>当前重新核对只读取样例并改写结果、结束时间和时长，未调用官方话单接口，也未统一更新状态证据。</td><td>开发需校验身份、时间及接听证据，校准同一原通话、客户与统计后再关闭。</td></tr>
+<tr><td>超时、频率、次数与严重等级</td><td>尚未定义异常升级等待时长、补查频率、最大次数、积压报警或严重等级。650 毫秒只是演示交互延迟。</td><td>需按供应商真实时效及项目运营要求确定，不能自行套用 5 分钟、3 次或 P1/P2。</td></tr>
+<tr><td>状态名称一致性</td><td>异常页面使用待处理、核对中、仍需处理、已恢复；开发模型仍有已核实或待确认的写法。</td><td>开发前统一状态枚举和迁移规则。本表如实采用当前页面名称。</td></tr>
+<tr><td>旧异常样例完整性</td><td>旧样例缺少类型、影响或处理轨迹时，列表和详情已补充安全默认展示；已有结束结果不被旧异常覆盖。</td><td>K01 已修复详情容错。缺字段不作为新增异常类型，不据此伪造发现时间或自动处理轨迹；人工队列自动生成仍未实现。</td></tr>
+<tr><td>审计字段与留痕覆盖</td><td>当前审计主要保存前后文本，缺统一结果枚举、错误码、请求关联及完整失败拦截留痕；页面只有关键词和动作筛选。</td><td>统一结果标签并补齐失败与拦截审计、结果与时间筛选。原审计采用追加记录。</td></tr>
+<tr><td>审计导出</td><td>当前按钮仅提示，实际文件导出是已记录的本方开发项 IMP-01。</td><td>按权限和已应用筛选导出完整文件，并核对真实下载内容。</td></tr>
+</tbody></table></div>
+<h2 id="核验依据">核验依据</h2>
+<p>下列定位供开发核查。功能说明见 <a href="functional-spec.html#FS-18">FS-18 通话数据异常</a>、<a href="functional-spec.html#FS-19">FS-19 操作审计</a>；规则见 <a href="interaction.html">附表 B / K / L / M</a>。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">编号</th><th scope="col">材料</th><th scope="col">定位</th></tr></thead><tbody>
+<tr><td>S01</td><td><a href="../js/components/call-data-issues.js">通话数据异常页面、核对与恢复逻辑</a></td><td>第 6 行起</td></tr>
+<tr><td>S02</td><td><a href="../mock/data.js">两个完整的通话异常样例</a></td><td>第 205 行起</td></tr>
+<tr><td>S03</td><td><a href="../js/components/call-state.js">事件、通道与最终话单状态归一</a></td><td>第 35 行起</td></tr>
+<tr><td>S04</td><td><a href="../js/components/alicti-fields.js">供应商话单字段归一</a></td><td>第 212 行起</td></tr>
+<tr><td>S05</td><td><a href="../js/pages/system-center.js">操作审计列表、筛选与详情</a></td><td>第 7 行起</td></tr>
+<tr><td>S06</td><td><a href="../mock/data.js">操作审计记录写入</a></td><td>第 285 行起</td></tr>
+<tr><td>S07</td><td><a href="../js/components/alicti-task-control.js">任务操作前后查询与结果判定</a></td><td>第 94 行起</td></tr>
+<tr><td>S08</td><td><a href="../js/pages/resource-lines.js">号码启停与用途修改</a></td><td>第 138 行起</td></tr>
+<tr><td>S09</td><td><a href="../js/components/alicti-seat-import.js">批量坐席新增与导入结果</a></td><td>第 64 行起</td></tr>
+<tr><td>S10</td><td><a href="../js/components/business-issues.js">原配置异常处理与审计关联</a></td><td>第 12 行起</td></tr>
+<tr><td>S11</td><td><a href="../js/components/alicti-number-status.js">号码状态识别编码展示</a></td><td>第 16 行起</td></tr>
+<tr><td>S12</td><td><a href="../docs/functional-spec.md">异常与审计的功能规则</a></td><td>第 1497 行起</td></tr>
+<tr><td>S13</td><td><a href="../mock/workbench-fixtures.js">旧工作台异常样例</a></td><td>第 42 行起</td></tr>
+<tr><td>S14</td><td><a href="../docs/rules-appendix.md">审计与异常处理附表</a></td><td>第 1 行起</td></tr>
+</tbody></table></div></main><script src="../js/documentation-nav.js?v=2026-09-24-business-category-fields-1"></script><script src="../js/delivery-nav.js?v=20260919-navigation2"></script></body></html>

@@ -1,0 +1,1313 @@
+{
+  "scope": "current_reviewed_display_facts",
+  "date": "2026-09-24",
+  "interfaces": [
+    {
+      "id": "API-301",
+      "name": "服务端接口签名",
+      "endpoint": "/interface/v10/",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/权限验证/接口鉴权.html"
+      ],
+      "notes": [
+        "供应商账号ID：enterpriseId是供应商账号ID；本地按String保存，接口文档要求Int，适配前校验为不含前导零且处于JavaScript安全整数范围的正整数再转换。演示总部账号7522240、同品牌门店账号7522241；UUID不参与接口。",
+        "鉴权方式：本项目使用2，按enterpriseId验证；departmentId分支不采用。",
+        "签名时间：Unix秒；签名时间有效期30分钟，不能传浏览器毫秒。",
+        "接口签名：正式接口要求 MD5(enterpriseId+timestamp+部门token)，32位小写。用户明确本原型仅演示，不必计算真实签名。",
+        "账号组织与号码自动归属：每个enterpriseId只关联0或1个总部/门店业务租户，内置超级租户不计入；每个业务租户仍只关联一个AliCti账号。tenantId与enterpriseId分别保留，平台登录账号仍可按成员授权加入多个租户。总部7522240与门店7522241属于同一品牌，但资源和业务数据按各自账号及租户隔离。"
+      ]
+    },
+    {
+      "id": "API-302",
+      "name": "坐席前端登录鉴权",
+      "endpoint": "/agentLogin/authenticateJsonp",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/权限验证/座席前端登录鉴权.html"
+      ],
+      "notes": [
+        "坐席登录工号：D-014供应商澄清：鉴权文档Int是笔误，实际工号均为String；鉴权与登录须保持完整工号一致。0012、012与12是不同工号，不能转整数或补零归一。",
+        "短期登录材料：30秒过期指建立连接的材料；不等于已建立电话会话每30秒失效。",
+        "电话网关地址：保持返回字段原拼写agentGateWayUrl，映射到login的webSocketUrl。",
+        "电话上线失败与连接中断反馈：鉴权过期或媒体初始化失败在发起上线处显示原因并提供重试；软电话分机未配置或无法读取时在发送登录请求前阻止上线。 D-052：breakLine(-1)断开、code=0信令恢复；SDK最多20次自动重连，sipDisconnected需重新登录。"
+      ]
+    },
+    {
+      "id": "API-303",
+      "name": "CTILink初始化与电话上线",
+      "endpoint": null,
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/工具条/快速入门.html"
+      ],
+      "notes": [
+        "待接听事件与通话身份：ringingIb为呼入待接听；ringingAgentOb为预外呼坐席振铃。供应商事件按enterpriseId、原字符串cno、contactId关联；本地事件另核对callId、tenantId、accountId，预外呼须精确关联taskId、customerTaskItemId及原客户号码。 新分配时任务须运行中，且当前坐席属于任务指定名单或外呼组成员；已分配后任务暂停不阻断原通话归档。",
+        "接听设备与请求：本项目统一登录bindType=3，浏览器接听按钮请求sipLink；busyIb或busyOb才分别确认呼入或预外呼坐席话路建立。1/2仅为官方参考，不作为本项目可选登录方式。",
+        "D-052 / SRC-082（2026-09-20，user_relayed_supplier_feedback）：breakLine的code=-1为连接断开，code=0为重连成功；SDK自动最多20次重连，每次回调，超过需重新登录。平台不另建重连循环、不按回调次数推断耗尽；sipDisconnected为无参软电话中断通知，坐席需重新登录。",
+        "D-052：breakLine code=0仅证明信令重连，不证明媒体可用或原通话恢复。事件绑定当前有效会话，旧会话事件不影响新登录；保留通话、草稿和未知操作保护。原型待通话及记录处理完成后可由本人主动重登，成功暂停接听并需明确恢复；这一保护不等于官方要求所有信令恢复均强制重登。CF-11仍保留跨设备互斥、异常退出清理、媒体就绪与最终状态核验，以及setOffline回执矛盾。"
+      ]
+    },
+    {
+      "id": "API-304",
+      "name": "坐席状态与退出",
+      "endpoint": null,
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/工具条/座席操作.html"
+      ],
+      "notes": [
+        "电话网关地址：保持返回字段原拼写agentGateWayUrl，映射到login的webSocketUrl。",
+        "坐席受控软电话分机：D-055在D-046上改为从分机资源目录选择，禁止手填。Agent.login.bindTel为必填String，读取本账号本租户已启用且未占用资源原exten，保留前导零；不进入agent/create或agent/update。",
+        "电话绑定类型：login.bindType=1普通电话、2分机、3软电话；Agent返回bindTelType=4软电话，两个枚举不同。",
+        "登录状态：登录请求loginStatus 1置闲、2置忙，按用户选择；状态字典0离线/1在线/2置忙/3整理是另一层枚举。",
+        "完全下线并保留接听电话绑定：logoutMode 0退出但后台在线、1完全退出；removeBinding 0保留、1解除设备绑定，logoutMode=1时生效。",
+        "预览外呼转写开关：D-015截图明确：企业开启自动转写且按坐席过滤时，坐席isAsr=1且单次cdrIsAsr=1或不传才允许转写，仍须满足时长等规则；任一为0不转写。",
+        "被叫号码：传外呼号码；已开号码隐藏时可用customerNumberKey，不能传空。",
+        "本通电话向客户显示的号码：人工预览外呼obClid从当前租户授权、可用于人工外呼的有效号码自动选择，发送完整号码；不由坐席手动选择，不依赖技能。任务仍保留任务号码选择。",
+        "请求关联ID：用于请求与话单关联，未承诺供应商幂等。",
+        "随路变量：数组元素为name、value、type；type=1普通变量，type=2 PJSIP_HEADER最多5个。",
+        "电话上线失败与连接中断反馈：鉴权过期或媒体初始化失败在发起上线处显示原因并提供重试；软电话分机未配置或无法读取时在发送登录请求前阻止上线。 D-052：breakLine(-1)断开、code=0信令恢复；SDK最多20次自动重连，sipDisconnected需重新登录。",
+        "接听设备与请求：本项目统一登录bindType=3，浏览器接听按钮请求sipLink；busyIb或busyOb才分别确认呼入或预外呼坐席话路建立。1/2仅为官方参考，不作为本项目可选登录方式。",
+        "固定软电话与上线状态：官方loginStatus 1置闲、2置忙；workingMode支持String 0/4/5。本项目统一软电话bindType=3，workingMode由本人单选0/4/5并随login提交；上线状态、选填pauseDescription和工作模式由本人设置。",
+        "完全下线并保留接听电话绑定：官方logoutMode 0退出但后台在线、1完全退出；removeBinding 0保留、1解除电话绑定。本期普通退出固定logoutMode=1、removeBinding=0，不开放解绑。",
+        "暂停接听类型与原因：CTILink.Agent.pause使用pauseType 1普通置忙、2休息及非空pauseDescription。",
+        "恢复接听：unpause无业务参数。本人可请求置闲；业务完整保存且phase idle后自动调用unpause，回执成功并核对ready才恢复接听。",
+        "在线修改接听设备：changeBindTel的bindType仅1普通电话、2分机，bindTel为接听设备号码String；登录bindType=3不能套用此方法。",
+        "延长整理时间：wrapupTime值域30–600秒，仅实际处于整理态可执行；文档列not in wrapup等失败。",
+        "在线切换工作模式：官方0兼顾预览和预测、4预览、5预测；changeWorkingMode单值必选。声明Agent与示例AgentTask不一致。D-072要求普通坐席登录当次选择模式直接提交login，D-071在线切换继续适用；登录逗号多值不作为产品选择暴露。",
+        "班长队列监控范围与内容：仅阿里侧班长可用；qnos逗号连接，fields取queueParams、agentStatuses、queueEntries，省略或空不返回对应字段。",
+        "请求回执、状态及偏好隔离：按当前enterpriseId、tenantId、账号、原始String cno及请求标识核验；失败保持原值、未知保护。原型未知结果仅通过LOCAL_MOCK.inspectSeatSession读取独立本地模拟快照，不是SDK或agentStatus/get响应。正式DOC-344只定义state、stateAction、loginStatus、deviceStatus、mainUniqueId、extenReachable，不能核对bindTel、bindType、workingMode或整理截止时间；这些配置须由对应SDK回执或另行核实的可信来源确认，未查明部分继续保持未知。",
+        "管理置忙、置闲与下线：目标工号原字符串；setPause/setUnpause仅传monitoredCno，setOffline另传removeBinding=0保留绑定。不提供setOnline。 setOffline回调表reqType写为setPause，与方法名不一致。 先核ADMIN、本人已上线且班长权限已确认、同租户授权队列目标及新鲜状态；空闲可置忙，置忙可置闲，空闲/置忙可下线。离线只读概览和事件日志不授予管理能力。通话/振铃/整理不执行。官方setOffline回执reqType表述矛盾保留CF-11，未知刷新核对目标状态。",
+        "事件来源与最小展示字段：API-316的/user/agent为企业WebSocket事件订阅，不是历史查询；API-315 type=9仅定义座席状态变更推送设置，未给统一事件载荷、时间戳和去重键。DOC-344 agentStatus/get按enterpriseId+cno返回当前state，不返回历史；差异只能标为本地观察。CTILink breakLine/sipDisconnected及明确成功的操作回执可作为各自事件来源。"
+      ]
+    },
+    {
+      "id": "API-305",
+      "name": "座席通话操作",
+      "endpoint": "CTILink.Session 通话控制",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/工具条/座席通话操作.html"
+      ],
+      "notes": [
+        "静音方向：direction=in输入音频流/out输出音频流/all全部；同一方法切换静音，不存在本页请求state参数。"
+      ]
+    },
+    {
+      "id": "API-306",
+      "name": "WebRTC软电话操作",
+      "endpoint": null,
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/工具条/软电话通话操作.html"
+      ],
+      "notes": [
+        "接听设备与请求：本项目统一登录bindType=3，浏览器接听按钮请求sipLink；busyIb或busyOb才分别确认呼入或预外呼坐席话路建立。1/2仅为官方参考，不作为本项目可选登录方式。"
+      ]
+    },
+    {
+      "id": "API-307",
+      "name": "新增坐席",
+      "endpoint": "agent/create",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席新增.html"
+      ],
+      "notes": [
+        "坐席登录工号：D-014供应商澄清：鉴权文档Int是笔误，实际工号均为String；鉴权与登录须保持完整工号一致。0012、012与12是不同工号，不能转整数或补零归一。",
+        "坐席姓名：UTF-8 URL编码；本地userName转换成name，在请求序列化时编码一次。",
+        "坐席工号：3–10位正整数字符串，保留前导零，不能是全零。",
+        "所属区号：区号为数字字符串；保持前导零，不凭空增加官方未规定的位数限制。",
+        "坐席联系手机号输入（取消）：当前agent/create没有mobile入参；本期已移除坐席新增及账号关联新建坐席中的联系手机号输入。平台账号自身手机号资料独立保留。",
+        "坐席启停：active只接受0停用/1启用，与status在线配置分开；未知或缺失不得默认映射。",
+        "外呼许可：0不允许、1允许；不代表已上线或所有号码可用。",
+        "预览外呼转写开关：D-015截图明确：企业开启自动转写且按坐席过滤时，坐席isAsr=1且单次cdrIsAsr=1或不传才允许转写，仍须满足时长等规则；任一为0不转写。",
+        "座席质检开关：0关闭、1开启，字段名称为isQualityCheck。",
+        "班长席权限：power 0普通坐席、1班长；本地租户ADMIN关联坐席按产品策略申请1，其他角色申请0。",
+        "账号组织与号码自动归属：每个enterpriseId只关联0或1个总部/门店业务租户，内置超级租户不计入；每个业务租户仍只关联一个AliCti账号。tenantId与enterpriseId分别保留，平台登录账号仍可按成员授权加入多个租户。总部7522240与门店7522241属于同一品牌，但资源和业务数据按各自账号及租户隔离。"
+      ]
+    },
+    {
+      "id": "API-308",
+      "name": "更新坐席",
+      "endpoint": "agent/update",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席更新.html"
+      ],
+      "notes": [
+        "坐席受控软电话分机：D-055在D-046上改为从分机资源目录选择，禁止手填。Agent.login.bindTel为必填String，读取本账号本租户已启用且未占用资源原exten，保留前导零；不进入agent/create或agent/update。",
+        "坐席姓名：UTF-8 URL编码；本地userName转换成name，在请求序列化时编码一次。",
+        "坐席启停：active只接受0停用/1启用，与status在线配置分开；未知或缺失不得默认映射。",
+        "外呼许可：0不允许、1允许；不代表已上线或所有号码可用。",
+        "本通电话向客户显示的号码：人工预览外呼obClid从当前租户授权、可用于人工外呼的有效号码自动选择，发送完整号码；不由坐席手动选择，不依赖技能。任务仍保留任务号码选择。",
+        "坐席配置与话务状态：坐席列表话务状态采用官方state，启用状态采用active，二者独立；未知state保留待核对，不将在线当空闲。删除记录不进入当前列表。"
+      ]
+    },
+    {
+      "id": "API-309",
+      "name": "批量全量替换技能",
+      "endpoint": "agent/batchUpdateAgentSkill",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/批量更新座席技能列表.html"
+      ],
+      "notes": [
+        "坐席工号：3–10位正整数字符串，保留前导零，不能是全零。",
+        "多个技能：逗号分隔多个供应商技能ID，0清空所有技能；更新为全量替换。",
+        "技能等级：skillLevels逗号分隔，与技能ID逐个对应；越小越优先。供应商补充表及用户本轮确认采用1–10整数，本地校验；不引用队列weight的相反优先级规则。",
+        "批量失败坐席：data.failCno的字段定义和示例均为String，示例为\"[0002, 100003]\"；result=0仍需逐席检查失败列表。",
+        "在线新增技能待提交：在线仅允许在原集合不变前提下增加技能，新增标待生效/待提交，不参与分配。下线后管理员点击提交新增技能，正式请求仍是完整目标集合。"
+      ]
+    },
+    {
+      "id": "API-310",
+      "name": "企业号码查询",
+      "endpoint": "enterpriseHotline/listPage",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/企业管理/获取企业号码列表接口.html"
+      ],
+      "notes": [
+        "已有号码完整值与查询：number为精确查询条件，hotline为完整号码；按当前AliCti账号查询并导入已有号码，不选择或登记线路。",
+        "号码类型：1热线、2固话、3SIP手机号、4虚拟手机号；查询支持类型多选。",
+        "启停状态：供应商status=0停用、1启用；已有号码导入允许两者，停用保持已隔离、启用保持正常。",
+        "预览客户侧用途：1允许/0不允许，缺字段不是0。",
+        "预测客户侧用途：与预览客户侧isInUse、预测坐席侧isPredictiveRight分别读取。",
+        "号码创建与更新时间：时间戳单位毫秒；与话单查询秒级时间不同。",
+        "号码启停：POST enterpriseHotline/batchUpdateNumber，完整号码包含区号，最多1000；status=0停用/1启用。查询使用offset/limit，data为顶层数组。",
+        "账号号码查询与选择：enterpriseHotline/listPage按当前enterpriseId查询；number为完整号码精确查询，status选填0/1；界面每页8条offset分页、保留跨页多选，接口limit最大1000。totalCount、pageSize按官方字符串处理。",
+        "本地号码归属与恢复：确认本地Inbound/Outbound/Bidirection使用方向；含400号码时仅呼入。保留供应商id、完整hotline、status、九项外显等原始属性。无lineId/importedLine字段或线路选择。"
+      ]
+    },
+    {
+      "id": "API-311",
+      "name": "预测与自动IVR任务创建",
+      "endpoint": "task/create",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/预测式外呼/新增任务接口.html"
+      ],
+      "notes": [
+        "任务名称：UTF-8 URL编码，少于50字；请求序列化编码一次。",
+        "任务类型：1预测外呼、2自动外呼，创建后不可修改。",
+        "预测任务分配方式：1工号列表、2外呼组；技能ID不是外呼组号，创建后不能改指定方式。",
+        "接听坐席列表：逗号分隔工号；一个坐席只能在一个运行任务中。",
+        "外呼组号：外呼组与技能是不同资源。",
+        "语音流程ID：同时传入ivrId优先；本地流程ID不是供应商ivrId。",
+        "预测溢出语音流程：自动外呼才明确要求二选一；预测直连用于无坐席时溢出。",
+        "自动外呼执行队列：task/create没有要求自动外呼提交平台执行队列。",
+        "最少可用坐席：预测外呼允许1–10，低于设定值时自动暂停。",
+        "自动开始：autoStart=1时autoStartDay/autoStartTime至少一个生效；不填写字段时分别默认当天/00:00:00。",
+        "计划开始时间：yyyy-MM-dd / HH:mm:ss，单字段scheduleAt不能直接透传。",
+        "最大重呼次数：retry为重试次数，不含首次；strategy按轮次逐项配置。基础模式为对象，高级模式为数组。",
+        "每轮重呼间隔与起算方式：time为天-小时-分钟；timeType=1首次、2上次呼叫，默认1。首次起算时每轮时间须严格递增。",
+        "号码识别重试条件：D-020：用户转述阿里反馈，预测外呼也支持按号码状态重呼；两类任务统一采用一组condition.sipCause多码数组，715和183按编码整体匹配。关闭省略相关字段并按不启用重呼处理，是当前项目采用口径。",
+        "自动完成：官方autoComplete=1（缺省）表示号码全部完成后结束，0表示号码全部完成后暂停；本项目新建预测任务显式提交0，自动外呼显式提交1。",
+        "自动删除：任务容量溢出时是否删最早结束任务，不是任务属性。",
+        "供应商任务ID：平台任务ID和供应商任务ID分别保存。",
+        "任务号码：单号码tel必填并保留字符串；taskTelList不超过8MB。clid是每条名单行独立的可选完整号码字段，不是任务级外显号码配置。",
+        "纯IVR录音：当前材料不足以将纯IVR统一判定为无录音。",
+        "预测任务坐席分配方式：官方1随机、2顺序、3从上次通话结束到当前最长、4当前空闲状态最长，官方缺省随机。本期新建显式4；D-044原型缺失值须重新选择，不自动按1解释。",
+        "任务关联可呼叫和禁呼时间：autoTaskType=0普通/1间隔呼叫；autoTriggerTimeStrategy为可呼叫时间ID逗号串，timeStrategy为禁呼时间ID逗号串。结束安排显式autoStop=1，autoStopDay为YYYY-MM-DD、autoStopTime为HH:mm:ss；原型同时填写日期时间。呼入ruleTimeProperty仍用分号，不混用。",
+        "任务级固定号码配置边界：API-311和API-404没有任务级指定号码参数；两类任务采用当前enterpriseId线下提供的固定默认外显导航标识，由自建系统自动带入category=5和单个customerClidsGroup。号码池与customerTimeout按接口选填。",
+        "账号固定默认外显导航与任务自动带入：按用户转述的AliCti技术答复，同一enterpriseId统一使用一个固定默认外显导航，不需维护多个导航。标识线下提供并由自建系统按enterpriseId单值保存；账号及任务界面不提供导航目录和选择器。创建预外呼及自动外呼时自动使用当前账号标识，提交customerClidsCategory=5及单个String customerClidsGroup；号码池仍可选。API-311/API-404仅定义单次任务标识字段，未直接证明供应商侧账号唯一性。",
+        "外显导航号码池及优先级：号码池由当前租户唯一关联enterpriseId的AliCti hybridGroup/list提供；租户管理员可在号码池管理中新增、更新、删除。任务只从本租户池目录选name，不把本地号码列表当成池；priority手动选填整数且数值越小越优先，留空省略。空池、同优先级选号及远端变更生效时点继续列CF-15。",
+        "客户接听等待时间：预外呼和自动外呼共用，默认30秒，允许5–60秒整数；不是坐席振铃、队列等待、通话时长或重呼间隔。",
+        "任务描述：description按UTF-8编码提交；不从任务名称或历史备注推造。",
+        "供应商任务业务标签：多个标签以英文逗号分隔；这是供应商任务标签名称，不等同本地客户业务分类或业务字段。",
+        "定时完成时强制结束：0关闭、1开启，官方默认0；仅在定时完成启用时影响到时是否强制结束，与autoComplete的名单呼完行为分开。",
+        "任务仅当天生效清理范围：0关闭；1删除待重试及待呼叫；2仅删除待重试；3仅删除待呼叫。此字段会影响未执行号码，不是任务结束时间。",
+        "待重呼与首次呼叫顺序：strategy中按sort确定retryCall与firstCall顺序；retryCall.desc=0小轮次优先、1大轮次优先；firstCall.orderType=0按优先级、1随机、2按导入时间。",
+        "任务最大并发：任务维度最大并发限制；仅type=1的0有官方明确的不限制语义，预测坐席少于10时官方建议配置。",
+        "预测客户接听后流转模式：1直连座席，2 AI转人工；直连模式可按配置溢出语音流程，AI转人工先进入所选AliCti语音流程。",
+        "预测座席接听超时：官方默认10秒，允许5–60秒；与客户接听等待customerTimeout分开。",
+        "预测座席整理时间：官方默认30秒，允许1–10800秒；影响每次拨打个数，不代表本地话后保存倒计时。",
+        "预测座席最长空闲等待：官方默认40秒，允许10–600秒；任务执行中平均空闲时间超过设定值时每次呼叫个数可能增加。截图15秒是后台示例值。",
+        "预测拨打系数：官方默认1，大于0且不超过20，最多两位小数；截图3.00是后台示例值。系数越大可能拨打更多号码。",
+        "预测超呼率：官方默认100，允许50–400；不与quotiety、初始化接通率或坐席利用率混算。",
+        "预测任务预热：初始化预计客户接通率默认50且1–100；预热时间默认300秒且60–600；暂停后重新预热默认开启，0关闭、1开启。",
+        "自动任务语音流程名称快照：API-311创建type=2时ivrId/ivrName至少选一个，二者同传时ID优先。创建确认、任务详情和查看管理显示本任务已保存的语音流程名称，优先取本任务冻结的planSnapshot或创建设置快照；名称缺失显示未记录，不从当前共享流程目录或某次话单的实际ivrName反推。",
+        "最小可用座席数及定时自动恢复：API-311/API-404：预测任务minAvailableAgentCount默认10、取1–10；任务内可用座席数低于阈值时自动暂停。autoStart=1表示定时开始，autoStartDay和autoStartTime至少配置一项。用户转述供应商业务口径：只有设置定时开始且因座席不足自动暂停的任务，人数恢复到不少于阈值时自动启动。"
+      ]
+    },
+    {
+      "id": "API-312",
+      "name": "任务号码导入",
+      "endpoint": "task/importTaskTel",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/预测式外呼/任务号码导入接口.html"
+      ],
+      "notes": [
+        "导入批次：fileId用于向已存在的供应商批次加号；平台批次ID不能直接使用。",
+        "任务号码：单号码tel必填并保留字符串；taskTelList不超过8MB。clid是每条名单行独立的可选完整号码字段，不是任务级外显号码配置。",
+        "客户行来源：属性是JSON字符串，不是task.userFields或SDK.callVariables。",
+        "排重范围：0不排重、1任务内、2导入号码、3批次内；任务与批次排重切换不追溯。",
+        "导入后自动开始：0不自动启动、1自动启动。",
+        "导入统计：请求总数、导入成功数与非法数分别处理，失败明细依赖推送配置。",
+        "客户与批次业务字段：业务编码与来源行归属由平台维护，可选择序列化入property，但回传需核验。",
+        "原任务追加名单与联系来源：再次联系保留原taskId与供应商任务ID，在原任务下新增一个导入批次及客户行。importTaskTel仅提交本次新增名单，isRepeat=0、importTelAutoStart=0；沿用原任务资源、策略和执行安排，不进入创建向导。repeatContact保存来源任务、批次、客户行、通话、根行及businessContactNo。",
+        "预外呼任务直接导入：仅管理员可向本范围待分配客户、尚无名单/执行结果/启动记录/供应商任务的预外呼任务直接导入；自动外呼继续从导入与分配进入。",
+        "任务级固定号码配置边界：API-311和API-404没有任务级指定号码参数；两类任务采用当前enterpriseId线下提供的固定默认外显导航标识，由自建系统自动带入category=5和单个customerClidsGroup。号码池与customerTimeout按接口选填。"
+      ]
+    },
+    {
+      "id": "API-313",
+      "name": "暂停任务",
+      "endpoint": "task/pause",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/预测式外呼/任务暂停接口.html"
+      ],
+      "notes": [
+        "暂停参数处理：D-017用户决定：调用task/pause不提交pauseDuration，不提供本地暂停时长输入、默认值、单位转换或恢复计时。TaskProperty原始返回仅保留作查询证据。D-021用户产品确认：暂停后可以继续；结束后不再执行后续首次呼叫及尚未执行的重呼。"
+      ]
+    },
+    {
+      "id": "API-314",
+      "name": "结束任务",
+      "endpoint": "task/stop",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/预测式外呼/任务结束接口.html"
+      ],
+      "notes": [
+        "终止不可当作暂停；在途保护和结果结算待实测。"
+      ]
+    },
+    {
+      "id": "API-315",
+      "name": "配置HTTP推送",
+      "endpoint": "/cc/create_push_action",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/推送管理/新增推送设置接口.html"
+      ],
+      "notes": [
+        "HTTP推送配置：name账号内唯一；type=42为预测任务状态推送。目标ID优先；直配method=0/1、contentType=1/2、timeout=1–10。返回requestId和id在顶层。",
+        "事件来源与最小展示字段：API-316的/user/agent为企业WebSocket事件订阅，不是历史查询；API-315 type=9仅定义座席状态变更推送设置，未给统一事件载荷、时间戳和去重键。DOC-344 agentStatus/get按enterpriseId+cno返回当前state，不返回历史；差异只能标为本地观察。CTILink breakLine/sipDisconnected及明确成功的操作回执可作为各自事件来源。"
+      ]
+    },
+    {
+      "id": "API-316",
+      "name": "企业WebSocket事件",
+      "endpoint": null,
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/工具条/企业WebSocket事件推送接口说明.html"
+      ],
+      "notes": [
+        "WebSocket范围：企业默认全坐席消息，需要平台按资源和租户映射过滤。",
+        "事件来源与最小展示字段：API-316的/user/agent为企业WebSocket事件订阅，不是历史查询；API-315 type=9仅定义座席状态变更推送设置，未给统一事件载荷、时间戳和去重键。DOC-344 agentStatus/get按enterpriseId+cno返回当前state，不返回历史；差异只能标为本地观察。CTILink breakLine/sipDisconnected及明确成功的操作回执可作为各自事件来源。"
+      ]
+    },
+    {
+      "id": "API-317",
+      "name": "人工外呼话单",
+      "endpoint": "/cc/list_cdr_ob",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/外呼/外呼记录接口.html"
+      ],
+      "notes": [
+        "请求关联ID：用于请求与话单关联，未承诺供应商幂等。",
+        "话单查询窗口：Unix秒，开始时间区间不得超过一个月；limit为10–1000、默认10；普通分页offset+limit≤100000，scroll另行处理。",
+        "人工接听状态：1客户未接/2坐席未接/3客户接听/4坐席接听；与号码识别编码不同。",
+        "接听时间：人工upTime为坐席、bridgeTime为客户；预测upTime为客户、bridgeTime为坐席；自动任务upTime为客户；呼入answerTime为系统应答、bridgeTime为人工接通。原响应示例与相邻Duration独立证明epoch秒，统一乘1000供本地日期展示，原值保留。",
+        "人工号码识别：人工响应读取这两个字段；查询过滤参数名sipCause不是响应同名保证。",
+        "统计与跟进结果：话单事实先校验身份/类型，已结束按官方startTime归期；未知接通不算未接，按主通话标识去重。客户接通率=已接通/(已接通+未接通)，与线索接通率分母不同。",
+        "主通话与供应商身份：先核对当前账号、话单类型及已有对应字段；mainUniqueId是主通话标识，requestUniqueId是请求关联，callId/uniqueId不自动等价。",
+        "通话周期与结束证据：四类话单正整数秒乘1000；有有效endTime才计周期内已结束通话，按startTime归期。endTime早于startTime无效。",
+        "双方通话时长：bridgeDuration为双方通话时长；totalDuration是全程跨度，不能替代。只有已知接通且适用的有效时长进入均值，真实0保留。",
+        "坐席归属与呼入分段：工号保留完整字符串；firstCallCno仅首次呼叫目标，cnoFlow是参与流转名单，均非已核定接听分段。",
+        "实际队列与报表技能映射边界：供应商队列号不是技能ID；人工话单请求qnos不保证响应qno；firstCallQno是首次目标，不能证明实际最终服务归属。"
+      ]
+    },
+    {
+      "id": "API-318",
+      "name": "预测外呼话单",
+      "endpoint": "/cc/list_cdr_predictive_call",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/预测式外呼/预测外呼通话记录接口.html"
+      ],
+      "notes": [
+        "供应商任务ID：平台任务ID和供应商任务ID分别保存。",
+        "话单查询窗口：Unix秒，开始时间区间不得超过一个月；limit为10–1000、默认10；普通分页offset+limit≤100000，scroll另行处理。",
+        "预测接听状态：40客户未接/41客户接听/42坐席未接/43双方接听。",
+        "接听时间：人工upTime为坐席、bridgeTime为客户；预测upTime为客户、bridgeTime为坐席；自动任务upTime为客户；呼入answerTime为系统应答、bridgeTime为人工接通。原响应示例与相邻Duration独立证明epoch秒，统一乘1000供本地日期展示，原值保留。",
+        "预测号码识别：按官方识别编码，不用719证明客户接起。D-053：预测话单sipCauseAsyncUpdateFlag=1表示识别结果已异步写回本通sipCause，0表示同步；该标识不表示等待中或识别一定成功。原型本地保护在展示前校验话单类型、返回账号及已知供应商通话标识；不匹配结果不采用，原始负载保留。供应商主通话键仅使用明确的providerMainUniqueId/mainUniqueId，不从本地contactId或callId推定。",
+        "统计与跟进结果：话单事实先校验身份/类型，已结束按官方startTime归期；未知接通不算未接，按主通话标识去重。客户接通率=已接通/(已接通+未接通)，与线索接通率分母不同。",
+        "主通话与供应商身份：先核对当前账号、话单类型及已有对应字段；mainUniqueId是主通话标识，requestUniqueId是请求关联，callId/uniqueId不自动等价。",
+        "通话周期与结束证据：四类话单正整数秒乘1000；有有效endTime才计周期内已结束通话，按startTime归期。endTime早于startTime无效。",
+        "双方通话时长：bridgeDuration为双方通话时长；totalDuration是全程跨度，不能替代。只有已知接通且适用的有效时长进入均值，真实0保留。",
+        "客户接听时长：客户接听时长采用预测或自动任务话单customerBridgeDuration，与bridgeDuration独立。",
+        "坐席归属与呼入分段：工号保留完整字符串；firstCallCno仅首次呼叫目标，cnoFlow是参与流转名单，均非已核定接听分段。",
+        "实际队列与报表技能映射边界：供应商队列号不是技能ID；人工话单请求qnos不保证响应qno；firstCallQno是首次目标，不能证明实际最终服务归属。",
+        "首次与重呼分类：正整数attemptNumber=1首次，>1重呼；无序号时，同范围同名单更早通话能证明重呼，只有完整历史且无更早/同刻/缺时间冲突才证明首次。"
+      ]
+    },
+    {
+      "id": "API-319",
+      "name": "呼入话单",
+      "endpoint": "/cc/list_cdr_ib",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/来电/客户来电记录接口.html"
+      ],
+      "notes": [
+        "话单查询窗口：Unix秒，开始时间区间不得超过一个月；limit为10–1000、默认10；普通分页offset+limit≤100000，scroll另行处理。",
+        "接听时间：人工upTime为坐席、bridgeTime为客户；预测upTime为客户、bridgeTime为坐席；自动任务upTime为客户；呼入answerTime为系统应答、bridgeTime为人工接通。原响应示例与相邻Duration独立证明epoch秒，统一乘1000供本地日期展示，原值保留。",
+        "呼入接听状态：枚举人工接听、人工未接听、系统应答、系统未应答。D-054：本项目软电话呼入直接采用status接听状态；号码识别通常无结果，不依赖识别判定接听。",
+        "统计与跟进结果：话单事实先校验身份/类型，已结束按官方startTime归期；未知接通不算未接，按主通话标识去重。客户接通率=已接通/(已接通+未接通)，与线索接通率分母不同。",
+        "主通话与供应商身份：先核对当前账号、话单类型及已有对应字段；mainUniqueId是主通话标识，requestUniqueId是请求关联，callId/uniqueId不自动等价。",
+        "通话周期与结束证据：四类话单正整数秒乘1000；有有效endTime才计周期内已结束通话，按startTime归期。endTime早于startTime无效。",
+        "双方通话时长：bridgeDuration为双方通话时长；totalDuration是全程跨度，不能替代。只有已知接通且适用的有效时长进入均值，真实0保留。",
+        "坐席归属与呼入分段：工号保留完整字符串；firstCallCno仅首次呼叫目标，cnoFlow是参与流转名单，均非已核定接听分段。",
+        "实际队列与报表技能映射边界：供应商队列号不是技能ID；人工话单请求qnos不保证响应qno；firstCallQno是首次目标，不能证明实际最终服务归属。",
+        "首次队列等待与离开结果：等待采用firstQueueDuration；只计算有效首队列样本均值。status=系统应答且statusResult为队列中放弃/队列中溢出时分别计数。"
+      ]
+    },
+    {
+      "id": "API-320",
+      "name": "录音地址",
+      "endpoint": "record/getUrl",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/获取通话录音地址接口.html"
+      ],
+      "notes": [
+        "录音地址：录音URL直接在data，不是data.url或顶层url。",
+        "录音有效期：120分钟是可配置默认值，不是每次响应保证。",
+        "录音分轨参数：recordFormat=1(wav)才支持分轨；recordSide非空要求callType，mp3忽略分轨。",
+        "纯IVR录音：当前材料不足以将纯IVR统一判定为无录音。"
+      ]
+    },
+    {
+      "id": "API-321",
+      "name": "ASR查询（本期不采用）",
+      "endpoint": "asr/get",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/ASR语音转写/ASR数据获取接口.html"
+      ],
+      "notes": [
+        "D-015：本期统一rasrEvent/query，原ASR文档仅留作原始资料，不作为当前文本路径。"
+      ]
+    },
+    {
+      "id": "API-322",
+      "name": "导入IVR定义",
+      "endpoint": "ivrProfile/import",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/语音导航管理/导入ivr信息接口.html"
+      ],
+      "notes": [
+        "示例与标题存在export/import冲突；导入成功不证明发布、绑定号码、租户分支路由已完成。"
+      ]
+    },
+    {
+      "id": "API-323",
+      "name": "查询已执行IVR流程",
+      "endpoint": "ivrFlow/query",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/获取IVR流程接口.html"
+      ],
+      "notes": [
+        "已执行IVR轨迹：查询某次通话已经执行的节点，不是已发布流程可选列表。"
+      ]
+    },
+    {
+      "id": "API-324",
+      "name": "资源操作核验归类",
+      "endpoint": "agent/delete · agent/batchCreate · agent/query · skill/create · enterpriseHotline/batchUpdateNumber",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/技能管理/新增技能.html",
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/技能管理/更新技能.html",
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/技能管理/查询技能列表.html",
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席删除.html",
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席批量新增.html",
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息列表获取.html",
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息获取.html",
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席实时状态获取接口.html",
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/企业管理/更新号码外显属性.html"
+      ],
+      "notes": [
+        "坐席删除和技能增改查已有文档，支持明确标记的本地模拟；真实资源列为接入准备。",
+        "D-046 / SRC-076（承接D-026号码查询）：listPage只读查询已有号码；NumberGrant唯一业务租户归属是平台本地权限，号码不绑定技能组或坐席，可直接保存。status/外显修改另用官方接口，号码池不等于技能组。新资源开通由供应商办理；条件匹配与归属见CF-10；D-048 / SRC-078已确认停用后的选号与在途边界，供应商账号解绑需求取消并改为本地使用开关。",
+        "D-050 / SRC-080（user_relayed_supplier_feedback）：坐席按主键物理删除；工号只在当前仍存在的坐席中唯一。重建同工号为新坐席，生成新id/createTime，旧技能、队列成员、绑定电话清除。当前身份与本地配置不可仅凭相同cno自动继承；本次不迁移历史数据。",
+        "D-050 / SRC-080：供应商话单只记cno、不记坐席主键；删除不清除历史话单，按cno查询或报表会合并新旧通话。仅凭话单不能精确拆分同工号的新旧坐席身份，不将旧记录改写归属新坐席。",
+        "D-051 / SRC-081（2026-09-20，user_relayed_supplier_feedback）：success为主记录建成数，other为其中技能绑定失败子集，不与success相加；fail与success互斥。cnos含全部已建成工号（含other），申请工号区间减去cnos为未建成工号。未传skillIds时other=0；对cnos逐项queryAgentSkill，缺少目标skillId可定位other，查询本身不证明主记录新建。",
+        "D-051 / SRC-081：创建结果未知时，agent/query按原cnos读取id/createTime，可使用startTime/endTime；新id且createTime处于本次请求窗口才证实本次主记录。agent/get与queryCnoAndName只证存在，queryAgentSkill只证技能。查询证据不足继续未知，不自动重放写入。CF-08已关闭，不意味着生产接口已联调。"
+      ]
+    },
+    {
+      "id": "API-325",
+      "name": "任务操作核验归类",
+      "endpoint": "task/start · task/get",
+      "verification_status": "partial",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/预测式外呼/任务启动接口.html",
+        "https://wiki.alicti.cn/html/wiki/API/预测式外呼/获取任务信息接口.html"
+      ],
+      "notes": [
+        "启动和任务信息查询已有文档，返回 data.taskProperty。",
+        "status：0初始、1运行中、2暂停、3结束。D-017用户转述阿里反馈：继续先get确认2再start，并回查状态；结束不重启。写入受理不等于状态已变化，D-021：结束后不再发起后续首次呼叫或重呼；D-047 / SRC-077用户转述供应商确认：暂停或结束不影响已发起通话，正常通话和正常话单按既有链路归集；未发起呼叫停止。此为供应商答复澄清，不是官网改版或实际联调结果。"
+      ]
+    },
+    {
+      "id": "API-326",
+      "name": "中台账号、客户、授权及统计",
+      "endpoint": null,
+      "verification_status": "not_required",
+      "source_refs": [],
+      "notes": [
+        "平台维护租户授权、账号坐席映射、客户批次档案、任务业务状态、归一统计和审计；不存在AliCti等价接口要求。"
+      ]
+    },
+    {
+      "id": "API-327",
+      "name": "号码状态识别编码",
+      "endpoint": null,
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/字段定义/接口部分/号码状态识别编码.html"
+      ],
+      "notes": [
+        "号码识别重试条件：D-020：用户转述阿里反馈，预测外呼也支持按号码状态重呼；两类任务统一采用一组condition.sipCause多码数组，715和183按编码整体匹配。关闭省略相关字段并按不启用重呼处理，是当前项目采用口径。",
+        "人工号码识别：人工响应读取这两个字段；查询过滤参数名sipCause不是响应同名保证。",
+        "预测号码识别：按官方识别编码，不用719证明客户接起。D-053：预测话单sipCauseAsyncUpdateFlag=1表示识别结果已异步写回本通sipCause，0表示同步；该标识不表示等待中或识别一定成功。原型本地保护在展示前校验话单类型、返回账号及已知供应商通话标识；不匹配结果不采用，原始负载保留。供应商主通话键仅使用明确的providerMainUniqueId/mainUniqueId，不从本地contactId或callId推定。"
+      ]
+    },
+    {
+      "id": "DOC-346",
+      "name": "获取RASR信息接口",
+      "endpoint": "rasrEvent/query",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/获取RASR信息接口.html"
+      ],
+      "notes": [
+        "RASR请求与结果状态：rasrEvent/query按供应商uniqueId查询；result=0成功、-1失败，data为数组。不得沿用旧ASR的-2转写中或用本地callId替代uniqueId。",
+        "RASR监测侧文本：解析text中的JSON数组并保留text、monitorSide与原始字段；保留来源及返回顺序，不推算跨来源时间排序或音频位置。",
+        "RASR机器人文本：botText明确为机器人对话文本；与text分别解析，不能标为人工坐席发言。",
+        "RASR说话方：monitorSide=1坐席侧、2客户侧；webcall对应第二侧/第一侧。botText固定机器人。未知值保留原值，不套用其他接口side。"
+      ]
+    },
+    {
+      "id": "DOC-347",
+      "name": "RASR语音转换结果推送变量定义",
+      "endpoint": null,
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/字段定义/推送变量和值/RASR语音转换结果推送变量.html"
+      ],
+      "notes": [
+        "RASR说话方：monitorSide=1坐席侧、2客户侧；webcall对应第二侧/第一侧。botText固定机器人。未知值保留原值，不套用其他接口side。"
+      ]
+    },
+    {
+      "id": "DOC-348",
+      "name": "获取IVR列表信息接口",
+      "endpoint": "ivrProfile/list",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/语音导航管理/获取IVR列表信息接口.html"
+      ],
+      "notes": [
+        "语音流程ID：同时传入ivrId优先；本地流程ID不是供应商ivrId。",
+        "预测溢出语音流程：自动外呼才明确要求二选一；预测直连用于无坐席时溢出。",
+        "呼入目标：routerType=1提交ivrId整数；=2提交tel字符串；=3提交exten字符串。分机保留前导零。",
+        "呼入候选资源：IVR、时间、中继列表data为数组；分机响应为data.list，limit=1–500默认10、offset默认0。"
+      ]
+    },
+    {
+      "id": "DOC-349",
+      "name": "获取IVR列表详细信息接口",
+      "endpoint": "ivrProfile/listDetail",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/语音导航管理/获取IVR列表详细信息接口.html"
+      ],
+      "notes": [
+        "语音流程ID：同时传入ivrId优先；本地流程ID不是供应商ivrId。",
+        "预测溢出语音流程：自动外呼才明确要求二选一；预测直连用于无坐席时溢出。"
+      ]
+    },
+    {
+      "id": "API-350",
+      "name": "新增呼入路由设置接口",
+      "endpoint": "ivrRouter/create",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/新增呼入路由设置接口.html"
+      ],
+      "notes": [
+        "呼入接听方式：1语音导航、2电话号码、3分机。新增和编辑按目标分支选择。",
+        "呼入目标：routerType=1提交ivrId整数；=2提交tel字符串；=3提交exten字符串。分机保留前导零。",
+        "呼入路由优先级：正整数，同一enterpriseId内唯一，数值越小越优先。",
+        "呼入路由启用状态：1启用、2停用。创建文档默认1，更新文档默认2。",
+        "呼入规则名称与定位：创建name可选；更新与删除的name是原对象定位条件，不是新名称。",
+        "呼入规则说明：作为本条路由的说明文本；与响应顶层description结果描述区分。",
+        "来电号码及地区条件：传来电号码、前缀或地区区号，多项以分号分隔。",
+        "呼入时间条件：传enterpriseTime/list返回的时间条件id，多项分号分隔。时间星期1代表周日、2周一至7周六。",
+        "呼入中继号码条件：写接口要求传trunk/list的numberTrunk，不附加areaCode；多项分号分隔。模型示例出现带区号号码，与写入说明有差异。",
+        "呼入路由响应结构：list的data为包装对象数组；create/update/get的data为包装对象。enterpriseTimeList可为null；routerProperty根据routerType解释。模型列Int但示例为字符串。"
+      ]
+    },
+    {
+      "id": "API-351",
+      "name": "更新呼入路由设置接口",
+      "endpoint": "ivrRouter/update",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/更新呼入路由设置接口.html"
+      ],
+      "notes": [
+        "呼入接听方式：1语音导航、2电话号码、3分机。新增和编辑按目标分支选择。",
+        "呼入目标：routerType=1提交ivrId整数；=2提交tel字符串；=3提交exten字符串。分机保留前导零。",
+        "呼入路由优先级：正整数，同一enterpriseId内唯一，数值越小越优先。",
+        "呼入路由启用状态：1启用、2停用。创建文档默认1，更新文档默认2。",
+        "呼入规则名称与定位：创建name可选；更新与删除的name是原对象定位条件，不是新名称。",
+        "呼入规则说明：作为本条路由的说明文本；与响应顶层description结果描述区分。",
+        "来电号码及地区条件：传来电号码、前缀或地区区号，多项以分号分隔。",
+        "呼入时间条件：传enterpriseTime/list返回的时间条件id，多项分号分隔。时间星期1代表周日、2周一至7周六。",
+        "呼入中继号码条件：写接口要求传trunk/list的numberTrunk，不附加areaCode；多项分号分隔。模型示例出现带区号号码，与写入说明有差异。",
+        "呼入路由响应结构：list的data为包装对象数组；create/update/get的data为包装对象。enterpriseTimeList可为null；routerProperty根据routerType解释。模型列Int但示例为字符串。",
+        "呼入规则删除：删除前规则须停用（active=2）；采用ivrRouter/delete。",
+        "呼入旧表单冲突：本地编辑快照已变时拒绝旧值覆盖，保留输入并提示重新打开；改备注不能重新启用已被停用规则。"
+      ]
+    },
+    {
+      "id": "API-352",
+      "name": "获取呼入路由设置列表接口",
+      "endpoint": "ivrRouter/list",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/获取呼入路由设置列表接口.html"
+      ],
+      "notes": [
+        "呼入路由响应结构：list的data为包装对象数组；create/update/get的data为包装对象。enterpriseTimeList可为null；routerProperty根据routerType解释。模型列Int但示例为字符串。"
+      ]
+    },
+    {
+      "id": "API-353",
+      "name": "获取呼入路由设置信息接口",
+      "endpoint": "ivrRouter/get",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/获取呼入路由设置信息接口.html"
+      ],
+      "notes": [
+        "呼入规则名称与定位：创建name可选；更新与删除的name是原对象定位条件，不是新名称。",
+        "呼入路由响应结构：list的data为包装对象数组；create/update/get的data为包装对象。enterpriseTimeList可为null；routerProperty根据routerType解释。模型列Int但示例为字符串。"
+      ]
+    },
+    {
+      "id": "API-354",
+      "name": "删除呼入路由设置接口",
+      "endpoint": "ivrRouter/delete",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/删除呼入路由设置接口.html"
+      ],
+      "notes": [
+        "呼入规则名称与定位：创建name可选；更新与删除的name是原对象定位条件，不是新名称。",
+        "呼入规则删除：删除前规则须停用（active=2）；采用ivrRouter/delete。"
+      ]
+    },
+    {
+      "id": "DOC-355",
+      "name": "获取分机列表",
+      "endpoint": "exten/list",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/分机管理/获取分机列表.html"
+      ],
+      "notes": [
+        "坐席受控软电话分机：D-055在D-046上改为从分机资源目录选择，禁止手填。Agent.login.bindTel为必填String，读取本账号本租户已启用且未占用资源原exten，保留前导零；不进入agent/create或agent/update。",
+        "呼入目标：routerType=1提交ivrId整数；=2提交tel字符串；=3提交exten字符串。分机保留前导零。",
+        "呼入候选资源：IVR、时间、中继列表data为数组；分机响应为data.list，limit=1–500默认10、offset默认0。",
+        "分机资源身份与软电话类型：exten按String保留前导零，官方长度3–11位；仅数字为本地约束。资源type=2表示WebRTC，与登录bindType=3及Agent返回bindTelType=4分别转换。区号为String。",
+        "分机呼叫与媒体设置：active等开关0/1；callPower为String 0/1/2/3。create的isOb、denoise为String，update为Int，分别构造。allow采用alaw,ulaw或myopus,alaw,ulaw。",
+        "分机导入与删除核实：list以data.list分页，limit≤500、offset从0；从当前账号导入已存在资源。删除采用batchDelete单元素extens String保留前导零，再以list/get核对。"
+      ]
+    },
+    {
+      "id": "DOC-356",
+      "name": "获取时间条件设置列表接口",
+      "endpoint": "enterpriseTime/list",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/时间管理/获取时间条件设置列表接口.html"
+      ],
+      "notes": [
+        "呼入时间条件：传enterpriseTime/list返回的时间条件id，多项分号分隔。时间星期1代表周日、2周一至7周六。",
+        "呼入候选资源：IVR、时间、中继列表data为数组；分机响应为data.list，limit=1–500默认10、offset默认0。",
+        "时间条件定义：type=1星期，dayOfWeek逗号分隔1周日至7周六；type=2日期，fromDay/toDay为YYYY-MM-DD；timeType=1连续/2间隔；时间HH:mm。名称与优先级在同enterpriseId内唯一，起止不能倒置；priority必填且为用户手动输入的正整数，不自动分配。",
+        "任务关联可呼叫和禁呼时间：autoTaskType=0普通/1间隔呼叫；autoTriggerTimeStrategy为可呼叫时间ID逗号串，timeStrategy为禁呼时间ID逗号串。结束安排显式autoStop=1，autoStopDay为YYYY-MM-DD、autoStopTime为HH:mm:ss；原型同时填写日期时间。呼入ruleTimeProperty仍用分号，不混用。"
+      ]
+    },
+    {
+      "id": "DOC-357",
+      "name": "获取中继号码列表",
+      "endpoint": "trunk/list",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/企业管理/获取中继号码列表.html"
+      ],
+      "notes": [
+        "呼入中继号码条件：写接口要求传trunk/list的numberTrunk，不附加areaCode；多项分号分隔。模型示例出现带区号号码，与写入说明有差异。",
+        "呼入候选资源：IVR、时间、中继列表data为数组；分机响应为data.list，limit=1–500默认10、offset默认0。"
+      ]
+    },
+    {
+      "id": "DOC-358",
+      "name": "EnterpriseIvrRouter",
+      "endpoint": null,
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/dataType/EnterpriseIvrRouter.html"
+      ],
+      "notes": [
+        "呼入路由启用状态：1启用、2停用。创建文档默认1，更新文档默认2。",
+        "来电号码及地区条件：传来电号码、前缀或地区区号，多项以分号分隔。",
+        "呼入中继号码条件：写接口要求传trunk/list的numberTrunk，不附加areaCode；多项分号分隔。模型示例出现带区号号码，与写入说明有差异。",
+        "呼入路由响应结构：list的data为包装对象数组；create/update/get的data为包装对象。enterpriseTimeList可为null；routerProperty根据routerType解释。模型列Int但示例为字符串。"
+      ]
+    },
+    {
+      "id": "DOC-359",
+      "name": "EnterpriseTime",
+      "endpoint": null,
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/dataType/EnterpriseTime.html"
+      ],
+      "notes": [
+        "呼入时间条件：传enterpriseTime/list返回的时间条件id，多项分号分隔。时间星期1代表周日、2周一至7周六。",
+        "时间条件定义：type=1星期，dayOfWeek逗号分隔1周日至7周六；type=2日期，fromDay/toDay为YYYY-MM-DD；timeType=1连续/2间隔；时间HH:mm。名称与优先级在同enterpriseId内唯一，起止不能倒置；priority必填且为用户手动输入的正整数，不自动分配。"
+      ]
+    },
+    {
+      "id": "DOC-342",
+      "name": "座席详细信息列表获取",
+      "endpoint": "agent/query",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息列表获取.html"
+      ],
+      "notes": [
+        "从AliCti同步已有坐席：query分页解包data.agents[].agent；cnos原字符串最多500，start>=0、limit=1–1000。未知写入使用新id与请求窗口内createTime确认本次主记录；可带startTime/endTime。get/queryCnoAndName仅证明存在，queryAgentSkill只证明技能关系。",
+        "技能和成员双重核对：同时核对多个目标技能ID集合和各组有效成员去重集合；供应商技能及agent/query(qno)成员为独立快照，cno原String比较。待提交技能不参与有效成员，成员一致不等于在线。"
+      ]
+    },
+    {
+      "id": "DOC-343",
+      "name": "座席详细信息获取",
+      "endpoint": "agent/get",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息获取.html"
+      ],
+      "notes": [
+        "从AliCti同步已有坐席：query分页解包data.agents[].agent；cnos原字符串最多500，start>=0、limit=1–1000。未知写入使用新id与请求窗口内createTime确认本次主记录；可带startTime/endTime。get/queryCnoAndName仅证明存在，queryAgentSkill只证明技能关系。",
+        "坐席配置与话务状态：坐席列表话务状态采用官方state，启用状态采用active，二者独立；未知state保留待核对，不将在线当空闲。删除记录不进入当前列表。"
+      ]
+    },
+    {
+      "id": "API-360",
+      "name": "客户来电记录详情接口",
+      "endpoint": "/cc/detail_cdr_ib",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/来电/客户来电记录详情接口.html"
+      ],
+      "notes": []
+    },
+    {
+      "id": "API-361",
+      "name": "座席接听记录接口",
+      "endpoint": "/cc/list_cdr_ib_agent",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/来电/座席接听记录接口.html"
+      ],
+      "notes": [
+        "坐席归属与呼入分段：工号保留完整字符串；firstCallCno仅首次呼叫目标，cnoFlow是参与流转名单，均非已核定接听分段。"
+      ]
+    },
+    {
+      "id": "API-362",
+      "name": "任务呼叫记录接口",
+      "endpoint": "/cc/list_cdr_auto_task",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/预测式外呼/任务呼叫记录接口.html"
+      ],
+      "notes": [
+        "供应商任务ID：平台任务ID和供应商任务ID分别保存。",
+        "话单查询窗口：Unix秒，开始时间区间不得超过一个月；limit为10–1000、默认10；普通分页offset+limit≤100000，scroll另行处理。",
+        "接听时间：人工upTime为坐席、bridgeTime为客户；预测upTime为客户、bridgeTime为坐席；自动任务upTime为客户；呼入answerTime为系统应答、bridgeTime为人工接通。原响应示例与相邻Duration独立证明epoch秒，统一乘1000供本地日期展示，原值保留。",
+        "统计与跟进结果：话单事实先校验身份/类型，已结束按官方startTime归期；未知接通不算未接，按主通话标识去重。客户接通率=已接通/(已接通+未接通)，与线索接通率分母不同。",
+        "主通话与供应商身份：先核对当前账号、话单类型及已有对应字段；mainUniqueId是主通话标识，requestUniqueId是请求关联，callId/uniqueId不自动等价。",
+        "通话周期与结束证据：四类话单正整数秒乘1000；有有效endTime才计周期内已结束通话，按startTime归期。endTime早于startTime无效。",
+        "双方通话时长：bridgeDuration为双方通话时长；totalDuration是全程跨度，不能替代。只有已知接通且适用的有效时长进入均值，真实0保留。",
+        "客户接听时长：客户接听时长采用预测或自动任务话单customerBridgeDuration，与bridgeDuration独立。",
+        "自动任务话单结构：/cc/list_cdr_auto_task返回cdrAutoTask[]；status为客户接听/客户未接听，upTime为客户接听，taskId为供应商任务ID。",
+        "首次与重呼分类：正整数attemptNumber=1首次，>1重呼；无序号时，同范围同名单更早通话能证明重呼，只有完整历史且无更早/同刻/缺时间冲突才证明首次。"
+      ]
+    },
+    {
+      "id": "API-363",
+      "name": "预测式外呼通话记录详情接口",
+      "endpoint": "/interface/v10/cdr/predictiveCall/get",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/通话记录/预测式外呼/预测式外呼通话记录详情接口.html"
+      ],
+      "notes": []
+    },
+    {
+      "id": "API-364",
+      "name": "获取座席队列工作统计报表",
+      "endpoint": "/interface/v10/agentQueueReport/agentQueueWorkload",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/数据报表/获取座席队列工作统计报表.html"
+      ],
+      "notes": []
+    },
+    {
+      "id": "API-365",
+      "name": "获取预测外呼报表数据",
+      "endpoint": "/interface/v10/outboundReport/predictiveObReport",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/数据报表/获取预测外呼报表数据.html"
+      ],
+      "notes": [
+        "统计与跟进结果：话单事实先校验身份/类型，已结束按官方startTime归期；未知接通不算未接，按主通话标识去重。客户接通率=已接通/(已接通+未接通)，与线索接通率分母不同。",
+        "任务累计报表查询：predictiveObReport按逗号分隔供应商taskId查累计，start≥0默认0，limit1–1000默认10；本接口无日期筛选。",
+        "任务累计数量：taskType=1预测/2自动；totalCount累计号码、calledCount累计呼叫含重呼、answerCount客户接听、bridgeCount双方接听、retryCalledCount重呼。"
+      ]
+    },
+    {
+      "id": "API-366",
+      "name": "获取预测外呼座席报表",
+      "endpoint": "/interface/v10/outboundReport/predictiveAgentObReport",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/数据报表/获取预测外呼座席报表.html"
+      ],
+      "notes": [
+        "官方坐席报表契约：坐席报表按官方年月日、任务、外呼组/队列筛选；cno为原字符串，stateCalling/Idle/Inuse/Pause/Wrapup为状态时长。"
+      ]
+    },
+    {
+      "id": "API-367",
+      "name": "获取预测外呼日报表",
+      "endpoint": "/interface/v10/outboundReport/predictiveDailyObReport",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/数据报表/获取预测外呼日报表.html"
+      ],
+      "notes": [
+        "官方预测日报契约：日报采用有效年月日与timeRangeType1–4；answerMinutes为分钟，duration与runDuration为HH:mm:ss；data.totalStatistic为独立总计。"
+      ]
+    },
+    {
+      "id": "API-368",
+      "name": "队列报表",
+      "endpoint": "/interface/v10/queueReport",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/数据报表/队列报表.html"
+      ],
+      "notes": [
+        "官方队列报表契约：queueReport的timeRangeType1–4，statisticMethod0/1/2/8，qnos为原字符串；次数与HH:mm:ss分别转换。D-049/SRC-079：telEnterCount String=队列来电接听数，telAnswerCount String=进入队列来电数。",
+        "D-049 / SRC-079（user_relayed_supplier_feedback）：telEnterCount（String）为队列来电接听数，telAnswerCount（String）为进入队列来电数。保留供应商原字段名与原值，不交换计数或自行重算接听率；CF-14已关闭。本次不新增原生队列报表UI，也不改变本地话单聚合口径。"
+      ]
+    },
+    {
+      "id": "DOC-369",
+      "name": "fields-队列报表",
+      "endpoint": "",
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/字段定义/报表部分/队列报表.html"
+      ],
+      "notes": [
+        "官方队列报表契约：queueReport的timeRangeType1–4，statisticMethod0/1/2/8，qnos为原字符串；次数与HH:mm:ss分别转换。D-049/SRC-079：telEnterCount String=队列来电接听数，telAnswerCount String=进入队列来电数。"
+      ]
+    },
+    {
+      "id": "DOC-370",
+      "name": "fields-预测外呼座席报表",
+      "endpoint": "",
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/字段定义/报表部分/预测外呼座席报表.html"
+      ],
+      "notes": [
+        "官方坐席报表契约：坐席报表按官方年月日、任务、外呼组/队列筛选；cno为原字符串，stateCalling/Idle/Inuse/Pause/Wrapup为状态时长。"
+      ]
+    },
+    {
+      "id": "DOC-371",
+      "name": "fields-预测外呼任务报表",
+      "endpoint": "",
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/字段定义/报表部分/预测外呼任务报表.html"
+      ],
+      "notes": [
+        "任务累计数量：taskType=1预测/2自动；totalCount累计号码、calledCount累计呼叫含重呼、answerCount客户接听、bridgeCount双方接听、retryCalledCount重呼。"
+      ]
+    },
+    {
+      "id": "DOC-372",
+      "name": "fields-预测外呼日报表",
+      "endpoint": "",
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/字段定义/报表部分/预测外呼日报表.html"
+      ],
+      "notes": [
+        "官方预测日报契约：日报采用有效年月日与timeRangeType1–4；answerMinutes为分钟，duration与runDuration为HH:mm:ss；data.totalStatistic为独立总计。"
+      ]
+    },
+    {
+      "id": "DOC-373",
+      "name": "PredictiveStatisticTask",
+      "endpoint": "",
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/dataType/PredictiveStatisticTask.html"
+      ],
+      "notes": [
+        "统计与跟进结果：话单事实先校验身份/类型，已结束按官方startTime归期；未知接通不算未接，按主通话标识去重。客户接通率=已接通/(已接通+未接通)，与线索接通率分母不同。",
+        "任务累计报表查询：predictiveObReport按逗号分隔供应商taskId查累计，start≥0默认0，limit1–1000默认10；本接口无日期筛选。",
+        "任务累计数量：taskType=1预测/2自动；totalCount累计号码、calledCount累计呼叫含重呼、answerCount客户接听、bridgeCount双方接听、retryCalledCount重呼。"
+      ]
+    },
+    {
+      "id": "DOC-374",
+      "name": "PredictiveAgentObReport",
+      "endpoint": "",
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/dataType/PredictiveAgentObReport.html"
+      ],
+      "notes": [
+        "官方坐席报表契约：坐席报表按官方年月日、任务、外呼组/队列筛选；cno为原字符串，stateCalling/Idle/Inuse/Pause/Wrapup为状态时长。"
+      ]
+    },
+    {
+      "id": "DOC-375",
+      "name": "PredictiveDailyObReport",
+      "endpoint": "",
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/dataType/PredictiveDailyObReport.html"
+      ],
+      "notes": [
+        "官方预测日报契约：日报采用有效年月日与timeRangeType1–4；answerMinutes为分钟，duration与runDuration为HH:mm:ss；data.totalStatistic为独立总计。"
+      ]
+    },
+    {
+      "id": "DOC-376",
+      "name": "StatisticQueueHour",
+      "endpoint": "",
+      "verification_status": "dictionary",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/dataType/StatisticQueueHour.html"
+      ],
+      "notes": [
+        "官方队列报表契约：queueReport的timeRangeType1–4，statisticMethod0/1/2/8，qnos为原字符串；次数与HH:mm:ss分别转换。D-049/SRC-079：telEnterCount String=队列来电接听数，telAnswerCount String=进入队列来电数。"
+      ]
+    },
+    {
+      "id": "API-377",
+      "name": "新增队列",
+      "endpoint": "/interface/v10/queue/create",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/队列管理/新增队列.html"
+      ],
+      "notes": [
+        "接听队列编号：非空字符串，在同enterpriseId内唯一，保留前导零。官方只要求String，本期不自行限制数字格式或长度。已登记编号不可通过编辑改号。",
+        "接听队列名称：原型name明确映射为官方description，去除首尾空白后不得为空。",
+        "队列接听分配方式：官方六值：rrordered技能优先、rrmemory轮选、fewestcalls平均、random随机、linear顺序、leastrecent最长空闲时间。新增原型显式默认leastrecent是本方选择。",
+        "队列优先级：值域1–10，数值越大队列优先级越高；新增原型显式值1。",
+        "队列等待与接听设置：queueTimeout 20–600秒、官方默认600；memberTimeout 20–60秒、官方默认25；retry 非负整数、本地默认5，为未应答后改呼下一坐席的等待秒数；serviceLevel 非负整数、本地默认10；wrapupTime 3–3600秒、本地30；maxLen 0–999、本地0且0不限。",
+        "创建队列完整必填配置：创建补齐qno/description和15项配置：musicClass=default、queueTimeout=600、sayAgentno=false、memberTimeout=25、retry=5、wrapupTime=30、maxLen=0、strategy=leastrecent、serviceLevel=10、weight=1、vipSupport=0、joinEmpty=0、announceSound=0、announcePosition=0、announcePositionFrequency=0。除两个超时官方默认，其余均显式本地选择。musicClass为非空字符串、sayAgentno为布尔、vipSupport为0/1、joinEmpty为置忙1/通话中2/振铃4/无效8/整理16的和（0–31）、announceSound为0/1、announcePosition为0/1/2。",
+        "队列技能关系：queueSkills为列表，可关联本租户多个技能；新增每个新关联skillLevel本地默认1并保留已有值。queue/update省略queueSkills保留、提交则全量替换；当前纯参数编辑省略它，关联单独按create/delete差异维护。"
+      ]
+    },
+    {
+      "id": "API-378",
+      "name": "更新队列",
+      "endpoint": "/interface/v10/queue/update",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/队列管理/更新队列.html"
+      ],
+      "notes": [
+        "接听队列编号：非空字符串，在同enterpriseId内唯一，保留前导零。官方只要求String，本期不自行限制数字格式或长度。已登记编号不可通过编辑改号。",
+        "接听队列名称：原型name明确映射为官方description，去除首尾空白后不得为空。",
+        "队列接听分配方式：官方六值：rrordered技能优先、rrmemory轮选、fewestcalls平均、random随机、linear顺序、leastrecent最长空闲时间。新增原型显式默认leastrecent是本方选择。",
+        "队列优先级：值域1–10，数值越大队列优先级越高；新增原型显式值1。",
+        "队列等待与接听设置：queueTimeout 20–600秒、官方默认600；memberTimeout 20–60秒、官方默认25；retry 非负整数、本地默认5，为未应答后改呼下一坐席的等待秒数；serviceLevel 非负整数、本地默认10；wrapupTime 3–3600秒、本地30；maxLen 0–999、本地0且0不限。",
+        "队列技能关系：queueSkills为列表，可关联本租户多个技能；新增每个新关联skillLevel本地默认1并保留已有值。queue/update省略queueSkills保留、提交则全量替换；当前纯参数编辑省略它，关联单独按create/delete差异维护。"
+      ]
+    },
+    {
+      "id": "API-379",
+      "name": "获取队列列表",
+      "endpoint": "/interface/v10/queue/list",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/队列管理/获取队列列表.html"
+      ],
+      "notes": [
+        "队列列表与详情：list的limit默认500、最大500，offset默认0；可按qno/name和创建时间筛选。get按String qno读取，返回data.queue及data.queueSkills。"
+      ]
+    },
+    {
+      "id": "API-380",
+      "name": "获取队列信息",
+      "endpoint": "/interface/v10/queue/get",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/队列管理/获取队列信息.html"
+      ],
+      "notes": [
+        "接听队列编号：非空字符串，在同enterpriseId内唯一，保留前导零。官方只要求String，本期不自行限制数字格式或长度。已登记编号不可通过编辑改号。",
+        "队列列表与详情：list的limit默认500、最大500，offset默认0；可按qno/name和创建时间筛选。get按String qno读取，返回data.queue及data.queueSkills。",
+        "技能和成员双重核对：同时核对多个目标技能ID集合和各组有效成员去重集合；供应商技能及agent/query(qno)成员为独立快照，cno原String比较。待提交技能不参与有效成员，成员一致不等于在线。"
+      ]
+    },
+    {
+      "id": "API-381",
+      "name": "删除队列",
+      "endpoint": "/interface/v10/queue/delete",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/队列管理/删除队列.html"
+      ],
+      "notes": []
+    },
+    {
+      "id": "API-382",
+      "name": "获取队列技能",
+      "endpoint": "/interface/v10/queueSkill/list",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/队列管理/获取队列技能.html"
+      ],
+      "notes": [
+        "队列技能关系：queueSkills为列表，可关联本租户多个技能；新增每个新关联skillLevel本地默认1并保留已有值。queue/update省略queueSkills保留、提交则全量替换；当前纯参数编辑省略它，关联单独按create/delete差异维护。",
+        "技能和成员双重核对：同时核对多个目标技能ID集合和各组有效成员去重集合；供应商技能及agent/query(qno)成员为独立快照，cno原String比较。待提交技能不参与有效成员，成员一致不等于在线。"
+      ]
+    },
+    {
+      "id": "API-383",
+      "name": "队列新增技能",
+      "endpoint": "/interface/v10/queueSkill/create",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/队列管理/队列新增技能.html"
+      ],
+      "notes": [
+        "队列技能关系：queueSkills为列表，可关联本租户多个技能；新增每个新关联skillLevel本地默认1并保留已有值。queue/update省略queueSkills保留、提交则全量替换；当前纯参数编辑省略它，关联单独按create/delete差异维护。"
+      ]
+    },
+    {
+      "id": "API-384",
+      "name": "队列更新技能",
+      "endpoint": "/interface/v10/queueSkill/update",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/队列管理/队列更新技能.html"
+      ],
+      "notes": [
+        "队列技能关系：queueSkills为列表，可关联本租户多个技能；新增每个新关联skillLevel本地默认1并保留已有值。queue/update省略queueSkills保留、提交则全量替换；当前纯参数编辑省略它，关联单独按create/delete差异维护。"
+      ]
+    },
+    {
+      "id": "API-385",
+      "name": "队列删除技能",
+      "endpoint": "/interface/v10/queueSkill/delete",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/队列管理/队列删除技能.html"
+      ],
+      "notes": [
+        "队列技能关系：queueSkills为列表，可关联本租户多个技能；新增每个新关联skillLevel本地默认1并保留已有值。queue/update省略queueSkills保留、提交则全量替换；当前纯参数编辑省略它，关联单独按create/delete差异维护。"
+      ]
+    },
+    {
+      "id": "API-386",
+      "name": "新增外呼组接口",
+      "endpoint": "/interface/v10/agentGroup/create",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/外呼组管理/新增外呼组.html"
+      ],
+      "notes": [
+        "外呼组号：外呼组与技能是不同资源。",
+        "租户外呼组及成员：gno为2–20位、字母开头、仅含字母数字且至少1位数字，groupName最多50字、comment最多100字；同enterpriseId下gno唯一。外呼组是agentGroup资源，与队列及技能分开。一个坐席仅属一个外呼组，调入时从原组移出。 同企业最多1000组；每组及每次分配最多1000个坐席。"
+      ]
+    },
+    {
+      "id": "API-387",
+      "name": "获取外呼组列表接口",
+      "endpoint": "/interface/v10/agentGroup/list",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/外呼组管理/获取外呼组列表.html"
+      ],
+      "notes": [
+        "外呼组号：外呼组与技能是不同资源。",
+        "租户外呼组及成员：gno为2–20位、字母开头、仅含字母数字且至少1位数字，groupName最多50字、comment最多100字；同enterpriseId下gno唯一。外呼组是agentGroup资源，与队列及技能分开。一个坐席仅属一个外呼组，调入时从原组移出。 同企业最多1000组；每组及每次分配最多1000个坐席。"
+      ]
+    },
+    {
+      "id": "API-388",
+      "name": "查询外呼组接口",
+      "endpoint": "/interface/v10/agentGroup/get",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/外呼组管理/查询外呼组.html"
+      ],
+      "notes": [
+        "外呼组号：外呼组与技能是不同资源。",
+        "租户外呼组及成员：gno为2–20位、字母开头、仅含字母数字且至少1位数字，groupName最多50字、comment最多100字；同enterpriseId下gno唯一。外呼组是agentGroup资源，与队列及技能分开。一个坐席仅属一个外呼组，调入时从原组移出。 同企业最多1000组；每组及每次分配最多1000个坐席。"
+      ]
+    },
+    {
+      "id": "API-389",
+      "name": "更新外呼组接口",
+      "endpoint": "/interface/v10/agentGroup/update",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/外呼组管理/更新外呼组.html"
+      ],
+      "notes": [
+        "租户外呼组及成员：gno为2–20位、字母开头、仅含字母数字且至少1位数字，groupName最多50字、comment最多100字；同enterpriseId下gno唯一。外呼组是agentGroup资源，与队列及技能分开。一个坐席仅属一个外呼组，调入时从原组移出。 同企业最多1000组；每组及每次分配最多1000个坐席。"
+      ]
+    },
+    {
+      "id": "API-390",
+      "name": "删除外呼组接口",
+      "endpoint": "/interface/v10/agentGroup/delete",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/外呼组管理/删除外呼组.html"
+      ],
+      "notes": [
+        "租户外呼组及成员：gno为2–20位、字母开头、仅含字母数字且至少1位数字，groupName最多50字、comment最多100字；同enterpriseId下gno唯一。外呼组是agentGroup资源，与队列及技能分开。一个坐席仅属一个外呼组，调入时从原组移出。 同企业最多1000组；每组及每次分配最多1000个坐席。"
+      ]
+    },
+    {
+      "id": "API-391",
+      "name": "外呼组分配座席接口",
+      "endpoint": "/interface/v10/agentGroup/assignAgent",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/外呼组管理/外呼组分配座席.html"
+      ],
+      "notes": [
+        "租户外呼组及成员：gno为2–20位、字母开头、仅含字母数字且至少1位数字，groupName最多50字、comment最多100字；同enterpriseId下gno唯一。外呼组是agentGroup资源，与队列及技能分开。一个坐席仅属一个外呼组，调入时从原组移出。 同企业最多1000组；每组及每次分配最多1000个坐席。"
+      ]
+    },
+    {
+      "id": "API-392",
+      "name": "解绑外呼组接口",
+      "endpoint": "/interface/v10/agentGroup/unassignAgent",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/外呼组管理/解绑外呼组.html"
+      ],
+      "notes": [
+        "租户外呼组及成员：gno为2–20位、字母开头、仅含字母数字且至少1位数字，groupName最多50字、comment最多100字；同enterpriseId下gno唯一。外呼组是agentGroup资源，与队列及技能分开。一个坐席仅属一个外呼组，调入时从原组移出。 同企业最多1000组；每组及每次分配最多1000个坐席。"
+      ]
+    },
+    {
+      "id": "API-393",
+      "name": "获取外呼组下座席组列表接口",
+      "endpoint": "/interface/v10/agentGroup/listAssignedAgent",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/外呼组管理/获取外呼组下座席列表.html"
+      ],
+      "notes": [
+        "租户外呼组及成员：gno为2–20位、字母开头、仅含字母数字且至少1位数字，groupName最多50字、comment最多100字；同enterpriseId下gno唯一。外呼组是agentGroup资源，与队列及技能分开。一个坐席仅属一个外呼组，调入时从原组移出。 同企业最多1000组；每组及每次分配最多1000个坐席。"
+      ]
+    },
+    {
+      "id": "API-394",
+      "name": "获取座席所在外呼组信息",
+      "endpoint": "/interface/v10/agentGroup/queryAgentGroup",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/获取座席外呼组.html"
+      ],
+      "notes": [
+        "租户外呼组及成员：gno为2–20位、字母开头、仅含字母数字且至少1位数字，groupName最多50字、comment最多100字；同enterpriseId下gno唯一。外呼组是agentGroup资源，与队列及技能分开。一个坐席仅属一个外呼组，调入时从原组移出。 同企业最多1000组；每组及每次分配最多1000个坐席。"
+      ]
+    },
+    {
+      "id": "DOC-395",
+      "name": "班长席监控",
+      "endpoint": "CTILink.Monitor.setPause / setUnpause / setOffline",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/工具条/班长席监控.html"
+      ],
+      "notes": [
+        "管理置忙、置闲与下线：目标工号原字符串；setPause/setUnpause仅传monitoredCno，setOffline另传removeBinding=0保留绑定。不提供setOnline。 setOffline回调表reqType写为setPause，与方法名不一致。 先核ADMIN、本人已上线且班长权限已确认、同租户授权队列目标及新鲜状态；空闲可置忙，置忙可置闲，空闲/置忙可下线。离线只读概览和事件日志不授予管理能力。通话/振铃/整理不执行。官方setOffline回执reqType表述矛盾保留CF-11，未知刷新核对目标状态。"
+      ]
+    },
+    {
+      "id": "API-396",
+      "name": "新增分机",
+      "endpoint": "/interface/v10/exten/create",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/分机管理/新增分机.html"
+      ],
+      "notes": [
+        "坐席受控软电话分机：D-055在D-046上改为从分机资源目录选择，禁止手填。Agent.login.bindTel为必填String，读取本账号本租户已启用且未占用资源原exten，保留前导零；不进入agent/create或agent/update。",
+        "分机资源身份与软电话类型：exten按String保留前导零，官方长度3–11位；仅数字为本地约束。资源type=2表示WebRTC，与登录bindType=3及Agent返回bindTelType=4分别转换。区号为String。",
+        "分机密码：新增必须提供，更新省略表示不变。仅瞬时提交，不写演示存储、不回填、不出现在请求追踪或审计中。",
+        "分机呼叫与媒体设置：active等开关0/1；callPower为String 0/1/2/3。create的isOb、denoise为String，update为Int，分别构造。allow采用alaw,ulaw或myopus,alaw,ulaw。"
+      ]
+    },
+    {
+      "id": "API-397",
+      "name": "更新分机",
+      "endpoint": "/interface/v10/exten/update",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/分机管理/更新分机.html"
+      ],
+      "notes": [
+        "分机资源身份与软电话类型：exten按String保留前导零，官方长度3–11位；仅数字为本地约束。资源type=2表示WebRTC，与登录bindType=3及Agent返回bindTelType=4分别转换。区号为String。",
+        "分机密码：新增必须提供，更新省略表示不变。仅瞬时提交，不写演示存储、不回填、不出现在请求追踪或审计中。",
+        "分机呼叫与媒体设置：active等开关0/1；callPower为String 0/1/2/3。create的isOb、denoise为String，update为Int，分别构造。allow采用alaw,ulaw或myopus,alaw,ulaw。"
+      ]
+    },
+    {
+      "id": "API-398",
+      "name": "查询分机",
+      "endpoint": "/interface/v10/exten/get",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/分机管理/查询分机.html"
+      ],
+      "notes": [
+        "分机资源身份与软电话类型：exten按String保留前导零，官方长度3–11位；仅数字为本地约束。资源type=2表示WebRTC，与登录bindType=3及Agent返回bindTelType=4分别转换。区号为String。",
+        "分机导入与删除核实：list以data.list分页，limit≤500、offset从0；从当前账号导入已存在资源。删除采用batchDelete单元素extens String保留前导零，再以list/get核对。"
+      ]
+    },
+    {
+      "id": "API-399",
+      "name": "批量删除分机",
+      "endpoint": "/interface/v10/exten/batchDelete",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/分机管理/批量删除分机.html"
+      ],
+      "notes": [
+        "分机导入与删除核实：list以data.list分页，limit≤500、offset从0；从当前账号导入已存在资源。删除采用batchDelete单元素extens String保留前导零，再以list/get核对。"
+      ]
+    },
+    {
+      "id": "API-400",
+      "name": "新增时间条件设置接口",
+      "endpoint": "/interface/v10/enterpriseTime/create",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/时间管理/新增时间条件设置接口.html"
+      ],
+      "notes": [
+        "时间条件定义：type=1星期，dayOfWeek逗号分隔1周日至7周六；type=2日期，fromDay/toDay为YYYY-MM-DD；timeType=1连续/2间隔；时间HH:mm。名称与优先级在同enterpriseId内唯一，起止不能倒置；priority必填且为用户手动输入的正整数，不自动分配。"
+      ]
+    },
+    {
+      "id": "API-401",
+      "name": "更新时间条件设置接口",
+      "endpoint": "/interface/v10/enterpriseTime/update",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/时间管理/更新时间条件设置接口.html"
+      ],
+      "notes": [
+        "时间条件定义：type=1星期，dayOfWeek逗号分隔1周日至7周六；type=2日期，fromDay/toDay为YYYY-MM-DD；timeType=1连续/2间隔；时间HH:mm。名称与优先级在同enterpriseId内唯一，起止不能倒置；priority必填且为用户手动输入的正整数，不自动分配。"
+      ]
+    },
+    {
+      "id": "API-402",
+      "name": "删除时间条件设置接口",
+      "endpoint": "/interface/v10/enterpriseTime/delete",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/时间管理/删除时间条件设置接口.html"
+      ],
+      "notes": [
+        "时间条件定义：type=1星期，dayOfWeek逗号分隔1周日至7周六；type=2日期，fromDay/toDay为YYYY-MM-DD；timeType=1连续/2间隔；时间HH:mm。名称与优先级在同enterpriseId内唯一，起止不能倒置；priority必填且为用户手动输入的正整数，不自动分配。"
+      ]
+    },
+    {
+      "id": "API-403",
+      "name": "删除分机",
+      "endpoint": "/interface/v10/exten/delete",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/配置管理/分机管理/删除分机.html"
+      ],
+      "notes": [
+        "exten/delete为差异对照，不用于本期删除操作；本期采用batchDelete的String extens，删除后通过list回查，保护前导零及当前引用。"
+      ]
+    },
+    {
+      "id": "API-404",
+      "name": "更新任务接口",
+      "endpoint": "/interface/v10/task/update",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/预测式外呼/更新任务接口.html"
+      ],
+      "notes": [
+        "任务号码：单号码tel必填并保留字符串；taskTelList不超过8MB。clid是每条名单行独立的可选完整号码字段，不是任务级外显号码配置。",
+        "任务级固定号码配置边界：API-311和API-404没有任务级指定号码参数；两类任务采用当前enterpriseId线下提供的固定默认外显导航标识，由自建系统自动带入category=5和单个customerClidsGroup。号码池与customerTimeout按接口选填。",
+        "账号固定默认外显导航与任务自动带入：按用户转述的AliCti技术答复，同一enterpriseId统一使用一个固定默认外显导航，不需维护多个导航。标识线下提供并由自建系统按enterpriseId单值保存；账号及任务界面不提供导航目录和选择器。创建预外呼及自动外呼时自动使用当前账号标识，提交customerClidsCategory=5及单个String customerClidsGroup；号码池仍可选。API-311/API-404仅定义单次任务标识字段，未直接证明供应商侧账号唯一性。",
+        "已建任务原ID编辑与回查：仅同账号租户有权、未结束、有真实或明确模拟supplier taskId且无待核对结果的任务可编辑；已建任务以原供应商taskId提交task/update，并复核enterpriseId、租户、任务类型与原任务ID。两类任务均显示名称、描述和供应商业务标签编辑入口，仅开放本期采用且API-404列明的通用字段；预测专用坐席与流转字段不进入自动外呼编辑。update未列type、callGroupType、客户名单、排重或名单clid，不能借编辑改变任务类型、接听分支、客户批次及固定外显号。API-404的ivrId/ivrName虽有自动外呼用途描述，却位于“仅type=1生效”小节，已建type=2的IVR更改本期只读，适用性待CF-17确认。",
+        "自动任务语音流程名称快照：API-311创建type=2时ivrId/ivrName至少选一个，二者同传时ID优先。创建确认、任务详情和查看管理显示本任务已保存的语音流程名称，优先取本任务冻结的planSnapshot或创建设置快照；名称缺失显示未记录，不从当前共享流程目录或某次话单的实际ivrName反推。",
+        "最小可用座席数及定时自动恢复：API-311/API-404：预测任务minAvailableAgentCount默认10、取1–10；任务内可用座席数低于阈值时自动暂停。autoStart=1表示定时开始，autoStartDay和autoStartTime至少配置一项。用户转述供应商业务口径：只有设置定时开始且因座席不足自动暂停的任务，人数恢复到不少于阈值时自动启动。"
+      ]
+    },
+    {
+      "id": "DOC-344",
+      "name": "座席实时状态获取",
+      "endpoint": "agentStatus/get",
+      "verification_status": "documented",
+      "source_refs": [
+        "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席实时状态获取接口.html"
+      ],
+      "notes": [
+        "坐席配置与话务状态：坐席列表话务状态采用官方state，启用状态采用active，二者独立；未知state保留待核对，不将在线当空闲。删除记录不进入当前列表。",
+        "班长队列监控范围与内容：仅阿里侧班长可用；qnos逗号连接，fields取queueParams、agentStatuses、queueEntries，省略或空不返回对应字段。",
+        "请求回执、状态及偏好隔离：按当前enterpriseId、tenantId、账号、原始String cno及请求标识核验；失败保持原值、未知保护。原型未知结果仅通过LOCAL_MOCK.inspectSeatSession读取独立本地模拟快照，不是SDK或agentStatus/get响应。正式DOC-344只定义state、stateAction、loginStatus、deviceStatus、mainUniqueId、extenReachable，不能核对bindTel、bindType、workingMode或整理截止时间；这些配置须由对应SDK回执或另行核实的可信来源确认，未查明部分继续保持未知。",
+        "事件来源与最小展示字段：API-316的/user/agent为企业WebSocket事件订阅，不是历史查询；API-315 type=9仅定义座席状态变更推送设置，未给统一事件载荷、时间戳和去重键。DOC-344 agentStatus/get按enterpriseId+cno返回当前state，不返回历史；差异只能标为本地观察。CTILink breakLine/sipDisconnected及明确成功的操作回执可作为各自事件来源。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+批量删除分机
+接口说明：
+API URL
+接口请求地址： https://api-{region}.alicti.cn/interface/{version}/exten/batchDelete
+地址参数说明：
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+{version}为接口版本，当前{version}=v10
+接口请求方式：GET/POST
+相关参数 （paas需改）
+字段           |
+类型   |
+要求 |
+描述         |
+备注 |
+validateType |
+Int |
+必选 |
+验证类型 |
+取值1，2； 取值说明：
+validateType=1时使用部门编号(departmentId)进行验证；
+validateType=2时使用呼叫中心编号(enterpriseId)进行验证； |
+departmentId |
+String |
+必选 |
+部门编号 |
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001； |
+enterpriseId |
+Int |
+必选 |
+呼叫中心编号 |
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101； |
+timestamp |
+Int |
+必选 |
+当前时间戳 |
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+sign |
+String |
+必选 |
+验证值 |
+说明：
+validateType=1时，sign=MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，sign=MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 |
+extens |
+String |
+必选 |
+分机号字符串,逗号分隔,最多支持100 |
+|
+接口请求示例：
+https://api-{region}.alicti.cn/interface/v10/exten/batchDelete?validateType=1&departmentId=BM3000003&timestamp=1491457643
+&sign=6d44ce437fc1d8f1b6d56817a3e212f0&extens=9008,9010
+接口返回
+字段 |
+类型 |
+描述 |
+success |
+String |
+成功操作条数 |
+fail |
+String |
+失败操作条数 |
+返回示例：
+{
+"result": "0",
+"description": "成功",
+"data": {
+"success": "3",
+"successExtens": [
+"66747",
+"66748",
+"66749"
+],
+"fail": "0",
+"failExtens": [],
+"failReasons": []
+}
+}

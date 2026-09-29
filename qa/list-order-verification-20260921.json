@@ -1,0 +1,521 @@
+{
+  "version": "20260921-list-order2",
+  "request": "待联络客户分页；业务记录列表按更新时间倒序",
+  "result": "pass",
+  "runtime": {
+    "scriptCount": 51,
+    "files": [
+      "js/components/business-issues.js",
+      "js/components/alicti-extensions.js",
+      "js/components/seat-phone-config.js",
+      "js/components/alicti-seat-import.js",
+      "js/components/alicti-number-import.js",
+      "js/components/alicti-time-conditions.js",
+      "js/components/repeat-predictive.js",
+      "js/components/outbound-groups.js",
+      "js/components/workbench-overview.js",
+      "js/components/alicti-demo.js",
+      "js/components/account-seat.js",
+      "js/components/alicti-queues.js",
+      "js/components/customer-directory.js",
+      "js/components/seat-operation-ui.js",
+      "js/components/call-data-issues.js",
+      "js/components/tenant-call-monitor.js",
+      "js/components/number-import-history.js",
+      "js/components/platform-ui.js",
+      "js/pages/account-tenant.js",
+      "js/pages/report-clue.js",
+      "js/pages/cloud-task-workspace.js",
+      "js/pages/sys-scene.js",
+      "js/pages/time-condition-management.js",
+      "js/pages/queue-management.js",
+      "js/pages/scene-list.js",
+      "js/pages/report-call.js",
+      "js/pages/report-center.js",
+      "js/pages/inbound-routing.js",
+      "js/pages/cloud-call-records.js",
+      "js/pages/agent-center.js",
+      "js/pages/result-clue.js",
+      "js/pages/extension-management.js",
+      "js/pages/alicti-accounts.js",
+      "js/pages/contact-center-settings.js",
+      "js/pages/home.js",
+      "js/pages/resource-lines.js",
+      "js/pages/operations-monitor.js",
+      "js/pages/business-categories.js",
+      "js/pages/scene-block.js",
+      "js/pages/system-center.js",
+      "js/pages/customer-directory.js",
+      "js/pages/outbound-group-management.js",
+      "js/pages/ai-domain.js",
+      "js/pages/agent-workbench.js",
+      "js/pages/sys-tags.js",
+      "js/pages/customer-tasks.js",
+      "js/pages/tenant-billing.js",
+      "js/pages/result-records.js",
+      "js/pages/cloud-call-tasks.js",
+      "js/pages/report-billing.js",
+      "mock/number-onboarding.js"
+    ],
+    "syntaxFailures": [],
+    "missingScriptReferences": []
+  },
+  "rootRegression": {
+    "verify-list-order": {
+      "passed": 9,
+      "failed": 0,
+      "checks": [
+        "Updated timestamps win over creation time; mixed seconds, milliseconds and date strings normalize",
+        "Newest real local/provider update wins; fallback is first valid, nested paths work",
+        "Ties stay stable and all missing timestamps sort last without fabricated dates",
+        "Pending customers sort globally before pagination: 25 rows show 10/10/5 with continuous numbering",
+        "Returning from a secondary view restores the pending page",
+        "Customer detail pagination shares the same page size and filters before paging",
+        "Page clamps after completion removes rows; a changed account/tenant page token resets to first page",
+        "Row history updates and epoch values override stale row times without reordering source execution",
+        "Customer directory keeps real assignment/followup update times without inventing a recent call"
+      ],
+      "failures": []
+    },
+    "verify-supervisor-workbench": {
+      "result": "pass",
+      "count": 13,
+      "failed": 0,
+      "checks": [
+        "有效总部管理员默认进入班长页签，保留外呼页签且不重复外呼内容",
+        "切换到外呼页签显示本人操作，移除班长监控和重复内容",
+        "导航返回恢复页签，旧入口参数不会覆盖刚选择的外呼页签",
+        "普通运营没有班长页签且无法通过方法直接进入",
+        "管理员成员权限撤销后页签与监控立即隐藏",
+        "管理工作台仅提供进入班长监控的入口，不重复整块监控",
+        "班长上线查询后仅呈现本租户目标，本人和通话整理中无管理入口",
+        "管理置忙抽屉包含精确目标与影响，关闭不发送写请求",
+        "置忙确认经原型服务执行并回读，完成前禁用确认与监控刷新",
+        "置闲抽屉恢复接听，失败保持抽屉并保留目标原状态",
+        "管理结果未知关闭抽屉隐藏旧列表，只能刷新回读且不会重放写请求",
+        "下线确认保留绑定，回读离线后不提供管理上线入口",
+        "接通中切换两页签保留沟通草稿、通话身份及可返回通话的入口"
+      ],
+      "failures": []
+    },
+    "verify-incall-followup": {
+      "result": "pass",
+      "count": 37,
+      "failed": 0,
+      "checks": [
+        "无坐席技能：人工外呼无需选择技能，旧草稿不污染话单归属",
+        "已有坐席技能：人工外呼无需选择技能，旧草稿不污染话单归属",
+        "人工外呼在拨号和等待接听时也能记录，接通后保留输入",
+        "inbound：坐席未接听时不显示记录表单，也不能提前填写沟通结果",
+        "predictive：坐席未接听时不显示记录表单，也不能提前填写沟通结果",
+        "manual：通话中直接填写处理结果、备注及六项客户业务信息",
+        "manual：通话中草稿不会提前写为已完成或更新正式客户业务信息",
+        "manual：收起后恢复与静音重绘保留全部输入",
+        "manual：挂断只切换到确认阶段并保留通话中草稿",
+        "manual：确认提交后话单、客户档案和关联客户名单一致",
+        "manual：保存后恢复接听，下一通不会带入上一位客户的通话记录",
+        "inbound：通话中直接填写处理结果、备注及六项客户业务信息",
+        "inbound：通话中草稿不会提前写为已完成或更新正式客户业务信息",
+        "inbound：收起后恢复与静音重绘保留全部输入",
+        "inbound：挂断只切换到确认阶段并保留通话中草稿",
+        "inbound：确认提交后话单、客户档案和关联客户名单一致",
+        "inbound：保存后恢复接听，下一通不会带入上一位客户的通话记录",
+        "predictive：通话中直接填写处理结果、备注及六项客户业务信息",
+        "predictive：通话中草稿不会提前写为已完成或更新正式客户业务信息",
+        "predictive：收起后恢复与静音重绘保留全部输入",
+        "predictive：挂断只切换到确认阶段并保留通话中草稿",
+        "predictive：确认提交后话单、客户档案和关联客户名单一致",
+        "predictive：保存后恢复接听，下一通不会带入上一位客户的通话记录",
+        "通话中刷新恢复草稿，演示会话中断后仍需坐席确认提交",
+        "挂断后刷新保留草稿，最终提交后再次刷新只显示已保存记录",
+        "其他账号及其他租户不会恢复当前坐席的通话草稿",
+        "当前账号、租户或供应商账号变化后不能将输入写回旧通话草稿",
+        "草稿暂存失败明确提示且保留当前输入，存储恢复后完整补存",
+        "多个坐席技能无需选择，外显号码保持独立且未绑定技能的号码可拨号",
+        "取消技能绑定后仍校验租户、供应商账号、号码状态和人工外呼用途；拨号前重查授权",
+        "自动外显拨号前重新选号，撤权后换用本租户可用号，实际号码快照不随配置改变",
+        "预外呼来电演示不依赖号码技能绑定，仍按任务和坐席技能分配",
+        "来电演示不复用待继续跟进历史行，只分配原任务新增的未呼叫行",
+        "预外呼来电演示发起前重新校验号码授权，不能越权分配",
+        "全局工具条从离线上线到通话，静音方向及挂断请求对应 SDK，记录不丢失",
+        "inbound：工具条区分待接来电与已建立通话的操作",
+        "predictive：工具条区分待接来电与已建立通话的操作"
+      ],
+      "failures": []
+    },
+    "verify-super-dashboard-data": {
+      "result": "pass",
+      "count": 13,
+      "checks": [
+        "Four call types share ended-call totals, while unknown outcomes stay outside the rate denominator",
+        "Inbound system answer counts as customer connection without inventing human reception",
+        "Real zero duration participates; missing duration and pure automatic listening never dilute the two-party average",
+        "Dynamic tenant categories group by ID and current label, preserving disabled categories and unclassified calls",
+        "Missing call category resolves through the exact batch row and tenant rather than another tenant or matching phone",
+        "Explicit call category takes precedence; an ambiguous batch match remains unclassified",
+        "Unknown or removed dictionary IDs remain unclassified rather than becoming arbitrary labels",
+        "Source tenant and selected enterprise scope apply before aggregation and dictionary selection",
+        "Official mainUniqueId deduplicates repeated response rows but preserves same IDs in different tenants",
+        "Official startTime governs dates, using inclusive start and exclusive next day; incomplete CDRs are excluded",
+        "Empty scope keeps count zero, undefined rate and duration, and no fabricated category distribution",
+        "No source row, batch, dictionary or persisted state is mutated during overview reads",
+        "Denied access does not expose call totals or business groups"
+      ],
+      "network": false,
+      "writes": 0
+    },
+    "verify-call-regression-fixes": {
+      "result": "pass",
+      "count": 9,
+      "checks": [
+        "RG-07 late unanswered CDR preserves confirmed customer evidence and reports conflict",
+        "RG-07 incomplete or duplicate CDR cannot remove positive evidence",
+        "Unknown CDR does not inherit a legacy unanswered label",
+        "A foreign enterprise CDR remains unusable",
+        "RG-12 explicit agent-unanswered remains false independently of customer result",
+        "Explicit both-side connection counts answered without inventing missing duration",
+        "System answer alone is not an artificial agent connection",
+        "Positive agent event survives contradictory later agent failure",
+        "Raw conflicting status and timestamps remain available for review"
+      ]
+    }
+  },
+  "resourceRegression": {
+    "syntax": [
+      {
+        "file": "pages/account-tenant.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/alicti-accounts.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/agent-center.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/resource-lines.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/extension-management.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/queue-management.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/outbound-group-management.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/time-condition-management.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/business-categories.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/inbound-routing.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "pages/contact-center-settings.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "components/outbound-groups.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "components/alicti-extensions.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "components/alicti-time-conditions.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "components/alicti-queues.js",
+        "code": 0,
+        "error": ""
+      }
+    ],
+    "tests": [
+      {
+        "suite": "verify-alicti-accounts",
+        "code": 0,
+        "tail": " \"无可见引用时篡改已知账号ID或品牌仍不能恢复\",\n    \"初次恢复拒绝内置未使用账号的身份篡改\",\n    \"存储不接纳权限字段或真实凭据\",\n    \"无WebLocks时拒绝写入而保留输入\",\n    \"新建可选品牌空串按账号名称归类\"\n  ]\n}\n",
+        "error": ""
+      },
+      {
+        "suite": "verify-seat-phone-config",
+        "code": 0,
+        "tail": "   \"已登录会话不因目录变化阻断正常下线\",\n    \"配置抽屉使用受控选择且旧值不可用仍能打开更正\",\n    \"禁止外呼与仅内线分机拦截直接客户外呼，仍可接听和下线\",\n    \"目录方法未就绪不能直调外呼，未加载目录的独立旧夹具维持兼容\"\n  ]\n}\n",
+        "error": ""
+      },
+      {
+        "suite": "verify-number-resource-rules",
+        "code": 0,
+        "tail": "使用\",\n    \"任务使用的技能组必须仍属于同账号同租户\",\n    \"无有效技能、技能待生效及非法等级不可代替任务成员\",\n    \"自动外呼转人工配置不要求号码绑定团队，仍校验团队成员\",\n    \"任务不可用提示仅包含号码授权状态和用途\"\n  ]\n}\n",
+        "error": ""
+      },
+      {
+        "suite": "verify-extension-management",
+        "code": 0,
+        "tail": "或复活虚构分机\",\n    \"缺目录时分机读取保持可诊断但不可用于新上线或保存\",\n    \"坐席选择表单的旧目录版本不能覆盖后来停用或改归属\",\n    \"坐席配置已损坏时目录占用检查失败关闭，不冒险重分配\"\n  ],\n  \"failures\": []\n}\n",
+        "error": ""
+      },
+      {
+        "suite": "verify-time-conditions",
+        "code": 0,
+        "tail": "\n    \"损坏目录、重复账号内 ID/名称/优先级及无效日历均拒绝使用\",\n    \"已读目录被回退、同版本篡改或移除时不恢复种子覆盖现有记录\",\n    \"缺少种子且没有目录时安全失败，不自动创建任意条件\"\n  ],\n  \"failures\": []\n}\n",
+        "error": ""
+      },
+      {
+        "suite": "verify-queue-management",
+        "code": 0,
+        "count": 22,
+        "error": ""
+      },
+      {
+        "suite": "verify-queue-multi-skills",
+        "code": 0,
+        "count": 15,
+        "error": ""
+      },
+      {
+        "suite": "verify-outbound-groups",
+        "code": 0,
+        "tail": " \"CF08删除成员保留历史快照但当前外呼组不再包含旧身份\",\n    \"CF08重新分配持久化失败不公布新成员，修复存储后可明确重试\",\n    \"CF08工号定位拒绝多个当前有效身份，已删除身份不占唯一性\"\n  ],\n  \"failures\": []\n}\n",
+        "error": ""
+      },
+      {
+        "suite": "verify-skill-group-management",
+        "code": 0,
+        "tail": "留原配置；不能借新增修改已有等级或移除技能\"\n  ],\n  \"failures\": [],\n  \"scope\": \"local AliCti prototype, actual index script order, no supplier calls\"\n}\n",
+        "error": ""
+      },
+      {
+        "suite": "verify-business-custom-fields",
+        "code": 0,
+        "tail": "次业务生成独立表单，固定业务通话不能通过草稿改成另一业务\",\n    \"保存更新本次通话及客户档案详情，同手机号按业务及单据分别归组\",\n    \"客服可填写本人通话业务信息，外租户通话保存被拒绝且不产生写入\"\n  ],\n  \"failures\": []\n}\n",
+        "error": ""
+      },
+      {
+        "suite": "verify-alicti-queues",
+        "code": 0,
+        "count": 29,
+        "error": ""
+      },
+      {
+        "suite": "verify-queue-config",
+        "code": 0,
+        "count": 21,
+        "error": ""
+      },
+      {
+        "suite": "verify-queue-detail",
+        "code": 0,
+        "count": 28,
+        "error": ""
+      },
+      {
+        "suite": "verify-queue-catalog",
+        "code": 0,
+        "count": 24,
+        "error": ""
+      }
+    ],
+    "transactionMetadata": {
+      "code": 0,
+      "result": {
+        "result": "pass",
+        "checks": [
+          "extension: create/update timestamps, request/response boundary, rollback",
+          "time: create/update timestamps, request/response boundary, rollback",
+          "queue: create/update local metadata excluded from contract and fingerprint",
+          "outbound: create/update metadata survives validated reload"
+        ]
+      }
+    },
+    "realHelperPageOrdering": {
+      "code": 0,
+      "result": {
+        "result": "pass",
+        "count": 9,
+        "checks": [
+          "坐席列表全量排序后分页，第二页承接第一页面顺序",
+          "号码列表按真实更新时间倒序，不改原数据顺序",
+          "租户列表投影保留真实更新时间",
+          "AliCti账号列表按更新时间倒序",
+          "技能列表按更新时间而非数组顺序",
+          "队列列表按更新时间，不改变队列优先级数值",
+          "分机列表按更新时间倒序",
+          "时间条件管理列表按更新时间，不改变任务引用的优先级顺序",
+          "外呼组新建及修改后置顶"
+        ]
+      }
+    }
+  },
+  "seatSaveRegression": {
+    "syntax": [
+      {
+        "file": "js/components/seat-phone-config.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "js/components/alicti-demo.js",
+        "code": 0,
+        "error": ""
+      },
+      {
+        "file": "qa/verify-skill-group-management.cjs",
+        "code": 0,
+        "error": ""
+      }
+    ],
+    "tests": [
+      {
+        "suite": "verify-seat-phone-config",
+        "code": 0,
+        "count": 27,
+        "error": "",
+        "failures": null
+      },
+      {
+        "suite": "verify-extension-management",
+        "code": 0,
+        "count": 42,
+        "error": "",
+        "failures": []
+      },
+      {
+        "suite": "verify-skill-group-management",
+        "code": 0,
+        "count": 9,
+        "error": "",
+        "failures": []
+      },
+      {
+        "suite": "verify-seat-operations",
+        "code": 0,
+        "count": 41,
+        "error": "",
+        "failures": null
+      },
+      {
+        "suite": "verify-alicti-fields",
+        "code": 0,
+        "count": 74,
+        "error": "",
+        "failures": null
+      },
+      {
+        "suite": "verify-seat-optional-skills",
+        "code": 0,
+        "count": 6,
+        "error": "",
+        "failures": null
+      }
+    ],
+    "metadata": {
+      "code": 0,
+      "result": {
+        "result": "pass",
+        "count": 3,
+        "checks": [
+          "分机更新时间与配置同事务提交，初始化恢复坐席，保存失败不修改时间",
+          "技能成功更新坐席和变更关系时间，供应商请求不含本地元数据",
+          "供应商失败或本地存储失败不发布任何新更新时间"
+        ]
+      }
+    }
+  },
+  "customerTaskOrdering": {
+    "result": "pass",
+    "count": 8,
+    "checks": [
+      "真实话单完整筛选结果按更新时间倒序后分页，第二页接续正确且不重排源数组",
+      "无更新时间按接口话单结束时间倒序，缺原始时间不借未来本地日期置顶",
+      "导入批次按其客户实际最新操作排序，旧batch.updatedAt不屏蔽更新历史",
+      "批次名单按客户最新操作时间排序，epoch秒与日期统一且保留原始顺序",
+      "有本条记录时间时不使用批次他人更新时间把所有客户置顶",
+      "客户档案先排序后分页，详情联系与导入列表分别倒序",
+      "任务草稿以savedAt更新排序，不以计划日期排序，分页前全量排序",
+      "任务中心名单和通话展示排序，任务调用名单及通话源顺序保留"
+    ],
+    "helper": "actual PlatformUI.sortByUpdated/timestamp",
+    "files": [
+      "customer-directory.js",
+      "customer-tasks.js",
+      "cloud-call-tasks.js",
+      "cloud-call-records.js",
+      "cloud-task-workspace.js"
+    ],
+    "network": false
+  },
+  "otherRendering": {
+    "passed": 20,
+    "checks": [
+      "audit rendered in update descending order",
+      "report overview renders with actual sorting helper",
+      "report leads renders with actual sorting helper",
+      "report customers renders with actual sorting helper",
+      "report outbound renders with actual sorting helper",
+      "report agents renders with actual sorting helper",
+      "report inbound renders with actual sorting helper",
+      "report skills renders with actual sorting helper",
+      "dispatch log sorts a copy and leaves source chronology intact",
+      "supplier-number demo sorts globally before pagination",
+      "AI page ai-domain renders with actual sorting helper",
+      "AI page scene-list renders with actual sorting helper",
+      "AI page scene-block renders with actual sorting helper",
+      "AI page sys-tags renders with actual sorting helper",
+      "AI page sys-scene renders with actual sorting helper",
+      "AI page result-records renders with actual sorting helper",
+      "AI page result-clue renders with actual sorting helper",
+      "AI page report-billing renders with actual sorting helper",
+      "AI page report-call renders with actual sorting helper",
+      "AI page report-clue renders with actual sorting helper"
+    ]
+  },
+  "browser": {
+    "account": "hq-operator",
+    "pageSize": 10,
+    "total": 81,
+    "pages": 9,
+    "checks": [
+      "第一页10条，上一页禁用",
+      "第二页显示11–20连续序号",
+      "第二页联系客户打开对应沈言先生，关闭保留第二页",
+      "本人待联络客户二级明细同样分页，返回后保留主页面第二页",
+      "最终list-order2资源加载后翻页通过，无本版本页面错误"
+    ],
+    "resolvedDuringCheck": "首次浏览器沿用旧脚本缓存造成setPendingPage缺失；统一更新51个脚本引用版本后复验通过。"
+  },
+  "scopeNotes": [
+    "只改展示顺序，源名单和实际拨号/队列优先级不变",
+    "趋势、排行榜、配置字段顺序和无独立时间的固定类别汇总保留语义顺序",
+    "有真实更新时间优先；无更新时间按现有业务时间，再按创建时间；无有效时间稳定置后",
+    "仅本地演示与回归，不表示真实供应商联调；未更新正式文档或推送GitLab"
+  ]
+}

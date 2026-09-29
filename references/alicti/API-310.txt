@@ -1,0 +1,324 @@
+号码列表分页查询接口
+
+接口说明：分页查询企业号码列表，支持多条件筛选（号码类型、外显类型、号码状态等）
+
+API URL
+
+接口请求地址：https://api-{region}.alicti.cn/interface/{version}/enterpriseHotline/listPage
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10 
+
+接口请求方式：POST
+
+相关参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+numberType | 
+Array | 
+可选 | 
+号码类型（支持多选） | 
+取值：1-热线号码；2-固话号码；3-SIP手机号；4-虚拟手机号 | 
+
+clidType | 
+Array | 
+可选 | 
+外显类型（支持多选） | 
+可选值：isInUse、isIbRight、isIntl、isPredictiveLeft、isPredictiveRight、isPreviewRight、isSipLeft、isWebCallLeft、isWebCallRight | 
+
+status | 
+Integer | 
+可选 | 
+号码状态 | 
+取值：1-启用；0-停用 | 
+
+number | 
+String | 
+可选 | 
+号码 | 
+精确匹配号码 | 
+
+areaCode | 
+String | 
+可选 | 
+区号 | 
+精确匹配区号 | 
+
+trunkGroupKey | 
+String | 
+可选 | 
+中继组编码 | 
+精确匹配中继组编码 | 
+
+label | 
+String | 
+可选 | 
+号码标签 | 
+精确匹配标签 | 
+
+startTime | 
+Long | 
+可选 | 
+创建时间开始（时间戳） | 
+单位：毫秒 | 
+
+endTime | 
+Long | 
+可选 | 
+创建时间结束（时间戳） | 
+单位：毫秒 | 
+
+offset | 
+Integer | 
+可选 | 
+偏移量（从第几条开始） | 
+默认：0，用于分页计算 | 
+
+limit | 
+Integer | 
+可选 | 
+每页条数 | 
+默认：10，最大：1000 | 
+
+接口请求示例（POST Body JSON格式）：
+
+http://api-{region}.alicti.cn/interface/v10/enterpriseHotline/listPage?timestamp=1581567849&validateType=2&sign=9b95116ea85db3befaf3ce92970dbf2c&enterpriseId=6000001
+
+{
+    "numberType": [1, 2],
+    "clidType": ["isInUse", "isIbRight"],
+    "status": 1,
+    "number": "01012345678",
+    "areaCode": "010",
+    "trunkGroupKey": "TG001",
+    "label": "客服专线",
+    "startTime": 1640966400000,
+    "endTime": 1672502400000,
+    "offset": 0,
+    "limit": 20
+}
+
+接口返回
+
+返回字段定义：
+
+JSON格式数据：
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+Int | 
+0-成功, -1-失败 | 
+
+description | 
+String | 
+result描述 | 
+
+pageSize | 
+String | 
+每页大小 | 
+
+totalCount | 
+String | 
+总记录数 | 
+
+data | 
+Array | 
+号码列表数据（数组） | 
+
+data数组元素定义（号码信息）：
+
+字段 | 
+类型 | 
+描述 | 
+
+id | 
+Integer | 
+号码ID | 
+
+hotline | 
+String | 
+完整号码 | 
+
+areaCode | 
+String | 
+区号 | 
+
+numberTrunk | 
+String | 
+号码主干部分 | 
+
+displayNumber | 
+String | 
+外显号码（固话带区号，400除外） | 
+
+numberType | 
+Integer | 
+号码类型：1-热线号码；2-固话号码；3-SIP手机号；4-虚拟手机号 | 
+
+status | 
+Integer | 
+状态：1-启用；0-停用 | 
+
+trunkGroupKey | 
+String | 
+中继组编码 | 
+
+label | 
+Array | 
+号码标签列表 | 
+
+isIbRight | 
+Integer | 
+呼入转座席侧：1-是；0-否 | 
+
+isInUse | 
+Integer | 
+预览外呼客户侧：1-是；0-否 | 
+
+isPreviewRight | 
+Integer | 
+预览外呼座席侧：1-是；0-否 | 
+
+isPredictiveLeft | 
+Integer | 
+预测外呼客户侧：1-是；0-否 | 
+
+isPredictiveRight | 
+Integer | 
+预测外呼座席侧：1-是；0-否 | 
+
+isSipLeft | 
+Integer | 
+SIP接入客户侧：1-是；0-否 | 
+
+isWebCallLeft | 
+Integer | 
+Web call第一侧：1-是；0-否 | 
+
+isWebCallRight | 
+Integer | 
+Web call第二侧：1-是；0-否 | 
+
+isIntl | 
+Integer | 
+国际号码：1-是；0-否 | 
+
+hybridGroupList | 
+Array | 
+号码池集合列表 | 
+
+createTime | 
+Long | 
+创建时间（时间戳，单位：毫秒） | 
+
+updateTime | 
+Long | 
+更新时间（时间戳，单位：毫秒） | 
+
+返回示例：
+
+{
+    "result": 0,
+    "description": "success",
+    "pageSize": "20",
+    "totalCount": "100",
+    "data": [
+        {
+            "id": 123456,
+            "hotline": "01012345678",
+            "areaCode": "010",
+            "numberTrunk": "12345678",
+            "displayNumber": "01012345678",
+            "numberType": 1,
+            "status": 1,
+            "trunkGroupKey": "TG001",
+            "label": ["客服专线", "VIP专线"],
+            "isIbRight": 1,
+            "isInUse": 1,
+            "isPreviewRight": 0,
+            "isPredictiveLeft": 0,
+            "isPredictiveRight": 0,
+            "isSipLeft": 0,
+            "isWebCallLeft": 0,
+            "isWebCallRight": 0,
+            "isIntl": 0,
+            "hybridGroupList": [
+                {
+                    "id": 1001,
+                    "name": "号码池A"
+                }
+            ],
+            "createTime": 1704096000000,
+            "updateTime": 1718438400000
+        },
+        {
+            "id": 123457,
+            "hotline": "01087654321",
+            "areaCode": "010",
+            "numberTrunk": "87654321",
+            "displayNumber": "01087654321",
+            "numberType": 1,
+            "status": 1,
+            "trunkGroupKey": "TG001",
+            "label": ["销售专线"],
+            "isIbRight": 0,
+            "isInUse": 1,
+            "isPreviewRight": 0,
+            "isPredictiveLeft": 0,
+            "isPredictiveRight": 0,
+            "isSipLeft": 0,
+            "isWebCallLeft": 0,
+            "isWebCallRight": 0,
+            "isIntl": 0,
+            "hybridGroupList": [],
+            "createTime": 1704182400000,
+            "updateTime": 1718524800000
+        }
+    ]
+}
