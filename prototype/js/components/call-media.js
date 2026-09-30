@@ -24,11 +24,12 @@
     const empty = (status, note) => ({ status, note, url: '', segments: [], transcriptStatus: '暂无通话文本' });
     if (!allowed(call)) return empty('无权查看', '当前工作范围不可查看本次通话。');
     if (call.directoryMeta?.legacyOnly) return empty('未提供录音', '历史联系记录未包含录音或转写文本，原始结果与备注保留。');
+    const sync = window.CloudCallSync?.read(call);
     window.CloudCallDemoTranscripts?.register(call);
     const fixture = window.CloudCallMediaFixtures?.[call.callId];
     const sample = fixture?.demo && fixture.callId === call.callId && fixture.tenantId === call.tenantId && fixture.enterpriseId === call.enterpriseId ? fixture : null;
     const simulated=call.simulation || ['NATIVE_WORKBENCH', 'LOCAL_TASK_SIMULATION'].includes(call.callSource);
-    if(simulated&&!sample?.transcriptOnly)return {...empty('演示无录音', '本次本地模拟没有实际音频，也未进行语音转写。'),transcriptionGate:call.transcriptionGate||null};
+    if(simulated&&!sample?.transcriptOnly&&!sync?.mediaDemo)return {...empty('演示无录音', '本次本地模拟没有实际音频，也未进行语音转写。'),transcriptionGate:call.transcriptionGate||null};
     const hasResponse=Object.prototype.hasOwnProperty.call(call,'alictiRasr');
     const query=AliCtiFields.rasrRequest(call.enterpriseId,(!hasResponse&&sample?.transcriptOnly?sample.uniqueId:null)??call.uniqueId??call.alictiCdr?.raw?.uniqueId??sample?.uniqueId);
     const rawTranscript=hasResponse?call.alictiRasr:sample?.rasr;
@@ -36,6 +37,9 @@
     const segments=transcript.segments;
     const gate=call.transcriptionGate||(sample?.transcriptionConditions?AliCtiFields.previewTranscriptionGate(sample.transcriptionConditions):null);
     const result = { url:'',status:'未提供录音',note:'尚未取得可用录音地址。',demo:!!sample&&!sample.transcriptOnly,scope:sample?.scope||call.recordingScope||'未记录',segments,transcriptStatus:transcript.status,transcript,transcriptDemo:hasResponse?call.alictiRasrMock===true:!!sample,transcriptionGate:gate,transcriptRequest:query,canRefreshTranscript:!!sample&&!sample.transcriptOnly&&!query.pending.length };
+    if (sync?.mediaDemo) return sync.mediaPending
+      ? {...result, demo:false, status:'录音生成中', note:'本地演示：话单已同步，合成录音样例稍后就绪；通话文本状态独立展示。'}
+      : {...result, demo:true, url:'assets/audio/manual-followup-demo.wav', status:'演示音频', scope:'合成语音样例', note:'仅用于演示录音稍后就绪；不是本次通话的真实录音，样例时长与通话时长无关。'};
     if (simulated) return {...result,status:'演示无录音',note:''};
     if (sample&&!sample.transcriptOnly) return { ...result, url: safeUrl(sample.url), status: '演示音频', note: '合成语音与文本仅用于演示交互，不是本次真实录音；片段时长与通话时长分别展示。' };
     if (call.alictiRecording) {
@@ -69,7 +73,7 @@
         <div class="call-media-main"><button type="button" class="call-media-play" aria-label="播放录音">▶</button><span class="call-media-clock"><span data-media-current>00:00</span> / <span data-media-duration>--:--</span></span><input class="call-media-seek" type="range" aria-label="录音进度" min="0" max="1" step="0.1" value="0" disabled></div>
         <div class="call-media-options"><label>倍速 <select aria-label="播放倍速"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label><label class="call-media-volume">音量 <input type="range" aria-label="录音音量" min="0" max="1" step="0.1" value="1"></label><button type="button" class="btn-link" data-media-download disabled>下载${model.demo ? '样例' : '录音'}</button></div>
       </div><div class="call-media-feedback" role="status"><span data-media-feedback>点击播放收听</span><button type="button" class="btn-link" data-media-retry hidden>重新加载</button></div>` : ''}
-      ${model.note && !model.demo && model.status !== '演示无录音' ? `<p class="call-media-note">${esc(model.note)}</p>` : ''}
+      ${model.note && model.status !== '演示无录音' ? `<p class="call-media-note">${esc(model.note)}</p>` : ''}
       <div class="call-transcript-region"><div class="call-transcript-head"><h3>通话文本</h3>${model.segments.length ? `<span>${esc(transcriptLabel)}</span>` : ''}${model.canRefreshTranscript ? `<button type="button" class="btn-link" onclick="CloudCallMedia.refreshTranscript('${esc(call.callId)}')">刷新通话文本</button>` : ''}</div>
       ${model.transcriptionGate?'<p class="call-media-note">本通转写：'+esc(model.transcriptionGate.label)+' · '+esc(model.transcriptionGate.reason)+'</p>':''}
       <div class="call-transcript-list" aria-label="对话记录">${model.segments.length ? model.segments.map((segment, index) => {
@@ -181,6 +185,21 @@
   }
   AppState.subscribe(() => {
     if (active && (!allowed(active.call) || AppState.get().accountId !== active.accountId)) { destroy(); PlatformUI.closeLayer('cloud-call-detail'); }
+  });
+  window.addEventListener('call-data-sync', event => {
+    const call = active?.call, detail = event.detail;
+    if (!call || !active.root.isConnected || !allowed(call) || call.callId !== detail?.callId || call.tenantId !== detail?.tenantId || String(call.enterpriseId) !== String(detail?.enterpriseId)) return;
+    const model = resolve(call);
+    // A CDR-only refresh must not restart an unchanged recording or transcript.
+    if (model.url === active.model.url && model.status === active.model.status) return;
+    const parent = active.root, host = parent.querySelector('.call-media');
+    if (!host) return;
+    const template = document.createElement('template'); template.innerHTML = render(call);
+    const next = template.content.querySelector('.call-media');
+    if (!next) return;
+    const transcript = host.querySelector('.call-transcript-region');
+    if (transcript) next.querySelector('.call-transcript-region')?.replaceWith(transcript);
+    destroy(); host.replaceWith(next); mount(parent, call);
   });
   window.addEventListener('pagehide', destroy);
   window.CloudCallMedia = { resolve, render, mount, destroy, time,refreshTranscript };

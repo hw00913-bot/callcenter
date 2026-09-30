@@ -9,19 +9,22 @@
   let recordKeyword = '';
   let recordResult = '';
   let recordingFilter = '';
+  let syncFilter = '';
   let recordPage = 1;
   let recordSource = '';
   let dateStart='',dateEnd='',queryPlan=null;
   let nativeAgentId = '';
   const pageSize = 10;
   let taskContext = loadTaskContext();
+  let detailCallId = '';
+  const syncLabels = {live:'通话中',pending:'同步中',synced:'已同步',error:'同步异常',unknown:'待核对'};
 
 
   function syncContext(options,tab){
     const opts=options||{};
     if (!opts.preserveContext) { dateStart='';dateEnd='';queryPlan=null; nativeAgentId = opts.nativeAgentId || ''; recordSource = ''; }
-    if(opts.taskId){saveTaskContext({taskId:opts.taskId,tab:opts.returnTab||tab});activeType=taskById(opts.taskId)?.callType||'全部';recordPage=1;recordKeyword='';recordResult='';recordingFilter='';}
-    else if(!opts.preserveContext){saveTaskContext(null);activeType=opts.type||opts.filter||'全部';recordPage=1;recordKeyword='';recordResult='';recordingFilter='';}
+    if(opts.taskId){saveTaskContext({taskId:opts.taskId,tab:opts.returnTab||tab});activeType=taskById(opts.taskId)?.callType||'全部';recordPage=1;recordKeyword='';recordResult='';recordingFilter='';syncFilter='';}
+    else if(!opts.preserveContext){saveTaskContext(null);activeType=opts.type||opts.filter||'全部';recordPage=1;recordKeyword='';recordResult='';recordingFilter='';syncFilter='';}
     if(opts.type||opts.filter)activeType=opts.type||opts.filter;
   }
   function scoped(rows) { return AppState.scoped(rows || []); }
@@ -84,6 +87,28 @@
     const number = stateOf(call).numberStatus;
     return '<span title="' + esc(number.help) + '">' + esc(number.label) + '</span>';
   }
+  function syncState(call) {
+    return window.CloudCallSync?.read(call) || {status:'unknown',label:'未记录',updatedAt:'',note:'未记录资料同步状态',mediaPending:false,canDemo:false};
+  }
+  function syncBadge(call) {
+    const sync=syncState(call),status=Object.hasOwn(syncLabels,sync.status)?sync.status:'unknown';
+    return '<span class="call-sync-badge '+status+'">'+esc(sync.label||syncLabels[status])+'</span>';
+  }
+  function syncCell(call) {
+    const sync=syncState(call);
+    return '<div class="call-sync-list-cell" data-call-sync-id="'+esc(call.callId)+'">'+syncBadge(call)+'<span class="call-sync-time" title="最近同步时间">'+esc(sync.updatedAt||'尚无同步时间')+'</span></div>';
+  }
+  function syncRefreshDisabled(call) {
+    const sync=syncState(call);
+    return sync.status==='live'||sync.canRefresh===false;
+  }
+  function syncPanel(call) {
+    const sync=syncState(call),state=display(call).state,saved=!!call.customerFollowup?.updatedAt||!!call.dispositionAt||call.processingStatus==='已完成';
+    const callArg=esc(JSON.stringify(call.callId));
+    return '<section class="call-sync-panel" aria-label="通话资料同步"><div class="call-sync-panel-head"><strong>通话资料</strong><button class="btn-link" type="button" data-call-sync-action="refresh" onclick="CloudCallRecords.refreshSync('+callArg+')"'+(syncRefreshDisabled(call)?' disabled':'')+'>刷新资料</button></div><div class="call-sync-summary"><span>通话：'+esc(state.ended?'已结束':state.stageLabel||'未记录')+'</span><span>跟进：'+(saved?'已保存':call.callSource==='NATIVE_WORKBENCH'?'未保存':'未记录保存状态')+'</span><span>资料：'+syncBadge(call)+'</span></div><p class="call-sync-note">'+esc(sync.note||'话单与录音、文本会分别更新。')+'</p><span class="call-sync-time">最近同步：'+esc(sync.updatedAt||'未记录')+'</span>'+
+      (sync.mediaPending?'<p class="call-sync-media-note">录音样例生成中，通话文本独立展示；已保存的跟进不受影响。</p>':'')+
+      (sync.canDemo?'<details class="call-sync-demo"><summary>演示资料同步</summary><p>仅模拟当前本地演示记录的资料到达过程，不拨号，不调用真实接口。</p><div class="call-sync-demo-actions"><button class="btn" type="button" data-call-sync-action="delayed" onclick="CloudCallRecords.demoSync('+callArg+',\'delayed\')">话单延迟到达</button><button class="btn" type="button" data-call-sync-action="media" onclick="CloudCallRecords.demoSync('+callArg+',\'media\')">录音后到</button><button class="btn" type="button" data-call-sync-action="error" onclick="CloudCallRecords.demoSync('+callArg+',\'error\')">同步异常恢复</button></div></details>':'')+'</section>';
+  }
   function journeyMarkup(stage) {
     const task = taskContext?.taskId ? taskById(taskContext.taskId) : null;
     const type = task?.callType || activeType;
@@ -112,6 +137,7 @@
     if (activeType !== '全部') rows = rows.filter(item => item.callType === activeType);
     if (recordKeyword) rows = rows.filter(item => {const data=display(item);return [item.callId,data.providerCallId,data.caller,data.callee,data.agentText,item.customerName].join(' ').toLowerCase().includes(recordKeyword.toLowerCase());});
     if (recordResult) rows = rows.filter(item => stateOf(item).answerLabel === recordResult);
+    if (syncFilter) rows = rows.filter(item => syncState(item).status === syncFilter);
     if (recordingFilter) rows = rows.filter(item => {
       const media = CloudCallMedia.resolve(item);
       if (recordingFilter === '可播放') return !!media.url;
@@ -136,7 +162,7 @@
       ${ui.pageHeader('通话记录', '查看人工外呼、预外呼、自动外呼和呼入的通话结果。')}
       ${journeyMarkup('records')}
       <div class="record-type-tabs">${tabs.map(type => `<button class="${type === activeType ? 'active' : ''}" onclick="window.Pages['cloud-call-records'].setType('${type}')">${esc(ui.callTypeLabel(type))}</button>`).join('')}</div>
-      <div class="filter-panel"><label class="field"><span>通话编号 / 客户号码</span><input id="recordKeyword" value="${esc(recordKeyword)}" placeholder="请输入通话编号或号码"></label><label class="field"><span>客户接通</span><select id="recordResult"><option value="">全部</option>${['已接通','未接通','待确认'].map(value=>`<option value="${value}"${recordResult===value?' selected':''}>${value==='待确认'?'结果未知':value}</option>`).join('')}</select></label><label class="field"><span>呼叫来源</span><select id="recordSource"><option value="">全部</option><option value="NATIVE_WORKBENCH"${recordSource==='NATIVE_WORKBENCH'?' selected':''}>中台控制台</option><option value="LOCAL_TASK_SIMULATION"${recordSource==='LOCAL_TASK_SIMULATION'?' selected':''}>平台任务</option></select></label><label class="field"><span>录音状态</span><select id="recordingFilter"><option value="">全部</option>${['可播放','演示音频','录音生成中','录音生成失败','录音链接已过期','未提供录音','演示无录音','不适用','待判定'].map(value=>`<option${recordingFilter===value?' selected':''}>${value}</option>`).join('')}</select></label><label class="field"><span>开始时间</span><input id="recordStart" type="datetime-local" value="${esc(dateStart)}"></label><label class="field"><span>结束时间</span><input id="recordEnd" type="datetime-local" value="${esc(dateEnd)}"></label><div class="filter-actions"><button class="btn" onclick="window.Pages['cloud-call-records'].resetFilters()">重置</button><button class="btn btn-primary" onclick="window.Pages['cloud-call-records'].query()">查询</button></div></div>
+      <div class="filter-panel"><label class="field"><span>通话编号 / 客户号码</span><input id="recordKeyword" value="${esc(recordKeyword)}" placeholder="请输入通话编号或号码"></label><label class="field"><span>客户接通</span><select id="recordResult"><option value="">全部</option>${['已接通','未接通','待确认'].map(value=>`<option value="${value}"${recordResult===value?' selected':''}>${value==='待确认'?'结果未知':value}</option>`).join('')}</select></label><label class="field"><span>呼叫来源</span><select id="recordSource"><option value="">全部</option><option value="NATIVE_WORKBENCH"${recordSource==='NATIVE_WORKBENCH'?' selected':''}>中台控制台</option><option value="LOCAL_TASK_SIMULATION"${recordSource==='LOCAL_TASK_SIMULATION'?' selected':''}>平台任务</option></select></label><label class="field"><span>录音状态</span><select id="recordingFilter"><option value="">全部</option>${['可播放','演示音频','录音生成中','录音生成失败','录音链接已过期','未提供录音','演示无录音','不适用','待判定'].map(value=>`<option${recordingFilter===value?' selected':''}>${value}</option>`).join('')}</select></label><label class="field"><span>资料同步</span><select id="recordSyncFilter"><option value="">全部</option>${Object.entries(syncLabels).map(([value,label])=>`<option value="${value}"${syncFilter===value?' selected':''}>${value==='synced'?'已有资料 / 已同步':label}</option>`).join('')}</select></label><label class="field"><span>开始时间</span><input id="recordStart" type="datetime-local" value="${esc(dateStart)}"></label><label class="field"><span>结束时间</span><input id="recordEnd" type="datetime-local" value="${esc(dateEnd)}"></label><div class="filter-actions"><button class="btn" onclick="window.Pages['cloud-call-records'].resetFilters()">重置</button><button class="btn btn-primary" onclick="window.Pages['cloud-call-records'].query()">查询</button></div></div>
       <div class="cloud-record-list-shell">${ui.toolbar('<button class="btn" onclick="doExport(event)">导出</button>')}
       ${ui.table([
         { key: 'callId', label: '通话编号', render: value => `<button class="table-link" onclick="window.Pages['cloud-call-records'].openCall('${value}')"><strong>${esc(value)}</strong></button>` },
@@ -146,10 +172,11 @@
         { key: 'caller', label: '主叫号码',render:(_,row)=>esc(display(row).caller||'未记录') }, { key: 'callee', label: '被叫号码',render:(_,row)=>esc(display(row).callee||'未记录') },
         { key: 'agentName', label: '坐席 / 工号', help:'呼入显示首呼坐席；流转工号在详情查看。',render:(_,row)=>esc(display(row).agentText) }, { key: 'answeredAt', label: '接听时间', help: '外呼为客户接通时间，呼入为首次坐席接听时间。', render: (_, row) => {const data=display(row);return stateTime(data.inbound?data.agentAt:data.customerAt);} },
         { key: 'durationSeconds', label: '通话时长', help: '自动外呼为客户接听时长；其他外呼为双方通话时长；呼入为话单通话时长。缺失不补零。', render: (_,row) => formatDuration(display(row).durationSeconds) },
+        { key: 'syncStatus', label: '资料同步', help: '通话已结束、跟进已保存与资料已同步分别显示；录音和文本可稍后到达。', className:'call-sync-column', render: (_, row) => syncCell(row) },
         { key: 'recordingStatus', label: '录音', help: '演示音频为独立合成样例；可播放仅表示已有有效音频地址。纯 IVR、现场模拟和历史缺失记录不补造录音。', render: (_, row) => ui.status(CloudCallMedia.resolve(row).status) },
-        { key: 'callId', label: '操作', className: 'action-column', render: (value, row) => `<div class="table-actions"><button onclick="window.Pages['cloud-call-records'].openCall('${value}')">${CloudCallMedia.resolve(row).url ? '录音 / 文本' : '查看'}</button></div>` }
+        { key: 'callId', label: '操作', className: 'action-column', render: (value, row) => `<div class="table-actions"><button onclick="window.Pages['cloud-call-records'].openCall('${value}')">${CloudCallMedia.resolve(row).url ? '录音 / 文本' : '查看'}</button><button data-call-sync-action="refresh" data-call-sync-id="${esc(value)}" onclick="CloudCallRecords.refreshSync(${esc(JSON.stringify(value))})"${syncRefreshDisabled(row)?' disabled':''}>刷新资料</button></div>` }
       ], pageRows, { rowOffset:(recordPage-1)*pageSize, emptyText: taskContext?.taskId ? '当前任务尚未产生该类型通话' : '未找到符合条件的通话记录', emptyDetail: '可重置筛选后重新查询。', footer: ui.pagination(rows.length, recordPage, pageSize, "window.Pages['cloud-call-records'].setPage") })}
-      </div>
+      </div><p id="call-record-sync-live" class="call-sync-sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     </section>`;
   }
 
@@ -161,6 +188,7 @@
     recordKeyword = (document.getElementById('recordKeyword')?.value || '').trim();
     recordResult = document.getElementById('recordResult')?.value || '';
     recordingFilter = document.getElementById('recordingFilter')?.value || '';
+    syncFilter = document.getElementById('recordSyncFilter')?.value || '';
     recordPage = 1;
     navigateTo('cloud-call-records', { type: activeType, preserveContext:true });
   }
@@ -171,6 +199,7 @@
     recordKeyword = '';
     recordResult = '';
     recordingFilter = '';
+    syncFilter = '';
     recordPage = 1;
     navigateTo('cloud-call-records', { type: activeType, preserveContext:true });
   }
@@ -187,6 +216,14 @@
     const call=CloudCallRuntime.call(id);
     if(!call||!AppState.authorizeObject('',call))return;
     CloudCallMedia.destroy();
+    detailCallId=id;
+    ui.openLayer('cloud-call-detail',detailMarkup(call),'wide');
+    const layer=document.getElementById('cloud-call-detail');
+    if(layer?.dataset)layer.dataset.callId=id;
+    CloudCallMedia.mount(layer,call);
+  }
+
+  function detailMarkup(call, withMedia = true) {
     const data=display(call),{state,facts,inbound,automatic}=data,raw=facts.usable?facts.raw:{},task=relatedTask(call);
     const dt=(label,value)=>'<dt>'+esc(label)+'</dt><dd>'+esc(value??'未记录')+'</dd>';
     const grid=rows=>'<dl class="detail-grid">'+rows.map(([label,value])=>dt(label,value)).join('')+'</dl>';
@@ -217,30 +254,91 @@
       ...(facts.taskId?[['AliCti 任务编号',facts.taskId]]:[]),
       ...(data.retryRound!==null?[[facts.kind==='automatic'?'重呼次数':'重试轮次',data.retryRound]]:[]),
       ...(data.finishRetryFlag!==null?[['是否最终一次呼叫',data.finishRetryFlag===1?'是':'否']]:[])];
-    ui.openLayer('cloud-call-detail',
-      '<div class="layer-header"><div><h2>通话详情 <small>'+esc(call.callId)+'</small></h2><p>'+esc(ui.callTypeLabel(call.callType))+' · '+esc(state.stageLabel+' · '+data.resultLabel)+'</p></div><button aria-label="关闭通话详情" onclick="PlatformUI.closeLayer(\'cloud-call-detail\')">×</button></div>'+
-      '<div class="layer-body call-review-body"><div class="call-review-left">'+CloudCallMedia.render(call)+'</div><div class="call-review-right"><div class="call-review-tabs" role="tablist" aria-label="通话详情内容"><button role="tab" id="call-review-result-tab" aria-controls="call-review-result" aria-selected="true" onclick="CloudCallRecords.reviewTab(\'result\')">通话结果</button><button role="tab" id="call-review-info-tab" aria-controls="call-review-info" aria-selected="false" onclick="CloudCallRecords.reviewTab(\'info\')">详细信息</button></div><div class="call-review-pane" id="call-review-result" role="tabpanel" aria-labelledby="call-review-result-tab">'+
+    return '<div class="layer-header"><div><h2>通话详情 <small>'+esc(call.callId)+'</small></h2><p data-call-sync-part="header">'+esc(ui.callTypeLabel(call.callType))+' · '+esc(state.stageLabel+' · '+data.resultLabel)+'</p></div><button aria-label="关闭通话详情" onclick="PlatformUI.closeLayer(\'cloud-call-detail\')">×</button></div>'+
+      '<div class="layer-body call-review-body"><div class="call-review-left">'+(withMedia?CloudCallMedia.render(call):'')+'</div><div class="call-review-right"><div data-call-sync-part="summary">'+syncPanel(call)+'</div><p id="call-detail-sync-live" class="call-sync-sr-only" role="status" aria-live="polite" aria-atomic="true"></p><div class="call-review-tabs" role="tablist" aria-label="通话详情内容"><button role="tab" id="call-review-result-tab" aria-controls="call-review-result" aria-selected="true" onclick="CloudCallRecords.reviewTab(\'result\')">通话结果</button><button role="tab" id="call-review-info-tab" aria-controls="call-review-info" aria-selected="false" onclick="CloudCallRecords.reviewTab(\'info\')">详细信息</button></div><div class="call-review-pane" id="call-review-result" role="tabpanel" aria-labelledby="call-review-result-tab"><div data-call-sync-part="facts">'+
       ui.detailSection('接听结果',grid(resultRows)+'<dl class="detail-grid"><dt>号码状态识别</dt><dd>'+numberStatusMarkup(call)+'</dd></dl>')+
-      ui.detailSection('本通坐席与语音',grid(participants))+
+      ui.detailSection('本通坐席与语音',grid(participants))+'</div>'+
       ui.detailSection('业务信息',grid([['来源任务',sourceTask],...(contactLabel?[['联系轮次',contactLabel]]:[]),['坐席处理结果',CustomerDirectory.dispositionLabel(call)||'未填写']])+(window.RepeatPredictive?.contactOrigin(call)||'')+(task?window.RepeatPredictive?.callAction(call)||'':''))+
       ui.detailSection('本次客户业务信息',CustomerFollowup.detail(call.customerFollowup,call))+
       (call.customerNote||call.dispositionRemark?ui.detailSection('联系备注',grid([['客户称呼',call.customerName||'未记录'],['联系备注',call.customerNote||'—'],['处理备注',call.dispositionRemark||'—']])):'')+
-      '</div><div class="call-review-pane" id="call-review-info" role="tabpanel" aria-labelledby="call-review-info-tab" hidden>'+
+      '</div><div class="call-review-pane" id="call-review-info" role="tabpanel" aria-labelledby="call-review-info-tab" hidden><div data-call-sync-part="info">'+
       ui.detailSection('基本信息',grid([['通话类型',ui.callTypeLabel(call.callType)],['所属租户',CloudCallRuntime.tenant(call.tenantId)?.name||'未记录'],['客户号码',data.customerNumber||'未记录'],['主叫号码',data.caller||'未记录'],['被叫号码',data.callee||'未记录'],['业务类型',CustomerBusiness.typeLabel(call)],[CustomerBusiness.codeLabel(call),call.externalDocumentId||'—']]))+
       ui.detailSection('通话时间与时长',grid(times))+
       (['预外呼','IVR 外呼'].includes(call.callType)?ui.detailSection('关联任务',grid(taskRows)+(task&&window.CloudTaskWorkspace?.renderTaskSettings?'<details class="technical-details"><summary>关联任务设置</summary>'+CloudTaskWorkspace.renderTaskSettings(task)+'</details>':'')):'')+
       '<details class="technical-details"><summary>通话标识</summary>'+grid([['平台通话编号',call.callId],['厂商通话编号',data.providerCallId||'未记录'],...(facts.mainUniqueId?[['主通话标识',facts.mainUniqueId]]:[]),...(facts.uniqueId?[['通话唯一标识',facts.uniqueId]]:[]),...(facts.requestUniqueId?[['请求标识',facts.requestUniqueId]]:[])])+
       '</details>'+
-      '</div></div></div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer(\'cloud-call-detail\')">关闭</button></div>','wide');
-    CloudCallMedia.mount(document.getElementById('cloud-call-detail'),call);
+      '</div></div></div></div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer(\'cloud-call-detail\')">关闭</button></div>';
   }
+
+  function filtersDirty() {
+    const values={recordKeyword,recordResult,recordingFilter,recordSource,recordStart:dateStart,recordEnd:dateEnd,recordSyncFilter:syncFilter};
+    return Object.entries(values).some(([id,value])=>document.getElementById(id)?.value!==String(value||''));
+  }
+  function updateVisibleRecords(call) {
+    const shell=document.querySelector('.call-record-page .cloud-record-list-shell');
+    if(!shell)return;
+    // Keep unfinished filter entries untouched while a background result arrives.
+    if(filtersDirty()) {
+      shell.querySelectorAll('.call-sync-list-cell').forEach(node=>{if(node.dataset.callSyncId===call.callId)node.outerHTML=syncCell(call);});
+      return;
+    }
+    const scroll=shell.querySelector('.table-scroll'),scrollLeft=scroll?.scrollLeft||0;
+    const focused=shell.contains(document.activeElement)?document.activeElement:null;
+    const focusedId=focused?.dataset.callSyncId,focusedAction=focused?.dataset.callSyncAction;
+    const template=document.createElement('template');
+    template.innerHTML=renderRecords({type:activeType,preserveContext:true});
+    const next=template.content.querySelector('.cloud-record-list-shell');
+    if(!next)return;
+    shell.innerHTML=next.innerHTML;
+    const newScroll=shell.querySelector('.table-scroll');if(newScroll)newScroll.scrollLeft=scrollLeft;
+    if(focusedId&&focusedAction)Array.from(shell.querySelectorAll('[data-call-sync-action]')).find(node=>node.dataset.callSyncId===focusedId&&node.dataset.callSyncAction===focusedAction)?.focus({preventScroll:true});
+  }
+  function updateOpenDetail(call) {
+    const layer=document.getElementById('cloud-call-detail');
+    if(!layer||layer.dataset.callId!==call.callId||detailCallId!==call.callId)return;
+    const template=document.createElement('template');template.innerHTML=detailMarkup(call,false);
+    const focusAction=layer.contains(document.activeElement)?document.activeElement?.dataset.callSyncAction:null;
+    ['header','summary','facts','info'].forEach(part=>{
+      const selector='[data-call-sync-part="'+part+'"]',node=layer.querySelector(selector),next=template.content.querySelector(selector);
+      if(!node||!next)return;
+      const expanded=Array.from(node.querySelectorAll('details')).map(item=>item.open),pane=node.closest('.call-review-pane'),top=pane?.scrollTop||0;
+      node.innerHTML=next.innerHTML;
+      node.querySelectorAll('details').forEach((item,index)=>{if(expanded[index])item.open=true;});
+      if(pane)pane.scrollTop=top;
+    });
+    if(focusAction)Array.from(layer.querySelectorAll('[data-call-sync-action]')).find(node=>node.dataset.callSyncAction===focusAction)?.focus({preventScroll:true});
+  }
+  function announceSync(call) {
+    const sync=syncState(call),text='通话 '+call.callId+'：'+sync.label+(sync.mediaPending?'，录音样例仍在准备':'');
+    const detail=document.getElementById('cloud-call-detail');
+    const live=detail?.dataset.callId===call.callId?document.getElementById('call-detail-sync-live'):document.getElementById('call-record-sync-live');
+    if(live)live.textContent=text;
+  }
+  async function refreshSync(id) {
+    const call=CloudCallRuntime.call(id);
+    if(!call||!AppState.authorizeObject('',call)||!window.CloudCallSync)return;
+    try { return await CloudCallSync.refresh(id); }
+    catch (_) { showToast('资料刷新暂未完成，已保存的跟进保持不变','warning'); return false; }
+  }
+  function demoSync(id,mode) {
+    const call=CloudCallRuntime.call(id);
+    if(!call||!AppState.authorizeObject('',call)||!syncState(call).canDemo)return;
+    window.CloudCallSync?.demo(id,mode);
+  }
+  window.addEventListener?.('call-data-sync',event=>{
+    const detail=event.detail||{},call=CloudCallRuntime.call(detail.callId);
+    if(!call||!AppState.authorizeObject('',call)||call.tenantId!==detail.tenantId||String(call.providerEnterpriseId??call.enterpriseId??'')!==String(detail.enterpriseId??''))return;
+    updateVisibleRecords(call);
+    updateOpenDetail(call);
+    announceSync(call);
+  });
 
   function openFromTask(taskId, tab, target) {
     RouteRuntime.openSecondary('cloud-call-records', { taskId, returnTab: tab || 'calls', view: 'records' });
   }
   function switchView(target) { navigateTo('cloud-call-records', { view: 'records', type: activeType, preserveContext:true }); }
   function returnTask() { return RouteRuntime.back({ fallback: 'cloud-task-center' }); }
-  window.CloudCallRecords = { display, relatedTask, formatDuration, stateTime, openFromTask, switchView, returnTask,
+  window.CloudCallRecords = { display, relatedTask, formatDuration, stateTime, openFromTask, switchView, returnTask, refreshSync, demoSync,
     reviewTab(key) {
       if (!['result', 'info'].includes(key)) return;
       ['result', 'info'].forEach(name => {
@@ -256,7 +354,7 @@
     } };
   window.Pages = window.Pages || {};
   window.Pages['cloud-call-records'] = {
-    captureNavigationState(){return {view,activeType,recordKeyword,recordResult,recordingFilter,recordPage,recordSource,dateStart,dateEnd,queryPlan,nativeAgentId,taskContext:taskContext?{...taskContext}:null};},
-    restoreNavigationState(state){if(!state)return;({view,activeType,recordKeyword,recordResult,recordingFilter,recordPage,recordSource,dateStart,dateEnd,queryPlan,nativeAgentId}=state);saveTaskContext(state.taskContext);},
+    captureNavigationState(){return {view,activeType,recordKeyword,recordResult,recordingFilter,syncFilter,recordPage,recordSource,dateStart,dateEnd,queryPlan,nativeAgentId,taskContext:taskContext?{...taskContext}:null};},
+    restoreNavigationState(state){if(!state)return;({view,activeType,recordKeyword,recordResult,recordingFilter,recordPage,recordSource,dateStart,dateEnd,queryPlan,nativeAgentId}=state);syncFilter=state.syncFilter||'';saveTaskContext(state.taskContext);},
     render, init(options) { if (options?.callId) openCall(options.callId); }, setType, query, resetFilters, setPage, openCall };
 })();

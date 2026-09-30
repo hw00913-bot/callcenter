@@ -1,0 +1,73 @@
+{
+  "date": "2026-09-30",
+  "version": "2026-09-30-local-logic-fixes-1",
+  "result": "pass",
+  "scope": "local_prototype_not_supplier_integration",
+  "baselineReport": "iteration-baseline-20260930.html",
+  "findings": [
+    {
+      "id": "R-01",
+      "priority": "P1",
+      "status": "fixed",
+      "title": "已保存任务与客户关联跨会话保留",
+      "resolution": "已保存任务持久化，迁移仍可读取的旧会话任务；新版本及删除记录优先，跨标签过期提交被拒绝。历史缺失任务仅允许管理人员确认后释放无通话客户，原分配历史保留；通话历史读取异常时阻止释放。",
+      "verification": "真实任务创建/导入、独立新标签恢复、旧数据迁移、删除不复活、跨标签交错提交及历史保护。"
+    },
+    {
+      "id": "R-02",
+      "priority": "P2",
+      "status": "fixed",
+      "title": "已有业务配置的租户禁止直接重绑账号",
+      "resolution": "分类、独立字段、号码池和持久任务记录纳入租户业务数据判定；页面禁用账号变更，保存时再次核验。存储格式异常或读取失败时保护现有归属。",
+      "verification": "空租户、只读查询、分类、字段、号码池、独立任务记录、异常数据与提交时复核；浏览器验证分类保存前后及刷新后禁用状态。"
+    },
+    {
+      "id": "R-03",
+      "priority": "P2",
+      "status": "fixed",
+      "title": "直接导入失败可回滚并保留输入重试",
+      "resolution": "客户名单和任务更新使用本地事务记录；失败时仅撤回本次写入，保留弹窗和输入。补偿未完成时保留恢复记录；新会话继续恢复，不把未完成导入显示为成功。",
+      "verification": "名单、任务索引、独立任务记录、提交标记写入失败，以及补偿失败后的恢复与重试不重复；浏览器故障注入验证。"
+    }
+  ],
+  "verification": {
+    "offline": {
+      "suites": 73,
+      "failed": 0,
+      "evidence": "../qa/local-logic-fixes-offline-20260930.json"
+    },
+    "newPersistenceImportChecks": 18,
+    "browser": {
+      "evidence": "../qa/local-logic-fixes-browser-20260930.json",
+      "accountTenantChecks": 56,
+      "taskNavigationChecks": 34,
+      "persistenceImportChecks": 12,
+      "tenantRebind": "pass"
+    },
+    "documentation": {
+      "checks": 661,
+      "links": 3741,
+      "officialSnapshots": 101
+    },
+    "entryResources": {
+      "resources": 142,
+      "scripts": 106,
+      "missing": []
+    }
+  },
+  "runtimeNote": "最终验证前，Node v24.14.0 的 outbound-groups 单套出现无输出 SIGSEGV；原配置单跑27项通过，最终标准入口对该套采用与其他已知VM重套相同的 --jitless，73套全部通过。测试失败断言没有自动重试。",
+  "limits": [
+    "本地静态原型验证，不代表真实业务系统或供应商联调完成。",
+    "浏览器已完全丢失的旧任务内容无法凭客户引用重建；仅对无通话的历史悬空关联提供受控恢复。",
+    "本地原始回归记录保留，未修改历史结论或推进旧Loop阶段。"
+  ],
+  "runtimeSha256": {
+    "js/app.js": "39c23c1cf266a5e0499fb4033dd7fbf9faee829f3f0ea6d3285e22d09c5464c1",
+    "js/pages/cloud-task-workspace.js": "88a0d2dc3cfa7afa613cc06963001788ea554118a2c0ee4e5bd1f1148440d974",
+    "js/pages/customer-tasks.js": "ba9dd7e00f836b43584a97d1057d5dcb7ce23c6901d4d4397d0ff974afe03120",
+    "js/components/alicti-accounts.js": "7c6992609817a9d6042e93897e5a77a4e9455f08cfff0c737eb9298d168ce240",
+    "js/components/alicti-number-pools.js": "9559a8eef834fe756585ed534e01568f74293ee58616a3409a6c9805a8be245f",
+    "js/components/alicti-time-conditions.js": "31e6746e6f3f40555ef0501eb6015ad895d8c75bad2474a0f9f6a54a41fe485e",
+    "qa/verify-task-persistence-import.cjs": "cc29593f841f2c4362250a62116a8d63e524d72d84e848f0ca025e4db95efbac"
+  }
+}

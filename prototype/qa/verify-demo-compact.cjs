@@ -12,7 +12,7 @@ const customerKeys = ctx => new Set([
 const ctx = fixture({ session: signedIn() });
 check('各业务模块预置记录不超过15，客户按租户与号码去重也不超过15', () => {
   for (const name of ['calls', 'tasks', 'predictiveTasks', 'ivrTasks', 'agents', 'agentSkills', 'physicalSkillGroups', 'phoneNumbers', 'syncRecords', 'exceptions', 'audits', 'callPlans', 'inboundRoutes']) assert(ctx.CloudCallData[name].length <= 15, name);
-  for (const name of ['MockSceneList', 'MockCallRecordRows', 'MockCallStatsRows']) assert(ctx[name].length <= 15, name);
+  for (const name of ['MockSceneList', 'MockCallRecordRows', 'MockCallStatsRows']) assert.equal(ctx[name], undefined, name + ' 已退出当前 AliCti 产品范围');
   assert(batches(ctx).length <= 15); assert(batches(ctx).every(batch => batch.rows.length <= 15));
   assert(customerKeys(ctx).size <= 15);
 });
@@ -96,6 +96,8 @@ check('只恢复缺少C06导致误完成的运行样例，主动暂停结束或�
     if (variant === 'other-unfinished') batch.rows.push({ ...row, id: 'USER-OTHER-UNFINISHED', demoPack: undefined, phone: '13999990001' });
     prior.localStorage.setItem('customer-task-batches-v1', JSON.stringify(savedBatches));
     prior.sessionStorage.setItem('cloud-task-created-v1', JSON.stringify(savedTasks));
+    // This case represents the old session-only sample before durable migration.
+    for(const key of [...prior.testStores.local.keys()])if(key==='alicti-demo-v2:cloud-task-created-v1'||key.startsWith('alicti-demo-v2:cloud-task-record-v1:'))prior.testStores.local.delete(key);
     const next = reload(prior), current = next.CloudCallData.tasks.find(item => item.taskId === task.taskId);
     const persisted = JSON.parse(next.sessionStorage.getItem('cloud-task-created-v1')).find(item => item.taskId === task.taskId);
     const expected = variant === 'compact-completion' ? '执行中' : task.status;

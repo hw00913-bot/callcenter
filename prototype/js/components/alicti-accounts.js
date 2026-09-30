@@ -79,7 +79,8 @@
       sets[kind].set(id || source+':'+index,item);
     }
     for (const [name,rows] of Object.entries(data)) if (Array.isArray(rows) && !['instances','accounts','demoProfiles','memberships'].includes(name)) rows.forEach((item,i)=>add(kindFor(name),item,name,i));
-    const storageSources=[['local','customer-task-batches-v1','other'],['local','native-workbench-records-v1','call'],['local','alicti-number-import-v1','number'],['local','cloud-task-creation-transaction-v1','other'],['session','cloud-task-created-v1','task'],['session','cloud-task-wizard-drafts-v1','other'],['session','alicti-seat-import-pool-v1','seat']];
+    try{(window.CloudTaskWorkspace?.storedTasks?.()||[]).forEach((item,i)=>add('task',item,'durable-tasks',i));}catch(_){errors.push('任务引用记录暂时无法核对');}
+    const storageSources=[['local','customer-task-batches-v1','other'],['local','native-workbench-records-v1','call'],['local','alicti-number-import-v1','number'],['local','cloud-task-creation-transaction-v1','other'],['session','cloud-task-created-v1','task'],['local','cloud-task-created-v1','task'],['session','cloud-task-wizard-drafts-v1','other'],['session','alicti-seat-import-pool-v1','seat']];
     for (const [storageName,storageKey,kind] of storageSources) {
       try { const raw=(storageName==='local'?localStorage:sessionStorage).getItem(storageKey);if(raw===null)continue;const value=JSON.parse(raw);const rows=storageKey==='cloud-task-creation-transaction-v1'&&object(value)&&value.version===1?[value,value.attachment,value.draftBefore?.values].filter(Boolean):value;if(!Array.isArray(rows))throw Error();rows.forEach((item,i)=>add(kind,item,storageKey,i)); }
       catch (_) { errors.push('业务引用记录暂时无法核对'); }

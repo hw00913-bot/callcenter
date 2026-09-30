@@ -116,6 +116,7 @@ check('共享模板及非冻结副本变化不改变已启动任务的显示', (
 check('旧快照缺字段可读取任务原保存值，查看不改写旧快照', () => {
   const c = setup(), { row } = predictive(c);
   row.planSnapshot = { snapshotId: 'OLD-SNAPSHOT', callStrategy: '2' }; row.planSnapshotId = 'OLD-SNAPSHOT';
+  assert(c.CloudTaskWorkspace.saveDemoTask(row));
   const before = JSON.stringify(row);
   includes(details(c, row), [...sharedValues, '0012', '普通工号坐席']);
   assert.equal(JSON.stringify(row), before);
@@ -124,6 +125,7 @@ check('旧快照缺字段可读取任务原保存值，查看不改写旧快照'
 check('旧快照缺分配策略不从新模板回填，显式空坐席不继承旧选择', () => {
   const c = setup(), { row } = predictive(c, false, true);
   row.planSnapshot = { snapshotId: 'OLD-SNAPSHOT', callGroupType: 1, cnos: '' }; row.planSnapshotId = 'OLD-SNAPSHOT';
+  assert(c.CloudTaskWorkspace.saveDemoTask(row));
   const before = JSON.stringify(row), html = details(c, row);
   assert(html.includes('<dt>坐席分配方式</dt><dd>未记录</dd>'));
   excludes(html, ['前导零坐席', '普通工号坐席']);
@@ -145,6 +147,7 @@ check('外呼组任务在未启动、冻结及重载后保留组名与组号', (
 check('旧外呼组任务缺完整快照仍按保存的组类型展示，保持用户原数据', () => {
   const c = setup(), { row } = predictive(c, true);
   row.planSnapshot = { snapshotId: 'OLD-GROUP', callStrategy: '2' }; row.planSnapshotId = 'OLD-GROUP';
+  assert(c.CloudTaskWorkspace.saveDemoTask(row));
   const before = JSON.stringify(row), html = details(c, row);
   includes(html, ['执行外呼组', '总部关怀外呼组', '6201']); excludes(html, ['指定坐席（']);
   assert.equal(JSON.stringify(row), before);

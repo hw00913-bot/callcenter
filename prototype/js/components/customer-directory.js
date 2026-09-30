@@ -119,6 +119,7 @@
       });
       const calls = Array.from(map.values()).sort((a, b) => at(b).localeCompare(at(a)) || String(a.callId).localeCompare(String(b.callId)));
       window.CustomerFollowup?.overlay(calls);
+      calls.forEach(row => window.CloudCallSync?.restore(row));
       // Preserve live object references used by reconciliation modules.
       const current = new Map(array(CloudCallData.calls).map(row => [row.callId, row]));
       CloudCallData.calls.splice(0, CloudCallData.calls.length, ...calls.map(row => {

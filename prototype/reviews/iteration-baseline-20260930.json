@@ -1,0 +1,610 @@
+{
+  "date": "2026-09-30",
+  "reviewType": "新一轮业务系统对接迭代前的现有版本本地逻辑回归",
+  "result": "issues_found",
+  "productFindingCount": 3,
+  "priorities": {
+    "P1": 1,
+    "P2": 2
+  },
+  "root": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype",
+  "baseline": "2026-09-29-multiple-caller-navigation-1 + D-087 2026-09-30 局部增量",
+  "scope": "当前有效 prototype；以 README、现行功能说明和实际行为为准，不推进旧 Loop 阶段",
+  "businessCodeModified": false,
+  "findings": [
+    {
+      "id": "R-01",
+      "priority": "P1",
+      "title": "已保存任务随标签会话消失，持久客户成为不可重新分配的孤儿",
+      "primary_location": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:73",
+      "related_locations": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:34",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js:18",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js:53",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js:94",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js:172"
+      ],
+      "reproduction_script": "/tmp/cloud-call-real-creation.cjs",
+      "evidence": {
+        "scope": "Real creation and direct import components; browser DOM mocked; no supplier calls",
+        "before": {
+          "taskId": "TASK-PRED-D00000-SYNTHETI",
+          "taskPresent": true,
+          "taskStored": true,
+          "taskStatus": "待启动",
+          "taskTotal": 1,
+          "linkedTask": "TASK-PRED-D00000-SYNTHETI"
+        },
+        "sameTabRefresh": {
+          "taskPresent": true
+        },
+        "newSession": {
+          "taskPresent": false,
+          "customerPresent": true,
+          "linkedTask": "TASK-PRED-D00000-SYNTHETI",
+          "validManualAssignee": "ACC-OPS-CHEN",
+          "reassigned": false,
+          "pendingRows": false,
+          "directoryPresent": true
+        }
+      },
+      "expected": "已确认创建的任务与客户绑定在新会话中一起恢复；至少不能留下无法释放/重新分配的客户",
+      "actual": "同标签刷新恢复；新会话任务缺失，客户存在、旧 taskId 保留、待分配池不含该客户且合法人工重新分配被拒绝",
+      "documentation_check": "只对通话未保存草稿有标签会话恢复限制（docs/rules-appendix.md:535、docs/functional-spec.md:1122）；没有已保存任务关闭销毁约定",
+      "browserEvidence": {
+        "url": "http://127.0.0.1:8877/index.html#predictive-tasks",
+        "actions": [
+          "UI 创建预外呼任务",
+          "UI 导入 1 位虚拟客户",
+          "在同一独立浏览器上下文中新建无 opener 的标签",
+          "重新登录并查看任务列表"
+        ],
+        "taskId": "TASK-PRED-D04188-c649cf48",
+        "taskPresent": false,
+        "customerPresent": true,
+        "customerTaskId": "TASK-PRED-D04188-c649cf48",
+        "screenshot": "/private/tmp/regression0930-missing-task.png"
+      },
+      "status": "open",
+      "recommendation": "统一已保存任务与客户的持久化生命周期，并处理已经悬空的任务关联；补充新标签与关闭重开回归。"
+    },
+    {
+      "id": "R-02",
+      "priority": "P2",
+      "title": "已有业务分类或号码池的租户仍可改绑，配置随后不可见",
+      "primary_location": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/app.js:63",
+      "related_locations": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/account-tenant-forms.js:217"
+      ],
+      "reproduction_script": "/private/tmp/audit-tenant-rebinding.cjs",
+      "steps": [
+        "以超管创建两个有效 AliCti 账号 A、B，并将新租户绑定 A",
+        "用当前组件保存自定义业务分类、独立字段库或号码池",
+        "编辑租户，将账号从 A 改为 B",
+        "在当前租户查看业务分类及号码池；再给 A 创建替代租户并查看号码池"
+      ],
+      "expected": "已有业务数据的租户禁止直接改绑，原资源继续可管理",
+      "actual": "tenantHasBusinessData 返回 false；改绑成功后自定义分类与号码池在当前租户不可见；原账号替代租户报号码池仍属原租户",
+      "rootCause": "app.js 未将 localStorage 的 customer-business-config-v3 和 sessionStorage 的 alicti-hybrid-groups-v1 纳入引用检查",
+      "evidenceOutput": "category {\n  ok: true,\n  row: {\n    id: 'qa-business',\n    label: '新业务',\n    codeLabel: '业务单号',\n    prefix: 'QA',\n    enabled: true,\n    fields: []\n  },\n  message: '业务分类已保存',\n  revision: 1,\n  scope: { enterpriseId: '8123456', tenantId: 'TEN-0004' }\n}\nafter category hasBusinessData false\npool created true 号码池已创建\nafter pool hasBusinessData false\ntenant moved 8123457 target 8123457\ncategories after move [ 'lead', 'aftersales', 'activity' ]\npools after move {\n  ok: true,\n  rows: [],\n  revision: 1,\n  context: '[\"QA-SUPER-SESSION\",\"ACC-SUPER-001\",\"8123457\",\"TENANT-SUPER-BUILTIN\",\"CLOUD_CONTACT_CENTER\",\"SUPER_ADMIN\",true]',\n  tenantId: 'TEN-0004',\n  enterpriseId: '8123457',\n  message: ''\n}\nreplacement pool catalog {\n  ok: false,\n  rows: [],\n  revision: 1,\n  context: '[\"QA-SUPER-SESSION\",\"ACC-SUPER-001\",\"8123456\",\"TENANT-SUPER-BUILTIN\",\"CLOUD_CONTACT_CENTER\",\"SUPER_ADMIN\",true]',\n  message: '当前 AliCti 账号的号码池仍属原租户，请核对账号绑定后再访问'\n}\n",
+      "verification": "真实组件 API 与租户保存表单的 VM 复现；主代理独立重跑确认，未在浏览器重复此项",
+      "status": "open",
+      "recommendation": "将业务分类、独立字段及号码池纳入已有业务数据检查，分别读取正确的存储介质；提交时再次复查。"
+    },
+    {
+      "id": "R-03",
+      "priority": "P2",
+      "title": "任务直接导入不是完整事务，任务日志写失败后名单已保存且弹窗关闭",
+      "primary_location": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js:163",
+      "related_locations": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js:164",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:1474",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:1476",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:73"
+      ],
+      "reproduction_script": "/tmp/cloud-call-real-direct-import-quota.cjs",
+      "evidence": {
+        "scope": "Real creation and direct import components; task-journal quota failure injected only after preview",
+        "thrown": "QuotaExceededError",
+        "customerSaved": true,
+        "linkedTask": "TASK-PRED-D00000-SYNTHETI",
+        "runtimeTask": {
+          "status": "待启动",
+          "total": 1
+        },
+        "persistedTask": {
+          "status": "待分配客户",
+          "total": 0
+        },
+        "importModalClosed": true,
+        "toast": "",
+        "navigation": null
+      },
+      "expected": "任务和导入名单保存一致；失败不公布成功且保留可恢复输入/明确提示",
+      "actual": "批次已写入，运行态任务1人/待启动，持久任务0人/待分配客户；弹窗关闭，未导航，无提示，QuotaExceededError 未捕获",
+      "status": "open",
+      "recommendation": "将名单与任务持久化作为一次可补偿的保存操作；全部成功后再关闭弹窗，失败保留输入并明确提示。"
+    }
+  ],
+  "verification": {
+    "standardOffline": {
+      "suites": 64,
+      "passed": 64,
+      "failed": 0
+    },
+    "supplementalOffline": {
+      "suites": 8,
+      "passed": 7,
+      "failed": 1,
+      "results": [
+        {
+          "suite": "admin-customer-assignment",
+          "exitCode": 0
+        },
+        {
+          "suite": "call-chat",
+          "exitCode": 0
+        },
+        {
+          "suite": "call-data-sync",
+          "exitCode": 0
+        },
+        {
+          "suite": "call-detail-alignment",
+          "exitCode": 0
+        },
+        {
+          "suite": "demo-compact",
+          "exitCode": 1
+        },
+        {
+          "suite": "demo-enterprise-scope",
+          "exitCode": 0
+        },
+        {
+          "suite": "list-order",
+          "exitCode": 0
+        },
+        {
+          "suite": "super-dashboard-data",
+          "exitCode": 0
+        }
+      ],
+      "evidence": "/tmp/cloud-call-extra-regression-20260930.json"
+    },
+    "accountTenantBrowser": {
+      "result": "pass",
+      "count": 56,
+      "checks": [
+        "account list opens from primary menu",
+        "enabled account detail has no editable controls",
+        "enabled account detail only return close and readonly pagination",
+        "enabled account detail no management shortcuts",
+        "enabled detail shows only the bound headquarters tenant",
+        "1440 enabled detail page fits viewport",
+        "1440 enabled detail drawer fits viewport",
+        "1366 enabled detail page fits viewport",
+        "1366 enabled detail drawer fits viewport",
+        "stopped account detail has no editable controls",
+        "stopped account detail only return close and readonly pagination",
+        "stopped account detail no management shortcuts",
+        "stopped detail shows status and empty association",
+        "readonly views do not alter data or business scope",
+        "account row displays its single bound tenant without a count action",
+        "single tenant detail has no editable controls",
+        "single tenant detail only return close and readonly pagination",
+        "single tenant detail no management shortcuts",
+        "account detail contains exactly one business tenant",
+        "1366 association page fits viewport",
+        "1366 association drawer fits viewport",
+        "closing detail restores list filter",
+        "association viewing does not switch business scope or write data",
+        "list edit saves and returns directly to list",
+        "list disable remains operable",
+        "list enable remains operable",
+        "new account save returns to list without nested detail",
+        "new account has no implicit tenant or scope switch",
+        "new account displays an unbound label",
+        "new account empty association has no editable controls",
+        "new account empty association only return close and readonly pagination",
+        "new account empty association no management shortcuts",
+        "unbound account has a readonly empty state",
+        "tenant management opens as primary page",
+        "new account with no tenant is selectable in tenant form",
+        "stopped supplier account unavailable for new association",
+        "saved tenant visible in target scope",
+        "saved tenant clears stale filter",
+        "1366 saved tenant page fits viewport",
+        "1366 saved tenant drawer fits viewport",
+        "reload retains new account tenant and selected scope",
+        "1440 saved tenant page fits viewport",
+        "1440 saved tenant drawer fits viewport",
+        "unified-call-context-v3 reports saved destination instead of save failure",
+        "unified-call-context-v3 header and tenant rows match memory scope",
+        "unified-call-context-v3 committed tenant is retained exactly once",
+        "unified-call-context-v3 refresh retains committed tenant",
+        "unified-call-context-v3 saved tenant remains accessible after recovery",
+        "unified-call-demo-preferences-v1 reports saved destination instead of save failure",
+        "unified-call-demo-preferences-v1 header and tenant rows match memory scope",
+        "unified-call-demo-preferences-v1 committed tenant is retained exactly once",
+        "unified-call-demo-preferences-v1 refresh retains committed tenant",
+        "unified-call-demo-preferences-v1 saved tenant remains accessible after recovery",
+        "no JavaScript page errors",
+        "no local resource errors",
+        "no supplier or external network requests"
+      ],
+      "errors": [],
+      "badResponses": [],
+      "externalRequests": [],
+      "writes": [],
+      "screenshots": [
+        "/private/tmp/regression0930-accounts/account-detail-1440.png",
+        "/private/tmp/regression0930-accounts/account-detail-1366.png",
+        "/private/tmp/regression0930-accounts/account-tenants-1366.png",
+        "/private/tmp/regression0930-accounts/new-tenant-1366.png",
+        "/private/tmp/regression0930-accounts/new-tenant-1440.png"
+      ],
+      "base": "http://127.0.0.1:8877/"
+    },
+    "taskBrowser": {
+      "result": "pass",
+      "count": 34,
+      "coverage": [
+        "预外呼及自动外呼创建",
+        "未选导航阻断",
+        "多号码池及选填优先级",
+        "编辑原任务而不新建",
+        "切换导航清池",
+        "task/get → task/update → task/get",
+        "同标签刷新回读",
+        "桌面无整体横向溢出"
+      ],
+      "errors": [],
+      "badResponses": [],
+      "externalRequests": []
+    },
+    "manualCallBrowser": {
+      "result": "pass",
+      "checks": [
+        "登录工作模式必填",
+        "非法号码阻断",
+        "拨号接通后进入填写窗口",
+        "通话中输入在挂断后保留",
+        "资料同步中可先保存跟进",
+        "自动置闲完成",
+        "同一 callId 仅一条记录",
+        "资料补齐后备注保留",
+        "同标签刷新后记录及同步状态保留"
+      ],
+      "callId": "MCMUNH9RLCB72E",
+      "beforeSave": "pending",
+      "afterSync": "synced",
+      "recordCount": 1,
+      "screenshot": "/private/tmp/regression0930-call.png"
+    },
+    "menuSmoke": {
+      "scope": "29 current super-admin menu route render smoke; internal routing invoked; detailed interaction covered separately",
+      "routes": [
+        {
+          "route": "home",
+          "label": "工运营工作台",
+          "hash": "#home",
+          "textLength": 409
+        },
+        {
+          "route": "customer-directory",
+          "label": "客户档案",
+          "hash": "#customer-directory",
+          "textLength": 209
+        },
+        {
+          "route": "customer-tasks",
+          "label": "导入与分配",
+          "hash": "#customer-tasks",
+          "textLength": 120
+        },
+        {
+          "route": "business-categories",
+          "label": "业务分类",
+          "hash": "#business-categories",
+          "textLength": 274
+        },
+        {
+          "route": "predictive-tasks",
+          "label": "预外呼",
+          "hash": "#predictive-tasks",
+          "textLength": 167
+        },
+        {
+          "route": "ivr-tasks",
+          "label": "自动外呼",
+          "hash": "#ivr-tasks",
+          "textLength": 174
+        },
+        {
+          "route": "inbound-service",
+          "label": "呼入服务",
+          "hash": "#inbound-service",
+          "textLength": 252
+        },
+        {
+          "route": "cloud-call-records",
+          "label": "通话记录",
+          "hash": "#cloud-call-records",
+          "textLength": 348
+        },
+        {
+          "route": "cloud-overview-report",
+          "label": "通话总览",
+          "hash": "#cloud-overview-report",
+          "textLength": 685
+        },
+        {
+          "route": "cloud-lead-report",
+          "label": "线索成效",
+          "hash": "#cloud-lead-report",
+          "textLength": 407
+        },
+        {
+          "route": "cloud-customer-report",
+          "label": "客户跟进",
+          "hash": "#cloud-customer-report",
+          "textLength": 418
+        },
+        {
+          "route": "cloud-outbound-report",
+          "label": "外呼任务",
+          "hash": "#cloud-outbound-report",
+          "textLength": 471
+        },
+        {
+          "route": "cloud-agent-report",
+          "label": "坐席成效",
+          "hash": "#cloud-agent-report",
+          "textLength": 498
+        },
+        {
+          "route": "cloud-inbound-report",
+          "label": "呼入服务",
+          "hash": "#cloud-inbound-report",
+          "textLength": 409
+        },
+        {
+          "route": "cloud-skill-report",
+          "label": "服务技能",
+          "hash": "#cloud-skill-report",
+          "textLength": 501
+        },
+        {
+          "route": "accounts",
+          "label": "账号管理",
+          "hash": "#accounts",
+          "textLength": 187
+        },
+        {
+          "route": "tenants",
+          "label": "租户管理",
+          "hash": "#tenants",
+          "textLength": 173
+        },
+        {
+          "route": "agent-maintenance",
+          "label": "坐席维护",
+          "hash": "#agent-maintenance",
+          "textLength": 166
+        },
+        {
+          "route": "skill-mappings",
+          "label": "技能管理",
+          "hash": "#skill-mappings",
+          "textLength": 126
+        },
+        {
+          "route": "outbound-group-management",
+          "label": "外呼组管理",
+          "hash": "#outbound-group-management",
+          "textLength": 125
+        },
+        {
+          "route": "queue-management",
+          "label": "队列管理",
+          "hash": "#queue-management",
+          "textLength": 161
+        },
+        {
+          "route": "sync-records",
+          "label": "配置记录",
+          "hash": "#sync-records",
+          "textLength": 147
+        },
+        {
+          "route": "numbers",
+          "label": "号码管理",
+          "hash": "#numbers",
+          "textLength": 165
+        },
+        {
+          "route": "number-pools",
+          "label": "号码池管理",
+          "hash": "#number-pools",
+          "textLength": 126
+        },
+        {
+          "route": "extensions",
+          "label": "分机管理",
+          "hash": "#extensions",
+          "textLength": 142
+        },
+        {
+          "route": "time-conditions",
+          "label": "时间条件",
+          "hash": "#time-conditions",
+          "textLength": 130
+        },
+        {
+          "route": "alicti-accounts",
+          "label": "AliCti 账号管理",
+          "hash": "#alicti-accounts",
+          "textLength": 575
+        },
+        {
+          "route": "event-callbacks",
+          "label": "通话数据异常",
+          "hash": "#event-callbacks",
+          "textLength": 161
+        },
+        {
+          "route": "audit",
+          "label": "操作审计",
+          "hash": "#audit",
+          "textLength": 699
+        }
+      ],
+      "errors": [],
+      "badResponses": [],
+      "result": "pass"
+    },
+    "resources": {
+      "localResourceReferences": 141,
+      "uniqueLocalResourcePaths": 141,
+      "scriptReferences": 105,
+      "stylesheetReferences": 36,
+      "otherReferences": 0,
+      "nonlocalOrEmptySkipped": 1,
+      "missingResources": 0,
+      "javascriptSyntaxChecks": 106,
+      "javascriptSyntaxFailures": 0,
+      "externalJavascriptSyntaxChecks": 105,
+      "inlineJavascriptSyntaxChecks": 1,
+      "stylesheetLocalDependencies": 0
+    },
+    "documentation": {
+      "result": "pass",
+      "checks": 661,
+      "linksChecked": 3724,
+      "officialSnapshotsChecked": 101
+    },
+    "browserConsole": {
+      "errors": 0,
+      "nonBlockingWarning": "iframe allow 属性优先于 allowfullscreen（delivery-nav.js:169）"
+    }
+  },
+  "maintenanceFindings": [
+    {
+      "file": "qa/verify-demo-compact.cjs",
+      "line": 15,
+      "summary": "References retired MockSceneList/MockCallRecordRows/MockCallStatsRows, aborts with undefined.length; symbols appear nowhere else in current project. Temporary diagnostic excluding only this assertion passes remaining eight groups.",
+      "diagnosticEvidence": "/tmp/cloud-call-demo-compact-diagnostic-20260930.json"
+    },
+    {
+      "file": "qa/run-offline-checks.py",
+      "line": 10,
+      "summary": "Explicit 64-suite list omits eight local standalone suites, including call-data-sync D-087; seven omitted suites pass, demo-compact is stale."
+    }
+  ],
+  "legacyUpgradeBoundary": {
+    "status": "Known intentional historical behavior, not normal-refresh defect",
+    "trigger": "Existing manually created simulation:true call with missing migration version=1 marker",
+    "code": "mock/demo-compact.js:46-57; 93-94;115-117",
+    "manualCallMarker": "js/pages/agent-workbench.js:582-586",
+    "historicalEvidence": "memory/change-log.md:966-970 explicitly says cleanup of simulated calls before first compact migration",
+    "currentDocConflict": "README.md:34 says no historical call deletion, formal docs not updated when migration introduced",
+    "freshBrowser": "Migration completes on initial load before user can create calls; subsequent normal reload retains records",
+    "matrix": [
+      {
+        "variant": "missing-marker-manual",
+        "scope": "isolated in-memory storage; real source modules; no disk or provider writes",
+        "trigger": "simulation:true manually created call with missing migration marker",
+        "before": {
+          "callId": "MC-USER-HISTORY-REPRO",
+          "manualBatchCalls": 1,
+          "manualBatchHistory": 1,
+          "agentDisposition": "用户已保存跟进"
+        },
+        "after": {
+          "customerPreserved": true,
+          "manualBatchCalls": 0,
+          "manualBatchHistory": 0,
+          "workbenchRecords": 0,
+          "directoryRecords": 0,
+          "migration": {
+            "version": 1,
+            "retiredCallIds": [
+              "MC-USER-HISTORY-REPRO"
+            ]
+          }
+        }
+      },
+      {
+        "variant": "present-marker-manual",
+        "scope": "isolated in-memory storage; real source modules; no disk or provider writes",
+        "trigger": "same manually created call with valid version=1 migration marker",
+        "before": {
+          "callId": "MC-USER-HISTORY-REPRO",
+          "manualBatchCalls": 1,
+          "manualBatchHistory": 1,
+          "agentDisposition": "用户已保存跟进"
+        },
+        "after": {
+          "customerPreserved": true,
+          "manualBatchCalls": 1,
+          "manualBatchHistory": 1,
+          "workbenchRecords": 1,
+          "directoryRecords": 1,
+          "migration": {
+            "version": 1,
+            "retiredCallIds": []
+          }
+        }
+      },
+      {
+        "variant": "missing-marker-nonsimulated",
+        "scope": "isolated in-memory storage; real source modules; no disk or provider writes",
+        "trigger": "non-simulated call with missing migration marker",
+        "before": {
+          "callId": "MC-USER-HISTORY-REPRO",
+          "manualBatchCalls": 1,
+          "manualBatchHistory": 1,
+          "agentDisposition": "用户已保存跟进"
+        },
+        "after": {
+          "customerPreserved": true,
+          "manualBatchCalls": 1,
+          "manualBatchHistory": 1,
+          "workbenchRecords": 1,
+          "directoryRecords": 1,
+          "migration": {
+            "version": 1,
+            "retiredCallIds": []
+          }
+        }
+      }
+    ]
+  },
+  "legacyLoopPreflight": {
+    "result": "fail",
+    "command": "python3 tools/loop_run.py check . --preflight-stage s8",
+    "classification": "旧工作流/审批摘要及历史验证日志与当前独立迭代结构不一致",
+    "examples": [
+      "CLAUDE.md 与旧审批摘要不一致",
+      "历史 S9 pass 与 workflow pending 不一致",
+      "旧步骤日志字段缺失",
+      "旧交付导航要求与当前实现不一致"
+    ],
+    "action": "保留原始状态；本轮是用户请求的回归审查，不声明 S8 通过或重写历史审批"
+  },
+  "limitations": [
+    "其余两个缺陷使用真实组件加隔离 VM 和故障注入复现，浏览器逐项覆盖并非全量穷举",
+    "没有真实 AliCti 或业务系统联调",
+    "浏览器使用独立测试会话及 8877 本地来源，不修改用户原有浏览器数据",
+    "截图及临时脚本保存在 /private/tmp；结构化结果及复现步骤保存在本报告"
+  ],
+  "sourceHashes": {
+    "index.html": "82c8ad3f843751b790298aaae5af918b07eef99c05969284f2ac71d0d63ba2f9",
+    "js/app.js": "75ee791961c6dfae609f87a4c67ee484d7f2fa4e5602e0cf199c22c6c8708d07",
+    "js/pages/cloud-task-workspace.js": "d7e3a633afb304edbeff42cec5e6aa2d18738b8ca93b16003867ed10e98d4f2e",
+    "js/pages/customer-tasks.js": "6bb297f92b0c11a4fa89426d9422d0bf00f399c74ec767dbb9462306b410dacb",
+    "js/components/account-tenant-forms.js": "aaac281e865ba95a2603aa48275ebc1b3891f9b544199d2cbf94aa4f625d52fd",
+    "mock/demo-compact.js": "bad60e15813dc90281212c052f5bf2fa64064a4d804a0c97d42145c762eb6062"
+  }
+}

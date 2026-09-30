@@ -60,9 +60,50 @@
       ['tenantIds', 'authorizedTenantIds', 'localTenantIds'].some(field => Array.isArray(row[field]) && row[field].includes(tenant.tenantId)));
     if (['agents', 'seats', 'callPlans', 'tasks', 'predictiveTasks', 'ivrTasks', 'calls', 'physicalSkillGroups', 'phoneNumbers', 'queues', 'timeConditions', 'extensions'].some(key => (data()[key] || []).some(linked))) return true;
     // 未提交的演示草稿同样持有租户与资源引用，不能在迁移后留下悬空引用。
-    if (['cloud-task-wizard-drafts-v1', 'cloud-task-created-v1'].some(key => {
-      try { const rows = JSON.parse(sessionStorage.getItem(key) || '[]'); return !Array.isArray(rows) || rows.some(linked); }
+    if ([
+      ['sessionStorage', 'cloud-task-wizard-drafts-v1'],
+      ['sessionStorage', 'cloud-task-created-v1'],
+      ['localStorage', 'cloud-task-created-v1']
+    ].some(([storageName, key]) => {
+      try {
+        const raw = window[storageName].getItem(key), rows = raw === null ? [] : JSON.parse(raw);
+        return !Array.isArray(rows) || rows.some(row => !row || typeof row !== 'object' || Array.isArray(row) || linked(row));
+      }
       catch (_) { return true; }
+    })) return true;
+    // 独立任务记录先于工作区加载即生效；兼容数组丢失时，删除墓碑也仍是业务历史。
+    try {
+      if (typeof localStorage.key === 'function' && typeof localStorage.length === 'number') {
+        for (let index = 0; index < localStorage.length; index++) {
+          const key = localStorage.key(index);
+          if (!key?.startsWith('cloud-task-record-v1:')) continue;
+          const raw = localStorage.getItem(key);
+          if (raw === null) continue;
+          const row = JSON.parse(raw);
+          if (!row || Array.isArray(row) || typeof row.taskId !== 'string' || !row.taskId ||
+            !['预外呼', 'IVR 外呼'].includes(row.callType) ||
+            typeof row.tenantId !== 'string' || !row.tenantId ||
+            typeof row.enterpriseId !== 'string' || !row.enterpriseId || linked(row)) return true;
+        }
+      }
+    } catch (_) { return true; }
+    // 目录只读查询使用默认样例，不会保存 scope；实际保存分类、独立字段或号码池后才锁定归属。
+    if ([
+      ['localStorage', 'customer-business-config-v3', 3, ['types', 'fields']],
+      ['sessionStorage', 'alicti-hybrid-groups-v1', 1, ['rows']]
+    ].some(([storageName, key, version, collections]) => {
+      try {
+        const raw = window[storageName].getItem(key);
+        if (raw === null) return false;
+        const catalog = JSON.parse(raw);
+        if (!catalog || Array.isArray(catalog) || catalog.version !== version ||
+          !Number.isSafeInteger(catalog.revision) || catalog.revision < 0 || !Array.isArray(catalog.scopes)) return true;
+        if (catalog.scopes.some(scope => !scope || Array.isArray(scope) ||
+          typeof scope.enterpriseId !== 'string' || !scope.enterpriseId ||
+          typeof scope.tenantId !== 'string' || !scope.tenantId ||
+          collections.some(field => !Array.isArray(scope[field])))) return true;
+        return catalog.scopes.some(linked);
+      } catch (_) { return true; }
     })) return true;
     // 独立资源目录也属于业务数据，创建分机、时间条件等之后同样不能改绑。
     const referenced = value => !!value && typeof value === 'object' && (linked(value) ||

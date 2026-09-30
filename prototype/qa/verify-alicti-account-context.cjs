@@ -19,7 +19,9 @@ function storage() {
     getItem(key) { return values.has(key) ? values.get(key) : null; },
     setItem(key, value) { values.set(key, String(value)); },
     removeItem(key) { values.delete(key); },
-    clear() { values.clear(); }
+    clear() { values.clear(); },
+    key(index) { return [...values.keys()][index] ?? null; },
+    get length() { return values.size; }
   };
 }
 function shared() {
@@ -190,6 +192,174 @@ async function check(name, fn) { await fn(); checks.push(name); }
     assert.equal(f.app.tenantForEnterprise(target.enterpriseId).tenantId, tenant.tenantId);
     const restored = fixture({ shared: f.shared, session: f.session });
     assert.equal(restored.app.tenantForEnterprise(target.enterpriseId).tenantId, tenant.tenantId);
+  });
+  await check('只读分类与号码池默认目录不占用空租户，空存储目录和刷新后仍可改绑', async () => {
+    const f = fixture(), source = await createAccount(f), target = await createAccount(f, '8123457');
+    f.app.setInstance(source.enterpriseId); const tenant = createTenant(f, source.enterpriseId);
+    for (const file of ['js/components/customer-business.js', 'js/components/alicti-number-pools.js']) {
+      vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), f.context, { filename: file });
+    }
+    f.context.AliCtiNumberPoolMock = { entries: { [source.enterpriseId]: [{ id: 8001, name: '只读供应商样例池', comment: '', createTime: '2026-09-30 10:00:00', type: 0, isDefault: 0, numbers: '' }] } };
+    assert.equal(f.context.CustomerBusiness.catalog(tenant).rows.length, 3);
+    assert.equal(f.context.AliCtiNumberPools.list(tenant.tenantId).rows.length, 1);
+    assert.equal(f.shared.local.getItem('customer-business-config-v3'), null);
+    assert.equal(f.session.getItem('alicti-hybrid-groups-v1'), null);
+    assert(f.session.getItem('alicti-hybrid-groups-request-history-v1'), '只读查询可保存请求记录，但不等于新增业务数据');
+    assert.equal(f.app.tenantHasBusinessData(tenant), false);
+    f.shared.local.setItem('customer-business-config-v3', JSON.stringify({ version: 3, revision: 0, scopes: [] }));
+    f.session.setItem('alicti-hybrid-groups-v1', JSON.stringify({ version: 1, revision: 0, scopes: [] }));
+    const reloaded = fixture({ shared: f.shared, session: f.session });
+    assert.equal(reloaded.app.tenantHasBusinessData(reloaded.app.tenantForEnterprise(source.enterpriseId)), false);
+    reloaded.context.AccountTenantForms.openTenant(tenant.tenantId);
+    fillTenant(reloaded, target.enterpriseId, tenant.name); reloaded.context.AccountTenantForms.saveTenant();
+    assert.equal(reloaded.app.tenantForEnterprise(target.enterpriseId)?.tenantId, tenant.tenantId);
+  });
+  await check('新增业务分类、独立字段或空号码池均禁止租户改绑且刷新后保留归属', async () => {
+    const cases = [
+      ['业务分类', 'customer-business-config-v3', 'local', (f, tenant) => f.context.CustomerBusiness.save({ id: 'qa-business', label: '新业务', codeLabel: '业务单号', enabled: true, fields: [] }, tenant)],
+      ['独立字段', 'customer-business-config-v3', 'local', (f, tenant) => f.context.CustomerBusiness.saveField({ id: 'qa-field', label: '业务客户编号', type: 'text', businessKey: '001', enabled: true, options: [] }, tenant)],
+      ['空号码池', 'alicti-hybrid-groups-v1', 'session', (f, tenant) => f.context.AliCtiNumberPools.create({ name: '新业务号码池', type: 0, isDefault: 0, numbers: [] }, { tenantId: tenant.tenantId })]
+    ];
+    for (const [label, key, storageKind, save] of cases) {
+      const f = fixture(), source = await createAccount(f), target = await createAccount(f, '8123457');
+      f.app.setInstance(source.enterpriseId); const tenant = createTenant(f, source.enterpriseId);
+      for (const file of ['js/components/customer-business.js', 'js/components/alicti-number-pools.js']) {
+        vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), f.context, { filename: file });
+      }
+      assert.equal((await save(f, tenant)).ok, true, label);
+      const store = storageKind === 'local' ? f.shared.local : f.session, savedResource = store.getItem(key);
+      assert(savedResource, label);
+      assert.equal(f.app.tenantHasBusinessData(tenant), true, label + ' 应锁定原账号');
+      const identitiesBefore = f.session.getItem(IDENTITIES);
+      f.context.AccountTenantForms.openTenant(tenant.tenantId);
+      assert(!f.layers.at(-1).html.includes('value="' + target.enterpriseId + '"'), label + ' 不显示改绑候选');
+      fillTenant(f, target.enterpriseId, tenant.name); f.context.AccountTenantForms.saveTenant();
+      assert.equal(tenant.enterpriseId, source.enterpriseId, label + ' 拒绝篡改选择');
+      assert.equal(f.session.getItem(IDENTITIES), identitiesBefore);
+      const candidate = { ...f.data, tenants: f.data.tenants.map(row => row.tenantId === tenant.tenantId ? { ...row, enterpriseId: target.enterpriseId } : row) };
+      assert.throws(() => f.app.persistManagementData(candidate), /已有业务数据/, label);
+      const reloaded = fixture({ shared: f.shared, session: f.session });
+      assert.equal(reloaded.app.tenantForEnterprise(source.enterpriseId)?.tenantId, tenant.tenantId);
+      assert.equal(reloaded.app.tenantHasBusinessData(reloaded.app.tenantForEnterprise(source.enterpriseId)), true, label + ' 刷新后仍锁定');
+      assert.throws(() => reloaded.app.persistManagementData(candidate), /已有业务数据/, label);
+      assert.equal(store.getItem(key), savedResource, label + ' 原数据未改动');
+    }
+  });
+  await check('其他租户已保存业务目录不会误锁当前空租户', async () => {
+    const f = fixture();
+    for (const file of ['js/components/customer-business.js', 'js/components/alicti-number-pools.js']) {
+      vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), f.context, { filename: file });
+    }
+    const existing = f.app.tenantForEnterprise('7522240');
+    assert.equal(f.context.CustomerBusiness.saveField({ id: 'qa-other', label: '其他租户字段', type: 'text', options: [] }, existing).ok, true);
+    assert.equal((await f.context.AliCtiNumberPools.create({ name: '其他租户号码池', type: 0, isDefault: 0 }, { tenantId: existing.tenantId })).ok, true);
+    const source = await createAccount(f), target = await createAccount(f, '8123457');
+    f.app.setInstance(source.enterpriseId); const tenant = createTenant(f, source.enterpriseId);
+    assert.equal(f.app.tenantHasBusinessData(tenant), false);
+    f.context.AccountTenantForms.openTenant(tenant.tenantId);
+    fillTenant(f, target.enterpriseId, tenant.name); f.context.AccountTenantForms.saveTenant();
+    assert.equal(tenant.enterpriseId, target.enterpriseId);
+  });
+  await check('业务分类与号码池存储损坏或读取失败时拒绝改绑并保留原数据', async () => {
+    const f = fixture(), source = await createAccount(f), target = await createAccount(f, '8123457');
+    f.app.setInstance(source.enterpriseId); const tenant = createTenant(f, source.enterpriseId);
+    const candidate = { ...f.data, tenants: f.data.tenants.map(row => row === tenant ? { ...row, enterpriseId: target.enterpriseId } : row) };
+    for (const [store, key, version] of [[f.shared.local, 'customer-business-config-v3', 3], [f.session, 'alicti-hybrid-groups-v1', 1]]) {
+      for (const raw of ['{', 'null', '[]', JSON.stringify({ version, revision: 0, scopes: {} }), JSON.stringify({ version: 99, revision: 0, scopes: [] }), JSON.stringify({ version, revision: 0, scopes: [null] }), JSON.stringify({ version, revision: 0, scopes: [{ tenantId: tenant.tenantId, enterpriseId: tenant.enterpriseId }] })]) {
+        store.setItem(key, raw);
+        assert.equal(f.app.tenantHasBusinessData(tenant), true, key + ': ' + raw);
+        assert.throws(() => f.app.persistManagementData(candidate), /已有业务数据/);
+        assert.equal(store.getItem(key), raw);
+      }
+      store.removeItem(key);
+      const get = store.getItem;
+      store.getItem = name => { if (name === key) throw Error('Storage unavailable'); return get(name); };
+      assert.equal(f.app.tenantHasBusinessData(tenant), true, key + ' 无法读取时保护');
+      assert.throws(() => f.app.persistManagementData(candidate), /已有业务数据/);
+      store.getItem = get;
+    }
+    assert.equal(tenant.enterpriseId, source.enterpriseId);
+  });
+  await check('空租户改绑写入失败时保留原账号、租户快照和当前范围', async () => {
+    const f = fixture(), source = await createAccount(f), target = await createAccount(f, '8123457');
+    f.app.setInstance(source.enterpriseId); const tenant = createTenant(f, source.enterpriseId);
+    const identitiesBefore = f.session.getItem(IDENTITIES), contextBefore = f.session.getItem(CONTEXT);
+    f.context.AccountTenantForms.openTenant(tenant.tenantId);
+    fillTenant(f, target.enterpriseId, tenant.name);
+    const set = f.session.setItem;
+    f.session.setItem = (key, value) => { if (key === IDENTITIES) throw Error('QuotaExceededError'); return set(key, value); };
+    f.context.AccountTenantForms.saveTenant();
+    assert.equal(tenant.enterpriseId, source.enterpriseId);
+    assert.equal(f.app.get().enterpriseId, source.enterpriseId);
+    assert.equal(f.session.getItem(IDENTITIES), identitiesBefore);
+    assert.equal(f.session.getItem(CONTEXT), contextBefore);
+    assert.equal(f.context.document.getElementById('tenantInstance').value, target.enterpriseId);
+    assert(f.context.document.getElementById('tenant-detail'), '保存失败保留表单供重试');
+  });
+  await check('已保存任务及删除墓碑仅存在本地台账时仍保护租户改绑', async () => {
+    const f = fixture(), source = await createAccount(f), target = await createAccount(f, '8123457');
+    f.app.setInstance(source.enterpriseId); const tenant = createTenant(f, source.enterpriseId);
+    const candidate = { ...f.data, tenants: f.data.tenants.map(row => row === tenant ? { ...row, enterpriseId: target.enterpriseId } : row) };
+    for (const status of ['未开始', '已删除']) {
+      const rows = [{ ...plain(f.data.predictiveTasks[0]), taskId: 'QA-LOCAL-TASK', tenantId: tenant.tenantId, enterpriseId: source.enterpriseId, status, _localTaskRevision: 1 }];
+      const raw = JSON.stringify(rows);
+      f.shared.local.setItem('cloud-task-created-v1', raw);
+      assert.equal(f.session.getItem('cloud-task-created-v1'), null, '不依赖可丢失的会话镜像');
+      assert.equal(f.app.tenantHasBusinessData(tenant), true, status);
+      assert.throws(() => f.app.persistManagementData(candidate), /已有业务数据/);
+      assert.equal(f.shared.local.getItem('cloud-task-created-v1'), raw);
+    }
+    for (const raw of ['', '{', 'null', '{}', '[null]']) {
+      f.shared.local.setItem('cloud-task-created-v1', raw);
+      assert.equal(f.app.tenantHasBusinessData(tenant), true, '本地任务台账损坏时保护：' + raw);
+      assert.throws(() => f.app.persistManagementData(candidate), /已有业务数据/);
+      assert.equal(f.shared.local.getItem('cloud-task-created-v1'), raw);
+    }
+  });
+  await check('任务数组镜像缺失时独立持久记录和删除墓碑仍阻止改绑', async () => {
+    const f = fixture(), source = await createAccount(f), target = await createAccount(f, '8123457');
+    f.app.setInstance(source.enterpriseId); const tenant = createTenant(f, source.enterpriseId);
+    const candidate = { ...f.data, tenants: f.data.tenants.map(row => row === tenant ? { ...row, enterpriseId: target.enterpriseId } : row) };
+    const other = { ...plain(f.data.predictiveTasks[0]), _localTaskRevision: 1 };
+    f.shared.local.setItem('cloud-task-record-v1:' + encodeURIComponent(other.taskId) + ':1:other', JSON.stringify(other));
+    assert.equal(f.app.tenantHasBusinessData(tenant), false, '其他租户独立任务不误锁空租户');
+    for (const status of ['待启动', '已删除']) {
+      const row = { ...other, taskId: 'QA-INDEPENDENT-TASK', tenantId: tenant.tenantId, enterpriseId: source.enterpriseId, status };
+      const key = 'cloud-task-record-v1:' + encodeURIComponent(row.taskId) + ':1:qa', raw = JSON.stringify(row);
+      f.shared.local.setItem(key, raw);
+      assert.equal(f.shared.local.getItem('cloud-task-created-v1'), null);
+      assert.equal(f.session.getItem('cloud-task-created-v1'), null);
+      assert.equal(f.app.tenantHasBusinessData(tenant), true, status);
+      assert.throws(() => f.app.persistManagementData(candidate), /已有业务数据/);
+      const reloaded = fixture({ shared: f.shared, session: f.session });
+      assert.equal(reloaded.app.tenantHasBusinessData(reloaded.app.tenantForEnterprise(source.enterpriseId)), true, status + ' 刷新后仍保护');
+      assert.equal(f.shared.local.getItem(key), raw);
+      f.shared.local.removeItem(key);
+    }
+  });
+  await check('独立任务记录损坏或存储枚举读取失败时禁止改绑并保留原数据', async () => {
+    const f = fixture(), source = await createAccount(f), target = await createAccount(f, '8123457');
+    f.app.setInstance(source.enterpriseId); const tenant = createTenant(f, source.enterpriseId);
+    const candidate = { ...f.data, tenants: f.data.tenants.map(row => row === tenant ? { ...row, enterpriseId: target.enterpriseId } : row) };
+    const key = 'cloud-task-record-v1:QA-INDEPENDENT-TASK:1:qa', store = f.shared.local;
+    for (const raw of ['', '{', 'null', '{}', '[]', JSON.stringify({ taskId: 'QA-INDEPENDENT-TASK', callType: '预外呼' })]) {
+      store.setItem(key, raw);
+      assert.equal(f.app.tenantHasBusinessData(tenant), true, raw);
+      assert.throws(() => f.app.persistManagementData(candidate), /已有业务数据/);
+      assert.equal(store.getItem(key), raw);
+    }
+    const get = store.getItem;
+    store.getItem = name => { if (name === key) throw Error('Storage unavailable'); return get(name); };
+    assert.equal(f.app.tenantHasBusinessData(tenant), true, '独立记录无法读取时保护');
+    assert.throws(() => f.app.persistManagementData(candidate), /已有业务数据/);
+    store.getItem = get;
+    store.removeItem(key);
+    const enumerate = store.key;
+    store.key = () => { throw Error('Storage enumeration unavailable'); };
+    assert.equal(f.app.tenantHasBusinessData(tenant), true, '存储目录无法枚举时保护');
+    assert.throws(() => f.app.persistManagementData(candidate), /已有业务数据/);
+    store.key = enumerate;
+    assert.equal(tenant.enterpriseId, source.enterpriseId);
   });
   await check('保存与恢复均拒绝重复绑定和已有业务改绑', async () => {
     const f = fixture(), row = await createAccount(f), baseline = plain(f.data.tenants);

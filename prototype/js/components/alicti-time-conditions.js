@@ -59,7 +59,7 @@
       const items=[],seen=new Set(),terminal=new Set(['已完成','已终止','已删除','已结束']);
       const add=(kind,r,key,status)=>{const unique=kind+':'+key;if(seen.has(unique))return;seen.add(unique);items.push({kind,id:key,name:r.name||r.taskName||key,status,active:kind==='任务'&&(['执行中','已暂停'].includes(status)||[1,2].includes(Number(r.providerStatusCode)))});};
       const parseRows=(storage,key)=>{if(!storage?.getItem)return [];const raw=storage.getItem(key);if(raw===null)return [];const rows=JSON.parse(raw);if(!Array.isArray(rows))throw Error('invalid references');return rows;};
-      const tasks=[...(root.CloudCallData?.tasks||[]),...(root.CloudCallData?.predictiveTasks||[]),...(root.CloudCallData?.ivrTasks||[]),...parseRows(root.sessionStorage,'cloud-task-created-v1')];
+      const tasks=[...(root.CloudCallData?.tasks||[]),...(root.CloudCallData?.predictiveTasks||[]),...(root.CloudCallData?.ivrTasks||[]),...(root.CloudTaskWorkspace?.storedTasks?root.CloudTaskWorkspace.storedTasks():parseRows(root.localStorage?.getItem?.('cloud-task-created-v1')!==null&&root.localStorage?.getItem?root.localStorage:root.sessionStorage,'cloud-task-created-v1'))];
       for(const task of tasks)if(task.enterpriseId===row.enterpriseId&&!terminal.has(task.status)&&referenced(task,row.id))add('任务',task,task.taskId,task.status||'待启动');
       for(const draft of parseRows(root.sessionStorage,'cloud-task-wizard-drafts-v1'))if(draft.enterpriseId===row.enterpriseId&&draft.status==='草稿'&&referenced(draft,row.id))add('草稿',draft,draft.draftId,'草稿');
       const raw=root.localStorage.getItem('alicti-inbound-router-v1'),inbound=raw===null?{rows:root.AliCtiInboundMock?.rows||[],pending:[]}:JSON.parse(raw);

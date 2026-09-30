@@ -39,6 +39,8 @@ function signedIn(tenantId = 'TEN-NISSAN-HQ', accountId = 'ACC-ADMIN-018') {
   return memory({ [prefix + 'unified-call-context-v3']: JSON.stringify({ accountId, sessionId: 'fixture-only', tenantId, enterpriseId: '7522240', activeDomain: 'CLOUD_CONTACT_CENTER', authStage: 'READY', currentPage: 'home' }) });
 }
 
+module.exports={fixture,signedIn};
+if(require.main===module){
 const c=fixture({session:signedIn()}), api=c.CustomerTasks, nodes=new Map(), layers=new Map();
 c.document.getElementById=id=>nodes.get(id)||null;
 c.PlatformUI.openLayer=(id,html)=>layers.set(id,html);c.PlatformUI.closeLayer=id=>layers.delete(id);
@@ -55,3 +57,5 @@ const race={...task,taskId:'TEST-RACE',total:0,status:'待分配客户'};c.Cloud
 api.importDialog();preview();api.confirmImport();assert(!JSON.parse(c.localStorage.getItem('customer-task-batches-v1'))[0].rows[0].taskId);
 assert(!api.canImportToTask({...race,status:'待分配客户',tenantId:'OTHER'}));
 console.log(JSON.stringify({result:'pass',count:1,failed:0,checks:['空任务导入完整流程：固定任务与方式、自动关联、待启动、AliCti导入批次、终止竞态、通用导入与租户隔离']},null,2));
+
+}

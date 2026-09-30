@@ -1544,3 +1544,56 @@ for section in SECTIONS:
     section['acceptance'].append('事件预览最多5条、全部事件二级页分页且均按平台接收/观察时间倒序；显示坐席、工号、事件或状态、来源，不显示缺乏统一接口依据的“状态变化”“说明”列；切换租户、跨权限工号不得泄露记录。')
     section['acceptance'].append('静态原型初始为空，仅显示当前浏览器交互生成的接口模拟记录，明确标为模拟，不伪称本租户跨设备历史或真实供应商事件；生产接入需本方后端鉴权订阅及回调汇总、持久化、去重和分页查询，状态快照只能标“观察到的变化”。')
 DEFAULTS[218] = '平台接收或观察时间；预览5条，全部事件分页'
+
+# D-087 is a local interaction increment, independent of the reviewed supplier
+# field baseline above. Timers and browser storage are not a backend or an SLA.
+CALL_DATA_SYNC_RULE = (
+    'D-087（2026-09-30局部交互增量）：通话结束、跟进保存、资料同步分别展示。'
+    '资料同步中、同步异常或待核对不阻塞符合原校验的“保存并完成”，也不增加原有自动置闲流程的等待条件；'
+    '业务保存失败和电话整理失败仍按原规则处理。通话列表、详情展示同步中、已有资料或已同步、同步异常、待核对，'
+    '并提供最近同步时间及“刷新资料”；没有本轮同步时间显示未记录，已有资料不冒充本轮同步完成。'
+)
+CALL_DATA_SYNC_DEMO = (
+    '详情的“演示资料同步”默认折叠，仅对授权范围内已结束的本地演示记录开放。'
+    '“话单延迟到达”（delayed）约6秒后更新；“录音后到”（media）先显示话单已同步，约8秒后提供明确标注的合成语音样例；'
+    '“同步异常恢复”（error）约1.5秒后显示同步异常，点击刷新资料后约1.5秒恢复。'
+    '这些时间仅是原型演示节奏，不是供应商SLA、真实回传时延或自动补偿承诺。'
+)
+CALL_DATA_SYNC_BOUNDARY = (
+    '后台技术资料以独立的本地journal模拟，仅覆盖同一通话的电话事实与同步状态；'
+    '已保存跟进、业务字段、客户归属、原任务和批次来源从当前业务记录读取，不被迟到快照覆盖。'
+    '同一浏览器刷新后恢复本地同步记录并继续处理到期演示，不代表浏览器关闭期间有真实后端执行。'
+    '刷新资料不拨号、不改跟进或来源、不新增联系历史、不自动重呼。真实服务端话单查询、事件加速补查、'
+    '幂等持久化与供应商联调仍由开发实现，当前不调用AliCti。'
+)
+for section in SECTIONS:
+    if section['id'] == 'FS-11':
+        section['logic'].append(CALL_DATA_SYNC_RULE)
+        section['acceptance'].append('话后资料同步中或异常时，处理结果及当前业务分类必填项满足后仍可保存并完成；沿用原置闲流程，迟到话单不覆盖已保存跟进。')
+    if section['id'] == 'FS-14':
+        section['steps'].append('查看资料同步状态与最近同步时间，按需刷新资料；本地演示记录可展开“演示资料同步”，分别查看话单延迟、录音后到和异常恢复。')
+        section['logic'].extend([CALL_DATA_SYNC_RULE, CALL_DATA_SYNC_DEMO, CALL_DATA_SYNC_BOUNDARY])
+        section['acceptance'].extend([
+            '列表和详情同步状态一致；通话已结束、跟进已保存与资料同步分别显示，缺同步时间不填造。刷新保持原通话、客户、批次、任务及已保存业务内容。',
+            '分别演示6秒话单到达、8秒合成录音后到、1.5秒同步异常及刷新后1.5秒恢复；刷新浏览器后同一通话仍可恢复演示状态。此为原型验收路径，不能当作供应商验证结果。'
+        ])
+        section['files'] += ' js/components/call-data-sync.js'
+    if section['id'] == 'FS-15':
+        section['logic'].append('D-087：话单已同步时录音或文本仍可未就绪，媒体状态独立展示。“录音后到”演示使用合成语音样例，不能标为本次真实录音；媒体更新不阻塞跟进保存，不改变接听结果。')
+        section['acceptance'].append('录音后到期间可查看已到达话单，约8秒后样例仍明确标注演示；刷新资料不得重新拨号或清空已保存跟进。')
+    if section['id'] in {'FS-10', 'FS-16'}:
+        section['logic'].append('D-087：任务执行进度与已同步话单统计分开展示。任务已处理或跟进已保存不代表话单齐全；同步中、异常及待核对条数单列，不能用已同步话单数替代任务累计进度。')
+
+# D-088 fixes local persistence and reference protection without changing any
+# supplier contract or the reviewed field baseline.
+for section in SECTIONS:
+    if section['id'] == 'FS-02':
+        section['logic'].append('D-088：租户已有业务数据的判断包含业务分类、独立字段库、号码池和已保存任务；已有引用时禁止直接更换AliCti账号。打开表单与提交时都复核，存储异常不能当作没有数据。')
+        section['acceptance'].append('新租户保存分类、独立字段或号码池后不能改绑账号；没有业务引用的新租户仍能改绑，旧账号和其他租户的配置不误计入当前租户。')
+    if section['id'] in {'FS-08', 'FS-10'}:
+        section['logic'].append('D-088：已确认创建的本地任务与客户名单使用同一浏览器持久存储范围，重新打开标签后按原账号、租户和taskId恢复；未提交任务草稿与通话草稿仍只属于原标签会话。旧会话中仍可读取的任务可迁入持久台账，已有持久记录及删除标记优先，不由旧标签覆盖或复活。')
+        section['acceptance'].append('创建任务并导入客户后，同标签刷新与新标签重新登录均保留原任务和客户关联；重复恢复不产生新任务，删除任务不因旧会话快照重新出现。')
+    if section['id'] == 'FS-07':
+        section['logic'].append('D-088：从任务直接导入客户时，名单与任务进度共同提交；全部保存成功后才关闭弹窗。任一保存失败时补偿本次增量，保留名单输入并提示重试；重复提交不能重复生成批次或客户。')
+        section['exceptions'].append('已保存客户引用的任务确实无法恢复时，不凭空创建任务或清除已有通话历史；仅允许在授权范围内按实际通话及占用状态处理未执行客户的悬空关联。')
+        section['acceptance'].append('任务日志写入失败时，导入弹窗和原输入保留、错误明确、名单与任务不留下半保存状态；恢复存储后重试只导入一次。')

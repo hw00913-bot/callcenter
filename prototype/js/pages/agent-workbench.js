@@ -113,6 +113,8 @@
       ...(outcome === '已取消' ? { normalizedFailureReason: 'CANCELLED', confirmedUnanswered: true } : {}) });
     const numberCode = !connected ? { '客户忙线': 710, '客户拒接': 712, '无人接听': 718, '未接通': 718, '客户未接': 718 }[outcome] : undefined;
     row.alictiCdr = numberCode === undefined ? null : AliCtiNumberStatus.demoCdr('manual', numberCode);
+    // This local outcome explicitly says the customer was not connected.
+    if (row.alictiCdr) row.alictiCdr.raw.status = 1;
     syncStateDisplay(row);
   }
   function confirmDemoResult(id, outcome) {
@@ -142,6 +144,8 @@
       next.durationSeconds = Math.max(0, Math.floor((endAt - CallState.view(next).customerEstablishedAt) / 1000));
     } else demoFinal(next, '未接通');
     if (!syncStateDisplay(next).known) return false;
+    next.syncCalibrationId = crypto.randomUUID();
+    delete next.dataSync;
     const index = records.findIndex(record => record.callId === id);
     if (index < 0) records.push(next); else records[index] = next;
     let journalWritten = false;
@@ -197,6 +201,7 @@
         if (committed && !sameNativeCall(snapshot, committed)) throw Error('Call identity mismatch');
         // Session storage holds UI drafts, not the authority for completed calls.
         call = structuredClone(committed || snapshot);
+        window.CloudCallSync?.restore(call);
       } catch (_) {
         restorationError = '上次通话暂时无法恢复，请保留浏览器数据并刷新后重试'; error = restorationError; return;
       }
@@ -527,11 +532,13 @@
     call.durationSeconds=answered?Math.max(0,Math.floor((at-call.answeredMs)/1000)):0;
     call.agentAnswerResult=answered?'已接听':reason==='座席拒接'?'座席拒接':reason==='对方已挂断'?'对方取消':'坐席未接听';
     demoEvent(call,'agent','Released',at);demoEvent(call,'customer','Released',at);CallState.finish(call,{at,source:'local-simulation'});
+    const observed = structuredClone(call);
     const raw={enterpriseId:call.enterpriseId,customerNumber:call.customerNumber,mainUniqueId:call.contactId,startTime:Math.floor(call.offeredMs/1000),endTime:Math.floor(at/1000),bridgeDuration:call.durationSeconds,
       status:inbound?(answered?'人工接听':'人工未接听'):(answered?43:42),...(answered?{bridgeTime:Math.floor(call.answeredMs/1000)}:{}),
       ...(inbound?{answerTime:Math.floor(call.offeredMs/1000),firstCallCno:call.cno,cnoFlow:[call.cno]}:{upTime:Math.floor(call.offeredMs/1000),cno:call.cno,customerBridgeDuration:Math.max(0,Math.floor((at-call.offeredMs)/1000))})};
     call.alictiCdr={kind:call.workbenchKind,raw,mock:true};
     CallState.reconcile(call,{EnterpriseId:call.enterpriseId,ContactId:call.contactId,ReleaseTime:at,ContactDisposition:'Success'},{source:'local-simulation'});syncStateDisplay(call);
+    window.CloudCallSync?.begin(call, observed);
     phase='wrap';muted=false;
     const agent=myAgent();if(agent){agent.currentCall=false;agent.agentStatus='话后处理';}
     window.AliCtiSeatOperations?.enterWrapup(call);
@@ -606,8 +613,10 @@
     call.endedMs = Date.now(); call.endedAt = stamp(call.endedMs); call.result = result || (connected ? '接通' : '已取消');
     demoEvent(call, 'customer', 'Released', call.endedMs); demoEvent(call, 'agent', 'Released', call.endedMs);
     CallState.finish(call, { at: call.endedMs, source: 'local-simulation' });
+    const observed = structuredClone(call);
     if (call.result !== '结果待确认') demoFinal(call, call.result);
     else syncStateDisplay(call);
+    window.CloudCallSync?.begin(call, observed);
     phase = 'wrap'; muted = false;
     const a = data.agents.find(r => r.contactCenterIdentityId === call.contactCenterIdentityId);
     if (a) {
@@ -644,7 +653,7 @@
     else {a.agentStatus = online ? '话后处理' : '离线';if(online)window.SeatOperationUI?.afterRecordSaved();}
     if(modalMode){persist();modalMode=false;modalVisible=false;ui.closeLayer(modalId);updateDock();refreshOrigin();returnFocus?.focus?.();}
     else refresh();
-    showToast('处理结果已保存，客户名单与通话记录已更新', 'success');
+    showToast('跟进已保存；通话资料会独立更新', 'success');
   }
   let muteDirection='all';
   function toggleMute() { if (phase === 'connected') { if(!muted)muteDirection=document.getElementById('seatMuteDirection')?.value||'all';const request=AliCtiFields.muteFields(muteDirection);if(request.pending?.length)return;AliCtiAdapter.lastRequest=request;muted = !muted; refresh(); } }
@@ -738,14 +747,20 @@
     const node=document.getElementById('seat-draft-status');
     if(node){node.textContent=draftNotice();node.hidden=draftStored;}
   }
+  function syncNotice(){
+    const sync = window.CloudCallSync?.read(call);
+    if (!sync || phase !== 'wrap') return '';
+    return '<div class="call-sync-notice"><span class="call-sync-badge '+esc(sync.status)+'">'+esc(sync.label)+'</span><span>'+esc(sync.note)+'</span></div>';
+  }
   function recordSummary(){
     const ended=phase==='wrap',state=CallState.view(call);
     const timer=phase==='connected'?duration(Math.max(0,Math.floor((Date.now()-call.answeredMs)/1000))):duration(call.durationSeconds||0);
     return '<section class="seat-record-summary'+(ended?' is-ended':'')+'"><div class="seat-record-person"><span class="seat-avatar small">'+esc(call.customerName.slice(0,1))+'</span><div><strong>'+esc(call.customerName)+'</strong><span>'+esc(customerPhone(call))+' · '+esc(callLabel())+'</span></div></div>'+
       '<div class="seat-record-controls"><div class="seat-record-state"><span role="status">'+(ended?'通话已结束':statusText())+'</span><strong data-seat-timer>'+timer+'</strong></div>'+
       (!ended?'<div class="seat-call-actions">'+(phase==='connected'?'<button class="btn" aria-label="'+(muted?'取消静音':'静音')+'" title="'+(muted?'取消静音':'静音')+'" aria-pressed="'+muted+'" onclick="AgentWorkbench.toggleMute()">'+'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 10v2a6 6 0 0 0 12 0v-2M12 18v3M9 21h6"/></svg></button>':'')+
-      '<button class="btn seat-hangup" onclick="AgentWorkbench.end()">'+(phase==='connected'?'结束通话':'取消呼叫')+'</button></div>':'<span class="seat-record-answer">'+esc(receiving()?call.agentAnswerResult:state.answerLabel)+'</span>')+'</div></section>'+
-      (ended&&!state.known?'<p class="seat-blocked" role="status">接通结果待确认，可先保存本次跟进记录。</p>':'');
+      '<button class="btn seat-hangup" onclick="AgentWorkbench.end()">'+(phase==='connected'?'结束通话':'取消呼叫')+'</button></div>':'<span class="seat-record-answer" data-seat-result>'+esc(receiving()?call.agentAnswerResult:state.answerLabel)+'</span>')+'</div></section>'+
+      (ended?'<div data-seat-sync>'+syncNotice()+'</div>':'')+
+      (ended&&!state.known?'<p class="seat-blocked" data-seat-unknown role="status">接通结果待确认，可先保存本次跟进记录。</p>':'');
   }
   function recordHeaderActions(){return phase==='wrap'?'<button class="btn btn-primary" id="seat-save" onclick="AgentWorkbench.saveDisposition()">保存并完成</button>'+(window.SeatOperationUI?.wrapupControl()||''):'';}
   function recordPanel(){
@@ -826,6 +841,15 @@
   data.calls.filter(r => r.callSource === 'NATIVE_WORKBENCH' && r.agentDisposition === '客户拒绝联系')
     .forEach(r => data.nativeWorkbench.blockedNumbers.push({ tenantId: r.tenantId, phone: customerPhone(r) }));
   window.addEventListener('storage', e => { if (e.key === recordsKey) loadRecords(); });
+  window.addEventListener('call-data-sync', e => {
+    if (!call || phase !== 'wrap' || call.callId !== e.detail?.callId || call.tenantId !== e.detail?.tenantId || String(call.enterpriseId) !== String(e.detail?.enterpriseId) || !AppState.authorizeObject('', call)) return;
+    window.CloudCallSync?.restore(call);
+    document.querySelectorAll('[data-seat-sync]').forEach(node => { node.innerHTML = syncNotice(); });
+    document.querySelectorAll('[data-seat-result]').forEach(node => { node.textContent = receiving() ? call.agentAnswerResult : CallState.view(call).answerLabel; });
+    document.querySelectorAll('[data-seat-unknown]').forEach(node => { node.hidden = CallState.view(call).known; });
+    document.querySelectorAll('[data-seat-timer]').forEach(node => { node.textContent = duration(call.durationSeconds || 0); });
+    persist();
+  });
   window.addEventListener('beforeunload', e => { if (busy()) { persist(); e.preventDefault(); e.returnValue = ''; } });
   setInterval(() => {
     if(['offered','answering'].includes(phase)&&call?.offerExpiresAt<=Date.now())return finishReceiving('坐席未接听');

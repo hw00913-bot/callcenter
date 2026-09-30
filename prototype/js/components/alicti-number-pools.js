@@ -264,7 +264,8 @@
       ...(root.CloudCallData?.ivrTasks || [])
     ];
     function storedRows(key) {
-      const raw = root.sessionStorage.getItem(key);
+      if(key==='cloud-task-created-v1'&&root.CloudTaskWorkspace?.storedTasks)return root.CloudTaskWorkspace.storedTasks();
+      const raw = key === 'cloud-task-created-v1' ? root.localStorage.getItem(key) ?? root.sessionStorage.getItem(key) : root.sessionStorage.getItem(key);
       if (raw === null) return [];
       const rows = JSON.parse(raw);
       if (!Array.isArray(rows)) throw Error('任务引用数据结构无效');

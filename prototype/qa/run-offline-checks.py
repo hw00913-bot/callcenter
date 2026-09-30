@@ -8,12 +8,14 @@ NAMES.extend(['task-caller-settings', 'caller-navigation-simulation', 'alicti-ta
 NAMES.extend(['alicti-task-update-fields', 'alicti-task-update', 'task-edit-ui'])
 NAMES.append('task-availability')
 NAMES.append('task-wizard-backdrop')
+NAMES.extend(['admin-customer-assignment', 'call-chat', 'call-data-sync', 'call-detail-alignment', 'demo-compact', 'demo-enterprise-scope', 'list-order', 'super-dashboard-data'])
+NAMES.append('task-persistence-import')
 # Node on this macOS arm64 host can terminate VM-heavy suites with SIGSEGV
 # before printing any assertion results (seen with extension management,
-# time conditions, and repeat predictive on v24). Run those suites with JIT disabled; do not retry
+# time conditions, repeat predictive, and outbound groups on v24). Run those suites with JIT disabled; do not retry
 # failed assertions. Preserve flags and runtime in every result for review.
 NODE_VERSION=subprocess.run(['node','--version'],text=True,capture_output=True,check=True).stdout.strip()
-NODE_FLAGS={'extension-management':['--jitless'], 'time-conditions':['--jitless'], 'repeat-predictive':['--jitless']}
+NODE_FLAGS={'extension-management':['--jitless'], 'time-conditions':['--jitless'], 'repeat-predictive':['--jitless'], 'outbound-groups':['--jitless']}
 results=[]
 for name in NAMES:
     flags=NODE_FLAGS.get(name,[])

@@ -1246,3 +1246,53 @@ Evidence: memory/multiple-caller-navigation-verification-20260929.json
 - 本地预览入口可打开，相关资源使用 20260929-multiple-navigation1 版本。
 
 Boundary: 静态原型只模拟 AliCti 契约。导航有效性、号码池选号与运行中生效继续按 CF-15 联调；本次无供应商实测、无远端推送，未推进旧 Loop 状态。
+
+## 2026-09-30 租户与账号交互修复（定向回归）
+- 范围：用户截图所示账号列表布局、租户/账号表单；不推进工作流阶段。
+- 根因分类：页面实现错误、响应式布局问题。基础 CSS 缺失，但覆盖样式仍存在：account-main-layout 实测 display:block；account-form-row 实测 display:block，租户名称输入框宽 153px。浏览器截图复现用户所示原生控件和纵向堆叠。
+- 修复：恢复账号双栏 flex、子列 min-width:0、表格内部滚动和可见空态；恢复两类表单的行布局、全宽字段、计数定位、单选组、密码按钮和头像样式；更新 CSS 缓存版本。
+- 工具：systematic-debugging、prototype-verifier 的定向浏览器检查项、verification-before-completion；playwright-cli 会话退出后改用已安装的 Playwright Core + Chrome 无头独立上下文采集证据。
+- URL：http://127.0.0.1:8876/Demo_Protype_2/prototype/index.html
+- 命令：node /private/tmp/tenant-verify.cjs
+- 视口：1440×900、1366×900、1024×900、900×900、1024×620。
+- 通过项（21）：4 种宽度列表布局；空态可见；查询重置；手机号校验；密码显隐；账号新建回显；账号编辑回显；刷新持久化；重复成员拦截；矮屏底部按钮可达；租户字段对齐；字符计数；租户编辑持久化；无可用 AliCti 账号校验；可用账号下创建租户及切换上下文；新租户列表回显；无运行错误；无 HTTP 资源错误。
+- 新租户成功路径只在隔离浏览器内构造未绑定供应商账号，未修改项目 mock 数据或用户浏览器存储。
+- 证据：/private/tmp/tenant-before.png、/private/tmp/accounts-after.png、/private/tmp/tenant-after.png、/private/tmp/account-form-after.png、/private/tmp/tenant-verification.json。
+- Console pageerror: []；HTTP >=400: []。失败项：无。结论：本次定向回归 pass，不代表全项目全量回归。
+
+
+## 2026-09-30 D-087 通话资料异步同步（定向验证）
+
+结果：pass。范围为已确认的局部原型交互更新，不推进旧 Loop 阶段。
+
+- 新增同步专项14组、话后交互41项通过；覆盖先保存后补齐、草稿/来源保护、重复刷新、范围隔离、重载、存储失败、损坏日志、未知结果显式校准、任务统计和录音/同步异常独立推进。证据：qa/call-data-sync-verification-20260930.json。
+- 相关既有回归：通话事实9项、接听35项、通话文本24项、详情16项、任务详情23项、原任务再次联系21项、导航呼叫12项通过；6个修改业务脚本语法与入口本地资源引用检查通过。未将这些定向检查表述为全模块回归。
+- CUA本地浏览器验证列表/详情状态、延迟到达、录音生成到合成样例可播、播放中刷新不打断、详情页签保留、异常刷新恢复；走完预览外呼、挂断、保存，核对同条记录保留跟进备注和来源。任务结果与名单进度分开展示，详情桌面布局核看正常，控制台无页面error。证据：qa/call-data-sync-browser-20260930.json。
+- 文档661项、3724个链接及101份来源检查通过；D-087唯一、正式源与导出一致。供应商事实来源与冻结输入保持现有基线。
+- 修复测试发现的同步写失败零延时重试、旧同步快照回滚显式结果校准，以及本地未接通话单缺少明确status的问题。
+
+边界：全部为本地静态演示，没有真实供应商请求或服务端同步，不承诺关闭浏览器期间执行后台任务；未发布远端。
+
+
+## 2026-09-30 新业务系统迭代前逻辑回归
+
+- 范围：当前 prototype 独立基线回归；不推进旧 Loop 阶段。业务代码、冻结材料和历史记录未改写，仅新增报告并追加本条记录。
+- 结论：issues_found；已确认 3 项仍未修复的问题：R-01（P1）已保存任务使用会话存储，独立新标签/重开后客户仍持久关联旧任务而任务缺失；R-02（P2）租户改绑检查遗漏业务分类、独立字段及号码池；R-03（P2）任务直接导入遇任务日志写失败后名单已保存、弹窗关闭且无反馈。
+- 工具与方式：prototype-verifier 的独立回归支持、playwright-cli 独立 Chrome 会话、verification-before-completion；现有离线检查、真实组件 VM 复现、存储故障注入、当前入口资源/语法核对、正式文档验证。
+- URL：http://127.0.0.1:8877/index.html；桌面浏览器 1280×720、1440×1000、1366×900。
+- 通过：标准 64/64 套；补测 7/8 套；账号租户浏览器 56 项；任务浏览器 34 项；人工外呼校验/接通/保存/置闲/同步补齐/刷新；29 个超管菜单路由加载；141 个本地引用存在、106 项语法检查；文档 661 项、3724 个链接、101 份快照。
+- 失败/维护：补测 verify-demo-compact 引用已移除 Mock 对象；主回归入口遗漏 8 套；旧迁移清理例外未体现在当前保留说明。旧 S8 preflight 因审批摘要/阶段/历史日志和导航规则不一致而 fail，保留历史，不声明 S8 通过。
+- 浏览器证据：R-01 用 UI 创建并导入客户后，在无 opener 新标签登录，taskPresent=false、customerPresent=true、customerTaskId 保留 TASK-PRED-D04188-c649cf48；常规浏览器无 pageerror、无 HTTP 资源失败，1 类 iframe allow/allowfullscreen 非阻塞警告。其余两项是组件复现，未冒充浏览器实测。
+- 命令：python3 qa/run-offline-checks.py；各遗漏 verify-*.cjs；python3 documentation/verify_documentation.py；node --check 当前入口脚本；临时组件复现脚本路径及源哈希详见报告。
+- 报告：reviews/iteration-baseline-20260930.html；结构化证据：reviews/iteration-baseline-20260930.json。临时截图/脚本保留 /private/tmp/regression0930-*，未放入业务交付目录。
+- 边界：没有真实供应商或业务系统请求；仅使用隔离演示存储；未发布远端。已完成本轮回归，未执行问题修复。
+
+
+## 2026-09-30 · D-088 本地逻辑修复验收
+
+- 范围：修复原始回归R-01/R-02/R-03及修复过程中发现的跨标签写入、任务对象引用与历史不可读保护边界。当前prototype独立回归，不作为旧S8门禁完成记录。
+- 离线：标准入口73套全部通过；新增持久化/导入18项通过，租户上下文42项通过。完整输出：qa/local-logic-fixes-offline-20260930.json。
+- 浏览器：隔离本地端口8879，账号/租户56项，预外呼与自动外呼任务创建/编辑/导航34项，任务保存失败保留输入、补偿与重试、新标签恢复12项通过。分类保存前空租户可改绑，保存后及刷新后入口均禁用。无业务脚本错误、资源失败或真实供应商请求。证据：qa/local-logic-fixes-browser-20260930.json；截图保存在/private/tmp/logic-fixes0930-*，未放入交付树。
+- 静态与文档：入口142项本地引用存在，106个脚本语法通过；文档661项、3741个链接、101份来源快照通过。当前供应商事实版本仍为2026-09-29，局部修复记录为D-088。
+- 运行器说明：最终运行之前，Node v24.14.0的outbound-groups出现无断言输出SIGSEGV；原配置单独重跑27项通过。标准入口对该套追加--jitless，与已有VM重套一致，随后完整73套零失败；未自动重跑失败断言。早期实现阶段3套旧存储fixture的失败及原始回归报告未改写。
+- 结论：三项产品问题已修复。报告：reviews/local-logic-fixes-20260930.html/json。完全丢失的旧任务不可凭引用重建；真实后端及供应商集成留待后续迭代。

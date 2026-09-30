@@ -7,8 +7,11 @@
   const storageKey = 'cloud-task-wizard-drafts-v1';
   const activeKey = 'cloud-task-wizard-active-v1';
   const createdTasksKey = 'cloud-task-created-v1';
+  const taskRecordPrefix = 'cloud-task-record-v1:';
   const creationJournalKey = 'cloud-task-creation-transaction-v1';
   const repeatJournalKey = 'cloud-task-repeat-transaction-v1';
+  const importJournalKey = 'cloud-task-import-transaction-v1';
+  const importOwner = (window.crypto?.randomUUID?.() || Math.random().toString(36)) + ':' + Date.now();
   const centerKey = 'cloud-task-center-context-v1';
   const predictiveSteps = [{step:2,label:'任务与客户',hint:'联系谁'}, {step:4,label:'接听团队配置',hint:'如何接听'}, {step:5,label:'时间与重呼',hint:'何时联系'}, {step:6,label:'确认创建',hint:'检查并保存'}];
   const automaticSteps = [{step:4,label:'选择语音流程',hint:'接通后做什么'}, {step:5,label:'呼叫设置',hint:'何时与如何联系'}, {step:2,label:'客户名单',hint:'联系谁'}, {step:6,label:'确认创建',hint:'检查并保存'}];
@@ -21,8 +24,9 @@
     { key: 'calls', label: '通话记录' },
     { key: 'results', label: '通话结果' }
   ];
+  let taskStorageIssue = '';
   let drafts = loadDrafts();
-  let createdTasks = loadCreatedTasks();
+  let createdTasks = loadCreatedTasks(true);
   let wizardDiscardBaseline = null;
 
   function loadDrafts() {
@@ -30,9 +34,104 @@
     catch (error) { return []; }
   }
 
-  function loadCreatedTasks() {
-    try { const rows = JSON.parse(sessionStorage.getItem(createdTasksKey) || '[]'); return Array.isArray(rows) ? rows.filter(item => item && item.taskId && ['预外呼', 'IVR 外呼'].includes(item.callType)) : []; }
-    catch (error) { return []; }
+  // Saved tasks share the durable lifetime of their customer rows. Session storage
+  // is a compatibility mirror only; drafts intentionally remain tab-scoped.
+  function taskStorage() { return typeof localStorage === 'undefined' ? sessionStorage : localStorage; }
+  function parseTaskRows(raw) {
+    if (raw === null) return [];
+    const rows = JSON.parse(raw), ids = new Set();
+    if (!Array.isArray(rows) || rows.some(row => !row || !row.taskId || !['预外呼','IVR 外呼'].includes(row.callType) || ids.has(row.taskId) || !ids.add(row.taskId))) throw Error('任务台账格式异常，请保留数据并重试');
+    return rows;
+  }
+  function mirrorTasks(rows) { if (taskStorage() !== sessionStorage) try { sessionStorage.setItem(createdTasksKey, JSON.stringify(rows)); } catch (_) {} }
+  function taskRecords(excludedKey = '') {
+    const storage=taskStorage(),records=[];
+    // Tiny component-only fixtures may omit key()/length; the real browser
+    // always supplies Storage enumeration and uses independent task records.
+    if(typeof storage.key!=='function'||typeof storage.length!=='number')return records;
+    for(let i=0;i<storage.length;i++){
+      const key=storage.key(i);if(!key?.startsWith(taskRecordPrefix)||key===excludedKey)continue;
+      const raw=storage.getItem(key);if(raw===null)continue;
+      const row=JSON.parse(raw);if(!row?.taskId||!['预外呼','IVR 外呼'].includes(row.callType))throw Error('任务持久记录异常，请保留数据并重试');
+      records.push({key,row});
+    }
+    return records;
+  }
+  function latestTaskRecords(excludedKey = '') {
+    const latest=new Map();
+    for(const {row} of taskRecords(excludedKey)){
+      const previous=latest.get(row.taskId),version=Number(row._localTaskRevision||0),priorVersion=Number(previous?._localTaskRevision||0);
+      if(!previous||version>priorVersion)latest.set(row.taskId,row);
+      else if(version===priorVersion&&!sameTaskValue(previous,row))throw Error('任务存在并发更新，请稍后刷新核对');
+    }
+    return latest;
+  }
+  function withTaskRecords(rows,excludedKey='') {
+    const byId=new Map(rows.map(row=>[row.taskId,row]));
+    for(const [id,row] of latestTaskRecords(excludedKey)){
+      const previous=byId.get(id);if(previous&&!sameTaskIdentity(previous,row))throw Error('任务身份冲突，请保留数据并核对');
+      byId.set(id,row);
+    }
+    return [...byId.values()];
+  }
+  function recordTask(row) {
+    const storage=taskStorage();if(typeof storage.key!=='function'||typeof storage.length!=='number')return '';
+    const token=window.crypto?.randomUUID?.()||Math.random().toString(36).slice(2),key=taskRecordPrefix+encodeURIComponent(row.taskId)+':'+Number(row._localTaskRevision||0)+':'+token;
+    storage.setItem(key,JSON.stringify(row));return key;
+  }
+  function readCreatedTasks(migrate = false) {
+    const storage = taskStorage(), raw = storage.getItem(createdTasksKey);
+    let rows = withTaskRecords(parseTaskRows(raw));
+    if (storage !== sessionStorage && (migrate || raw === null)) {
+      let legacy;
+      try { legacy = parseTaskRows(sessionStorage.getItem(createdTasksKey)); }
+      catch (error) { if (raw === null) throw error; legacy = []; }
+      const missing = legacy.filter(row => !rows.some(saved => saved.taskId === row.taskId));
+      if (missing.length) {
+        rows = [...rows, ...missing];
+        if (storage.getItem(createdTasksKey) !== raw) throw Error('任务台账已变化，请刷新后重试');
+        storage.setItem(createdTasksKey, JSON.stringify(rows));
+      }
+      // Seed/migrated entries receive independent records. A later whole-array
+      // mirror from an old tab cannot erase or resurrect these tasks.
+      const recorded=latestTaskRecords();
+      for(const row of rows)if(!recorded.has(row.taskId))recordTask(row);
+      if(raw!==JSON.stringify(rows))storage.setItem(createdTasksKey,JSON.stringify(rows));
+      mirrorTasks(rows);
+    }
+    taskStorageIssue = '';
+    return rows;
+  }
+  function loadCreatedTasks(migrate = false) {
+    try { return readCreatedTasks(migrate); }
+    catch (error) { taskStorageIssue = error.message || '任务台账暂时无法读取'; return []; }
+  }
+  function sameTaskIdentity(a,b) { return ['taskId','tenantId','enterpriseId','callType'].every(key => a?.[key] === b?.[key]); }
+  function taskValue(row) { if (!row) return null; const value = structuredClone(row); delete value._localTaskRevision; return value; }
+  function sameTaskValue(a,b) { return JSON.stringify(taskValue(a)) === JSON.stringify(taskValue(b)); }
+  function assertTaskVersion(row, stored) {
+    if (stored && (!sameTaskIdentity(row,stored) || Number(row._localTaskRevision || 0) !== Number(stored._localTaskRevision || 0))) throw Error('任务已在其他页面更新，请刷新后重试');
+    if (stored?.status === '已删除' && row.status !== '已删除' && !stored.abortedCreation) throw Error('任务已删除，不能恢复旧任务');
+  }
+  function publishStoredTask(row) {
+    if (row.status === '已删除') { removeListedTask(row.taskId); return; }
+    const lists=[CloudCallData.tasks,row.callType==='预外呼'?CloudCallData.predictiveTasks:CloudCallData.ivrTasks];
+    const existing=lists.flat().find(item=>item.taskId===row.taskId);
+    if(existing&&!sameTaskIdentity(existing,row))return;
+    const canonical=existing||structuredClone(row);
+    if(existing){for(const key of Object.keys(existing))delete existing[key];Object.assign(existing,structuredClone(row));}
+    for(const list of lists){const index=list.findIndex(item=>item.taskId===row.taskId);if(index<0)list.unshift(canonical);else list[index]=canonical;}
+  }
+  function refreshStoredTasks() {
+    try {
+      createdTasks = readCreatedTasks();
+      for (const row of createdTasks) {
+        const live = CloudCallData.tasks.find(item => item.taskId === row.taskId);
+        if (!live || row.status === '已删除' || Number(row._localTaskRevision || 0) > Number(live._localTaskRevision || 0)) publishStoredTask(row);
+        else {const list=row.callType==='预外呼'?CloudCallData.predictiveTasks:CloudCallData.ivrTasks;const index=list.findIndex(item=>item.taskId===row.taskId);if(index>=0)list[index]=live;}
+      }
+      return true;
+    } catch (error) { taskStorageIssue = error.message; return false; }
   }
 
   // Preserve old field IDs, but old automatic drafts must revisit the new first step.
@@ -48,6 +147,7 @@
 
   // Finish a interrupted local rollback before restoring saved tasks on refresh.
   recoverTaskCreation();
+  recoverDirectImport();
   const unfinishedCreation=readCreationJournal();
   createdTasks.filter(row=>unfinishedCreation?.committed||row.taskId!==unfinishedCreation?.taskId).forEach(row => {
     const target = row.callType === '预外呼' ? CloudCallData.predictiveTasks : CloudCallData.ivrTasks;
@@ -65,14 +165,47 @@
   function removeListedTask(id){for(const list of [CloudCallData.tasks,CloudCallData.predictiveTasks,CloudCallData.ivrTasks])for(let n=list.length-1;n>=0;n--)if(list[n].taskId===id)list.splice(n,1);}
   createdTasks.filter(r=>r.status==='已删除').forEach(r=>removeListedTask(r.taskId));
   recoverRepeatArrangement();
+  recoverDirectImport();
 
   function persist() { sessionStorage.setItem(storageKey, JSON.stringify(drafts)); }
-  function persistCreatedTask(row) {
-    const next=createdTasks.filter(item=>item.taskId!==row.taskId);
-    next.unshift(JSON.parse(JSON.stringify(row)));
-    sessionStorage.setItem(createdTasksKey, JSON.stringify(next));
-    createdTasks=next;
-    window.ScenarioDemo?.saveTask(row);
+  function persistCreatedTask(row, options = {}) {
+    const storage=taskStorage(),rows=readCreatedTasks(),current=rows.find(item=>item.taskId===row.taskId);
+    if(options.allowAborted&&current?.abortedCreation&&sameTaskIdentity(current,row))row._localTaskRevision=current._localTaskRevision||0;
+    if(options.restoreTransaction&&current?.status==='已删除'&&sameTaskIdentity(row,current)&&Number(row._localTaskRevision||0)===Number(current._localTaskRevision||0)){}else assertTaskVersion(row,current);
+    if(current&&sameTaskValue(current,row)){row._localTaskRevision=current._localTaskRevision||0;createdTasks=rows;return;}
+    const saved=structuredClone(row);saved._localTaskRevision=Number(current?._localTaskRevision||0)+1;
+    const next=rows.filter(item=>item.taskId!==saved.taskId);next.unshift(saved);
+    // Index failure is visible before publishing an independent task record.
+    storage.setItem(createdTasksKey,JSON.stringify(next));
+    let recordKey='';
+    try {
+      recordKey=recordTask(saved);
+      if(recordKey){
+        // Each tab appends a unique record. Recheck excluding our own candidate;
+        // a concurrent save never gets overwritten by a shared array write.
+        const competing=latestTaskRecords(recordKey).get(row.taskId);
+        if(competing&&(!current||!sameTaskValue(competing,current)||Number(competing._localTaskRevision||0)!==Number(current._localTaskRevision||0)))throw Error('任务已在其他页面更新，请刷新后重试');
+      }
+    }catch(error){
+      if(recordKey)try{storage.removeItem(recordKey);}catch(_){}
+      // Rebuild only the compatibility index from durable records and the old
+      // value of our task; concurrent changes to other tasks remain intact.
+      try{const restored=withTaskRecords(rows);storage.setItem(createdTasksKey,JSON.stringify(restored));mirrorTasks(restored);}catch(_){}
+      throw error;
+    }
+    row._localTaskRevision=saved._localTaskRevision;createdTasks=withTaskRecords(next);
+    try{storage.setItem(createdTasksKey,JSON.stringify(createdTasks));}catch(_){}mirrorTasks(createdTasks);
+    // Full independent rows keep recovery bounded: retain the current and prior
+    // revision, including deletion tombstones, after the new record is durable.
+    if(recordKey)for(const entry of taskRecords())if(entry.row.taskId===saved.taskId&&Number(entry.row._localTaskRevision||0)<saved._localTaskRevision-1)try{storage.removeItem(entry.key);}catch(_){}
+    try{window.ScenarioDemo?.saveTask(row);}catch(_){}
+  }
+  function restoreStoredTask(before, after, options = {}) {
+    const current = readCreatedTasks().find(row => row.taskId === (after?.taskId || before?.taskId));
+    if (!current || sameTaskValue(current,before)) return true;
+    if (!sameTaskValue(current,after)) return false;
+    const next = before ? {...structuredClone(before),_localTaskRevision:current._localTaskRevision} : {...current,status:'已删除',abortedCreation:true};
+    persistCreatedTask(next,{restoreTransaction:true}); publishStoredTask(next); return true;
   }
   function journalStorage(){return typeof localStorage==='undefined'?sessionStorage:localStorage;}
   function readCreationJournal(){try{const value=JSON.parse(journalStorage().getItem(creationJournalKey)||'null');return value===null||value.version===1?value:{invalid:true};}catch(_){return {invalid:true};}}
@@ -82,8 +215,11 @@
     // Only restore the rows touched by this creation. Concurrent unrelated edits stay intact.
     if(record.attachment?.changes?.length&&!CustomerTasks.rollbackTaskAttachment?.(record.attachment))return false;
     try{
-      const current=loadCreatedTasks().filter(row=>row.taskId!==record.taskId);
-      sessionStorage.setItem(createdTasksKey,JSON.stringify(current));createdTasks=current;
+      const current=readCreatedTasks().find(row=>row.taskId===record.taskId);
+      if(current && !current.abortedCreation){
+        if(record.taskAfter && !sameTaskValue(current,record.taskAfter))return false;
+        persistCreatedTask({...current,status:'已删除',abortedCreation:true});
+      }
       const saved=loadDrafts(),index=saved.findIndex(row=>row.draftId===record.draftBefore.draftId);
       if(index<0)saved.unshift(structuredClone(record.draftBefore));
       else if(saved[index].status==='已提交')saved[index]=structuredClone(record.draftBefore);
@@ -402,10 +538,9 @@
         }else if(Array.isArray(task[field]))task[field]=task[field].filter(item=>item.sourceBatchId!==batchId);
       }
       if(record.taskAfter&&task.updatedAt===record.taskAfter.updatedAt){if(Object.hasOwn(record.taskBefore,'updatedAt'))task.updatedAt=record.taskBefore.updatedAt;else delete task.updatedAt;}
-      const restored=stored.filter(row=>row.taskId!==record.taskId);
-      if(record.beforeStored||JSON.stringify(task)!==JSON.stringify(record.taskBefore))restored.unshift(task);
-      sessionStorage.setItem(createdTasksKey,JSON.stringify(restored));createdTasks=restored;
-      window.ScenarioDemo?.saveTask(task);
+      task._localTaskRevision=saved?._localTaskRevision||0;
+      if(!sameTaskValue(task,saved))persistCreatedTask(task);
+      else createdTasks=stored;
       for(const list of [CloudCallData.tasks,CloudCallData.predictiveTasks])for(const row of list)if(row.taskId===record.taskId&&row.tenantId===task.tenantId&&row.enterpriseId===task.enterpriseId){for(const key of Object.keys(row))delete row[key];Object.assign(row,structuredClone(task));}
       journalStorage().removeItem(repeatJournalKey);return true;
     }catch(_){return false;}
@@ -1340,10 +1475,10 @@
       const currentPools=AliCtiFields.validateCallerSettings(draft.values,{...callerPoolValidation(draft),requireNavigation:true});
       if(!currentPools.ok){showFormError({message:currentPools.message,target:currentPools.target});return;}
       if(!callerNavigationOptions(draft).some(item=>item.customerClidsGroup===row.customerClidsGroup)){showFormError({message:'所选外显导航已不在当前账号中，请重新选择。',target:'wizardCallerNavigation'});return;}
-      const transaction={version:1,taskId:row.taskId,draftBefore:before,attachment,committed:false};
+      const transaction={version:1,taskId:row.taskId,draftBefore:before,taskAfter:structuredClone(row),attachment,committed:false};
       journalStorage().setItem(creationJournalKey,JSON.stringify(transaction));
       if(!CustomerTasks.commitTaskAttachment(attachment))throw Error('客户保存失败');
-      persistCreatedTask(row);
+      persistCreatedTask(row,{allowAborted:true});
       draft.status='已提交';draft.savedAt=nowText();persist();
       journalStorage().setItem(creationJournalKey,JSON.stringify({...transaction,committed:true}));
     }catch(_){
@@ -1436,7 +1571,6 @@
     const prior=createdTasks;
     try{persistCreatedTask(next);}catch(_){
       createdTasks=prior;
-      try{sessionStorage.setItem(createdTasksKey,JSON.stringify(prior));}catch(__){}
       showFormError({message:'更新已模拟完成，但本地结果保存失败；请重新查询任务状态，原页面配置未改。'});return false;
     }
     for(const list of [CloudCallData.tasks,CloudCallData.predictiveTasks,CloudCallData.ivrTasks])
@@ -1465,21 +1599,62 @@
   }
 
   function syncAssignedCustomers() {
-    if(!recoverRepeatArrangement())return;
+    if(!recoverRepeatArrangement()||!recoverDirectImport()||!refreshStoredTasks())return false;
     for(const row of CloudCallData.tasks || []) {
       if(row.customerSourceMode!=='assigned' || !canAccessObject(row) || !['待分配客户','待启动'].includes(row.status))continue;
       const customers=CustomerTasks.taskExecutionCustomers?CustomerTasks.taskExecutionCustomers(row):CustomerTasks.taskCustomers(row);
       if(!customers)continue;
-      const total=customers.length;
-      row.total=total; row.status=total?'待启动':'待分配客户';
-      syncImportDrafts(row,customers);
-      persistCreatedTask(row);
+      const total=customers.length,next=structuredClone(row);
+      next.total=total; next.status=total?'待启动':'待分配客户';
+      syncImportDrafts(next,customers);
+      try { persistCreatedTask(next); Object.assign(row,next); }
+      catch(error) { showToast(error.message||'任务资料尚未保存，请保留当前页面并重试','error'); return false; }
     }
     window.AgentWorkbench?.syncReceivingProgress?.();
   }
 
+  function recoverDirectImport() {
+    let record;
+    try { record=JSON.parse(journalStorage().getItem(importJournalKey)||'null'); } catch (_) { return false; }
+    if(!record)return true;
+    if(record.version!==1||!record.batch||!record.before||!record.after||!sameTaskIdentity(record.before,record.after))return false;
+    if(record.committed){try{journalStorage().removeItem(importJournalKey);return true;}catch(_){return false;}}
+    // Another live tab may still be between its synchronous writes. Do not
+    // compensate its work until it reports failure or its short lease expires.
+    if(record.owner && record.owner!==importOwner && !record.failed && Date.now()-Number(record.startedAt||0)<30000)return false;
+    if(!CustomerTasks.rollbackImportBatch?.(record.batch))return false;
+    try {
+      if(!restoreStoredTask(record.before,record.after))return false;
+      journalStorage().removeItem(importJournalKey);return true;
+    } catch (_) { return false; }
+  }
+  function commitDirectImport(task,batch) {
+    if(!recoverDirectImport())return {ok:false,message:'上次导入尚未恢复，填写内容已保留，请检查存储后重试'};
+    if(!CustomerTasks.canImportToTask(task)||!sameTaskIdentity(task,{...task,tenantId:batch.tenantId,enterpriseId:batch.enterpriseId}))return {ok:false,message:'任务状态已变化，请刷新后重新检查名单'};
+    const before=structuredClone(task),next=structuredClone(task);
+    next.total=batch.rows.length;next.status=next.total?'待启动':'待分配客户';
+    syncImportDrafts(next,batch.rows.map(row=>({...row,batchId:batch.id,batchName:batch.name,tenantId:batch.tenantId,enterpriseId:batch.enterpriseId})));
+    const issues=(next.alictiImportDrafts||[]).flatMap(request=>request.pending||[]);
+    if(issues.length)return {ok:false,message:[...new Set(issues)].join('；')};
+    const record={version:1,owner:importOwner,startedAt:Date.now(),batch:structuredClone(batch),before,after:structuredClone(next),committed:false};
+    try {
+      const stored=readCreatedTasks().find(row=>row.taskId===task.taskId);assertTaskVersion(task,stored);
+      journalStorage().setItem(importJournalKey,JSON.stringify(record));
+      if(!CustomerTasks.commitImportBatch(batch))throw Error('客户名单未保存');
+      persistCreatedTask(next);
+      journalStorage().setItem(importJournalKey,JSON.stringify({...record,committed:true}));
+    } catch (error) {
+      try { const pending=JSON.parse(journalStorage().getItem(importJournalKey)||'null');if(pending?.owner===importOwner)journalStorage().setItem(importJournalKey,JSON.stringify({...pending,failed:true})); } catch (_) {}
+      const recovered=recoverDirectImport();
+      return {ok:false,message:recovered?'导入未完成，名单和任务未改变；填写内容已保留，请重试':'导入尚未完整保存，已保留恢复记录和填写内容，请检查存储后重试'};
+    }
+    Object.assign(task,next);publishStoredTask(next);
+    try{journalStorage().removeItem(importJournalKey);}catch(_){}
+    return {ok:true};
+  }
+
   function taskById(taskId) {
-    if(!recoverRepeatArrangement())return null;
+    if(!recoverRepeatArrangement()||!recoverDirectImport()||!refreshStoredTasks())return null;
     syncAssignedCustomers();
     return (CloudCallData.tasks || []).find(item => item.taskId === taskId)
       || (CloudCallData.predictiveTasks || []).find(item => item.taskId === taskId)
@@ -1578,6 +1753,26 @@
 
   function taskCalls(row) { return (CloudCallData.calls || []).filter(item => item.taskId === row.taskId && item.tenantId === row.tenantId && item.enterpriseId === row.enterpriseId && AppState.authorizeObject('', item)); }
   function percent(row) { return row.total ? Math.round(Number(row.completed || 0) / Number(row.total) * 100) : 0; }
+  function syncedTaskFacts(row) {
+    const calls=window.CloudCallRecords?(CloudCallData.calls||[]).filter(call=>AppState.authorizeObject('',call)&&CloudCallRecords.relatedTask(call)?.taskId===row.taskId):taskCalls(row);
+    const states=calls.map(call=>({call,sync:window.CloudCallSync?.read(call)||{status:CallState.view(call).ended?'synced':'live',updatedAt:''}}));
+    const synced=states.filter(item=>item.sync.status==='synced').map(item=>item.call);
+    const summary=window.CloudCallSync?.summary(calls)||{total:calls.length,synced:synced.length,pending:0,errors:0,updatedAt:''};
+    return {calls,synced,summary,live:states.filter(item=>item.sync.status==='live').length,
+      answered:synced.filter(call=>CallState.view(call).answered===true).length,
+      unanswered:synced.filter(call=>CallState.view(call).answered===false).length,
+      unknown:synced.filter(call=>!CallState.view(call).known).length};
+  }
+  function taskSyncNote(facts) {
+    const summary=facts.summary;
+    return '<div class="call-sync-notice" data-task-sync-summary role="status" aria-live="polite" aria-atomic="true"><span>通话结果按已同步资料统计（含已有话单），完成进度仍按任务名单计算。</span><br><span>已同步 '+summary.synced+' / 当前记录 '+summary.total+' · 同步中 '+summary.pending+' · 待核对或同步异常 '+summary.errors+(facts.live?' · 通话中 '+facts.live:'')+'</span><span class="call-sync-time">最近同步：'+esc(summary.updatedAt||'尚无本轮同步时间')+'</span></div>';
+  }
+  function taskSyncOverview(facts) {
+    return '<div><span>客户已接通</span><strong>'+facts.answered+'</strong></div><div><span>已同步话单</span><strong>'+facts.synced.length+'</strong></div><div><span>接通结果未知</span><strong>'+facts.unknown+'</strong></div>';
+  }
+  function taskSyncResults(facts) {
+    return ui.kpi('已同步话单',facts.synced.length,'含已有话单资料')+ui.kpi('客户已接通',facts.answered,'仅统计已同步资料')+ui.kpi('客户未接通',facts.unanswered,'仅统计明确未接通')+ui.kpi('接通结果未知',facts.unknown,'已同步但缺少明确接听结果');
+  }
 
   function centerActions(row) {
     const buttons = [];
@@ -1613,11 +1808,11 @@
   }
 
   function centerOverview(row) {
-    const calls=taskCalls(row),answered=calls.filter(item=>CallState.view(item).answered===true).length,unknown=calls.filter(item=>!CallState.view(item).known).length;
+    const facts=syncedTaskFacts(row);
     const availabilityDemo=row.callType==='预外呼'&&row.simulation===true&&row.localPrototypeTask===true&&
       ['执行中','已暂停'].includes(row.status)&&canAccessObject(row)?
       `<details class="technical-details"><summary>演示座席人数变化</summary><p>仅模拟供应商按可用座席数自动暂停或恢复任务，不更改实际坐席状态。</p><label>观察到的可用座席数 <input id="task-available-seats" type="number" min="0" step="1" value="${esc(row.availabilityPause?.availableAgentCount??row.minAvailableAgentCount??10)}"></label><button type="button" class="btn" onclick="CloudTaskWorkspace.simulateAvailability('${esc(row.taskId)}')">应用演示人数</button></details>`:'';
-    return `${centerContinue(row)}<div class="task-center-grid"><article class="panel-card span-12"><div class="panel-header"><h2>运行概览</h2>${ui.help('完成进度按本任务呼叫名单条数统计，通话结果按已取得的通话记录统计；再次联系安排单独计入名单。','运行概览统计口径')}</div><div class="panel-body"><div class="task-progress-hero"><div><span>完成进度</span><strong>${percent(row)}%</strong><small>${row.completed||0} / ${row.total||0}</small></div><div class="progress-track"><i style="width:${percent(row)}%"></i></div><div class="task-stat-strip"><div><span>已接通</span><strong>${answered}</strong></div><div><span>通话记录</span><strong>${calls.length}</strong></div><div><span>结果待确认</span><strong>${unknown}</strong></div></div></div>${availabilityDemo}</article></div>`;
+    return `${centerContinue(row)}<div class="task-center-grid"><article class="panel-card span-12"><div class="panel-header"><h2>运行概览</h2>${ui.help('完成进度按本任务呼叫名单条数统计，通话结果仅按已同步资料统计；再次联系安排单独计入名单。同步中、异常或未知结果不计为未接通。','运行概览统计口径')}</div><div class="panel-body"><div class="task-progress-hero"><div><span>完成进度</span><strong>${percent(row)}%</strong><small>${row.completed||0} / ${row.total||0}</small></div><div class="progress-track"><i style="width:${percent(row)}%"></i></div><div class="task-stat-strip" data-task-sync-overview>${taskSyncOverview(facts)}</div></div>${taskSyncNote(facts)}${availabilityDemo}</div></article></div>`;
   }
   function simulateAvailability(taskId){
     const row=taskById(taskId),value=document.getElementById('task-available-seats')?.value;
@@ -1708,7 +1903,7 @@
     const rows = [{ title: '名单接收并校验', time: row.createdAt || row.scheduleAt || '历史记录', detail: `${row.listSource} · ${row.total} 条` }];
     if (row.planSnapshotId) rows.push({ title: '任务设置已确认', time: row.startedAt || row.scheduleAt, detail: '按本任务保存的设置执行' });
     if (row.campaignId) rows.push({ title: '执行任务已开始', time: row.startedAt || row.scheduleAt, detail: row.callType });
-    if (row.status === '执行中') rows.push({ title: row.alictiTaskControlPending?'任务状态待核对（最后已知为执行中）':'任务执行中', time: '当前', detail: `${row.completed}/${row.total} 已完成；已加载通话 ${taskCalls(row).filter(call => CallState.view(call).answered === true).length} 次接通，${taskCalls(row).filter(call => !CallState.view(call).known).length} 次待确认` });
+    if (row.status === '执行中') {const facts=syncedTaskFacts(row);rows.push({ title: row.alictiTaskControlPending?'任务状态待核对（最后已知为执行中）':'任务执行中', time: '当前', detail: `${row.completed}/${row.total} 已完成；已同步资料中 ${facts.answered} 次接通，${facts.unknown} 次接通结果未知；${facts.summary.pending} 条同步中` });}
     if (row.status === '已暂停') rows.push({ title: row.alictiTaskControlPending?'暂停状态待核对':'任务已暂停', time: row.updatedAt || '当前', detail: '继续前重新核对暂停状态；结束后不重新开启' });
     if (row.status === '已完成') rows.push({ title: '任务已完成', time: row.updatedAt || row.scheduleAt, detail: `${row.completed}/${row.total} 已完成` });
     if (row.status === '已终止') rows.push({ title: '任务已终止', time: row.updatedAt || '当前', detail: '不再发起新呼叫或重呼；保留已产生的通话与结果' });
@@ -1720,26 +1915,50 @@
   }
 
   function centerCalls(row) {
-    const source = window.CloudCallRecords ? (CloudCallData.calls||[]).filter(call=>AppState.authorizeObject('',call)&&CloudCallRecords.relatedTask(call)?.taskId===row.taskId) : taskCalls(row);
+    const facts=syncedTaskFacts(row),source=facts.calls;
     const detail=call=>window.CloudCallRecords?.display(call);
     const calls=ui.sortByUpdated?.(source,call=>{const data=detail(call);return data?[data.endAt,data.startAt]:[call.endedAt,call.ringingAt,call.recordedAt];})||source;
     const columns = [
-      {key:'callId',label:'通话编号',render:value=>`<button class="table-link" onclick="window.Pages['cloud-call-records'].openCall('${value}')"><strong>${esc(value)}</strong></button>`},
+      {key:'callId',label:'通话编号',render:value=>`<button class="table-link" data-task-call-id="${esc(value)}" onclick="window.Pages['cloud-call-records'].openCall('${value}')"><strong>${esc(value)}</strong></button>`},
       {key:'callee',label:'客户号码',render:(_,item)=>esc(detail(item)?.customerNumber||item.callee||'未记录')},
       {key:'agentName',label:'坐席 / 工号',render:(_,item)=>esc(detail(item)?.agentText||item.agentName||'未记录')},
       {key:'answeredAt',label:'客户接通时间',render:(_,item)=>{const data=detail(item),at=data?data.customerAt:CallState.view(item).customerEstablishedAt;return esc(at?new Date(at).toLocaleString('sv-SE'):'未记录');}},
       {key:'durationSeconds',label:row.callType==='IVR 外呼'?'客户接听时长':'双方通话时长',render:(_,item)=>window.CloudCallRecords?CloudCallRecords.formatDuration(detail(item).durationSeconds):item.durationSeconds==null?'未记录':esc(item.durationSeconds)},
       {key:'result',label:'客户接通结果',render:(_,item)=>ui.status(detail(item)?.resultLabel||CallState.view(item).answerLabel)},
       {key:'result',label:'号码状态',render:(_,item)=>esc(detail(item)?.state.numberStatus.label||CallState.view(item).reasonLabel)},
+      {key:'dataSync',label:'资料同步',render:(_,item)=>{const sync=window.CloudCallSync?.read(item);return '<div class="call-sync-list-cell"><span>'+esc(sync?.label||'未记录')+'</span><span class="call-sync-time">'+esc(sync?.updatedAt||'尚无同步时间')+'</span></div>';}},
       {key:'recordingStatus',label:'录音',render:(_,item)=>ui.status(CloudCallMedia.resolve(item).status)},
     ];
-    return `<article class="panel-card"><div class="panel-header"><div><h2>任务通话记录</h2></div><div><span>${calls.length} 条</span><button class="btn-link" onclick="CloudCallRecords.openFromTask('${row.taskId}','calls','records')">在通话记录中查看</button></div></div><div class="panel-body no-padding">${ui.table(columns,calls,{emptyText:'当前任务尚未产生通话，启动执行后在这里查看'})}</div></article>`;
+    return `<article class="panel-card"><div class="panel-header"><div><h2>任务通话记录</h2></div><div><span data-task-sync-total>${calls.length} 条</span><button class="btn-link" onclick="CloudCallRecords.openFromTask('${row.taskId}','calls','records')">在通话记录中查看</button></div></div><div class="panel-body no-padding">${taskSyncNote(facts)}<div data-task-sync-calls>${ui.table(columns,calls,{emptyText:'当前任务尚未产生通话，启动执行后在这里查看'})}</div></div></article>`;
   }
 
   function centerResults(row) {
-    const calls=taskCalls(row),known=calls.filter(call=>CallState.view(call).known),pending=calls.filter(call=>!CallState.view(call).known);
-    return `<div class="task-center-grid"><article class="panel-card span-12"><div class="panel-header"><h2>通话结果</h2><button class="btn-link" onclick="CloudCallRecords.openFromTask('${row.taskId}','results','records')">查看通话明细</button></div><div class="panel-body"><div class="kpi-grid">${ui.kpi('通话记录',calls.length,'')}${ui.kpi('已确认结果',known.length,'已确认接通或未接通')}${ui.kpi('结果待确认',pending.length,'尚未取得明确接听结果')}</div></div></article></div>`;
+    const facts=syncedTaskFacts(row);
+    return `<div class="task-center-grid"><article class="panel-card span-12"><div class="panel-header"><h2>通话结果</h2><button class="btn-link" onclick="CloudCallRecords.openFromTask('${row.taskId}','results','records')">查看通话明细</button></div><div class="panel-body"><div class="kpi-grid" data-task-sync-results>${taskSyncResults(facts)}</div>${taskSyncNote(facts)}</div></article></div>`;
   }
+
+  window.addEventListener('call-data-sync',event=>{
+    const changed=event.detail||{},host=document.querySelector('.cloud-task-center[data-task-sync-id]');
+    if(!host)return;
+    const row=taskById(host.dataset.taskSyncId),call=(CloudCallData.calls||[]).find(item=>item.callId===changed.callId);
+    if(!row||!call||!canAccessObject(row)||!AppState.authorizeObject('',call)||call.tenantId!==changed.tenantId||String(call.enterpriseId)!==String(changed.enterpriseId)||row.tenantId!==call.tenantId||String(row.enterpriseId)!==String(call.enterpriseId))return;
+    const facts=syncedTaskFacts(row);
+    if(!facts.calls.some(item=>item.callId===call.callId))return;
+    const overview=host.querySelector('[data-task-sync-overview]'),results=host.querySelector('[data-task-sync-results]');
+    if(overview)overview.innerHTML=taskSyncOverview(facts);
+    if(results)results.innerHTML=taskSyncResults(facts);
+    const summary=host.querySelector('[data-task-sync-summary]');
+    if(summary){const template=document.createElement('template');template.innerHTML=taskSyncNote(facts);summary.innerHTML=template.content.firstElementChild.innerHTML;}
+    const list=host.querySelector('[data-task-sync-calls]');
+    if(list){
+      const template=document.createElement('template');template.innerHTML=centerCalls(row);
+      const findRow=root=>Array.from(root.querySelectorAll('[data-task-call-id]')).find(button=>button.dataset.taskCallId===call.callId)?.closest('tr');
+      const oldRow=findRow(list),nextRow=findRow(template.content);
+      // Keep the existing call link, table position and any modal return-focus target.
+      if(oldRow&&nextRow)Array.from(oldRow.cells).forEach((cell,index)=>{if(!cell.querySelector('button')&&nextRow.cells[index])cell.innerHTML=nextRow.cells[index].innerHTML;});
+      const total=host.querySelector('[data-task-sync-total]');if(total)total.textContent=facts.calls.length+' 条';
+    }
+  });
 
   function centerBody(row, tab) {
     if (tab === 'customers') return centerCustomers(row);
@@ -1764,7 +1983,7 @@
       records: `CloudCallRecords.openFromTask('${row.taskId}','${context.tab}','records')`,
       results: `CloudTaskWorkspace.setTaskTab('results')`
     };
-    return `<section class="platform-page cloud-task-center">
+    return `<section class="platform-page cloud-task-center" data-task-sync-id="${esc(row.taskId)}">
       ${ui.pageHeader(`${typeLabel(row.callType)}任务详情`, `${esc(tenant(row.tenantId).name || '当前租户')} · 负责人 ${esc(row.owner || '—')}`, `<button class="btn" onclick="RouteRuntime.back({fallback:'${routeForType(row.callType)}'})">返回</button>${centerActions(row)}`)}
       ${ui.journey({ current: currentJourneyStage, context: `${row.name} · ${row.alictiTaskControlPending?'状态待核对':row.status}`, branch: '当前任务范围', actions: journeyActions })}
       <div class="task-center-hero"><div><span>任务名称</span><h2>${esc(row.name)}</h2></div><div><span>任务状态</span>${ui.status(row.alictiTaskControlPending?'待确认':row.status)}${row.alictiTaskControlPending?`<strong>状态待核对</strong><small>最后已知：${esc(row.status)}</small>`:''}${row.stopNewDialing?'<small>已停止发起新呼叫</small>':''}</div><div><span>执行时间</span><strong>${esc(row.scheduleAt || '—')}</strong><small>${row.startedAt ? `实际启动 ${esc(row.startedAt)}` : '实际启动后记录'}</small></div><div><span>当前进度</span><strong>${percent(row)}%</strong><small>${row.completed || 0} / ${row.total || 0}</small></div></div>
@@ -1843,7 +2062,18 @@
     const repeat=!!(row.repeatContact||row.repeatPredictive);
     if(!confirmed)return ui.confirm({id:'task-delete',title:repeat?'撤销本次安排':'删除任务',danger:true,body:'<p>确认'+(repeat?'撤销':'删除')+'“'+esc(isDraft?row.values.name||'未命名任务':row.name)+'”？'+(repeat?'本次再次联系安排将撤销，原客户与通话历史保留。':'此操作不可恢复。客户本身不会删除；正式关联的客户将返回待分配，草稿预选不占用客户。')+'</p>',confirmText:repeat?'确认撤销':'确认删除',onConfirm(){deleteTask(id,true);}});
     if(isDraft){drafts=drafts.filter(d=>d!==draft);persist();}
-    else {if(!CustomerTasks.releaseUnstartedTask(row))return showToast('客户已有通话或释放失败，未删除任务','warning');row.status='已删除';row.deletedAt=nowText();persistCreatedTask(row);removeListedTask(row.taskId);}
+    else {
+      const before=structuredClone(row),deleted={...structuredClone(row),status:'已删除',deletedAt:nowText()};
+      try {
+        persistCreatedTask(deleted);
+        if(!CustomerTasks.releaseUnstartedTask(row)){
+          // Only this deletion's revision may be undone; a later task change wins.
+          if(!restoreStoredTask(before,deleted))return showToast('任务删除尚未恢复，请保留浏览器数据后重试','error');
+          return showToast('客户已有通话或释放失败，未删除任务','warning');
+        }
+      }catch(error){return showToast(error.message||'任务删除未保存，客户未改动，请重试','error');}
+      removeListedTask(row.taskId);
+    }
     CloudCallRuntime.addAudit?.('删除未启动任务',row.taskId||row.draftId,row.tenantId,'未启动','已删除');clearActiveContext();showToast(repeat?'本次再次联系安排已撤销，原客户与通话历史保留':'任务已删除，客户保留并返回待分配','success');ui.closeLayer('task-delete');if(['cloud-task-center','cloud-task-create'].includes(RouteRuntime.snapshot()?.key))RouteRuntime.back({fallback:routeForType(row.callType||row.type),refresh:true});else navigateTo(routeForType(row.callType||row.type));
   }
 
@@ -1887,6 +2117,8 @@
     openWizard(copied);
   }
 
+  window.addEventListener('storage', event => { if(event.key === createdTasksKey||event.key?.startsWith(taskRecordPrefix))refreshStoredTasks(); });
+
   window.addEventListener('app:save-draft', function (event) { if (activeDraft()&&!saveDraft(true)) event.preventDefault(); });
   window.addEventListener('wizard:configuration-complete', function (event) {
     const draft = activeDraft();
@@ -1895,6 +2127,7 @@
   });
 
   window.CloudTaskWorkspace = { addCallerPool,updateCallerPool,removeCallerPool,setCallerNavigation,renderTaskSettings:centerResources, refreshIvrList,deleteTask,canDeleteTask,canEditTask,editTask,centerActions,setCustomerMode,filterCustomers,toggleCustomer,clearCustomers,selectFilteredCustomers,start,startRepeatPredictive, render, update, updatePriority, setTimeMode, toggleTimeCondition, changeRetryCount, adjustRetryCount, changeRetryInterval, setRetryLayout, resetRetry, setRetryMode, setRetryTimeType, toggleRetryCode, addRetryRound, removeRetryRound, updateRetryRound, setTenant, selectPlan, setResource, toggleAgent, toggleAllAgents, saveDraft, next, previous, goStep, goConfigure, submit, cancel, listDraftTasks, openTask, renderCenter, setTaskTab, controlTask, simulateAvailability, copyTask, clearActiveContext, pauseForNumber, syncAssignedCustomers,
+    commitDirectImport,recoverDirectImport,refreshStoredTasks,storedTasks:readCreatedTasks,taskStorageStatus:()=>taskStorageIssue,
     isLocalSimulationTask(row){return !!row&&row.localPrototypeTask===true&&row.simulation===true&&row.customerSourceMode==='assigned'&&!row.displayOnly&&createdTasks.some(t=>t.taskId===row.taskId&&t.localPrototypeTask===true&&t.tenantId===row.tenantId&&t.enterpriseId===row.enterpriseId&&t.callType===row.callType);},
     saveDemoTask(row,{confirmedInitialStart=false}={}){
       if(!canAccessObject(row)||!row.simulation)return false;

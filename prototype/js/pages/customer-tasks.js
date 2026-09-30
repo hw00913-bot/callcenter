@@ -160,9 +160,51 @@
     const task=importTaskContext?CloudCallData.tasks.find(t=>t.taskId===importTaskContext.taskId):null;
     if(importTaskContext&&(!canImportToTask(task)||task.tenantId!==importTaskContext.tenantId||task.enterpriseId!==importTaskContext.enterpriseId||ctx().accountId!==importTaskContext.accountId||ctx().tenantId!==importTaskContext.scopeTenantId))return showToast('任务状态或工作范围已改变，请重新打开导入','warning');
     load();const b={id:id(),name:preview.name,businessType:preview.businessType,tenantId:preview.tenantId,enterpriseId:preview.enterpriseId,createdAt:now(),createdBy:ctx().accountId,errors:preview.errors,rows:preview.good.map(c=>({...c,id:id(),ownerId:'',method:'',followup:'待联系',calls:[],history:[]}))};if(task)b.rows.forEach(r=>{r.method=task.callType;r.taskId=task.taskId;r.taskName=task.name;r.history.push({at:now(),action:'从任务导入并分配',method:task.callType,targetId:task.taskId});});
-    batches.unshift(b);if(!commit())return;window.CustomerDirectory?.sync();preview=null;importTaskContext=null;ui.closeLayer('customer-import');
-    if(task){window.CloudTaskWorkspace.syncAssignedCustomers();window.CloudTaskWorkspace.openTask(task.taskId,'customers');showToast('已导入 '+b.rows.length+' 位客户并加入当前任务，任务待启动','success');}
+    if(task){const saved=window.CloudTaskWorkspace.commitDirectImport(task,b);if(!saved.ok)return showToast(saved.message,'error');}
+    else if(!commitImportBatch(b))return showToast('导入未保存，填写内容已保留，请检查存储后重试','error');
+    window.CustomerDirectory?.sync();preview=null;importTaskContext=null;ui.closeLayer('customer-import');
+    if(task){window.CloudTaskWorkspace.openTask(task.taskId,'customers');showToast('已导入 '+b.rows.length+' 位客户并加入当前任务，任务待启动','success');}
     else {open(b.id);showToast('已导入 '+b.rows.length+' 位客户','success');}
+  }
+  // Import transactions change only their own batch, never a cached full list.
+  function commitImportBatch(batch) {
+    if(!valid()||!manager()||!batch?.id||!AppState.authorizeObject('',batch))return false;
+    try {
+      const raw=localStorage.getItem(key),current=JSON.parse(raw||'[]');if(!Array.isArray(current))return false;
+      const existing=current.find(row=>row.id===batch.id);
+      if(existing)return JSON.stringify(existing)===JSON.stringify(batch);
+      if(localStorage.getItem(key)!==raw)return false;
+      const next=[structuredClone(batch),...current];localStorage.setItem(key,JSON.stringify(next));batches=next;return true;
+    }catch(_){return false;}
+  }
+  function rollbackImportBatch(batch) {
+    if(!batch?.id)return false;
+    try {
+      const raw=localStorage.getItem(key),current=JSON.parse(raw||'[]');if(!Array.isArray(current))return false;
+      const existing=current.find(row=>row.id===batch.id);if(!existing)return true;
+      if(JSON.stringify(existing)!==JSON.stringify(batch)||localStorage.getItem(key)!==raw)return false;
+      const next=current.filter(row=>row.id!==batch.id);localStorage.setItem(key,JSON.stringify(next));batches=next;return true;
+    }catch(_){return false;}
+  }
+  function missingTaskRecoverable(r,b) {
+    if(!valid()||!manager()||!r?.taskId||r.activeCallId||r.calls?.length||r.followup==='已完成')return false;
+    const directoryStatus=window.CustomerDirectory?.status?.();
+    if(directoryStatus?.storageIssue||directoryStatus?.conflictingCallIds?.length)return false;
+    try {
+      if(window.CloudTaskWorkspace?.taskStorageStatus?.())return false;
+      const stored=window.CloudTaskWorkspace?.storedTasks?.()||[];
+      if([...CloudCallData.tasks,...stored].some(task=>task.taskId===r.taskId&&task.tenantId===b.tenantId&&task.enterpriseId===b.enterpriseId&&task.status!=='已删除'))return false;
+      return !(CloudCallData.calls||[]).some(call=>call.tenantId===b.tenantId&&call.enterpriseId===b.enterpriseId&&(call.customerTaskItemId===r.id||call.taskId===r.taskId));
+    }catch(_){return false;}
+  }
+  function recoverMissingTask(itemId,confirmed=false) {
+    window.CustomerDirectory?.sync();window.CloudTaskWorkspace?.refreshStoredTasks?.();
+    const item=row(itemId);if(!item||!missingTaskRecoverable(item.r,item.b))return showToast('任务或客户状态已变化，无法恢复分配，请刷新后核对','warning');
+    if(!confirmed)return ui.confirm({id:'customer-recover-task',title:'恢复到待分配',body:'<p>当前浏览器未找到原任务“'+esc(item.r.taskName||item.r.taskId)+'”，该客户尚无通话或处理中记录。确认解除旧任务关联，将客户恢复为待分配？原任务编号会保留在分配历史中。</p>',confirmText:'恢复待分配',onConfirm(){recoverMissingTask(itemId,true);}});
+    const r=item.r;r.history=r.history||[];r.history.push({at:now(),action:'原任务记录缺失，手动恢复待分配',previousTask:r.taskId,previousTaskName:r.taskName||''});
+    r.taskId='';r.taskName='';r.method='';r.ownerId='';r.updatedAt=now();
+    if(!commit())return false;
+    ui.closeLayer('customer-recover-task');open(item.b.id);showToast('客户已恢复待分配，原任务编号保留在分配历史中','success');return true;
   }
   function assign(itemIds,method,ownerId){
     if(!valid()||!manager()||!methods.includes(method))return false;load();const b=find(selectedBatch);if(!b)return false;
@@ -210,7 +252,7 @@
     const showAssignment=!manager()||assignmentView!=='pending'||rs.some(r=>r.method||assigned(r));
     return '<section class="platform-page customer-task-page">'+ui.pageHeader(b.name,CustomerBusiness.typeLabel(b)+' · '+summary(rows(b)),'<button class="btn" onclick="RouteRuntime.openSecondary(\'customer-directory\')">客户档案</button> <button class="btn" onclick="RouteRuntime.back({fallback:\'customer-tasks\'})">返回</button>')+(manager()?'<div class="customer-status-tabs" role="group" aria-label="客户分配状态">'+[['pending','待分配'],['assigned','已分配'],['all','全部客户']].map(([v,label])=>'<button class="btn '+(assignmentView===v?'btn-primary':'')+'" aria-pressed="'+(assignmentView===v)+'" onclick="CustomerTasks.setAssignmentView(\''+v+'\')">'+label+' · '+rows(b).filter(r=>v==='all'||(v==='assigned'?assigned(r):!assigned(r))).length+'</button>').join('')+'</div>':'')+'<div class="filter-panel"><label class="field">客户<input id="customer-search" value="'+esc(keyword)+'" placeholder="称呼、号码或单据标识"></label><label class="field">跟进状态<select id="customer-status"><option value="">全部</option>'+['待联系','待继续跟进','已完成'].map(s=>'<option'+(s===status?' selected':'')+'>'+s+'</option>').join('')+'</select></label><button class="btn btn-primary" onclick="CustomerTasks.query()">查询</button><button class="btn" onclick="CustomerTasks.reset()">重置</button></div><article class="panel-card"><div class="panel-header"><h2>客户名单</h2></div>'+(manager()&&assignmentView!=='assigned'?'<div class="customer-assignment-toolbar"><button class="btn btn-primary" onclick="CustomerTasks.assignSelected()">分配客户</button><span id="customer-selected-count" class="customer-selected-count" aria-live="polite">已选择 0 位</span><button id="customer-clear-selection" class="btn-link" disabled onclick="CustomerTasks.selectAll(false)">取消选择</button></div>':'')+ui.table([
       ...(manager()&&assignmentView!=='assigned'?[{key:'id',label:'选择',width:'70px',headerRender:()=>'<label class="customer-select-label"><input id="customer-select-all" type="checkbox" aria-label="全选当前筛选下可分配客户" onchange="CustomerTasks.selectAll(this.checked)"'+(!rs.some(r=>!assigned(r)&&reassignable(r,b))?' disabled':'')+'> 全选</label>',render:(_,r)=>'<input type="checkbox" name="customer-row" onchange="CustomerTasks.updateSelection()" value="'+r.id+'" aria-label="选择'+esc(r.name)+'"'+(assigned(r)||!reassignable(r,b)?' disabled':'')+'>'}]:[]),
-      {key:'name',label:'客户称呼'},{key:'phone',label:'客户号码'},{key:'externalDocumentId',label:CustomerBusiness.codeLabel(b),render:v=>esc(v||'—')},...(showAssignment?[{key:'method',label:'外呼方式',render:m=>esc(ui.callTypeLabel(m)||'待分配')},{key:'ownerId',label:'分配对象',render:(v,r)=>esc(r.taskId?(r.taskName||r.taskId):(CloudCallData.accounts.find(a=>a.accountId===v)?.name||'待分配'))}]:[]),{key:'id',label:'本批次最近通话',render:(_,r)=>esc(callResult(r))},{key:'id',label:'跟进状态',render:(_,r)=>esc(outcome(r))},{key:'id',label:'操作',render:(_,r)=>'<button class="btn-link" onclick="CustomerTasks.history(\''+r.id+'\')">客户档案</button>'+(manager()&&assigned(r)&&reassignable(r,b)?' <button class="btn-link" onclick="CustomerTasks.assignSelected(\''+r.id+'\')">重新分配</button>':'')+(canCall(r)?' <button class="btn-link" onclick="CustomerTasks.pick(\''+r.id+'\')">联系客户</button>':'')+(r.method&&r.method!=='人工外呼'&&!r.taskId?'<span> 需重新分配任务</span>':'')}
+      {key:'name',label:'客户称呼'},{key:'phone',label:'客户号码'},{key:'externalDocumentId',label:CustomerBusiness.codeLabel(b),render:v=>esc(v||'—')},...(showAssignment?[{key:'method',label:'外呼方式',render:m=>esc(ui.callTypeLabel(m)||'待分配')},{key:'ownerId',label:'分配对象',render:(v,r)=>esc(r.taskId?(r.taskName||r.taskId):(CloudCallData.accounts.find(a=>a.accountId===v)?.name||'待分配'))}]:[]),{key:'id',label:'本批次最近通话',render:(_,r)=>esc(callResult(r))},{key:'id',label:'跟进状态',render:(_,r)=>esc(outcome(r))},{key:'id',label:'操作',render:(_,r)=>'<button class="btn-link" onclick="CustomerTasks.history(\''+r.id+'\')">客户档案</button>'+(manager()&&assigned(r)&&reassignable(r,b)?' <button class="btn-link" onclick="CustomerTasks.assignSelected(\''+r.id+'\')">重新分配</button>':'')+(missingTaskRecoverable(r,b)?' <button class="btn-link" onclick="CustomerTasks.recoverMissingTask(\''+r.id+'\')">原任务缺失 · 恢复待分配</button>':'')+(canCall(r)?' <button class="btn-link" onclick="CustomerTasks.pick(\''+r.id+'\')">联系客户</button>':'')+(r.method&&r.method!=='人工外呼'&&!r.taskId?'<span> 需重新分配任务</span>':'')}
     ],rs,{emptyText:manager()&&assignmentView==='pending'?'暂无待分配客户；可切换已分配查看跟进进度':'暂无符合条件的客户'})+'</article>'+(manager()&&b.errors?.length?'<details class="technical-details"><summary>导入未通过记录 · '+b.errors.length+' 行</summary>'+ui.table([{key:'line',label:'行'},{key:'phone',label:'号码'},{key:'reason',label:'原因'}],b.errors)+'</details>':'')+'</section>';
   }
   function canCall(r){return valid()&&r.ownerId===ctx().accountId&&r.method==='人工外呼'&&r.followup!=='已完成'&&!r.activeCallId;}
@@ -266,7 +308,7 @@
   window.CustomerTasks={canImportToTask,render,open,owners,prepare,importDialog,readFile,previewImport,confirmImport,assign,assignSelected,canCall,mine,pick,row,claim,syncCall,history,sidebar,query(){businessFilter=document.getElementById('customer-business-filter')?.value||'';keyword=document.getElementById('customer-search')?.value.trim()||'';status=document.getElementById('customer-status')?.value||'';navigateTo('customer-tasks',{batchId:selectedBatch});},reset(){keyword='';status='';businessFilter='';navigateTo('customer-tasks',{batchId:selectedBatch});}};
   Object.assign(window.CustomerTasks,{selectAll,updateSelection,releaseUnstartedTask,pendingForTask,validateTaskSelection,attachToNewTask,candidateDetails,setAssignmentView,candidates,fillSample,invalidatePreview,importTypeChanged,assignmentTarget,confirmAssignment,taskOptions,taskCustomers,acceptTaskDemoResult});
   Object.assign(window.CustomerTasks,{reportSnapshot,receivingItem,taskExecutionCustomers,rowUpdatedTime,sortRowsForDisplay});
-  Object.assign(window.CustomerTasks,{prepareTaskAttachment,commitTaskAttachment,rollbackTaskAttachment});
+  Object.assign(window.CustomerTasks,{prepareTaskAttachment,commitTaskAttachment,rollbackTaskAttachment,commitImportBatch,rollbackImportBatch,missingTaskRecoverable,recoverMissingTask});
   Pages['customer-tasks']={render,
     captureNavigationState(){return {selectedBatch,keyword,status,assignmentView,businessFilter,assignment};},
     restoreNavigationState(state){if(state)({selectedBatch,keyword,status,assignmentView,businessFilter,assignment}=state);}
