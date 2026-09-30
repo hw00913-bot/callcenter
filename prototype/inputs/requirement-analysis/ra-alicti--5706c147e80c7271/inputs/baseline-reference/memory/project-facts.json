@@ -1,0 +1,1083 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "统一外呼中台当前原型基线重建",
+    "version": "0.3.0-evaluation-SRC060",
+    "objective": "以已发布原型fd44dce及SRC-055—060已确认业务为接口迁移评估基线；G1已确认26场景，业务不新增，G2已批准保留风险继续分析。对齐既有三类客户导入、媒体、报表与工作台细化，不改原型代码。旧接口适配条件与业务需求分开，保留已知实现缺陷和真实POC；新套件资料尚未提供，G3未批准，不宣称正式冻结或接口等价。"
+  },
+  "actors": [
+    {
+      "name": "超级管理员",
+      "role_code": "SUPER_ADMIN",
+      "description": "沿用特殊内置超级管理租户及管理组，角色与管理员、运营处于同一角色层级。必须选定一个客户/品牌实例，可恢复上次有效实例；仅该角色可切实例。可管理选定实例全部总部与门店租户及资源，并保留既有全局账号资料修改权限；界面检索范围仍受当前实例约束。",
+      "data_scope": "当前选定实例全部总部与门店；不同时混看多个实例",
+      "source_refs": [
+        "scenarios/SC-001.json",
+        "scenarios/SC-002.json",
+        "scenarios/SC-105.json",
+        "scenarios/SC-201.json"
+      ]
+    },
+    {
+      "name": "租户管理员",
+      "role_code": "ADMIN",
+      "description": "负责本租户成员、坐席与技能、客户导入分配、任务处置、已获授权资源的业务配置。只读查看租户资料及已有全局账号资料，不能改产品授权、品牌实例和AI资金；工作台监控本租户任务与坐席并从对象详情介入。",
+      "data_scope": "总部租户仅本总部；门店租户仅本门店。总部身份不自动拥有门店数据",
+      "source_refs": [
+        "inputs/source-materials/产品结构与业务流程确认基线.md",
+        "scenarios/SC-002.json",
+        "scenarios/SC-101.json",
+        "scenarios/SC-105.json",
+        "scenarios/SC-203.json",
+        "scenarios/SC-204.json"
+      ]
+    },
+    {
+      "name": "租户运营",
+      "role_code": "OPERATOR",
+      "description": "在已授权业务域处理本租户任务和业务数据。工作台概览只读，但保留已有任务创建、启动、暂停、继续、终止权限；客户导入/分配、账号、坐席与资源配置仍限管理员，不将“概览只读”误解为全部任务只读。",
+      "data_scope": "当前租户及其总部/门店组织范围；不得跨租户或跨实例",
+      "source_refs": [
+        "scenarios/SC-105.json",
+        "scenarios/SC-201.json",
+        "scenarios/SC-204.json"
+      ]
+    },
+    {
+      "name": "租户运营（关联本人坐席）",
+      "role_code": "OPERATOR",
+      "description": "运营成员叠加本人坐席关联，不新增角色；运营工作台保留租户概览，坐席工作台显示个人客户联系和通话成效并在弹窗内呼叫。不得冒用其他坐席、跳过授权或抢占其他标签/设备会话。",
+      "data_scope": "个人待联络任务与本人指标；租户概览沿用已有运营权限",
+      "source_refs": [
+        "scenarios/SC-101.json",
+        "scenarios/SC-102.json",
+        "scenarios/SC-103.json",
+        "scenarios/SC-105.json"
+      ]
+    }
+  ],
+  "systems": [
+    {
+      "name": "统一外呼中台",
+      "description": "统一外呼中台共用账号、租户和产品授权；自有后端负责权限隔离、账号坐席绑定、客户档案/批次分配、任务快照、CCC 事件持久归一、最终话单校准和角色工作台，不承担供应商内部话务算法。",
+      "source_refs": [
+        "scenarios/SC-001.json",
+        "scenarios/SC-201.json",
+        "scenarios/SC-203.json",
+        "scenarios/SC-204.json",
+        "scenarios/SC-205.json"
+      ]
+    },
+    {
+      "name": "自有坐席工作台与 CCC Core SDK",
+      "description": "正式电话能力承载于中台自有坐席工作台；CCC Core SDK 3.x 无界面核心处理浏览器软电话注册、媒体和前端话务反馈，后端以本人身份代理请求。WebRTC 是媒体接入方式，不取代 SDK 注册、鉴权和 CCC 话务后端。",
+      "source_refs": [
+        "scenarios/SC-101.json",
+        "scenarios/SC-102.json",
+        "scenarios/SC-103.json"
+      ]
+    },
+    {
+      "name": "阿里云CCC及RAM",
+      "description": "CCC承载实例、厂商坐席、物理技能组、号码关联、话务执行、适用事件/详单/录音与活动控制；RAM是厂商身份体系，不等于中台账号。已核验的API只是特定字段与行为有文档依据，生产组合仍受已接受POC条件约束。",
+      "source_refs": [
+        "interfaces/interface-index.json"
+      ]
+    },
+    {
+      "name": "线路供应商/运营商",
+      "description": "阿里自有号码也需完成购买开通、实例关联和用途/联系流设置；外部线路需先满足线路开通与路由条件，再导入企业号码并关联实例。ImportCorpNumbers不是线路开通接口。",
+      "source_refs": [
+        "scenarios/SC-008.json",
+        "scenarios/SC-009.json"
+      ]
+    },
+    {
+      "name": "既有第三方AI外呼供应商",
+      "description": "继续通过原智能外呼链路执行机器人/大模型外呼，保留原厂商账号、话术、场景、通道、结果与全部既有统计；不强制迁到CCC，也不纳入AI转人工。",
+      "source_refs": [
+        "scenarios/SC-016.json"
+      ]
+    }
+  ],
+  "scope": {
+    "in": [
+      "按现有26个已确认业务场景整理需求与图集，稳定编号，业务范围不新增；本轮只改分析资料，原型参照fd44dce保持不变。",
+      "原账号/租户和双业务域权限；账号页关联已有或新建坐席，同租户同实例一对一，线上表单及坐席开通标识。",
+      "保留智能外呼全部既有功能及 SRC050 最新套餐/分钟账户；云域租户列表隐藏充值相关展示和操作。",
+      "坐席开通、导入、技能和生命周期；实例线路/号码与租户授权；已发布 IVR 联系流及租户呼入路由。",
+      "客户管理含手机号档案、导入与分配；新批次线索/售后/活动分别必填线索编码/售后单号/活动编码；历史未分类可空来源仍保留，跨批关系独立。",
+      "预外呼/IVR 任务各自配置、草稿、名单分配、启动、暂停、继续、终止及未启动任务删除。",
+      "运营与坐席工作台分开，坐席下钻当前/历史分区；人工弹窗、本方结果与话后跟进闭环、独立录音文本、六类云域报表与既有审计。",
+      "自有 UI + CCC Core SDK 3.x + 本人身份后端代理；后端接收 MQ、幂等归一、最终 CDR 校准、待确认与数据异常核查。",
+      "关联系统只留空态壳，不提供接入、授权、用户映射或投递；当前G1及G2条件分析已批准，G3未批准，真实接口POC及已知实现缺陷保留。"
+    ],
+    "out": [
+      "接入 DCC 等外部业务系统、外部账号查询/绑定/同步、外部客户或单据查询、外部通话结果投递及失败重发。",
+      "内嵌电话条及独立 PhoneBar 集成方案、外部业务页面改造；不把 WebRTC 误写成无需 SDK 或无需服务端。",
+      "恢复通用呼叫方案、命名人工配置、独立运行监控或场景准备度主菜单；原人工地址仅兼容跳转。",
+      "新增完整 CRM、把手工外部单据标识当自动对接主键、以手机号跨租户合并客户。",
+      "AI 转人工、咨询、三方通话、监听、强插、强挂及其他未确认话务操作。",
+      "跨实例共享坐席/物理技能组/号码，跨租户共享业务任务或总部默认获取门店数据。",
+      "生产真实拨号、购买号码或云端写配置；本地模拟成功不作为供应商支持或联调证据。",
+      "承诺纯 IVR 录音、把业务隔离称为运营商停号、把 400 号作为外呼主叫、虚构厂商删除活动接口。",
+      "车辆召回及召回专属字段/流程；新接口自带但当前未确认的业务能力不自动纳入。",
+      "真实ASR来源未核验，不以合成文本或IVR事件证明转写可用；不以原型媒体播放证明云端权限和媒体联调完成。"
+    ]
+  },
+  "product_structure": [
+    {
+      "name": "运营工作台",
+      "description": "超管聚焦当前实例资源与异常；管理员/运营查看租户任务与坐席负荷，各区及下钻含义明确。"
+    },
+    {
+      "name": "坐席工作台",
+      "description": "本人客户联系在左、通话成效在右；待联络客户、临时拨号、上下线及通话弹窗，不保留第三个拨号菜单。"
+    },
+    {
+      "name": "智能外呼",
+      "description": "继承原任务、名单、拦截、通道、场景、标签、记录、线索和统计；AI 租户按最新套餐与统一分钟规则计费。"
+    },
+    {
+      "name": "客户管理",
+      "description": "客户档案与导入与分配两个二级菜单；号码档案持续归集，批次与每次执行分开追溯。"
+    },
+    {
+      "name": "云呼叫",
+      "description": "预外呼、IVR 外呼、呼入服务；配置归各场景，名单来自本平台客户池。"
+    },
+    {
+      "name": "通话记录",
+      "description": "保持二级目录；云域仅通话记录，AI 域保留通话记录与线索记录；外部投递菜单移除。 云域同一通话独立展示录音工具条与文本，缺失不虚构。"
+    },
+    {
+      "name": "统计报表",
+      "description": "AI原通话/计费/线索统计保留；云域通话总览、客户跟进、外呼任务、坐席成效、呼入服务、服务技能六类同源筛选、图表、明细、下钻与CSV。"
+    },
+    {
+      "name": "账号与租户",
+      "description": "共享原表单与权限；账号页关联坐席并显示开通状态，充值只在 AI 域相应权限中展示。"
+    },
+    {
+      "name": "关联系统",
+      "description": "仅空态入口，无系统资料、租户授权、外部账号关联或操作。"
+    },
+    {
+      "name": "坐席与联络中心设置",
+      "description": "坐席维护、坐席技能、配置记录、服务技能与租户物理组映射；不依赖外部用户候选。"
+    },
+    {
+      "name": "线路与号码、系统管理",
+      "description": "线路来源、号码接入、租户用号授权；超管通话数据异常与审计，不再维护接入业务系统。"
+    }
+  ],
+  "relationships": [
+    {
+      "name": "平台账号—租户成员",
+      "rule": "一个平台账号可关联多个租户；每个账号在同一租户仅一条有效成员关系、一个角色。全局账号状态与租户成员状态分开。",
+      "source_refs": [
+        "scenarios/SC-002.json",
+        "scenarios/SC-201.json"
+      ]
+    },
+    {
+      "name": "租户—产品能力—组织归属",
+      "rule": "租户组织类型仍为总部/门店；智能外呼和云呼叫是可选其一或同时启用的产品能力，不拿产品能力代替租户组织类型。",
+      "source_refs": [
+        "scenarios/SC-001.json",
+        "scenarios/SC-201.json"
+      ]
+    },
+    {
+      "name": "租户—客户/品牌实例",
+      "rule": "一个普通租户只绑定一个CCC实例；同一品牌实例可承载多个总部和门店租户。实例不是强制生产/测试环境，更不用于同品牌业务领域分类。",
+      "source_refs": [
+        "scenarios/SC-001.json"
+      ]
+    },
+    {
+      "name": "平台账号—租户成员—CCC 坐席",
+      "rule": "联络中心电话身份与平台账号主键独立；同租户同实例中，账号与未删除坐席一对一。账号页可关联可用坐席或新建并关联，坐席维护复用同一服务；accountId + tenantId + instanceId 是关系来源。",
+      "source_refs": [
+        "scenarios/SC-003.json",
+        "scenarios/SC-101.json",
+        "inputs/src055-current-scope.md"
+      ]
+    },
+    {
+      "name": "逻辑技能—物理技能组—坐席",
+      "rule": "实例内逻辑技能分类可复用；各租户各自映射独占的阿里物理技能组。一个坐席可有多个同租户同实例物理技能组；人工配置成员与等级，阿里在组内路由，1—10等级中数字越小优先级越高。",
+      "source_refs": [
+        "scenarios/SC-006.json",
+        "scenarios/SC-007.json"
+      ]
+    },
+    {
+      "name": "线路—号码—租户授权",
+      "rule": "线路描述接入来源和开通条件；号码仅归属一个实例，可授权同实例多个租户及呼入/呼出用途。最终业务权限落在号码授权，不因共用线路放开全部号码；400仅呼入，不作为外显号码。",
+      "source_refs": [
+        "scenarios/SC-008.json"
+      ]
+    },
+    {
+      "name": "共享呼入号码—租户路由",
+      "rule": "共享号码进入已发布IVR；按分支或默认兜底，在分配人工坐席前锁定唯一租户，再使用该租户物理技能组。异步轨迹只能核对，不能事后决定已发生的路由。",
+      "source_refs": [
+        "scenarios/SC-011.json",
+        "scenarios/SC-017.json",
+        "scenarios/SC-018.json"
+      ]
+    },
+    {
+      "name": "手机号档案—客户批次—批次客户—分配对象",
+      "rule": "档案按 tenantId + instanceId + 标准化手机号聚合；批次客户 ID 保持独立，各批可有不同分配、跟进与外部单据标识。人工分配本人运营坐席，预外呼/IVR 分配同类型未启动任务；跨租户不合并。 新批次类型必选，对应业务编码必填，旧未分类标识可空保留；多个客户可共享活动编码，编码不是档案键。",
+      "source_refs": [
+        "scenarios/SC-203.json",
+        "scenarios/SC-204.json",
+        "scenarios/SC-205.json",
+        "inputs/src055-current-scope.md"
+      ]
+    },
+    {
+      "name": "任务—执行快照—厂商活动/客户尝试",
+      "rule": "本地草稿和任务配置不自动生成已拨号事实。启动时固定资源、策略及名单映射；保留本地任务ID、批次客户ID、厂商活动/Case/通话/尝试标识。多次尝试分别保存，不把客户数当呼叫次数。",
+      "source_refs": [
+        "scenarios/SC-014.json",
+        "scenarios/SC-015.json",
+        "scenarios/SC-019.json",
+        "scenarios/SC-205.json"
+      ]
+    },
+    {
+      "name": "通话结果—原批次—手机号档案",
+      "rule": "同一通话 ID 在本平台幂等归集，回到原批次并汇入同号档案。客户接通、通话结束、跟进完成与录音状态分开；历史校准不覆盖当前在途通话或其他批次状态。外部单据标识只是手工来源快照，不触发外部查询或投递。 业务类型与编码按原批次/本次通话保存，临时拨号不挂靠最近单据；文本和录音各自有可用性，媒体不阻塞结果归集。",
+      "source_refs": [
+        "scenarios/SC-019.json",
+        "scenarios/SC-104.json",
+        "scenarios/SC-205.json",
+        "inputs/src055-current-scope.md"
+      ]
+    }
+  ],
+  "workbench_views": [
+    {
+      "role": "超级管理员",
+      "scope": "当前选定实例",
+      "focus": [
+        "线路与号码健康/异常",
+        "租户与账号资源",
+        "坐席资源",
+        "任务异常",
+        "通话数据异常"
+      ],
+      "drilldown": "点击具体异常或资源指标进入原模块/对象详情；不以全实例业务数据大屏替代资源可用性重点。"
+    },
+    {
+      "role": "总部/门店租户管理员",
+      "scope": "当前租户",
+      "focus": [
+        "今日任务进度、任务类型与名单量分布",
+        "今日待呼叫客户数、已呼叫客户数",
+        "当前坐席总数、上线、空闲、忙碌、话后处理、未上线",
+        "当前通话坐席与异常，按权限下钻处理"
+      ],
+      "drilldown": "任务进入任务详情执行暂停/继续/终止；坐席进入已有维护动作。介入仅限已确认业务动作，不增加监听、强插、强挂。 坐席居中详情分开当前状态/当前通话/分页历史，实时缺失不以历史补齐；停用保留原确认及取消。"
+    },
+    {
+      "role": "租户运营",
+      "scope": "当前租户",
+      "focus": [
+        "今日任务进度和类型占比",
+        "待呼叫与已呼叫客户",
+        "坐席总数及上线/空闲/忙碌/未上线概览"
+      ],
+      "drilldown": "工作台概览只读；进入既有任务详情后保留G1已确认的任务操作权限，不获得客户分配或资源管理权限。 坐席详情与通话历史只读，不出现停用动作。"
+    },
+    {
+      "role": "租户运营（关联本人坐席）",
+      "scope": "本人优先",
+      "focus": [
+        "客户联系左栏，通话成效右栏",
+        "结果待确认独立展示",
+        "今日待呼叫、已呼叫、接通、未接通",
+        "首呼数、通话总时长、平均时长、接通率、首呼接通率",
+        "待联络客户列表"
+      ],
+      "drilldown": "坐席工作台选择本人待联络客户直接打开呼叫弹窗；关闭或收起保持上下文，话后保存再恢复；运营工作台另菜单保留原租户视角。"
+    }
+  ],
+  "state_models": [
+    {
+      "id": "STATE-201",
+      "name": "登录工作范围",
+      "states": [
+        "待登录",
+        "待选租户",
+        "待选业务域",
+        "已进入工作范围",
+        "资格失效"
+      ],
+      "transitions": [
+        "账号或手机号认证后，多租户先选一个有效租户；双能力租户再选择业务域",
+        "换租户须退出重登；只有超管可切当前实例，并复检授权",
+        "停用账号、成员或租户/撤销域授权后拒绝继续越权操作"
+      ],
+      "source_refs": [
+        "scenarios/SC-001.json",
+        "scenarios/SC-002.json",
+        "scenarios/SC-201.json"
+      ]
+    },
+    {
+      "id": "STATE-202",
+      "name": "账号、成员与租户启停（相互独立）",
+      "states": [
+        "平台账号启用/停用",
+        "当前租户成员启用/停用",
+        "租户启用/停用"
+      ],
+      "transitions": [
+        "全局账号状态变更影响全部租户登录，只有超管可修改既有账号全局资料/状态",
+        "成员启停仅作用当前租户，管理员可在本租户操作",
+        "租户启停仅超管操作，租户管理员只读；这些状态不是CCC坐席厂商状态"
+      ],
+      "source_refs": [
+        "inputs/source-materials/产品结构与业务流程确认基线.md",
+        "scenarios/SC-001.json",
+        "scenarios/SC-002.json"
+      ]
+    },
+    {
+      "id": "STATE-203",
+      "name": "坐席开通与独立生命周期",
+      "states": [
+        "待补充",
+        "待同步/处理中",
+        "已启用",
+        "同步失败/结果待核对",
+        "停止接收新任务",
+        "已停用",
+        "已删除（保留历史）"
+      ],
+      "transitions": [
+        "坐席由管理员在中台开通或导入；显式核验厂商最终成功后生效；账号坐席关联不以开通成功代替技能及号码检查",
+        "批量成功项独立生效；失败项保留，管理员单独点击重新同步",
+        "停用先禁止新任务、允许当前通话完成；厂商结果未确认时不报已停用",
+        "恢复按当前有效配置复检，不自动恢复过期技能或历史配置",
+        "删除先验证状态与引用，保留历史及审计；重新使用按新的创建流程处理"
+      ],
+      "source_refs": [
+        "scenarios/SC-003.json",
+        "scenarios/SC-005.json",
+        "scenarios/SC-101.json"
+      ]
+    },
+    {
+      "id": "STATE-204",
+      "name": "电话服务与话后处理",
+      "states": [
+        "未服务",
+        "服务就绪",
+        "呼叫中/振铃",
+        "通话中",
+        "话后待保存",
+        "恢复就绪",
+        "状态未知/待核对"
+      ],
+      "transitions": [
+        "本人身份、麦克风、SDK 注册/签入及资源校验就绪后开启服务；同坐席多标签/设备会话不抢占",
+        "拨号前重新校验客户、技能、号码及禁止联系规则",
+        "通话结束后保存本次处理结果，保存失败保留输入；成功后按真实话务状态结束话后",
+        "通话/话后未保存期间禁止退出和切换上下文；未知结果先核对，不自动重拨"
+      ],
+      "source_refs": [
+        "scenarios/SC-102.json",
+        "scenarios/SC-103.json",
+        "inputs/src055-current-scope.md"
+      ]
+    },
+    {
+      "id": "STATE-205",
+      "name": "预外呼/IVR任务业务状态",
+      "states": [
+        "草稿",
+        "待分配客户",
+        "待启动",
+        "启动结果待核对",
+        "执行中",
+        "已暂停",
+        "异常",
+        "已终止",
+        "已完成",
+        "已删除（仅未启动）"
+      ],
+      "transitions": [
+        "保存草稿不占用预选客户，不可直接启动",
+        "确认提交无客户为待分配客户，有客户为待启动；提交不自动拨号",
+        "管理员后续分配客户后成为待启动；启动须有名单并重新校验资源",
+        "请求已受理不等于已执行；最终确认前保留待核对，避免重复投放",
+        "执行中可暂停新呼叫，已发起通话继续完成；暂停后资源复检通过才可继续",
+        "终止不可继续，保留客户关联、在途结果、历史与审计，不自动释放客户",
+        "删除仅允许从未启动、无厂商执行标识、无完成量、无通话的本地任务；客户释放为待分配，已执行不可删除"
+      ],
+      "source_refs": [
+        "scenarios/SC-014.json",
+        "scenarios/SC-015.json",
+        "scenarios/SC-105.json",
+        "scenarios/SC-206.json"
+      ]
+    },
+    {
+      "id": "STATE-206",
+      "name": "客户导入、分配与跟进",
+      "states": [
+        "待预览",
+        "有效行/无效行",
+        "已导入待分配",
+        "已分配人工坐席/预外呼任务/IVR任务",
+        "待联络/已呼叫",
+        "话后待完成",
+        "跟进完成"
+      ],
+      "transitions": [
+        "新建批次选择三类业务类型并校验对应必填编码；类型、名单或工作范围变更使预览失效，提交再次校验；取消不入库；只导入有效行，同批同号保留首条有效记录。历史未分类可空数据不回填或删除。",
+        "先选客户再弹窗选外呼方式和对应执行对象；默认待分配列表不混入已分配记录",
+        "改派前复检通话、话后、跟进完成及任务启动状态，不允许重复占用",
+        "每次尝试回到原批次客户；接通不自动变为跟进完成，同号码不同批次不相互覆盖"
+      ],
+      "source_refs": [
+        "scenarios/SC-203.json",
+        "scenarios/SC-204.json",
+        "scenarios/SC-205.json",
+        "scenarios/SC-206.json"
+      ]
+    },
+    {
+      "id": "STATE-207",
+      "name": "号码业务隔离与恢复",
+      "states": [
+        "待开通/待关联",
+        "可用于授权业务",
+        "隔离处理中",
+        "已业务隔离",
+        "恢复处理中",
+        "失败/待核对"
+      ],
+      "transitions": [
+        "导入成功不等于线路开通、关联实例成功或可呼叫",
+        "隔离冻结新外呼并将正常业务呼入转至暂停服务IVR，保留配置快照与进行中结果",
+        "业务隔离不是运营商停机；效果必须按真实联系流和任务控制验证",
+        "恢复核对快照与实际资源；号码恢复不自动启动已暂停任务，管理员逐项复检后恢复"
+      ],
+      "source_refs": [
+        "scenarios/SC-008.json",
+        "scenarios/SC-009.json"
+      ]
+    },
+    {
+      "id": "STATE-208",
+      "name": "通话过程、接通、跟进及媒体独立状态",
+      "states": [
+        "通话过程：待呼叫/拨号中/客户振铃/通话中/已结束",
+        "客户接通：已接通/未接通/待确认",
+        "结果确认：实时/待话单/已校准/证据不足/冲突",
+        "跟进：待联系/需再次联系/已完成",
+        "录音：待生成/可用/不适用/缺失/过期/加载失败",
+        "文本：待生成/可用/未提供/失败（独立于录音）"
+      ],
+      "transitions": [
+        "客户侧有效 Established 证据确认客户接通；坐席接通不替代客户接通",
+        "单通道 Released 不结束整通；最终 ReleaseTime 或本地演示明确结束动作界定结束",
+        "结束后通过 CCC CDR/适用的 ListAttempts 校准，缺证据保持待确认；迟到证据不使已结束通话复活",
+        "校准复用原 callId 更新档案、批次和统计，不重复建通话、不自动重拨",
+        "纯IVR人工录音不适用，转人工仅按实际人工阶段；录音与文本分别判定来源、权限和可用性，不以IVR轨迹/备注替代文本。",
+        "媒体样例仅明确标记的合成记录使用，不复制到新通话，不用样例时长覆盖话单。关闭、页面切换、退出或权限失效停止并释放播放器。"
+      ],
+      "source_refs": [
+        "scenarios/SC-019.json",
+        "scenarios/SC-104.json",
+        "scenarios/SC-205.json",
+        "inputs/src055-current-scope.md"
+      ]
+    },
+    {
+      "id": "STATE-209",
+      "name": "智能外呼服务状态",
+      "states": [
+        "未开通",
+        "待生效",
+        "有效",
+        "已过期"
+      ],
+      "transitions": [
+        "套餐开通保存实际服务区间与统一分钟；租户启停不直接改服务状态",
+        "有效商用叠加话费包只增加分钟，不延期",
+        "时长/分钟手工调整分别记录原因和前后值，冻结分钟不受调整"
+      ],
+      "source_refs": [
+        "inputs/src055-current-scope.md",
+        "inputs/source-index.json#SRC-050"
+      ]
+    }
+  ],
+  "retained_capabilities": [
+    {
+      "id": "RET-AI-001",
+      "name": "智能外呼任务列表与任务详情",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-230",
+        "PAGE-241"
+      ],
+      "retained_scope": [
+        "保留原任务卡片、筛选、状态显示、查看入口及既有启动/暂停/终止/删除操作边界，不套用云呼叫任务状态机。",
+        "详情保留数据概览、呼叫名单、任务详情；保留各既有供应商差异化字段与信息展示。",
+        "保留接通与意向概览、时长分布、已有意向分类配置与用户洞察等已存在内容；不把模板或占位按钮认定为真实执行能力。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/scene-list.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-002",
+      "name": "智能外呼任务名单与导入结果",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-241"
+      ],
+      "retained_scope": [
+        "保留已分配、待呼叫、已呼叫、已过滤、呼叫失败分类及原有名单操作。",
+        "保留原手动导入、模板、上传、导入记录、失败记录导出入口与逐号码通话记录/详情回查。",
+        "不使用云呼叫客户批次分配流程替代原AI名单逻辑；既有导入格式和厂商回执按原链路保留。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/scene-list.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-003",
+      "name": "智能外呼拦截",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-231"
+      ],
+      "retained_scope": [
+        "保留黑名单分组、查询、新增号码、批量导入、移动、移除及记录详情。",
+        "保留既有供应商同步配置、同步状态与失败重试；同步范围及移除生效边界沿用原实现，不假定适用于CCC。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/scene-block.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-004",
+      "name": "智能外呼通道管理",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-232"
+      ],
+      "retained_scope": [
+        "保留第三方AI厂商账号、模型类型、并发使用信息与既有配置入口。",
+        "AI通道不等于CCC实例、线路、号码或技能组；租户既有厂商关系不能因接入CCC而覆盖。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/ai-domain.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-005",
+      "name": "智能外呼业务场景",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-233"
+      ],
+      "retained_scope": [
+        "保留场景新增、编辑、删除以及原有运行状态约束。",
+        "保留厂商选择、账号/机器人/话术等既有厂商差异配置、模型类型、输入字段与提取字段、既有呼叫时间及重呼规则。",
+        "不以CCC活动级MaxAttemptCount/MinAttemptInterval改写AI各厂商规则。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/sys-scene.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-006",
+      "name": "智能外呼标签管理",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-234"
+      ],
+      "retained_scope": [
+        "保留标签树、标签新增/编辑/启停/删除、本地标签以及原有映射操作。",
+        "保留场景配置、供应商管理及其既有生效边界，不将标签直接映射为CCC技能组。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/sys-tags.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-007",
+      "name": "智能外呼通话记录",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-235",
+        "PAGE-241"
+      ],
+      "retained_scope": [
+        "保留原记录筛选、列表、通话详情、外呼结果、详细信息及原有可用媒体信息。",
+        "原任务详情进入记录明细的路径继续有效；不与云呼叫详单、录音适用性和平台内部客户归集混为一个模型。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json",
+        "scenarios/SC-020.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/result-records.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        },
+        {
+          "path": "DEMO_PROTYPE/js/pages/scene-list.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-008",
+      "name": "智能外呼线索记录",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-236"
+      ],
+      "retained_scope": [
+        "保留原筛选、客户标签查看、线索详情及多次回访信息。",
+        "按原租户与厂商来源展示，不让云呼叫批次回查覆盖既有线索记录。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json",
+        "scenarios/SC-020.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/result-clue.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-009",
+      "name": "智能外呼通话统计（全部既有子表）",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-237"
+      ],
+      "retained_scope": [
+        "完整保留外呼统计、客户统计两个既有页签及其筛选、列项、口径和查询展示。",
+        "不以云呼叫呼叫总览替代，不只保留一个汇总数字。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json",
+        "scenarios/SC-020.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/report-call.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-010",
+      "name": "智能外呼计费统计（全部既有层级）",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-238"
+      ],
+      "retained_scope": [
+        "完整保留计费统计列表、统计详情、通话计费明细及既有筛选维度。",
+        "保留租户、厂商、模型/计费类型、时长等原有计费关系；不将原型示例单价作为阿里正式报价。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json",
+        "scenarios/SC-020.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/report-billing.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-AI-011",
+      "name": "智能外呼线索统计（全部既有子表）",
+      "domain": "AI_OUTBOUND",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-239"
+      ],
+      "retained_scope": [
+        "完整保留外呼线索统计、外呼线索明细、线索回流统计三个既有页签。",
+        "保留已有总部/门店及适用车型类别的明细筛选、详情与回流计数，不删减旧报表。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-016.json",
+        "scenarios/SC-020.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/report-clue.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-COM-001",
+      "name": "共享登录与全局账号资料",
+      "domain": "SHARED",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-201",
+        "PAGE-202"
+      ],
+      "retained_scope": [
+        "账号或手机号登录，按原规则设置默认密码、昵称、头像、账号及手机号；手机号识别复用账号，新增必须显式确认。",
+        "既有账号编辑保留：超管可改全局资料、重置密码及全局账号状态；租户管理员对已存在的全局资料只读。",
+        "平台级账号状态影响该账号全部租户的登录；新建租户成员表单中的状态只作用于目标租户成员。",
+        "账号是平台级对象；不能在每个租户内重新创建同一手机号账号，也不能以业务系统用户主键代替平台账号主键。",
+        "保留同一租户下切换已授权业务域、仅超管切换有效实例的已有入口；通话、未保存话后及未提交编辑按原门禁阻止或确认处理。切业务域不等于换租户，换租户仍退出重登。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-002.json",
+        "scenarios/SC-201.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/account-tenant.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        },
+        {
+          "path": "DEMO_PROTYPE/js/components/account-tenant-forms.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        },
+        {
+          "path": "DEMO_PROTYPE/js/app.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-COM-002",
+      "name": "租户成员角色与成员状态",
+      "domain": "SHARED",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-202"
+      ],
+      "retained_scope": [
+        "超管管理当前实例下可管理租户，租户管理员管理当前租户成员；普通运营不获得成员配置权限。",
+        "一个平台账号可加入多个租户；同一租户成员只有一个角色，修改采用替换，不叠加角色。",
+        "管理员可编辑本租户成员角色并启停成员；停用只影响本租户成员，不直接改其他租户或全局账号状态。",
+        "新增成员、改角色或开通产品不自动创建CCC坐席；电话身份生命周期独立。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-002.json",
+        "scenarios/SC-101.json"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/account-tenant.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        },
+        {
+          "path": "DEMO_PROTYPE/js/components/account-tenant-forms.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    },
+    {
+      "id": "RET-COM-003",
+      "name": "租户原有表单、状态与AI资金能力",
+      "domain": "SHARED",
+      "disposition": "unchanged_retained",
+      "page_ids": [
+        "PAGE-203"
+      ],
+      "retained_scope": [
+        "租户线上新增/编辑/启停及产品授权语义保留；仅超管变更，管理员按既有范围只读。",
+        "提供试用 0元/30天/500分钟、标准年包 5000元/365天/10000分钟，有效商用可叠加 1000元/3500分钟话费包；实际价格、起止至分钟和入账分钟可编辑，偏离默认填写原因。",
+        "套餐成功入统一分钟池，话费包不延长有效期；可独立调整使用时长或可用分钟，时长支持区间归零，冻结分钟不被调整。",
+        "内部流水保留实际值、前后值、原因和操作者快照；不关联外部单，旧金额不自行换算分钟，新租户 0 分钟未开通。",
+        "服务状态与租户启停独立；云联络中心域隐藏服务区间、分钟、服务状态及充值调账入口，不因此删除智能外呼既有计费统计。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-202",
+        "scenarios/SC-001.json",
+        "scenarios/SC-016.json",
+        "inputs/source-index.json#SRC-050",
+        "inputs/src055-current-scope.md"
+      ],
+      "implementation_evidence": [
+        {
+          "path": "DEMO_PROTYPE/js/pages/account-tenant.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        },
+        {
+          "path": "DEMO_PROTYPE/js/components/account-tenant-forms.js",
+          "status": "read_only_implementation_evidence",
+          "fingerprint_manifest": "inputs/prototype-fingerprint.json"
+        }
+      ],
+      "evidence_boundary": "保留已确认存量范围；代码或演示不等于生产接口/资金到账/全部页面验收通过，本轮只按已确认变化同步。"
+    }
+  ],
+  "retired_concepts": [
+    {
+      "name": "通用呼叫方案",
+      "former_refs": [
+        "SC-010"
+      ],
+      "replacement": "预外呼/IVR各任务保存本次执行规则；呼入维护独立路由规则；人工直接校验坐席技能与授权号码。"
+    },
+    {
+      "name": "命名人工外呼配置",
+      "former_refs": [
+        "SC-106",
+        "PAGE-106"
+      ],
+      "replacement": "不新增/发布/选择命名配置；人工入口展示可用资源，呼叫弹窗按本人技能与号码操作。"
+    },
+    {
+      "name": "独立运行监控菜单",
+      "former_refs": [
+        "PAGE-105"
+      ],
+      "replacement": "角色工作台分区展示并下钻已有资源或任务详情；旧地址只兼容跳转，不恢复独立菜单。"
+    },
+    {
+      "name": "场景准备度主菜单及我的坐席独立区",
+      "former_refs": [],
+      "replacement": "系统准备信息按场景收进帮助说明或缺项提示；本人呼叫由待联络客户/临时拨号弹窗承载。"
+    },
+    {
+      "name": "外部业务系统接入和外嵌电话入口",
+      "former_refs": [
+        "SC-004",
+        "SC-012",
+        "SC-013",
+        "SC-202"
+      ],
+      "replacement": "仅自有坐席工作台与本人身份 CCC Core SDK 接入；关联系统保留空态。"
+    },
+    {
+      "name": "外部结果投递",
+      "former_refs": [
+        "FUNC-267",
+        "FUNC-268",
+        "FUNC-269",
+        "PAGE-219"
+      ],
+      "replacement": "通话事实及跟进结果仅在本平台原批次、手机号档案和报表中归集。"
+    },
+    {
+      "name": "人工外呼独立菜单",
+      "former_refs": [
+        "PAGE-212"
+      ],
+      "replacement": "合并至坐席工作台，manual-outbound 仅为兼容跳转。"
+    }
+  ],
+  "accepted_risk_conditions": [
+    {
+      "issue_id": "ISSUE-210",
+      "severity": "medium",
+      "name": "存量接口完整契约复核与非功能条件",
+      "condition": "保留历史资料出处，但限流、生产鉴权、超时、幂等与部分完整字段未实测；以补证和联调为上线门槛，不能仅凭文档verified承诺端到端完成。",
+      "accepted_by": "当前用户",
+      "accepted_at": "2026-09-09",
+      "interpretation": "仅接受带上线前验证条件继续分析，不代表POC通过或生产可用。"
+    },
+    {
+      "issue_id": "ISSUE-211",
+      "severity": "high",
+      "name": "本人鉴权、多标签会话互斥与安全停用",
+      "condition": "按 CCC Core SDK 3.x 与本人身份代理架构实施；逐项真实样本验收，不承诺无缝媒体恢复。",
+      "accepted_by": "当前用户",
+      "accepted_at": "2026-09-09",
+      "interpretation": "仅接受带上线前验证条件继续分析，不代表POC通过或生产可用。"
+    },
+    {
+      "issue_id": "ISSUE-212",
+      "severity": "high",
+      "name": "坐席必填资料及批量导入完成态",
+      "condition": "CreateUser邮箱等必填，ImportRamUsers返回执行ID不是坐席ID。建议缺项保持待补充；导入逐项查证后生效。",
+      "accepted_by": "当前用户",
+      "accepted_at": "2026-09-09",
+      "interpretation": "仅接受带上线前验证条件继续分析，不代表POC通过或生产可用。"
+    },
+    {
+      "issue_id": "ISSUE-213",
+      "severity": "high",
+      "name": "号码来源、业务隔离与运营商停号边界",
+      "condition": "缺未关联号码目录/线路健康契约；ModifyPhoneNumber无Disabled。建议保持业务隔离方案，并验证暂停服务IVR效果，不称为运营商双向停号。400不可作为外呼号码。",
+      "accepted_by": "当前用户",
+      "accepted_at": "2026-09-09",
+      "interpretation": "仅接受带上线前验证条件继续分析，不代表POC通过或生产可用。"
+    },
+    {
+      "issue_id": "ISSUE-214",
+      "severity": "high",
+      "name": "纯IVR投放、任务控制及重呼/逐次结果",
+      "condition": "预测式接口存在，但无坐席纯IVR执行组合未证实；控制的在途语义、重呼0值/计数/上限、写分钟读秒、CaseId与本地客户关联均待POC。建议任务结构保留，条件化时序明确不通过则不能上线该执行模式。",
+      "accepted_by": "当前用户",
+      "accepted_at": "2026-09-09",
+      "interpretation": "仅接受带上线前验证条件继续分析，不代表POC通过或生产可用。"
+    },
+    {
+      "issue_id": "ISSUE-215",
+      "severity": "high",
+      "name": "角色工作台数据真实性与实时字段冲突",
+      "condition": "GetRealtimeCampaignStats的QueueId描述和例值不一致，且不是全工作台数据接口。建议采用本地租户聚合+厂商状态查询分工，未补齐数据标待接入，不能用历史报表冒充实时。",
+      "accepted_by": "当前用户",
+      "accepted_at": "2026-09-09",
+      "interpretation": "仅接受带上线前验证条件继续分析，不代表POC通过或生产可用。"
+    },
+    {
+      "issue_id": "ISSUE-216",
+      "severity": "medium",
+      "name": "呼入分支租户锁定与录音适用范围",
+      "condition": "纯IVR不承诺RecordingReady；保留结构化结果。共享号码由已发布联系流在人工路由前锁定租户；轨迹只做异步核对。需按真实联系流验收。",
+      "accepted_by": "当前用户",
+      "accepted_at": "2026-09-09",
+      "interpretation": "仅接受带上线前验证条件继续分析，不代表POC通过或生产可用。"
+    },
+    {
+      "issue_id": "ISSUE-217",
+      "severity": "medium",
+      "name": "既有智能外呼供应商合同未完整提供",
+      "condition": "本轮继承既有 AI 能力，不新接其他业务系统；供应商合同若未来变更再独立核验。",
+      "accepted_by": "当前用户",
+      "accepted_at": "2026-09-09",
+      "interpretation": "仅接受带上线前验证条件继续分析，不代表POC通过或生产可用。"
+    }
+  ],
+  "assumptions": [
+    "事实优先级为本轮已确认用户故事/范围和明确最新决定；原型代码只证明实现现状，旧材料置顶补丁不能与被替代正文并存为当前结论。",
+    "G2批准仅为带条件继续分析，所有accepted_risk仍是上线前条件；接口verified也不等于该功能端到端联调通过。",
+    "资料同步失败按记录独立重试；不通过重复创建、重复导入、重复拨号来掩盖未知结果。",
+    "重呼采用CCC活动级统一参数，允许数字输入；次数是否含首次、0值/上下限以及写分钟读秒等精确语义待POC；不承诺按首次状态分别配置。",
+    "真实工作台需由中台租户数据与厂商话务数据共同聚合；历史报表不是实时接口，未知实时数据应显示待接入或未知。",
+    "上线坐席按空闲、忙碌、话后处理分组计入，未上线独立；任务客户进度、名单类型分布、通话次数、接通率与跟进完成分别命名。",
+    "首呼以同任务/批次客户完整已知历史或有效attemptNumber=1为准，未知单列；平均通话时长仅纳入明确适用且时长有效的样本，缺失不补0，真实0保留；来源和统计期可追溯。",
+    "共享呼入的租户锁定必须在真实已发布联系流中先于人工路由，不能依事后IvrTracking完成安全隔离。",
+    "当前版本为未冻结工作基线；旧门禁和验收不自动沿用，真实通道归属、SDK 身份、媒体恢复、CDR 延迟与纯 IVR 调度须单独联调。",
+    "单据标识不构成外部系统接入；仅供手工追溯。",
+    "本轮同步已确认最新原型能力，不把演示按钮或本地存储等实现细节独立计为正式业务功能。"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-201",
+    "inputs/user-stories.md#SRC-202",
+    "memory/normalized-user-stories.json",
+    "memory/business-rules.json",
+    "planning/page-index.json",
+    "interfaces/interface-index.json",
+    "runtime/open-items.json",
+    "inputs/src055-current-scope.md",
+    "inputs/source-index.json#SRC-055",
+    "inputs/source-index.json#SRC-056",
+    "inputs/source-index.json#SRC-057",
+    "inputs/source-index.json#SRC-058",
+    "inputs/source-index.json#SRC-059",
+    "inputs/source-index.json#SRC-060"
+  ]
+}

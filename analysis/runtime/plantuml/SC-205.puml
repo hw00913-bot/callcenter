@@ -1,0 +1,59 @@
+@startuml
+title SC-205 · 回查客户档案与导入批次的执行结果
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 租户管理员/有权运营
+|#EFFAF5|lane_2| 统一外呼中台
+|lane_1|
+start
+:客户已进行一次或多次呼叫; <<start_label>>
+|lane_2|
+:定位人工、预外呼或 IVR 同次通话的 callId、原批次客户 ID 与通话来源快照;
+|lane_2|
+if (原通话归属明确，且当前查询或跟进操作在授权范围内？) then (不通过 · ALT-205-2)
+|lane_1|
+:保留待核查或拒绝越权；不猜测同号来源; <<failure>>
+stop
+else (通过)
+|lane_2|
+:按 callId 幂等追加原通话结果与证据；有批次来源时只更新原 batchCustomerId;
+|lane_1|
+:按批次查看客户执行与分配，或按手机号档案回查历次联系;
+|lane_2|
+:汇总同租户同供应商账号规范手机号下的各批次及各次通话来源;
+|lane_1|
+:按权限保存本批次客户的人工跟进结果，接通与跟进完成分开;
+|lane_2|
+:最终话单校准仅幂等更新原通话、原批次结果及相关统计;
+|lane_1|
+:原批次与授权档案可回查；来源不覆盖; <<end_label>>
+stop
+endif
+@enduml

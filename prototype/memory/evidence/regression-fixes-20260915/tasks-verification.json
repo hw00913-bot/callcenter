@@ -1,0 +1,1701 @@
+{
+  "date": "2026-09-15",
+  "kind": "targeted-regression-fix-verification",
+  "result": "pass",
+  "scope": [
+    "RG-01",
+    "RG-02",
+    "RG-04",
+    "RG-06",
+    "RG-11"
+  ],
+  "browserSession": "fix-tasks",
+  "supplierNetworkCalls": 0,
+  "businessDocsChanged": false,
+  "workflowGateClaim": false,
+  "browserAssertions": [
+    "RG02完整hotline作为clid",
+    "预测创建与号码状态重呼完整保留",
+    "有效既有工号12创建成功",
+    "RG04 created失败未冒充创建成功",
+    "RG04 created恢复无孤立任务或客户",
+    "RG04 customers失败未冒充创建成功",
+    "RG04 customers恢复无孤立任务或客户",
+    "RG04 draft失败未冒充创建成功",
+    "RG04 draft恢复无孤立任务或客户",
+    "RG04 journal-initial失败未冒充创建成功",
+    "RG04 journal-initial恢复无孤立任务或客户",
+    "RG04 journal-final失败未冒充创建成功",
+    "RG04 journal-final恢复无孤立任务或客户",
+    "RG04 rollback失败未冒充创建成功",
+    "RG04 rollback恢复无孤立任务或客户",
+    "RG04回滚暂不可用时保留恢复证据",
+    "RG04刷新自动恢复客户与草稿",
+    "RG01空工号不能新建",
+    "RG01旧无效cnos ''不能启动",
+    "RG01旧无效cnos 1001不能启动",
+    "RG01旧无效cnos '1001,bad'不能启动",
+    "RG06旧表单不能恢复启用",
+    "RG06重新获取可保存且保持停用",
+    "RG11第二任务同坐席被阻止",
+    "RG11暂停释放同坐席占用",
+    "RG11继续前复核同坐席冲突",
+    "结束后释放占用且不可重开",
+    "自动任务正常新建与重呼",
+    "自动任务start正常",
+    "自动任务pause正常",
+    "自动任务resume正常",
+    "自动任务terminate正常",
+    "全新默认mock中运行预测任务无重复坐席",
+    "导入完整号码校验失败时不写日志且不占客户",
+    "日志首写失败未创建也未占用客户",
+    "同一草稿日志首写失败后可重试并只创建一次"
+  ],
+  "browserAssertionCount": 36,
+  "qa": {
+    "fix-tasks-transaction-qa": {
+      "result": "pass",
+      "count": 9,
+      "checks": [
+        "prepare snapshots without taking ownership",
+        "commit and rollback are repeatable without duplicate assignment history",
+        "failed customer storage never publishes proposed ownership",
+        "compensation preserves changes to unrelated customer rows",
+        "stale prepare cannot override newly occupied customer",
+        "rollback refuses to overwrite later changes to the same customer",
+        "failed rollback can recover from serialized snapshot after reload",
+        "changed scope cannot commit or rollback another tenant attachment",
+        "duplicate selection and existing occupied rows fail preparation"
+      ]
+    },
+    "fix-task-ivr-qa": {
+      "result": "pass",
+      "count": 24,
+      "checks": [
+        "列表鉴权用当前账号和秒级时间，模拟签名",
+        "列表保留官方字段，彩铃跨账号未分配流程不可选",
+        "组织和账号必须匹配，外呼用途为本地分配事实",
+        "失败空未知响应即时取代原列表且不使用旧流程回填",
+        "重复编号和坏字段整体拒绝而不补默认值",
+        "旧流程ID通过显式映射，未知和冲突映射拒绝",
+        "自动任务请求只映射列表ID，不发送本地模板名或流程ID",
+        "直接构造创建请求不能绕过流程失败和重呼输入错误",
+        "自动向导先选择流程，名称组织可编辑，未配置不得跳到后续步骤",
+        "选择流程后进入呼叫设置，来电号码未选不得进入客户名单",
+        "开启重呼条件缺失阻断保存与确认，关闭后可保留草稿",
+        "关闭重呼后套用常用设置不重新打开且保留当前语音流程",
+        "自动外呼已开启时套用关闭模板也完整保留当前规则和输入错误",
+        "未保存草稿重呼缺项时取消和配置跳转均留在编辑并保留入口",
+        "已保存草稿再产生无效重呼修改也不能取消丢失编辑状态",
+        "预测外呼存在必填输入错误时套用模板不清空错误或改规则",
+        "业务域保存事件在重呼必填失败时取消切换",
+        "连续选择号码状态后保留选择弹层打开态",
+        "自动向导按流程→设置→客户→确认完成并提交正确供应商编号",
+        "启动前再次检查语音列表和重呼输入",
+        "旧自动草稿回到首步复核且不执行本地转人工配置",
+        "预测与自动向导打开重呼后均必须选状态，保存重开保留相同集合",
+        "D020预测完整条件进入供应商请求，不再含能力待确认标记",
+        "D020完整预测状态重呼可创建、启动、暂停并按查询结果继续"
+      ]
+    },
+    "fix-task-control-qa": {
+      "result": "pass",
+      "count": 30,
+      "checks": [
+        "继续严格按查询暂停→start→再次查询执行，原进度与启动时间不重置",
+        "暂停不传任何时长，旧确认输入被忽略",
+        "暂停确认只展示业务说明，移除时长与模拟情景仍可确认暂停",
+        "操作前查询失败、未知、缺ID、ID冲突均不写入",
+        "继续只接受远端暂停，初始运行结束均不调用start",
+        "本地初始运行完成终止状态直接继续均拒绝",
+        "写入失败不改成运行，未知写入继续查证且仍不猜成功",
+        "写入受理但后查仍暂停或未知时不能显示继续成功",
+        "后查已经结束显示结束并禁止再次开启",
+        "正常结束可执行，结束以后start和resume全部拒绝",
+        "两类任务查询确认结束后禁止下一位和后续重呼，保留振铃接通与历史记录",
+        "结束受理但后查未知时不伪造结束或通话终态，待核对期间阻止新增结果",
+        "过期待启动页面不能重新开启远端已结束或已暂停任务",
+        "初次启动保留读取结果，不复用继续跳过前置查询",
+        "新建演示任务使用独立初始响应，隔离标记不生成远端暂停",
+        "未知供应商状态的本地暂停不能凭显示文字继续",
+        "任务身份及状态解析不接受未知result、空值、数字布尔和跨账号数据",
+        "权限、显示样例、跨范围、资源与场景准备检查在写前阻断",
+        "空名单继续或启动均阻断",
+        "号码隔离恢复权限与全号码已恢复条件不能被继续绕过",
+        "有权管理员仅在再次查到运行后移除号码隔离标记",
+        "确认窗口打开后权限、资源、范围及供应商ID变化均重新检查",
+        "查询响应读取后至实际写入前再次检查权限",
+        "查询响应读取后至实际写入前再次检查资源",
+        "原有四个任务使用独立供应商fixture且状态不取自本地显示",
+        "种子只匹配固定账号租户和任务类型，未知任务仍无法凭暂停显示继续",
+        "持久化控制响应或新供应商fixture不会被原始种子覆盖",
+        "真实saveDemoTask边界仅确认首次启动可冻结方案，继续与未知操作保留历史快照ID",
+        "工作台保留唯一控制入口且号码隔离不写供应商暂停状态",
+        "适配器没有旧继续拦截和待确认按钮重写"
+      ]
+    },
+    "fix-task-retry-qa": {
+      "result": "pass",
+      "count": 26,
+      "checks": [
+        "新建预测与自动任务均默认关闭且保持旧草稿版本",
+        "两类任务首次开启均直接显示必填状态选择且没有隐藏方式切换",
+        "开启展示必填状态次数间隔起算方式与可访问关闭开关",
+        "新旧自动任务名称使用相同状态规则，已有草稿值不被迁移改写",
+        "关闭省略全部重呼字段，保留未完成设置供重开继续填写",
+        "草稿原始空值或非法值即使错误记录丢失仍阻断",
+        "草稿未提交原始值与有效策略不一致时不可静默沿用旧设置",
+        "打开时缺失状态或起算方式阻断并指向对应输入",
+        "官方20条描述合为16个可选编码",
+        "旧basic草稿也保留状态并按条件映射自动外呼，不再输出无条件对象",
+        "高级模式输出单条件数组和整数编码",
+        "重呼计数不包含首次，轮次连续且与间隔一一对应",
+        "首次起算必须严格递增，等值和倒序均不输出",
+        "上次起算允许相同与不同间隔",
+        "两类任务所有开启模式必须有官方编码，未知和重复编码均阻断",
+        "D020预测和自动均支持同一条件数组，不丢失状态或降为无条件重呼",
+        "按编码匹配不拆分715或183的描述",
+        "服务开通不能通过配置被默认为已完成",
+        "空白、负数、小数和超出标准时间单位不下发",
+        "D020关闭不启用重呼并省略全部重呼字段与供应商模板名",
+        "没有完整规则的既存草稿不静默补造策略",
+        "空轮次和无效起算方式阻断",
+        "旧basic草稿没有状态时明确补选，不从默认条件猜测",
+        "任务创建转换实际使用规则，不透传本地字段",
+        "每次创建规则和序列化结果相互独立",
+        "分钟拆分保留跨日时刻"
+      ]
+    },
+    "fix-tasks-fixture-qa": {
+      "result": "pass",
+      "scope": "Local fictional fixtures and storage only; browser interaction verified separately",
+      "notLiveIntegration": true,
+      "loadedScripts": 83,
+      "count": 21,
+      "checks": [
+        "按真实 index 外部脚本顺序加载，禁止网络请求",
+        "数据集明确标记本地虚拟数据且当前批次包含任务、客户、话单",
+        "各模块主键唯一，任务与话单使用当日批次标识",
+        "客户名单关联任务、客户记录及话单不跨租户或企业",
+        "客户号码可按现有校验输入，任务主叫在本租户授权内",
+        "坐席工号保留字符串与前导零，技能等级为 1～10 且关系同范围",
+        "两租户各覆盖待启动、执行中、暂停、结束的两类可操作任务",
+        "暂停可继续同一任务，结束后不保留后续执行标记",
+        "任务进度按客户计数，重呼保留独立的首次历史",
+        "在途话单与终态分离，不计入完成量或终态日志",
+        "纯自动外呼没有坐席、人工录音或人工接听证据",
+        "各模块数据不冒充真实供应商验证",
+        "今日与近 7 日六类报表均非空，统计量来自同一组终态话单",
+        "门店报表不混入总部数据，运营只能看到本人客户",
+        "重复整页加载不增加重复任务、客户、话单或存储记录",
+        "重复安装同一数据批次不增加模块与存储重复记录",
+        "用户自建任务、名单及已编辑演示数据按现有恢复规则保留",
+        "已提交的话单备注刷新后仍显示编辑结果，存储和列表同源",
+        "未提交、跨租户或客户标识不符的日志不能覆盖本轮话单",
+        "用户修改的坐席工号、启停状态与技能分配按现有恢复规则保留",
+        "异常名单、任务与话单存储保持原值，报告无法合并而非覆盖"
+      ],
+      "failures": [],
+      "showcase": {
+        "cohort": "20260915",
+        "tasks": 16,
+        "batches": 30,
+        "customers": 146,
+        "calls": 92,
+        "endedCalls": 84,
+        "liveCalls": 8,
+        "note": "虚拟数据；所有通话、供应商返回样本和结果均为本地演示，不代表真实接口验证。"
+      }
+    }
+  },
+  "browserEvidence": {
+    "taskCreationAndFaults": {
+      "normal": {
+        "taskId": "TASK-PRED-D73640-860716a4",
+        "cnos": "1001",
+        "status": "待启动",
+        "clid": "4000001002",
+        "rawNumber": "4000001002",
+        "retry": "[{\"condition\":{\"sipCause\":[710]},\"retry\":2,\"sort\":1,\"strategy\":[{\"round\":1,\"time\":\"0-0-10\"},{\"round\":2,\"time\":\"0-0-10\"}]}]",
+        "journal": null,
+        "customer": "SHOWCASE-HQ-20260915-POOL-LEAD-C03",
+        "message": "ted\n东风日产总部 · 2026-09-16 19:58\n\t\n草稿\t0\t0\t0\t\n0%\n\t\n历史配置\n—\n\t以执行结果为准\t平台超级管理员\t\n继续创建\n删除\n\n7\t\n修复-失败-rollback\n东风日产总部 · 2026-09-16 19:57\n\t\n草稿\t0\t0\t0\t\n0%\n\t\n历史配置\n—\n\t以执行结果为准\t平台超级管理员\t\n继续创建\n删除\n\n8\t\n修复-失败-journal-final\n东风日产总部 · 2026-09-16 19:57\n\t\n草稿\t0\t0\t0\t\n0%\n\t\n历史配置\n—\n\t以执行结果为准\t平台超级管理员\t\n继续创建\n删除\n\n9\t\n修复-失败-journal-initial\n东风日产总部 · 2026-09-16 19:57\n\t\n草稿\t0\t0\t0\t\n0%\n\t\n历史配置\n—\n\t以执行结果为准\t平台超级管理员\t\n继续创建\n删除\n\n10\t\n修复-失败-draft\n东风日产总部 · 2026-09-16 19:57\n\t\n草稿\t0\t0\t0\t\n0%\n\t\n历史配置\n—\n\t以执行结果为准\t平台超级管理员\t\n继续创建\n删除\n共 31 条\n‹\n1\n/ 4\n›\n任务已创建，所选客户已分配"
+      },
+      "failures": [
+        {
+          "scenario": "created",
+          "throws": 2,
+          "before": {
+            "task": false,
+            "customerTask": "",
+            "journal": true,
+            "thrown": ""
+          },
+          "after": {
+            "task": false,
+            "persisted": false,
+            "customerTask": "",
+            "pendingPool": true,
+            "journal": null,
+            "draft": "草稿"
+          }
+        },
+        {
+          "scenario": "customers",
+          "throws": 2,
+          "before": {
+            "task": false,
+            "customerTask": "",
+            "journal": true,
+            "thrown": ""
+          },
+          "after": {
+            "task": false,
+            "persisted": false,
+            "customerTask": "",
+            "pendingPool": true,
+            "journal": null,
+            "draft": "草稿"
+          }
+        },
+        {
+          "scenario": "draft",
+          "throws": 1,
+          "before": {
+            "task": false,
+            "customerTask": "",
+            "journal": false,
+            "thrown": ""
+          },
+          "after": {
+            "task": false,
+            "persisted": false,
+            "customerTask": "",
+            "pendingPool": true,
+            "journal": null,
+            "draft": "草稿"
+          }
+        },
+        {
+          "scenario": "journal-initial",
+          "throws": 1,
+          "before": {
+            "task": false,
+            "customerTask": "",
+            "journal": false,
+            "thrown": ""
+          },
+          "after": {
+            "task": false,
+            "persisted": false,
+            "customerTask": "",
+            "pendingPool": true,
+            "journal": null,
+            "draft": "草稿"
+          }
+        },
+        {
+          "scenario": "journal-final",
+          "throws": 1,
+          "before": {
+            "task": false,
+            "customerTask": "",
+            "journal": false,
+            "thrown": ""
+          },
+          "after": {
+            "task": false,
+            "persisted": false,
+            "customerTask": "",
+            "pendingPool": true,
+            "journal": null,
+            "draft": "草稿"
+          }
+        },
+        {
+          "scenario": "rollback",
+          "throws": 2,
+          "before": {
+            "task": false,
+            "customerTask": "TASK-PRED-D74247-19b28966",
+            "journal": true,
+            "thrown": ""
+          },
+          "after": {
+            "task": false,
+            "persisted": false,
+            "customerTask": "",
+            "pendingPool": true,
+            "journal": null,
+            "draft": "草稿"
+          }
+        }
+      ],
+      "shortCno": {
+        "created": true,
+        "cnos": "12",
+        "errors": []
+      }
+    },
+    "inboundEditing": {
+      "stale": {
+        "active": "2",
+        "description": "转接客户服务热线导航",
+        "retained": "仅修改备注，不能重新启用",
+        "error": "未能保存\n\n这条规则已被修改，请关闭并重新打开后再保存。当前填写内容已保留。"
+      },
+      "saved": {
+        "id": "97001",
+        "enterpriseId": "7522240",
+        "name": "总部客户来电",
+        "active": "2",
+        "routerType": "1",
+        "routerProperty": "93001",
+        "description": "重新获取后正常修改",
+        "priority": "1",
+        "ruleAreaProperty": "",
+        "ruleTimeProperty": "95001;95002",
+        "ruleTrunkProperty": "00006101",
+        "createTime": "2026-09-15 09:00:00",
+        "localTenantIds": [
+          "TEN-NISSAN-HQ"
+        ],
+        "pending": false
+      }
+    },
+    "taskLifecycle": {
+      "initialPauses": [
+        {
+          "id": "SHOWCASE-HQ-20260915-PRED-RUNNING",
+          "result": {
+            "ok": true,
+            "pending": false,
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 2026091502,
+                  "enterpriseId": 7522240,
+                  "type": 1,
+                  "status": 2,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "confirmedInitialStart": false,
+            "message": "已核对任务状态：暂停（模拟）",
+            "mock": true,
+            "trace": [
+              {
+                "order": 1,
+                "phase": "before",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473647,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091502
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091502,
+                      "enterpriseId": 7522240,
+                      "type": 1,
+                      "status": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              },
+              {
+                "order": 2,
+                "phase": "write",
+                "endpoint": "task/pause",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473647,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091502
+                },
+                "response": {
+                  "result": 0,
+                  "description": "请求已受理（模拟）"
+                },
+                "mock": true
+              },
+              {
+                "order": 3,
+                "phase": "after",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473647,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091502
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091502,
+                      "enterpriseId": 7522240,
+                      "type": 1,
+                      "status": 2,
+                      "statusTriggerType": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "TASK-PRED-0901",
+          "result": {
+            "ok": true,
+            "pending": false,
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800050,
+                  "enterpriseId": 7522240,
+                  "status": 2,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "confirmedInitialStart": false,
+            "message": "已核对任务状态：暂停（模拟）",
+            "mock": true,
+            "trace": [
+              {
+                "order": 1,
+                "phase": "before",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473647,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 800050
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 800050,
+                      "enterpriseId": 7522240,
+                      "status": 1,
+                      "type": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              },
+              {
+                "order": 2,
+                "phase": "write",
+                "endpoint": "task/pause",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473647,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 800050
+                },
+                "response": {
+                  "result": 0,
+                  "description": "请求已受理（模拟）"
+                },
+                "mock": true
+              },
+              {
+                "order": 3,
+                "phase": "after",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473647,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 800050
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 800050,
+                      "enterpriseId": 7522240,
+                      "status": 2,
+                      "type": 1,
+                      "statusTriggerType": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "VIEW-DEMO-HQ-TASK-0",
+          "result": {
+            "ok": false,
+            "message": "当前无权执行此操作",
+            "mock": true
+          }
+        }
+      ],
+      "first": {
+        "ok": true,
+        "pending": false,
+        "response": {
+          "result": 0,
+          "data": {
+            "taskProperty": {
+              "id": 800035,
+              "status": 1,
+              "type": 1,
+              "statusTriggerType": 1
+            }
+          },
+          "mock": true
+        },
+        "confirmedInitialStart": true,
+        "message": "已核对任务状态：运行中（模拟）",
+        "mock": true,
+        "trace": [
+          {
+            "order": 1,
+            "phase": "before",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473647,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800035,
+                  "status": 0,
+                  "type": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          },
+          {
+            "order": 2,
+            "phase": "write",
+            "endpoint": "task/start",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473647,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "description": "请求已受理（模拟）"
+            },
+            "mock": true
+          },
+          {
+            "order": 3,
+            "phase": "after",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473647,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800035,
+                  "status": 1,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          }
+        ]
+      },
+      "second": {
+        "ok": false,
+        "message": "接听坐席正在被其他任务占用，请先暂停或结束原任务并核对状态。",
+        "mock": true
+      },
+      "afterConflict": [
+        {
+          "id": "TASK-PRED-D73640-860716a4",
+          "status": "执行中",
+          "cnos": "1001"
+        },
+        {
+          "id": "TASK-PRED-D37503-9f1eae75",
+          "status": "待启动",
+          "cnos": "1001"
+        }
+      ],
+      "pauseFirst": {
+        "ok": true,
+        "pending": false,
+        "response": {
+          "result": 0,
+          "data": {
+            "taskProperty": {
+              "id": 800035,
+              "status": 2,
+              "type": 1,
+              "statusTriggerType": 1
+            }
+          },
+          "mock": true
+        },
+        "confirmedInitialStart": false,
+        "message": "已核对任务状态：暂停（模拟）",
+        "mock": true,
+        "trace": [
+          {
+            "order": 1,
+            "phase": "before",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473647,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800035,
+                  "status": 1,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          },
+          {
+            "order": 2,
+            "phase": "write",
+            "endpoint": "task/pause",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473647,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "description": "请求已受理（模拟）"
+            },
+            "mock": true
+          },
+          {
+            "order": 3,
+            "phase": "after",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473647,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800035,
+                  "status": 2,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          }
+        ]
+      },
+      "startSecond": {
+        "ok": true,
+        "pending": false,
+        "response": {
+          "result": 0,
+          "data": {
+            "taskProperty": {
+              "id": 800020,
+              "status": 1,
+              "type": 1,
+              "statusTriggerType": 1
+            }
+          },
+          "mock": true
+        },
+        "confirmedInitialStart": true,
+        "message": "已核对任务状态：运行中（模拟）",
+        "mock": true,
+        "trace": [
+          {
+            "order": 1,
+            "phase": "before",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800020
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800020,
+                  "status": 0,
+                  "type": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          },
+          {
+            "order": 2,
+            "phase": "write",
+            "endpoint": "task/start",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800020
+            },
+            "response": {
+              "result": 0,
+              "description": "请求已受理（模拟）"
+            },
+            "mock": true
+          },
+          {
+            "order": 3,
+            "phase": "after",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800020
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800020,
+                  "status": 1,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          }
+        ]
+      },
+      "resumeFirstConflict": {
+        "ok": false,
+        "message": "接听坐席正在被其他任务占用，请先暂停或结束原任务并核对状态。",
+        "mock": true
+      },
+      "endSecond": {
+        "ok": true,
+        "pending": false,
+        "response": {
+          "result": 0,
+          "data": {
+            "taskProperty": {
+              "id": 800020,
+              "status": 3,
+              "type": 1,
+              "statusTriggerType": 1
+            }
+          },
+          "mock": true
+        },
+        "confirmedInitialStart": false,
+        "message": "已核对任务状态：结束（模拟）",
+        "mock": true,
+        "trace": [
+          {
+            "order": 1,
+            "phase": "before",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800020
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800020,
+                  "status": 1,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          },
+          {
+            "order": 2,
+            "phase": "write",
+            "endpoint": "task/stop",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800020
+            },
+            "response": {
+              "result": 0,
+              "description": "请求已受理（模拟）"
+            },
+            "mock": true
+          },
+          {
+            "order": 3,
+            "phase": "after",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800020
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800020,
+                  "status": 3,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          }
+        ]
+      },
+      "resumeFirst": {
+        "ok": true,
+        "pending": false,
+        "response": {
+          "result": 0,
+          "data": {
+            "taskProperty": {
+              "id": 800035,
+              "status": 1,
+              "type": 1,
+              "statusTriggerType": 1
+            }
+          },
+          "mock": true
+        },
+        "confirmedInitialStart": false,
+        "message": "已核对任务状态：运行中（模拟）",
+        "mock": true,
+        "trace": [
+          {
+            "order": 1,
+            "phase": "before",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800035,
+                  "status": 2,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          },
+          {
+            "order": 2,
+            "phase": "write",
+            "endpoint": "task/start",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "description": "请求已受理（模拟）"
+            },
+            "mock": true
+          },
+          {
+            "order": 3,
+            "phase": "after",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800035,
+                  "status": 1,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          }
+        ]
+      },
+      "endFirst": {
+        "ok": true,
+        "pending": false,
+        "response": {
+          "result": 0,
+          "data": {
+            "taskProperty": {
+              "id": 800035,
+              "status": 3,
+              "type": 1,
+              "statusTriggerType": 1
+            }
+          },
+          "mock": true
+        },
+        "confirmedInitialStart": false,
+        "message": "已核对任务状态：结束（模拟）",
+        "mock": true,
+        "trace": [
+          {
+            "order": 1,
+            "phase": "before",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800035,
+                  "status": 1,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          },
+          {
+            "order": 2,
+            "phase": "write",
+            "endpoint": "task/stop",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "description": "请求已受理（模拟）"
+            },
+            "mock": true
+          },
+          {
+            "order": 3,
+            "phase": "after",
+            "endpoint": "task/get",
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789473648,
+              "sign": "00000000000000000000000000000000",
+              "taskId": 800035
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800035,
+                  "status": 3,
+                  "type": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "mock": true
+          }
+        ]
+      },
+      "noReopen": {
+        "ok": false,
+        "message": "当前任务状态不可执行此操作，已结束任务不能重新开启",
+        "mock": true
+      },
+      "auto": [
+        {
+          "action": "start",
+          "result": {
+            "ok": true,
+            "pending": false,
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 2026091505,
+                  "enterpriseId": 7522240,
+                  "type": 2,
+                  "status": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "confirmedInitialStart": true,
+            "message": "已核对任务状态：运行中（模拟）",
+            "mock": true,
+            "trace": [
+              {
+                "order": 1,
+                "phase": "before",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091505,
+                      "enterpriseId": 7522240,
+                      "type": 2,
+                      "status": 0
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              },
+              {
+                "order": 2,
+                "phase": "write",
+                "endpoint": "task/start",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "description": "请求已受理（模拟）"
+                },
+                "mock": true
+              },
+              {
+                "order": 3,
+                "phase": "after",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091505,
+                      "enterpriseId": 7522240,
+                      "type": 2,
+                      "status": 1,
+                      "statusTriggerType": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              }
+            ]
+          },
+          "status": "执行中"
+        },
+        {
+          "action": "pause",
+          "result": {
+            "ok": true,
+            "pending": false,
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 2026091505,
+                  "enterpriseId": 7522240,
+                  "type": 2,
+                  "status": 2,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "confirmedInitialStart": false,
+            "message": "已核对任务状态：暂停（模拟）",
+            "mock": true,
+            "trace": [
+              {
+                "order": 1,
+                "phase": "before",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091505,
+                      "enterpriseId": 7522240,
+                      "type": 2,
+                      "status": 1,
+                      "statusTriggerType": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              },
+              {
+                "order": 2,
+                "phase": "write",
+                "endpoint": "task/pause",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "description": "请求已受理（模拟）"
+                },
+                "mock": true
+              },
+              {
+                "order": 3,
+                "phase": "after",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091505,
+                      "enterpriseId": 7522240,
+                      "type": 2,
+                      "status": 2,
+                      "statusTriggerType": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              }
+            ]
+          },
+          "status": "已暂停"
+        },
+        {
+          "action": "resume",
+          "result": {
+            "ok": true,
+            "pending": false,
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 2026091505,
+                  "enterpriseId": 7522240,
+                  "type": 2,
+                  "status": 1,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "confirmedInitialStart": false,
+            "message": "已核对任务状态：运行中（模拟）",
+            "mock": true,
+            "trace": [
+              {
+                "order": 1,
+                "phase": "before",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091505,
+                      "enterpriseId": 7522240,
+                      "type": 2,
+                      "status": 2,
+                      "statusTriggerType": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              },
+              {
+                "order": 2,
+                "phase": "write",
+                "endpoint": "task/start",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "description": "请求已受理（模拟）"
+                },
+                "mock": true
+              },
+              {
+                "order": 3,
+                "phase": "after",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091505,
+                      "enterpriseId": 7522240,
+                      "type": 2,
+                      "status": 1,
+                      "statusTriggerType": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              }
+            ]
+          },
+          "status": "执行中"
+        },
+        {
+          "action": "terminate",
+          "result": {
+            "ok": true,
+            "pending": false,
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 2026091505,
+                  "enterpriseId": 7522240,
+                  "type": 2,
+                  "status": 3,
+                  "statusTriggerType": 1
+                }
+              },
+              "mock": true
+            },
+            "confirmedInitialStart": false,
+            "message": "已核对任务状态：结束（模拟）",
+            "mock": true,
+            "trace": [
+              {
+                "order": 1,
+                "phase": "before",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091505,
+                      "enterpriseId": 7522240,
+                      "type": 2,
+                      "status": 1,
+                      "statusTriggerType": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              },
+              {
+                "order": 2,
+                "phase": "write",
+                "endpoint": "task/stop",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "description": "请求已受理（模拟）"
+                },
+                "mock": true
+              },
+              {
+                "order": 3,
+                "phase": "after",
+                "endpoint": "task/get",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789473648,
+                  "sign": "00000000000000000000000000000000",
+                  "taskId": 2026091505
+                },
+                "response": {
+                  "result": 0,
+                  "data": {
+                    "taskProperty": {
+                      "id": 2026091505,
+                      "enterpriseId": 7522240,
+                      "type": 2,
+                      "status": 3,
+                      "statusTriggerType": 1
+                    }
+                  },
+                  "mock": true
+                },
+                "mock": true
+              }
+            ]
+          },
+          "status": "已终止"
+        }
+      ],
+      "readUnknown": {
+        "known": false,
+        "status": null,
+        "property": {
+          "id": 3,
+          "status": 99
+        },
+        "raw": {
+          "result": 0,
+          "data": {
+            "taskProperty": {
+              "id": 3,
+              "status": 99
+            }
+          }
+        }
+      }
+    },
+    "refreshRecoveryAndLegacy": {
+      "before": {
+        "customer": "SHOWCASE-HQ-20260915-POOL-AFTERSALES-C01",
+        "task": "TASK-PRED-D53407-9d85105f",
+        "journal": true
+      },
+      "after": {
+        "taskExists": false,
+        "customerTask": "",
+        "journal": null,
+        "draft": "草稿"
+      },
+      "rejected": {
+        "created": false,
+        "text": "项目交付视图\n原型页面\n说明文档\n业务流程图\n时序交互图\n关联系统蓝图\n云外呼平台 · AliCti 演示\n云呼叫\n/\n预外呼\n东风日产 · 当前客户/品牌全部总部与门店\n当前租户\n超级管理租户（内置）\n业务域\n智能外呼\n云联络中心\n客户/品牌\n东风日产\n东风奕派\n超级管理员\n项目资料\n平台超管\n退出\n统一外呼\n工\n运营工作台\n客\n客户管理\n⌄\n云\n云呼叫\n⌄\n预外呼自动外呼呼入服务\n话\n通话记录\n⌄\n表\n统计报表\n⌄\n户\n账号与租户\n⌄\n席\n坐席与技能组\n⌄\n号\n线路与号码\n⌄\n设\n系统管理\n⌄\n演示工具\n仅原型\n← 返回\n创建任务\n×\n新建预外呼任务\n自动拨号 · 人工接听\n\n系统自动拨打名单，客户接通后交给团队坐席。\n\n正在编辑\n✓\n任务与客户\n联系谁\n✓\n呼叫安排\n如何接听\n✓\n时间与重呼\n何时联系\n4\n确认创建\n检查并保存\n检查一下，即可创建\n\n发现需要调整的内容，点击“修改”即可返回对应设置。\n\n✓\n修复-空工号不创建\n\n预外呼 · 东风日产总部\n\n待添加客户\n任务与客户\n修改\n任务名称\n修复-空工号不创建\n所属组织\n东风日产总部\n客户名单\n创建后再添加\n重复号码\n不去重，保留每条记录\n呼叫安排\n修改\n接听团队\n总部·售前咨询\n来电号码\n400****801\n可用坐席\n至少 1 人；低于此值暂停\n坐席忙时\n未设置语音流程\n时间与重呼\n修改\n开始时间\n准备好后手动开始\n再次呼叫\n已关闭\n\n创建后，下一步是在“导入与分配”中为任务添加客户。\n\n所选团队存在无效坐席工号，请先核对坐席资料；所选团队尚无可用坐席工号\n本次外呼\n修复-空工号不创建\n\n东风日产总部\n\n1\n自动拨打客户\n创建后可添加客户\n2\n团队坐席接听\n总部·售前咨询\n来电号码\n400****801\n开始时间\n手动开始\n再次呼叫\n已关闭\n创建后继续管理任务\n\n名单和呼叫设置准备完成后，才能启动任务。\n\n上一步\n第 4 / 4 步\n保存草稿\n确认创建任务"
+      },
+      "oldTasks": [
+        {
+          "cnos": "",
+          "ok": false,
+          "message": "接听坐席配置不完整，请重新核对任务配置后再启动。",
+          "trace": 0
+        },
+        {
+          "cnos": 1001,
+          "ok": false,
+          "message": "接听坐席配置不完整，请重新核对任务配置后再启动。",
+          "trace": 0
+        },
+        {
+          "cnos": "1001,bad",
+          "ok": false,
+          "message": "接听坐席配置不完整，请重新核对任务配置后再启动。",
+          "trace": 0
+        }
+      ],
+      "automatic": {
+        "created": true,
+        "type": 2,
+        "ivrId": 91001,
+        "retry": "[{\"condition\":{\"sipCause\":[718]},\"retry\":1,\"sort\":1,\"strategy\":[{\"round\":1,\"time\":\"0-0-10\"}]}]",
+        "status": "待分配客户"
+      }
+    },
+    "precommitAndRetry": {
+      "pendingImport": {
+        "created": false,
+        "customerTask": "",
+        "journalWrites": 0,
+        "message": "文档\n业务流程图\n时序交互图\n关联系统蓝图\n云外呼平台 · AliCti 演示\n云呼叫\n/\n预外呼\n东风日产 · 当前客户/品牌全部总部与门店\n当前租户\n超级管理租户（内置）\n业务域\n智能外呼\n云联络中心\n客户/品牌\n东风日产\n东风奕派\n超级管理员\n项目资料\n平台超管\n退出\n统一外呼\n工\n运营工作台\n客\n客户管理\n⌄\n云\n云呼叫\n⌄\n预外呼自动外呼呼入服务\n话\n通话记录\n⌄\n表\n统计报表\n⌄\n户\n账号与租户\n⌄\n席\n坐席与技能组\n⌄\n号\n线路与号码\n⌄\n设\n系统管理\n⌄\n演示工具\n仅原型\n已进入云联络中心\n← 返回\n创建任务\n×\n新建预外呼任务\n自动拨号 · 人工接听\n\n系统自动拨打名单，客户接通后交给团队坐席。\n\n正在编辑\n✓\n任务与客户\n联系谁\n✓\n呼叫安排\n如何接听\n✓\n时间与重呼\n何时联系\n4\n确认创建\n检查并保存\n检查一下，即可创建\n\n发现需要调整的内容，点击“修改”即可返回对应设置。\n\n✓\n边界-导入待处理\n\n预外呼 · 东风日产总部\n\n待启动\n任务与客户\n修改\n任务名称\n边界-导入待处理\n所属组织\n东风日产总部\n客户名单\n已选 1 位，创建时分配\n重复号码\n不去重，保留每条记录\n呼叫安排\n修改\n接听团队\n总部·售前咨询\n来电号码\n400****801\n可用坐席\n至少 1 人；低于此值暂停\n坐席忙时\n未设置语音流程\n时间与重呼\n修改\n开始时间\n准备好后手动开始\n再次呼叫\n已关闭\n\n创建后可在任务列表查看进度和操作启动。\n\n来电号码须使用完整号码，请重新选择可用号码\n本次外呼\n边界-导入待处理\n\n东风日产总部\n\n1\n自动拨打客户\n已选 1 位客户\n2\n团队坐席接听\n总部·售前咨询\n来电号码\n400****801\n开始时间\n手动开始\n再次呼叫\n已关闭\n创建后继续管理任务\n\n名单和呼叫设置准备完成后，才能启动任务。\n\n上一步\n第 4 / 4 步\n保存草稿\n确认创建任务"
+      },
+      "initialFailure": {
+        "created": false,
+        "customerTask": "",
+        "journal": null
+      },
+      "retry": {
+        "count": 1,
+        "taskId": "TASK-PRED-D01156-919c8d4d",
+        "customerTask": "TASK-PRED-D01156-919c8d4d",
+        "clid": "4000001002",
+        "journal": null
+      }
+    }
+  },
+  "freshDefaultSeedCheck": {
+    "running": [
+      {
+        "taskId": "SHOWCASE-SH-20260915-PRED-RUNNING",
+        "tenantId": "TEN-NISSAN-SH",
+        "enterpriseId": "7522240",
+        "plan": "SHOWCASE-SH-20260915-PRED-RUNNING-CONFIG",
+        "groupId": "SHOWCASE-SH-SKILL-SALES",
+        "cnos": "2202,2201",
+        "displayOnly": false
+      },
+      {
+        "taskId": "SHOWCASE-HQ-20260915-PRED-RUNNING",
+        "tenantId": "TEN-NISSAN-HQ",
+        "enterpriseId": "7522240",
+        "plan": "SHOWCASE-HQ-20260915-PRED-RUNNING-CONFIG",
+        "groupId": "SHOWCASE-HQ-SKILL-SALES",
+        "cnos": "1201,0012",
+        "displayOnly": false
+      },
+      {
+        "taskId": "TASK-PRED-0901",
+        "tenantId": "TEN-NISSAN-HQ",
+        "enterpriseId": "7522240",
+        "plan": "PLAN-HQ-PRED",
+        "groupId": "SG-ALI-HQ-AFTER",
+        "cnos": "1001,1002",
+        "displayOnly": false
+      },
+      {
+        "taskId": "VIEW-DEMO-HQ-TASK-0",
+        "tenantId": "TEN-NISSAN-HQ",
+        "enterpriseId": "7522240",
+        "plan": "",
+        "groupId": "VIEW-DEMO-HQ-GROUP",
+        "cnos": "1013,1014,1015,1016",
+        "displayOnly": true
+      },
+      {
+        "taskId": "VIEW-DEMO-SH-TASK-0",
+        "tenantId": "TEN-NISSAN-SH",
+        "enterpriseId": "7522240",
+        "plan": "",
+        "groupId": "VIEW-DEMO-SH-GROUP",
+        "cnos": "1017,1018,1019,1020",
+        "displayOnly": true
+      },
+      {
+        "taskId": "VIEW-DEMO-EPI-TASK-0",
+        "tenantId": "TEN-EPI-HQ",
+        "enterpriseId": "DEMO-ENT-003",
+        "plan": "",
+        "groupId": "VIEW-DEMO-EPI-GROUP",
+        "cnos": "1021,1022,1023,1024",
+        "displayOnly": true
+      }
+    ],
+    "pairs": []
+  },
+  "changes": [
+    {
+      "file": "js/pages/cloud-task-workspace.js",
+      "change": "拒绝请求errors/pending；从原始hotline生成clid；创建前写恢复日志，客户/任务/草稿持久化全部成功后展示；失败逐项补偿且刷新恢复。"
+    },
+    {
+      "file": "js/pages/customer-tasks.js",
+      "change": "定点新增prepareTaskAttachment/commitTaskAttachment/rollbackTaskAttachment；只恢复本次客户行，保护其他行及后续修改，未修改其他owner的syncCall。"
+    },
+    {
+      "file": "js/components/alicti-task-control.js",
+      "change": "同enterpriseId+cno运行互斥；旧显式空或非法cnos不fallback；既有未带cnos的seed按明确团队和有效成员解析，字符串12与0012保持不同。"
+    },
+    {
+      "file": "js/components/alicti-inbound.js + js/pages/inbound-routing.js",
+      "change": "本地编辑快照令牌识别同一路由的并发变化，拒绝旧表单覆盖；令牌不传供应商。"
+    },
+    {
+      "file": "qa/verify-alicti-ivr.cjs",
+      "change": "公开客户事务方法升级后补正常测试桩；保留attach计数和已有重呼约束，原D020用例补合法团队/cno前提。"
+    },
+    {
+      "file": "qa/verify-task-attachment-transaction.cjs",
+      "change": "真实customer-tasks模块9项事务测试，包括原值保护、跨范围、失败和序列化恢复。"
+    }
+  ],
+  "limitations": [
+    "全部为本地原型和合成供应商响应，未验证真实供应商运行。",
+    "客户存储与任务存储同时持续不可写时保留恢复日志并阻止重复创建；存储恢复后可补偿，不能保证浏览器存储损坏/用户手动清除日志后的恢复。",
+    "并发旧编辑保护是平台本地快照，不新增或冒充供应商版本号、ETag或网络并发保证。",
+    "浏览器最初两次组合测试在抽屉退场动画期间发生选择器重复而终止；最终独立重载的真实DOM呼入脚本与完整事务脚本成功，前两次不计成功证据。"
+  ],
+  "reproductionScripts": {
+    "fix-tasks-browser": "async page=>{\n const out={};await page.reload();await page.waitForFunction(()=>window.AliCtiInbound&&window.CloudTaskWorkspace);await page.evaluate(()=>{DemoSwitch.enter('ACC-SUPER-001');AppState.chooseInstance('7522240');AppState.chooseDomain('CLOUD_CONTACT_CENTER');});\n out.normal=await page.evaluate(()=>{CloudTaskWorkspace.clearActiveContext();RouteRuntime.openPrimary('predictive-tasks');CloudTaskWorkspace.start('预外呼');CloudTaskWorkspace.setTenant('TEN-NISSAN-HQ');CloudTaskWorkspace.update('name','修复3-完整外显');CloudTaskWorkspace.setResource('skillGroupId','SG-ALI-HQ-SALES');CloudTaskWorkspace.setResource('callerNumberId','NUM-400-8801');CloudTaskWorkspace.update('minAvailableAgentCount','1');const c=CustomerTasks.pendingForTask('TEN-NISSAN-HQ','7522240')[0];CloudTaskWorkspace.toggleCustomer(c.id,true);CloudTaskWorkspace.setRetryMode('advanced');CloudTaskWorkspace.toggleRetryCode(710,true);CloudTaskWorkspace.changeRetryCount(2);CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.submit();const t=CloudCallData.tasks.find(t=>t.name==='修复3-完整外显');return {taskId:t?.taskId,cnos:t?.alictiCreateDraft.fields.cnos,status:t?.status,clid:t?.alictiImportDrafts?.[0]?.fields.taskTelList[0].clid,rawNumber:CloudCallData.phoneNumbers.find(n=>n.numberId==='NUM-400-8801').alictiNumber.hotline,retry:t?.alictiCreateDraft.fields.retryStrategy,journal:localStorage.getItem('cloud-task-creation-transaction-v1'),customer:c.id,message:document.body.innerText.slice(-500)};});\n const scenarios=['created','customers','draft','journal-initial','journal-final','rollback'];out.failures=[];\n for(const scenario of scenarios){out.failures.push(await page.evaluate(scenario=>{\n  CloudTaskWorkspace.clearActiveContext();RouteRuntime.openPrimary('predictive-tasks');CloudTaskWorkspace.start('预外呼');CloudTaskWorkspace.setTenant('TEN-NISSAN-HQ');const name='修复3-失败-'+scenario;CloudTaskWorkspace.update('name',name);CloudTaskWorkspace.setResource('skillGroupId','SG-ALI-HQ-SALES');CloudTaskWorkspace.setResource('callerNumberId','NUM-400-8801');CloudTaskWorkspace.update('minAvailableAgentCount','1');const c=CustomerTasks.pendingForTask('TEN-NISSAN-HQ','7522240')[0];CloudTaskWorkspace.toggleCustomer(c.id,true);CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.next();\n  const set=Storage.prototype.setItem;let taskWriteFailed=false,throws=0;\n  Storage.prototype.setItem=function(key,value){const created=key==='cloud-task-created-v1',customer=key==='customer-task-batches-v1',journal=key==='cloud-task-creation-transaction-v1';const fail=scenario==='created'&&created||scenario==='customers'&&customer||scenario==='draft'&&key==='cloud-task-wizard-drafts-v1'&&JSON.parse(value).some(x=>x.values.name===name&&x.status==='已提交')||scenario==='journal-initial'&&journal||scenario==='journal-final'&&journal&&JSON.parse(value).committed||scenario==='rollback'&&(created||customer&&taskWriteFailed);if(fail){if(created)taskWriteFailed=true;throws++;throw new DOMException('injected','QuotaExceededError');}return set.call(this,key,value);};\n  let error='';try{CloudTaskWorkspace.submit();}catch(e){error=e.message;}finally{Storage.prototype.setItem=set;}\n  const before={task:CloudCallData.tasks.some(t=>t.name===name),customerTask:CustomerTasks.row(c.id)?.r.taskId||'',journal:!!localStorage.getItem('cloud-task-creation-transaction-v1'),thrown:error};\n  CloudTaskWorkspace.clearActiveContext();CloudTaskWorkspace.start('预外呼');\n  const after={task:CloudCallData.tasks.some(t=>t.name===name),persisted:JSON.parse(sessionStorage.getItem('cloud-task-created-v1')||'[]').some(t=>t.name===name),customerTask:CustomerTasks.row(c.id)?.r.taskId||'',pendingPool:CustomerTasks.pendingForTask('TEN-NISSAN-HQ','7522240').some(r=>r.id===c.id),journal:localStorage.getItem('cloud-task-creation-transaction-v1'),draft:JSON.parse(sessionStorage.getItem('cloud-task-wizard-drafts-v1')).find(d=>d.values.name===name)?.status};\n  return {scenario,throws,before,after};\n },scenario));}\n out.shortCno=await page.evaluate(()=>{const agent=CloudCallData.agents.find(a=>a.contactCenterIdentityId==='CCI-N-001'),old=agent.cno;agent.cno='12';try{CloudTaskWorkspace.clearActiveContext();RouteRuntime.openPrimary('predictive-tasks');CloudTaskWorkspace.start('预外呼');CloudTaskWorkspace.setTenant('TEN-NISSAN-HQ');CloudTaskWorkspace.update('name','修复3-工号12');CloudTaskWorkspace.setResource('skillGroupId','SG-ALI-HQ-SALES');CloudTaskWorkspace.setResource('callerNumberId','NUM-400-8801');CloudTaskWorkspace.update('minAvailableAgentCount','1');CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.submit();const t=CloudCallData.tasks.find(t=>t.name==='修复3-工号12');return {created:!!t,cnos:t?.alictiCreateDraft.fields.cnos,errors:t?.alictiCreateDraft.errors};}finally{agent.cno=old;}});\n return out;\n}\n",
+    "fix-tasks-inbound": "async page=>{\n await page.reload();await page.waitForFunction(()=>window.AliCtiInbound);await page.evaluate(()=>{DemoSwitch.enter('ACC-SUPER-001');AppState.chooseInstance('7522240');AppState.chooseDomain('CLOUD_CONTACT_CENTER');RouteRuntime.openPrimary('inbound-service');AliCtiInbound.setActive('97001',1,AliCtiInbound.context());});\n await page.waitForFunction(()=>document.querySelectorAll('#routeDescription').length===0);\n await page.evaluate(()=>Pages['inbound-routing'].openRoute('97001',AliCtiInbound.context()));await page.waitForSelector('#routeDescription');\n await page.evaluate(()=>AliCtiInbound.setActive('97001',2,AliCtiInbound.context()));await page.locator('#routeDescription').fill('仅修改备注，不能重新启用');await page.locator('#routeSave').click();\n const stale=await page.evaluate(()=>({active:AliCtiInbound.get('97001').row.active,description:AliCtiInbound.get('97001').row.description,retained:document.getElementById('routeDescription')?.value,error:document.getElementById('routeError')?.innerText}));\n await page.reload();await page.waitForFunction(()=>window.AliCtiInbound);await page.evaluate(()=>{RouteRuntime.openPrimary('inbound-service');Pages['inbound-routing'].openRoute('97001',AliCtiInbound.context());});await page.waitForSelector('#routeDescription');await page.locator('#routeDescription').fill('重新获取后正常修改');await page.locator('#routeSave').click();\n const saved=await page.evaluate(()=>AliCtiInbound.get('97001').row);\n return {stale,saved};\n}\n",
+    "fix-tasks-control": "async page=>await page.evaluate(()=>{\n const out={};RouteRuntime.openPrimary('predictive-tasks');AliCtiDemo.taskControlScenario='success';\n out.initialPauses=CloudCallData.tasks.filter(t=>t.tenantId==='TEN-NISSAN-HQ'&&t.callType==='预外呼'&&t.status==='执行中').map(t=>({id:t.taskId,result:AliCtiAdapter.controlTask(t,'pause',true)}));\n const a=CloudCallData.tasks.find(t=>t.name==='修复3-完整外显'),b=CloudCallData.tasks.find(t=>t.name==='修复2-完整外显');\n out.first=AliCtiAdapter.controlTask(a,'start',true);out.second=AliCtiAdapter.controlTask(b,'start',true);out.afterConflict=[a,b].map(t=>({id:t.taskId,status:t.status,cnos:t.alictiCreateDraft.fields.cnos}));\n out.pauseFirst=AliCtiAdapter.controlTask(a,'pause',true);out.startSecond=AliCtiAdapter.controlTask(b,'start',true);out.resumeFirstConflict=AliCtiAdapter.controlTask(a,'resume',true);\n out.endSecond=AliCtiAdapter.controlTask(b,'terminate',true);out.resumeFirst=AliCtiAdapter.controlTask(a,'resume',true);out.endFirst=AliCtiAdapter.controlTask(a,'terminate',true);out.noReopen=AliCtiAdapter.controlTask(a,'start',true);\n const auto=CloudCallData.tasks.find(t=>t.taskId==='SHOWCASE-HQ-20260915-AUTO-READY');out.auto=[];for(const action of ['start','pause','resume','terminate'])out.auto.push({action,result:AliCtiAdapter.controlTask(auto,action,true),status:auto.status});\n out.readUnknown=AliCtiAdapter.readTaskControlResult({result:0,data:{taskProperty:{id:3,status:99}}},3,'7522240');\n return out;\n})\n",
+    "fix-tasks-recovery": "async page=>{\n await page.reload();await page.waitForFunction(()=>window.CloudTaskWorkspace&&window.AliCtiAdapter);const before=await page.evaluate(()=>{\n CloudTaskWorkspace.clearActiveContext();RouteRuntime.openPrimary('predictive-tasks');CloudTaskWorkspace.start('预外呼');CloudTaskWorkspace.setTenant('TEN-NISSAN-HQ');CloudTaskWorkspace.update('name','修复-刷新恢复');CloudTaskWorkspace.setResource('skillGroupId','SG-ALI-HQ-SALES');CloudTaskWorkspace.setResource('callerNumberId','NUM-400-8801');CloudTaskWorkspace.update('minAvailableAgentCount','1');const c=CustomerTasks.pendingForTask('TEN-NISSAN-HQ','7522240')[0];CloudTaskWorkspace.toggleCustomer(c.id,true);CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.next();const set=Storage.prototype.setItem;let wrote=false;Storage.prototype.setItem=function(k,v){if(k==='cloud-task-created-v1'){wrote=true;throw Error('quota');}if(wrote&&k==='customer-task-batches-v1')throw Error('rollback unavailable');return set.call(this,k,v);};try{CloudTaskWorkspace.submit();}finally{Storage.prototype.setItem=set;}return {customer:c.id,task:CustomerTasks.row(c.id)?.r.taskId,journal:!!localStorage.getItem('cloud-task-creation-transaction-v1')};});\n await page.reload();await page.waitForFunction(()=>window.CloudTaskWorkspace&&window.AliCtiAdapter);const after=await page.evaluate(id=>({taskExists:CloudCallData.tasks.some(t=>t.name==='修复-刷新恢复'),customerTask:CustomerTasks.row(id)?.r.taskId||'',journal:localStorage.getItem('cloud-task-creation-transaction-v1'),draft:JSON.parse(sessionStorage.getItem('cloud-task-wizard-drafts-v1')).find(d=>d.values.name==='修复-刷新恢复')?.status}),before.customer);\n const rejected=await page.evaluate(()=>{const a=CloudCallData.agents.find(a=>a.contactCenterIdentityId==='CCI-N-001'),old=a.cno;a.cno='';try{CloudTaskWorkspace.clearActiveContext();RouteRuntime.openPrimary('predictive-tasks');CloudTaskWorkspace.start('预外呼');CloudTaskWorkspace.setTenant('TEN-NISSAN-HQ');CloudTaskWorkspace.update('name','修复-空工号不创建');CloudTaskWorkspace.setResource('skillGroupId','SG-ALI-HQ-SALES');CloudTaskWorkspace.setResource('callerNumberId','NUM-400-8801');CloudTaskWorkspace.update('minAvailableAgentCount','1');CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.submit();return {created:CloudCallData.tasks.some(t=>t.name==='修复-空工号不创建'),text:document.body.innerText.slice(-1000)};}finally{a.cno=old;}});\n const oldTasks=await page.evaluate(()=>{const row=CloudCallData.tasks.find(t=>t.name==='修复-完整外显'),old=structuredClone(row),results=[];try{for(const cnos of ['',1001,'1001,bad']){row.status='待启动';row.providerStatusCode=0;row.alictiCreateDraft.fields.cnos=cnos;const r=AliCtiAdapter.controlTask(row,'start',true);results.push({cnos,ok:r.ok,message:r.message,trace:AliCtiAdapter.taskControlTrace.length});}return results;}finally{Object.assign(row,old);}});\n const automatic=await page.evaluate(()=>{CloudTaskWorkspace.clearActiveContext();RouteRuntime.openPrimary('ivr-tasks');CloudTaskWorkspace.start('IVR 外呼');CloudTaskWorkspace.setTenant('TEN-NISSAN-HQ');CloudTaskWorkspace.update('name','修复-自动新建');CloudTaskWorkspace.setResource('providerIvrId','91001');CloudTaskWorkspace.next();CloudTaskWorkspace.setResource('callerNumberId','SHOWCASE-HQ-NUM');CloudTaskWorkspace.setRetryMode('advanced');CloudTaskWorkspace.toggleRetryCode(718,true);CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.submit();const t=CloudCallData.tasks.find(t=>t.name==='修复-自动新建');return {created:!!t,type:t?.alictiCreateDraft.fields.type,ivrId:t?.alictiCreateDraft.fields.ivrId,retry:t?.alictiCreateDraft.fields.retryStrategy,status:t?.status};});\n return {before,after,rejected,oldTasks,automatic};\n}\n",
+    "fix-tasks-precommit": "async page=>{\n await page.evaluate(()=>{DemoSwitch.enter('ACC-SUPER-001');AppState.chooseInstance('7522240');AppState.chooseDomain('CLOUD_CONTACT_CENTER');});\n return await page.evaluate(()=>{\n const out={};function fill(name){CloudTaskWorkspace.clearActiveContext();RouteRuntime.openPrimary('predictive-tasks');CloudTaskWorkspace.start('预外呼');CloudTaskWorkspace.setTenant('TEN-NISSAN-HQ');CloudTaskWorkspace.update('name',name);CloudTaskWorkspace.setResource('skillGroupId','SG-ALI-HQ-SALES');CloudTaskWorkspace.setResource('callerNumberId','NUM-400-8801');CloudTaskWorkspace.update('minAvailableAgentCount',1);const c=CustomerTasks.pendingForTask('TEN-NISSAN-HQ','7522240')[0];CloudTaskWorkspace.toggleCustomer(c.id,true);CloudTaskWorkspace.next();CloudTaskWorkspace.next();CloudTaskWorkspace.next();return c;}\n const c=fill('边界-导入待处理'),number=CloudCallData.phoneNumbers.find(n=>n.numberId==='NUM-400-8801'),old=number.alictiNumber.hotline;number.alictiNumber.hotline='400****801';let journalWrites=0;const set=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='cloud-task-creation-transaction-v1')journalWrites++;return set.call(this,k,v);};try{CloudTaskWorkspace.submit();}finally{number.alictiNumber.hotline=old;Storage.prototype.setItem=set;}\n out.pendingImport={created:CloudCallData.tasks.some(t=>t.name==='边界-导入待处理'),customerTask:CustomerTasks.row(c.id).r.taskId||'',journalWrites,message:document.body.innerText.slice(-800)};\n const customer=fill('边界-日志首写重试');Storage.prototype.setItem=function(k,v){if(k==='cloud-task-creation-transaction-v1')throw Error('quota');return set.call(this,k,v);};try{CloudTaskWorkspace.submit();}finally{Storage.prototype.setItem=set;}out.initialFailure={created:CloudCallData.tasks.some(t=>t.name==='边界-日志首写重试'),customerTask:CustomerTasks.row(customer.id).r.taskId||'',journal:localStorage.getItem('cloud-task-creation-transaction-v1')};CloudTaskWorkspace.submit();const rows=CloudCallData.tasks.filter(t=>t.name==='边界-日志首写重试');out.retry={count:rows.length,taskId:rows[0]?.taskId,customerTask:CustomerTasks.row(customer.id).r.taskId,clid:rows[0]?.alictiImportDrafts[0].fields.taskTelList[0].clid,journal:localStorage.getItem('cloud-task-creation-transaction-v1')};return out;\n });\n}\n"
+  },
+  "browserHealth": {
+    "consoleErrors": 0,
+    "consoleWarnings": 1,
+    "warning": "Allow attribute will take precedence over allowfullscreen（既有delivery-nav提示）",
+    "staticResourceRequests": 777,
+    "statusCounts": {
+      "200": 714,
+      "304": 63
+    },
+    "failedResources": 0,
+    "supplierApiRequests": 0,
+    "supplement": {
+      "consoleErrors": 0,
+      "consoleWarnings": 1,
+      "staticResourceRequests": 111,
+      "failedResources": 0,
+      "statusCounts": {
+        "200": 111
+      },
+      "verboseMessages": 1
+    }
+  },
+  "automatedAssertionsPassed": 110
+}

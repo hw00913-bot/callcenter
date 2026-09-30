@@ -1,0 +1,1848 @@
+{
+  "title": "云外呼原型全量回归问题报告",
+  "date": "2026-09-15T19:40:29+08:00",
+  "baselineCommit": "0b98f4b040cb9d37c250f3c312140b3ea4084d2a",
+  "baselineVersion": "2026-09-15-resource-ux-1",
+  "result": "issues_found",
+  "counts": {
+    "confirmedNew": 16,
+    "interfaceAlignment": 9,
+    "platformBehavior": 7,
+    "P1": 7,
+    "P2": 9,
+    "knownUnfixed": 1,
+    "verificationIssues": 2,
+    "uniquePrimaryRoutes": 33,
+    "routeOpenings": 141,
+    "unchangedBusinessFiles": 300
+  },
+  "methodology": "代码与当前56份官方来源快照/已采纳用户确认对照；6份关键官方页面本轮重新读取；隔离浏览器角色入口、主路径、页面处理器、官方形状回执、故障注入和白盒检查。未发起供应商业务请求。",
+  "findings": [
+    {
+      "id": "RG-01",
+      "originalId": "TASK-AUDIT-04",
+      "priority": "P1",
+      "category": "接口对齐",
+      "title": "已有工号 12 被丢弃，空坐席列表仍可创建任务",
+      "module": "预测外呼坐席工号映射",
+      "contract": "task/create · cnos；坐席同步与技能更新 · cno",
+      "method": "既有供应商坐席字段注入 + 正常页面处理器完整提交",
+      "steps": [
+        "在隔离会话中将已有效归属总部团队的坐席CCI-N-001的cno临时改为字符串12，模拟供应商已确认存在的短工号；其余属性不变。",
+        "创建总部预外呼任务，选该坐席所在SG-ALI-HQ-SALES、NUM-400-8801、最少坐席1及一位客户，按四步完成创建。",
+        "检查task/create草稿后恢复原工号。"
+      ],
+      "actual": "UI团队仍有有效成员，但taskFields把12过滤掉，生成callGroupType=1、cnos=\"\"，pending有“所选团队尚无可用坐席工号”；errors为空导致submit继续生成成功响应和待启动任务。",
+      "expected": "既有工号按D-014字符串原值保留；若必填坐席列表确实为空，则确认页阻止创建。",
+      "impact": "合法的供应商既有坐席无法参与预测任务；演示仍显示创建成功，开发可能沿用无效请求。",
+      "sources": [
+        {
+          "id": "D-014 / CF-01已关闭",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/docs/decisions.md",
+          "location": "用户转述供应商确认全部cno为String，0012和12是两个工号，完整一致。"
+        },
+        {
+          "id": "API-311",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/development/reference/alicti/API-311.txt",
+          "location": "396–401行：cnos String；callGroupType=1时必填，多个英文逗号分隔。",
+          "url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/新增任务接口.html"
+        }
+      ],
+      "basis": [],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:49",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:50",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:645",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:84",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:129",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-seat-import.js:84",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-center.js:75"
+      ],
+      "sourceReport": "task-audit.json",
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-final.js",
+          "runOutput": "/private/tmp/audit-tasks-final-results.txt",
+          "section": "shortCnoSubmit",
+          "observed": {
+            "created": true,
+            "status": "待启动",
+            "request": {
+              "endpoint": "task/create",
+              "fields": {
+                "name": "审计-已有12号坐席",
+                "type": 1,
+                "autoStart": 0,
+                "autoComplete": 1,
+                "autoDelete": 0,
+                "callGroupType": 1,
+                "cnos": "",
+                "minAvailableAgentCount": 1
+              },
+              "pending": [
+                "所选团队尚无可用坐席工号"
+              ],
+              "errors": [],
+              "prerequisites": [],
+              "mock": true
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800011,
+                  "status": 0,
+                  "type": 1
+                }
+              },
+              "mock": true
+            }
+          }
+        }
+      ],
+      "caveat": "没有主张新建坐席的3–10位要求可以取消；此例只针对供应商已存在工号的读取、引用及任务映射。",
+      "crossModuleContribution": {
+        "countSeparately": false,
+        "mergeWith": "任务agent既有cno12被创建校验误用的问题",
+        "title": "3–10位新建规则误用于既有工号12的同步与技能修改",
+        "actual": {
+          "query": "seatQueryResult整页pending=true",
+          "import": "后续buildAgent仍拒绝12",
+          "skills": "skillUpdateFields清空技能也阻断",
+          "authenticate": "authenticateFields允许String 12且不改写"
+        },
+        "sourceIds": [
+          "DOC-342",
+          "DOC-343",
+          "DOC-331",
+          "API-309"
+        ],
+        "decision": "D-014",
+        "code": [
+          "js/components/alicti-fields.js:84",
+          "js/components/alicti-fields.js:129",
+          "js/components/alicti-seat-import.js:84",
+          "js/pages/agent-center.js:75"
+        ],
+        "evidence": {
+          "queryExisting12": {
+            "rows": [],
+            "total": null,
+            "pending": true,
+            "raw": {
+              "result": 0,
+              "data": {
+                "total": 1,
+                "agents": [
+                  {
+                    "agent": {
+                      "id": 999111,
+                      "enterpriseId": 7522240,
+                      "cno": "12",
+                      "name": "既有两位工号",
+                      "areaCode": "021",
+                      "active": 1,
+                      "isOb": 1
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "skillExisting12": {
+            "endpoint": "agent/batchUpdateAgentSkill",
+            "body": [],
+            "pending": [
+              "坐席工号须为3–10位数字"
+            ],
+            "mock": true
+          },
+          "authExisting12": {
+            "fields": {
+              "validateType": 2,
+              "enterpriseId": 7522240,
+              "timestamp": 1789471594,
+              "sign": "00000000000000000000000000000000",
+              "cno": "12"
+            },
+            "pending": [],
+            "mock": true,
+            "signMode": "MD5格式占位，仅演示；未进行真实签名",
+            "endpoint": "agentLogin/authenticateJsonp"
+          }
+        }
+      },
+      "fixDirection": "区分新增与既有工号校验；既有工号保持完整字符串。提交前必须检查所有必填字段，不能只检查 errors 而忽略无效必填参数。",
+      "acceptance": "既有 12、0012 均可同步、改技能和创建预测任务，二者仍是不同身份；真正空的 cnos 不能提交。"
+    },
+    {
+      "id": "RG-02",
+      "originalId": "TASK-AUDIT-01",
+      "priority": "P1",
+      "category": "接口对齐",
+      "title": "显示用的脱敏号码进入外显参数",
+      "module": "任务名单导入 / 来电外显",
+      "contract": "task/importTaskTel · taskTelList[].clid",
+      "method": "代码调用（正常页面处理器，参数来自当前可选项；无业务数据注入）",
+      "steps": [
+        "进入总部预外呼新建任务，填写名称并选择一位未分配客户。",
+        "接听团队选择 SG-ALI-HQ-SALES，来电号码选择可用的 NUM-400-8801，最少可用坐席填写1。",
+        "依次通过四步确认创建，读取此任务 alictiImportDrafts。"
+      ],
+      "actual": "任务成功创建并模拟导入，clid=400****801，pending为空。选中资源原始 alictiNumber.hotline=4000001002。",
+      "expected": "外显字段使用所选资源的完整原始热线号码4000001002；显示掩码不得进入接口号码参数。",
+      "impact": "真实接口将收到非电话号码字符串，可能拒绝导入或无法按用户选择的号码外显；演示成功掩盖字段错误。",
+      "sources": [
+        {
+          "id": "API-312",
+          "url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/任务号码导入接口.html",
+          "location": "taskTelList对象字段 clid，String，可选，电话号对应的外显号码",
+          "liveSnapshot": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/memory/evidence/full-regression-20260915/live-docs/API-312.txt"
+        },
+        {
+          "id": "D-026",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/docs/decisions.md"
+        }
+      ],
+      "basis": [],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:715",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:69"
+      ],
+      "sourceReport": "task-audit.json",
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-deep.js",
+          "runOutput": "/private/tmp/audit-tasks-deep-results.txt",
+          "section": "masked",
+          "observed": {
+            "taskId": "TASK-PRED-D08517-d4ec1acd",
+            "status": "待启动",
+            "create": {
+              "endpoint": "task/create",
+              "fields": {
+                "name": "审计-可选掩码号码",
+                "type": 1,
+                "autoStart": 0,
+                "autoComplete": 1,
+                "autoDelete": 0,
+                "callGroupType": 1,
+                "cnos": "1001",
+                "minAvailableAgentCount": 1
+              },
+              "pending": [],
+              "errors": [],
+              "prerequisites": [],
+              "mock": true
+            },
+            "imports": [
+              {
+                "endpoint": "task/importTaskTel",
+                "sourceBatchId": "SHOWCASE-HQ-20260915-POOL-LEAD",
+                "fields": {
+                  "name": "总部·待分配·试驾邀约",
+                  "taskId": 800009,
+                  "importTelAutoStart": 0,
+                  "taskTelList": [
+                    {
+                      "tel": "13900000051",
+                      "clid": "400****801",
+                      "property": "{\"batchCustomerId\":\"SHOWCASE-HQ-20260915-POOL-LEAD-C03\",\"batchId\":\"SHOWCASE-HQ-20260915-POOL-LEAD\"}"
+                    }
+                  ],
+                  "isRepeat": 0
+                },
+                "pending": [],
+                "mock": true
+              }
+            ],
+            "selected": {
+              "numberId": "NUM-400-8801",
+              "boundSkillGroupIds": [
+                "SG-ALI-HQ-SALES",
+                "SG-ALI-HQ-AFTER",
+                "SG-ALI-SH-SALES"
+              ],
+              "number": "400****801",
+              "enterpriseId": "7522240",
+              "lineId": "LINE-ALI-01",
+              "usage": "呼入+呼出",
+              "aliyunUsage": "Bidirection",
+              "status": "正常",
+              "businessStatus": "正常",
+              "contactFlowId": "FLOW-NISSAN-ENTRY-V8",
+              "authorizedTenantIds": [
+                "TEN-NISSAN-HQ",
+                "TEN-NISSAN-SH"
+              ],
+              "referenceCount": 6,
+              "restoreSnapshot": null,
+              "alictiNumber": {
+                "id": 960002,
+                "hotline": "4000001002",
+                "displayNumber": "4000001002",
+                "numberType": 1,
+                "status": 1,
+                "isIbRight": 1,
+                "isInUse": 1,
+                "isPredictiveLeft": 1,
+                "isPredictiveRight": 0,
+                "isPreviewRight": 0,
+                "isIntl": 0,
+                "isSipLeft": 0,
+                "isWebCallLeft": 0,
+                "isWebCallRight": 0
+              },
+              "numberEvidence": "独立模拟响应，非真实号码资源"
+            }
+          }
+        }
+      ],
+      "caveat": "此例使用现有遗留400号码的界面可选项；是否应允许此400号码外呼属于资源模块另行审核。即使资源类型修正，共享映射读取显示number而非原始hotline的问题仍存在。",
+      "crossModuleContribution": null,
+      "fixDirection": "从选中号码资源读取完整 hotline，将显示文案与请求原值分离；提交前检查号码参数不含掩码。",
+      "acceptance": "选择现有脱敏显示号码，列表仍按原设计展示，导入草稿 clid 等于完整原始 hotline 且不含星号。"
+    },
+    {
+      "id": "RG-03",
+      "originalId": "RES-01",
+      "priority": "P1",
+      "category": "接口对齐",
+      "title": "异账号坐席回执被归入当前账号",
+      "module": "坐席同步",
+      "contract": "座席详细信息列表/详情 · enterpriseId",
+      "method": "browser_supplier_shaped_fixture_injection",
+      "steps": [
+        "在隔离浏览器的已有坐席模拟响应池加入外层请求账号7522240、agent.enterpriseId=7522241、cno=88881的记录。",
+        "超级管理员进入从 AliCti 同步坐席，目标租户为东风日产总部。",
+        "翻到第二页，勾选工号88881并同步。"
+      ],
+      "actual": "返回坐席 enterpriseId=7522241，仍显示同步成功；本地新坐席 enterpriseId 被 buildAgent 重写成7522240，tenantId=TEN-NISSAN-HQ。",
+      "expected": "比对请求账号、回执账号、所选工号和回执身份；不一致时保留异常证据并拒绝本地归属写入。",
+      "impact": "来自不同供应商账号的同工号可能被错误认作当前身份；后续技能或启停请求会作用于错误账号下的同工号。",
+      "sources": [
+        {
+          "id": "DOC-342",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息列表获取.html",
+          "snapshot": "development/reference/alicti/DOC-342.txt"
+        },
+        {
+          "id": "DOC-343",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息获取.html",
+          "snapshot": "development/reference/alicti/DOC-343.txt"
+        },
+        {
+          "id": "DOC-336",
+          "url": "https://wiki.alicti.cn/html/wiki/API/dataType/Agent.html",
+          "snapshot": "development/reference/alicti/DOC-336.txt"
+        }
+      ],
+      "basis": [
+        "D-014",
+        "D-022"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:84",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-seat-import.js:84",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-seat-import.js:86"
+      ],
+      "sourceReport": "resource-audit.json",
+      "evidence": "embeddedEvidence.contractCases: sync-response-boundaries, cno88881",
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "核对请求、回执与本地目标的账号和工号身份，再进行归属保存；不匹配记录保留核对原因。",
+      "acceptance": "请求 7522240，响应坐席账号 7522241 时不得同步成功；本地没有新归属，合法同账号记录仍可同步。"
+    },
+    {
+      "id": "RG-04",
+      "originalId": "TASK-AUDIT-02",
+      "priority": "P1",
+      "category": "平台行为",
+      "title": "任务保存失败，客户仍占用在不存在的任务中",
+      "module": "任务创建 / 客户分配",
+      "contract": "本地任务创建与客户分配保存",
+      "method": "异常存储注入（正常页面处理器创建，仅针对一个存储key抛QuotaExceededError）",
+      "steps": [
+        "总部新建预外呼，选择 SHOWCASE-HQ-SKILL-SALES、SHOWCASE-HQ-NUM、至少一位待分配客户，通过确认页。",
+        "只令 sessionStorage.setItem(cloud-task-created-v1) 抛QuotaExceededError，其余存储正常，点击创建。",
+        "恢复存储并刷新页面，检查任务列表和同一批次客户行。"
+      ],
+      "actual": "客户分配已先写入localStorage；任务sessionStorage保存抛异常且草稿未提交。刷新后任务不存在，客户仍携带失效taskId，不在待分配列表且不可按现有逻辑重新分配。",
+      "expected": "失败应保留可重试草稿；任务和客户占用要么一并成功，要么回滚分配，不能留下孤立任务引用。",
+      "impact": "浏览器配额满或保存异常时客户从可用名单消失，用户无法继续任务且需要人工恢复数据。",
+      "sources": [
+        {
+          "id": "FS-08 / FUNC-247",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/docs/functional-spec.md",
+          "location": "草稿不占用客户；提交重新检查客户占用；保存失败反馈。此项为本地事务一致性，不声称AliCti接口提供跨存储事务。"
+        },
+        {
+          "id": "API-311 / API-312",
+          "location": "任务创建与名单导入业务链路"
+        }
+      ],
+      "basis": [],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:688",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:694",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:67",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js:40"
+      ],
+      "sourceReport": "task-audit.json",
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-create.js",
+          "runOutput": "/private/tmp/audit-tasks-create-results.txt",
+          "section": "storage failure",
+          "observed": {
+            "maskedCustomer": "SHOWCASE-HQ-20260915-POOL-LEAD-C01",
+            "masked": {
+              "error": "项目交付视图\n原型页面\n说明文档\n业务流程图\n时序交互图\n关联系统蓝图\n云外呼平台 · AliCti 演示\n云呼叫\n/\n预外呼\n东风日产 · 当前客户/品牌全部总部与门店\n当前租户\n超级管理租户（内置）\n业务域\n智能外呼\n云联络中心\n客户/品牌\n东风日产\n东风奕派\n超级管理员\n项目资料\n平台超管\n退出\n统一外呼\n工\n运营工作台\n客\n客户管理\n⌄\n云\n云呼叫\n⌄\n预外呼自动外呼呼入服务\n话\n通话记录\n⌄\n表\n统计报表\n⌄\n户\n账号与租户\n⌄\n席\n坐席与技能组\n⌄\n号\n线路与号码\n⌄\n设\n系统管理\n⌄\n演示工具\n仅原型\n已进入云联络中心\n← 返回\n创建任务\n×\n新建预外呼任务\n自动拨号 · 人工接听\n\n系统自动拨打名单，客户接通后交给团队坐席。\n\n正在编辑\n✓\n任务与客户\n联系谁\n2\n呼叫安排\n如何接听\n3\n时间与重呼\n何时联系\n4\n确认创建\n检查并保存\n安排谁来接听客户\n\n选择接听团队和来电号码，设置开始拨号所需的人数。\n\n* 为必填项\n接听团队 *\n选择接听客户的团队\n总部·售后关怀\n总部·试驾邀约\n总部·售前咨询\n总部·售后服务\n总部客户服务\n客户接通后，由这个团队的坐席接听。\n客户看到的来电号码 *\n选择来电号码\n400****801\n仅展示当前组织可用的外呼号码。\n请选择当前团队和组织可用的来电号码。\n保持拨号所需的可用坐席 *\n人\n人数低于此值时，任务自动暂停。可设置 1–10 人。\n坐席忙时的处理选填\n常用设置选填\n本次外呼\n审计-掩码外显\n\n东风日产总部\n\n1\n自动拨打客户\n已选 1 位客户\n2\n团队坐席接听\n总部·售前咨询\n来电号码\n021****601\n开始时间\n手动开始\n再次呼叫\n已关闭\n只需选择已准备好的设置\n\n这里的选择仅作用于本次任务，不会修改团队成员或语音内容。\n\n上一步\n第 2 / 4 步\n保存草稿\n下一步：时间与重呼"
+            },
+            "autoCustomer": "SHOWCASE-HQ-20260915-POOL-LEAD-C01",
+            "auto": {
+              "id": "TASK-IVR-D51947-12edf6da",
+              "status": "待启动",
+              "create": {
+                "endpoint": "task/create",
+                "fields": {
+                  "name": "审计-自动正常",
+                  "type": 2,
+                  "autoStart": 0,
+                  "autoComplete": 1,
+                  "autoDelete": 0,
+                  "ivrId": 91001,
+                  "retryStrategy": "[{\"condition\":{\"sipCause\":[710,715]},\"retry\":2,\"sort\":1,\"strategy\":[{\"round\":1,\"time\":\"0-1-0\"},{\"round\":2,\"time\":\"0-1-0\"}]}]",
+                  "retryStrategyTimeType": 2
+                },
+                "pending": [],
+                "errors": [],
+                "prerequisites": [
+                  "实际接入前需开通号码状态识别服务；演示不验证开通"
+                ],
+                "mock": true
+              },
+              "imports": [
+                {
+                  "endpoint": "task/importTaskTel",
+                  "sourceBatchId": "SHOWCASE-HQ-20260915-POOL-LEAD",
+                  "fields": {
+                    "name": "总部·待分配·试驾邀约",
+                    "taskId": 800005,
+                    "importTelAutoStart": 0,
+                    "taskTelList": [
+                      {
+                        "tel": "13900000049",
+                        "clid": "02100006101",
+                        "property": "{\"batchCustomerId\":\"SHOWCASE-HQ-20260915-POOL-LEAD-C01\",\"batchId\":\"SHOWCASE-HQ-20260915-POOL-LEAD\"}"
+                      }
+                    ],
+                    "isRepeat": 0
+                  },
+                  "pending": [],
+                  "mock": true
+                }
+              ]
+            },
+            "storageCustomer": "SHOWCASE-HQ-20260915-POOL-LEAD-C02",
+            "storage": {
+              "thrown": "QuotaExceededError:audit quota failure",
+              "draft": {
+                "draftId": "DRAFT-1789471051962-5c121c02",
+                "createdByAccountId": "ACC-SUPER-001",
+                "taskId": "",
+                "type": "预外呼",
+                "tenantId": "TEN-NISSAN-HQ",
+                "enterpriseId": "7522240",
+                "step": 6,
+                "furthestStep": 6,
+                "furthestIndex": 3,
+                "wizardVersion": 2,
+                "status": "草稿",
+                "savedAt": "",
+                "createdAt": "2026-9-15 19:17:31",
+                "values": {
+                  "name": "审计-存储失败",
+                  "sourceType": "客户导入批次",
+                  "sourceRef": "",
+                  "total": 0,
+                  "planId": "",
+                  "skillGroupId": "SHOWCASE-HQ-SKILL-SALES",
+                  "callerNumberId": "SHOWCASE-HQ-NUM",
+                  "contactFlowId": "",
+                  "providerIvrId": "",
+                  "transferEnabled": false,
+                  "scheduleMode": "保存后手工启动",
+                  "scheduleAt": "2026-09-16T19:17",
+                  "retryPolicy": {
+                    "version": 1,
+                    "mode": "unset",
+                    "timeType": 2,
+                    "codes": [],
+                    "rounds": [
+                      {
+                        "days": 0,
+                        "hours": 0,
+                        "minutes": 10
+                      }
+                    ]
+                  },
+                  "isRepeat": 0,
+                  "minAvailableAgentCount": "1",
+                  "customerIds": [
+                    "SHOWCASE-HQ-20260915-POOL-LEAD-C02"
+                  ]
+                },
+                "returnToReview": false
+              },
+              "createdInMemory": true,
+              "createdPersisted": false,
+              "assignedCustomer": [
+                {
+                  "simulation": true,
+                  "demoPack": "alicti-showcase-v1",
+                  "demoCohort": "20260915",
+                  "id": "SHOWCASE-HQ-20260915-POOL-LEAD-C02",
+                  "name": "周晨先生",
+                  "phone": "13900000050",
+                  "businessType": "lead",
+                  "externalDocumentId": "LEAD-HQ-20260915-0050",
+                  "note": "试驾邀约，优先下午联系",
+                  "ownerId": "",
+                  "method": "预外呼",
+                  "taskId": "TASK-PRED-D51992-06752638",
+                  "taskName": "审计-存储失败",
+                  "followup": "待联系",
+                  "activeCallId": "",
+                  "calls": [],
+                  "history": [
+                    {
+                      "at": "2026-09-15 19:17:31",
+                      "action": "创建任务时分配",
+                      "method": "预外呼",
+                      "targetId": "TASK-PRED-D51992-06752638"
+                    }
+                  ],
+                  "batchId": "SHOWCASE-HQ-20260915-POOL-LEAD",
+                  "batchName": "总部·待分配·试驾邀约"
+                }
+              ],
+              "retrySelectionValid": false
+            },
+            "errors": []
+          }
+        },
+        {
+          "script": "/private/tmp/audit-tasks-deep.js",
+          "runOutput": "/private/tmp/audit-tasks-deep-results.txt",
+          "section": "afterStorageReload",
+          "observed": {
+            "taskPresent": false,
+            "customer": {
+              "simulation": true,
+              "demoPack": "alicti-showcase-v1",
+              "demoCohort": "20260915",
+              "id": "SHOWCASE-HQ-20260915-POOL-LEAD-C02",
+              "name": "周晨先生",
+              "phone": "13900000050",
+              "businessType": "lead",
+              "externalDocumentId": "LEAD-HQ-20260915-0050",
+              "note": "试驾邀约，优先下午联系",
+              "ownerId": "",
+              "method": "预外呼",
+              "taskId": "TASK-PRED-D51992-06752638",
+              "taskName": "审计-存储失败",
+              "followup": "待联系",
+              "activeCallId": "",
+              "calls": [],
+              "history": [
+                {
+                  "at": "2026-09-15 19:17:31",
+                  "action": "创建任务时分配",
+                  "method": "预外呼",
+                  "targetId": "TASK-PRED-D51992-06752638"
+                }
+              ]
+            },
+            "canReassign": [
+              "SHOWCASE-HQ-20260915-PRED-READY"
+            ]
+          }
+        }
+      ],
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "任务、客户分配和草稿提交采用一致的成功边界；持久化失败时回滚占用或保留明确可恢复的未完成操作。",
+      "acceptance": "只让任务存储失败：刷新后客户仍可分配或可恢复原操作，不存在悬空 taskId；恢复存储后重试只产生一个任务。"
+    },
+    {
+      "id": "RG-05",
+      "originalId": "CALL-A01",
+      "priority": "P1",
+      "category": "平台行为",
+      "title": "话后保存失败仍提示成功，客户无法再联系",
+      "module": "人工外呼/话后处理",
+      "contract": "本地话后处理与客户名单保存",
+      "method": "正常操作路径+单点浏览器存储故障注入",
+      "steps": [
+        "用王静账号进入电话首页并选择总部试驾邀约团队，上线后选择分配给本人的未联系客户。",
+        "完成一通模拟外呼并结束，进入话后处理。",
+        "仅令Storage.setItem(customer-task-batches-v1)抛QuotaExceededError，其余存储正常。",
+        "选择已完成沟通并保存。"
+      ],
+      "actual": "通话处理状态已完成，弹窗关闭并提示客户名单和通话记录已更新；原客户activeCallId仍指向本通，followup=待联系，canCall=false，话后状态已清空。",
+      "expected": "关联客户保存失败时不能完整宣称成功或丢失重试入口；须保留话后上下文或提供明确修复，成功后才解除客户占用。",
+      "impact": "造成通话与客户跟进事实不一致，客户从可联系列表消失且无法按正常入口再次联系。",
+      "sources": [],
+      "basis": [
+        "FS-11 坐席工作台与话后处理",
+        "D-025 本地客户业务快照",
+        "本方保存一致性要求，不涉及供应商接口失败"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js:39",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js:361",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js:157"
+      ],
+      "sourceReport": "call-audit.json",
+      "evidence": [
+        "call-save-failure.json",
+        "call-save-failure.png"
+      ],
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "关联客户写入失败时向上返回失败；保留话后输入和通话上下文，直到关联写入完整成功。",
+      "acceptance": "只让客户名单保存失败：不提示整体成功，不清空话后重试入口；恢复后重试完成，客户占用解除且记录不重复。"
+    },
+    {
+      "id": "RG-06",
+      "originalId": "TASK-AUDIT-03",
+      "priority": "P1",
+      "category": "平台行为",
+      "title": "旧表单改备注，意外重新启用已停用的呼入规则",
+      "module": "呼入路由更新",
+      "contract": "ivrRouter/update · description / active",
+      "method": "异常并发状态注入 + 正常DOM填写/点击（第二处修改以service.setActive模拟；旧表单保存通过真实页面按钮）",
+      "steps": [
+        "以超级管理员打开启用状态的路由97001编辑抽屉，保持不提交。",
+        "模拟另一处有效操作将同一路由active改为2并保存成功。",
+        "原抽屉只修改备注，点击保存。"
+      ],
+      "actual": "旧表单仍携带active=1，save将其连同备注全量提交，路由恢复active=1；没有发现旧版本或提示覆盖状态。",
+      "expected": "保存前检测规则已变化并要求刷新/确认，或仅更新用户实际编辑的字段；备注修改不得悄悄撤销他人的停用。",
+      "impact": "本已关闭的接听规则可被意外重新启用，业务状态与用户操作意图相反。",
+      "sources": [
+        {
+          "id": "API-351",
+          "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/更新呼入路由设置接口.html",
+          "location": "description、active均可选；active=1启用、2停用；可以通过active改变规则是否使用",
+          "liveSnapshot": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/memory/evidence/full-regression-20260915/live-docs/API-351.txt"
+        }
+      ],
+      "basis": [],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/inbound-routing.js:77",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/inbound-routing.js:82",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-inbound.js:94",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-inbound.js:98"
+      ],
+      "sourceReport": "task-audit.json",
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-deep.js",
+          "runOutput": "/private/tmp/audit-tasks-deep-results.txt",
+          "section": "staleBefore",
+          "observed": {
+            "formActive": "1",
+            "before": "1",
+            "externalUpdate": {
+              "ok": true,
+              "row": {
+                "id": "97001",
+                "enterpriseId": "7522240",
+                "name": "总部客户来电",
+                "active": "2",
+                "routerType": "1",
+                "routerProperty": "93001",
+                "description": "转接客户服务热线导航",
+                "priority": "1",
+                "ruleAreaProperty": "",
+                "ruleTimeProperty": "95001;95002",
+                "ruleTrunkProperty": "00006101",
+                "createTime": "2026-09-15 09:00:00",
+                "localTenantIds": [
+                  "TEN-NISSAN-HQ"
+                ]
+              },
+              "message": "规则已保存。",
+              "trace": {
+                "request": {
+                  "endpoint": "ivrRouter/update",
+                  "method": "POST",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471108,
+                    "sign": "00000000000000000000000000000000",
+                    "id": 97001,
+                    "active": 2
+                  },
+                  "mock": true
+                },
+                "response": {
+                  "result": "0",
+                  "description": "成功",
+                  "data": {
+                    "enterpriseIvrRouter": {
+                      "id": "97001",
+                      "enterpriseId": "7522240",
+                      "name": "总部客户来电",
+                      "active": "2",
+                      "routerType": "1",
+                      "routerProperty": "93001",
+                      "description": "转接客户服务热线导航",
+                      "priority": "1",
+                      "ruleTimeProperty": "95001;95002",
+                      "ruleAreaProperty": "",
+                      "ruleTrunkProperty": "00006101",
+                      "createTime": "2026-09-15 09:00:00"
+                    },
+                    "enterpriseTimeList": [
+                      {
+                        "id": "95001",
+                        "enterpriseId": "7522240",
+                        "name": "工作日营业时间",
+                        "type": "1",
+                        "fromDay": "",
+                        "toDay": "",
+                        "dayOfWeek": "2,3,4,5,6",
+                        "startTime": "09:00",
+                        "endTime": "18:00",
+                        "priority": "1",
+                        "createTime": "2026-09-15 09:00:00"
+                      },
+                      {
+                        "id": "95002",
+                        "enterpriseId": "7522240",
+                        "name": "周末营业时间",
+                        "type": "1",
+                        "fromDay": "",
+                        "toDay": "",
+                        "dayOfWeek": "1,7",
+                        "startTime": "10:00",
+                        "endTime": "17:00",
+                        "priority": "2",
+                        "createTime": "2026-09-15 09:00:00"
+                      }
+                    ]
+                  }
+                },
+                "mock": true
+              }
+            },
+            "after": "2"
+          }
+        },
+        {
+          "script": "/private/tmp/audit-tasks-deep.js",
+          "runOutput": "/private/tmp/audit-tasks-deep-results.txt",
+          "section": "staleAfter",
+          "observed": {
+            "current": {
+              "id": "97001",
+              "enterpriseId": "7522240",
+              "name": "总部客户来电",
+              "active": "1",
+              "routerType": "1",
+              "routerProperty": "93001",
+              "description": "只补充备注，保持暂停",
+              "priority": "1",
+              "ruleAreaProperty": "",
+              "ruleTimeProperty": "95001;95002",
+              "ruleTrunkProperty": "00006101",
+              "createTime": "2026-09-15 09:00:00",
+              "localTenantIds": [
+                "TEN-NISSAN-HQ"
+              ],
+              "pending": false
+            },
+            "latest": {
+              "request": {
+                "endpoint": "ivrRouter/get",
+                "method": "GET",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789471109,
+                  "sign": "00000000000000000000000000000000",
+                  "id": 97001
+                },
+                "mock": true
+              },
+              "response": {
+                "result": "0",
+                "description": "成功",
+                "data": {
+                  "enterpriseIvrRouter": {
+                    "id": "97001",
+                    "enterpriseId": "7522240",
+                    "name": "总部客户来电",
+                    "active": "1",
+                    "routerType": "1",
+                    "routerProperty": "93001",
+                    "description": "只补充备注，保持暂停",
+                    "priority": "1",
+                    "ruleTimeProperty": "95001;95002",
+                    "ruleAreaProperty": "",
+                    "ruleTrunkProperty": "00006101",
+                    "createTime": "2026-09-15 09:00:00"
+                  },
+                  "enterpriseTimeList": [
+                    {
+                      "id": "95001",
+                      "enterpriseId": "7522240",
+                      "name": "工作日营业时间",
+                      "type": "1",
+                      "fromDay": "",
+                      "toDay": "",
+                      "dayOfWeek": "2,3,4,5,6",
+                      "startTime": "09:00",
+                      "endTime": "18:00",
+                      "priority": "1",
+                      "createTime": "2026-09-15 09:00:00"
+                    },
+                    {
+                      "id": "95002",
+                      "enterpriseId": "7522240",
+                      "name": "周末营业时间",
+                      "type": "1",
+                      "fromDay": "",
+                      "toDay": "",
+                      "dayOfWeek": "1,7",
+                      "startTime": "10:00",
+                      "endTime": "17:00",
+                      "priority": "2",
+                      "createTime": "2026-09-15 09:00:00"
+                    }
+                  ]
+                }
+              },
+              "mock": true
+            }
+          }
+        }
+      ],
+      "caveat": "接口未声明ETag或版本号；缺陷是平台旧表单覆盖，并非要求供应商提供未文档化并发接口。",
+      "crossModuleContribution": null,
+      "fixDirection": "保存前核对当前规则；只提交用户实际修改的字段，或明确处理旧版本冲突。无需虚构供应商版本接口。",
+      "acceptance": "打开启用规则后由另一处停用，原表单仅改备注并保存，active 保持 2 或提示需刷新；不能静默改回 1。"
+    },
+    {
+      "id": "RG-07",
+      "originalId": "CALL-A02",
+      "priority": "P1",
+      "category": "接口对齐",
+      "title": "迟到失败话单反转已确认的客户接通结果",
+      "module": "通话结果归一/六类报表",
+      "contract": "预测外呼话单 · status；本地事件与话单归集",
+      "method": "白盒构造状态+实际共享归一函数执行",
+      "steps": [
+        "在同一通话CallState.start后接收客户侧Established，再finish；此时客户已接通。",
+        "追加同账号预测话单alictiCdr.raw.status=40并调用页面和报表共用的CallState.view。",
+        "读取CloudReportMetrics.stats。"
+      ],
+      "actual": "客户已接通变成未接通，issues为空；报表connected=0、unanswered=1、rate=0.0%。",
+      "expected": "保留明确接通证据，对矛盾结束资料标待核对，不直接覆盖为未接通。",
+      "impact": "同一通话详情、客户联系历史和统计可能被迟到失败消息反转。",
+      "sources": [
+        {
+          "id": "预测外呼话单",
+          "url": "https://wiki.alicti.cn/html/wiki/API/通话记录/预测式外呼/预测外呼通话记录接口.html"
+        }
+      ],
+      "basis": [
+        "D-021 迟到/矛盾结果保留原证据",
+        "附表B-11/BR-019",
+        "API-318 status=40客户未接听"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/call-state.js:264"
+      ],
+      "sourceReport": "call-audit.json",
+      "evidence": [
+        "call-contracts.json:answeredLateFailure"
+      ],
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "归集时保留明确接通证据；遇到矛盾回执记录原始值和核对事项，不能直接覆盖已确认结果。",
+      "acceptance": "先确认客户接通再收到 status=40，同一通话保留接通证据且有矛盾提示；不重复建话单，不直接把接通率改为零。"
+    },
+    {
+      "id": "RG-08",
+      "originalId": "RES-02",
+      "priority": "P2",
+      "category": "接口对齐",
+      "title": "在线坐席同步成离线，并允许提交停用",
+      "module": "坐席同步/坐席启停",
+      "contract": "坐席查询 · status；座席更新 · active",
+      "method": "browser_supplier_shaped_fixture_injection",
+      "steps": [
+        "在模拟已有坐席响应中设置cno88880、status=1、active=1。",
+        "从 AliCti 同步到总部。",
+        "查看本地话务状态，并触发该坐席停用。"
+      ],
+      "actual": "本地agentStatus被置为离线，inUse返回false；原型允许生成agent/update active=0请求并模拟显示已停用，没有按已知在线事实阻止维护。此证据不代表真实接口会成功停用在线坐席。",
+      "expected": "按DOC-336保留status=0离线、status=1在线事实；在线或未明确查证的状态不能用新建默认离线覆盖。按D-013采用口径，先取得有效离线状态再允许维护。",
+      "impact": "用户看到错误在线状态，原型允许提交本应先下线的配置动作并模拟成功；真实接口可返回API-308列出的20023在线错误，本审计未验证真实调用结果。",
+      "sources": [
+        {
+          "id": "DOC-336",
+          "url": "https://wiki.alicti.cn/html/wiki/API/dataType/Agent.html",
+          "snapshot": "development/reference/alicti/DOC-336.txt"
+        },
+        {
+          "id": "DOC-342",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息列表获取.html",
+          "snapshot": "development/reference/alicti/DOC-342.txt"
+        },
+        {
+          "id": "DOC-344",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席实时状态获取接口.html",
+          "snapshot": "development/reference/alicti/DOC-344.txt"
+        },
+        {
+          "id": "API-308",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席更新.html",
+          "snapshot": "development/reference/alicti/API-308.txt"
+        }
+      ],
+      "basis": [
+        "D-013",
+        "D-022"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-seat-import.js:84",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-seat-import.js:86",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-center.js:78",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/account-seat.js:83",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-demo.js:49"
+      ],
+      "sourceReport": "resource-audit.json",
+      "evidence": "embeddedEvidence.contractCases: source-page cno88880 status=1; import-online-then-disable",
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "同步映射在线事实，不能套用新建坐席的离线默认值；维护前核对可维护状态，并保留供应商拒绝原因。",
+      "acceptance": "响应 status=1 不显示离线；在线或未核实的坐席不能被原型直接演示为停用成功。真实接口成功与否仍由返回决定。"
+    },
+    {
+      "id": "RG-09",
+      "originalId": "RES-03",
+      "priority": "P2",
+      "category": "接口对齐",
+      "title": "未知启用值在不同页面被解释成相反状态",
+      "module": "坐席同步",
+      "contract": "坐席查询 · active",
+      "method": "browser_supplier_shaped_fixture_injection",
+      "steps": [
+        "模拟cno88882返回active=9。",
+        "打开同步列表，观察配置状态，再选中同步。",
+        "查看保存后的 lifecycleStatus、acceptNewTasks 与同步结果。"
+      ],
+      "actual": "列表以 active===1 否则停用显示为停用；保存时 active===0 否则启用，最终 lifecycleStatus=已启用、acceptNewTasks=false，并计入成功。",
+      "expected": "仅映射0/1。缺失或未知值显示待核对，不隐式解释启用/停用，更不能写入自相矛盾状态。",
+      "impact": "未知供应商状态被冒认为成功配置，影响维护按钮和坐席可用性判断。",
+      "sources": [
+        {
+          "id": "DOC-336",
+          "url": "https://wiki.alicti.cn/html/wiki/API/dataType/Agent.html",
+          "snapshot": "development/reference/alicti/DOC-336.txt"
+        },
+        {
+          "id": "DOC-342",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息列表获取.html",
+          "snapshot": "development/reference/alicti/DOC-342.txt"
+        }
+      ],
+      "basis": [
+        "D-022"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:84",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-seat-import.js:43",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-seat-import.js:86"
+      ],
+      "sourceReport": "resource-audit.json",
+      "evidence": "embeddedEvidence.contractCases: sync-response-boundaries, cno88882",
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "只映射文档明确值，未知或缺失值保留为待核对；列表、详情、可接任务状态使用同一映射。",
+      "acceptance": "active=9 或缺失时不显示已启用/已停用，不计作成功同步；active=0/1 的合法映射保持一致。"
+    },
+    {
+      "id": "RG-10",
+      "originalId": "RES-05",
+      "priority": "P2",
+      "category": "接口对齐",
+      "title": "区号 abc 可保存成创建成功",
+      "module": "新增坐席/批量新增",
+      "contract": "座席新增/批量新增 · areaCode",
+      "method": "ordinary_browser_form",
+      "steps": [
+        "新增坐席填写审计区号、cno88910，区号填abc。",
+        "点击保存并重新加载页面。"
+      ],
+      "actual": "成功保存坐席，alictiCreateDraft.fields.areaCode=abc；刷新后仍保留。批量 seatBatchFields 同样只检查非空。",
+      "expected": "官方对areaCode仅写“区号格式”，未给出精确长度或正则。至少拒绝abc这类明显非区号文本并保留表单提示；完整区号值域须另行核实，不能自行声称某个长度或正则为官方规则。",
+      "impact": "明显不符合区号语义的必填值仍被模拟开通成功，不能作为字段级对齐已完成的证据；本审计未调用真实创建接口，不断言真实回执的具体错误码。",
+      "sources": [
+        {
+          "id": "API-307",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席新增.html",
+          "snapshot": "development/reference/alicti/API-307.txt"
+        },
+        {
+          "id": "DOC-341",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席批量新增.html",
+          "snapshot": "development/reference/alicti/DOC-341.txt"
+        }
+      ],
+      "basis": [],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-center.js:75",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:106"
+      ],
+      "sourceReport": "resource-audit.json",
+      "evidence": "embeddedEvidence.coverage.findings: area-code-validation",
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "拒绝明显不符合区号格式的输入并保留表单；官方未给出的精确长度和正则不得冒充官方规则。",
+      "acceptance": "单个和批量新增填写 abc 时均不生成成功记录，显示区号格式提示；合法区号仍可提交。"
+    },
+    {
+      "id": "RG-11",
+      "originalId": "TASK-AUDIT-05",
+      "priority": "P2",
+      "category": "接口对齐",
+      "title": "同一坐席可同时运行两个预测任务",
+      "module": "预测外呼启动 / 坐席互斥",
+      "contract": "task/create · cnos；task/start 运行约束",
+      "method": "代码调用（两个新任务通过正常页面处理器创建；启动调用页面使用的适配器确认后入口，没有注入任务状态或请求字段）",
+      "steps": [
+        "总部创建两个全新的预测任务，均选择SG-ALI-HQ-SALES和坐席1001，各分配不同的客户。",
+        "先启动“审计-互斥甲”，其task/get确认status=1。",
+        "再启动“审计-互斥乙”，检查两个任务当前状态及其创建cnos。"
+      ],
+      "actual": "两次启动均ok=true，两任务同enterpriseId=7522240、cnos=\"1001\"，均显示执行中。guard只检查单任务状态、名单和资源，没有检查其他运行任务占用同一cno。",
+      "expected": "发现已运行任务占用同一enterpriseId+cno时阻止第二任务启动/继续，或正确演示供应商拒绝；不能将违反已明确规则的双运行状态展示为成功。",
+      "impact": "原型让使用者认为同一坐席可并行执行多个任务；交付开发后与API已声明限制冲突。",
+      "sources": [
+        {
+          "id": "API-311",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/development/reference/alicti/API-311.txt",
+          "location": "396–402行，cnos参数备注：一个座席只能在一个运行中的任务中。外呼组约束另见403–408行；本例使用callGroupType=1，不依赖外呼组推断。",
+          "quote": "注：一个座席只能在一个运行中的任务中",
+          "url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/新增任务接口.html"
+        },
+        {
+          "id": "FS-10 / FA-036",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/docs/functional-spec.md",
+          "location": "启动前核对互斥；一个坐席只能参与一个运行任务。"
+        }
+      ],
+      "basis": [],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-task-control.js:19",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-task-control.js:25",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:965"
+      ],
+      "sourceReport": "task-audit.json",
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-complete.js",
+          "runOutput": "/private/tmp/audit-tasks-complete-results.txt",
+          "section": "newTaskConflict",
+          "observed": {
+            "tasks": [
+              {
+                "id": "TASK-PRED-D96063-ba9ca056",
+                "name": "审计-互斥甲",
+                "status": "执行中",
+                "cnos": "1001",
+                "enterpriseId": "7522240"
+              },
+              {
+                "id": "TASK-PRED-D96140-04091d37",
+                "name": "审计-互斥乙",
+                "status": "执行中",
+                "cnos": "1001",
+                "enterpriseId": "7522240"
+              }
+            ],
+            "first": {
+              "ok": true,
+              "pending": false,
+              "response": {
+                "result": 0,
+                "data": {
+                  "taskProperty": {
+                    "id": 800014,
+                    "status": 1,
+                    "type": 1,
+                    "statusTriggerType": 1
+                  }
+                },
+                "mock": true
+              },
+              "confirmedInitialStart": true,
+              "message": "已核对任务状态：运行中（模拟）",
+              "mock": true,
+              "trace": [
+                {
+                  "order": 1,
+                  "phase": "before",
+                  "endpoint": "task/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800014
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "taskProperty": {
+                        "id": 800014,
+                        "status": 0,
+                        "type": 1
+                      }
+                    },
+                    "mock": true
+                  },
+                  "mock": true
+                },
+                {
+                  "order": 2,
+                  "phase": "write",
+                  "endpoint": "task/start",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800014
+                  },
+                  "response": {
+                    "result": 0,
+                    "description": "请求已受理（模拟）"
+                  },
+                  "mock": true
+                },
+                {
+                  "order": 3,
+                  "phase": "after",
+                  "endpoint": "task/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800014
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "taskProperty": {
+                        "id": 800014,
+                        "status": 1,
+                        "type": 1,
+                        "statusTriggerType": 1
+                      }
+                    },
+                    "mock": true
+                  },
+                  "mock": true
+                }
+              ]
+            },
+            "second": {
+              "ok": true,
+              "pending": false,
+              "response": {
+                "result": 0,
+                "data": {
+                  "taskProperty": {
+                    "id": 800016,
+                    "status": 1,
+                    "type": 1,
+                    "statusTriggerType": 1
+                  }
+                },
+                "mock": true
+              },
+              "confirmedInitialStart": true,
+              "message": "已核对任务状态：运行中（模拟）",
+              "mock": true,
+              "trace": [
+                {
+                  "order": 1,
+                  "phase": "before",
+                  "endpoint": "task/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800016
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "taskProperty": {
+                        "id": 800016,
+                        "status": 0,
+                        "type": 1
+                      }
+                    },
+                    "mock": true
+                  },
+                  "mock": true
+                },
+                {
+                  "order": 2,
+                  "phase": "write",
+                  "endpoint": "task/start",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800016
+                  },
+                  "response": {
+                    "result": 0,
+                    "description": "请求已受理（模拟）"
+                  },
+                  "mock": true
+                },
+                {
+                  "order": 3,
+                  "phase": "after",
+                  "endpoint": "task/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800016
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "taskProperty": {
+                        "id": 800016,
+                        "status": 1,
+                        "type": 1,
+                        "statusTriggerType": 1
+                      }
+                    },
+                    "mock": true
+                  },
+                  "mock": true
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "caveat": "所有响应明确mock，本发现不指真实AliCti允许并行，只指本地保护与成功演示不符合明确契约。",
+      "crossModuleContribution": null,
+      "fixDirection": "启动及继续时检查同账号同工号的运行任务占用，并正确呈现供应商可能的拒绝；明确该限制与本地资源范围。",
+      "acceptance": "两个新任务同 enterpriseId、同 cno：第一个运行后，第二个不能同时模拟成功；结束第一个后再按规则启动。"
+    },
+    {
+      "id": "RG-12",
+      "originalId": "CALL-A04",
+      "priority": "P2",
+      "category": "接口对齐",
+      "title": "人工未接听被报表算成结果未知",
+      "module": "呼入服务/人工接通统计",
+      "contract": "客户来电记录 · status / statusResult",
+      "method": "按官方明确状态构造话单并执行实际归一与统计函数",
+      "steps": [
+        "构造已结束呼入记录：status=人工未接听，statusResult=振铃未接，存在系统answerTime。",
+        "normalizeCdr返回customerAnswered=true、agentAnswered=false。",
+        "将记录交给CallState.view和CloudReportMetrics.stats。"
+      ],
+      "actual": "CallState未传递agentAnswered=false；humanUnanswered=0、humanPending=1、humanKnown=0。",
+      "expected": "官方明确的人工未接听应保留为人工未接通，不应丢成未知；此判断不依赖响应时间单位。",
+      "impact": "呼入、坐席及技能人工未接通数量和人工接通率分母失真。",
+      "sources": [
+        {
+          "id": "客户来电记录",
+          "url": "https://wiki.alicti.cn/html/wiki/API/通话记录/来电/客户来电记录接口.html"
+        }
+      ],
+      "basis": [
+        "API-319 返回status字符串枚举：人工未接听",
+        "FA-069/FA-086"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:220",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/call-state.js:268",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/report-metrics.js:67"
+      ],
+      "sourceReport": "call-audit.json",
+      "evidence": [
+        "call-contracts.json:inboundUnanswered"
+      ],
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "在共享通话视图和指标之间完整传递人工接听的 true/false/unknown，不丢弃明确的 false。",
+      "acceptance": "status=人工未接听 时 humanUnanswered=1、humanPending=0；系统应答不等于人工接通。"
+    },
+    {
+      "id": "RG-13",
+      "originalId": "CALL-A05",
+      "priority": "P2",
+      "category": "平台行为",
+      "title": "按录音过期筛选找不到已过期的记录",
+      "module": "通话记录/录音筛选",
+      "contract": "录音状态筛选；record/getUrl",
+      "method": "构造官方record/getUrl成功响应及已明确过期时间，实际页面筛选",
+      "steps": [
+        "在授权通话上提供alictiRecording={result:0,data:合法HTTPS地址}与过去的recordingUrlExpiresAt。",
+        "按通话编号查询可见该记录，录音显示链接已过期。",
+        "选择录音状态=录音链接已过期并查询。"
+      ],
+      "actual": "列表变成0条；resolve返回链接已过期，recordRows按录音链接已过期严格比较。",
+      "expected": "统一状态枚举或映射，过期筛选应返回这条已知过期记录。",
+      "impact": "用户无法通过提供的筛选入口找出需刷新地址的录音。",
+      "sources": [
+        {
+          "id": "录音状态筛选；record/getUrl",
+          "url": "https://wiki.alicti.cn/html/wiki/API/通话记录/获取通话录音地址接口.html"
+        }
+      ],
+      "basis": [
+        "API-320 默认有效期可配置，过期重新获取",
+        "已有明确过期时间，本例未把默认120分钟当实际到期时刻"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:230",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/call-media.js:38",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-call-records.js:87"
+      ],
+      "sourceReport": "call-audit.json",
+      "evidence": [
+        "call-media-report.json:expired",
+        "call-media-report.json:expiredUnfiltered",
+        "call-media-report.json:expiredFiltered",
+        "call-expired-filter.png"
+      ],
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "录音状态使用统一标识，显示文字可以不同但筛选不得直接比较不一致的中文标签。",
+      "acceptance": "已明确过期的记录在不筛选及过期筛选下均出现；其他状态不会混入。"
+    },
+    {
+      "id": "RG-14",
+      "originalId": "RES-06",
+      "priority": "P2",
+      "category": "平台行为",
+      "title": "租户保存失败后表单关闭，刷新丢失新增数据",
+      "module": "租户管理/账号管理持久化",
+      "contract": "本地租户管理持久化",
+      "method": "browser_storage_failure_injection",
+      "steps": [
+        "超级管理员新增租户审计存储失败，勾选云呼叫。",
+        "仅对unified-call-demo-identities-v1注入浏览器存储满异常，点击确定。",
+        "恢复存储写入，刷新页面对比。"
+      ],
+      "actual": "租户数量4→5，内存已有新租户，表单关闭；异常未捕获，没有保留编辑入口。持久化没有新记录，刷新后租户消失。",
+      "expected": "持久化成功后再更新业务状态并关闭表单；失败应保留输入、显示失败且不提交内存状态。",
+      "impact": "用户无法区分真实保存与临时内存改变，重复录入或刷新会丢失配置；账号新增/成员编辑也采用相同先修改后持久化路径（本次动态复现限定租户新增）。",
+      "sources": [],
+      "basis": [
+        "平台本地保存的基本成功/失败边界；非供应商API缺口。"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/account-tenant-forms.js:229",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/account-tenant-forms.js:237",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/app.js:86",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/account-tenant.js:486"
+      ],
+      "sourceReport": "resource-audit.json",
+      "evidence": "embeddedEvidence.permissions.storageFailure",
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "保存成功后才提交页面状态和关闭表单；异常时保留输入并显示失败。",
+      "acceptance": "仅令身份存储失败时不出现虚假的新增租户，表单与输入保留；恢复存储后可正常保存和刷新。"
+    },
+    {
+      "id": "RG-15",
+      "originalId": "CALL-A03",
+      "priority": "P2",
+      "category": "平台行为",
+      "title": "审计详情方法缺少权限复核",
+      "module": "操作审计",
+      "contract": "本地审计详情对象权限",
+      "method": "白盒直接调用公开页面方法，未找到正常菜单越权路径",
+      "steps": [
+        "登录总部运营王静。",
+        "确认system.audit=false且对上海门店审计authorizeObject返回false。",
+        "调用Pages[system-center].openAudit(SHOWCASE-SH-AUDIT-3)。"
+      ],
+      "actual": "显示上海门店操作人、对象、租户及前后配置。",
+      "expected": "详情入口再次核对当前角色和目标对象范围，无权时拒绝展示。",
+      "impact": "前端授权不一致，开发复用此入口时易遗漏鉴权；这不是已证实的生产数据泄露。",
+      "sources": [],
+      "basis": [
+        "本方角色与租户范围规则",
+        "FS-19 审计"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/system-center.js:21"
+      ],
+      "sourceReport": "call-audit.json",
+      "evidence": [
+        "call-contracts.json:auditCrossScope",
+        "call-audit-scope.png"
+      ],
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "详情方法同时检查菜单权限和目标对象范围；不要仅依赖上一级菜单隐藏。生产后端仍需独立鉴权。",
+      "acceptance": "无审计权限或无目标租户范围时直接调用详情也被拒绝；有权角色可打开同一条记录。"
+    },
+    {
+      "id": "RG-16",
+      "originalId": "CALL-A06",
+      "priority": "P2",
+      "category": "平台行为",
+      "title": "电话首页未显示上线失败原因",
+      "module": "电话首页/坐席上线",
+      "contract": "电话首页鉴权/音频连接失败反馈",
+      "method": "正常电话首页上线，选择内置失败演示情景",
+      "steps": [
+        "进入门店周岚电话首页，选择可用技能组。",
+        "将内置电话情景置为media-error或expired，点击上线并等待调用结束。",
+        "比较电话首页与在同一状态打开的通话弹窗。"
+      ],
+      "actual": "坐席保持离线，但首页没有失败原因或seat-error，最后进度仍为连接音频/申请登录材料；同一状态打开弹窗可见音频连接失败错误。",
+      "expected": "当前执行上线操作的首页应显示失败原因并允许按原因重试。",
+      "impact": "用户无法分辨登录资料失效、媒体失败还是仍在连接，无法按提示处理。",
+      "sources": [],
+      "basis": [
+        "FS-12 电话登录及媒体就绪分别判断",
+        "API-302/API-303 相关登录链路；失败反馈为本方交互要求"
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js:226",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js:254",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js:458"
+      ],
+      "sourceReport": "call-audit.json",
+      "evidence": [
+        "call-security2.json:expired",
+        "call-security2.json:media-error",
+        "call-hidden-login.json",
+        "call-login-error-hidden.png"
+      ],
+      "caveat": "",
+      "crossModuleContribution": null,
+      "fixDirection": "首页与通话弹窗复用失败状态展示，停止过时的连接进度，提供对应的重试入口。",
+      "acceptance": "内置 expired、media-error 场景均保持离线，并在发起操作的首页显示具体原因和可执行的重试。"
+    }
+  ],
+  "knownUnfixed": [
+    {
+      "id": "CALL-K01",
+      "severity": "P2",
+      "module": "通话数据异常",
+      "title": "两个旧VIEW样例详情崩溃",
+      "alreadyDocumented": "docs/exception-definitions.json boundaries 旧异常样例完整性；不计新增接口缺陷",
+      "steps": [
+        "超级管理员进入通话数据异常。",
+        "打开VIEW-DEMO-HQ-DATA或VIEW-DEMO-SH-DATA。"
+      ],
+      "actual": "TypeError: Cannot read properties of undefined (reading length)，详情打不开；样例缺trace和type/impact等。",
+      "expected": "演示列表中的每条异常可打开、显示业务原因和处理状态；缺字段不能导致整个详情失败。",
+      "source": [
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/mock/workbench-fixtures.js",
+          "line": 42
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/call-data-issues.js",
+          "line": 33
+        }
+      ],
+      "evidence": [
+        "call-smoke.json:checks"
+      ]
+    }
+  ],
+  "qualityIssues": [
+    {
+      "id": "Q-01",
+      "title": "交付浏览器检查仍硬编码旧蓝图版本",
+      "actual": "原脚本执行停在 blueprint current version，预期 v1.7，当前蓝图为 v1.8；其后分支未执行。",
+      "code": "qa/verify-consolidated-delivery-browser.cjs:25",
+      "evidence": "full-audit-delivery-browser-results.txt",
+      "direction": "更新与版本相关的校验依据，并在修复后重跑整条脚本；本轮不修改脚本以制造通过。"
+    },
+    {
+      "id": "Q-02",
+      "title": "历史工作流状态和验证记录不一致",
+      "actual": "S8 预检查失败：stage-log 写 S9 pass、workflow 写 pending，旧步骤缺结构化证据。另有旧式导航字符串断言，不能直接等同当前页面故障。",
+      "code": "memory/stage-log.md",
+      "evidence": "workflow-preflight.txt",
+      "direction": "核对历史记录与工具适配；保持现有失败证据，不回填虚假的阶段通过。本次独立回归没有推进工作流阶段。"
+    }
+  ],
+  "observationsNotCounted": [
+    {
+      "id": "RES-04",
+      "severity": "P3",
+      "module": "批量新增坐席",
+      "title": "批量请求失败后的原因说明与查证路径可完善",
+      "trigger": "agent/batchCreate 明确返回 result=-1。",
+      "steps": [
+        "批量新增输入88890至88891，姓名和区号完整。",
+        "将演示结果设置为failure并确认新增。",
+        "把演示结果改回success，使用相同工号再次检查。"
+      ],
+      "actual": "result=-1 被 seatBatchResult 标 pending=true，提示开通结果未确认；后续被未知记录区间重叠拦截，确认新增保持禁用。",
+      "expected": "区分请求失败与实际创建结果；保留失败原因并提供后续查证路径。在取得可安全重提的证据前继续阻断重放，不能仅凭result=-1认定零创建、回滚或允许同工号再次创建。",
+      "impact": "失败请求在界面被统一呈现为结果未确认，后续查证说明可更清晰；当前证据不足以把阻断重放判为缺陷。",
+      "sources": [
+        {
+          "id": "DOC-341",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席批量新增.html",
+          "snapshot": "development/reference/alicti/DOC-341.txt"
+        }
+      ],
+      "liveVerification": "memory/evidence/full-regression-20260915/live-docs/DOC-341.txt",
+      "decisions": [
+        "D-013"
+      ],
+      "code": [
+        "js/components/alicti-fields.js:89",
+        "js/components/alicti-seat-import.js:52",
+        "js/components/alicti-seat-import.js:73"
+      ],
+      "evidence": "embeddedEvidence.contractCases: batch-explicit-failure",
+      "reproduction": "browser_existing_mock_failure_scenario",
+      "classification": "observation_not_counted",
+      "reviewConclusion": "官方result=-1仅说明请求失败，未承诺事务回滚或零创建。撤回此前“明确失败应允许重试”及“永久阻断是确定缺陷”的判断；不计入确认缺陷。"
+    },
+    {
+      "title": "常用设置不重开已关闭的重呼",
+      "classification": "已有明确验收规则；不计缺陷",
+      "detail": "新草稿默认unset套含重呼模板后仍unset。qa/verify-alicti-ivr.cjs40–44明确保存当前重呼关闭/输入状态；新草稿与主动关闭的区分可作体验讨论。",
+      "evidence": {
+        "script": "/private/tmp/audit-tasks-final.js",
+        "runOutput": "/private/tmp/audit-tasks-final-results.txt",
+        "section": "template",
+        "observed": {
+          "template": {
+            "callPlanId": "TEMPLATE-1789471362464-1",
+            "name": "审计-模板含重呼",
+            "tenantId": "TEN-NISSAN-HQ",
+            "enterpriseId": "7522240",
+            "callType": "预外呼",
+            "status": "已发布",
+            "publishedVersion": "V1",
+            "targetSkillGroupId": "SHOWCASE-HQ-SKILL-SALES",
+            "executionQueueId": "SHOWCASE-HQ-SKILL-SALES",
+            "contactFlowId": "",
+            "providerIvrId": "",
+            "transferEnabled": true,
+            "allowedCallerNumberIds": [
+              "SHOWCASE-HQ-NUM"
+            ],
+            "isRepeat": 0,
+            "retryPolicy": {
+              "version": 1,
+              "mode": "advanced",
+              "timeType": 2,
+              "codes": [
+                710
+              ],
+              "rounds": [
+                {
+                  "days": 0,
+                  "hours": 0,
+                  "minutes": 15
+                },
+                {
+                  "days": 0,
+                  "hours": 0,
+                  "minutes": 15
+                }
+              ]
+            },
+            "isTemplate": true
+          },
+          "applied": {
+            "name": "",
+            "sourceType": "客户导入批次",
+            "sourceRef": "",
+            "total": 0,
+            "planId": "TEMPLATE-1789471362464-1",
+            "skillGroupId": "SHOWCASE-HQ-SKILL-SALES",
+            "callerNumberId": "SHOWCASE-HQ-NUM",
+            "contactFlowId": "",
+            "providerIvrId": "",
+            "transferEnabled": true,
+            "scheduleMode": "保存后手工启动",
+            "scheduleAt": "2026-09-16T19:22",
+            "retryPolicy": {
+              "version": 1,
+              "mode": "unset",
+              "timeType": 2,
+              "codes": [],
+              "rounds": [
+                {
+                  "days": 0,
+                  "hours": 0,
+                  "minutes": 10
+                }
+              ]
+            },
+            "isRepeat": 0,
+            "minAvailableAgentCount": 10,
+            "executionQueueId": "SHOWCASE-HQ-SKILL-SALES"
+          }
+        }
+      }
+    },
+    {
+      "title": "保存常用设置后刷新消失",
+      "classification": "平台持久化体验待讨论；本轮不计确认接口缺陷",
+      "detail": "保存的模板刷新后不在callPlans中，同名任务仍存在。尚未找到对模板跨刷新生命周期的明确已采纳约束，不扩列接口问题。",
+      "evidence": {
+        "before": [
+          "TEMPLATE-1789471362464-1"
+        ],
+        "after": {
+          "plans": [],
+          "taskSaved": true
+        }
+      }
+    }
+  ],
+  "coverage": [
+    {
+      "section": "FS-01",
+      "module": "登录与工作范围",
+      "tested": "角色/租户/业务域切换，前导零工号登录，范围复核",
+      "limits": "入口与主要权限路径；未测全部跨品牌组合"
+    },
+    {
+      "section": "FS-02",
+      "module": "租户与产品授权",
+      "tested": "新增、保存、刷新、越权拒绝；存储失败注入",
+      "limits": "发现 RG-14；未测全部租户迁移组合"
+    },
+    {
+      "section": "FS-03",
+      "module": "账号成员与坐席关联",
+      "tested": "新增、手机号跨租户复用、单租户停用、刷新保持",
+      "limits": "已测正向路径通过；未做双浏览器同账号竞争"
+    },
+    {
+      "section": "FS-04",
+      "module": "坐席开通、同步、配置",
+      "tested": "单个/批量必填校验，同步回执身份/状态，失败回执",
+      "limits": "发现 RG-01/03/08/09/10；未遍历全部错误码及未知回执组合"
+    },
+    {
+      "section": "FS-05",
+      "module": "技能组与多技能等级",
+      "tested": "等级 1–10、清空、跨租户拒绝、创建/更新字段静态检查",
+      "limits": "发现 RG-01；本轮未重走所有新增组及 queryAgentSkill 远端保留流程"
+    },
+    {
+      "section": "FS-06",
+      "module": "线路、号码与使用坐席",
+      "tested": "资源语义、范围保存重开与刷新、非超管拒绝、跨账号不可用",
+      "limits": "发现共用外显映射 RG-02；未逐个重走所有号码添加失败场景"
+    },
+    {
+      "section": "FS-07",
+      "module": "客户导入分配与档案",
+      "tested": "CSV 引号/重复/编码，分配、本人范围、刷新；关联保存异常",
+      "limits": "正常导入分配 5 项通过；关联保存问题见 RG-04/05；六业务字段全排列未穷举"
+    },
+    {
+      "section": "FS-08",
+      "module": "两类外呼任务创建",
+      "tested": "四步页面处理器提交、接口草稿、工号与外显、存储失败",
+      "limits": "发现 RG-01/02/04；追加纯 DOM 外显复现未完成，不冒充鼠标全路径通过"
+    },
+    {
+      "section": "FS-09",
+      "module": "重呼条件次数与间隔",
+      "tested": "两类任务相同状态多选、关闭省略、round、时间、无效值",
+      "limits": "已测映射通过；真实供应商调度和轮次执行未联调"
+    },
+    {
+      "section": "FS-10",
+      "module": "任务查询执行与历史",
+      "tested": "启动、暂停、继续、结束；失败未知、错 ID、跨账号、坐席互斥",
+      "limits": "发现 RG-11；在途通话收尾仍是既有 CF-04，未新增默认重呼疑问"
+    },
+    {
+      "section": "FS-11",
+      "module": "工作台与话后处理",
+      "tested": "分配客户外呼、结束、保存、占用释放、写入失败",
+      "limits": "发现 RG-05；注入故障与正常流程明确区分"
+    },
+    {
+      "section": "FS-12",
+      "module": "电话上线及通话控制",
+      "tested": "0012 登录、通话中退出阻断、媒体及鉴权失败",
+      "limits": "发现 RG-16；未进行真实麦克风/供应商网络联调"
+    },
+    {
+      "section": "FS-13",
+      "module": "呼入服务与规则",
+      "tested": "IVR/电话/分机三种目标各创建、改、停用、删；旧表单覆盖",
+      "limits": "发现 RG-06；条件组合及真实租户归属仍按既有 CF-10"
+    },
+    {
+      "section": "FS-14",
+      "module": "通话记录与结果",
+      "tested": "号码编码多义/缺失/未知；官方话单状态、迟到矛盾",
+      "limits": "发现 RG-07/12；未重定义供应商状态"
+    },
+    {
+      "section": "FS-15",
+      "module": "录音与转写",
+      "tested": "播放、速度音量、关闭释放、范围切换、RASR 多种回执、过期筛选",
+      "limits": "发现 RG-13；已取消的录音文本定位不算缺口"
+    },
+    {
+      "section": "FS-16",
+      "module": "六类云报表与导出",
+      "tested": "六表范围、强传越界条件、CSV、日期/分页/时间单位边界",
+      "limits": "发现 RG-07/12；客户报表实际下载，其余 CSV 生成核对"
+    },
+    {
+      "section": "FS-17",
+      "module": "运营工作台",
+      "tested": "各角色首页、菜单与对象入口；电话首页交互",
+      "limits": "入口检查通过；未穷举每个统计卡片的所有下钻组合"
+    },
+    {
+      "section": "FS-18",
+      "module": "通话数据异常",
+      "tested": "入口、列表及样例详情",
+      "limits": "已知 K-01 仍可复现；未将历史样例缺字段算作新接口缺口"
+    },
+    {
+      "section": "FS-19",
+      "module": "操作审计",
+      "tested": "角色范围与详情调用权限，异常显示",
+      "limits": "发现 RG-15，仅白盒复现；既有审计导出 IMP-01 不重复计缺陷"
+    },
+    {
+      "section": "FS-20",
+      "module": "既有智能外呼与分钟账户",
+      "tested": "五种身份范围下 AI 域可见菜单及页面入口",
+      "limits": "本轮为入口冒烟，不声称计费、充值及场景全流程已重新深测"
+    }
+  ],
+  "roleRouteCoverage": [
+    {
+      "role": "SUPER_ADMIN",
+      "tenant": "",
+      "domain": "AI_OUTBOUND",
+      "routeOpenings": 13
+    },
+    {
+      "role": "SUPER_ADMIN",
+      "tenant": "",
+      "domain": "CLOUD_CONTACT_CENTER",
+      "routeOpenings": 22
+    },
+    {
+      "role": "ADMIN",
+      "tenant": "TEN-NISSAN-HQ",
+      "domain": "AI_OUTBOUND",
+      "routeOpenings": 13
+    },
+    {
+      "role": "ADMIN",
+      "tenant": "TEN-NISSAN-HQ",
+      "domain": "CLOUD_CONTACT_CENTER",
+      "routeOpenings": 19
+    },
+    {
+      "role": "ADMIN",
+      "tenant": "TEN-NISSAN-SH",
+      "domain": "AI_OUTBOUND",
+      "routeOpenings": 13
+    },
+    {
+      "role": "ADMIN",
+      "tenant": "TEN-NISSAN-SH",
+      "domain": "CLOUD_CONTACT_CENTER",
+      "routeOpenings": 19
+    },
+    {
+      "role": "OPERATOR",
+      "tenant": "TEN-NISSAN-HQ",
+      "domain": "AI_OUTBOUND",
+      "routeOpenings": 7
+    },
+    {
+      "role": "OPERATOR",
+      "tenant": "TEN-NISSAN-HQ",
+      "domain": "CLOUD_CONTACT_CENTER",
+      "routeOpenings": 14
+    },
+    {
+      "role": "OPERATOR",
+      "tenant": "TEN-NISSAN-SH",
+      "domain": "AI_OUTBOUND",
+      "routeOpenings": 7
+    },
+    {
+      "role": "OPERATOR",
+      "tenant": "TEN-NISSAN-SH",
+      "domain": "CLOUD_CONTACT_CENTER",
+      "routeOpenings": 14
+    }
+  ],
+  "verification": {
+    "existingNodeChecks": 172,
+    "existingNodeResult": "pass",
+    "deliveryChecks": 242,
+    "linksChecked": 1114,
+    "deliveryResult": "pass",
+    "routePageErrors": [],
+    "routeFailedResources": [],
+    "freshCustomerChecks": 5,
+    "resourcePositiveChecks": 25,
+    "inboundCrudChecks": 12,
+    "workflowPreflight": "fail",
+    "consolidatedBrowserCheck": "fail",
+    "businessFilesChanged": []
+  },
+  "limits": [
+    "没有真实签名、供应商请求、拨号、录音生成或调度验收；不能据此声称生产接口已联调。",
+    "33 个菜单入口已覆盖，不等于每项业务的全部状态、组合和并发场景已穷尽；按模块列出深测与未测范围。",
+    "部分发现通过异常回执或存储故障注入，白盒权限项未找到普通界面越权路径，不是已证实的生产泄露。",
+    "本轮保留既有供应商未决事项，不重开已关闭 CF-01/02/03，不补造默认重呼行为，取消的录音定位不列缺口。"
+  ],
+  "unchanged": {
+    "fileCount": 300,
+    "baselineFile": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/memory/evidence/full-regression-20260915/baseline-hashes.json",
+    "businessImplementation": true,
+    "existingDocumentation": true,
+    "developmentPackage": true,
+    "gitlabNotChanged": true
+  }
+}

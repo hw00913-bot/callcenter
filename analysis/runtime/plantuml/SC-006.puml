@@ -1,0 +1,63 @@
+@startuml
+title SC-006 · 创建逻辑技能模板与租户物理技能组
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 超级管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:某供应商账号需要新增可复用技能分类，或某租户需要启用既有技能分类; <<start_label>>
+|lane_1|
+:选择供应商账号技能分类与目标租户\n输入：售前/售后等逻辑分类、租户\n输出：逻辑模板及物理组创建申请;
+|lane_2|
+if (同一供应商账号且映射不冲突？) then (不满足 · ALT-006-2)
+|lane_1|
+:禁止跨供应商账号或多个租户共用同一物理组; <<failure>>
+stop
+else (满足)
+|lane_2|
+:准备本租户独占的技能与队列映射\n企业账号内资源唯一归属;
+|lane_3|
+:技能与队列创建能力待确认\n不发送无依据的创建调用，不标记已生效;
+|lane_2|
+if (物理组已确认创建且归属正确？) then (不满足 · ALT-006-5)
+|lane_1|
+:保留同步失败或结果未知，先查询核对再重试; <<failure>>
+stop
+else (满足)
+|lane_2|
+:保存模板到租户物理组映射\n输入：厂商技能组ID\n输出：供应商账号分类可复用；组内ACD不跨租户;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+endif
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+title SC-201 · 选择登录租户及业务域
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 中台账号用户
+|#EFFAF5|lane_2| 统一外呼中台
+|lane_1|
+start
+:进入后台; <<start_label>>
+|lane_1|
+:使用账号或手机号登录\n输入：既有密码/验证码规则\n输出：认证申请;
+|lane_2|
+if (账号认证及状态有效？) then (不满足 · ALT-201-2)
+|lane_1|
+:显示认证失败，不通过演示快捷方式绕过; <<failure>>
+stop
+else (满足)
+|lane_1|
+:多租户时选择一个租户及业务域\n输入：有效成员关系与产品能力\n输出：唯一租户及业务域;
+|lane_2|
+if (租户、角色与产品能力有效？) then (不满足 · ALT-201-4)
+|lane_1|
+:拒绝未启用业务域；退出后才能重新选租户; <<failure>>
+stop
+else (满足)
+|lane_2|
+:建立当前范围并加载角色菜单\n输入：成员单一角色、租户供应商账号\n输出：普通用户不能切供应商账号；超管仅一个有效供应商账号;
+|lane_1|
+:进入当前角色工作台\n输入：有效访问上下文\n输出：完成登录；演示切换不计生产功能;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+endif
+@enduml

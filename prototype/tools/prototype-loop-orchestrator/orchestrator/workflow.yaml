@@ -1,0 +1,158 @@
+{
+  "version": "2026-09-06-analysis-generation-order",
+  "authority": "runtime-control",
+  "description": "PM 需求到静态演示原型的确定性阶段状态机。docs/ 只解释本文件，不作为运行时源。",
+  "stages": [
+    {
+      "id": "S0",
+      "name": "总控启动",
+      "purpose": "判断用户是否要开始计划或继续一个原型项目；有新增业务事实或 LLM Wiki 材料尚未纳入 G3 冻结包时先路由需求分析 Loop，不在原型阶段查询或消费 Wiki；有冻结包时先验真并导入。",
+      "primary_worker": "prototype-loop-orchestrator",
+      "outputs": [
+        "memory/stage-log.md"
+      ],
+      "next": [
+        "S1"
+      ]
+    },
+    {
+      "id": "S1",
+      "name": "项目讨论",
+      "purpose": "执行 PM Brief Intake；导入模式把业务事实视为只读，只澄清演示目的、受众、视觉、设备、底座和交付决策。功能说明文档与标注是两个独立可选交付项，默认均不生成，只有 PM 明确要求时才记录为 requested，并在启动快照记录基线 ID、fingerprint 与 manifest SHA-256。",
+      "primary_worker": "superpowers-pm-prototype/skills/brainstorming",
+      "outputs": [
+        "memory/project-startup-plan.md",
+        "memory/stage-log.md"
+      ],
+      "next": [
+        "S2"
+      ]
+    },
+    {
+      "id": "S2",
+      "name": "计划门禁",
+      "purpose": "写入项目级 CLAUDE.md 后，由产品经理显式确认 S1 启动规划；approve-plan 绑定迭代名、确认人、确认依据、可选交付开关、两份文件摘要和已导入需求分析 manifest SHA-256。S2 后启动规划与上游基线绑定只读。",
+      "primary_worker": "prototype-loop-orchestrator",
+      "requires_pm_approval": true,
+      "outputs": [
+        "CLAUDE.md",
+        "config/workflow.json",
+        "memory/stage-log.md"
+      ],
+      "next": [
+        "S3"
+      ]
+    },
+    {
+      "id": "S3",
+      "name": "项目记忆生成",
+      "purpose": "从冻结基线物化已确认基础事实、功能、业务规则和字段，保留角色职责、系统边界、产品结构、状态模型，以及 FLOW/SC/SEQ、页面结构图和接口核验的只读入口；结合 S1/S2 的原型决策生成记忆。LLM Wiki 只在需求分析消费，来源元数据仅用于追溯。",
+      "primary_worker": "memory-generator",
+      "outputs": [
+        "memory/project.md",
+        "memory/business-rules.md",
+        "memory/feature-list.md",
+        "memory/source-materials.md",
+        "memory/field-map.md",
+        "memory/open-items.md",
+        "docs/decisions.md"
+      ],
+      "next": [
+        "S4"
+      ]
+    },
+    {
+      "id": "S4",
+      "name": "项目初始化",
+      "purpose": "确认标准原型项目结构就绪：创建、迁移和底座裁剪在 loop 源仓库由 create_project 完成；生成项目内 S4 只确认结构、工具脚本、S0-S3 计划和 S3 记忆已就绪。能力选择由总控运行时完成。",
+      "primary_worker": "loop-project-scaffolder",
+      "outputs": [
+        "standard_project_structure",
+        "tools/import_analysis.py",
+        "tools/loop_run.py",
+        "tools/loop_preflight.py"
+      ],
+      "next": [
+        "S5"
+      ]
+    },
+    {
+      "id": "S5",
+      "name": "项目结构读取",
+      "purpose": "读取真实文件结构，排除总控工具包，建立后续拆分边界。",
+      "primary_worker": "structure-reader",
+      "outputs": [
+        "memory/project-structure.md",
+        "memory/stage-log.md"
+      ],
+      "next": [
+        "S6"
+      ]
+    },
+    {
+      "id": "S6",
+      "name": "需求实现拆分",
+      "purpose": "结合已确认基础事实、最终功能清单及页面映射、页面结构图、流程/泳道和时序约束拆分页面、交互、Mock 与验收步骤；保留 AC/FUNC/PAGE/ACTION 来源，并在相关步骤引用 SC/SEQ。冻结 HTML 图集另作只读发布任务，不能代替对其交互逻辑的实现。标注任务仅在明确请求时增加。",
+      "primary_worker": "project-decomposer",
+      "outputs": [
+        "memory/task-plan.md",
+        "memory/execution-steps.md",
+        "memory/acceptance-map.md",
+        "memory/open-items.md",
+        "memory/field-map.md"
+      ],
+      "next": [
+        "S7"
+      ]
+    },
+    {
+      "id": "S7",
+      "name": "实现与单步验证循环",
+      "purpose": "由 prototype-builder 按冻结基础事实及相关 FLOW/SC/SEQ 实现页面、状态、请求反馈、回调与异常模拟；只模拟已确认交互边界。冻结 HTML 图集复用发布、不重算几何。每步调用 prototype-verifier 验证并记录证据。",
+      "primary_worker": "prototype-builder",
+      "outputs": [
+        "flowcharts/business-process.html",
+        "flowcharts/sequence-interaction.html",
+        "related-systems/index.html",
+        "memory/change-log.md",
+        "memory/verification-log.md",
+        "memory/circuit-state.json"
+      ],
+      "next": [
+        "S8"
+      ]
+    },
+    {
+      "id": "S8",
+      "name": "全局验证",
+      "purpose": "验证页面与交互符合已确认基础事实、功能和 FLOW/SC/SEQ 约束，覆盖同步/异步与异常分支。双向复核 FUNC 实现证据与页面业务操作来源，在 verification-log 记录范围和结论，在 open-items 记录细化、拆分或范围差异及用户决定；业务事实变更须回需求分析更新版本并重新 G3，再新一轮导入复验，不覆盖旧基线、不默认扩大原报价。本轮验收缺陷和范围冲突阻断，延期且不影响本轮的新增建议不自动纳入。核对上游 ID、冻结完整性与图集来源，图页可打开不能替代行为验收。",
+      "primary_worker": "prototype-verifier",
+      "outputs": [
+        "memory/verification-log.md",
+        "memory/acceptance-map.md"
+      ],
+      "next": [
+        "S9"
+      ]
+    },
+    {
+      "id": "S9",
+      "name": "按需补充与收尾",
+      "purpose": "在全局验证通过后，只生成 PM 已明确要求的可选交付物：interactionDoc=true 时生成功能说明文档，annotations=true 时生成手动标注提示词与覆盖清单；两个开关均为 false 时不生成说明文档或标注产物，直接执行 final 收尾终检。标注数据仍不自动写入 annotations.js。",
+      "primary_worker": "annotation-generator",
+      "outputs": [
+        "memory/final-snapshot.json"
+      ],
+      "conditional_outputs": {
+        "interactionDoc": [
+          "docs/interaction.html"
+        ],
+        "annotations": [
+          "memory/annotation-prompt.md",
+          "memory/annotation-coverage.md"
+        ]
+      },
+      "next": []
+    }
+  ]
+}

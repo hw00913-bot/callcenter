@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-205",
+  "scenario_id": "SC-205",
+  "name": "回查客户档案与导入批次的执行结果时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "客户已进行一次或多次呼叫",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "svc",
+      "to": "svc",
+      "message": "定位人工、预外呼或 IVR 同次通话的 callId、原批次客户 ID 与通话来源快照；读取通话发起时的批次、客户行、业务类型和对应编码，不改用该手机号最近导入的单据；临时拨号没有批次来源时保持无批次来源。",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 7,
+      "from": "svc",
+      "to": "svc",
+      "message": "原通话归属明确，且当前查询或跟进操作在授权范围内？；通过才回查或写入原归属；无法唯一归属或越权时保留待核查，不猜测同号关联。",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 8,
+      "from": "svc",
+      "to": "svc",
+      "message": "按 callId 幂等追加原通话结果与证据；有批次来源时只更新原 batchCustomerId；保留原业务类型、编码、任务与跟进人来源快照及所有尝试；已接通不自动标记跟进完成，历史未知不伪造结果、时长或录音。",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 9,
+      "from": "u",
+      "to": "ui",
+      "message": "按批次查看客户执行与分配，或按手机号档案回查历次联系",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 10,
+      "from": "svc",
+      "to": "svc",
+      "message": "汇总同租户同供应商账号规范手机号下的各批次及各次通话来源；逐批显示线索编码、售后单号或活动编码；保留历史未分类及原选填标识，业务类型与编码不成为手机号档案的单值属性。",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 11,
+      "from": "u",
+      "to": "ui",
+      "message": "按权限保存本批次客户的人工跟进结果，接通与跟进完成分开",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 12,
+      "from": "svc",
+      "to": "svc",
+      "message": "最终话单校准仅幂等更新原通话、原批次结果及相关统计；不改挂最近业务单据，不重新分配或创建新拨号，不向外部业务系统推送。",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 13,
+      "from": "svc",
+      "to": "ui",
+      "message": "保留待核查或提示无权访问，不按相同手机号覆盖其他批次、租户或供应商账号；不据最近单据猜测来源。",
+      "type": "error",
+      "api_id": null,
+      "condition": "原通话归属不明确，或当前操作不在授权范围"
+    },
+    {
+      "step": 14,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

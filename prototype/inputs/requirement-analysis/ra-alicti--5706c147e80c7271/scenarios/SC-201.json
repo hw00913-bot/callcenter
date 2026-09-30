@@ -1,0 +1,252 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-201",
+  "name": "选择登录租户及业务域",
+  "summary": "继承账号或手机号登录；多租户在登录时选择，换租户退出重登；双能力租户选择业务域；普通用户不切供应商账号",
+  "actors": [
+    "中台账号用户",
+    "统一外呼中台"
+  ],
+  "trigger": "进入后台",
+  "preconditions": [
+    "当前身份与租户能力有效"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "中台账号用户",
+      "action": "使用账号或手机号登录",
+      "system_response": "认证申请",
+      "input": "既有密码/验证码规则",
+      "rule_ids": [
+        "BR-201"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "账号认证及状态有效？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-201"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "中台账号用户",
+      "action": "多租户时选择一个租户及业务域",
+      "system_response": "唯一租户及业务域",
+      "input": "有效成员关系与产品能力",
+      "rule_ids": [
+        "BR-201"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "租户、角色与产品能力有效？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-201"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "建立当前范围并加载角色菜单",
+      "system_response": "普通用户不能切供应商账号；超管仅一个有效供应商账号",
+      "input": "成员单一角色、租户供应商账号",
+      "rule_ids": [
+        "BR-201"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "中台账号用户",
+      "action": "进入当前角色工作台",
+      "system_response": "完成登录；演示切换不计生产功能",
+      "input": "有效访问上下文",
+      "rule_ids": [
+        "BR-201"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-201-2",
+      "condition": "账号认证及状态有效？：不满足",
+      "steps": [
+        "显示认证失败，不通过演示快捷方式绕过"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-201-4",
+      "condition": "租户、角色与产品能力有效？：不满足",
+      "steps": [
+        "拒绝未启用业务域；退出后才能重新选租户"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    }
+  ],
+  "postconditions": [
+    "继承账号或手机号登录；多租户在登录时选择，换租户退出重登；双能力租户选择业务域；普通用户不切供应商账号"
+  ],
+  "acceptance_points": [
+    "继承账号或手机号登录；多租户在登录时选择，换租户退出重登；双能力租户选择业务域；普通用户不切供应商账号",
+    "停用租户、未授权业务域和越供应商账号访问须拒绝；演示切换不作为正式认证"
+  ],
+  "source_story_ids": [
+    "US-201"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-201.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "中台账号用户",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "进入后台"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "使用账号或手机号登录\n输入：既有密码/验证码规则\n输出：认证申请",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "账号认证及状态有效？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "显示认证失败，不通过演示快捷方式绕过"
+      },
+      {
+        "id": "N3",
+        "lane_id": "u",
+        "type": "action",
+        "order": 5,
+        "label": "多租户时选择一个租户及业务域\n输入：有效成员关系与产品能力\n输出：唯一租户及业务域",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 6,
+        "label": "租户、角色与产品能力有效？",
+        "step_ref": 4
+      },
+      {
+        "id": "FAIL4",
+        "lane_id": "u",
+        "type": "end",
+        "order": 7,
+        "label": "拒绝未启用业务域；退出后才能重新选租户"
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "action",
+        "order": 8,
+        "label": "建立当前范围并加载角色菜单\n输入：成员单一角色、租户供应商账号\n输出：普通用户不能切供应商账号；超管仅一个有效供应商账号",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "u",
+        "type": "action",
+        "order": 9,
+        "label": "进入当前角色工作台\n输入：有效访问上下文\n输出：完成登录；演示切换不计生产功能",
+        "step_ref": 6
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 10,
+        "label": "本次操作结束：结果已展示并可追溯"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-201-2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "满足"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "FAIL4",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-201-4"
+      },
+      {
+        "from": "N4",
+        "to": "N5",
+        "label": "满足"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

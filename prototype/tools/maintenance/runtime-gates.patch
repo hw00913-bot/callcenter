@@ -1,0 +1,316 @@
+--- tools/loop_run.py
++++ tools/loop_run.py
+@@ -15,9 +15,11 @@
+ from datetime import datetime
+ from pathlib import Path
+ 
++from loop_rule_compat import approved_rule_hash, before_reference, digest, KIND as RULE_REFERENCE_MIGRATION
+ 
+-LOOP_TOOL_VERSION = "2026-09-06-analysis-generation-order-v1"
+ 
++LOOP_TOOL_VERSION = "2026-09-06-analysis-generation-order-v1+project-gate-repair-20260908"
++
+ STAGES = [f"S{i}" for i in range(10)]
+ STAGE_NAMES = {
+     "S0": "总控启动",
+@@ -552,8 +554,8 @@
+     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+ 
+ 
+-def validate_plan_approval(project: Path) -> list[str]:
+-    workflow = load_json(project / "config" / "workflow.json")
++def validate_plan_approval(project: Path, workflow_override: dict | None = None) -> list[str]:
++    workflow = workflow_override if workflow_override is not None else load_json(project / "config" / "workflow.json")
+     iteration = workflow.get("currentIteration")
+     if not isinstance(iteration, dict):
+         return ["缺少 currentIteration，必须先执行 approve-plan 记录 PM 确认"]
+@@ -594,7 +596,7 @@
+         return errors + ["计划审批引用的启动规划或 CLAUDE.md 已不存在"]
+ 
+     startup_hash = file_sha256(startup_path)
+-    claude_hash = file_sha256(claude_path)
++    claude_hash = approved_rule_hash(project, iteration)
+     analysis_hash, analysis_errors = requirement_analysis_binding(project)
+     errors.extend(analysis_errors)
+     if iteration.get("approvedStartupPlanSha256") != startup_hash:
+@@ -621,6 +623,50 @@
+     return errors
+ 
+ 
++def register_rule_reference(args: argparse.Namespace) -> int:
++    """Record only the authorized reference-line migration, not PM approval."""
++    project = Path(args.project).expanduser().resolve()
++    workflow = load_json(project / "config/workflow.json")
++    iteration = workflow.get("currentIteration", {})
++    path = project / CLAUDE_PATH
++    if not path.exists() or len(args.evidence.strip()) < 6:
++        print("- ERROR: 缺少规则文件或本次技术迁移授权依据")
++        return 1
++    data = path.read_bytes()
++    before = before_reference(data)
++    if before is None or digest(before) != iteration.get("approvedClaudeSha256"):
++        print("- ERROR: 仅允许增加一行功能记忆引用；存在其他规则变化，不能兼容迁移")
++        return 1
++    previous = iteration.get("ruleReferenceMigration")
++    if previous:
++        errors = validate_plan_approval(project)
++        if errors:
++            print("\n".join(f"- ERROR: {error}" for error in errors))
++            return 1
++        print("Rule reference migration already registered; original approval preserved.")
++        return 0
++    migration = {
++        "kind": RULE_REFERENCE_MIGRATION,
++        "writer": "tools/loop_run.py",
++        "migratedAt": datetime.now().isoformat(timespec="seconds"),
++        "authorization": args.evidence.strip(),
++        "originalPlanApprovalId": iteration.get("planApprovalId"),
++        "beforeSha256": digest(before),
++        "afterSha256": digest(data),
++    }
++    # Validate the candidate against all existing approval checks before commit.
++    # The temporary copy is only approval metadata; no project stage is advanced.
++    candidate = json.loads(json.dumps(workflow))
++    candidate["currentIteration"]["ruleReferenceMigration"] = migration
++    errors = validate_plan_approval(project, candidate)
++    if errors:
++        print("\n".join(f"- ERROR: {error}" for error in errors))
++        return 1
++    write_json(project / "config/workflow.json", candidate)
++    print("Rule reference migrated; original PM approval, frozen plan and stage state preserved.")
++    return 0
++
++
+ def approve_plan(args: argparse.Namespace) -> int:
+     project = Path(args.project).expanduser().resolve()
+     current_stage = current_workflow_stage(project)
+@@ -1692,6 +1738,11 @@
+         help="Explicitly record PM approval for an existing project already beyond S2 without changing its stage",
+     )
+     approval_parser.set_defaults(func=approve_plan)
++
++    migration_parser = subparsers.add_parser("register-rule-reference", help="Register the single feature-reference migration without reapproving or advancing stages")
++    migration_parser.add_argument("project", nargs="?", default=".")
++    migration_parser.add_argument("--evidence", required=True)
++    migration_parser.set_defaults(func=register_rule_reference)
+ 
+     request_parser = subparsers.add_parser(
+         "request-deliverables",
+--- tools/loop_preflight.py
++++ tools/loop_preflight.py
+@@ -12,6 +12,8 @@
+ from html.parser import HTMLParser
+ import sys
+ from pathlib import Path, PurePosixPath
++
++from loop_rule_compat import approved_rule_hash, local_browser_repair_authorized
+ 
+ 
+ def trusted_control_config_root() -> Path | None:
+@@ -671,7 +673,7 @@
+     startup = target / "memory" / "project-startup-plan.md"
+     claude = target / "CLAUDE.md"
+     startup_hash = hashlib.sha256(startup.read_bytes()).hexdigest() if startup.exists() else ""
+-    claude_hash = hashlib.sha256(claude.read_bytes()).hexdigest() if claude.exists() else ""
++    claude_hash = approved_rule_hash(target, iteration)
+     parts = [
+         project_record_salt(target),
+         str(iteration.get("name") or ""),
+@@ -895,7 +897,7 @@
+         claude = target / "CLAUDE.md"
+         if startup.exists() and iteration.get("approvedStartupPlanSha256") != hashlib.sha256(startup.read_bytes()).hexdigest():
+             errors.append("项目启动规划与 PM 审批摘要不一致，必须重新执行 approve-plan")
+-        if claude.exists() and iteration.get("approvedClaudeSha256") != hashlib.sha256(claude.read_bytes()).hexdigest():
++        if claude.exists() and iteration.get("approvedClaudeSha256") != approved_rule_hash(target, iteration):
+             errors.append("CLAUDE.md 与 PM 审批摘要不一致，必须重新执行 approve-plan")
+         if iteration.get("planApprovalId") and iteration.get("planApprovalId") != expected_plan_approval_id(target, iteration):
+             errors.append("计划审批记录编号校验失败，必须由 approve-plan 重新生成")
+@@ -927,23 +929,41 @@
+     # other stage stays checked, and a standalone preflight run (no
+     # --completing-stage) keeps full strictness.
+     exempt = (completing_stage or "").strip().upper()
+-    records = stage_log_records(target)
+-    for record in records:
++    latest_by_stage: dict[str, dict[str, str]] = {}
++    for record in stage_log_records(target):
+         stage_value = record.get("stage", "").strip().upper()
+         match = re.search(r"S(?:10|11|0|1|2|3|4|5|6|7|8|9)", stage_value)
+         if not match:
+             continue
+         stage_id = match.group(0)
+         if stage_id not in EXPECTED_PREFLIGHT_BY_STAGE:
++            continue
++        latest_by_stage[stage_id] = record
++    # The log is append-only. A failed redo supersedes an older pass; it does
++    # not erase it. Validate the superseding record, including failed stages
++    # not yet required by check_stage_log, before using its current result.
++    for stage_id, record in latest_by_stage.items():
++        date_value = record.get("date", "").strip()
++        stage_value = record.get("stage", "").strip()
++        expected_ids = {expected_record_id_v2(target, stage_value, date_value)}
++        if not record.get("record_id_version"):
++            expected_ids.add(expected_record_id_legacy(stage_value, date_value))
++        if (record.get("writer") != "tools/loop_run.py"
++                or record.get("record_id") not in expected_ids
++                or record.get("record_id_version", "") not in {"", "project-salted-v2"}
++                or not value_is_iso_timestamp(date_value)
++                or not re.fullmatch(r"[a-f0-9]{16}", record.get("preflight_result_hash", ""))):
++            errors.append(f"阶段日志 {stage_id} 最新记录来源校验失败，不能作为回退或完成依据")
+             continue
+         if exempt and stage_id == exempt:
+             continue
+-        if value_is_pass(record.get("gate_result", "")):
+-            workflow_status = str(stages.get(stage_id.lower(), "")).strip().lower()
+-            if workflow_status and workflow_status != "completed":
+-                errors.append(
+-                    f"阶段状态不一致：memory/stage-log.md 记录 {stage_id} pass，但 config/workflow.json stages.{stage_id.lower()}={workflow_status}"
+-                )
++        workflow_status = str(stages.get(stage_id.lower(), "")).strip().lower()
++        passed = value_is_pass(record.get("gate_result", ""))
++        if (passed and workflow_status != "completed") or (not passed and workflow_status == "completed"):
++            errors.append(
++                f"阶段状态不一致：memory/stage-log.md 最新记录 {stage_id} {record.get('gate_result', '空')}，"
++                f"但 config/workflow.json stages.{stage_id.lower()}={workflow_status or '空'}"
++            )
+ 
+ 
+ def check_current_iteration_baseline(target: Path, stage: str, errors: list[str]) -> None:
+@@ -1293,6 +1313,7 @@
+             "date": "date",
+             "writer": "writer",
+             "record_id": "record_id",
++            "record_id_version": "record_id_version",
+             "preflight_result_hash": "preflight_result_hash",
+             "stage": "stage",
+             "stage_name": "stage_name",
+@@ -1337,13 +1358,22 @@
+     return load_json(path, errors)
+ 
+ 
+-def check_circuit_breaker(target: Path, stage: str, errors: list[str]) -> None:
++def check_circuit_breaker(target: Path, stage: str, errors: list[str], warnings: list[str] | None = None) -> None:
+     if stage not in {"s7", "s8", "s9", "final"}:
+         return
+     circuit_path = target / "memory" / "circuit-state.json"
+     if not circuit_path.exists():
+         return
+     state = load_circuit_state(target, errors)
++    pending = state.get("pendingChecks", [])
++    if not isinstance(pending, list):
++        errors.append("熔断状态格式错误：pendingChecks 必须是数组")
++    else:
++        for item in pending:
++            if not isinstance(item, dict):
++                errors.append("熔断状态格式错误：pendingChecks 中每项必须是对象")
++            elif stage in {"s8", "s9", "final"} and item.get("status") not in {"pass", "resolved"}:
++                errors.append(f"必要验证尚未完成：{item.get('stepId', 'unknown')} / {item.get('checkpoint', 'unknown')} Status={item.get('status', '空')}")
+     if "failures" not in state:
+         errors.append("熔断状态结构缺失：memory/circuit-state.json 必须包含 failures 字段（可为空数组）")
+         return
+@@ -1372,6 +1402,16 @@
+             errors.append("熔断状态格式错误：consecutiveFailures 必须是数字")
+             continue
+         if count >= threshold:
++            # A user may resume local repair without clearing a browser
++            # failure. The exact snapshot-bound exception is S7-only; S8,
++            # S9 and final still fail on the unchanged count and pending check.
++            if local_browser_repair_authorized(target, state, item, stage):
++                if warnings is not None:
++                    warnings.append(
++                        f"仅恢复 S7 本地修复：{item.get('stepId')} / {item.get('checkpoint')} "
++                        f"保留连续失败 {count} 次及 not_verified；不允许浏览器重试或 S7 完成/S8/S9/final 交付。"
++                    )
++                continue
+             step = item.get("stepId") or "unknown-step"
+             checkpoint = item.get("checkpoint") or "unknown-checkpoint"
+             summary = item.get("lastError") or "未记录错误摘要"
+@@ -1414,6 +1454,11 @@
+             continue
+         if fence_depth > 0:
+             continue
++        if re.match(r"^#{1,2}\s", stripped):
++            if record_start_key in current:
++                records.append(current)
++            current = {}
++            continue
+         line = raw_line.strip().removeprefix("- ").removeprefix("-")
+         if not line or ":" not in line:
+             continue
+@@ -1429,7 +1474,7 @@
+             records.append(current)
+             current = {}
+         current[mapped] = value.strip()
+-    if current:
++    if record_start_key in current:
+         records.append(current)
+     return records
+ 
+@@ -1631,6 +1676,10 @@
+         result = record.get("result", "").lower()
+         scope = record.get("scope", "").lower()
+         step = normalize_step(record.get("step", ""))
++        if scope not in {"step", "global"}:
++            errors.append(f"验证日志 {step or 'unknown'} Scope 必须明确为 step 或 global：{scope or '空'}")
++        if result not in {"pass", "fail", "pending", "not_verified", "blocked"}:
++            errors.append(f"验证日志 {step or 'unknown'} Result 不是有效状态：{result or '空'}")
+         failed = record.get("failed", "")
+         evidence = record.get("evidence", "")
+         for key in ["local_url_file", "tool", "command_check", "passed", "evidence", "consecutive_failures"]:
+@@ -1667,23 +1716,23 @@
+                     pass
+         if scope == "step" and result in {"pass", "fail"} and step not in planned_steps:
+             errors.append(f"验证日志包含未在 execution-steps.md 中定义的步骤：{step}")
+-    passed_steps = {
+-        normalize_step(record.get("step", ""))
+-        for record in records
+-        if record.get("result", "").lower() == "pass"
+-        and record.get("scope", "").lower() == "step"
+-    }
+-    for step_id in extract_step_ids(target):
+-        if step_id not in passed_steps:
+-            errors.append(f"验证日志缺少执行步骤 pass 记录：{step_id}")
++    latest_steps: dict[str, tuple[int, dict[str, str]]] = {}
++    latest_global: tuple[int, dict[str, str]] | None = None
++    for index, record in enumerate(records):
++        if record.get("scope", "").lower() == "step":
++            latest_steps[normalize_step(record.get("step", ""))] = (index, record)
++        elif record.get("scope", "").lower() == "global":
++            latest_global = (index, record)
++    for step_id in extract_step_ids(target):
++        latest = latest_steps.get(step_id)
++        if not latest or latest[1].get("result", "").lower() != "pass":
++            result = latest[1].get("result", "空") if latest else "missing"
++            errors.append(f"验证日志执行步骤最新记录未通过：{step_id} Result={result}")
+     if stage in {"s9", "final"}:
+-        has_global_pass = any(
+-            record.get("result", "").lower() == "pass"
+-            and record.get("scope", "").lower() == "global"
+-            for record in records
+-        )
+-        if not has_global_pass:
+-            errors.append("验证日志缺少全局验证 pass 记录")
++        if not latest_global or latest_global[1].get("result", "").lower() != "pass":
++            errors.append("验证日志最新全局验证记录未通过或缺失")
++        elif any(index > latest_global[0] for index, _ in latest_steps.values()):
++            errors.append("全局验证记录早于最新单步验证，必须重新执行全局验收")
+ 
+ 
+ def evidence_indicates_failure(evidence: str) -> bool:
+@@ -1697,6 +1746,9 @@
+     errword = r"(?:error\(s\)|errors?|failures?|failure|failed|失败|错误)"
+     neutralized = re.sub(zero + r"\s*个?\s*" + errword, " ", lowered)
+     neutralized = re.sub(errword + r"\s*[:：=]?\s*" + zero + r"\b", " ", neutralized)
++    # Browser checks often record empty error arrays rather than counts. Do
++    # not mistake runtimeErrors=[] for failures; nonempty arrays stay blocked.
++    neutralized = re.sub(r"\b(?:runtimeerrors|errors|failures|failed)\s*[:=]\s*\[\s*\]", " ", neutralized)
+     failure_markers = [
+         "heading toward 0",
+         "reduced from",
+@@ -2596,7 +2648,7 @@
+         check_workflow_state(target, args.stage, errors, completing_stage=args.completing_stage)
+         check_current_iteration_baseline(target, args.stage, errors)
+         check_control_tool_boundary(target, errors)
+-        check_circuit_breaker(target, args.stage, errors)
++        check_circuit_breaker(target, args.stage, errors, warnings)
+         check_project_startup_plan(target, args.stage, errors)
+         check_stage_specific(target, args.stage, errors)

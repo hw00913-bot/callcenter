@@ -1,0 +1,295 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-105",
+  "scenario_id": "SC-105",
+  "name": "分别使用运营工作台和坐席工作台时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "当前角色登录后查看工作台并按权限下钻处理",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "u",
+      "to": "ui",
+      "message": "按角色进入运营工作台；具备坐席资格时可另进坐席工作台",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 7,
+      "from": "svc",
+      "to": "svc",
+      "message": "运营工作台将任务与坐席分区；坐席工作台左侧客户联系、右侧通话成效；任务进度与类型占比分开；未知显示待接入",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 8,
+      "from": "u",
+      "to": "ui",
+      "message": "选择任务、坐席或资源下钻；坐席居中详情分开显示当前状态、当前通话及分页历史",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 9,
+      "from": "svc",
+      "to": "svc",
+      "message": "所选对象和操作在既有权限内？；满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 10,
+      "from": "u",
+      "to": "ui",
+      "message": "在既有任务详情选择暂停、继续或终止；坐席分支复用原停用确认",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "svc",
+      "message": "当前任务状态和资源互斥检查通过？；已结束不能继续；长期暂停自动结束须同步原因",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 12,
+      "from": "svc",
+      "to": "vendor",
+      "message": "仅暂停操作提交taskId；pauseDuration默认0，单位待确认",
+      "type": "request",
+      "api_id": "API-313",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 13,
+      "from": "vendor",
+      "to": "svc",
+      "message": "受理后保持处理中，在途影响不明则待确认",
+      "type": "response",
+      "api_id": "API-313",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 14,
+      "from": "svc",
+      "to": "vendor",
+      "message": "仅结束操作提交taskId",
+      "type": "request",
+      "api_id": "API-314",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 15,
+      "from": "vendor",
+      "to": "svc",
+      "message": "结束受理与最终终态分开；继续操作契约待确认",
+      "type": "response",
+      "api_id": "API-314",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 16,
+      "from": "svc",
+      "to": "svc",
+      "message": "厂商结果与在途保护均已确认？；暂停/结束影响在途的语义待POC，不强行改通话终态",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 17,
+      "from": "svc",
+      "to": "svc",
+      "message": "保存已核实的控制结果和调度记录；暂停可继续；终止不可继续；在途和客户关联保留",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 18,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权；人员和资源维护仍限管理员",
+      "type": "error",
+      "api_id": null,
+      "condition": "所选对象和操作在既有权限内？：不满足"
+    },
+    {
+      "step": 19,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝无效状态或未恢复资源；号码隔离恢复限管理员",
+      "type": "error",
+      "api_id": null,
+      "condition": "当前状态及继续执行的资源检查通过？：不满足"
+    },
+    {
+      "step": 20,
+      "from": "svc",
+      "to": "ui",
+      "message": "标记待核对/失败，不把受理当最终生效",
+      "type": "error",
+      "api_id": null,
+      "condition": "厂商结果可确认与业务要求一致？：不满足"
+    },
+    {
+      "step": 21,
+      "from": "svc",
+      "to": "ui",
+      "message": "取消提交：不执行本次变更，保留已有有效数据",
+      "type": "error",
+      "api_id": null,
+      "condition": "执行变更前取消确认"
+    },
+    {
+      "step": 22,
+      "from": "svc",
+      "to": "ui",
+      "message": "仅本地保存终止状态与审计，不发送远端请求，不释放客户",
+      "type": "error",
+      "api_id": null,
+      "condition": "无厂商活动且请求终止未启动任务"
+    },
+    {
+      "step": 23,
+      "from": "svc",
+      "to": "ui",
+      "message": "转SC-014/015完成首次启动校验和执行；不调用ResumeCampaign",
+      "type": "error",
+      "api_id": null,
+      "condition": "无厂商活动，隔离前待启动，管理员确认恢复"
+    },
+    {
+      "step": 24,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝操作，保持原状态",
+      "type": "error",
+      "api_id": null,
+      "condition": "无厂商活动且操作不属于本地终止或合法首次启动"
+    },
+    {
+      "step": 25,
+      "from": "svc",
+      "to": "ui",
+      "message": "复核坐席归属后展示当前状态、当前通话和分页历史；缺失实时详情保持待更新；历史记录进入SC-104",
+      "type": "error",
+      "api_id": null,
+      "condition": "选择坐席对象下钻"
+    },
+    {
+      "step": 26,
+      "from": "svc",
+      "to": "ui",
+      "message": "转SC-005复用现有确认、取消、权限与执行结果核验；当前通话允许完成",
+      "type": "error",
+      "api_id": null,
+      "condition": "管理员在坐席详情选择停用"
+    },
+    {
+      "step": 27,
+      "from": "svc",
+      "to": "ui",
+      "message": "按当前权限进入既有资源模块，不触发任务控制",
+      "type": "error",
+      "api_id": null,
+      "condition": "选择线路/账号等资源对象"
+    },
+    {
+      "step": 28,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

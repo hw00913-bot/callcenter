@@ -1,0 +1,78 @@
+@startuml
+title SC-103 · 在坐席工作台完成人工外呼与话后处理
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 关联坐席的运营
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:需要直接联系一位客户; <<start_label>>
+|lane_1|
+:点击本人待联络客户或临时拨号\n输入：分配客户；或手工客户信息\n输出：呼叫弹窗与明确下一步;
+|lane_1|
+:选择有效技能组及外显号码\n输入：本人已生效技能、租户用号权\n输出：拨号准备；单项默认多项手选;
+|lane_2|
+if (客户、本人电话会话、禁呼及资源复检通过？) then (不满足 · ALT-103-3)
+|lane_1|
+:拒绝拨号并指出原因；不得由管理员绕过; <<failure>>
+stop
+else (满足)
+|lane_1|
+if (确认提交本次操作？) then (确认)
+|lane_2|
+:以本人坐席发起预览外呼\npreviewOutcall带requestUniqueId，回调成功不等于客户接通;
+|lane_3|
+:处理已授权呼叫并建立通道\n输出：受理结果和客户/坐席通道事件；受理不等于客户接通;
+|lane_1|
+:按实际状态静音或挂断，并填写话后结果\nmute为切换操作，失败不盲重试；客户/坐席状态独立;
+|lane_2|
+if (处理结果已保存成功？) then (不满足 · ALT-103-6)
+|lane_1|
+:保留输入及话后门禁，不能继续下一客户; <<failure>>
+stop
+else (满足)
+|lane_2|
+:保存原通话及关联客户结果并保留来源快照\n输出：最终话单可补历史，未知保持待确认且不重复拨号;
+|lane_2|
+:业务结果保存后才允许继续接收新任务\n结合置忙/整理/置闲处理；厂商整理到期行为需POC;
+|lane_3|
+:处理就绪请求并反馈实际服务状态\n输出：确认 READY 后才允许下一通；失败保持待恢复;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+else (取消 · ALT-103-CANCEL)
+|lane_1|
+:取消拨号：尚未发起通话，不产生通话结果; <<end_label>>
+stop
+endif
+endif
+@enduml

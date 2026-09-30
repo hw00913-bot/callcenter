@@ -1,0 +1,69 @@
+@startuml
+title SC-206 · 删除从未启动的外呼任务
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 有权任务管理人员
+|#EFFAF5|lane_2| 统一外呼中台
+|lane_1|
+start
+:需要撤销草稿或从未启动的任务; <<start_label>>
+|lane_1|
+:从预外呼或IVR列表请求删除\n输入：草稿或从未启动的任务\n输出：删除申请;
+|lane_2|
+if (具有对应删除权限且从未启动无通话？) then (不满足 · ALT-206-2)
+|lane_1|
+:运营只可删除本人草稿；正式任务删除限管理员/超管；已执行任务拒绝删除; <<failure>>
+stop
+else (满足)
+|lane_1|
+if (确认提交本次操作？) then (确认)
+|lane_1|
+:二次确认删除任务而非客户\n输入：任务名称及不可恢复提示\n输出：删除确认；取消不改变数据;
+|lane_2|
+:提交时复检草稿作者或正式任务释放资格\n输入：本人草稿无客户占用；正式任务需管理员且客户无通话/话后/完成占用\n输出：复检通过才提交；失败保留任务与关联;
+|lane_2|
+if (关联客户可安全释放且保存成功？) then (不满足 · ALT-206-5)
+|lane_1|
+:停止删除，保留任务并提示核对；不报告虚假成功; <<failure>>
+stop
+else (满足)
+|lane_2|
+:删除本地草稿并释放客户；远端删除待确认\n已生成供应商任务的记录不伪造删除成功;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+else (取消 · ALT-206-CANCEL)
+|lane_1|
+:取消删除：任务与客户关联不变; <<end_label>>
+stop
+endif
+endif
+@enduml

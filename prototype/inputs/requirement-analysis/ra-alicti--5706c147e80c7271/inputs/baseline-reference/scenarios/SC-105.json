@@ -1,0 +1,582 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-105",
+  "name": "运营工作台与坐席工作台分工及下钻",
+  "summary": "运营工作台按角色分资源、任务和坐席；坐席详情区分当前与历史，历史可分页下钻，有权管理员沿用原停用确认；坐席工作台独立显示本人客户联系与成效。",
+  "actors": [
+    "当前角色用户",
+    "统一外呼中台",
+    "阿里云CCC"
+  ],
+  "trigger": "当前角色登录后查看工作台并按权限下钻处理",
+  "preconditions": [
+    "当前租户及业务域有效；具备操作权限"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "当前角色用户",
+      "action": "按角色进入运营工作台；具备坐席资格时可另进坐席工作台",
+      "system_response": "对应工作重点",
+      "input": "当前实例/租户、角色及坐席关联",
+      "rule_ids": [
+        "BR-105"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "运营工作台将任务与坐席分区；坐席工作台左侧客户联系、右侧通话成效",
+      "system_response": "任务进度与类型占比分开；未知显示待接入",
+      "input": "有来源的任务/坐席/尝试记录",
+      "rule_ids": [
+        "BR-105"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "当前角色用户",
+      "action": "选择任务、坐席或资源下钻；坐席居中详情分开显示当前状态、当前通话及分页历史",
+      "system_response": "任务进入原任务详情；坐席历史可回查同一callId，当前详情缺失明确提示",
+      "input": "当前授权指标或指定对象；历史通话每页5条",
+      "rule_ids": [
+        "BR-105"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "所选对象和操作在既有权限内？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-105"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "当前角色用户",
+      "action": "在既有任务详情选择暂停、继续或终止；坐席分支复用原停用确认",
+      "system_response": "按目标对象选择既有操作，不在概览直接控制",
+      "input": "当前任务状态、资源与操作意图",
+      "rule_ids": [
+        "BR-105"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "当前状态及继续执行的资源检查通过？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-105"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "统一外呼中台",
+      "action": "根据是否已有厂商活动选择控制路径",
+      "system_response": "已有活动请求厂商控制；无活动本地终止或转首次启动",
+      "input": "操作、CampaignId、隔离前状态",
+      "rule_ids": [
+        "BR-105"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "统一外呼中台",
+      "action": "厂商结果可确认与业务要求一致？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-105"
+      ]
+    },
+    {
+      "step": 9,
+      "actor": "统一外呼中台",
+      "action": "保存已核实的控制结果和调度记录",
+      "system_response": "暂停可继续；终止不可继续；在途和客户关联保留",
+      "input": "厂商确认结果或本地终止事务结果",
+      "rule_ids": [
+        "BR-105"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-105-4",
+      "condition": "所选对象和操作在既有权限内？：不满足",
+      "steps": [
+        "拒绝越权；人员和资源维护仍限管理员"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-105-6",
+      "condition": "当前状态及继续执行的资源检查通过？：不满足",
+      "steps": [
+        "拒绝无效状态或未恢复资源；号码隔离恢复限管理员"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-105-8",
+      "condition": "厂商结果可确认与业务要求一致？：不满足",
+      "steps": [
+        "标记待核对/失败，不把受理当最终生效"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-105-CANCEL",
+      "condition": "执行变更前取消确认",
+      "steps": [
+        "取消提交：不执行本次变更，保留已有有效数据"
+      ]
+    },
+    {
+      "id": "ALT-105-LOCAL-STOP",
+      "condition": "无厂商活动且请求终止未启动任务",
+      "steps": [
+        "仅本地保存终止状态与审计，不调用AbortCampaign，不释放客户"
+      ]
+    },
+    {
+      "id": "ALT-105-FIRST-START",
+      "condition": "无厂商活动，隔离前待启动，管理员确认恢复",
+      "steps": [
+        "转SC-014/015完成首次启动校验和执行；不调用ResumeCampaign"
+      ]
+    },
+    {
+      "id": "ALT-105-LOCAL-INVALID",
+      "condition": "无厂商活动且操作不属于本地终止或合法首次启动",
+      "steps": [
+        "拒绝操作，保持原状态"
+      ]
+    },
+    {
+      "id": "ALT-105-SEAT",
+      "condition": "选择坐席对象下钻",
+      "steps": [
+        "复核坐席归属后展示当前状态、当前通话和分页历史；缺失实时详情保持待更新；历史记录进入SC-104"
+      ],
+      "continuation": "只读查看结束；有权限管理员可单独进入已有SC-005停用确认。"
+    },
+    {
+      "id": "ALT-105-SEAT-STOP",
+      "condition": "管理员在坐席详情选择停用",
+      "steps": [
+        "转SC-005复用现有确认、取消、权限与执行结果核验；当前通话允许完成"
+      ],
+      "continuation": "不执行监听、强插或强挂；停用不冒充强制结束当前通话。"
+    },
+    {
+      "id": "ALT-105-RESOURCE",
+      "condition": "选择线路/账号等资源对象",
+      "steps": [
+        "按当前权限进入既有资源模块，不触发任务控制"
+      ],
+      "continuation": "本次工作台下钻结束。"
+    }
+  ],
+  "postconditions": [
+    "超管关注实例资源异常，管理员关注租户任务与坐席，运营查看概览，带坐席运营关注本人待联络与呼叫成效；任务与坐席分区",
+    "工作台按对象下钻，不把查看坐席误导到任务控制，也不把历史通话当作当前实时详情。"
+  ],
+  "acceptance_points": [
+    "超管关注实例资源异常，管理员关注租户任务与坐席，运营查看概览，带坐席运营关注本人待联络与呼叫成效；任务与坐席分区",
+    "暂停停止新呼叫且允许继续；终止不可继续但保留在途结果及关联。普通运营保留既有任务创建/启动/暂停/继续/终止权限，工作台概览只读；资源和客户分配限管理员。",
+    "坐席详情居中显示，当前状态、进行中通话与历史记录独立；明细缺失不使用历史记录冒充当前通话；历史分页可进入同一通话的录音文本。",
+    "运营查看坐席详情只读；有权限管理员点击原停用操作后进入SC-005二次确认、重新鉴权与厂商结果核验；取消不改变状态。",
+    "停用阻止新任务，不打断当前通话，不新增监听、强插、强挂；普通运营既有任务模块权限不受概览只读影响。",
+    "详情打开或上下文改变均复核对象权限；关闭释放该详情及媒体，不能持有旧范围可操作对象。"
+  ],
+  "source_story_ids": [
+    "US-105"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-204",
+    "inputs/source-index.json#SRC-055",
+    "inputs/source-index.json#SRC-060"
+  ],
+  "legacy_refs": [],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "当前角色用户",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "阿里云CCC",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "当前角色登录后查看工作台并按权限下钻处理"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "按角色进入运营工作台；具备坐席资格时可另进坐席工作台\n输入：当前实例/租户、角色及坐席关联\n输出：对应工作重点",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "action",
+        "order": 3,
+        "label": "运营工作台将任务与坐席分区；坐席工作台左侧客户联系、右侧通话成效\n输入：有来源的任务/坐席/尝试记录\n输出：任务进度与类型占比分开；未知显示待接入",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "u",
+        "type": "action",
+        "order": 4,
+        "label": "选择任务、坐席或资源下钻；坐席居中详情分开显示当前状态、当前通话及分页历史\n输入：当前授权指标或指定对象；历史通话每页5条\n输出：任务进入原任务详情；坐席历史可回查同一callId，当前详情缺失明确提示",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 5,
+        "label": "所选对象和操作在既有权限内？",
+        "step_ref": 4
+      },
+      {
+        "id": "FAIL4",
+        "lane_id": "u",
+        "type": "end",
+        "order": 6,
+        "label": "拒绝越权；人员和资源维护仍限管理员"
+      },
+      {
+        "id": "N5",
+        "lane_id": "u",
+        "type": "action",
+        "order": 14,
+        "label": "在既有任务详情选择暂停、继续或终止；坐席分支复用原停用确认\n输入：当前任务状态、资源与操作意图\n输出：按目标对象选择既有操作，不在概览直接控制",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 15,
+        "label": "当前状态及继续执行的资源检查通过？",
+        "step_ref": 6
+      },
+      {
+        "id": "FAIL6",
+        "lane_id": "u",
+        "type": "end",
+        "order": 16,
+        "label": "拒绝无效状态或未恢复资源；号码隔离恢复限管理员"
+      },
+      {
+        "id": "N7",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 19,
+        "label": "任务是否已有厂商活动？",
+        "step_ref": 7
+      },
+      {
+        "id": "N8",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 24,
+        "label": "厂商结果可确认与业务要求一致？",
+        "step_ref": 8
+      },
+      {
+        "id": "FAIL8",
+        "lane_id": "u",
+        "type": "end",
+        "order": 25,
+        "label": "标记待核对/失败，不把受理当最终生效"
+      },
+      {
+        "id": "N9",
+        "lane_id": "p",
+        "type": "action",
+        "order": 26,
+        "label": "保存已核实的控制结果和调度记录\n输入：厂商确认结果或本地终止事务结果\n输出：暂停可继续；终止不可继续；在途和客户关联保留",
+        "step_ref": 9
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 27,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 17,
+        "label": "确认提交本次操作？"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 18,
+        "label": "取消提交：不执行本次变更，保留已有有效数据"
+      },
+      {
+        "id": "CLOUD_CONTROL",
+        "lane_id": "c",
+        "type": "action",
+        "order": 20,
+        "label": "执行已核验的暂停/继续/终止\n仅针对已有厂商活动；纯IVR效果待POC"
+      },
+      {
+        "id": "LOCAL_CHOICE",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 20,
+        "label": "无厂商活动时请求什么操作？"
+      },
+      {
+        "id": "LOCAL_TERMINATE",
+        "lane_id": "p",
+        "type": "action",
+        "order": 21,
+        "label": "本地终止未启动任务并保存调度审计\n保留客户关联与历史；不调用AbortCampaign",
+        "step_ref": 9
+      },
+      {
+        "id": "LOCAL_END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 22,
+        "label": "本地终止结果已展示\n未发起厂商控制，不经过厂商结果核验路径"
+      },
+      {
+        "id": "FIRST_START",
+        "lane_id": "p",
+        "type": "end",
+        "order": 22,
+        "label": "转SC-014/015首次启动复检\n仅隔离前待启动且管理员单独确认；不调用ResumeCampaign"
+      },
+      {
+        "id": "INVALID_LOCAL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 23,
+        "label": "拒绝不适用的本地暂停/继续\n原状态不变；无活动不能调用厂商控制"
+      },
+      {
+        "id": "DRILL_KIND",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 7,
+        "label": "当前下钻的是什么对象？"
+      },
+      {
+        "id": "SEAT_DETAIL",
+        "lane_id": "p",
+        "type": "action",
+        "order": 8,
+        "label": "居中坐席详情\n当前状态/当前通话/分页历史分开；缺失明细不补历史"
+      },
+      {
+        "id": "SEAT_CHOICE",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 9,
+        "label": "只读回查，还是有权限管理员请求停用？"
+      },
+      {
+        "id": "SEAT_HISTORY",
+        "lane_id": "u",
+        "type": "end",
+        "order": 10,
+        "label": "只读查看或转SC-104同一通话记录\n关闭释放详情；运营没有停用操作"
+      },
+      {
+        "id": "SEAT_STOP",
+        "lane_id": "p",
+        "type": "end",
+        "order": 10,
+        "label": "转SC-005原停用确认及取消流程\n仅停止新任务，允许当前通话完成"
+      },
+      {
+        "id": "RESOURCE_DETAIL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 8,
+        "label": "进入已有资源模块；沿用原权限及操作"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "FAIL4",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-105-4"
+      },
+      {
+        "from": "N4",
+        "to": "DRILL_KIND",
+        "label": "满足"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "FAIL6",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-105-6"
+      },
+      {
+        "from": "N6",
+        "to": "CONFIRM",
+        "label": "满足"
+      },
+      {
+        "from": "N7",
+        "to": "CLOUD_CONTROL",
+        "label": "已有厂商活动"
+      },
+      {
+        "from": "N8",
+        "to": "FAIL8",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-105-8"
+      },
+      {
+        "from": "N8",
+        "to": "N9",
+        "label": "满足"
+      },
+      {
+        "from": "N9",
+        "to": "END"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "N7",
+        "label": "确认"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-105-CANCEL"
+      },
+      {
+        "from": "CLOUD_CONTROL",
+        "to": "N8"
+      },
+      {
+        "from": "N7",
+        "to": "LOCAL_CHOICE",
+        "label": "无厂商活动"
+      },
+      {
+        "from": "LOCAL_CHOICE",
+        "to": "LOCAL_TERMINATE",
+        "label": "终止且本地状态允许",
+        "path_id": "ALT-105-LOCAL-STOP"
+      },
+      {
+        "from": "LOCAL_TERMINATE",
+        "to": "LOCAL_END"
+      },
+      {
+        "from": "LOCAL_CHOICE",
+        "to": "FIRST_START",
+        "label": "隔离前待启动且申请恢复",
+        "path_id": "ALT-105-FIRST-START"
+      },
+      {
+        "from": "LOCAL_CHOICE",
+        "to": "INVALID_LOCAL",
+        "label": "其他不适用操作",
+        "type": "failure",
+        "path_id": "ALT-105-LOCAL-INVALID"
+      },
+      {
+        "from": "DRILL_KIND",
+        "to": "N5",
+        "label": "任务"
+      },
+      {
+        "from": "DRILL_KIND",
+        "to": "SEAT_DETAIL",
+        "label": "坐席",
+        "path_id": "ALT-105-SEAT"
+      },
+      {
+        "from": "DRILL_KIND",
+        "to": "RESOURCE_DETAIL",
+        "label": "其他资源",
+        "path_id": "ALT-105-RESOURCE"
+      },
+      {
+        "from": "SEAT_DETAIL",
+        "to": "SEAT_CHOICE"
+      },
+      {
+        "from": "SEAT_CHOICE",
+        "to": "SEAT_HISTORY",
+        "label": "只读查看"
+      },
+      {
+        "from": "SEAT_CHOICE",
+        "to": "SEAT_STOP",
+        "label": "管理员选择停用",
+        "path_id": "ALT-105-SEAT-STOP"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。",
+    "SRC-060 / G1已确认；补齐已有居中坐席详情，不增加坐席控制能力。"
+  ]
+}

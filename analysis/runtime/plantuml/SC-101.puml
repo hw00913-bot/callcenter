@@ -1,0 +1,64 @@
+@startuml
+title SC-101 · 在账号管理关联现有或新建坐席
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 租户管理员/超级管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|lane_1|
+start
+:已有账号需要在中台工作台外呼; <<start_label>>
+|lane_1|
+:账号列表选择“关联坐席”，账号新增和编辑沿用线上表单;
+|lane_2|
+if (成员、坐席及操作人同租户且有权？) then (不通过 · ALT-101-2)
+|lane_1|
+:拒绝越权；不把账号角色直接视为电话资格; <<failure>>
+stop
+else (通过)
+|lane_1|
+:选择未被关联的现有坐席，或进入新建坐席分支;
+|lane_2|
+:新建分支先完成 SC-003 并确认实际坐席，现有分支直接复检;
+|lane_2|
+if (坐席已有效开通、未被其他账号占用且不在使用中换绑？) then (不通过 · ALT-101-5)
+|lane_1|
+:保留原关系；新建失败不显示已关联，不自动删除已创建的坐席; <<failure>>
+stop
+else (通过)
+|lane_2|
+:原子保存平台账号与本租户坐席的一对一关系\n平台accountId—本地坐席ID—enterpriseId/cno，UUID不参与;
+|lane_1|
+:账号列表显示已开通/未开通及关联结果；有资源并上线后才可通话;
+|lane_1|
+:本次结果已展示；保留来源与操作记录; <<end_label>>
+stop
+endif
+endif
+@enduml

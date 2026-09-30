@@ -1,0 +1,158 @@
+获取座席技能
+
+接口说明
+
+获取座席技能
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/agent/queryAgentSkill
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+接口请求方式：
+
+GET/POST
+
+相关参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+cnos | 
+String | 
+必选 | 
+座席工号 | 
+座席工号，可传多个，中间以英文逗号分割 | 
+
+接口请求示例
+
+https://api-{region}.alicti.cn/interface/v10/agent/queryAgentSkill?validateType=1&departmentId=BM3000003&timestamp=1493097820
+&sign=512ea8266f9e6f29e7218a5686b79927&cnos=1234
+
+接口返回
+
+JSON格式数据：
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+Int | 
+0 成功, -1 失败 | 
+
+description | 
+String | 
+返回结果描述 | 
+
+data | 
+JSON | 
+返回数据JSON格式 | 
+
+errorCode | 
+Int | 
+错误码,当返回result=-1时，返回该参数 | 
+
+description给出成功或失败时的文本描述：
+
+description | 
+返回结果说明 | 
+
+成功，{param} | 
+{param}为成功描述 | 
+
+失败，{param} | 
+{param}为失败描述 | 
+
+data定义：
+
+字段 | 
+类型 | 
+描述 | 
+
+agentSkills | 
+AgentSkill | 
+座席技能列表 | 
+
+errorCode说明：
+
+代码 | 
+说明 | 
+
+10001 | 
+系统异常 | 
+
+10002 | 
+超出请求频度限制 | 
+
+10003 | 
+权限验证失败 | 
+
+10004 | 
+企业状态异常 | 
+
+20000 | 
+参数不正确 | 
+
+返回示例：
+
+{
+    "result": "0",
+    "data": [
+        {
+            "id": "1159892",
+            "enterpriseId": "7122600",
+            "agentId": "563867",
+            "cno": "4349",
+            "skillId": "48733",
+            "skillLevel": "1",
+            "skillName": "技能1（勿动）",
+            "createTime": "2026-03-30 06:02:15"
+        }
+    ]
+}

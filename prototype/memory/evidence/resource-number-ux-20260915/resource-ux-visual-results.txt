@@ -1,0 +1,17 @@
+### Result
+{"top":{"top":"number-detail","opacity":"1"},"buttons":["← 返回","×"],"hasPreviewNumber":true}
+### Ran Playwright code
+```js
+await (async page=>{
+ await page.evaluate(()=>{RouteRuntime.openPrimary('numbers');Pages['resource-lines'].openNumber(CloudCallData.phoneNumbers.find(n=>n.number==='02100009001').numberId)});
+ await page.waitForFunction(()=>{const n=document.getElementById('number-detail');return n&&getComputedStyle(n).opacity==='1'&&!document.querySelector('.drawer-entering,.drawer-exit-visual')});
+ await page.screenshot({path:'/private/tmp/number-assignment-new.png'});
+ const top=await page.evaluate(()=>{const layers=[...document.querySelectorAll('.platform-layer')].sort((a,b)=>+a.style.zIndex-+b.style.zIndex);return {top:layers.at(-1)?.id,opacity:getComputedStyle(layers.at(-1)).opacity}});
+ return {top,buttons:await page.locator('#number-detail .layer-header button').allTextContents(),hasPreviewNumber:await page.evaluate(()=>ManualSkillAccess.numbers(CloudCallData.physicalSkillGroups.find(g=>g.skillGroupId==='SG-ALI-HQ-SALES')).some(n=>n.number==='02100009001'))};
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:8772/Demo_Protype_2/prototype/index.html?ui=20260915-resource-ux1#numbers
+- Page Title: AliCti 云外呼原型
+- Console: 0 errors, 1 warnings

@@ -1,0 +1,79 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>原型回归与交付对齐报告</title><style>body{margin:0;background:#f3f5f9;color:#243247;font:15px/1.8 system-ui,sans-serif}main{max-width:1180px;margin:30px auto;padding:36px;background:#fff;border-radius:12px}h1{font-size:28px}h2{margin-top:32px;font-size:20px}a{color:#1765d1}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:12px;border:1px solid #dce2e9;text-align:left;vertical-align:top}th{background:#f0f4fa}.table-wrap{overflow:auto}code{background:#f0f3f8;padding:2px 4px}</style><main><a href="../index.html">返回原型</a> · <a href="full-regression-20260919.md">Markdown</a><h1 id="原型回归与交付对齐报告">原型回归与交付对齐报告</h1>
+<p>版本：<code>2026-09-19-regression-alignment-1</code> · 日期：2026-09-19。</p>
+<p>本轮以当前原型、官方接口材料及已确认的产品决定为基准，完成运行回归、问题修复和说明资料同步。下表按问题领域归并，不把一个根因的多处修改重复计算为多项缺陷。</p>
+<p><strong>本地自动检查：36组、914项，失败0组。</strong> 另完成五类角色的99次离线页面渲染，以及下列真实浏览器检查。离线页面渲染不等于逐页完成所有浏览器操作。</p>
+<p>交付一致性检查通过1439项，核验2749个链接；结果见<a href="evidence-20260919/delivery-integrity.json">交付核验明细</a>。</p>
+<h2 id="本轮修复与对齐">本轮修复与对齐</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">范围</th><th scope="col">回归发现</th><th scope="col">修复或当前采用规则</th><th scope="col">关联内容</th></tr></thead><tbody>
+<tr><td>外呼组成员与账号隔离</td><td>同号组可能被跨账号定位；移组未完整保护来源组及目标组，旧记录被静默迁移并标为已核验。</td><td>按账号与租户定位；移组两端检查任务引用；拒绝跨租户成员；不迁移旧格式、不把本地保存视为供应商已核验。</td><td>外呼组、预测任务；API-386–394</td></tr>
+<tr><td>外呼组字段与响应形状</td><td>组号允许纯字母；列表和成员响应采用自定义包装，且本地组ID进入任务字段。</td><td>组号2–20位、字母开头且包含数字；按官方列表包装与顶层total构造样例；任务仅使用官方agentGroup，不提交本地outboundGroupId。</td><td>API-311、API-386、API-387、API-393</td></tr>
+<tr><td>队列缺失配置展示</td><td>已有队列缺少字段时界面补默认值，容易被误认为已有真实配置。</td><td>缺失值显示未记录或留空，编辑时补齐；新建采用已声明默认值。队列多技能及独立租户权限同步到文档。</td><td>FS-05、D-043、D-044；API-377–385</td></tr>
+<tr><td>任务界面与详情交互</td><td>预测工号模式仍提示旧的跨任务互斥规则；外呼组详情含嵌套管理，删除使用独立确认样式。</td><td>按当前产品决定取消本地cnos模式跨任务互斥提示；组详情只读，删除使用统一右侧抽屉。官方原文约束单独保留，不承诺供应商一定接受。</td><td>FS-08、FS-09、FS-21；D-045</td></tr>
+<tr><td>交付文档导航</td><td>单独打开文档点击流程或蓝图仅改变delivery锚点，正文未切换。</td><td>独立文档使用实际文件导航；原型内继续嵌入展示；旧失效锚点纠正到目标页，并更新脚本版本。</td><td>原型、说明、业务流程、时序、蓝图公共导航</td></tr>
+<tr><td>现行说明与附表</td><td>资料仍有线路登记、单技能队列、旧缓存迁移、离线技能提交接口及外呼组创建过程等过时口径。</td><td>统一取消线路，号码从AliCti导入；队列独立且多技能；软电话与班长管理分开；在线仅新增技能暂存，下线后管理员以API-309手动提交；外呼组先保存再维护成员。</td><td>21个功能章节、182项字段、405条规则、D-045</td></tr>
+<tr><td>流程、时序与蓝图</td><td>新模块未贯通，部分总览还写六类报表、坐席导入待确认及已取消的文本录音定位。</td><td>更新端到端总览及相关场景，补全外呼组、队列多技能、监控管理、待提交技能与直接导入，保留冻结输入作为历史依据。</td><td>当前流程/时序图集；五类架构视图</td></tr>
+<tr><td>待确认与开发包</td><td>外呼组官方资料未完整进入索引，班长下线回调命名矛盾未清楚体现；开发模型和状态规则落后。</td><td>补录已有九份外呼组快照和新增班长监控依据；CF-11明确已知普通关页步骤及未知边界；重生成模型、契约、实施任务、验收、追踪、清单与离线ZIP。</td><td>92份依据；48模型、34适配边界、21任务、292待执行验收</td></tr>
+</tbody></table></div>
+<h2 id="浏览器验收">浏览器验收</h2>
+<p>通过演示账号在本机静态原型执行。新增测试组、任务和客户均为本地演示数据，导入后保持待启动，没有发起供应商呼叫。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">检查</th><th scope="col">结果</th></tr></thead><tbody>
+<tr><td>班长置忙后可置闲、通话整理保护、无管理上线</td><td>通过</td></tr>
+<tr><td>租户独立队列菜单及同一队列多技能展示</td><td>通过</td></tr>
+<tr><td>队列多选及等待语音高级字段完整展示</td><td>通过</td></tr>
+<tr><td>外呼组创建、成员维护、原String工号与租户范围</td><td>通过</td></tr>
+<tr><td>外呼组查看只读、右侧抽屉关闭返回</td><td>通过</td></tr>
+<tr><td>预测任务外呼组/状态重呼/次数间隔/确认贯通</td><td>通过</td></tr>
+<tr><td>空名单任务直接导入后待启动且不自动呼叫</td><td>通过</td></tr>
+<tr><td>新导入线索按完整编码进入报表且保持未联系</td><td>通过</td></tr>
+<tr><td>报表页面 通话总览</td><td>通过</td></tr>
+<tr><td>报表页面 客户跟进</td><td>通过</td></tr>
+<tr><td>报表页面 外呼任务</td><td>通过</td></tr>
+<tr><td>报表页面 坐席成效</td><td>通过</td></tr>
+<tr><td>报表页面 服务技能</td><td>通过</td></tr>
+<tr><td>模块页面 客户档案</td><td>通过</td></tr>
+<tr><td>模块页面 导入与分配</td><td>通过</td></tr>
+<tr><td>模块页面 坐席维护</td><td>通过</td></tr>
+<tr><td>模块页面 技能组管理</td><td>通过</td></tr>
+<tr><td>模块页面 配置记录</td><td>通过</td></tr>
+<tr><td>模块页面 自动外呼</td><td>通过</td></tr>
+<tr><td>自动外呼先选语音流程、复用状态重呼并无坐席分配</td><td>通过</td></tr>
+<tr><td>蓝图五个视图可切换，外呼组模块关联九项官方资源接口及任务接口</td><td>通过</td></tr>
+<tr><td>SC-218队列流程包含多技能、权限、差分接口与失败保留</td><td>通过</td></tr>
+<tr><td>独立文档、业务流程、时序、蓝图导航实际切换；旧失效锚点已修复</td><td>通过</td></tr>
+<tr><td>待确认页A–M目录正确；CF11明确普通关页已知、异常生命周期和回执歧义待确认</td><td>通过</td></tr>
+<tr><td>最终资源总流程涵盖号码导入、队列多技能、外呼组、在线新增待提交；清除旧导入待确认</td><td>通过</td></tr>
+<tr><td>字段清单182项可筛选唯一待确认FA179；独立导航可用且侧栏不遮挡</td><td>通过</td></tr>
+<tr><td>原型内嵌说明、蓝图与返回主页面逐步复测通过，无新增错误日志</td><td>通过</td></tr>
+</tbody></table></div>
+<h3 id="待复现观察项">待复现观察项</h3>
+<p>OBS-01：在刷新内嵌说明、切换蓝图并返回的检查期间，浏览器记录一次 MutationObserver 的观察目标非 Node 错误，未提供来源文件或调用栈。随后逐步重做刷新和切换成功、没有新增错误。暂不能确定来自原型还是浏览器工具；保留日志继续观察，不计入已修复缺陷，也不列为供应商接口问题。</p>
+<h2 id="已同步交付内容">已同步交付内容</h2>
+<ul>
+<li><a href="../docs/functional-spec.html">完整功能说明</a>、<a href="../docs/interaction.html">规则附表 A–M</a>、<a href="../docs/field-alignment.html">字段对齐</a>与<a href="../docs/exception-definitions.html">异常定义</a>。</li>
+<li><a href="../flowcharts/business-process.html">业务流程</a>、<a href="../flowcharts/sequence-interaction.html">交互时序</a>及<a href="../related-systems/index.html">系统蓝图</a>。</li>
+<li><a href="../docs/remaining-confirmations.html">待确认与接入准备</a>、<a href="../docs/change-log.html">版本与变更记录</a>和<a href="../docs/development.html">开发入口</a>。</li>
+<li>开发契约、逻辑模型、状态规则、实施任务、待执行验收、追踪矩阵及离线交付包重新生成。</li>
+</ul>
+<h2 id="仍需供应商确认">仍需供应商确认</h2>
+<p>保留9个确认主题及3类接入准备。与字段级待确认数量分开统计；没有把本地模拟成功当作供应商保证。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">编号</th><th scope="col">主题</th></tr></thead><tbody>
+<tr><td>CF-04</td><td>暂停、结束后已发起通话的收尾方式</td></tr>
+<tr><td>CF-06</td><td>号码停用影响与供应商账号解绑</td></tr>
+<tr><td>CF-07</td><td>供应商任务删除</td></tr>
+<tr><td>CF-08</td><td>坐席批量导入与查证</td></tr>
+<tr><td>CF-10</td><td>呼入条件匹配与共享来电归属证据</td></tr>
+<tr><td>CF-11</td><td>电话连接生命周期</td></tr>
+<tr><td>CF-12</td><td>事件交付与来源回传</td></tr>
+<tr><td>CF-13</td><td>号码识别异步结果与覆盖范围</td></tr>
+<tr><td>CF-14</td><td>队列报表两项计数说明冲突</td></tr>
+</tbody></table></div>
+<p>班长管理下线的方法名为setOffline，但官方回调表写reqType=setPause，已作为FA-179/CF-11保留。普通beforeunload自动下线已有步骤；异常关闭、重连、会话清理结果和未知操作核验仍需真实接入验证。</p>
+<h2 id="证据与验证边界">证据与验证边界</h2>
+<ul>
+<li><a href="evidence-20260919/runtime-regression.json">自动检查明细</a> · <a href="evidence-20260919/browser-checks.json">浏览器检查</a> · <a href="evidence-20260919/page-render.json">角色页面渲染</a> · <a href="evidence-20260919/source-preservation.json">源码保全核对</a>。</li>
+<li><a href="evidence-20260919/portable-package.json">离线包独立检查</a>：解压后36组914项检查通过，10步离线重生全部成功。修正流程生成顺序后页面内容保持一致；压缩包只移除自身下载链接。</li>
+<li>121个冻结分析输入及163个原官方HTML/文本快照与回归前哈希一致。新增来源单独登记，既有未知采集日期不补造。</li>
+<li>本次为原型维护回归，未进行真实供应商环境、电话媒体、并发负载或生产安全验收；开发包292项生产验收仍为待执行。</li>
+<li>旧Loop预检存在历史阶段记录与工作流状态不一致、旧步骤缺结构字段及旧导航检测规则差异。本轮未重写冻结输入或历史阶段，不声称S8阶段门禁通过；本轮运行与交付检查单独提供证据。</li>
+<li>本轮未请求GitLab提交，交付保存在当前本地项目。</li>
+</ul></main></html>

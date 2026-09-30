@@ -1,0 +1,985 @@
+{
+  "version": "2026-09-20-cf08-closed-cf11-reconnect-1",
+  "date": "2026-09-20",
+  "result": "pass",
+  "scope": "local_prototype_and_documentation_not_supplier_integration",
+  "batchSuites": {
+    "batch": {
+      "kind": "cf08-batch-clarification",
+      "decisionId": "D-051",
+      "sourceRef": "SRC-081",
+      "supplierIntegration": false,
+      "passed": 13,
+      "failed": 0,
+      "checks": [
+        "other属于success且不相加，cnos含other，差集定位未建成",
+        "批量计数矛盾、other越界、重复工号、非法工号不推断成功",
+        "未提交技能时other只能为0",
+        "按官方data数组读技能，只定位缺目标skillId，不证明新建",
+        "技能空数组表示目标技能缺失，非数组或跨账号返回不得推断",
+        "新主键且创建时间落请求窗口才确认写入，技能结果独立",
+        "旧主键、窗口外、缺创建时间或缺预查询证据均不确认",
+        "查询缺行保持未知，部分查到仅确认对应工号",
+        "工号原文、账号、分页完整性与结构必须匹配",
+        "未知回执显示查询入口，不能立即重复开通，查到后同步且不再新建",
+        "未知记录刷新后可查证，权限或租户不匹配不能查询写入",
+        "查证中本地保存失败仍可重查恢复，不重复供应商创建",
+        "查询未证明写入保留未知，未找到不当失败重试"
+      ],
+      "failures": []
+    },
+    "recreation": {
+      "kind": "synthetic-seat-recreation-checks",
+      "decisionId": "D-050",
+      "sourceRef": "SRC-080",
+      "supplierIntegration": false,
+      "passed": 13,
+      "failed": 0,
+      "checks": [
+        "单建删除再建使用新平台身份、新供应商主键和创建时间，旧历史及墓碑保留",
+        "同一成功请求不能在删除后恢复旧坐席，必须新建操作",
+        "当前坐席工号按企业唯一，另一租户及停用坐席仍占用，前导零独立",
+        "删除保存失败不会改变本地状态、技能、供应商候选或历史",
+        "单建最终保存失败不写入坐席，重试不误恢复未保存结果",
+        "已有供应商示例仅同步一次，删除后不会由固定示例复活",
+        "供应商未同步工号不能单建或跨租户批量重复开通",
+        "删除已有坐席后批量重建同工号，不继承固定示例旧主键",
+        "批量删除再建从当前最新供应商池取值，重载仍只见新主键",
+        "批量供应商池保存失败不会产生可同步的新坐席或本地记录",
+        "批量供应商开通已保存但本地失败，可同步恢复新主键且跳过旧墓碑",
+        "同步保存失败不会本地新增坐席，恢复存储后仍可同步",
+        "会话重置后创建仍不能复用持久化旧供应商主键"
+      ],
+      "failures": []
+    },
+    "fields": {
+      "result": "pass",
+      "count": 71,
+      "checks": [
+        "鉴权秒级时间与整数账号",
+        "演示账号不能用作供应商账号",
+        "坐席字段名称、前导零与手机号归属",
+        "拨号目标与通道变量数组",
+        "登录响应地址映射与绑定电话独立",
+        "任务团队展开cnos，保留同租户边界",
+        "自动外呼选择官方列表ID且不强制队列或坐席参数",
+        "任务缺资源不伪造供应商ID",
+        "最少坐席越界不进入请求字段",
+        "导入被叫、属性JSON、去重与任务ID独立",
+        "导入显式0排重不会被默认值覆盖",
+        "人工与预测接听时间字段方向相反",
+        "只有号码识别719不能确认客户接通",
+        "状态空值与未知不归零或未接通",
+        "呼入系统应答与人工接听分别判断",
+        "接听状态时间冲突保留证据并待确认",
+        "号码四类与用途标志独立",
+        "录音读取result与字符串data，不读取虚构url",
+        "录音默认时效不冒充实际过期时间",
+        "RASR请求使用供应商uniqueId与账号鉴权，缺标识不替代",
+        "RASR解析JSON字符串并保留监测侧与原文本字段证据",
+        "机器人文本不被坐席监测侧覆盖，未知侧不臆测说话方",
+        "RASR未知返回值不继承ASR处理中或泄露旧文本",
+        "RASR空响应明确暂无文本，旧ASR结构与坏JSON整体拒绝",
+        "预览转写四格门控：坐席关闭不能被本通开启覆盖",
+        "企业条件未知和其他呼叫类型不套用预览规则",
+        "预览默认不传与显式开关独立，省略不补成1",
+        "任务官方0–3状态与平台业务状态独立",
+        "话单供界面与报表共用接通判断",
+        "用户确认账号与演示签名不依赖token",
+        "D014鉴权和SDK工号全部String并区分前导零",
+        "非字符串工号响应不推断原身份",
+        "未知批次按账号和完整工号判断交集",
+        "技能等级1与10有效，其余越界拒绝",
+        "技能全量替换等级与ID一一对应",
+        "清空技能发送0并省略等级",
+        "跨租户、重复和越界技能不生成可提交集合",
+        "failCno字符串保留前导零并处理部分失败",
+        "failCno缺失、异常或未知工号不推断成功",
+        "failCno空字符串和空括号表示无失败",
+        "预约时间拆分且拒绝不存在日期",
+        "任务定时执行直接使用autoStart1",
+        "导入clid使用号码值且演示任务ID独立",
+        "导入统计缺失与差额不被当作排重或成功",
+        "静音请求仅有direction而无state",
+        "跨月话单拆窗连续不重叠且使用秒",
+        "话单日期与分页边界",
+        "录音MP3忽略轨道，WAV条件必填",
+        "推送目标ID优先且字段不混入直配参数",
+        "推送直配类型与超时约束",
+        "任务和批次同码不同义并保留未知码",
+        "纯IVR启动校验不要求执行队列和人工成员",
+        "纯IVR仍拒绝跨账号流程和未授权号码",
+        "预测外呼接听团队与可选流程按接口校验",
+        "演示批次ID随源批次稳定且同名不同批次分开",
+        "无有效导入草稿不生成成功回执",
+        "演示电话配置刷新保存且转写设置按账号隔离",
+        "话单条数限定10–1000且默认10",
+        "D017暂停始终省略时长且忽略历史草稿输入",
+        "坐席分页按官方agent包裹结构解析",
+        "坐席分页边界1和1000，非法值阻断",
+        "连续工号批量1和100通过，101和逆序阻断",
+        "批量坐席部分失败保留工号与原始计数",
+        "批量响应未知和差额不得推断创建成功",
+        "号码更新使用官方路径且仅传改变字段",
+        "号码无变化未知字段或超量不可提交",
+        "号码按场景检查外显而不把呼入外显当路由",
+        "越界技能即使误标有效也不展开为任务工号",
+        "通话文本新失败空响应优先，旧ASR与备注不回填",
+        "RASR返回账号或通话标识冲突不显示跨上下文文本",
+        "转写演示条件明确设置并按供应商账号隔离保存"
+      ]
+    },
+    "fieldRegression": {
+      "result": "pass",
+      "scope": "local field regressions; no supplier requests",
+      "count": 6,
+      "checks": [
+        "既有工号12与0012保持String且分别解析",
+        "预测任务引用两个既有短工号，真正空列表进入错误",
+        "既有12可清空或分配技能，失败工号12不被改为0012",
+        "新增3至10位规则继续独立生效",
+        "区号基础格式拒绝明显非法文本，不捏造长度规则",
+        "导入草稿拒绝掩码clid，完整原值保持不变"
+      ]
+    }
+  },
+  "connectionSuites": {
+    "version": "2026-09-20-cf08-closed-cf11-reconnect-1",
+    "decisionId": "D-052",
+    "sourceRef": "SRC-082",
+    "scope": "local_prototype_only",
+    "result": "pass",
+    "checkCount": 123,
+    "suites": {
+      "seat-reconnect": {
+        "result": "pass",
+        "count": 15,
+        "checks": [
+          "断线只阻止新电话动作，不清当前会话或草稿",
+          "工号原样字符串及企业范围校验",
+          "信令恢复不能自动恢复媒体和继续接听",
+          "重复断线回调不创建本地重试或猜测已用尽",
+          "sipDisconnected无参但绑定当前会话，必须重登",
+          "旧订阅在切换上下文或新会话后不能污染连接状态",
+          "断线时暂停、恢复、下线和监控管理均不发请求",
+          "现有电话状态快照不能证明媒体就绪",
+          "已登录会话无异常不可重登",
+          "有通话或未保存记录不重登、不注销或清除草稿",
+          "重登成功后先暂停接听，再由用户主动恢复",
+          "重登失败或回执未知时保留原会话并保持阻断",
+          "接听边界拒绝连接中断，未发送sipLink",
+          "异常界面状态与重登入口明确，正常界面不出现异常提示",
+          "重登期间收到新的断线事件不能被迟到成功回执覆盖"
+        ]
+      },
+      "reconnect-workbench": {
+        "result": "pass",
+        "count": 4,
+        "failed": 0,
+        "checks": [
+          "manual：连接事件保留通话、全部业务草稿与现有记录，用户完成后可重登",
+          "inbound：连接事件保留通话、全部业务草稿与现有记录，用户完成后可重登",
+          "predictive：连接事件保留通话、全部业务草稿与现有记录，用户完成后可重登",
+          "断线后刷新仍保留业务草稿和历史记录，不自动提交"
+        ],
+        "failures": []
+      },
+      "seat-operation": {
+        "result": "pass",
+        "count": 41,
+        "checks": [
+          "上线默认值和精确工号，凭据不落持久化",
+          "暂停上线原因是可选，登录状态2保持paused",
+          "上线设置仅保存状态和原因，刷新恢复并隔离账号租户",
+          "设置拒绝凭据与陈旧表单，存储失败保留原值",
+          "配置损坏不覆盖原存储，配置版本回退拒绝",
+          "不是本人、跨租户、撤销权限时不能操作",
+          "旧电话与工作模式字段视为无效并保留原存储",
+          "直接登录和设置不能绕过固定软电话及工作模式",
+          "参数类型与枚举校验不接受布尔数字化",
+          "登录四类明确失败不产生在线session",
+          "本地绑定与ADMIN身份不能伪造供应商队列成员",
+          "置忙完整参数及成功回执后改变状态",
+          "明确置忙失败保留原session，重试由用户触发",
+          "unknown不重放，独立核对得出供应商已暂停",
+          "未知登录只核对不先猜测session；核对失败保留未知",
+          "完整下线参数和未知退出核对，不提前清session",
+          "退出明确失败保留会话，上线期间不能保存离线设置",
+          "固定软电话拒绝全部在线更换绑定且不发送请求",
+          "固定工作模式同时支持主动联系和分配接听且拒绝在线修改",
+          "振铃通话及未保存话后阻断维护和下线",
+          "来电话后整理隔离与延长值域，业务未保存不能完成",
+          "记录保存后暂停直到人工恢复，失败不自动接续也可下线",
+          "话后自动保护pause未知必须查询，不重复提交",
+          "监控必须同时满足租户管理员角色与本人班长授权",
+          "管理员身份不能替代供应商power及授权确认，身份绑定必须一致",
+          "撤销管理员角色立即清除监控范围，旧查询回执不能返回",
+          "班长授权按当前账号和精确工号匹配，不接受相似工号",
+          "同一企业下门店管理员只订阅本门店队列",
+          "班长队列监控仅本租户，暂停本人状态来自独立服务快照",
+          "监控使用官方统计与成员类型，不混淆配置时长或猜测waitTime单位",
+          "独立核对不以本地未保存阶段覆盖供应商状态",
+          "未知登录期间不允许变更离线偏好",
+          "业务已保存但保护暂停明确失败后仍可主动下线",
+          "实时通话监控仅投影严格匹配的本人演示事件",
+          "未开通或关闭呼叫能力拒绝登录及陈旧成功回执",
+          "未知登录经独立快照确认离线后清未知且不创建session",
+          "平台归属变化后的外租户队列成员不泄漏",
+          "操作中不并发请求，权限或上下文变化后旧回执不落本地",
+          "invalidate丢弃旧回执且不阻挡新上下文",
+          "完整会话核对只标本地mock快照，不冒充REST或SDK返回",
+          "无真实网络或SDK代码路径，响应与请求均显式mock"
+        ]
+      },
+      "receiving": {
+        "result": "pass",
+        "count": 33,
+        "checks": [
+          "正常呼入保留完整身份和前导零",
+          "预测来电严格关联原任务和客户条目",
+          "坐席响铃事件不能独立推定为预测式外呼",
+          "非本地载荷不能触发演示接听",
+          "缺失任一必需身份或号码不接收",
+          "数字工号不能被静默转换为字符串",
+          "同供应商账号下不同租户和账号的来电隔离",
+          "坐席绑定的账号和租户变化后不能接收",
+          "未登录及正在处理通话时拒绝另一通来电",
+          "同一来电重复投递幂等且不取代当前通话",
+          "重复 contact 下变化通话编号或客户不能覆盖",
+          "重复预测来电不能改写客户条目",
+          "缺少预测任务或客户条目关联不按手机号猜测",
+          "不同线索共享号码仍必须关联指定客户条目",
+          "跨任务和自动外呼任务不能装作预测接听",
+          "预测原名单的批次范围和客户号码必须一致",
+          "同一客户条目不能覆盖另一通进行中电话",
+          "呼入不会自动归入外呼任务",
+          "业务事件阶段依照呼入或预测类型匹配",
+          "已建立事件不能被当作一通新的待接听来电",
+          "本地状态事件需匹配完整当前通话作用域",
+          "状态事件不混淆前导零工号与通话类型",
+          "事件去重键区分账号租户通话和事件",
+          "软电话点击接听只进入请求处理中不宣称已接通",
+          "接听支持工作台 workbenchKind 字段",
+          "话机和普通电话只提示在设备接听不发送 sipLink",
+          "无登录或不属于当前登录工号时禁止接听",
+          "接听校验来电和坐席完整身份避免错接",
+          "禁止对已经结束或已完成通话接听",
+          "真实登录态和真实来电均不能落入本地模拟接听",
+          "未知接听方式不回退成软电话",
+          "已结束来电重复通知不能重新进入待接听",
+          "缺少通话标识不可发送接听请求"
+        ]
+      },
+      "incall-followup": {
+        "result": "pass",
+        "count": 30,
+        "failed": 0,
+        "checks": [
+          "人工外呼在拨号和等待接听时也能记录，接通后保留输入",
+          "inbound：坐席未接听时不显示记录表单，也不能提前填写沟通结果",
+          "predictive：坐席未接听时不显示记录表单，也不能提前填写沟通结果",
+          "manual：通话中直接填写处理结果、备注及六项客户业务信息",
+          "manual：通话中草稿不会提前写为已完成或更新正式客户业务信息",
+          "manual：收起后恢复与静音重绘保留全部输入",
+          "manual：挂断只切换到确认阶段并保留通话中草稿",
+          "manual：确认提交后话单、客户档案和关联客户名单一致",
+          "manual：保存后恢复接听，下一通不会带入上一位客户的通话记录",
+          "inbound：通话中直接填写处理结果、备注及六项客户业务信息",
+          "inbound：通话中草稿不会提前写为已完成或更新正式客户业务信息",
+          "inbound：收起后恢复与静音重绘保留全部输入",
+          "inbound：挂断只切换到确认阶段并保留通话中草稿",
+          "inbound：确认提交后话单、客户档案和关联客户名单一致",
+          "inbound：保存后恢复接听，下一通不会带入上一位客户的通话记录",
+          "predictive：通话中直接填写处理结果、备注及六项客户业务信息",
+          "predictive：通话中草稿不会提前写为已完成或更新正式客户业务信息",
+          "predictive：收起后恢复与静音重绘保留全部输入",
+          "predictive：挂断只切换到确认阶段并保留通话中草稿",
+          "predictive：确认提交后话单、客户档案和关联客户名单一致",
+          "predictive：保存后恢复接听，下一通不会带入上一位客户的通话记录",
+          "通话中刷新恢复草稿，演示会话中断后仍需坐席确认提交",
+          "挂断后刷新保留草稿，最终提交后再次刷新只显示已保存记录",
+          "其他账号及其他租户不会恢复当前坐席的通话草稿",
+          "当前账号、租户或供应商账号变化后不能将输入写回旧通话草稿",
+          "草稿暂存失败明确提示且保留当前输入，存储恢复后完整补存",
+          "工作台外显号码独立于技能组；切换保留号码且未绑定号码可实际拨号",
+          "取消技能绑定后仍校验租户、供应商账号、号码状态和人工外呼用途；拨号前重查授权",
+          "预外呼来电演示不依赖号码技能绑定，仍按任务和坐席技能分配",
+          "预外呼来电演示发起前重新校验号码授权，不能越权分配"
+        ],
+        "failures": []
+      }
+    },
+    "syntax": [
+      {
+        "file": "js/components/alicti-seat-operations.js",
+        "pass": true,
+        "error": ""
+      },
+      {
+        "file": "js/components/alicti-receiving.js",
+        "pass": true,
+        "error": ""
+      },
+      {
+        "file": "js/components/alicti-adapter.js",
+        "pass": true,
+        "error": ""
+      },
+      {
+        "file": "js/components/seat-operation-ui.js",
+        "pass": true,
+        "error": ""
+      },
+      {
+        "file": "js/pages/agent-workbench.js",
+        "pass": true,
+        "error": ""
+      },
+      {
+        "file": "js/pages/scenario-demo.js",
+        "pass": true,
+        "error": ""
+      },
+      {
+        "file": "qa/verify-seat-reconnect.cjs",
+        "pass": true,
+        "error": ""
+      },
+      {
+        "file": "qa/verify-seat-reconnect-workbench.cjs",
+        "pass": true,
+        "error": ""
+      }
+    ],
+    "files": [
+      {
+        "path": "js/components/alicti-seat-operations.js",
+        "sha256": "21fa93a0da969d88a6231260f01233dd5475731bc132c23d37f0c416c1687207"
+      },
+      {
+        "path": "js/components/alicti-receiving.js",
+        "sha256": "bb994e3183944becbe32582406b3ad1bb8356eb745ab0f659c57dc0f1480fc80"
+      },
+      {
+        "path": "js/components/alicti-adapter.js",
+        "sha256": "e656cddb2818d023f377f7c216d3612d3f2ccefb08ca7f2db8f917b617d08805"
+      },
+      {
+        "path": "js/components/seat-operation-ui.js",
+        "sha256": "1e372e1b8c0e2280d6164c999c910e629c4226cdffcd1c9a7d0427b4d541e172"
+      },
+      {
+        "path": "js/pages/agent-workbench.js",
+        "sha256": "7b99779f7f4749c7cbb9e4015384ffb8f6641d09c60ec55db99cae4341cbd785"
+      },
+      {
+        "path": "js/pages/scenario-demo.js",
+        "sha256": "7597563b204c690190d5fea28acae96386d76deda695984ba9625ffdb1848fdb"
+      },
+      {
+        "path": "qa/verify-seat-reconnect.cjs",
+        "sha256": "d479bae55add3e9e5327ddc282028d892ae20c8917be59d03e30a06285ec709e"
+      },
+      {
+        "path": "qa/verify-seat-reconnect-workbench.cjs",
+        "sha256": "866ddbeb783173b5585ee8877b1a741731b4f8ef6833c538ca594ef9cf5ada93"
+      }
+    ],
+    "boundaries": [
+      "No production SDK/network calls",
+      "SDK owns maximum 20 reconnect attempts; no local retry counter",
+      "breakLine code 0 restores signaling only; media remains unknown",
+      "sipDisconnected carries no parameters and requires login",
+      "Unknown/failed operations preserve original session",
+      "Relogin is a local conservative recovery demonstration; current calls and unsaved notes must be completed first",
+      "No callback hangs up calls or clears drafts/history",
+      "CF-11 remains partially confirmed; no claim about cross-device exclusion or final-state query completeness"
+    ],
+    "browserVerified": false,
+    "finalWorkbenchRecheck": {
+      "result": "pass",
+      "count": 4,
+      "failed": 0,
+      "checks": [
+        "manual：连接事件保留通话、全部业务草稿与现有记录，用户完成后可重登",
+        "inbound：连接事件保留通话、全部业务草稿与现有记录，用户完成后可重登",
+        "predictive：连接事件保留通话、全部业务草稿与现有记录，用户完成后可重登",
+        "断线后刷新仍保留业务草稿和历史记录，不自动提交"
+      ],
+      "failures": []
+    }
+  },
+  "documentation": {
+    "result": "pass",
+    "scope": "documentation_only_not_development_package_or_supplier_integration",
+    "version": "2026-09-20-cf08-closed-cf11-reconnect-1",
+    "count": 151,
+    "linksChecked": 2581,
+    "checks": [
+      "说明、字段、待确认、变更与编写源版本一致",
+      "82项功能与47项冻结页面编号保持",
+      "全部功能章节与源一致",
+      "FS-01逻辑与验收同步",
+      "FS-01字段与运行文件可追溯",
+      "FS-02逻辑与验收同步",
+      "FS-02字段与运行文件可追溯",
+      "FS-03逻辑与验收同步",
+      "FS-03字段与运行文件可追溯",
+      "FS-04逻辑与验收同步",
+      "FS-04字段与运行文件可追溯",
+      "FS-05逻辑与验收同步",
+      "FS-05字段与运行文件可追溯",
+      "FS-06逻辑与验收同步",
+      "FS-06字段与运行文件可追溯",
+      "FS-07逻辑与验收同步",
+      "FS-07字段与运行文件可追溯",
+      "FS-08逻辑与验收同步",
+      "FS-08字段与运行文件可追溯",
+      "FS-09逻辑与验收同步",
+      "FS-09字段与运行文件可追溯",
+      "FS-10逻辑与验收同步",
+      "FS-10字段与运行文件可追溯",
+      "FS-11逻辑与验收同步",
+      "FS-11字段与运行文件可追溯",
+      "FS-12逻辑与验收同步",
+      "FS-12字段与运行文件可追溯",
+      "FS-13逻辑与验收同步",
+      "FS-13字段与运行文件可追溯",
+      "FS-14逻辑与验收同步",
+      "FS-14字段与运行文件可追溯",
+      "FS-15逻辑与验收同步",
+      "FS-15字段与运行文件可追溯",
+      "FS-16逻辑与验收同步",
+      "FS-16字段与运行文件可追溯",
+      "FS-17逻辑与验收同步",
+      "FS-17字段与运行文件可追溯",
+      "FS-18逻辑与验收同步",
+      "FS-18字段与运行文件可追溯",
+      "FS-19逻辑与验收同步",
+      "FS-19字段与运行文件可追溯",
+      "FS-20逻辑与验收同步",
+      "FS-20字段与运行文件可追溯",
+      "FS-21逻辑与验收同步",
+      "FS-21字段与运行文件可追溯",
+      "字段编号保持且唯一",
+      "官方来源数保持92",
+      "附表编号唯一且版本同步",
+      "CF08关闭且CF11保留剩余子问",
+      "确认页概述采用当前关闭结论",
+      "当前变更D051和D052对应四张供应商回复",
+      "CF04关闭证据及答复完整",
+      "当前确认列表不再提问CF04",
+      "未把未更新开发包声明为新版本",
+      "软电话配置、前导零与缺失阻断均说明",
+      "现行说明没有恢复号码技能授权链",
+      "FA-008已按本轮规则更新",
+      "FA-084已按本轮规则更新",
+      "FA-170已按本轮规则更新",
+      "CF06供应商语义与用户范围分别保留",
+      "本地号码使用字段不冒充供应商契约",
+      "CF14关闭且按截图采用中文含义",
+      "CF08关闭且查证边界完整",
+      "CF11部分明确并保留剩余问题",
+      "四张新增供应商回复可追溯",
+      "供应商回复截图归档可追溯",
+      "当前附表与字段已消除CF14未确认及CF08重建未确认口径",
+      "docs/release-notes.html锚点唯一",
+      "docs/functional-spec.html锚点唯一",
+      "docs/change-log.html锚点唯一",
+      "docs/exception-definitions.html锚点唯一",
+      "docs/interaction.html锚点唯一",
+      "docs/development.html锚点唯一",
+      "docs/field-alignment.html锚点唯一",
+      "docs/remaining-confirmations.html锚点唯一",
+      "flowcharts/sequence-interaction.html锚点唯一",
+      "flowcharts/page-structure.html锚点唯一",
+      "flowcharts/business-process.html锚点唯一",
+      "related-systems/index.html锚点唯一",
+      "文档链接与锚点有效",
+      "每条规则均有可点击锚点",
+      "流程图源版本与文档相同",
+      "SC-103图源哈希与字段规则引用有效",
+      "SC-011图源哈希与字段规则引用有效",
+      "SC-017图源哈希与字段规则引用有效",
+      "SC-018图源哈希与字段规则引用有效",
+      "SC-207图源哈希与字段规则引用有效",
+      "SC-208图源哈希与字段规则引用有效",
+      "SC-209图源哈希与字段规则引用有效",
+      "SC-008图源哈希与字段规则引用有效",
+      "SC-009图源哈希与字段规则引用有效",
+      "SC-210图源哈希与字段规则引用有效",
+      "SC-211图源哈希与字段规则引用有效",
+      "SC-212图源哈希与字段规则引用有效",
+      "SC-213图源哈希与字段规则引用有效",
+      "SC-214图源哈希与字段规则引用有效",
+      "SC-215图源哈希与字段规则引用有效",
+      "SC-105图源哈希与字段规则引用有效",
+      "SC-006图源哈希与字段规则引用有效",
+      "SC-216图源哈希与字段规则引用有效",
+      "SC-217图源哈希与字段规则引用有效",
+      "SC-014图源哈希与字段规则引用有效",
+      "SC-218图源哈希与字段规则引用有效",
+      "SC-219图源哈希与字段规则引用有效",
+      "SC-015图源哈希与字段规则引用有效",
+      "SC-220图源哈希与字段规则引用有效",
+      "SC-221图源哈希与字段规则引用有效",
+      "SC-222图源哈希与字段规则引用有效",
+      "SC-223图源哈希与字段规则引用有效",
+      "FLOW-101图源哈希与字段规则引用有效",
+      "FLOW-201图源哈希与字段规则引用有效",
+      "FLOW-202图源哈希与字段规则引用有效",
+      "FLOW-203图源哈希与字段规则引用有效",
+      "FLOW-204图源哈希与字段规则引用有效",
+      "FLOW-205图源哈希与字段规则引用有效",
+      "SC-003图源哈希与字段规则引用有效",
+      "SC-020图源哈希与字段规则引用有效",
+      "SC-104图源哈希与字段规则引用有效",
+      "SC-102图源哈希与字段规则引用有效",
+      "SC-224图源哈希与字段规则引用有效",
+      "SEQ-103图源哈希与字段规则引用有效",
+      "SEQ-011图源哈希与字段规则引用有效",
+      "SEQ-017图源哈希与字段规则引用有效",
+      "SEQ-018图源哈希与字段规则引用有效",
+      "SEQ-207图源哈希与字段规则引用有效",
+      "SEQ-208图源哈希与字段规则引用有效",
+      "SEQ-209图源哈希与字段规则引用有效",
+      "SEQ-008图源哈希与字段规则引用有效",
+      "SEQ-009图源哈希与字段规则引用有效",
+      "SEQ-210图源哈希与字段规则引用有效",
+      "SEQ-211图源哈希与字段规则引用有效",
+      "SEQ-212图源哈希与字段规则引用有效",
+      "SEQ-213图源哈希与字段规则引用有效",
+      "SEQ-214图源哈希与字段规则引用有效",
+      "SEQ-215图源哈希与字段规则引用有效",
+      "SEQ-006图源哈希与字段规则引用有效",
+      "SEQ-216图源哈希与字段规则引用有效",
+      "SEQ-217图源哈希与字段规则引用有效",
+      "SEQ-218图源哈希与字段规则引用有效",
+      "SEQ-219图源哈希与字段规则引用有效",
+      "SEQ-220图源哈希与字段规则引用有效",
+      "SEQ-221图源哈希与字段规则引用有效",
+      "SEQ-222图源哈希与字段规则引用有效",
+      "SEQ-223图源哈希与字段规则引用有效",
+      "SEQ-003图源哈希与字段规则引用有效",
+      "SEQ-020图源哈希与字段规则引用有效",
+      "SEQ-104图源哈希与字段规则引用有效",
+      "SEQ-102图源哈希与字段规则引用有效",
+      "SEQ-224图源哈希与字段规则引用有效",
+      "任务时序版本一致",
+      "合并版本记录旧Markdown入口一致"
+    ]
+  },
+  "diagramSources": {
+    "version": "2026-09-20-cf08-closed-cf11-reconnect-1",
+    "sourceOnlyValidation": true,
+    "generatedArtifactsWritten": false,
+    "functionalSections": 21,
+    "businessFlows": 38,
+    "sequences": 29,
+    "blueprintViews": 5,
+    "blueprintNodes": 100,
+    "blueprintEdges": 102,
+    "blueprintApiReferences": 79,
+    "rendered": [
+      {
+        "id": "SC-103",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1697"
+      },
+      {
+        "id": "SC-011",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1697"
+      },
+      {
+        "id": "SC-017",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1413"
+      },
+      {
+        "id": "SC-018",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1268"
+      },
+      {
+        "id": "SC-207",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1271"
+      },
+      {
+        "id": "SC-208",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1839"
+      },
+      {
+        "id": "SC-209",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1410"
+      },
+      {
+        "id": "SC-008",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1552"
+      },
+      {
+        "id": "SC-009",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1151"
+      },
+      {
+        "id": "SC-210",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1552"
+      },
+      {
+        "id": "SC-211",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1410"
+      },
+      {
+        "id": "SC-212",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1126"
+      },
+      {
+        "id": "SC-213",
+        "validSvg": true,
+        "viewBox": "0 0 1160 984"
+      },
+      {
+        "id": "SC-214",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1981"
+      },
+      {
+        "id": "SC-215",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1839"
+      },
+      {
+        "id": "SC-105",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1558"
+      },
+      {
+        "id": "SC-006",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1268"
+      },
+      {
+        "id": "SC-216",
+        "validSvg": true,
+        "viewBox": "0 0 1440 2285"
+      },
+      {
+        "id": "SC-217",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1714"
+      },
+      {
+        "id": "SC-014",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1716"
+      },
+      {
+        "id": "SC-218",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1577"
+      },
+      {
+        "id": "SC-219",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1569"
+      },
+      {
+        "id": "SC-015",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1736"
+      },
+      {
+        "id": "SC-220",
+        "validSvg": true,
+        "viewBox": "0 0 1720 2987"
+      },
+      {
+        "id": "SC-221",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1711"
+      },
+      {
+        "id": "SC-222",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1129"
+      },
+      {
+        "id": "SC-223",
+        "validSvg": true,
+        "viewBox": "0 0 1440 984"
+      },
+      {
+        "id": "FLOW-101",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1268"
+      },
+      {
+        "id": "FLOW-201",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1268"
+      },
+      {
+        "id": "FLOW-202",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1268"
+      },
+      {
+        "id": "FLOW-203",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1126"
+      },
+      {
+        "id": "FLOW-204",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1126"
+      },
+      {
+        "id": "FLOW-205",
+        "validSvg": true,
+        "viewBox": "0 0 1160 842"
+      },
+      {
+        "id": "SC-003",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1410"
+      },
+      {
+        "id": "SC-020",
+        "validSvg": true,
+        "viewBox": "0 0 1160 984"
+      },
+      {
+        "id": "SC-104",
+        "validSvg": true,
+        "viewBox": "0 0 1160 984"
+      },
+      {
+        "id": "SC-102",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1569"
+      },
+      {
+        "id": "SC-224",
+        "validSvg": true,
+        "viewBox": "0 0 1160 1126"
+      },
+      {
+        "id": "SEQ-103",
+        "validSvg": true,
+        "viewBox": "0 0 1700 2096"
+      },
+      {
+        "id": "SEQ-011",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1332"
+      },
+      {
+        "id": "SEQ-017",
+        "validSvg": true,
+        "viewBox": "0 0 1440 908"
+      },
+      {
+        "id": "SEQ-018",
+        "validSvg": true,
+        "viewBox": "0 0 1440 874"
+      },
+      {
+        "id": "SEQ-207",
+        "validSvg": true,
+        "viewBox": "0 0 1440 962"
+      },
+      {
+        "id": "SEQ-208",
+        "validSvg": true,
+        "viewBox": "0 0 1180 1484"
+      },
+      {
+        "id": "SEQ-209",
+        "validSvg": true,
+        "viewBox": "0 0 1180 1140"
+      },
+      {
+        "id": "SEQ-008",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1286"
+      },
+      {
+        "id": "SEQ-009",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1086"
+      },
+      {
+        "id": "SEQ-210",
+        "validSvg": true,
+        "viewBox": "0 0 1180 1440"
+      },
+      {
+        "id": "SEQ-211",
+        "validSvg": true,
+        "viewBox": "0 0 1180 1186"
+      },
+      {
+        "id": "SEQ-212",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1000"
+      },
+      {
+        "id": "SEQ-213",
+        "validSvg": true,
+        "viewBox": "0 0 1180 1178"
+      },
+      {
+        "id": "SEQ-214",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1918"
+      },
+      {
+        "id": "SEQ-215",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1516"
+      },
+      {
+        "id": "SEQ-006",
+        "validSvg": true,
+        "viewBox": "0 0 1180 822"
+      },
+      {
+        "id": "SEQ-216",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1762"
+      },
+      {
+        "id": "SEQ-217",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1344"
+      },
+      {
+        "id": "SEQ-218",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1436"
+      },
+      {
+        "id": "SEQ-219",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1274"
+      },
+      {
+        "id": "SEQ-220",
+        "validSvg": true,
+        "viewBox": "0 0 1700 3596"
+      },
+      {
+        "id": "SEQ-221",
+        "validSvg": true,
+        "viewBox": "0 0 1440 2402"
+      },
+      {
+        "id": "SEQ-222",
+        "validSvg": true,
+        "viewBox": "0 0 1180 620"
+      },
+      {
+        "id": "SEQ-223",
+        "validSvg": true,
+        "viewBox": "0 0 1180 702"
+      },
+      {
+        "id": "SEQ-003",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1528"
+      },
+      {
+        "id": "SEQ-020",
+        "validSvg": true,
+        "viewBox": "0 0 1440 734"
+      },
+      {
+        "id": "SEQ-104",
+        "validSvg": true,
+        "viewBox": "0 0 1440 952"
+      },
+      {
+        "id": "SEQ-102",
+        "validSvg": true,
+        "viewBox": "0 0 1440 1862"
+      },
+      {
+        "id": "SEQ-224",
+        "validSvg": true,
+        "viewBox": "0 0 1180 1030"
+      }
+    ]
+  },
+  "protectedFiles": {
+    "count": 284,
+    "changed": []
+  },
+  "browser": {
+    "result": "pass",
+    "method": "Codex in-app browser UI",
+    "checks": [
+      "批量新增9898–9899预检显示2个坐席，未提交新增",
+      "hq-operator正常上线",
+      "breakLine断开显示自动重连且禁止新拨号",
+      "breakLine恢复显示音频待核对",
+      "sipDisconnected显示重新登录入口",
+      "重新登录成功后暂停接听",
+      "断线提示黄色状态类connection-warning",
+      "待确认页CF08关闭、CF11部分明确、5主题及新概述",
+      "SC220连接恢复流程可打开并渲染"
+    ],
+    "warnings": [],
+    "errors": [],
+    "unknownBatchVerification": "covered_by_offline_integration_tests_not_browser_UI",
+    "callDraftPreservation": "covered_by_offline_workbench_integration_tests"
+  },
+  "runtimeFiles": [
+    {
+      "path": "js/components/alicti-fields.js",
+      "sha256": "28d779718b07a184f9e0344863ebe0fe1477c18eff0b69d1647c9b84e6ddf2a4"
+    },
+    {
+      "path": "js/components/alicti-seat-import.js",
+      "sha256": "2f9dc53210576265f7875bb906e544f879436a610227f903fc32b6612c48fbf9"
+    },
+    {
+      "path": "js/components/alicti-seat-operations.js",
+      "sha256": "21fa93a0da969d88a6231260f01233dd5475731bc132c23d37f0c416c1687207"
+    },
+    {
+      "path": "js/components/alicti-receiving.js",
+      "sha256": "bb994e3183944becbe32582406b3ad1bb8356eb745ab0f659c57dc0f1480fc80"
+    },
+    {
+      "path": "js/components/alicti-adapter.js",
+      "sha256": "e656cddb2818d023f377f7c216d3612d3f2ccefb08ca7f2db8f917b617d08805"
+    },
+    {
+      "path": "js/components/seat-operation-ui.js",
+      "sha256": "1e372e1b8c0e2280d6164c999c910e629c4226cdffcd1c9a7d0427b4d541e172"
+    },
+    {
+      "path": "js/pages/agent-workbench.js",
+      "sha256": "7b99779f7f4749c7cbb9e4015384ffb8f6641d09c60ec55db99cae4341cbd785"
+    },
+    {
+      "path": "js/pages/scenario-demo.js",
+      "sha256": "7597563b204c690190d5fea28acae96386d76deda695984ba9625ffdb1848fdb"
+    }
+  ],
+  "boundaries": {
+    "developmentPackageUpdated": false,
+    "gitlabPushed": false,
+    "officialSnapshotsChanged": false,
+    "frozenInputsChanged": false,
+    "workflowAdvanced": false
+  }
+}

@@ -1,0 +1,33 @@
+### Result
+{"checks":["failed query explains next action","failed query cannot continue","400 only inbound","upper-left back preserves number","unknown does not create number","unknown retained","unknown not retried as failure","pending number not selectable twice","foreign line denied","no script errors"],"errors":[]}
+### Ran Playwright code
+```js
+await (async page=>{
+ const checks=[],errors=[];page.on('pageerror',e=>errors.push(e.message));const check=(n,ok)=>{if(!ok)throw Error(n);checks.push(n)};
+ const settled=()=>page.waitForFunction(()=>!document.querySelector('.drawer-entering,.drawer-exit-visual'));
+ const start=async()=>{await page.evaluate(()=>{RouteRuntime.openPrimary('lines');LineOnboarding.openNumbers('LINE-ALI-01')});await settled();await page.locator('#number-onboarding').getByRole('button',{name:'下一步',exact:true}).click();await settled();};
+ await page.evaluate(()=>CloudCallData.numberOnboardingDemo.importOutcome='failure');await start();
+ check('failed query explains next action',await page.locator('#number-onboarding').innerText().then(t=>t.includes('号码查询未成功')));
+ await page.locator('#number-onboarding').getByRole('button',{name:'下一步',exact:true}).click();check('failed query cannot continue',await page.locator('#attachUsage').count()===0);
+ await page.evaluate(()=>CloudCallData.numberOnboardingDemo.importOutcome='success');
+ await page.locator('#number-onboarding').getByRole('button',{name:'重新查询',exact:true}).click();await settled();
+ await page.locator('#number-onboarding input[value="POOL-ALI-400"]').check();
+ await page.locator('#number-onboarding').getByRole('button',{name:'下一步',exact:true}).click();await settled();
+ check('400 only inbound',await page.locator('#attachUsage').inputValue()==='Inbound'&&await page.locator('#attachUsage option').count()===1);
+ await page.locator('#number-onboarding .secondary-back').click();await settled();check('upper-left back preserves number',await page.locator('#number-onboarding input[value="POOL-ALI-400"]').isChecked());
+ await page.locator('#number-onboarding').getByRole('button',{name:'下一步',exact:true}).click();await settled();
+ await page.evaluate(()=>CloudCallData.numberOnboardingDemo.addOutcome='timeout');
+ await page.locator('#number-onboarding').getByRole('button',{name:'确认添加',exact:true}).click();
+ await page.waitForFunction(()=>CloudCallData.numberOnboardingBatches.at(-1).running===false);await settled();
+ check('unknown does not create number',await page.evaluate(()=>!CloudCallData.phoneNumbers.some(n=>n.number==='4000009001')));
+ check('unknown retained',await page.locator('#number-onboarding').innerText().then(t=>t.includes('待核对')));
+ check('unknown not retried as failure',await page.locator('#number-onboarding').getByRole('button',{name:'重试失败号码',exact:true}).count()===0);
+ await page.evaluate(()=>{LineOnboarding.close();LineOnboarding.openNumbers('LINE-ALI-01')});await settled();
+ await page.locator('#number-onboarding').getByRole('button',{name:'下一步',exact:true}).click();await settled();
+ check('pending number not selectable twice',await page.locator('#number-onboarding input[value="POOL-ALI-400"]').count()===0);
+ await page.evaluate(()=>{CloudCallData.numberOnboardingDemo.addOutcome='success';RouteRuntime.openPrimary('lines');const n=CloudCallData.phoneNumbers.length;window.boundaryBefore=n;LineOnboarding.openNumbers('LINE-EPI-01')});
+ check('foreign line denied',await page.locator('#number-onboarding').count()===0);
+ check('no script errors',errors.length===0);return {checks,errors};
+}
+)(page);
+```

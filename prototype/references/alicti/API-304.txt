@@ -1,0 +1,1171 @@
+座席操作
+
+1 登录
+
+CTILink.Agent.login(params, callback);
+
+调用座席登录，首先要获取sessionKey，webSocketUrl，qids，enterpriseId和cno等信息，座席登录权限验证接口支持按照部门编号或呼叫中心编号获取这些登录信息。
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+sessionKey | 
+String | 
+必选 | 
+30秒过期 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+
+cno | 
+String | 
+必选 | 
+座席工号 | 
+
+webSocketUrl | 
+String | 
+可选 | 
+webSocket地址 | 
+
+qids | 
+String | 
+可选 | 
+班长席使用，队列信息，呼叫中心编号+队列号，多个使用英文逗号","分隔 | 
+
+bindTel | 
+String | 
+必选 | 
+绑定电话 | 
+
+bindType | 
+Int | 
+必选 | 
+绑定电话类型，1：普通电话，2：分机，3：软电话 | 
+
+loginStatus | 
+Int | 
+必选 | 
+登录状态，1：置闲，2：置忙 | 
+
+pauseDescription | 
+String | 
+可选 | 
+置忙描述 | 
+
+workingMode | 
+String | 
+可选 | 
+座席工作模式
+ 0:预览与预测同时进行
+ 4:预览外呼模式
+ 5:预测外呼模式，多个使用英文逗号","分隔 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=login | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+not in any queue: 当前座席不在任一队列 
+over online agent limit: 超过当前企业在线座席数量限制 
+exception: 服务异常 
+fail to get lock: 获取锁失败
+ no such agent: 座席不存在 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+
+cno | 
+String | 
+必选 | 
+座席工号 | 
+
+bindTel | 
+String | 
+必选 | 
+绑定电话 | 
+
+bindType | 
+Int | 
+必选 | 
+绑定电话类型，1：普通电话，2：分机，3：软电话 | 
+
+webrtcSocketUrl | 
+String | 
+可选 | 
+软电话登录返回，webrtc socket地址 | 
+
+webrtcStunServer | 
+String | 
+可选 | 
+软电话登录返回，webrtc stunServer配置 | 
+
+sipPwd | 
+String | 
+可选 | 
+软电话登录返回，sip密码 | 
+
+sipIp | 
+String | 
+可选 | 
+软电话登录返回，sip ip地址 | 
+
+ 示例：
+ var params = {};
+ params.sessionKey = ''; //获取sessionKey
+ params.enterpriseId = 7000101;
+ params.cno = '2000';
+ parmas.webSocketUrl = '';
+ params.qids = '70001019000,70001019001';
+ params.bindTel = '01087120766';
+ params.bindType = 1;
+ params.loginStatus = 1;
+
+ CTILink.Agent.login(params, function(result) {
+    if (result.code == 0) {
+        //座席登录成功
+    } else {
+        //座席登录失败，失败原因： + result.msg
+    }
+ });
+
+2 退出
+
+CTILink.Agent.logout(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+logoutMode | 
+Int | 
+必选 | 
+退出方式，0：退出但后台在线，1：完全退出 | 
+
+removeBinding | 
+Int | 
+必选 | 
+logoutMode=1时生效，是否解绑电话，0：不解绑，1：解绑 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=logout | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功: 
+status not idle: 设备没有处于空闲状态 
+no call agent 不存在该座席数据:（在login时生成，在logout时删除）
+exception: 服务异常 
+no such agent: 座席不存在 | 
+
+ 示例：
+ var params = {};
+ params.logoutMode = 1;
+ params.removeBinding = 0; 
+
+ CTILink.Agent.logout(params, function(result) {
+    if (result.code == 0) {
+        //座席退出成功
+    } else {
+        //座席退出失败，失败原因： + result.msg
+    }
+ });
+
+3 队列状态
+
+只有班长席可以调用，普通座席调用提示没有权限。
+
+CTILink.Agent.queueStatus(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+qnos | 
+String | 
+可选 | 
+队列号,多个队列号使用英文逗号","分隔 | 
+
+fields | 
+String | 
+可选 | 
+指定需要获取的监控项，包含如下项：
+queueParams：队列参数
+agentStatuses：队列成员数组
+queueEntries：呼叫列表数据
+支持同时查询多个统计项，多个统计项之间使用英文逗号","分隔，默认值为空即无返回 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=queueStatus | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+msg=ok | 
+
+queueStatus | 
+JSON | 
+必选 | 
+队列状态信息，{"队列号":{队列数据}, "队列号":{队列数据}}， 如：{"9001":{...}} | 
+
+队列数据：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+queueParams | 
+QueueParam | 
+可选 | 
+队列参数 | 
+
+agentStatuses | 
+AgentStatus | 
+可选 | 
+队列成员数组 | 
+
+queueEntries | 
+QueueEntry | 
+可选 | 
+呼叫列表数组 | 
+
+queueStatus格式说明：
+
+ 示例：
+ var params = {};
+ params.qnos = '9001';
+ params.fileds = 'queueParams,queueEntries';
+ CTILink.Agent.queueStatus(params, function(result) {
+    var queueStatus = result.queueStatus;
+    //9001队列状态信息
+    var detail = queueStatus['9001'];
+    //呼叫列表数组
+    var entries = detail.queueEntries;
+ });
+
+4 置忙
+
+CTILink.Agent.pause(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+pauseType | 
+Int | 
+必选 | 
+类型，1：普通，2：休息 | 
+
+pauseDescription | 
+String | 
+必选 | 
+置忙描述 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=pause | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+deviceStatus not in idle: 设备没有处于空闲状态 
+exception: 服务异常 
+fail to get lock: 获取锁失败 
+already ready: 座席处于ready状态 
+not logined: 座席未登录 
+no such agent: 不存在该座席数据（在login时生成，在logout时删除） | 
+
+ 示例：
+ var params = {};
+ params.pauseType = 2;
+ params.pauseDescription = '休息';
+
+ CTILink.Agent.pause(params);
+
+5 置闲
+
+CTILink.Agent.unpause(params, callback);
+
+参数params:
+
+无
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=unpause | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+deviceStatus not in idle: 设备没有处于空闲状态 
+exception: 服务异常 
+fail to get lock: 获取锁失败 
+already ready: 座席处于座席 
+not logined: 座席未登录 
+no such agent: 不存在该座席数据（在login时生成，在logout时删除） | 
+
+ 示例：
+ CTILink.Agent.unpause();
+
+6 更改绑定电话
+
+CTILink.Agent.changeBindTel(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+bindTel | 
+String | 
+必选 | 
+新绑定电话 | 
+
+bindType | 
+Int | 
+必选 | 
+新绑定电话类型，1：普通电话，2：分机 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=changeBindTel | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+ changeBindTel 
+status not idle: 设备没有处于空闲状态 
+no call agent: 不存在该座席数据（在login时生成，在logout时删除）
+fail to get lock: 获取锁失败 
+no such agent: 座席不存在 | 
+
+bindTel | 
+String | 
+必选 | 
+新绑定电话 | 
+
+bindType | 
+Int | 
+必选 | 
+新绑定电话类型，1：普通电话，2：分机 | 
+
+ 示例：
+ var params = {};
+ params.bindTel = '01087120766';
+ params.bindType = 1;
+
+ CTILink.Agent.changeBindTel(params);
+
+7 预览外呼
+
+CTILink.Agent.previewOutcall(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+tel | 
+String | 
+必选 | 
+外呼号码 ， 当开启号码隐藏设置时，可从弹屏事件中获取customerNumberKey的值，进行外呼 | 
+
+timeout | 
+Int | 
+可选 | 
+呼叫座席超时时间，取值范围 5<=timeout<=60，默认30(单位:s) | 
+
+dialTelTimeout | 
+Int | 
+可选 | 
+取值范围 5<=dialTelTimeout<=60，默认45(单位:s) | 
+
+obClid | 
+String | 
+可选 | 
+客户侧外显号码 | 
+
+obClidAreaCode | 
+String | 
+可选 | 
+指定外显区号，传入区号，在指定区号下外显号码；如果obClid和obClidAreaCode都传的情况下，按照obClid外显 | 
+
+obClidGroup         | 
+String | 
+可选   | 
+客户侧外显号码组，使用obClidGroup需要账号支持按标识路由，使用此参数是obClid参数无效 | 
+
+requestUniqueId | 
+String | 
+可选 | 
+请求唯一标识，不传会自动生成，会存入通话记录表中 | 
+
+callVariables | 
+Array | 
+可选 | 
+通道变量可以在以下场景中使用：
+1. 事件推送，作为推送字段使用
+2. 通话记录中，将字段存储在自定义字段
+3. 通过SIP-Header方式将字段传到呼叫的下游链路
+ 格式如:
+ [{"name":"mainUniqueId","value":"cdr_main_unique_id","type":"2"},{"name":"callType","value":"cdr_call_type","type":"2"}]
+name：变量名称
+value：变量值
+type：变量类型，1.普通变量 2.PJSIP_HEADER变量（最多支持5个） | 
+
+backupTels | 
+String | 
+可选 | 
+备用外呼号码，tel没呼通时呼叫备用号码，最多支持5个号码，多个之间用逗号分隔 | 
+
+cdrIsAsr | 
+Int | 
+可选 | 
+此次通话录音是否进行ASR转写，0.不进行 1.进行 默认：1 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=previewOutcall | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+errorCode | 
+Int | 
+可选 | 
+错误码，code=-1时返回，取值见errorCode和msg说明 | 
+
+msg | 
+String | 
+必选 | 
+code=0是返回ok: 成功，code=-1时取值见errorCode和msg说明 
+ | 
+
+requestUniqueId | 
+String | 
+必选 | 
+请求唯一标识 | 
+
+errorCode和msg说明： | 
+ | 
+ | 
+ | 
+
+errorCode | 
+msg | 
+说明 | 
+
+10001 | 
+请稍后重试 | 
+系统异常 | 
+
+20000 | 
+bad param | 
+参数错误，比如外呼号码中包含特殊字符 | 
+
+20011 | 
+previewOutcall agent busy | 
+座席忙，比如座席正在外呼中或通话中 | 
+
+20012 | 
+no such agent | 
+座席不存在或不在线 | 
+
+20016 | 
+permission denied | 
+没有外呼权限 | 
+
+20024 | 
+no ob permission | 
+没有开启外呼功能 | 
+
+20025 | 
+bad destInterface | 
+分机未注册 | 
+
+20031 | 
+restrict tel | 
+号码在黑名单中，或不在白名单中 | 
+
+20032 | 
+bad obClidLeftNumber | 
+外显号码不在企业账户内 | 
+
+20051 | 
+超过被叫频次限制,限制开始时间:xxxx-xx-xx xx:xx:xx,恢复时间:xxxx-xx-xx xx:xx:xx | 
+号码呼叫超频, 被风控系统禁止 | 
+
+20052 | 
+号码xxx被运营商禁呼 | 
+号码在黑名单中, 被风控系统禁止 | 
+
+20053 | 
+系统已将xx:xx:xx到xx:xx:xx设为禁拨时段，有问题请联系客户经理。 | 
+号码在禁呼时间段内, 被风控系统禁止 | 
+
+20054 | 
+号码xxx已被禁呼，冻结原因：客户侧拒接，冻结时间：xxx - xxx 
+外呼失败，号码xxx已被禁呼，冻结原因：客户侧空音，冻结时间：xxx - xxx
+ 外呼失败，号码xxx已被禁呼，冻结原因：敏感词检测：敏感词类型（如：诈骗），冻结时间：xxx - xxx
+ 外呼失败，号码xxx已被禁呼，冻结原因：大模型检测：AI检测标签（如：情绪激烈），冻结时间：xxx - xxx | 
+号码在冻结库中, 被风控系统禁止 | 
+
+20055 | 
+无可用中继 | 
+无可用中继, 被风控系统禁止 | 
+
+20056 | 
+超过被叫频次限制,限制开始时间:xxxx-xx-xx xx:xx:xx,恢复时间:xxxx-xx-xx xx:xx:xx
+外呼失败，号码xxx被运营商禁呼 | 
+座席策略限, 被风控系统禁止 | 
+
+20101 | 
+previewOutcall not within the time allowed | 
+外呼时间限制 | 
+
+20102 | 
+bad tel | 
+号码格式不正确 | 
+
+20103 | 
+fail to get lock | 
+锁定座席失败 | 
+
+呼叫限制原因说明：
+
+状态码 | 
+描述 | 
+
+1 | 
+未接短通过频 | 
+
+2 | 
+客户拒绝 | 
+
+3 | 
+客户憎恶 | 
+
+4 | 
+客户骂人 | 
+
+5 | 
+其他 | 
+
+90 | 
+运营商禁呼 | 
+
+91 | 
+运营商限呼 | 
+
+92 | 
+总次数限呼 | 
+
+ 示例：
+ var params = {};
+ params.tel = '01087120766';
+ params.userField = {'userFiled1':'value1', 'userFiled2':'value2'};
+
+ CTILink.Agent.previewOutcall(params);
+
+8 主叫外呼（摘机直呼送客户号码）
+
+CTILink.Agent.directCallStart(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+tel | 
+String | 
+必选 | 
+客户号码 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=directCallStart | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+no channel: 没有通道 
+callback timeout: 回调超时 
+no such agent: 不存在该座席数据（在login时生成，在logout时删除） 
+exception: 服务异常 
+fail to get lock: 获取锁失败 | 
+
+ 示例：
+ var params = {};
+ params.tel = '01087120766';
+
+ CTILink.Agent.directCallStart(params);
+
+9  延长整理时间
+
+CTILink.Agent.prolongWrapup(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+wrapupTime | 
+Int | 
+必选 | 
+延长整理时间多少秒，取值返回30秒~600秒 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=prolongWrapup | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+wrapupTime invalid: 整理时间无效 
+wrapupTime over limit: 整理时间超过（30-600）区间 
+not in wrapup: 座席没有处于整理状态 
+reschedule fail: 更新任务执行时间异常 
+no call agent: 不存在该座席数据（在login时生成，在logout时删除） 
+fail to get lock: 获取锁失败 | 
+
+ 示例：
+ var params = {};
+ params.wrapupTime = 30;
+
+ CTILink.Agent.prolongWrapup(params);
+
+10  软电话互拨
+
+CTILink.Agent.sipCall(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+tel | 
+String | 
+必选 | 
+软电话的分机号 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=sipCall | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+msg=ok | 
+
+ 示例：
+ var params = {};
+ params.tel = "8000"
+ CTILink.Agent.sipCall(params);
+
+11 内部呼叫
+
+CTILink.Agent.internalCall(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+objectType | 
+Int | 
+必选 | 
+0：座席工号; 1：分机号 | 
+
+object | 
+String | 
+必选 | 
+座席工号，当objectType=0时
+分机号，当objectType=1时 | 
+
+timeout | 
+Int | 
+可选 | 
+呼叫座席超时时间，取值范围 5<=timeout<=60，默认30(单位:s) | 
+
+dialTelTimeout | 
+Int | 
+可选 | 
+取值范围 5<=dialTelTimeout<=60，默认45(单位:s) | 
+
+userField       | 
+Map   | 
+可选   | 
+自定义字段，传入的值会打入通道变量。如需保存到通话记录中，需要在企业设置中配置 | 
+
+requestUniqueId | 
+String | 
+可选 | 
+请求唯一标识，不传会自动生成，会存入通话记录表中 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=internalCall | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+objectType or object invalid: 入参不正确  
+not within the time allowed: 不在允许的时间 
+agent busy: 座席忙 
+exten not register: 分机没注册 
+no such internal exten: 没有该分机 
+no such agent: 不存在该座席数据（在login时生成，在logout时删除） 
+exception: 服务异常 | 
+
+requestUniqueId | 
+String | 
+必选 | 
+请求唯一标识 | 
+
+ 示例：
+ var params = {};
+ params.objectType = 0;
+ params.object = 2000;
+ CTILink.Agent.internalCall(params);
+
+12  座席自动外呼任务启动
+
+CTILink.AgentTask.start(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+taskId | 
+String | 
+必选 | 
+任务id | 
+
+callParam | 
+String | 
+可选 | 
+呼叫配置参数 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=sipCall | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+参数[enterpriseId]不正确 
+参数[taskId]不正确 
+参数[cno]不正确 
+任务中没有号码,请导入号码后启动任务 
+任务启动失败, 请稍后再试 
+任务不存在 
+执行方式错误，任务启动失败 
+任务已结束 
+任务启动失败, 请稍后再试 | 
+
+ 示例：
+ var params = {};
+ params.taskId = "11"
+ params.callParam = "{\"key\":\"value\"}"
+CTILink.AgentTask.start(params);
+
+13  座席自动外呼任务暂停
+
+CTILink.AgentTask.pause(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+taskId | 
+String | 
+必选 | 
+任务id | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=sipCall | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+参数[enterpriseId]不正确 
+参数[taskId]不正确 
+参数[cno]不正确 
+任务暂停失败, 请稍后再试 
+任务不存在 
+执行方式错误，任务暂停失败 
+任务不在运行状态 
+任务暂停失败, 请稍后再试 | 
+
+ 示例：
+ var params = {};
+ params.taskId = "11"
+CTILink.AgentTask.pause(params);
+
+14  座席自动外呼任务列表
+
+CTILink.AgentTask.list(params, callback);
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=sipCall | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+ok: 成功 
+没有待执行的任务 | 
+
+ 示例：
+ var params = {};
+CTILink.AgentTask.list(params);
+
+15  座席修改工作模式
+
+CTILink.Agent.changeWorkingMode(params, callback);
+
+参数params:
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+workingMode | 
+String | 
+必选 | 
+座席工作模式
+ 0:预览与预测同时进行
+ 4:预览外呼模式
+ 5:预测外呼模式 | 
+
+返回给callback方法的参数：
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+type | 
+String | 
+必选 | 
+type=response | 
+
+reqType | 
+String | 
+必选 | 
+reqType=changeWorkingMode | 
+
+code | 
+Int | 
+必选 | 
+0：成功，-1：失败 | 
+
+msg | 
+String | 
+必选 | 
+msg=ok | 
+
+ 示例：
+ var params = {};
+ params.workingMode = '0';
+ CTILink.AgentTask.changeWorkingMode(params);

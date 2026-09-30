@@ -1,0 +1,2623 @@
+#!/usr/bin/env python3
+"""Deterministic preflight checks for prototype-loop projects."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import subprocess
+from datetime import datetime
+from html.parser import HTMLParser
+import sys
+from pathlib import Path, PurePosixPath
+
+
+def trusted_control_config_root() -> Path | None:
+    """Return the repo-owned orchestrator config root, never the project root.
+
+    Generated projects copy this file to tools/loop_preflight.py. In that
+    location, project files such as ./artifacts.yaml or ./gates.yaml are
+    untrusted and must not override embedded gates. Only the source repository
+    layout orchestrator/scripts/loop_preflight.py may load external control
+    configs.
+    """
+    script_dir = Path(__file__).resolve().parent
+    if script_dir.name == "scripts" and script_dir.parent.name == "orchestrator":
+        return script_dir.parent
+    return None
+
+
+CONFIG_ROOT = trusted_control_config_root()
+CONTROL_CONFIG_ERRORS: list[str] = []
+
+
+def load_control_config(name: str, fallback: dict) -> dict:
+    """Load JSON-compatible YAML control config only from the trusted repo."""
+    if CONFIG_ROOT is None:
+        return fallback
+    path = CONFIG_ROOT / name
+    if not path.exists():
+        return fallback
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        CONTROL_CONFIG_ERRORS.append(
+            f"控制配置解析失败：orchestrator/{name} 必须保持 JSON-compatible YAML，不会静默使用该文件"
+        )
+        return fallback
+    return data if isinstance(data, dict) else fallback
+
+
+DEFAULT_REQUIRED_PATHS = [
+    ".clauderules",
+    ".gitignore",
+    "index.html",
+    "CLAUDE.md",
+    "assets/css/global.css",
+    "assets/css/app.css",
+    "assets/css/delivery-diagrams.css",
+    "js/app.js",
+    "js/common.js",
+    "js/delivery-nav.js",
+    "js/nav.js",
+    "mock/data.js",
+    "docs/decisions.md",
+    "flowcharts/business-process.html",
+    "flowcharts/sequence-interaction.html",
+    "related-systems/index.html",
+    "memory/project.md",
+    "memory/project-startup-plan.md",
+    "memory/business-rules.md",
+    "memory/feature-list.md",
+    "memory/source-materials.md",
+    "memory/field-map.md",
+    "memory/project-structure.md",
+    "memory/task-plan.md",
+    "memory/execution-steps.md",
+    "memory/acceptance-map.md",
+    "memory/verification-log.md",
+    "memory/loop-status.md",
+    "memory/stage-log.md",
+    "memory/circuit-state.json",
+    "memory/change-log.md",
+    "memory/open-items.md",
+    "config/nav.json",
+    "config/workflow.json",
+    "config/project.json",
+    "config/requirement-analysis.json",
+    "tools/loop_run.py",
+    "tools/loop_preflight.py",
+    "tools/import_analysis.py",
+]
+
+DEFAULT_CONTENT_REQUIRED_BY_STAGE = {
+    "s4": [
+        "CLAUDE.md",
+        ".clauderules",
+        "assets/css/global.css",
+        "assets/css/app.css",
+        "js/app.js",
+        "js/common.js",
+        "js/delivery-nav.js",
+        "js/nav.js",
+        "mock/data.js",
+        "config/nav.json",
+        "config/workflow.json",
+        "config/project.json",
+        "memory/project-startup-plan.md",
+    ],
+    "s6": [
+        "CLAUDE.md",
+        "docs/decisions.md",
+        "memory/project.md",
+        "memory/project-startup-plan.md",
+        "memory/business-rules.md",
+        "memory/feature-list.md",
+        "memory/source-materials.md",
+        "memory/field-map.md",
+        "memory/project-structure.md",
+    ],
+    "s7": [
+        "memory/task-plan.md",
+        "memory/execution-steps.md",
+        "memory/acceptance-map.md",
+        "memory/open-items.md",
+    ],
+    "s8": [
+        "memory/change-log.md",
+        "memory/verification-log.md",
+    ],
+    "s9": [
+        "memory/acceptance-map.md",
+        "memory/verification-log.md",
+    ],
+    "final": [
+        "flowcharts/business-process.html",
+        "flowcharts/sequence-interaction.html",
+        "related-systems/index.html",
+        "memory/project.md",
+        "memory/project-startup-plan.md",
+        "memory/source-materials.md",
+        "memory/business-rules.md",
+        "memory/feature-list.md",
+        "memory/field-map.md",
+        "memory/task-plan.md",
+        "memory/execution-steps.md",
+        "memory/acceptance-map.md",
+        "memory/change-log.md",
+        "memory/verification-log.md",
+        "memory/stage-log.md",
+    ],
+}
+
+PLACEHOLDERS = ["待补充", "待确认", "待定", "未填写", "TODO", "TBD", "N/A"]
+TRIVIAL_COMMANDS = {"echo ok", "echo pass", "true", "echo 'pass'", 'echo "pass"'}
+TRIVIAL_COMMAND_LEADERS = ("echo ", "printf ")
+GLOBAL_ANCHOR_KEY = "__js_global__"
+PLACEHOLDER_PATTERNS = [
+    re.compile(r"^\s*[-*]\s*(待补充|待确认|待定|未填写|TODO|TBD|N/A)[。.]?\s*$", re.IGNORECASE),
+    re.compile(r"[:：|]\s*(待补充|待确认|待定|未填写|TODO|TBD|N/A)[。.]?\s*(?:\||$)", re.IGNORECASE),
+    re.compile(r"确认需求后补充本页面|待\s*S9|待标注(?:生成|提示词)|由\s*annotation-generator\s*自动生成", re.IGNORECASE),
+]
+EMPTY_VALUES = {"", "-", "none", "null", "无", "无失败", "不适用", "n/a", "N/A"}
+PASS_VALUES = {"pass", "passed", "complete", "completed", "通过", "已通过", "完成", "已完成"}
+BAD_STATUS_VALUES = {
+    "pending",
+    "planned",
+    "todo",
+    "tbd",
+    "fail",
+    "failed",
+    "blocked",
+    "待补充",
+    "待确认",
+    "待定",
+    "计划中",
+    "失败",
+    "阻塞",
+}
+# Terminal statuses that are acceptable at s8/s9/final (not just "pass").
+# Items marked as N/A or deferred are treated as resolved — they were
+# intentionally descoped, not failed.
+TERMINAL_STATUS_VALUES = PASS_VALUES | {
+    "n/a",
+    "na",
+    "not applicable",
+    "不适用",
+    "deferred",
+    "descoped",
+    "已取消",
+    "已移除",
+    "skipped",
+    "跳过",
+}
+NON_PASS_TERMINAL_STATUS_VALUES = TERMINAL_STATUS_VALUES - PASS_VALUES
+STARTUP_PLAN_PATH = "memory/project-startup-plan.md"
+STARTUP_PLAN_REQUIRED_SECTIONS = [
+    "## 文件规则",
+    "## 启动来源",
+    "## 产品形态",
+    "## 项目目的",
+    "## 项目范围",
+    "## 非本期范围",
+    "## UI 风格",
+    "## 参考资料",
+    "## 数据和字段来源",
+    "## 整体页面结构",
+    "## 核心流程",
+    "## 验收方向",
+    "## 约束和风险",
+    "## S2 前待确认问题",
+]
+CLAUDE_REQUIRED_MARKERS = [
+    "@memory/project.md",
+    "@memory/project-startup-plan.md",
+    "@memory/business-rules.md",
+    "@memory/feature-list.md",
+    "@memory/source-materials.md",
+    "@memory/open-items.md",
+    "## Loop 阶段预检",
+    "## 开始工作前",
+    "## 项目执行边界",
+]
+PROJECT_MEMORY_REQUIRED_SECTIONS = [
+    "## 产品目标",
+    "## 目标用户",
+    "## 核心页面列表",
+    "## 核心用户路径",
+    "## 主要数据对象",
+    "## 交付方式",
+]
+DEFAULT_MIN_CONTENT_CHARS = {
+    "docs/decisions.md": 80,
+    "memory/project.md": 240,
+    "memory/project-startup-plan.md": 600,
+    "memory/business-rules.md": 160,
+    "memory/feature-list.md": 180,
+    "memory/source-materials.md": 160,
+    "memory/field-map.md": 160,
+    "memory/project-structure.md": 120,
+    "memory/task-plan.md": 120,
+    "memory/execution-steps.md": 240,
+    "memory/acceptance-map.md": 160,
+    "memory/change-log.md": 120,
+    "memory/verification-log.md": 120,
+    "memory/stage-log.md": 120,
+    "memory/annotation-prompt.md": 240,
+    "memory/annotation-coverage.md": 120,
+    "memory/open-items.md": 80,
+    "docs/interaction.html": 160,
+    "flowcharts/business-process.html": 240,
+    "flowcharts/sequence-interaction.html": 240,
+    "related-systems/index.html": 160,
+}
+
+DEFAULT_OPTIONAL_DELIVERABLES = {
+    "interactionDoc": {
+        "required_at": "final",
+        "paths": ["docs/interaction.html"],
+    },
+    "annotations": {
+        "required_at": "final",
+        "paths": [
+            "memory/annotation-prompt.md",
+            "memory/annotation-coverage.md",
+            "annotations/annotation-runtime.js",
+            "annotations/annotation.css",
+            "annotations/annotations.js",
+        ],
+    },
+}
+
+DEFAULT_REQUIRED_STAGE_LOGS_BY_STAGE = {
+    "s4": ["S0", "S1", "S2", "S3"],
+    # s6 runs at S5 completion (before the S5 log is appended), so it can only
+    # require S4; the S5 log is enforced one gate later at s7.
+    "s6": ["S0", "S1", "S2", "S3", "S4"],
+    "s7": ["S0", "S1", "S2", "S3", "S4", "S5"],
+    "s8": ["S0", "S1", "S2", "S3", "S4", "S5", "S6"],
+    "s9": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7"],
+    "final": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"],
+}
+
+ARTIFACT_CONFIG = load_control_config("artifacts.yaml", {})
+GATE_CONFIG = load_control_config("gates.yaml", {})
+
+REQUIRED_PATHS = ARTIFACT_CONFIG.get("required_paths", DEFAULT_REQUIRED_PATHS)
+CONTENT_REQUIRED_BY_STAGE = ARTIFACT_CONFIG.get(
+    "content_required_by_stage", DEFAULT_CONTENT_REQUIRED_BY_STAGE
+)
+MIN_CONTENT_CHARS = ARTIFACT_CONFIG.get("min_content_chars", DEFAULT_MIN_CONTENT_CHARS)
+OPTIONAL_DELIVERABLES = ARTIFACT_CONFIG.get(
+    "optional_deliverables", DEFAULT_OPTIONAL_DELIVERABLES
+)
+REQUIRED_STAGE_LOGS_BY_STAGE = ARTIFACT_CONFIG.get(
+    "required_stage_logs_by_stage", DEFAULT_REQUIRED_STAGE_LOGS_BY_STAGE
+)
+EXPECTED_PREFLIGHT_BY_STAGE = {
+    "S4": "s4",
+    "S5": "s6",
+    "S6": "s7",
+    "S7": "s8",
+    "S8": "s9",
+    "S9": "final",
+}
+DELIVERY_POLLUTION_PATHS = [
+    "node_modules",
+    "package.json",
+    "package-lock.json",
+    "playwright-report",
+    "test-results",
+]
+
+ANALYSIS_CONTRACT = {"name": "requirement-analysis-to-prototype", "version": "1.0"}
+ANALYSIS_REQUIRED_ENTRYPOINTS = {
+    "normalized_user_stories",
+    "scenario_index",
+    "sequence_index",
+    "interface_index",
+    "project_facts",
+    "business_rules",
+    "feature_list",
+    "page_index",
+    "traceability",
+    "open_items",
+    "verification_report",
+    "business_scenario_atlas",
+    "interaction_sequence_atlas",
+    "interface_verification_matrix",
+    "product_baseline",
+    "feature_list_view",
+    "page_planning",
+}
+
+
+def read_text(path: Path) -> str:
+    # utf-8-sig strips BOM; errors="replace" preserves character counts so
+    # min_content_chars checks are not fooled by silently dropped bytes.
+    return path.read_text(encoding="utf-8-sig", errors="replace")
+
+
+def load_json(path: Path, errors: list[str]) -> dict:
+    try:
+        return json.loads(read_text(path))
+    except FileNotFoundError:
+        errors.append(f"缺失 JSON 文件：{path}")
+    except json.JSONDecodeError as exc:
+        errors.append(f"JSON 格式错误：{path} ({exc})")
+    return {}
+
+
+def load_json_silent(path: Path) -> dict:
+    try:
+        return json.loads(read_text(path))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def canonical_hash(value: object) -> str:
+    payload = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def safe_analysis_path(root: Path, raw: object) -> Path | None:
+    if not isinstance(raw, str) or not raw or "\\" in raw or "\x00" in raw:
+        return None
+    relative = PurePosixPath(raw)
+    if relative.is_absolute() or any(part in {"", ".", ".."} for part in relative.parts):
+        return None
+    candidate = (root / relative.as_posix()).resolve()
+    try:
+        candidate.relative_to(root.resolve())
+    except ValueError:
+        return None
+    return candidate
+
+
+def imported_analysis_metadata(target: Path) -> dict:
+    return load_json_silent(target / "memory" / "requirement-analysis-baseline.json")
+
+
+def derive_analysis_id_catalog(root: Path, handoff: dict, errors: list[str]) -> dict[str, list[str]]:
+    entrypoints = handoff.get("entrypoints") if isinstance(handoff.get("entrypoints"), dict) else {}
+
+    def records(name: str, key: str) -> list[dict]:
+        entry = entrypoints.get(name)
+        path = safe_analysis_path(root, entry.get("path") if isinstance(entry, dict) else None)
+        if path is None or not path.is_file():
+            return []
+        data = load_json(path, errors)
+        values = data.get(key)
+        return [item for item in values if isinstance(item, dict)] if isinstance(values, list) else []
+
+    stories = records("normalized_user_stories", "user_stories")
+    scenarios = records("scenario_index", "scenarios")
+    sequences = records("sequence_index", "sequences")
+    interfaces = records("interface_index", "interfaces")
+    features = records("feature_list", "features")
+    pages = records("page_index", "pages")
+
+    def ids(items: list[dict]) -> list[str]:
+        return sorted({str(item["id"]) for item in items if item.get("id")})
+
+    acceptance_ids = sorted({
+            str(criteria["id"])
+            for story in stories
+            for criteria in story.get("acceptance_criteria", [])
+            if isinstance(criteria, dict) and criteria.get("id")
+        })
+    in_scope_stories = [story for story in stories if story.get("status", "in_scope") == "in_scope"]
+    required_acceptance_ids = sorted({
+        str(criteria["id"])
+        for story in in_scope_stories
+        for criteria in story.get("acceptance_criteria", [])
+        if isinstance(criteria, dict) and criteria.get("id")
+    })
+    return {
+        "user_story_ids": ids(stories),
+        "in_scope_user_story_ids": ids(in_scope_stories),
+        "acceptance_ids": acceptance_ids,
+        "required_acceptance_ids": required_acceptance_ids,
+        "scenario_ids": ids(scenarios),
+        "in_scope_scenario_ids": ids([item for item in scenarios if item.get("scope", "in_scope") == "in_scope"]),
+        "sequence_ids": ids(sequences),
+        "interface_ids": ids(interfaces),
+        "feature_ids": ids(features),
+        "page_ids": ids(pages),
+        "action_ids": sorted({
+            str(action["id"])
+            for page in pages
+            for action in page.get("actions", [])
+            if isinstance(action, dict) and action.get("id")
+        }),
+    }
+
+
+def check_requirement_analysis_baseline(target: Path, stage: str, errors: list[str]) -> None:
+    """Re-verify a frozen analysis package and its prototype-side binding."""
+    config_path = target / "config" / "requirement-analysis.json"
+    config = load_json(config_path, errors)
+    if not config:
+        return
+    mode = config.get("mode")
+    if mode == "none":
+        return
+    if mode != "imported":
+        errors.append("需求分析配置 mode 只允许 none 或 imported")
+        return
+    if config.get("schemaVersion") != 1:
+        errors.append("需求分析导入配置 schemaVersion 必须为 1")
+    if config.get("status") != "verified":
+        errors.append("需求分析导入配置必须标记为 verified")
+    baseline_root = safe_analysis_path(target, config.get("baselineRoot"))
+    if baseline_root is None:
+        errors.append("需求分析 baselineRoot 不是安全的项目内相对路径")
+        return
+    if not baseline_root.is_dir():
+        errors.append(f"需求分析基线目录不存在：{config.get('baselineRoot')}")
+        return
+    manifest_path = baseline_root / "delivery-manifest.json"
+    handoff_path = baseline_root / "prototype-handoff.json"
+    if manifest_path.is_symlink() or handoff_path.is_symlink():
+        errors.append("需求分析基线不允许用符号链接替代 manifest 或 handoff")
+        return
+    manifest = load_json(manifest_path, errors)
+    handoff = load_json(handoff_path, errors)
+    if not manifest or not handoff:
+        return
+    manifest_hash = sha256_file(manifest_path)
+    if config.get("manifestSha256") != manifest_hash:
+        errors.append("需求分析基线 manifest SHA-256 与导入配置不一致，冻结事实已漂移")
+    if manifest.get("schema_version") != "1.1":
+        errors.append("需求分析 delivery-manifest.json schema_version 必须为 1.1")
+    if manifest.get("handoff_contract") != ANALYSIS_CONTRACT:
+        errors.append("需求分析交付清单的 handoff_contract 不受支持")
+    if handoff.get("schema_version") != "1.0" or handoff.get("contract") != ANALYSIS_CONTRACT:
+        errors.append("需求分析 prototype-handoff.json 契约不受支持")
+    if config.get("handoffContract") != ANALYSIS_CONTRACT:
+        errors.append("原型侧记录的需求分析交接契约不一致")
+
+    baseline = handoff.get("baseline") if isinstance(handoff.get("baseline"), dict) else {}
+    if config.get("baselineId") != baseline.get("id") or manifest.get("baseline_id") != baseline.get("id"):
+        errors.append("需求分析 baseline ID 在配置、manifest 与 handoff 之间不一致")
+    if config.get("baselineFingerprint") != baseline.get("fingerprint") or manifest.get("baseline_fingerprint") != baseline.get("fingerprint"):
+        errors.append("需求分析 baseline fingerprint 在配置、manifest 与 handoff 之间不一致")
+    gates = handoff.get("gates") if isinstance(handoff.get("gates"), dict) else {}
+    for gate_id in ("G1", "G2", "G3"):
+        if not isinstance(gates.get(gate_id), dict) or gates[gate_id].get("status") != "approved":
+            errors.append(f"需求分析冻结基线的 {gate_id} 未批准")
+    verification = handoff.get("verification") if isinstance(handoff.get("verification"), dict) else {}
+    if verification.get("status") != "pass" or manifest.get("verification_status") != "pass":
+        errors.append("需求分析冻结基线的全局核验未通过")
+
+    entries = manifest.get("files")
+    if not isinstance(entries, list) or not entries:
+        errors.append("需求分析 manifest.files 必须是非空数组")
+        return
+    seen: set[str] = set()
+    normalized: list[dict[str, object]] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            errors.append("需求分析 manifest.files[] 存在非对象条目")
+            continue
+        raw = entry.get("path")
+        path = safe_analysis_path(baseline_root, raw)
+        relative = str(raw or "")
+        if path is None:
+            errors.append(f"需求分析 manifest 包含不安全路径：{relative!r}")
+            continue
+        if relative in seen:
+            errors.append(f"需求分析 manifest 包含重复路径：{relative}")
+            continue
+        seen.add(relative)
+        if path.is_symlink():
+            errors.append(f"需求分析冻结文件不允许是符号链接：{relative}")
+            continue
+        if not path.is_file():
+            errors.append(f"需求分析冻结文件缺失：{relative}")
+            continue
+        expected_bytes = entry.get("bytes")
+        expected_hash = str(entry.get("sha256") or "")
+        if not isinstance(expected_bytes, int) or path.stat().st_size != expected_bytes:
+            errors.append(f"需求分析冻结文件大小已变化：{relative}")
+        actual_hash = sha256_file(path)
+        if not re.fullmatch(r"[0-9a-f]{64}", expected_hash) or actual_hash != expected_hash:
+            errors.append(f"需求分析冻结文件 SHA-256 已变化：{relative}")
+        normalized.append({"path": relative, "bytes": expected_bytes, "sha256": expected_hash})
+
+    if "prototype-handoff.json" not in seen:
+        errors.append("需求分析 manifest 未包含 prototype-handoff.json")
+    entrypoints = handoff.get("entrypoints") if isinstance(handoff.get("entrypoints"), dict) else {}
+    workflow_version = handoff.get("analysis_workflow_version")
+    workflow_invalid = workflow_version is not None and workflow_version != "stories-flows-interfaces-sequences-pages-features@1"
+    if workflow_invalid:
+        errors.append("不支持的需求分析生成顺序版本")
+    required = ANALYSIS_REQUIRED_ENTRYPOINTS | ({"page_structure_atlas"} if workflow_version else set())
+    missing = required - set(entrypoints)
+    if missing:
+        errors.append("需求分析 handoff 缺少必要入口：" + ", ".join(sorted(missing)))
+    input_boundary_invalid = bool(missing) or workflow_invalid
+    for name, entry in entrypoints.items():
+        if not isinstance(entry, dict) or str(entry.get("path") or "") not in seen:
+            errors.append(f"需求分析 handoff 入口未受 manifest 保护：{name}")
+            input_boundary_invalid = True
+        elif name in (required | {"page_structure_atlas"}) and str(entry.get("path") or "").startswith("inputs/"):
+            errors.append(f"原始输入不能作为原型事实/视图入口：{name}；请回到需求分析 Loop 冻结结论")
+            input_boundary_invalid = True
+        elif name == "source_index" and entry.get("role") != "provenance_only":
+            errors.append("source_index 只能作为 provenance_only 来源元数据入口")
+            input_boundary_invalid = True
+    consumer_rules = handoff.get("consumer_rules", {})
+    if not isinstance(consumer_rules, dict):
+        errors.append("consumer_rules 必须为对象")
+        input_boundary_invalid = True
+    else:
+        if consumer_rules.get("llm_wiki_consumed_by", "requirement-analysis-loop") != "requirement-analysis-loop":
+            errors.append("LLM Wiki 只能由需求分析 Loop 消费")
+            input_boundary_invalid = True
+        if consumer_rules.get("raw_inputs_are_audit_only", True) is not True:
+            errors.append("原始输入只能作为审计证据，不能供原型重新提取事实")
+            input_boundary_invalid = True
+    if input_boundary_invalid:
+        return
+
+    derived_catalog = derive_analysis_id_catalog(baseline_root, handoff, errors)
+    if handoff.get("id_catalog") != derived_catalog:
+        errors.append("需求分析 handoff 的 id_catalog 与冻结事实文件不一致")
+    for key, prefix in (("required_acceptance_ids", "AC"), ("feature_ids", "FUNC"), ("page_ids", "PAGE"), ("action_ids", "ACTION")):
+        values = derived_catalog[key]
+        if key in {"required_acceptance_ids", "feature_ids"} and not values:
+            errors.append(f"需求分析基线缺少必要 ID：{key}")
+        elif any(not re.fullmatch(rf"{prefix}-\d{{3,}}", value) for value in values):
+            errors.append(f"需求分析基线包含非法 {prefix} ID")
+
+    semantic = sorted(
+        (entry for entry in normalized if entry["path"] != "prototype-handoff.json"),
+        key=lambda entry: str(entry["path"]),
+    )
+    expected_fingerprint = canonical_hash({"project": handoff.get("project", {}), "files": semantic})
+    if baseline.get("fingerprint") != expected_fingerprint:
+        errors.append("需求分析 baseline fingerprint 无法由当前冻结文件重算")
+
+    workflow = load_json_silent(target / "config" / "workflow.json")
+    iteration = workflow.get("currentIteration") if isinstance(workflow.get("currentIteration"), dict) else {}
+    if iteration.get("approvedRequirementAnalysisManifestSha256") != manifest_hash:
+        errors.append("S2 PM 计划批准记录未绑定当前需求分析 manifest SHA-256")
+    if iteration.get("planApprovalVersion") != "plan-approval-v2-analysis":
+        errors.append("导入需求分析基线时计划审批版本必须为 plan-approval-v2-analysis")
+    frozen = workflow.get("frozenArtifacts") if isinstance(workflow.get("frozenArtifacts"), dict) else {}
+    freeze = frozen.get("requirement-analysis:manifest") if isinstance(frozen.get("requirement-analysis:manifest"), dict) else {}
+    if freeze.get("sha256") != manifest_hash:
+        errors.append("需求分析 manifest 未在 S2 frozenArtifacts 中冻结")
+
+    if stage in {"s4", "s6", "s7", "s8", "s9", "final"}:
+        metadata_path = target / "memory" / "requirement-analysis-baseline.json"
+        metadata = load_json(metadata_path, errors)
+        if config.get("materializedManifestSha256") != manifest_hash or not config.get("materializedAt"):
+            errors.append("需求分析冻结事实尚未在 S3 完成物化")
+        if metadata:
+            if metadata.get("manifestSha256") != manifest_hash:
+                errors.append("原型记忆中的需求分析 manifest SHA-256 不一致")
+            if metadata.get("baselineFingerprint") != baseline.get("fingerprint"):
+                errors.append("原型记忆中的需求分析 baseline fingerprint 不一致")
+            feature_path = target / "memory" / "feature-list.md"
+            if feature_path.is_file() and metadata.get("featureListSha256") != sha256_file(feature_path):
+                errors.append("原型功能清单已偏离 S3 从冻结基线物化的事实")
+            expected_metadata = {
+                "acceptanceIds": derived_catalog["acceptance_ids"],
+                "requiredAcceptanceIds": derived_catalog["required_acceptance_ids"],
+                "featureIds": derived_catalog["feature_ids"],
+                "pageIds": derived_catalog["page_ids"],
+                "actionIds": derived_catalog["action_ids"],
+                "scenarioIds": derived_catalog["scenario_ids"],
+                "sequenceIds": derived_catalog["sequence_ids"],
+                "interfaceIds": derived_catalog["interface_ids"],
+            }
+            for key, expected in expected_metadata.items():
+                if metadata.get(key) != expected:
+                    errors.append(f"原型记忆中的需求分析 ID 目录不一致：{key}")
+            required_ids = sorted(
+                set(derived_catalog["required_acceptance_ids"])
+                | set(derived_catalog["feature_ids"])
+                | set(derived_catalog["page_ids"])
+                | set(derived_catalog["action_ids"])
+            )
+            if metadata.get("requiredSourceIds") != required_ids:
+                errors.append("原型记忆中的 requiredSourceIds 与冻结 AC/FUNC/PAGE/ACTION 不一致")
+
+    if stage in {"s8", "s9", "final"}:
+        publication = config.get("diagramPublication") if isinstance(config.get("diagramPublication"), dict) else {}
+        if publication.get("manifestSha256") != manifest_hash or publication.get("mode") != "reuse-with-provenance-adapter":
+            errors.append("业务流程图和时序图尚未按冻结 HTML 图集完成来源适配发布")
+        for relative in ("flowcharts/business-process.html", "flowcharts/sequence-interaction.html"):
+            path = target / relative
+            if path.exists():
+                text = read_text(path)
+                if f'name="requirement-analysis-baseline" content="{baseline.get("id")}"' not in text:
+                    errors.append(f"交付图缺少需求分析 baseline 来源标识：{relative}")
+                if f'name="requirement-analysis-fingerprint" content="{baseline.get("fingerprint")}"' not in text:
+                    errors.append(f"交付图缺少需求分析 fingerprint 来源标识：{relative}")
+
+
+def project_record_salt(target: Path) -> str:
+    for relative_path in [Path("config/project.json"), Path("config/workflow.json")]:
+        data = load_json_silent(target / relative_path)
+        for key in ["projectId", "annotationProjectId", "id"]:
+            value = data.get(key)
+            if value:
+                return str(value)
+    return "missing-project-id"
+
+
+def expected_record_id_v2(target: Path, stage: str, date_value: str) -> str:
+    return hashlib.sha256(f"{project_record_salt(target)}:{stage}:{date_value}".encode()).hexdigest()[:12]
+
+
+def expected_record_id_legacy(stage: str, date_value: str) -> str:
+    return hashlib.sha256(f"{stage}:{date_value}".encode()).hexdigest()[:12]
+
+
+def expected_plan_approval_id(target: Path, iteration: dict) -> str:
+    startup = target / "memory" / "project-startup-plan.md"
+    claude = target / "CLAUDE.md"
+    startup_hash = hashlib.sha256(startup.read_bytes()).hexdigest() if startup.exists() else ""
+    claude_hash = hashlib.sha256(claude.read_bytes()).hexdigest() if claude.exists() else ""
+    parts = [
+        project_record_salt(target),
+        str(iteration.get("name") or ""),
+        str(iteration.get("pmApprovedAt") or ""),
+        str(iteration.get("pmApprovedBy") or ""),
+        str(iteration.get("pmApprovalEvidence") or ""),
+        startup_hash,
+        claude_hash,
+    ]
+    analysis = load_json_silent(target / "config" / "requirement-analysis.json")
+    if analysis.get("mode") == "imported" and analysis.get("manifestSha256"):
+        parts.extend(["requirement-analysis", str(analysis["manifestSha256"])])
+    payload = ":".join(parts)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def is_empty_or_placeholder(path: Path) -> bool:
+    if not path.exists() or path.stat().st_size == 0:
+        return True
+    text = read_text(path).strip()
+    if not text:
+        return True
+    if path.name == "source-materials.md" and "SRC-" in text:
+        # A bare "SRC-" substring (e.g. in a heading) is not enough; the file
+        # must have at least one well-formed SRC-\d+ row in a markdown table.
+        if any(re.match(r"^SRC-\d+$", cells[0]) for cells in markdown_table_rows(path, 6)):
+            return False
+    meaningful_lines: list[str] = []
+    table_has_separator = False
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            table_has_separator = False
+            continue
+        if line.startswith(("#", ">", "---")):
+            table_has_separator = False
+            continue
+        if line.startswith("|"):
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            if is_markdown_table_separator(cells):
+                table_has_separator = True
+                continue
+            if table_has_separator:
+                meaningful_lines.append(line)
+            continue
+        table_has_separator = False
+        meaningful_lines.append(line)
+    if not meaningful_lines:
+        return True
+    # Use regex patterns instead of substring matching to avoid false positives
+    # on lines like "// TODO: implement this" or "## TODO List" where TODO is
+    # embedded in otherwise meaningful content.  PLACEHOLDER_PATTERNS requires
+    # the placeholder to appear in a structured position (e.g. list item or
+    # key-value delimiter), not just anywhere in the text.
+    return all(
+        any(pattern.search(line) for pattern in PLACEHOLDER_PATTERNS)
+        for line in meaningful_lines
+    )
+
+
+def contains_unresolved_placeholder(text: str) -> bool:
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.startswith("#") and line.strip("# ").endswith("待确认项"):
+            continue
+        if any(pattern.search(line) for pattern in PLACEHOLDER_PATTERNS):
+            return True
+    return False
+
+
+def annotation_is_empty(path: Path) -> bool:
+    if not path.exists() or path.stat().st_size == 0:
+        return True
+    # Strip ALL whitespace (including tabs, non-breaking spaces, etc.) to
+    # reliably detect the empty-annotation skeleton regardless of formatting.
+    text = re.sub(r"\s+", "", read_text(path))
+    return "window.AnnotationData={};" in text or "window.AnnotationData=window.AnnotationData||{};" in text
+
+
+def value_is_empty(value: str) -> bool:
+    return value.strip().lower() in {item.lower() for item in EMPTY_VALUES}
+
+
+def value_is_pass(value: str) -> bool:
+    return value.strip().lower() in {item.lower() for item in PASS_VALUES}
+
+
+def value_is_bad_status(value: str) -> bool:
+    normalized = value.strip().lower()
+    return any(mark.lower() in normalized for mark in BAD_STATUS_VALUES)
+
+
+def strict_bool(value: object) -> bool:
+    return value is True
+
+
+def requested_deliverables(target: Path, errors: list[str] | None = None) -> dict[str, bool]:
+    """Read explicit optional-deliverable flags; absent legacy flags default to false."""
+    workflow = load_json_silent(target / "config" / "workflow.json")
+    iteration = workflow.get("currentIteration")
+    raw = iteration.get("requestedDeliverables") if isinstance(iteration, dict) else None
+    if raw is None:
+        return {"interactionDoc": False, "annotations": False}
+    if not isinstance(raw, dict):
+        if errors is not None:
+            errors.append("currentIteration.requestedDeliverables 必须是对象")
+        return {"interactionDoc": False, "annotations": False}
+    result: dict[str, bool] = {}
+    for key in ("interactionDoc", "annotations"):
+        value = raw.get(key)
+        if not isinstance(value, bool):
+            if errors is not None:
+                errors.append(
+                    f"可选交付开关必须是布尔值：currentIteration.requestedDeliverables.{key}"
+                )
+            result[key] = False
+        else:
+            result[key] = value
+    return result
+
+
+def value_is_iso_timestamp(value: object) -> bool:
+    if not isinstance(value, str) or not value.strip():
+        return False
+    try:
+        datetime.fromisoformat(value.strip())
+    except ValueError:
+        return False
+    return True
+
+
+def check_required_paths(target: Path, errors: list[str]) -> None:
+    for relative in REQUIRED_PATHS:
+        if not (target / relative).exists():
+            errors.append(f"缺失标准文件：{relative}")
+
+
+def check_optional_deliverable_paths(target: Path, stage: str, errors: list[str]) -> None:
+    if stage != "final":
+        return
+    requested = requested_deliverables(target, errors)
+    for key, enabled in requested.items():
+        if not enabled:
+            continue
+        spec = OPTIONAL_DELIVERABLES.get(key, {})
+        paths = spec.get("paths", []) if isinstance(spec, dict) else []
+        for relative in paths:
+            path = target / str(relative)
+            if not path.exists():
+                errors.append(f"已明确请求可选交付 {key}，但缺失文件：{relative}")
+                continue
+            if str(relative) in {
+                "docs/interaction.html",
+                "memory/annotation-prompt.md",
+                "memory/annotation-coverage.md",
+            }:
+                text = read_text(path)
+                if is_empty_or_placeholder(path) or contains_unresolved_placeholder(text):
+                    errors.append(f"已明确请求可选交付 {key}，但文件仍为空或含占位：{relative}")
+                min_chars = MIN_CONTENT_CHARS.get(str(relative))
+                if min_chars and len(text.strip()) < min_chars:
+                    errors.append(f"已明确请求可选交付 {key}，但文件内容过短：{relative}")
+
+
+def check_content(target: Path, stage: str, errors: list[str]) -> None:
+    for relative in CONTENT_REQUIRED_BY_STAGE.get(stage, []):
+        path = target / relative
+        if is_empty_or_placeholder(path):
+            errors.append(f"阶段 {stage} 需要有效内容，但文件为空或仍是占位内容：{relative}")
+            continue
+        if stage != "s4":
+            text = read_text(path)
+            if contains_unresolved_placeholder(text):
+                errors.append(f"阶段 {stage} 不允许关键文件保留占位内容：{relative}")
+            min_chars = MIN_CONTENT_CHARS.get(relative)
+            if min_chars and len(text.strip()) < min_chars:
+                errors.append(f"阶段 {stage} 关键文件内容过短，疑似未完整生成：{relative}")
+
+
+def check_workflow_state(target: Path, stage: str, errors: list[str], completing_stage: str | None = None) -> None:
+    workflow = load_json(target / "config" / "workflow.json", errors)
+    if not workflow:
+        return
+    requested_deliverables(target, errors)
+    iteration = workflow.get("currentIteration", {})
+    gates = workflow.get("gates", {})
+    if stage in {"s4", "s6", "s7", "s8", "s9", "final"}:
+        plan_cfm = iteration.get("planConfirmed")
+        if not plan_cfm:
+            errors.append("计划未标记为已确认：currentIteration.planConfirmed")
+        elif not isinstance(plan_cfm, bool):
+            errors.append("currentIteration.planConfirmed 必须是布尔值 (true/false)，不能是字符串")
+        rules_written = iteration.get("projectRulesWritten")
+        if rules_written is not None and not isinstance(rules_written, bool):
+            errors.append("currentIteration.projectRulesWritten 必须是布尔值 (true/false)，不能是字符串")
+        elif rules_written is False:
+            errors.append("项目级 CLAUDE.md 规则未标记为已写入：currentIteration.projectRulesWritten")
+        if not value_is_iso_timestamp(iteration.get("pmApprovedAt")):
+            errors.append("计划门禁缺少可机读 PM 确认时间：currentIteration.pmApprovedAt")
+        if not value_is_iso_timestamp(iteration.get("startupPlanFrozenAt")):
+            errors.append("启动规划缺少可机读冻结时间：currentIteration.startupPlanFrozenAt")
+        for key in [
+            "pmApprovedBy",
+            "pmApprovalEvidence",
+            "approvedStartupPlanSha256",
+            "approvedClaudeSha256",
+            "planApprovalId",
+        ]:
+            if not str(iteration.get(key) or "").strip():
+                errors.append(f"计划门禁缺少显式审批字段：currentIteration.{key}")
+        analysis = load_json_silent(target / "config" / "requirement-analysis.json")
+        if analysis.get("mode") == "imported":
+            manifest_hash = str(analysis.get("manifestSha256") or "")
+            if iteration.get("approvedRequirementAnalysisManifestSha256") != manifest_hash:
+                errors.append("计划门禁未绑定需求分析 manifest：currentIteration.approvedRequirementAnalysisManifestSha256")
+            if iteration.get("planApprovalVersion") != "plan-approval-v2-analysis":
+                errors.append("导入需求分析基线时 planApprovalVersion 必须为 plan-approval-v2-analysis")
+        startup = target / "memory" / "project-startup-plan.md"
+        claude = target / "CLAUDE.md"
+        if startup.exists() and iteration.get("approvedStartupPlanSha256") != hashlib.sha256(startup.read_bytes()).hexdigest():
+            errors.append("项目启动规划与 PM 审批摘要不一致，必须重新执行 approve-plan")
+        if claude.exists() and iteration.get("approvedClaudeSha256") != hashlib.sha256(claude.read_bytes()).hexdigest():
+            errors.append("CLAUDE.md 与 PM 审批摘要不一致，必须重新执行 approve-plan")
+        if iteration.get("planApprovalId") and iteration.get("planApprovalId") != expected_plan_approval_id(target, iteration):
+            errors.append("计划审批记录编号校验失败，必须由 approve-plan 重新生成")
+    if stage in {"s6", "s7", "s8", "s9", "final"}:
+        if not iteration.get("name") or iteration.get("name") in {"待确认", "draft"}:
+            errors.append("当前迭代名称未确认：config/workflow.json currentIteration.name")
+        memory_initialized = iteration.get("memoryInitialized")
+        if not memory_initialized:
+            errors.append("项目记忆基线未标记为当前迭代已初始化：currentIteration.memoryInitialized")
+        elif not isinstance(memory_initialized, bool):
+            errors.append("currentIteration.memoryInitialized 必须是布尔值 (true/false)，不能是字符串")
+    if stage in {"s7", "s8", "s9", "final"} and not gates.get("requireStepVerification", True):
+        errors.append("验证门禁被关闭：gates.requireStepVerification 必须为 true")
+    check_workflow_stage_log_consistency(target, workflow, stage, errors, completing_stage)
+
+
+def check_workflow_stage_log_consistency(
+    target: Path, workflow: dict, stage: str, errors: list[str], completing_stage: str | None = None
+) -> None:
+    if stage not in {"s6", "s7", "s8", "s9", "final"}:
+        return
+    stages = workflow.get("stages", {})
+    if not isinstance(stages, dict):
+        return
+    # When loop_run.py is actively re-completing a stage (e.g. complete --force),
+    # it rolls that stage's workflow status back to "pending" BEFORE re-running
+    # this gate, so the stage's prior pass record in stage-log is transiently
+    # inconsistent with workflow by design. Exempt only that one stage; every
+    # other stage stays checked, and a standalone preflight run (no
+    # --completing-stage) keeps full strictness.
+    exempt = (completing_stage or "").strip().upper()
+    records = stage_log_records(target)
+    for record in records:
+        stage_value = record.get("stage", "").strip().upper()
+        match = re.search(r"S(?:10|11|0|1|2|3|4|5|6|7|8|9)", stage_value)
+        if not match:
+            continue
+        stage_id = match.group(0)
+        if stage_id not in EXPECTED_PREFLIGHT_BY_STAGE:
+            continue
+        if exempt and stage_id == exempt:
+            continue
+        if value_is_pass(record.get("gate_result", "")):
+            workflow_status = str(stages.get(stage_id.lower(), "")).strip().lower()
+            if workflow_status and workflow_status != "completed":
+                errors.append(
+                    f"阶段状态不一致：memory/stage-log.md 记录 {stage_id} pass，但 config/workflow.json stages.{stage_id.lower()}={workflow_status}"
+                )
+
+
+def check_current_iteration_baseline(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s6", "s7", "s8", "s9", "final"}:
+        return
+    workflow = load_json(target / "config" / "workflow.json", errors)
+    iteration_name = workflow.get("currentIteration", {}).get("name")
+    if not iteration_name or iteration_name in {"待确认", "draft"}:
+        return
+    project_memory = target / "memory" / "project.md"
+    if not project_memory.exists():
+        return
+    lines = read_text(project_memory).splitlines()
+    first_content = "\n".join(lines[:40])
+    first_heading = next((line.strip() for line in lines if line.strip().startswith("#")), "")
+    # Use word-boundary matching so short names like "v1" don't spuriously
+    # match inside longer tokens like "v10" or "v1.0-backup".
+    iter_pat = re.compile(r"\b" + re.escape(iteration_name) + r"\b")
+    if not iter_pat.search(first_content):
+        errors.append(
+            f"项目记忆顶部未声明当前迭代 `{iteration_name}`，可能未基于本轮启动规划初始化"
+        )
+    if first_heading and not iter_pat.search(first_heading) and "当前迭代" not in first_content:
+        errors.append(
+            f"项目记忆标题未反映当前迭代：首个标题为 `{first_heading}`，当前迭代为 `{iteration_name}`"
+        )
+
+
+def check_project_startup_plan(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s4", "s6", "s7", "s8", "s9", "final"}:
+        return
+    path = target / STARTUP_PLAN_PATH
+    if not path.exists():
+        errors.append(f"缺失项目启动规划：{STARTUP_PLAN_PATH}")
+        return
+    text = read_text(path)
+    for section in STARTUP_PLAN_REQUIRED_SECTIONS:
+        if section not in text:
+            errors.append(f"项目启动规划缺少章节：{section}")
+    if contains_unresolved_placeholder(text):
+        errors.append(f"项目启动规划仍包含占位内容：{STARTUP_PLAN_PATH}")
+    workflow = load_json(target / "config" / "workflow.json", errors)
+    frozen = workflow.get("frozenArtifacts", {})
+    startup_freeze = frozen.get(STARTUP_PLAN_PATH, {}) if isinstance(frozen, dict) else {}
+    expected_hash = startup_freeze.get("sha256") if isinstance(startup_freeze, dict) else None
+    if not expected_hash:
+        errors.append(f"项目启动规划未在 S2 冻结：config/workflow.json frozenArtifacts.{STARTUP_PLAN_PATH}.sha256")
+        return
+    current_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+    if current_hash != expected_hash:
+        errors.append(f"项目启动规划已在 S2 冻结后被修改：{STARTUP_PLAN_PATH}")
+
+
+def check_project_context_bootstrap(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s6", "s7", "s8", "s9", "final"}:
+        return
+    claude = target / "CLAUDE.md"
+    project = target / "memory" / "project.md"
+    sources = target / "memory" / "source-materials.md"
+    if claude.exists():
+        claude_text = read_text(claude)
+        for marker in CLAUDE_REQUIRED_MARKERS:
+            if marker not in claude_text:
+                errors.append(f"CLAUDE.md 缺少总体执行规则或记忆引用：{marker}")
+        if contains_unresolved_placeholder(claude_text):
+            errors.append("CLAUDE.md 仍包含占位内容，不能作为项目级执行规则")
+    if project.exists():
+        project_text = read_text(project)
+        for marker in PROJECT_MEMORY_REQUIRED_SECTIONS:
+            if marker not in project_text:
+                errors.append(f"项目记忆缺少必需章节：{marker}")
+        if contains_unresolved_placeholder(project_text):
+            errors.append("项目记忆仍包含占位内容：memory/project.md")
+    if sources.exists():
+        source_text = read_text(sources)
+        if "SRC-" not in source_text and "No external source" not in source_text:
+            errors.append("资料记录缺少 SRC-* 来源编号，也未声明 No external source：memory/source-materials.md")
+
+
+def markdown_table_rows(path: Path, min_cells: int) -> list[list[str]]:
+    if not path.exists():
+        return []
+    rows: list[list[str]] = []
+    fence_depth = 0
+    for raw_line in read_text(path).splitlines():
+        line = raw_line.strip()
+        if line.startswith(("```", "~~~")):
+            fence_depth = fence_depth - 1 if fence_depth > 0 else 1
+            continue
+        if fence_depth > 0:
+            continue
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if is_markdown_table_separator(cells):
+            continue
+        if len(cells) >= min_cells:
+            rows.append(cells)
+    return rows
+
+
+def is_markdown_table_separator(cells: list[str]) -> bool:
+    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells)
+
+
+def feature_rows(target: Path) -> list[dict[str, str]]:
+    path = target / "memory" / "feature-list.md"
+    headers: list[str] = []
+    rows: list[dict[str, str]] = []
+    for cells in markdown_table_rows(path, 9):
+        first = cells[0].strip().lower()
+        if first in {"feature id", "function id", "功能 id", "功能编号"}:
+            headers = [cell.strip().lower() for cell in cells]
+            continue
+        if not re.fullmatch(r"FUNC-\d{3,}", cells[0]):
+            continue
+        by_header = {header: cells[index] if index < len(cells) else "" for index, header in enumerate(headers)}
+
+        def pick(*names: str, fallback: int) -> str:
+            for name in names:
+                value = by_header.get(name.lower())
+                if value is not None:
+                    return value
+            return cells[fallback] if fallback < len(cells) else ""
+
+        rows.append({
+            "id": cells[0],
+            "version": pick("version", "版本", fallback=1),
+            "module_l1": pick("一级模块", "module l1", "module_l1", fallback=2),
+            "module_l2": pick("二级模块", "module l2", "module_l2", fallback=3),
+            "module_l3": pick("三级模块", "module l3", "module_l3", fallback=4),
+            "name": pick("功能名称", "name", "feature name", fallback=5),
+            "description": pick("功能说明", "description", "feature description", fallback=6),
+            "notes": pick("备注", "notes", fallback=7),
+            "change_type": pick("修改类型", "change type", "change_type", fallback=8),
+        })
+    return rows
+
+
+def check_feature_list(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s6", "s7", "s8", "s9", "final"}:
+        return
+    rows = feature_rows(target)
+    if not rows:
+        errors.append("功能清单缺少有效 FUNC-* 行：memory/feature-list.md")
+        return
+    seen: set[str] = set()
+    allowed_changes = {"new", "iteration", "新增", "迭代"}
+    for row in rows:
+        feature_id = row["id"]
+        if feature_id in seen:
+            errors.append(f"功能清单存在重复 ID：{feature_id}")
+        seen.add(feature_id)
+        for key in ("version", "module_l1", "module_l2", "name", "description"):
+            if value_is_empty(row[key]) or contains_unresolved_placeholder(row[key]):
+                errors.append(f"功能清单 {feature_id} 缺少有效字段：{key}")
+        if row["change_type"].strip().lower() not in {value.lower() for value in allowed_changes}:
+            errors.append(f"功能清单 {feature_id} 修改类型只允许新增/迭代：{row['change_type']}")
+    analysis = load_json_silent(target / "config" / "requirement-analysis.json")
+    if analysis.get("mode") == "imported":
+        expected = set(imported_analysis_metadata(target).get("featureIds", []))
+        if seen != expected:
+            errors.append(
+                "原型功能清单 FUNC-* 与冻结需求分析基线不一致："
+                f"missing={', '.join(sorted(expected - seen)) or 'none'}; "
+                f"extra={', '.join(sorted(seen - expected)) or 'none'}"
+            )
+
+
+def source_material_ids(target: Path) -> set[str]:
+    path = target / "memory" / "source-materials.md"
+    if not path.exists():
+        return set()
+    ids: set[str] = set()
+    for cells in markdown_table_rows(path, 6):
+        if cells[0].lower() in {"source id", "来源 id"}:
+            continue
+        if re.match(r"^SRC-\d+$", cells[0]):
+            ids.add(cells[0])
+    return ids
+
+
+def field_map_ids(target: Path) -> set[str]:
+    return {row["field_id"] for row in field_rows(target)}
+
+
+def field_rows(target: Path) -> list[dict[str, str]]:
+    path = target / "memory" / "field-map.md"
+    if not path.exists():
+        return []
+    rows: list[dict[str, str]] = []
+    headers: list[str] = []
+    for cells in markdown_table_rows(path, 10):
+        if cells[0].lower() in {"field id", "字段 id"}:
+            headers = [cell.strip().lower() for cell in cells]
+            continue
+        if not re.match(r"^FLD-\d+$", cells[0]):
+            continue
+        by_header = {
+            header: cells[index] if index < len(cells) else ""
+            for index, header in enumerate(headers)
+        }
+        rows.append(
+            {
+                "field_id": cells[0],
+                "source_id": cells[1],
+                "page_area": cells[2],
+                "data_field": cells[3],
+                "display_name": cells[4],
+                "business_definition": by_header.get("business definition", ""),
+                "value_logic": by_header.get("value logic", ""),
+                "display_format": by_header.get("display format", cells[5] if len(cells) > 5 else ""),
+                "enum_mapping": by_header.get("enum / mapping", cells[6] if len(cells) > 6 else ""),
+                "empty_error_rule": by_header.get("empty / error rule", cells[7] if len(cells) > 7 else ""),
+                "annotation_point": by_header.get("annotation point", cells[8] if len(cells) > 8 else ""),
+                "used_in": by_header.get("used in", cells[9] if len(cells) > 9 else ""),
+            }
+        )
+    return rows
+
+
+def field_map_declares_no_source(target: Path) -> bool:
+    path = target / "memory" / "field-map.md"
+    if not path.exists():
+        return False
+    pattern = re.compile(r"^\s*(?:[-*]\s*)?No field-level source\s*[:：|-]", re.IGNORECASE)
+    return any(pattern.search(line.strip()) for line in read_text(path).splitlines())
+
+
+def check_field_map(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s6", "s7", "s8", "s9", "final"}:
+        return
+    path = target / "memory" / "field-map.md"
+    if not path.exists():
+        errors.append("缺失字段映射：memory/field-map.md")
+        return
+    rows = field_rows(target)
+    if field_map_declares_no_source(target):
+        if rows:
+            errors.append("字段映射声明 No field-level source，但仍包含 FLD-* 字段行：memory/field-map.md")
+        return
+    if not rows:
+        errors.append("字段映射缺少 FLD-* 字段行：memory/field-map.md")
+        return
+    source_ids = source_material_ids(target)
+    for row in rows:
+        if not re.match(r"^FLD-\d+$", row["field_id"]):
+            errors.append(f"字段映射 Field ID 格式错误：{row['field_id']}")
+        if not re.match(r"^SRC-\d+$", row["source_id"]):
+            errors.append(f"字段映射 Source ID 必须引用 SRC-*：{row['field_id']}")
+        elif row["source_id"] not in source_ids:
+            errors.append(f"字段映射引用了不存在的 Source ID：{row['field_id']} -> {row['source_id']}")
+        required_keys = [
+            "page_area",
+            "data_field",
+            "display_name",
+            "business_definition",
+            "value_logic",
+            "display_format",
+            "used_in",
+        ]
+        if requested_deliverables(target)["annotations"]:
+            required_keys.append("annotation_point")
+        for key in required_keys:
+            if value_is_empty(row[key]) or contains_unresolved_placeholder(row[key]):
+                errors.append(f"字段映射 {row['field_id']} 缺少有效字段：{key}")
+        if row["business_definition"].strip() == row["display_name"].strip():
+            errors.append(f"字段映射 {row['field_id']} 的业务定义不能只重复展示名称")
+
+
+def check_stage_log(target: Path, stage: str, errors: list[str]) -> None:
+    required_stages = REQUIRED_STAGE_LOGS_BY_STAGE.get(stage, [])
+    if not required_stages:
+        return
+    path = target / "memory" / "stage-log.md"
+    if not path.exists():
+        errors.append("缺失阶段日志：memory/stage-log.md")
+        return
+    records = stage_log_records(target)
+    latest_by_stage: dict[str, dict[str, str]] = {}
+    for record in records:
+        stage_value = record.get("stage", "").strip().upper()
+        match = re.search(r"S(?:10|11|0|1|2|3|4|5|6|7|8|9)", stage_value)
+        if match:
+            latest_by_stage[match.group(0)] = record
+    for required in required_stages:
+        record = latest_by_stage.get(required)
+        if not record:
+            errors.append(f"阶段日志缺少完成记录：{required}")
+            continue
+        gate_result = record.get("gate_result", "")
+        blocked_by = record.get("blocked_by", "")
+        if not value_is_pass(gate_result):
+            errors.append(f"阶段日志未标记为通过：{required} Gate Result={gate_result or '空'}")
+        if record.get("writer") != "tools/loop_run.py":
+            errors.append(f"阶段日志 {required} 缺少脚本写入标记：writer=tools/loop_run.py")
+        record_id = record.get("record_id", "")
+        if not record_id:
+            errors.append(f"阶段日志 {required} 缺少防伪字段：record_id")
+        else:
+            stage_val = record.get("stage", "").strip()
+            date_val = record.get("date", "").strip()
+            expected_v2 = expected_record_id_v2(target, stage_val, date_val)
+            expected_legacy = expected_record_id_legacy(stage_val, date_val)
+            version = record.get("record_id_version", "").strip()
+            if version == "project-salted-v2":
+                if record_id != expected_v2:
+                    errors.append(
+                        f"阶段日志 {required} record_id 与 projectId+stage+date 不一致，疑似被手工改写而非脚本写入"
+                    )
+            elif record_id not in {expected_v2, expected_legacy}:
+                errors.append(
+                    f"阶段日志 {required} record_id 与 projectId+stage+date 或 legacy stage+date 均不一致，疑似被手工改写"
+                )
+        if not record.get("preflight_result_hash"):
+            errors.append(f"阶段日志 {required} 缺少防伪字段：preflight_result_hash")
+        if blocked_by and not value_is_empty(blocked_by):
+            errors.append(f"阶段日志仍记录阻塞项：{required} Blocked By={blocked_by}")
+        expected_next = {
+            "S0": "S1",
+            "S1": "S2",
+            "S2": "S3",
+            "S3": "S4",
+            "S4": "S5",
+            "S5": "S6",
+            "S6": "S7",
+            "S7": "S8",
+            "S8": "S9",
+            "S9": "none",
+        }.get(required)
+        if expected_next and record.get("next_stage") != expected_next:
+            errors.append(
+                f"阶段日志 {required} next_stage 不正确：需要 {expected_next}，实际为 {record.get('next_stage') or '空'}"
+            )
+        expected_preflight = EXPECTED_PREFLIGHT_BY_STAGE.get(required)
+        preflight = record.get("preflight", "")
+        if expected_preflight and f"--stage {expected_preflight}" not in preflight:
+            errors.append(
+                f"阶段日志 {required} 缺少对应预检命令：需要 --stage {expected_preflight}，实际为 {preflight or '空'}"
+            )
+
+
+def stage_log_records(target: Path) -> list[dict[str, str]]:
+    return parse_key_value_records(
+        target / "memory" / "stage-log.md",
+        key_map={
+            "date": "date",
+            "writer": "writer",
+            "record_id": "record_id",
+            "preflight_result_hash": "preflight_result_hash",
+            "stage": "stage",
+            "stage_name": "stage_name",
+            "input_artifacts": "input_artifacts",
+            "output_artifacts": "output_artifacts",
+            "preflight": "preflight",
+            "gate_result": "gate_result",
+            "decision": "decision",
+            "next_stage": "next_stage",
+            "blocked_by": "blocked_by",
+            "notes": "notes",
+        },
+        record_start_key="stage",
+    )
+
+
+def check_control_tool_boundary(target: Path, errors: list[str]) -> None:
+    control_tool = target / "tools" / "prototype-loop-orchestrator"
+    if not control_tool.exists():
+        return
+    if not control_tool.is_dir():
+        errors.append("tools/prototype-loop-orchestrator 存在但不是目录")
+        return
+    # Presence is valid; only report if loop artifacts incorrectly point to it.
+    tracked_files = [
+        "memory/execution-steps.md",
+        "memory/acceptance-map.md",
+        "memory/change-log.md",
+        "memory/verification-log.md",
+        "annotations/annotations.js",
+    ]
+    for relative in tracked_files:
+        path = target / relative
+        if path.exists() and "tools/prototype-loop-orchestrator" in read_text(path):
+            errors.append(f"业务产物不应引用总控工具包作为实现或交付内容：{relative}")
+
+
+def load_circuit_state(target: Path, errors: list[str]) -> dict:
+    path = target / "memory" / "circuit-state.json"
+    if not path.exists():
+        return {}
+    return load_json(path, errors)
+
+
+def check_circuit_breaker(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s7", "s8", "s9", "final"}:
+        return
+    circuit_path = target / "memory" / "circuit-state.json"
+    if not circuit_path.exists():
+        return
+    state = load_circuit_state(target, errors)
+    if "failures" not in state:
+        errors.append("熔断状态结构缺失：memory/circuit-state.json 必须包含 failures 字段（可为空数组）")
+        return
+    threshold = int(GATE_CONFIG.get("circuit_breaker", {}).get("threshold", 3))
+    if "threshold" in state:
+        try:
+            state_threshold = int(state.get("threshold"))
+        except (TypeError, ValueError):
+            errors.append("熔断状态格式错误：memory/circuit-state.json threshold 必须是数字")
+            return
+        if state_threshold != threshold:
+            errors.append(
+                f"熔断阈值不得由项目状态文件覆盖：circuit-state.json threshold={state_threshold}，控制层 threshold={threshold}"
+            )
+    failures = state.get("failures", [])
+    if not isinstance(failures, list):
+        errors.append("熔断状态格式错误：memory/circuit-state.json failures 必须是数组")
+        return
+    for item in failures:
+        if not isinstance(item, dict):
+            errors.append("熔断状态格式错误：failures 中每项必须是对象")
+            continue
+        try:
+            count = int(item.get("consecutiveFailures", 0))
+        except (TypeError, ValueError):
+            errors.append("熔断状态格式错误：consecutiveFailures 必须是数字")
+            continue
+        if count >= threshold:
+            step = item.get("stepId") or "unknown-step"
+            checkpoint = item.get("checkpoint") or "unknown-checkpoint"
+            summary = item.get("lastError") or "未记录错误摘要"
+            errors.append(
+                f"熔断已触发：{step} / {checkpoint} 连续失败 {count} 次，最近错误：{summary}"
+            )
+
+
+def extract_step_ids(target: Path) -> list[str]:
+    path = target / "memory" / "execution-steps.md"
+    if not path.exists():
+        return []
+    steps: list[str] = []
+    # Anchor on '## 步骤/Step N' headings only — matching bare prose like
+    # "参考步骤 2" would invent phantom steps that later fail the per-step
+    # verification check. Stays consistent with extract_step_blocks().
+    for line in read_text(path).splitlines():
+        match = re.match(r"^\s*##\s*(?:步骤|Step)\s*0*(\d+)", line, re.IGNORECASE)
+        if match:
+            step_id = f"step-{int(match.group(1)):02d}"
+            if step_id not in steps:
+                steps.append(step_id)
+    return steps
+
+
+def parse_key_value_records(
+    path: Path,
+    key_map: dict[str, str],
+    record_start_key: str,
+) -> list[dict[str, str]]:
+    if not path.exists():
+        return []
+    records: list[dict[str, str]] = []
+    current: dict[str, str] = {}
+    fence_depth = 0
+    for raw_line in read_text(path).splitlines():
+        stripped = raw_line.strip()
+        if stripped.startswith(("```", "~~~")):
+            fence_depth = fence_depth - 1 if fence_depth > 0 else 1
+            continue
+        if fence_depth > 0:
+            continue
+        line = raw_line.strip().removeprefix("- ").removeprefix("-")
+        if not line or ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        normalized = key.strip().lower().replace(" ", "_")
+        mapped = key_map.get(normalized)
+        if not mapped:
+            continue
+        if mapped == "date" and current and record_start_key in current:
+            records.append(current)
+            current = {}
+        if mapped == record_start_key and current and record_start_key in current:
+            records.append(current)
+            current = {}
+        current[mapped] = value.strip()
+    if current:
+        records.append(current)
+    return records
+
+
+def parse_verification_records(target: Path) -> list[dict[str, str]]:
+    return parse_key_value_records(
+        target / "memory" / "verification-log.md",
+        key_map={
+            "step": "step",
+            "step_id": "step",
+            "scope": "scope",
+            "result": "result",
+        "date": "date",
+        "timestamp": "date",
+        "local_url_/_file": "local_url_file",
+        "local_url": "local_url_file",
+        "file": "local_url_file",
+        "tool": "tool",
+        "command_/_check": "command_check",
+        "command": "command_check",
+        "check": "command_check",
+        "passed": "passed",
+        "failed": "failed",
+        "evidence": "evidence",
+        "consecutive_failures": "consecutive_failures",
+        "next_action": "next_action",
+        },
+        record_start_key="step",
+    )
+
+
+def normalize_step(value: str) -> str:
+    match = re.search(r"0*(\d+)", value)
+    if not match:
+        return value.strip().lower()
+    return f"step-{int(match.group(1)):02d}"
+
+
+def extract_step_blocks(target: Path) -> list[tuple[str, str]]:
+    path = target / "memory" / "execution-steps.md"
+    if not path.exists():
+        return []
+    text = read_text(path)
+    matches = list(re.finditer(r"^##\s*(?:步骤|Step)\s*0*(\d+).*", text, re.IGNORECASE | re.MULTILINE))
+    blocks: list[tuple[str, str]] = []
+    for index, match in enumerate(matches):
+        start = match.start()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        blocks.append((f"step-{int(match.group(1)):02d}", text[start:end]))
+    return blocks
+
+
+def check_execution_step_format(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s7", "s8", "s9", "final"}:
+        return
+    blocks = extract_step_blocks(target)
+    if not blocks:
+        errors.append("执行步骤缺失：memory/execution-steps.md 未找到 Step/步骤 标题")
+        return
+    required_sections = {
+        "Files/文件": ["### Files", "### 文件"],
+        "Expected Change/预期变更类型": ["### Expected Change", "### 预期变更"],
+        "Acceptance/验收": ["### Acceptance", "### 验收"],
+        "Verification/验证": ["### Verification", "### 验证"],
+        "Verification Skill/验证技能": ["### Verification Skill", "### 验证技能"],
+    }
+    annotations_requested = requested_deliverables(target)["annotations"]
+    if annotations_requested:
+        required_sections["Annotation Impact/标注影响"] = [
+            "### Annotation Impact",
+            "### 标注影响",
+        ]
+    for step_id, block in blocks:
+        for label, markers in required_sections.items():
+            if not any(marker.lower() in block.lower() for marker in markers):
+                errors.append(f"执行步骤 {step_id} 缺少必需字段：{label}")
+        if not annotations_requested:
+            continue
+        required_match = re.search(
+            r"annotation-required\s*:\s*(yes|no)",
+            block,
+            flags=re.IGNORECASE,
+        )
+        if not required_match:
+            errors.append(f"执行步骤 {step_id} 缺少 annotation-required: yes | no")
+        elif required_match.group(1).lower() == "yes":
+            targets_match = re.search(
+                r"annotation-targets\s*:\s*(.+)",
+                block,
+                flags=re.IGNORECASE,
+            )
+            if not targets_match or value_is_empty(targets_match.group(1)) or "none" == targets_match.group(1).strip().lower():
+                errors.append(
+                    f"执行步骤 {step_id} 需要标注但缺少 annotation-targets 的页面、功能、kind 和字段合同"
+                )
+
+
+def acceptance_rows(target: Path) -> list[dict[str, str]]:
+    path = target / "memory" / "acceptance-map.md"
+    if not path.exists():
+        return []
+    rows: list[dict[str, str]] = []
+    fence_depth = 0
+    for raw_line in read_text(path).splitlines():
+        line = raw_line.strip()
+        if line.startswith(("```", "~~~")):
+            fence_depth = fence_depth - 1 if fence_depth > 0 else 1
+            continue
+        if fence_depth > 0:
+            continue
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if is_markdown_table_separator(cells):
+            continue
+        if len(cells) < 5 or cells[0].lower() in {"requirement id", "需求 id"}:
+            continue
+        rows.append(
+            {
+                "id": cells[0],
+                "requirement": cells[1],
+                "acceptance": cells[2],
+                "verification": cells[3],
+                "status": cells[4],
+                "reason": cells[5] if len(cells) > 5 else "",
+                "source_ids": cells[6] if len(cells) > 6 else "",
+            }
+        )
+    return rows
+
+
+def check_acceptance_map(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s7", "s8", "s9", "final"}:
+        return
+    rows = acceptance_rows(target)
+    if not rows:
+        errors.append("验收映射缺少需求行：memory/acceptance-map.md")
+        return
+    for row in rows:
+        if any(value_is_empty(row[key]) for key in ["id", "requirement", "acceptance", "verification", "status"]):
+            errors.append(f"验收映射存在空字段：{row.get('id') or 'unknown'}")
+        if not re.match(r"^R-\d+$", row["id"]):
+            errors.append(f"验收映射 Requirement ID 格式错误：{row['id']}，应使用 R-001")
+        if contains_unresolved_placeholder(" | ".join(row.values())):
+            errors.append(f"验收映射仍包含占位内容：{row['id']}")
+    analysis = load_json_silent(target / "config" / "requirement-analysis.json")
+    if analysis.get("mode") == "imported":
+        metadata = imported_analysis_metadata(target)
+        required = {
+            str(value)
+            for value in metadata.get("requiredSourceIds", [])
+            if isinstance(value, str) and value
+        }
+        allowed: set[str] = set(required)
+        for key in ("acceptanceIds", "scenarioIds", "sequenceIds", "interfaceIds"):
+            allowed.update(str(value) for value in metadata.get(key, []) if isinstance(value, str) and value)
+        covered: set[str] = set()
+        for row in rows:
+            raw_sources = row.get("source_ids", "").strip()
+            if value_is_empty(raw_sources):
+                errors.append(f"导入基线模式下验收映射缺少 Source IDs：{row['id']}")
+                continue
+            tokens = set(re.findall(r"\b(?:AC|SC|SEQ|API|FUNC|PAGE|ACTION)-\d{3,}\b", raw_sources))
+            if not tokens and "LOCAL" not in raw_sources.upper():
+                errors.append(f"验收映射 Source IDs 不包含有效上游 ID 或 LOCAL：{row['id']}")
+            unknown = tokens - allowed
+            if unknown:
+                errors.append(f"验收映射引用未知上游 ID：{row['id']} -> {', '.join(sorted(unknown))}")
+            covered.update(tokens & required)
+        missing_sources = sorted(required - covered)
+        if missing_sources:
+            preview = ", ".join(missing_sources[:20])
+            if len(missing_sources) > 20:
+                preview += f", ... +{len(missing_sources) - 20}"
+            errors.append(f"验收映射未覆盖全部冻结需求 ID：{preview}")
+    if stage in {"s8", "s9", "final"}:
+        for row in rows:
+            status_norm = row["status"].strip().lower()
+            if status_norm not in {s.lower() for s in TERMINAL_STATUS_VALUES}:
+                errors.append(f"验收映射未明确通过或标记为不适用：{row['id']} Status={row['status']}")
+            elif status_norm in {s.lower() for s in NON_PASS_TERMINAL_STATUS_VALUES}:
+                reason = row.get("reason", "").strip()
+                if value_is_empty(reason) or contains_unresolved_placeholder(reason) or len(reason) < 8:
+                    errors.append(
+                        f"验收映射 {row['id']} Status={row['status']}，但缺少 Decision / Reason；"
+                        "跳过、延期、移出范围或不适用必须说明原因"
+                    )
+
+
+def check_verification_records(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s8", "s9", "final"}:
+        return
+    records = parse_verification_records(target)
+    if not records:
+        errors.append("验证日志缺少机器可读记录；必须包含 Step/Scope/Result 等键值行")
+        return
+    planned_steps = set(extract_step_ids(target))
+    for record in records:
+        result = record.get("result", "").lower()
+        scope = record.get("scope", "").lower()
+        step = normalize_step(record.get("step", ""))
+        failed = record.get("failed", "")
+        evidence = record.get("evidence", "")
+        for key in ["local_url_file", "tool", "command_check", "passed", "evidence", "consecutive_failures"]:
+            if value_is_empty(record.get(key, "")):
+                errors.append(f"验证日志 {step or 'unknown'} 缺少有效字段：{key}")
+        if result == "pass" and len(evidence.strip()) < 20:
+            errors.append(f"验证日志 {step or 'unknown'} Evidence 过短，不能支撑通过结论")
+        command_check_val = record.get("command_check", "").strip()
+        cc_norm = re.sub(r"\s+", " ", command_check_val.lower()).strip().rstrip(";").strip()
+        if (
+            cc_norm in TRIVIAL_COMMANDS
+            or cc_norm in {"true", ":", "echo"}
+            or cc_norm.startswith(TRIVIAL_COMMAND_LEADERS)
+        ):
+            errors.append(f"验证记录 {step or 'unknown'} Command/Check 是无效占位命令：{command_check_val}")
+        failed_norm = failed.strip()
+        failed_is_clear = value_is_empty(failed_norm) or re.fullmatch(
+            r"0+\s*(?:个|项|error\(s\)?|errors?|failures?)?", failed_norm, re.IGNORECASE
+        ) is not None
+        if result == "pass" and failed_norm and not failed_is_clear:
+            errors.append(f"验证记录矛盾：{step} Result=pass 但 Failed={failed}")
+        if result == "pass" and evidence_indicates_failure(evidence):
+            errors.append(f"验证记录矛盾：{step} Result=pass 但 Evidence 仍显示失败或未完成：{evidence}")
+        if result == "pass":
+            passed_val = record.get("passed", "").strip().lower()
+            if passed_val in {"false", "0", "no", "否", "失败", "fail", "failed"}:
+                errors.append(f"验证记录矛盾：{step} Result=pass 但 Passed={record.get('passed', '')}")
+            cf_raw = record.get("consecutive_failures", "").strip()
+            if cf_raw:
+                try:
+                    if int(cf_raw) > 0:
+                        errors.append(f"验证记录矛盾：{step} Result=pass 但 Consecutive Failures={cf_raw}")
+                except ValueError:
+                    pass
+        if scope == "step" and result in {"pass", "fail"} and step not in planned_steps:
+            errors.append(f"验证日志包含未在 execution-steps.md 中定义的步骤：{step}")
+    passed_steps = {
+        normalize_step(record.get("step", ""))
+        for record in records
+        if record.get("result", "").lower() == "pass"
+        and record.get("scope", "").lower() == "step"
+    }
+    for step_id in extract_step_ids(target):
+        if step_id not in passed_steps:
+            errors.append(f"验证日志缺少执行步骤 pass 记录：{step_id}")
+    if stage in {"s9", "final"}:
+        has_global_pass = any(
+            record.get("result", "").lower() == "pass"
+            and record.get("scope", "").lower() == "global"
+            for record in records
+        )
+        if not has_global_pass:
+            errors.append("验证日志缺少全局验证 pass 记录")
+
+
+def evidence_indicates_failure(evidence: str) -> bool:
+    lowered = evidence.strip().lower()
+    if not lowered:
+        return True
+    # Neutralize explicit zero-count phrases in BOTH orders ("0 error(s)" and
+    # "error(s): 0") so a clean result is never misread as a failure. Only a
+    # non-zero failure marker that survives neutralization counts.
+    zero = r"(?:0+|no|none|zero|无|零)"
+    errword = r"(?:error\(s\)|errors?|failures?|failure|failed|失败|错误)"
+    neutralized = re.sub(zero + r"\s*个?\s*" + errword, " ", lowered)
+    neutralized = re.sub(errword + r"\s*[:：=]?\s*" + zero + r"\b", " ", neutralized)
+    failure_markers = [
+        "heading toward 0",
+        "reduced from",
+        "errors to",
+        "error(s)",
+        "errors",  # plural only; singular "error" left out so "error handling" is not flagged
+        "failed",
+        "failure",
+        "未通过",
+        "失败",
+        "仍有",
+        "还有",
+    ]
+    # No affirmative pass phrase is required: absence of failure language is not
+    # itself a failure (evidence length/structure is enforced elsewhere).
+    return any(marker in neutralized for marker in failure_markers)
+
+
+def _scan_balanced_json_literal(text: str, start: int) -> str | None:
+    if start >= len(text) or text[start] not in "[{":
+        return None
+    opener = text[start]
+    closer = "}" if opener == "{" else "]"
+    stack = [closer]
+    in_string = False
+    quote = ""
+    escaped = False
+    for index in range(start + 1, len(text)):
+        char = text[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                in_string = False
+            continue
+        if char in {'"', "'"}:
+            # Strict mode ultimately requires JSON double-quoted strings, but
+            # single-quote awareness keeps brace scanning from slicing wrongly
+            # before json.loads reports the format error.
+            in_string = True
+            quote = char
+            continue
+        if char in "[{":
+            stack.append("}" if char == "{" else "]")
+            continue
+        if char in "}]":
+            if not stack or char != stack[-1]:
+                return None
+            stack.pop()
+            if not stack:
+                return text[start:index + 1]
+    return None
+
+
+def _annotation_json_literal(text: str) -> str | None:
+    compact = re.sub(r"\s+", "", text)
+    if compact in {"window.AnnotationData={};", "window.AnnotationData=window.AnnotationData||{};", "AnnotationData={};"}:
+        return "{}"
+    assignment = re.search(r"(?:window\.)?AnnotationData\s*=", text)
+    if not assignment:
+        return None
+    index = assignment.end()
+    while index < len(text) and text[index].isspace():
+        index += 1
+    # Support the template fallback form without executing it.
+    fallback = re.match(r"(?:window\.)?AnnotationData\s*\|\|\s*", text[index:])
+    if fallback:
+        index += fallback.end()
+        while index < len(text) and text[index].isspace():
+            index += 1
+    return _scan_balanced_json_literal(text, index)
+
+
+def _annotation_entries_from_data(data: object) -> list[dict]:
+    out: list[dict] = []
+
+    def push_items(page: str, items: object) -> None:
+        if not isinstance(items, list):
+            return
+        for item in items:
+            if isinstance(item, dict):
+                entry = dict(item)
+                entry.setdefault("page", str(entry.get("page") or page or "index"))
+                out.append(entry)
+
+    if isinstance(data, dict):
+        for page, items in data.items():
+            push_items(str(page), items)
+    elif isinstance(data, list):
+        push_items("index", data)
+    return out
+
+
+def load_annotation_entries(target: Path, errors: list[str]) -> list[dict]:
+    path = target / "annotations" / "annotations.js"
+    if not path.exists():
+        return []
+    text = read_text(path)
+    literal = _annotation_json_literal(text)
+    if literal is None:
+        errors.append(
+            "annotations/annotations.js 必须使用严格 JSON 赋值给 window.AnnotationData，"
+            "不能包含可执行 JS 或动态表达式"
+        )
+        return []
+    try:
+        data = json.loads(literal)
+    except json.JSONDecodeError as exc:
+        errors.append(
+            "annotations/annotations.js 不是严格 JSON 标注数据："
+            f"{exc.msg}（第 {exc.lineno} 行第 {exc.colno} 列）"
+        )
+        return []
+    entries = _annotation_entries_from_data(data)
+    if not isinstance(entries, list):
+        errors.append("annotations/annotations.js 未解析出标注数组")
+        return []
+    return entries
+
+
+def annotation_anchor_name(selector: object) -> str:
+    if not isinstance(selector, str):
+        return ""
+    match = re.search(r"\[data-anno=(?:\\?[\"']?)([^\\\]\"']+)(?:\\?[\"']?)\]", selector)
+    return match.group(1).strip() if match else ""
+
+
+def annotation_ref_list(entry: dict, key: str) -> list[str]:
+    value = entry.get(key)
+    if not isinstance(value, list):
+        return []
+    return [item for item in value if isinstance(item, str)]
+
+
+def html_page_key(path: Path, target: Path) -> str:
+    text = read_text(path)
+    match = re.search(r"AnnotationConfig\s*=\s*\{[^}]*\bpage\s*:\s*[\"']([^\"']+)[\"']", text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    if path.name == "index.html":
+        return "index"
+    return path.stem
+
+
+ANNOTATION_KINDS = {
+    "action",
+    "field",
+    "status",
+    "region",
+    "table",
+    "dialog",
+    "chart",
+    "filter",
+}
+ANNOTATION_ATTR_PATTERN = re.compile(
+    r"\b(?P<name>data-anno(?:-page|-label|-kind|-fields)?)\s*=\s*"
+    r"(?:\\?[\"'])(?P<value>.*?)(?:\\?[\"'])",
+    re.IGNORECASE | re.DOTALL,
+)
+ANNOTATION_TAG_PATTERN = re.compile(
+    r"<(?P<tag>[A-Za-z][\w:-]*)\b(?P<attrs>[^<>]*\bdata-anno\s*=\s*"
+    r"(?:\\?[\"']).*?(?:\\?[\"'])[^<>]*)>",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def source_annotation_anchor_contracts(target: Path) -> dict[str, list[dict[str, object]]]:
+    contracts: dict[str, list[dict[str, object]]] = {}
+    source_files = [
+        path
+        for suffix in ("*.html", "*.js")
+        for path in target.rglob(suffix)
+        if not any(part in {".git", ".loop-history", "node_modules", "tools", "annotations"} for part in path.parts)
+        and not path.relative_to(target).as_posix().startswith(
+            ("docs/", "flowcharts/", "related-systems/")
+        )
+    ]
+    for path in sorted(set(source_files)):
+        text = read_text(path)
+        relative = path.relative_to(target).as_posix()
+        default_page = html_page_key(path, target) if path.suffix.lower() == ".html" else ""
+        for match in ANNOTATION_TAG_PATTERN.finditer(text):
+            attrs: dict[str, str] = {}
+            for attr in ANNOTATION_ATTR_PATTERN.finditer(match.group("attrs")):
+                attrs[attr.group("name").lower()] = (
+                    attr.group("value").replace('\\\"', '"').replace("\\'", "'").strip()
+                )
+            anchor = attrs.get("data-anno", "")
+            if not anchor:
+                continue
+            field_refs = [
+                token.strip()
+                for token in re.split(r"[,，\s]+", attrs.get("data-anno-fields", ""))
+                if token.strip()
+            ]
+            line = text.count("\n", 0, match.start()) + 1
+            contracts.setdefault(anchor, []).append(
+                {
+                    "anchor": anchor,
+                    "page": attrs.get("data-anno-page", "") or default_page,
+                    "explicit_page": attrs.get("data-anno-page", ""),
+                    "label": attrs.get("data-anno-label", ""),
+                    "kind": attrs.get("data-anno-kind", ""),
+                    "field_refs": field_refs,
+                    "file": relative,
+                    "line": line,
+                    "tag": match.group("tag").lower(),
+                }
+            )
+    return contracts
+
+
+def source_annotation_anchor_inventory(
+    target: Path,
+) -> tuple[dict[str, set[str]], dict[str, list[str]]]:
+    anchors_by_page: dict[str, set[str]] = {}
+    occurrences: dict[str, list[str]] = {}
+    for anchor, items in source_annotation_anchor_contracts(target).items():
+        for item in items:
+            page = str(item.get("page") or "")
+            if page:
+                anchors_by_page.setdefault(page, set()).add(anchor)
+            occurrences.setdefault(anchor, []).append(f"{item['file']}:{item['line']}")
+    duplicates = {
+        anchor: locations
+        for anchor, locations in occurrences.items()
+        if len(locations) > 1
+    }
+    return anchors_by_page, duplicates
+
+
+def source_annotation_anchors(target: Path) -> dict[str, set[str]]:
+    return source_annotation_anchor_inventory(target)[0]
+
+
+def check_source_annotation_anchor_uniqueness(
+    target: Path, stage: str, errors: list[str]
+) -> None:
+    if stage not in {"s8", "s9", "final"} or not requested_deliverables(target)["annotations"]:
+        return
+    _, duplicates = source_annotation_anchor_inventory(target)
+    for anchor, locations in sorted(duplicates.items()):
+        preview = ", ".join(locations[:6])
+        if len(locations) > 6:
+            preview += f", ... +{len(locations) - 6}"
+        errors.append(
+            "源码 data-anno 锚点必须全局唯一："
+            f"data-anno={anchor} count={len(locations)} locations={preview}"
+        )
+
+
+def check_source_annotation_anchor_contracts(
+    target: Path, stage: str, errors: list[str]
+) -> None:
+    if stage != "final" or not requested_deliverables(target)["annotations"]:
+        return
+    known_fields = field_map_ids(target)
+    broad_tags = {"html", "body", "main", "form"}
+    for anchor, items in sorted(source_annotation_anchor_contracts(target).items()):
+        for item in items:
+            location = f"{item['file']}:{item['line']}"
+            page = str(item.get("explicit_page") or "")
+            label = str(item.get("label") or "")
+            kind = str(item.get("kind") or "")
+            tag = str(item.get("tag") or "")
+            field_refs = [str(ref) for ref in item.get("field_refs", [])]
+            if not page or contains_unresolved_placeholder(page):
+                errors.append(f"源码锚点缺少明确 data-anno-page：data-anno={anchor} {location}")
+            if not label or len(label) < 2 or contains_unresolved_placeholder(label):
+                errors.append(f"源码锚点缺少有效 data-anno-label：data-anno={anchor} {location}")
+            if kind not in ANNOTATION_KINDS:
+                errors.append(
+                    f"源码锚点 data-anno-kind 无效：data-anno={anchor} kind={kind or 'missing'} {location}"
+                )
+            if tag in broad_tags:
+                errors.append(f"源码锚点挂在过大的布局元素上：data-anno={anchor} tag={tag} {location}")
+            if tag in {"div", "section"} and kind and kind != "region":
+                errors.append(
+                    f"源码锚点挂在容器元素但未声明 region：data-anno={anchor} tag={tag} kind={kind} {location}"
+                )
+            for ref in field_refs:
+                if not re.fullmatch(r"FLD-\d+", ref):
+                    errors.append(f"源码锚点 data-anno-fields 格式错误：data-anno={anchor} ref={ref}")
+                elif ref not in known_fields:
+                    errors.append(f"源码锚点引用不存在字段：data-anno={anchor} ref={ref}")
+
+
+ANNOTATION_SECTION_KEYS = [
+    "functionName",
+    "functionDesc",
+    "permissionScope",
+    "dataSource",
+    "valueLogic",
+    "fieldDesc",
+    "interactionDesc",
+    "judgeRule",
+    "exceptionRule",
+    "otherDesc",
+]
+
+
+def check_annotation_semantics(
+    entry: dict,
+    anchor_contract: dict[str, object],
+    errors: list[str],
+) -> None:
+    anno_id = str(entry.get("id") or "unknown")
+    sections = entry.get("sections")
+    if not isinstance(sections, dict):
+        errors.append(f"标注缺少结构化 sections：id={anno_id}")
+        return
+    for key in ANNOTATION_SECTION_KEYS:
+        value = str(sections.get(key) or "").strip()
+        if len(value) < 2 or contains_unresolved_placeholder(value):
+            errors.append(f"标注 sections.{key} 缺少有效解释：id={anno_id}")
+    expected_label = str(anchor_contract.get("label") or "")
+    if str(sections.get("functionName") or "").strip() != expected_label:
+        errors.append(
+            f"标注功能名称与锚点语义不一致：id={anno_id} "
+            f"functionName={sections.get('functionName')} anchorLabel={expected_label}"
+        )
+
+    refs = annotation_ref_list(entry, "fieldRefs")
+    expected_refs = [str(ref) for ref in anchor_contract.get("field_refs", [])]
+    if set(refs) != set(expected_refs):
+        errors.append(
+            f"标注 fieldRefs 与锚点字段合同不一致：id={anno_id} "
+            f"actual={refs} expected={expected_refs}"
+        )
+    field_desc = str(sections.get("fieldDesc") or "")
+    if expected_refs:
+        nonempty_lines = [line.strip() for line in field_desc.splitlines() if line.strip()]
+        if len(nonempty_lines) != len(expected_refs):
+            errors.append(
+                f"标注字段说明必须每个字段独立一行：id={anno_id} "
+                f"lines={len(nonempty_lines)} fields={len(expected_refs)}"
+            )
+        for ref in expected_refs:
+            matching = [line for line in nonempty_lines if re.match(r"^" + re.escape(ref) + r"\b", line)]
+            if len(matching) != 1:
+                errors.append(f"标注字段说明缺少 {ref} 的独立行：id={anno_id}")
+                continue
+            line = matching[0]
+            for marker in ["定义：", "逻辑：", "格式：", "异常："]:
+                if marker not in line:
+                    errors.append(f"标注字段说明 {ref} 缺少 {marker.rstrip('：')}：id={anno_id}")
+
+
+def check_annotations(target: Path, stage: str, errors: list[str]) -> None:
+    if stage != "final" or not requested_deliverables(target)["annotations"]:
+        return
+    if annotation_is_empty(target / "annotations" / "annotations.js"):
+        # S9 is manual-prompt-first. An empty annotations.js is acceptable when
+        # PM will paste memory/annotation-prompt.md into a separate annotation
+        # generation step. If annotations are manually written back, the rest of
+        # this function validates them strictly.
+        return
+    entries = load_annotation_entries(target, errors)
+    if not entries:
+        errors.append("标注数据非空，但没有解析到真实 AnnotationData 标注记录")
+        return
+    ids = [str(entry.get("id") or "").strip() for entry in entries]
+    if any(not item for item in ids):
+        errors.append("标注数据存在缺失 id 的记录；标注 id 必须全局唯一")
+    seen: set[str] = set()
+    duplicated: set[str] = set()
+    for item in ids:
+        if not item:
+            continue
+        if item in seen:
+            duplicated.add(item)
+        seen.add(item)
+    for item in sorted(duplicated):
+        errors.append(f"标注 id 不是全局唯一：{item}")
+    numeric_ids: list[int] = []
+    for item in ids:
+        if not item:
+            continue
+        if not re.fullmatch(r"[1-9]\d*", item):
+            errors.append(f"标注 id 必须是从 1 开始的连续数字字符串，不能按页面重置或使用 slug：id={item}")
+            continue
+        numeric_ids.append(int(item))
+    if numeric_ids and len(numeric_ids) == len([item for item in ids if item]) and not duplicated:
+        expected_ids = list(range(1, len(numeric_ids) + 1))
+        actual_ids = sorted(numeric_ids)
+        if actual_ids != expected_ids:
+            errors.append(
+                "标注 id 必须从 1 开始全局连续编号："
+                f"当前={actual_ids} 期望={expected_ids}"
+            )
+    known_sources = source_material_ids(target)
+    for entry in entries:
+        refs = annotation_ref_list(entry, "sourceRefs")
+        if not refs:
+            errors.append(f"标注数据存在缺失 sourceRefs 的记录：id={entry.get('id') or 'unknown'}")
+        for ref in refs:
+            if ref not in known_sources:
+                errors.append(f"标注 sourceRefs 引用了不存在的来源：{ref}")
+    known_fields = field_map_ids(target)
+    if known_fields:
+        for entry in entries:
+            refs = annotation_ref_list(entry, "fieldRefs")
+            for ref in refs:
+                if ref not in known_fields:
+                    errors.append(f"标注 fieldRefs 引用了不存在的字段：{ref}")
+    else:
+        # No FLD-* rows defined, but annotations may still carry fieldRefs
+        # that reference nothing — flag them.
+        for entry in entries:
+            refs = annotation_ref_list(entry, "fieldRefs")
+            if refs:
+                errors.append(
+                    f"标注数据包含 fieldRefs 但 memory/field-map.md 未定义任何 FLD-* 字段："
+                    f"id={entry.get('id') or 'unknown'} refs={refs}"
+                )
+    anchors_by_page = source_annotation_anchors(target)
+    contracts = source_annotation_anchor_contracts(target)
+    for entry in entries:
+        page = str(entry.get("page") or "index")
+        target_name = annotation_anchor_name(entry.get("target"))
+        if not target_name:
+            errors.append(f"标注 target 格式错误或缺失：id={entry.get('id') or 'unknown'}")
+            continue
+        anchors = anchors_by_page.get(page, set()) | anchors_by_page.get(GLOBAL_ANCHOR_KEY, set())
+        if target_name not in anchors:
+            errors.append(f"标注 target 没有对应页面锚点：page={page} data-anno={target_name}")
+            continue
+        contract_items = [
+            item for item in contracts.get(target_name, []) if str(item.get("page") or "") == page
+        ]
+        if len(contract_items) != 1:
+            errors.append(
+                f"标注 target 无法唯一对应锚点语义合同：page={page} data-anno={target_name}"
+            )
+            continue
+        check_annotation_semantics(entry, contract_items[0], errors)
+
+
+def check_interaction_document(target: Path, stage: str, errors: list[str]) -> None:
+    """Enforce the PM-facing document contract only after an explicit request."""
+    if stage != "final" or not requested_deliverables(target)["interactionDoc"]:
+        return
+    interaction = target / "docs" / "interaction.html"
+    if not interaction.exists():
+        errors.append("缺失功能说明文档：docs/interaction.html")
+        return
+    text = read_text(interaction)
+    if contains_unresolved_placeholder(text) or re.search(
+        r"待补充|待确认|TODO|TBD", text, flags=re.IGNORECASE
+    ):
+        errors.append("功能说明文档仍是初始化模板或含占位内容：docs/interaction.html")
+    if len(text.strip()) < MIN_CONTENT_CHARS.get("docs/interaction.html", 160):
+        errors.append("功能说明文档内容过短，疑似未生成：docs/interaction.html")
+
+    required_markers = [
+        "功能说明文档",
+        "一. 版本说明",
+        "二. 项目范围",
+        "三. 逻辑说明",
+        "四. 功能说明",
+        "五. 其他说明",
+        "版本号",
+        "更新时间",
+        "更新内容",
+        "系统名称",
+        "涉及板块",
+        "功能范围",
+        "对接系统范围",
+        "流程名称",
+        "跳转地址",
+        "../flowcharts/business-process.html",
+        "../flowcharts/sequence-interaction.html",
+        "../related-systems/index.html",
+        "1）功能名称：",
+        "2）交互说明：",
+        "3）数据来源：",
+        "4）逻辑说明：",
+        "5）功能明细",
+        "数据格式",
+        "默认值",
+        "异常处理",
+    ]
+    for marker in required_markers:
+        if marker not in text:
+            errors.append(f"功能说明文档缺少固定结构：{marker}")
+    if "processon" in text.lower():
+        errors.append("功能说明文档不得引用已停用的 ProcessOn 流程图")
+
+    structural_patterns = [
+        (r'class=["\']container["\']', "container 主容器"),
+        (r'class=["\']jump-btn["\']', "jump-btn 跳转按钮"),
+        (r'class=["\']table-wrap["\']', "table-wrap 表格容器"),
+        (r'class=["\']section-divider["\']', "section-divider 功能分隔线"),
+        (r'href=["\']\.\./index\.html["\']', "返回原型的 ../index.html 链接"),
+        (r"\.container\s*\{[^}]*max-width\s*:\s*1180px", "1180px 文档容器"),
+        (r"h1\s*\{[^}]*border-bottom\s*:\s*2px\s+solid\s+#1677ff", "蓝色 H1 分隔线"),
+        (r"\.jump-btn\s*\{[^}]*background\s*:\s*#1677ff", "蓝色跳转按钮"),
+    ]
+    for pattern, label in structural_patterns:
+        if re.search(pattern, text, flags=re.IGNORECASE | re.DOTALL) is None:
+            errors.append(f"功能说明文档未遵循固定视觉基线：{label}")
+
+    forbidden_patterns = [
+        (r'class=["\'][^"\']*\bhero\b', "Hero 区块"),
+        (r'class=["\'][^"\']*\bchips?\b', "标签墙"),
+        (r"linear-gradient\s*\(", "渐变背景"),
+    ]
+    for pattern, label in forbidden_patterns:
+        if re.search(pattern, text, flags=re.IGNORECASE):
+            errors.append(f"功能说明文档不得使用自由发挥的营销式样式：{label}")
+
+
+def check_annotation_prompt(target: Path, stage: str, errors: list[str]) -> None:
+    if stage != "final" or not requested_deliverables(target)["annotations"]:
+        return
+    path = target / "memory" / "annotation-prompt.md"
+    if not path.exists():
+        errors.append("缺失手动标注提示词：memory/annotation-prompt.md")
+        return
+    text = read_text(path)
+    required_markers = [
+        "## 手动标注提示词",
+        "## 标注输入资料",
+        "## 可用 data-anno 锚点清单",
+        "## 标注生成要求",
+        "## 回写说明",
+    ]
+    for marker in required_markers:
+        if marker not in text:
+            errors.append(f"手动标注提示词缺少章节：{marker}")
+    for marker in ["| label:", "| kind:", "| fieldRefs:"]:
+        if marker not in text:
+            errors.append(f"手动标注提示词锚点清单缺少语义字段：{marker}")
+    if contains_unresolved_placeholder(text):
+        errors.append("手动标注提示词仍包含占位内容：memory/annotation-prompt.md")
+    for src_id in source_material_ids(target):
+        if not id_token_present(text, src_id):
+            errors.append(f"手动标注提示词未引用来源：{src_id}")
+    if not field_map_declares_no_source(target):
+        for fld_id in field_map_ids(target):
+            if not id_token_present(text, fld_id):
+                errors.append(f"手动标注提示词未引用字段：{fld_id}")
+    anchors_by_page = source_annotation_anchors(target)
+    available_anchors = sorted(
+        {
+            anchor
+            for page, anchors in anchors_by_page.items()
+            if page != GLOBAL_ANCHOR_KEY
+            for anchor in anchors
+        }
+        | anchors_by_page.get(GLOBAL_ANCHOR_KEY, set())
+    )
+    for anchor in available_anchors:
+        if not id_token_present(text, anchor):
+            errors.append(f"手动标注提示词未列出页面锚点：data-anno={anchor}")
+    for anchor, items in source_annotation_anchor_contracts(target).items():
+        for item in items:
+            for value, label in [
+                (str(item.get("page") or ""), "page"),
+                (str(item.get("label") or ""), "label"),
+                (str(item.get("kind") or ""), "kind"),
+            ]:
+                if value and value not in text:
+                    errors.append(f"手动标注提示词未列出锚点 {anchor} 的 {label}：{value}")
+    # Reverse check: IDs referenced in the prompt that don't exist in source data.
+    known_src = source_material_ids(target)
+    known_fld = field_map_ids(target)
+    for token in extract_id_tokens(text, "SRC"):
+        if token not in known_src:
+            errors.append(f"手动标注提示词引用了不存在的来源：{token}")
+    if known_fld:
+        for token in extract_id_tokens(text, "FLD"):
+            if token not in known_fld:
+                errors.append(f"手动标注提示词引用了不存在的字段：{token}")
+
+
+def extract_id_tokens(text: str, prefix: str) -> set[str]:
+    """Extract all SRC-* or FLD-* tokens from text (whole-token matching)."""
+    return set(
+        match.group(0)
+        for match in re.finditer(
+            r"(?<![\w-])" + re.escape(prefix) + r"-\d+(?![\w-])", text
+        )
+    )
+
+
+def id_token_present(text: str, ident: str) -> bool:
+    """Whole-token match so SRC-001 does not spuriously match inside SRC-0012."""
+    if not ident:
+        return False
+    return re.search(r"(?<![\w-])" + re.escape(ident) + r"(?![\w-])", text) is not None
+
+
+def check_annotation_coverage(target: Path, stage: str, errors: list[str]) -> None:
+    if stage != "final" or not requested_deliverables(target)["annotations"]:
+        return
+    path = target / "memory" / "annotation-coverage.md"
+    if not path.exists():
+        errors.append("缺失标注覆盖清单：memory/annotation-coverage.md")
+        return
+    coverage_text = read_text(path)
+    # Node/JS load failures are surfaced by check_annotations (runs just before
+    # with the real errors list); here a fresh list keeps coverage focused on
+    # what is parseable without double-reporting the same load failure.
+    silent: list[str] = []
+    entries = load_annotation_entries(target, silent)
+    for entry in entries:
+        anno_id = str(entry.get("id") or "").strip()
+        if anno_id and not id_token_present(coverage_text, anno_id):
+            errors.append(f"annotation-coverage.md 未覆盖标注：{anno_id}")
+    for row in acceptance_rows(target):
+        req_id = row.get("id", "").strip()
+        if req_id and not id_token_present(coverage_text, req_id):
+            errors.append(f"annotation-coverage.md 未覆盖需求：{req_id}")
+    for src_id in source_material_ids(target):
+        if not id_token_present(coverage_text, src_id):
+            errors.append(f"annotation-coverage.md 未覆盖来源引用：{src_id}")
+    if not field_map_declares_no_source(target):
+        for fld_id in field_map_ids(target):
+            if not id_token_present(coverage_text, fld_id):
+                errors.append(f"annotation-coverage.md 未覆盖字段引用：{fld_id}")
+    # Reverse checks: IDs in coverage that don't exist in source data.
+    known_src_cov = source_material_ids(target)
+    known_fld_cov = field_map_ids(target)
+    known_anno_ids = {str(e.get("id") or "").strip() for e in entries if e.get("id")}
+    known_req_ids = {r.get("id", "").strip() for r in acceptance_rows(target)}
+    for token in extract_id_tokens(coverage_text, "SRC"):
+        if token not in known_src_cov:
+            errors.append(f"annotation-coverage.md 引用了不存在的来源：{token}")
+    if known_fld_cov:
+        for token in extract_id_tokens(coverage_text, "FLD"):
+            if token not in known_fld_cov:
+                errors.append(f"annotation-coverage.md 引用了不存在的字段：{token}")
+    for token in extract_id_tokens(coverage_text, "R"):
+        if token not in known_req_ids:
+            errors.append(f"annotation-coverage.md 引用了不存在的需求：{token}")
+
+
+def check_delivery_pollution(target: Path, stage: str, errors: list[str]) -> None:
+    if stage != "final":
+        return
+    project_config = load_json(target / "config" / "project.json", errors)
+    allow_dependencies = strict_bool(project_config.get("allowDependencies"))
+    if allow_dependencies:
+        return
+    for relative in DELIVERY_POLLUTION_PATHS:
+        for path in target.rglob(relative):
+            rel = path.relative_to(target).as_posix()
+            if any(part in {".git", "node_modules"} for part in path.parts):
+                continue
+            if rel.startswith("tools/prototype-loop-orchestrator/"):
+                continue
+            errors.append(f"静态原型交付目录不应包含依赖或测试产物：{rel}")
+
+
+class DeliveryHtmlInspector(HTMLParser):
+    """Collect start-tag attributes for deterministic delivery-page checks."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.elements: list[tuple[str, dict[str, str | None]]] = []
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        self.elements.append(
+            (tag.lower(), {name.lower(): value for name, value in attrs})
+        )
+
+
+def inspect_delivery_html(path: Path) -> DeliveryHtmlInspector:
+    inspector = DeliveryHtmlInspector()
+    inspector.feed(read_text(path))
+    return inspector
+
+
+def attribute_values(inspector: DeliveryHtmlInspector, name: str) -> list[str]:
+    values: list[str] = []
+    for _, attrs in inspector.elements:
+        if name not in attrs:
+            continue
+        value = attrs.get(name)
+        values.append("" if value is None else value.strip())
+    return values
+
+
+def check_delivery_diagrams(target: Path, stage: str, errors: list[str]) -> None:
+    """Require two real local HTML diagrams and one optional related-system page."""
+    if stage not in {"s8", "s9", "final"}:
+        return
+
+    legacy_paths = ["flowcharts/index.html", "flowcharts/processon-links.txt"]
+    for relative in legacy_paths:
+        if (target / relative).exists():
+            errors.append(f"仍存在已停用的 ProcessOn 流程图资产：{relative}")
+
+    diagram_contracts = {
+        "flowcharts/business-process.html": {
+            "type": "business-process",
+            "required": {"data-flow-lane": 1, "data-flow-node": 2, "data-flow-edge": 1},
+            "label": "业务流程图",
+        },
+        "flowcharts/sequence-interaction.html": {
+            "type": "sequence-interaction",
+            "required": {"data-sequence-participant": 2, "data-sequence-message": 1},
+            "label": "时序交互图",
+        },
+    }
+    for relative, contract in diagram_contracts.items():
+        path = target / relative
+        if not path.exists():
+            errors.append(f"缺失{contract['label']}：{relative}")
+            continue
+        text = read_text(path)
+        inspector = inspect_delivery_html(path)
+        if "processon" in text.lower() or any(tag == "iframe" for tag, _ in inspector.elements):
+            errors.append(f"{contract['label']}必须直接写入本地 HTML，不能嵌入外部流程图：{relative}")
+        roots = [
+            attrs
+            for _, attrs in inspector.elements
+            if attrs.get("data-delivery-diagram") == contract["type"]
+        ]
+        if len(roots) != 1:
+            errors.append(
+                f"{contract['label']}缺少唯一图类型声明：{relative} -> "
+                f'data-delivery-diagram="{contract["type"]}"'
+            )
+            continue
+        if roots[0].get("data-diagram-state") != "ready":
+            errors.append(f"{contract['label']}仍为空壳，data-diagram-state 必须为 ready：{relative}")
+        for attribute, minimum in contract["required"].items():
+            values = [value for value in attribute_values(inspector, attribute) if value]
+            if len(values) < minimum:
+                errors.append(
+                    f"{contract['label']}结构不足：{relative} 至少需要 {minimum} 个 {attribute}"
+                )
+            elif len(values) != len(set(values)):
+                errors.append(f"{contract['label']}存在重复结构 ID：{relative} -> {attribute}")
+
+    related_path = target / "related-systems" / "index.html"
+    if not related_path.exists():
+        errors.append("缺失关联系统展示分页：related-systems/index.html")
+        return
+    related_text = read_text(related_path)
+    related = inspect_delivery_html(related_path)
+    if "processon" in related_text.lower() or any(tag == "iframe" for tag, _ in related.elements):
+        errors.append("关联系统展示必须直接写入本地 HTML，不能嵌入外部页面")
+    roots = [
+        attrs for _, attrs in related.elements if "data-related-systems" in attrs
+    ]
+    if len(roots) != 1:
+        errors.append("关联系统展示缺少唯一页面声明：data-related-systems")
+        return
+    state = roots[0].get("data-related-systems-state")
+    if state == "empty":
+        if not attribute_values(related, "data-related-systems-empty"):
+            errors.append("关联系统为空时必须提供明确空态：data-related-systems-empty")
+    elif state == "ready":
+        systems = [
+            value for value in attribute_values(related, "data-related-system") if value
+        ]
+        if not systems:
+            errors.append("关联系统标记为 ready 时至少需要一个 data-related-system")
+        elif len(systems) != len(set(systems)):
+            errors.append("关联系统展示存在重复 data-related-system ID")
+    else:
+        errors.append("关联系统展示状态必须为 empty 或 ready：data-related-systems-state")
+
+
+def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> None:
+    if stage not in {"s8", "s9", "final"}:
+        return
+
+    page_scripts = {
+        "index.html": "js/delivery-nav.js",
+        "docs/interaction.html": "../js/delivery-nav.js",
+        "flowcharts/business-process.html": "../js/delivery-nav.js",
+        "flowcharts/sequence-interaction.html": "../js/delivery-nav.js",
+        "related-systems/index.html": "../js/delivery-nav.js",
+    }
+    for relative, script_ref in page_scripts.items():
+        path = target / relative
+        if not path.exists():
+            continue
+        html_without_comments = re.sub(
+            r"<!--.*?-->",
+            "",
+            read_text(path),
+            flags=re.DOTALL,
+        )
+        script_sources = {
+            match.group(1).strip()
+            for match in re.finditer(
+                r"<script\b[^>]*\bsrc\s*=\s*[\"']([^\"']+)[\"'][^>]*>",
+                html_without_comments,
+                flags=re.IGNORECASE,
+            )
+        }
+        if script_ref not in script_sources:
+            errors.append(f"交付分页入口未加载统一导航脚本：{relative} -> {script_ref}")
+
+    nav_script = target / "js" / "delivery-nav.js"
+    if not nav_script.exists():
+        errors.append("缺失统一交付内部切换脚本：js/delivery-nav.js")
+        return
+    nav_text = read_text(nav_script)
+    required_markers = [
+        "原型页面",
+        "业务流程图",
+        "时序交互图",
+        "关联系统展示",
+        "index.html",
+        "flowcharts/business-process.html",
+        "flowcharts/sequence-interaction.html",
+        "related-systems/index.html",
+        "config/workflow.json",
+        "requestedDeliverables",
+        "interactionDoc",
+        "delivery_embed",
+        "data-delivery-frame",
+        "allowfullscreen",
+        "delivery-switch",
+        "data-delivery-switch",
+        "postMessage",
+        "history.pushState",
+        "#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)",
+    ]
+    for marker in required_markers:
+        if marker not in nav_text:
+            errors.append(f"统一交付内部切换脚本缺少机制：js/delivery-nav.js -> {marker}")
+
+    if requested_deliverables(target)["interactionDoc"]:
+        for marker in ["说明文档", "docs/interaction.html"]:
+            if marker not in nav_text:
+                errors.append(f"已请求说明文档，但统一交付导航缺少机制：{marker}")
+
+    if re.search(
+        r"\{\s*key\s*:\s*['\"]docs['\"][^}]*docs/index\.html",
+        nav_text,
+        flags=re.IGNORECASE,
+    ):
+        errors.append("说明文档仍使用外部分页入口：js/delivery-nav.js 应内部加载 docs/interaction.html")
+
+
+def check_stage_specific(target: Path, stage: str, errors: list[str]) -> None:
+    check_requirement_analysis_baseline(target, stage, errors)
+    check_project_context_bootstrap(target, stage, errors)
+    check_feature_list(target, stage, errors)
+    check_field_map(target, stage, errors)
+    check_stage_log(target, stage, errors)
+    check_execution_step_format(target, stage, errors)
+    check_acceptance_map(target, stage, errors)
+    check_verification_records(target, stage, errors)
+    check_source_annotation_anchor_uniqueness(target, stage, errors)
+    check_source_annotation_anchor_contracts(target, stage, errors)
+    check_annotation_prompt(target, stage, errors)
+    check_annotations(target, stage, errors)
+    check_interaction_document(target, stage, errors)
+    check_annotation_coverage(target, stage, errors)
+    check_delivery_diagrams(target, stage, errors)
+    check_delivery_navigation(target, stage, errors)
+    check_delivery_pollution(target, stage, errors)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("target", help="目标原型项目目录")
+    parser.add_argument(
+        "--stage",
+        choices=["s4", "s6", "s7", "s8", "s9", "final"],
+        default="s4",
+        help="要检查的目标阶段门禁",
+    )
+    parser.add_argument(
+        "--completing-stage",
+        default=None,
+        help="loop_run.py 重新完成某阶段时传入（如 S9），该阶段在状态一致性检查中临时豁免；独立预检不应传此参数",
+    )
+    parser.add_argument("--json", action="store_true", help="输出 JSON")
+    args = parser.parse_args()
+
+    target = Path(args.target).expanduser().resolve()
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    if not target.exists():
+        errors.append(f"目标目录不存在：{target}")
+    elif not target.is_dir():
+        errors.append(f"目标路径不是目录：{target}")
+    else:
+        errors.extend(CONTROL_CONFIG_ERRORS)
+        check_required_paths(target, errors)
+        check_optional_deliverable_paths(target, args.stage, errors)
+        check_content(target, args.stage, errors)
+        check_workflow_state(target, args.stage, errors, completing_stage=args.completing_stage)
+        check_current_iteration_baseline(target, args.stage, errors)
+        check_control_tool_boundary(target, errors)
+        check_circuit_breaker(target, args.stage, errors)
+        check_project_startup_plan(target, args.stage, errors)
+        check_stage_specific(target, args.stage, errors)
+
+    result = {
+        "target": str(target),
+        "stage": args.stage,
+        "passed": not errors,
+        "errors": errors,
+        "warnings": warnings,
+    }
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        status = "PASS" if not errors else "FAIL"
+        print(f"Loop preflight {status}: {target} [{args.stage}]")
+        for error in errors:
+            print(f"- ERROR: {error}")
+        for warning in warnings:
+            print(f"- WARN: {warning}")
+    return 0 if not errors else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

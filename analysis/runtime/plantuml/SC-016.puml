@@ -1,0 +1,56 @@
+@startuml
+title SC-016 · 复用现有智能外呼中台执行 AI 外呼
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 智能外呼管理员/运营
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| 既有AI外呼供应商
+|lane_1|
+start
+:租户运营需要创建 AI 外呼任务; <<start_label>>
+|lane_1|
+:在智能外呼域管理任务及名单\n输入：既有业务场景、话术、租户厂商账号\n输出：AI任务及名单;
+|lane_2|
+if (既有账号租户权限与AI配置有效？) then (不满足 · ALT-016-2)
+|lane_1|
+:沿用原智能外呼校验与错误处理，不使用AliCti替代; <<failure>>
+stop
+else (满足)
+|lane_3|
+:按原链路执行AI外呼\n输入：原任务、机器人、话术、名单\n输出：通话与意向/标签等结果;
+|lane_2|
+:沿用原智能外呼结果和统计\n输入：厂商结果及原关联\n输出：通话记录、线索记录、通话/计费/线索统计;
+|lane_1|
+:查看原有列表、详情和全部报表\n输入：当前租户AI数据\n输出：既有能力完整保留，不引入AI转人工;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+@enduml

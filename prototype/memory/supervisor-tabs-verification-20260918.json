@@ -1,0 +1,122 @@
+{
+  "revision": "20260918-supervisor-tabs1",
+  "date": "2026-09-18",
+  "scope": "local prototype demonstration, no real supplier calls",
+  "rootCause": {
+    "observed": "User Chrome file:// prototype HQ admin had cno 1004 and disabled monitor start; SH cno9002 worked",
+    "cause": "Fixture seeded only a new admin seat, skipped an existing valid admin binding",
+    "fix": "Reuse exact valid existing admin binding and issue independent local mock supervisor receipt; no storage replacement or second seat"
+  },
+  "features": {
+    "tabs": [
+      "外呼坐席",
+      "班长监控"
+    ],
+    "managementActions": [
+      "置忙",
+      "置闲",
+      "下线"
+    ],
+    "managementLogin": "explicitly cancelled by user; no UI and direct invocation rejected",
+    "targetScope": "current authorized tenant queues only; exact cno string",
+    "activeCallProtection": "No target mutation during calling, ringing, connected or wrapup; tab switch retains own call notes",
+    "unknownResult": "query queueStatus, never replay command"
+  },
+  "officialSource": {
+    "title": "AliCti 工具条·班长席监控",
+    "url": "https://wiki.alicti.cn/html/wiki/工具条/班长席监控.html",
+    "verifiedAt": "2026-09-18",
+    "methods": {
+      "CTILink.Monitor.setPause": [
+        "monitoredCno"
+      ],
+      "CTILink.Monitor.setUnpause": [
+        "monitoredCno"
+      ],
+      "CTILink.Monitor.setOffline": [
+        "monitoredCno",
+        "removeBinding=0"
+      ]
+    },
+    "notAdopted": "setOnline supports bindType 1/2 in current documentation; project softphone type3 not adopted"
+  },
+  "offline": {
+    "suites": 28,
+    "checks": 760,
+    "failed": 0,
+    "suiteCounts": {
+      "skill-group-management": 6,
+      "alicti-fields": 71,
+      "alicti-retry": 26,
+      "alicti-ivr": 24,
+      "alicti-task-control": 30,
+      "demo-fixtures": 28,
+      "regression-fields": 6,
+      "call-regression-fixes": 9,
+      "task-attachment-transaction": 9,
+      "alicti-report-facts": 39,
+      "lead-report": 67,
+      "alicti-report-summary": 26,
+      "customer-followup-version": 13,
+      "alicti-receiving": 33,
+      "repeat-predictive": 63,
+      "alicti-number-import": 32,
+      "alicti-accounts": 50,
+      "alicti-account-context": 22,
+      "incall-followup": 26,
+      "alicti-queue-contracts": 17,
+      "alicti-queues": 26,
+      "queue-config": 13,
+      "predictive-strategy": 12,
+      "seat-operations": 41,
+      "tenant-call-monitor": 18,
+      "tenant-supervisor-migration": 12,
+      "supervisor-management": 28,
+      "supervisor-workbench": 13
+    }
+  },
+  "browser": {
+    "result": "pass",
+    "method": "CUA independent in-app browser via visible controls and read-only DOM checks; existing user Chrome inspected to reproduce cno1004 issue",
+    "count": 16,
+    "checks": [
+      "管理员管理工作台只保留进入班长监控入口",
+      "坐席工作台展示两个页签，管理员默认班长监控",
+      "班长本人上线后获取总部四个去重坐席",
+      "通话与整理中的目标没有管理按钮，本人独立标记",
+      "置忙确认抽屉显示目标工号、租户、影响、左上返回及右上关闭",
+      "确认置忙后回读目标为置忙并出现置闲入口",
+      "确认置闲后回读目标为空闲",
+      "确认下线说明保留绑定，回读目标离线",
+      "离线目标没有管理上线入口",
+      "切到外呼坐席保留班长本人在线电话会话",
+      "切回班长监控保留目标离线结果",
+      "只有一个监控组件且没有横向页面溢出",
+      "监控页面截图布局检查通过",
+      "班长本人下线后清除监控实时列表",
+      "普通运营工作台没有班长页签及监控入口",
+      "浏览器日志未出现错误或警告"
+    ],
+    "errors": [],
+    "overflow": false,
+    "cleanup": "Owned verification tab closed; user Chrome and server retained"
+  },
+  "sourceSha256": {
+    "mock/seat-operations.js": "a481a3899b9509f1c1025f17c59cb34a5ce7c14a82572fc33a8e9d0b16053b60",
+    "js/components/alicti-seat-operations.js": "0787ed6e76f1bf8049f859c01d1bee37176407fc5ebaf4b318e04c4b646b618b",
+    "js/components/seat-operation-ui.js": "e36b2f00a9a5559e1d8d12675d2e66d598ebd9002b5bf36182a3915a6df65f1d",
+    "js/components/tenant-call-monitor.js": "2bf8dbe1b2e6161159f2b5bc9565eb0877dfcf3ba36052d35ad03228f6a8a94a",
+    "js/pages/agent-workbench.js": "30dcfba41b20029b7ee30aca00dc1ab5c329208d8453149c94f03735936febb5",
+    "js/components/workbench-overview.js": "f192289d5e9babb9b6993c67346610d9395bdedfb210d8ab0277a765d1cc2eaa",
+    "assets/css/agent-workbench.css": "e90cc39eea85dd8a6384dc099ba67a10af3f58c30ba721753796a6380b4f1073",
+    "index.html": "adbdf8792a13fc78c7a9136d3d13aff5ab4d7d98c1baa6173e0f3f03c17bda29",
+    "qa/verify-seat-operations.cjs": "a96b12dbb820de803f6c13b20d2e5aa127e39838653b8a4947c41da2533ee43d",
+    "qa/verify-seat-operations-browser.cjs": "6ad87e518233f76ea6a43f399e3fdfe2af0981f21670c85c2ed9e51682ada0f9",
+    "qa/verify-tenant-supervisor-migration.cjs": "7f3dc59f002af989ed370f32c13a093c9f084dd92f72552ffecf1206c62198e4",
+    "qa/verify-supervisor-management.cjs": "aadb42b9dd20be7e3809fa1d9237e4e83b026008f2881c33fa3b42ff872bf9f3",
+    "qa/verify-supervisor-workbench.cjs": "fb0bb7f9ecfda86f729a8f324fc42c7db7a6476db4ca6fe4423e46a44d9971e7",
+    "qa/run-offline-checks.py": "298572cd823bc5cdac5a5add2d2511e4919580ed251b69a4cef0dc6de5ed0a98"
+  },
+  "documentationAndPackage": "not regenerated; await explicit documentation update request",
+  "gitlab": "not pushed"
+}

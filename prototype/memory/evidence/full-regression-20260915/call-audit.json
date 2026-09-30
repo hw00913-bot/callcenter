@@ -1,0 +1,328 @@
+{
+  "title": "通话、媒体、报表与审计回归审计",
+  "date": "2026-09-15",
+  "baselineProvidedByParent": "0b98f4b",
+  "scope": "仅只读业务审计；浏览器独立audit-calls会话。测试数据仅在独立浏览器内存/存储修改；未调用供应商、未改业务文件、未提交发布。",
+  "findings": [
+    {
+      "id": "CALL-A01",
+      "severity": "P1",
+      "module": "人工外呼/话后处理",
+      "title": "客户名单写入失败后仍宣称保存成功，客户占用未解除",
+      "reproductionType": "正常操作路径+单点浏览器存储故障注入",
+      "steps": [
+        "用王静账号进入电话首页并选择总部试驾邀约团队，上线后选择分配给本人的未联系客户。",
+        "完成一通模拟外呼并结束，进入话后处理。",
+        "仅令Storage.setItem(customer-task-batches-v1)抛QuotaExceededError，其余存储正常。",
+        "选择已完成沟通并保存。"
+      ],
+      "actual": "通话处理状态已完成，弹窗关闭并提示客户名单和通话记录已更新；原客户activeCallId仍指向本通，followup=待联系，canCall=false，话后状态已清空。",
+      "expected": "关联客户保存失败时不能完整宣称成功或丢失重试入口；须保留话后上下文或提供明确修复，成功后才解除客户占用。",
+      "impact": "造成通话与客户跟进事实不一致，客户从可联系列表消失且无法按正常入口再次联系。",
+      "basis": [
+        "FS-10 人工外呼闭环",
+        "D-025 本地客户业务快照",
+        "本方保存一致性要求，不涉及供应商接口失败"
+      ],
+      "source": [
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js",
+          "line": 39
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js",
+          "line": 361
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js",
+          "line": 157
+        }
+      ],
+      "evidence": [
+        "call-save-failure.json",
+        "call-save-failure.png"
+      ]
+    },
+    {
+      "id": "CALL-A02",
+      "severity": "P1",
+      "module": "通话结果归一/六类报表",
+      "title": "AliCti迟到未接通话单覆盖已有客户接通证据",
+      "reproductionType": "白盒构造状态+实际共享归一函数执行",
+      "steps": [
+        "在同一通话CallState.start后接收客户侧Established，再finish；此时客户已接通。",
+        "追加同账号预测话单alictiCdr.raw.status=40并调用页面和报表共用的CallState.view。",
+        "读取CloudReportMetrics.stats。"
+      ],
+      "actual": "客户已接通变成未接通，issues为空；报表connected=0、unanswered=1、rate=0.0%。",
+      "expected": "保留明确接通证据，对矛盾结束资料标待核对，不直接覆盖为未接通。",
+      "impact": "同一通话详情、客户联系历史和统计可能被迟到失败消息反转。",
+      "basis": [
+        "D-021 迟到/矛盾结果保留原证据",
+        "附表B-11/BR-019",
+        "API-318 status=40客户未接听"
+      ],
+      "officialUrl": "https://wiki.alicti.cn/html/wiki/API/通话记录/预测式外呼/预测外呼通话记录接口.html",
+      "source": [
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/call-state.js",
+          "line": 264
+        }
+      ],
+      "evidence": [
+        "call-contracts.json:answeredLateFailure"
+      ]
+    },
+    {
+      "id": "CALL-A03",
+      "severity": "P2",
+      "module": "操作审计",
+      "title": "审计详情方法缺少对象和菜单权限校验",
+      "reproductionType": "白盒直接调用公开页面方法，未找到正常菜单越权路径",
+      "steps": [
+        "登录总部运营王静。",
+        "确认system.audit=false且对上海门店审计authorizeObject返回false。",
+        "调用Pages[system-center].openAudit(SHOWCASE-SH-AUDIT-3)。"
+      ],
+      "actual": "显示上海门店操作人、对象、租户及前后配置。",
+      "expected": "详情入口再次核对当前角色和目标对象范围，无权时拒绝展示。",
+      "impact": "前端授权不一致，开发复用此入口时易遗漏鉴权；这不是已证实的生产数据泄露。",
+      "basis": [
+        "本方角色与租户范围规则",
+        "FS-19 审计"
+      ],
+      "source": [
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/system-center.js",
+          "line": 21
+        }
+      ],
+      "evidence": [
+        "call-contracts.json:auditCrossScope",
+        "call-audit-scope.png"
+      ]
+    },
+    {
+      "id": "CALL-A04",
+      "severity": "P2",
+      "module": "呼入服务/人工接通统计",
+      "title": "明确人工未接听被统计为人工结果待确认",
+      "reproductionType": "按官方明确状态构造话单并执行实际归一与统计函数",
+      "steps": [
+        "构造已结束呼入记录：status=人工未接听，statusResult=振铃未接，存在系统answerTime。",
+        "normalizeCdr返回customerAnswered=true、agentAnswered=false。",
+        "将记录交给CallState.view和CloudReportMetrics.stats。"
+      ],
+      "actual": "CallState未传递agentAnswered=false；humanUnanswered=0、humanPending=1、humanKnown=0。",
+      "expected": "官方明确的人工未接听应保留为人工未接通，不应丢成未知；此判断不依赖响应时间单位。",
+      "impact": "呼入、坐席及技能人工未接通数量和人工接通率分母失真。",
+      "basis": [
+        "API-319 返回status字符串枚举：人工未接听",
+        "FA-069/FA-086"
+      ],
+      "officialUrl": "https://wiki.alicti.cn/html/wiki/API/通话记录/来电/客户来电记录接口.html",
+      "source": [
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js",
+          "line": 220
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/call-state.js",
+          "line": 268
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/report-metrics.js",
+          "line": 67
+        }
+      ],
+      "evidence": [
+        "call-contracts.json:inboundUnanswered"
+      ]
+    },
+    {
+      "id": "CALL-A05",
+      "severity": "P2",
+      "module": "通话记录/录音筛选",
+      "title": "过期录音显示状态与筛选值不一致，按过期筛选找不到记录",
+      "reproductionType": "构造官方record/getUrl成功响应及已明确过期时间，实际页面筛选",
+      "steps": [
+        "在授权通话上提供alictiRecording={result:0,data:合法HTTPS地址}与过去的recordingUrlExpiresAt。",
+        "按通话编号查询可见该记录，录音显示链接已过期。",
+        "选择录音状态=录音链接已过期并查询。"
+      ],
+      "actual": "列表变成0条；resolve返回链接已过期，recordRows按录音链接已过期严格比较。",
+      "expected": "统一状态枚举或映射，过期筛选应返回这条已知过期记录。",
+      "impact": "用户无法通过提供的筛选入口找出需刷新地址的录音。",
+      "basis": [
+        "API-320 默认有效期可配置，过期重新获取",
+        "已有明确过期时间，本例未把默认120分钟当实际到期时刻"
+      ],
+      "officialUrl": "https://wiki.alicti.cn/html/wiki/API/通话记录/获取通话录音地址接口.html",
+      "source": [
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js",
+          "line": 230
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/call-media.js",
+          "line": 38
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-call-records.js",
+          "line": 87
+        }
+      ],
+      "evidence": [
+        "call-media-report.json:expired",
+        "call-media-report.json:expiredUnfiltered",
+        "call-media-report.json:expiredFiltered",
+        "call-expired-filter.png"
+      ]
+    },
+    {
+      "id": "CALL-A06",
+      "severity": "P2",
+      "module": "电话首页/坐席上线",
+      "title": "鉴权过期和媒体连接失败的原因不显示在电话首页",
+      "reproductionType": "正常电话首页上线，选择内置失败演示情景",
+      "steps": [
+        "进入门店周岚电话首页，选择可用技能组。",
+        "将内置电话情景置为media-error或expired，点击上线并等待调用结束。",
+        "比较电话首页与在同一状态打开的通话弹窗。"
+      ],
+      "actual": "坐席保持离线，但首页没有失败原因或seat-error，最后进度仍为连接音频/申请登录材料；同一状态打开弹窗可见音频连接失败错误。",
+      "expected": "当前执行上线操作的首页应显示失败原因并允许按原因重试。",
+      "impact": "用户无法分辨登录资料失效、媒体失败还是仍在连接，无法按提示处理。",
+      "basis": [
+        "FS-10 电话登录及媒体就绪分别判断",
+        "API-302/API-303 相关登录链路；失败反馈为本方交互要求"
+      ],
+      "source": [
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js",
+          "line": 226
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js",
+          "line": 254
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/agent-workbench.js",
+          "line": 458
+        }
+      ],
+      "evidence": [
+        "call-security2.json:expired",
+        "call-security2.json:media-error",
+        "call-hidden-login.json",
+        "call-login-error-hidden.png"
+      ]
+    }
+  ],
+  "knownUnfixed": [
+    {
+      "id": "CALL-K01",
+      "severity": "P2",
+      "module": "通话数据异常",
+      "title": "两个旧VIEW样例详情崩溃",
+      "alreadyDocumented": "docs/exception-definitions.json boundaries 旧异常样例完整性；不计新增接口缺陷",
+      "steps": [
+        "超级管理员进入通话数据异常。",
+        "打开VIEW-DEMO-HQ-DATA或VIEW-DEMO-SH-DATA。"
+      ],
+      "actual": "TypeError: Cannot read properties of undefined (reading length)，详情打不开；样例缺trace和type/impact等。",
+      "expected": "演示列表中的每条异常可打开、显示业务原因和处理状态；缺字段不能导致整个详情失败。",
+      "source": [
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/mock/workbench-fixtures.js",
+          "line": 42
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/call-data-issues.js",
+          "line": 33
+        }
+      ],
+      "evidence": [
+        "call-smoke.json:checks"
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "area": "页面入口",
+      "result": "通过",
+      "detail": "通话记录、六类云报表、通话数据异常、操作审计共9入口可渲染；旧异常详情故障另列。",
+      "evidence": "call-smoke.json"
+    },
+    {
+      "area": "人工外呼",
+      "result": "部分通过",
+      "detail": "工号0012鉴权登录精确保持；有技能及号码资源后正常上线，分配客户呼叫、结束及话后流程可运行；通话中退出受阻。单点保存故障见CALL-A01。",
+      "evidence": "call-save-failure.json"
+    },
+    {
+      "area": "RASR与号码",
+      "result": "已测边界通过",
+      "detail": "RASR成功/空/失败/未知/结构损坏，后四类不显示旧文本；monitorSide=1坐席、botText机器人；715/183多义、缺码和未知码保持待确认。",
+      "evidence": [
+        "call-contracts.json",
+        "call-media-report.json"
+      ]
+    },
+    {
+      "area": "录音",
+      "result": "已测交互通过，筛选缺陷另列",
+      "detail": "独立音频播放、倍速、音量、搜索零匹配、关详情释放src/暂停、角色范围切换终止；文本无跳转音频按钮。",
+      "evidence": [
+        "call-media-report.json",
+        "call-security2.json"
+      ]
+    },
+    {
+      "area": "报表范围与导出",
+      "result": "已测通过",
+      "detail": "六类今日报表在门店运营范围仅SH，强传HQ筛选被拒绝；六类生成完整CSV，客户跟进实际下载成功；公式前缀加单引号；无效日期、倒序和超366天被拒绝。",
+      "evidence": [
+        "call-security2.json",
+        "call-export.json",
+        "call-report-export.csv"
+      ]
+    },
+    {
+      "area": "查询参数",
+      "result": "已测通过",
+      "detail": "跨月拆分并转秒，offset+limit超过100000被拒；MP3不带分轨，WAV分轨取合法callType/recordSide，缺recordFile被拒，失败录音响应不使用旧URL。",
+      "evidence": "call-contracts.json"
+    },
+    {
+      "area": "登录失败状态",
+      "result": "状态保持离线通过；错误反馈失败",
+      "detail": "expired/media-error不设currentEndpoint、不显示上线成功；首页错误不可见见CALL-A06。",
+      "evidence": [
+        "call-security2.json",
+        "call-hidden-login.json"
+      ]
+    }
+  ],
+  "notTested": [
+    "真实供应商鉴权、电话网关、音频设备、外呼、接口时效、事件重放和断线补发；纯mock本身不记缺陷。",
+    "没有测试生产后端鉴权或声称发生生产跨租户泄露。",
+    "CF-05返回时间单位、CF-12事件可靠性、CF-13自动外呼/呼入号码识别覆盖等已有待确认不计新问题。",
+    "取消的文本到录音定位未恢复，不列缺口。",
+    "审计导出已有IMP-01为已知开发项，不再次列新缺陷。",
+    "最初security等待首页失败提示的脚本超时；后改按调用结束核验并发现CALL-A06，未把超时测试记为通过。"
+  ],
+  "sourcesReviewed": [
+    "CLAUDE.md",
+    "docs/decisions.md D-012至D-026",
+    "docs/supplier-clarifications.json",
+    "docs/functional-spec.md FS-10至FS-19相关",
+    "development/reference/alicti/API-302.txt",
+    "development/reference/alicti/API-304.txt",
+    "development/reference/alicti/API-305.txt",
+    "development/reference/alicti/API-318.txt",
+    "development/reference/alicti/API-319.txt",
+    "development/reference/alicti/API-320.txt",
+    "development/reference/alicti/DOC-346.txt"
+  ]
+}

@@ -1,0 +1,24 @@
+### Result
+{"diagrams":[{"id":"FLOW-203","overflow":[]},{"id":"SC-011","overflow":[]},{"id":"SC-017","overflow":[]},{"id":"SC-018","overflow":[]},{"id":"SC-207","overflow":[]},{"id":"SC-208","overflow":[]},{"id":"SC-209","overflow":[]},{"id":"SEQ-011","overflow":[]},{"id":"SEQ-017","overflow":[]},{"id":"SEQ-018","overflow":[]},{"id":"SEQ-207","overflow":[]},{"id":"SEQ-208","overflow":[]},{"id":"SEQ-209","overflow":[]}],"pass":true}
+### Ran Playwright code
+```js
+await (async page=>{
+ const results=[];
+ for(const file of ['business-process','sequence-interaction']){
+  await page.goto('http://127.0.0.1:8772/Demo_Protype_2/prototype/flowcharts/'+file+'.html');
+  results.push(await page.evaluate(()=>[...document.querySelectorAll('article.current-business-card svg')].map(svg=>{
+   const vb=svg.viewBox.baseVal;
+   const overflow=[...svg.querySelectorAll('text')].flatMap(t=>{const b=t.getBBox();return b.x<0||b.y<0||b.x+b.width>vb.width+1||b.y+b.height>vb.height+1?[t.textContent]:[]});
+   return {id:svg.dataset.sourceId,overflow};
+  })));
+ }
+ return {diagrams:results.flat(),pass:results.flat().every(r=>!r.overflow.length)};
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:8772/Demo_Protype_2/prototype/flowcharts/sequence-interaction.html
+- Page Title: 交互时序图集 · AliCti独立原型需求分析
+- Console: 0 errors, 1 warnings
+### Events
+- New console entries: ../../Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/.playwright-cli/console-2026-09-15T09-22-14-322Z.log#L4-L5

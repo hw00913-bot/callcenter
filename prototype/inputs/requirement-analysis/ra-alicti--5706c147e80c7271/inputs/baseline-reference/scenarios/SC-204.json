@@ -1,0 +1,244 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-204",
+  "name": "按外呼方式分配或改派客户",
+  "summary": "勾选客户后弹窗选人工/预外呼/IVR；人工选有效运营坐席，其他选同租户同实例同类型未启动任务；创建时可选待分配客户",
+  "actors": [
+    "租户管理员",
+    "统一外呼中台"
+  ],
+  "trigger": "需要安排已导入客户的呼叫方式",
+  "preconditions": [
+    "当前身份与租户能力有效"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "租户管理员",
+      "action": "筛选待分配客户，逐条勾选或全选当前筛选可分配项",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-204"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "租户管理员",
+      "action": "点击分配，弹窗选择人工外呼、预外呼或 IVR",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-204"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "人工返回有效且关联账号的本租户坐席；自动方式返回同类型未启动任务",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-204"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "所选客户与目标仍同租户同实例，且满足分配/改派条件？",
+      "system_response": "通过才继续；不通过结束本次操作",
+      "rule_ids": [
+        "BR-204"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "租户管理员",
+      "action": "确认客户数量和目标；取消保持原分配关系",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-204"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "事务保存 ownerId 或 taskId；不混用人员和任务，不改写历史通话",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-204"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "租户管理员",
+      "action": "已分配客户移出默认待分配；人工进入本人坐席工作台，自动进入对应任务",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-204"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-204-4",
+      "condition": "所选客户与目标仍同租户同实例，且满足分配/改派条件？：不通过",
+      "steps": [
+        "拒绝已占用、通话/话后锁定、已完成或自动任务已启动的冲突项"
+      ]
+    }
+  ],
+  "postconditions": [
+    "勾选客户后弹窗选人工/预外呼/IVR；人工选有效运营坐席，其他选同租户同实例同类型未启动任务；创建时可选待分配客户"
+  ],
+  "acceptance_points": [
+    "全选受当前筛选与可分配资格约束，并清楚展示选中数量。",
+    "已联系但未完成的人工客户在无在途/话后锁定时可改派；历史归属不随改派变化。"
+  ],
+  "source_story_ids": [
+    "US-204"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-203",
+    "inputs/source-index.json#SRC-055"
+  ],
+  "legacy_refs": [],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "租户管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "需要安排已导入客户的呼叫方式"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "筛选待分配客户，逐条勾选或全选当前筛选可分配项",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "u",
+        "type": "action",
+        "order": 3,
+        "label": "点击分配，弹窗选择人工外呼、预外呼或 IVR",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "action",
+        "order": 4,
+        "label": "人工返回有效且关联账号的本租户坐席；自动方式返回同类型未启动任务",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 5,
+        "label": "所选客户与目标仍同租户同实例，且满足分配/改派条件？",
+        "step_ref": 4
+      },
+      {
+        "id": "FAIL4",
+        "lane_id": "u",
+        "type": "end",
+        "order": 6,
+        "label": "拒绝已占用、通话/话后锁定、已完成或自动任务已启动的冲突项"
+      },
+      {
+        "id": "N5",
+        "lane_id": "u",
+        "type": "action",
+        "order": 7,
+        "label": "确认客户数量和目标；取消保持原分配关系",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "action",
+        "order": 8,
+        "label": "事务保存 ownerId 或 taskId；不混用人员和任务，不改写历史通话",
+        "step_ref": 6
+      },
+      {
+        "id": "N7",
+        "lane_id": "u",
+        "type": "action",
+        "order": 9,
+        "label": "已分配客户移出默认待分配；人工进入本人坐席工作台，自动进入对应任务",
+        "step_ref": 7
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 10,
+        "label": "本次结果已展示；保留来源与操作记录"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "FAIL4",
+        "label": "不通过",
+        "type": "failure",
+        "path_id": "ALT-204-4"
+      },
+      {
+        "from": "N4",
+        "to": "N5",
+        "label": "通过"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "N7"
+      },
+      {
+        "from": "N7",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。"
+  ]
+}

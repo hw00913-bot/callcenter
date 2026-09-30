@@ -1,0 +1,30 @@
+### Result
+{"checks":[{"name":"Actual member name userName shown","pass":true},{"name":"Line display omits demo suffix","pass":true},{"name":"Nested return preserves organization and team selections","pass":true},{"name":"Cancel does not persist scope edits","pass":true},{"name":"Normal but unassigned number is not callable","pass":true}]}
+### Ran Playwright code
+```js
+await (async page=>{
+ const checks=[];const check=(n,v)=>{checks.push({name:n,pass:!!v});if(!v)throw Error(n)};
+ await page.evaluate(()=>{DemoSwitch.enter('ACC-SUPER-001');AppState.chooseInstance('7522240');AppState.chooseDomain('CLOUD_CONTACT_CENTER');RouteRuntime.openPrimary('numbers');Pages['resource-lines'].openGrant('NUM-021-6601');});
+ await page.waitForFunction(()=>!document.querySelector('.drawer-entering,.drawer-exit-visual'));
+ check('Actual member name userName shown',await page.locator('#number-detail .na-preview').innerText().then(t=>t.includes('陈敏')&&t.includes('1001')));
+ check('Line display omits demo suffix',await page.locator('#number-detail .na-number-overview').innerText().then(t=>!t.includes('演示')));
+ // An opened child must return to the pending checkboxes, not discard edits.
+ await page.locator('#number-detail input[name="numberTenant"][value="TEN-NISSAN-SH"]').check();
+ await page.locator('#number-detail input[name="boundNumberGroup"][value="SG-ALI-SH-SALES"]').check();
+ await page.evaluate(()=>Pages['resource-lines'].openNumberUses('NUM-021-6601'));
+ await page.waitForFunction(()=>!document.querySelector('.drawer-entering,.drawer-exit-visual'));
+ await page.locator('#number-uses .layer-header button[aria-label="关闭"]').click();
+ await page.waitForFunction(()=>!document.querySelector('.drawer-entering,.drawer-exit-visual'));
+ check('Nested return preserves organization and team selections',await page.locator('#number-detail input[name="numberTenant"][value="TEN-NISSAN-SH"]').isChecked()&&await page.locator('#number-detail input[name="boundNumberGroup"][value="SG-ALI-SH-SALES"]').isChecked());
+ const pre=await page.evaluate(()=>JSON.stringify(CloudCallData.phoneNumbers.find(n=>n.numberId==='NUM-021-6601').authorizedTenantIds));
+ await page.locator('#number-detail .layer-footer').getByRole('button',{name:'取消',exact:true}).click();
+ check('Cancel does not persist scope edits',await page.evaluate(()=>JSON.stringify(CloudCallData.phoneNumbers.find(n=>n.numberId==='NUM-021-6601').authorizedTenantIds))===pre);
+ check('Normal but unassigned number is not callable',await page.evaluate(()=>{const n={...CloudCallData.phoneNumbers.find(n=>n.numberId==='NUM-021-6601'),authorizedTenantIds:[],boundSkillGroupIds:[]};return n.businessStatus==='正常'&&!CloudResourceRules.usableNumber(n,'TEN-NISSAN-HQ','呼出','预览外呼');}));
+ return {checks};
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:8772/Demo_Protype_2/prototype/index.html#numbers
+- Page Title: AliCti 云外呼原型
+- Console: 0 errors, 1 warnings

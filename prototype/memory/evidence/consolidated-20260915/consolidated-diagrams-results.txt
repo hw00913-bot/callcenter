@@ -1,0 +1,40 @@
+### Result
+{"tests":[{"name":"FLOW-203 single card","pass":true},{"name":"FLOW-203 current version","pass":true},{"name":"FLOW-203 actual svg","pass":true},{"name":"FLOW-203 directory link","pass":true},{"name":"SC-011 single card","pass":true},{"name":"SC-011 current version","pass":true},{"name":"SC-011 actual svg","pass":true},{"name":"SC-011 directory link","pass":true},{"name":"SC-017 single card","pass":true},{"name":"SC-017 current version","pass":true},{"name":"SC-017 actual svg","pass":true},{"name":"SC-017 directory link","pass":true},{"name":"SC-018 single card","pass":true},{"name":"SC-018 current version","pass":true},{"name":"SC-018 actual svg","pass":true},{"name":"SC-018 directory link","pass":true},{"name":"SC-207 single card","pass":true},{"name":"SC-207 current version","pass":true},{"name":"SC-207 actual svg","pass":true},{"name":"SC-207 directory link","pass":true},{"name":"SC-208 single card","pass":true},{"name":"SC-208 current version","pass":true},{"name":"SC-208 actual svg","pass":true},{"name":"SC-208 directory link","pass":true},{"name":"SC-209 single card","pass":true},{"name":"SC-209 current version","pass":true},{"name":"SC-209 actual svg","pass":true},{"name":"SC-209 directory link","pass":true},{"name":"business-process nav anchor","pass":true},{"name":"business-process fit","pass":true},{"name":"business-process zoom","pass":true},{"name":"business-process portable author data","pass":true},{"name":"SEQ-011 single card","pass":true},{"name":"SEQ-011 current version","pass":true},{"name":"SEQ-011 actual svg","pass":true},{"name":"SEQ-011 directory link","pass":true},{"name":"SEQ-017 single card","pass":true},{"name":"SEQ-017 current version","pass":true},{"name":"SEQ-017 actual svg","pass":true},{"name":"SEQ-017 directory link","pass":true},{"name":"SEQ-018 single card","pass":true},{"name":"SEQ-018 current version","pass":true},{"name":"SEQ-018 actual svg","pass":true},{"name":"SEQ-018 directory link","pass":true},{"name":"SEQ-207 single card","pass":true},{"name":"SEQ-207 current version","pass":true},{"name":"SEQ-207 actual svg","pass":true},{"name":"SEQ-207 directory link","pass":true},{"name":"SEQ-208 single card","pass":true},{"name":"SEQ-208 current version","pass":true},{"name":"SEQ-208 actual svg","pass":true},{"name":"SEQ-208 directory link","pass":true},{"name":"SEQ-209 single card","pass":true},{"name":"SEQ-209 current version","pass":true},{"name":"SEQ-209 actual svg","pass":true},{"name":"SEQ-209 directory link","pass":true},{"name":"sequence-interaction nav anchor","pass":true},{"name":"sequence-interaction fit","pass":true},{"name":"sequence-interaction zoom","pass":true},{"name":"sequence-interaction portable author data","pass":true},{"name":"No page errors","pass":true}],"errors":[]}
+### Ran Playwright code
+```js
+await (async page=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const tests=[];const check=(name,value)=>{tests.push({name,pass:!!value});if(!value)throw Error(name)};
+ for(const [file,ids] of [['business-process',['FLOW-203','SC-011','SC-017','SC-018','SC-207','SC-208','SC-209']],['sequence-interaction',['SEQ-011','SEQ-017','SEQ-018','SEQ-207','SEQ-208','SEQ-209']]]){
+   await page.goto('http://127.0.0.1:8772/Demo_Protype_2/prototype/flowcharts/'+file+'.html');
+   for(const id of ids){
+     const card=page.locator('article#'+id);
+     check(id+' single card',await card.count()===1);
+     check(id+' current version',await card.getAttribute('data-current-version')==='2026-09-15-consolidated-1');
+     check(id+' actual svg',await card.locator('svg').count()===1);
+     check(id+' directory link',await page.locator('nav a[href="#'+id+'"]').count()===1);
+   }
+   const id=file==='business-process'?'SC-208':'SEQ-208';
+   await page.locator('nav a[href="#'+id+'"]').click();
+   check(file+' nav anchor',page.url().endsWith('#'+id));
+   const card=page.locator('article#'+id),panel=card.locator('[data-diagram-panel]'),svg=card.locator('svg');
+   await card.locator('[data-diagram-action="fit"]').click();
+   check(file+' fit',await panel.getAttribute('data-view-mode')==='fit');
+   const before=await svg.evaluate(n=>n.getBoundingClientRect().width);
+   await card.locator('[data-diagram-action="zoom-in"]').click();
+   check(file+' zoom',await svg.evaluate(n=>n.getBoundingClientRect().width)>before);
+   await card.locator('[data-diagram-action="fit"]').click();
+   await panel.screenshot({path:'/private/tmp/consolidated-'+file+'-SC208.png'});
+   const response=await page.request.get('http://127.0.0.1:8772/Demo_Protype_2/prototype/blueprint/current-business-diagrams.json');check(file+' portable author data',response.ok());
+ }
+ check('No page errors',errors.length===0);
+ return {tests,errors};
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:8772/Demo_Protype_2/prototype/flowcharts/sequence-interaction.html#SEQ-208
+- Page Title: 交互时序图集 · AliCti独立原型需求分析
+- Console: 0 errors, 1 warnings
+### Events
+- New console entries: ../../Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/.playwright-cli/console-2026-09-15T09-22-14-322Z.log#L2-L3

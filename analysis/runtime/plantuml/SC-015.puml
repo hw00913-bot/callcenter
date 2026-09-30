@@ -1,0 +1,83 @@
+@startuml
+title SC-015 · 创建、配置与启动IVR外呼任务
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 租户管理员/运营
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:需要自动语音通知或交互; <<start_label>>
+|lane_1|
+:新建IVR外呼并填写本次配置\n输入：任务名称、租户、已有资源、时间和重呼参数\n输出：任务草稿;
+|lane_2|
+:按当前角色处理可选客户\n输入：管理员可选择待分配客户；运营仅提交空名单\n输出：草稿预选不占用；运营由管理员后续分配;
+|lane_2|
+if (资源、参数、分配权限及所选客户复检通过？) then (不满足 · ALT-015-3)
+|lane_1|
+:保留草稿；运营携带客户选择则拒绝，不虚构名单数量; <<failure>>
+stop
+else (满足)
+|lane_1|
+if (确认提交本次操作？) then (确认)
+|lane_2|
+:确认提交配置及可选客户关联，保持未启动\n禁止导入/定时自动启动，草稿不占用名单;
+|lane_1|
+:名单就绪后单独请求启动\n输入：已分配名单；无名单先由管理员分配\n输出：启动申请；不将运营创建权限当作分配权限;
+|lane_2|
+if (名单、用号权及已验证的语音导航执行条件有效？) then (不满足 · ALT-015-6)
+|lane_1|
+:禁止空名单或失效资源启动；草稿不可启动; <<failure>>
+stop
+else (满足)
+|lane_2|
+:冻结来源快照并核对名单实际导入结果\n为批次客户建立独立映射，避免跨批同号被任务排重;
+|lane_3|
+:任务启动能力待确认\n不发送无依据的启动调用；type=2创建需ivrId或ivrName;
+|lane_2|
+if (执行已确认受理且可持续取得结果？) then (不满足 · ALT-015-9)
+|lane_1|
+:保留失败或待核对，先查询状态，不盲目重复投放; <<failure>>
+stop
+else (满足)
+|lane_2|
+:归集IVR轨迹和适用话单，更新原批次\n未知保持待确认；纯IVR不等待虚构人工录音;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+endif
+else (取消 · ALT-015-CANCEL)
+|lane_1|
+:取消本次提交：既有草稿保留，预选客户不占用; <<end_label>>
+stop
+endif
+endif
+@enduml

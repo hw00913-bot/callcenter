@@ -1,0 +1,24 @@
+### Result
+{"checks":["docs/change-log.html opens","docs/development.html opens","flowcharts/business-process.html opens","flowcharts/business-process.html current diagrams","flowcharts/sequence-interaction.html opens","flowcharts/sequence-interaction.html current diagrams","related-systems/index.html opens","offline download hint","offline doc navigation","offline prototype scripts","no script errors"],"count":11,"errors":[]}
+### Ran Playwright code
+```js
+await (async page => {
+ const base='file:///private/tmp/alicti-consolidated-archive-check/Demo/';const checks=[],errors=[];
+ page.on('pageerror',e=>errors.push(e.message));const check=(name,ok)=>{if(!ok)throw Error(name);checks.push(name)};
+ for(const f of ['docs/change-log.html','docs/development.html','flowcharts/business-process.html','flowcharts/sequence-interaction.html','related-systems/index.html']){
+  await page.goto(base+f);check(f+' opens',!!await page.title());
+  if(f.includes('flowcharts'))check(f+' current diagrams',await page.locator('body').innerText().then(t=>t.includes('SC-208')||t.includes('SEQ-208')));
+ }
+ await page.goto(base+'docs/development.html');check('offline download hint',await page.locator('body').innerText().then(t=>t.includes('已解压为本地开发包')));
+ await page.getByRole('complementary',{name:'文档目录'}).getByRole('link',{name:'变更记录',exact:true}).click();check('offline doc navigation',page.url().endsWith('docs/change-log.html'));
+ await page.goto(base+'index.html');check('offline prototype scripts',await page.evaluate(()=>!!window.CustomerFollowup&&!!window.AliCtiInbound&&!!window.RouteRuntime));
+ check('no script errors',errors.length===0);return {checks,count:checks.length,errors};
+}
+)(page);
+```
+### Page
+- Page URL: file:///private/tmp/alicti-consolidated-archive-check/Demo/index.html
+- Page Title: AliCti 云外呼原型
+- Console: 0 errors, 1 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-15T09-26-15-955Z.log#L42-L49

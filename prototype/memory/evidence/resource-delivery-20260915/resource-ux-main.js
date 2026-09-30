@@ -1,0 +1,61 @@
+async page=>{
+page.on("dialog",d=>d.accept());
+await page.reload();
+const inspect = async page=>{
+ await page.setViewportSize({width:1512,height:1100});
+ if(await page.getByRole('button',{name:'登录',exact:true}).count())await page.getByRole('button',{name:'登录',exact:true}).click();
+ await page.evaluate(()=>{AppState.chooseInstance('7522240');AppState.chooseDomain('CLOUD_CONTACT_CENTER');RouteRuntime.openPrimary('lines')});
+ await page.screenshot({path:'/private/tmp/resource-lines-new.png'});
+ await page.locator('.management-list-shell').getByRole('button',{name:'添加线路',exact:true}).click();
+ await page.locator('#line-start h2').waitFor();
+ return {lineStart:await page.locator('#line-start').innerText(),layers:await page.locator('.layer-panel').count()};
+};
+const flow = async page=>{
+ const checks=[],errors=[];page.on('pageerror',e=>errors.push(e.message));const check=(n,ok)=>{if(!ok)throw Error(n);checks.push(n)};
+ const settled=()=>page.waitForFunction(()=>!document.querySelector('.drawer-entering,.drawer-exit-visual'));
+ await page.locator('#line-start').getByRole('button',{name:'选择号码',exact:true}).first().click();await settled();
+ check('right drawer',await page.locator('#number-onboarding .layer-panel').boundingBox().then(b=>b.x>200&&b.x+b.width>1500));
+ check('selected line carried',await page.locator('#intakeLine').inputValue()!=='');
+ await page.locator('#intakeLine').selectOption('LINE-ALI-01');
+ await page.locator('#number-onboarding').getByRole('button',{name:'下一步',exact:true}).click();await settled();
+ check('opened number list',(await page.locator('#number-onboarding').innerText()).includes('02100009001'));
+ check('no invented new number field',await page.locator('#intakeNumbers').count()===0);
+ await page.locator('#number-onboarding input[value="POOL-ALI-01"]').check();
+ await page.locator('#number-onboarding').getByRole('button',{name:'下一步',exact:true}).click();await settled();
+ check('outbound usage default',await page.locator('#attachUsage').inputValue()==='Outbound');
+ await page.locator('#number-onboarding').getByRole('button',{name:'确认添加',exact:true}).click();
+ await page.locator('#number-onboarding').getByRole('button',{name:'设置使用坐席',exact:true}).waitFor();await settled();
+ check('added from supplier query',await page.evaluate(()=>{const n=CloudCallData.phoneNumbers.find(n=>n.number==='02100009001');return n?.alictiNumber?.hotline==='02100009001'&&n.businessStatus==='正常'&&n.authorizedTenantIds.length===0}));
+ check('no authorization means unavailable',await page.evaluate(()=>!CloudResourceRules.usableNumber(CloudCallData.phoneNumbers.find(n=>n.number==='02100009001'),'TEN-NISSAN-HQ','呼出','预览外呼')));
+ await page.locator('#number-onboarding').getByRole('button',{name:'设置使用坐席',exact:true}).click();await settled();
+ check('number assignment drawer',await page.locator('#number-detail').isVisible());
+ return {checks,errors,assignment:await page.locator('#number-detail').innerText(),inputs:await page.locator('#number-detail input[type="checkbox"]').evaluateAll(es=>es.map(e=>({name:e.name,value:e.value,disabled:e.disabled,checked:e.checked})))};
+};
+const save = async page=>{
+ const checks=[],errors=[];page.on('pageerror',e=>errors.push(e.message));const check=(n,ok)=>{if(!ok)throw Error(n);checks.push(n)};
+ const settled=()=>page.waitForFunction(()=>!document.querySelector('.drawer-entering,.drawer-exit-visual'));
+ await page.locator('#number-detail input[name="numberTenant"][value="TEN-NISSAN-HQ"]').check();
+ check('group immediately enabled',await page.locator('#number-detail input[value="SG-ALI-HQ-SALES"]').isEnabled());
+ await page.locator('#number-detail input[value="SG-ALI-HQ-SALES"]').check();
+ check('actual seat names visible',await page.locator('.na-preview').innerText().then(t=>t.includes('陈敏')&&t.includes('工号')));
+ check('unsaved does not change authorization',await page.evaluate(()=>CloudCallData.phoneNumbers.find(n=>n.number==='02100009001').authorizedTenantIds.length===0));
+ await page.locator('#number-detail').getByRole('button',{name:'保存使用范围',exact:true}).click();await settled();
+ check('save keeps current number drawer open',await page.locator('#number-detail').isVisible() && await page.locator('#number-detail').innerText().then(t=>t.includes('陈敏')));
+ check('tenant and group saved together',await page.evaluate(()=>{const n=CloudCallData.phoneNumbers.find(n=>n.number==='02100009001');return n.authorizedTenantIds.includes('TEN-NISSAN-HQ')&&n.boundSkillGroupIds.includes('SG-ALI-HQ-SALES')}));
+ check('local supplier block removed',await page.evaluate(()=>!String(Pages['resource-lines'].saveNumberBinding).includes('pending(name)')));
+ check('saved number eligible for preview',await page.evaluate(()=>{const n=CloudCallData.phoneNumbers.find(n=>n.number==='02100009001');return CloudResourceRules.usableNumber(n,'TEN-NISSAN-HQ','呼出','预览外呼')&&CloudResourceRules.numberBound(n,'SG-ALI-HQ-SALES')}));
+ check('number appears in manual call selector',await page.evaluate(()=>ManualSkillAccess.numbers(CloudCallData.physicalSkillGroups.find(g=>g.skillGroupId==='SG-ALI-HQ-SALES')).some(n=>n.number==='02100009001')));
+ await page.screenshot({path:'/private/tmp/number-assignment-new.png'});
+ await page.locator('#number-detail .layer-header').getByRole('button',{name:'关闭',exact:true}).click();await settled();
+ check('close returns to number result',await page.locator('#number-onboarding').isVisible());
+ await page.locator('#number-onboarding .layer-header').getByRole('button',{name:'关闭',exact:true}).click();await settled();
+ await page.locator('#line-start').getByRole('button',{name:'登记待开通线路',exact:true}).click();await settled();
+ await page.locator('#onLineName').fill('上海门店新通道');await page.locator('#onProvider').fill('示例线路供应商');
+ await page.locator('#line-onboarding').getByRole('button',{name:'保存线路资料',exact:true}).click();await settled();
+ check('saved line still pending',await page.evaluate(()=>{const r=CloudCallData.lines.find(r=>r.name==='上海门店新通道');return r&&r.pocStatus==='未开始'&&!r.routingConfirmed}));
+ check('next provider step explained',await page.locator('#line-onboarding').innerText().then(t=>t.includes('供应商办理接入')&&t.includes('登记不代表已开通')));
+ check('right top close present',await page.locator('#line-onboarding .layer-header').getByRole('button',{name:'关闭',exact:true}).count()===1);
+ check('no script errors',errors.length===0);return {checks,errors};
+};
+return {inspect:await inspect(page),flow:await flow(page),save:await save(page)};
+}

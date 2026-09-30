@@ -1,0 +1,123 @@
+@startuml
+title SC-105 · 分别使用运营工作台和坐席工作台
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 当前角色用户
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:当前角色登录后查看工作台并按权限下钻处理; <<start_label>>
+|lane_1|
+:按角色进入运营工作台；具备坐席资格时可另进坐席工作台\n输入：当前供应商账号/租户、角色及坐席关联\n输出：对应工作重点;
+|lane_2|
+:运营工作台将任务与坐席分区；坐席工作台左侧客户联系、右侧通话成效\n输入：有来源的任务/坐席/尝试记录\n输出：任务进度与类型占比分开；未知显示待接入;
+|lane_1|
+:选择任务、坐席或资源下钻；坐席居中详情分开显示当前状态、当前通话及分页历史\n输入：当前授权指标或指定对象；历史通话每页5条\n输出：任务进入原任务详情；坐席历史可回查同一callId，当前详情缺失明确提示;
+|lane_2|
+if (所选对象和操作在既有权限内？) then (不满足 · ALT-105-4)
+|lane_1|
+:拒绝越权；人员和资源维护仍限管理员; <<failure>>
+stop
+else (满足)
+endif
+|lane_1|
+switch (当前下钻的是什么对象？)
+case (任务)
+|lane_1|
+:在既有任务详情选择暂停、继续或终止；坐席分支复用原停用确认\n输入：当前任务状态、资源与操作意图\n输出：按目标对象选择既有操作，不在概览直接控制;
+|lane_2|
+if (当前任务状态和资源互斥检查通过？) then (不满足 · ALT-105-6)
+|lane_1|
+:拒绝无效状态或未恢复资源；号码隔离恢复限管理员; <<failure>>
+stop
+else (满足)
+endif
+|lane_1|
+if (确认提交本次操作？) then (取消 · ALT-105-CANCEL)
+|lane_1|
+:取消提交：不执行本次变更，保留已有有效数据; <<end_label>>
+stop
+else (确认)
+endif
+|lane_2|
+if (按本地草稿或厂商任务选择控制路径) then (无厂商活动)
+|lane_2|
+switch (无厂商活动时请求什么操作？)
+case (终止且本地状态允许 · ALT-105-LOCAL-STOP)
+|lane_2|
+:本地终止未启动任务并保存调度审计\n保留客户关联与历史；不发送远端请求;
+|lane_1|
+:本地终止结果已展示\n未发起厂商控制，不经过厂商结果核验路径; <<end_label>>
+stop
+case (隔离前待启动且申请恢复 · ALT-105-FIRST-START)
+|lane_2|
+:转SC-014/015首次启动复检\n仅隔离前待启动且管理员单独确认；不调用ResumeCampaign; <<end_label>>
+stop
+case (其他不适用操作 · ALT-105-LOCAL-INVALID)
+|lane_1|
+:拒绝不适用的本地暂停/继续\n原状态不变；无活动不能调用厂商控制; <<failure>>
+stop
+endswitch
+else (已有厂商活动)
+endif
+|lane_3|
+:AliCti任务控制\n暂停/结束按文档；启动/继续待确认;
+|lane_2|
+if (厂商结果与在途保护均已确认？) then (不满足 · ALT-105-8)
+|lane_1|
+:标记待核对/失败，不把受理当最终生效; <<failure>>
+stop
+else (满足)
+|lane_2|
+:保存已核实的控制结果和调度记录\n输入：厂商确认结果或本地终止事务结果\n输出：暂停可继续；终止不可继续；在途和客户关联保留;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+case (坐席 · ALT-105-SEAT)
+|lane_2|
+:居中坐席详情\n当前状态/当前通话/分页历史分开；缺失明细不补历史;
+|lane_1|
+if (只读回查，还是有权限管理员请求停用？) then (只读查看)
+|lane_1|
+:只读查看或转SC-104同一通话记录\n关闭释放详情；运营没有停用操作; <<end_label>>
+stop
+else (管理员选择停用 · ALT-105-SEAT-STOP)
+|lane_2|
+:转SC-005原停用确认及取消流程\n仅停止新任务，允许当前通话完成; <<end_label>>
+stop
+endif
+case (其他资源 · ALT-105-RESOURCE)
+|lane_1|
+:进入已有资源模块；沿用原权限及操作; <<end_label>>
+stop
+endswitch
+@enduml

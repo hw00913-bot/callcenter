@@ -1,0 +1,70 @@
+@startuml
+title SC-005 · 联络中心身份停用、恢复与删除
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 租户管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:租户管理员主动选择停用、恢复或删除联络中心身份; <<start_label>>
+|lane_1|
+:选择坐席停用、恢复或删除\n输入：本租户坐席与当前状态\n输出：生命周期操作申请;
+|lane_2|
+if (有权限且满足所选操作前置条件？) then (不满足 · ALT-005-2)
+|lane_1|
+:拒绝跨租户或不满足条件的操作；列明引用和当前通话; <<failure>>
+stop
+else (满足)
+|lane_1|
+if (确认提交本次操作？) then (确认)
+|lane_2|
+:停用先阻止新任务并等待在途通话/话后完成；恢复先复检资源\n未安全结束保持待停用，不强制挂断;
+|lane_3|
+:在安全状态执行坐席变更并反馈结果\nactive/isOb等更新；在线限制或失败保持待处理，删除需对应契约核验;
+|lane_2|
+if (安全条件和厂商操作结果均已确认？) then (不满足 · ALT-005-5)
+|lane_1|
+:保留处理中/失败待核对，不假定已停用或已删除; <<failure>>
+stop
+else (满足)
+|lane_2|
+:确认生命周期结果并保留历史\n输入：厂商结果与引用检查\n输出：停用/恢复/删除状态；历史记录不删;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+else (取消 · ALT-005-CANCEL)
+|lane_1|
+:取消提交：不执行本次变更，保留已有有效数据; <<end_label>>
+stop
+endif
+endif
+@enduml

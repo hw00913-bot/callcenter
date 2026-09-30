@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-007",
+  "scenario_id": "SC-007",
+  "name": "为坐席分配多个技能组和技能等级时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "新坐席需要分配业务能力，或现有坐席职责变化",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "u",
+      "to": "ui",
+      "message": "选择坐席及多个本租户技能组",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 7,
+      "from": "svc",
+      "to": "svc",
+      "message": "坐席和组同租户同供应商账号且有效？；满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 8,
+      "from": "svc",
+      "to": "svc",
+      "message": "读取既有技能并形成完整目标技能列表；保留未修改技能；数值越小优先；合法值域待确认",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 9,
+      "from": "svc",
+      "to": "vendor",
+      "message": "提交完整skillIds/skillLevels列表，最多100坐席；小值优先",
+      "type": "request",
+      "api_id": "API-309",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 10,
+      "from": "vendor",
+      "to": "svc",
+      "message": "逐坐席读取failCno；部分失败不标全部生效",
+      "type": "response",
+      "api_id": "API-309",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "svc",
+      "message": "目标坐席均已确认成功且技能列表一致？；部分失败不当全量成功，在线限制明确提示",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 12,
+      "from": "svc",
+      "to": "svc",
+      "message": "显示生效成员及等级；人工配置承接范围，厂商在组内按路由分配",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 13,
+      "from": "svc",
+      "to": "ui",
+      "message": "拦截跨租户、失效组及无权变更",
+      "type": "error",
+      "api_id": null,
+      "condition": "坐席和组同租户同供应商账号且有效？：不满足"
+    },
+    {
+      "step": 14,
+      "from": "svc",
+      "to": "ui",
+      "message": "保留失败项；管理员按项重试；不假装已具备技能",
+      "type": "error",
+      "api_id": null,
+      "condition": "变更已确认生效？：不满足"
+    },
+    {
+      "step": 15,
+      "from": "svc",
+      "to": "ui",
+      "message": "取消提交：不执行本次变更，保留已有有效数据",
+      "type": "error",
+      "api_id": null,
+      "condition": "执行变更前取消确认"
+    },
+    {
+      "step": 16,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

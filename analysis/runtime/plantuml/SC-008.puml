@@ -1,0 +1,63 @@
+@startuml
+title SC-008 · 接入AliCti或外部线路号码并授权租户
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 超级管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| 线路供应商/AliCti开通服务
+|#FFF8E8|lane_4| AliCti
+|lane_1|
+start
+:线路资源需要进入当前供应商账号并开放使用; <<start_label>>
+|lane_1|
+:选择供应商已有号码同步或外部号码接入路径\n两种来源分别管理;
+|lane_3|
+:线路开通能力待确认\n已有号码可查询；新增接入未确认不标开通;
+|lane_1|
+:查询已开通号码；外部来源仅在接入确认后登记\n未核验接入不展示厂商成功;
+|lane_4|
+:返回企业号码、用途、状态与中继组信息\n按enterpriseId查询可用资源；不由查询推断开通能力;
+|lane_2|
+if (号码归属、线路可用及供应商账号关联已确认？) then (不满足 · ALT-008-5)
+|lane_1|
+:显示待开通/失败/待核对；导入成功不当作可呼叫; <<failure>>
+stop
+else (满足)
+|lane_2|
+:关联当前供应商账号并保存来源映射\n输入：号码与线路标识\n输出：号码唯一供应商账号归属;
+|lane_1|
+:授权同供应商账号一个或多个租户及用途\n输入：已关联号码、租户、呼入/呼出\n输出：租户用号授权;
+|lane_2|
+:保存授权并保留校验边界\n输入：供应商账号号码与租户范围\n输出：未授权租户不能用号；共享不等于数据共享;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+@enduml

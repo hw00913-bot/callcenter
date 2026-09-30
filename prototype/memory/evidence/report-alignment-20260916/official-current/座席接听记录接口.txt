@@ -1,0 +1,368 @@
+查询座席接听记录列表接口
+接口说明
+针对呼叫中心座席接听电话记录的数据列表。通过这个接口，可以查看座席在一定时间范围内的所有接听记录，了解座席的工作情况、效率、服务质量等。帮助呼叫中心管理者、质量监督人员或客户了解座席的接听情况，以便进行工作评估、问题追踪或服务质量改进。
+API URL
+接口请求地址：
+https://api-{region}.alicti.cn/cc/list_cdr_ib_agent
+地址参数说明：
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+接口请求方式：
+GET
+请求参数
+参数
+类型
+要求
+描述
+示例
+startTime
+Long
+必选
+开始时间，时间戳格式精确到秒。默认值取当前月份第一天
+1708398399
+startTimeEnd
+Long
+必选
+开始时间查询截止，时间戳格式精确到秒，开始时间和结束时间跨度不能超过一个月。默认值取当前时间
+1708398399
+bridgeTime
+Long
+可选
+接听时间，时间戳格式精确到秒
+1708398400
+bridgeTimeEnd
+Long
+可选
+接听时间查询截止，时间戳格式精确到秒
+1708398400
+endTime
+Long
+可选
+结束时间，时间戳格式精确到秒
+1708398412
+endTimeEnd
+Long
+可选
+结束时间查询截止，时间戳格式精确到秒
+1708398412
+hiddenType
+Integer
+可选
+是否隐藏号码。0: 不隐藏，1: 中间四位，2: 最后八位，3: 全部号码，4: 最后四位。默认值为 0
+0
+detailCallType
+Integer[]
+可选
+呼叫类型，默认查询全部
+101
+qno
+String[]
+可选
+队列号
+0001,0002
+cno
+String[]
+可选
+座席号
+0001,0002
+clientNumber
+String
+可选
+座席号码
+156xxxx8888
+bridgeStatus
+Integer[]
+可选
+接听状态。0: 人工未接听，1: 人工接听。默认全部
+0
+bridgeStatusDetail
+Integer[]
+可选
+呼叫结果。人工未接听原因，配合接听状态为人工未接听时做级联查询。2: 座席拒接，3: 振铃未接。默认全部
+1
+bridgeDuration
+Integer
+可选
+通话时长范围查询最小值，和bridgeDurationEnd配合使用
+0
+bridgeDurationEnd
+Integer
+可选
+通话时长范围查询最大值
+120
+onHookSource
+Integer[]
+可选
+挂断方，默认查询全部
+1000
+agentAnswerInTime
+Integer
+可选
+及时应答。0: 否，1: 是。默认全部
+0
+mainUniqueId
+String
+可选
+通话记录唯一标识
+medias_1-162046xxxx.12
+customerNumber
+String
+可选
+客户号码
+156xxxx8888
+customerNumberMatchType
+Integer
+可选
+客户号码匹配类型。0: 精确，1: 前缀，2: 后缀，3: 包含。与 customerNumber 组合查询
+0
+hotlines
+String[]
+可选
+热线号码
+xxxx1,xxxx2
+hotlineName
+String
+可选
+热线别名
+别名
+ivrIds
+Integer[]
+可选
+IVR
+1001,1002
+displayNumbers
+String[]
+可选
+呼转外显号码
+021xxxx0001,021xxxx0002
+sipCauseCode
+Integer
+可选
+SIP状态码
+200
+callRemember
+Integer[]
+可选
+主叫记忆。1: 外呼主叫记忆，2: 来电主叫记忆。默认全部
+1,2
+bindTypes
+Integer[]
+可选
+接听设备。1: 手机，2: IP话机，3: 软电话。默认全部
+1
+scrollSearch
+boolean
+可选
+是否滚动查询。默认false，true代表使用滚动查询。滚动查询不受 limit + offset ≤ 100000 限制，通过 scrollId 持续拉取即可
+false
+scrollId
+String
+可选
+滚动查询ID。配合scrollSearch使用，第一次查询时不需要传递此参数，后续查询可从返回列表中取值，并传参数。当scrollId为空时，代表滚动查询结束
+xxxxxx
+offset
+Integer
+可选
+偏移量，范围 0-99990。默认值为 0。注：普通分页时 limit + offset 不允许超过100000；滚动查询（scrollSearch=true）不受此限制
+0
+limit
+Integer
+可选
+查询条数，范围 10-1000。默认值为 10。注：普通分页时 limit + offset 不允许超过100000；滚动查询（scrollSearch=true）不受此限制
+10
+接口请求示例
+https://api-{region}.alicti.cn/cc/list_cdr_ib_agent?offset=0&limit=10&customerNumber=156xxxx8888&mainUniqueId=medias_1-162046xxxx.12&startTime=1536201058&startTimeEnd=1536201058&<公共请求参数>
+接口返回
+JSON格式数据
+参数
+类型
+说明
+requestId
+String
+请求ID
+pageNumber
+Int
+当前页码
+pageSize
+Int
+每页条数
+totalCount
+Int
+总记录数
+scrollId
+String
+滚动查询ID
+cdrIbAgent
+Object[]
+座席接听记录列表
+cdrIbAgent 座席接听记录列表字段定义：
+字段
+类型
+描述
+uniqueId
+String
+唯一标识
+mainUniqueId
+String
+通话ID
+qno
+String
+来电队列号
+qname
+String
+来电队列名称
+cno
+String
+座席号
+clientName
+String
+座席名称
+clientNumber
+String
+座席电话
+clientNumberAreaCode
+String
+座席电话区号
+clientNumberRegion
+String
+座席电话归属地，格式：省份/城市
+bridgeStatus
+String
+接听状态
+bridgeStatusDetail
+String
+呼叫结果
+sipCauseCode
+Integer
+SIP状态码
+sipCauseDesc
+String
+呼叫情况
+onHookSource
+String
+挂断方
+agentAnswerInTime
+Integer
+及时应答
+detailCallType
+String
+呼叫类型
+callId
+String
+CallID
+webrtcCallId
+String
+WebRTCCallID
+recordFile
+String
+录音文件名
+startTime
+Long
+开始时间
+ringTime
+Long
+振铃时间
+ibRingingDuration
+Integer
+振铃时长
+answerTime
+Long
+接听时间
+offhookTime
+Long
+座席接起时间
+sayVoiceDuration
+Integer
+语音播报时长
+ivrName
+String
+IVR名称
+endTime
+Long
+结束时间
+bridgeDuration
+Integer
+通话时长
+customerNumber
+String
+客户号码，带区号
+customerNumberEncrypt
+String
+客户号码加密串
+customerProvince
+String
+客户号码省份
+customerCity
+String
+客户号码城市
+displayNumber
+String
+呼转外显号码
+displayNumberAreaCode
+String
+呼转外显号码区号
+displayNumberRegion
+String
+呼转号码归属地，格式：省份/城市
+hotline
+String
+热线号码
+hotlineName
+String
+热线别名
+remember
+String
+主叫记忆。obRemember: 外呼主叫记忆，ibRemember: 来电主叫记忆
+bindType
+Integer
+接听设备
+返回示例：
+{
+  "requestId": "ac108b17-ac8c-41f0-b2b1-4007e3b3cb81",
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalCount": 100,
+  "scrollId": "xxxxxx",
+  "cdrIbAgent": [
+    {
+        "cno": "0001",
+        "clientName": "xxx",
+        "bindType": 1,
+        "clientNumber": "156xxxx8888",
+        "clientNumberAreaCode": "755",
+        "clientNumberRegion": "广东/深圳",
+        "customerNumber":"153xxxx8888",
+        "customerNumberEncrypt":"TNjljZjZlNjgxYmIwNjMxGEwMzA3MmQ0MDQzYWE****",
+        "customerProvince":"北京",
+        "customerCity":"北京",
+        "qno": "0001",
+        "qname": "xxxx",
+        "ivrName": "IVR名称",
+        "hotline": "xxxx",
+        "hotlineName": "热线别名",
+        "bridgeStatus": "人工接听",
+        "bridgeStatusDetail": "-",
+        "sipCauseCode": 200,
+        "sipCauseDesc": "处理成功",
+        "uniqueId": "medias_1-170839xxxx.14",
+        "mainUniqueId": "medias_1-162046xxxx.12",
+        "agentAnswerInTime": 0,
+        "detailCallType": "呼转座席",
+        "callId": "xxxx",
+        "webrtcCallId": "xxxx",
+        "recordFile": null,
+        "startTime": 1708398399,
+        "ringTime": 1708398400,
+        "answerTime": 1708398406,
+        "endTime": 1708398412,
+        "ibRingingDuration": 6,
+        "bridgeDuration": 6,
+        "onHookSource": "座席挂断",
+        "offhookTime": 1708398406,
+        "displayNumber": "0512xxxx0001",
+        "displayNumberAreaCode": "512",
+        "displayNumberRegion": "江苏/苏州",
+        "remember": "ibRemember",
+        "sayVoiceDuration": 0
+    }
+  ]
+}

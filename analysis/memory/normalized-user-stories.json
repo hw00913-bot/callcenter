@@ -1,0 +1,967 @@
+{
+  "schema_version": "1.0",
+  "user_stories": [
+    {
+      "id": "US-001",
+      "title": "超级管理员进入供应商账号并启用租户联络中心能力",
+      "role": "超级管理员",
+      "trigger": "超级管理员登录，或需要为租户开通联络中心能力",
+      "goal": "在唯一、明确的品牌供应商账号上下文中，为总部或门店租户安全启用联络中心能力。",
+      "business_value": "在唯一、明确的品牌供应商账号上下文中，为总部或门店租户安全启用联络中心能力。",
+      "preconditions": [
+        "账号属于系统内置超级管理租户"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-001",
+          "type": "main",
+          "statement": "在唯一、明确的品牌供应商账号上下文中，为总部或门店租户安全启用联络中心能力。"
+        },
+        {
+          "id": "AC-002",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-001",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-002",
+      "title": "创建或复用中台登录账号并加入租户",
+      "role": "租户管理员 / 超级管理员、中台账号使用人",
+      "trigger": "租户管理员或超级管理员需要新增管理员/运营成员",
+      "goal": "按手机号复用或显式创建平台级登录账号，再为目标租户配置唯一且不叠加的后台角色权限。",
+      "business_value": "按手机号复用或显式创建平台级登录账号，再为目标租户配置唯一且不叠加的后台角色权限。",
+      "preconditions": [
+        "操作者具有账号创建和租户成员管理权限；租户管理员固定操作当前租户，超级管理员已选择目标租户"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-003",
+          "type": "main",
+          "statement": "按手机号复用或显式创建平台级登录账号，再为目标租户配置唯一且不叠加的后台角色权限。"
+        },
+        {
+          "id": "AC-004",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-002",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-003",
+      "title": "在中台开通供应商坐席",
+      "role": "租户管理员、当前供应商账号超级管理员",
+      "trigger": "租户管理员需要新增一个或多个联络中心坐席",
+      "goal": "由管理员在当前租户开通或导入独立电话身份，再按需关联平台账号。",
+      "business_value": "由管理员在当前租户开通或导入独立电话身份，再按需关联平台账号。",
+      "preconditions": [
+        "目标租户已启用云联络中心并绑定有效供应商账号",
+        "操作者具有坐席维护权限，已提供厂商所需资料"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-005",
+          "type": "main",
+          "statement": "不以外部业务用户为前置；按AliCti要求提供cno、name、areaCode，在当前enterpriseId下创建坐席，核实成功后保存租户归属。文档未明确支持的导入能力显示待确认。"
+        },
+        {
+          "id": "AC-006",
+          "type": "exception",
+          "statement": "创建失败或结果未知保留原因，核查既有坐席后再处理，不能重复创建或自动生成另一平台登录账号；未明确支持的坐席查询和导入能力显示待确认。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-003",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-005",
+      "title": "联络中心身份停用、恢复与删除",
+      "role": "租户管理员",
+      "trigger": "租户管理员主动选择停用、恢复或删除联络中心身份",
+      "goal": "由管理员独立控制电话能力生命周期，在不打断进行中通话的前提下完成状态变更并永久保留历史。",
+      "business_value": "由管理员独立控制电话能力生命周期，在不打断进行中通话的前提下完成状态变更并永久保留历史。",
+      "preconditions": [
+        "联络中心身份已归属当前租户，并具有可核验的中台与AliCti实际状态"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-009",
+          "type": "main",
+          "statement": "由管理员独立控制电话能力生命周期，在不打断进行中通话的前提下完成状态变更并永久保留历史。"
+        },
+        {
+          "id": "AC-010",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-005",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-006",
+      "title": "创建逻辑技能模板与租户物理技能组",
+      "role": "超级管理员、租户管理员",
+      "trigger": "某供应商账号需要新增可复用技能分类，或某租户需要启用既有技能分类",
+      "goal": "复用售前、售后等业务分类，同时用租户独占的AliCti物理技能组保证原生路由不跨租户。",
+      "business_value": "复用售前、售后等业务分类，同时用租户独占的AliCti物理技能组保证原生路由不跨租户。",
+      "preconditions": [
+        "超级管理员已选定供应商账号；目标租户绑定该供应商账号并启用联络中心能力"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-011",
+          "type": "main",
+          "statement": "复用售前、售后等业务分类，同时用租户独占的AliCti物理技能组保证原生路由不跨租户。"
+        },
+        {
+          "id": "AC-012",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-006",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-007",
+      "title": "为坐席分配多个技能组和技能等级",
+      "role": "租户管理员、当前租户坐席",
+      "trigger": "新坐席需要分配业务能力，或现有坐席职责变化",
+      "goal": "由租户管理员人工决定坐席可承接的业务，并让AliCti按skillLevels数值越小优先级越高执行分配，合法值域待确认。",
+      "business_value": "由租户管理员人工决定坐席可承接的业务，并让AliCti按skillLevels数值越小优先级越高执行分配，合法值域待确认。",
+      "preconditions": [
+        "本租户已有可用物理技能组；坐席已启用且归属当前租户"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-013",
+          "type": "main",
+          "statement": "由租户管理员决定坐席可承接的技能及优先级，AliCti的skillLevels数值越小优先；控件不预设无依据的1—10范围，合法值域显示待确认。"
+        },
+        {
+          "id": "AC-014",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-007",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-008",
+      "title": "接入AliCti或外部线路号码并授权租户",
+      "role": "超级管理员、租户管理员",
+      "trigger": "线路资源需要进入当前供应商账号并开放使用",
+      "goal": "区分AliCti号码同步/关联与外部企业号码导入，不把导入成功当线路开通；号码供应商账号独占、同供应商账号多租户授权",
+      "business_value": "区分AliCti号码同步/关联与外部企业号码导入，不把导入成功当线路开通；号码供应商账号独占、同供应商账号多租户授权",
+      "preconditions": [
+        "已确定目标 AliCti 供应商账号和外部线路供应商"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-015",
+          "type": "main",
+          "statement": "区分AliCti号码同步/关联与外部企业号码导入，不把导入成功当线路开通；号码供应商账号独占、同供应商账号多租户授权"
+        },
+        {
+          "id": "AC-016",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-008",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-009",
+      "title": "隔离号码业务并处理关联业务",
+      "role": "超级管理员",
+      "trigger": "号码被投诉、线路异常、资质变化或需要临时停止服务",
+      "goal": "在保留号码配置和可恢复关系的前提下，阻止新外呼和正常业务呼入，并及时处置全部跨租户影响。",
+      "business_value": "在保留号码配置和可恢复关系的前提下，阻止新外呼和正常业务呼入，并及时处置全部跨租户影响。",
+      "preconditions": [
+        "号码已绑定唯一供应商账号，并可能被该供应商账号下多个租户的方案或呼入路由引用"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-017",
+          "type": "main",
+          "statement": "在保留号码配置和可恢复关系的前提下，阻止新外呼和正常业务呼入，并及时处置全部跨租户影响。"
+        },
+        {
+          "id": "AC-018",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-009",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-010",
+      "title": "通用呼叫方案维护（已取消）",
+      "role": "租户管理员",
+      "trigger": "历史规则被替代",
+      "goal": "不恢复独立通用方案；人工外呼用技能组与授权号码，批量任务自带规则，呼入独立配置路由",
+      "business_value": "不恢复独立通用方案；人工外呼用技能组与授权号码，批量任务自带规则，呼入独立配置路由",
+      "preconditions": [
+        "租户已启用联络中心能力，并具备本租户获授权号码和本租户物理技能组"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-019",
+          "type": "main",
+          "statement": "不恢复独立通用方案；人工外呼用技能组与授权号码，批量任务自带规则，呼入独立配置路由"
+        },
+        {
+          "id": "AC-020",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-010",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "out_of_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-011",
+      "title": "配置共享呼入号码、IVR 分流和租户人工路由",
+      "role": "超级管理员、租户管理员",
+      "trigger": "供应商账号需要开通共享号码呼入，或调整 IVR 分支与租户路由",
+      "goal": "把供应商账号共享号码、入口 IVR 和各租户独立呼入方案组合为可执行入口，并在人工路由前锁定唯一目标租户。",
+      "business_value": "把供应商账号共享号码、入口 IVR 和各租户独立呼入方案组合为可执行入口，并在人工路由前锁定唯一目标租户。",
+      "preconditions": [
+        "号码已绑定当前供应商账号并授权目标租户；AliCti侧已有可同步的已发布 IVR；各目标租户物理技能组可用"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-021",
+          "type": "main",
+          "statement": "把供应商账号共享号码、入口 IVR 和各租户独立呼入方案组合为可执行入口，并在人工路由前锁定唯一目标租户。"
+        },
+        {
+          "id": "AC-022",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-011",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-014",
+      "title": "创建、配置与启动预外呼任务",
+      "role": "租户管理员、租户运营、关联本人坐席的运营",
+      "trigger": "需要批量呼叫并由本租户空闲坐席承接",
+      "goal": "任务可先建后分配，或创建时选已有待分配客户；提交不自动拨号；启动前复检并冻结执行快照",
+      "business_value": "任务可先建后分配，或创建时选已有待分配客户；提交不自动拨号；启动前复检并冻结执行快照",
+      "preconditions": [
+        "当前租户具备有效技能组、授权号码和可承接预外呼的坐席",
+        "客户可先导入，也可在创建后分配；创建任务不依赖接入业务系统或通用呼叫方案"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-027",
+          "type": "main",
+          "statement": "任务可先建后分配，或创建时选已有待分配客户；提交不自动拨号；启动前复检并冻结执行快照"
+        },
+        {
+          "id": "AC-028",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-014",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-015",
+      "title": "创建、配置与启动IVR外呼任务",
+      "role": "租户运营",
+      "trigger": "需要自动语音通知或交互",
+      "goal": "任务选择已发布IVR流程，客户可提前导入后部分关联；无客户拒绝启动；纯IVR保存结构化结果而非等待录音",
+      "business_value": "任务选择已发布IVR流程，客户可提前导入后部分关联；无客户拒绝启动；纯IVR保存结构化结果而非等待录音",
+      "preconditions": [
+        "AliCti已有可引用的已发布 IVR 联系流，租户有可用授权号码",
+        "纯 IVR 零在线坐席执行仍须真实 POC，不因原型演示成功自动转为已支持"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-029",
+          "type": "main",
+          "statement": "任务选择已发布IVR流程，客户可提前导入后部分关联；无客户拒绝启动；纯IVR保存结构化结果而非等待录音"
+        },
+        {
+          "id": "AC-030",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-015",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-016",
+      "title": "复用现有智能外呼中台执行 AI 外呼",
+      "role": "租户运营",
+      "trigger": "租户运营需要创建 AI 外呼任务",
+      "goal": "保留现有 AI 外呼租户、账号、机器人和第三方厂商链路，不被联络中心改造替换。",
+      "business_value": "保留现有 AI 外呼租户、账号、机器人和第三方厂商链路，不被联络中心改造替换。",
+      "preconditions": [
+        "租户已启用智能外呼能力并具备现有第三方厂商账号、机器人和话术"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-031",
+          "type": "main",
+          "statement": "保留现有 AI 外呼租户、账号、机器人和第三方厂商链路，不被联络中心改造替换。"
+        },
+        {
+          "id": "AC-032",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-016",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-017",
+      "title": "客户呼入、IVR 导航与人工接听",
+      "role": "当前租户坐席、来电客户",
+      "trigger": "客户拨打已启用的供应商账号共享呼入号码",
+      "goal": "客户通过供应商账号共享号码进入 IVR，由分支或默认兜底锁定租户，再路由到该租户合适坐席完成服务。",
+      "business_value": "客户通过供应商账号共享号码进入 IVR，由分支或默认兜底锁定租户，再路由到该租户合适坐席完成服务。",
+      "preconditions": [
+        "共享号码、供应商账号级 IVR、分支—租户映射、默认租户及各租户呼入方案已启用"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-033",
+          "type": "main",
+          "statement": "客户通过供应商账号共享号码进入 IVR，由分支或默认兜底锁定租户，再路由到该租户合适坐席完成服务。"
+        },
+        {
+          "id": "AC-034",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-017",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-018",
+      "title": "呼入排队、拒接、客户匹配和非服务时间分支",
+      "role": "当前租户坐席、来电客户",
+      "trigger": "呼入未能直接进入正常唯一客户接听路径",
+      "goal": "对无人承接、拒接、陌生来电、多客户匹配和非服务时间提供明确且不跨租户的处理路径。",
+      "business_value": "对无人承接、拒接、陌生来电、多客户匹配和非服务时间提供明确且不跨租户的处理路径。",
+      "preconditions": [
+        "客户已拨入供应商账号共享号码，并已由 IVR 分支或默认兜底锁定目标租户"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-035",
+          "type": "main",
+          "statement": "对无人承接、拒接、陌生来电、多客户匹配和非服务时间提供明确且不跨租户的处理路径。"
+        },
+        {
+          "id": "AC-036",
+          "type": "exception",
+          "statement": "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体异常在本场景S3/S4核对。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-018",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-019",
+      "title": "通话结果归集与最终话单校准",
+      "role": "授权查看人员",
+      "trigger": "接收到话务事件、终态或业务处理结果",
+      "goal": "各次尝试归属正确租户、客户档案及原批次；客户接通、通话过程、跟进和录音独立记录。",
+      "business_value": "各次尝试归属正确租户、客户档案及原批次；客户接通、通话过程、跟进和录音独立记录。",
+      "preconditions": [
+        "外呼可由任务/坐席识别租户；共享号码呼入可由 IVR 分支或默认租户映射识别唯一数据归属"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-037",
+          "type": "main",
+          "statement": "仅客户侧有效接通证据可确认客户接通；持久化事件并幂等归一，结束后按AliCti对应呼叫类型的话单或适用尝试校准；客户与坐席接听时间分别映射，结果回写本平台原记录、批次和档案。"
+        },
+        {
+          "id": "AC-038",
+          "type": "exception",
+          "statement": "坐席接通不当作客户接通，单通道释放不当作整通结束，证据不足保持待确认；未知不归入未接通，不自动重拨。录音与文本各自按可用性处理；纯 IVR 录音不适用，IVR 转人工仅展示有人参与阶段；缺失文本不能由备注或 IVR 节点代替。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-019",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-020",
+      "title": "分业务域查看统计报表与操作审计",
+      "role": "租户运营 / 管理员、超级管理员",
+      "trigger": "需要核对业务数据和操作轨迹",
+      "goal": "按授权范围查看六类云域报表并下钻、导出，保留智能外呼既有报表和操作审计；区分周期成效、累计进度及不同统计对象。",
+      "business_value": "保留智能外呼全部既有报表；云呼叫按租户和供应商账号查询，不混淆客户数、呼叫次数、接通与跟进完成",
+      "preconditions": [
+        "用户已进入有效租户；超级管理员已选定唯一供应商账号"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-039",
+          "type": "main",
+          "statement": "云域提供通话总览、客户跟进、外呼任务、坐席成效、呼入服务、服务技能六类报表，包含统一筛选、指标、图表、分页明细与真实 CSV 导出；下钻复用客户档案、任务详情及录音文本通话详情。保留智能外呼原报表和既有操作审计。"
+        },
+        {
+          "id": "AC-040",
+          "type": "exception",
+          "statement": "查询、图表、下钻、分页与 CSV 使用同一已应用筛选和当前授权范围；切换范围后旧操作失效。无权限不返回数据；不伪造业务转化、历史在线时长或坐席利用率。"
+        },
+        {
+          "id": "AC-0391",
+          "type": "main",
+          "statement": "已结束通话按呼叫开始时间优先归期，缺失时回退已记录接通/结束时间并说明；进行中通话不混入周期成效分母。"
+        },
+        {
+          "id": "AC-0392",
+          "type": "main",
+          "statement": "客户跟进按导入日期选择批次，展示截至当前累计分配/联系/跟进状态；任务累计名单及进度与期内已结束通话结果分列，不冒充历史快照。"
+        },
+        {
+          "id": "AC-0393",
+          "type": "main",
+          "statement": "客户数按权限范围内规范手机号去重，名单量按批次客户行，通话量按独立 callId；不可识别号码单列，业务编码不是客户主键。"
+        },
+        {
+          "id": "AC-0394",
+          "type": "main",
+          "statement": "首呼/重呼按有效尝试序号或同批次客户完整已知历史判断，不以筛选期内第一通或手机号终身首通替代；证据不足标未识别。"
+        },
+        {
+          "id": "AC-0395",
+          "type": "exception",
+          "statement": "客户接通、人工接通与跟进完成分开；待确认不计未接或已确认接通率分母。缺失时长不补零，有效零时长保留，平均只用有效样本。"
+        },
+        {
+          "id": "AC-0396",
+          "type": "main",
+          "statement": "CSV 导出当前已应用筛选下的完整结果而非当前页，保持与页面同源，安全处理公式文本；当前仅本地文件，不声称生产导出后端已验收。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-020",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-101",
+      "title": "在账号管理关联现有或新建坐席",
+      "role": "租户管理员或所选供应商账号内的超级管理员",
+      "trigger": "已有账号需要在中台工作台外呼",
+      "goal": "管理员从账号列表为当前租户成员关联现有坐席，或带入账号资料新建并关联。",
+      "business_value": "管理员从账号列表为当前租户成员关联现有坐席，或带入账号资料新建并关联。",
+      "preconditions": [
+        "租户具备云联络中心能力",
+        "存在有效账号成员关系与同租户坐席"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-101",
+          "type": "main",
+          "statement": "账号页显示是否已开通坐席及坐席状态；同租户同供应商账号账号与未删除坐席一对一，两个维护入口共用校验和持久关系。"
+        },
+        {
+          "id": "AC-102",
+          "type": "exception",
+          "statement": "跨租户、跨供应商账号、重复占用、通话或话后使用中的关联一律拦截；创建失败不报已开通；已开通不等于已上线或可拨号。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-101",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "confirmation_note": "SRC048、SRC049 已明确确认并实现，本轮完整同步，未冻结。",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-102",
+      "title": "开启或结束本人 WebRTC 电话服务",
+      "role": "已关联坐席的管理员或运营账号",
+      "trigger": "开始或结束当前租户的人工外呼工作",
+      "goal": "在坐席工作台使用本人身份开启电话服务，并在无在途或未保存话后结果时安全下线。",
+      "business_value": "在坐席工作台使用本人身份开启电话服务，并在无在途或未保存话后结果时安全下线。",
+      "preconditions": [
+        "认证通过并选定租户与云联络中心业务域",
+        "已建立有效账号坐席关联"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-103",
+          "type": "main",
+          "statement": "自有界面按CTILink.setup成功回调、事件注册、后端取得本人短期sessionKey、Agent.login与软电话就绪的顺序开启电话服务；后端校验平台账号、租户、enterpriseId和cno的绑定，HTTPS/麦克风及就绪满足后才允许呼叫。"
+        },
+        {
+          "id": "AC-104",
+          "type": "exception",
+          "statement": "浏览器不持有长期token；不按前端任意cno取得登录资料；通话和未保存话后不能退出；短期sessionKey过期可重新申请，多标签/设备冲突不抢占，真实断线与身份实现仍需联调。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-102",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-103",
+      "title": "在坐席工作台完成人工外呼与话后处理",
+      "role": "已上线坐席",
+      "trigger": "需要直接联系一位客户",
+      "goal": "选择本人待联络客户或临时拨号，校验有效技能组与授权号码，在弹窗完成通话与结果保存。",
+      "business_value": "选择本人待联络客户或临时拨号，校验有效技能组与授权号码，在弹窗完成通话与结果保存。",
+      "preconditions": [
+        "账号关联坐席，当前租户与业务域有效",
+        "本坐席有效技能组和租户授权号码可用"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-105",
+          "type": "main",
+          "statement": "客户信息、授权外显号码、客户接通结果、通话过程、静音、挂断和处理结果保存形成平台内部闭环；不依赖任何外嵌电话条。"
+        },
+        {
+          "id": "AC-106",
+          "type": "exception",
+          "statement": "未接通、取消、资源失效、禁止联系有结果或阻断反馈；防止重复呼叫和保存；外部单据标识仅保留导入来源，不据此查询或回传其他系统。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-103",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-104",
+      "title": "回查原生外呼结果并纳入既有统计",
+      "role": "坐席与有数据权限的管理员或运营",
+      "trigger": "完成原生外呼后需要核对结果或业务统计",
+      "goal": "回查同次通话、来源与录音文本，并复用统一报表口径；媒体交互与真实供应商媒体验收分开。",
+      "business_value": "按同次通话回查记录，关联原导入批次及号码档案，并以一致口径汇总。",
+      "preconditions": [
+        "存在本次呼叫记录",
+        "当前账号有对应数据范围权限"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-107",
+          "type": "main",
+          "statement": "同一 callId 在通话记录、客户档案、批次结果、坐席工作台与云域报表保持一致；区分人工、预外呼、IVR、呼入及本地模拟来源。详情按独立可用状态展示录音工具条与分角色通话文本。"
+        },
+        {
+          "id": "AC-108",
+          "type": "exception",
+          "statement": "待确认不算未接通、不进入已确认接通率分母；校准历史通话不覆盖另一通话和当前跟进状态；不生成外部结果投递，不改变 AI 原有报表口径。统计细则复用 US-020，不另建一套口径。"
+        },
+        {
+          "id": "AC-1071",
+          "type": "main",
+          "statement": "有可用音频时支持播放、暂停、进度定位、倍速、音量和下载；有文本时支持搜索，可用时间戳片段可定位音频。音频/文本独立缺失时分别反馈。"
+        },
+        {
+          "id": "AC-1081",
+          "type": "exception",
+          "statement": "仅指定通话展示明确标注的合成语音和对应文本样例；现场模拟或历史缺失通话不自动配媒体，不把样例时长当原通话时长；纯 IVR 不提供虚构人工录音。"
+        },
+        {
+          "id": "AC-1082",
+          "type": "exception",
+          "statement": "关闭、换页、退出或授权失效停止播放并释放资源；缺失、过期、加载失败明确反馈并保护下载权限。本地交互通过不等于真实录音或转写对接通过。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-104",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-105",
+      "title": "分别使用运营工作台和坐席工作台",
+      "role": "超级管理员、租户管理员、租户运营及已关联坐席运营",
+      "trigger": "当前角色查看重点工作并按权限下钻任务、坐席或客户",
+      "goal": "运营工作台按角色看供应商账号资源或租户任务与负荷；坐席工作台看本人客户联系和通话成效。",
+      "business_value": "运营工作台按角色看供应商账号资源或租户任务与负荷；坐席工作台看本人客户联系和通话成效。",
+      "preconditions": [
+        "当前租户及业务域有效；具备操作权限"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-109",
+          "type": "main",
+          "statement": "云域分为两个工作台菜单；运营工作台中任务和坐席分区、类型和进度明确；坐席工作台客户联系在左、通话成效在右，原人工外呼旧地址仅兼容跳转。"
+        },
+        {
+          "id": "AC-110",
+          "type": "exception",
+          "statement": "两个工作台不新增角色或扩大权限；无有效关联不给拨号资格，已关联但停用/开通中提示原因。运营工作台只读概览，运营在任务模块保留既有任务权限；资源与客户分配限管理员。"
+        },
+        {
+          "id": "AC-1091",
+          "type": "main",
+          "statement": "从运营工作台打开居中坐席详情，当前状态、当前通话和近期历史通话分开；历史可分页并进入原通话详情。当前明细未取得时明确提示，不以历史通话冒充当前通话。"
+        },
+        {
+          "id": "AC-1101",
+          "type": "exception",
+          "statement": "普通运营在坐席详情只读；有权管理员复用原坐席停用确认，取消不改变状态；停用停止接收新任务但允许当前通话完成，不新增监听、强插或强挂。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-105",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-106",
+      "title": "人工外呼命名配置维护（已取消）",
+      "role": "租户管理员、所选供应商账号超级管理员",
+      "trigger": "管理员维护人工外呼配置",
+      "goal": "管理员维护人工外呼配置",
+      "business_value": "配置按场景归属，运行情况可观察并可受控介入",
+      "preconditions": [
+        "当前租户及业务域有效；具备操作权限"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-114",
+          "type": "main",
+          "statement": "在人工外呼页面新增命名配置，引用同租户技能与授权号码，不替换其他配置"
+        },
+        {
+          "id": "AC-115",
+          "type": "main",
+          "statement": "修改指定配置并递增版本；已发起通话的配置快照不被修改"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-106",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "out_of_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-201",
+      "title": "选择登录租户及业务域",
+      "role": "中台账号用户",
+      "trigger": "进入后台",
+      "goal": "继承账号或手机号登录；多租户在登录时选择，换租户退出重登；双能力租户选择业务域；普通用户不切供应商账号",
+      "business_value": "继承账号或手机号登录；多租户在登录时选择，换租户退出重登；双能力租户选择业务域；普通用户不切供应商账号",
+      "preconditions": [
+        "当前身份与租户能力有效"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-2011",
+          "type": "main",
+          "statement": "继承账号或手机号登录；多租户在登录时选择，换租户退出重登；双能力租户选择业务域；普通用户不切供应商账号"
+        },
+        {
+          "id": "AC-2012",
+          "type": "exception",
+          "statement": "停用租户、未授权业务域和越供应商账号访问须拒绝；演示切换不作为正式认证"
+        },
+        {
+          "id": "AC-2013",
+          "type": "main",
+          "statement": "关联系统仅保留无数据、无配置和无关联动作的空态入口；旧接入与授权地址不恢复实际业务能力。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-201",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-203",
+      "title": "按业务类型导入客户并关联号码档案",
+      "role": "租户管理员",
+      "trigger": "获得一批需联系客户",
+      "goal": "管理员按线索、售后或活动类型导入有效名单，形成待分配批次，并在同租户同供应商账号按规范手机号关联档案。",
+      "business_value": "CSV 或粘贴名单经预览校验后导入有效行，形成批次并在当前租户按标准化手机号聚合客户档案。",
+      "preconditions": [
+        "当前身份与租户能力有效"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-2031",
+          "type": "main",
+          "statement": "新批次必选线索类、售后类或活动类，分别必填线索编码、售后单号或活动编码；编码复用 externalDocumentId，以最多 100 字文本保留前导零。历史未分类名单保留原选填标识，不强制迁移；批次客户 ID 与档案 ID 分别保留。"
+        },
+        {
+          "id": "AC-2032",
+          "type": "exception",
+          "statement": "本批同号只取首条有效记录，即使业务编码不同也不重复导入；跨批同号可复用档案而不覆盖各批分配或跟进。不同客户可共用活动编码，不按编码合并；取消不保存，导入不自动产生通话。"
+        },
+        {
+          "id": "AC-2033",
+          "type": "exception",
+          "statement": "类型、名单或操作范围改变后原预览失效，重新校验并在提交时复检；表头须匹配业务类型，旧通用表头可识别但新类型编码仍必填；仅导入通过校验的行。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-203",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-204",
+      "title": "按外呼方式分配或改派客户",
+      "role": "租户管理员",
+      "trigger": "需要安排已导入客户的呼叫方式",
+      "goal": "勾选客户后选择人工、预外呼或 IVR；人工选择有效运营坐席，其他选择同租户同供应商账号同类型未启动任务。",
+      "business_value": "勾选客户后选择人工、预外呼或 IVR；人工选择有效运营坐席，其他选择同租户同供应商账号同类型未启动任务。",
+      "preconditions": [
+        "当前身份与租户能力有效"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-2041",
+          "type": "main",
+          "statement": "支持当前筛选下可分配项全选、半选、取消选择和已选计数；切换筛选或批次清空选择；提交时复检资格，任务创建可按权限选择部分待分配客户。"
+        },
+        {
+          "id": "AC-2042",
+          "type": "exception",
+          "statement": "已分配项不混入默认列表；通话中、话后未完、跟进完成或任务已启动的客户不可借全选绕过限制；坐席从有效账号关联取候选，技能在呼叫前复检。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-204",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-205",
+      "title": "回查客户档案与导入批次的执行结果",
+      "role": "租户管理员、关联坐席运营",
+      "trigger": "客户已进行一次或多次呼叫",
+      "goal": "用批次客户 ID 归属每次执行，以当前租户标准化手机号聚合跨批档案，保留各次通话及独立跟进结果。",
+      "business_value": "用批次客户 ID 归属每次执行，以当前租户标准化手机号聚合跨批档案，保留各次通话及独立跟进结果。",
+      "preconditions": [
+        "当前身份与租户能力有效"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-2051",
+          "type": "main",
+          "statement": "人工、预外呼、IVR 的同次结果回到原批次并呈现在同号档案；业务类型与对应编码保留批次、客户行及本次通话来源快照，不作为手机号总档案的唯一业务属性。临时拨号不自动挂靠最近单据。"
+        },
+        {
+          "id": "AC-2052",
+          "type": "exception",
+          "statement": "接通不等于跟进完成，同号跨批不互相覆盖分配或完成数；校准按 callId 幂等，历史未知不伪造接通/时长/录音，平台不向外部系统投递。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-205",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-206",
+      "title": "删除从未启动的外呼任务",
+      "role": "有权任务管理人员",
+      "trigger": "需要撤销草稿或从未启动的任务",
+      "goal": "预外呼和IVR经二次确认删除草稿或从未启动无通话的任务；关联客户返回待分配，草稿预选不占用客户",
+      "business_value": "预外呼和IVR经二次确认删除草稿或从未启动无通话的任务；关联客户返回待分配，草稿预选不占用客户",
+      "preconditions": [
+        "当前身份与租户能力有效"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-2061",
+          "type": "main",
+          "statement": "预外呼和IVR经二次确认删除草稿或从未启动无通话的任务；关联客户返回待分配，草稿预选不占用客户"
+        },
+        {
+          "id": "AC-2062",
+          "type": "exception",
+          "statement": "已启动、存在厂商执行标识、完成量或通话记录时拒绝删除；终止不自动释放客户；已执行历史保留"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-206",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-207",
+      "title": "沿用智能外呼最新套餐与分钟账户",
+      "role": "当前品牌范围超级管理员；普通账号按现有权限只读",
+      "trigger": "在智能外呼域为租户开通套餐、调账或查看内部记录",
+      "goal": "将已确认 SRC050 套餐与分钟规则完整纳入当前材料；云联络中心租户列表不展示充值相关能力。",
+      "business_value": "两业务域共用租户但不混淆计费与电话权限。",
+      "preconditions": [
+        "租户在当前品牌范围，业务域为智能外呼",
+        "资金变更仅超级管理员"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-2071",
+          "type": "main",
+          "statement": "提供试用 0元/30天/500分钟、标准年包 5000元/365天/10000分钟，有效商用可叠加 1000元/3500分钟话费包；实际价格、起止至分钟和入账分钟可编辑，偏离默认填写原因。"
+        },
+        {
+          "id": "AC-2072",
+          "type": "main",
+          "statement": "套餐成功入统一分钟池，话费包不延长有效期；可独立调整使用时长或可用分钟，时长支持区间归零，冻结分钟不被调整。"
+        },
+        {
+          "id": "AC-2073",
+          "type": "main",
+          "statement": "内部流水保留实际值、前后值、原因和操作者快照；不关联外部单，旧金额不自行换算分钟，新租户 0 分钟未开通。"
+        },
+        {
+          "id": "AC-2074",
+          "type": "exception",
+          "statement": "服务状态与租户启停独立；云联络中心域隐藏服务区间、分钟、服务状态及充值调账入口，不因此删除智能外呼既有计费统计。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-207",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    },
+    {
+      "id": "US-208",
+      "title": "按手机号查询客户档案及联系历史",
+      "role": "管理员和授权范围内运营",
+      "trigger": "需要按客户号码持续核对多批次联系情况",
+      "goal": "从客户管理的客户档案查看同租户同供应商账号手机号的批次、通话及跟进记录。",
+      "business_value": "把一次导入与持续客户联系区分，且不扩大为完整 CRM。",
+      "preconditions": [
+        "当前租户及供应商账号有效",
+        "运营仅查看授权范围内客户与记录"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-2081",
+          "type": "main",
+          "statement": "客户档案按同租户同供应商账号规范手机号归集；可查询列表并打开档案详情，查看相关批次、同次通话、跟进历史及各批次业务类型与对应编码。"
+        },
+        {
+          "id": "AC-2082",
+          "type": "exception",
+          "statement": "跨租户或供应商账号不合并，导入不生成通话，重复 callId 不重复计数；无真实录音或历史数据不足明确标识，不自动查询外部客户资料。"
+        }
+      ],
+      "source_refs": [
+        "inputs/baseline-reference/memory/normalized-user-stories.json#US-208",
+        "inputs/source-index.json#SRC-303"
+      ],
+      "status": "in_scope",
+      "migration_note": "AliCti独立分支：业务意图和稳定ID继承；供应商专有实现按新证据适配，生产能力未验证。"
+    }
+  ],
+  "retired_story_ids": [
+    "US-004",
+    "US-012",
+    "US-013",
+    "US-202"
+  ],
+  "retirement_note": "SRC055 取消外部系统用户资料同步、外嵌电话入口与系统接入；稳定编号退休且不复用，当前范围仅从有效故事派生。"
+}

@@ -1,0 +1,63 @@
+@startuml
+title SC-017 · 客户呼入、IVR 导航与人工接听
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 来电客户
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|#EDF4FF|lane_4| 本租户承接坐席
+|lane_1|
+start
+:客户拨打已启用的供应商账号共享呼入号码; <<start_label>>
+|lane_1|
+:客户拨打已开通的供应商账号呼入号码;
+|lane_3|
+:在已验证的号码入口与语音导航中锁定唯一租户\n不明确归属进入异常，不路由到任意租户;
+|lane_2|
+if (目标租户、授权号码及承接技能有效？) then (不通过 · ALT-017-3)
+|lane_1|
+:执行本号码已发布兜底流程，不跨租户寻找坐席; <<failure>>
+stop
+else (通过)
+|lane_3|
+:将通话路由给本租户已上线空闲坐席;
+|lane_2|
+:自有界面收到来电并通过软电话接听\nCTILink.SipSession接听；音频状态与业务接通分开;
+|lane_4|
+:处理客户问题并填写本平台跟进结果;
+|lane_2|
+:按锁定租户及规范化手机号展示平台档案；各批次记录分别保留;
+|lane_2|
+:结束后归集来电话单与媒体并保存话后\n系统应答不计人工接听；保存前保护就绪状态;
+|lane_1|
+:本次结果已展示；保留来源与操作记录; <<end_label>>
+stop
+endif
+@enduml

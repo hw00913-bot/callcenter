@@ -1,0 +1,67 @@
+### Result
+{"checks":[{"name":"One combined save button","pass":true},{"name":"Advanced settings collapsed","pass":true},{"name":"New tenant opens team choice immediately","pass":true},{"name":"Chosen team previews names and cno","pass":true},{"name":"Storage failure leaves both objects unchanged","pass":true},{"name":"Storage failure keeps both selections","pass":true},{"name":"Storage failure keeps member preview","pass":true},{"name":"Legacy saveGrant saves both scope fields","pass":true},{"name":"Combined save uses one persistence write","pass":true},{"name":"Concurrent scope update blocked","pass":true},{"name":"Concurrent external scope preserved","pass":true},{"name":"Referenced inbound tenant cannot be revoked","pass":true},{"name":"Route rejection leaves scope unchanged","pass":true},{"name":"Pending number keeps status and absent supplier identity","pass":true},{"name":"Pending number can save future local scope","pass":true},{"name":"Pending number still not callable","pass":true},{"name":"Unknown or cross-scope team rejected","pass":true},{"name":"Tampered save does not grant anything","pass":true},{"name":"Tenant invalidated after opening is rejected","pass":true},{"name":"Invalidated tenant leaves object unchanged","pass":true},{"name":"Changed business context rejects old save","pass":true},{"name":"Tenant admin cannot open account-level number settings","pass":true},{"name":"Tenant admin cannot save account-level scope","pass":true},{"name":"No runtime errors","pass":true}],"errors":[]}
+### Ran Playwright code
+```js
+await (async page=>{
+ const checks=[],errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const check=(name,value)=>{checks.push({name,pass:!!value});if(!value)throw Error(name)};
+ const wait=()=>page.waitForFunction(()=>!document.querySelector('.drawer-entering,.drawer-exit-visual'));
+ const open=async id=>{await page.evaluate(id=>Pages['resource-lines'].openGrant(id),id);await wait();};
+ const save=async()=>{await page.locator('#number-detail .layer-footer').getByRole('button',{name:'保存使用范围',exact:true}).click();await wait();};
+ const snapshot=async id=>page.evaluate(id=>{const r=CloudCallData.phoneNumbers.find(n=>n.numberId===id);return {tenantIds:r.authorizedTenantIds,groups:r.boundSkillGroupIds,status:r.businessStatus,raw:r.alictiNumber};},id);
+ const make=async(id,pending=false)=>page.evaluate(({id,pending})=>{const original=CloudCallData.phoneNumbers.find(n=>n.numberId==='NUM-021-6601');const r={...structuredClone(original),numberId:id,number:'02166009911',authorizedTenantIds:[],boundSkillGroupIds:[],referenceCount:0,contactFlowId:'',businessStatus:pending?'待配置':'正常'};if(pending)delete r.alictiNumber;CloudCallData.phoneNumbers.push(r);}, {id,pending});
+ const grant=async()=>{await page.locator('#number-detail input[name="numberTenant"][value="TEN-NISSAN-HQ"]').check();await page.locator('#number-detail input[name="boundNumberGroup"][value="SG-ALI-HQ-SALES"]').check();};
+ await make('QA-ASSIGN-ONE');await open('QA-ASSIGN-ONE');
+ check('One combined save button',await page.locator('#number-detail .layer-footer .btn-primary').count()===1);
+ check('Advanced settings collapsed',await page.locator('#number-detail .na-more-settings').getAttribute('open')===null);
+ await page.locator('#number-detail input[name="numberTenant"][value="TEN-NISSAN-HQ"]').check();
+ check('New tenant opens team choice immediately',await page.locator('#number-detail input[name="boundNumberGroup"][value="SG-ALI-HQ-SALES"]').isEnabled());
+ await page.locator('#number-detail input[name="boundNumberGroup"][value="SG-ALI-HQ-SALES"]').check();
+ check('Chosen team previews names and cno',await page.locator('#number-detail .na-preview .na-seat').count()>0&&await page.locator('#number-detail .na-preview').innerText().then(t=>t.includes('工号')));
+ await page.evaluate(()=>{window.__assignSetItem=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='cloud-number-resource-state-v1')throw new Error('test quota');return window.__assignSetItem.call(this,k,v);};});
+ await save();
+ let state=await snapshot('QA-ASSIGN-ONE');check('Storage failure leaves both objects unchanged',state.tenantIds.length===0&&state.groups.length===0);
+ check('Storage failure keeps both selections',await page.locator('#number-detail input[name="numberTenant"][value="TEN-NISSAN-HQ"]').isChecked()&&await page.locator('#number-detail input[name="boundNumberGroup"][value="SG-ALI-HQ-SALES"]').isChecked());
+ check('Storage failure keeps member preview',await page.locator('#number-detail .na-preview .na-seat').count()>0);
+ await page.evaluate(()=>{Storage.prototype.setItem=window.__assignSetItem;window.__scopeWrites=0;Storage.prototype.setItem=function(k,v){if(k==='cloud-number-resource-state-v1')window.__scopeWrites++;return window.__assignSetItem.call(this,k,v);};Pages['resource-lines'].saveGrant('QA-ASSIGN-ONE');});await wait();
+ state=await snapshot('QA-ASSIGN-ONE');check('Legacy saveGrant saves both scope fields',state.tenantIds.includes('TEN-NISSAN-HQ')&&state.groups.includes('SG-ALI-HQ-SALES'));
+ check('Combined save uses one persistence write',await page.evaluate(()=>window.__scopeWrites===1));await page.evaluate(()=>Storage.prototype.setItem=window.__assignSetItem);
+ // A concurrent change must not be overwritten by the open form.
+ await page.evaluate(()=>CloudCallData.phoneNumbers.find(n=>n.numberId==='QA-ASSIGN-ONE').authorizedTenantIds.push('TEN-NISSAN-SH'));
+ await save();check('Concurrent scope update blocked',await page.locator('#number-assignment-error').innerText().then(t=>t.includes('已更新')));
+ check('Concurrent external scope preserved',(await snapshot('QA-ASSIGN-ONE')).tenantIds.includes('TEN-NISSAN-SH'));
+ // Routes keep their tenant authorization until the route is changed.
+ await open('NUM-400-8801');const routeBefore=await snapshot('NUM-400-8801');
+ await page.locator('#number-detail input[name="numberTenant"][value="TEN-NISSAN-SH"]').uncheck();await save();
+ check('Referenced inbound tenant cannot be revoked',await page.locator('#number-assignment-error').innerText().then(t=>t.includes('仍有呼入规则')));
+ check('Route rejection leaves scope unchanged',JSON.stringify(await snapshot('NUM-400-8801'))===JSON.stringify(routeBefore));
+ // Pending numbers may be prepared, never automatically opened.
+ await make('QA-ASSIGN-PENDING',true);await open('QA-ASSIGN-PENDING');await grant();await save();
+ state=await snapshot('QA-ASSIGN-PENDING');check('Pending number keeps status and absent supplier identity',state.status==='待配置'&&!state.raw);
+ check('Pending number can save future local scope',state.tenantIds.length===1&&state.groups.length===1);
+ check('Pending number still not callable',await page.evaluate(()=>!CloudResourceRules.usableNumber(CloudCallData.phoneNumbers.find(n=>n.numberId==='QA-ASSIGN-PENDING'),'TEN-NISSAN-HQ','呼出','预览外呼')));
+ // Explicitly test DOM tampering, not just a disabled visual control.
+ await make('QA-ASSIGN-TAMPER');await open('QA-ASSIGN-TAMPER');await grant();
+ await page.evaluate(()=>{const r=document.createElement('input');r.type='checkbox';r.name='boundNumberGroup';r.value='FOREIGN-GROUP';r.checked=true;document.querySelector('#number-detail .number-assignment').append(r);});await save();
+ check('Unknown or cross-scope team rejected',await page.locator('#number-assignment-error').innerText().then(t=>t.includes('技能组已失效')));
+ check('Tampered save does not grant anything',(await snapshot('QA-ASSIGN-TAMPER')).tenantIds.length===0);
+ await open('QA-ASSIGN-TAMPER');await grant();
+ await page.evaluate(()=>CloudCallData.tenants.find(t=>t.tenantId==='TEN-NISSAN-HQ').status='停用');await save();
+ check('Tenant invalidated after opening is rejected',await page.locator('#number-assignment-error').innerText().then(t=>t.includes('已启用')));
+ check('Invalidated tenant leaves object unchanged',(await snapshot('QA-ASSIGN-TAMPER')).tenantIds.length===0);
+ await page.evaluate(()=>CloudCallData.tenants.find(t=>t.tenantId==='TEN-NISSAN-HQ').status='启用');
+ await open('QA-ASSIGN-TAMPER');await grant();
+ await page.evaluate(()=>{AppState.requestDomainSwitch('AI_OUTBOUND');Pages['resource-lines'].saveNumberScope('QA-ASSIGN-TAMPER');});
+ check('Changed business context rejects old save',(await snapshot('QA-ASSIGN-TAMPER')).tenantIds.length===0);
+ await page.evaluate(()=>{DemoSwitch.enter('ACC-ADMIN-018');AppState.chooseTenant('TEN-NISSAN-SH');AppState.chooseDomain('CLOUD_CONTACT_CENTER');Pages['resource-lines'].openNumber('QA-ASSIGN-TAMPER');Pages['resource-lines'].saveNumberScope('QA-ASSIGN-TAMPER');});
+ check('Tenant admin cannot open account-level number settings',await page.locator('#number-detail').count()===0);
+ check('Tenant admin cannot save account-level scope',(await snapshot('QA-ASSIGN-TAMPER')).tenantIds.length===0);
+ check('No runtime errors',errors.length===0);
+ return {checks,errors};
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:8772/Demo_Protype_2/prototype/index.html
+- Page Title: AliCti 云外呼原型
+- Console: 0 errors, 1 warnings

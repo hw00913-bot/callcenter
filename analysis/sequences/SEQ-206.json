@@ -1,0 +1,173 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-206",
+  "scenario_id": "SC-206",
+  "name": "删除从未启动的外呼任务时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "需要撤销草稿或从未启动的任务",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "u",
+      "to": "ui",
+      "message": "从预外呼或IVR列表请求删除",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 7,
+      "from": "svc",
+      "to": "svc",
+      "message": "具有对应删除权限且从未启动无通话？；满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 8,
+      "from": "u",
+      "to": "ui",
+      "message": "二次确认删除任务而非客户",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 9,
+      "from": "svc",
+      "to": "svc",
+      "message": "提交时复检草稿作者或正式任务释放资格；复检通过才提交；失败保留任务与关联",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 10,
+      "from": "svc",
+      "to": "svc",
+      "message": "关联客户可安全释放且保存成功？；满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "ui",
+      "message": "仅本地草稿可删除并释放客户；已生成供应商taskId的删除契约未明确，显示待确认",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 12,
+      "from": "svc",
+      "to": "ui",
+      "message": "运营只可删除本人草稿；正式任务删除限管理员/超管；已执行任务拒绝删除",
+      "type": "error",
+      "api_id": null,
+      "condition": "具有对应删除权限且从未启动无通话？：不满足"
+    },
+    {
+      "step": 13,
+      "from": "svc",
+      "to": "ui",
+      "message": "停止删除，保留任务并提示核对；不报告虚假成功",
+      "type": "error",
+      "api_id": null,
+      "condition": "关联客户可安全释放且保存成功？：不满足"
+    },
+    {
+      "step": 14,
+      "from": "svc",
+      "to": "ui",
+      "message": "取消删除：任务与客户关联不变",
+      "type": "error",
+      "api_id": null,
+      "condition": "执行变更前取消确认"
+    },
+    {
+      "step": 15,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

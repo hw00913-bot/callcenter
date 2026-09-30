@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-011",
+  "scenario_id": "SC-011",
+  "name": "配置共享呼入号码、IVR 分流和租户人工路由时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "供应商账号需要开通共享号码呼入，或调整 IVR 分支与租户路由",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "u",
+      "to": "ui",
+      "message": "选择共享呼入号码与已发布入口IVR",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 7,
+      "from": "u",
+      "to": "ui",
+      "message": "配置本租户承接、服务时间及超时兜底",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 8,
+      "from": "svc",
+      "to": "svc",
+      "message": "各分支租户均获用号权且组归属正确？；满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 9,
+      "from": "svc",
+      "to": "vendor",
+      "message": "仅导入导出的IVR文件，大小不超过10MB",
+      "type": "request",
+      "api_id": "API-322",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 10,
+      "from": "vendor",
+      "to": "svc",
+      "message": "导入结果；发布与号码绑定仍为待确认",
+      "type": "response",
+      "api_id": "API-322",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "ui",
+      "message": "IVR发布、号码绑定及租户分支配置未明确，显示待确认，不标路由已生效",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 12,
+      "from": "svc",
+      "to": "svc",
+      "message": "保存路由映射、版本和兜底；呼入先锁定唯一租户再分配坐席",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 13,
+      "from": "svc",
+      "to": "ui",
+      "message": "列出无权/失效分支并拒绝发布，保留原有效路由",
+      "type": "error",
+      "api_id": null,
+      "condition": "各分支租户均获用号权且组归属正确？：不满足"
+    },
+    {
+      "step": 14,
+      "from": "svc",
+      "to": "ui",
+      "message": "保持待核对；不得仅存本地分支就宣称厂商已生效",
+      "type": "error",
+      "api_id": null,
+      "condition": "实际发布流程与中台分支映射一致？：不满足"
+    },
+    {
+      "step": 15,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

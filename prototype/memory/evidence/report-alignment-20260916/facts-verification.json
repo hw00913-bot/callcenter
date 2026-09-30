@@ -1,0 +1,92 @@
+{
+  "scope": "Authorized report alignment: response facts and shared metrics only; no formal workflow or frozen baseline change",
+  "verifiedAt": "2026-09-16T08:45:42.672717+08:00",
+  "files": [
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js",
+      "sha256": "d48b4a7147cfc6abd180f0c2397f6f6c4970694de77c72fcc6744698ca21a797"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-report-facts.js",
+      "sha256": "fcda15d09344ea8111ae4f68937ddf556b1e07f62226154bbee24b04d522e909"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/report-metrics.js",
+      "sha256": "e06e05b9f0006a35feeb5be1fc1f39fb05fc6d6925219278457e9216d72b26d0"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/qa/verify-alicti-report-facts.cjs",
+      "sha256": "f74e07354fe2afd26c63a98b2c2973a6cc3275c854f68aef97db37eb1a86d7cf"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/qa/verify-call-regression-fixes.cjs",
+      "sha256": "4d258a5de608c97ef1e41c9a1758e813dae73c294fb21dbc4ec7f64a2d9e22ed"
+    }
+  ],
+  "sources": [
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/development/reference/alicti/API-317.txt",
+      "sha256": "cc81466a12dcc81944365f49f03965783c61fbd4f764da53f0500c4d3cfb675d"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/development/reference/alicti/API-318.txt",
+      "sha256": "7575d8b70247164894c8db6161f68e259fc2d8db2af3c3a1716de27e1d30fbb0"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/development/reference/alicti/API-319.txt",
+      "sha256": "847788a2c82d3c30b988654718177b9dc607a9a580dfba3de94f5deffde14709"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/memory/evidence/report-alignment-20260916/official-current/任务呼叫记录接口.txt",
+      "sha256": "63d877ab6cf31d5999de5027361587d99e2c84db034287d89a2d35acee46ce8d"
+    }
+  ],
+  "officialEndpoints": [
+    "/cc/list_cdr_ob",
+    "/cc/list_cdr_predictive_call",
+    "/cc/list_cdr_ib",
+    "/cc/list_cdr_auto_task"
+  ],
+  "timeEvidence": {
+    "manual": "API317 response endTime 1715326267 - bridgeTime 1715326258 = bridgeDuration 9",
+    "predictive": "API318 response endTime 1758792159 - bridgeTime 1758792125 = bridgeDuration 34; endTime - upTime 1758792122 = customerBridgeDuration 37",
+    "inbound": "API319 response firstLeaveQueueTime 1713848595 - firstJoinQueueTime 1713848594 = firstQueueDuration 1",
+    "automatic": "/cc/list_cdr_auto_task response endTime 1758792159 - upTime 1758792122 = customerBridgeDuration 37",
+    "interpretation": "Response examples establish epoch seconds and duration seconds independently of query parameter units. Conversion occurs only at the report fact boundary; existing event timestamps remain milliseconds. No ASR seek timing is introduced."
+  },
+  "publicApi": {
+    "AliCtiReportFacts.read": "present/usable/kind/sourceId/raw/issues; enterpriseId/customerNumber/mainUniqueId/requestUniqueId/callId/uniqueId/taskId; primaryAgentCno/primaryQueueNo; agentCnos/queueNos; agentAttributionAmbiguous/queueAttributionAmbiguous; startAtMs/endAtMs/ended/customerAnsweredAtMs/agentAnsweredAtMs; bridgeSeconds/customerSeconds/firstJoinQueueAtMs/firstLeaveQueueAtMs/queueSeconds; statusResult/queueOutcome/telRetryRound",
+    "CloudReportMetrics": "Existing functions preserved; added state(call), ended(call), customerSeconds(call), queueSeconds(call), queueOutcome(call). stats adds customerSeconds/customerDurationSamples/customerDurationMissing/customerAvgSeconds, queueSamples/queueAbandoned/queueOverflow. Added durationApplicable(call) and stats.durationNotApplicable to separate pure automatic/legacy IVR listening from missing two-party duration."
+  },
+  "adoptedRules": [
+    "Official startTime controls report date; present raw missing startTime does not use mock ringingAt.",
+    "A present official response needs valid endTime to count ended, independent of lagging or completed local event stage.",
+    "API317/318/319 bridgeDuration is the reported conversation duration. API318 and automatic customerBridgeDuration is separately counted as customer answer duration. Automatic has no documented human bridgeDuration, so no fabricated human duration.",
+    "Official customerNumber controls phone-based identity when raw is present; missing/masked stays unidentified. Platform lead code is a separate business identity handled by the report model.",
+    "Inbound firstQueueDuration controls waiting averages, including unanswered queued calls; missing duration is not derived from mock fields or alternate time differences.",
+    "Queue outcome only maps exact official 系统应答 plus 队列中放弃/队列中溢出; no inferred queue timeout.",
+    "Opaque string cno and flow participants preserve leading zeros. Numeric cno does not silently become a string identifier. API317 query qnos does not constitute returned queue ownership.",
+    "Inbound firstCallCno/firstCallQno mean first dialled, not actual/final answered; missing or multi-participant flow leaves whole-call attribution ambiguous. No pairing of cnoFlow/qnoFlow, and no per-segment durations are invented.",
+    "Enterprise, source-kind and provided supplier call-identifier mismatches are rejected. Supplier CallID is not equated to local platform callId.",
+    "Complete platform history must be explicitly marked attemptHistoryComplete=true before the earliest observed row can be called first; explicit attemptNumber and proven prior same-item calls remain usable. Supplier telRetryRound is exposed separately, not treated as platform attemptNumber.",
+    "Versioned positive call-event evidence survives late contradictory unanswered CDR (RG07). Unknown official result cannot be filled from legacy result labels. Explicit agent false stays false (RG12).",
+    "Automatic new source uses string customer state/upTime and independently queried endpoint; cno or robot response does not prove human answer. Legacy IVR rows explicitly tagged predictive remain source-tagged API318 for compatibility.",
+    "Two-party duration sample/missing counts exclude automatic source and legacy IVR without proven human connection. Applicable calls retain missing/zero distinction; legacy IVR with proven transfer and bridgeDuration remains eligible. Customer durations stay independently aggregated."
+  ],
+  "verification": {
+    "specialist": 39,
+    "existingCallRegression": 9,
+    "existingFieldChecks": 71,
+    "totalChecks": 119,
+    "syntaxFiles": 5,
+    "browser": "Not exercised in this component-only subtask; root owns report UI/integration browser verification",
+    "network": "None: tests execute saved official response examples and pure JS in a VM; no vendor business requests",
+    "followup": "Browser integration reported 8 pure automatic calls falsely listed as missing two-party duration. Added 3 regression checks: 8 automatic records remain connected with 296 customer seconds but no missing bridge sample; mixed-source averages exclude legacy pure IVR; proven transfer and real zero remain eligible. Prior 9 late-CDR/human-answer checks pass."
+  },
+  "limitations": [
+    "No supplier live integration, backend pagination/export execution, or media timing verification.",
+    "Automatic response table does not provide human answer timestamp/bridgeDuration; robot metrics and cno are not substituted. Unknown transfer-result variants remain unknown until a documented result can be consumed.",
+    "New inbound agent segment endpoint is discovered by the official-audit agent but is not parsed here; model/UI must not allocate whole-call duration across flow participants.",
+    "The frozen docs and current delivery package were not rewritten; root owns revised mock sources and script loading order."
+  ]
+}

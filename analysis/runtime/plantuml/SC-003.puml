@@ -1,0 +1,67 @@
+@startuml
+title SC-003 · 在中台开通供应商坐席
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 租户管理员/超级管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:租户管理员需要新增一个或多个联络中心坐席; <<start_label>>
+|lane_1|
+:在当前租户申请新建坐席\n其他导入能力待确认;
+|lane_2|
+if (管理员权限、供应商账号和坐席归属合法？) then (不通过 · ALT-003-2)
+|lane_1|
+:拒绝越权或重复归属，不新建任何云资源; <<failure>>
+stop
+else (通过)
+|lane_2|
+:准备工号、姓名、区号和目标供应商账号\ncno、name、areaCode；平台账号与坐席独立;
+|lane_3|
+:按当前供应商账号创建坐席\n返回坐席信息或明确错误；响应不确定时先核查;
+|lane_2|
+:核对实际坐席工号及供应商账号归属\n以enterpriseId和cno定位，不把请求ID当坐席ID;
+|lane_2|
+if (厂商坐席及唯一租户映射已确认？) then (不通过 · ALT-003-6)
+|lane_1|
+:失败项保留，未知先查询核对；只对确认失败项重试; <<failure>>
+stop
+else (通过)
+|lane_2|
+:保存租户独占坐席；关联账号从账号管理完成，技能另行分配;
+|lane_1|
+:查看开通结果及待补充资源;
+|lane_1|
+:本次结果已展示；保留来源与操作记录; <<end_label>>
+stop
+endif
+endif
+@enduml

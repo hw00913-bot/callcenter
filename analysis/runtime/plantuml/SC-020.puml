@@ -1,0 +1,62 @@
+@startuml
+title SC-020 · 分业务域查看统计报表与操作审计
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 超级管理员/租户管理员/运营
+|#EFFAF5|lane_2| 统一外呼中台
+|lane_1|
+start
+:需要核对业务数据和操作轨迹; <<start_label>>
+|lane_1|
+:选择业务域与六类云域报表之一，或进入既有操作审计\n输入：租户/供应商账号、日期、业务类型与呼叫方式，以及适用批次/任务/坐席/技能\n输出：本域入口与适用筛选项；AI既有报表保留;
+|lane_2|
+if (角色和数据范围允许本次查询？) then (不满足 · ALT-020-2)
+|lane_1|
+:拒绝越权；普通租户不得合并总部门店数据; <<failure>>
+stop
+else (满足)
+|lane_2|
+:按同一已应用条件聚合指标、图表与明细\n输入：归集的通话、批次客户当前状态、任务、坐席、技能及既有审计记录\n输出：周期内已结束通话与任务累计进度分开；未知单列;
+|lane_1|
+:选择查看明细、下钻已有对象或导出\n输入：当前筛选结果；导出不受当前分页限制\n输出：目标操作及同一筛选上下文;
+|lane_2|
+if (下钻或导出前，原授权和筛选上下文仍有效？) then (有效)
+|lane_2|
+:展示目标结果并沿用既有审计边界\n输入：再次验证后的权限与筛选快照\n输出：查询/下钻结果或真实本地CSV；不是生产导出接口已实现;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+else (上下文或权限变化 · ALT-020-STALE)
+|lane_1|
+:旧结果操作已中止；切换范围后重新查询; <<failure>>
+stop
+endif
+endif
+@enduml

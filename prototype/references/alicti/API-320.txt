@@ -1,0 +1,143 @@
+获取通话录音地址信息
+
+接口说明
+
+通过本接口，第三方平台可以根据录音文件名获取录音试听或下载地址
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/record/getUrl
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+接口请求方式：
+
+GET/POST
+
+输入参数：
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+取值1，2； 取值说明：
+validateType=1时使用部门编号(departmentId)进行验证；
+validateType=2时使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001； | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101； | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+权限验证值 | 
+取值： 
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token})； 
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token})； 
+格式：32位全小写 | 
+
+recordType | 
+String | 
+可选 | 
+录音类型，不填可根据 recordFile 解析 | 
+record:录音
+voicemail:留言
+tsi:彩铃、当开启号码录音状态识别，发起预览外呼，客户号码是手机且客户未接听时返回该地址
+ rasr:语音机器人客户侧录音 
+transfer:转接
+consult:咨询
+threeway:三方
+ | 
+
+recordFile | 
+String | 
+必选 | 
+录音文件名 | 
+如7000101-20160815140025-01087120766-01087120766--record-sip-1-1471240825.87 | 
+
+recordFormat | 
+Int | 
+可选 | 
+录音文件类型 | 
+取值说明：0为mp3，1为wav，默认为mp3类型 | 
+
+callType | 
+Int | 
+可选 | 
+呼叫类型 | 
+说明：开启分线录音时，获取客户侧或座席侧录音需要，recordFormat=1时有效，recordFormat=0时忽略。
+取值范围：1,2,4,5（数字含义：呼入,webcall,预览外呼,预测外呼） | 
+
+recordSide | 
+Int | 
+可选 | 
+分线录音录音侧 | 
+说明：开启分线录音时，获取客户侧或座席侧录音需要，recordFormat=1时有效，recordFormat=0时忽略。
+取值范围：1,2 (数字含义：客户侧，座席侧)
+recordSide不为空时，callType必选 | 
+
+download | 
+Int | 
+可选 | 
+是否下载 | 
+１为下载，空或０表示试听 | 
+
+接口请求示例：
+
+https://api-{region}.alicti.cn/interface/v10/record/getUrl?validateType=2&enterpriseId=7000000&timestamp=1479117218&sign=f1bda3da1a7e70fdfe2badd5820069f9
+&recordType=record&recordFile=7000000-20161031114742-01087120766-01087120766--record-sip-1-1477885662.222
+
+接口返回
+
+JSON格式数据
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+Int | 
+0 成功, -1 失败 | 
+
+description | 
+String | 
+返回结果描述 | 
+
+data | 
+String | 
+试听或下载地址，默认120分钟过期（可配置），过期后，需重新请求接口 | 
+
+返回示例：
+
+{
+  "result": 0,
+  "description": "成功",
+  "data": "http://voice-1.alicti.cn/31102016/record/7000000/7000000-2016103111%204742-01087120766-01087120766--record-sip-1-1477885662.222.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20161114T100003Z&X-Amz-SignedHeaders=host&X-Amz-Expires=119&X-Amz-Credential=AKIAOTCJOBZFUWFI7FSA%2F20161114%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=0cda4389ecc743acc71d76a320705afd0c175c5ad2286305675c4dee5189b9c8"
+}

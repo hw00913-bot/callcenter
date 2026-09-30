@@ -1,0 +1,58 @@
+@startuml
+title SC-009 · 隔离号码业务并处理关联业务
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 超级管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:号码被投诉、线路异常、资质变化或需要临时停止服务; <<start_label>>
+|lane_1|
+:选择号码业务隔离或恢复\n输入：本供应商账号号码及影响范围\n输出：确认操作;
+|lane_2|
+:隔离保存快照并冻结新外呼；恢复先核对快照\n输入：用途、联系流、租户授权、任务引用\n输出：影响清单与待执行调整;
+|lane_3|
+:号码隔离或恢复能力待确认\n本地冻结仅限制本平台新外呼，不标供应商呼入已阻断;
+|lane_2|
+if (用途、入口兜底及执行结果均已核实？) then (不满足 · ALT-009-4)
+|lane_1|
+:标记处理中/失败并保持阻断，核对后重试；不得先显示恢复正常; <<failure>>
+stop
+else (满足)
+|lane_2|
+:保存业务隔离/恢复结果并通知受影响方\n输入：厂商结果及引用清单\n输出：历史和当前通话保留；只影响引用该号码的任务;
+|lane_1|
+:恢复号码后逐任务复检\n输入：全部引用号码已恢复；是否已有厂商活动\n输出：已有活动单独继续；从未启动转SC-014/015首次启动，不自动重启;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+@enduml

@@ -1,0 +1,288 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-001",
+  "name": "超级管理员进入实例并启用租户联络中心能力",
+  "summary": "在唯一、明确的品牌实例上下文中，为总部或门店租户安全启用联络中心能力。",
+  "actors": [
+    "超级管理员",
+    "统一外呼中台"
+  ],
+  "trigger": "超级管理员登录，或需要为租户开通联络中心能力",
+  "preconditions": [
+    "账号属于系统内置超级管理租户"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员",
+      "action": "登录并选定客户实例",
+      "system_response": "唯一有效实例上下文",
+      "input": "内置管理账号；上次实例",
+      "rule_ids": [
+        "BR-001"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "当前实例与管理员资格有效？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-001"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "超级管理员",
+      "action": "创建或修改租户并勾选产品能力",
+      "system_response": "待保存租户",
+      "input": "名称、总部/门店、商用/试用、状态、能力",
+      "rule_ids": [
+        "BR-001"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "租户可绑定该实例且必填信息有效？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-001"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "保存租户及产品授权",
+      "system_response": "租户启用能力；不自动开坐席",
+      "input": "租户配置与当前实例",
+      "rule_ids": [
+        "BR-001"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "超级管理员",
+      "action": "查看租户管理结果",
+      "system_response": "核对归属、产品权限及状态",
+      "input": "已保存租户",
+      "rule_ids": [
+        "BR-001"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001-2",
+      "condition": "当前实例与管理员资格有效？：不满足",
+      "steps": [
+        "停止进入实例业务，提示重新选择或核对权限"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-001-4",
+      "condition": "租户可绑定该实例且必填信息有效？：不满足",
+      "steps": [
+        "拒绝保存；已有资源租户不得直接迁移实例"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-001-CANCEL",
+      "condition": "执行变更前取消确认",
+      "steps": [
+        "取消提交：不执行本次变更，保留已有有效数据"
+      ]
+    }
+  ],
+  "postconditions": [
+    "在唯一、明确的品牌实例上下文中，为总部或门店租户安全启用联络中心能力。"
+  ],
+  "acceptance_points": [
+    "在唯一、明确的品牌实例上下文中，为总部或门店租户安全启用联络中心能力。",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-001"
+  ],
+  "source_refs": [
+    "inputs/legacy-business-flows.json#BF-01",
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-204",
+    "inputs/source-index.json#SRC-055"
+  ],
+  "legacy_refs": [
+    "BF-01"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "超级管理员登录，或需要为租户开通联络中心能力"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "登录并选定客户实例\n输入：内置管理账号；上次实例\n输出：唯一有效实例上下文",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "当前实例与管理员资格有效？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "停止进入实例业务，提示重新选择或核对权限"
+      },
+      {
+        "id": "N3",
+        "lane_id": "u",
+        "type": "action",
+        "order": 5,
+        "label": "创建或修改租户并勾选产品能力\n输入：名称、总部/门店、商用/试用、状态、能力\n输出：待保存租户",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 6,
+        "label": "租户可绑定该实例且必填信息有效？",
+        "step_ref": 4
+      },
+      {
+        "id": "FAIL4",
+        "lane_id": "u",
+        "type": "end",
+        "order": 7,
+        "label": "拒绝保存；已有资源租户不得直接迁移实例"
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "action",
+        "order": 10,
+        "label": "保存租户及产品授权\n输入：租户配置与当前实例\n输出：租户启用能力；不自动开坐席",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "u",
+        "type": "action",
+        "order": 11,
+        "label": "查看租户管理结果\n输入：已保存租户\n输出：核对归属、产品权限及状态",
+        "step_ref": 6
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 12,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 8,
+        "label": "确认提交本次操作？"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 9,
+        "label": "取消提交：不执行本次变更，保留已有有效数据"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-001-2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "满足"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "FAIL4",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-001-4"
+      },
+      {
+        "from": "N4",
+        "to": "CONFIRM",
+        "label": "满足"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "END"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "N5",
+        "label": "确认"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-001-CANCEL"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。"
+  ]
+}

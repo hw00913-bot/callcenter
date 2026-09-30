@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-101",
+  "name": "在账号管理关联现有或新建坐席",
+  "summary": "从账号列表为当前租户成员选择空闲未关联的既有坐席，或新建坐席成功后关联；账号列表显示坐席是否开通及关联状态。",
+  "actors": [
+    "租户管理员/超级管理员",
+    "统一外呼中台"
+  ],
+  "trigger": "已有账号需要在中台工作台外呼",
+  "preconditions": [
+    "目标账号为当前租户有效成员"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "租户管理员/超级管理员",
+      "action": "账号列表选择“关联坐席”，账号新增和编辑沿用线上表单",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-101"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "成员、坐席及操作人同租户且有权？",
+      "system_response": "通过才继续；不通过结束本次操作",
+      "rule_ids": [
+        "BR-101"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "租户管理员/超级管理员",
+      "action": "选择未被关联的现有坐席，或进入新建坐席分支",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-101"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "新建分支先完成 SC-003 并确认实际坐席，现有分支直接复检",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-101"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "坐席已有效开通、未被其他账号占用且不在使用中换绑？",
+      "system_response": "通过才继续；不通过结束本次操作",
+      "rule_ids": [
+        "BR-101"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "确认后原子保存 accountId—identityId—CCC UserId 的本租户一对一关系",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-101"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "租户管理员/超级管理员",
+      "action": "账号列表显示已开通/未开通及关联结果；有资源并上线后才可通话",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-101"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-101-2",
+      "condition": "成员、坐席及操作人同租户且有权？：不通过",
+      "steps": [
+        "拒绝越权；不把账号角色直接视为电话资格"
+      ]
+    },
+    {
+      "id": "ALT-101-5",
+      "condition": "坐席已有效开通、未被其他账号占用且不在使用中换绑？：不通过",
+      "steps": [
+        "保留原关系；新建失败不显示已关联，不自动删除已创建的坐席"
+      ]
+    }
+  ],
+  "postconditions": [
+    "从账号列表为当前租户成员选择空闲未关联的既有坐席，或新建坐席成功后关联；账号列表显示坐席是否开通及关联状态。"
+  ],
+  "acceptance_points": [
+    "现有坐席和新建坐席二选一；一个坐席不得同时关联多个账号。",
+    "取消不保存关系；创建失败、保存失败均明确反馈，不显示虚假成功。"
+  ],
+  "source_story_ids": [
+    "US-101"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-204",
+    "inputs/source-index.json#SRC-055"
+  ],
+  "legacy_refs": [
+    "BF-02",
+    "BF-03",
+    "BF-04B"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "租户管理员/超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "已有账号需要在中台工作台外呼"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "账号列表选择“关联坐席”，账号新增和编辑沿用线上表单",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "成员、坐席及操作人同租户且有权？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "拒绝越权；不把账号角色直接视为电话资格"
+      },
+      {
+        "id": "N3",
+        "lane_id": "u",
+        "type": "action",
+        "order": 5,
+        "label": "选择未被关联的现有坐席，或进入新建坐席分支",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "action",
+        "order": 6,
+        "label": "新建分支先完成 SC-003 并确认实际坐席，现有分支直接复检",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 7,
+        "label": "坐席已有效开通、未被其他账号占用且不在使用中换绑？",
+        "step_ref": 5
+      },
+      {
+        "id": "FAIL5",
+        "lane_id": "u",
+        "type": "end",
+        "order": 8,
+        "label": "保留原关系；新建失败不显示已关联，不自动删除已创建的坐席"
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "action",
+        "order": 9,
+        "label": "确认后原子保存 accountId—identityId—CCC UserId 的本租户一对一关系",
+        "step_ref": 6
+      },
+      {
+        "id": "N7",
+        "lane_id": "u",
+        "type": "action",
+        "order": 10,
+        "label": "账号列表显示已开通/未开通及关联结果；有资源并上线后才可通话",
+        "step_ref": 7
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 11,
+        "label": "本次结果已展示；保留来源与操作记录"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不通过",
+        "type": "failure",
+        "path_id": "ALT-101-2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "通过"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "FAIL5",
+        "label": "不通过",
+        "type": "failure",
+        "path_id": "ALT-101-5"
+      },
+      {
+        "from": "N5",
+        "to": "N6",
+        "label": "通过"
+      },
+      {
+        "from": "N6",
+        "to": "N7"
+      },
+      {
+        "from": "N7",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。"
+  ]
+}

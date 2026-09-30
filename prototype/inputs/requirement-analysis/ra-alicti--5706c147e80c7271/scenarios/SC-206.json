@@ -1,0 +1,284 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-206",
+  "name": "删除从未启动的外呼任务",
+  "summary": "预外呼和IVR经二次确认删除草稿或从未启动无通话的任务；关联客户返回待分配，草稿预选不占用客户",
+  "actors": [
+    "有权任务管理人员",
+    "统一外呼中台"
+  ],
+  "trigger": "需要撤销草稿或从未启动的任务",
+  "preconditions": [
+    "当前身份与租户能力有效"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "有权任务管理人员",
+      "action": "从预外呼或IVR列表请求删除",
+      "system_response": "删除申请",
+      "input": "草稿或从未启动的任务",
+      "rule_ids": [
+        "BR-206"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "具有对应删除权限且从未启动无通话？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-206"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "有权任务管理人员",
+      "action": "二次确认删除任务而非客户",
+      "system_response": "删除确认；取消不改变数据",
+      "input": "任务名称及不可恢复提示",
+      "rule_ids": [
+        "BR-206"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "提交时复检草稿作者或正式任务释放资格",
+      "system_response": "复检通过才提交；失败保留任务与关联",
+      "input": "本人草稿无客户占用；正式任务需管理员且客户无通话/话后/完成占用",
+      "rule_ids": [
+        "BR-206"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "关联客户可安全释放且保存成功？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-206"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "删除本地草稿并释放客户；远端删除待确认",
+      "system_response": "已生成供应商任务的记录不伪造删除成功",
+      "input": "任务记录及关联客户",
+      "rule_ids": [
+        "BR-206"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-206-2",
+      "condition": "具有对应删除权限且从未启动无通话？：不满足",
+      "steps": [
+        "运营只可删除本人草稿；正式任务删除限管理员/超管；已执行任务拒绝删除"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-206-5",
+      "condition": "关联客户可安全释放且保存成功？：不满足",
+      "steps": [
+        "停止删除，保留任务并提示核对；不报告虚假成功"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-206-CANCEL",
+      "condition": "执行变更前取消确认",
+      "steps": [
+        "取消删除：任务与客户关联不变"
+      ]
+    }
+  ],
+  "postconditions": [
+    "预外呼和IVR经二次确认删除草稿或从未启动无通话的任务；关联客户返回待分配，草稿预选不占用客户"
+  ],
+  "acceptance_points": [
+    "预外呼和IVR经二次确认删除草稿或从未启动无通话的任务；关联客户返回待分配，草稿预选不占用客户",
+    "已启动、存在厂商执行标识、完成量或通话记录时拒绝删除；终止不自动释放客户；已执行历史保留"
+  ],
+  "source_story_ids": [
+    "US-206"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-206.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "有权任务管理人员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "需要撤销草稿或从未启动的任务"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "从预外呼或IVR列表请求删除\n输入：草稿或从未启动的任务\n输出：删除申请",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "具有对应删除权限且从未启动无通话？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "运营只可删除本人草稿；正式任务删除限管理员/超管；已执行任务拒绝删除"
+      },
+      {
+        "id": "N3",
+        "lane_id": "u",
+        "type": "action",
+        "order": 7,
+        "label": "二次确认删除任务而非客户\n输入：任务名称及不可恢复提示\n输出：删除确认；取消不改变数据",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "action",
+        "order": 8,
+        "label": "提交时复检草稿作者或正式任务释放资格\n输入：本人草稿无客户占用；正式任务需管理员且客户无通话/话后/完成占用\n输出：复检通过才提交；失败保留任务与关联",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 9,
+        "label": "关联客户可安全释放且保存成功？",
+        "step_ref": 5
+      },
+      {
+        "id": "FAIL5",
+        "lane_id": "u",
+        "type": "end",
+        "order": 10,
+        "label": "停止删除，保留任务并提示核对；不报告虚假成功"
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "action",
+        "order": 11,
+        "label": "删除本地草稿并释放客户；远端删除待确认\n已生成供应商任务的记录不伪造删除成功",
+        "step_ref": 6
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 12,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 5,
+        "label": "确认提交本次操作？"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 6,
+        "label": "取消删除：任务与客户关联不变"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-206-2"
+      },
+      {
+        "from": "N2",
+        "to": "CONFIRM",
+        "label": "满足"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "FAIL5",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-206-5"
+      },
+      {
+        "from": "N5",
+        "to": "N6",
+        "label": "满足"
+      },
+      {
+        "from": "N6",
+        "to": "END"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "N3",
+        "label": "确认"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-206-CANCEL"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

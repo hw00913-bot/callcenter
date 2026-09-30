@@ -1,0 +1,67 @@
+### Result
+{"checks":["functional-spec title","functional-spec content","functional-spec change log entry","functional-spec no horizontal page overflow","interaction title","interaction content","interaction change log entry","interaction no horizontal page overflow","field-alignment title","field-alignment content","field-alignment change log entry","field-alignment no horizontal page overflow","remaining-confirmations title","remaining-confirmations content","remaining-confirmations change log entry","remaining-confirmations no horizontal page overflow","change-log title","change-log content","change-log change log entry","change-log no horizontal page overflow","development title","development content","development change log entry","development no horizontal page overflow","exception-definitions title","exception-definitions content","exception-definitions change log entry","exception-definitions no horizontal page overflow","FS13 official creation","appendix navigation","six optional business rules","changelog section navigation","blueprint current version","overview visible","overview text within canvas []","overview zoom readable","platform visible","platform text within canvas []","platform zoom readable","adapter visible","adapter text within canvas []","adapter zoom readable","alicti visible","alicti text within canvas []","alicti zoom readable","customer business inspector","inspector closes","inbound inspector sources","43 sources displayed","package download link","package http download","no page errors","no failed local resources"],"count":53,"errors":[],"requests":[]}
+### Ran Playwright code
+```js
+await (async page => {
+ const base='http://127.0.0.1:8772/Demo_Protype_2/prototype/';
+ const checks=[],errors=[],requests=[];
+ const check=(name,ok)=>{if(!ok)throw Error(name);checks.push(name)};
+ page.on('pageerror',e=>errors.push(e.message));
+ page.on('response',r=>{if(r.status()>=400 && r.url().startsWith(base)) requests.push({url:r.url(),status:r.status()})});
+ await page.setViewportSize({width:1440,height:1050});
+ for(const file of ['functional-spec','interaction','field-alignment','remaining-confirmations','change-log','development','exception-definitions']){
+  await page.goto(base+'docs/'+file+'.html');
+  check(file+' title',!!await page.title());
+  check(file+' content',(await page.locator('body').innerText()).length>100);
+  check(file+' change log entry',await page.locator('a[href="change-log.html"]').count()>0);
+  check(file+' no horizontal page overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));
+ }
+ await page.goto(base+'docs/functional-spec.html#FS-13');
+ check('FS13 official creation',await page.locator('body').innerText().then(t=>t.includes('ivrRouter/create')&&t.includes('routerType')));
+ await page.getByLabel('文档目录').getByRole('link',{name:'规则附表 A–N',exact:true}).click();
+ check('appendix navigation',page.url().endsWith('interaction.html'));
+ check('six optional business rules',await page.locator('body').innerText().then(t=>['线索等级','意向等级','到店意向','试驾意向','计划到店时间','计划到店门店'].every(v=>t.includes(v))));
+ await page.goto(base+'docs/change-log.html');
+ await page.getByRole('link',{name:'D-025 客户业务信息与通话快照',exact:true}).click();
+ check('changelog section navigation',decodeURIComponent(page.url()).includes('#D-025'));
+ await page.screenshot({path:'/private/tmp/consolidated-change-log.png',fullPage:false});
+ await page.goto(base+'related-systems/index.html');
+ check('blueprint current version',await page.locator('.bp-version').innerText()==='蓝图 v1.7');
+ for(const view of ['overview','platform','adapter','alicti']){
+  await page.locator('[data-view-link="'+view+'"]').click();
+  const svg=page.locator('[data-view-svg="'+view+'"]');
+  check(view+' visible',await svg.isVisible());
+  const issues=await svg.evaluate(svg=>{
+   const vb=svg.viewBox.baseVal;return [...svg.querySelectorAll('text')].flatMap(t=>{const b=t.getBBox();return b.x<0||b.y<0||b.x+b.width>vb.width+1||b.y+b.height>vb.height+1?[t.textContent]:[]});
+  });
+  check(view+' text within canvas '+JSON.stringify(issues),!issues.length);
+  await page.locator('[data-action="zoom-in"]').click();
+  check(view+' zoom readable',!!(await page.locator('#bp-zoom').innerText()));
+  await page.locator('[data-action="fit"]').click();
+ }
+ await page.locator('[data-view-link="platform"]').click();
+ await page.locator('[data-node-id="platform-business-info"]').click();
+ check('customer business inspector',await page.locator('#bp-detail-content').innerText().then(t=>t.includes('线索等级')&&t.includes('计划到店时间')&&t.includes('历史')));
+ await page.locator('#bp-close-detail').click();
+ check('inspector closes',await page.locator('#bp-inspector').isHidden());
+ await page.locator('[data-node-id="platform-inbound-rules"]').click();
+ check('inbound inspector sources',await page.locator('#bp-detail-content').innerText().then(t=>t.includes('API-350')&&t.includes('API-354')));
+ await page.locator('#bp-close-detail').click();
+ await page.screenshot({path:'/private/tmp/consolidated-blueprint.png',fullPage:false});
+ await page.locator('[data-view-link="interfaces"]').click();
+ check('43 sources displayed',await page.locator('.bp-api-table tbody tr').count()===43);
+ await page.goto(base+'docs/development.html');
+ const href=await page.getByRole('link',{name:'下载完整开发包',exact:true}).getAttribute('href');
+ check('package download link',href==='../downloads/alicti-development-kit.zip');
+ const response=await page.request.get(base+'downloads/alicti-development-kit.zip');check('package http download',response.status()===200 && (await response.body()).length>2000000);
+ check('no page errors',errors.length===0);check('no failed local resources',requests.length===0);
+ return {checks,count:checks.length,errors,requests};
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:8772/Demo_Protype_2/prototype/docs/development.html
+- Page Title: 开发交付包
+- Console: 0 errors, 1 warnings
+### Events
+- New console entries: ../../../../../../private/tmp/.playwright-cli/console-2026-09-15T09-26-15-955Z.log#L50-L60

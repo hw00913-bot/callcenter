@@ -1,0 +1,59 @@
+@startuml
+title SC-204 · 按外呼方式分配或改派客户
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 租户管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|lane_1|
+start
+:需要安排已导入客户的呼叫方式; <<start_label>>
+|lane_1|
+:筛选待分配客户，逐条勾选或全选当前筛选可分配项;
+|lane_1|
+:点击分配，弹窗选择人工外呼、预外呼或 IVR;
+|lane_2|
+:人工返回有效且关联账号的本租户坐席；自动方式返回同类型未启动任务;
+|lane_2|
+if (所选客户与目标仍同租户同供应商账号，且满足分配/改派条件？) then (不通过 · ALT-204-4)
+|lane_1|
+:拒绝已占用、通话/话后锁定、已完成或自动任务已启动的冲突项; <<failure>>
+stop
+else (通过)
+|lane_1|
+:确认客户数量和目标；取消保持原分配关系;
+|lane_2|
+:事务保存 ownerId 或 taskId；不混用人员和任务，不改写历史通话;
+|lane_1|
+:已分配客户移出默认待分配；人工进入本人坐席工作台，自动进入对应任务;
+|lane_1|
+:本次结果已展示；保留来源与操作记录; <<end_label>>
+stop
+endif
+@enduml

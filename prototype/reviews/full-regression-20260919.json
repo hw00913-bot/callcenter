@@ -1,0 +1,196 @@
+{
+  "version": "2026-09-19-regression-alignment-1",
+  "date": "2026-09-19",
+  "scope": "incremental_maintenance_regression_not_live_supplier_integration",
+  "runtimeSuites": 36,
+  "runtimeChecks": 914,
+  "failedSuites": 0,
+  "syntheticPageRenders": 99,
+  "browserChecks": [
+    {
+      "check": "班长置忙后可置闲、通话整理保护、无管理上线",
+      "pass": true
+    },
+    {
+      "check": "租户独立队列菜单及同一队列多技能展示",
+      "pass": true
+    },
+    {
+      "check": "队列多选及等待语音高级字段完整展示",
+      "pass": true
+    },
+    {
+      "check": "外呼组创建、成员维护、原String工号与租户范围",
+      "pass": true
+    },
+    {
+      "check": "外呼组查看只读、右侧抽屉关闭返回",
+      "pass": true
+    },
+    {
+      "check": "预测任务外呼组/状态重呼/次数间隔/确认贯通",
+      "pass": true
+    },
+    {
+      "check": "空名单任务直接导入后待启动且不自动呼叫",
+      "pass": true
+    },
+    {
+      "check": "新导入线索按完整编码进入报表且保持未联系",
+      "pass": true
+    },
+    {
+      "check": "报表页面 通话总览",
+      "pass": true
+    },
+    {
+      "check": "报表页面 客户跟进",
+      "pass": true
+    },
+    {
+      "check": "报表页面 外呼任务",
+      "pass": true
+    },
+    {
+      "check": "报表页面 坐席成效",
+      "pass": true
+    },
+    {
+      "check": "报表页面 服务技能",
+      "pass": true
+    },
+    {
+      "check": "模块页面 客户档案",
+      "pass": true
+    },
+    {
+      "check": "模块页面 导入与分配",
+      "pass": true
+    },
+    {
+      "check": "模块页面 坐席维护",
+      "pass": true
+    },
+    {
+      "check": "模块页面 技能组管理",
+      "pass": true
+    },
+    {
+      "check": "模块页面 配置记录",
+      "pass": true
+    },
+    {
+      "check": "模块页面 自动外呼",
+      "pass": true
+    },
+    {
+      "check": "自动外呼先选语音流程、复用状态重呼并无坐席分配",
+      "pass": true
+    },
+    {
+      "check": "蓝图五个视图可切换，外呼组模块关联九项官方资源接口及任务接口",
+      "pass": true
+    },
+    {
+      "check": "SC-218队列流程包含多技能、权限、差分接口与失败保留",
+      "pass": true
+    },
+    {
+      "check": "独立文档、业务流程、时序、蓝图导航实际切换；旧失效锚点已修复",
+      "pass": true
+    },
+    {
+      "check": "待确认页A–M目录正确；CF11明确普通关页已知、异常生命周期和回执歧义待确认",
+      "pass": true
+    },
+    {
+      "check": "最终资源总流程涵盖号码导入、队列多技能、外呼组、在线新增待提交；清除旧导入待确认",
+      "pass": true
+    },
+    {
+      "check": "字段清单182项可筛选唯一待确认FA179；独立导航可用且侧栏不遮挡",
+      "pass": true
+    },
+    {
+      "check": "原型内嵌说明、蓝图与返回主页面逐步复测通过，无新增错误日志",
+      "pass": true
+    }
+  ],
+  "browserObservations": [
+    {
+      "id": "OBS-01",
+      "time": "2026-09-19T12:42:01.351Z",
+      "message": "Uncaught TypeError: Failed to execute 'observe' on 'MutationObserver': parameter 1 is not of type 'Node'.",
+      "status": "待复现，未计入已修复",
+      "context": "刷新内嵌说明页后切换蓝图并返回的检查期间出现；日志未带来源文件或调用栈。",
+      "recheck": "随后分别刷新、打开说明、切蓝图和返回原型均成功，日志未新增；不能据此确定来自原型还是浏览器工具。"
+    }
+  ],
+  "deliveryIntegrity": {
+    "result": "pass",
+    "scope": "documentation_package_not_live_integration",
+    "count": 1439,
+    "linksChecked": 2749
+  },
+  "sourcePreservation": {
+    "frozenFiles": 121,
+    "frozenChanged": [],
+    "originalCaptureFiles": 163,
+    "originalCaptureChanged": []
+  },
+  "fixes": [
+    {
+      "area": "外呼组成员与账号隔离",
+      "before": "同号组可能被跨账号定位；移组未完整保护来源组及目标组，旧记录被静默迁移并标为已核验。",
+      "after": "按账号与租户定位；移组两端检查任务引用；拒绝跨租户成员；不迁移旧格式、不把本地保存视为供应商已核验。",
+      "references": "外呼组、预测任务；API-386–394"
+    },
+    {
+      "area": "外呼组字段与响应形状",
+      "before": "组号允许纯字母；列表和成员响应采用自定义包装，且本地组ID进入任务字段。",
+      "after": "组号2–20位、字母开头且包含数字；按官方列表包装与顶层total构造样例；任务仅使用官方agentGroup，不提交本地outboundGroupId。",
+      "references": "API-311、API-386、API-387、API-393"
+    },
+    {
+      "area": "队列缺失配置展示",
+      "before": "已有队列缺少字段时界面补默认值，容易被误认为已有真实配置。",
+      "after": "缺失值显示未记录或留空，编辑时补齐；新建采用已声明默认值。队列多技能及独立租户权限同步到文档。",
+      "references": "FS-05、D-043、D-044；API-377–385"
+    },
+    {
+      "area": "任务界面与详情交互",
+      "before": "预测工号模式仍提示旧的跨任务互斥规则；外呼组详情含嵌套管理，删除使用独立确认样式。",
+      "after": "按当前产品决定取消本地cnos模式跨任务互斥提示；组详情只读，删除使用统一右侧抽屉。官方原文约束单独保留，不承诺供应商一定接受。",
+      "references": "FS-08、FS-09、FS-21；D-045"
+    },
+    {
+      "area": "交付文档导航",
+      "before": "单独打开文档点击流程或蓝图仅改变delivery锚点，正文未切换。",
+      "after": "独立文档使用实际文件导航；原型内继续嵌入展示；旧失效锚点纠正到目标页，并更新脚本版本。",
+      "references": "原型、说明、业务流程、时序、蓝图公共导航"
+    },
+    {
+      "area": "现行说明与附表",
+      "before": "资料仍有线路登记、单技能队列、旧缓存迁移、离线技能提交接口及外呼组创建过程等过时口径。",
+      "after": "统一取消线路，号码从AliCti导入；队列独立且多技能；软电话与班长管理分开；在线仅新增技能暂存，下线后管理员以API-309手动提交；外呼组先保存再维护成员。",
+      "references": "21个功能章节、182项字段、405条规则、D-045"
+    },
+    {
+      "area": "流程、时序与蓝图",
+      "before": "新模块未贯通，部分总览还写六类报表、坐席导入待确认及已取消的文本录音定位。",
+      "after": "更新端到端总览及相关场景，补全外呼组、队列多技能、监控管理、待提交技能与直接导入，保留冻结输入作为历史依据。",
+      "references": "当前流程/时序图集；五类架构视图"
+    },
+    {
+      "area": "待确认与开发包",
+      "before": "外呼组官方资料未完整进入索引，班长下线回调命名矛盾未清楚体现；开发模型和状态规则落后。",
+      "after": "补录已有九份外呼组快照和新增班长监控依据；CF-11明确已知普通关页步骤及未知边界；重生成模型、契约、实施任务、验收、追踪、清单与离线ZIP。",
+      "references": "92份依据；48模型、34适配边界、21任务、292待执行验收"
+    }
+  ],
+  "confirmationTopics": 9,
+  "preparationTypes": 3,
+  "supplierIntegration": "not_executed",
+  "gitlabPush": "not_requested_this_turn",
+  "legacyLoopPreflight": "not_passed: historical stage/step metadata differs; frozen workflow not rewritten"
+}

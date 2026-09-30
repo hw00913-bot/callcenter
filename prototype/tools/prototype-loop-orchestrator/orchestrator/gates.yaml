@@ -1,0 +1,77 @@
+{
+  "stage_gates": {
+    "s4": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s4",
+      "blocks_until_pass": "S5 项目结构读取"
+    },
+    "s6": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s6",
+      "blocks_until_pass": "S6 需求实现拆分"
+    },
+    "s7": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s7",
+      "blocks_until_pass": "S7 实现与单步验证循环"
+    },
+    "s8": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s8",
+      "blocks_until_pass": "S8 全局验证"
+    },
+    "s9": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage s9",
+      "blocks_until_pass": "S9 按需补充与收尾"
+    },
+    "final": {
+      "command": "python3 tools/loop_run.py check . --preflight-stage final",
+      "blocks_until_pass": "S9 收尾终检"
+    }
+  },
+  "hard_gates": [
+    "S8 必须在 verification-log 留存功能基线双向复核范围、证据与结论（无差异也记录），差异及用户决定写入 open-items。业务功能、AC 或范围变化不能在原型侧直接修改冻结事实，须用户确认后回需求分析更新版本、重新 G3，并新一轮导入复验。本轮验收缺陷与范围冲突阻断；明确延期或拒绝且不影响当前验收的新增建议不自动实施、不默认包含在原报价。此语义检查由验证 owner 执行，不能以脚本通过替代。",
+    "原型消费的冻结输入必须同时包含已确认基础事实、功能清单、业务规则、业务流程/场景泳道、交互时序、接口核验和页面规划。结构化 JSON 是事实源，HTML 图集供关系核对并只读复用。S6/S7/S8 必须把相关流程与时序落实到交互和验收，不能只发布图页；接口 partial/missing/conflict 和接受风险不能升级为已验证事实。",
+    "LLM Wiki 只作为需求分析 Loop 的输入。原型各阶段不查询知识库、不读取 Wiki/query 正文、不从其提取业务或字段事实；未纳入冻结包的 Wiki 材料先退回需求分析。包内原始证据只允许脚本做完整性校验，来源索引只作追溯。",
+    "PM 未确认 memory/project-startup-plan.md 中的产品目标、目标用户、范围、非范围、输入材料、迭代方式、两个可选交付决定、核心流程、主要数据对象、验收标准和交付目标，不进入 S2/S3。功能说明文档与标注默认均不生成，只有明确要求才启用。",
+    "S2 未通过 approve-plan 记录迭代名、确认人、确认依据、requestedDeliverables 两个布尔开关和启动规划/CLAUDE.md 内容摘要，或导入模式未同时绑定需求分析 manifest SHA-256，或审批后文件发生变化，不进入项目记忆初始化。",
+    "S3 未初始化 memory/project.md、memory/business-rules.md、memory/feature-list.md、memory/source-materials.md、memory/field-map.md 和 memory/open-items.md，不进入初始化后的拆分和实现。",
+    "导入需求分析基线时，manifest、handoff、G1/G2/G3、全局核验、逐文件 SHA-256、基线指纹或 S2 绑定任一不一致，立即阻断；业务事实变化必须回到需求分析 Loop 生成新 G3 包。",
+    "输入资料未整理为 memory/source-materials.md 的 SRC-*，不进入拆分；只有 requestedDeliverables.annotations=true 时才进入标注提示词准备。",
+    "CLAUDE.md 未写入项目执行边界和记忆引用，不进入实现。",
+    "执行步骤缺少 Expected Change 或 Verification Skill，不进入实现；只有 requestedDeliverables.annotations=true 时才额外要求 Annotation Impact。",
+    "S6 未拆出业务流程图与时序交互图任务，或 S7 未生成可直接阅读的本地 HTML 图，不进入全局验证；导入模式必须复用冻结 HTML 图集并保留来源指纹，禁止重算图形几何；关联系统展示页必须存在，但没有关联系统时允许保持明确空态。",
+    "导入模式的 acceptance-map 未覆盖全部冻结 AC-*、FUNC-*、PAGE-*、ACTION-*，或引用未知上游 ID，不进入实现与全局验证。",
+    "verification-log.md 缺少结构化 step/global pass 记录，不进入后续阶段。",
+    "S9 只处理明确请求的可选交付：interactionDoc=true 才要求 docs/interaction.html；annotations=true 才要求 memory/annotation-prompt.md、memory/annotation-coverage.md 与标注运行时。两个开关均为 false 时允许直接完成原型交付。annotations.js 不自动写入；若已被手动回写，则标注 id 必须全局唯一，每条标注必须引用 sourceRefs，并与源码锚点的 page/label/kind/fieldRefs 语义合同一致。"
+  ],
+  "circuit_breaker": {
+    "threshold": 3,
+    "state_file": "memory/circuit-state.json",
+    "failure_keys": ["stepId", "checkpoint", "consecutiveFailures", "lastError", "updatedAt"],
+    "on_trigger": "暂停自动重试，记录现场，并让用户选择继续修复、回到拆分、回到需求确认或终止。"
+  },
+  "annotation": {
+    "activation": "explicit-request-only",
+    "id_scope": "global",
+    "mode": "manual-prompt-first",
+    "requires_source_refs": true,
+    "requires_field_refs_when_field_map_has_rows": true,
+    "requires_anchor_semantic_contract": true,
+    "field_description_format": "one-line-per-field-with-definition-logic-format-exception",
+    "source_file": "memory/source-materials.md",
+    "field_file": "memory/field-map.md",
+    "prompt_file": "memory/annotation-prompt.md",
+    "output_file": "annotations/annotations.js"
+  },
+  "optional_deliverables": {
+    "default": {
+      "interactionDoc": false,
+      "annotations": false
+    },
+    "source": "config/workflow.json#currentIteration.requestedDeliverables",
+    "final_gate_policy": "only-requested-deliverables-are-required"
+  },
+  "reporting": {
+    "pm_status_file": "memory/loop-status.md",
+    "writer": "tools/loop_run.py",
+    "purpose": "把 preflight 技术错误翻译成 PM 可读的当前阶段、阻塞原因、责任方和下一步建议。",
+    "not_authoritative_for_pass": true
+  }
+}

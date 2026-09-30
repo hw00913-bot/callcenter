@@ -1,0 +1,74 @@
+@startuml
+title SC-102 · 开启或结束本人 WebRTC 电话服务
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 关联坐席的中台用户
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:开始或结束当前租户的人工外呼工作; <<start_label>>
+|lane_1|
+:进入当前租户坐席工作台或呼叫弹窗\n输出：本人电话服务入口;
+|lane_2|
+:校验本人坐席、技能、号码及 HTTPS/麦克风许可\n输出：有效身份、授权资源与设备条件;
+|lane_2|
+if (本人身份、麦克风与会话占用检查均通过？) then (不满足 · ALT-102-3)
+|lane_1|
+:提示缺项或拒绝第二入口，不强制抢占; <<failure>>
+stop
+else (满足)
+|lane_2|
+:初始化电话组件、注册事件并取得本人短期登录材料\nsetup回调后注册事件；后端校验绑定后申请sessionKey;
+|lane_3|
+:处理本人坐席登录及软电话媒体连接\n返回登录结果和实际状态;
+|lane_2|
+if (登录与软电话就绪均已确认？) then (已就绪)
+|lane_1|
+:电话就绪后处理业务；无在途和未保存结果时申请下线\n拨号/接听/挂断沿用原操作权限;
+|lane_2|
+if (通话结束且结果已保存，并允许完全退出？) then (不满足 · ALT-102-6)
+|lane_1|
+:保留会话和结果输入；核对状态，不提前释放; <<failure>>
+stop
+else (满足)
+|lane_2|
+:确认完全下线成功后释放本地会话与锁\nlogoutMode=1；退出失败不伪造离线;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+else (失败或待确认 · ALT-102-REGISTER)
+|lane_1|
+:保留不可呼叫状态；提示鉴权/麦克风/占用/网络问题，不伪报上线; <<failure>>
+stop
+endif
+endif
+@enduml

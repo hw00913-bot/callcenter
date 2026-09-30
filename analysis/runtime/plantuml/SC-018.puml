@@ -1,0 +1,66 @@
+@startuml
+title SC-018 · 呼入排队、拒接、客户匹配和非服务时间分支
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 来电客户
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|#EDF4FF|lane_4| 本租户承接坐席
+|lane_1|
+start
+:呼入未能直接进入正常唯一客户接听路径; <<start_label>>
+|lane_3|
+:呼入服务时间及队列配置待确认\n仅接收来源已明确的实际呼入结果;
+|lane_2|
+if (在服务时间且允许继续排队？) then (不通过 · ALT-018-2)
+|lane_1|
+:按已发布非营业或超时提示结束；保留未承接记录; <<failure>>
+stop
+else (通过)
+|lane_3|
+:队列等待及拒接再分配能力待确认\n无文档证据不标路由已生效;
+|lane_2|
+if (在时限内成功分配且坐席接听？) then (不通过 · ALT-018-4)
+|lane_1|
+:队列超时或放弃则结束；不将坐席拒接等同客户整通未接通; <<failure>>
+stop
+else (通过)
+|lane_2|
+:自有界面显示当前来电；以本租户手机号查询平台联系档案;
+|lane_4|
+:有档案则查看，未知号码保留来电号码，不强建线索或工单;
+|lane_2|
+:最终话单分别归档客户接通、人工接听和结束原因;
+|lane_1|
+:本次结果已展示；保留来源与操作记录; <<end_label>>
+stop
+endif
+endif
+@enduml

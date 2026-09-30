@@ -1,0 +1,110 @@
+--- a/js/components/alicti-seat-import.js
++++ b/js/components/alicti-seat-import.js
+@@ -15,13 +15,21 @@
+   function fixtures(tenant){
+     // Demo-only authorized pool: source access is a platform permission, never a supplier tenantId field.
+     const index=data.tenants.findIndex(t=>t.tenantId===tenant.tenantId);
+-    return [0,1,2].map(i=>({id:970000+index*10+i,enterpriseId:Number(tenant.enterpriseId),cno:String(9100+index*10+i),name:'已有坐席示例 '+(i+1),areaCode:'021',active:1,isOb:1,isAsr:0,isQualityCheck:1}));
++    return [0,1,2].map(i=>({id:970000+index*10+i,enterpriseId:Number(tenant.enterpriseId),cno:String(9100+index*10+i),name:'已有坐席示例 '+(i+1),areaCode:'021',active:1,isOb:1,isAsr:0,isQualityCheck:1,status:0}));
+   }
+   function rowsFor(tenant){
+     const rows=fixtures(tenant).concat(providerPool.filter(x=>x.tenantId===tenant.tenantId&&x.enterpriseId===tenant.enterpriseId).map(x=>x.agent)),byCno=new Map(rows.map(r=>[r.cno,r]));
+-    for(const a of data.agents.filter(a=>a.tenantId===tenant.tenantId&&a.enterpriseId===tenant.enterpriseId&&a.lifecycleStatus!=='已删除'))byCno.set(a.cno,{id:a.demoProviderAgentId||AliCtiDemo.resourceId('agent',a),enterpriseId:Number(a.enterpriseId),...AliCtiFields.seatFields(a)});
+-    return [...byCno.values()].sort((a,b)=>a.cno.localeCompare(b.cno));
++    for(const a of data.agents.filter(a=>a.tenantId===tenant.tenantId&&a.enterpriseId===tenant.enterpriseId&&a.lifecycleStatus!=='已删除'))byCno.set(a.cno,{id:a.demoProviderAgentId||AliCtiDemo.resourceId('agent',a),enterpriseId:Number(a.enterpriseId),...AliCtiFields.seatFields(a),status:['离线','未上线','未登录'].includes(a.agentStatus)?0:['在线','空闲','通话中','话后处理','示忙','振铃'].includes(a.agentStatus)?1:null});
++    return [...byCno.values()].sort((a,b)=>String(a.cno).localeCompare(String(b.cno)));
+   }
++  function rowIssue(raw,tenant,expectedCno){
++    if(!raw||!AliCtiFields.validExistingCno(raw.cno)||expectedCno!==undefined&&raw.cno!==expectedCno)return '坐席工号与查询目标不一致，请核对后同步';
++    if(!tenant||String(raw.enterpriseId??'')!==String(tenant.enterpriseId))return '返回坐席不属于当前 AliCti 账号，未同步';
++    if(![0,1].includes(AliCtiFields.code(raw.active)))return '坐席启用状态待核对，未同步';
++    return '';
++  }
++  const activeLabel=value=>({0:'停用',1:'启用'}[AliCtiFields.code(value)]||'待核对');
++  const onlineLabel=value=>({0:'离线',1:'在线'}[AliCtiFields.code(value)]||'待核对');
+   const evidence=x=>'<details class="technical-details"><summary>接口请求与模拟结果</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(JSON.stringify(x,null,2))+'</pre></details>';
+   function open(mode='existing'){
+     const options=tenants();if(!options.length)return showToast('当前范围无坐席维护权限','warning');
+@@ -39,9 +47,10 @@
+     const auth=AliCtiFields.authFields(tenant.enterpriseId);if(auth.pending.length)return error(auth.pending.join('；'));
+     const all=rowsFor(tenant);dialog.start=request.fields.start;dialog.rows=all.slice(dialog.start,dialog.start+dialog.limit);
+     last={request:{...request,fields:{...AliCtiFields.authFields(tenant.enterpriseId).fields,...request.fields}},response:{result:'0',data:{total:String(all.length),agents:clone(dialog.rows).map(agent=>({agent,queueList:null,agentGroup:null}))}},mock:true};
+-    const parsed=AliCtiFields.seatQueryResult(last.response);if(parsed.pending)return error('查询结果待核对，请重新查询');dialog.rows=parsed.rows;
+-    document.getElementById('seat-import-result').innerHTML=ui.table([{key:'cno',label:'选择',render:(cno,r)=>{const exists=data.agents.some(a=>a.enterpriseId===tenant.enterpriseId&&a.cno===cno);return exists?'<span>已同步</span>':`<input type="checkbox" name="seat-import-selection" value="${esc(cno)}" aria-label="选择工号 ${esc(cno)}">`;}},{key:'cno',label:'工号'},{key:'name',label:'姓名'},{key:'areaCode',label:'区号'},{key:'active',label:'配置状态',render:v=>Number(v)===1?'启用':'停用'}],dialog.rows)+`<div class="rr-actions"><button class="btn" ${dialog.start===0?'disabled':''} onclick="AliCtiSeatImport.query(${Math.max(0,dialog.start-dialog.limit)})">上一页</button><span>第 ${Math.floor(dialog.start/dialog.limit)+1} 页 · 共 ${all.length} 项</span><button class="btn" ${dialog.start+dialog.limit>=all.length?'disabled':''} onclick="AliCtiSeatImport.query(${dialog.start+dialog.limit})">下一页</button></div>`+evidence(last);
+-    document.getElementById('seat-import-submit').disabled=!dialog.rows.some(r=>!data.agents.some(a=>a.enterpriseId===tenant.enterpriseId&&a.cno===r.cno&&a.lifecycleStatus!=='已删除'));
++    const parsed=AliCtiFields.seatQueryResult(last.response);if(parsed.pending){dialog.rows=[];document.getElementById('seat-import-submit').disabled=true;document.getElementById('seat-import-result').innerHTML=evidence(last);return error('查询结果待核对，请重新查询');}dialog.rows=parsed.rows;
++    last.validation=dialog.rows.map(r=>({cno:r.cno,issue:rowIssue(r,tenant)}));
++    document.getElementById('seat-import-result').innerHTML=ui.table([{key:'cno',label:'选择',render:(cno,r)=>{const issue=rowIssue(r,tenant);if(issue)return '<span title="'+esc(issue)+'">待核对</span>';const exists=data.agents.some(a=>a.enterpriseId===tenant.enterpriseId&&a.cno===cno);return exists?'<span>已同步</span>':`<input type="checkbox" name="seat-import-selection" value="${esc(cno)}" aria-label="选择工号 ${esc(cno)}">`;}},{key:'cno',label:'工号'},{key:'name',label:'姓名'},{key:'areaCode',label:'区号'},{key:'active',label:'配置状态',render:activeLabel},{key:'status',label:'在线状态',render:onlineLabel},{key:'cno',label:'核对说明',render:(v,r)=>esc(rowIssue(r,tenant)||'—')}],dialog.rows)+`<div class="rr-actions"><button class="btn" ${dialog.start===0?'disabled':''} onclick="AliCtiSeatImport.query(${Math.max(0,dialog.start-dialog.limit)})">上一页</button><span>第 ${Math.floor(dialog.start/dialog.limit)+1} 页 · 共 ${all.length} 项</span><button class="btn" ${dialog.start+dialog.limit>=all.length?'disabled':''} onclick="AliCtiSeatImport.query(${dialog.start+dialog.limit})">下一页</button></div>`+evidence(last);
++    document.getElementById('seat-import-submit').disabled=!dialog.rows.some(r=>!rowIssue(r,tenant)&&!data.agents.some(a=>a.enterpriseId===tenant.enterpriseId&&a.cno===r.cno&&a.lifecycleStatus!=='已删除'));
+   }
+   function preview(){
+     if(!valid()||dialog.mode!=='batch')return;
+@@ -63,6 +72,7 @@
+     const plan=dialog.plan,selected=batch?plan.cnos:[...document.querySelectorAll('[name="seat-import-selection"]:checked')].map(el=>el.value);
+     if(!selected.length)return error('请至少选择一个坐席');
+     if(!batch&&selected.some(cno=>!dialog.rows.some(r=>r.cno===cno)))return error('所选坐席已变化，请刷新列表');
++    if(!batch){const issue=selected.map(cno=>rowIssue(dialog.rows.find(r=>r.cno===cno),tenant,cno)).find(Boolean);if(issue)return error(issue);}
+     busy=true;document.getElementById('seat-import-submit').disabled=true;
+     const completed=[],skipped=[],failed=[],requests=[];
+     const outcome=AliCtiDemo.seatBatchOutcome||'success';
+@@ -72,7 +82,7 @@
+     try{
+       if(batch&&normalized.pending){last={mode:'batchCreate',tenantId:tenant.tenantId,request:{endpoint:plan.endpoint,fields:{...AliCtiFields.authFields(tenant.enterpriseId).fields,...plan.fields}},response,normalized,mock:true};journal.unshift({...last,cnos:[...selected],at:new Date().toISOString()});sessionStorage.setItem(key,JSON.stringify(journal));dialog.plan=null;document.getElementById('seat-import-result').innerHTML=evidence(last);return error('开通结果未确认，未写入本地坐席。请先查询核对，不要重复创建。');}
+       if(batch){
+-        for(const cno of normalized.createdCnos)providerPool.push({tenantId:tenant.tenantId,enterpriseId:tenant.enterpriseId,agent:{id:AliCtiDemo.resourceId('agent',{enterpriseId:tenant.enterpriseId,cno,contactCenterIdentityId:'POOL-'+cno}),enterpriseId:Number(tenant.enterpriseId),cno,name:plan.fields.name,areaCode:plan.fields.areaCode,active:1,isOb:1,isAsr:0,isQualityCheck:1}});
++        for(const cno of normalized.createdCnos)providerPool.push({tenantId:tenant.tenantId,enterpriseId:tenant.enterpriseId,agent:{id:AliCtiDemo.resourceId('agent',{enterpriseId:tenant.enterpriseId,cno,contactCenterIdentityId:'POOL-'+cno}),enterpriseId:Number(tenant.enterpriseId),cno,name:plan.fields.name,areaCode:plan.fields.areaCode,active:1,isOb:1,isAsr:0,isQualityCheck:1,status:0}});
+         sessionStorage.setItem('alicti-seat-import-pool-v1',JSON.stringify(providerPool));
+       }
+       for(const cno of selected){
+@@ -80,11 +90,12 @@
+         if(captured!==context()||!valid())return;
+         const existing=data.agents.find(a=>a.enterpriseId===tenant.enterpriseId&&a.cno===cno);
+         if(existing){skipped.push(cno);continue;}
+-        const raw=batch?providerPool.find(x=>x.enterpriseId===tenant.enterpriseId&&x.agent.cno===cno).agent:dialog.rows.find(r=>r.cno===cno);
+-        const built=Pages['agent-center'].buildAgent({cno,userName:raw.name,areaCode:raw.areaCode},tenant);
++        const raw=batch?providerPool.find(x=>x.enterpriseId===tenant.enterpriseId&&x.agent.cno===cno)?.agent:rowsFor(tenant).find(r=>r.cno===cno);
++        if(!batch)requests.push({endpoint:'agent/get',fields:{...AliCtiFields.authFields(tenant.enterpriseId).fields,cno},response:raw?{result:0,data:{agent:clone(raw)}}:{result:-1,description:'未查到对应坐席'},mock:true});
++        const issue=rowIssue(raw,tenant,cno);if(issue){failed.push({cno,message:issue});continue;}
++        const built=Pages['agent-center'].buildAgent({cno:raw.cno,userName:raw.name,areaCode:raw.areaCode},tenant,{existing:!batch});
+         if(!built.ok){failed.push({cno,message:built.message});continue;}
+-        const a={...built.agent,lifecycleStatus:Number(raw.active)===0?'已停用':'已启用',callEnabled:Number(raw.isOb)===1,isAsr:Number(raw.isAsr),isQualityCheck:Number(raw.isQualityCheck),acceptNewTasks:Number(raw.active)===1,simulation:true,demoProviderAgentId:raw.id||AliCtiDemo.resourceId('agent',built.agent),supplierImportMode:batch?'batchCreate':'query/get'};
+-        if(!batch)requests.push({endpoint:'agent/get',fields:{...AliCtiFields.authFields(tenant.enterpriseId).fields,cno},response:{result:0,data:{agent:clone(raw)}},mock:true});
++        const a={...built.agent,lifecycleStatus:AliCtiFields.code(raw.active)===0?'已停用':'已启用',callEnabled:AliCtiFields.code(raw.isOb)===1,isAsr:AliCtiFields.code(raw.isAsr),isQualityCheck:AliCtiFields.code(raw.isQualityCheck),acceptNewTasks:AliCtiFields.code(raw.active)===1,agentStatus:onlineLabel(raw.status),supplierAgentSnapshot:clone(raw),simulation:true,demoProviderAgentId:raw.id||AliCtiDemo.resourceId('agent',built.agent),supplierImportMode:batch?'batchCreate':'query/get'};
+         if(!AccountSeat.persistAgent(a)){failed.push({cno,message:'本地保存失败，请查证后重试'});continue;}
+         completed.push(cno);
+       }
+--- a/js/pages/agent-center.js
++++ b/js/pages/agent-center.js
+@@ -70,9 +70,10 @@
+     const previousInput=failed?.retryInput||{};
+     ui.openLayer('agent-single',`<div class="layer-header"><div><h2>${failed?'修改并重新提交坐席':'新增云呼叫坐席'}</h2><p>维护坐席基础资料和服务配置。</p></div><button onclick="PlatformUI.closeLayer('agent-single')">×</button></div><div class="layer-body">${failed?ui.detailSection('上次未完成的原因','<p>'+esc(recordReason(failed))+'</p>'): ''}<div class="form-grid"><label class="field"><span>所属租户</span><select id="newAgentTenant">${tenants.map(t=>`<option value="${esc(t.tenantId)}">${esc(t.name)}</option>`).join('')}</select></label><label class="field"><span>姓名</span><input id="newAgentName" value="${esc(previousInput.userName||failed?.objectName||'')}" maxlength="40"></label><label class="field"><span>联系手机号（平台选填）</span><input id="newAgentMobile" value="${esc(previousInput.mobile||'')}" maxlength="11" type="tel"></label><label class="field"><span>坐席工号（cno）</span><input id="newAgentCno" value="${esc(previousInput.cno||'')}" maxlength="10"><small>3–10位数字，保留开头的0；0012与012是不同工号。</small></label><label class="field"><span>区号（areaCode）</span><input id="newAgentAreaCode" value="${esc(previousInput.areaCode||'')}" type="text" placeholder="例如021"></label></div><div id="newAgentError" aria-live="polite"></div></div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer('agent-single')">取消</button><button class="btn btn-primary" onclick="window.Pages['agent-center'].createSingle()">保存</button></div>`,'wide');
+   }
+-  function buildAgent(input,tenant){
++  function buildAgent(input,tenant,options={}){
+     const userName=String(input.userName||'').trim(),mobile=String(input.mobile||'').trim(),cno=String(input.cno||'').trim(),areaCode=String(input.areaCode||'').trim();
+-    let error=!userName?'请输入姓名':(!/^\d{3,10}$/.test(cno)||Number(cno)===0)?'坐席工号须为3–10位数字':!areaCode?'请输入区号':mobile&&!/^1[3-9]\d{9}$/.test(mobile)?'请输入正确的手机号（选填）':'';
++    const validCno=options.existing?AliCtiFields.validExistingCno(input.cno):/^\d{3,10}$/.test(cno)&&Number(cno)!==0;
++    let error=!userName?'请输入姓名':!validCno?(options.existing?'已有坐席工号须为非全零的数字文本':'坐席工号须为3–10位数字'):!areaCode?'请输入区号':!AliCtiFields.validAreaCode(areaCode)?'区号请填写数字，例如021':mobile&&!/^1[3-9]\d{9}$/.test(mobile)?'请输入正确的手机号（选填）':'';
+     if(!error&&CloudCallData.agents.some(a=>a.enterpriseId===tenant.enterpriseId&&a.lifecycleStatus!=='已删除'&&a.cno===cno))error='当前供应商账号下坐席工号已存在';
+     if(error)return {ok:false,message:error};
+     return {ok:true,agent:{agentRecordId:CloudResourceRules.id('AGT'),contactCenterIdentityId:CloudResourceRules.id('CCI'),accountId:'',userName,mobile,tenantId:tenant.tenantId,enterpriseId:tenant.enterpriseId,cno,areaCode,roleId:'Agent',workMode:'WEBRTC',lifecycleStatus:'已启用',agentStatus:'离线',syncStatus:'同步成功',callEnabled:true,currentCall:false,acceptNewTasks:true,isAsr:0,isQualityCheck:1,evidenceType:'DEMO',realVerification:'未验证'}};
+--- a/js/components/account-seat.js
++++ b/js/components/account-seat.js
+@@ -17,6 +17,8 @@
+   function write(value) { localStorage.setItem(key, JSON.stringify(value)); }
+   function storedSeat(agent) {
+     const row = clone(agent);
++    // A synchronized supplier seat must not become offline merely because the page reloads.
++    if (agent.supplierImportMode === 'query/get') row.lastKnownAgentStatus = agent.agentStatus || '待核对';
+     delete row.currentEndpoint; delete row.currentCall; delete row.agentStatus;
+     return row;
+   }
+@@ -45,7 +47,7 @@
+       if (existing && (existing.tenantId !== row.tenantId || existing.enterpriseId !== row.enterpriseId)) continue;
+       const serialized = JSON.stringify(row);
+       if (existing && appliedSeats.get(row.contactCenterIdentityId) !== serialized) Object.assign(existing, clone(row));
+-      else if (!existing) data.agents.push({ ...clone(row), agentStatus: '离线', currentCall: false, currentEndpoint: '' });
++      else if (!existing) data.agents.push({ ...clone(row), agentStatus: row.supplierImportMode === 'query/get' ? (row.lastKnownAgentStatus || '待核对') : '离线', currentCall: false, currentEndpoint: '' });
+       appliedSeats.set(row.contactCenterIdentityId, serialized);
+       if (row.accountBindingManaged) data.accounts.filter(a => a.linkedIdentityId === row.contactCenterIdentityId).forEach(a => { delete a.linkedIdentityId; });
+     }

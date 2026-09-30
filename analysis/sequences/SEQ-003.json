@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-003",
+  "scenario_id": "SC-003",
+  "name": "在中台开通供应商坐席时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "租户管理员需要新增一个或多个联络中心坐席",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "u",
+      "to": "ui",
+      "message": "在当前租户申请新建坐席",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 7,
+      "from": "svc",
+      "to": "svc",
+      "message": "管理员权限、供应商账号和坐席归属合法？；通过才继续；不通过结束本次操作",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 8,
+      "from": "svc",
+      "to": "svc",
+      "message": "准备工号、姓名、区号和目标供应商账号；cno、name、areaCode；平台账号与坐席独立",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 9,
+      "from": "svc",
+      "to": "vendor",
+      "message": "以enterpriseId作用域提交cno、name、areaCode；明确active/isOb/isAsr",
+      "type": "request",
+      "api_id": "API-307",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 10,
+      "from": "vendor",
+      "to": "svc",
+      "message": "返回创建结果；结果未知不重复创建",
+      "type": "response",
+      "api_id": "API-307",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "ui",
+      "message": "响应未知时需要坐席查询契约；未明确支持则显示待确认，禁止重复开通",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 12,
+      "from": "svc",
+      "to": "svc",
+      "message": "厂商坐席及唯一租户映射已确认？；通过才继续；不通过结束本次操作",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 13,
+      "from": "svc",
+      "to": "svc",
+      "message": "保存租户独占坐席；关联账号从账号管理完成，技能另行分配；按本步骤完成结果继续",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 14,
+      "from": "u",
+      "to": "ui",
+      "message": "查看开通结果及待补充资源",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 15,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权或重复归属，不新建任何云资源",
+      "type": "error",
+      "api_id": null,
+      "condition": "管理员权限、供应商账号和坐席归属合法？：不通过"
+    },
+    {
+      "step": 16,
+      "from": "svc",
+      "to": "ui",
+      "message": "失败项保留，未知先查询核对；只对确认失败项重试",
+      "type": "error",
+      "api_id": null,
+      "condition": "厂商坐席及唯一租户映射已确认？：不通过"
+    },
+    {
+      "step": 17,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

@@ -1,0 +1,16 @@
+async page=>{
+ return await page.evaluate(()=>{
+ const out={},snap=t=>({id:t.taskId,status:t.status,group:t.targetSkillGroupId,providerStatusCode:t.providerStatusCode});CloudTaskWorkspace.clearActiveContext();RouteRuntime.openPrimary('predictive-tasks');
+ const ready=CloudCallData.tasks.find(t=>t.taskId==='SHOWCASE-HQ-20260915-PRED-READY'),running=CloudCallData.tasks.find(t=>t.taskId==='SHOWCASE-HQ-20260915-PRED-RUNNING');
+ out.mutualExclusion={before:[snap(ready),snap(running)],cnos:[ready.alictiCreateDraft?.fields?.cnos,running.alictiCreateDraft?.fields?.cnos]};AliCtiDemo.taskControlScenario='success';out.mutualExclusion.start=AliCtiAdapter.controlTask(ready,'start',true);out.mutualExclusion.after=[snap(ready),snap(running)];
+ const auto=CloudCallData.tasks.find(t=>t.name==='审计-自动正常');out.lifecycle={};
+ for(const act of ['start','pause','resume','terminate','resume']){const result=AliCtiAdapter.controlTask(auto,act,true);out.lifecycle[act+(act==='resume'&&auto.status==='已终止'?'-ended':'')]={ok:result.ok,status:auto.status,trace:result.trace?.map(x=>({endpoint:x.endpoint,fields:x.fields,status:x.response?.data?.taskProperty?.status})),message:result.message};}
+ const paused=CloudCallData.tasks.find(t=>t.taskId==='SHOWCASE-HQ-20260915-AUTO-PAUSED');AliCtiDemo.taskControlScenario='before-mismatch';out.queryMismatch=AliCtiAdapter.controlTask(paused,'resume',true);AliCtiDemo.taskControlScenario='success';
+ const ivrScope={tenantId:'TEN-NISSAN-HQ',enterpriseId:'7522240'};out.ivr={normal:AliCtiIvr.list(ivrScope).rows.map(r=>({id:r.id,type:r.ivrType})),cases:{}};
+ for(const scene of ['empty','failure','unknown','invalid']){AliCtiIvr.scenario=scene;out.ivr.cases[scene]={list:AliCtiIvr.list(ivrScope),resolve:AliCtiIvr.resolve({providerIvrId:'91001'},ivrScope)};}AliCtiIvr.scenario='success';out.ivr.unassigned=AliCtiIvr.resolve({providerIvrId:'91005'},ivrScope);out.ivr.otherEnterprise=AliCtiIvr.resolve({providerIvrId:'92001'},ivrScope);out.ivr.ringback=AliCtiIvr.resolve({providerIvrId:'91004'},ivrScope);
+ out.retry={};const policy={version:1,mode:'advanced',timeType:2,codes:[710,718],rounds:[{days:0,hours:0,minutes:15},{days:0,hours:0,minutes:15}]};for(const type of ['预外呼','IVR 外呼'])out.retry[type]={normal:AliCtiRetry.map(policy,type),noCode:AliCtiRetry.validate({...policy,codes:[]},type),badCode:AliCtiRetry.validate({...policy,codes:[999]},type),zeroInterval:AliCtiRetry.validate({...policy,rounds:[{days:0,hours:0,minutes:0}]},type),disabled:AliCtiRetry.map({...policy,mode:'unset'},type)};
+ RouteRuntime.openPrimary('inbound-service');const key=AliCtiInbound.context(),res=AliCtiInbound.resources();out.inboundPositive=[];
+ for(const type of [1,2,3]){const input={name:'审计接听方式'+type,routerType:type,active:1,priority:200+type,description:'审计',ruleAreaProperty:'021;010',ruleTimeProperty:'',ruleTrunkProperty:'',...(type===1?{ivrId:res.ivrs[0].id}:type===2?{tel:'13800001234'}:{exten:res.extens[0].exten})};const created=AliCtiInbound.save(input,{context:key});const id=created.row?.id;const update=id?AliCtiInbound.save({...input,description:'更新备注'},{context:key,id}):null;const pause=id?AliCtiInbound.setActive(id,2,key):null;const deleted=id?AliCtiInbound.remove(id,key):null;out.inboundPositive.push({type,created,update,pause,deleted});}
+ return out;
+ });
+}

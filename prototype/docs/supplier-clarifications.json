@@ -1,0 +1,2284 @@
+{
+  "decisionId": "D-015",
+  "date": "2026-09-14",
+  "source": "用户提供的供应商规则截图及明确采用指令",
+  "sourceImageSha256": "bb116c0a5db1fb02d2f192a058b9d9b6d39a5579700ebd40cd39df33bf86cb44",
+  "scope": "仅预览外呼；企业已开启自动转写且按坐席过滤",
+  "rules": [
+    {
+      "isAsr": 1,
+      "cdrIsAsr": [
+        1,
+        "omitted"
+      ],
+      "eligible": true,
+      "note": "仍需满足时长等规则"
+    },
+    {
+      "isAsr": 1,
+      "cdrIsAsr": [
+        0
+      ],
+      "eligible": false,
+      "note": "本通关闭"
+    },
+    {
+      "isAsr": 0,
+      "cdrIsAsr": [
+        1,
+        "omitted"
+      ],
+      "eligible": false,
+      "note": "坐席未开启ASR"
+    },
+    {
+      "isAsr": 0,
+      "cdrIsAsr": [
+        0
+      ],
+      "eligible": false,
+      "note": "不转写"
+    }
+  ],
+  "textEndpoint": "rasrEvent/query",
+  "textSourceIds": [
+    "DOC-346",
+    "DOC-347"
+  ],
+  "closedConfirmationIds": [
+    "CF-02",
+    "CF-04",
+    "CF-06",
+    "CF-14",
+    "CF-08"
+  ],
+  "excluded": [
+    "旧asr/get作为本期文本路径",
+    "文本定位音频",
+    "由允许转写推断已生成文本",
+    "将预览规则推广到其他呼叫类型"
+  ],
+  "taskLifecycleClarification": {
+    "decisionId": "D-017",
+    "date": "2026-09-14",
+    "sourceType": "user_relayed_supplier_feedback_and_scope_decision",
+    "source": "用户本轮指令，并转述阿里反馈：暂停后继续等于再次调用/interface/v10/task/start，先task/get确认当前暂停态",
+    "officialSnapshotUpdated": false,
+    "pause": {
+      "decisionType": "user_scope_decision",
+      "omitFields": [
+        "pauseDuration"
+      ],
+      "localDurationInput": false,
+      "localDurationConversion": false,
+      "localAutoResumeTimer": false
+    },
+    "resume": {
+      "decisionType": "user_relayed_supplier_feedback",
+      "preflight": [
+        "本地权限、归属与资源校验通过",
+        "task/get成功",
+        "返回data.taskProperty.id与请求中的原供应商taskId匹配",
+        "status=2"
+      ],
+      "endpoint": "/interface/v10/task/start",
+      "postflight": "task/get核对实际状态；start受理不等于运行",
+      "unknownHandling": "失败或未知保留历史及证据，不自动重放；非暂停、查询失败未知或ID不符不发送start"
+    },
+    "endedTask": {
+      "decisionType": "user_scope_decision",
+      "reopenSupported": false,
+      "providerStatus": 3
+    },
+    "sourceIds": [
+      "API-313",
+      "DOC-333",
+      "DOC-334",
+      "DOC-338"
+    ],
+    "affectedFieldIds": [
+      "FA-051",
+      "FA-052"
+    ],
+    "narrowedConfirmationIds": [
+      "CF-04"
+    ],
+    "closedConfirmationIds": [
+      "CF-04"
+    ],
+    "remainingQuestions": [],
+    "followedBy": "D-047",
+    "remainingQuestionUpdateSource": "D-047 / SRC-077：用户转述供应商答复已关闭CF-04；旧决定的原始来源类型保留",
+    "historicalRemainingQuestions": [
+      "暂停后已发起拨号或振铃、已接通通话如何收尾",
+      "结束后已发起拨号或振铃、已接通通话如何收尾"
+    ],
+    "boundaries": []
+  },
+  "retryStatusConfigurationDecision": {
+    "decisionId": "D-018",
+    "date": "2026-09-14",
+    "sourceType": "user_product_requirement_with_document_conflict",
+    "source": "用户要求预测外呼及自动外呼均保留并使用呼叫状态选择",
+    "supplierSupportNewlyConfirmed": false,
+    "productRules": [
+      "两类任务开启重呼都必选至少一个官方号码状态及次数、间隔、计时依据",
+      "没有隐藏状态选择的基础或高级界面切换",
+      "旧basic缺状态由用户补选，不自动设置状态",
+      "关闭保留本地配置但省略远端重呼字段"
+    ],
+    "transport": {
+      "automatic": "已知retryStrategy为含一组condition.sipCause多码的JSON数组字符串",
+      "predictive": "D-020已采用用户转述阿里反馈：预测外呼也支持按号码状态重呼，当前与自动外呼统一映射条件数组，不再阻断创建或启动。"
+    },
+    "officialReview": {
+      "date": "2026-09-14",
+      "sourceIds": [
+        "API-311",
+        "DOC-338"
+      ],
+      "snapshotsUnchanged": true,
+      "createPage": "retryStrategy位于两类任务均适用的通用参数区",
+      "taskPropertyPage": "高级模式需开号码识别且目前仅支持自动外呼",
+      "workbook": "缺口总览I17仅泛称新建外呼可配置重呼，未澄清预测condition.sipCause范围"
+    },
+    "affectedFieldIds": [
+      "FA-044",
+      "FA-045",
+      "FA-046"
+    ],
+    "updatedConfirmationIds": [],
+    "closedConfirmationIds": [
+      "CF-03"
+    ],
+    "supersededBy": "D-020",
+    "currentApplication": "界面必填与保留规则继续适用；接口支持及关闭处理采用D-020。"
+  },
+  "retrySupportClarification": {
+    "decisionId": "D-020",
+    "date": "2026-09-15",
+    "sourceType": "supplier_feedback_and_project_adoption",
+    "officialSnapshotUpdated": false,
+    "predictiveSupport": {
+      "sourceType": "user_relayed_supplier_feedback",
+      "source": "2026-09-15用户转述阿里反馈：预测外呼也可按号码状态重呼",
+      "supported": true,
+      "taskTypes": [
+        1,
+        2
+      ],
+      "mapping": "两类任务统一采用包含一组condition.sipCause多码的retryStrategy JSON数组字符串"
+    },
+    "retryOff": {
+      "sourceType": "current_project_adoption",
+      "source": "当前项目采用：不配置重呼按不启用处理，未有默认重呼依据，不继续作为供应商问题",
+      "omitFields": [
+        "retryStrategy",
+        "retryStrategyTimeType",
+        "templateName"
+      ],
+      "enabled": false,
+      "supplierGuaranteeClaimed": false,
+      "localInputRetained": true
+    },
+    "executionOwner": "AliCti负责条件匹配、轮次、计数及调度，本地不实现重呼引擎",
+    "sourceIds": [
+      "API-311",
+      "DOC-338",
+      "API-327"
+    ],
+    "affectedFieldIds": [
+      "FA-046"
+    ],
+    "closedConfirmationIds": [
+      "CF-03"
+    ],
+    "validation": "号码识别开通、正式请求及执行结果属于常规接入验证，不作为本期功能待确认"
+  },
+  "taskExecutionDecision": {
+    "decisionId": "D-021",
+    "date": "2026-09-15",
+    "sourceRef": "SRC-053",
+    "sourceType": "user_product_confirmation",
+    "source": "2026-09-15用户确认：暂停后可以继续，结束即不再执行后续呼叫",
+    "nature": "product_rule_not_supplier_response_guarantee",
+    "supplierGuaranteeClaimed": false,
+    "officialSnapshotUpdated": false,
+    "pause": "暂停后可以继续；沿用D-017，先task/get成功确认原任务status=2，再task/start，随后task/get查证，保留本地权限、资源与归属校验",
+    "ended": "已结束任务不重新开启，不再执行后续首次呼叫及尚未执行的重呼",
+    "lateResults": "迟到通话结果仅回补原通话、客户记录与统计，不重开任务或继续、触发新的重呼；矛盾状态保留原始证据待核对",
+    "preservedRules": [
+      "暂停始终省略pauseDuration，不提交旧草稿中的暂停时长",
+      "写入受理不等于运行；失败或未知保留历史及待核对状态，不自动重放"
+    ],
+    "boundaries": [
+      "不承诺挂断已发起通话或删除供应商队列",
+      "不新增接口参数、本地执行队列或恢复计时"
+    ],
+    "sourceIds": [
+      "API-313",
+      "API-314",
+      "DOC-333",
+      "DOC-334",
+      "DOC-338"
+    ],
+    "affectedFieldIds": [
+      "FA-051",
+      "FA-052"
+    ],
+    "narrowedConfirmationIds": [
+      "CF-04"
+    ],
+    "closedConfirmationIds": [
+      "CF-04"
+    ],
+    "remainingQuestionType": "existing_api_behavior_semantics",
+    "remainingQuestions": [],
+    "historicalRemainingQuestions": [
+      "暂停后已发起拨号或振铃、已接通通话如何收尾及结果回传",
+      "结束后已发起拨号或振铃、已接通通话如何收尾及结果回传"
+    ],
+    "followedBy": "D-047",
+    "remainingQuestionUpdateSource": "D-047 / SRC-077：用户转述供应商答复已关闭CF-04；旧决定的原始来源类型保留"
+  },
+  "consolidatedReview": {
+    "version": "2026-09-15-consolidated-1",
+    "date": "2026-09-15",
+    "decisions": [
+      {
+        "id": "D-022",
+        "sourceRef": "SRC-054",
+        "title": "已有坐席同步与本地归属",
+        "description": "从AliCti同步坐席，明确来源enterpriseId和同步到的租户。agent/query分页读取，agent/get按原工号查证；仅同步本地授权池，重复跳过，不调用agent/create。",
+        "sourceType": "user_product_request_and_official_document_alignment",
+        "sourceIds": [
+          "DOC-342",
+          "DOC-343"
+        ],
+        "fieldIds": [
+          "FA-091"
+        ]
+      },
+      {
+        "id": "D-023",
+        "sourceRef": "SRC-055",
+        "title": "配置记录按失败原因处理",
+        "description": "明确创建失败可修改资料后提交；成功记录只读查看，技能超时或结果未知仅查看原因。保留原失败原因、纠正输入、每次尝试和最新结果，不提供泛化重试。",
+        "sourceType": "user_product_request_and_runtime_review",
+        "sourceIds": [
+          "API-307"
+        ],
+        "fieldIds": [
+          "FA-114"
+        ]
+      },
+      {
+        "id": "D-024",
+        "sourceRef": "SRC-056",
+        "title": "按官方接口创建和管理呼入规则",
+        "description": "采用ivrRouter/create、update、list、get、delete和官方资源列表。三种目标与条件字段完整映射；去除发布流程阻断，新增编辑启停和停用后删除可演示。平台租户可见性独立于供应商路由条件；CF-10收敛为真实条件组合、未命中语义和共享号码来电的实际归属证据。",
+        "sourceType": "official_document_review_and_user_product_request",
+        "sourceIds": [
+          "API-350",
+          "API-351",
+          "API-352",
+          "API-353",
+          "API-354",
+          "DOC-355",
+          "DOC-356",
+          "DOC-357",
+          "DOC-348",
+          "DOC-358",
+          "DOC-359"
+        ],
+        "fieldIds": [
+          "FA-095",
+          "FA-096",
+          "FA-097",
+          "FA-098",
+          "FA-099",
+          "FA-100",
+          "FA-101",
+          "FA-102",
+          "FA-103",
+          "FA-104",
+          "FA-105",
+          "FA-106"
+        ]
+      },
+      {
+        "id": "D-025",
+        "sourceRef": "SRC-057",
+        "title": "客户业务信息与当次通话快照",
+        "description": "线索等级、意向等级、到店意向、试驾意向、计划到店时间、计划到店门店六项选填，在话后处理填写或已结束通话详情补录。档案汇总最近非空值，各通话保留当次快照；不进入AliCti请求。门店目的地选择不扩展数据权限。",
+        "sourceType": "user_product_requirement_and_runtime_review",
+        "sourceIds": [],
+        "fieldIds": [
+          "FA-107",
+          "FA-108",
+          "FA-109",
+          "FA-110",
+          "FA-111",
+          "FA-112",
+          "FA-113"
+        ]
+      }
+    ],
+    "sourcePolicy": "新增来源持久化原采集文本与表格；既有46份原文快照只读，DOC-348本次重复复核不新增源；平台决定与官方规则分开。",
+    "newOfficialSourceIds": [
+      "API-350",
+      "API-351",
+      "API-352",
+      "API-353",
+      "API-354",
+      "DOC-355",
+      "DOC-356",
+      "DOC-357",
+      "DOC-358",
+      "DOC-359"
+    ],
+    "narrowedConfirmationIds": [
+      "CF-10"
+    ],
+    "productionVerificationClaimed": false
+  },
+  "resourceUxReview": {
+    "decisionId": "D-048",
+    "sourceRef": "SRC-078",
+    "date": "2026-09-20",
+    "version": "2026-09-20-cf06-clarified-1",
+    "sourceIds": [
+      "API-310",
+      "DOC-345",
+      "API-304",
+      "API-308",
+      "API-309"
+    ],
+    "newOfficialSourceIds": [],
+    "platformFields": [
+      "authorizedTenantIds",
+      "softphoneExtension",
+      "localEnabled"
+    ],
+    "supplierOutboundField": "previewOutcall.obClid",
+    "supplierDeviceField": "Agent.login.bindTel",
+    "notSkillGroupFields": [
+      "addHybridGroupId",
+      "removeHybridGroupId"
+    ],
+    "supplierProvisioning": "由供应商开通；本期不实现供应商线路/号码新增接口",
+    "steps": [
+      "从AliCti导入当前账号已有号码并确认用途，无线路选择",
+      "设置使用租户：选择总部/门店，仅保存租户授权，无技能或坐席绑定",
+      "号码按本地localEnabled、供应商status、租户授权、用途及外显权限使用；软电话分机在坐席管理中独立维护",
+      "号码使用中业务及撤销租户授权保护读取当前任务和AliCtiInbound规则",
+      "列表本地使用启停只保存localEnabled，默认true；停用禁止后续外呼，保留资源、授权、路由、历史和已经发起的通话；保存成功后暂停本地关联任务后续拨号",
+      "本地启用仍核对供应商status、用途及租户授权，不自动继续任务；供应商号码启停在详情更多设置独立管理"
+    ],
+    "remainingConfirmationIds": [
+      "CF-10"
+    ],
+    "deliveryScope": "本轮同步原型、说明文档、附表和图集；开发交付包仍为2026-09-19-regression-alignment-1，未更新",
+    "currentReferencePolicy": "引用读取失败保留原授权；当前已启用呼入规则包含无中继条件的规则，按本地归属核对被撤权租户。取消供应商账号解绑需求，本地禁用不以清除全部引用为前提，不调用供应商解绑或status更新；呼入入口由独立呼入规则管理。平台引用保护不是供应商实际路由匹配算法。",
+    "historicalReviews": [
+      {
+        "decisionId": "D-046",
+        "sourceRef": "SRC-076",
+        "date": "2026-09-20",
+        "version": "2026-09-20-number-seat-docs-1",
+        "steps": [
+          "从AliCti导入当前账号已有号码并确认用途，无线路选择",
+          "设置使用租户：选择总部/门店，仅保存租户授权，无技能或坐席绑定",
+          "号码按状态、用途及外显权限使用；软电话分机在坐席管理中独立维护",
+          "号码使用中业务及撤权、解绑保护读取当前任务和AliCtiInbound规则"
+        ],
+        "remainingConfirmationIds": [
+          "CF-06",
+          "CF-10"
+        ],
+        "deliveryScope": "仅说明文档和附表同步；开发交付包仍为上一版"
+      }
+    ],
+    "relatedDecisionIds": [
+      "D-046"
+    ],
+    "relatedSourceRefs": [
+      "SRC-076"
+    ],
+    "closedConfirmationIds": [
+      "CF-06"
+    ],
+    "productionVerificationClaimed": false
+  },
+  "reportReview": {
+    "version": "2026-09-16-reports-delivery-1",
+    "date": "2026-09-16",
+    "decisionIds": [
+      "D-027",
+      "D-028",
+      "D-029"
+    ],
+    "newOfficialSourceIds": [
+      "API-360",
+      "API-361",
+      "API-362",
+      "API-363",
+      "API-364",
+      "API-365",
+      "API-366",
+      "API-367",
+      "API-368",
+      "DOC-369",
+      "DOC-370",
+      "DOC-371",
+      "DOC-372",
+      "DOC-373",
+      "DOC-374",
+      "DOC-375",
+      "DOC-376"
+    ],
+    "sourceCount": 73,
+    "leadKey": [
+      "enterpriseId",
+      "brandId",
+      "externalDocumentId"
+    ],
+    "productionVerificationClaimed": false,
+    "nativeReportUiImplemented": false,
+    "inboundSegmentsMerged": false,
+    "queueDescriptionConflict": "closed by D-049 / SRC-079: telEnterCount=队列来电接听数; telAnswerCount=进入队列来电数; preserve original String fields and supplier rates",
+    "followedBy": [
+      "D-049",
+      "D-050"
+    ],
+    "queueCounterClarification": {
+      "status": "closed",
+      "topic": "队列报表两项来电计数",
+      "decisionId": "D-049",
+      "sourceRef": "SRC-079",
+      "sourceType": "user_provided_supplier_reply_image",
+      "updatedAt": "2026-09-20",
+      "resolution": "供应商回复截图明确：telEnterCount（String）为队列来电接听数，telAnswerCount（String）为进入队列来电数。按该中文含义采用，不按英文字段名推断；保留原始字段和值，仅派生明确语义的数值别名，不重算供应商比率。CF-14关闭；当前原生队列报表仍只有纯适配，页面继续采用已实现的话单聚合。",
+      "supplierReply": "telEnterCount | String | 队列来电接听数；telAnswerCount | String | 进入队列来电数。",
+      "evidencePath": "documentation/input/supplier-feedback/SRC-079-cf14-20260920.png",
+      "officialSnapshotUpdated": false,
+      "productionVerificationClaimed": false,
+      "version": "2026-09-20-cf08-cf14-clarified-1",
+      "mapping": {
+        "telEnterCount": {
+          "type": "String",
+          "label": "队列来电接听数",
+          "derivedField": "telephoneAnsweredCount"
+        },
+        "telAnswerCount": {
+          "type": "String",
+          "label": "进入队列来电数",
+          "derivedField": "telephoneEnteredCount"
+        }
+      },
+      "closedConfirmationIds": [
+        "CF-14"
+      ]
+    },
+    "deliveryScope": "已统一纳入2026-09-20-inbound-status-1开发交付包；原生报表能力与本地话单聚合边界保持。"
+  },
+  "consolidatedIncrementReview": {
+    "decisionIds": [
+      "D-085"
+    ],
+    "version": "2026-09-24-business-category-fields-1",
+    "date": "2026-09-24",
+    "productionVerificationClaimed": false,
+    "officialSourceAdded": false,
+    "newOfficialSourceIds": [],
+    "reviewedOfficialSourceIds": [],
+    "runtimeRoutes": [
+      "business-categories"
+    ],
+    "frozenPlanningFunctionCount": 82,
+    "frozenPlanningPageCount": 47,
+    "newMappingIds": [],
+    "updatedMappingIds": [
+      "FA-107",
+      "FA-108",
+      "FA-109",
+      "FA-110",
+      "FA-111",
+      "FA-112",
+      "FA-133",
+      "FA-192",
+      "FA-193",
+      "FA-194",
+      "FA-195",
+      "FA-214",
+      "FA-215"
+    ],
+    "incrementCapabilityIds": [],
+    "decisionId": "D-085",
+    "sourceRef": "SRC-113",
+    "indexedExistingSourceIds": [],
+    "deliveryScope": "prototype_and_documents",
+    "developmentPackageUpdated": false,
+    "developmentPackageVersion": null,
+    "previousVersion": "2026-09-23-supervisor-event-history-1",
+    "developmentPackageRemoved": true,
+    "sourceRefs": [
+      "SRC-113"
+    ],
+    "decisions": [
+      {
+        "id": "D-030",
+        "sourceRef": "SRC-062",
+        "title": "呼入与预外呼分配接听",
+        "description": "本人上线后统一接收呼入与预外呼分配，按原工号、通话和来源核对。待接听以振铃事件建立，busyIb/busyOb确认人工接通；浏览器sipLink只请求接听；本项目按D-042统一软电话，不开放普通设备选择。右侧抽屉关闭仅收起，漏接自动归档，接听后话后保存可恢复。来电演示简化为两项直接入口，其他场景折叠。",
+        "fieldIds": [
+          "FA-140",
+          "FA-141",
+          "FA-142",
+          "FA-135"
+        ],
+        "sourceIds": [
+          "API-303",
+          "API-304",
+          "API-306"
+        ],
+        "sourceType": "user_product_requirement_and_verified_prototype_increment",
+        "date": "2026-09-16",
+        "version": "2026-09-16-consolidated-2",
+        "appendixVersion": "1.19"
+      },
+      {
+        "id": "D-031",
+        "sourceRef": "SRC-063",
+        "title": "租户运营工作台按坐席关联展示",
+        "description": "云联络中心租户运营有关联坐席仅显示坐席工作台，无关联仅显示运营工作台；按当前租户身份判断，不依赖在线或临时启停，旧路由和书签归一。",
+        "fieldIds": [
+          "FA-143"
+        ],
+        "sourceIds": [],
+        "sourceType": "user_product_requirement_and_verified_prototype_increment",
+        "date": "2026-09-16",
+        "version": "2026-09-16-consolidated-2",
+        "appendixVersion": "1.19"
+      },
+      {
+        "id": "D-032",
+        "sourceRef": "SRC-064",
+        "title": "再次预外呼与业务联系历史",
+        "description": "历史方案，现由D-060取代新建任务及全局待再次联系池：客户已接通且结束后可建立新预外呼任务。坐席未接听进入待人工跟进，已接听可按业务再次安排；原线索编码、名单及通话历史保留。联系次数独立于供应商重呼轮次，重复待执行、在途、未保存和拒绝联系均阻断。",
+        "fieldIds": [
+          "FA-144",
+          "FA-145",
+          "FA-146"
+        ],
+        "sourceIds": [],
+        "sourceType": "user_product_requirement_and_verified_prototype_increment",
+        "date": "2026-09-16",
+        "version": "2026-09-16-consolidated-2",
+        "appendixVersion": "1.19",
+        "supersededBy": "D-060"
+      },
+      {
+        "id": "D-033",
+        "sourceRef": "SRC-065",
+        "title": "从AliCti直接导入号码",
+        "description": "号码管理新增独立账号查询入口，精确查询、状态筛选、分页多选后确认本地线路与方向。保留供应商原始状态和外显，停用号码仍停用；本地持久化成功后再展示，导入后设置使用范围，不办理远端开通或新增。",
+        "fieldIds": [
+          "FA-059",
+          "FA-060",
+          "FA-061",
+          "FA-062",
+          "FA-063",
+          "FA-064",
+          "FA-147",
+          "FA-148"
+        ],
+        "sourceIds": [
+          "API-310"
+        ],
+        "sourceType": "user_product_requirement_and_verified_prototype_increment",
+        "date": "2026-09-16",
+        "version": "2026-09-16-consolidated-2",
+        "appendixVersion": "1.19"
+      },
+      {
+        "id": "D-034",
+        "sourceRef": "SRC-066",
+        "title": "计划到店门店改自由文本",
+        "description": "计划到店门店使用选填字符串输入框，保存去除首尾空白，无需匹配系统租户。改名或留空不沿用旧门店ID；名称不变可保留历史ID。通话快照、档案、线索汇总与名称包含筛选统一，数据权限不变。",
+        "fieldIds": [
+          "FA-112",
+          "FA-113",
+          "FA-133",
+          "FA-134"
+        ],
+        "sourceIds": [],
+        "sourceType": "user_product_requirement_and_verified_prototype_increment",
+        "date": "2026-09-16",
+        "version": "2026-09-16-consolidated-2",
+        "appendixVersion": "1.19"
+      },
+      {
+        "id": "D-035",
+        "sourceRef": "SRC-067",
+        "title": "服务类型与租户技能组权限",
+        "description": "超级管理员维护当前enterpriseId品牌通用服务类型；ADMIN选择已有类型创建、配置本租户多个技能组，组名租户内唯一。各组成员、等级和号码范围独立，运营不得配置。原型清理旧技能演示缓存及失效引用，未真实同步不显示供应商已生效。 其中按组维护号码范围为历史口径，已由D-046取消；当前号码仅按租户授权。",
+        "fieldIds": [
+          "FA-022",
+          "FA-023",
+          "FA-024",
+          "FA-025",
+          "FA-026"
+        ],
+        "sourceIds": [
+          "API-309",
+          "DOC-328",
+          "DOC-329",
+          "DOC-330"
+        ],
+        "version": "2026-09-16-skill-groups-1",
+        "appendixVersion": "1.20",
+        "date": "2026-09-16",
+        "sourceType": "user_product_requirement_and_verified_prototype_increment"
+      },
+      {
+        "id": "D-036",
+        "sourceRef": "SRC-068",
+        "title": "AliCti账号本地维护",
+        "description": "新增alicti-accounts运行模块：超管全局登记、保存、恢复及启停账号，关联多个租户并只读查看账号历史。稳定configId、enterpriseId和品牌登记后固定；空账号可建首个租户、全停用仍能恢复。上下文与版本重验、先存储后更新、脏输入保护；凭据仅登记配置状态，不创建或验证供应商账号。",
+        "fieldIds": [
+          "FA-001",
+          "FA-149",
+          "FA-150",
+          "FA-151",
+          "FA-152",
+          "FA-153",
+          "FA-154",
+          "FA-155",
+          "FA-156"
+        ],
+        "sourceIds": [],
+        "version": "2026-09-16-accounts-1",
+        "appendixVersion": "1.21",
+        "date": "2026-09-16",
+        "sourceType": "user_product_requirement_and_verified_prototype_increment"
+      },
+      {
+        "id": "D-037",
+        "sourceRef": "SRC-069",
+        "title": "移除AliCti账号服务区域",
+        "description": "账号资料不再采用服务区域：页面、表单、默认、校验和新持久化均无region/regionCode。旧v1 regionCode仅在读取时忽略，不回写原存储或升版；旧审计文本保持历史。不得从enterpriseId推断区域，也不以区域阻断新账号保存。",
+        "fieldIds": [
+          "FA-157"
+        ],
+        "sourceIds": [],
+        "version": "2026-09-16-accounts-1",
+        "appendixVersion": "1.21",
+        "date": "2026-09-16",
+        "sourceType": "user_product_requirement_and_verified_prototype_increment"
+      },
+      {
+        "id": "D-038",
+        "sourceRef": "SRC-070",
+        "title": "通话中填写沟通记录并在结束后确认保存",
+        "description": "人工外呼从拨号、振铃起可填写，呼入及预外呼分配在坐席connected后可填写。沟通备注、处理结果及六项选填业务信息按当前会话范围与callId自动暂存，接通、静音及挂断保留当前输入，收起后继续；仅结束后正式保存。刷新将本地演示中断转为话后并恢复同通草稿，不恢复真实话路。原联系事项call.customerNote只读，与当次沟通备注分开，不新增AliCti字段或接口能力。",
+        "fieldIds": [
+          "FA-107",
+          "FA-108",
+          "FA-109",
+          "FA-110",
+          "FA-111",
+          "FA-112",
+          "FA-113",
+          "FA-135",
+          "FA-142"
+        ],
+        "sourceIds": [],
+        "version": "2026-09-17-incall-notes-1",
+        "appendixVersion": "1.22",
+        "date": "2026-09-17",
+        "sourceType": "user_product_requirement_and_verified_prototype_increment"
+      },
+      {
+        "id": "D-039",
+        "sourceRef": "SRC-071",
+        "title": "账号查看只读与租户管理入口统一",
+        "description": "AliCti账号查看仅展示资料、使用状态、凭据配置状态和关联租户；列表关联租户数量直达独立只读清单，不提供新增租户、管理租户、账号编辑启停或进入账号使用，避免管理抽屉嵌套。账号编辑启停保留列表，新增或编辑成功直接返回列表，不自动再开详情；租户新增管理统一从租户管理进入；新建明确选择所属已启用AliCti账号，支持尚无租户的账号首建。查看不切换范围或产生写入，原历史数据、底层查询及权限边界保留。",
+        "fieldIds": [
+          "FA-150",
+          "FA-151",
+          "FA-152",
+          "FA-155",
+          "FA-156"
+        ],
+        "sourceIds": [],
+        "version": "2026-09-17-account-details-1",
+        "appendixVersion": "1.23",
+        "date": "2026-09-17",
+        "sourceType": "user_product_requirement_and_verified_prototype_increment"
+      },
+      {
+        "id": "D-040",
+        "sourceRef": "SRC-072",
+        "title": "租户专用接听队列",
+        "description": "沿用enterpriseId对应多个总部/门店租户，技能组增加专用接听队列，不增加购买或订阅模型。超管管理当前账号范围；租户管理员在技能组直接新增、关联、修改、核对及解除本租户队列，候选仅显示本租户。查看入口保持只读。既有队列关联仅为本地映射，新增和参数更新构造官方契约的模拟请求；分别核对技能和成员快照，空空不误判，保留历史话单和providerQueueNo。当前使用冻结演示资源，不声称生产接通；同号唯一、上下文/版本、失败保留、在途及已发布引用保护明确。租户列表按配置显示AliCti账号名称及ID。",
+        "fieldIds": [
+          "FA-158",
+          "FA-159",
+          "FA-160",
+          "FA-161",
+          "FA-162",
+          "FA-163",
+          "FA-164",
+          "FA-165",
+          "FA-166",
+          "FA-167",
+          "FA-168"
+        ],
+        "sourceIds": [
+          "API-377",
+          "API-378",
+          "API-379",
+          "API-380",
+          "API-381",
+          "API-382",
+          "API-383",
+          "API-384",
+          "API-385",
+          "DOC-342"
+        ],
+        "version": "2026-09-18-queues-1",
+        "appendixVersion": "1.24",
+        "date": "2026-09-18",
+        "sourceType": "user_product_requirement_and_official_contract_review"
+      },
+      {
+        "id": "D-041",
+        "sourceRef": "SRC-073",
+        "title": "预测任务坐席分配方式",
+        "description": "预测外呼在呼叫安排的折叠项选择callStrategy：新任务显式4当前空闲最长；旧任务或草稿未配置按官方缺省1随机展示和请求，不改写历史。1–4以String提交，模板、复制、再次联系、确认及执行快照一致。与queue.strategy/weight及技能等级独立，自动IVR不展示、不提交。",
+        "fieldIds": [
+          "FA-169"
+        ],
+        "sourceIds": [
+          "API-311"
+        ],
+        "version": "2026-09-18-queues-1",
+        "appendixVersion": "1.24",
+        "date": "2026-09-18",
+        "sourceType": "user_product_requirement_and_official_contract_review"
+      },
+      {
+        "id": "D-042",
+        "sourceRef": "SRC-074",
+        "title": "本人坐席电话操作与授权队列监控",
+        "description": "本人坐席统一软电话bindType=3及workingMode=\"0\"，上线设置只含状态和选填置忙原因；可置忙/恢复、完整下线及延长整理，不开放设备/模式切换，旧偏好不得覆盖固定值。业务保存和电话整理分开，保存后暂停待本人恢复；独立供应商班长权限才可查本租户队列。请求回执、电话状态和本地偏好隔离，未知仅在原型读取独立LOCAL_MOCK快照，正式状态接口只核其已定义字段，设备及模式需可信SDK回执；未采用changeWorkingMode的Agent/AgentTask命名矛盾保留既有CF-11参考，不阻断当前方案。保留全部82份旧快照，不增加其他AgentTask功能。 软电话分机来源按D-046更新为管理员本地维护；本条其余固定类型、工作方式和状态规则继续适用。",
+        "fieldIds": [
+          "FA-008",
+          "FA-009",
+          "FA-010",
+          "FA-011",
+          "FA-170",
+          "FA-171",
+          "FA-172",
+          "FA-173",
+          "FA-174",
+          "FA-175",
+          "FA-176",
+          "FA-177",
+          "FA-178"
+        ],
+        "sourceIds": [
+          "API-304",
+          "DOC-339",
+          "DOC-344"
+        ],
+        "version": "2026-09-18-seat-operations-1",
+        "appendixVersion": "1.25",
+        "date": "2026-09-18",
+        "sourceType": "user_product_requirement_and_official_contract_review"
+      },
+      {
+        "id": "D-043",
+        "sourceRef": "SRC-072",
+        "title": "队列管理补齐官方必选字段配置",
+        "description": "队列新增与编辑补齐官方必选字段的界面配置：等待与接听增加呼叫下一坐席间隔retry与服务水平serviceLevel；语音与播报配置等待语音class、坐席工号播报sayAgentno、固定语音播报announceSound与排队位置播报announcePosition及位置播报周期；高级配置VIP支持vipSupport与允许排队的坐席状态joinEmpty（置忙/通话中/振铃/无效/整理多选求和）。默认值沿用接口默认及已声明本地选择；announceSound开启时条件必填播报周期与语音文件，announcePosition选1或2时条件必填不小于2的人数阈值；关闭的开关不附带空条件字段。maxPauseAgent组与announcePositionYouarenext本期不开放，保持官方可选默认。更新仍只发送变化字段，旧快照缺字段按默认值展示且不产生假变更。",
+        "sourceIds": [
+          "API-377",
+          "API-378"
+        ],
+        "version": "2026-09-19-queue-fields-1",
+        "appendixVersion": "1.26",
+        "date": "2026-09-19",
+        "sourceType": "user_product_requirement_and_official_contract_review",
+        "fieldIds": [
+          "FA-163",
+          "FA-164",
+          "FA-165"
+        ]
+      },
+      {
+        "id": "D-044",
+        "sourceRef": "SRC-072",
+        "title": "原型移除历史数据兼容",
+        "description": "原型不再保留跨版本历史数据兼容：存储键双向迁移、旧身份快照修复、旧账号区域字段忽略、坐席旧偏好行迁移、旧技能组缓存清除、旧重呼basic模式、预测分配缺省1回退、业务类型未分类回退、队列旧快照默认值比对及旧供应商术语运行时清洗全部移除。旧格式存储记录一律按无效处理并保留原存储；预测分配缺失时须重新选择，不再自动按1解释。早期兼容条目只作历史追溯；如需生产迁移须另行定义来源、转换、回滚与验收，不作为本期要求。",
+        "sourceIds": [],
+        "version": "2026-09-19-compat-removal-1",
+        "appendixVersion": "1.27",
+        "date": "2026-09-19",
+        "sourceType": "user_product_requirement",
+        "fieldIds": [
+          "FA-163",
+          "FA-164",
+          "FA-165"
+        ]
+      },
+      {
+        "id": "D-045",
+        "sourceRef": "SRC-075",
+        "title": "当前原型回归与交付事实统一",
+        "description": "按当前实现统一独立多技能队列及租户管理员权限、外呼组与工号两种预测分配、取消本地线路管理、班长监控页签及管理置忙/置闲/下线、在线仅新增技能待提交、预外呼任务直接导入。外呼组与技能组、接听队列分别建模；保留D-043队列字段和D-044旧格式拒绝策略。旧决定保留历史，冲突的当前口径由本条覆盖。CF-06移除取消的线路隔离问题；CF-11补班长目标状态核对及官方setOffline回执命名矛盾，其他真实语义缺口仍保留。",
+        "fieldIds": [
+          "FA-021",
+          "FA-022",
+          "FA-023",
+          "FA-035",
+          "FA-036",
+          "FA-037",
+          "FA-059",
+          "FA-061",
+          "FA-084",
+          "FA-093",
+          "FA-148",
+          "FA-158",
+          "FA-165",
+          "FA-166",
+          "FA-167",
+          "FA-168",
+          "FA-177",
+          "FA-178",
+          "FA-179",
+          "FA-180",
+          "FA-181",
+          "FA-182"
+        ],
+        "sourceIds": [
+          "API-309",
+          "API-310",
+          "API-311",
+          "API-312",
+          "API-377",
+          "API-378",
+          "API-383",
+          "API-385",
+          "API-386",
+          "API-387",
+          "API-388",
+          "API-389",
+          "API-390",
+          "API-391",
+          "API-392",
+          "API-393",
+          "API-394",
+          "DOC-395"
+        ],
+        "sourceType": "implementation_review_and_user_authorized_document_sync",
+        "date": "2026-09-19",
+        "version": "2026-09-19-regression-alignment-1",
+        "appendixVersion": "1.28"
+      },
+      {
+        "id": "D-046",
+        "sourceRef": "SRC-076",
+        "title": "软电话分机本地配置与号码租户授权解耦",
+        "description": "用户要求坐席管理配置软电话分机，并清理号码—技能组—坐席残留关联。分机由本租户管理员或授权超级管理员在坐席离线时维护，数字文本保留前导零，上线读取已保存值；缺失、异常或显式清空不得猜测补值。号码仅授权同enterpriseId下的总部/门店，任务和人工外呼按租户、状态、用途及外显权限选号码，不要求号码关联技能；技能、队列、外呼组和坐席资格分别核验。号码使用中业务及撤权、解绑保护读取当前任务和AliCtiInbound规则，读取失败保留原授权。该次先同步说明文档、字段规则与附表；现已统一纳入2026-09-20-development-sync-1开发包。这是用户产品要求及现有实现复核，不是供应商新增确认，未用本地验证关闭真实未决问题。",
+        "fieldIds": [
+          "FA-008",
+          "FA-009",
+          "FA-017",
+          "FA-026",
+          "FA-029",
+          "FA-061",
+          "FA-084",
+          "FA-094",
+          "FA-138",
+          "FA-148",
+          "FA-170",
+          "FA-174",
+          "FA-178",
+          "FA-093"
+        ],
+        "sourceIds": [
+          "API-304",
+          "API-308",
+          "API-310",
+          "DOC-336",
+          "DOC-345",
+          "API-350",
+          "API-352"
+        ],
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "date": "2026-09-20",
+        "version": "2026-09-20-number-seat-docs-1",
+        "appendixVersion": "1.29"
+      },
+      {
+        "id": "D-047",
+        "sourceRef": "SRC-077",
+        "title": "任务暂停结束与已发起通话正常收尾",
+        "description": "供应商答复（用户转述）：任务暂停或结束仅控制任务调度，尚未发起的呼叫不再发起；已发起的拨号、振铃及已接通通话正常进行，按正常话单返回。暂停后可按原流程继续；结束任务不再开启，未执行的后续呼叫及重呼不再执行。已发起通话正常结束后的话单只更新原通话记录、客户记录和统计，不恢复任务或触发后续重呼。",
+        "fieldIds": [
+          "FA-051",
+          "FA-052"
+        ],
+        "sourceIds": [
+          "API-313",
+          "API-314",
+          "DOC-333",
+          "DOC-334",
+          "DOC-338"
+        ],
+        "sourceType": "user_relayed_supplier_feedback",
+        "date": "2026-09-20",
+        "version": "2026-09-20-cf04-clarified-1",
+        "appendixVersion": "1.30"
+      },
+      {
+        "id": "D-048",
+        "sourceRef": "SRC-078",
+        "title": "号码停用语义明确与本地使用控制",
+        "description": "供应商答复（用户转述）：号码状态停用后，后续选号不再使用该号码；已使用该号码发起的通话正常继续。用户取消供应商账号解绑需求，改用本地号码使用状态控制新呼叫，不解除远端资源关联、不删除号码或历史。列表提供可恢复的本地使用启停，供应商status单独维护；本地恢复不绕过供应商启停、用途和租户授权，不自动恢复任务。呼入入口由呼入规则独立管理，本地禁用不表示关闭供应商呼入。CF-06关闭。",
+        "fieldIds": [
+          "FA-093",
+          "FA-183"
+        ],
+        "sourceIds": [
+          "API-310",
+          "DOC-345"
+        ],
+        "sourceType": "user_relayed_supplier_feedback_and_scope_decision",
+        "date": "2026-09-20",
+        "version": "2026-09-20-cf06-clarified-1",
+        "appendixVersion": "1.31"
+      },
+      {
+        "id": "D-049",
+        "sourceRef": "SRC-079",
+        "title": "CF-14队列两项来电计数含义明确",
+        "description": "供应商回复截图明确：telEnterCount（String）为队列来电接听数，telAnswerCount（String）为进入队列来电数。按该中文含义采用，不按英文字段名推断；保留原始字段和值，仅派生明确语义的数值别名，不重算供应商比率。CF-14关闭；当前原生队列报表仍只有纯适配，页面继续采用已实现的话单聚合。",
+        "fieldIds": [
+          "FA-128"
+        ],
+        "sourceIds": [
+          "API-368",
+          "DOC-369",
+          "DOC-376"
+        ],
+        "sourceType": "user_provided_supplier_reply_image",
+        "date": "2026-09-20",
+        "version": "2026-09-20-cf08-cf14-clarified-1",
+        "appendixVersion": "1.32"
+      },
+      {
+        "id": "D-050",
+        "sourceRef": "SRC-080",
+        "title": "CF-08同工号重建与话单归属明确",
+        "description": "供应商回复截图明确：配置侧按主键物理删除，工号仅在当前仍存在的坐席中唯一；删除后重建同工号视为新坐席，分配新的id和createTime，旧技能、队列成员和绑定电话一并清掉。话单只记录cno、不记录坐席主键，历史不随删除消失；按工号查询或报表会合并旧、新坐席通话，不能仅凭cno精确区分两次坐席配置身份。CF-08仅关闭同工号重建子问，批量回执与未知写入查证问题仍保留。 本条为当时部分确认记录；后续批量回执与未知查证已按D-051明确，CF-08现已全部关闭。",
+        "fieldIds": [
+          "FA-027",
+          "FA-091",
+          "FA-127"
+        ],
+        "sourceIds": [
+          "DOC-332",
+          "DOC-342",
+          "DOC-343",
+          "API-366"
+        ],
+        "sourceType": "user_provided_supplier_reply_image",
+        "date": "2026-09-20",
+        "version": "2026-09-20-cf08-cf14-clarified-1",
+        "appendixVersion": "1.32"
+      },
+      {
+        "id": "D-051",
+        "sourceRef": "SRC-081",
+        "title": "CF-08批量回执与未知写入查证关闭",
+        "description": "批量success为坐席主记录成功数，other为其中技能绑定失败数，other是success的子集，不能相加；fail为未建成数，与success不重叠。cnos包含全部建成工号（含other），请求区间减去cnos定位未建成工号。技能失败没有独立工号列表，对cnos查询queryAgentSkill，缺目标skillId的即为技能绑定失败；未传技能时other恒为0。未知写入按agent/query返回的新id和请求时间窗口内createTime证明本次主记录写入；agent/get、queryCnoAndName只能证明存在，queryAgentSkill只证明技能关系。结合D-050的同工号重建与历史话单规则，CF-08关闭。",
+        "fieldIds": [
+          "FA-027",
+          "FA-090",
+          "FA-091"
+        ],
+        "sourceIds": [
+          "DOC-331",
+          "DOC-341",
+          "DOC-342",
+          "DOC-343"
+        ],
+        "sourceType": "user_provided_supplier_reply_image",
+        "date": "2026-09-20",
+        "version": "2026-09-20-cf08-closed-cf11-reconnect-1",
+        "appendixVersion": "1.33"
+      },
+      {
+        "id": "D-052",
+        "sourceRef": "SRC-082",
+        "title": "CF-11信令与软电话断线处理明确",
+        "description": "breakLine由SDK自动重连，最多20次，每次重连回调；code=-1表示连接断开，code=0表示重连成功，超过20次需重新登录。前端不另启重连循环，也不按-1回调次数推断已用尽。sipDisconnected表示软电话连接中断，需重新登录。信令恢复不等于媒体就绪或原通话恢复；保留通话记录与草稿，未核实前不发起新的拨号或接听。",
+        "fieldIds": [
+          "FA-138",
+          "FA-170",
+          "FA-178",
+          "FA-179"
+        ],
+        "sourceIds": [
+          "API-303",
+          "API-304",
+          "DOC-344",
+          "DOC-395"
+        ],
+        "sourceType": "user_provided_supplier_reply_image",
+        "date": "2026-09-20",
+        "version": "2026-09-20-cf08-closed-cf11-reconnect-1",
+        "appendixVersion": "1.33"
+      },
+      {
+        "id": "D-053",
+        "sourceRef": "SRC-083",
+        "title": "预测外呼号码识别异步标识澄清",
+        "description": "预测外呼话单sipCauseAsyncUpdateFlag=1表示号码识别结果已异步写回本通sipCause，0表示同步；不是通话状态、等待中或识别必成功标志。识别依据电话提示音，可能无法识别；彩铃等场景可能补偿识别，约延迟1–2分钟，仅为经验范围，不是固定完成时限。迟到结果按账号及原通话键补充原sipCause，保留原始值和来源，不新增通话、不由本地触发重呼。",
+        "fieldIds": [
+          "FA-071"
+        ],
+        "sourceIds": [
+          "API-318",
+          "API-327"
+        ],
+        "sourceType": "user_relayed_supplier_feedback",
+        "date": "2026-09-20",
+        "version": "2026-09-20-development-sync-1",
+        "appendixVersion": "1.34"
+      },
+      {
+        "id": "D-054",
+        "sourceRef": "SRC-084",
+        "title": "呼入识别适用范围与软电话接听口径",
+        "description": "供应商明确呼入也有号码状态识别，一般针对坐席绑定手机号；绑定软电话时大概率识别不到，并非绝对不支持。按本项目固定软电话方案，呼入接听采用API-319的status原枚举，不依赖号码识别结果；识别缺失正常留空，不标为识别待确认、未接听或异常，不补造识别编码。识别通常涉及被呼叫的坐席绑定手机号，不能据此给来电客户标空号、停机等号码状态；若返回识别值则原样保存，不用作来电客户号码或接听结果判定。呼入准确识别字段当前不作为开发阻断；CF-13仅保留自动外呼识别字段与号码字典的对应。",
+        "fieldIds": [
+          "FA-069"
+        ],
+        "sourceIds": [
+          "API-319",
+          "API-327"
+        ],
+        "sourceType": "user_relayed_supplier_feedback",
+        "date": "2026-09-20",
+        "version": "2026-09-20-inbound-status-1",
+        "appendixVersion": "1.35"
+      },
+      {
+        "id": "D-055",
+        "title": "分机资源管理与受控分机选择",
+        "sourceRef": "SRC-085",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "description": "系统管理新增独立分机管理，按exten/create、update、get、list及batchDelete管理已有软电话资源，资源type=2，登录bindType=3。坐席不再自由输入分机，只选择同账号同租户已启用未占用资源，配置在下次登录读取。维护密码只用于瞬时输入，追踪脱敏；本地租户授权不进入供应商请求。单删除exten Int与其他String差异保留原文，当前采用batchDelete单元素及查询核实。",
+        "fieldIds": [
+          "FA-184",
+          "FA-185",
+          "FA-186",
+          "FA-187",
+          "FA-188",
+          "FA-008",
+          "FA-170"
+        ],
+        "sourceIds": [
+          "API-396",
+          "API-397",
+          "API-398",
+          "API-399",
+          "API-403",
+          "DOC-355",
+          "API-304"
+        ],
+        "date": "2026-09-20",
+        "version": "2026-09-20-daily-alignment-1",
+        "appendixVersion": "1.36"
+      },
+      {
+        "id": "D-056",
+        "title": "时间条件维护与任务关联",
+        "sourceRef": "SRC-086",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "description": "系统管理新增时间条件，按enterpriseTime/create、update、delete、list维护星期/日期、起止时间、连续/间隔和企业唯一名称优先级。管理员维护本租户独占条件，共享条件由超管维护。预外呼/自动外呼多选可呼叫和禁呼条件，分别映射autoTriggerTimeStrategy/timeStrategy逗号串；呼入继续分号。去掉使用位置展示，内部引用保护保留，不自建时间执行引擎。",
+        "fieldIds": [
+          "FA-189",
+          "FA-190",
+          "FA-191"
+        ],
+        "sourceIds": [
+          "API-400",
+          "API-401",
+          "API-402",
+          "DOC-356",
+          "DOC-359",
+          "API-311"
+        ],
+        "date": "2026-09-20",
+        "version": "2026-09-20-daily-alignment-1",
+        "appendixVersion": "1.36"
+      },
+      {
+        "id": "D-057",
+        "title": "坐席技能、状态和任务占用统一",
+        "sourceRef": "SRC-087",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "description": "界面统一技能，不再维护服务类型。坐席创建移除联系手机号、可不选技能，后续配置；列表仅官方state话务状态和active启用状态，不再列技能数量或本地同步状态。人工客户可分给本租户有有效坐席的管理员或运营。外呼组一坐席一组，同组或同席不可并行参与两个运行预测任务，启动/继续跨两种分配方式复检；暂停/结束确认后释放，未知保留占用。",
+        "fieldIds": [
+          "FA-016",
+          "FA-021",
+          "FA-022",
+          "FA-023",
+          "FA-092",
+          "FA-181",
+          "FA-035",
+          "FA-036",
+          "FA-037"
+        ],
+        "sourceIds": [
+          "API-307",
+          "API-308",
+          "DOC-342",
+          "DOC-344",
+          "API-311",
+          "API-386",
+          "API-391"
+        ],
+        "date": "2026-09-20",
+        "version": "2026-09-20-daily-alignment-1",
+        "appendixVersion": "1.36"
+      },
+      {
+        "id": "D-058",
+        "title": "电话工具条与记录保存自动置闲",
+        "sourceRef": "SRC-088",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "description": "本人具备坐席时顶部常驻电话工具条，统一登录/退出、置忙/置闲、预览外呼、接听、静音、挂断及延长整理；记录从非模态右侧面板填写，切页可收起、同通草稿保留。上线和人工拨号去掉技能与外显选择，拨号时自动取本租户可用号码。挂断后业务保存成功且idle时调用unpause自动置闲，成功才恢复接听；失败保留记录可重试、未知先核对。来电不展示拒接入口。菜单主页面不显示返回，二级抽屉左上返回右上关闭，二次确认置顶。 回归修复：未完成重呼配置也能关闭/返回保存草稿，下一步和确认创建仍严格检查；窄窗侧栏保留菜单文字，不用只有图标的父项替代导航。",
+        "fieldIds": [
+          "FA-029",
+          "FA-138",
+          "FA-140",
+          "FA-141",
+          "FA-142",
+          "FA-170",
+          "FA-171",
+          "FA-172",
+          "FA-173",
+          "FA-175",
+          "FA-178"
+        ],
+        "sourceIds": [
+          "API-304",
+          "API-305",
+          "API-306"
+        ],
+        "date": "2026-09-20",
+        "version": "2026-09-20-daily-alignment-1",
+        "appendixVersion": "1.36"
+      },
+      {
+        "id": "D-059",
+        "title": "业务分类与可配置必填客户字段",
+        "sourceRef": "SRC-089",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "description": "客户管理新增业务分类，租户管理员维护本租户字典，超管按租户维护；字段支持文本、多行、数字、单选、多选、日期和日期时间，可排序/隐藏/必填，默认选填。导入选择字典分类，坐席按该分类填写；草稿可不完整，最终保存按当前配置校验。客户档案按业务分类和单据分组，通话详情保留本通值；预置线索指标稳定以维持报表。按用户要求不做历史配置版本或历史数据迁移。",
+        "fieldIds": [
+          "FA-192",
+          "FA-193",
+          "FA-194",
+          "FA-195",
+          "FA-107",
+          "FA-108",
+          "FA-109",
+          "FA-110",
+          "FA-111",
+          "FA-112",
+          "FA-113"
+        ],
+        "sourceIds": [],
+        "date": "2026-09-20",
+        "version": "2026-09-20-daily-alignment-1",
+        "appendixVersion": "1.36"
+      },
+      {
+        "id": "D-060",
+        "title": "原任务再次联系与名单耗尽暂停",
+        "sourceRef": "SRC-090",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "description": "用户确认再次预外呼仅针对原任务、保留原任务ID。按任务展示待再次联系，在原taskId下新增批次和客户行；沿用原资源、策略及执行安排，importTaskTel仅导入本次名单并显式isRepeat=0、importTelAutoStart=0。来源、占用及业务联系次数按账号/租户/任务隔离，拒绝联系仍按客户拦截。新预测任务autoComplete=0，名单耗尽暂停；自动外呼保持1。结束任务不可重开，旧新建任务式再次联系入口停止使用。原通话和处理结果保留，本次批次及任务汇总保存失败通过独立记录恢复，不覆盖后续终止状态或重复追加。此项取代D-032中新建任务和全局待再次联系池的方案。",
+        "fieldIds": [
+          "FA-047",
+          "FA-144",
+          "FA-145",
+          "FA-146",
+          "FA-169"
+        ],
+        "sourceIds": [
+          "API-311",
+          "API-312",
+          "DOC-333",
+          "DOC-334"
+        ],
+        "date": "2026-09-21",
+        "version": "2026-09-21-same-task-followup-1",
+        "appendixVersion": "1.37"
+      },
+      {
+        "id": "D-061",
+        "title": "时间条件手动维护优先级与精简展示",
+        "sourceRef": "SRC-091",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "description": "时间条件priority仍为接口必填字段，由用户手动填写正整数，同enterpriseId内唯一（含其他租户）。新增为空、不推荐或自动分配；编辑带入已有值，部分更新未传priority时保留原值。列表和详情展示优先级，时间类型并入适用时间摘要，去掉重复共享只读标签和使用位置；共享条件由超管维护的权限及引用保护继续保留。此项补充D-056，替代此前短暂采用的自动分配优先级方案。",
+        "fieldIds": [
+          "FA-189",
+          "FA-190",
+          "FA-191"
+        ],
+        "sourceIds": [
+          "API-400",
+          "API-401",
+          "DOC-356",
+          "DOC-359"
+        ],
+        "date": "2026-09-21",
+        "version": "2026-09-21-same-task-followup-1",
+        "appendixVersion": "1.37"
+      },
+      {
+        "id": "D-062",
+        "title": "轻量文档交付与演示存储维护",
+        "sourceRef": "SRC-092",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "description": "按用户要求删除重复开发交付包及ZIP，保留现有功能说明、附表、字段对齐、流程图、时序图、蓝图、待确认事项和开发阅读指引，原始官方快照集中在references。原型对三个大体量JSON存储项采用无损压缩以恢复演示数据持久化，读取还原原JSON，不删除历史记录、不改业务schema；这属于实现维护，不增加历史模型迁移或供应商接口能力。",
+        "fieldIds": [],
+        "sourceIds": [],
+        "date": "2026-09-21",
+        "version": "2026-09-21-same-task-followup-1",
+        "appendixVersion": "1.37"
+      },
+      {
+        "id": "D-063",
+        "sourceRef": "SRC-093",
+        "title": "客户档案精简与未知结果文案",
+        "description": "客户档案导入与分配记录删除查看批次和操作列，保留九项业务字段、分页及独立导入管理；列表删除固定线索/意向列，详情按业务分类显示动态字段。未知接听结果显示结果未知，仅调整展示用语，不新增接口状态、号码识别码或改写原数据。",
+        "fieldIds": [
+          "FA-085",
+          "FA-086",
+          "FA-195"
+        ],
+        "sourceIds": [],
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "date": "2026-09-21",
+        "version": "2026-09-21-ui-field-alignment-1",
+        "appendixVersion": "1.38"
+      },
+      {
+        "id": "D-064",
+        "sourceRef": "SRC-094",
+        "title": "任务列表精简与后续重呼证据边界",
+        "description": "预外呼与自动外呼列表移除内部执行配置名称、V1版本和后续重呼列，备用客户表移除hasNext占位。finishRetryFlag、telRetryRound描述单条话单，retryStrategy描述配置，均不直接证明后续重呼已安排。实际参数、模板复用、任务控制及原任务待再次联系保留。",
+        "fieldIds": [
+          "FA-123"
+        ],
+        "sourceIds": [
+          "API-318",
+          "DOC-334"
+        ],
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "date": "2026-09-21",
+        "version": "2026-09-21-ui-field-alignment-1",
+        "appendixVersion": "1.38"
+      },
+      {
+        "id": "D-065",
+        "sourceRef": "SRC-095",
+        "title": "创建确认与任务设置一致",
+        "description": "两类任务详情统一任务设置，按创建确认的任务与客户、接听团队配置或任务与语音流程、时间与重呼三组及顺序展示。cnos原工号、外呼组、最低人数、号码和流程名称、时间及重呼采用本任务保存值与首次启动冻结快照；旧不完整快照仅从本任务原值补显示，显式空值不覆盖，不从共享模板或当前技能成员重算。只读缺失策略显示未记录，复制时要求补选并不继承原名单及预约日期。移除内部配置名称/版本、编号和变更说明面板。",
+        "fieldIds": [
+          "FA-036",
+          "FA-037",
+          "FA-038",
+          "FA-039",
+          "FA-041",
+          "FA-042",
+          "FA-043",
+          "FA-169",
+          "FA-191"
+        ],
+        "sourceIds": [
+          "API-311",
+          "API-312"
+        ],
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "date": "2026-09-21",
+        "version": "2026-09-21-ui-field-alignment-1",
+        "appendixVersion": "1.38"
+      },
+      {
+        "id": "D-066",
+        "sourceRef": "SRC-096",
+        "title": "四类通话记录事实与严格任务关联",
+        "description": "通话列表、详情与任务内通话使用同一只读解析，对齐API-317/318/319/362的身份、接听状态、时间、时长、工号、实际队列、流程及原始话单。已有接口来源对象但raw缺失/不可用或接口字段缺失时，不借旧结束标签、时长和agentAnswerResult补接口事实；没有接口来源对象的纯本地演示记录仍按明确本地来源展示；有效0秒保留。关联任务必须核对账号、租户、类型和明确平台/供应商taskId，冲突不改绑且不开放再次联系。关联任务设置默认折叠只读，复用任务设置摘要；移除旧技能、虚构IVR节点/版本及补齐控件。四类及全部日期查询按实际话单开始时间筛选。",
+        "fieldIds": [
+          "FA-049",
+          "FA-065",
+          "FA-068",
+          "FA-080",
+          "FA-115",
+          "FA-116",
+          "FA-117",
+          "FA-118",
+          "FA-119",
+          "FA-120",
+          "FA-121",
+          "FA-122",
+          "FA-123"
+        ],
+        "sourceIds": [
+          "API-317",
+          "API-318",
+          "API-319",
+          "API-362"
+        ],
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "date": "2026-09-21",
+        "version": "2026-09-21-ui-field-alignment-1",
+        "appendixVersion": "1.38"
+      },
+      {
+        "id": "D-067",
+        "sourceRef": "SRC-097",
+        "title": "号码详情取消嵌套管理入口",
+        "description": "号码详情去掉呼入规则、外显用途与属性的嵌套入口，相关供应商原始数据及独立呼入规则管理保留。",
+        "fieldIds": [
+          "FA-084",
+          "FA-094",
+          "FA-148"
+        ],
+        "sourceIds": [],
+        "sourceType": "user_product_confirmation",
+        "date": "2026-09-22",
+        "version": "2026-09-22-single-tenant-1",
+        "appendixVersion": "1.39"
+      },
+      {
+        "id": "D-068",
+        "sourceRef": "SRC-098",
+        "title": "AliCti账号关联唯一业务租户",
+        "description": "每个enterpriseId只关联0或1个总部/门店业务租户，内置超级租户不计入；每个业务租户仍只关联一个AliCti账号。tenantId与enterpriseId分别保留，平台登录账号仍可按成员授权加入多个租户。总部7522240与门店7522241属于同一品牌，但资源和业务数据按各自账号及租户隔离。号码导入时默认归属当前账号唯一有效业务租户，不再提供号码租户分配或多选授权；账号无有效业务租户时阻止导入。号码详情只读展示归属和使用情况，不嵌套呼入规则、外显用途或原始属性入口。号码状态、方向及外显资格仍按已存事实校验，呼入规则在独立菜单管理。队列、坐席、技能、分机、时间条件与呼入规则继续核验租户和角色权限，取消同账号多租户共享配置。当前报表仅统计所选enterpriseId的唯一业务租户，不新增跨账号汇总。若后续经明确授权建设同品牌跨账号线索汇总，业务唯一键应为brandId+完整线索编码；当前不得按品牌名合并或加载未授权账号数据。",
+        "fieldIds": [
+          "FA-001",
+          "FA-084",
+          "FA-129",
+          "FA-134",
+          "FA-148",
+          "FA-155",
+          "FA-187",
+          "FA-189",
+          "FA-190"
+        ],
+        "sourceIds": [],
+        "sourceType": "user_product_confirmation",
+        "date": "2026-09-22",
+        "version": "2026-09-22-single-tenant-1",
+        "appendixVersion": "1.39"
+      },
+      {
+        "id": "D-069",
+        "sourceRef": "SRC-099",
+        "title": "任务外显导航与客户接听等待时间",
+        "description": "D-069：预外呼与自动外呼提供指定号码和外显导航两种互斥方式。账号仅由超级管理员选填既有外显导航标识；任务保存导航及号码池配置快照，号码池优先级手动选填整数、数字越小越优先。客户接听等待时间默认30秒、5–60秒。导航名单不混传clid，不新建号码池实体；来源、选号和停用排除边界保留CF-15。指定号码沿用完整号码task/importTaskTel.taskTelList[].clid；外显导航在task/create传customerClidsCategory=5、customerClidsGroup及可选clidPoolList，导航模式导入名单绝不混传clid。两类任务均传customerTimeout，默认30秒且范围5–60秒。号码池名称来自AliCti已有配置，不把本地号码列表当成池、不新增号码池菜单或创建能力。priority手动选填整数且数字越小越优先；留空省略，不自动分配。空池、同优先级和资源来源查询待CF-15确认，不承诺失败自动切池。任务保存外显方式、导航标识、号码池及等待时间快照；修改账号默认导航不回填已有任务。创建确认、任务设置及复制采用一致字段；复制仍校验当前权限，原任务再次联系沿用原配置和原taskId。通话详情仅展示话单实际外显号码，不能用池名称或本地挑选结果冒充供应商选号事实。本地停用仅能约束本地直接选号，不能保证AliCti外显导航号码池排除该号码；全局阻断须经供应商停用或排除机制核验。既有通话正常继续；此边界不增加异常入口。",
+        "fieldIds": [
+          "FA-054",
+          "FA-196",
+          "FA-197",
+          "FA-198",
+          "FA-199"
+        ],
+        "sourceIds": [
+          "API-311",
+          "API-312",
+          "DOC-338"
+        ],
+        "sourceType": "user_product_confirmation_and_official_document_review",
+        "date": "2026-09-22",
+        "version": "2026-09-22-caller-navigation-1",
+        "appendixVersion": "1.40"
+      },
+      {
+        "id": "D-070",
+        "sourceRef": "SRC-100",
+        "title": "账号多外显导航目录与任务显式单选",
+        "description": "D-070：同一enterpriseId可本地登记多个AliCti已有外显导航，超级管理员维护名称与标识列表，标识同账号唯一，不设置本地数量上限。两类任务从当前账号目录显式单选一个，不自动选择首项；任务customerClidsGroup仍为单个String，callerNavigationName仅为本地名称快照。客户接听等待时间默认30秒、5–60秒；号码池可多条、priority手动选填。账号数量上限、资源查询、选号与停用排除仍待CF-15确认，未声称供应商已经证实多导航。超级管理员（SUPER）在既有AliCti账号编辑的“外显导航”区维护callerNavigations:[{name,customerClidsGroup}]，可登记多个已存在AliCti导航；每行名称和标识必填，标识同账号唯一，不设置本地数量上限，不新增菜单或实体模块。目录是本地登记，移除条目不等于远端删除或停用。旧instance.customerClidsGroup单值仅在读取时兼容为一条，不自动重写；没有目录不推造候选。创建、草稿及复制的导航候选仅取当前账号目录，下拉显式单选一个，无自动首项默认。新提交前复核所选标识仍在目录，被移除须重选；名称改名不阻断，旧草稿有标识但无名称时只从匹配候选补名称。切换到另一个导航清空原clidPoolList，保留customerTimeout。任务保存外显方式、导航名称及标识、号码池和等待时间快照；callerNavigationName仅作本地名称快照、不传API，task/create仍只传单个String customerClidsGroup。账号目录改名或移除不回填已保存任务快照，也不覆写草稿及复制已有的名称；已创建任务和原任务再次联系保留快照及原taskId。创建确认、任务设置及复制采用一致字段；草稿和复制在新提交时复核当前账号目录，已移除标识须重选。通话详情仅展示话单实际外显号码，不能用池名称或本地挑选结果冒充供应商选号事实。现有官方材料只说明单次任务传一个导航标识，未确认同enterpriseId的导航数量上限或账号内查询接口；本地多行登记是D-070产品修正，不冒充供应商答复。目录移除不等于远端删除或停用，CF-15继续未决。",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "sourceIds": [
+          "API-311",
+          "DOC-338"
+        ],
+        "fieldIds": [
+          "FA-196",
+          "FA-197",
+          "FA-198",
+          "FA-199"
+        ],
+        "version": "2026-09-22-caller-navigation-2",
+        "appendixVersion": "1.41",
+        "date": "2026-09-22"
+      },
+      {
+        "id": "D-071",
+        "sourceRef": "SRC-101",
+        "title": "坐席工作模式选择与在线切换",
+        "description": "D-071：上线设置新增工作模式单选（0预览与预测同时、4预览外呼、5预测外呼），保存为本人电话偏好并随下次login提交；登录后工具条直接显示模式下拉，在线即时调用CTILink.Agent.changeWorkingMode切换，不收入更多菜单。置忙可切换；通话、振铃、话后整理及未知结果期间禁止切换并保留原模式。模式4不再接受预测外呼分配，模式5禁用预览外呼入口；呼入不受模式限制是本地假设，登记CF-16。不开放登录逗号多值；changeBindTel维持拒绝。",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "sourceIds": [
+          "API-304"
+        ],
+        "fieldIds": [
+          "FA-170",
+          "FA-176"
+        ],
+        "version": "2026-09-22-working-mode-1",
+        "appendixVersion": "1.42",
+        "date": "2026-09-22"
+      },
+      {
+        "id": "D-072",
+        "sourceRef": "SRC-102",
+        "title": "坐席登录单面板直接提交",
+        "description": "D-072：每次点击坐席登录都打开同一登录面板，工作模式初始为请选择，须当次单选0/4/5；登录状态默认置闲，可改置忙，置忙原因选填。点击登录直接调用Agent.login，取消不发请求，失败保留本次输入便于重试。不再先保存设置或依赖旧偏好自动选择工作模式。置忙登录成功后禁用主动预览外呼并提示先置闲。断线重登独立保留当前会话模式及暂停状态；D-071在线切换与模式互斥规则继续适用。",
+        "sourceType": "user_product_requirement",
+        "sourceIds": [
+          "API-304"
+        ],
+        "fieldIds": [
+          "FA-170",
+          "FA-176"
+        ],
+        "version": "2026-09-23-seat-login-1",
+        "appendixVersion": "1.43",
+        "date": "2026-09-23"
+      },
+      {
+        "id": "D-073",
+        "sourceRef": "SRC-103",
+        "title": "已建外呼任务按供应商更新接口编辑",
+        "description": "D-073：预外呼与自动外呼任务的“查看与管理”增加编辑任务入口，回填当前原型任务配置，提交时以原供应商taskId调用task/update。仅有明确供应商任务ID、权限有效、未结束且无待核对结果的任务可编辑。只编辑当前原型已采用且更新接口列明的属性；任务类型type、接听分支callGroupType、客户名单/排重与指定号码clid不在更新接口内，保持原值，自动外呼IVR更改本期不开放。差量请求只提交实际改动字段，不建设旧任务数据兼容或旧功能迁移；省略字段保留语义待联调；成功回执后task/get核对同一任务及可回读字段，核对成功才更新本地当前配置与planSnapshot，并将编辑前设置副本写入taskSettingHistory；失败、未知或无法核实不改原配置并保留输入。复制任务创建新草稿继续保留。D-065保留为历史变更记录，任务中心按本决定可编辑，通话详情内关联任务摘要仍只读。运行中改动何时影响后续呼叫官方未明确，真实联调前不承诺即时生效；已发生通话与客户记录不回写。",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "sourceIds": [
+          "API-404",
+          "DOC-334"
+        ],
+        "fieldIds": [
+          "FA-213",
+          "FA-200",
+          "FA-201",
+          "FA-202",
+          "FA-203",
+          "FA-204",
+          "FA-205",
+          "FA-206",
+          "FA-207",
+          "FA-208",
+          "FA-209",
+          "FA-210",
+          "FA-211",
+          "FA-212"
+        ],
+        "version": "2026-09-23-task-edit-1",
+        "appendixVersion": "1.44",
+        "date": "2026-09-23"
+      },
+      {
+        "id": "D-074",
+        "sourceRef": "SRC-104",
+        "title": "独立业务字段、业务模板与选填业务编码",
+        "description": "D-074：业务分类只关联零或一个业务模板，线索分类须绑定包含六项预置统计字段的启用模板；多个分类可共用模板。模板引用独立字段库的稳定fieldId，配置顺序、显示和必填；字段及单选/多选选项分别增加选填businessKey，空值合法，填写后在本租户字段库及所属字段内分别唯一，按字符串保留前导零。选项值保存稳定option.id、展示label；预置六项线索内部ID、类型与统计语义保持，业务编码只作本地外部映射，不传AliCti。导入仍选分类，话务记录按模板填写，正式保存后通话详情与客户档案按当前配置展示；字段或选项移除后，原型不保证旧值继续显示原标签。本原型不做旧数据迁移或历史schema兼容。",
+        "sourceType": "user_product_requirement_and_implementation_review",
+        "sourceIds": [],
+        "fieldIds": [
+          "FA-192",
+          "FA-193",
+          "FA-194",
+          "FA-195",
+          "FA-214",
+          "FA-215"
+        ],
+        "version": "2026-09-23-business-template-1",
+        "appendixVersion": "1.45",
+        "date": "2026-09-23"
+      },
+      {
+        "id": "D-075",
+        "sourceRef": "SRC-105",
+        "title": "自动外呼任务通用字段与查看管理对齐",
+        "description": "预外呼与自动外呼的任务名称、描述、供应商业务标签、时间、重呼、外显与等待时间等本期采用通用字段，在创建、确认、详情和已建任务编辑中按同一保存值展示。自动任务编辑提供名称、描述和业务标签的可见入口；有原供应商taskId、权限和未结束状态且无待核对结果时，以API-404列明的实际改动字段构造差量task/update，DOC-334回查原任务和可回读改动成功后更新当前设置与planSnapshot，失败或未知保留原值与输入。任务级语音流程名称优先取本任务冻结快照，不从当前流程目录或话单反推；既有任务customerTimeout缺失显示未记录，不虚构新建默认30秒。API-404虽列ivrId/ivrName并提及自动外呼用途，但它们位于“预测外呼任务参数只在type=1中生效”小节，已建type=2的IVR更改只读并列CF-17待供应商确认，不宣称支持或不支持。预测专用坐席与流转字段不进入自动任务编辑；本地模拟不等于供应商联调。",
+        "sourceType": "user_product_requirement_and_official_contract_review",
+        "sourceIds": [
+          "API-311",
+          "API-404",
+          "DOC-334",
+          "DOC-338"
+        ],
+        "fieldIds": [
+          "FA-199",
+          "FA-200",
+          "FA-201",
+          "FA-213",
+          "FA-216"
+        ],
+        "version": "2026-09-23-auto-task-fields-1",
+        "appendixVersion": "1.46",
+        "date": "2026-09-23"
+      },
+      {
+        "id": "D-076",
+        "sourceRef": "SRC-106",
+        "title": "坐席普通退出保留接听分机绑定",
+        "description": "普通坐席退出固定提交CTILink.Agent.logout({logoutMode:1,removeBinding:0})，完全下线并保留AliCti侧坐席与当前接听分机的绑定关系。退出面板移除“同时解除接听电话绑定”选项，坐席不可在普通退出时选择removeBinding=1。本地坐席维护的分机配置不因退出清空。官方API-304仍支持removeBinding=1解除电话绑定，但本产品不开放该操作；班长管理下线原有removeBinding=0口径不变。通话中及未保存记录保护、失败与未知回执保护继续适用。",
+        "sourceType": "user_product_requirement",
+        "sourceIds": [
+          "API-304"
+        ],
+        "fieldIds": [
+          "FA-011",
+          "FA-171"
+        ],
+        "version": "2026-09-23-seat-logout-1",
+        "appendixVersion": "1.47",
+        "date": "2026-09-23"
+      },
+      {
+        "id": "D-077",
+        "sourceRef": "SRC-107",
+        "title": "业务配置统一从业务分类进入",
+        "description": "客户管理仅保留“业务分类”菜单，业务模板和自定义字段不再各有独立菜单；在业务分类页面内创建和维护分类、可复用模板及独立字段定义。此项只调整导航与操作路径，沿用D-074分类关联零或一个模板、模板引用字段的三层数据关系，以及字段和选项选填业务编码、模板字段显示/顺序/必填的配置规则。租户隔离、导入与通话读取、客户档案和线索统计口径均保持；不新增实体、供应商接口字段或历史迁移。",
+        "sourceType": "user_product_requirement",
+        "sourceIds": [],
+        "fieldIds": [
+          "FA-192",
+          "FA-193",
+          "FA-214",
+          "FA-215"
+        ],
+        "version": "2026-09-23-business-category-entry-1",
+        "appendixVersion": "1.48",
+        "date": "2026-09-23"
+      },
+      {
+        "id": "D-078",
+        "sourceRef": "SRC-108",
+        "title": "任务外显配置按接口字段纠偏",
+        "description": "核对AliCti的API-311任务创建和API-404任务更新后，确认没有任务级指定号码字段。预外呼与自动外呼新建任务只保留账号已登记的外显导航并要求显式单选一个；虽然接口将导航字段列为可选，此必选是为明确选号口径而设的本原型产品约束；提交customerClidsCategory=5、单个customerClidsGroup、可选clidPoolList和customerTimeout，任务编辑仅提交API-404支持的实际改动。取消任务级固定号码/导航二选一、固定号码快照和由任务或批次自动写名单clid的逻辑。API-312的taskTelList[].clid仅是逐客户名单行的可选字段，可在名单导入显式映射时传完整号码；其与导航同传的优先关系继续列CF-15，不能自行推断。D-069/D-070中的固定号码任务分支为历史设计，账号多导航目录及任务单选规则继续有效；已发生通话的实际外显号码仍以话单为准。",
+        "sourceType": "user_interface_contract_correction",
+        "sourceIds": [
+          "API-311",
+          "API-312",
+          "API-404"
+        ],
+        "fieldIds": [
+          "FA-054",
+          "FA-196",
+          "FA-197",
+          "FA-198",
+          "FA-199"
+        ],
+        "version": "2026-09-23-task-caller-contract-1",
+        "appendixVersion": "1.49",
+        "date": "2026-09-23"
+      },
+      {
+        "id": "D-081",
+        "title": "租户号码池管理与任务引用",
+        "description": "租户管理员按当前租户唯一关联的enterpriseId维护AliCti号码池，使用hybridGroup/list、create、delete、update四接口。预外呼和自动外呼任务从本租户已查询池中选择name，clidPoolList仅传name与可选priority；跨账号或已失效池阻断新提交。新增后须用update添加号码，更新numbers为空串会清空，默认池受修改与删除限制。静态原型仅模拟接口契约，不发真实请求。D-069/D-070中不新增池管理及资源来源未明的旧口径由本决定更新。",
+        "sourceType": "user_requirement_and_official_api_review",
+        "sourceIds": [
+          "API-311",
+          "DOC-338"
+        ],
+        "officialUrls": [
+          "https://wiki.alicti.cn/html/wiki/API/号码池管理/获取号码池列表接口.html",
+          "https://wiki.alicti.cn/html/wiki/API/号码池管理/新增号码池接口.html",
+          "https://wiki.alicti.cn/html/wiki/API/号码池管理/删除号码池接口.html",
+          "https://wiki.alicti.cn/html/wiki/API/号码池管理/更新号码池接口.html"
+        ],
+        "fieldIds": [
+          "FA-198"
+        ],
+        "version": "2026-09-23-tenant-number-pool-1",
+        "appendixVersion": "1.50",
+        "date": "2026-09-23",
+        "sourceRef": "SRC-109"
+      },
+      {
+        "id": "D-082",
+        "title": "班长监控离线只读能力与二级事件日志",
+        "description": "本租户ADMIN进入坐席工作台班长监控无需关联本人坐席或本人电话上线即可查看本租户今日已结束外呼统计、逐工号只读坐席当前状态和已有事件日志。只读坐席状态按enterpriseId与原字符串cno调用DOC-344 agentStatus/get，并由平台再按tenantId授权坐席过滤；查询频率由后台控制。班长监控下设“监控概览／坐席事件日志”二级页签，日志仍按D-080的来源、观察时间、去重和本租户范围展示，离线可只读查看。队列实时状态与排队实况仍走CTILink.Agent.queueStatus；管理置忙、置闲、下线仍走CTILink.Monitor，两者仅在关联有效班长坐席、本人上线、供应商班长权限和本租户授权队列均确认后开放。今日统计及二级页签布局是本方产品规则，不将agentStatus/get或本地日志描述成免登录的queueStatus或供应商事件推送。",
+        "sourceType": "user_product_requirement_and_existing_interface_review",
+        "sourceIds": [
+          "DOC-344",
+          "API-304",
+          "DOC-395"
+        ],
+        "fieldIds": [
+          "FA-088",
+          "FA-177",
+          "FA-179"
+        ],
+        "version": "2026-09-23-supervisor-monitor-access-1",
+        "appendixVersion": "1.51",
+        "date": "2026-09-23",
+        "sourceRef": "SRC-110"
+      },
+      {
+        "id": "D-083",
+        "title": "预测任务座席阈值与默认外显导航",
+        "description": "预测外呼任务的minAvailableAgentCount默认10、范围1–10，任务内可用座席数低于阈值时自动暂停；仅autoStart=1且因座席不足自动暂停的任务在人数恢复到不少于阈值后自动启动，手工暂停、号码停用保护暂停及结束不因此恢复。自动外呼不显示或提交该阈值。每enterpriseId统一使用一个默认外显导航，固定标识由AliCti线下提供、由自建系统单值管理，任务自动带入customerClidsCategory=5和customerClidsGroup，号码池仍可选，不维护多导航。API-311/API-404仅证明阈值、定时字段、不足自动暂停和单次任务导航标识；自动恢复及默认唯一性为用户转述供应商技术口径，CF-18/CF-15待真实联调，原官方快照保持不变。 已建任务历史快照不回填；启动/继续时如保存标识与当前账号默认值不一致，须先经原任务task/update并以task/get核对同一taskId及新值；编辑期间默认值变化则拒绝提交并重开核对。任务中心的座席人数变化仅作本地演示，不代表远端操作。",
+        "sourceType": "user_relayed_supplier_feedback_and_product_scope",
+        "sourceIds": [
+          "API-311",
+          "API-404",
+          "DOC-338",
+          "DOC-334"
+        ],
+        "fieldIds": [
+          "FA-197",
+          "FA-217"
+        ],
+        "version": "2026-09-23-task-seat-threshold-default-navigation-1",
+        "appendixVersion": "1.52",
+        "date": "2026-09-23",
+        "sourceRef": "SRC-111"
+      },
+      {
+        "id": "D-084",
+        "title": "班长坐席事件预览与全部事件查询",
+        "description": "班长监控保留“监控概览／坐席事件日志”二级页签。事件日志默认按平台接收或观察的更新时间倒序，页签只预览最近5条；“查看全部事件”打开可分页的独立二级页；原型只查询当前浏览器的演示记录，生产才查询后端汇总且授权的本租户事件。主列表只保留时间、坐席姓名与原工号、事件或当前状态、来源；删除缺乏统一供应商字段支持的“状态变化”和“说明”列。API-316提供企业WebSocket /user/agent订阅，默认全坐席事件但未提供历史查询及统一消息结构；API-315 type=9仅说明可配置状态变更推送；DOC-344 agentStatus/get仅提供当前状态，轮询差异须标“观察到的变化”。明确的CTILink连接回调及成功操作回执可分别入日志。生产由本方后端鉴权订阅及汇总回调/回执，按租户和坐席授权过滤、去重、持久化，再提供全量分页查询；静态原型事件列表初始为空，仅保存当前浏览器内本地接口模拟操作、回调或快照观察产生的记录，跨设备不汇总，不能称为全租户实时供应商采集；后续记录不按演示数据上限截断。D-080/D-082为历史阶段决定，离线只读与权限门禁继续有效。",
+        "sourceType": "user_product_requirement_and_existing_interface_review",
+        "sourceIds": [
+          "API-316",
+          "API-315",
+          "DOC-344",
+          "API-304"
+        ],
+        "fieldIds": [
+          "FA-083",
+          "FA-177",
+          "FA-218"
+        ],
+        "version": "2026-09-23-supervisor-event-history-1",
+        "appendixVersion": "1.53",
+        "date": "2026-09-23",
+        "sourceRef": "SRC-112"
+      },
+      {
+        "id": "D-085",
+        "title": "业务分类直接配置独立自定义字段",
+        "description": "客户管理继续只保留“业务分类”菜单，在该页维护分类和独立字段库，取消独立业务模板实体、模板维护、选择、启停及分类templateId。业务分类以有序fields数组直接引用本租户字段库：每项保存稳定fieldId、enabled、required，数组位置决定显示顺序；required默认false，隐藏字段不参加必填校验。分类允许零字段并只显示通用联系信息；线索分类须直接包含六项预置统计字段。多个分类可引用同一字段定义，但各自维护显示与必填，不复制字段定义。字段和单选/多选选项的可选businessKey、稳定内部ID、七种字段类型、租户隔离、导入分类、通话草稿与最终保存校验、客户档案及线索统计规则继续适用；所有配置均为本方本地数据，不增加AliCti接口字段。此项目仅为原型，不迁移或兼容旧模板存储。D-074/D-077的分类→模板→字段三层关系保留为历史，现行以本决定为准。",
+        "sourceType": "user_product_requirement_simplification",
+        "sourceIds": [],
+        "fieldIds": [
+          "FA-107",
+          "FA-108",
+          "FA-109",
+          "FA-110",
+          "FA-111",
+          "FA-112",
+          "FA-133",
+          "FA-192",
+          "FA-193",
+          "FA-194",
+          "FA-195",
+          "FA-214",
+          "FA-215"
+        ],
+        "version": "2026-09-24-business-category-fields-1",
+        "appendixVersion": "1.54",
+        "date": "2026-09-24",
+        "sourceRef": "SRC-113"
+      },
+      {
+        "id": "D-086",
+        "title": "同账号多外显导航与任务单选、多号码池",
+        "description": "用户转述AliCti技术新确认：一个enterpriseId可关联多个外显导航，一个外显导航可使用多个号码池。自建系统在既有AliCti账号资料中登记多个线下提供的导航名称和标识，不创建额外导航或导航-号码池实体；预外呼与自动外呼创建时均由用户从当前账号选择一个导航，并可从当前租户AliCti号码池列表选用多个号码池。任务请求提交customerClidsCategory=5、单个customerClidsGroup、可选clidPoolList和customerTimeout。API-311/API-404只证明单次任务字段，不证明导航目录查询、有效性或池选号结果；剩余边界列CF-15。已建任务保存导航与号码池快照，目录变更不回填；提交及启动前复核所选导航仍属于当前账号，移除后需在原任务编辑并经task/update、task/get核对同一taskId。D-083中每账号仅一个默认导航及任务自动带入的规则由本决定替代，座席阈值规则继续有效。",
+        "sourceType": "user_relayed_supplier_clarification_and_product_scope",
+        "sourceIds": [
+          "API-311",
+          "API-404",
+          "DOC-338",
+          "DOC-334"
+        ],
+        "fieldIds": [
+          "FA-196",
+          "FA-197",
+          "FA-198"
+        ],
+        "version": "2026-09-29-multiple-caller-navigation-1",
+        "appendixVersion": "1.55",
+        "date": "2026-09-29",
+        "sourceRef": "SRC-114"
+      }
+    ]
+  },
+  "taskInFlightClarification": {
+    "decisionId": "D-047",
+    "sourceRef": "SRC-077",
+    "date": "2026-09-20",
+    "sourceType": "user_relayed_supplier_feedback",
+    "supplierReply": "任务暂停或者结束只是管任务的，未呼叫的不会再发起呼叫。已经发起的通话会正常呼叫，通话正常进行。话单就是正常的话单。",
+    "resolution": "供应商答复（用户转述）：任务暂停或结束仅控制任务调度，尚未发起的呼叫不再发起；已发起的拨号、振铃及已接通通话正常进行，按正常话单返回。暂停后可按原流程继续；结束任务不再开启，未执行的后续呼叫及重呼不再执行。已发起通话正常结束后的话单只更新原通话记录、客户记录和统计，不恢复任务或触发后续重呼。",
+    "closedConfirmationIds": [
+      "CF-04"
+    ],
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false
+  },
+  "numberUseClarification": {
+    "decisionId": "D-048",
+    "sourceRef": "SRC-078",
+    "date": "2026-09-20",
+    "sourceType": "user_relayed_supplier_feedback_and_scope_decision",
+    "supplierReply": "这个号码的状态，如果是停用，以后选号就不会再用这个号码了，对于已经用这个号码呼叫的通话，会正常继续进行。",
+    "userScopeDecision": "“从供应商账号解绑号码的接口及查证方式”由本地控制不再支持使用该号码呼叫。",
+    "resolution": "供应商答复（用户转述）：号码状态停用后，后续选号不再使用该号码；已使用该号码发起的通话正常继续。用户取消供应商账号解绑需求，改用本地号码使用状态控制新呼叫，不解除远端资源关联、不删除号码或历史。列表提供可恢复的本地使用启停，供应商status单独维护；本地恢复不绕过供应商启停、用途和租户授权，不自动恢复任务。呼入入口由呼入规则独立管理，本地禁用不表示关闭供应商呼入。CF-06关闭。",
+    "closedConfirmationIds": [
+      "CF-06"
+    ],
+    "supplierUnbindInScope": false,
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false
+  },
+  "queueCounterClarification": {
+    "status": "closed",
+    "topic": "队列报表两项来电计数",
+    "decisionId": "D-049",
+    "sourceRef": "SRC-079",
+    "sourceType": "user_provided_supplier_reply_image",
+    "updatedAt": "2026-09-20",
+    "resolution": "供应商回复截图明确：telEnterCount（String）为队列来电接听数，telAnswerCount（String）为进入队列来电数。按该中文含义采用，不按英文字段名推断；保留原始字段和值，仅派生明确语义的数值别名，不重算供应商比率。CF-14关闭；当前原生队列报表仍只有纯适配，页面继续采用已实现的话单聚合。",
+    "supplierReply": "telEnterCount | String | 队列来电接听数；telAnswerCount | String | 进入队列来电数。",
+    "evidencePath": "documentation/input/supplier-feedback/SRC-079-cf14-20260920.png",
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false,
+    "version": "2026-09-20-cf08-cf14-clarified-1",
+    "mapping": {
+      "telEnterCount": {
+        "type": "String",
+        "label": "队列来电接听数",
+        "derivedField": "telephoneAnsweredCount"
+      },
+      "telAnswerCount": {
+        "type": "String",
+        "label": "进入队列来电数",
+        "derivedField": "telephoneEnteredCount"
+      }
+    },
+    "closedConfirmationIds": [
+      "CF-14"
+    ]
+  },
+  "seatRecreationClarification": {
+    "version": "2026-09-20-cf08-cf14-clarified-1",
+    "status": "partially_clarified",
+    "decisionId": "D-050",
+    "sourceRef": "SRC-080",
+    "sourceType": "user_provided_supplier_reply_image",
+    "date": "2026-09-20",
+    "resolution": "供应商回复截图明确：配置侧按主键物理删除，工号仅在当前仍存在的坐席中唯一；删除后重建同工号视为新坐席，分配新的id和createTime，旧技能、队列成员和绑定电话一并清掉。话单只记录cno、不记录坐席主键，历史不随删除消失；按工号查询或报表会合并旧、新坐席通话，不能仅凭cno精确区分两次坐席配置身份。CF-08仅关闭同工号重建子问，批量回执与未知写入查证问题仍保留。",
+    "supplierReply": "配置侧会当成新坐席：删除是按主键物理删，工号只在「当前仍存在的坐席」里唯一；再建会分配新的id、新的createTime，旧技能/队列成员/绑定电话一并清掉。话单侧不会拆开：话单只记工号cno，不记坐席主键。历史话单不会随删除消失，按工号查/出报表会把旧通话和新通话算在同一工号上。",
+    "evidencePath": "documentation/input/supplier-feedback/SRC-080-cf08-20260920.png",
+    "resolvedSubquestions": [
+      "同工号删除后重建及历史话单归属"
+    ],
+    "remainingConfirmationIds": [],
+    "remainingQuestions": "",
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false,
+    "followedBy": "D-051",
+    "historicalRemainingQuestions": "批量新增返回的other与success是否重叠？如何定位技能绑定失败的具体工号？请求结果未知后，query/get中哪些状态或字段可证明本次写入结果？",
+    "currentConfirmationStatus": "closed"
+  },
+  "seatBatchClarification": {
+    "version": "2026-09-20-cf08-closed-cf11-reconnect-1",
+    "decisionId": "D-051",
+    "sourceRef": "SRC-081",
+    "sourceType": "user_provided_supplier_reply_image",
+    "date": "2026-09-20",
+    "status": "closed",
+    "resolution": "批量success为坐席主记录成功数，other为其中技能绑定失败数，other是success的子集，不能相加；fail为未建成数，与success不重叠。cnos包含全部建成工号（含other），请求区间减去cnos定位未建成工号。技能失败没有独立工号列表，对cnos查询queryAgentSkill，缺目标skillId的即为技能绑定失败；未传技能时other恒为0。未知写入按agent/query返回的新id和请求时间窗口内createTime证明本次主记录写入；agent/get、queryCnoAndName只能证明存在，queryAgentSkill只证明技能关系。结合D-050的同工号重建与历史话单规则，CF-08关闭。",
+    "evidencePaths": [
+      "documentation/input/supplier-feedback/SRC-081-cf08-batch-20260920.png",
+      "documentation/input/supplier-feedback/SRC-081-cf08-verification-20260920.png"
+    ],
+    "closedConfirmationIds": [
+      "CF-08"
+    ],
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false
+  },
+  "connectionLifecycleClarification": {
+    "version": "2026-09-20-cf08-closed-cf11-reconnect-1",
+    "decisionId": "D-052",
+    "sourceRef": "SRC-082",
+    "sourceType": "user_provided_supplier_reply_image",
+    "date": "2026-09-20",
+    "status": "partially_clarified",
+    "resolution": "breakLine由SDK自动重连，最多20次，每次重连回调；code=-1表示连接断开，code=0表示重连成功，超过20次需重新登录。前端不另启重连循环，也不按-1回调次数推断已用尽。sipDisconnected表示软电话连接中断，需重新登录。信令恢复不等于媒体就绪或原通话恢复；保留通话记录与草稿，未核实前不发起新的拨号或接听。",
+    "evidencePaths": [
+      "documentation/input/supplier-feedback/SRC-082-cf11-breakLine-20260920.png",
+      "documentation/input/supplier-feedback/SRC-082-cf11-sipDisconnected-20260920.png"
+    ],
+    "remainingConfirmationIds": [
+      "CF-11"
+    ],
+    "remainingQuestions": "1. 异常关闭页面、浏览器崩溃而未完成logout时，会话如何清理？跨设备重复登录如何互斥？2. breakLine重连成功或重新登录后，哪些事件或查询能可靠证明媒体已就绪、原通话状态及本人/班长未知操作的最终结果？3. Monitor.setOffline回调表reqType写setPause，与方法名不一致，实际回调如何标识？",
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false
+  },
+  "numberRecognitionClarification": {
+    "version": "2026-09-20-development-sync-1",
+    "decisionId": "D-053",
+    "sourceRef": "SRC-083",
+    "sourceType": "user_relayed_supplier_feedback",
+    "date": "2026-09-20",
+    "status": "partially_clarified",
+    "supplierReply": "sipCauseAsyncUpdateFlag 是预测外呼通话记录上的呼叫结果异步更新标识。1 表示号码状态识别结果已异步写回该通 sipCause；0 表示同步。这个字段只是在通话记录上的一个异步识别的标识。由于号码状态识别功能是根据电话中返回的提示音来识别的，会有识别不出来的情况。对于有些有彩铃音但是没有识别到的会有补偿识别机制，就是刚刚的异步识别标识，大概可能延迟一两分钟。",
+    "resolution": "预测外呼话单sipCauseAsyncUpdateFlag=1表示号码识别结果已异步写回本通sipCause，0表示同步；不是通话状态、等待中或识别必成功标志。识别依据电话提示音，可能无法识别；彩铃等场景可能补偿识别，约延迟1–2分钟，仅为经验范围，不是固定完成时限。迟到结果按账号及原通话键补充原sipCause，保留原始值和来源，不新增通话、不由本地触发重呼。",
+    "scope": "predictive_call_cdr",
+    "flagMeanings": {
+      "0": "synchronous",
+      "1": "asynchronously_written_back_to_sipCause"
+    },
+    "approximateDelayMinutes": [
+      1,
+      2
+    ],
+    "delayIsSla": false,
+    "recognitionCanRemainUnknown": true,
+    "remainingConfirmationIds": [
+      "CF-13"
+    ],
+    "remainingQuestions": "自动任务话单obSipCause/obSipCauseRaw如何对应710–724/183号码识别编码，准确识别编码字段是什么？呼入话单是否提供号码识别结果，准确字段与编码如何对应？",
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false,
+    "evidencePath": "documentation/input/supplier-feedback/SRC-083-cf13-predictive-recognition-20260920.json"
+  },
+  "developmentPackageSync": {
+    "version": "2026-09-20-daily-alignment-1",
+    "date": "2026-09-20",
+    "previousVersion": "2026-09-20-inbound-status-1",
+    "includedDecisionIds": [
+      "D-046",
+      "D-047",
+      "D-048",
+      "D-049",
+      "D-050",
+      "D-051",
+      "D-052",
+      "D-053",
+      "D-054",
+      "D-055",
+      "D-056",
+      "D-057",
+      "D-058",
+      "D-059"
+    ],
+    "sourceType": "user_requested_daily_prototype_document_and_development_alignment",
+    "productionVerificationClaimed": false,
+    "status": "historical_package_removed_2026_09_21"
+  },
+  "inboundNumberRecognitionClarification": {
+    "version": "2026-09-20-inbound-status-1",
+    "decisionId": "D-054",
+    "sourceRef": "SRC-084",
+    "sourceType": "user_relayed_supplier_feedback",
+    "date": "2026-09-20",
+    "status": "partially_clarified",
+    "supplierReply": "呼入也会有号码状态识别，但是一般针对座席绑定手机号的。对于座席绑定软电话，大概率是识别不到的。其实看status接听状态就行了。",
+    "resolution": "供应商明确呼入也有号码状态识别，一般针对坐席绑定手机号；绑定软电话时大概率识别不到，并非绝对不支持。按本项目固定软电话方案，呼入接听采用API-319的status原枚举，不依赖号码识别结果；识别缺失正常留空，不标为识别待确认、未接听或异常，不补造识别编码。识别通常涉及被呼叫的坐席绑定手机号，不能据此给来电客户标空号、停机等号码状态；若返回识别值则原样保存，不用作来电客户号码或接听结果判定。呼入准确识别字段当前不作为开发阻断；CF-13仅保留自动外呼识别字段与号码字典的对应。",
+    "scope": "inbound_call_cdr",
+    "supplierCapability": {
+      "numberRecognitionExists": true,
+      "usualTarget": "seat_bound_mobile_number",
+      "softphoneRecognition": "unlikely_but_not_impossible"
+    },
+    "projectPolicy": {
+      "seatBindType": 3,
+      "answerField": "status",
+      "sourceId": "API-319",
+      "statusType": "String",
+      "statusValues": [
+        "人工接听",
+        "人工未接听",
+        "系统应答",
+        "系统未应答"
+      ],
+      "numberRecognitionRequired": false,
+      "missingRecognition": "leave_unknown_without_issue_or_answer_inference",
+      "preserveRawRecognitionIfReturned": true,
+      "inboundRecognitionFieldBlocksDelivery": false,
+      "usedForInboundCustomerNumberDecision": false
+    },
+    "remainingConfirmationIds": [
+      "CF-13"
+    ],
+    "remainingQuestions": "自动任务话单obSipCause/obSipCauseRaw如何对应710–724/183号码识别编码，准确识别编码字段是什么？",
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false,
+    "evidencePath": "documentation/input/supplier-feedback/SRC-084-cf13-inbound-recognition-20260920.json"
+  },
+  "deliveryMaintenance": {
+    "date": "2026-09-21",
+    "action": "remove_duplicate_development_package",
+    "publicationStatus": "tracked_by_gitlab_branch",
+    "guide": "docs/development.html",
+    "references": "references/README.md",
+    "version": "2026-09-21-same-task-followup-1",
+    "decisionId": "D-062",
+    "sourceRef": "SRC-092",
+    "storageCompaction": "lossless_json_encoding_only_no_business_schema_migration"
+  },
+  "dailyAlignment": {
+    "version": "2026-09-20-daily-alignment-1",
+    "decisionIds": [
+      "D-055",
+      "D-056",
+      "D-057",
+      "D-058",
+      "D-059"
+    ],
+    "runtimeRoutes": [
+      "extension-management",
+      "time-condition-management",
+      "business-categories"
+    ],
+    "historyMigration": false,
+    "supplierTopicsUnchanged": true,
+    "productionVerificationClaimed": false,
+    "verificationEvidence": "qa/daily-alignment-verification-20260920.json"
+  },
+  "sameTaskFollowupReview": {
+    "version": "2026-09-21-same-task-followup-1",
+    "date": "2026-09-21",
+    "decisionId": "D-060",
+    "sourceRef": "SRC-090",
+    "sourceType": "user_product_requirement_and_implementation_review",
+    "taskIdRetained": true,
+    "newTaskCreated": false,
+    "providerImport": {
+      "endpoint": "/interface/v10/task/importTaskTel",
+      "taskId": "original_provider_task_id",
+      "isRepeat": 0,
+      "importTelAutoStart": 0,
+      "scope": "new_followup_batch_only"
+    },
+    "newTaskAutoComplete": {
+      "predictive": 0,
+      "ivr": 1
+    },
+    "remainingConfirmationIds": [
+      "CF-07",
+      "CF-10",
+      "CF-11",
+      "CF-12",
+      "CF-13"
+    ],
+    "productionVerificationClaimed": false,
+    "officialSnapshotUpdated": false,
+    "verificationEvidence": "qa/same-task-repeat-verification-20260921.json"
+  },
+  "manualTimePriorityReview": {
+    "version": "2026-09-21-same-task-followup-1",
+    "date": "2026-09-21",
+    "decisionId": "D-061",
+    "sourceRef": "SRC-091",
+    "manualPriority": true,
+    "automaticAllocation": false,
+    "uniquenessScope": "enterpriseId",
+    "productionVerificationClaimed": false,
+    "verificationEvidence": "qa/time-priority-manual-verification-20260921.json"
+  },
+  "uiFieldAlignmentReview": {
+    "version": "2026-09-21-ui-field-alignment-1",
+    "date": "2026-09-21",
+    "decisionIds": [
+      "D-063",
+      "D-064",
+      "D-065",
+      "D-066"
+    ],
+    "sourceRefs": [
+      "SRC-093",
+      "SRC-094",
+      "SRC-095",
+      "SRC-096"
+    ],
+    "sourceType": "user_product_requirement_and_implementation_review",
+    "directory": {
+      "batchActionsRemoved": true,
+      "fixedLeadIntentionColumnRemoved": true,
+      "dynamicDetailsPreserved": true,
+      "unknownResultLabel": "结果未知",
+      "addsSupplierStatus": false
+    },
+    "taskList": {
+      "executionConfigColumn": false,
+      "nextRetryColumn": false,
+      "actualRetrySettingsPreserved": true
+    },
+    "taskSettings": {
+      "matchesCreateSummary": true,
+      "groups": [
+        "任务与客户",
+        "接听团队配置 / 任务与语音流程",
+        "时间与重呼"
+      ],
+      "savedTaskValuesOnly": true,
+      "sharedTemplateFallback": false,
+      "explicitEmptyPreserved": true,
+      "copyRequiresMissingStrategySelection": true
+    },
+    "callDetail": {
+      "sourceIds": [
+        "API-317",
+        "API-318",
+        "API-319",
+        "API-362"
+      ],
+      "strictTaskIdentity": [
+        "enterpriseId",
+        "tenantId",
+        "callType",
+        "taskId",
+        "providerTaskId"
+      ],
+      "missingFactFallback": false,
+      "actualZeroSecondsPreserved": true,
+      "taskSettingsReadOnlyCollapsed": true,
+      "inventedIvrEvidenceRemoved": true,
+      "localDemoWithoutProviderSource": "display_from_explicit_local_source"
+    },
+    "verificationEvidence": [
+      "qa/task-detail-alignment-20260921.json",
+      "qa/call-detail-alignment-20260921.json"
+    ],
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false,
+    "remainingConfirmationIds": [
+      "CF-07",
+      "CF-10",
+      "CF-11",
+      "CF-12",
+      "CF-13"
+    ],
+    "preparationCount": 3
+  },
+  "singleTenantReview": {
+    "decisionId": "D-068",
+    "sourceRef": "SRC-098",
+    "accountModel": "每个enterpriseId只关联0或1个总部/门店业务租户，内置超级租户不计入；每个业务租户仍只关联一个AliCti账号。tenantId与enterpriseId分别保留，平台登录账号仍可按成员授权加入多个租户。总部7522240与门店7522241属于同一品牌，但资源和业务数据按各自账号及租户隔离。",
+    "numberOwnership": "号码导入时默认归属当前账号唯一有效业务租户，不再提供号码租户分配或多选授权；账号无有效业务租户时阻止导入。号码详情只读展示归属和使用情况，不嵌套呼入规则、外显用途或原始属性入口。号码状态、方向及外显资格仍按已存事实校验，呼入规则在独立菜单管理。",
+    "reportScope": "当前报表仅统计所选enterpriseId的唯一业务租户，不新增跨账号汇总。若后续经明确授权建设同品牌跨账号线索汇总，业务唯一键应为brandId+完整线索编码；当前不得按品牌名合并或加载未授权账号数据。",
+    "exception": "内置超级租户",
+    "sourceType": "user_product_confirmation"
+  },
+  "callerNavigationReview": {
+    "version": "2026-09-22-caller-navigation-1",
+    "decisionId": "D-069",
+    "sourceRef": "SRC-099",
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false,
+    "verificationEvidence": "qa/caller-navigation-verification-20260922.json",
+    "taskTypes": [
+      "predictive",
+      "automatic"
+    ],
+    "callerModes": [
+      "fixed",
+      "navigation"
+    ],
+    "defaultCallerMode": "fixed",
+    "accountField": "instance.customerClidsGroup",
+    "accountEditorRole": "SUPER_ADMIN",
+    "navigationCategory": 5,
+    "navigationListClid": false,
+    "poolEntityAdded": false,
+    "timeout": {
+      "default": 30,
+      "min": 5,
+      "max": 60,
+      "integer": true
+    },
+    "priority": {
+      "optional": true,
+      "manual": true,
+      "integer": true,
+      "lowerFirst": true
+    },
+    "snapshotPreserved": true,
+    "remainingConfirmationId": "CF-15"
+  },
+  "multiCallerNavigationReview": {
+    "version": "2026-09-22-caller-navigation-2",
+    "decisionId": "D-070",
+    "sourceRef": "SRC-100",
+    "sourceType": "user_product_requirement_and_implementation_review",
+    "verificationEvidence": "qa/multi-caller-navigation-verification-20260922.json",
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false,
+    "accountField": "instance.callerNavigations",
+    "accountRowFields": [
+      "name",
+      "customerClidsGroup"
+    ],
+    "accountEditorRole": "SUPER",
+    "localCountLimit": null,
+    "uniqueNavigationIdScope": "enterpriseId",
+    "taskNavigationCardinality": 1,
+    "automaticFirstSelection": false,
+    "taskNavigationField": "customerClidsGroup",
+    "taskNavigationType": "String",
+    "localNameSnapshotField": "callerNavigationName",
+    "nameSentToSupplier": false,
+    "candidatesFromCurrentAccountOnly": true,
+    "removedSelectionRequiresReselectOnCreate": true,
+    "createdTaskSnapshotPreserved": true,
+    "sameTaskFollowupRetainsTaskId": true,
+    "renamingDoesNotInvalidateSelection": true,
+    "switchingNavigationClearsPools": true,
+    "switchingNavigationPreservesTimeout": true,
+    "legacySingleValueReadOnlyCompatibility": true,
+    "missingDirectoryFabricatesCandidates": false,
+    "localRemovalDeletesRemote": false,
+    "supplierAccountCountLimitConfirmed": false,
+    "supplierDirectoryQueryConfirmed": false,
+    "remainingConfirmationId": "CF-15"
+  },
+  "workingModeReview": {
+    "version": "2026-09-22-working-mode-1",
+    "decisionId": "D-071",
+    "sourceRef": "SRC-101",
+    "sourceType": "user_product_requirement_and_implementation_review",
+    "verificationEvidence": "qa/working-mode-verification-20260922.json",
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false,
+    "modeValues": [
+      "0",
+      "4",
+      "5"
+    ],
+    "loginCommaMultiValueExposed": false,
+    "loginRequiresModeSelection": true,
+    "noImplicitDefaultMode": true,
+    "toolbarSwitchImmediate": true,
+    "toolbarSelectOutsideMoreMenu": true,
+    "busySwitchAllowed": true,
+    "blockedPhases": [
+      "通话",
+      "振铃",
+      "话后整理",
+      "未知结果"
+    ],
+    "mode4RejectsPredictive": true,
+    "mode5DisablesPreview": true,
+    "inboundUnrestrictedIsLocalAssumption": true,
+    "remainingConfirmationId": "CF-16",
+    "changeBindTelStillRejected": true
+  },
+  "seatLoginReview": {
+    "version": "2026-09-23-seat-login-1",
+    "decisionId": "D-072",
+    "sourceRef": "SRC-102",
+    "sourceType": "user_product_requirement",
+    "officialSnapshotUpdated": false,
+    "productionVerificationClaimed": false,
+    "singleStepLoginPanel": true,
+    "ordinaryLoginModeInitiallyUnselected": true,
+    "ordinaryLoginStatusDefault": 1,
+    "ordinaryLoginBusyReasonOptional": true,
+    "separateSaveRequired": false,
+    "cancelSendsLogin": false,
+    "failureRetainsDraft": true,
+    "ordinaryLoginUsesOldPreferenceToPreselect": false,
+    "reloginRetainsSessionModeAndPause": true,
+    "modeValues": [
+      "0",
+      "4",
+      "5"
+    ]
+  },
+  "defaultNavigationAndSeatThresholdReview": {
+    "version": "2026-09-23-task-seat-threshold-default-navigation-1",
+    "decisionId": "D-083",
+    "sourceRef": "SRC-111",
+    "sourceType": "user_relayed_supplier_feedback_and_product_scope",
+    "defaultNavigation": "one_fixed_identifier_per_enterpriseId",
+    "identifierProvision": "provided_offline_by_AliCti",
+    "identifierStorage": "managed_by_self_built_system",
+    "taskSelection": false,
+    "taskAutoFill": true,
+    "seatThreshold": {
+      "default": 10,
+      "min": 1,
+      "max": 10,
+      "autoPauseWhenBelow": true,
+      "autoResumeRequiresScheduledStart": true,
+      "scheduledStartField": "autoStart=1",
+      "autoResumeReason": "seat_shortage_only"
+    },
+    "officialProof": [
+      "API-311:threshold_and_auto_pause",
+      "API-311/API-404:autoStart_fields",
+      "API-311/API-404:single_task_customerClidsGroup"
+    ],
+    "userRelayedPendingVerification": [
+      "automatic_resume_after_seat_recovery",
+      "one_default_navigation_per_enterpriseId"
+    ],
+    "productionVerificationClaimed": false,
+    "existingTaskDefaultChangeGuard": {
+      "snapshotBackfill": false,
+      "startResumeRequiresMatchingDefault": true,
+      "updateViaOriginalTaskId": "API-404 task/update",
+      "readback": "DOC-334 task/get same taskId and readable value",
+      "rejectStaleEditIfAccountDefaultChanges": true,
+      "scope": "self_built_consistency_protection",
+      "supplierExecutionVerified": false
+    },
+    "availabilityDemo": {
+      "placement": "task_center_running_overview_collapsible",
+      "scope": "local_predictive_running_or_paused",
+      "input": "observed_available_agent_count",
+      "engine": "local_reconcileAvailability",
+      "readsRealtimeSeats": false,
+      "submitsSupplierTaskOperation": false
+    },
+    "supersededNavigationBy": "D-086"
+  },
+  "navigationMultiplicityReview": {
+    "version": "2026-09-29-multiple-caller-navigation-1",
+    "decisionId": "D-086",
+    "sourceRef": "SRC-114",
+    "sourceType": "user_relayed_supplier_clarification_and_product_scope",
+    "enterpriseIdHasMultipleNavigations": true,
+    "navigationHasMultipleNumberPools": true,
+    "taskSelectsOneNavigation": true,
+    "taskPoolSelectionMultiple": true,
+    "accountDirectoryField": "callerNavigations",
+    "taskField": "customerClidsGroup",
+    "taskPoolField": "clidPoolList",
+    "newEntityCreated": false,
+    "supplierNavigationQueryVerified": false,
+    "productionVerificationClaimed": false
+  }
+}

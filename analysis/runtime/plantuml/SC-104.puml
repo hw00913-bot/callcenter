@@ -1,0 +1,80 @@
+@startuml
+title SC-104 · 回查原生外呼结果并纳入既有统计
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 坐席与有数据权限的管理员或运营
+|#EFFAF5|lane_2| 统一外呼中台
+|lane_1|
+start
+:完成原生外呼后需要核对结果或业务统计; <<start_label>>
+|lane_1|
+:从通话记录、客户档案、批次结果或工作台打开同一通话详情;
+|lane_2|
+if (当前身份可查看该通话？) then (不满足 · ALT-104-2)
+|lane_1|
+:拒绝越权访问；不加载该通话媒体; <<failure>>
+stop
+else (满足)
+|lane_2|
+:读取原通话持久化状态、客户/坐席接通证据及来源快照;
+|lane_1|
+:核对历史结果或进入云域报表;
+|lane_2|
+:如有最终话单校准，读取原记录及同口径统计的更新结果;
+|lane_2|
+if (本次媒体访问授权和页面上下文仍有效？) then (失权或上下文失效 · ALT-104-6)
+|lane_2|
+:停止播放并释放资源；拒绝失效媒体操作; <<failure>>
+stop
+else (有效)
+|lane_2|
+if (该通话音频适用、可用且可加载？) then (不可用 · ALT-104-7)
+|lane_2|
+:显示不适用/缺失/过期/失败；不伪造可播放状态;
+else (可用)
+|lane_1|
+:播放/暂停、进度、倍速、音量、下载；操作中再次鉴权;
+endif
+|lane_2|
+if (该通话有可用的分角色文本？) then (不可用 · ALT-104-9)
+|lane_2|
+:显示文本不可用；不以备注、结果或 IVR 节点代替;
+else (可用)
+|lane_1|
+:阅读/搜索文本；同次音频可用时按有效时间戳定位;
+endif
+|lane_2|
+:关闭/换页/退出/失权：停止播放并释放资源;
+|lane_1|
+:本次查看结束：原记录可追溯，无残留播放; <<end_label>>
+stop
+endif
+endif
+@enduml

@@ -1,0 +1,1407 @@
+{
+  "audit": "full-regression-20260915/resource-audit",
+  "date": "2026-09-15T19:28:38.620227+08:00",
+  "baselineCommit": "0b98f4b",
+  "mode": "read_only_audit_no_repairs",
+  "session": "audit-resources",
+  "result": "fail",
+  "summary": {
+    "findings": 5,
+    "P1": 1,
+    "P2": 4,
+    "positiveChecks": 25,
+    "supplierRequestsSent": 0,
+    "expectedInjectedStorageErrors": 1,
+    "observationsNotCounted": 1
+  },
+  "findings": [
+    {
+      "id": "RES-01",
+      "severity": "P1",
+      "module": "坐席同步",
+      "title": "同步未校验回执 enterpriseId，异账号坐席被挂入当前账号和租户",
+      "trigger": "当前账号查询回执中含有属于另一 enterpriseId 的坐席记录。",
+      "steps": [
+        "在隔离浏览器的已有坐席模拟响应池加入外层请求账号7522240、agent.enterpriseId=7522241、cno=88881的记录。",
+        "超级管理员进入从 AliCti 同步坐席，目标租户为东风日产总部。",
+        "翻到第二页，勾选工号88881并同步。"
+      ],
+      "actual": "返回坐席 enterpriseId=7522241，仍显示同步成功；本地新坐席 enterpriseId 被 buildAgent 重写成7522240，tenantId=TEN-NISSAN-HQ。",
+      "expected": "比对请求账号、回执账号、所选工号和回执身份；不一致时保留异常证据并拒绝本地归属写入。",
+      "impact": "来自不同供应商账号的同工号可能被错误认作当前身份；后续技能或启停请求会作用于错误账号下的同工号。",
+      "sources": [
+        {
+          "id": "DOC-342",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息列表获取.html",
+          "snapshot": "development/reference/alicti/DOC-342.txt"
+        },
+        {
+          "id": "DOC-343",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息获取.html",
+          "snapshot": "development/reference/alicti/DOC-343.txt"
+        },
+        {
+          "id": "DOC-336",
+          "url": "https://wiki.alicti.cn/html/wiki/API/dataType/Agent.html",
+          "snapshot": "development/reference/alicti/DOC-336.txt"
+        }
+      ],
+      "decisions": [
+        "D-014",
+        "D-022"
+      ],
+      "code": [
+        "js/components/alicti-fields.js:84",
+        "js/components/alicti-seat-import.js:84",
+        "js/components/alicti-seat-import.js:86"
+      ],
+      "evidence": "embeddedEvidence.contractCases: sync-response-boundaries, cno88881",
+      "reproduction": "browser_supplier_shaped_fixture_injection"
+    },
+    {
+      "id": "RES-02",
+      "severity": "P2",
+      "module": "坐席同步/坐席启停",
+      "title": "同步丢弃供应商在线状态，在线坐席被显示成离线并允许停用",
+      "trigger": "已有坐席查询返回 status=1（在线）。",
+      "steps": [
+        "在模拟已有坐席响应中设置cno88880、status=1、active=1。",
+        "从 AliCti 同步到总部。",
+        "查看本地话务状态，并触发该坐席停用。"
+      ],
+      "actual": "本地agentStatus被置为离线，inUse返回false；原型允许生成agent/update active=0请求并模拟显示已停用，没有按已知在线事实阻止维护。此证据不代表真实接口会成功停用在线坐席。",
+      "expected": "按DOC-336保留status=0离线、status=1在线事实；在线或未明确查证的状态不能用新建默认离线覆盖。按D-013采用口径，先取得有效离线状态再允许维护。",
+      "impact": "用户看到错误在线状态，原型允许提交本应先下线的配置动作并模拟成功；真实接口可返回API-308列出的20023在线错误，本审计未验证真实调用结果。",
+      "sources": [
+        {
+          "id": "DOC-336",
+          "url": "https://wiki.alicti.cn/html/wiki/API/dataType/Agent.html",
+          "snapshot": "development/reference/alicti/DOC-336.txt"
+        },
+        {
+          "id": "DOC-342",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息列表获取.html",
+          "snapshot": "development/reference/alicti/DOC-342.txt"
+        },
+        {
+          "id": "DOC-344",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席实时状态获取接口.html",
+          "snapshot": "development/reference/alicti/DOC-344.txt"
+        },
+        {
+          "id": "API-308",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席更新.html",
+          "snapshot": "development/reference/alicti/API-308.txt"
+        }
+      ],
+      "decisions": [
+        "D-013",
+        "D-022"
+      ],
+      "code": [
+        "js/components/alicti-seat-import.js:84",
+        "js/components/alicti-seat-import.js:86",
+        "js/pages/agent-center.js:78",
+        "js/components/account-seat.js:83",
+        "js/components/alicti-demo.js:49"
+      ],
+      "evidence": "embeddedEvidence.contractCases: source-page cno88880 status=1; import-online-then-disable",
+      "reproduction": "browser_supplier_shaped_fixture_injection"
+    },
+    {
+      "id": "RES-03",
+      "severity": "P2",
+      "module": "坐席同步",
+      "title": "未知 active 被归成已启用，同步列表与详情结果还互相矛盾",
+      "trigger": "已有坐席回执 active 为未定义值9或缺失。",
+      "steps": [
+        "模拟cno88882返回active=9。",
+        "打开同步列表，观察配置状态，再选中同步。",
+        "查看保存后的 lifecycleStatus、acceptNewTasks 与同步结果。"
+      ],
+      "actual": "列表以 active===1 否则停用显示为停用；保存时 active===0 否则启用，最终 lifecycleStatus=已启用、acceptNewTasks=false，并计入成功。",
+      "expected": "仅映射0/1。缺失或未知值显示待核对，不隐式解释启用/停用，更不能写入自相矛盾状态。",
+      "impact": "未知供应商状态被冒认为成功配置，影响维护按钮和坐席可用性判断。",
+      "sources": [
+        {
+          "id": "DOC-336",
+          "url": "https://wiki.alicti.cn/html/wiki/API/dataType/Agent.html",
+          "snapshot": "development/reference/alicti/DOC-336.txt"
+        },
+        {
+          "id": "DOC-342",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席详细信息列表获取.html",
+          "snapshot": "development/reference/alicti/DOC-342.txt"
+        }
+      ],
+      "decisions": [
+        "D-022"
+      ],
+      "code": [
+        "js/components/alicti-fields.js:84",
+        "js/components/alicti-seat-import.js:43",
+        "js/components/alicti-seat-import.js:86"
+      ],
+      "evidence": "embeddedEvidence.contractCases: sync-response-boundaries, cno88882",
+      "reproduction": "browser_supplier_shaped_fixture_injection"
+    },
+    {
+      "id": "RES-05",
+      "severity": "P2",
+      "module": "新增坐席/批量新增",
+      "title": "必填区号只检查非空，非法文本仍生成创建请求并保存成功",
+      "trigger": "区号输入abc。",
+      "steps": [
+        "新增坐席填写审计区号、cno88910，区号填abc。",
+        "点击保存并重新加载页面。"
+      ],
+      "actual": "成功保存坐席，alictiCreateDraft.fields.areaCode=abc；刷新后仍保留。批量 seatBatchFields 同样只检查非空。",
+      "expected": "官方对areaCode仅写“区号格式”，未给出精确长度或正则。至少拒绝abc这类明显非区号文本并保留表单提示；完整区号值域须另行核实，不能自行声称某个长度或正则为官方规则。",
+      "impact": "明显不符合区号语义的必填值仍被模拟开通成功，不能作为字段级对齐已完成的证据；本审计未调用真实创建接口，不断言真实回执的具体错误码。",
+      "sources": [
+        {
+          "id": "API-307",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席新增.html",
+          "snapshot": "development/reference/alicti/API-307.txt"
+        },
+        {
+          "id": "DOC-341",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席批量新增.html",
+          "snapshot": "development/reference/alicti/DOC-341.txt"
+        }
+      ],
+      "code": [
+        "js/pages/agent-center.js:75",
+        "js/components/alicti-fields.js:106"
+      ],
+      "evidence": "embeddedEvidence.coverage.findings: area-code-validation",
+      "reproduction": "ordinary_browser_form"
+    },
+    {
+      "id": "RES-06",
+      "severity": "P2",
+      "module": "租户管理/账号管理持久化",
+      "title": "保存前先改内存并关闭表单，存储失败造成当前数据与刷新后不一致",
+      "trigger": "管理数据写入 sessionStorage 时遇 QuotaExceededError。",
+      "steps": [
+        "超级管理员新增租户审计存储失败，勾选云呼叫。",
+        "仅对unified-call-demo-identities-v1注入浏览器存储满异常，点击确定。",
+        "恢复存储写入，刷新页面对比。"
+      ],
+      "actual": "租户数量4→5，内存已有新租户，表单关闭；异常未捕获，没有保留编辑入口。持久化没有新记录，刷新后租户消失。",
+      "expected": "持久化成功后再更新业务状态并关闭表单；失败应保留输入、显示失败且不提交内存状态。",
+      "impact": "用户无法区分真实保存与临时内存改变，重复录入或刷新会丢失配置；账号新增/成员编辑也采用相同先修改后持久化路径（本次动态复现限定租户新增）。",
+      "sources": [],
+      "basis": "平台本地保存的基本成功/失败边界；非供应商API缺口。",
+      "code": [
+        "js/components/account-tenant-forms.js:229",
+        "js/components/account-tenant-forms.js:237",
+        "js/app.js:86",
+        "js/pages/account-tenant.js:486"
+      ],
+      "evidence": "embeddedEvidence.permissions.storageFailure",
+      "reproduction": "browser_storage_failure_injection"
+    }
+  ],
+  "crossModuleContribution": {
+    "countSeparately": false,
+    "mergeWith": "任务agent既有cno12被创建校验误用的问题",
+    "title": "3–10位新建规则误用于既有工号12的同步与技能修改",
+    "actual": {
+      "query": "seatQueryResult整页pending=true",
+      "import": "后续buildAgent仍拒绝12",
+      "skills": "skillUpdateFields清空技能也阻断",
+      "authenticate": "authenticateFields允许String 12且不改写"
+    },
+    "sourceIds": [
+      "DOC-342",
+      "DOC-343",
+      "DOC-331",
+      "API-309"
+    ],
+    "decision": "D-014",
+    "code": [
+      "js/components/alicti-fields.js:84",
+      "js/components/alicti-fields.js:129",
+      "js/components/alicti-seat-import.js:84",
+      "js/pages/agent-center.js:75"
+    ],
+    "evidence": {
+      "queryExisting12": {
+        "rows": [],
+        "total": null,
+        "pending": true,
+        "raw": {
+          "result": 0,
+          "data": {
+            "total": 1,
+            "agents": [
+              {
+                "agent": {
+                  "id": 999111,
+                  "enterpriseId": 7522240,
+                  "cno": "12",
+                  "name": "既有两位工号",
+                  "areaCode": "021",
+                  "active": 1,
+                  "isOb": 1
+                }
+              }
+            ]
+          }
+        }
+      },
+      "skillExisting12": {
+        "endpoint": "agent/batchUpdateAgentSkill",
+        "body": [],
+        "pending": [
+          "坐席工号须为3–10位数字"
+        ],
+        "mock": true
+      },
+      "authExisting12": {
+        "fields": {
+          "validateType": 2,
+          "enterpriseId": 7522240,
+          "timestamp": 1789471594,
+          "sign": "00000000000000000000000000000000",
+          "cno": "12"
+        },
+        "pending": [],
+        "mock": true,
+        "signMode": "MD5格式占位，仅演示；未进行真实签名",
+        "endpoint": "agentLogin/authenticateJsonp"
+      }
+    }
+  },
+  "moduleCoverage": [
+    {
+      "module": "账号",
+      "covered": [
+        "新增必填表单成功",
+        "按手机号复用已有账号跨租户成员关系",
+        "单租户禁用保持其他租户成员与全局账号",
+        "刷新保留",
+        "ADMIN与OPERATOR角色入口权限"
+      ],
+      "notCovered": [
+        "实际身份后端",
+        "头像超大文件正常选择",
+        "两个浏览器同改同账号",
+        "账号编辑存储异常的独立复现"
+      ]
+    },
+    {
+      "module": "租户",
+      "covered": [
+        "新增云呼叫租户保存及刷新",
+        "非法角色禁止新增",
+        "跨品牌坐席权限",
+        "存储失败回滚边界"
+      ],
+      "notCovered": [
+        "多品牌迁移全部依赖组合",
+        "停用当前正在通话租户的多标签页事件"
+      ]
+    },
+    {
+      "module": "坐席",
+      "covered": [
+        "姓名/区号必填",
+        "前导零与非全零",
+        "创建后刷新",
+        "query/get结构与身份",
+        "active未知及在线status",
+        "批量100上限和失败阻断",
+        "既有12误用新增校验"
+      ],
+      "notCovered": [
+        "真实供应商错误码全组合",
+        "queryAgentSkill已有远端技能保留",
+        "批量partial与other>0的UI全流程",
+        "跨标签页维护锁竞争"
+      ]
+    },
+    {
+      "module": "技能组",
+      "covered": [
+        "官方create/update请求结构静态检查",
+        "等级1–10",
+        "跨租户关系拒绝",
+        "全量替换/清空请求",
+        "非超管创建入口阻断"
+      ],
+      "notCovered": [
+        "所有创建更新供应商失败响应",
+        "新增组完整浏览器流程本轮未重走",
+        "同步既有席后保留未知远端技能（静态看到无queryAgentSkill调用，列为后续风险而非已证实删除）"
+      ]
+    },
+    {
+      "module": "线路/号码",
+      "covered": [
+        "本地授权未受供应商绑定拦截",
+        "obClid/bindTel/号码池语义静态核对",
+        "账号越界不可用",
+        "使用范围保存重开及刷新保留",
+        "普通角色禁止写入",
+        "号码非法字段阻断",
+        "新增/供应商开通边界静态检查"
+      ],
+      "notCovered": [
+        "真实开通/解绑/停用在途影响（已有CF-06）",
+        "所有号码添加失败场景本轮未重走",
+        "旧路由占用授权组合",
+        "新登记线路与新增号码仅页面会话的明确范围不计缺陷"
+      ]
+    }
+  ],
+  "positiveChecks": [
+    {
+      "id": "seat-create-reload-retains",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "id": "single-required-name",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "id": "single-leading-zero-preserved",
+      "actual": "00089",
+      "expected": "00089",
+      "pass": true
+    },
+    {
+      "id": "single-zero-only-rejected",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "id": "batch-limit-100",
+      "actual": 100,
+      "expected": 100,
+      "pass": true
+    },
+    {
+      "id": "batch-limit-101-rejected",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "id": "batch-leading-zero-range",
+      "actual": [
+        "00091",
+        "00092"
+      ],
+      "expected": [
+        "00091",
+        "00092"
+      ],
+      "pass": true
+    },
+    {
+      "id": "skill-min-valid",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "id": "skill-max-valid",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "id": "skill-invalid-zero",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "id": "skill-invalid-eleven",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "id": "skill-cross-tenant-rejected",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "id": "skill-explicit-clear",
+      "actual": [
+        {
+          "cno": "88910",
+          "skillIds": "0"
+        }
+      ],
+      "expected": [
+        {
+          "cno": "88910",
+          "skillIds": "0"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "number-obvious-invalid-field-rejected",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "id": "number-local-permissions-not-vendor-blocked",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "id": "number-cross-brand-not-usable",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "id": "tenant-create-reload",
+      "actual": "审计租户",
+      "expected": "审计租户",
+      "pass": true
+    },
+    {
+      "id": "admin-write-scope",
+      "role": "ADMIN",
+      "stage": "READY",
+      "tenant": "TEN-NISSAN-HQ",
+      "actual": {
+        "foreignSeatDenied": true,
+        "tenantCreateOpen": false,
+        "numberOpen": false,
+        "groupCreateOpen": false
+      },
+      "pass": true
+    },
+    {
+      "id": "operator-write-scope",
+      "role": "OPERATOR",
+      "stage": "READY",
+      "tenant": "TEN-NISSAN-SH",
+      "actual": {
+        "foreignSeatDenied": true,
+        "tenantCreateOpen": false,
+        "numberOpen": false,
+        "groupCreateOpen": false
+      },
+      "pass": true
+    },
+    {
+      "id": "number-saved-grants-reload-set-equality",
+      "actual": [
+        {
+          "id": "SHOWCASE-SH-NUM",
+          "tenantEqual": true,
+          "groupEqual": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "id": "account-create",
+      "actual": true,
+      "pass": true
+    },
+    {
+      "id": "account-reload",
+      "actual": true,
+      "pass": true
+    },
+    {
+      "id": "account-reuse-readonly-identity",
+      "actual": true,
+      "pass": true
+    },
+    {
+      "id": "account-same-mobile-reused-per-tenant",
+      "actual": true,
+      "pass": true
+    },
+    {
+      "id": "account-member-disable-scope-reload",
+      "actual": true,
+      "pass": true
+    }
+  ],
+  "notCountedAsBugs": [
+    "本地mock而未连接供应商",
+    "未填写可选坐席字段",
+    "本地模板/NumberGrant不进入供应商请求",
+    "既有CF-06开通解绑与在途影响",
+    "号码范围数组保存后顺序变化但集合相同",
+    "初次权限脚本没有填写实际账号密码而仍以超管登录；已用实际ADMIN/OPERATOR账号修正脚本并重新通过"
+  ],
+  "embeddedEvidence": {
+    "contractCases": {
+      "url": "http://127.0.0.1:8772/Demo_Protype_2/prototype/index.html#agent-center",
+      "cases": [
+        {
+          "id": "batch-explicit-failure",
+          "first": {
+            "last": {
+              "mode": "batchCreate",
+              "tenantId": "TEN-NISSAN-HQ",
+              "request": {
+                "endpoint": "agent/batchCreate",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789471243,
+                  "sign": "00000000000000000000000000000000",
+                  "cno": "88890",
+                  "endCno": "88891",
+                  "name": "审计失败批次",
+                  "areaCode": "021",
+                  "active": 1,
+                  "isOb": 1,
+                  "isAsr": 0,
+                  "isQualityCheck": 1
+                }
+              },
+              "response": {
+                "result": -1,
+                "description": "批量开通失败（模拟）"
+              },
+              "normalized": {
+                "createdCnos": [],
+                "notCreatedCnos": [],
+                "pending": true,
+                "raw": {
+                  "result": -1,
+                  "description": "批量开通失败（模拟）"
+                }
+              },
+              "mock": true
+            },
+            "error": "请核对后继续\n\n开通结果未确认，未写入本地坐席。请先查询核对，不要重复创建。"
+          },
+          "retry": "请核对后继续\n\n此工号范围有未确认的开通记录，请先查询核对，不要重复创建",
+          "buttonDisabled": true
+        },
+        {
+          "id": "source-page",
+          "data": {
+            "result": "0",
+            "data": {
+              "total": "17",
+              "agents": [
+                {
+                  "agent": {
+                    "id": 800007,
+                    "enterpriseId": 7522240,
+                    "cno": "2104",
+                    "name": "唐悦",
+                    "areaCode": "021",
+                    "active": 0,
+                    "isOb": 0,
+                    "isAsr": 0,
+                    "isQualityCheck": 1
+                  },
+                  "queueList": null,
+                  "agentGroup": null
+                },
+                {
+                  "agent": {
+                    "id": 999001,
+                    "enterpriseId": 7522240,
+                    "name": "审计在线坐席",
+                    "areaCode": "021",
+                    "active": 1,
+                    "isOb": 1,
+                    "isAsr": 0,
+                    "isQualityCheck": 1,
+                    "status": 1,
+                    "cno": "88880"
+                  },
+                  "queueList": null,
+                  "agentGroup": null
+                },
+                {
+                  "agent": {
+                    "id": 999002,
+                    "enterpriseId": 7522241,
+                    "name": "审计异账号响应",
+                    "areaCode": "021",
+                    "active": 1,
+                    "isOb": 1,
+                    "isAsr": 0,
+                    "isQualityCheck": 1,
+                    "status": 0,
+                    "cno": "88881"
+                  },
+                  "queueList": null,
+                  "agentGroup": null
+                },
+                {
+                  "agent": {
+                    "id": 999003,
+                    "enterpriseId": 7522240,
+                    "name": "审计未知启停",
+                    "areaCode": "021",
+                    "active": 9,
+                    "isOb": 1,
+                    "isAsr": 0,
+                    "isQualityCheck": 1,
+                    "status": 0,
+                    "cno": "88882"
+                  },
+                  "queueList": null,
+                  "agentGroup": null
+                },
+                {
+                  "agent": {
+                    "id": 970000,
+                    "enterpriseId": 7522240,
+                    "cno": "9100",
+                    "name": "已有坐席示例 1",
+                    "areaCode": "021",
+                    "active": 1,
+                    "isOb": 1,
+                    "isAsr": 0,
+                    "isQualityCheck": 1
+                  },
+                  "queueList": null,
+                  "agentGroup": null
+                },
+                {
+                  "agent": {
+                    "id": 970001,
+                    "enterpriseId": 7522240,
+                    "cno": "9101",
+                    "name": "已有坐席示例 2",
+                    "areaCode": "021",
+                    "active": 1,
+                    "isOb": 1,
+                    "isAsr": 0,
+                    "isQualityCheck": 1
+                  },
+                  "queueList": null,
+                  "agentGroup": null
+                },
+                {
+                  "agent": {
+                    "id": 970002,
+                    "enterpriseId": 7522240,
+                    "cno": "9102",
+                    "name": "已有坐席示例 3",
+                    "areaCode": "021",
+                    "active": 1,
+                    "isOb": 1,
+                    "isAsr": 0,
+                    "isQualityCheck": 1
+                  },
+                  "queueList": null,
+                  "agentGroup": null
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "sync-response-boundaries",
+          "data": {
+            "last": {
+              "mode": "import-existing",
+              "tenantId": "TEN-NISSAN-HQ",
+              "request": null,
+              "queries": [
+                {
+                  "endpoint": "agent/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471244,
+                    "sign": "00000000000000000000000000000000",
+                    "cno": "88880"
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "agent": {
+                        "id": 999001,
+                        "enterpriseId": 7522240,
+                        "name": "审计在线坐席",
+                        "areaCode": "021",
+                        "active": 1,
+                        "isOb": 1,
+                        "isAsr": 0,
+                        "isQualityCheck": 1,
+                        "status": 1,
+                        "cno": "88880"
+                      }
+                    }
+                  },
+                  "mock": true
+                },
+                {
+                  "endpoint": "agent/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471244,
+                    "sign": "00000000000000000000000000000000",
+                    "cno": "88881"
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "agent": {
+                        "id": 999002,
+                        "enterpriseId": 7522241,
+                        "name": "审计异账号响应",
+                        "areaCode": "021",
+                        "active": 1,
+                        "isOb": 1,
+                        "isAsr": 0,
+                        "isQualityCheck": 1,
+                        "status": 0,
+                        "cno": "88881"
+                      }
+                    }
+                  },
+                  "mock": true
+                },
+                {
+                  "endpoint": "agent/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471244,
+                    "sign": "00000000000000000000000000000000",
+                    "cno": "88882"
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "agent": {
+                        "id": 999003,
+                        "enterpriseId": 7522240,
+                        "name": "审计未知启停",
+                        "areaCode": "021",
+                        "active": 9,
+                        "isOb": 1,
+                        "isAsr": 0,
+                        "isQualityCheck": 1,
+                        "status": 0,
+                        "cno": "88882"
+                      }
+                    }
+                  },
+                  "mock": true
+                }
+              ],
+              "response": null,
+              "normalized": null,
+              "localResult": {
+                "completed": [
+                  "88880",
+                  "88881",
+                  "88882"
+                ],
+                "skipped": [],
+                "failed": []
+              },
+              "mock": true
+            },
+            "seats": [
+              {
+                "agentRecordId": "AGT-1789471244333-1",
+                "contactCenterIdentityId": "CCI-1789471244333-2",
+                "accountId": "",
+                "userName": "审计在线坐席",
+                "mobile": "",
+                "tenantId": "TEN-NISSAN-HQ",
+                "enterpriseId": "7522240",
+                "cno": "88880",
+                "areaCode": "021",
+                "roleId": "Agent",
+                "workMode": "WEBRTC",
+                "lifecycleStatus": "已启用",
+                "syncStatus": "同步成功",
+                "callEnabled": true,
+                "acceptNewTasks": true,
+                "isAsr": 0,
+                "isQualityCheck": 1,
+                "evidenceType": "DEMO",
+                "realVerification": "未验证",
+                "simulation": true,
+                "demoProviderAgentId": 999001,
+                "supplierImportMode": "query/get",
+                "agentStatus": "离线",
+                "currentCall": false,
+                "currentEndpoint": ""
+              },
+              {
+                "agentRecordId": "AGT-1789471244333-3",
+                "contactCenterIdentityId": "CCI-1789471244333-4",
+                "accountId": "",
+                "userName": "审计异账号响应",
+                "mobile": "",
+                "tenantId": "TEN-NISSAN-HQ",
+                "enterpriseId": "7522240",
+                "cno": "88881",
+                "areaCode": "021",
+                "roleId": "Agent",
+                "workMode": "WEBRTC",
+                "lifecycleStatus": "已启用",
+                "syncStatus": "同步成功",
+                "callEnabled": true,
+                "acceptNewTasks": true,
+                "isAsr": 0,
+                "isQualityCheck": 1,
+                "evidenceType": "DEMO",
+                "realVerification": "未验证",
+                "simulation": true,
+                "demoProviderAgentId": 999002,
+                "supplierImportMode": "query/get",
+                "agentStatus": "离线",
+                "currentCall": false,
+                "currentEndpoint": ""
+              },
+              {
+                "agentRecordId": "AGT-1789471244333-5",
+                "contactCenterIdentityId": "CCI-1789471244333-6",
+                "accountId": "",
+                "userName": "审计未知启停",
+                "mobile": "",
+                "tenantId": "TEN-NISSAN-HQ",
+                "enterpriseId": "7522240",
+                "cno": "88882",
+                "areaCode": "021",
+                "roleId": "Agent",
+                "workMode": "WEBRTC",
+                "lifecycleStatus": "已启用",
+                "syncStatus": "同步成功",
+                "callEnabled": true,
+                "acceptNewTasks": false,
+                "isAsr": 0,
+                "isQualityCheck": 1,
+                "evidenceType": "DEMO",
+                "realVerification": "未验证",
+                "simulation": true,
+                "demoProviderAgentId": 999003,
+                "supplierImportMode": "query/get",
+                "agentStatus": "离线",
+                "currentCall": false,
+                "currentEndpoint": ""
+              }
+            ]
+          }
+        },
+        {
+          "id": "import-online-then-disable",
+          "data": {
+            "seat": {
+              "agentRecordId": "AGT-1789471244333-1",
+              "contactCenterIdentityId": "CCI-1789471244333-2",
+              "accountId": "",
+              "userName": "审计在线坐席",
+              "mobile": "",
+              "tenantId": "TEN-NISSAN-HQ",
+              "enterpriseId": "7522240",
+              "cno": "88880",
+              "areaCode": "021",
+              "roleId": "Agent",
+              "workMode": "WEBRTC",
+              "lifecycleStatus": "已停用",
+              "syncStatus": "同步成功",
+              "callEnabled": true,
+              "acceptNewTasks": false,
+              "isAsr": 0,
+              "isQualityCheck": 1,
+              "evidenceType": "DEMO",
+              "realVerification": "未验证",
+              "simulation": true,
+              "demoProviderAgentId": 999001,
+              "supplierImportMode": "query/get",
+              "agentStatus": "离线",
+              "currentCall": false,
+              "currentEndpoint": ""
+            },
+            "last": {
+              "endpoint": "agent/update",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471244,
+                "sign": "00000000000000000000000000000000",
+                "cno": "88880",
+                "active": 0
+              },
+              "response": {
+                "result": 0,
+                "data": {
+                  "agent": {
+                    "cno": "88880",
+                    "active": 0,
+                    "isOb": 1
+                  }
+                }
+              },
+              "queries": [
+                {
+                  "endpoint": "agent/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471244,
+                    "sign": "00000000000000000000000000000000",
+                    "cno": "88880"
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "agent": {
+                        "cno": "88880",
+                        "active": 0,
+                        "isOb": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "endpoint": "agentStatus/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471244,
+                    "sign": "00000000000000000000000000000000",
+                    "cno": "88880"
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "state": "离线",
+                      "loginStatus": 0
+                    }
+                  }
+                }
+              ],
+              "mock": true
+            }
+          }
+        }
+      ],
+      "consoleErrors": [],
+      "supplierRequests": []
+    },
+    "coverage": {
+      "checks": [
+        {
+          "id": "seat-create-reload-retains",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "id": "single-required-name",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "id": "single-leading-zero-preserved",
+          "actual": "00089",
+          "expected": "00089",
+          "pass": true
+        },
+        {
+          "id": "single-zero-only-rejected",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "id": "batch-limit-100",
+          "actual": 100,
+          "expected": 100,
+          "pass": true
+        },
+        {
+          "id": "batch-limit-101-rejected",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "id": "batch-leading-zero-range",
+          "actual": [
+            "00091",
+            "00092"
+          ],
+          "expected": [
+            "00091",
+            "00092"
+          ],
+          "pass": true
+        },
+        {
+          "id": "skill-min-valid",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "id": "skill-max-valid",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "id": "skill-invalid-zero",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "id": "skill-invalid-eleven",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "id": "skill-cross-tenant-rejected",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "id": "skill-explicit-clear",
+          "actual": [
+            {
+              "cno": "88910",
+              "skillIds": "0"
+            }
+          ],
+          "expected": [
+            {
+              "cno": "88910",
+              "skillIds": "0"
+            }
+          ],
+          "pass": true
+        },
+        {
+          "id": "number-obvious-invalid-field-rejected",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "id": "number-local-permissions-not-vendor-blocked",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "id": "number-cross-brand-not-usable",
+          "actual": false,
+          "expected": false,
+          "pass": true
+        },
+        {
+          "id": "number-assignment-save-reload",
+          "actual": {
+            "tenant": [
+              "TEN-NISSAN-SH"
+            ],
+            "group": [
+              "SHOWCASE-SH-SKILL-AFTER",
+              "SHOWCASE-SH-SKILL-SALES"
+            ]
+          },
+          "expected": {
+            "tenant": [
+              "TEN-NISSAN-SH"
+            ],
+            "group": [
+              "SHOWCASE-SH-SKILL-SALES",
+              "SHOWCASE-SH-SKILL-AFTER"
+            ]
+          },
+          "pass": false
+        },
+        {
+          "id": "tenant-create-reload",
+          "actual": "审计租户",
+          "expected": "审计租户",
+          "pass": true
+        },
+        {
+          "id": "admin-session",
+          "actual": {
+            "role": "SUPER_ADMIN",
+            "stage": "READY",
+            "tenant": "TENANT-SUPER-BUILTIN"
+          }
+        },
+        {
+          "id": "admin-write-permission-guards",
+          "actual": {
+            "foreignSeatDenied": true,
+            "tenantCreateOpen": true,
+            "numberOpen": true,
+            "groupCreateOpen": true
+          },
+          "expected": {
+            "foreignSeatDenied": true,
+            "tenantCreateOpen": false,
+            "numberOpen": false,
+            "groupCreateOpen": false
+          },
+          "pass": false
+        },
+        {
+          "id": "operator-session",
+          "actual": {
+            "role": "SUPER_ADMIN",
+            "stage": "READY",
+            "tenant": "TENANT-SUPER-BUILTIN"
+          }
+        },
+        {
+          "id": "operator-write-permission-guards",
+          "actual": {
+            "foreignSeatDenied": true,
+            "tenantCreateOpen": true,
+            "numberOpen": true,
+            "groupCreateOpen": true
+          },
+          "expected": {
+            "foreignSeatDenied": true,
+            "tenantCreateOpen": false,
+            "numberOpen": false,
+            "groupCreateOpen": false
+          },
+          "pass": false
+        }
+      ],
+      "findings": [
+        {
+          "id": "area-code-validation",
+          "data": {
+            "agentRecordId": "AGT-1789471393075-1",
+            "contactCenterIdentityId": "CCI-1789471393075-2",
+            "accountId": "",
+            "userName": "审计区号",
+            "mobile": "",
+            "tenantId": "TEN-NISSAN-HQ",
+            "enterpriseId": "7522240",
+            "cno": "88910",
+            "areaCode": "abc",
+            "roleId": "Agent",
+            "workMode": "WEBRTC",
+            "lifecycleStatus": "已启用",
+            "syncStatus": "同步成功",
+            "callEnabled": true,
+            "acceptNewTasks": true,
+            "isAsr": 0,
+            "isQualityCheck": 1,
+            "evidenceType": "DEMO",
+            "realVerification": "未验证",
+            "accountBindingManaged": true,
+            "alictiCreateDraft": {
+              "endpoint": "agent/create",
+              "fields": {
+                "cno": "88910",
+                "name": "审计区号",
+                "areaCode": "abc",
+                "active": 1,
+                "isOb": 1,
+                "isAsr": 0,
+                "isQualityCheck": 1
+              },
+              "mock": true
+            },
+            "agentStatus": "离线",
+            "currentCall": false,
+            "currentEndpoint": ""
+          }
+        }
+      ],
+      "errors": []
+    },
+    "permissions": {
+      "checks": [
+        {
+          "id": "admin-write-scope",
+          "role": "ADMIN",
+          "stage": "READY",
+          "tenant": "TEN-NISSAN-HQ",
+          "actual": {
+            "foreignSeatDenied": true,
+            "tenantCreateOpen": false,
+            "numberOpen": false,
+            "groupCreateOpen": false
+          },
+          "pass": true
+        },
+        {
+          "id": "operator-write-scope",
+          "role": "OPERATOR",
+          "stage": "READY",
+          "tenant": "TEN-NISSAN-SH",
+          "actual": {
+            "foreignSeatDenied": true,
+            "tenantCreateOpen": false,
+            "numberOpen": false,
+            "groupCreateOpen": false
+          },
+          "pass": true
+        },
+        {
+          "id": "number-saved-grants-reload-set-equality",
+          "actual": [
+            {
+              "id": "SHOWCASE-SH-NUM",
+              "tenantEqual": true,
+              "groupEqual": true
+            }
+          ],
+          "pass": true
+        }
+      ],
+      "storageFailure": {
+        "before": 4,
+        "after": {
+          "count": 5,
+          "formOpen": false,
+          "saved": {
+            "tenantId": "TEN-0005",
+            "hasBusinessData": false,
+            "name": "审计存储失败",
+            "organizationScope": "HEADQUARTERS",
+            "organizationLabel": "总部",
+            "commercialFlag": "trial",
+            "commercialFlagLabel": "试用",
+            "desc": "",
+            "status": "启用",
+            "enterpriseId": "7522240",
+            "capabilitySet": [
+              "CLOUD_CONTACT_CENTER"
+            ],
+            "updatedAt": "2026-9-15 19:24:29",
+            "updatedBy": "平台超管"
+          },
+          "stored": false
+        },
+        "afterReloadPresent": false
+      },
+      "errors": [
+        "审计注入：存储空间已满"
+      ]
+    },
+    "accounts": {
+      "checks": [
+        {
+          "id": "account-create",
+          "actual": true
+        },
+        {
+          "id": "account-reload",
+          "actual": true
+        },
+        {
+          "id": "account-reuse-readonly-identity",
+          "actual": true
+        },
+        {
+          "id": "account-same-mobile-reused-per-tenant",
+          "actual": true
+        },
+        {
+          "id": "account-member-disable-scope-reload",
+          "actual": true
+        }
+      ],
+      "errors": []
+    }
+  },
+  "reproductionScripts": [
+    "/tmp/audit-resource-cases.js",
+    "/tmp/audit-resource-coverage.js",
+    "/tmp/audit-resource-permissions.js",
+    "/tmp/audit-resource-account.js"
+  ],
+  "sourceCodeHashes": {
+    "js/components/alicti-seat-import.js": "b26026a0852cc7804f8e50a83e4af5bca9d9750961eb79291470c9f27c7f1bbd",
+    "js/components/alicti-fields.js": "46b3af37beccc67edf767f8f07c9739a36428afeedcc3fc2cca44aa18e697e63",
+    "js/pages/agent-center.js": "9b224ba868d17bd67f3ee97e75350d6219ebfbba6a5fecf4444ad8c36460bd25",
+    "js/components/account-seat.js": "d6fc984535f469bf18f62b7c3073fb39a0471294c0651f62a604c3ecebfc9cc5",
+    "js/components/alicti-demo.js": "e7e29e6d6cc2e1ad6e99196d26438060e7410f1ac19ecc28e1fe39cd44540b16",
+    "js/components/account-tenant-forms.js": "5c6856313132a57b295ce2d6ad9dcb191620ae132a31f7d0d28ae51a9256a2b4",
+    "js/pages/account-tenant.js": "94a2dbc5599c35fe8e1b14a660e6bf8c2353c517fea83d89e464a8298f73aff5",
+    "js/pages/contact-center-settings.js": "ad0ffdc2d3002a8a6986c73479c75f72f0fbbae44a3d33af0ca9dc1949c8b90d",
+    "js/pages/resource-lines.js": "329aa2e65ffbf98892e6b79e8f4d8762bd4a5463e61751c2e03d6d16e9f7df5f",
+    "js/components/line-onboarding.js": "7ce9acf851be0e0d5cf7569e248c8300f2e21faa3dc321b0cbe719fc43f1c416",
+    "js/components/resource-rules.js": "c623ff411d7167a0c4528bfdc27a5a0900126ed34c4280ab4bc427a5650f5543",
+    "js/app.js": "7e017e7e6f400ef46c2475c33cab4d82f60c71aff18129cf95a4eab5b3cadc67"
+  },
+  "businessFilesChanged": false,
+  "deliveryFilesChanged": false,
+  "officialSnapshotsChanged": false,
+  "published": false,
+  "observationsNotCounted": [
+    {
+      "id": "RES-04",
+      "severity": "P3",
+      "module": "批量新增坐席",
+      "title": "批量请求失败后的原因说明与查证路径可完善",
+      "trigger": "agent/batchCreate 明确返回 result=-1。",
+      "steps": [
+        "批量新增输入88890至88891，姓名和区号完整。",
+        "将演示结果设置为failure并确认新增。",
+        "把演示结果改回success，使用相同工号再次检查。"
+      ],
+      "actual": "result=-1 被 seatBatchResult 标 pending=true，提示开通结果未确认；后续被未知记录区间重叠拦截，确认新增保持禁用。",
+      "expected": "区分请求失败与实际创建结果；保留失败原因并提供后续查证路径。在取得可安全重提的证据前继续阻断重放，不能仅凭result=-1认定零创建、回滚或允许同工号再次创建。",
+      "impact": "失败请求在界面被统一呈现为结果未确认，后续查证说明可更清晰；当前证据不足以把阻断重放判为缺陷。",
+      "sources": [
+        {
+          "id": "DOC-341",
+          "url": "https://wiki.alicti.cn/html/wiki/API/座席数据管理/座席批量新增.html",
+          "snapshot": "development/reference/alicti/DOC-341.txt"
+        }
+      ],
+      "liveVerification": "memory/evidence/full-regression-20260915/live-docs/DOC-341.txt",
+      "decisions": [
+        "D-013"
+      ],
+      "code": [
+        "js/components/alicti-fields.js:89",
+        "js/components/alicti-seat-import.js:52",
+        "js/components/alicti-seat-import.js:73"
+      ],
+      "evidence": "embeddedEvidence.contractCases: batch-explicit-failure",
+      "reproduction": "browser_existing_mock_failure_scenario",
+      "classification": "observation_not_counted",
+      "reviewConclusion": "官方result=-1仅说明请求失败，未承诺事务回滚或零创建。撤回此前“明确失败应允许重试”及“永久阻断是确定缺陷”的判断；不计入确认缺陷。"
+    }
+  ],
+  "judgmentReview": {
+    "date": "2026-09-15T19:34:32.297210+08:00",
+    "changes": [
+      "RES-04移入observationsNotCounted，不推定result=-1意味着零创建或可重提",
+      "RES-02仅断言原型状态与提交门禁问题，不推断真实在线停用成功",
+      "RES-05只引用官方“区号格式”，不补造完整区号值域"
+    ],
+    "browserSession": "audit-resources",
+    "browserClosed": true,
+    "embeddedEvidenceUnchanged": true
+  }
+}

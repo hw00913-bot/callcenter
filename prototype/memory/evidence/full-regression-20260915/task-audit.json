@@ -1,0 +1,1462 @@
+{
+  "audit": "任务与呼入严格回归审计",
+  "date": "2026-09-15",
+  "baselineCommit": "0b98f4b",
+  "project": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype",
+  "readOnlyBusinessFiles": true,
+  "supplierCalls": 0,
+  "session": "audit-tasks",
+  "findings": [
+    {
+      "id": "TASK-AUDIT-01",
+      "severity": "P1",
+      "module": "任务名单导入 / 来电外显",
+      "title": "使用脱敏显示号码生成 taskTelList[].clid，合法原始 hotline 被丢弃",
+      "reproductionClass": "代码调用（正常页面处理器，参数来自当前可选项；无业务数据注入）",
+      "steps": [
+        "进入总部预外呼新建任务，填写名称并选择一位未分配客户。",
+        "接听团队选择 SG-ALI-HQ-SALES，来电号码选择可用的 NUM-400-8801，最少可用坐席填写1。",
+        "依次通过四步确认创建，读取此任务 alictiImportDrafts。"
+      ],
+      "actual": "任务成功创建并模拟导入，clid=400****801，pending为空。选中资源原始 alictiNumber.hotline=4000001002。",
+      "expected": "外显字段使用所选资源的完整原始热线号码4000001002；显示掩码不得进入接口号码参数。",
+      "impact": "真实接口将收到非电话号码字符串，可能拒绝导入或无法按用户选择的号码外显；演示成功掩盖字段错误。",
+      "sources": [
+        {
+          "id": "API-312",
+          "url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/任务号码导入接口.html",
+          "location": "taskTelList对象字段 clid，String，可选，电话号对应的外显号码",
+          "liveSnapshot": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/memory/evidence/full-regression-20260915/live-docs/API-312.txt"
+        },
+        {
+          "id": "D-026",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/docs/decisions.md"
+        }
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:715",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:69"
+      ],
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-deep.js",
+          "runOutput": "/private/tmp/audit-tasks-deep-results.txt",
+          "section": "masked",
+          "observed": {
+            "taskId": "TASK-PRED-D08517-d4ec1acd",
+            "status": "待启动",
+            "create": {
+              "endpoint": "task/create",
+              "fields": {
+                "name": "审计-可选掩码号码",
+                "type": 1,
+                "autoStart": 0,
+                "autoComplete": 1,
+                "autoDelete": 0,
+                "callGroupType": 1,
+                "cnos": "1001",
+                "minAvailableAgentCount": 1
+              },
+              "pending": [],
+              "errors": [],
+              "prerequisites": [],
+              "mock": true
+            },
+            "imports": [
+              {
+                "endpoint": "task/importTaskTel",
+                "sourceBatchId": "SHOWCASE-HQ-20260915-POOL-LEAD",
+                "fields": {
+                  "name": "总部·待分配·试驾邀约",
+                  "taskId": 800009,
+                  "importTelAutoStart": 0,
+                  "taskTelList": [
+                    {
+                      "tel": "13900000051",
+                      "clid": "400****801",
+                      "property": "{\"batchCustomerId\":\"SHOWCASE-HQ-20260915-POOL-LEAD-C03\",\"batchId\":\"SHOWCASE-HQ-20260915-POOL-LEAD\"}"
+                    }
+                  ],
+                  "isRepeat": 0
+                },
+                "pending": [],
+                "mock": true
+              }
+            ],
+            "selected": {
+              "numberId": "NUM-400-8801",
+              "boundSkillGroupIds": [
+                "SG-ALI-HQ-SALES",
+                "SG-ALI-HQ-AFTER",
+                "SG-ALI-SH-SALES"
+              ],
+              "number": "400****801",
+              "enterpriseId": "7522240",
+              "lineId": "LINE-ALI-01",
+              "usage": "呼入+呼出",
+              "aliyunUsage": "Bidirection",
+              "status": "正常",
+              "businessStatus": "正常",
+              "contactFlowId": "FLOW-NISSAN-ENTRY-V8",
+              "authorizedTenantIds": [
+                "TEN-NISSAN-HQ",
+                "TEN-NISSAN-SH"
+              ],
+              "referenceCount": 6,
+              "restoreSnapshot": null,
+              "alictiNumber": {
+                "id": 960002,
+                "hotline": "4000001002",
+                "displayNumber": "4000001002",
+                "numberType": 1,
+                "status": 1,
+                "isIbRight": 1,
+                "isInUse": 1,
+                "isPredictiveLeft": 1,
+                "isPredictiveRight": 0,
+                "isPreviewRight": 0,
+                "isIntl": 0,
+                "isSipLeft": 0,
+                "isWebCallLeft": 0,
+                "isWebCallRight": 0
+              },
+              "numberEvidence": "独立模拟响应，非真实号码资源"
+            }
+          }
+        }
+      ],
+      "caveat": "此例使用现有遗留400号码的界面可选项；是否应允许此400号码外呼属于资源模块另行审核。即使资源类型修正，共享映射读取显示number而非原始hotline的问题仍存在。"
+    },
+    {
+      "id": "TASK-AUDIT-02",
+      "severity": "P1",
+      "module": "任务创建 / 客户分配",
+      "title": "任务持久化失败后客户永久分配给不存在的任务",
+      "reproductionClass": "异常存储注入（正常页面处理器创建，仅针对一个存储key抛QuotaExceededError）",
+      "steps": [
+        "总部新建预外呼，选择 SHOWCASE-HQ-SKILL-SALES、SHOWCASE-HQ-NUM、至少一位待分配客户，通过确认页。",
+        "只令 sessionStorage.setItem(cloud-task-created-v1) 抛QuotaExceededError，其余存储正常，点击创建。",
+        "恢复存储并刷新页面，检查任务列表和同一批次客户行。"
+      ],
+      "actual": "客户分配已先写入localStorage；任务sessionStorage保存抛异常且草稿未提交。刷新后任务不存在，客户仍携带失效taskId，不在待分配列表且不可按现有逻辑重新分配。",
+      "expected": "失败应保留可重试草稿；任务和客户占用要么一并成功，要么回滚分配，不能留下孤立任务引用。",
+      "impact": "浏览器配额满或保存异常时客户从可用名单消失，用户无法继续任务且需要人工恢复数据。",
+      "sources": [
+        {
+          "id": "FS-08 / FUNC-247",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/docs/functional-spec.md",
+          "location": "草稿不占用客户；提交重新检查客户占用；保存失败反馈。此项为本地事务一致性，不声称AliCti接口提供跨存储事务。"
+        },
+        {
+          "id": "API-311 / API-312",
+          "location": "任务创建与名单导入业务链路"
+        }
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:688",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:694",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:67",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/customer-tasks.js:40"
+      ],
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-create.js",
+          "runOutput": "/private/tmp/audit-tasks-create-results.txt",
+          "section": "storage failure",
+          "observed": {
+            "maskedCustomer": "SHOWCASE-HQ-20260915-POOL-LEAD-C01",
+            "masked": {
+              "error": "项目交付视图\n原型页面\n说明文档\n业务流程图\n时序交互图\n关联系统蓝图\n云外呼平台 · AliCti 演示\n云呼叫\n/\n预外呼\n东风日产 · 当前客户/品牌全部总部与门店\n当前租户\n超级管理租户（内置）\n业务域\n智能外呼\n云联络中心\n客户/品牌\n东风日产\n东风奕派\n超级管理员\n项目资料\n平台超管\n退出\n统一外呼\n工\n运营工作台\n客\n客户管理\n⌄\n云\n云呼叫\n⌄\n预外呼自动外呼呼入服务\n话\n通话记录\n⌄\n表\n统计报表\n⌄\n户\n账号与租户\n⌄\n席\n坐席与技能组\n⌄\n号\n线路与号码\n⌄\n设\n系统管理\n⌄\n演示工具\n仅原型\n已进入云联络中心\n← 返回\n创建任务\n×\n新建预外呼任务\n自动拨号 · 人工接听\n\n系统自动拨打名单，客户接通后交给团队坐席。\n\n正在编辑\n✓\n任务与客户\n联系谁\n2\n呼叫安排\n如何接听\n3\n时间与重呼\n何时联系\n4\n确认创建\n检查并保存\n安排谁来接听客户\n\n选择接听团队和来电号码，设置开始拨号所需的人数。\n\n* 为必填项\n接听团队 *\n选择接听客户的团队\n总部·售后关怀\n总部·试驾邀约\n总部·售前咨询\n总部·售后服务\n总部客户服务\n客户接通后，由这个团队的坐席接听。\n客户看到的来电号码 *\n选择来电号码\n400****801\n仅展示当前组织可用的外呼号码。\n请选择当前团队和组织可用的来电号码。\n保持拨号所需的可用坐席 *\n人\n人数低于此值时，任务自动暂停。可设置 1–10 人。\n坐席忙时的处理选填\n常用设置选填\n本次外呼\n审计-掩码外显\n\n东风日产总部\n\n1\n自动拨打客户\n已选 1 位客户\n2\n团队坐席接听\n总部·售前咨询\n来电号码\n021****601\n开始时间\n手动开始\n再次呼叫\n已关闭\n只需选择已准备好的设置\n\n这里的选择仅作用于本次任务，不会修改团队成员或语音内容。\n\n上一步\n第 2 / 4 步\n保存草稿\n下一步：时间与重呼"
+            },
+            "autoCustomer": "SHOWCASE-HQ-20260915-POOL-LEAD-C01",
+            "auto": {
+              "id": "TASK-IVR-D51947-12edf6da",
+              "status": "待启动",
+              "create": {
+                "endpoint": "task/create",
+                "fields": {
+                  "name": "审计-自动正常",
+                  "type": 2,
+                  "autoStart": 0,
+                  "autoComplete": 1,
+                  "autoDelete": 0,
+                  "ivrId": 91001,
+                  "retryStrategy": "[{\"condition\":{\"sipCause\":[710,715]},\"retry\":2,\"sort\":1,\"strategy\":[{\"round\":1,\"time\":\"0-1-0\"},{\"round\":2,\"time\":\"0-1-0\"}]}]",
+                  "retryStrategyTimeType": 2
+                },
+                "pending": [],
+                "errors": [],
+                "prerequisites": [
+                  "实际接入前需开通号码状态识别服务；演示不验证开通"
+                ],
+                "mock": true
+              },
+              "imports": [
+                {
+                  "endpoint": "task/importTaskTel",
+                  "sourceBatchId": "SHOWCASE-HQ-20260915-POOL-LEAD",
+                  "fields": {
+                    "name": "总部·待分配·试驾邀约",
+                    "taskId": 800005,
+                    "importTelAutoStart": 0,
+                    "taskTelList": [
+                      {
+                        "tel": "13900000049",
+                        "clid": "02100006101",
+                        "property": "{\"batchCustomerId\":\"SHOWCASE-HQ-20260915-POOL-LEAD-C01\",\"batchId\":\"SHOWCASE-HQ-20260915-POOL-LEAD\"}"
+                      }
+                    ],
+                    "isRepeat": 0
+                  },
+                  "pending": [],
+                  "mock": true
+                }
+              ]
+            },
+            "storageCustomer": "SHOWCASE-HQ-20260915-POOL-LEAD-C02",
+            "storage": {
+              "thrown": "QuotaExceededError:audit quota failure",
+              "draft": {
+                "draftId": "DRAFT-1789471051962-5c121c02",
+                "createdByAccountId": "ACC-SUPER-001",
+                "taskId": "",
+                "type": "预外呼",
+                "tenantId": "TEN-NISSAN-HQ",
+                "enterpriseId": "7522240",
+                "step": 6,
+                "furthestStep": 6,
+                "furthestIndex": 3,
+                "wizardVersion": 2,
+                "status": "草稿",
+                "savedAt": "",
+                "createdAt": "2026-9-15 19:17:31",
+                "values": {
+                  "name": "审计-存储失败",
+                  "sourceType": "客户导入批次",
+                  "sourceRef": "",
+                  "total": 0,
+                  "planId": "",
+                  "skillGroupId": "SHOWCASE-HQ-SKILL-SALES",
+                  "callerNumberId": "SHOWCASE-HQ-NUM",
+                  "contactFlowId": "",
+                  "providerIvrId": "",
+                  "transferEnabled": false,
+                  "scheduleMode": "保存后手工启动",
+                  "scheduleAt": "2026-09-16T19:17",
+                  "retryPolicy": {
+                    "version": 1,
+                    "mode": "unset",
+                    "timeType": 2,
+                    "codes": [],
+                    "rounds": [
+                      {
+                        "days": 0,
+                        "hours": 0,
+                        "minutes": 10
+                      }
+                    ]
+                  },
+                  "isRepeat": 0,
+                  "minAvailableAgentCount": "1",
+                  "customerIds": [
+                    "SHOWCASE-HQ-20260915-POOL-LEAD-C02"
+                  ]
+                },
+                "returnToReview": false
+              },
+              "createdInMemory": true,
+              "createdPersisted": false,
+              "assignedCustomer": [
+                {
+                  "simulation": true,
+                  "demoPack": "alicti-showcase-v1",
+                  "demoCohort": "20260915",
+                  "id": "SHOWCASE-HQ-20260915-POOL-LEAD-C02",
+                  "name": "周晨先生",
+                  "phone": "13900000050",
+                  "businessType": "lead",
+                  "externalDocumentId": "LEAD-HQ-20260915-0050",
+                  "note": "试驾邀约，优先下午联系",
+                  "ownerId": "",
+                  "method": "预外呼",
+                  "taskId": "TASK-PRED-D51992-06752638",
+                  "taskName": "审计-存储失败",
+                  "followup": "待联系",
+                  "activeCallId": "",
+                  "calls": [],
+                  "history": [
+                    {
+                      "at": "2026-09-15 19:17:31",
+                      "action": "创建任务时分配",
+                      "method": "预外呼",
+                      "targetId": "TASK-PRED-D51992-06752638"
+                    }
+                  ],
+                  "batchId": "SHOWCASE-HQ-20260915-POOL-LEAD",
+                  "batchName": "总部·待分配·试驾邀约"
+                }
+              ],
+              "retrySelectionValid": false
+            },
+            "errors": []
+          }
+        },
+        {
+          "script": "/private/tmp/audit-tasks-deep.js",
+          "runOutput": "/private/tmp/audit-tasks-deep-results.txt",
+          "section": "afterStorageReload",
+          "observed": {
+            "taskPresent": false,
+            "customer": {
+              "simulation": true,
+              "demoPack": "alicti-showcase-v1",
+              "demoCohort": "20260915",
+              "id": "SHOWCASE-HQ-20260915-POOL-LEAD-C02",
+              "name": "周晨先生",
+              "phone": "13900000050",
+              "businessType": "lead",
+              "externalDocumentId": "LEAD-HQ-20260915-0050",
+              "note": "试驾邀约，优先下午联系",
+              "ownerId": "",
+              "method": "预外呼",
+              "taskId": "TASK-PRED-D51992-06752638",
+              "taskName": "审计-存储失败",
+              "followup": "待联系",
+              "activeCallId": "",
+              "calls": [],
+              "history": [
+                {
+                  "at": "2026-09-15 19:17:31",
+                  "action": "创建任务时分配",
+                  "method": "预外呼",
+                  "targetId": "TASK-PRED-D51992-06752638"
+                }
+              ]
+            },
+            "canReassign": [
+              "SHOWCASE-HQ-20260915-PRED-READY"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "TASK-AUDIT-03",
+      "severity": "P1",
+      "module": "呼入路由更新",
+      "title": "旧编辑抽屉仅修改备注，会把后来停用的路由重新启用",
+      "reproductionClass": "异常并发状态注入 + 正常DOM填写/点击（第二处修改以service.setActive模拟；旧表单保存通过真实页面按钮）",
+      "steps": [
+        "以超级管理员打开启用状态的路由97001编辑抽屉，保持不提交。",
+        "模拟另一处有效操作将同一路由active改为2并保存成功。",
+        "原抽屉只修改备注，点击保存。"
+      ],
+      "actual": "旧表单仍携带active=1，save将其连同备注全量提交，路由恢复active=1；没有发现旧版本或提示覆盖状态。",
+      "expected": "保存前检测规则已变化并要求刷新/确认，或仅更新用户实际编辑的字段；备注修改不得悄悄撤销他人的停用。",
+      "impact": "本已关闭的接听规则可被意外重新启用，业务状态与用户操作意图相反。",
+      "sources": [
+        {
+          "id": "API-351",
+          "url": "https://wiki.alicti.cn/html/wiki/API/配置管理/呼入路由管理/更新呼入路由设置接口.html",
+          "location": "description、active均可选；active=1启用、2停用；可以通过active改变规则是否使用",
+          "liveSnapshot": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/memory/evidence/full-regression-20260915/live-docs/API-351.txt"
+        }
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/inbound-routing.js:77",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/inbound-routing.js:82",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-inbound.js:94",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-inbound.js:98"
+      ],
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-deep.js",
+          "runOutput": "/private/tmp/audit-tasks-deep-results.txt",
+          "section": "staleBefore",
+          "observed": {
+            "formActive": "1",
+            "before": "1",
+            "externalUpdate": {
+              "ok": true,
+              "row": {
+                "id": "97001",
+                "enterpriseId": "7522240",
+                "name": "总部客户来电",
+                "active": "2",
+                "routerType": "1",
+                "routerProperty": "93001",
+                "description": "转接客户服务热线导航",
+                "priority": "1",
+                "ruleAreaProperty": "",
+                "ruleTimeProperty": "95001;95002",
+                "ruleTrunkProperty": "00006101",
+                "createTime": "2026-09-15 09:00:00",
+                "localTenantIds": [
+                  "TEN-NISSAN-HQ"
+                ]
+              },
+              "message": "规则已保存。",
+              "trace": {
+                "request": {
+                  "endpoint": "ivrRouter/update",
+                  "method": "POST",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471108,
+                    "sign": "00000000000000000000000000000000",
+                    "id": 97001,
+                    "active": 2
+                  },
+                  "mock": true
+                },
+                "response": {
+                  "result": "0",
+                  "description": "成功",
+                  "data": {
+                    "enterpriseIvrRouter": {
+                      "id": "97001",
+                      "enterpriseId": "7522240",
+                      "name": "总部客户来电",
+                      "active": "2",
+                      "routerType": "1",
+                      "routerProperty": "93001",
+                      "description": "转接客户服务热线导航",
+                      "priority": "1",
+                      "ruleTimeProperty": "95001;95002",
+                      "ruleAreaProperty": "",
+                      "ruleTrunkProperty": "00006101",
+                      "createTime": "2026-09-15 09:00:00"
+                    },
+                    "enterpriseTimeList": [
+                      {
+                        "id": "95001",
+                        "enterpriseId": "7522240",
+                        "name": "工作日营业时间",
+                        "type": "1",
+                        "fromDay": "",
+                        "toDay": "",
+                        "dayOfWeek": "2,3,4,5,6",
+                        "startTime": "09:00",
+                        "endTime": "18:00",
+                        "priority": "1",
+                        "createTime": "2026-09-15 09:00:00"
+                      },
+                      {
+                        "id": "95002",
+                        "enterpriseId": "7522240",
+                        "name": "周末营业时间",
+                        "type": "1",
+                        "fromDay": "",
+                        "toDay": "",
+                        "dayOfWeek": "1,7",
+                        "startTime": "10:00",
+                        "endTime": "17:00",
+                        "priority": "2",
+                        "createTime": "2026-09-15 09:00:00"
+                      }
+                    ]
+                  }
+                },
+                "mock": true
+              }
+            },
+            "after": "2"
+          }
+        },
+        {
+          "script": "/private/tmp/audit-tasks-deep.js",
+          "runOutput": "/private/tmp/audit-tasks-deep-results.txt",
+          "section": "staleAfter",
+          "observed": {
+            "current": {
+              "id": "97001",
+              "enterpriseId": "7522240",
+              "name": "总部客户来电",
+              "active": "1",
+              "routerType": "1",
+              "routerProperty": "93001",
+              "description": "只补充备注，保持暂停",
+              "priority": "1",
+              "ruleAreaProperty": "",
+              "ruleTimeProperty": "95001;95002",
+              "ruleTrunkProperty": "00006101",
+              "createTime": "2026-09-15 09:00:00",
+              "localTenantIds": [
+                "TEN-NISSAN-HQ"
+              ],
+              "pending": false
+            },
+            "latest": {
+              "request": {
+                "endpoint": "ivrRouter/get",
+                "method": "GET",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789471109,
+                  "sign": "00000000000000000000000000000000",
+                  "id": 97001
+                },
+                "mock": true
+              },
+              "response": {
+                "result": "0",
+                "description": "成功",
+                "data": {
+                  "enterpriseIvrRouter": {
+                    "id": "97001",
+                    "enterpriseId": "7522240",
+                    "name": "总部客户来电",
+                    "active": "1",
+                    "routerType": "1",
+                    "routerProperty": "93001",
+                    "description": "只补充备注，保持暂停",
+                    "priority": "1",
+                    "ruleTimeProperty": "95001;95002",
+                    "ruleAreaProperty": "",
+                    "ruleTrunkProperty": "00006101",
+                    "createTime": "2026-09-15 09:00:00"
+                  },
+                  "enterpriseTimeList": [
+                    {
+                      "id": "95001",
+                      "enterpriseId": "7522240",
+                      "name": "工作日营业时间",
+                      "type": "1",
+                      "fromDay": "",
+                      "toDay": "",
+                      "dayOfWeek": "2,3,4,5,6",
+                      "startTime": "09:00",
+                      "endTime": "18:00",
+                      "priority": "1",
+                      "createTime": "2026-09-15 09:00:00"
+                    },
+                    {
+                      "id": "95002",
+                      "enterpriseId": "7522240",
+                      "name": "周末营业时间",
+                      "type": "1",
+                      "fromDay": "",
+                      "toDay": "",
+                      "dayOfWeek": "1,7",
+                      "startTime": "10:00",
+                      "endTime": "17:00",
+                      "priority": "2",
+                      "createTime": "2026-09-15 09:00:00"
+                    }
+                  ]
+                }
+              },
+              "mock": true
+            }
+          }
+        }
+      ],
+      "caveat": "接口未声明ETag或版本号；缺陷是平台旧表单覆盖，并非要求供应商提供未文档化并发接口。"
+    },
+    {
+      "id": "TASK-AUDIT-04",
+      "severity": "P1",
+      "module": "预测外呼坐席工号映射",
+      "title": "既有字符串工号12被长度规则丢弃，必填cnos为空仍创建成功",
+      "mergeHint": "与资源模块所有既有cno的3–10位限制合并为一个同源问题",
+      "reproductionClass": "既有供应商坐席字段注入 + 正常页面处理器完整提交",
+      "steps": [
+        "在隔离会话中将已有效归属总部团队的坐席CCI-N-001的cno临时改为字符串12，模拟供应商已确认存在的短工号；其余属性不变。",
+        "创建总部预外呼任务，选该坐席所在SG-ALI-HQ-SALES、NUM-400-8801、最少坐席1及一位客户，按四步完成创建。",
+        "检查task/create草稿后恢复原工号。"
+      ],
+      "actual": "UI团队仍有有效成员，但taskFields把12过滤掉，生成callGroupType=1、cnos=\"\"，pending有“所选团队尚无可用坐席工号”；errors为空导致submit继续生成成功响应和待启动任务。",
+      "expected": "既有工号按D-014字符串原值保留；若必填坐席列表确实为空，则确认页阻止创建。",
+      "impact": "合法的供应商既有坐席无法参与预测任务；演示仍显示创建成功，开发可能沿用无效请求。",
+      "sources": [
+        {
+          "id": "D-014 / CF-01已关闭",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/docs/decisions.md",
+          "location": "用户转述供应商确认全部cno为String，0012和12是两个工号，完整一致。"
+        },
+        {
+          "id": "API-311",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/development/reference/alicti/API-311.txt",
+          "location": "396–401行：cnos String；callGroupType=1时必填，多个英文逗号分隔。",
+          "url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/新增任务接口.html"
+        }
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:49",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-fields.js:50",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:645"
+      ],
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-final.js",
+          "runOutput": "/private/tmp/audit-tasks-final-results.txt",
+          "section": "shortCnoSubmit",
+          "observed": {
+            "created": true,
+            "status": "待启动",
+            "request": {
+              "endpoint": "task/create",
+              "fields": {
+                "name": "审计-已有12号坐席",
+                "type": 1,
+                "autoStart": 0,
+                "autoComplete": 1,
+                "autoDelete": 0,
+                "callGroupType": 1,
+                "cnos": "",
+                "minAvailableAgentCount": 1
+              },
+              "pending": [
+                "所选团队尚无可用坐席工号"
+              ],
+              "errors": [],
+              "prerequisites": [],
+              "mock": true
+            },
+            "response": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 800011,
+                  "status": 0,
+                  "type": 1
+                }
+              },
+              "mock": true
+            }
+          }
+        }
+      ],
+      "caveat": "没有主张新建坐席的3–10位要求可以取消；此例只针对供应商已存在工号的读取、引用及任务映射。"
+    },
+    {
+      "id": "TASK-AUDIT-05",
+      "severity": "P2",
+      "module": "预测外呼启动 / 坐席互斥",
+      "title": "相同供应商坐席可同时启动两个预测任务，演示违背接口明确运行约束",
+      "reproductionClass": "代码调用（两个新任务通过正常页面处理器创建；启动调用页面使用的适配器确认后入口，没有注入任务状态或请求字段）",
+      "steps": [
+        "总部创建两个全新的预测任务，均选择SG-ALI-HQ-SALES和坐席1001，各分配不同的客户。",
+        "先启动“审计-互斥甲”，其task/get确认status=1。",
+        "再启动“审计-互斥乙”，检查两个任务当前状态及其创建cnos。"
+      ],
+      "actual": "两次启动均ok=true，两任务同enterpriseId=7522240、cnos=\"1001\"，均显示执行中。guard只检查单任务状态、名单和资源，没有检查其他运行任务占用同一cno。",
+      "expected": "发现已运行任务占用同一enterpriseId+cno时阻止第二任务启动/继续，或正确演示供应商拒绝；不能将违反已明确规则的双运行状态展示为成功。",
+      "impact": "原型让使用者认为同一坐席可并行执行多个任务；交付开发后与API已声明限制冲突。",
+      "sources": [
+        {
+          "id": "API-311",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/development/reference/alicti/API-311.txt",
+          "location": "396–402行，cnos参数备注：一个座席只能在一个运行中的任务中。外呼组约束另见403–408行；本例使用callGroupType=1，不依赖外呼组推断。",
+          "quote": "注：一个座席只能在一个运行中的任务中",
+          "url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/新增任务接口.html"
+        },
+        {
+          "id": "FS-10 / FA-036",
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/docs/functional-spec.md",
+          "location": "启动前核对互斥；一个坐席只能参与一个运行任务。"
+        }
+      ],
+      "code": [
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-task-control.js:19",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/alicti-task-control.js:25",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js:965"
+      ],
+      "evidence": [
+        {
+          "script": "/private/tmp/audit-tasks-complete.js",
+          "runOutput": "/private/tmp/audit-tasks-complete-results.txt",
+          "section": "newTaskConflict",
+          "observed": {
+            "tasks": [
+              {
+                "id": "TASK-PRED-D96063-ba9ca056",
+                "name": "审计-互斥甲",
+                "status": "执行中",
+                "cnos": "1001",
+                "enterpriseId": "7522240"
+              },
+              {
+                "id": "TASK-PRED-D96140-04091d37",
+                "name": "审计-互斥乙",
+                "status": "执行中",
+                "cnos": "1001",
+                "enterpriseId": "7522240"
+              }
+            ],
+            "first": {
+              "ok": true,
+              "pending": false,
+              "response": {
+                "result": 0,
+                "data": {
+                  "taskProperty": {
+                    "id": 800014,
+                    "status": 1,
+                    "type": 1,
+                    "statusTriggerType": 1
+                  }
+                },
+                "mock": true
+              },
+              "confirmedInitialStart": true,
+              "message": "已核对任务状态：运行中（模拟）",
+              "mock": true,
+              "trace": [
+                {
+                  "order": 1,
+                  "phase": "before",
+                  "endpoint": "task/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800014
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "taskProperty": {
+                        "id": 800014,
+                        "status": 0,
+                        "type": 1
+                      }
+                    },
+                    "mock": true
+                  },
+                  "mock": true
+                },
+                {
+                  "order": 2,
+                  "phase": "write",
+                  "endpoint": "task/start",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800014
+                  },
+                  "response": {
+                    "result": 0,
+                    "description": "请求已受理（模拟）"
+                  },
+                  "mock": true
+                },
+                {
+                  "order": 3,
+                  "phase": "after",
+                  "endpoint": "task/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800014
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "taskProperty": {
+                        "id": 800014,
+                        "status": 1,
+                        "type": 1,
+                        "statusTriggerType": 1
+                      }
+                    },
+                    "mock": true
+                  },
+                  "mock": true
+                }
+              ]
+            },
+            "second": {
+              "ok": true,
+              "pending": false,
+              "response": {
+                "result": 0,
+                "data": {
+                  "taskProperty": {
+                    "id": 800016,
+                    "status": 1,
+                    "type": 1,
+                    "statusTriggerType": 1
+                  }
+                },
+                "mock": true
+              },
+              "confirmedInitialStart": true,
+              "message": "已核对任务状态：运行中（模拟）",
+              "mock": true,
+              "trace": [
+                {
+                  "order": 1,
+                  "phase": "before",
+                  "endpoint": "task/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800016
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "taskProperty": {
+                        "id": 800016,
+                        "status": 0,
+                        "type": 1
+                      }
+                    },
+                    "mock": true
+                  },
+                  "mock": true
+                },
+                {
+                  "order": 2,
+                  "phase": "write",
+                  "endpoint": "task/start",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800016
+                  },
+                  "response": {
+                    "result": 0,
+                    "description": "请求已受理（模拟）"
+                  },
+                  "mock": true
+                },
+                {
+                  "order": 3,
+                  "phase": "after",
+                  "endpoint": "task/get",
+                  "fields": {
+                    "validateType": 2,
+                    "enterpriseId": 7522240,
+                    "timestamp": 1789471496,
+                    "sign": "00000000000000000000000000000000",
+                    "taskId": 800016
+                  },
+                  "response": {
+                    "result": 0,
+                    "data": {
+                      "taskProperty": {
+                        "id": 800016,
+                        "status": 1,
+                        "type": 1,
+                        "statusTriggerType": 1
+                      }
+                    },
+                    "mock": true
+                  },
+                  "mock": true
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "caveat": "所有响应明确mock，本发现不指真实AliCti允许并行，只指本地保护与成功演示不符合明确契约。"
+    }
+  ],
+  "confirmedFindingCount": 5,
+  "observationsNotCounted": [
+    {
+      "title": "常用设置不重开已关闭的重呼",
+      "classification": "已有明确验收规则；不计缺陷",
+      "detail": "新草稿默认unset套含重呼模板后仍unset。qa/verify-alicti-ivr.cjs40–44明确保存当前重呼关闭/输入状态；新草稿与主动关闭的区分可作体验讨论。",
+      "evidence": {
+        "script": "/private/tmp/audit-tasks-final.js",
+        "runOutput": "/private/tmp/audit-tasks-final-results.txt",
+        "section": "template",
+        "observed": {
+          "template": {
+            "callPlanId": "TEMPLATE-1789471362464-1",
+            "name": "审计-模板含重呼",
+            "tenantId": "TEN-NISSAN-HQ",
+            "enterpriseId": "7522240",
+            "callType": "预外呼",
+            "status": "已发布",
+            "publishedVersion": "V1",
+            "targetSkillGroupId": "SHOWCASE-HQ-SKILL-SALES",
+            "executionQueueId": "SHOWCASE-HQ-SKILL-SALES",
+            "contactFlowId": "",
+            "providerIvrId": "",
+            "transferEnabled": true,
+            "allowedCallerNumberIds": [
+              "SHOWCASE-HQ-NUM"
+            ],
+            "isRepeat": 0,
+            "retryPolicy": {
+              "version": 1,
+              "mode": "advanced",
+              "timeType": 2,
+              "codes": [
+                710
+              ],
+              "rounds": [
+                {
+                  "days": 0,
+                  "hours": 0,
+                  "minutes": 15
+                },
+                {
+                  "days": 0,
+                  "hours": 0,
+                  "minutes": 15
+                }
+              ]
+            },
+            "isTemplate": true
+          },
+          "applied": {
+            "name": "",
+            "sourceType": "客户导入批次",
+            "sourceRef": "",
+            "total": 0,
+            "planId": "TEMPLATE-1789471362464-1",
+            "skillGroupId": "SHOWCASE-HQ-SKILL-SALES",
+            "callerNumberId": "SHOWCASE-HQ-NUM",
+            "contactFlowId": "",
+            "providerIvrId": "",
+            "transferEnabled": true,
+            "scheduleMode": "保存后手工启动",
+            "scheduleAt": "2026-09-16T19:22",
+            "retryPolicy": {
+              "version": 1,
+              "mode": "unset",
+              "timeType": 2,
+              "codes": [],
+              "rounds": [
+                {
+                  "days": 0,
+                  "hours": 0,
+                  "minutes": 10
+                }
+              ]
+            },
+            "isRepeat": 0,
+            "minAvailableAgentCount": 10,
+            "executionQueueId": "SHOWCASE-HQ-SKILL-SALES"
+          }
+        }
+      }
+    },
+    {
+      "title": "保存常用设置后刷新消失",
+      "classification": "平台持久化体验待讨论；本轮不计确认接口缺陷",
+      "detail": "保存的模板刷新后不在callPlans中，同名任务仍存在。尚未找到对模板跨刷新生命周期的明确已采纳约束，不扩列接口问题。",
+      "evidence": {
+        "before": [
+          "TEMPLATE-1789471362464-1"
+        ],
+        "after": {
+          "plans": [],
+          "taskSaved": true
+        }
+      }
+    }
+  ],
+  "coverage": [
+    {
+      "area": "预测与自动新建正常路径",
+      "method": "实际浏览器中的页面处理器，不调用供应商",
+      "result": "通过新建；自动type2采用ivrId91001，预测type1/cnos1001；创建受理与待启动分开"
+    },
+    {
+      "area": "字段映射",
+      "method": "浏览器执行mapper并核对请求草稿",
+      "result": "已检查type、cnos、minAvailableAgentCount、ivrId、retryStrategy序列化、importTelAutoStart=0、tel/property。新缺陷见01/04。"
+    },
+    {
+      "area": "重呼",
+      "method": "纯映射与校验执行；两类任务相同用例",
+      "result": "两类均通过710/718多码2次15分钟、round1/2、timeType2。关闭省略；无状态、非法999、零间隔均拒绝。",
+      "evidence": {
+        "预外呼": {
+          "normal": {
+            "fields": {
+              "retryStrategy": "[{\"condition\":{\"sipCause\":[710,718]},\"retry\":2,\"sort\":1,\"strategy\":[{\"round\":1,\"time\":\"0-0-15\"},{\"round\":2,\"time\":\"0-0-15\"}]}]",
+              "retryStrategyTimeType": 2
+            },
+            "pending": [],
+            "prerequisites": [
+              "实际接入前需开通号码状态识别服务；演示不验证开通"
+            ]
+          },
+          "noCode": "请至少选择一个需要重呼的呼叫状态。",
+          "badCode": "号码状态须使用官方编码，且不能重复",
+          "zeroInterval": "第 1 轮请填写大于 0 的有效等待时间",
+          "disabled": {
+            "fields": {},
+            "pending": []
+          }
+        },
+        "IVR 外呼": {
+          "normal": {
+            "fields": {
+              "retryStrategy": "[{\"condition\":{\"sipCause\":[710,718]},\"retry\":2,\"sort\":1,\"strategy\":[{\"round\":1,\"time\":\"0-0-15\"},{\"round\":2,\"time\":\"0-0-15\"}]}]",
+              "retryStrategyTimeType": 2
+            },
+            "pending": [],
+            "prerequisites": [
+              "实际接入前需开通号码状态识别服务；演示不验证开通"
+            ]
+          },
+          "noCode": "请至少选择一个需要重呼的呼叫状态。",
+          "badCode": "号码状态须使用官方编码，且不能重复",
+          "zeroInterval": "第 1 轮请填写大于 0 的有效等待时间",
+          "disabled": {
+            "fields": {},
+            "pending": []
+          }
+        }
+      }
+    },
+    {
+      "area": "IVR列表与选择",
+      "method": "在浏览器注入empty/failure/unknown/invalid响应场景并调用相同选择resolver",
+      "result": "仅同账号且外呼已授权ivrType1的91001可用于自动外呼；彩铃91004、未授权91005、跨账号92001均不可选。失败未知无可用行。",
+      "evidence": {
+        "normal": [
+          {
+            "id": "91001",
+            "type": "1"
+          }
+        ],
+        "cases": {
+          "empty": {
+            "listStatus": "empty",
+            "resolveOk": false
+          },
+          "failure": {
+            "listStatus": "failure",
+            "resolveOk": false
+          },
+          "unknown": {
+            "listStatus": "unknown",
+            "resolveOk": false
+          },
+          "invalid": {
+            "listStatus": "invalid",
+            "resolveOk": false
+          }
+        }
+      }
+    },
+    {
+      "area": "任务生命周期",
+      "method": "适配器确认后入口执行",
+      "result": "自动任务start/pause/resume/terminate均按get→write→get执行，暂停未提交pauseDuration，结束后resume拒绝。错任务ID只查询不写。",
+      "evidence": {
+        "start": {
+          "ok": true,
+          "status": "执行中",
+          "trace": [
+            {
+              "endpoint": "task/get",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              },
+              "status": 0
+            },
+            {
+              "endpoint": "task/start",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              }
+            },
+            {
+              "endpoint": "task/get",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              },
+              "status": 1
+            }
+          ],
+          "message": "已核对任务状态：运行中（模拟）"
+        },
+        "pause": {
+          "ok": true,
+          "status": "已暂停",
+          "trace": [
+            {
+              "endpoint": "task/get",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              },
+              "status": 1
+            },
+            {
+              "endpoint": "task/pause",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              }
+            },
+            {
+              "endpoint": "task/get",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              },
+              "status": 2
+            }
+          ],
+          "message": "已核对任务状态：暂停（模拟）"
+        },
+        "resume": {
+          "ok": true,
+          "status": "执行中",
+          "trace": [
+            {
+              "endpoint": "task/get",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              },
+              "status": 2
+            },
+            {
+              "endpoint": "task/start",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              }
+            },
+            {
+              "endpoint": "task/get",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              },
+              "status": 1
+            }
+          ],
+          "message": "已核对任务状态：运行中（模拟）"
+        },
+        "terminate": {
+          "ok": true,
+          "status": "已终止",
+          "trace": [
+            {
+              "endpoint": "task/get",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              },
+              "status": 1
+            },
+            {
+              "endpoint": "task/stop",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              }
+            },
+            {
+              "endpoint": "task/get",
+              "fields": {
+                "validateType": 2,
+                "enterpriseId": 7522240,
+                "timestamp": 1789471436,
+                "sign": "00000000000000000000000000000000",
+                "taskId": 800005
+              },
+              "status": 3
+            }
+          ],
+          "message": "已核对任务状态：结束（模拟）"
+        },
+        "resume-ended": {
+          "ok": false,
+          "status": "已终止",
+          "message": "当前任务状态不可执行此操作，已结束任务不能重新开启"
+        }
+      }
+    },
+    {
+      "area": "任务失败与未知",
+      "method": "适配器场景注入",
+      "result": "write-failure保持查询到的暂停；write-unknown保持pending且stopNewDialing=true；错ID、缺失响应、未知status、跨enterprise结果不认成功。",
+      "evidence": {
+        "statusAfterFailure": "已暂停",
+        "pending": true,
+        "stopNewDialing": true,
+        "readCases": [
+          {
+            "known": false,
+            "status": null,
+            "raw": {}
+          },
+          {
+            "known": false,
+            "status": null,
+            "property": {
+              "id": 1,
+              "status": 99
+            },
+            "raw": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 1,
+                  "status": 99
+                }
+              }
+            }
+          },
+          {
+            "known": false,
+            "status": null,
+            "property": {
+              "id": 2,
+              "status": 1
+            },
+            "raw": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 2,
+                  "status": 1
+                }
+              }
+            }
+          },
+          {
+            "known": false,
+            "status": null,
+            "property": {
+              "id": 1,
+              "status": 1,
+              "enterpriseId": 9
+            },
+            "raw": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 1,
+                  "status": 1,
+                  "enterpriseId": 9
+                }
+              }
+            }
+          },
+          {
+            "known": true,
+            "status": 1,
+            "property": {
+              "id": 1,
+              "status": 1
+            },
+            "raw": {
+              "result": 0,
+              "data": {
+                "taskProperty": {
+                  "id": 1,
+                  "status": 1
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "area": "呼入规则CRUD",
+      "method": "隔离会话service执行；测试前临时去除之前未知记录，测试后恢复原存储",
+      "result": "三种目标(IVR/电话/分机)各创建、更新、停用、删除共12操作成功。active先停用再删除，重复priority拒绝；失败不改原状态，未知不允许重放。",
+      "evidence": {
+        "positive": [
+          {
+            "type": 1,
+            "operations": {
+              "created": true,
+              "update": true,
+              "pause": true,
+              "deleted": true
+            }
+          },
+          {
+            "type": 2,
+            "operations": {
+              "created": true,
+              "update": true,
+              "pause": true,
+              "deleted": true
+            }
+          },
+          {
+            "type": 3,
+            "operations": {
+              "created": true,
+              "update": true,
+              "pause": true,
+              "deleted": true
+            }
+          }
+        ],
+        "unknownAndFailure": {
+          "duplicatePriorityRejected": true,
+          "activeDeleteRejected": true,
+          "knownFailure": {
+            "ok": false,
+            "message": "本次操作未完成，原规则保持不变。",
+            "pending": false,
+            "rows": [],
+            "trace": {
+              "request": {
+                "endpoint": "ivrRouter/update",
+                "method": "POST",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789471109,
+                  "sign": "00000000000000000000000000000000",
+                  "id": 97002,
+                  "active": 2
+                },
+                "mock": true
+              },
+              "response": {
+                "result": "-1",
+                "description": "操作未完成"
+              },
+              "mock": true
+            }
+          },
+          "failPreserved": true,
+          "unknown": {
+            "ok": false,
+            "message": "提交结果尚未确认，已保留本次记录，请先核对后再操作。",
+            "pending": true,
+            "rows": [],
+            "trace": {
+              "request": {
+                "endpoint": "ivrRouter/update",
+                "method": "POST",
+                "fields": {
+                  "validateType": 2,
+                  "enterpriseId": 7522240,
+                  "timestamp": 1789471109,
+                  "sign": "00000000000000000000000000000000",
+                  "id": 97002,
+                  "active": 2
+                },
+                "mock": true
+              },
+              "response": null,
+              "mock": true
+            }
+          },
+          "repeat": {
+            "ok": false,
+            "message": "此前提交结果尚未确认，请先核对原操作，避免重复提交。",
+            "pending": true,
+            "rows": []
+          }
+        }
+      }
+    },
+    {
+      "area": "范围与权限",
+      "method": "切换超级管理员到总部运营，再调用旧呼入操作context",
+      "result": "旧呼入写入被拒绝；运营有task.create所以可以打开创建向导，未误当越权缺陷。"
+    },
+    {
+      "area": "旧表单与存储失败",
+      "method": "异常并发/存储注入+DOM保存/刷新",
+      "result": "新增缺陷02/03。"
+    },
+    {
+      "area": "常用设置",
+      "method": "创建时保存、下一任务套用、刷新",
+      "result": "重呼保持行为属于明确现有QA，未计缺陷；跨刷新生命周期列待讨论。"
+    }
+  ],
+  "notTested": [
+    "真实AliCti网络调用、签名、供应商任务调度/计数与实际拨号；原型明确只mock。",
+    "任务创建/导入的真实超时、未知响应及多页大容量、8MB临界；本轮只覆盖可执行本地流程与存储失败。",
+    "所有跨品牌/租户/角色组合、两浏览器并发，以及大型名单并发导入；其他代理覆盖全局权限。",
+    "预约在真实供应商计划时间实际执行；只核对现有映射，原型无真实定时拨号。",
+    "CF-04已发起通话收尾、CF-10条件组合/未命中/实际租户归属等既有待确认未重计为缺陷。",
+    "task/create官方表格与示例返回包装差异未新增判定；沿用本期已采纳wrapper口径。",
+    "追加纯DOM掩码号码复现因隔离会话的待分配名单已用尽，在选客户步骤超时，未作为成功证据；该问题有效证据来自先前完整页面处理器链路。"
+  ],
+  "evidenceArtifacts": [
+    {
+      "script": "/private/tmp/audit-tasks-create.js",
+      "output": "/private/tmp/audit-tasks-create-results.txt",
+      "sha256": "23e861755ddbe2fd7a6e3483a34e686d68a659edb17a8414df89085bb8f9df73"
+    },
+    {
+      "script": "/private/tmp/audit-tasks-deep.js",
+      "output": "/private/tmp/audit-tasks-deep-results.txt",
+      "sha256": "2eb3ac77e7107ff83fd4c97d1eb728d81d1d23fdc164dc15eacf73947d24f2e8"
+    },
+    {
+      "script": "/private/tmp/audit-tasks-final.js",
+      "output": "/private/tmp/audit-tasks-final-results.txt",
+      "sha256": "0e71894e1680fe445a71ebc91a29dad976d817dde3f20f2b5941522dbc092373"
+    },
+    {
+      "script": "/private/tmp/audit-tasks-branches.js",
+      "output": "/private/tmp/audit-tasks-branches-results.txt",
+      "sha256": "c615383c12bc5cfa578cfd99a902325050873938bd5b9a3916759451fceac6ed"
+    },
+    {
+      "script": "/private/tmp/audit-tasks-complete.js",
+      "output": "/private/tmp/audit-tasks-complete-results.txt",
+      "sha256": "057c30ce0e1b46bed837f7540334873da67e7475d3d1c0adbb87ad07963390e8"
+    },
+    {
+      "script": "/private/tmp/audit-tasks-lastchecks.js",
+      "output": "/private/tmp/audit-tasks-lastchecks-results.txt",
+      "sha256": "22c10b9e09f3803c91ddb832de5670a4924d2f8003886b07c5634b807275da3d"
+    }
+  ]
+}

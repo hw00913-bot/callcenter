@@ -1,0 +1,63 @@
+@startuml
+title SC-011 · 配置共享呼入号码、IVR 分流和租户人工路由
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 超级管理员/租户管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:供应商账号需要开通共享号码呼入，或调整 IVR 分支与租户路由; <<start_label>>
+|lane_1|
+:选择共享呼入号码与已发布入口IVR\n输入：供应商账号号码、分支、默认租户\n输出：呼入路由草稿;
+|lane_1|
+:配置本租户承接、服务时间及超时兜底\n输入：本租户技能组、营业时间、提示音\n输出：租户呼入规则;
+|lane_2|
+if (各分支租户均获用号权且组归属正确？) then (不满足 · ALT-011-3)
+|lane_1|
+:列出无权/失效分支并拒绝发布，保留原有效路由; <<failure>>
+stop
+else (满足)
+|lane_3|
+:按文档导入IVR定义文件\n发布与号码入口绑定待确认，导入不代表生效;
+|lane_2|
+if (发布、号码入口与租户分支映射均已验证？) then (不满足 · ALT-011-5)
+|lane_1|
+:保持待核对；不得仅存本地分支就宣称厂商已生效; <<failure>>
+stop
+else (满足)
+|lane_2|
+:保存路由映射、版本和兜底\n输入：有效路由结果\n输出：呼入先锁定唯一租户再分配坐席;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+endif
+@enduml

@@ -1,0 +1,1630 @@
+{
+  "version": "2026-09-20-cf06-clarified-1",
+  "date": "2026-09-20",
+  "decisionId": "D-048",
+  "sourceRef": "SRC-078",
+  "sourceType": "user_relayed_supplier_feedback_and_scope_decision",
+  "result": "pass",
+  "runtime": {
+    "result": "pass",
+    "scope": "CF-06 local number usage control; simulated supplier responses only",
+    "suiteCount": 5,
+    "checkCount": 150,
+    "suites": [
+      {
+        "name": "number-scope",
+        "count": 31,
+        "result": "pass",
+        "details": {
+          "result": "pass",
+          "scope": "Local number page authorization, UI markup, permissions, concurrency and persistence; no live provider calls",
+          "count": 31,
+          "checks": [
+            "号码列表和使用范围只展示总部门店授权，不展示技能组选择或坐席汇总",
+            "不访问技能组或坐席集合也能选择并保存多个租户",
+            "只有同账号启用且具备云呼叫能力的非内置租户可选",
+            "跨账号号码以及管理员操作不通过超级管理员权限校验",
+            "抽屉打开后账号会话租户角色变化均阻止旧页面保存",
+            "保存前租户停用时不允许使用旧选项新增授权",
+            "使用范围发生并发更改时阻止覆盖，旧技能字段更改不造成冲突",
+            "已有停用租户授权保留且不能借可编辑项移除",
+            "当前呼入规则服务新增启用规则后阻止取消对应租户授权",
+            "无接入号码条件的启用规则覆盖账号号码并阻止取消所用租户授权",
+            "实际服务停用规则后允许撤销授权，旧固定演示路由不阻断",
+            "当前规则更新为其他接入号码后允许撤销原号码授权",
+            "其他号码规则和未撤销租户的规则不误阻断",
+            "跨账号同号码规则不影响当前账号授权，也不能查询跨账号号码",
+            "接入号码按区号和中继号码完整匹配，不把相同短号跨区号误关联",
+            "当前规则存储刷新后仍保护授权，加载只读不改原规则",
+            "规则读取失败未知或损坏时不撤销授权，无服务也明确阻断",
+            "业务引用按当前任务和启用呼入规则计算，不使用历史固定数量",
+            "不再提供供应商解绑入口，停用呼入规则不计为使用中",
+            "本地停用不修改供应商状态授权规则和在途历史，仅暂停关联任务新拨号",
+            "本地停用后刷新维持许可，恢复不绕过供应商停用",
+            "本地操作保存失败、会话改变或并发状态改变不写入",
+            "无效角色跨账号或旧上下文不能操作本地许可",
+            "供应商启停与本地许可分别保存且在途记录不改写",
+            "保存失败保留号码授权和原存储，可再次保存成功",
+            "授权保存后刷新恢复多个租户且不写入旧绑定字段",
+            "旧技能绑定缺失空数组字符串或对象均不影响授权与停用状态恢复",
+            "旧绑定属性不可读时授权逻辑与持久化仍不读取该属性",
+            "恢复拒绝跨账号授权和错误账号快照，不影响原号码",
+            "不支持的旧解绑存储不恢复不迁移，供应商停用号码保存范围不自动启用",
+            "取消和关闭不保存草稿，至少保留一家可使用租户"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "name": "number-eligibility",
+        "count": 21,
+        "result": "pass",
+        "details": {
+          "result": "pass",
+          "count": 21,
+          "checks": [
+            "没有线路信息也可使用已授权正常号码呼入和外呼",
+            "旧线路ID和POC状态不再阻断有效号码",
+            "无号码技能绑定也可创建预测任务，但仍检查有效成员",
+            "跨账号号码和跨账号租户均拒绝",
+            "同账号未授权门店不可使用总部号码",
+            "缺失或异常授权列表不导致抛错或放行",
+            "本地停用隔离解绑不能被官方启用状态覆盖",
+            "本地停用阻止全部新外呼但不伪造关闭供应商呼入入口",
+            "启用本地许可不能绕过供应商状态外显用途租户与账号边界",
+            "官方停用或缺失状态阻断呼入和呼出",
+            "预外呼及自动外呼只使用客户侧预测外显属性",
+            "预览及人工外呼禁用时其他外显属性不能代替",
+            "无客户侧外显不计为外呼可用，呼入外显不作为路由前置",
+            "400号码无论本地用途如何均仅限呼入",
+            "号码方向限制分别阻断错误用途",
+            "未绑定、残留已绑定及损坏的旧字段均不影响号码可用性",
+            "技能组停用只阻断选用该团队的任务，号码仍由租户独立使用",
+            "任务使用的技能组必须仍属于同账号同租户",
+            "无有效技能、技能待生效及非法等级不可代替任务成员",
+            "自动外呼转人工配置不要求号码绑定团队，仍校验团队成员",
+            "任务不可用提示仅包含号码授权状态和用途"
+          ]
+        }
+      },
+      {
+        "name": "task-control",
+        "count": 33,
+        "result": "pass",
+        "details": {
+          "result": "pass",
+          "count": 33,
+          "checks": [
+            "继续严格按查询暂停→start→再次查询执行，原进度与启动时间不重置",
+            "暂停不传任何时长，旧确认输入被忽略",
+            "暂停确认只展示业务说明，移除时长与模拟情景仍可确认暂停",
+            "操作前查询失败、未知、缺ID、ID冲突均不写入",
+            "继续只接受远端暂停，初始运行结束均不调用start",
+            "本地初始运行完成终止状态直接继续均拒绝",
+            "写入失败不改成运行，未知写入继续查证且仍不猜成功",
+            "写入受理但后查仍暂停或未知时不能显示继续成功",
+            "后查已经结束显示结束并禁止再次开启",
+            "正常结束可执行，结束以后start和resume全部拒绝",
+            "两类任务查询确认结束后禁止下一位和后续重呼，保留振铃接通与历史记录",
+            "结束受理但后查未知时不伪造结束或通话终态，待核对期间阻止新增结果",
+            "过期待启动页面不能重新开启远端已结束或已暂停任务",
+            "初次启动保留读取结果，不复用继续跳过前置查询",
+            "预外呼启动和继续不因其他任务共用坐席或坐席通话中而阻断",
+            "取消坐席互斥后仍拒绝预外呼工号缺失或格式错误",
+            "新建演示任务使用独立初始响应，隔离标记不生成远端暂停",
+            "未知供应商状态的本地暂停不能凭显示文字继续",
+            "任务身份及状态解析不接受未知result、空值、数字布尔和跨账号数据",
+            "权限、显示样例、跨范围、资源与场景准备检查在写前阻断",
+            "空名单继续或启动均阻断",
+            "号码隔离恢复权限与全号码已恢复条件不能被继续绕过",
+            "有权管理员仅在再次查到运行后移除号码隔离标记",
+            "确认窗口打开后权限、资源、范围及供应商ID变化均重新检查",
+            "查询响应读取后至实际写入前再次检查权限",
+            "查询响应读取后至实际写入前再次检查资源",
+            "原有四个任务使用独立供应商fixture且状态不取自本地显示",
+            "种子只匹配固定账号租户和任务类型，未知任务仍无法凭暂停显示继续",
+            "持久化控制响应或新供应商fixture不会被原始种子覆盖",
+            "真实saveDemoTask边界仅确认首次启动可冻结方案，继续与未知操作保留历史快照ID",
+            "号码本地停用不能恢复关联任务，启用后仍需查询与继续，保留已发起通话",
+            "工作台保留唯一控制入口且号码隔离不写供应商暂停状态",
+            "适配器没有旧继续拦截和待确认按钮重写"
+          ]
+        }
+      },
+      {
+        "name": "number-import",
+        "count": 35,
+        "result": "pass",
+        "details": {
+          "result": "pass",
+          "scope": "AliCti number import with local fixtures, simulated provider responses, storage, permissions and real resource-component load order; browser verification is separate",
+          "notLiveIntegration": true,
+          "count": 35,
+          "integratedFiles": [
+            "mock/data.js",
+            "mock/demo-kit.js",
+            "mock/demo-resources.js",
+            "js/components/alicti-fields.js",
+            "js/components/resource-rules.js",
+            "mock/number-onboarding.js",
+            "js/components/alicti-number-import.js",
+            "js/pages/resource-lines.js"
+          ],
+          "checks": [
+            "真实本地号码查询保留账号边界，其他账号号码不能混入",
+            "未就绪、权限无效、非超管、无菜单或非呼叫中心都不能查询导入",
+            "精确号码与停用筛选遵守请求条件，查询结果计数为过滤后的总数",
+            "分页不重叠并保留跨页选择，返回第一页后可继续确认",
+            "全选本页排除已管理号码，清空和当前页取消选择更新选择量",
+            "已导入号码在精确查询中标识为已导入且不能再次选择",
+            "号码导入仅确认使用方向，无平台线路也能完成且不生成线路字段",
+            "导入停用号码保留停用和原始供应商属性，平台使用方向不改外显权限",
+            "供应商未提供用途字段时保留未知属性，不补造已授权状态",
+            "400号码仍遵守平台仅呼入规则，不能通过改变用途绕过",
+            "成功结果重复提交或重新查询不会生成重复号码与添加记录",
+            "账号、会话、租户、角色或权限变化后旧确认页不能提交",
+            "提交前供应商状态或属性变化阻止整批新增并要求重新查询",
+            "供应商仅调整对象字段顺序时仍可导入，保留原属性值与数组顺序",
+            "初始查询失败或超时不允许选择，提交复查失败也不新增",
+            "多选批次中任一号码消失时整批保留原样",
+            "重复返回记录和无效列表结构不能被视为可导入结果",
+            "号码状态缺失或完整号码无效时显示原因且不能被选中",
+            "浏览器写入失败不新增内存号码或记录，恢复可写后可重试",
+            "并行打开的两个页面通过持久化去重，后提交者不能重复新增",
+            "刷新恢复完整导入记录，重复恢复保持唯一且不写回供应商",
+            "异常本地存储保留原值，不能借导入覆盖原数据",
+            "旧导入记录的线路字段不再参与恢复，按号码所属账号保留历史配置",
+            "导入完成只为本批号码打开使用租户设置，账号切换后不继续打开",
+            "按页面真实资源脚本顺序加载，先恢复导入记录再应用号码管理配置",
+            "停用导入号码保存租户授权后刷新恢复范围，保持供应商停用且不可外呼",
+            "未关联本地线路的启用号码按账号、租户授权和官方用途判断可用性",
+            "正常导入后的租户授权和外显修改优先于初次导入快照恢复",
+            "没有技能组或坐席也能授权使用租户，号码页不再提供坐席技能绑定入口",
+            "旧技能组关联字段既不能授予租户权限也不能阻止已授权号码使用",
+            "直接导入账号号码后刷新保留导入状态，再次选择不能重复新增",
+            "非法号码ID和不一致分页总量阻止导入，不进行宽松数字转换",
+            "供应商中继标识仅保留在原始属性中，不映射或创建平台线路",
+            "旧线路快照不会创建或覆盖线路，下一次成功导入清理已废弃的保存字段",
+            "提交准备阶段异常不落盘，完成展示异常不误报为导入失败或重复写入"
+          ],
+          "failures": []
+        }
+      },
+      {
+        "name": "incall-followup",
+        "count": 30,
+        "result": "pass",
+        "details": {
+          "result": "pass",
+          "count": 30,
+          "failed": 0,
+          "checks": [
+            "人工外呼在拨号和等待接听时也能记录，接通后保留输入",
+            "inbound：坐席未接听时不显示记录表单，也不能提前填写沟通结果",
+            "predictive：坐席未接听时不显示记录表单，也不能提前填写沟通结果",
+            "manual：通话中直接填写处理结果、备注及六项客户业务信息",
+            "manual：通话中草稿不会提前写为已完成或更新正式客户业务信息",
+            "manual：收起后恢复与静音重绘保留全部输入",
+            "manual：挂断只切换到确认阶段并保留通话中草稿",
+            "manual：确认提交后话单、客户档案和关联客户名单一致",
+            "manual：保存后恢复接听，下一通不会带入上一位客户的通话记录",
+            "inbound：通话中直接填写处理结果、备注及六项客户业务信息",
+            "inbound：通话中草稿不会提前写为已完成或更新正式客户业务信息",
+            "inbound：收起后恢复与静音重绘保留全部输入",
+            "inbound：挂断只切换到确认阶段并保留通话中草稿",
+            "inbound：确认提交后话单、客户档案和关联客户名单一致",
+            "inbound：保存后恢复接听，下一通不会带入上一位客户的通话记录",
+            "predictive：通话中直接填写处理结果、备注及六项客户业务信息",
+            "predictive：通话中草稿不会提前写为已完成或更新正式客户业务信息",
+            "predictive：收起后恢复与静音重绘保留全部输入",
+            "predictive：挂断只切换到确认阶段并保留通话中草稿",
+            "predictive：确认提交后话单、客户档案和关联客户名单一致",
+            "predictive：保存后恢复接听，下一通不会带入上一位客户的通话记录",
+            "通话中刷新恢复草稿，演示会话中断后仍需坐席确认提交",
+            "挂断后刷新保留草稿，最终提交后再次刷新只显示已保存记录",
+            "其他账号及其他租户不会恢复当前坐席的通话草稿",
+            "当前账号、租户或供应商账号变化后不能将输入写回旧通话草稿",
+            "草稿暂存失败明确提示且保留当前输入，存储恢复后完整补存",
+            "工作台外显号码独立于技能组；切换保留号码且未绑定号码可实际拨号",
+            "取消技能绑定后仍校验租户、供应商账号、号码状态和人工外呼用途；拨号前重查授权",
+            "预外呼来电演示不依赖号码技能绑定，仍按任务和坐席技能分配",
+            "预外呼来电演示发起前重新校验号码授权，不能越权分配"
+          ],
+          "failures": []
+        }
+      }
+    ],
+    "syntaxFiles": 6,
+    "liveSupplierVerified": false,
+    "browserVerified": true
+  },
+  "documentation": {
+    "result": "pass",
+    "scope": "documentation_only_not_development_package_or_supplier_integration",
+    "version": "2026-09-20-cf06-clarified-1",
+    "count": 144,
+    "linksChecked": 2523,
+    "checks": [
+      "说明、字段、待确认、变更与编写源版本一致",
+      "82项功能与47项冻结页面编号保持",
+      "全部功能章节与源一致",
+      "FS-01逻辑与验收同步",
+      "FS-01字段与运行文件可追溯",
+      "FS-02逻辑与验收同步",
+      "FS-02字段与运行文件可追溯",
+      "FS-03逻辑与验收同步",
+      "FS-03字段与运行文件可追溯",
+      "FS-04逻辑与验收同步",
+      "FS-04字段与运行文件可追溯",
+      "FS-05逻辑与验收同步",
+      "FS-05字段与运行文件可追溯",
+      "FS-06逻辑与验收同步",
+      "FS-06字段与运行文件可追溯",
+      "FS-07逻辑与验收同步",
+      "FS-07字段与运行文件可追溯",
+      "FS-08逻辑与验收同步",
+      "FS-08字段与运行文件可追溯",
+      "FS-09逻辑与验收同步",
+      "FS-09字段与运行文件可追溯",
+      "FS-10逻辑与验收同步",
+      "FS-10字段与运行文件可追溯",
+      "FS-11逻辑与验收同步",
+      "FS-11字段与运行文件可追溯",
+      "FS-12逻辑与验收同步",
+      "FS-12字段与运行文件可追溯",
+      "FS-13逻辑与验收同步",
+      "FS-13字段与运行文件可追溯",
+      "FS-14逻辑与验收同步",
+      "FS-14字段与运行文件可追溯",
+      "FS-15逻辑与验收同步",
+      "FS-15字段与运行文件可追溯",
+      "FS-16逻辑与验收同步",
+      "FS-16字段与运行文件可追溯",
+      "FS-17逻辑与验收同步",
+      "FS-17字段与运行文件可追溯",
+      "FS-18逻辑与验收同步",
+      "FS-18字段与运行文件可追溯",
+      "FS-19逻辑与验收同步",
+      "FS-19字段与运行文件可追溯",
+      "FS-20逻辑与验收同步",
+      "FS-20字段与运行文件可追溯",
+      "FS-21逻辑与验收同步",
+      "FS-21字段与运行文件可追溯",
+      "字段编号保持且唯一",
+      "官方来源数保持92",
+      "附表编号唯一且版本同步",
+      "CF04与CF06已关闭且其余待确认保持",
+      "当前变更D048与答复及范围决定一致",
+      "CF04关闭证据及答复完整",
+      "当前确认列表不再提问CF04",
+      "未把未更新开发包声明为新版本",
+      "软电话配置、前导零与缺失阻断均说明",
+      "现行说明没有恢复号码技能授权链",
+      "FA-008已按本轮规则更新",
+      "FA-084已按本轮规则更新",
+      "FA-170已按本轮规则更新",
+      "CF06供应商语义与用户范围分别保留",
+      "本地号码使用字段不冒充供应商契约",
+      "docs/release-notes.html锚点唯一",
+      "docs/functional-spec.html锚点唯一",
+      "docs/change-log.html锚点唯一",
+      "docs/exception-definitions.html锚点唯一",
+      "docs/interaction.html锚点唯一",
+      "docs/development.html锚点唯一",
+      "docs/field-alignment.html锚点唯一",
+      "docs/remaining-confirmations.html锚点唯一",
+      "flowcharts/sequence-interaction.html锚点唯一",
+      "flowcharts/page-structure.html锚点唯一",
+      "flowcharts/business-process.html锚点唯一",
+      "related-systems/index.html锚点唯一",
+      "文档链接与锚点有效",
+      "每条规则均有可点击锚点",
+      "流程图源版本与文档相同",
+      "SC-103图源哈希与字段规则引用有效",
+      "SC-011图源哈希与字段规则引用有效",
+      "SC-017图源哈希与字段规则引用有效",
+      "SC-018图源哈希与字段规则引用有效",
+      "SC-207图源哈希与字段规则引用有效",
+      "SC-208图源哈希与字段规则引用有效",
+      "SC-209图源哈希与字段规则引用有效",
+      "SC-008图源哈希与字段规则引用有效",
+      "SC-009图源哈希与字段规则引用有效",
+      "SC-210图源哈希与字段规则引用有效",
+      "SC-211图源哈希与字段规则引用有效",
+      "SC-212图源哈希与字段规则引用有效",
+      "SC-213图源哈希与字段规则引用有效",
+      "SC-214图源哈希与字段规则引用有效",
+      "SC-215图源哈希与字段规则引用有效",
+      "SC-105图源哈希与字段规则引用有效",
+      "SC-006图源哈希与字段规则引用有效",
+      "SC-216图源哈希与字段规则引用有效",
+      "SC-217图源哈希与字段规则引用有效",
+      "SC-014图源哈希与字段规则引用有效",
+      "SC-218图源哈希与字段规则引用有效",
+      "SC-219图源哈希与字段规则引用有效",
+      "SC-015图源哈希与字段规则引用有效",
+      "SC-220图源哈希与字段规则引用有效",
+      "SC-221图源哈希与字段规则引用有效",
+      "SC-222图源哈希与字段规则引用有效",
+      "SC-223图源哈希与字段规则引用有效",
+      "FLOW-101图源哈希与字段规则引用有效",
+      "FLOW-201图源哈希与字段规则引用有效",
+      "FLOW-202图源哈希与字段规则引用有效",
+      "FLOW-203图源哈希与字段规则引用有效",
+      "FLOW-204图源哈希与字段规则引用有效",
+      "FLOW-205图源哈希与字段规则引用有效",
+      "SC-003图源哈希与字段规则引用有效",
+      "SC-020图源哈希与字段规则引用有效",
+      "SC-104图源哈希与字段规则引用有效",
+      "SC-102图源哈希与字段规则引用有效",
+      "SC-224图源哈希与字段规则引用有效",
+      "SEQ-103图源哈希与字段规则引用有效",
+      "SEQ-011图源哈希与字段规则引用有效",
+      "SEQ-017图源哈希与字段规则引用有效",
+      "SEQ-018图源哈希与字段规则引用有效",
+      "SEQ-207图源哈希与字段规则引用有效",
+      "SEQ-208图源哈希与字段规则引用有效",
+      "SEQ-209图源哈希与字段规则引用有效",
+      "SEQ-008图源哈希与字段规则引用有效",
+      "SEQ-009图源哈希与字段规则引用有效",
+      "SEQ-210图源哈希与字段规则引用有效",
+      "SEQ-211图源哈希与字段规则引用有效",
+      "SEQ-212图源哈希与字段规则引用有效",
+      "SEQ-213图源哈希与字段规则引用有效",
+      "SEQ-214图源哈希与字段规则引用有效",
+      "SEQ-215图源哈希与字段规则引用有效",
+      "SEQ-006图源哈希与字段规则引用有效",
+      "SEQ-216图源哈希与字段规则引用有效",
+      "SEQ-217图源哈希与字段规则引用有效",
+      "SEQ-218图源哈希与字段规则引用有效",
+      "SEQ-219图源哈希与字段规则引用有效",
+      "SEQ-220图源哈希与字段规则引用有效",
+      "SEQ-221图源哈希与字段规则引用有效",
+      "SEQ-222图源哈希与字段规则引用有效",
+      "SEQ-223图源哈希与字段规则引用有效",
+      "SEQ-003图源哈希与字段规则引用有效",
+      "SEQ-020图源哈希与字段规则引用有效",
+      "SEQ-104图源哈希与字段规则引用有效",
+      "SEQ-102图源哈希与字段规则引用有效",
+      "SEQ-224图源哈希与字段规则引用有效",
+      "任务时序版本一致",
+      "合并版本记录旧Markdown入口一致"
+    ]
+  },
+  "browser": {
+    "result": "pass",
+    "checks": [
+      "号码列表显示本地使用启停；供应商启停位于详情更多设置",
+      "021****601停用确认说明新外呼阻断与已有通话继续",
+      "停用后列表显示本地已停用，刷新保留",
+      "号码详情保留总部授权，显示本地已停用且在AliCti停用按钮仍可见",
+      "右侧抽屉关闭与返回按钮可见，视觉布局无重叠",
+      "本地重新启用后恢复正常，原租户授权不变；演示号码已恢复",
+      "CF-06导航移至已关闭主题，点击显示供应商答复及本地控制结论",
+      "待确认页面显示183字段、1待确认字段、7主题、3类接入准备"
+    ],
+    "consoleErrorsAndWarnings": [],
+    "liveSupplierVerified": false
+  },
+  "protectedFiles": {
+    "checked": 284,
+    "unchanged": true,
+    "manifest": [
+      {
+        "path": "development/AGENT_PROMPT.md",
+        "sha256": "2e65f3c12aa0ef5c51bd30a966b687f7470c624a1c30d4efd1bcd68d373f1446"
+      },
+      {
+        "path": "development/START_HERE.md",
+        "sha256": "ece116e0ab6679efa3c15a0d7c21d0237220ffd85e7769da8685af9cc315892a"
+      },
+      {
+        "path": "development/acceptance-cases.json",
+        "sha256": "e34680671003ad74369f043ff0caaf55a60f4fe41510e49e3bb7e76d55a87d52"
+      },
+      {
+        "path": "development/architecture.md",
+        "sha256": "cfcba0cbe0be7195b7431a14fbbf40343ef12901df60a9c44a7e25bd5d80c079"
+      },
+      {
+        "path": "development/contracts/README.md",
+        "sha256": "318e5de055f089009ba09716e2cbe0daa171e530a7d70447a465d47e2a16da52"
+      },
+      {
+        "path": "development/contracts/adapter-contracts.json",
+        "sha256": "30632c0ab7218fa526b70dcd174eab4e4de807afeefa7ca65390317315e20606"
+      },
+      {
+        "path": "development/contracts/field-mappings.json",
+        "sha256": "c7852600d31723abce76bb1d4ae5b6bd6058acb04c7a77e3dae0b7b281539993"
+      },
+      {
+        "path": "development/contracts/number-status.json",
+        "sha256": "b2fef9862e651848b74abe0f06bb9622145d10fc832b9ce116ae8ca623994a5f"
+      },
+      {
+        "path": "development/contracts/outbound-groups.json",
+        "sha256": "7c83c6029fb8d6bb160b276635600d53630154d4a39c03e4be14a534504729ac"
+      },
+      {
+        "path": "development/contracts/queue-configuration.json",
+        "sha256": "d43f3538b77cac3d061ab8b29dd80d826c65e140550c99b6fb6cb04ff41c71ca"
+      },
+      {
+        "path": "development/contracts/seat-operations.json",
+        "sha256": "8855748f086e2a178fd58cf7efe1820e62f5a719bf8dec9bd1bb3f6cc8428006"
+      },
+      {
+        "path": "development/contracts/supplier-contracts.json",
+        "sha256": "0d6ac065064c46b240a3d47cd4e8a8b65e1e4c4b6ca89e91c679c404af147062"
+      },
+      {
+        "path": "development/data/README.md",
+        "sha256": "6540b0206ffd455a1209b53f1220c60937432e3fac4b9877813d9146dc042047"
+      },
+      {
+        "path": "development/data/domain-model.json",
+        "sha256": "58c3d2ef0873ac4d4e928b61a51883b40eb16cf45bbafb3dc179921788740c32"
+      },
+      {
+        "path": "development/data/permission-matrix.json",
+        "sha256": "4480488d33c0c98c5c17863b1d9bb3690cbd10faf1c6dc419e33abcf9b8230d9"
+      },
+      {
+        "path": "development/data/schemas.json",
+        "sha256": "5b5d5c01398667bf37ccbdba39629666dd3daa8cb43109192e40680daacde276"
+      },
+      {
+        "path": "development/data/state-machines.json",
+        "sha256": "a1e4185a42309111a92054485157df920fd31f255190143216a04bfa1ccdbaaa"
+      },
+      {
+        "path": "development/manifest.json",
+        "sha256": "f536cb3639dd6643e286698f60fe7c7270a886b246e6f2e3163d5bc46f0567d5"
+      },
+      {
+        "path": "development/open-items.json",
+        "sha256": "a683dde3c5a08159612a3495a8e1fe450b1c48cee4b9c23c7766796b83ca45c4"
+      },
+      {
+        "path": "development/reference/alicti/API-301.html",
+        "sha256": "bef6ec5984976c6e95892226364595f2b7b925e4a92156649434a63797830fa6"
+      },
+      {
+        "path": "development/reference/alicti/API-301.json",
+        "sha256": "c20abfb059045d88acba81b084219b495a361369ce0463fbaf5f48350122fe8c"
+      },
+      {
+        "path": "development/reference/alicti/API-301.txt",
+        "sha256": "e02a483f65f7cc9588f98f258aff38615f610bc3dc70ffb3618521e8468b070c"
+      },
+      {
+        "path": "development/reference/alicti/API-302.html",
+        "sha256": "aa3848401877bd31ac4a2882d78ec28b530258e36f186e99cbbec0e5a99ce5f0"
+      },
+      {
+        "path": "development/reference/alicti/API-302.json",
+        "sha256": "fe0cba999689b61e07b8260936059dbfd54872650d23322fe0d822628be99b26"
+      },
+      {
+        "path": "development/reference/alicti/API-302.txt",
+        "sha256": "ca19554bdfa796076e215900e178a69f02b191da163132f4ce88c45e848c9b77"
+      },
+      {
+        "path": "development/reference/alicti/API-303.html",
+        "sha256": "61d92ea1eda9af8b15ccce98ad6b3f91da9fe1bfba4e10e8153ba0cefb12337c"
+      },
+      {
+        "path": "development/reference/alicti/API-303.json",
+        "sha256": "7483ab4dffbeec96d9da39cd3653ce8fd0327433e0402f16b8c2d72787734f56"
+      },
+      {
+        "path": "development/reference/alicti/API-303.txt",
+        "sha256": "5e28a430cf8838cdf608d101450c8cd356d1fb477f4fc6c3236c016f350a7ea4"
+      },
+      {
+        "path": "development/reference/alicti/API-304.html",
+        "sha256": "de1c9c6a58bd058303865f8b66b99718c5ad98dfed0b6edb2e689b4007366c60"
+      },
+      {
+        "path": "development/reference/alicti/API-304.json",
+        "sha256": "1c2aea6c01f69c208cd90c1de8a3cb810e6134959586c6e7396b0baef705f1d4"
+      },
+      {
+        "path": "development/reference/alicti/API-304.txt",
+        "sha256": "621d0dc45f25adc31bd1958a615698256855a4c80b3b93cc5d14cd84d855bf50"
+      },
+      {
+        "path": "development/reference/alicti/API-305.html",
+        "sha256": "5a03804dbf7a45b6add253e545706588a01041d1617eebc90c178f07249db10b"
+      },
+      {
+        "path": "development/reference/alicti/API-305.json",
+        "sha256": "395ea8f002c9f00dc36330c2953ca41e4b1e3e040b53bc1189608d858d7293ed"
+      },
+      {
+        "path": "development/reference/alicti/API-305.txt",
+        "sha256": "3ac23c09053b74250f30fba33f1713ed620575aa522a663eb490567c0d213328"
+      },
+      {
+        "path": "development/reference/alicti/API-306.html",
+        "sha256": "5969994cf606ca3ed7fc2149a82e6b32793ac68b46956dca6e2be618e70813c7"
+      },
+      {
+        "path": "development/reference/alicti/API-306.json",
+        "sha256": "49d09ef0c2a0b123ab36774635829aeac0ac5e5603a21316a152f40f36d60101"
+      },
+      {
+        "path": "development/reference/alicti/API-306.txt",
+        "sha256": "2b0f8390a2cd3af6dbbef6184502a372a554bbac412d1ec836f0a69467458bbd"
+      },
+      {
+        "path": "development/reference/alicti/API-307.html",
+        "sha256": "b55a0605cafeffbe4ce212e20c3c4df107e754e4ee0166e50ce863c23f0c169b"
+      },
+      {
+        "path": "development/reference/alicti/API-307.json",
+        "sha256": "b7690240dc79adcd1ffdd92de57cf2564ee03be6b01bade436988ac40118370c"
+      },
+      {
+        "path": "development/reference/alicti/API-307.txt",
+        "sha256": "97f801674c553af4f660023873a45676e97e358420adb7432336a1acdfae70d8"
+      },
+      {
+        "path": "development/reference/alicti/API-308.html",
+        "sha256": "ef865c459fe0df5b8cf29b79e08f1a7da334286b4dd2744de79c793293f280a0"
+      },
+      {
+        "path": "development/reference/alicti/API-308.json",
+        "sha256": "44e9d1faeab80ba34673ce78605e440fb4ef74494675aa99062e29bb978c3a26"
+      },
+      {
+        "path": "development/reference/alicti/API-308.txt",
+        "sha256": "374ceda913295e775a85f9c86b4a5f50ee8dd01e7f93ec92038693cebcd04156"
+      },
+      {
+        "path": "development/reference/alicti/API-309.html",
+        "sha256": "e66de74c8b655ea7edeb4265dfd1c685fe97a04e99a9de958478297d7b4cc2b0"
+      },
+      {
+        "path": "development/reference/alicti/API-309.json",
+        "sha256": "863347c83033c0c0741f6d38a3865559a278d59730d4694c6f75e27ebac948c9"
+      },
+      {
+        "path": "development/reference/alicti/API-309.txt",
+        "sha256": "47b73ddfe0aed88252b18eca9c98916728fab26e50c41c9b6b35dbcaaddddedd"
+      },
+      {
+        "path": "development/reference/alicti/API-310.html",
+        "sha256": "3dc55607d0cba77f5c9d9010d3294139adb97ab160bb2531d8d7791f49fd2bff"
+      },
+      {
+        "path": "development/reference/alicti/API-310.json",
+        "sha256": "5a57084b35fdd8326325e1ab912edb3fa677e861c943d2a1a6bf000a2d199d39"
+      },
+      {
+        "path": "development/reference/alicti/API-310.txt",
+        "sha256": "826af3b28ab5dd2892e4cdff585ef0e30998fd28500e77acb8d75d8b731b1911"
+      },
+      {
+        "path": "development/reference/alicti/API-311.html",
+        "sha256": "d3e0c51d3507d205663f604e637e36e7cb0d38678eafb4abcf7755c23153f58b"
+      },
+      {
+        "path": "development/reference/alicti/API-311.json",
+        "sha256": "3fff4836e60b9f90ec36f22fc4de2c3d6e71a60a2cbd36115e271c0a24424020"
+      },
+      {
+        "path": "development/reference/alicti/API-311.txt",
+        "sha256": "2edab6c1ccb813d81997b94e2891f6b6196777984529e4362afd8036c583d46e"
+      },
+      {
+        "path": "development/reference/alicti/API-312.html",
+        "sha256": "e0b21150129d059cb058fbc440f07cea1cba6459bb4c1d73f3d631cc9b237822"
+      },
+      {
+        "path": "development/reference/alicti/API-312.json",
+        "sha256": "af669ec493ed8464262c3c648ff5b981158466d3d2590e4e688e23ceec1486aa"
+      },
+      {
+        "path": "development/reference/alicti/API-312.txt",
+        "sha256": "8d6f1e0b2a7f876f0fd23bc013221776fc048197a369ec45ce10b21c583c98ea"
+      },
+      {
+        "path": "development/reference/alicti/API-313.html",
+        "sha256": "bb8f737628571402bf06cb03d632360b37d5f50ae4b8a9c374538cebba40fe30"
+      },
+      {
+        "path": "development/reference/alicti/API-313.json",
+        "sha256": "9728fe1cf4104f5a89d4320c661da62bf5bbe0ae8fa6e8b2528147b859d225b7"
+      },
+      {
+        "path": "development/reference/alicti/API-313.txt",
+        "sha256": "b0227bea3044565e921f2f7a5f609279db916c18612c801038dafb52cdde8020"
+      },
+      {
+        "path": "development/reference/alicti/API-314.html",
+        "sha256": "c22edf93d69f6abda67b74e054ae6f936cc45688bc75ae4d5d92e6fd031f50b5"
+      },
+      {
+        "path": "development/reference/alicti/API-314.json",
+        "sha256": "d448f82ada4e0f4abc6c13a8424a2cc169e0e63151a4c5d215cc1f1f19dbdde2"
+      },
+      {
+        "path": "development/reference/alicti/API-314.txt",
+        "sha256": "548ae746561be32afcffbbf735eba8d8a7a8c091cbb5c24c3b26e3e54d4c7c61"
+      },
+      {
+        "path": "development/reference/alicti/API-315.html",
+        "sha256": "c55ef8d09dae8f9e1c715d10eb378455b6625e5bf93164b4e73a0368e9a06c82"
+      },
+      {
+        "path": "development/reference/alicti/API-315.json",
+        "sha256": "5a4eadef59b6c41af42ca95b43a060b7a150d424c8e9a09c4249c4f57eed7f1c"
+      },
+      {
+        "path": "development/reference/alicti/API-315.txt",
+        "sha256": "e9cfbc9575adbd0b9cca1d016d563e863e87e17f26aced2863320e47b5e367b1"
+      },
+      {
+        "path": "development/reference/alicti/API-316.html",
+        "sha256": "8eb7c41ad4f6831c637791293854e8ed44c4463f614ed3c405c21a6e311c06ee"
+      },
+      {
+        "path": "development/reference/alicti/API-316.json",
+        "sha256": "9d6df7afed7dcf6f2c080bf1cc8affc161cee014dafca579a66bf67ce97bfb3d"
+      },
+      {
+        "path": "development/reference/alicti/API-316.txt",
+        "sha256": "3385ba21ac0a0a95112dbde5001fd28600bf12ba49fead76b0db4ef7bbd088d9"
+      },
+      {
+        "path": "development/reference/alicti/API-317.html",
+        "sha256": "e05277fc1d93f49ff3d7ebd49c0cbb721ebb2758b1f957401631997ec918d332"
+      },
+      {
+        "path": "development/reference/alicti/API-317.json",
+        "sha256": "7c5baee0ed018fd5f4143698c10b2f61228f01c5621e47add8981fa3e5f3b0d8"
+      },
+      {
+        "path": "development/reference/alicti/API-317.txt",
+        "sha256": "cc81466a12dcc81944365f49f03965783c61fbd4f764da53f0500c4d3cfb675d"
+      },
+      {
+        "path": "development/reference/alicti/API-318.html",
+        "sha256": "d739ee964d1d6b0fc510cbaf9ce92220a95b59008552faa913cda56ba4522982"
+      },
+      {
+        "path": "development/reference/alicti/API-318.json",
+        "sha256": "ffc6109286bf7cbc12f8a393b2be2d4d95e15821d52950277cc495ac0c59e954"
+      },
+      {
+        "path": "development/reference/alicti/API-318.txt",
+        "sha256": "7575d8b70247164894c8db6161f68e259fc2d8db2af3c3a1716de27e1d30fbb0"
+      },
+      {
+        "path": "development/reference/alicti/API-319.html",
+        "sha256": "3b1879fcee85972f1562bf47c05afd95c7bcbcb776ba14be49951297012d01a3"
+      },
+      {
+        "path": "development/reference/alicti/API-319.json",
+        "sha256": "7cc68e07ea4638b7f21b629f42bb28cc78175d122f58d73e6c50052085828162"
+      },
+      {
+        "path": "development/reference/alicti/API-319.txt",
+        "sha256": "847788a2c82d3c30b988654718177b9dc607a9a580dfba3de94f5deffde14709"
+      },
+      {
+        "path": "development/reference/alicti/API-320.html",
+        "sha256": "32f049c630508b997f92c68b949c5dd0da14c70cb8d723d5588d79843995ad6a"
+      },
+      {
+        "path": "development/reference/alicti/API-320.json",
+        "sha256": "8f6cad2df636b4b09e461453e1b93c24cf0497fe8b5806dd37fbb5e2cc4b77c7"
+      },
+      {
+        "path": "development/reference/alicti/API-320.txt",
+        "sha256": "7f9e7ff0cb0206c023ba7cde9ddf14da1e9eb827ae0de9405bc0e0c39c8dd361"
+      },
+      {
+        "path": "development/reference/alicti/API-321.html",
+        "sha256": "d76e9832ecc812e6357492cfe6d4332a0815ff83b19cacb69d8bf6331557d84f"
+      },
+      {
+        "path": "development/reference/alicti/API-321.json",
+        "sha256": "0bf69e310326947a92fc6e032f84e4bb7c2f7ffc8d6aa44e239bc3264b451590"
+      },
+      {
+        "path": "development/reference/alicti/API-321.txt",
+        "sha256": "bd216099996bee453bf377c8285bdb9f650b3acb4d7e70f816150616613d7ed1"
+      },
+      {
+        "path": "development/reference/alicti/API-322.html",
+        "sha256": "d43ecc614f6b5e5546f964de296769d9a7b679a38a557e119fc5d15edd3caaa6"
+      },
+      {
+        "path": "development/reference/alicti/API-322.json",
+        "sha256": "35ca23dcb696e18872f465b73ce56e95fa3296c90041fe3bfeb12edd6dfa8cda"
+      },
+      {
+        "path": "development/reference/alicti/API-322.txt",
+        "sha256": "2ffefe936ebc86353077570d09b3a4e9d819cd271178bc481a9054efd8af5fc2"
+      },
+      {
+        "path": "development/reference/alicti/API-323.html",
+        "sha256": "893f210a9791bd0834471b6b020c972edfc4b72c707935012efbf658cde3222a"
+      },
+      {
+        "path": "development/reference/alicti/API-323.json",
+        "sha256": "dd3fdb2afd89d98a468443e11503d3edf8010901d4a8b5de8867db25fc519f14"
+      },
+      {
+        "path": "development/reference/alicti/API-323.txt",
+        "sha256": "383b0c2bade4a1a50197d34e7ab4c21f33616c7f39cce30c1a70d438967f14f4"
+      },
+      {
+        "path": "development/reference/alicti/API-327.html",
+        "sha256": "4c4794d4dc98e64f04e28b43a75910ef64891820db0eb2cdc83338096e053396"
+      },
+      {
+        "path": "development/reference/alicti/API-327.json",
+        "sha256": "683ff3389f753623466a6b84506409f2a8ab2374d46b7ff79168d45830ac162a"
+      },
+      {
+        "path": "development/reference/alicti/API-327.txt",
+        "sha256": "563c31a708fa95f5eff22082fcd51b02ecdd155df84dcc3e8eb36556596309c2"
+      },
+      {
+        "path": "development/reference/alicti/API-350.json",
+        "sha256": "c249bcc348613e835d9b1c06c59480873d78c292dd97361006a278096f241b91"
+      },
+      {
+        "path": "development/reference/alicti/API-350.txt",
+        "sha256": "2958c55b9f12023ceb8c91b79a7970df1d240dd3fba37f77aa872a948ccecb2d"
+      },
+      {
+        "path": "development/reference/alicti/API-351.json",
+        "sha256": "dfe7d2ef69dd57793dae590cd556508647684f5007c860105fc839d03e40bf04"
+      },
+      {
+        "path": "development/reference/alicti/API-351.txt",
+        "sha256": "6d117f4a842b9c7e2c55724e5fac50da1579c0c1cc55f9daf765f850e9e845a0"
+      },
+      {
+        "path": "development/reference/alicti/API-352.json",
+        "sha256": "361fbd68d38287eda967c8bce6bba46b46b6056969ae1f22eb22f766d23d639d"
+      },
+      {
+        "path": "development/reference/alicti/API-352.txt",
+        "sha256": "11e4eb23ce1c568a2efded19677ebb513c7632bbdbc433c0cc97fadefa6bd2cf"
+      },
+      {
+        "path": "development/reference/alicti/API-353.json",
+        "sha256": "b6e6a13fdcc40b5eb475d2567c878f58ae6ea499e62e1b2deb3e57f1df784015"
+      },
+      {
+        "path": "development/reference/alicti/API-353.txt",
+        "sha256": "c76f716c0218836eec6f787430fa5101e15318e36ca448df8930c8d0dc2fc0dd"
+      },
+      {
+        "path": "development/reference/alicti/API-354.json",
+        "sha256": "4197ee34145d8d00281d26871bc579a1192a5c6c03478293e03f2668fedf3ca7"
+      },
+      {
+        "path": "development/reference/alicti/API-354.txt",
+        "sha256": "1530b705a8b9af0b607dabcfb4e904e12a72924e1d9b171bba853b1faf3b3d20"
+      },
+      {
+        "path": "development/reference/alicti/API-360.html",
+        "sha256": "1b28f7764e827d4537c27bda449e8c887f423e18ffe6f5f0c2e465ef1a23adfa"
+      },
+      {
+        "path": "development/reference/alicti/API-360.json",
+        "sha256": "50aa84a0c0eed2f581862cfbb7dfece9bd0fc4d7e2c120ea0a0eb684a9dba185"
+      },
+      {
+        "path": "development/reference/alicti/API-360.txt",
+        "sha256": "cac69a99b2500ee7866aa2be4290aac7b12f280019cf48d83a8c31969ae5c414"
+      },
+      {
+        "path": "development/reference/alicti/API-361.html",
+        "sha256": "6f6329a6926e808f0cc19af12bd6110b5a1573637eff08e238ba1eff89bf0ba3"
+      },
+      {
+        "path": "development/reference/alicti/API-361.json",
+        "sha256": "cf16df2d9c8f9272878d44b6d5dfbed68232860393ae86c1f77cdbb829794835"
+      },
+      {
+        "path": "development/reference/alicti/API-361.txt",
+        "sha256": "7355824e56cc4e2ccc5f30b08c696332bd6d995163944f797b8381bbd0b74aeb"
+      },
+      {
+        "path": "development/reference/alicti/API-362.html",
+        "sha256": "7953d2f63e051219a467c817e333c8341201dd03a45476174bf85c48faa4c540"
+      },
+      {
+        "path": "development/reference/alicti/API-362.json",
+        "sha256": "7b79bbb420b7a81a197b7beaa4e3d5cd163a38021458db50518023a4be96913c"
+      },
+      {
+        "path": "development/reference/alicti/API-362.txt",
+        "sha256": "63d877ab6cf31d5999de5027361587d99e2c84db034287d89a2d35acee46ce8d"
+      },
+      {
+        "path": "development/reference/alicti/API-363.html",
+        "sha256": "077f9876dcbb3d67c12753b88f484461651ba673ae25cdd75e796bda84996817"
+      },
+      {
+        "path": "development/reference/alicti/API-363.json",
+        "sha256": "dc7cfe06db4177e482b89ba3ebdcd9da4e8a6b96703862b70eb7f2b6b7771b74"
+      },
+      {
+        "path": "development/reference/alicti/API-363.txt",
+        "sha256": "b214a1fa0db19a6ac746d98306863b4c77a5499656d5791846a655760e55af06"
+      },
+      {
+        "path": "development/reference/alicti/API-364.html",
+        "sha256": "641992b723a22fff5145bb21e0d4ab77d3efbe1a1002f256ef6026c06bd197c0"
+      },
+      {
+        "path": "development/reference/alicti/API-364.json",
+        "sha256": "d61c6c1675ae73108346295cd8c21b56e0928be730725785eb6d9e592240586a"
+      },
+      {
+        "path": "development/reference/alicti/API-364.txt",
+        "sha256": "ad55d8686593345ceb3f494b055f48ad80d33ab211efe923cf73573b8842b899"
+      },
+      {
+        "path": "development/reference/alicti/API-365.html",
+        "sha256": "0a5483a34c2194b0bf745de7d049d787f1caa7440990af11585fdfd20c39087f"
+      },
+      {
+        "path": "development/reference/alicti/API-365.json",
+        "sha256": "c7f294e33e405cf8620753ec4ef16c4c23b17965ab5cb89dc40ebacd95b4690d"
+      },
+      {
+        "path": "development/reference/alicti/API-365.txt",
+        "sha256": "661741b5410d997cd35fbe64380a8ebe90ee65e705cf77a339e9d53a96b6c464"
+      },
+      {
+        "path": "development/reference/alicti/API-366.html",
+        "sha256": "36e93417ad80d775fbf4e11feb3c653a01a9e3d5a3ed5821e7e2c4c38c7013ed"
+      },
+      {
+        "path": "development/reference/alicti/API-366.json",
+        "sha256": "95b3165f3efa2d324dc992803dac608615a480b70fde53cb1dffd95318fddd07"
+      },
+      {
+        "path": "development/reference/alicti/API-366.txt",
+        "sha256": "0c1d4873360b886448ceaadc1a4ea5eb86808e773c169cf332e8ca6d6b4b4475"
+      },
+      {
+        "path": "development/reference/alicti/API-367.html",
+        "sha256": "10e7c5326b44e5fc9aec977655d77518d87505c544f327a4861a4858e948e753"
+      },
+      {
+        "path": "development/reference/alicti/API-367.json",
+        "sha256": "961417675961b372264aa29f704c196c0cab08a525933360986addad89480120"
+      },
+      {
+        "path": "development/reference/alicti/API-367.txt",
+        "sha256": "5830609978d7a1bf882a398ecc4d8881fd52eba97513d4b1bd35f8123a15e8bb"
+      },
+      {
+        "path": "development/reference/alicti/API-368.html",
+        "sha256": "427af9627761bdce98e416c21140c85427238086eee939312871201c10ad1ed0"
+      },
+      {
+        "path": "development/reference/alicti/API-368.json",
+        "sha256": "bcc4571d258f1c776190d0121d303361731f03e911ed4e93e2b4c1003aaf9ccb"
+      },
+      {
+        "path": "development/reference/alicti/API-368.txt",
+        "sha256": "17d3eba26a119b8fb31da80d3721a7ae94f6663e0df8c0fecf63baecd7d87044"
+      },
+      {
+        "path": "development/reference/alicti/API-377.html",
+        "sha256": "d2ff24fe03e9c6478ef3eaefe33da13a91ed67367790453b02b746cad3c869d8"
+      },
+      {
+        "path": "development/reference/alicti/API-377.json",
+        "sha256": "f7dd826a0a485f8907f668e3e5c0aefa8fb31c025ad103f6b4c9c5043b50120c"
+      },
+      {
+        "path": "development/reference/alicti/API-377.txt",
+        "sha256": "a4aca5cbeb89afda4a82ccc890972b0f2f3451915ac36d9ee542bb70f0d13539"
+      },
+      {
+        "path": "development/reference/alicti/API-378.html",
+        "sha256": "6c0002772d8f427a598442cb0bc23e6f66a67abdcbc71e24936b4cb3dbeeec52"
+      },
+      {
+        "path": "development/reference/alicti/API-378.json",
+        "sha256": "9a070956467dd54f0ecbd0c0917f3956e8ab7eaaa6e78ffa3a0cc1a4d7adf8cc"
+      },
+      {
+        "path": "development/reference/alicti/API-378.txt",
+        "sha256": "4c12dee49c81654d0c23eb0df1ce1017034e462032b3b7487855a1aca5739b69"
+      },
+      {
+        "path": "development/reference/alicti/API-379.html",
+        "sha256": "7218c7bbc5fc93f8f5df97952e3468fdd8108e8cd29b6905538d24354d0356d6"
+      },
+      {
+        "path": "development/reference/alicti/API-379.json",
+        "sha256": "c557e8f406d2d5626cddcecf8d2fdde3b23bfe372d8bac92a15d18d8de5abd1e"
+      },
+      {
+        "path": "development/reference/alicti/API-379.txt",
+        "sha256": "d02aba20a59b1ebf24d2bfacfb768bbdf2ea6e5a3c30db18de45516c4d0e35a6"
+      },
+      {
+        "path": "development/reference/alicti/API-380.html",
+        "sha256": "57d7fcb12b59ea7c2844e2c9d4c3d5006cc3fad825bf0672d8e82e10753297cf"
+      },
+      {
+        "path": "development/reference/alicti/API-380.json",
+        "sha256": "53913db3cf3d36a9a6804db16e854ddc696a79c6dd09ac89786f4afb75e44b23"
+      },
+      {
+        "path": "development/reference/alicti/API-380.txt",
+        "sha256": "b94a69ac9e6a1930133c5f758232b9973c7c68dc3d64a81edfbab5507ac48de2"
+      },
+      {
+        "path": "development/reference/alicti/API-381.html",
+        "sha256": "8de4fece262bc249a5e132b72383a14d729c95f88b488e03a71ffe7cb4f19381"
+      },
+      {
+        "path": "development/reference/alicti/API-381.json",
+        "sha256": "a6419d5835c7a943bd9f31de9be0ce307647655c1db4e5d9edf4829e82c65c31"
+      },
+      {
+        "path": "development/reference/alicti/API-381.txt",
+        "sha256": "163f51124178681c359e98a8ff8e82dc3fa852cb25b8270eca655d6fceeeb034"
+      },
+      {
+        "path": "development/reference/alicti/API-382.html",
+        "sha256": "c78b06d1600a2ee5fe82a55cf99173b91f164f9712d4b42831f207d0413702f3"
+      },
+      {
+        "path": "development/reference/alicti/API-382.json",
+        "sha256": "680c82dc18d6c953d1f5e9818d6a8c97bd2a971a66825c2fe9faa0f71999e73d"
+      },
+      {
+        "path": "development/reference/alicti/API-382.txt",
+        "sha256": "09a455d032cfb46a10e80b6727dce587093f47e16308591deac78ad44d4a3325"
+      },
+      {
+        "path": "development/reference/alicti/API-383.html",
+        "sha256": "518c7bd9683163738fe566fe38b1dce09db60267ef9482d304b23326dd3c92a6"
+      },
+      {
+        "path": "development/reference/alicti/API-383.json",
+        "sha256": "34a0c0ad09b276ad545edc2f043a025a033b06060d2e0e29841ddf2dc91304c8"
+      },
+      {
+        "path": "development/reference/alicti/API-383.txt",
+        "sha256": "ce0f78614c50130b54a0890e1870d822532f16a108b7505e51a854895ff794b1"
+      },
+      {
+        "path": "development/reference/alicti/API-384.html",
+        "sha256": "2fa7372100d34c355c9dc6376f826de6fc33fe0eb55a58198c43bc804bf8db53"
+      },
+      {
+        "path": "development/reference/alicti/API-384.json",
+        "sha256": "428c90b7083daabbf063d7c235858ad5927fec46c4b4aea9ad039e67bf630569"
+      },
+      {
+        "path": "development/reference/alicti/API-384.txt",
+        "sha256": "1000c1416dd582d1cf2c86fb713f64a1dd32864688ade371ba39fe150e559440"
+      },
+      {
+        "path": "development/reference/alicti/API-385.html",
+        "sha256": "b715e2384686b28af3a8fbca77d1e2580c5b4da9168155e9ca82fe6893f951a3"
+      },
+      {
+        "path": "development/reference/alicti/API-385.json",
+        "sha256": "aa73b233234b8a3102181c73dc77257f26b06e40c295aa1f50ddab70c0eb3c0b"
+      },
+      {
+        "path": "development/reference/alicti/API-385.txt",
+        "sha256": "105b8c6b823c040d62f5a767f1bd35ba24993811e804573defb481315f9a5f2d"
+      },
+      {
+        "path": "development/reference/alicti/API-386.json",
+        "sha256": "23ffe2b47e34d881184cec69bf5b7aab03eaf62ed4ef8db178923811803fb020"
+      },
+      {
+        "path": "development/reference/alicti/API-386.txt",
+        "sha256": "f286a42dc0d6a6f5f0c0c68bc0b70d13e16b1ccb85ed7647b4a17c53d77dedd9"
+      },
+      {
+        "path": "development/reference/alicti/API-387.json",
+        "sha256": "45b34ac332c4c8963ce8eaba73ba824d0ef27113793554d666d633c82286b8ea"
+      },
+      {
+        "path": "development/reference/alicti/API-387.txt",
+        "sha256": "ea3f4e7cc5a38cf886dcf6da6b1e1ac3107732b0f9d148dc20da83cb1b799241"
+      },
+      {
+        "path": "development/reference/alicti/API-388.json",
+        "sha256": "ed88f6674e68e4e41119d4b1e4954a376f7f46027d8a69db508b10ffd892b433"
+      },
+      {
+        "path": "development/reference/alicti/API-388.txt",
+        "sha256": "ccdf215289a359c69da1056a87cf72f74375f612c5fed93a1114a1941fcea77f"
+      },
+      {
+        "path": "development/reference/alicti/API-389.json",
+        "sha256": "ce27ecb93a2f8428f689feb30e115e4de88cb8df60398c1f12f4b8bb0a8f39e8"
+      },
+      {
+        "path": "development/reference/alicti/API-389.txt",
+        "sha256": "be58a2d2a71c942ea31e68671b57ab25a2b1e8ce966343c9f6d88aa9af23adcc"
+      },
+      {
+        "path": "development/reference/alicti/API-390.json",
+        "sha256": "0cda369f724211900eb5dc81d5fb15cfdc6c2101198beb693ebfec1e1a519321"
+      },
+      {
+        "path": "development/reference/alicti/API-390.txt",
+        "sha256": "026480de9909187a6b2134da5db18f7bb76f460411eeb0dec8eb7d1fcf96d87a"
+      },
+      {
+        "path": "development/reference/alicti/API-391.json",
+        "sha256": "5f765a2c9906d420bc77e721e9d202772ff7cbc6d581b465efdd9a2596ae0397"
+      },
+      {
+        "path": "development/reference/alicti/API-391.txt",
+        "sha256": "334828572bce1d3b7daaa31500b8aba1edd2dda73c29ed721c24ca1ce4ebafec"
+      },
+      {
+        "path": "development/reference/alicti/API-392.json",
+        "sha256": "fb077d020282d64030f997ebae5406db8f1aaf1b0689ae99e45b352ee1b1b688"
+      },
+      {
+        "path": "development/reference/alicti/API-392.txt",
+        "sha256": "1c842d2054e4a40bc68b8d59070ef22de6caf85018998dc23e1ce1756aeb8de7"
+      },
+      {
+        "path": "development/reference/alicti/API-393.json",
+        "sha256": "5396a9ec7d31dc80ecd100acb65f3f242df19389064880bd61542fae51317047"
+      },
+      {
+        "path": "development/reference/alicti/API-393.txt",
+        "sha256": "ed6db87cdd424717ec956eb934a56853706c18d1640e0ee952a3231bd743379d"
+      },
+      {
+        "path": "development/reference/alicti/API-394.json",
+        "sha256": "b64725ab3949b33da2a7ea1a0db929960275df9083ec35ccabaec114f4f6a95e"
+      },
+      {
+        "path": "development/reference/alicti/API-394.txt",
+        "sha256": "83b4347d33c8d53132853c09573e122a4c0d6f5e258f59c2ac98767fe31d591c"
+      },
+      {
+        "path": "development/reference/alicti/DOC-328.html",
+        "sha256": "b9bd0f21014d2492f1ffa3c467caea9c89f96e32659f3f20ea0231999f0143e2"
+      },
+      {
+        "path": "development/reference/alicti/DOC-328.json",
+        "sha256": "cdbb590d708d9682c3ddca19761c92c184ec14fd9a17dc602d104b7dd826f205"
+      },
+      {
+        "path": "development/reference/alicti/DOC-328.txt",
+        "sha256": "f8dbb35bd5b3598e8730e672f42e5d47a0a05fbcf7287392f2de277d8b074595"
+      },
+      {
+        "path": "development/reference/alicti/DOC-329.html",
+        "sha256": "2d0767ab68efcc22170df91245108899b32ef0575e977987d28fafce97fa5d2e"
+      },
+      {
+        "path": "development/reference/alicti/DOC-329.json",
+        "sha256": "13fbc3a4288f5366e73a5aa2fcfe20115cc79cbc64b5a0ac301efc818380e84e"
+      },
+      {
+        "path": "development/reference/alicti/DOC-329.txt",
+        "sha256": "f5f0e1a23e6f9e81bb083e6134fc511cfd0e17c8c82b044e922986acef79591f"
+      },
+      {
+        "path": "development/reference/alicti/DOC-330.html",
+        "sha256": "bf8f804bbafafd842701571d09f081a587dba113ab800d9006ba796a7d7c77d3"
+      },
+      {
+        "path": "development/reference/alicti/DOC-330.json",
+        "sha256": "c902864847cf3e9b089ffef70dda0d76ece879f3b0a75a61cdea0a304dbc13b6"
+      },
+      {
+        "path": "development/reference/alicti/DOC-330.txt",
+        "sha256": "87032a1b30c4f373fafc7ddc574ce491ce835089f17517ce27d6d558aeba6c1e"
+      },
+      {
+        "path": "development/reference/alicti/DOC-331.html",
+        "sha256": "cbd14829815b20d0ee02f92cf9e484af8486a4968096b1e62ff3873fe4d7b8b5"
+      },
+      {
+        "path": "development/reference/alicti/DOC-331.json",
+        "sha256": "62e5b9b60418fb61ed37e695065b9fbc9648df6fa9e668ce2cbf57f506ed2087"
+      },
+      {
+        "path": "development/reference/alicti/DOC-331.txt",
+        "sha256": "4f133eb2d913ea0a0b9142b8513febffb3dce40d6f94a80e6f4cb244ac3c7e1d"
+      },
+      {
+        "path": "development/reference/alicti/DOC-332.html",
+        "sha256": "429cc77ad2059671b0a85bb42d22b97f13eaca353abc2025835680013f3985b4"
+      },
+      {
+        "path": "development/reference/alicti/DOC-332.json",
+        "sha256": "81acb6595014e8e50d5f8d8107ca9e2b4f54a83037c3518ad383b62d24322be4"
+      },
+      {
+        "path": "development/reference/alicti/DOC-332.txt",
+        "sha256": "b5c725e3a0801882d85af51c194d21eb884b656b8b066b09867ea48e9496e53e"
+      },
+      {
+        "path": "development/reference/alicti/DOC-333.html",
+        "sha256": "a95b0ad6ccd7c279b3023130d75ee11d4eabc1e692ea6c27422946b20b7e0847"
+      },
+      {
+        "path": "development/reference/alicti/DOC-333.json",
+        "sha256": "5612740c964da10b6666be3be751d6b0a254fa24545b9b32ab8636914e14ed5a"
+      },
+      {
+        "path": "development/reference/alicti/DOC-333.txt",
+        "sha256": "00ad4110c04e273a53670dec659aae112d5d80864a2f67c5b7d781deb9623690"
+      },
+      {
+        "path": "development/reference/alicti/DOC-334.html",
+        "sha256": "a68d57cacfed44a8c24b2060f7fa44629a2ad15d7eaa50ebef9b39a0a4df2feb"
+      },
+      {
+        "path": "development/reference/alicti/DOC-334.json",
+        "sha256": "360e0ed5dcac3a4057b0bd33f249a7635aab35bda376b5779fab2389e5c744a1"
+      },
+      {
+        "path": "development/reference/alicti/DOC-334.txt",
+        "sha256": "f3f4cb52cfe91d4278640cfd9f58ca5d44e0baf83f4fb10bf6d7134e39677197"
+      },
+      {
+        "path": "development/reference/alicti/DOC-335.html",
+        "sha256": "733f58740587f15835939517c893404c0fe191c6f546a9d0ced3b0e90047e648"
+      },
+      {
+        "path": "development/reference/alicti/DOC-335.json",
+        "sha256": "7b8f485878ef97eef93519c9cc9cd75f025aa69e04d2f75ca5541edc86830173"
+      },
+      {
+        "path": "development/reference/alicti/DOC-335.txt",
+        "sha256": "83b45f735318bf5a9a324e16a69b4faba5d7f7e2b10dee0be42dad9ce32bd6e9"
+      },
+      {
+        "path": "development/reference/alicti/DOC-336.html",
+        "sha256": "0ad2bfd67dfca4bf22b99b1fbb957eeab6b57df797028e78b5456c3b4ff17d2c"
+      },
+      {
+        "path": "development/reference/alicti/DOC-336.json",
+        "sha256": "4476a73a6f56fd58b5cb4e842802322337f6dd2a7f815a588a7dda614d3f99fc"
+      },
+      {
+        "path": "development/reference/alicti/DOC-336.txt",
+        "sha256": "936cd9144362d1d14f5509d78d8c2beb14c2cf0d6c006627a108037db15acee4"
+      },
+      {
+        "path": "development/reference/alicti/DOC-337.html",
+        "sha256": "fde0d52bcf9f8d13803d91a82f91dccef7ada62b778410117b69d1a8685de7e1"
+      },
+      {
+        "path": "development/reference/alicti/DOC-337.json",
+        "sha256": "fc596075169e73010cf48caa36379eb43d71674f43111ff6f14817a1143d7b76"
+      },
+      {
+        "path": "development/reference/alicti/DOC-337.txt",
+        "sha256": "8713703356fca75bc41b192edd6732fddfc9beb5bb64c7da57520a29b320dd6e"
+      },
+      {
+        "path": "development/reference/alicti/DOC-338.html",
+        "sha256": "726865073451b0cef057053540bb2c9372cd61f63750db0bfe79364478c3f80d"
+      },
+      {
+        "path": "development/reference/alicti/DOC-338.json",
+        "sha256": "a26807189a81bc7429ada0013b50156c96dc5a00bc4e616366599d982c4d4f34"
+      },
+      {
+        "path": "development/reference/alicti/DOC-338.txt",
+        "sha256": "81bda0e860790e9ca01e23a00ed4de69d1fc02935953e9466d5e50bab5b9d482"
+      },
+      {
+        "path": "development/reference/alicti/DOC-339.html",
+        "sha256": "a25fa80ddb2fb0e3e7f1b0e4b06158ae442177a044423973714d36b69896d44a"
+      },
+      {
+        "path": "development/reference/alicti/DOC-339.json",
+        "sha256": "4de9d78242fdd4141dcfb372378a9ca55ce8f37d17d7724366751be9044bd807"
+      },
+      {
+        "path": "development/reference/alicti/DOC-339.txt",
+        "sha256": "67ff166cbbe3e38c53a984e0d2663dfdb28fd84fb1013e4c62657205587c8229"
+      },
+      {
+        "path": "development/reference/alicti/DOC-340.html",
+        "sha256": "d1f942f801ba3c902c89cb6e36e0c83c163a23c8b3db1b4b95422be9c995db64"
+      },
+      {
+        "path": "development/reference/alicti/DOC-340.json",
+        "sha256": "e84c18c239fb2e5b137c5c9d6cc363f9cb98799e02243286cfd39012369dd54b"
+      },
+      {
+        "path": "development/reference/alicti/DOC-340.txt",
+        "sha256": "2b9ab04dc3f8c3d070dda7ad81c369e61e34fe3f92e1cf2b4c5de534ca68fdea"
+      },
+      {
+        "path": "development/reference/alicti/DOC-341.html",
+        "sha256": "29b26c491ae2ec1528699e2f66a86a7495796715fadfbfa81f243caef07d6dae"
+      },
+      {
+        "path": "development/reference/alicti/DOC-341.json",
+        "sha256": "a4b4da42d254e2ce17f756f50a185afc558e8dfb6867d38333370c5a950d72c1"
+      },
+      {
+        "path": "development/reference/alicti/DOC-341.txt",
+        "sha256": "91c6888683c072b343350255c827c76390a2efe49129d487726e72fb3835bb8f"
+      },
+      {
+        "path": "development/reference/alicti/DOC-342.html",
+        "sha256": "c7bdd662c39eea9d841463fe0808fc05420b332be55b1f0c12803ac405acceb6"
+      },
+      {
+        "path": "development/reference/alicti/DOC-342.json",
+        "sha256": "53fa663f83378b5789ccd2f6c6cbad6e6c374ff93da06569499ae0ff2a163945"
+      },
+      {
+        "path": "development/reference/alicti/DOC-342.txt",
+        "sha256": "7c395def58118c3864f2a22d0f98e8a2e21122cdcb272faebec1aa72aa02c08f"
+      },
+      {
+        "path": "development/reference/alicti/DOC-343.html",
+        "sha256": "d7034b9f4ff2d4f7630460f12ff01c3860163aaefe3a75a5de2876582c6c85e3"
+      },
+      {
+        "path": "development/reference/alicti/DOC-343.json",
+        "sha256": "543578e72e5e2da7cafdc239d76bc4ac281a2f30fe47d74b800b3abd5e4e7d6e"
+      },
+      {
+        "path": "development/reference/alicti/DOC-343.txt",
+        "sha256": "9319614516dda4f1048b65726134b8affc2c41ec8fa295e7b7f273e1fae7b993"
+      },
+      {
+        "path": "development/reference/alicti/DOC-344.html",
+        "sha256": "4a1f8a720012bced43482ee95c9e75a14a06b9da7d0a4f81461967b4b3b9ef4d"
+      },
+      {
+        "path": "development/reference/alicti/DOC-344.json",
+        "sha256": "5f4ac503dd18bca5220cf9e80c26656d01b35c468e0a4a781a260aa5a318f656"
+      },
+      {
+        "path": "development/reference/alicti/DOC-344.txt",
+        "sha256": "be2b042370217c93a23606ad51c142359629225fd0cba5c6a2a49f0e16438ece"
+      },
+      {
+        "path": "development/reference/alicti/DOC-345.html",
+        "sha256": "b93848de52fa44e0f8c55ac7e2726d7ba03f216e687ea655f3b876ae2a05f0ce"
+      },
+      {
+        "path": "development/reference/alicti/DOC-345.json",
+        "sha256": "a9e999662ddf52a1cf2a356a1b4cbc220a5927e5c2532e7e2ae9e0eb055872dc"
+      },
+      {
+        "path": "development/reference/alicti/DOC-345.txt",
+        "sha256": "e931ca2a7af34e27e083efc717338bb476ec1a6e58cf555435117e11c23600f0"
+      },
+      {
+        "path": "development/reference/alicti/DOC-346.html",
+        "sha256": "bc2aac8c101e8265b13774f2739d2e109f61affa9d401878bb8d7b29fab0c8fe"
+      },
+      {
+        "path": "development/reference/alicti/DOC-346.json",
+        "sha256": "47615aff609cd91a96e88793596d9dd3b1a8f69e28610fa2703b68eba20f4b68"
+      },
+      {
+        "path": "development/reference/alicti/DOC-346.txt",
+        "sha256": "456cc7c2ceaf015f66a57e05287f658d179a71f8105c629b039b50956cde43ef"
+      },
+      {
+        "path": "development/reference/alicti/DOC-347.html",
+        "sha256": "ef3fca6e3eae9fc4726261091fe88fb2b12c46641594396f41108fb1006eec2f"
+      },
+      {
+        "path": "development/reference/alicti/DOC-347.json",
+        "sha256": "3046990d3f3f62d73f4fe23fe98fac1a9cbf909a2141fea3080f41484fdf9984"
+      },
+      {
+        "path": "development/reference/alicti/DOC-347.txt",
+        "sha256": "7d1dbeecc284e80025b9e27dce1cb96752bc59231fe726aad74b640fc75ef060"
+      },
+      {
+        "path": "development/reference/alicti/DOC-348.html",
+        "sha256": "181dde82b950026b020192364266b7d1a1c6263a4e228f1a4d22c6bccca58c0f"
+      },
+      {
+        "path": "development/reference/alicti/DOC-348.json",
+        "sha256": "56f41c724b46d7c4d5d3f2e4ced1f6dd2838177cbabef61b3d32799e1a7683de"
+      },
+      {
+        "path": "development/reference/alicti/DOC-348.txt",
+        "sha256": "b35ebfda44d091ae26a8631a21b610a4a4c956ead05b5566f4966ccf1de4f040"
+      },
+      {
+        "path": "development/reference/alicti/DOC-349.html",
+        "sha256": "ebe7c3f3a706246c74a80811c52e4d2fac1c55cf8e577d47e056a728b8a2904d"
+      },
+      {
+        "path": "development/reference/alicti/DOC-349.json",
+        "sha256": "95ae5e748dce1c451878f493ee039929c362fdd1c3f463ec326c67d23898d852"
+      },
+      {
+        "path": "development/reference/alicti/DOC-349.txt",
+        "sha256": "3c84fd6d9f4376681db2b03a2b264495296161314684b2922d128a0d4210a5b4"
+      },
+      {
+        "path": "development/reference/alicti/DOC-355.json",
+        "sha256": "a0d415b3feca0a420579468e93ed6aa971e8f947f1e264cdd9891db5470c41a4"
+      },
+      {
+        "path": "development/reference/alicti/DOC-355.txt",
+        "sha256": "f2d07083fd2168f2348614f1ac0add812949a7f9f40b73f30ca6ed859cbc9340"
+      },
+      {
+        "path": "development/reference/alicti/DOC-356.json",
+        "sha256": "881073101438a64f547efceec4e33a73e035a65bdae61ed609fdf5cb4978bf6d"
+      },
+      {
+        "path": "development/reference/alicti/DOC-356.txt",
+        "sha256": "a5d3dfda55d92d9c606f931c9a9a08445812f924985be7d9de0dd54659c453ec"
+      },
+      {
+        "path": "development/reference/alicti/DOC-357.json",
+        "sha256": "6cc854a7d5032b7e72d747213102c5092e86fcdd05d34526aaace764b0ee1002"
+      },
+      {
+        "path": "development/reference/alicti/DOC-357.txt",
+        "sha256": "a44035ee289af3f6ec8925543d44f1c265e007e11b48bd9218af07b800a925f2"
+      },
+      {
+        "path": "development/reference/alicti/DOC-358.json",
+        "sha256": "2857de2f8bf1741774cdac28c22dc7ca84b8dfc3d6701af1c4637c240337c8c3"
+      },
+      {
+        "path": "development/reference/alicti/DOC-358.txt",
+        "sha256": "1aa8b29e21344c9352e3e64b9d9da374444ef10cc1725225c18429017cf2a0df"
+      },
+      {
+        "path": "development/reference/alicti/DOC-359.json",
+        "sha256": "75766dc0343624c8d09453d10a3e07e0003b5e86d628758e4474bf09d9d76017"
+      },
+      {
+        "path": "development/reference/alicti/DOC-359.txt",
+        "sha256": "4e3a13934346a89ad4da016229583e2b199287e2f5b16879befb9a61b1ce1449"
+      },
+      {
+        "path": "development/reference/alicti/DOC-369.html",
+        "sha256": "f328ab2a6916500de4fee2ac4f7d520d9cbd839fa610f3176ee67949114a72cb"
+      },
+      {
+        "path": "development/reference/alicti/DOC-369.json",
+        "sha256": "d01d33471b9305e36a2d3a5aea2e0fc9f733ea8440d7e9f44ae7cb87c0fe9d01"
+      },
+      {
+        "path": "development/reference/alicti/DOC-369.txt",
+        "sha256": "105be1230cdc23302f67d2189ec3e0c99ec0d8057d310c58c5f7d7c962110abc"
+      },
+      {
+        "path": "development/reference/alicti/DOC-370.html",
+        "sha256": "dd60b149dacd20db93274a36a473c823dae54ba5031ded7ac4828fb0e6c9a368"
+      },
+      {
+        "path": "development/reference/alicti/DOC-370.json",
+        "sha256": "14a020326d19e565ba5493821a87088d629fa863ede1b91e568ffa9cb4ba523c"
+      },
+      {
+        "path": "development/reference/alicti/DOC-370.txt",
+        "sha256": "73527fed3b29db5b6c9a1c1ecfe25c72f247076fbb9bd4b03d41c101569a150b"
+      },
+      {
+        "path": "development/reference/alicti/DOC-371.html",
+        "sha256": "480db132a6b3c2b7861379b928b6b07d5dba6cfe2f74ea29aca9066f0f76156f"
+      },
+      {
+        "path": "development/reference/alicti/DOC-371.json",
+        "sha256": "ad24b63ab13f6b94c2d4fd7fc9fdcf5123d42159445dd3f3ff0fbfd59a256b0c"
+      },
+      {
+        "path": "development/reference/alicti/DOC-371.txt",
+        "sha256": "3a38e0cd30bcc355cfa0938a6fd64e7cb26490db45ea71528b02c29cd472ea22"
+      },
+      {
+        "path": "development/reference/alicti/DOC-372.html",
+        "sha256": "e7c0065e1459fe53831fbc8be6f9c33e28c7452356c447ced40916b5e1ebebc5"
+      },
+      {
+        "path": "development/reference/alicti/DOC-372.json",
+        "sha256": "33b0dcd2c93512bd88bfe2714e169b7b6e6b2e3f1c78e790a8019e769ab1852d"
+      },
+      {
+        "path": "development/reference/alicti/DOC-372.txt",
+        "sha256": "8b67a5415a03345a70a44e80f90d83533c8ffdd90556503be35171a0532b35b8"
+      },
+      {
+        "path": "development/reference/alicti/DOC-373.html",
+        "sha256": "fd7a0d2a697e2327d780e8677eb184ffe3669adab8ddc16bcc0d93e643adf89e"
+      },
+      {
+        "path": "development/reference/alicti/DOC-373.json",
+        "sha256": "5c3749deb226923c316ed494e0f124f06e3ad78862fa7dc52d1c05c4b146680a"
+      },
+      {
+        "path": "development/reference/alicti/DOC-373.txt",
+        "sha256": "265116f18cef6c11b284a0127caca7345775b53643fd7d14bc67bb163d00f8e1"
+      },
+      {
+        "path": "development/reference/alicti/DOC-374.html",
+        "sha256": "2196b49112563f02cc95a37b5c15eb5fab987a83f35a92901814754c44bb8543"
+      },
+      {
+        "path": "development/reference/alicti/DOC-374.json",
+        "sha256": "f27f7e6867eb589969dd9311c22400c5d0ee5e33bbfc2c538336c9660ffb9d22"
+      },
+      {
+        "path": "development/reference/alicti/DOC-374.txt",
+        "sha256": "1e2d09ac58c600aa66f7bd16cd82c2578736e6c70ea2449e68869601f504d139"
+      },
+      {
+        "path": "development/reference/alicti/DOC-375.html",
+        "sha256": "118f5b566f2a60b7090ec2b497f1ca9df5de31d06f676cb665c1537f6c87e67b"
+      },
+      {
+        "path": "development/reference/alicti/DOC-375.json",
+        "sha256": "7aa269f47be2e6a0542c3cfa73a2768c10ffec76b38d9239f3b214cc452b37ef"
+      },
+      {
+        "path": "development/reference/alicti/DOC-375.txt",
+        "sha256": "3c796fc3d25a8c349f22df41cc33a72e1a0af4bdc66213f994ae8385ec118a39"
+      },
+      {
+        "path": "development/reference/alicti/DOC-376.html",
+        "sha256": "fa9a069d97ba084de0cd702660945eee2300539540f26652efe983d635d96306"
+      },
+      {
+        "path": "development/reference/alicti/DOC-376.json",
+        "sha256": "55edd68b756085f51f03cd8907cb86da8c74ae7e492123bb766b0dac853d03a4"
+      },
+      {
+        "path": "development/reference/alicti/DOC-376.txt",
+        "sha256": "d53cd6468ca6f4dbad95ee675a6b899f19caf394068d0f06fd7c5c23313000a5"
+      },
+      {
+        "path": "development/reference/alicti/DOC-395.html",
+        "sha256": "d29daa16bcd345ae59586d6c855fb1b365198bb3c8cc26155b4ba865be9998b5"
+      },
+      {
+        "path": "development/reference/alicti/DOC-395.json",
+        "sha256": "aee46a1054e0b8ac9d0df07295fd1dffbb3a931b42c3665b00d31cd6dd7089b4"
+      },
+      {
+        "path": "development/reference/alicti/DOC-395.txt",
+        "sha256": "54dc5c6ce3eabefb5159c77b4d23582eed382ef891bd0ab61d4bf71c53d47926"
+      },
+      {
+        "path": "development/skill-deferred-submission.md",
+        "sha256": "ddffcbd7eac34f901521e4dfef6d2a77d6be1802a75e7a032e7a888d52bbc992"
+      },
+      {
+        "path": "development/traceability.json",
+        "sha256": "196d434238232af46cf51f31286e4394a4c04ee7997832292ac1ecbd8b133122"
+      },
+      {
+        "path": "development/work-items.json",
+        "sha256": "9ffb3f4821c6815ea3595af8f27947f801ddbd77f79fbd1e946c93266382db69"
+      },
+      {
+        "path": "development/work-items.md",
+        "sha256": "ed75fe9ef45239dbce38dcd40f3a166d05a20a610fb02887492ca023b696d138"
+      },
+      {
+        "path": "docs/development.html",
+        "sha256": "57f13c06a02d2c4248fe86fc933ecc7a687a46bf090f0bcb8e8c38873a95ab2e"
+      },
+      {
+        "path": "docs/development.md",
+        "sha256": "2dbb9dae9ca8698a07990656539fdab3fb63a9e523a8897e6c1ea3deaa6ef605"
+      },
+      {
+        "path": "docs/通话数据异常与操作审计定义表.xlsx",
+        "sha256": "e6c8139856aabcb9e6899b8366772c78c655d12c5c6b192b312796614c11ff77"
+      },
+      {
+        "path": "downloads/alicti-development-kit.zip",
+        "sha256": "64c14807fe7d9d42870840d0a9c6a8abb6678c940d2a6665fb74ec4aa65c33ec"
+      }
+    ]
+  },
+  "currentCounts": {
+    "fieldMappings": 183,
+    "appendixRules": 415,
+    "pendingConfirmationTopics": 7,
+    "preparationCategories": 3
+  },
+  "developmentPackageVersion": "2026-09-19-regression-alignment-1",
+  "developmentPackageRegenerated": false,
+  "gitlabPushed": false,
+  "artifacts": [
+    {
+      "path": "index.html",
+      "sha256": "d4bc47cbad78f4b38f23048f98f957c4c2865646530abd31ec17b3a88c2bd86a"
+    },
+    {
+      "path": "js/pages/resource-lines.js",
+      "sha256": "7d18fba648c7b8c1194a74ae15834b5579a3ffac9912ba3abd514d7fd1b3f26b"
+    },
+    {
+      "path": "js/components/resource-rules.js",
+      "sha256": "bc05591e17fa63aaf750ef3a09566f0a3fe42e73be16488c333fbffee810d257"
+    },
+    {
+      "path": "js/components/alicti-adapter.js",
+      "sha256": "b6c5cb2dbbe94276baa170a472b2a5ea0d11d5c3fd6d6f86903c539c8258f26e"
+    },
+    {
+      "path": "js/pages/cloud-task-workspace.js",
+      "sha256": "8606acd5c97fc2cca877a28e603bcc6d5bc7c1c49851b2be0a680c8300bdf197"
+    },
+    {
+      "path": "js/components/alicti-task-control.js",
+      "sha256": "ae0b2883ec8721d9e2a2f7bb8baa2d255e63d26875078664f5e8f5560d55290e"
+    },
+    {
+      "path": "js/components/alicti-number-import.js",
+      "sha256": "517b4a781d18a24332a79d625800be1bc45eb6ee9a984cbba78e934e25740f12"
+    },
+    {
+      "path": "documentation/input/consolidated-reviewed-facts.json",
+      "sha256": "37d70f2e616b29ecd3dde48dc37ccb9e7d78da83ad62a92208446ad541948663"
+    },
+    {
+      "path": "docs/functional-spec.html",
+      "sha256": "9948ed6aea91236bc735628eafe154fddb1ed36bfb3f1ec2aef6c2c4cc99ae17"
+    },
+    {
+      "path": "docs/interaction.html",
+      "sha256": "ddce6226687376c3e99fd074cae79a47ca0c0c5b7c226bede92928370c2309c3"
+    },
+    {
+      "path": "docs/field-alignment.json",
+      "sha256": "f692feb4c806e7102b913d1cfe4bef3ab4eb91f3d4747aea9c3fd352ab7d2fdd"
+    },
+    {
+      "path": "docs/remaining-confirmations.json",
+      "sha256": "06d36b59a203b6b068d6b6a8ccd8b5b9668bfd2a11872692306ba52ede01e034"
+    },
+    {
+      "path": "docs/supplier-clarifications.json",
+      "sha256": "87597415a37e04ea746ac61fa5a369bd3ed839174eac8fd9386db8f6ae5eb4b2"
+    },
+    {
+      "path": "docs/change-log.html",
+      "sha256": "48bb2a2f2cd5ac3314b9b0a91f550e1726a032906f25cdd6a8e450f8bfd1ff26"
+    },
+    {
+      "path": "flowcharts/business-process.html",
+      "sha256": "344aef16cf93f0377cdc0566afe1408e81151f6a94a9e85a0602d5ecdd07c07c"
+    },
+    {
+      "path": "flowcharts/sequence-interaction.html",
+      "sha256": "9272faa4d580bd6b7817224105b5e25bd75c9266c8043755c4e67aedbab26faf"
+    },
+    {
+      "path": "related-systems/index.html",
+      "sha256": "2ea5c8cf927fc578ce0d4d47796d8e4e2682578c0b7cde18880a92b9b75fd09e"
+    }
+  ]
+}

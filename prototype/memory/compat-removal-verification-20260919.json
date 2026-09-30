@@ -1,0 +1,49 @@
+{
+  "id": "compat-removal-verification-20260919",
+  "decisionId": "D-044",
+  "title": "原型移除历史数据兼容",
+  "date": "2026-09-19",
+  "scope": "local_prototype_not_supplier_integration",
+  "removed": [
+    "js/alicti-storage.js DEMO-ENT-001↔7522240 存储键双向迁移",
+    "js/app.js 旧身份快照修复（ACC-OPS-CHEN 补种、旧 linkedIdentityId 删除）与缺随包对象豁免",
+    "js/components/alicti-accounts.js 旧 v1 regionCode 忽略与历史别名冲突校验",
+    "js/components/alicti-seat-operations.js 旧设备/模式/绑定字段的 v1 行迁移读取",
+    "js/pages/contact-center-settings.js 旧 skill-groups-v1 缓存清除",
+    "js/components/alicti-retry.js 与 cloud-task-workspace.js 旧 basic 重呼模式",
+    "js/components/alicti-fields.js 预测分配缺省按 1 回退",
+    "js/components/customer-business.js / report-center.js 业务类型未分类回退与筛选",
+    "js/components/queue-config.js / queue-detail.js 旧队列快照默认值比对",
+    "js/components/alicti-adapter.js 旧供应商术语运行时清洗（polish）与夹具规范化",
+    "mock/data.js / mock/workbench-fixtures.js 旧供应商术语与已保存旧包修补"
+  ],
+  "behavior": {
+    "oldFormatStorage": "一律按格式无效处理并保留原存储，回退随包演示数据",
+    "predictiveAssignment": "缺失时显示请重新选择分配方式并阻断提交，不自动按1解释",
+    "retry": "仅保留 unset/advanced 两种模式，basic 旧草稿须重新配置",
+    "reports": "业务类型仅线索/售后/活动三类，无未分类回退",
+    "queues": "缺字段按空值展示且不产生假变更"
+  },
+  "frozenDecisionsKeptInDocs": ["D-018", "D-020", "D-035", "D-037", "D-041", "BR-203"],
+  "verification": {
+    "offlineSuites": 34,
+    "failed": 0,
+    "deliveryVerification": "python3 documentation/verify_delivery.py 全量通过（含 Manifest 全部哈希一致）",
+    "syntaxCheck": "变更 JS node --check 通过，Python py_compile 通过",
+    "browserVisual": "未进行本轮浏览器视觉复核；行为断言以 Node VM 加载真实脚本的离线套件为准"
+  },
+  "testsUpdated": [
+    "qa/verify-queue-detail.cjs（缺字段按空值展示）",
+    "qa/verify-alicti-accounts.cjs（旧区域记录拒绝）",
+    "qa/verify-alicti-account-context.cjs（区域拒绝与目录先恢复）",
+    "qa/verify-seat-operations.cjs（旧偏好行无效）",
+    "qa/verify-skill-group-management.cjs（旧缓存不读取不删除）",
+    "qa/verify-predictive-strategy.cjs（缺分配方式须重新选择）",
+    "qa/verify-alicti-retry.cjs / verify-alicti-ivr.cjs（basic 移除）",
+    "qa/verify-regression-fields.cjs（显式分配方式）"
+  ],
+  "gitlabPublished": false,
+  "frozenInputsWritten": false,
+  "loopStageChanged": false,
+  "simulation": true
+}

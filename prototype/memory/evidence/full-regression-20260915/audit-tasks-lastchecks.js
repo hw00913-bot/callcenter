@@ -1,0 +1,7 @@
+async page=>{
+ const out={};out.templateBeforeReload=await page.evaluate(()=>CloudCallData.callPlans.filter(p=>p.name==='审计-模板含重呼').map(p=>p.callPlanId));await page.reload();await page.waitForFunction(()=>window.CloudTaskWorkspace&&window.AliCtiInbound);out.templateAfterReload=await page.evaluate(()=>({plans:CloudCallData.callPlans.filter(p=>p.name==='审计-模板含重呼'),taskSaved:CloudCallData.tasks.some(t=>t.name==='审计-模板含重呼')}));
+ out.controls=await page.evaluate(()=>{const t=CloudCallData.tasks.find(t=>t.taskId==='SHOWCASE-HQ-20260915-AUTO-PAUSED');AliCtiDemo.taskControlScenario='write-failure';const failure=AliCtiAdapter.controlTask(t,'resume',true),statusAfterFailure=t.status;AliCtiDemo.taskControlScenario='write-unknown';const unknown=AliCtiAdapter.controlTask(t,'resume',true);AliCtiDemo.taskControlScenario='success';return {failure,statusAfterFailure,unknown,pending:t.alictiTaskControlPending,stopNewDialing:t.stopNewDialing,status:t.status};});
+ out.permissions=await page.evaluate(()=>{const old=AliCtiInbound.context();DemoSwitch.enter('ACC-OPS-CHEN');AppState.chooseInstance('7522240');AppState.chooseDomain('CLOUD_CONTACT_CENTER');const s=AppState.get(), inbound=AliCtiInbound.save({routerType:2,tel:'13800001234',priority:500,active:1},{context:old}),task=CloudTaskWorkspace.start('预外呼');return {scope:s,inbound,task};});
+ await page.evaluate(()=>{DemoSwitch.enter('ACC-SUPER-001');AppState.chooseInstance('7522240');AppState.chooseDomain('CLOUD_CONTACT_CENTER');RouteRuntime.openPrimary('predictive-tasks');});
+ return out;
+}

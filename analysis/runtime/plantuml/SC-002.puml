@@ -1,0 +1,67 @@
+@startuml
+title SC-002 · 创建或复用中台登录账号并加入租户
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 租户管理员/超级管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|lane_1|
+start
+:租户管理员或超级管理员需要新增管理员/运营成员; <<start_label>>
+|lane_1|
+:选定目标租户并检查手机号\n输入：当前租户或超管选定租户；手机号\n输出：账号存在性;
+|lane_2|
+if (目标租户在管理范围内？) then (不满足 · ALT-002-2)
+|lane_1|
+:拒绝跨租户创建或加入; <<failure>>
+stop
+else (满足)
+|lane_1|
+:已有账号复用；不存在则显式创建\n输入：账号、昵称、手机号、默认密码等原表单\n输出：确认账号及管理员/运营单一角色;
+|lane_2|
+if (账号唯一性与表单校验通过？) then (不满足 · ALT-002-4)
+|lane_1|
+:不重复注册；保留输入并提示冲突; <<failure>>
+stop
+else (满足)
+|lane_1|
+if (确认提交本次操作？) then (确认)
+|lane_2|
+:保存账号及租户成员关系\n输入：平台账号与租户角色\n输出：新增或复用同一账号；不自动开通电话身份;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+else (取消 · ALT-002-CANCEL)
+|lane_1|
+:取消提交：不执行本次变更，保留已有有效数据; <<end_label>>
+stop
+endif
+endif
+endif
+@enduml

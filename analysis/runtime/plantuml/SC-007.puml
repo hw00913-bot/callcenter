@@ -1,0 +1,70 @@
+@startuml
+title SC-007 · 为坐席分配多个技能组和技能等级
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam ArrowColor #55657D
+skinparam ArrowFontColor #344054
+skinparam ArrowFontSize 11
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #8291A8
+  FontColor #25324A
+  DiamondBackgroundColor #FFF8E8
+  DiamondBorderColor #D19724
+  DiamondFontColor #754B00
+  BackgroundColor<<event>> #F4EDFF
+  BorderColor<<event>> #8A5AC2
+  FontColor<<event>> #5D348D
+  BackgroundColor<<start_label>> #EEF2FF
+  BorderColor<<start_label>> #315EFB
+  BackgroundColor<<end_label>> #F2F4F7
+  BorderColor<<end_label>> #667085
+  BackgroundColor<<failure>> #FFF0F3
+  BorderColor<<failure>> #C9364F
+  FontColor<<failure>> #8F1930
+}
+skinparam swimlaneBorderColor #BAC5D5
+skinparam swimlaneTitleBackgroundColor #E9EDF3
+skinparam swimlaneTitleFontColor #344054
+skinparam swimlaneTitleFontSize 13
+!pragma useVerticalIf on
+|#EDF4FF|lane_1| 租户管理员
+|#EFFAF5|lane_2| 统一外呼中台
+|#FFF8E8|lane_3| AliCti
+|lane_1|
+start
+:新坐席需要分配业务能力，或现有坐席职责变化; <<start_label>>
+|lane_1|
+:选择坐席及多个本租户技能组\n输入：坐席、技能组、技能等级\n输出：成员关系调整申请;
+|lane_2|
+if (坐席和组同租户同供应商账号且有效？) then (不满足 · ALT-007-2)
+|lane_1|
+:拦截跨租户、失效组及无权变更; <<failure>>
+stop
+else (满足)
+|lane_1|
+if (确认提交本次操作？) then (确认)
+|lane_2|
+:读取既有技能并形成完整目标技能列表\n保留未修改技能；数值越小优先；合法值域待确认;
+|lane_3|
+:全量更新坐席技能并返回逐项结果\nskillIds/skillLevels；小值优先，逐个核对failCno;
+|lane_2|
+if (目标坐席均已确认成功且技能列表一致？) then (不满足 · ALT-007-5)
+|lane_1|
+:保留失败项；管理员按项重试；不假装已具备技能; <<failure>>
+stop
+else (满足)
+|lane_2|
+:显示生效成员及等级\n输入：厂商结果\n输出：人工配置承接范围，厂商在组内按路由分配;
+|lane_1|
+:本次操作结束：结果已展示并可追溯; <<end_label>>
+stop
+endif
+else (取消 · ALT-007-CANCEL)
+|lane_1|
+:取消提交：不执行本次变更，保留已有有效数据; <<end_label>>
+stop
+endif
+endif
+@enduml
