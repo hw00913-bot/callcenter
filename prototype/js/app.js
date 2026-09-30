@@ -242,6 +242,24 @@
     return (data().instances || []).filter(item => ids.has(item.enterpriseId) && item.status === 'RUNNING');
   }
 
+  // Selection labels use business tenants. Keep availableTenants() scoped to
+  // the active enterprise because it also defines the authorization boundary.
+  function managedTenants() {
+    const rows = isSuper() ? (data().tenants || []) : availableTenants();
+    return rows.filter(tenant => isBusinessTenant(tenant) && tenant.status === '启用' &&
+      tenant.capabilitySet?.includes('CLOUD_CONTACT_CENTER') &&
+      tenantForEnterprise(tenant.enterpriseId) === tenant &&
+      (data().instances || []).some(item => item.enterpriseId === tenant.enterpriseId && item.status === 'RUNNING'));
+  }
+
+  function managedTenant() {
+    return managedTenants().find(tenant => isSuper() ? tenant.enterpriseId === state.enterpriseId : tenant.tenantId === state.tenantId) || null;
+  }
+
+  function tenantScopeLabel(tenant) {
+    return tenant ? `${tenant.name}${tenant.organizationLabel ? ' · ' + tenant.organizationLabel : ''}` : '未绑定业务租户';
+  }
+
   function currentInstance() {
     return (data().instances || []).find(item => item.enterpriseId === state.enterpriseId) || null;
   }
@@ -320,7 +338,7 @@
       enterpriseIds: instance ? [instance.enterpriseId] : [],
       tenantIds: tenantIdsInScope(),
       dataScopeLabel: isSuper()
-        ? `${supplierLabel(instance)} · ${tenantForEnterprise(instance?.enterpriseId)?.name || '未绑定业务租户'}`
+        ? tenantScopeLabel(managedTenant())
         : `${tenant?.name || '未选择租户'} · ${tenant?.organizationLabel || '组织范围未配置'}`
     };
   }
@@ -359,6 +377,7 @@
     if (permission.startsWith('ai.')) return false;
     if (permission === 'tenant.view') return role === 'SUPER_ADMIN' || role === 'ADMIN';
     if (permission === 'tenant.manage') return isSuper();
+    if (permission === 'customer.import') return role === 'ADMIN' && hasCapability('CLOUD_CONTACT_CENTER');
     if (isSuper()) return true;
     if (role === 'ADMIN') {
       return !['instance.switch', 'instance.manage', 'line.manage', 'number.manage', 'skill.template.manage', 'business-system.manage'].includes(permission);
@@ -466,11 +485,13 @@
   }
 
   function renderInstanceStep() {
+    const tenants = managedTenants();
     return `<div class="auth-card auth-choice-card">
       ${stageCopy()}
-      <div class="auth-card-heading"><span>超级管理员</span><h1>选择 AliCti 账号</h1><p>选择本次要管理的账号，查看该账号关联的租户、任务、资源和统计。</p></div>
-      <div class="auth-choice-list">${availableInstances().map(row => `<button type="button" class="auth-choice-row" onclick="AppState.chooseInstance('${esc(row.enterpriseId)}')"><span class="auth-choice-icon">客</span><div><strong>${esc(supplierLabel(row))}</strong><small>${row.status === 'RUNNING' ? '已启用' : '已停用'}</small></div><em>进入管理</em></button>`).join('')}</div>
-      <button class="btn btn-primary" type="button" onclick="AppState.openSupplierAccounts()">管理 AliCti 账号</button>
+      <div class="auth-card-heading"><span>超级管理员</span><h1>选择本次管理的租户</h1><p>选择租户后，查看该租户的任务、资源和统计。</p></div>
+      <div class="auth-choice-list">${tenants.map(row => `<button type="button" class="auth-choice-row" onclick="AppState.chooseManagedTenant('${esc(row.tenantId)}')"><span class="auth-choice-icon">${row.organizationScope === 'HEADQUARTERS' ? '总' : '店'}</span><div><strong>${esc(row.name)}</strong><small>${esc(row.organizationLabel || '业务租户')}</small></div><em>进入管理</em></button>`).join('')}</div>
+      ${tenants.length ? '' : '<p>暂无可用业务租户，请先完成接入配置及租户关联。</p>'}
+      <button class="btn btn-primary" type="button" onclick="AppState.openSupplierAccounts()">接入配置</button>
       <button class="auth-link" type="button" onclick="AppState.backToLogin()">返回账号登录</button>
     </div>`;
   }
@@ -525,20 +546,24 @@
   function renderControls() {
     ensureContext();
     const tenantLabel = document.getElementById('currentTenantLabel');
+    const tenantWrap = document.getElementById('tenantContext');
     const roleLabel = document.getElementById('currentRoleLabel');
     const instanceWrap = document.getElementById('instanceContext');
     const instanceSelect = document.getElementById('instanceSwitcher');
     const scopeLabel = document.getElementById('scopeLabel');
     const userLabel = document.getElementById('currentUserLabel');
     const ready = isReady();
-    if (tenantLabel) tenantLabel.textContent = ready ? `${currentTenant()?.name || '—'}${currentTenant()?.builtIn ? '（内置）' : ` · ${currentTenant()?.organizationLabel || ''}`}` : '尚未登录';
+    const selectedTenant = managedTenant(), tenantOptions = managedTenants();
+    if (tenantLabel) tenantLabel.textContent = ready ? tenantScopeLabel(selectedTenant) : '尚未登录';
+    if (tenantWrap) tenantWrap.hidden = ready && isSuper();
     if (roleLabel) roleLabel.textContent = ready ? (roleLabels[currentRoleCode()] || currentRoleCode()) : '—';
     if (instanceWrap) instanceWrap.hidden = !(ready && isSuper());
     if (instanceSelect) {
-      instanceSelect.innerHTML = (!state.enterpriseId ? '<option value="">请选择 AliCti 账号</option>' : '') + availableInstances().map(item => `<option value="${item.enterpriseId}" ${item.enterpriseId === state.enterpriseId ? 'selected' : ''}>${esc(supplierLabel(item))}</option>`).join('');
-      instanceSelect.disabled = !availableInstances().length;
+      instanceSelect.innerHTML = (!selectedTenant ? '<option value="" selected>' + (tenantOptions.length ? '请选择租户' : '暂无可用租户') + '</option>' : '') + tenantOptions.map(item => `<option value="${esc(item.tenantId)}" ${item.tenantId === selectedTenant?.tenantId ? 'selected' : ''}>${esc(tenantScopeLabel(item))}</option>`).join('');
+      instanceSelect.disabled = !tenantOptions.length;
+      instanceSelect.title = selectedTenant ? tenantScopeLabel(selectedTenant) : '未选择业务租户';
     }
-    if (scopeLabel) scopeLabel.textContent = ready ? effectiveAccess().dataScopeLabel : '请先登录';
+    if (scopeLabel) { scopeLabel.textContent = ready ? effectiveAccess().dataScopeLabel : '请先登录'; scopeLabel.hidden = ready && isSuper(); }
     if (userLabel) userLabel.textContent = ready ? (account().nickname || account().name || profile().label) : '登录';
     document.body.dataset.role = currentRoleCode();
     document.body.dataset.instance = state.enterpriseId || '';
@@ -720,11 +745,24 @@
     return transitionAfterInstanceOrTenant();
   }
 
+  function chooseManagedTenant(tenantId) {
+    if (!isSuper() || state.authStage !== 'INSTANCE') return false;
+    const tenant = managedTenants().find(item => item.tenantId === tenantId);
+    return !!tenant && chooseInstance(tenant.enterpriseId);
+  }
+
+  function setManagedTenant(tenantId) {
+    if (!isSuper() || !isReady()) return false;
+    const tenant = managedTenants().find(item => item.tenantId === tenantId);
+    if (!tenant) { renderControls(); return false; }
+    return setInstance(tenant.enterpriseId);
+  }
+
   function setInstance(enterpriseId) {
     if (enterpriseId === state.enterpriseId && isReady() && isSuper() && validInstancePreference(enterpriseId)) return true;
     if (window.AgentWorkbench && !AgentWorkbench.allowContextChange()) { renderControls(); return false; }
     if (!isReady() || !isSuper() || !availableInstances().some(item => item.enterpriseId === enterpriseId)) return false;
-    if (state.hasUnsavedChanges) { showToast('请先保存或关闭当前编辑内容，再切换 AliCti 账号', 'warning'); renderControls(); return false; }
+    if (state.hasUnsavedChanges) { showToast('请先保存或关闭当前编辑内容，再切换租户', 'warning'); renderControls(); return false; }
     window.CloudTaskWorkspace?.clearActiveContext();
     state.returnContext = null;
     state.enterpriseId = enterpriseId;
@@ -734,7 +772,7 @@
     state.currentPage = 'home';
     if (location.hash !== '#home') history.replaceState({ routeKey: 'home' }, '', '#home');
     notify();
-    showToast(`已切换至 ${supplierLabel(currentInstance())}`, 'success');
+    showToast(managedTenant() ? `已切换至 ${tenantScopeLabel(managedTenant())}` : '已进入接入配置范围，尚未绑定业务租户', 'success');
     return true;
   }
 
@@ -800,11 +838,11 @@
   }
 
   window.AppState = {
-    get: snapshot, profile, account, currentTenant, currentInstance, tenantForEnterprise, tenantHasBusinessData, validateTenantBindings, availableTenants, availableInstances, availableDomains,
+    get: snapshot, profile, account, currentTenant, currentInstance, tenantForEnterprise, tenantHasBusinessData, validateTenantBindings, availableTenants, availableInstances, availableDomains, managedTenants, managedTenant,
     effectiveAccess, isSuper, isReady, isBusinessContext: () => effectiveAccess().valid, isPlatformInternal: () => isSuper(),
     hasCapability, canMenu, canAction, canSensitive, authorizeObject, scoped,
-    selectDemoProfile, setLoginMode, sendSmsCode, refreshCaptcha, submitLogin, chooseTenant, chooseInstance,
-    setProfile, setPerspective: setProfile, setTenant, setInstance, setDirty,
+    selectDemoProfile, setLoginMode, sendSmsCode, refreshCaptcha, submitLogin, chooseTenant, chooseInstance, chooseManagedTenant,
+    setProfile, setPerspective: setProfile, setTenant, setInstance, setManagedTenant, setDirty,
     beginConfiguration, getReturnContext, returnFromConfiguration, clearReturnContext, logout, backToLogin,
     setEnvironment: () => false, setCurrentPage,
     subscribe(listener) { if (typeof listener === 'function') listeners.push(listener); },

@@ -51,7 +51,7 @@ function fixture(options = {}) {
   const nodes = new Map(), radios = new Map(), listeners = new Map();
   const toasts = [], layers = [], navigations = [], historyWrites = [], loaded = [], tables = [];
   const node = (id, properties = {}) => {
-    const element = { id, value: '', checked: false, hidden: false, dataset: {}, attributes: {},
+    const element = { id, value: '', checked: false, hidden: false, dataset: {}, attributes: {}, classList: { add() {}, remove() {}, toggle() {} },
       setAttribute(name, value) { this.attributes[name] = value; }, focus() { this.focused = true; },
       ...properties };
     nodes.set(id, element);
@@ -750,6 +750,118 @@ async function check(name, fn) { await fn(); checks.push(name); }
     assert.equal(operator.app.canAction('instance.manage'), false);
     assert.equal(operator.api.list().length, 0);
     assert.equal(operator.app.setInstance('DEMO-ENT-003'), false);
+  });
+  await check('管理范围候选只列有效业务租户，内置租户和未绑定账号不冒充租户', async () => {
+    const f = fixture(), unbound = await createAccount(f);
+    const expected = f.data.tenants.filter(tenant => !tenant.builtIn && tenant.tenantId !== 'TENANT-SUPER-BUILTIN' && tenant.status === '启用' &&
+      f.data.instances.some(account => account.enterpriseId === tenant.enterpriseId && account.status === 'RUNNING')).map(tenant => tenant.tenantId).sort();
+    assert.deepEqual(plain(f.app.managedTenants().map(tenant => tenant.tenantId)).sort(), plain(expected));
+    assert(!f.app.managedTenants().some(tenant => tenant.enterpriseId === unbound.enterpriseId));
+    f.data.tenants.push({ tenantId: 'QA-ORPHAN-TENANT', enterpriseId: 'MISSING-ACCOUNT', name: '孤立租户', status: '启用', capabilitySet: ['CLOUD_CONTACT_CENTER'] });
+    f.data.tenants.push({ tenantId: 'QA-NO-ACCOUNT', enterpriseId: '', name: '未绑定租户', status: '启用', capabilitySet: ['CLOUD_CONTACT_CENTER'] });
+    assert(!f.app.managedTenants().some(tenant => ['QA-ORPHAN-TENANT', 'QA-NO-ACCOUNT'].includes(tenant.tenantId)));
+    assert.equal(f.app.managedTenant()?.tenantId, 'TEN-NISSAN-HQ');
+    assert.equal(f.app.setInstance(unbound.enterpriseId), true, '供应商配置仍可进入未绑定账号');
+    assert.equal(f.app.managedTenant(), null, '未绑定供应商账号不能显示为业务租户');
+    assert.equal(f.app.setManagedTenant(unbound.enterpriseId), false, '新入口只接受租户 ID');
+  });
+  await check('管理租户实时排除停用租户及停用账号，过期候选不能切入', async () => {
+    const f = fixture(), target = f.data.tenants.find(tenant => tenant.tenantId === 'TEN-NISSAN-SH');
+    target.status = '停用';
+    assert(!f.app.managedTenants().some(tenant => tenant.tenantId === target.tenantId));
+    assert.equal(f.app.setManagedTenant(target.tenantId), false);
+    assert.equal(f.app.get().enterpriseId, '7522240');
+    target.status = '启用';
+    assert(f.app.managedTenants().some(tenant => tenant.tenantId === target.tenantId));
+    const account = f.row(target.enterpriseId);
+    assert.equal((await f.api.setStatus(account.configId, 'STOPPED', f.writeOptions(account))).ok, true);
+    assert(!f.app.managedTenants().some(tenant => tenant.tenantId === target.tenantId));
+    assert.equal(f.app.setManagedTenant(target.tenantId), false);
+    assert.equal(f.app.get().enterpriseId, '7522240');
+  });
+  await check('顶部管理范围按租户名称呈现，选项值为租户且隐藏内置超级租户及供应商范围', () => {
+    const f = fixture();
+    const ids = ['tenantContext', 'currentTenantLabel', 'currentRoleLabel', 'instanceContext', 'instanceSwitcher', 'scopeLabel', 'currentUserLabel'];
+    const nodes = Object.fromEntries(ids.map(id => [id, f.node(id)]));
+    f.app.renderControls();
+    assert.equal(nodes.instanceContext.hidden, false); assert.equal(nodes.tenantContext.hidden, true); assert.equal(nodes.scopeLabel.hidden, true);
+    const options = nodes.instanceSwitcher.innerHTML;
+    for (const tenant of f.app.managedTenants()) {
+      assert(options.includes('value="' + tenant.tenantId + '"'));
+      assert(options.includes(tenant.name)); assert(!options.includes(tenant.enterpriseId));
+    }
+    assert(!options.includes('TENANT-SUPER-BUILTIN')); assert(!options.includes('超级管理租户'));
+    const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    const control = html.match(/<label[^>]+id="instanceContext"[\s\S]*?<\/label>/)?.[0] || '';
+    assert.match(control, /租户/); assert.match(control, /AppState\.setManagedTenant\(this\.value\)/);
+    assert(!control.includes('AliCti 账号'));
+  });
+  await check('租户切换复用账号隔离并清理任务与返回上下文，刷新后恢复所选业务租户', () => {
+    const f = fixture(); let cleared = 0, notified = 0;
+    f.context.CloudTaskWorkspace = { clearActiveContext() { cleared++; } };
+    f.app.beginConfiguration('number-pools', { contextType: 'wizard', fromRoute: 'cloud-task-center', tenantId: 'TEN-NISSAN-HQ' });
+    f.app.subscribe(() => notified++);
+    assert.equal(f.app.setManagedTenant('TEN-NISSAN-SH'), true);
+    assert.equal(f.app.get().enterpriseId, '7522241'); assert.equal(f.app.managedTenant()?.tenantId, 'TEN-NISSAN-SH');
+    assert.equal(f.app.currentTenant().tenantId, 'TENANT-SUPER-BUILTIN', '保持既有超级管理身份模型');
+    assert.equal(f.app.getReturnContext(), null); assert.equal(cleared, 1); assert.equal(notified, 1);
+    assert.equal(f.app.get().currentPage, 'home'); assert.equal(f.context.location.hash, '#home');
+    const rows = [
+      { tenantId: 'TEN-NISSAN-HQ', enterpriseId: '7522240' },
+      { tenantId: 'TEN-NISSAN-SH', enterpriseId: '7522241' },
+      { tenantId: 'TEN-EPI-HQ', enterpriseId: 'DEMO-ENT-003' }
+    ];
+    assert.deepEqual(plain(f.app.scoped(rows)), [rows[1]]);
+    const reloaded = fixture({ shared: f.shared, session: f.session });
+    assert.equal(reloaded.app.managedTenant()?.tenantId, 'TEN-NISSAN-SH');
+    assert.equal(reloaded.app.get().enterpriseId, '7522241'); assert.equal(reloaded.app.effectiveAccess().valid, true);
+    assert.deepEqual(plain(reloaded.app.scoped(rows)), [rows[1]]);
+  });
+  await check('租户切换保留未保存与活动通话保护，重复选择当前租户无副作用', () => {
+    const f = fixture(); f.app.setCurrentPage('tenants'); f.app.setDirty(true);
+    const before = plain(f.app.get()), saved = f.session.getItem(CONTEXT);
+    assert.equal(f.app.setManagedTenant('TEN-NISSAN-SH'), false);
+    assert.deepEqual(plain(f.app.get()), before); assert.equal(f.session.getItem(CONTEXT), saved);
+    let guarded = 0; f.context.AgentWorkbench = { allowContextChange() { guarded++; return false; } };
+    assert.equal(f.app.setManagedTenant('TEN-NISSAN-HQ'), true);
+    assert.deepEqual(plain(f.app.get()), before); assert.equal(guarded, 0);
+    f.app.setDirty(false); const beforeCall = plain(f.app.get());
+    assert.equal(f.app.setManagedTenant('TEN-NISSAN-SH'), false); assert.equal(guarded, 1);
+    assert.deepEqual(plain(f.app.get()), beforeCall);
+  });
+  await check('超级管理员登录范围按租户选择，登录 HTML 不展示供应商编号', () => {
+    const f = fixture({ loggedOut: true }), account = f.data.accounts.find(item => item.accountId === 'ACC-SUPER-001');
+    account.lastEnterpriseId = '';
+    const gateway = f.node('authGateway');
+    f.node('authUsername', { value: account.loginUsername }); f.node('authPassword', { value: account.password }); f.node('authCaptcha', { value: 'A8CQ' });
+    assert.equal(f.app.submitLogin(), true); assert.equal(f.app.isReady(), false);
+    const html = gateway.innerHTML;
+    assert.match(html, /选择[^<]*租户/); assert(!html.includes('选择 AliCti 账号'));
+    for (const tenant of f.app.managedTenants()) {
+      assert(html.includes("chooseManagedTenant('" + tenant.tenantId + "')"));
+      assert(html.includes(tenant.name)); assert(!html.includes(tenant.enterpriseId));
+    }
+    assert.equal(f.app.chooseManagedTenant('TENANT-SUPER-BUILTIN'), false);
+    assert.equal(f.app.chooseManagedTenant('7522241'), false);
+    assert.equal(f.app.chooseManagedTenant('TEN-NISSAN-SH'), true);
+    assert.equal(f.app.isReady(), true); assert.equal(f.app.managedTenant()?.tenantId, 'TEN-NISSAN-SH');
+    assert.equal(f.app.get().enterpriseId, '7522241');
+  });
+  await check('普通管理员和运营仅见授权租户，新管理租户入口不能扩大权限或会话内换租户', () => {
+    for (const profile of [
+      { accountId: 'ACC-ADMIN-018', profileId: 'admin', tenantId: 'TEN-NISSAN-HQ' },
+      { accountId: 'ACC-OPS-066', profileId: 'operator', tenantId: 'TEN-NISSAN-SH', enterpriseId: '7522241' }
+    ]) {
+      const f = fixture({ context: readyContext(profile) }), before = plain(f.app.get());
+      const authorized = new Set(f.app.availableTenants().filter(tenant => f.data.instances.some(account => account.enterpriseId === tenant.enterpriseId && account.status === 'RUNNING')).map(tenant => tenant.tenantId));
+      assert(f.app.managedTenants().every(tenant => authorized.has(tenant.tenantId)));
+      assert.equal(f.app.managedTenant()?.tenantId, profile.tenantId);
+      assert.equal(f.app.setManagedTenant('TEN-EPI-HQ'), false); assert.equal(f.app.chooseManagedTenant('TEN-EPI-HQ'), false);
+      assert.equal(f.app.setManagedTenant(profile.tenantId === 'TEN-NISSAN-HQ' ? 'TEN-NISSAN-SH' : 'TEN-NISSAN-HQ'), false);
+      assert.deepEqual(plain(f.app.get()), before);
+      const switcher = f.node('instanceContext'), tenantContext = f.node('tenantContext'); f.node('currentTenantLabel'); f.app.renderControls();
+      assert.equal(switcher.hidden, true); assert.equal(tenantContext.hidden, false);
+    }
   });
   console.log(JSON.stringify({ result: 'pass', count: checks.length, checks }, null, 2));
 })().catch(error => { console.error(error.stack); process.exitCode = 1; });

@@ -10,6 +10,7 @@ NAMES.append('task-availability')
 NAMES.append('task-wizard-backdrop')
 NAMES.extend(['admin-customer-assignment', 'call-chat', 'call-data-sync', 'call-detail-alignment', 'demo-compact', 'demo-enterprise-scope', 'list-order', 'super-dashboard-data'])
 NAMES.append('task-persistence-import')
+NAMES.append('customer-import-permissions')
 # Node on this macOS arm64 host can terminate VM-heavy suites with SIGSEGV
 # before printing any assertion results (seen with extension management,
 # time conditions, repeat predictive, and outbound groups on v24). Run those suites with JIT disabled; do not retry

@@ -79,7 +79,7 @@
     const count=(label,value)=>'<div><strong>'+value+'</strong><span>'+esc(label)+'</span></div>';
     const panel=(title,kind,stats,note)=>'<article class="panel-card super-integration-card"><div class="panel-header"><h2>'+title+'</h2><button class="btn-link" aria-label="查看'+title+'明细" onclick="WorkbenchOverview.integration(\''+kind+'\')">查看明细 ›</button></div><div class="super-integration-stats">'+stats+'</div><p>'+esc(note)+'</p></article>';
 
-    return '<section class="super-integrations" aria-label="当前接入情况"><div class="super-integration-heading"><h2>当前接入情况</h2><span>当前账号 · 不随通话统计周期变化</span></div><div class="super-integration-grid">'+
+    return '<section class="super-integrations" aria-label="当前接入情况"><div class="super-integration-heading"><h2>当前接入情况</h2><span>当前租户 · 不随通话统计周期变化</span></div><div class="super-integration-grid">'+
       panel('接入租户','tenants',count('已开通云联络',tenants.length)+count('启用',tenants.filter(t=>t.status==='启用').length)+count('停用',tenants.filter(t=>t.status==='停用').length),'总部 '+tenants.filter(t=>t.organizationScope==='HEADQUARTERS').length+' 家 · 门店 '+tenants.filter(t=>t.organizationScope==='STORE').length+' 家')+
       panel('接入号码','numbers',count('已接入号码',numbers.length)+count('允许本地使用',numbers.filter(n=>n.localEnabled!==false).length),'本地已停用 '+numbers.filter(n=>n.localEnabled===false).length+' 个 · AliCti 已停用 '+numbers.filter(n=>integrationSupplierStatus(n)==='停用').length+' 个')+'</div></section>';
   }
@@ -98,13 +98,13 @@
       {key:'businessStatus',label:'使用状态',render:(_,row)=>ui.status(integrationNumberStatus(row))}
     ];
     const rows=sorted(isTenant?tenants:numbers),title=isTenant?'接入租户':'接入号码';
-    ui.openLayer('dashboard-integration','<div class="layer-header"><div><h2>'+title+'</h2><p>当前账号 · 共 '+rows.length+(isTenant?' 家租户':' 个号码')+'</p></div><button type="button" aria-label="关闭" onclick="PlatformUI.closeLayer(\'dashboard-integration\')">×</button></div><div class="layer-body">'+(rows.length?ui.table(columns,rows):ui.empty(isTenant?'暂无已开通云联络的租户':'暂无接入号码'))+'</div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer(\'dashboard-integration\')">关闭</button></div>','large');
+    ui.openLayer('dashboard-integration','<div class="layer-header"><div><h2>'+title+'</h2><p>当前租户 · 共 '+rows.length+(isTenant?' 家租户':' 个号码')+'</p></div><button type="button" aria-label="关闭" onclick="PlatformUI.closeLayer(\'dashboard-integration\')">×</button></div><div class="layer-body">'+(rows.length?ui.table(columns,rows):ui.empty(isTenant?'暂无已开通云联络的租户':'暂无接入号码'))+'</div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer(\'dashboard-integration\')">关闭</button></div>','large');
   }
   function superOverview(options={}){
     if(superPeriods.includes(options.superPeriod))superPeriod=options.superPeriod;
     const report=window.CloudReportData?.getModel('overview',{period:superPeriod});
     if(!report||report.error)return '<section class="platform-page home-focus workbench-page workbench-super">'+ui.pageHeader('呼叫数据概览','','')+ui.empty(report?.error||'呼叫数据暂时无法读取')+integrationOverview()+'</section>';
-    const summary=report.summary,instance=d.instances.find(v=>v.enterpriseId===AppState.get().enterpriseId);
+    const summary=report.summary,tenant=AppState.managedTenant?.()||AppState.tenantForEnterprise?.(AppState.get().enterpriseId);
     const answerHelp='接听率 = 已确认接通 ÷（已确认接通 + 已确认未接通）。结果未知不计入分母。外呼按客户接听，呼入按系统或人工应答统计；不等于坐席人工接听率。';
     const durationHelp='沿用通话报表的双方通话口径：仅统计已接通且有有效时长的通话；0 秒有效，缺失时长不补零。纯自动外呼的客户接听时长在下方单独展示，不混入平均值。';
     const kpi=(label,value,note,help)=>'<article class="panel-card super-call-kpi"><div><span>'+esc(label)+'</span>'+ui.help(help,label+'统计口径')+'</div><strong>'+esc(value)+'</strong><p>'+esc(note)+'</p></article>';
@@ -118,7 +118,7 @@
       {key:'average',label:'平均时长',help:'人工外呼、预外呼和呼入为双方通话时长；自动外呼为客户接听时长。仅使用已接通且时长有效的样本。',render:(value,row)=>esc(durationText(value))+(row.type==='IVR 外呼'?'<small class="super-duration-note">客户接听</small>':'')}
     ],typeRows);
     return '<section class="platform-page home-focus workbench-page workbench-super">'+ui.pageHeader('呼叫数据概览','', '')+
-      '<div class="super-call-toolbar"><div><strong>'+esc(instance?.name||'当前 AliCti 账号')+'</strong><span>当前账号租户 · '+esc(report.filters.startDate)+(report.filters.endDate!==report.filters.startDate?' 至 '+esc(report.filters.endDate):'')+'</span></div><div class="super-period-controls" role="group" aria-label="统计周期">'+superPeriods.map(period=>'<button class="btn '+(superPeriod===period?'btn-primary':'')+'" aria-pressed="'+(superPeriod===period)+'" onclick="WorkbenchOverview.setSuperPeriod(\''+period+'\')">'+period+'</button>').join('')+'<button class="btn" onclick="WorkbenchOverview.setSuperPeriod(\''+superPeriod+'\')">刷新</button></div></div>'+
+      '<div class="super-call-toolbar"><div><strong>'+esc(tenant?.name||'未选择业务租户')+'</strong><span>当前租户 · '+esc(report.filters.startDate)+(report.filters.endDate!==report.filters.startDate?' 至 '+esc(report.filters.endDate):'')+'</span></div><div class="super-period-controls" role="group" aria-label="统计周期">'+superPeriods.map(period=>'<button class="btn '+(superPeriod===period?'btn-primary':'')+'" aria-pressed="'+(superPeriod===period)+'" onclick="WorkbenchOverview.setSuperPeriod(\''+period+'\')">'+period+'</button>').join('')+'<button class="btn" onclick="WorkbenchOverview.setSuperPeriod(\''+superPeriod+'\')">刷新</button></div></div>'+
       '<div class="super-call-kpis">'+kpi('呼叫总量',summary.total+' 次','按所选日期已结束通话统计','包含人工外呼、预外呼、自动外呼和呼入。每次重呼分别计数，同一通话的重复话单只计一次；按通话开始日期归属，不按客户或任务名单数统计。')+
       kpi('接听率',summary.rate,'已接听 '+summary.connected+' 次 / 已确认 '+summary.known+' 次',answerHelp)+
       kpi('平均通话时长',durationText(summary.avgSeconds),'双方通话 · '+summary.durationSamples+' 条有效时长',durationHelp)+'</div>'+

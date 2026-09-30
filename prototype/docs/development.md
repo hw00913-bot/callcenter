@@ -1,6 +1,6 @@
 # 开发阅读指引
 
-事实基线：2026-09-29-multiple-caller-navigation-1；局部交互增量：2026-09-30-call-data-sync-demo-1（D-087）；本地逻辑修复：2026-09-30-local-logic-fixes-1（D-088）。按本次开发任务选择相关材料即可，无须全量读取原型或全部文档。独立开发包及其重复模型、契约、任务清单已取消。
+事实基线：2026-09-29-multiple-caller-navigation-1；局部交互增量：2026-09-30-call-data-sync-demo-1（D-087）；本地逻辑修复：2026-09-30-local-logic-fixes-1（D-088）；租户工作范围展示：2026-09-30-tenant-scope-display-1（D-089）；客户导入权限：2026-09-30-super-customer-import-permission-1（D-090）。按本次开发任务选择相关材料即可，无须全量读取原型或全部文档。独立开发包及其重复模型、契约、任务清单已取消。
 
 ## 先确定依据
 
@@ -14,16 +14,22 @@
 
 | 本次任务 | 优先阅读 |
 | --- | --- |
-| 账号、租户、权限 | 功能说明 FS-01/02、D-068账号唯一业务租户与相关附表；页面 `js/pages/account-tenant.js`、`alicti-accounts.js` |
+| 账号、租户、权限 | 功能说明 FS-01/02、D-068账号唯一业务租户与相关附表；D-089顶部和超管首次工作范围选择有效业务租户、内部映射enterpriseId，保留超管身份与普通用户会话；页面 `js/pages/account-tenant.js`、`alicti-accounts.js` |
 | 坐席、技能、队列、外呼组 | 功能说明 FS-04/05/12/21；[坐席工具条接口映射](seat-toolbar-interface-map.md)；D-082本租户ADMIN未关联本人坐席或未上线可查看今日统计、逐工号只读坐席状态和二级页签事件日志，队列实时状态及管理仍须关联有效班长坐席、本人上线与班长授权；D-072 坐席登录单面板一次提交；D-076普通退出固定logoutMode=1、removeBinding=0保留接听分机绑定，不提供解绑选项；相关 `js/pages/` 与 `js/components/` |
 | 分机、时间条件 | 功能说明 [FS-22](functional-spec.html#FS-22)、[FS-23](functional-spec.html#FS-23)；时间优先级为手工必填，同一 AliCti 账号内唯一，见 D-061 |
-| 客户、业务分类及业务配置 | 从客户管理→业务分类一个菜单进入，在同页维护分类和独立字段库；分类用有序fields直接引用字段，显示/必填按分类配置，不再维护业务模板。功能说明 [FS-07](functional-spec.html#FS-07)、[FS-24](functional-spec.html#FS-24)；现行关系见 D-085、FA-192–195/214–215，D-074/D-077仅留历史；档案列表精简见 D-063；关联组件 `customer-business.js`、`customer-followup.js` |
-| 外呼任务、再次联系 | 功能说明 FS-08/09/10；D-083预测任务最小可用座席数默认10、范围1–10，低于阈值自动暂停；只有autoStart=1且因座席不足自动暂停的任务，恢复达阈值后自动启动。自动外呼不显示该字段。D-086同一enterpriseId可登记多个外显导航，建任务时选一个，可配合多个号码池，见FA-197/198、C-73/74。导航核验及选号待CF-15联调，自动恢复待CF-18联调。任务编辑与再次联系沿用D-075/D-060；入口 `cloud-task-workspace.js` |
+| 客户、业务分类及业务配置 | D-090客户导入仅本租户ADMIN；SUPER保留客户查看、分配和改派，OPERATOR仍不能导入；业务分类维护按原权限。参照附表F-13。 从客户管理→业务分类一个菜单进入，在同页维护分类和独立字段库；分类用有序fields直接引用字段，显示/必填按分类配置，不再维护业务模板。功能说明 [FS-07](functional-spec.html#FS-07)、[FS-24](functional-spec.html#FS-24)；现行关系见 D-085、FA-192–195/214–215，D-074/D-077仅留历史；档案列表精简见 D-063；关联组件 `customer-business.js`、`customer-followup.js` |
+| 外呼任务、再次联系 | 功能说明 FS-08/09/10；D-090任务导入新客户仅本租户ADMIN，SUPER的任务创建、配置、控制和现有客户分配管理保留，OPERATOR仍不能导入；C-63定义直接导入条件。D-083预测任务最小可用座席数默认10、范围1–10，低于阈值自动暂停；只有autoStart=1且因座席不足自动暂停的任务，恢复达阈值后自动启动。自动外呼不显示该字段。D-086同一enterpriseId可登记多个外显导航，建任务时选一个，可配合多个号码池，见FA-197/198、C-73/74。导航核验及选号待CF-15联调，自动恢复待CF-18联调。任务编辑与再次联系沿用D-075/D-060；入口 `cloud-task-workspace.js` |
 | 通话记录与原任务关联 | 功能说明 [FS-11](functional-spec.html#FS-11)、[FS-14](functional-spec.html#FS-14)、[FS-15](functional-spec.html#FS-15)、附表 B/K、D-066/D-087；`cloud-call-records.js` 共用 `alicti-report-facts.js`，按 API-317/318/319/362 分清实际话单和任务设置；本地异步资料演示位于 `call-data-sync.js` |
 | 号码归属 | 功能说明 FS-06、D-067/D-068；导入即归属唯一业务租户，详情不嵌套管理 |
 | 号码池管理 | [四个官方接口摘录](../references/README.md)：`hybridGroup/list`、`create`、`delete`、`update`；D-081按当前租户唯一关联的enterpriseId隔离，租户管理员维护本租户号码池；预外呼和自动外呼任务从本租户池列表选名称，不允许手填跨租户池名 |
 | 呼入与报表 | 功能说明 FS-13/16；D-068当前账号单租户统计，不新增跨账号汇总；按需查看对应字段、状态规则与供应商原文 |
 | 跨系统协作或异步处理 | 按需查看[业务流程](../flowcharts/business-process.html)、[时序图](../flowcharts/sequence-interaction.html)、[系统蓝图](../related-systems/index.html)中的相关场景 |
+
+## 租户工作范围展示
+
+D-089：顶部“当前租户”、超管首次“选择本次管理的租户”与切换提示统一使用有效业务租户名称和组织类型，首页概览标题同步。选择项以tenantId定位该租户关联的enterpriseId；不显示顶部AliCti账号/供应商编号或内置超级租户标签。普通用户仅显示当前登录租户，不提供顶部换租户。没有有效绑定时显示明确空态，不用账号名称补造租户；超管仍可进入专业账号与租户管理。
+
+这次界面调整不改变内部超管身份、成员关系、账号租户绑定或菜单/对象权限。切换及恢复重验租户、账号状态和绑定，原在途通话、未保存输入及退出保护继续生效；AliCti账号管理中的专业归属信息保持。验收检查另由本轮运行记录给出，不因文档更新声明通过。
 
 ## 外显导航与座席不足暂停
 

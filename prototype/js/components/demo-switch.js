@@ -18,8 +18,9 @@
       if (account.builtIn === true && member.tenantId === 'TENANT-SUPER-BUILTIN' && member.roleCode === 'SUPER_ADMIN') {
         const available = data.instances.filter(i => i.status === 'RUNNING');
         const remembered = available.find(i => i.enterpriseId === account.lastEnterpriseId);
+        const rememberedTenant = remembered ? AppState.tenantForEnterprise(remembered.enterpriseId) : null;
         const domains = data.tenants.filter(t => t.status === '启用' && available.some(i => i.enterpriseId === t.enterpriseId) && (!remembered || t.enterpriseId === remembered.enterpriseId)).flatMap(t => t.capabilitySet || []);
-        return { tenant: '超级管理租户（内置）', role: roles.SUPER_ADMIN, domain: domainsLabel(domains), seat: '不适用', status: member.status, usable: member.status === '启用' && domains.length > 0 && available.length > 0, note: remembered ? '上次客户/品牌：' + remembered.brandCustomerName : '登录后选择客户/品牌；业务域随所选品牌确定' };
+        return { tenant: '平台管理', role: roles.SUPER_ADMIN, domain: domainsLabel(domains), seat: '不适用', status: member.status, usable: member.status === '启用' && domains.length > 0 && available.length > 0, note: rememberedTenant?.status === '启用' ? '上次租户：' + rememberedTenant.name : '登录后选择需要管理的租户' };
       }
       const tenant = data.tenants.find(t => t.tenantId === member.tenantId);
       if (!tenant || !['ADMIN', 'OPERATOR'].includes(member.roleCode)) return null;

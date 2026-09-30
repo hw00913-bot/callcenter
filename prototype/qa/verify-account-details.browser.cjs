@@ -152,7 +152,8 @@ async page => {
     await page.evaluate(() => { Storage.prototype.setItem = window.__accountDetailsOriginalSetItem; delete window.__accountDetailsOriginalSetItem; });
     await page.reload();
     check(failedKey + ' refresh retains committed tenant', await page.evaluate(label => CloudCallData.tenants.filter(row => row.name === label).length === 1, name));
-    await page.locator('#instanceSwitcher').selectOption(targetAccount);
+    const targetTenantId = await page.locator('#instanceSwitcher option').filter({ hasText: name }).getAttribute('value');
+    await page.locator('#instanceSwitcher').selectOption(targetTenantId);
     const tenantNav = page.locator('[data-route="tenants"]');
     if (!await tenantNav.isVisible()) await navigation.getByRole('button', { name: /账号与租户/ }).click();
     await tenantNav.click();

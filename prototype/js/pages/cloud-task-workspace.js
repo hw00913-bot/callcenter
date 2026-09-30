@@ -735,11 +735,11 @@
         <label class="wizard-choice ${mode === 'now' ? 'selected' : ''}"><input type="radio" name="customerMode" value="now" ${mode === 'now' ? 'checked' : ''} onchange="CloudTaskWorkspace.setCustomerMode(this.value)"><span><strong>从已有名单选择</strong><small>当前有 ${pool.length} 位待分配客户</small></span></label>
         <label class="wizard-choice ${mode === 'later' ? 'selected' : ''}"><input type="radio" name="customerMode" value="later" ${mode === 'later' ? 'checked' : ''} onchange="CloudTaskWorkspace.setCustomerMode(this.value)"><span><strong>创建后再添加</strong><small>暂不分配客户，先完成呼叫设置</small></span></label>
       </div>
-      ${mode === 'later' ? '<p class="wizard-soft-note">创建后可添加客户，预外呼可直接点击任务操作列的“导入客户”。有客户名单后才能启动任务。</p>' : pool.length ? `<div class="wizard-customer-selection">
+      ${mode === 'later' ? '<p class="wizard-soft-note">'+(CustomerTasks.canImportCustomers()?'创建后可添加客户，预外呼可直接点击任务操作列的“导入客户”。':'创建后可分配已有客户，新名单由租户管理员导入。')+'有客户名单后才能启动任务。</p>' : pool.length ? `<div class="wizard-customer-selection">
         <div class="task-customer-filters"><label class="field"><span>客户批次</span><select id="wizardCustomerBatch" onchange="CloudTaskWorkspace.filterCustomers('customerBatch',this.value)"><option value="">全部批次</option>${batches.map(([id,name]) => `<option value="${esc(id)}" ${batch === id ? 'selected' : ''}>${esc(name)}</option>`).join('')}</select></label><label class="field"><span>查找客户</span><input id="wizardCustomerQuery" value="${esc(v.customerQuery || '')}" placeholder="客户姓名、手机号或单据号" onchange="CloudTaskWorkspace.filterCustomers('customerQuery',this.value)"></label></div>
         <div class="wizard-selection-bar"><span>已选 <b id="wizardSelectedCount">${ids.length}</b> 位<span class="muted"> · 筛选结果 ${filtered.length} 位</span></span><div><button class="wizard-text-button" onclick="CloudTaskWorkspace.selectFilteredCustomers()" ${filtered.length ? '' : 'disabled'}>全选筛选结果</button><button class="wizard-text-button" onclick="CloudTaskWorkspace.clearCustomers()" ${ids.length ? '' : 'disabled'}>清空</button></div></div>
         <div class="task-customer-table">${ui.table([{key:'id',label:'选择',render:(id,row) => `<input type="checkbox" aria-label="选择客户 ${esc(row.name)} ${esc(row.phone)}" ${ids.includes(id) ? 'checked' : ''} onchange="CloudTaskWorkspace.toggleCustomer('${esc(id)}',this.checked)">`},{key:'name',label:'客户'},{key:'phone',label:'联系电话'},{key:'batchName',label:'所属批次'},{key:'externalDocumentId',label:'业务单据',render:(value,row) => esc(CustomerBusiness.codeLabel(row)) + '：' + esc(value || '—')}], filtered, {emptyText:'没有找到符合条件的客户，请调整批次或搜索内容'})}</div>
-        <p class="field-hint">确认创建时才分配客户；保存草稿不会占用名单。跨批次的同号记录各自保留。</p></div>` : '<div class="wizard-empty"><strong>还没有可选的客户</strong><p>可以先创建任务；预外呼可在任务操作列直接导入客户，自动外呼通过“导入与分配”添加客户。</p><button class="btn" onclick="CloudTaskWorkspace.setCustomerMode(&#39;later&#39;)">创建后再添加</button></div>'}
+        <p class="field-hint">确认创建时才分配客户；保存草稿不会占用名单。跨批次的同号记录各自保留。</p></div>` : '<div class="wizard-empty"><strong>还没有可选的客户</strong><p>'+(CustomerTasks.canImportCustomers()?'可以先创建任务；预外呼可在任务操作列直接导入客户，自动外呼通过“导入与分配”添加客户。':'可以先创建任务，请由租户管理员导入新名单后再分配客户。')+'</p><button class="btn" onclick="CloudTaskWorkspace.setCustomerMode(&#39;later&#39;)">创建后再添加</button></div>'}
         ${errorSlot('wizardCustomers')}
     </section>`;
   }
@@ -906,7 +906,7 @@
         ${isPredictive?card('接听团队配置',4,resources):card('任务与语音流程',4,[['任务名称',v.name],['所属组织',tenant(draft.tenantId).name],...taskSettingsSummary(v,draft.type).slice(0,2),...resources])}
         ${card('时间与重呼',5,[...(isPredictive?[]:callerSummary(v,null,draft)),['开始时间',v.scheduleMode==='定时执行'?v.scheduleAt.replace('T',' '):'准备好后手动开始'],['结束时间',v.stopScheduled?String(v.stopAt||'').replace('T',' '):'未设置'],...timeSummary(v,draft.tenantId),...retry,...taskSettingsSummary(v,draft.type).slice(2)])}
       </div>
-      <p class="wizard-review-next">${count ? '创建后可在任务列表查看进度和操作启动。' : (draft.type==='预外呼'?'创建后，点击任务操作列的“导入客户”，名单自动加入当前任务。':'创建后，下一步是在“导入与分配”中为任务添加客户。')}</p>
+      <p class="wizard-review-next">${count ? '创建后可在任务列表查看进度和操作启动。' : (!CustomerTasks.canImportCustomers()?'创建后可分配已有客户；新名单请由租户管理员导入。':draft.type==='预外呼'?'创建后，点击任务操作列的“导入客户”，名单自动加入当前任务。':'创建后，下一步是在“导入与分配”中为任务添加客户。')}</p>
     </div>`;
   }
 
@@ -1629,6 +1629,7 @@
     } catch (_) { return false; }
   }
   function commitDirectImport(task,batch) {
+    if(!CustomerTasks.canImportCustomers())return {ok:false,message:'仅租户管理员可导入客户'};
     if(!recoverDirectImport())return {ok:false,message:'上次导入尚未恢复，填写内容已保留，请检查存储后重试'};
     if(!CustomerTasks.canImportToTask(task)||!sameTaskIdentity(task,{...task,tenantId:batch.tenantId,enterpriseId:batch.enterpriseId}))return {ok:false,message:'任务状态已变化，请刷新后重新检查名单'};
     const before=structuredClone(task),next=structuredClone(task);

@@ -69,7 +69,7 @@ check('缺失任务恢复拒绝活动通话、既有历史、其他租户和运�
   c.CloudCallData.tasks=c.CloudCallData.tasks.filter(row=>row.taskId!==task.taskId);clearTaskRecords(c,task.taskId);c.localStorage.setItem(taskKey,JSON.stringify(c.test.tasks().filter(row=>row.taskId!==task.taskId)));
   assert.equal(c.CustomerTasks.missingTaskRecoverable({...base,activeCallId:'ACTIVE'},batch),false);assert.equal(c.CustomerTasks.missingTaskRecoverable({...base,calls:[{callId:'OLD'}]},batch),false);
   const op=reload(c,signedIn('TEN-NISSAN-HQ','ACC-OPS-108'));assert.equal(op.CustomerTasks.recoverMissingTask(base.id,true),undefined);assert.equal(op.test.batches().find(row=>row.id===batch.id).rows[0].taskId,task.taskId);
-  const other=reload(c,signedIn('TEN-NISSAN-SH','ACC-ADMIN-SH'));other.CustomerTasks.recoverMissingTask(base.id,true);assert.equal(other.test.batches().find(row=>row.id===batch.id).rows[0].taskId,task.taskId);
+  const other=reload(c,signedIn('TEN-NISSAN-SH','ACC-ADMIN-018'));other.CustomerTasks.recoverMissingTask(base.id,true);assert.equal(other.test.batches().find(row=>row.id===batch.id).rows[0].taskId,task.taskId);
 });
 check('导入任务写入失败保留弹窗和输入，回滚本次名单，重试只增加一批',()=>{
   const c=setup(),task=createTask(c),name=preview(c,task),text=c.test.nodes.get('customer-import-text').value,write=c.localStorage.setItem.bind(c.localStorage);let fault=true;
