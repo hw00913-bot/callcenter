@@ -1,0 +1,241 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-007",
+  "scenario_id": "SC-001",
+  "name": "接口及手工失败下载生命周期",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "运营人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "运营界面（合成模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（模拟）",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "service",
+      "to": "ui",
+      "message": "分类显示本地/供应商导入失败；失败分片未收齐或完整性未知显示不完整/待核",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "operator",
+      "to": "ui",
+      "message": "下载选中/本次导出失败明细",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "ui",
+      "to": "service",
+      "message": "冻结本次失败导出快照及完整性说明；后到新失败不加入已生成快照",
+      "type": "internal",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "service",
+      "to": "ui",
+      "message": "生成模拟导出结果/文件；生成或点击不代表成功下载",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "ui",
+      "to": "service",
+      "message": "合成明确下载成功事件（非真实浏览器成功证明）",
+      "type": "event",
+      "api_id": null,
+      "condition": "独立模拟成功情形"
+    },
+    {
+      "step": 6,
+      "from": "service",
+      "to": "service",
+      "message": "可信成功只清该失败快照明细/文件；接口来源保留原requestId/逐行接收结果及record/batch/root、同组主保存创建序列；两来源保留必要已有记录/fileId映射、去重/分片/交付状态和审计时间，手工不新增DCC关联要求",
+      "type": "internal",
+      "api_id": null,
+      "condition": "成功信号已可信确认"
+    },
+    {
+      "step": 7,
+      "from": "service",
+      "to": "ui",
+      "message": "失败/中断保留，无固定到期；成功显示本次已清理",
+      "type": "response",
+      "api_id": null,
+      "condition": "对应情形"
+    },
+    {
+      "step": 8,
+      "from": "service",
+      "to": "service",
+      "message": "后到新失败保留待再次下载；已导出重复事件不再生明细；回传失败仍可补送",
+      "type": "internal",
+      "api_id": null,
+      "condition": "下载后异步事件到达"
+    }
+  ],
+  "notes": [
+    "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+    "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+    "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-071",
+    "inputs/source-index.json#SRC-072",
+    "inputs/source-index.json#SRC-073",
+    "inputs/source-index.json#SRC-083",
+    "inputs/source-index.json#SRC-084",
+    "inputs/source-index.json#SRC-085",
+    "inputs/source-index.json#SRC-086"
+  ],
+  "review_history": [
+    {
+      "at": "2026-10-11T09:32:22+08:00",
+      "basis": "失败明细清理不删除新协议必需的请求幂等和父根关联状态",
+      "source_ref": "inputs/source-index.json#SRC-083",
+      "record_type": "draft_semantic_revision_not_approval"
+    }
+  ],
+  "decision_history": [
+    {
+      "at": "2026-10-11T10:08:12+08:00",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-007",
+        "scenario_id": "SC-001",
+        "name": "接口及手工失败下载生命周期",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "service",
+            "to": "ui",
+            "message": "分类显示本地/供应商导入失败；失败分片未收齐或完整性未知显示不完整/待核",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "operator",
+            "to": "ui",
+            "message": "下载选中/本次导出失败明细",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "ui",
+            "to": "service",
+            "message": "冻结本次失败导出快照及完整性说明；后到新失败不加入已生成快照",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "ui",
+            "message": "生成模拟导出结果/文件；生成或点击不代表成功下载",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 5,
+            "from": "ui",
+            "to": "service",
+            "message": "合成明确下载成功事件（非真实浏览器成功证明）",
+            "type": "event",
+            "api_id": null,
+            "condition": "独立模拟成功情形"
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "service",
+            "message": "可信成功只清该快照失败明细/文件；接口任务保留原requestId/逐行接收结果及batch/parent/root；两来源都保留已有客户record/batch、供应商fileId映射、去重标记、分片/交付状态和审计时间，手工不因此新增DCC关联要求",
+            "type": "internal",
+            "api_id": null,
+            "condition": "成功信号已可信确认"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "ui",
+            "message": "失败/中断保留，无固定到期；成功显示本次已清理",
+            "type": "response",
+            "api_id": null,
+            "condition": "对应情形"
+          },
+          {
+            "step": 8,
+            "from": "service",
+            "to": "service",
+            "message": "后到新失败保留待再次下载；已导出重复事件不再生明细；回传失败仍可补送",
+            "type": "internal",
+            "api_id": null,
+            "condition": "下载后异步事件到达"
+          }
+        ],
+        "notes": [
+          "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+          "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+          "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-083"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "reason": "用户最新主/子根归组方案替代SRC-083逐行指定父批方案；旧事实只作历史，新G3未批准。",
+      "record_type": "draft_business_revision_not_approval"
+    }
+  ]
+}

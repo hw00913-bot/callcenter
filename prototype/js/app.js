@@ -347,6 +347,7 @@
 
   function canMenu(permission) {
     if (permission === 'system.exceptions') return false;
+    if (permission === 'system.applications') return isReady() && isSuper();
     // Global account recovery remains reachable when every supplier account is stopped.
     if (permission === 'system.instances') return isReady() && isSuper();
     if (!effectiveAccess().valid) return false;
@@ -371,6 +372,7 @@
   }
 
   function canAction(permission) {
+    if (permission === 'application.manage') return isReady() && isSuper();
     if (permission === 'instance.manage') return isReady() && isSuper();
     if (!effectiveAccess().valid) return false;
     const role = currentRoleCode();

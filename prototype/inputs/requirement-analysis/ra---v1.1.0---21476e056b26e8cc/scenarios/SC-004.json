@@ -1,0 +1,324 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-004",
+  "name": "客户秒挂识别与每次结果回传",
+  "summary": "客户真实接通、客户主动挂断、有效时长0～2秒含真实0/2；识别回传DCC，不在平台调度重导。",
+  "actors": [
+    "云呼叫中心",
+    "AliCti供应商",
+    "DCC",
+    "运营人员"
+  ],
+  "trigger": "供应商本次结果事件或话单更新",
+  "preconditions": [
+    "租户/task/线索编码/手机号/本次批次或稳定事件可准确关联",
+    "任务来源创建提交后锁定，技术未知保留待核"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "AliCti供应商",
+      "action": "获取本次事件/话单并保留原字段来源",
+      "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+      "rule_ids": [
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云呼叫中心",
+      "action": "回查本地任务/批次/线索编码/手机号，缺失关联待核",
+      "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+      "rule_ids": [
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "云呼叫中心",
+      "action": "记录本次风控/话单/SIP及最后一通；秒挂按真实组合识别",
+      "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+      "rule_ids": [
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云呼叫中心",
+      "action": "按锁定来源分流：接口任务回传固定DCC地址，手工任务仅平台查看",
+      "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+      "rule_ids": [
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "DCC",
+      "action": "DCC决定是否再次推送；平台仅接收新导入，不创建倒计时或额度",
+      "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+      "rule_ids": [
+        "BR-015",
+        "BR-017"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "结果/关联未知或冲突",
+      "steps": [
+        "保留待核，不伪造最终结果，不按查询空值反推无话单"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "重复、晚更新或回传失败",
+      "steps": [
+        "重复不作为新呼叫，晚更新同对象；失败可观察可补送，技术策略交开发"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "手工来源任务",
+      "steps": [
+        "平台查看，不回传DCC，不改变锁定来源"
+      ]
+    }
+  ],
+  "postconditions": [
+    "接口任务每次结果及其更新回传DCC，手工任务仅平台查看",
+    "DCC负责重新导入决策，平台不建立重呼计划",
+    "原导入日期、priority与新批次关联保留"
+  ],
+  "acceptance_points": [
+    "AC-004",
+    "AC-021",
+    "AC-022",
+    "AC-023",
+    "AC-024",
+    "AC-027",
+    "AC-034",
+    "AC-035"
+  ],
+  "source_story_ids": [
+    "US-004"
+  ],
+  "source_refs": [
+    "inputs/user-original-20261009.txt#第4条",
+    "inputs/source-index.json#SRC-045",
+    "inputs/source-index.json#SRC-002",
+    "inputs/source-index.json#SRC-046",
+    "inputs/source-index.json#SRC-047",
+    "inputs/source-index.json#SRC-048",
+    "inputs/source-index.json#SRC-049",
+    "inputs/source-index.json#SRC-050",
+    "inputs/source-index.json#SRC-051",
+    "inputs/source-index.json#SRC-056",
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070"
+  ],
+  "business_rule_ids": [
+    "BR-010",
+    "BR-012",
+    "BR-015",
+    "BR-016",
+    "BR-017"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "vendor",
+        "name": "AliCti供应商",
+        "kind": "external_system"
+      },
+      {
+        "id": "platform",
+        "name": "云呼叫中心",
+        "kind": "system"
+      },
+      {
+        "id": "dcc",
+        "name": "DCC",
+        "kind": "external_system"
+      },
+      {
+        "id": "operator",
+        "name": "运营人员",
+        "kind": "actor"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "S",
+        "lane_id": "vendor",
+        "type": "start",
+        "order": 1,
+        "label": "本次结果或更新"
+      },
+      {
+        "id": "N1",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 2,
+        "label": "获取本次事件/话单并保留原字段来源",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 3,
+        "label": "回查任务/批次/线索编码/手机号\n本次关联明确且结果可信？",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 4,
+        "label": "保存话单/SIP/最后一通；秒挂按真实客户接通、\n客户主动挂断、客户接通时长0～2秒识别\n新结果或可交付更新？",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 5,
+        "label": "任务为接口来源？",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "dcc",
+        "type": "action",
+        "order": 7,
+        "label": "DCC决定是否再次推送；平台仅接收新导入，不创建倒计时或额度",
+        "step_ref": 5
+      },
+      {
+        "id": "E",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 8,
+        "label": "保存关联；无平台重导调度"
+      },
+      {
+        "id": "E1",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 9,
+        "label": "结果待核"
+      },
+      {
+        "id": "E2",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 10,
+        "label": "重复/晚更新/失败补送"
+      },
+      {
+        "id": "E3",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 11,
+        "label": "手工仅平台查看"
+      },
+      {
+        "id": "RET",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "接口任务每次结果回传\n后台配置文件固定DCC地址",
+        "step_ref": 4
+      }
+    ],
+    "edges": [
+      {
+        "from": "S",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "关联明确"
+      },
+      {
+        "from": "N3",
+        "to": "N4",
+        "label": "新可信结果"
+      },
+      {
+        "from": "N4",
+        "to": "RET",
+        "label": "接口来源"
+      },
+      {
+        "from": "N5",
+        "to": "E"
+      },
+      {
+        "from": "N2",
+        "to": "E1",
+        "label": "未知/冲突",
+        "path_id": "ALT-001",
+        "type": "failure"
+      },
+      {
+        "from": "N3",
+        "to": "E2",
+        "label": "重复/更新/失败",
+        "path_id": "ALT-002",
+        "type": "failure"
+      },
+      {
+        "from": "N4",
+        "to": "E3",
+        "label": "手工",
+        "path_id": "ALT-003",
+        "type": "failure"
+      },
+      {
+        "from": "RET",
+        "to": "N5"
+      }
+    ]
+  },
+  "design_notes": [
+    "业务确认来自SRC-063～070；供应商尝试完整性、字段映射与可靠交付待技术核实；G3未批准。"
+  ],
+  "decision_history": [
+    {
+      "before": "识别已接听且客户侧挂断、接听时长不超过2秒的秒挂候选；等待30分钟按原任务关联新批次重提，整链首次外最多4次；DCC成功删除取消指定待执行重呼",
+      "source_refs": [
+        "inputs/user-original-20261009.txt#第4条",
+        "inputs/source-index.json#SRC-045",
+        "inputs/source-index.json#SRC-002",
+        "inputs/source-index.json#SRC-046",
+        "inputs/source-index.json#SRC-047",
+        "inputs/source-index.json#SRC-048",
+        "inputs/source-index.json#SRC-049",
+        "inputs/source-index.json#SRC-050",
+        "inputs/source-index.json#SRC-051",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-061"
+      ],
+      "superseded_by": "SRC-063～070",
+      "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+    }
+  ]
+}

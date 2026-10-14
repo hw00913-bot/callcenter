@@ -308,6 +308,13 @@ def verify_package(package: Path, *, strict_zip_contents: bool = True) -> Verifi
         if "prototype-handoff.json" not in payloads:
             raise ImportError("交付清单未包含 prototype-handoff.json")
         handoff = load_json_bytes(payloads["prototype-handoff.json"], "prototype-handoff.json")
+        if handoff.get("project_version"):
+            from project_versions import validate_reference, VersionError
+            try:
+                validate_reference(handoff["project_version"], "analysis")
+            except (VersionError, OSError, KeyError, TypeError, ValueError) as exc:
+                raise ImportError(f"上游项目版本/批准已失效：{exc}") from exc
+
         if handoff.get("schema_version") != "1.0" or handoff.get("contract") != CONTRACT:
             raise ImportError("prototype-handoff.json 契约名称或版本不受支持")
         baseline = handoff.get("baseline")
@@ -370,6 +377,20 @@ def verify_package(package: Path, *, strict_zip_contents: bool = True) -> Verifi
         report = load_json_bytes(payloads[report_path], report_path)
         if report.get("status") != "pass":
             raise ImportError("交付包内 verification-report.json 不是 pass")
+        approved = gates['G3'].get('approval_snapshot')
+        engine_version = str(handoff.get('analysis_engine', {}).get('version', 'legacy'))
+        snapshot_required = bool(re.fullmatch(r'\d+\.\d+\.\d+', engine_version)) and tuple(map(int, engine_version.split('.'))) >= (0, 15, 0)
+        if approved is not None or snapshot_required:
+            if not isinstance(approved, dict) or report.get('approval_snapshot') != approved:
+                raise ImportError('G3 批准快照与核验报告不一致')
+            snapshot_entries = sorted((entry for entry in normalized_entries
+                                       if entry['path'] not in {'prototype-handoff.json', 'runtime/verification-report.json', 'project-version.json'}),
+                                      key=lambda entry: entry['path'])
+            snapshot = {'contract': 'analysis-approval-snapshot@1', 'project': handoff['project'],
+                        'files': snapshot_entries}
+            snapshot['fingerprint'] = canonical_hash(snapshot)
+            if snapshot != approved:
+                raise ImportError('G3 批准版本与冻结包内容不一致')
 
         semantic_entries = sorted(
             (entry for entry in normalized_entries if entry["path"] != "prototype-handoff.json"),
@@ -428,6 +449,8 @@ def verify_imported_project(project: Path) -> VerifiedPackage:
         raise ImportError("已导入基线 ID 与配置不一致")
     if verified.fingerprint != config.get("baselineFingerprint"):
         raise ImportError("已导入基线指纹与配置不一致")
+    if config.get("projectVersion") != verified.handoff.get("project_version"):
+        raise ImportError("项目版本声明与已导入冻结包不一致；请重新生成并导入版本化上游包，不能只修改配置")
     return verified
 
 
@@ -473,8 +496,17 @@ def import_package(project: Path, package: Path) -> VerifiedPackage:
     if not project.is_dir():
         raise ImportError(f"原型项目目录不存在：{project}")
     stage, confirmed = workflow_state(project)
-    existing = imported_config(project)
     verified = verify_package(package)
+    if verified.handoff.get("project_version"):
+        from project_versions import reference, attach, VersionError
+        ref = verified.handoff["project_version"]
+        try:
+            old = reference(project)
+            if old and (old["project_id"], old["version_id"]) != (ref["project_id"], ref["version_id"]):
+                raise VersionError("不同版本须复制为独立工作区，不覆盖当前版本")
+        except VersionError as exc:
+            raise ImportError(str(exc)) from exc
+    existing = imported_config(project)
     if existing.get("manifestSha256") == verified.manifest_sha256:
         verify_imported_project(project)
         print(f"需求分析基线已存在且校验通过：{verified.baseline_id}")
@@ -506,6 +538,7 @@ def import_package(project: Path, package: Path) -> VerifiedPackage:
 
     config = {
         "schemaVersion": 1,
+        **({"projectVersion": verified.handoff["project_version"]} if verified.handoff.get("project_version") else {}),
         "mode": "imported",
         "status": "verified",
         "baselineId": verified.baseline_id,
@@ -520,6 +553,10 @@ def import_package(project: Path, package: Path) -> VerifiedPackage:
         "diagramPublication": None,
     }
     write_json(project / "config" / "requirement-analysis.json", config)
+    if verified.handoff.get("project_version"):
+        from project_versions import attach
+        ref = verified.handoff["project_version"]
+        attach(project, ref["registry"], ref["version_id"])
     write_import_summary(project, verified, config)
     print(f"已导入需求分析冻结基线：{verified.baseline_id}")
     print(f"基线目录：{root_relative.as_posix()}")
@@ -606,7 +643,18 @@ def materialize_project_memory(project: Path) -> None:
     if iteration.get("approvedRequirementAnalysisManifestSha256") != verified.manifest_sha256:
         raise ImportError("S2 计划批准记录未绑定当前需求分析 manifest；请重新执行 approve-plan")
 
-    root = baseline_root(project, config)
+    metadata = render_project_memory(project, baseline_root(project, config), verified, config, iteration)
+    write_json(project / "memory" / "requirement-analysis-baseline.json", metadata)
+    append_import_decision(project, verified)
+    config["materializedAt"] = metadata["materializedAt"]
+    config["materializedManifestSha256"] = verified.manifest_sha256
+    write_json(project / "config" / "requirement-analysis.json", config)
+    print(f"已从冻结基线生成原型项目记忆：{verified.baseline_id}")
+
+
+def render_project_memory(project: Path, root: Path, verified: VerifiedPackage,
+                          config: dict[str, Any], iteration: dict[str, Any]) -> dict[str, Any]:
+    """Render facts to a supplied output directory, without changing control state."""
     handoff = verified.handoff
     facts = load_entry_json(root, handoff, "project_facts")
     rules = load_entry_json(root, handoff, "business_rules")
@@ -797,12 +845,36 @@ def materialize_project_memory(project: Path) -> None:
         "interfaceIds": catalog.get("interface_ids", []),
         "materializedAt": now(),
     }
-    write_json(project / "memory" / "requirement-analysis-baseline.json", metadata)
-    append_import_decision(project, verified)
-    config["materializedAt"] = metadata["materializedAt"]
-    config["materializedManifestSha256"] = verified.manifest_sha256
-    write_json(project / "config" / "requirement-analysis.json", config)
-    print(f"已从冻结基线生成原型项目记忆：{verified.baseline_id}")
+    return metadata
+
+
+def verify_derived_artifacts(project: Path, stage: str) -> None:
+    """Recompute expected bytes from frozen facts; never seal the current copies."""
+    project = project.expanduser().resolve()
+    verified = verify_imported_project(project)
+    config = imported_config(project)
+    root = baseline_root(project, config)
+    iteration = read_json(project / "config/workflow.json").get("currentIteration", {})
+    changed = []
+    with tempfile.TemporaryDirectory(prefix="loop-frozen-memory-") as temporary:
+        output = Path(temporary) / project.name
+        render_project_memory(output, root, verified, config, iteration)
+        # Open items are mutable decisions, not a frozen fact view.
+        for name in ("project.md", "business-rules.md", "feature-list.md", "source-materials.md", "field-map.md"):
+            relative = Path("memory") / name
+            current = project / relative
+            if not current.is_file() or current.read_bytes() != (output / relative).read_bytes():
+                changed.append(relative.as_posix())
+    if stage in {"s8", "s9", "final"}:
+        for relative, expected in rendered_diagrams(root, verified).items():
+            current = project / relative
+            if not expected.endswith("\n"):
+                expected += "\n"
+            if not current.is_file() or current.read_text(encoding="utf-8") != expected:
+                changed.append(relative)
+    if changed:
+        raise ImportError("冻结派生产物与上游事实不一致：" + ", ".join(changed)
+                          + "；请恢复基线派生内容，原型决策写入 decisions/open-items；业务变更回上游重新冻结。")
 
 
 def write_feature_list(project: Path, verified: VerifiedPackage, features: list[Any], granularity_version: Any = None) -> None:
@@ -1074,6 +1146,19 @@ def adapt_html(source: str, metadata: str, verified: VerifiedPackage) -> str:
     return output
 
 
+def rendered_diagrams(root: Path, verified: VerifiedPackage) -> dict[str, str]:
+    return {
+        "flowcharts/business-process.html": adapt_html(
+            (root / entrypoint_path(verified.handoff, "business_scenario_atlas")).read_text(encoding="utf-8"),
+            semantic_flow_metadata(root, verified.handoff), verified,
+        ),
+        "flowcharts/sequence-interaction.html": adapt_html(
+            (root / entrypoint_path(verified.handoff, "interaction_sequence_atlas")).read_text(encoding="utf-8"),
+            semantic_sequence_metadata(root, verified.handoff), verified,
+        ),
+    }
+
+
 def publish_diagrams(project: Path) -> None:
     project = project.expanduser().resolve()
     stage, _ = workflow_state(project)
@@ -1086,18 +1171,8 @@ def publish_diagrams(project: Path) -> None:
     root = baseline_root(project, config)
     business_path = root / entrypoint_path(verified.handoff, "business_scenario_atlas")
     sequence_path = root / entrypoint_path(verified.handoff, "interaction_sequence_atlas")
-    business = adapt_html(
-        business_path.read_text(encoding="utf-8"),
-        semantic_flow_metadata(root, verified.handoff),
-        verified,
-    )
-    sequence = adapt_html(
-        sequence_path.read_text(encoding="utf-8"),
-        semantic_sequence_metadata(root, verified.handoff),
-        verified,
-    )
-    write_text(project / "flowcharts" / "business-process.html", business)
-    write_text(project / "flowcharts" / "sequence-interaction.html", sequence)
+    for relative, content in rendered_diagrams(root, verified).items():
+        write_text(project / relative, content)
     config["diagramPublication"] = {
         "manifestSha256": verified.manifest_sha256,
         "publishedAt": now(),
@@ -1135,6 +1210,9 @@ def main() -> int:
     import_parser.add_argument("package")
     verify_parser = sub.add_parser("verify", help="重新校验项目内已导入基线")
     verify_parser.add_argument("project")
+    derived_parser = sub.add_parser("verify-derived", help="只读重算并核对冻结记忆与发布图集")
+    derived_parser.add_argument("project")
+    derived_parser.add_argument("--stage", choices=["s4", "s6", "s7", "s8", "s9", "final"], required=True)
     materialize_parser = sub.add_parser("materialize", help="在 S3 将冻结事实物化为原型记忆")
     materialize_parser.add_argument("project")
     publish_parser = sub.add_parser("publish-diagrams", help="在 S7 复用冻结 HTML 图集")
@@ -1150,6 +1228,9 @@ def main() -> int:
             print(f"需求分析基线校验通过：{verified.baseline_id} ({verified.manifest_sha256})")
         elif args.command == "materialize":
             materialize_project_memory(Path(args.project))
+        elif args.command == "verify-derived":
+            verify_derived_artifacts(Path(args.project), args.stage)
+            print("冻结派生产物核验通过")
         elif args.command == "publish-diagrams":
             publish_diagrams(Path(args.project))
     except ImportError as exc:

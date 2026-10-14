@@ -121,6 +121,7 @@ description: PM 原型 loop 的验证协调技能。Use after each implementatio
 - 核心导航可用。
 - “原型页面 / 业务流程图 / 时序交互图 / 关联系统展示”四个核心交付视图在桌面端可见，并在当前页面内切换；只有 `requestedDeliverables.interactionDoc=true` 时才额外验证“说明文档”视图。切换后外层页面不跳转，hash 与选中项一致，嵌入页不重复生成顶部导航。业务页面和导航壳是否验证移动端由已批准的设备要求决定，业务图与时序图本身不要求移动端阅读适配。
 - 业务流程图直接加载 `flowcharts/business-process.html`，至少包含角色泳道、两个业务节点和一条流转关系；时序交互图直接加载 `flowcharts/sequence-interaction.html`，至少包含两个参与者和一条消息，并与项目记忆和核心用户路径一致。
+- 两个图页都要在浏览器实际打开并检查截图或渲染结果，不能把隐藏的 data-flow/data-sequence 标记当作可见图形。分别追加 `Scope: diagram`，`Step: business-flow` / `sequence-flow`，以及 `Visible Elements`（实际可见业务节点数／参与者数，至少 2）；其余字段沿用验证日志格式，Evidence 记录所见连线、标签、截图位置和是否空白。结果必须来自真实浏览器观察，不以静态扫描代替。
 - 新生成业务／时序图集充分使用桌面页面宽度、默认收起目录；窄图等比铺满可用宽度，宽图保持可读比例并可滚动，缩放／适应宽度／100%／全屏可用且标签无截断、节点不重叠。导入模式保留冻结样式与几何，不在原型侧改图或增加窄容器；历史包不因新规则自动重绘。
 - 关联系统展示直接加载 `related-systems/index.html`；有关联系统时逐项展示其角色和关系，没有关联系统时允许明确空态。三类页面均不得依赖 ProcessOn 或远程 iframe。
 - 核心用户路径可走通。
@@ -139,6 +140,7 @@ description: PM 原型 loop 的验证协调技能。Use after each implementatio
 输出：
 
 - 追加 `memory/verification-log.md`
+- 按执行顺序追加记录，不覆盖或重排历史。门禁只使用各步骤、图集及全局验证的最新记录；最新失败不能被旧 pass 掩盖。图集验证和全局结论必须晚于本轮最后一条单步记录。脚本追加 verification-epoch 边界后，只能使用边界之后的新证据。
 - 更新 `memory/acceptance-map.md`（按全局验收结果标记验收项状态）
 - 全局验证通过后，把"全局验证通过"反馈给总控，由总控完成 S8 推进（技能不写 `complete`）
 - 输出全局验证摘要
@@ -161,3 +163,5 @@ description: PM 原型 loop 的验证协调技能。Use after each implementatio
 - 不在同一检查点连续失败 3 次后继续自动重试。
 - 不把项目内总控工具包当成业务原型交付内容验证。
 - 不把熔断计数只保存在对话上下文里。
+
+验证记录必须绑定当前实现摘要与验证轮次。实际完成检查后用 `tools/loop_run.py record-verification` 追加新声明；不要给旧日志补摘要。实现/拆分返工用 `reopen --stage S6|S7 --reason ...`；版本化项目加稳定 `--change-id`。

@@ -14,7 +14,7 @@
 ```text
 Date:
 Step: step-01
-Scope: step | global
+Scope: step | global | diagram
 Local URL / File:
 Tool:
 Command / Check:
@@ -42,6 +42,8 @@ Result: pass | fail
 Consecutive Failures:
 Next Action:
 ```
+
+图集记录使用 `Step: business-flow` 或 `sequence-flow`、`Scope: diagram`，并增加 `Visible Elements: 实际可见节点或参与者数`（至少 2）。Evidence 必须来自浏览器实际渲染与截图，不能统计隐藏语义标记。先追加单步结果，再追加图集及全局结果；门禁取最新记录，脚本写入 verification-epoch 分隔符后，历史结果不再作为本轮通过证据。
 
 ## History
 

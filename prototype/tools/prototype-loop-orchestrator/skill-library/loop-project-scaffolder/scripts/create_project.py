@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 from datetime import date
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
@@ -42,6 +43,7 @@ ANNOTATION_COPY_ASSETS = [
 
 SCRIPT_COPY_ASSETS = [
     ("import_analysis.py", "tools/import_analysis.py"),
+    ("project_versions.py", "tools/project_versions.py"),
     ("loop_preflight.py", "tools/loop_preflight.py"),
     ("loop_run.py", "tools/loop_run.py"),
 ]
@@ -49,6 +51,7 @@ SCRIPT_COPY_ASSETS = [
 RUNTIME_PACKAGE_ROOT = "tools/prototype-loop-orchestrator"
 RUNTIME_PACKAGE_COPY_PATHS = [
     "SKILL.md",
+    "VERSION_WORKFLOW.md",
     "docs/design-principles.md",
     "docs/loop-overview.md",
     "docs/pm-guide.md",
@@ -58,6 +61,7 @@ RUNTIME_PACKAGE_COPY_PATHS = [
     "orchestrator/scripts/loop_preflight.py",
     "orchestrator/scripts/loop_run.py",
     "orchestrator/scripts/import_analysis.py",
+    "orchestrator/scripts/project_versions.py",
     "skill-library/annotation-generator/SKILL.md",
     "skill-library/loop-project-scaffolder/SKILL.md",
     "skill-library/memory-generator/SKILL.md",
@@ -97,6 +101,14 @@ OPTIONAL_OUTPUT_TEMPLATE_PATHS = {
     "memory/annotation-coverage.md",
     "memory/annotation-prompt.md",
 }
+
+# These source templates remain available for an explicit legacy command, but
+# never belong to modern generated projects or their installed runtime package.
+RETIRED_TEMPLATE_PATHS = frozenset({
+    "flowcharts/index.html",
+    "flowcharts/processon-links.txt",
+})
+TEMPLATE_SOURCE_PREFIX = "skill-library/loop-project-scaffolder/assets/templates/"
 
 # Files/directories that must never be copied from an iteration base into a
 # fresh generated project. They belong to local tooling, dependencies, or VCS
@@ -180,11 +192,14 @@ DELIVERY_CONTENT_TEMPLATE_PATHS = {
     "flowcharts/business-process.html",
     "flowcharts/sequence-interaction.html",
     "related-systems/index.html",
+    "version-history.html",
 }
 
 DELIVERY_SHELL_TEMPLATE_PATHS = {
     "assets/css/delivery-diagrams.css",
     "js/delivery-nav.js",
+    "js/version-nav.js",
+    "assets/css/version-history.css",
 }
 
 RUNTIME_SUPPORT_TEMPLATE_PATHS = {
@@ -192,10 +207,7 @@ RUNTIME_SUPPORT_TEMPLATE_PATHS = {
     "memory/feature-list.md",
 }
 
-LEGACY_DELIVERY_PATHS = {
-    "flowcharts/index.html",
-    "flowcharts/processon-links.txt",
-}
+LEGACY_DELIVERY_PATHS = RETIRED_TEMPLATE_PATHS
 
 SEED_COPY_PATHS = [
     "CLAUDE.md",
@@ -242,10 +254,41 @@ def project_id(name: str, target: Path) -> str:
     return _compute_project_id(name, target)
 
 
+def version_index_script_ref(target: Path) -> str:
+    """Infer a parent project only from its existing explicit registry binding."""
+    binding_path = target / "project-version.json"
+    if binding_path.is_file():
+        try:
+            binding = json.loads(binding_path.read_text(encoding="utf-8"))
+            if not isinstance(binding, dict):
+                return "./版本清单.js"
+            registry = binding.get("registry")
+            if isinstance(registry, str) and registry:
+                registry_path = Path(registry).expanduser()
+                if not registry_path.is_absolute():
+                    registry_path = target / registry_path
+                registry_path = registry_path.resolve()
+                if registry_path.name == "project-versions.json" and registry_path.parent.name == "memory":
+                    if registry_path.parent.parent == target.resolve().parent:
+                        return "../版本清单.js"
+        except (json.JSONDecodeError, OSError, TypeError, ValueError):
+            pass
+    return "./版本清单.js"
+
+
+def interaction_doc_requested(target: Path) -> bool:
+    """Project UI uses a generation-time projection of the explicit option."""
+    try:
+        workflow = json.loads((target / "config/workflow.json").read_text(encoding="utf-8"))
+        return workflow.get("currentIteration", {}).get("requestedDeliverables", {}).get("interactionDoc") is True
+    except (json.JSONDecodeError, OSError, AttributeError, TypeError):
+        return False
+
+
 def load_templates(name: str, target: Path) -> dict[str, str]:
     """Load all template files from TEMPLATES_DIR and substitute placeholders.
 
-    Only known placeholders ({name}, {today}, {annotation_project_id}) are
+    Only known placeholders (including the static version/data-option mounts) are
     replaced; all other curly-brace pairs (JS object literals, JSON, CSS
     blocks, etc.) are left untouched.
     """
@@ -255,6 +298,8 @@ def load_templates(name: str, target: Path) -> dict[str, str]:
         "name": name,
         "today": today,
         "annotation_project_id": annotation_project_id,
+        "version_index_script": version_index_script_ref(target),
+        "include_interaction_doc": "true" if interaction_doc_requested(target) else "false",
     }
     placeholder_re = re.compile(
         r"\{(" + "|".join(re.escape(k) for k in variables) + r")\}"
@@ -268,7 +313,7 @@ def load_templates(name: str, target: Path) -> dict[str, str]:
         if template_file.is_dir():
             continue
         relative = template_file.relative_to(TEMPLATES_DIR).as_posix()
-        if relative in OPTIONAL_OUTPUT_TEMPLATE_PATHS:
+        if relative in OPTIONAL_OUTPUT_TEMPLATE_PATHS or relative in RETIRED_TEMPLATE_PATHS:
             continue
         content = template_file.read_text(encoding="utf-8")
         if relative.endswith("/.gitkeep"):
@@ -452,7 +497,10 @@ def runtime_package_paths() -> list[str]:
         for source in REPO_ROOT.glob(pattern):
             if source.is_file():
                 paths.add(source.relative_to(REPO_ROOT).as_posix())
-    return sorted(paths)
+    retired_sources = {
+        TEMPLATE_SOURCE_PREFIX + relative for relative in RETIRED_TEMPLATE_PATHS
+    }
+    return sorted(paths - retired_sources)
 
 
 def sync_runtime_package(target: Path) -> list[str]:
@@ -517,32 +565,168 @@ def _write_json_file(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def remove_legacy_delivery_assets(target: Path) -> list[str]:
-    """Remove the retired ProcessOn viewer and its generated business-nav entry."""
-    changed: list[str] = []
-    for relative in sorted(LEGACY_DELIVERY_PATHS):
-        path = target / relative
-        if path.is_file() or path.is_symlink():
-            path.unlink()
-            changed.append(f"removed:{relative}")
+def preserve_legacy_delivery_assets(target: Path) -> list[str]:
+    """Leave existing legacy content and custom business navigation untouched."""
+    return [
+        relative for relative in sorted(LEGACY_DELIVERY_PATHS)
+        if (target / relative).is_file() or (target / relative).is_symlink()
+    ]
 
+
+def ensure_flowchart_navigation(target: Path) -> tuple[list[str], list[str]]:
+    """Add a legacy viewer entry only for the explicitly requested old command."""
     nav_path = target / "config" / "nav.json"
-    nav_data = _load_json_file(nav_path)
+    if nav_path.is_symlink():
+        return [], ["config/nav.json 是符号链接，保持原导航；旧查看器可直接打开"]
+    if not nav_path.is_file():
+        return [], ["缺少 config/nav.json，旧图集可通过 flowcharts/index.html 直接查看"]
+    try:
+        nav_data = json.loads(nav_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return [], ["config/nav.json 不是有效 JSON，未改写已有导航"]
     menu = nav_data.get("menu")
-    if isinstance(menu, list):
-        filtered = [
-            item
-            for item in menu
-            if not (
-                isinstance(item, dict)
-                and item.get("href") == "flowcharts/index.html"
+    if not isinstance(menu, list):
+        return [], ["config/nav.json.menu 不是数组，未改写已有导航"]
+    if any(isinstance(item, dict) and item.get("href") == "flowcharts/index.html" for item in menu):
+        return [], []
+    if any(isinstance(item, dict) and item.get("label") == "流程图集" for item in menu):
+        return [], ["已有自定义流程图集导航，保持原配置；旧查看器路径为 flowcharts/index.html"]
+    menu.append({"label": "流程图集", "icon": "流", "href": "flowcharts/index.html"})
+    _write_json_file(nav_path, nav_data)
+    return ["config/nav.json"], []
+
+
+def check_legacy_flowchart_links(target: Path) -> list[str]:
+    """Retain the old ProcessOn domain check without making it a modern gate."""
+    path = target / "flowcharts" / "processon-links.txt"
+    if path.is_symlink():
+        return ["旧图集链接清单为符号链接，未读取或修改；请先明确本地链接清单"]
+    if not path.is_file():
+        return []
+    errors: list[str] = []
+    for line_number, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [part.strip() for part in line.split("|")]
+        raw_url = parts[0] if len(parts) == 1 else parts[1] if len(parts) == 2 else "|".join(parts[2:]).strip()
+        parsed = urlsplit(raw_url)
+        host = (parsed.hostname or "").lower()
+        if parsed.scheme not in {"http", "https"} or not host or (
+            host != "processon.com" and not host.endswith(".processon.com")
+        ):
+            errors.append(f"旧图集包含无效 ProcessOn 链接：flowcharts/processon-links.txt:{line_number}")
+    return errors
+
+
+def sync_flowchart_assets(target: Path, name: str) -> tuple[list[str], list[str], list[str]]:
+    """Explicit source-only compatibility: install missing viewer, preserve data."""
+    if not target.is_dir():
+        raise FileNotFoundError(f"Target project does not exist: {target}")
+    errors = check_legacy_flowchart_links(target)
+    if errors:
+        raise ValueError("\n".join(errors))
+    missing = [
+        relative for relative in sorted(LEGACY_DELIVERY_PATHS)
+        if not (target / relative).exists() and not (target / relative).is_symlink()
+    ]
+    for relative in missing:
+        if not (TEMPLATES_DIR / relative).is_file():
+            raise FileNotFoundError(
+                "旧图集兼容模板只保留在维护源码；请使用02源码的 --sync-flowcharts，"
+                "个人安装态不会重新携带已退休模板"
             )
-        ]
-        if len(filtered) != len(menu):
-            nav_data["menu"] = filtered
-            _write_json_file(nav_path, nav_data)
-            changed.append("config/nav.json")
-    return changed
+    updated: list[str] = []
+    preserved = preserve_legacy_delivery_assets(target)
+    for relative in missing:
+        destination = target / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        content = (TEMPLATES_DIR / relative).read_text(encoding="utf-8")
+        if relative.endswith(".html"):
+            content = content.replace("{name}", name)
+            # The old shared switcher assumes a three-view host. Keep the
+            # recovered viewer standalone so it cannot replace modern navigation.
+            content = content.replace('  <script src="../js/delivery-nav.js"></script>\n', '')
+            content = content.replace(
+                "<body>",
+                '<body>\n<a href="../index.html" style="position:fixed;right:20px;top:12px;z-index:10001">返回原型</a>',
+                1,
+            )
+        destination.write_text(content, encoding="utf-8")
+        updated.append(relative)
+    nav_changed, warnings = ensure_flowchart_navigation(target)
+    updated.extend(nav_changed)
+    modern_pages = (target / "flowcharts/business-process.html").is_file()
+    if modern_pages:
+        delivery_changed, delivery_warnings = ensure_delivery_navigation(target)
+        updated.extend(delivery_changed)
+        warnings.extend(delivery_warnings)
+    warnings.append("旧图集兼容命令不推进阶段或签署审批；现代交付仍使用冻结本地图集")
+    return updated, preserved, warnings
+
+
+def mount_version_projection(text: str, script_ref: str) -> str:
+    """Patch real HTML tag ranges only; scripts/styles/comments remain opaque."""
+    tag = f'<script src="{script_ref}" data-project-version-index></script>'
+    offsets = [0]
+    offsets.extend(match.end() for match in re.finditer(r'\n', text))
+
+    class MountParser(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=False)
+            self.patches: list[tuple[int, int, str]] = []
+            self.marked: list[tuple[int, int]] = []
+            self.anchor: int | None = None
+            self.body_end: int | None = None
+            self.open_script: tuple[int, int] | None = None
+
+        def position(self) -> int:
+            line, column = self.getpos()
+            return offsets[line - 1] + column
+
+        def handle_starttag(self, name, attributes):
+            start = self.position()
+            raw = self.get_starttag_text()
+            end = start + len(raw)
+            attrs = dict(attributes)
+            updated = raw
+            if name == "body":
+                updated = re.sub(r'\s+data-version-index-url\s*=\s*(?:"[^"]*"|\'[^\']*\')', '', updated, flags=re.IGNORECASE)
+            if ("data-version-history" in attrs or "data-version-nav" in attrs or
+                    attrs.get("data-delivery-open") == "versions" or attrs.get("data-delivery-switch") == "versions"):
+                updated = re.sub(r'\s+data-index-url\s*=\s*(?:"[^"]*"|\'[^\']*\')', '', updated, flags=re.IGNORECASE)
+            if updated != raw:
+                self.patches.append((start, end, updated))
+            if name == "script":
+                self.open_script = (start, end) if "data-project-version-index" in attrs else None
+                src = attrs.get("src") or ""
+                if self.anchor is None and re.search(r'(?:^|/)(?:version-nav|delivery-nav)\.js$', urlsplit(src).path):
+                    self.anchor = start
+
+        def handle_endtag(self, name):
+            start = self.position()
+            if name == "body" and self.body_end is None:
+                self.body_end = start
+            if name == "script" and self.open_script:
+                opening, content_start = self.open_script
+                closing = re.match(r'</script\s*>', text[start:], flags=re.IGNORECASE)
+                if closing and not text[content_start:start].strip():
+                    self.marked.append((opening, start + len(closing.group(0))))
+                self.open_script = None
+
+    parser = MountParser()
+    parser.feed(text)
+    parser.close()
+    if parser.marked:
+        for number, (start, end) in enumerate(parser.marked):
+            parser.patches.append((start, end, tag if number == 0 else ''))
+    else:
+        point = parser.anchor if parser.anchor is not None else parser.body_end
+        if point is not None:
+            parser.patches.append((point, point, tag + '\n  '))
+    for start, end, replacement in sorted(parser.patches, reverse=True):
+        text = text[:start] + replacement + text[end:]
+    return text
 
 
 def ensure_delivery_navigation(target: Path) -> tuple[list[str], list[str]]:
@@ -551,6 +735,7 @@ def ensure_delivery_navigation(target: Path) -> tuple[list[str], list[str]]:
     warnings: list[str] = []
     pages = {
         "index.html": "js/delivery-nav.js",
+        "version-history.html": "js/delivery-nav.js",
         "docs/interaction.html": "../js/delivery-nav.js",
         "flowcharts/business-process.html": "../js/delivery-nav.js",
         "flowcharts/sequence-interaction.html": "../js/delivery-nav.js",
@@ -565,6 +750,12 @@ def ensure_delivery_navigation(target: Path) -> tuple[list[str], list[str]]:
             continue
 
         text = page_path.read_text(encoding="utf-8", errors="ignore")
+        if relative in {"index.html", "version-history.html"}:
+            mounted = mount_version_projection(text, version_index_script_ref(target))
+            if mounted != text:
+                page_path.write_text(mounted, encoding="utf-8")
+                changed.append(relative)
+                text = mounted
         if script_ref in text:
             continue
         if not re.search(r"</body\s*>", text, flags=re.IGNORECASE):
@@ -591,11 +782,10 @@ def sync_delivery_assets(target: Path, name: str) -> tuple[list[str], list[str],
     templates = load_templates(name, target)
     updated: list[str] = []
     preserved: list[str] = []
-    updated.extend(remove_legacy_delivery_assets(target))
+    preserved.extend(preserve_legacy_delivery_assets(target))
     obsolete_docs_index = target / "docs" / "index.html"
     if obsolete_docs_index.exists():
-        obsolete_docs_index.unlink()
-        updated.append("removed:docs/index.html")
+        preserved.append("docs/index.html")
     for relative in sorted(DELIVERY_SHELL_TEMPLATE_PATHS):
         destination = target / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -709,7 +899,69 @@ def rewrite_html(
     return REFERENCE_PATTERN.sub(replace, content)
 
 
-def local_reference_errors(target: Path) -> list[str]:
+def pending_projection_tag_ranges(target: Path, html: Path, content: str) -> list[tuple[int, int]]:
+    """S0 may precede a first public projection; all established assets stay required."""
+    if html.relative_to(target).as_posix() not in {"index.html", "version-history.html"}:
+        return []
+    try:
+        workflow = json.loads((target / "config/workflow.json").read_text(encoding="utf-8"))
+        if not isinstance(workflow, dict) or workflow.get("stage") != "s0":
+            return []
+        script_ref = version_index_script_ref(target)
+        project_root = target.resolve()
+        marker = target / "project-version.json"
+        if marker.is_symlink():
+            return []
+        if marker.exists():
+            binding = json.loads(marker.read_text(encoding="utf-8"))
+            if not isinstance(binding, dict) or not all(isinstance(binding.get(key), str) and binding[key].strip()
+                                                       for key in ("registry", "project_id", "version_id")):
+                return []
+            registry = Path(binding["registry"]).expanduser()
+            registry = (registry if registry.is_absolute() else target / registry).resolve()
+            if registry.name != "project-versions.json" or registry.parent.name != "memory":
+                return []
+            project_root = registry.parent.parent
+            if project_root not in {target.resolve(), target.resolve().parent}:
+                return []
+        raw_expected = target / script_ref
+        # Inspect the actual display path before resolve can hide a dangling
+        # link. Check only its project nodes, not global macOS /tmp aliases.
+        project_nodes = [target]
+        if script_ref.startswith("../"):
+            project_nodes.append(target.parent)
+        if raw_expected.is_symlink() or any(node.is_symlink() for node in project_nodes):
+            return []
+        expected = raw_expected.resolve()
+        if expected.parent != project_root or expected.exists() or expected.is_symlink():
+            return []
+        json_projection = project_root / "版本清单.json"
+        if json_projection.exists() or json_projection.is_symlink():
+            return []
+    except (json.JSONDecodeError, OSError, TypeError, ValueError):
+        return []
+
+    offsets = [0] + [match.end() for match in re.finditer(r'\n', content)]
+    ranges: list[tuple[int, int]] = []
+
+    class ProjectionTagParser(HTMLParser):
+        def handle_starttag(self, tag, attrs):
+            names = [key for key, _ in attrs]
+            if tag != "script" or names.count("src") != 1 or names.count("data-project-version-index") != 1:
+                return
+            if dict(attrs).get("src") != script_ref:
+                return
+            line, column = self.getpos()
+            start = offsets[line - 1] + column
+            ranges.append((start, start + len(self.get_starttag_text())))
+
+    parser = ProjectionTagParser(convert_charrefs=False)
+    parser.feed(content)
+    parser.close()
+    return ranges if len(ranges) == 1 else []
+
+
+def local_reference_errors(target: Path, pending: list[str] | None = None) -> list[str]:
     errors = []
     for html in target.rglob("*.html"):
         relative = html.relative_to(target)
@@ -718,6 +970,7 @@ def local_reference_errors(target: Path) -> list[str]:
         if relative.as_posix().startswith(RUNTIME_PACKAGE_ROOT + "/"):
             continue
         content = html.read_text(encoding="utf-8", errors="ignore")
+        projection_ranges = pending_projection_tag_ranges(target, html, content)
         for match in REFERENCE_PATTERN.finditer(content):
             raw_url = match.group("url")
             parsed = urlsplit(raw_url)
@@ -727,6 +980,10 @@ def local_reference_errors(target: Path) -> list[str]:
                 continue
             referenced = (html.parent / parsed.path).resolve()
             if not referenced.exists():
+                if match.group("prefix").lower().lstrip().startswith("src") and any(start <= match.start() < end for start, end in projection_ranges):
+                    if pending is not None:
+                        pending.append(f"{html.relative_to(target)} -> {raw_url}（展示投影待建立；批准状态未知）")
+                    continue
                 errors.append(f"{html.relative_to(target)} -> {raw_url}")
     return errors
 
@@ -856,7 +1113,7 @@ def migrate_project(
             copy_script_asset(source_name, target, relative_path, merge=True)
             created.append(relative_path)
 
-    legacy_delivery_changed = remove_legacy_delivery_assets(target)
+    legacy_delivery_preserved = preserve_legacy_delivery_assets(target)
     delivery_nav_changed, delivery_nav_warnings = ensure_delivery_navigation(target)
     runtime_synced = sync_runtime_package(target)
 
@@ -864,13 +1121,16 @@ def migrate_project(
     reset = reset_base_state(target, name) if reset_iteration_state else []
     stripped_data_anno = strip_data_anno_anchors(target) if reset_iteration_state else (0, 0)
 
-    reference_errors = local_reference_errors(target)
+    pending_projections: list[str] = []
+    reference_errors = local_reference_errors(target, pending_projections)
     syntax_errors = validate_javascript(target)
     print("Migration applied.")
     print(f"Moved files: {len(moves)}")
     print(f"Created missing framework files: {len(created)}")
-    if legacy_delivery_changed:
-        print("Legacy delivery assets removed: " + ", ".join(legacy_delivery_changed))
+    for pending_projection in pending_projections:
+        print(f"Pending public version projection: {pending_projection}")
+    if legacy_delivery_preserved:
+        print("Legacy delivery assets preserved: " + ", ".join(legacy_delivery_preserved))
     if delivery_nav_changed:
         print("Delivery pagination updated: " + ", ".join(delivery_nav_changed))
     for warning in delivery_nav_warnings:
@@ -938,10 +1198,20 @@ def main() -> int:
         action="store_true",
         help="Install or refresh the five local-HTML delivery pages without replacing existing page content",
     )
+    parser.add_argument(
+        "--sync-flowcharts",
+        action="store_true",
+        help="Explicit source-only legacy ProcessOn viewer recovery; preserve existing links and navigation",
+    )
     args = parser.parse_args()
 
     target = Path(args.target).expanduser().resolve()
     name = (args.name or target.name).strip() or "新原型项目"
+    if args.sync_flowcharts and any((
+        args.sync_runtime, args.sync_delivery_pages, args.sync_tools,
+        args.migrate, args.apply, args.from_base, args.reset_iteration_state,
+    )):
+        parser.error("--sync-flowcharts 是显式旧图集兼容命令，不能与现代同步或迁移命令混用")
     if args.sync_runtime:
         synced_tools, updated_delivery, preserved, warnings = sync_runtime_assets(target, name)
         print(f"Loop runtime synced at: {target}")
@@ -957,6 +1227,16 @@ def main() -> int:
     if args.sync_delivery_pages:
         updated, preserved, warnings = sync_delivery_assets(target, name)
         print(f"Delivery pages synced at: {target}")
+        for item in updated:
+            print(f"- updated: {item}")
+        for item in preserved:
+            print(f"- preserved: {item}")
+        for warning in warnings:
+            print(f"- warning: {warning}", file=sys.stderr)
+        return 0
+    if args.sync_flowcharts:
+        updated, preserved, warnings = sync_flowchart_assets(target, name)
+        print(f"Legacy flowchart viewer synced at: {target}")
         for item in updated:
             print(f"- updated: {item}")
         for item in preserved:
@@ -1038,7 +1318,7 @@ def main() -> int:
         elif status == "skipped":
             skipped.append(relative_path)
 
-    legacy_delivery_changed = remove_legacy_delivery_assets(target)
+    legacy_delivery_preserved = preserve_legacy_delivery_assets(target)
     delivery_nav_changed, delivery_nav_warnings = ensure_delivery_navigation(target)
     runtime_synced = sync_runtime_package(target)
 
@@ -1056,8 +1336,8 @@ def main() -> int:
     if stripped_data_anno_from_base[1]:
         print(f"Removed stale data-anno anchors: {stripped_data_anno_from_base[1]} attrs in {stripped_data_anno_from_base[0]} files")
     print(f"Created files: {len(created)}")
-    if legacy_delivery_changed:
-        print("Legacy delivery assets removed: " + ", ".join(legacy_delivery_changed))
+    if legacy_delivery_preserved:
+        print("Legacy delivery assets preserved: " + ", ".join(legacy_delivery_preserved))
     if delivery_nav_changed:
         print("Delivery pagination updated: " + ", ".join(delivery_nav_changed))
     for warning in delivery_nav_warnings:

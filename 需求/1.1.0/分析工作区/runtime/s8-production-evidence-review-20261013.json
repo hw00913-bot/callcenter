@@ -1,0 +1,815 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-13",
+  "scope": "S8 read-only production evidence review; static documentation is evidence of contract text, not actual production behavior",
+  "actual_user_disposition": {
+    "date": "2026-10-13",
+    "source": "actual_user_question_reply",
+    "question_id": "[\"request_user_input_async\",\"call_c962742d70444263ad11b7af8b69f088\",0/1]",
+    "production_decision": "先补齐生产证据",
+    "visual_decision": "允许暂延需求图集视觉",
+    "scope": "13 production gaps remain open/high; visual accepted only as explicit deferral for current requirement atlas, actual visual evidence remains unverified; no prototype visual exemption/G3 approval/real API calls"
+  },
+  "actual_user_evidence_reply": {
+    "question_id": "call_bf562d96369f4f9a9f1a83d5ddff6cea 第0项",
+    "answer": "https://wiki.alicti.cn/index.html?page=/html/wiki/API/%E9%A2%84%E6%B5%8B%E5%BC%8F%E5%A4%96%E5%91%BC/%E6%96%B0%E5%A2%9E%E4%BB%BB%E5%8A%A1%E6%8E%A5%E5%8F%A3.html",
+    "scope": "官方文档路径已提供；实际任务/工程证据尚未提供。"
+  },
+  "official_document_rechecks": [
+    {
+      "existing_source_ref": "SRC-073",
+      "url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/任务号码导入接口.html",
+      "http_status": 200,
+      "retrieved_on": "2026-10-13",
+      "html_sha256": "c063ec01978562bec9e16811762c032776919381d3fbfa394cb74c7d02c1013f",
+      "text_sha256": "33407b0ecfdff8fea8545519bb84b72cec6f46263213ed8eea5dffe6f6c10320",
+      "text_snapshot": "\n\n\n\t\n\t\n\t\n\n\n\n\n任务号码导入接口\n\n\n\n\n接口说明\n\n按批次导入号码，一次导入一个批次\n\n限制：一个批次最多10w个号码，一个任务最多100w个号码，一个企业最多1000w个号码\n\n\n\n服务限制说明\n\n为确保平台服务稳定性，本API设定以下使用限制：\n\n\n单个任务内限制\n\n\n\n可创建批次数：≤ 10 万个\n\n可导入号码数：≤100 万个\n\n单批次可导入号码数：≤ 10 万个\n\n\n\n超额处理\n\n当触发上述任一限制时，本次请求失败。\n\n最佳实践建议\n\n\n\n平台提供「删除任务内号码」接口：业务平台可根据实际情况定期自动删除任务内已完成的批次或号码\n\n\n说明：删除任务内号码后，平台已呼叫过的通话记录明细、录音文件会继续保留\n\n\n\n\nAPI URL\n\n接口请求地址：\n\nhttps://api-{region}.alicti.cn/interface/{version}/task/importTaskTel\n\n地址参数说明：\n\n{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区\n\n{version}为接口版本，当前{version}=v10\n\n接口请求方式：\n\nPOST请求\n\n请求参数为Json数据格式\n\n\n\n\n相关参数\n\n\n\n\n\n\n参数\n类型\n要求\n描述\n备注\n\n\n\n\n\nvalidateType\nInt\n必选\n验证类型\n说明：\nvalidateType=1：使用部门编号(departmentId)进行验证；\nvalidateType=2：使用呼叫中心编号(enterpriseId)进行验证\n\n\n\ndepartmentId\nString\n必选\n部门编号\n说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001\n\n\n\nenterpriseId\nInt\n必选\n呼叫中心编号\n说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101\n\n\n\ntimestamp\nLong\n必选\n当前时间戳\n说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟\n\n\n\nsign\nString\n必选\n验证值\n说明：\nvalidateType=1:\nMD5({departmentId}+{timestamp}+{部门token值})；\nvalidateType=2：\nMD5({enterpriseId}+{timestamp}+{部门token值})；\n格式要求：32位全小写\n\n\n\nname\nString\n必选\n批次名称\n\n\n\n\ntaskId\nInt\n必选\n任务Id\n\n\n\n\nfileId\nInt\n可选\n批次Id\n传此值表示在批次中增加号码\n\n\n\npriority\nInt\n可选\n优先级\n默认0，值越大越优先，最大999999\n\n\n\nisRepeat\nInt\n可选\n是否排重\n0.不排重 1.任务内排重 2.导入号码排重 3.批次内排重，默认为1。\n注：任务内排重与批次内排重不能同时支持，如果中途切换，则从本次切换开始进行排重。\n\n\n\nbridgeVoicePath\nString\n可选\n座席接听时自动在双侧播放开场白语音，指定语音变量值\n企业语音库里的语音变量值\n\n\n\nbridgeVoiceType\nInt\n可选\n座席接听时自动在双侧播放开场白语音类型\n1. 公共语音库；2. 企业语音库，静态话术； 3. 企业语音库，动态话术（座席号），传bridgeVoicePath后生效，默认为3\n\n\n\ntaskTelList\nList<TaskTel>\n必选\n任务号码列表\nCtiLinkTaskTel中只有Tel是必选字段，长度大小不超过20MB \n 注：获取导入失败明细，需配置事件推送\n\n\n\nimportTelAutoStart\nInt\n可选\n是否自动启动任务\n0:不自动启动 1:自动启动，默认为0\n\n\n\n\nTaskTel 参数定义：\n\n\n\n\n字段\n类型\n要求\n描述\n\n\n\n\n\ntel\nString\n必选\n电话号\n\n\n\nbackupTels\nString\n可选\n备选号码，tel呼叫不通时，呼叫备选号码\n最多支持8个，号码之间用英文逗号\",\"分隔\n\n\n\nproperty\nString\n可选\n属性，json格式\n\n\n\npriority\nInt\n可选\n优先级，默认为0，值越大优先级越高，最大999999\n\n\n\nanswerRateLevel\nDecimal\n可选\n数据源接听率等级，支持小数\n\n\n\nclid\nString\n可选\n电话号对应的外显号码\n\n\n\nclidGroup\nString\n可选\n使用clidGroup需要账号支持按标识路由，使用此参数是clid参数无效\n\n\n\n\n接口请求示例\nhttps://api-{region}.alicti.cn/interface/v10/task/importTaskTel?validateType=2&enterpriseId=6000001&timestamp=1490791690&sign=f4e847a068c5ef66c9e5c64a4eaaaa84\n\nRequestBody：\n{\n\t\"taskId\":\"16\",\n\t\"name\":\"test\",\n\t\"priority\":0,\n\t\"isRepeat\":1,\n\t\"fileId\":63,\n\t\"importTelAutoStart\":0,\n\t\"taskTelList\":[\n\t\t{\n\t\t\t\t\"tel\":\"12312311231\",\n\t\t\t\t\"priority\":2,\n\t\t\t\t\"answerRateLevel\":3.5,\n\t\t\t\t\"property\": \"{ \\\"name\\\" : \\\"var1\\\" }\"\n\t\t},\n\t\t{\n\t\t\t\t\"tel\":\"15512311231\",\n\t\t\t\t\"priority\":1,\n\t\t\t\t\"property\": \"{ \\\"name\\\" : \\\"var2\\\" }\"\n\t\t}\n\t]\n\n}\n\n\n\n接口返回\n\nJSON格式数据：\n\n\n\n\n\n参数\n类型\n说明\n\n\n\n\n\nresult\nInt\n0 成功, -1 失败\n\n\n\ndescription\nString\n返回结果描述\n\n\n\nerrorCode\nInt\n错误码,当返回result=-1时，返回该参数\n\n\n\ndata\nJSON\n返回数据JSON格式\n\n\n\n\ndescription给出成功或失败时的文本描述：\n\n\n\n\ndescription\n返回结果说明\n\n\n\n\n\n验证失败，参数[{param}]不能为空\n{param}为接口参数中必选字段\n\n\n\n验证失败，参数[{param}]格式不正确\n{param}为接口参数中格式有要求的字段\n\n\n\n验证失败，参数[{param}]取值不正确\n{param}为接口参数中有固定取值的字段\n\n\n\n验证失败，参数[param]取值范围不正确\n{param}为接口参数中有固定范围的字段\n\n\n\n验证失败，超过频次限制\n接口调用超过接口的访问频次限制\n\n\n\n成功，{param}\n{param}为成功描述\n\n\n\n失败，{param}\n{param}为失败描述\n\n\n\n\n\n\n\n失败具体描述\n备注\n\n\n\n\n\n失败，号码超出最大导入条数限制\n导入超过10万条时报错\n\n\n\n失败，导入后超过任务最大号码条数限制\n一个任务最多存100万条数据\n\n\n\n失败，超出单批次导入条数限制\n单批次最多导入10万条数据\n\n\n\n失败，超出任务最大导入批次限制\n一个任务最多10W个批次，或一个任务最多100W个号码，批次或号码均不能超过限制值\n\n\n\n\ndata定义：\n\n\n\n\n字段\n类型\n描述\n\n\n\n\n\nfileId\nInteger\n批次Id\n\n\n\ntaskId\nInteger\n任务Id\n\n\n\nimportTotal\nInteger\n请求号码总数\n\n\n\nsuccessTotal\nInteger\n成功导入号码数\n\n\n\ninvalidTotal\nInteger\n非法号码数\n\n\n\n\n返回示例：\n{\n    \"result\": \"0\",\n    \"description\": \"成功 | 请求号码总数：1条 | 成功导入：1条 | 非法号码数：0条 \",\n    \"data\": {\n        \"fileId\": \"4505\",\n        \"taskId\": \"899\",\n        \"importTotal\": \"1\",\n        \"successTotal\": \"1\",\n        \"invalidTotal\": \"0\"\n    }\n}\n\n\n\n",
+      "evidence_limit": "已有批次追加、排重及同步导入字段；不证明再次受理或一次预期呼叫。",
+      "production_behavior_verified": false
+    },
+    {
+      "existing_source_ref": "SRC-072",
+      "url": "https://wiki.alicti.cn/html/wiki/API/字段定义/推送变量和值/预测外呼导入号码失败推送变量.html",
+      "http_status": 200,
+      "retrieved_on": "2026-10-13",
+      "html_sha256": "0cf2598f3dbb255ffd65bd144b0fea5852380035e8485af1a53e34d2aef5dcb5",
+      "text_sha256": "bde8693ab04fea9522720472166d875875b7f09913a9c6ae239292a5ee2eb529",
+      "text_snapshot": "\n\n\n\t\n\t\n\t\n\n\n\n\n预测外呼导入号码失败结果推送变量定义\n\n不支持通道变量\n\n\n\n\n变量名\n说明\n示例\n\n\n\n\n\nenterpriseId\n企业ID\n7010100\n\n\n\ntaskId\n任务ID\n1\n\n\n\nfileId\n批次ID\n1\n\n\n\nfileName\n批次名称\n1\n\n\n\ntotalFailedCount\n导入失败的号码总数\n101\n\n\n\ntotalBatchCount\n导入号码失败结果分批推送的批次总数\n2\n\n\n\ncurrentBatchCount\n导入号码失败结果分批推送的当前批次数\n1\n\n\n\nfailedTelList\n导入的完整原始数据 + 失败原因，格式为JSON数组，每个元素为导入的号码原始数据和失败原因failedReason\n\"[{\\\"tel\\\":\\\"客户号码\\\",\\\"priority\\\":\\\"2\\\",\\\"property\\\":\\\"{\\\\\\\"name\\\\\\\" : \\\\\\\"var1\\\\\\\" }\\\",\\\"failedReason\\\":\\\"BatchDup\\\"}]\"\n\n\n\n\n失败原因failedReason描述\n\n\n\n\n取值\n描述\n\n\n\n\n\nTaskDup\n任务内号码重复\n\n\n\nBatchDup\n批次内号码重复\n\n\n\nReqDup\n一次请求内号码重复\n\n\n\nNumFmtErr\n号码格式错误\n\n\n\nBlkNum\n企业黑名单号码\n\n\n\nCustNumNil\n客户号码为空\n\n\n\n\n\n\n",
+      "evidence_limit": "导入失败分片和原始行原因；不证明稳定呼叫失败事件身份或供应商执行权。",
+      "production_behavior_verified": false
+    },
+    {
+      "existing_source_ref": "SRC-104",
+      "url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/新增任务接口.html",
+      "http_status": 200,
+      "retrieved_on": "2026-10-13",
+      "html_sha256": "d3e0c51d3507d205663f604e637e36e7cb0d38678eafb4abcf7755c23153f58b",
+      "text_sha256": "466afb9a94b31dd9650a9571e01cf67103c9c8064fef71879e30d9895d109b56",
+      "text_snapshot": "新增任务接口\n接口说明\n接口支持创建预测外呼和自动外呼任务，任务类型通过type字段区分。\n创建任务数如果超过最大任务限制，接口提供参数自动删除最早已完成的任务。\n限制说明\n为确保平台服务稳定性，本API设定以下使用限制：\n企业级限制\n可创建任务数：≤ 100 个\n可导入号码数：≤ 1000 万个\n超额处理\n当触发上述任一限制时，本次请求失败。\n最佳实践建议\n新增任务接口提供参数自动删除最早已完成的任务：  autoDelete: 创建任务超出最大任务数限制时，是否自动删除已完成的最早创建的任务，值为1代表自动删除\n平台提供删除任务接口「删除任务」：业务平台可根据实际情况定期自动删除已完成的任务\n说明：删除任务时任务内的号码清单会全量删除，平台已呼叫过的通话记录明细、录音文件会继续保留\n暂停任务超时自动结束说明\n平台会定期扫描处于「暂停」状态的任务，若连续暂停时长超过阈值，系统将自动结束该任务（结束原因：系统自动结束）。任务进入结束状态后无法再次启动。\n默认规则\n默认阈值：连续暂停 30 天（以任务暂停时间为起点计算）\n未配置企业级开关时，按上述系统默认阈值执行\n企业配置（predictive_task_pause_auto_stop，需联系管理员配置）\nvalue=0 或未配置：使用系统默认阈值（30天）\nvalue=1：使用企业自定义阈值，超时天数配置在 property（正整数，单位：天；例如 property=15 表示连续暂停超过15天自动结束）\nvalue=2：跳过，该企业不执行暂停任务超时自动结束\n说明\n该能力为平台侧后台处理，非本接口入参；任务创建后若长期处于暂停状态（例如 autoComplete=0 号码呼完后自动暂停、人工暂停等），可能触发自动结束\nproperty 仅在 value=1 时生效；property 非法或小于等于0时，仍按系统默认阈值执行\n接口定义\nAPI URL\n接口请求地址：\nhttps://api-{region}.alicti.cn/interface/{version}/task/create\n地址参数说明：\n{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区\n{version}为接口版本，当前{version}=v10\n接口请求方式：\nGET/POST请求\n鉴权参数\n参数\n类型\n要求\n描述\n备注\nvalidateType\nInt\n必选\n验证类型\n说明：\nvalidateType=1：使用部门编号(departmentId)进行验证；\nvalidateType=2：使用呼叫中心编号(enterpriseId)进行验证；\ndepartmentId\nString\n必选\n部门编号\n说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001\nenterpriseId\nInt\n必选\n呼叫中心编号\n说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101\ntimestamp\nLong\n必选\n当前时间戳\n说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟\nsign\nString\n必选\n验证值\n说明：\nvalidateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；\nvalidateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；\n格式要求：32位全小写\n通用参数\n通用参数在创建预测外呼和自动外呼任务时均适用。\n基础信息\n参数\n类型\n要求\n描述\n备注\nname\nString\n必选\n任务名称\n需进行UTF-8格式的URLEncode编码，长度小于50字\ndescription\nString\n可选\n任务描述\n需进行UTF-8格式的URLEncode编码，长度小于200字\ntype\nInt\n必选\n任务类型\n1.预测外呼任务 2.自动外呼任务。外呼任务创建后任务类型不支持修改\ntemplateName\nString\n可选\n任务模板名称\n通过任务模板可以实现对任务参数的统一管理以及简化接口传参，多个任务可以使用同一个模板管理参数，接口只需要传入任务间有差异的参数。\n参数生效规则：接口传入的参数优先。\n示例说明：如果接口传了参数autoStart=1和参数templateName=testTemplate，接口传入的参数autoStart生效。如果接口未传入autoStart参数或者传入的autoStart参数是空值，那么模版中的参数生效。\n注：任务模板可通过任务模板接口进行管理\nbusinessTagNames\nString\n可选\n业务标签名称\n英文逗号分隔，如 标签A,标签B\n时间策略\n参数\n类型\n要求\n描述\n备注\nautoStart\nInt\n可选\n定时开始\n0.关闭 1.开启，默认关闭。值为1时autoStartDay和autoStartTime参数才生效，并且至少设置其中的一个\nautoStartDay\nString\n可选\n定时开始日期\nautoStart=1时生效。参数不传入时默认在当天的autoStartTime定时启动。格式：yyyy-MM-dd，如：2017-01-01\nautoStartTime\nString\n可选\n定时开始时间\nautoStart=1时生效。参数不传入时默认在autoStartDay的00:00:00定时启动。格式：HH:mm:ss，如：08:00:00\nautoStop\nInt\n可选\n定时完成\n0.关闭 1.开启，默认关闭。值为1时autoStopDay和autoStopTime参数才生效，并且至少设置其中的一个\nautoStopDay\nString\n可选\n定时完成日期\nautoStop=1时生效。参数不传入时默认在当天的autoStopTime定时完成。格式：yyyy-MM-dd，如：2017-01-01\nautoStopTime\nString\n可选\n定时完成时间\nautoStop=1时生效。参数不传入时默认在autoStopDay的23:59:59定时完成。格式：HH:mm:ss，如：17:00:00\nforceEndFlag\nInt\n可选\n定时完成时强制结束任务\nautoStop=1时生效。0.关闭 1.开启，默认关闭。\n开启配置后，当任务到定时完成时间时无论任务中的号码是否已经呼完，均将任务状态设置为结束。适用于对数据有呼叫时间限制的场景。\n注：任务在结束状态时无法再次启动。\nautoTaskType\nInt\n可选\n呼叫方式\n0.连续呼叫 1.间隔呼叫，默认连续呼叫。\n配合定时开始（autoStart）和定时结束（autoStop）参数使用，如任务需要在每天的特定时间段内呼叫则开启间隔呼叫方式\nautoTriggerTimeStrategy\nString\n可选\n间隔呼叫时间段\nautoTaskType=1时必填。呼叫的时间段配置。参数格式：时间条件编号。支持多个，多个使用英文\",\"逗号隔开，如：9,22。\n注：时间条件列表可通过查询时间条件设置列表接口获取\nautoComplete\nInt\n可选\n自动完成\n0.关闭 1.开启，默认开启。开启：任务中的号码呼叫完后，任务自动完成，状态设置为结束，关闭：任务中的号码呼叫完后，任务自动暂停，状态设置为暂停\n注：任务在结束状态时无法再次启动。\n优先级和重试策略\n参数\n类型\n要求\n描述\n备注\nretryStrategy\nString\n可选\n重试策略\n「基础模式」\n数据结构为Json格式{\"retry\":2,\"strategy\":[{\"round\":1,\"time\":\"1-1-1\"},{\"round\":2,\"time\":\"2-2-2\"}]}\n格式说明：retry是重试次数，round是第几次重试，time是第几次重试间隔的时间：1-1-1，第一个1是天，第二个1是小时，第三个1是分钟\n「高级模式」\n高级模式需要开启「号码状态识别」服务\n数据结构为JsonArray格式 [{\"condition\":{\"sipCause\":[710,719]},\"retry\":1,\"sort\":1,\"strategy\":[{\"round\":1,\"time\":\"0-0-10\"}]},{\"condition\":{\"sipCause\":[800]},\"retry\":1,\"sort\":2,\"strategy\":[{\"round\":2,\"time\":\"0-0-10\"}]}]\n格式说明：condition是重试条件，sort是重试条件的顺序，其余字段与基础模式一致\n注：基础模式和高级模式的区分根据传入的参数格式自动识别。基于首次呼叫时间重试时，每轮的重试时间必须大于上一轮的时间\nretryStrategyTimeType\nInt\n可选\n重试策略时间类型\n配置重试策略时生效。 1.基于首次呼叫时间 2.基于上次呼叫时间，默认基于首次呼叫时间\nretryStrategyOnlyToday\nInt\n可选\n任务仅当天生效\n0.关闭 1.开启，删除待重试的数据和待呼叫的数据 2.开启，删除待重试的数据 3.开启，删除待呼叫的数据，默认关闭\ncallPriorityStrategy\nString\n可选\n呼叫顺序\n数据结构为Json格式{\"strategy\":[{\"sort\":1,\"type\":\"retryCall\", \"desc\":0},{\"sort\":2,\"type\":\"firstCall\",\"orderType\":0}]}\n格式说明：sort是重试号码和未呼叫号码的呼叫顺序\ntype：retryCall重试号码、firstCall未呼叫号码\n当type=retryCall，desc：0.优先呼叫待重呼轮次数值较小的号码，即轮次靠前（如第1轮、第2轮）的号码先被呼叫 1.优先呼叫待重呼轮次数值较大的号码，即轮次靠后（如第5轮、第4轮）的号码先被呼叫\n当type=firstCall时，orderType：随机呼叫，0顺序(优先级) 1随机 2顺序(导入时间)\n客户侧设置\n参数\n类型\n要求\n描述\n备注\ncustomerClidsCategory\nInt\n可选\n客户侧外显号码类型\n取值： 5 外显导航\ncustomerClidsGroup\nString\n可选\n外显导航标识\ncustomerClidsGroup传外显导航标识\nclidPoolList\nArray\n可选\n外显导航接口传入号码池列表\n格式：\n[{\"name\":\"号码池A\",\"priority\":1},{\"name\":\"号码池B\",\"priority\":2},{\"name\":\"号码池C\",\"priority\":3}]\n字段说明：\nname：号码池名称，priority：号码池优先级（Integer类型）（可选），数值越小优先级越高，例如priority=1 的号码会优先于 priority=2 的号码被选中\ncustomerTimeout\nInt\n可选\n客户超时时间\n单位秒数，默认30秒，取值范围5 ~ 60\n任务设置\n参数\n类型\n要求\n描述\n备注\nconcurrency\nInt\n可选\n最大并发限制\n任务维度限制最大并发数，实际并发不会超过最大并发限制。type=1时，配置成0表示不限制，座席数量少于10时建议配置该参数\nuserFields\nString\n可选\n任务自定义字段。JsonArray格式\n数组的每个元素只支持传递一组键值对，传递多组只取第一组，如 {\"key\", \"value\"}。 默认空值，示例：[{\"name\":\"1234\"},{\"name1\":\"12345\"}]\n注：单个字段值的长度不能超过1000个字符\ncallVariables\nString\n可选\n座席通道变量。JsonArray格式\n最大支持5个变量。默认空值， 示例：[{\"name\":\"abcdefg\",\"value\":\"${cdr_enterprise_id}\"}]\n注：单个字段值的长度不能超过1000个字符。变量会以SIP_HEADER的形式设置到座席侧通道\ntimeStrategy\nString\n可选\n禁呼时间\n在特定的时间段内禁止呼叫。参数格式：时间条件编号。支持多个，多个使用英文\",\"逗号隔开，如：9,22。\n注：时间条件列表可通过查询时间条件设置列表接口获取\nautoDelete\nInt\n可选\n自动删除\n0.关闭 1.自动删除。任务数超出最大任务数限制时，是否自动删除已完成的最早创建的任务，值为1代表自动删除。\n注：autoDelete不是任务属性，只在接口调用时生效\n预测外呼任务参数\n预测外呼任务参数只在预测外呼任务（type=1）中生效。\n座席侧设置\n参数\n类型\n要求\n描述\n备注\ncallRouteStrategy\nInt\n可选\n呼叫流转模式\n1.直连座席 2.AI转人工\n直连座席模式：客户接听后直接分配座席，无空闲座席可溢出语音导航（需配置语音导航），保障高优先级客户直连体验\nAI转人工：客户接入后，优先进入语音导航中配置的智能体机器人，按交互结果决定是否转接座席，提升自动化覆盖率，降低人工成本\nivrId\nInt\n可选\n语音导航Id\n参数ivrId和ivrName二选一，同时传入时ivrId生效，在创建自动外呼任务时ivrId或ivrName必选其一。\n预测外呼使用场景：直连座席模式下如果客户接听后未在特定时间内（默认2秒）找到可用座席，通话将溢出到语音导航继续排队找座席。同时支持在呼转座席，座席未接听时也溢出到语音导航，需要开启企业配置生效。AI转人工模式下，呼叫先转到语音导航\n自动外呼使用场景：客户接听后，转到的语音导航\nivrName\nString\n可选\n语音导航名称\n参数ivrId和ivrName二选一，同时传入时ivrId生效，在创建自动外呼任务时ivrId或ivrName必选其一。\ncallGroupType\nInt\n可选\n指定座席方式\n1.座席工号列表 2.外呼组，默认座席工号列表\n注：任务创建后不支持修改\ncnos\nString\n可选\n座席工号列表\ncallGroupType=1时必填。支持多个座席工号，多个之间使用英文逗号','分隔\n注：一个座席只能在一个运行中的任务中\nagentGroup\nString\n可选\n外呼组号\ncallGroupType=2时必填。\n注：一个外呼组可以绑定到多个任务，但只能同时运行一个任务中\ncallStrategy\nString\n可选\n座席分配规则\n1.随机 2.顺序 3.座席未进线最大时（从上一次呼叫结束到当前的总时长） 4.座席状态[空闲]最长时长（座席最近一次切换为空闲状态的持续时长），默认随机\nagentTimeout\nInt\n可选\n座席超时时间\n单位秒数，默认10秒，取值范围5 ~ 60\nwrapup\nInt\n可选\n座席整理时间\n默认30秒，取值范围1～10800，整理时间会影响每次呼叫的个数，值越大，呼叫号码个数会减小\nmaxWaitTime\nInt\n可选\n座席最长等待时间\n默认40秒，最小10，最大600，允许座席空闲的最大时间。任务执行过程中，如果座席平均空闲时间大于maxWaitTime，每次呼叫个数会增加\nminAvailableAgentCount\nInt\n可选\n最小可用座席数\n默认为10，取值范围1 ~ 10。任务内可用座席数小于当前值时，任务自动暂停，避免骚扰\n任务设置\n参数\n类型\n要求\n描述\n备注\nquotiety\nDouble\n可选\n骚扰率\n默认值为1，取值范围为大于0，小于等于20，支持小数，精确到小数点两位。值越小呼叫的号码越少，值越大呼叫的号码越多，座席利用率越高\n高级设置\n参数\n类型\n要求\n描述\n备注\npredictAdjust\nInt\n可选\n超呼率\n默认值为100，取值范围50～400\ncallLimitStrategy\nString\n可选\n座席当日接听数限制\n座席当日接听的通话个数上限，使用方式详见下方说明；JsonArray格式 [{\"cnos\":[\"2000\",\"2001\"],\"limit\":\"5\"}\n注：使用座席当日接听数限制功能需开启企业配置，功能开启并且配置上限后系统才开始统计当日接听数\ncustomerMoh\nString\n可选\n客户侧等待音\n客户接听后呼叫座席，等待座席接听时播放的语音，默认为空白音。支持公共语音和企业语音，值为语音文件的path，如:60000011533526918819\ncustomerVoice\nString\n可选\n客户侧提示音\n客户接听后呼转座席前播放的语音，提示音播放完成后再找座席，默认无提示音。支持公共语音和企业语音，值为语音文件的path，如:60000011533526918819\n座席当日接听数限制说明\n功能概述：\n座席当日接听数限制功能用于控制座席在一天内的最大接听数量，确保座席工作负荷合理分配，提升服务质量。\n座席当日接听数限制生效条件：\n座席当日接听数限制功能需要联系管理员开启配置，开启后系统才开始统计当日接听数。\n座席当日接听数限制机制：\n双重限制-支持企业级别和单任务级别双重限制。企业级别限制作用：作为全局兜底限制，防止座席过度工作。单任务级别限制作用：针对具体任务进行精细化控制。\n优先级控制-取两者中的较小值作为最终限制。最终限制数 = MIN(企业级别配置, 单任务级别配置)\n示例：\n- 企业级别座席接听数限制: 10次/天\n- 任务中座席接听数限制: 5次/天\n- 最终限制: 5次/天（取较小值）\n灵活配置-可根据不同业务场景进行精细化控制\n配置建议\n1. 企业级别配置\n考虑因素:\n- 座席工作经验\n- 平均通话时长\n- 工作强度要求\n作用: 作为全局兜底，防止座席过度工作\n2. 单任务级别配置\n考虑因素:\n- 任务复杂度\n- 客户重要性\n- 座席专业能力\n作用: 针对具体任务进行精细化控制\n3. 配置策略\n企业级别 > 单任务级别\n- 企业级别: 配置较大值，作为全局兜底。用于限制多个任务接听总数\n- 单任务级别: 配置较小值，进行精细控制。用于限制单任务接听数\n任务预热阶段\n参数\n类型\n要求\n描述\n备注\nanswerRate\nInt\n可选\n初始化预计客户接通率\n默认50，取值范围1～100，预热阶段的呼叫，按照此接通率计算呼叫频率\nwarmUpDuration\nInt\n可选\n任务预热时间\n默认300秒, 取值范围60 ～ 600\nisRewarm\nInt\n可选\n暂停后重新预热\n0.关闭，1开启，默认开启，任务暂停后是否需要重新预热\n接口请求示例\nhttps://api-{region}.alicti.cn/interface/v10/task/create?enterpriseId=6000001&validateType=2&timestamp=1490853543&sign=161931bbd11b013a2bb0ca85d08db431\n&name=test01000&type=1&description=test01&cnos=223&customerTimeout=16&agentTimeout=20&autoStart=1&autoStartDay=2017-01-01\n&autoStartTime=08:00:00&autoStop=1&autoStopDay=2017-01-02&autoStopTime=17:00:00&quotiety=12&concurrency=1&wrapup=3000&isRandom=1\n&maxWaitTime=16&answerRate=20&autoDelete=0\n接口返回JSON格式数据\n参数\n类型\n说明\nresult\nInt\n0 成功, -1 失败\ndescription\nString\n返回结果描述\nerrorCode\nInt\n错误码,当返回result=-1时，返回该参数\ndata\nJSON\n返回数据JSON格式\ndescription给出成功或失败时的文本描述：\ndescription\n返回结果说明\n验证失败，参数[{param}]不能为空\n{param}为接口参数中必选字段\n验证失败，参数[{param}]格式不正确\n{param}为接口参数中格式有要求的字段\n验证失败，参数[{param}]取值不正确\n{param}为接口参数中有固定取值的字段\n验证失败，参数[param]取值范围不正确\n{param}为接口参数中有固定范围的字段\n验证失败，超过频次限制\n接口调用超过接口的访问频次限制\n成功，{param}\n{param}为成功描述\n失败，{param}\n{param}为失败描述\ndata定义：\n字段\n类型\n描述\ntaskProperty\nTaskProperty\n任务配置信息\n返回示例：\n{\n\"result\": \"0\",\n\"description\": \"成功\",\n\"data\": {\n\"id\": \"1662636\",\n\"enterpriseId\": \"7122600\",\n\"name\": \"任务_1018UVL\",\n\"description\": null,\n\"status\": \"0\",\n\"statusTriggerType\": null,\n\"statusDescription\": null,\n\"type\": \"1\",\n\"startTime\": null,\n\"overTime\": null,\n\"customerTimeout\": \"30\",\n\"agentTimeout\": \"10\",\n\"callGroupType\": \"1\",\n\"cnos\": \"2007\",\n\"agentGroup\": null,\n\"ivrId\": null,\n\"autoStart\": \"0\",\n\"autoStartDay\": null,\n\"autoStartTime\": null,\n\"autoStop\": \"0\",\n\"autoStopDay\": null,\n\"autoStopTime\": null,\n\"autoTaskType\": \"0\",\n\"autoTriggerTimeStrategy\": \"\",\n\"concurrency\": \"0\",\n\"quotiety\": \"1.0\",\n\"wrapup\": \"30\",\n\"isRandom\": \"0\",\n\"isRewarm\": \"1\",\n\"warmUpDuration\": \"300\",\n\"customerClids\": \"02138276106\",\n\"customerClidsCategory\": \"1\",\n\"customerClidType\": \"1\",\n\"clidProperty\": \"\",\n\"maxWaitTime\": \"40\",\n\"answerRate\": \"50\",\n\"predictAdjust\": \"100\",\n\"adjustStep\": null,\n\"agentUtilization\": \"0\",\n\"callRouteStrategy\": \"1\",\n\"callbackUrl\": null,\n\"curlRetryTimes\": \"1\",\n\"autoComplete\": \"1\",\n\"callLimitStrategy\": \"\",\n\"retryStrategy\": \"\",\n\"retryStrategyTimeType\": \"1\",\n\"callPriorityStrategy\": \"{\\\"strategy\\\":[{\\\"sort\\\":1,\\\"type\\\":\\\"retryCall\\\", \\\"desc\\\":0},{\\\"sort\\\":2,\\\"type\\\":\\\"firstCall\\\",\\\"orderType\\\":0}]}\",\n\"retryStrategyOnlyToday\": \"0\",\n\"timeStrategy\": \"\",\n\"callStrategy\": \"1\",\n\"createTime\": \"2026-03-30 06:11:27\",\n\"minAvailableAgentCount\": \"1\",\n\"overCallLimitCnos\": null,\n\"customerMoh\": \"\",\n\"customerVoice\": \"\",\n\"pauseTime\": null,\n\"pauseDuration\": null,\n\"forceEndFlag\": \"0\",\n\"customerClidWeightFlag\": \"0\",\n\"customerClidWeight\": \"\",\n\"callVariables\": \"\",\n\"userFields\": \"\",\n\"standbyCnos\": null,\n\"clidGroup\": \"\",\n\"taskFields\": \"\",\n\"businessTagIds\": null\n}\n}\n",
+      "evidence_limit": "全文仅去除空白/表格分隔后与当前API-311相同；重呼参数定义不决定项目跨fileId计数或实际预测模式资格。",
+      "production_behavior_verified": false
+    },
+    {
+      "existing_source_ref": "SRC-108",
+      "url": "https://wiki.alicti.cn/html/wiki/API/dataType/TaskProperty.html",
+      "http_status": 200,
+      "retrieved_on": "2026-10-13",
+      "html_sha256": "726865073451b0cef057053540bb2c9372cd61f63750db0bfe79364478c3f80d",
+      "text_sha256": "4f546bf0fbff1a823e4b7a547f5e1ba1633938d7a8bb7f48859f97225352b32c",
+      "text_snapshot": "TaskProperty数据类型定义：\n本文档定义了外呼任务的数据结构和字段说明。\n基本信息\n字段\n类型\n描述\nid\nInt\n外呼任务Id\nenterpriseId\nInt\n企业编号\nname\nString\n任务名称\ndescription\nString\n任务描述\ntype\nInt\n任务类型，1.预测外呼任务 2.自动外呼任务\n任务设置\n字段\n类型\n描述\nautoStart\nInt\n定时开始，0.关闭 1.开启\nautoStartDay\nString\n定时开始日期，格式：yyyy-MM-dd，如：2017-02-11\nautoStartTime\nString\n定时开始时间，格式：HH:mm:ss，如：08:00:00\nautoStop\nInt\n定时完成，0.关闭 1.开启\nautoStopDay\nString\n定时完成日期，格式：yyyy-MM-dd，如：2017-02-11\nautoStopTime\nString\n定时完成时间，格式：HH:mm:ss，如：17:00:00\nforceEndFlag\nInt\n定时完成时强制结束任务。\n开启配置后，当任务到定时完成时间时无论任务中的号码是否已经呼完，均将任务状态设置为结束。适用于对数据有呼叫时间限制的场景。\n注：任务在结束状态时无法再次启动。\nautoTaskType\nInt\n呼叫方式，0.连续呼叫 1.间隔呼叫\nautoTriggerTimeStrategy\nString\n间隔呼叫时间段，呼叫的时间段配置。参数格式：时间条件编号。支持多个，多个使用英文\",\"逗号隔开，如：9,22。\nautoComplete\nInt\n自动完成，0.关闭 1.开启\nretryStrategyTimeType\nInt\n重试策略时间类型，1.基于首次呼叫时间 2.基于上次呼叫时间\nretryStrategy\nString\n重试策略，「基础模式」\n数据结构为Json格式{\"retry\":2,\"strategy\":[{\"round\":1,\"time\":\"1-1-1\"},{\"round\":2,\"time\":\"2-2-2\"}]}\n格式说明：retry是重试次数，round是第几次重试，time是第几次重试间隔的时间：1-1-1，第一个1是天，第二个1是小时，第三个1是分钟\n「高级模式」\n高级模式需要开启「号码状态识别」服务后。目前只支持「自动外呼」任务模式。\n数据结构为JsonArray格式 [{\"condition\":{\"sipCause\":[710,719]},\"retry\":1,\"sort\":1,\"strategy\":[{\"round\":1,\"time\":\"0-0-10\"}]},{\"condition\":{\"sipCause\":[800]},\"retry\":1,\"sort\":2,\"strategy\":[{\"round\":2,\"time\":\"0-0-10\"}]}]\n格式说明：condition是重试条件，sort是重试条件的顺序，其余字段与基础模式一致\nretryStrategyOnlyToday\nInt\n重试仅当天生效，0.关闭 1.开启，删除待重试的数据和待呼叫的数据 2.开启，删除待重试的数据 3.开启，删除待呼叫的数据\ncallPriorityStrategy\nString\n呼叫顺序\n数据结构为Json格式{\"strategy\":[{\"sort\":1,\"type\":\"retryCall\", \"desc\":0},{\"sort\":2,\"type\":\"firstCall\",\"orderType\":0}]}\n格式说明：sort是重试号码和未呼叫号码的呼叫顺序\ntype：retryCall重试号码、firstCall未呼叫号码\n当type=retryCall，desc：0.优先呼叫待重呼轮次数值较小的号码，即轮次靠前（如第1轮、第2轮）的号码先被呼叫 1.优先呼叫待重呼轮次数值较大的号码，即轮次靠后（如第5轮、第4轮）的号码先被呼叫\n当type=firstCall时，orderType：随机呼叫，0顺序(优先级) 1随机 2顺序(导入时间)\nquotiety\nDouble\n骚扰率，支持小数，精确到小数点两位\n客户侧设置\n字段\n类型\n描述\ncustomerClidsCategory\nInt\n客户侧外显号码类型，5 外显导航\ncustomerClidsGroup\nString\n外显导航标识\nclidPoolList\nArray\n外显导航接口传入号码池列表，格式：\n[{\"name\":\"号码池A\",\"priority\":1},{\"name\":\"号码池B\",\"priority\":2},{\"name\":\"号码池C\",\"priority\":3}]\n字段说明：\nname：号码池名称，priority：号码池优先级（Integer类型）（可选），数值越小优先级越高，例如priority=1 的号码会优先于 priority=2 的号码被选中\ncustomerTimeout\nInt\n客户超时时间，单位秒\n座席侧设置\n字段\n类型\n描述\ncallRouteStrategy\nInt\n呼叫流转模式， 1.直连座席 2.AI转人工\n直连座席模式：客户接听后直接分配座席，无空闲座席可溢出语音导航（需配置语音导航），保障高优先级客户直连体验\nAI转人工：客户接入后，优先进入语音导航中配置的智能体机器人，按交互结果决定是否转接座席，提升自动化覆盖率，降低人工成本\nivrId\nInt\n语音导航Id\n预测外呼使用场景：直连座席模式下如果客户接听后未在特定时间内（默认2秒）找到可用座席，通话将溢出到语音导航继续排队找座席。同时支持在呼转座席，座席未接听时也溢出到语音导航，需要开启企业配置生效。AI转人工模式下，呼叫先转到语音导航\n自动外呼使用场景：客户接听后，转到的语音导航\ncallGroupType\nInt\n指定座席方式，1.座席工号列表 2.外呼组\ncnos\nString\n座席工号列表\nagentGroup\nString\n外呼组号\ncallStrategy\nInt\n座席分配规则，1.随机 2.顺序 3.座席未进线最大时（从上一次呼叫结束到当前的总时长） 4.座席状态[空闲]最长时长（座席最近一次切换为空闲状态的持续时长）\nagentTimeout\nInt\n座席超时时间，单位秒\nwrapup\nInt\n座席整理时间，单位秒\nmaxWaitTime\nInt\n座席最大等待时间，单位秒\nminAvailableAgentCount\nInt\n最小可用座席数\ncallLimitStrategy\nString\n座席当日接听数限制，JsonArray格式[{\"cnos\":[\"2000\",\"2001\"],\"limit\":\"5\"}]\n高级设置\n字段\n类型\n描述\nconcurrency\nInt\n最大并发限制\nuserFields\nString\n任务自定义字段，JsonArray格式[{\"key1\":\"value1\"},{\"key2\":\"value2\"}]\ncallVariables\nString\n座席通道变量，JsonArray格式[{\"key1\":\"value1\"},{\"key2\":\"value2\"}]\nbusinessTagNames\nString\n业务标签名称，英文逗号分隔；持久化与查询以此为准\nbusinessTagIds\nString\n已废弃：不再写入；历史任务可能仍有值，读取时以 businessTagNames 为准\ntimeStrategy\nString\n禁止呼叫时间限制，在特定的时间段内禁止呼叫。参数格式：时间条件编号。支持多个，多个使用英文\",\"逗号隔开，如：9,22。\npredictAdjust\nInt\n超呼率\ncustomerMoh\nString\n客户侧等待音\ncustomerVoice\nString\n客户侧提示音\nanswerRate\nInt\n初始化预计客户接通率\nwarmUpDuration\nInt\n任务预热时间，单位秒\nisRewarm\nInt\n暂停后重新预热，0.关闭，1开启\n任务状态\n字段\n类型\n描述\nstatus\nInt\n任务状态，0.初始 1.运行中 2.暂停 3.结束\nstatusTriggerType\nInt\n任务状态变更类型，0.系统变更 1.人为变更\nstatusDescription\nString\n任务状态描述\ncreateTime\nDate\n任务创建时间 ，格式为： yyyy-MM-dd HH:mm:ss\nstartTime\nString\n任务开始时间\noverTime\nString\n任务结束时间\npauseTime\nString\n任务暂停时间点\npauseDuration\nInt\n任务暂停时长(针对自动启动时间段) 单位分钟\n已废弃字段\n字段\n类型\n描述\ntaskFields\nString\n已废弃。任务级呼叫属性 json格式{\"key1\":\"value1\",\"key2\":\"value2\"}，仅做呼叫控制用，不放通道变量\ncallbackUrl\nString\n已废弃。给企业推送任务状态的URL地址\ncurlRetryTimes\nInt\n已废弃。推送重试次数 最大5次\nagentUtilization\nInt\n已废弃。座席利用率\nclidGroup\nString\n已废弃。热线号码组\nstandbyCnos\nString\n已废弃\nisRandom\nInt\n随机呼叫，0.关闭 1.开启\ncustomerClids\nString\n客户侧外显号码列表\ncustomerClidType\nInt\n客户侧外显规则，1.随机 2.按区号\nclidProperty\nString\n外显规则，Json格式，外显号码选择规则：默认区号，是否匹配省会等；如：{\"defaultAreaCode\":\"010\", \"isMatchCapital\":\"1\"}\ncustomerClidWeightFlag\nInt\n外显号码比例配置开关，0.关闭 1.开启\ncustomerClidWeight\nString\n外显号码比例配置内容，JsonArray格式[{\"number\":\"123,345\",\"weight\":\"5\"},{\"number\":\"567,789\",\"weight\":\"5\"}]\ncustomerClidsGroup\nString\n客户侧外显号码池名称或外显导航标\n",
+      "evidence_limit": "高级模式仅自动外呼且需号码状态识别的限制仍存在；与创建通用参数的适用性未闭合。",
+      "production_behavior_verified": false
+    },
+    {
+      "existing_source_ref": null,
+      "url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/获取任务信息接口.html",
+      "http_status": 200,
+      "retrieved_on": "2026-10-13",
+      "html_sha256": "a68d57cacfed44a8c24b2060f7fa44629a2ad15d7eaa50ebef9b39a0a4df2feb",
+      "text_sha256": "8db9c9676ad0fd55d4c057d55ab5f8fe0b019ade6a5d1afa55880b8a20d97da9",
+      "text_snapshot": "获取任务信息接口\n接口说明\n获取外呼任务信息，根据任务Id，获取单个任务的配置信息。\nAPI URL\n接口请求地址：\nhttps://api-{region}.alicti.cn/interface/{version}/task/get\n地址参数说明：\n{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区\n{version}为接口版本，当前{version}=v10\n接口请求方式：\nGET/POST请求\n相关参数\n参数\n类型\n要求\n描述\n备注\nvalidateType\nInt\n必选\n验证类型\n说明：\nvalidateType=1：使用部门编号(departmentId)进行验证；\nvalidateType=2：使用呼叫中心编号(enterpriseId)进行验证；\ndepartmentId\nString\n必选\n部门编号\n说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001\nenterpriseId\nInt\n必选\n呼叫中心编号\n说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101\ntimestamp\nLong\n必选\n当前时间戳\n说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟\nsign\nString\n必选\n验证值\n说明：\nvalidateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；\nvalidateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；\n格式要求：32位全小写\ntaskId\nInt\n必选\n外呼任务Id\n接口请求示例\nhttps://api-{region}.alicti.cn/interface/v10/task/get?enterpriseId=6000001&validateType=2&timestamp=1490750269\n&sign=f44bbbc495d2f98cc872c1a8da721a53&taskId=13\n接口返回\nJSON格式数据：\n参数\n类型\n说明\nresult\nInt\n0 成功, -1 失败\ndescription\nString\n返回结果描述\nerrorCode\nInt\n错误码,当返回result=-1时，返回该参数\ndata\nJSON\n返回数据JSON格式\ndescription给出成功或失败时的文本描述：\ndescription\n返回结果说明\n验证失败，参数[{param}]不能为空\n{param}为接口参数中必选字段\n验证失败，参数[{param}]格式不正确\n{param}为接口参数中格式有要求的字段\n验证失败，参数[{param}]取值不正确\n{param}为接口参数中有固定取值的字段\n验证失败，参数[param]取值范围不正确\n{param}为接口参数中有固定范围的字段\n验证失败，超过频次限制\n接口调用超过接口的访问频次限制\n成功，{param}\n{param}为成功描述\n失败，{param}\n{param}为失败描述\ndata定义：\n字段\n类型\n描述\ntaskProperty\nTaskProperty\n任务配置信息\n返回示例：\n{\n\"result\": \"0\",\n\"description\": \"成功\",\n\"data\": {\n\"taskProperty\": {\n\"id\": \"11059\",\n\"enterpriseId\": \"xxxxxxx\",\n\"name\": \"测试\",\n\"description\": \"\",\n\"status\": \"2\",\n\"statusDescription\": \"可用座席数小于1\",\n\"type\": \"1\",\n\"startTime\": \"2024-05-10 14:11:15\",\n\"overTime\": null,\n\"customerTimeout\": \"30\",\n\"agentTimeout\": \"10\",\n\"cnos\": \"\",\n\"ivrId\": null,\n\"autoStart\": \"0\",\n\"autoStartDay\": null,\n\"autoStartTime\": null,\n\"autoStop\": \"1\",\n\"autoStopDay\": \"\",\n\"autoStopTime\": \"23:30:00\",\n\"autoTriggerTimeStrategy\": \"\",\n\"autoTaskType\": \"0\",\n\"concurrency\": \"0\",\n\"quotiety\": \"3.0\",\n\"wrapup\": \"30\",\n\"isRandom\": \"0\",\n\"isRewarm\": \"1\",\n\"warmUpDuration\": \"300\",\n\"customerClids\": null,\n\"customerClidsCategory\": \"1\",\n\"customerClidType\": \"2\",\n\"clidProperty\": \"\",\n\"maxWaitTime\": \"10\",\n\"answerRate\": \"100\",\n\"predictAdjust\": \"100\",\n\"adjustStep\": \"5\",\n\"agentUtilization\": \"0\",\n\"callbackUrl\": \"http://test.com/precallback\",\n\"curlRetryTimes\": \"3\",\n\"autoComplete\": \"0\",\n\"callLimitStrategy\": \"\",\n\"retryStrategy\": \"{}\",\n\"retryStrategyOnlyToday\": \"0\",\n\"timeStrategy\": \"\",\n\"callStrategy\": \"1\",\n\"createTime\": \"2024-05-10 14:07:22\",\n\"minAvailableAgentCount\": \"1\",\n\"overCallLimitCnos\": null,\n\"customerMoh\": \"no\",\n\"customerVoice\": \"\",\n\"pauseTime\": \"2024-08-14 16:51:11\",\n\"pauseDuration\": \"0\",\n\"forceEndFlag\": \"0\",\n\"customerClidWeightFlag\": \"0\",\n\"customerClidWeight\": \"\",\n\"callVariables\": \"\",\n\"userFields\": \"\",\n\"standbyCnos\": \"\",\n\"clidGroup\": \"\",\n\"taskFields\": \"\",\n\"statusTriggerType\": \"0\",\n\"callGroupType\": \"1\",\n\"agentGroup\": null,\n\"callRouteStrategy\": \"1\",\n\"retryStrategyTimeType\": \"1\",\n\"callPriorityStrategy\": \"{\\\"strategy\\\":[{\\\"sort\\\":\\\"1\\\",\\\"type\\\":\\\"retryCall\\\",\\\"desc\\\":\\\"0\\\"},{\\\"sort\\\":\\\"2\\\",\\\"type\\\":\\\"firstCall\\\",\\\"orderType\\\":\\\"0\\\"}]}\",\n\"businessTagIds\": null,\n\"clidPoolList\": null\n}\n}\n}\n",
+      "evidence_limit": "任务级配置查询契约和官方示例；不是本项目实际配置或单次在途证据。",
+      "production_behavior_verified": false
+    },
+    {
+      "existing_source_ref": "SRC-099",
+      "url": "https://wiki.alicti.cn/html/wiki/API/字段定义/推送变量和值/预测外呼呼叫失败推送变量.html",
+      "http_status": 200,
+      "retrieved_on": "2026-10-13",
+      "html_sha256": "a4916956c69d2717665c55d170486cc08752e803dd5f71ded17bc2bc63525e2c",
+      "text_sha256": "4b5423048075600cac0d2099a0d4ae7803f62045adbff3338414ea77a225cc6c",
+      "text_snapshot": "预测外呼客户接听状态推送变量定义\n不支持通道变量\n变量名\n说明\n示例\nenterpriseId\n企业ID\n7010100\ntaskId\n任务ID\n1\nfileId\n批次ID\n1\ncustomerNumber\n客户号码\nOM9hlvVWAhNWuxnpMaEViw==\ncustomerAreaCode\n客户号码区号\n010\ncustomerProvince\n客户号码省份\n北京\ncustomerCity\n客户号码城市\n北京\nfailType\n呼叫失败原因分类\n1：风控拦截；2：其他\nmessage\n失败原因描述\n取值为「失败原因描述」\ncallTime\n呼叫时间\n1712580256\n失败原因描述\n结果\n呼叫失败原因分类\n失败原因描述\n呼叫过频\n1. 风控拦截\n呼叫过频\n无可用中继\n1. 风控拦截\n无可用中继\n运营商禁呼\n1. 风控拦截\n运营商禁呼\n运营商限呼\n1. 风控拦截\n运营商限呼\nrestrict tel\n2. 其它\n外呼黑名单\nbad tel\n2. 其它\n号码解析失败：<补充说明>。例如：号码格式错误，未识别到号码归属地等\n真实号码为空！\n2. 其它\n号码解密失败\nno clid\n2. 其它\n无可用外显号码：<补充说明>。例如：AXB绑定失败\nbad clid\n2. 其它\n无可用外显号码：指定外显号码错误\n无可用中继信息\n2. 其它\n无可用外显号码\nwrong obClidGroup\n2. 其它\n外显号码组错误\nbad timeout range\n2. 其它\n外呼超时时间错误\n",
+      "normalized_identical_to": "inputs/interface-documents/预测外呼呼叫失败推送变量.txt",
+      "normalization": "remove whitespace and table separator | only",
+      "normalized_content_sha256": "70ba8d70d57352f9ef06c6d2434f4979fd77eeeb6e4056f28861e04a9beda58f",
+      "evidence_limit": "当前失败原因及enterpriseId/taskId/fileId/号码/callTime字段与旧原文一致；未新增稳定事件ID、callId或原生无在途证明。",
+      "production_behavior_verified": false
+    },
+    {
+      "existing_source_ref": "inputs/interface-documents/API-318.txt",
+      "url": "https://wiki.alicti.cn/html/wiki/API/通话记录/预测式外呼/预测外呼通话记录接口.html",
+      "http_status": 200,
+      "retrieved_on": "2026-10-13",
+      "html_sha256": "d739ee964d1d6b0fc510cbaf9ce92220a95b59008552faa913cda56ba4522982",
+      "text_sha256": "704624befb3dbb006f1e0bcc9c35148e8f553bb7d839674723ac94f434a9cc2f",
+      "text_snapshot": "查询预测外呼通话记录列表接口\n接口说明\n通过本接口，可以查询预测外呼通话记录列表，包括客户接听状态、座席接听情况、任务信息、IVR 信息、通话结果等详细信息。\nAPI URL\n接口请求地址：\nhttps://api-{region}.alicti.cn/cc/list_cdr_predictive_call\n地址参数说明：\n{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区\n接口请求方式：\nGET\n请求参数\n参数\n类型\n要求\n描述\n示例\nstartTime\nLong\n必选\n开始时间，时间戳格式精确到秒。默认值取当前月份第一天\n1708398399\nstartTimeEnd\nLong\n必选\n开始时间查询截止，时间戳格式精确到秒，开始时间和结束时间跨度不能超过一个月。默认值取当前时间\n1708398399\nupTime\nLong\n可选\n客户接听时间，时间戳格式精确到秒\n1708398400\nupTimeEnd\nLong\n可选\n客户接听时间查询截止，时间戳格式精确到秒\n1708398400\nendTime\nLong\n可选\n结束时间，时间戳格式精确到秒\n1708398412\nendTimeEnd\nLong\n可选\n结束时间查询截止，时间戳格式精确到秒\n1708398412\nhiddenType\nInteger\n可选\n是否隐藏号码。0: 不隐藏，1: 中间四位，2: 最后八位，3: 全部号码，4: 最后四位。默认值为 0\n0\nbridgeDuration\nInteger\n可选\n双方通话时长范围查询最小值，和 bridgeDurationEnd 配合使用\n0\nbridgeDurationEnd\nInteger\n可选\n双方通话时长范围查询最大值\n120\ntotalDuration\nInteger\n可选\n总时长范围查询最小值，和 totalDurationEnd 配合使用\n0\ntotalDurationEnd\nInteger\n可选\n总时长范围查询最大值\n120\nobWaitDuration\nInteger\n可选\n客户等待时长范围查询最小值，和 obWaitDurationEnd 配合使用\n0\nobWaitDurationEnd\nInteger\n可选\n客户等待时长范围查询最大值\n120\ncnos\nString[]\n可选\n座席号\n0001,0002\nqnos\nString[]\n可选\n外呼组号\n0001,0002\nclientNumber\nString\n可选\n座席电话\n156xxxx8888\ntaskIds\nInteger[]\n可选\n外呼任务 ID\n1xxx,2xxx\ncallRouteStrategy\nInteger\n可选\n呼叫流转模式。1: 直连座席，2: AI转人工\n1\ncustomerNumber\nString\n可选\n客户号码\n156xxxx8888\ncustomerNumberMatchType\nInteger\n可选\n客户号码匹配类型。1: 前缀，2: 后缀，3: 包含。与 customerNumber 组合查询\n1\ncustomerAreaCode\nString\n可选\n客户号码区号\n010\nprovince\nString\n可选\n客户归属地省份\n北京\ncity\nString\n可选\n客户归属地城市\n北京\nclids\nString[]\n可选\n外显号码\n0100003xxxx,01026xxxxx6\ntrunkGroupKey\nString\n可选\n中继组号\n30019\nstatus\nInteger[]\n可选\n接听状态。40: 客户未接听，41: 客户接听，42: 座席未接听，43: 双方接听。默认全部\n43\nivrIds\nInteger[]\n可选\nIVR ID\n1001,1002\ndegrade\nInteger\n可选\n是否呼叫降级。1: 是，0: 否\n1\ntelRetry\nInteger\n可选\n是否重呼。1: 是，0: 否\n0\nsipCauseType\nInteger[]\n可选\n呼叫结果。0: 呼叫成功，1: 呼叫失败，2: 线路故障，3: 线路风控。默认全部\n1\nsipCause\nInteger[]\n可选\n呼叫失败原因。710: 客户占线，711: 呼叫超时，712: 客户拒接，713: 号码空号，714: 号码关机，715: 号码暂无法接听，716: 号码停机等\n710,713\nonHookSource\nInteger[]\n可选\n挂断方，默认查询全部\n1000\nmainUniqueId\nString\n可选\n通话记录唯一标识\nmedias_1-162046xxxx.12\ncallId\nString\n可选\nCallID\n4f133f6e-xxxx\nrequestUniqueId\nString\n可选\n请求唯一标识\nreq_xxxx\nsipCauseCode\nInteger\n可选\nSIP 状态码\n200\nuserField\nString\n可选\n自定义字段名\nprovince\nuserValue\nString\n可选\n自定义字段值，与 userField 配合使用\n北京\ncustomerMos\nInteger[]\n可选\n客户侧通话质量(Mos)。1-4 对应较差到优秀\n3,4\nagentMos\nInteger[]\n可选\n座席侧通话质量(Mos)。1-4 对应较差到优秀\n3,4\nfinishRetryFlag\nInteger\n可选\n最终呼叫。1: 是最后一条，0: 否\n1\nbusinessTagNames\nString[]\n可选\n业务标签名称\n高意向,已回访\nfieldToSort\nString\n可选\n排序字段，默认 startTime\nstartTime\nsortDesc\nBoolean\n可选\n排序顺序。true: 倒序，false: 正序。默认 true\ntrue\nscrollSearch\nboolean\n可选\n是否滚动查询。默认 false，true 代表使用滚动查询。滚动查询不受 limit + offset ≤ 100000 限制，通过 scrollId 持续拉取即可\nfalse\nscrollId\nString\n可选\n滚动查询ID。配合 scrollSearch 使用，第一次查询时不需要传递此参数，后续查询可从返回列表中取值\nxxxxxx\noffset\nInteger\n可选\n偏移量，范围 0-99990。默认值为 0。注：普通分页时 limit + offset 不允许超过100000；滚动查询（scrollSearch=true）不受此限制\n0\nlimit\nInteger\n可选\n查询条数，范围 10-1000。默认值为 10。注：普通分页时 limit + offset 不允许超过100000；滚动查询（scrollSearch=true）不受此限制\n10\n接口请求示例\nhttps://api-{region}.alicti.cn/cc/list_cdr_predictive_call?validateType=2&enterpriseId=700xx01&timestamp=1492085520&sign=c0f70377ee704d66b5f463aac95481d2&offset=0&limit=10&mainUniqueId=medias_1-162046xxxx.12&startTime=1536201058&startTimeEnd=1536201058&<公共请求参数>\n接口返回\nJSON格式数据\n参数\n类型\n说明\nrequestId\nString\n请求ID\npageNumber\nInt\n当前页码\npageSize\nInt\n每页条数\ntotalCount\nInt\n总记录数\nscrollId\nString\n滚动查询ID\ncdrPredictiveCall\nObject[]\n预测外呼记录列表\ncdrPredictiveCall 预测外呼记录列表字段定义：\n字段\n类型\n描述\ncustomerNumber\nString\n客户号码\ncustomerNumberEncrypt\nString\n客户号码加密串\ncustomerArea\nString\n客户号码归属地\ncustomerProvince\nString\n客户号码归属省份\ncustomerCity\nString\n客户号码归属城市\ncallType\nInteger\n呼叫类型\nclid\nString\n外显号码\nclidArea\nString\n外显号码归属地\nclidRegionMatchRule\nString\n外显匹配规则。local: 本地，provincialCapital: 省会，sameProvince: 省内，random: 随机外显\ntrunkGroupKey\nString\n中继组号\nstatus\nInteger\n接听状态编码\nstatusDesc\nString\n接听状态描述\nivrName\nString\n语音导航名称\nivrId\nInteger\n语音导航 ID\nmainUniqueId\nString\n通话ID\nrequestUniqueId\nString\n请求唯一标识\nobSipCause\nString\n呼叫结果\nsipCauseAsyncUpdateFlag\nInteger\n呼叫结果异步更新标识\nonHookSource\nString\n挂断方\ntsiFile\nString\n客户彩铃录音\nrecordFile\nString\n录音\nasrRecord\nInteger\n转写记录标识\ncallId\nString\nCallID\nwebrtcCallId\nString\nWebRTCCallId\ncno\nString\n座席工号\nclientName\nString\n座席姓名\nclientNumber\nString\n座席电话\nqno\nString\n队列号\nstartTime\nLong\n开始时间\nringTime\nLong\n客户响铃时间\nupTime\nLong\n客户接听时间\ncalleeRingingTime\nLong\n座席振铃时间\nbridgeTime\nLong\n座席接听时间\nendTime\nLong\n结束时间\nbridgeDuration\nInteger\n双方通话时长\ncustomerBridgeDuration\nInteger\n客户接听时长\ntotalDuration\nInteger\n总时长\nobRingingDuration\nInteger\n座席振铃时长\nobWaitDuration\nInteger\n客户等待时长\ncustomerRingingDuration\nInteger\n客户响铃时长\ntaskId\nInteger\n任务ID\ncallRouteStrategy\nInteger\n呼叫流转模式\ntaskName\nString\n任务名称\nuserField\nString\n自定义字段\ncustomerAreaCode\nString\n客户号码区号\nuniqueId\nString\n通话唯一标识\nenterpriseId\nInteger\n企业ID\nsipCause\nInteger\n呼叫情况编码\ndegradeRound\nInteger\n降级轮次\ntelRetryRound\nInteger\n重试轮次\nfinishRetryFlag\nInteger\n最终呼叫标识\nbusinessTagNames\nString[]\n业务标签名称\n返回示例：\n{\n\"requestId\": \"ac108b17-xxxx-xxxx-xxxx-4007e3b3cb81\",\n\"pageNumber\": 1,\n\"pageSize\": 10,\n\"totalCount\": 100,\n\"scrollId\": \"xxxxxx\",\n\"cdrPredictiveCall\": [\n{\n\"customerNumber\": \"138xxxx8888\",\n\"customerNumberEncrypt\": \"xxxx\",\n\"customerArea\": \"北京/北京\",\n\"customerProvince\": \"北京\",\n\"customerCity\": \"北京\",\n\"callType\": 5,\n\"clid\": \"021xxxx8888\",\n\"clidArea\": \"上海/上海\",\n\"clidRegionMatchRule\": \"random\",\n\"trunkGroupKey\": \"30019\",\n\"status\": 43,\n\"statusDesc\": \"双方接听\",\n\"ivrName\": \"\",\n\"ivrId\": 1001,\n\"mainUniqueId\": \"medias_1-162046xxxx.12\",\n\"requestUniqueId\": \"req_xxxx\",\n\"obSipCause\": \"呼叫成功\",\n\"sipCauseAsyncUpdateFlag\": 0,\n\"onHookSource\": \"客户挂断\",\n\"tsiFile\": \"\",\n\"recordFile\": \"\",\n\"asrRecord\": 1,\n\"callId\": \"4f133f6e-xxxx-xxxx-xxxx-91e855cda331\",\n\"webrtcCallId\": \"\",\n\"cno\": \"2001\",\n\"clientName\": \"张三\",\n\"clientNumber\": \"156xxxx8888\",\n\"qno\": \"1001\",\n\"startTime\": 1758792120,\n\"ringTime\": 1758792120,\n\"upTime\": 1758792122,\n\"calleeRingingTime\": 1758792123,\n\"bridgeTime\": 1758792125,\n\"endTime\": 1758792159,\n\"bridgeDuration\": 34,\n\"customerBridgeDuration\": 37,\n\"totalDuration\": 39,\n\"obRingingDuration\": 2,\n\"obWaitDuration\": 3,\n\"customerRingingDuration\": 2,\n\"taskId\": 101277,\n\"callRouteStrategy\": 1,\n\"taskName\": \"预测外呼任务A\",\n\"userField\": \"{\"province\":\"\",\"city\":\"\"}\",\n\"customerAreaCode\": \"010\",\n\"uniqueId\": \"sip-48-1774822299.325\",\n\"enterpriseId\": 7000001,\n\"sipCause\": 200,\n\"degradeRound\": 0,\n\"telRetryRound\": 0,\n\"finishRetryFlag\": 1,\n\"businessTagNames\": [\n\"高意向\"\n]\n}\n]\n}\n",
+      "normalized_identical_to": "inputs/interface-documents/API-318.txt",
+      "normalization": "remove whitespace and table separator | only",
+      "normalized_content_sha256": "2ff1a906035603bdabef47c48f4934fad86766f310bbf47e57e1e630d61d52a9",
+      "evidence_limit": "全文归一后与旧原文一致；客户接听时长仍未列单位/精度/零缺失定义，挂断方请求码与返回字符串仍无完整映射。",
+      "production_behavior_verified": false
+    }
+  ],
+  "workbook_review": {
+    "workbook": {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/AliCti接口缺口与功能对应清单-已补接口.xlsx",
+      "sha256": "fce8408e98cbb998ea9a0f55f81845b7d1f047b6f2a7d5526d67b6fe08d4ddde",
+      "sheets": [
+        {
+          "sheet": "缺口总览",
+          "range": "A1:I25"
+        },
+        {
+          "sheet": "需补充接口清单",
+          "range": "A1:H38"
+        }
+      ],
+      "hyperlinks": [],
+      "full_official_url_count": 0,
+      "contains_production_trace": false,
+      "saved_or_modified": false
+    },
+    "findings": [
+      {
+        "id": "WB01",
+        "sheet": "需补充接口清单",
+        "ranges": [
+          "A2"
+        ],
+        "fact": "工作簿自述为公开目录回填；旧功能编号及接口路径清单，不含官方完整链接、部署版本、真实业务请求响应或生产呼叫轨迹。",
+        "supports": [],
+        "cannot_close": [
+          "002",
+          "004",
+          "005",
+          "008",
+          "022",
+          "024",
+          "029",
+          "033",
+          "035",
+          "037",
+          "038",
+          "039",
+          "041"
+        ],
+        "classification": "secondary_inventory_only",
+        "source_cells": [
+          {
+            "sheet": "需补充接口清单",
+            "cell": "A2",
+            "value": "说明：原「缺口总览」把若干能力标成未核验。本表按 CtiCloud 公开 wiki/接口目录回填。「已有可补」= 现网已有接口，中台应对接这些路径，不要再用 create/list 冒充。「仍缺公开写入」= 目录里没有对应写入接口，不能承诺中台可做。「语义待确认」= 接口能调，但在途通话/生效时序仍要按列说明处理，不能把受理成功当最终态。",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "id": "WB02",
+        "sheet": "缺口总览",
+        "ranges": [
+          "I13"
+        ],
+        "other_locations": [
+          {
+            "sheet": "需补充接口清单",
+            "ranges": [
+              "D16:H18"
+            ],
+            "source_cells": [
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D16",
+                "value": "/interface/v10/task/start",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E16",
+                "value": "显式启动预测/自动外呼任务",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F16",
+                "value": "taskId 必填；企业最多 10 个运行或暂停任务",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G16",
+                "value": "覆盖显式启动",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H16",
+                "value": "创建/导名单不会代替 start",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D17",
+                "value": "/interface/v10/task/get\n/interface/v10/task/query",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E17",
+                "value": "读任务状态，确认已进入运行/暂停/结束",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F17",
+                "value": "taskId",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G17",
+                "value": "覆盖运行态确认",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H17",
+                "value": "受理成功必须再 get",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D18",
+                "value": "/interface/v10/task/start（暂停后再调一次）",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E18",
+                "value": "没有 task/resume；暂停后继续就是 start",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F18",
+                "value": "仅暂停态可继续；结束态不可恢复",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G18",
+                "value": "覆盖继续",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H18",
+                "value": "须先 get 再 start",
+                "type": "s"
+              }
+            ]
+          }
+        ],
+        "fact": "提供 task/start 与 task/get/query 的任务状态线索；任务首次显式启动与暂停恢复描述。",
+        "supports": [
+          "029"
+        ],
+        "cannot_prove": "运行中/暂停/结束、业务时间窗外真实导入接收矩阵；不能证明某条号码无在途任务，也不能据此规定所有运行中重新导入必须 task/start。",
+        "classification": "document_lead_partial",
+        "source_cells": [
+          {
+            "sheet": "缺口总览",
+            "cell": "I13",
+            "value": "【已有可补】GET/POST /interface/v10/task/start，必填 taskId。\nautoStart=0 / importTelAutoStart=0 后必须显式 start。查证 GET /interface/v10/task/get。\n",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "id": "WB03",
+        "sheet": "缺口总览",
+        "ranges": [
+          "I15"
+        ],
+        "other_locations": [
+          {
+            "sheet": "需补充接口清单",
+            "ranges": [
+              "D19:H19"
+            ],
+            "source_cells": [
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D19",
+                "value": "/interface/v10/task/delete",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E19",
+                "value": "删除任务及任务号码",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F19",
+                "value": "仅初始或完成状态；运行/暂停须先 stop 再等完成",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G19",
+                "value": "覆盖合资格删除",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H19",
+                "value": "stop ≠ delete",
+                "type": "s"
+              }
+            ]
+          }
+        ],
+        "fact": "描述 task/delete 整个任务及号码删除。",
+        "supports": [],
+        "cannot_prove": "当前精准原记录 API006 的独占 fileId、skipCalling/skipRetry、并发取消和未知结果语义；整任务删除不能替代精准删除。",
+        "affected_issues": [
+          "022",
+          "037"
+        ],
+        "classification": "different_object_scope",
+        "source_cells": [
+          {
+            "sheet": "缺口总览",
+            "cell": "I15",
+            "value": "【已有可补】GET/POST /interface/v10/task/delete。\n仅初始或完成状态可删；运行/暂停须先 stop，待完成后才能删。删除会同时删除任务号码。\n先 task/get 核对 status。",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "id": "WB04",
+        "sheet": "缺口总览",
+        "ranges": [
+          "I21"
+        ],
+        "other_locations": [
+          {
+            "sheet": "需补充接口清单",
+            "ranges": [
+              "F28"
+            ],
+            "source_cells": [
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F28",
+                "value": "pauseDuration 单位秒；0=不自动按时长恢复；>0 到期后可被系统自动启动。呼叫组有在途可能延迟约 1 分钟才落暂停",
+                "type": "s"
+              }
+            ]
+          }
+        ],
+        "fact": "工作簿断言 task/pause 请求 pauseDuration 单位秒；现有请求参数文档只写 Int/可选/默认0，无单位。官方 TaskProperty 返回属性明确分钟。",
+        "supports": [],
+        "cannot_prove": "请求与返回同名字段单位一致，或按任务属性分钟直接反写请求；须供应商确认请求/返回换算。该字段不替代业务失败确认后120秒等待。",
+        "classification": "request_return_semantics_unresolved",
+        "source_cells": [
+          {
+            "sheet": "缺口总览",
+            "cell": "I21",
+            "value": "【语义补齐】/interface/v10/task/pause：pauseDuration 单位秒。\n0=不按时长自动恢复，保持人工暂停直到再次 task/start；>0 到期后可被系统自动启动逻辑处理。\n预测呼叫组有在途呼叫时，暂停可能延迟约 1 分钟落地。查证 task/get、taskMonitor/task。",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "id": "WB05",
+        "sheet": "缺口总览",
+        "ranges": [
+          "I22"
+        ],
+        "other_locations": [
+          {
+            "sheet": "需补充接口清单",
+            "ranges": [
+              "D29:H30"
+            ],
+            "source_cells": [
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D29",
+                "value": "/interface/v10/taskMonitor/task\n/interface/v10/taskMonitor/tasks",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E29",
+                "value": "看任务运行/暂停/结束及监控",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F29",
+                "value": "taskId",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G29",
+                "value": "覆盖过程查证",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H29",
+                "value": "",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D30",
+                "value": "/interface/v10/task/stop",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E30",
+                "value": "结束任务，停止新拨号",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F30",
+                "value": "不保证立即打断已接通。完成后才能 delete",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G30",
+                "value": "覆盖结束入口；在途/迟到话单仍待缓冲",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H30",
+                "value": "对账用 /cc/list_cdr_predictive_call",
+                "type": "s"
+              }
+            ]
+          }
+        ],
+        "fact": "提供 taskMonitor/task 与 task/stop 的任务级查询/停止线索，且说明停止不保证立即中断既有通话。",
+        "supports": [
+          "029"
+        ],
+        "cannot_prove": "稳定失败事件ID、执行归属、原生重呼队列清空或单条记录无在途呼叫。",
+        "affected_issues": [
+          "022",
+          "035",
+          "037"
+        ],
+        "classification": "document_lead_partial",
+        "source_cells": [
+          {
+            "sheet": "缺口总览",
+            "cell": "I22",
+            "value": "【语义补齐】/interface/v10/task/stop 结束任务，停止新拨号。\n不保证立即拆已接通通话。受理成功 ≠ 已结束。\n查证 task/get 变为完成；话单用 /cc/list_cdr_predictive_call 或 taskMonitor。迟到话单需缓冲后再计数。",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "id": "WB06",
+        "sheet": "缺口总览",
+        "ranges": [
+          "I23"
+        ],
+        "other_locations": [
+          {
+            "sheet": "需补充接口清单",
+            "ranges": [
+              "D31:H32",
+              "C38:D38"
+            ],
+            "source_cells": [
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D31",
+                "value": "/interface/v10/record/getUrl",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E31",
+                "value": "混音或分轨录音地址",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F31",
+                "value": "recordFormat=1 时 recordSide=1 客户 / 2 座席，且 callType 必填",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G31",
+                "value": "覆盖分轨地址",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H31",
+                "value": "基础混音原本已有",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D32",
+                "value": "/interface/v10/asr/get",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E32",
+                "value": "转写文本及时间轴",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F32",
+                "value": "beginTime/endTime=相对录音起点毫秒；all=true 按时间拼两侧；monitorType 1混音 2分轨；分轨结果在 recordFileTextNIn/Out",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G32",
+                "value": "覆盖时间单位与相对起点；角色映射建议业务确认 In/Out",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H32",
+                "value": "",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "C38",
+                "value": "ASR 角色与客户/座席声道的官方映射表",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D38",
+                "value": "文档给的是 In/Out 与 channelId，不是 side 枚举。播放对齐需业务约定或补文档。",
+                "type": "s"
+              }
+            ]
+          }
+        ],
+        "fact": "录音分轨客户/坐席侧与 ASR 相对录音时间毫秒；In/Out 角色仍需业务映射。",
+        "supports": [],
+        "cannot_prove": "customerBridgeDuration 实际单位、空值/0语义、onHookSource/cdr_end_reason 挂断方可信映射，或秒挂与原生重呼互斥。ASR时间不等于客户接通时长，录音轨道不等于挂断方。",
+        "affected_issues": [
+          "005",
+          "041"
+        ],
+        "classification": "different_field_semantics",
+        "source_cells": [
+          {
+            "sheet": "缺口总览",
+            "cell": "I23",
+            "value": "【语义补齐】分轨播放：/interface/v10/record/getUrl 设 recordFormat=1，recordSide=1 客户侧 / 2 座席侧（须带 callType）。\nASR：/interface/v10/asr/get，all=true 按 beginTime 拼两侧；beginTime/endTime 为相对录音起点的毫秒。\nmonitorType：1 混音 2 分轨。In/Out 轨与座席/客户角色仍建议业务约定。",
+            "type": "s"
+          }
+        ]
+      },
+      {
+        "id": "WB07",
+        "sheet": "缺口总览",
+        "ranges": [
+          "I11:I12"
+        ],
+        "other_locations": [
+          {
+            "sheet": "需补充接口清单",
+            "ranges": [
+              "D13:H15"
+            ],
+            "source_cells": [
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D13",
+                "value": "/interface/v10/enterpriseHotline/batchUpdate",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E13",
+                "value": "关闭号码各业务用途开关（呼入座席侧/预览/预测等）",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F13",
+                "value": "isIbRight、isInUse、isPredictiveLeft、isPreviewRight 等置 0；全量字段提交",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G13",
+                "value": "覆盖停新业务用号，不覆盖切断在途",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H13",
+                "value": "无专用隔离接口",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D14",
+                "value": "/interface/v10/trunk/updateActive",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E14",
+                "value": "中继号码启用/停用",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F14",
+                "value": "仅中继；不保证拆在途通话",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G14",
+                "value": "覆盖中继停用",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H14",
+                "value": "与热线用途开关分开使用",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "D15",
+                "value": "/interface/v10/enterpriseHotline/batchUpdate\n/interface/v10/trunk/updateActive",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "E15",
+                "value": "把用途开关改回启用；中继重新激活",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "F15",
+                "value": "恢复后必须 listPage/get 复核",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "G15",
+                "value": "覆盖远端恢复动作",
+                "type": "s"
+              },
+              {
+                "sheet": "需补充接口清单",
+                "cell": "H15",
+                "value": "不自动恢复路由/任务授权",
+                "type": "s"
+              }
+            ]
+          }
+        ],
+        "fact": "业务号码/中继激活状态与资源开关接口线索。",
+        "supports": [],
+        "cannot_prove": "外显导航对运营商禁呼、运营商限呼、外呼黑名单三类失败的实际配置、生效范围、降级结果；亦非八类人工重提的逐因修正依据。",
+        "affected_issues": [
+          "004",
+          "024",
+          "039"
+        ],
+        "classification": "different_capability_scope",
+        "source_cells": [
+          {
+            "sheet": "缺口总览",
+            "cell": "I11",
+            "value": "【已有可补，非专用隔离】POST /interface/v10/enterpriseHotline/batchUpdate：将 isIbRight/isInUse/isPredictiveLeft/isPreviewRight 等用途开关置 0。\n中继号码另可用 /interface/v10/trunk/updateActive 停用。\n均不保证切断在途通话；无专用「隔离」接口。也可以通过后台操作号码属性变更",
+            "type": "s"
+          },
+          {
+            "sheet": "缺口总览",
+            "cell": "I12",
+            "value": "【已有可补】与隔离对称：enterpriseHotline/batchUpdate 把对应用途开关改回 1；trunk/updateActive 启用。\n恢复后必须再 listPage/get 核对。无专用恢复接口。也可以通过后台操作号码属性变更",
+            "type": "s"
+          }
+        ]
+      }
+    ],
+    "pauseDuration_comparison": {
+      "workbook_seconds_claim": [
+        "缺口总览!I21",
+        "需补充接口清单!F28"
+      ],
+      "request_contract": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/references/alicti/API-313.txt:74 (type/optional/default0 only, unit absent)",
+      "return_contract_current_primary": "/private/tmp/alicti-workbook-readonly-20261013-59ebcxy9/TaskProperty-official-20261013.txt:211 (minutes)",
+      "return_contract_existing_cache": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/references/alicti/DOC-338.txt:280 (minutes)",
+      "conclusion": "request/response distinction remains unresolved; neither unit inferred from field-name identity; no business120s change"
+    }
+  },
+  "secondary_evidence_limit": "旧原型供应商澄清为用户转述，officialSnapshotUpdated/productionVerificationClaimed均false；本地原型console/模拟工具栏不是后端联调证明。旧命名空间SRC/FUNC不与当前同号混读。",
+  "production_groups": [
+    {
+      "issues": [
+        "ISSUE-002",
+        "ISSUE-038"
+      ],
+      "owner": "开发团队",
+      "available": "已确认的本方动作、持久预占、共享额度和UNKNOWN模型；未找到正式后端仓库、评审或测试轨迹。",
+      "minimum": "提供仓库/分支/提交及协议评审、事务/唯一键和恢复验证。覆盖双击/并发、外发前后崩溃、明确拒绝计已用、UNKNOWN保留原attempt/槽位、跨主批累计最多额外2次；删除/下载不重置。",
+      "close_criteria": "实现证据与批准模型逐项匹配，重复操作不新增尝试，可证明未发起的恢复与实际已发起/未知严格区分。"
+    },
+    {
+      "issues": [
+        "ISSUE-004",
+        "ISSUE-024",
+        "ISSUE-039"
+      ],
+      "owner": "供应商＋开发团队",
+      "available": "11类原因原文、导航字段及旧资源接口映射；未找到三类导航实际配置/轨迹或八类生产数据依据。024保持004/039历史证据别名。",
+      "minimum": "当前预测部署的三类降级覆盖/生效/限制作用域说明、对应配置和失败→平台确认→120秒补提交→实际线路/外显的脱敏轨迹；八类原始失败、可核对资源/数据/配置及原对象保留证据。",
+      "close_criteria": "能解释三类是否及如何降级和重复事件不重置计时；八类仅沿原权限人工重提，不新增恢复回执门槛、编辑配置或换真实手机号。"
+    },
+    {
+      "issues": [
+        "ISSUE-029",
+        "ISSUE-035",
+        "ISSUE-037"
+      ],
+      "owner": "供应商",
+      "available": "新抓导入/失败/任务查询公开契约；缺本项目模式/部署版本、真实任务配置和逐次执行轨迹。",
+      "minimum": "提供实际预测任务版本、脱敏task/get配置；对运行/暂停/结束及允许/禁呼窗口、旧/新fileId、采用isRepeat、autoStart的受控联调记录，贯穿同步受理、53导入失败、稳定呼叫失败身份、call/SIP、原生轮次/在途。",
+      "close_criteria": "证明同号补提交的受理/拒绝及唯一预期执行可准确关联，未知不凭时间猜测，平台补提交与供应商原生执行不重复。不能把task级状态当单号无在途。"
+    },
+    {
+      "issues": [
+        "ISSUE-005",
+        "ISSUE-041"
+      ],
+      "owner": "供应商＋开发团队",
+      "available": "预测话单字段及本地三态草稿；呼入挂断字典、双向总时长、ASR毫秒等不移用。",
+      "minimum": "供应商正式说明预测客户真实接听、客户挂断全枚举和客户有效接听时长单位/零/缺失；脱敏同call/SIP边界样本0/2/大于2、可信false、缺失/冲突及晚更新；本方准确归一保存/版本协议与验证。",
+      "close_criteria": "准确归属先于分类；全可信true为秒挂、可信false为非秒挂，其余待核。缺失不补0；仅本地查看，不新增秒挂补提交或停止供应商的操作。"
+    },
+    {
+      "issues": [
+        "ISSUE-008"
+      ],
+      "owner": "开发团队",
+      "available": "仅合成下载生命周期；没有真实成功完成判据或验证。",
+      "minimum": "正式下载完成判据/适用客户端约定及成功、失败、中断、重试实测资料，注明何时允许清理快照。",
+      "close_criteria": "点击、响应开始或未知不计下载成功；明确成功才按既定快照范围清理，原业务证据和计数连续保留。"
+    },
+    {
+      "issues": [
+        "ISSUE-022"
+      ],
+      "owner": "供应商＋开发团队",
+      "available": "删除原文tels优先、skip和返回字段；缺单次目标隔离、跳过和在途真实行为。",
+      "minimum": "指定保存记录的独占fileId映射、精准删除请求/响应/回查、skipCalling/skippedCallingTels及skipRetry实际效果；本方任务权限、同目标幂等/取消与外发并发/UNKNOWN保护的协议和验证。",
+      "close_criteria": "只处理目标且其它记录/尝试保留；跳过、局部失败和未知不标成功，不靠tels+fileId假设AND。本地停未执行计划与供应商删除分别证明；不宣称撤回已在途或释放未知额度。"
+    },
+    {
+      "issues": [
+        "ISSUE-033"
+      ],
+      "owner": "供应商＋业务/开发评审",
+      "available": "用户所给新增任务全文与已存API311一致；当前TaskProperty仍写高级仅自动外呼，公开文档适用范围未闭合。",
+      "minimum": "供应商针对当前实际type=1及部署版本正式澄清适用重呼模式、识别服务资格；实际任务配置及状态触发轨迹；明确三天起点、五呼是否含初呼及跨fileId轮次。",
+      "close_criteria": "本项目实际配置、模式与执行证据一致。文档retry表示重试次数不能自行决定业务总次数；不擅自选默认时间基准/当天删除值、不自造正常调度。"
+    }
+  ],
+  "production_high_count": 13,
+  "production_issues_closed": [],
+  "real_service_API_calls": false,
+  "credentials_used": false,
+  "real_account_permissions_changed": false,
+  "browser_visual_verified": false,
+  "visual_deferral_only": "用户暂延当前需求图集，不豁免产品原型视觉或生产证据。",
+  "API_verification_status_upgraded": false,
+  "G2_interface_fingerprint_unchanged": "dca9200a363d11c23af0cf75ba04f55f8191626a638790827ef767d59b1df755",
+  "G3_approved": false,
+  "required_inputs_remaining": [
+    "当前实际预测任务部署版本及脱敏配置/联调轨迹，或供应商正式针对性澄清和适用版本",
+    "后端工程仓库/分支/提交，或正式工程协议评审及验证记录"
+  ],
+  "checklist_is_planned_not_executed": true,
+  "independent_semantic_review": {
+    "passed": true,
+    "create_text_vs_SRC104_and_original_API311": "9628 characters, sha256 f7cfe4233c4539c6ae4f1b813bb75c9f22c9a00ac4f8f0f32651fcd14d7beccf after removing whitespace/|",
+    "document_conflict_preserved": true,
+    "no_new_manual_recovery_gate": true,
+    "no_seconds_supplier_stop_operation": true,
+    "closed_production_issues": [],
+    "existing_scope_preserved": true
+  }
+}

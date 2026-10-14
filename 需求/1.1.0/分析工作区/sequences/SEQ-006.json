@@ -1,0 +1,1986 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-006",
+  "scenario_id": "SC-001",
+  "name": "既定接口/手工任务创建及原手工导入、同步/53本地结果",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "运营人员（沿原任务查看/操作权限）",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "既有任务记录与原导入界面",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（合成）",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti供应商（真实能力待核）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "仅在既有任务新建向导中明确确认创建：填写原任务信息和已约定正常规则，创建时沿既定选择外部接口或手工初始模式，提交后锁定；接口模式允许授权DCC/天网，任务不绑定应用；已有任务导入不重新创建任务。",
+      "type": "request",
+      "api_id": null,
+      "condition": "独立已有任务创建入口；不是每次名单导入必经步骤",
+      "step": 1,
+      "message_id": "SEQ-006-LOCAL-001",
+      "legacy_step": 1
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "按原身份/租户/任务创建权限提交当前配置；来源为本方保存字段，现有任务来源不能切换，不新增任务更新或策略发布操作。",
+      "type": "request",
+      "api_id": null,
+      "condition": "仅新建任务明确确认；取消不创建",
+      "step": 2,
+      "message_id": "SEQ-006-LOCAL-002",
+      "legacy_step": 2
+    },
+    {
+      "from": "service",
+      "to": "vendor",
+      "message": "复用既有任务创建能力与原必填信息/鉴权；已配置正常重呼字段按API-013消费，预测高级适用性/文档版本、三天窗口/初呼/跨批轮次待核，不自动采用文档默认或创建新通用策略。",
+      "type": "external_call",
+      "api_id": "API-013",
+      "condition": "仅既有任务创建确认且已有必填配置可准确表达；本轮合成，非实际创建",
+      "step": 3,
+      "message_id": "SEQ-006-LOCAL-003",
+      "legacy_step": 3
+    },
+    {
+      "from": "vendor",
+      "to": "service",
+      "message": "返回供应商原result/description/errorCode及实际任务属性；data/TaskProperty类型或任务标识不明待核，不虚构创建成功或supplierTaskId。",
+      "type": "response",
+      "api_id": "API-013",
+      "condition": "对应本次既有任务创建响应；缺响应保持未知",
+      "step": 4,
+      "message_id": "SEQ-006-LOCAL-004",
+      "legacy_step": 4
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "准确创建结果才保存原租户归属、supplierTaskId及保存创建时所选接口/手工模式并锁定，不绑定DCC/天网app；未知/拒绝明确反馈，已存在任务继续沿已保存状态，不借新建解锁历史接口任务。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "独立新建结果已准确核实；已有任务不执行此新建事务",
+      "step": 5,
+      "message_id": "SEQ-006-LOCAL-005",
+      "legacy_step": 5
+    },
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "在具体手工任务列表或任务内点击常驻导入客户入口，与已有失败记录人工补提交入口分开。",
+      "type": "request",
+      "api_id": null,
+      "condition": "当前既有任务初始名单导入入口",
+      "step": 6,
+      "message_id": "SEQ-006-LOCAL-006",
+      "legacy_step": 6
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "核当前登录身份、tenant/原任务、名单导入权限、锁定手工source及既有可导入状态；历史启动后初始补导不扩大。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 7,
+      "message_id": "SEQ-006-LOCAL-007",
+      "legacy_step": 7
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "返回当前名单导入守卫结果；无权、非手工或状态不可导入时拒绝不落账。通过不赋予额外异常操作权限、不改变历史任务来源。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 8,
+      "message_id": "SEQ-006-LOCAL-008",
+      "legacy_step": 8
+    },
+    {
+      "from": "ui",
+      "to": "operator",
+      "message": "常驻入口无权/不可导入保留禁用和原因；可导入则打开原大弹窗：业务类型、批次名称、称呼/号码及按类型命名的编码。线索类只显示一个线索编码；备注和R选填后置。",
+      "type": "response",
+      "api_id": null,
+      "condition": "按本次守卫结果分支，不隐藏常驻入口或授权混入历史来源",
+      "step": 9,
+      "message_id": "SEQ-006-LOCAL-009",
+      "legacy_step": 9
+    },
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "沿CSV选文件或粘贴/编辑名单，线索类沿用单一线索编码；最终priority必填，备注/R选填后置。其他类型原单据字段与独立leadCode保持，不新增requestId/isNewBatch/root控制或模板下载。",
+      "type": "request",
+      "api_id": null,
+      "condition": "当前导入守卫通过",
+      "step": 10,
+      "message_id": "SEQ-006-LOCAL-010",
+      "legacy_step": 10
+    },
+    {
+      "from": "ui",
+      "to": "ui",
+      "message": "文件/文本/必要字段变化、读取或检查失败/空结果使旧可提交预览失效；所有解析/检查及逐条最终值绑定同一当前草稿，不能提交旧名单。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 11,
+      "message_id": "SEQ-006-LOCAL-011",
+      "legacy_step": 11
+    },
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "点击原检查名单入口。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "step": 12,
+      "message_id": "SEQ-006-LOCAL-012",
+      "legacy_step": 12
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "解析当前草稿的称呼/号码/按类型命名的编码及可选备注/R；线索类单一线索编码用于本次新导入的leadCode和兼容externalDocumentId。旧双编码CSV同值可兼容、冲突提示并保留输入，其他类型字段不重定义。通用CSV安全校验保持，缺R不失败；可先呈现priority待填行供原检查区统一/逐条填写。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 13,
+      "message_id": "SEQ-006-LOCAL-013",
+      "legacy_step": 13
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "返回与当前输入/身份/任务绑定的已解析行、失败行及priority待填状态；解析失败/空结果清旧预览，缺最终priority可编辑但不能确认。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 14,
+      "message_id": "SEQ-006-LOCAL-014",
+      "legacy_step": 14
+    },
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "在原检查区统一填写或逐条调整最终priority，保留原布局和原信息；不开放提交后priority手改。",
+      "type": "request",
+      "api_id": null,
+      "condition": "当前已解析草稿匹配输入；无需预先填完priority才可进入统一编辑",
+      "step": 15,
+      "message_id": "SEQ-006-LOCAL-015",
+      "legacy_step": 15
+    },
+    {
+      "from": "ui",
+      "to": "ui",
+      "message": "重新校验本次最终有效行；每行最终必填priority完整且有有效行才可确认，变化后重做检查；提交中锁定。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 16,
+      "message_id": "SEQ-006-LOCAL-016",
+      "legacy_step": 16
+    },
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "明确确认当前名单；取消不落账、不提交当前或旧名单。",
+      "type": "request",
+      "api_id": null,
+      "condition": "当前最终检查可确认；取消为独立无提交分支",
+      "step": 17,
+      "message_id": "SEQ-006-LOCAL-017",
+      "legacy_step": 17
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "提交当前草稿与逐条最终值，落账前重新核身份/权限、tenant/原task/source、既有状态、当前输入/检查版本；重复确认沿同次处理。",
+      "type": "request",
+      "api_id": null,
+      "condition": "明确确认且当前草稿未重复处理中；真实内部route未定",
+      "step": 18,
+      "message_id": "SEQ-006-LOCAL-018",
+      "legacy_step": 18
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "复核失效、权限/任务变化或草稿已改时拒绝并清失效预览，给原因，不新增记录或提交旧名单。",
+      "type": "response",
+      "api_id": null,
+      "condition": "最终守卫不通过；本次不继续保存或导入",
+      "step": 19,
+      "message_id": "SEQ-006-LOCAL-019",
+      "legacy_step": 19
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "仅复核通过的最终有效新业务行保存原基础信息、客户信息、leadCode/最终priority/已给R和本地审计，独立recordId与单手机号batch。线索类本次单一线索编码同源保存到leadCode与兼容externalDocumentId；其他类型原字段保持，历史记录不批量回写。保存可核原root和来源，不覆盖旧记录，不以再次初始导入重置四元组失败累计账。当前手工record保存可信手工来源并仅平台查看；失败attempt继承原来源，换app或新主不重置准确同四元组预算。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "当前名单最终守卫通过",
+      "step": 20,
+      "message_id": "SEQ-006-LOCAL-020",
+      "legacy_step": 20
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "同任务待提交按已保存priority高先、同级本地FIFO；已提交不撤回重排、UNKNOWN不为排序新发，不恢复每日查询/priority衰减。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 21,
+      "message_id": "SEQ-006-LOCAL-021",
+      "legacy_step": 21
+    },
+    {
+      "from": "service",
+      "to": "vendor",
+      "message": "按原supplierTaskId提交该单号、保存最终priority和供应商必需name等已核导入参数；本地batch/root不当fileId。每次新的业务尝试独立fileId为已审候选，任务排重/同号受理/并行仍待核，不自动追加旧fileId、不默认isRepeat=0/importTelAutoStart值。",
+      "type": "external_call",
+      "api_id": "API-002",
+      "condition": "有效新业务行已保存且本次未发起；同确认重放或提交UNKNOWN不能再执行",
+      "step": 22,
+      "message_id": "SEQ-006-LOCAL-022",
+      "legacy_step": 22
+    },
+    {
+      "from": "vendor",
+      "to": "service",
+      "message": "保留本次实际result/description/errorCode与data.fileId/taskId/importTotal/successTotal/invalidTotal；仅真实已到响应，不用result=0或汇总数量任意指定每条成功。",
+      "type": "response",
+      "api_id": "API-002",
+      "condition": "本次明确同步响应；无响应不伪造",
+      "step": 23,
+      "message_id": "SEQ-006-LOCAL-023",
+      "legacy_step": 23
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "按实际本次fileId与原号码/任务准确保存record/batch映射及逐条可信同步成功；只有汇总不能任意指认成功行。明确拒绝入本地导入失败，UNKNOWN/超时/矛盾保同次证据待核不盲重发；受理不等实际呼叫。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 24,
+      "message_id": "SEQ-006-LOCAL-024",
+      "legacy_step": 24
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "在既有任务记录展示原客户信息/新增字段最终值、本地单号record/batch与真实fileId以及本次各阶段成功、拒绝或待核；不是外部结果交付。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 25,
+      "message_id": "SEQ-006-LOCAL-025",
+      "legacy_step": 25
+    },
+    {
+      "from": "vendor",
+      "to": "service",
+      "message": "若已配置53，独立接收enterpriseId/taskId/fileId/fileName与totalFailedCount/totalBatchCount/currentBatchCount、failedTelList原始导入数据及failedReason；文档原类型和真实认证/ACK/事件身份仍待核。",
+      "type": "event",
+      "api_id": "API-003",
+      "condition": "独立后续53导入失败入口，含重复/乱序/迟到；未收到不推定零失败；此段仅当前准确手工记录的53事件，公共接收按原对象分流，外部记录另见SEQ-001，不对同事件双处理",
+      "step": 26,
+      "message_id": "SEQ-006-LOCAL-026",
+      "legacy_step": 26
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "按核实enterprise→tenant、原task、本次实际fileId及原始号码/属性回查准确record/batch/root与来源；线索编码、最近同号/最新根或fileName最近批不替代精确匹配。多候选或真实关联矛盾保原证据待核。 原来源不足/冲突保待核，不默认DCC或以root/显示名/R猜来源；本段只处理准确手工对象。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "本次53事件已到；不把推送分片号当业务批次",
+      "step": 27,
+      "message_id": "SEQ-006-LOCAL-027",
+      "legacy_step": 27
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "稳定事件/推送组和声明分片去重，保存total/current分片及已知完整性；重复不新增，乱序迟到不丢；声明冲突或同步/异步真实矛盾待核。收齐声明分片只证明该失败组收齐，不等全导入终态。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "关联可核且事件/分片声明可信；生产唯一ID/ACK/终态继续partial",
+      "step": 28,
+      "message_id": "SEQ-006-LOCAL-028",
+      "legacy_step": 28
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "保存新增准确导入失败及原原因，纯重复复用原状态；后到新失败可进入后续快照，已导出同事件重复不再生。53或同步导入拒绝不是11类预测呼叫失败、不计实际呼叫、不触发三自动/八人工；已实际发起异常attempt得到导入拒绝仍保其used或UNKNOWN占用。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "仅可信准确53失败或同期已有导入证据；异常预算沿原attempt",
+      "step": 29,
+      "message_id": "SEQ-006-LOCAL-029",
+      "legacy_step": 29
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "本地显示新导入失败、声明分片完整/不完整或关联待核，进入SEQ-007原失败快照下载；原root/fileId/分片去重及累计预算保留，外部DCC/天网的接收与原来源交付见已恢复SEQ-001，准确手工事件不走外部回传。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 30,
+      "message_id": "SEQ-006-LOCAL-030",
+      "legacy_step": 30
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "准确后续呼叫/话单/SIP结果另由SEQ-002本地保存分流，11类失败交SEQ-003，客户呼叫交SEQ-004完整三态；内部补提交固定原root/来源/保存priority，不构造新的外部业务请求。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "独立后续呼叫结果入口，不是53失败之后必然发生呼叫或自动重提",
+      "step": 31,
+      "message_id": "SEQ-006-LOCAL-031",
+      "legacy_step": 31
+    }
+  ],
+  "notes": [
+    "本轮G2已由用户实际批准，证据runtime/manual-code-g2-user-approval-20261014.json，接口事实指纹fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4；按手工线索类单一编码说明继续S5-S7，保留13high/4medium生产缺口，不接受生产风险，不批准G3/真实调用。",
+    "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+    "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+    "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+    "SRC-112已有公共HTTP success/网络200OK接收依据和52/53传输重试配置；精确body/AND或OR、回调验真、稳定业务事件/导入组身份、持久ACK及错误/超时具体重发触发仍待核。传输retry/秒间隔不能变成本方额外2次、120秒、三天五呼或新的失败计划；重复消息继续沿原对象/确认时间处理。",
+    "SRC-114重确认53失败六类、分片字段和两种failedTelList表达线索，不证明稳定组ID/终态；公共HTTP接收依据不替代消息26～29要求的具体验真、准确关联、持久去重与原attempt保留。",
+    "SRC-111仅补既有API-012/013配置字段与模式边界的来源，不增加任务/导航配置调用、先解禁/先降级成功回执/先删后导门槛；具体目标任务的原生/导航受理和在途仍须生产证据。",
+    "本SEQ仅前5条覆盖既定任务创建的独立意图（接口/手工模式锁定）；后续名单及53段仅手工记录。DCC/天网导入请求及接收回执由SEQ-001，同一公共事件按准确原record分流而非重复处理，不在手工页新增token/requestId/flag。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-062",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070",
+    "inputs/source-index.json#SRC-071",
+    "inputs/source-index.json#SRC-072",
+    "inputs/source-index.json#SRC-073",
+    "inputs/source-index.json#SRC-076",
+    "inputs/source-index.json#SRC-077",
+    "inputs/source-index.json#SRC-083",
+    "inputs/source-index.json#SRC-084",
+    "inputs/source-index.json#SRC-085",
+    "inputs/source-index.json#SRC-086",
+    "inputs/source-index.json#SRC-095",
+    "inputs/source-index.json#SRC-096",
+    "inputs/source-index.json#SRC-100",
+    "inputs/source-index.json#SRC-101",
+    "inputs/source-index.json#SRC-102",
+    "inputs/source-index.json#SRC-103",
+    "inputs/source-index.json#SRC-106",
+    "inputs/source-index.json#SRC-109",
+    "inputs/source-index.json#SRC-110",
+    "inputs/source-index.json#SRC-111",
+    "inputs/source-index.json#SRC-112",
+    "inputs/source-index.json#SRC-114",
+    "inputs/source-index.json#SRC-116",
+    "inputs/source-index.json#SRC-115",
+    "inputs/source-index.json#SRC-117"
+  ],
+  "review_history": [
+    {
+      "at": "2026-10-10T15:18:55+08:00",
+      "before_message": {
+        "step": 7,
+        "from": "service",
+        "to": "vendor",
+        "message": "逐条最终priority自动提交供应商原任务新批次",
+        "type": "external_call",
+        "api_id": "API-002",
+        "condition": "本地有效保存后"
+      },
+      "basis": "AC-046、SRC-076/077；手工提交同任务既有排序口径，不新增操作"
+    },
+    {
+      "at": "2026-10-11T09:32:22+08:00",
+      "basis": "手工仍提交前统一/逐条priority；删除取消的后续每日策略并保留请求/业务批与供应商映射边界",
+      "source_ref": "inputs/source-index.json#SRC-083",
+      "record_type": "draft_semantic_revision_not_approval"
+    },
+    {
+      "at": "2026-10-11T09:34:33+08:00",
+      "basis": "根确认DCC批次协议不扩展到手工输入；恢复既有手工范围，仅取消每日策略并保留provider映射",
+      "source_ref": "inputs/source-index.json#SRC-083",
+      "record_type": "draft_semantic_scope_correction_not_approval"
+    },
+    {
+      "date": "2026-10-12",
+      "change_id": "CH-DCC-20261012-SEQUENCE-GUARD-ALIGNMENT",
+      "before_messages": [
+        {
+          "step": 1,
+          "from": "service",
+          "to": "service",
+          "message": "提交任务后锁定DCC接口或手工一种来源；租户任务归属和既有可导入状态沿原基线校验，历史启动后补导不扩大。",
+          "type": "internal",
+          "api_id": null,
+          "condition": null
+        },
+        {
+          "step": 2,
+          "from": "operator",
+          "to": "ui",
+          "message": "在任务列表/任务内点击常驻“导入客户”入口，不从已有失败记录人工重提交入口进入。",
+          "type": "request",
+          "api_id": null,
+          "condition": "按当前选定任务锁定来源"
+        },
+        {
+          "step": 3,
+          "from": "ui",
+          "to": "service",
+          "message": "核当前身份/租户/任务、名单导入权限、source=手工及既有可导入状态。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "原名单导入权限，不由本轮补造角色矩阵"
+        },
+        {
+          "from": "service",
+          "to": "ui",
+          "message": "返回当前名单导入守卫结果；拒绝不落账，通过仅允许既有手工名单操作，不改变任务来源或赋予异常重提交权限。",
+          "type": "response",
+          "api_id": null,
+          "condition": "当前身份/权限/source/租户任务及既有可导入状态校验结果",
+          "step": 4
+        },
+        {
+          "step": 5,
+          "from": "ui",
+          "to": "operator",
+          "message": "无权、非手工或状态不可导入时入口禁用并说明，后端拒绝不落账；恢复UI不授权混入DCC来源。",
+          "type": "response",
+          "api_id": null,
+          "condition": "权限/来源/任务守卫不通过"
+        },
+        {
+          "step": 6,
+          "from": "ui",
+          "to": "operator",
+          "message": "打开原large大弹窗：业务类型、批次名称、原客户称呼/客户号码/联系备注/对应业务编码四字段，保留CSV选文件/粘贴名单→检查→确认布局；仅补leadCode/priority/可选R。",
+          "type": "response",
+          "api_id": null,
+          "condition": "身份/source/任务状态与原导入权限通过"
+        },
+        {
+          "step": 7,
+          "from": "operator",
+          "to": "ui",
+          "message": "选择业务类型、填写批次名称，选择CSV文件或粘贴/编辑名单；业务编码与leadCode分别保留，不输入DCC requestId/isNewBatch/root或关联配置。",
+          "type": "request",
+          "api_id": null,
+          "condition": null
+        },
+        {
+          "step": 8,
+          "from": "ui",
+          "to": "ui",
+          "message": "按现有CSV文件/文本通用安全和输入规则读取当前草稿；文件/文本/类型/必要字段变化使旧预览失效，当前文件读取/解析结果绑定当前草稿，不能套用旧名单。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "不恢复旧UI历史去重/分配/调度业务规则"
+        },
+        {
+          "step": 9,
+          "from": "operator",
+          "to": "ui",
+          "message": "点击原“检查名单”。",
+          "type": "request",
+          "api_id": null,
+          "condition": null
+        },
+        {
+          "step": 10,
+          "from": "ui",
+          "to": "service",
+          "message": "检查当前草稿的原四客户字段及新增leadCode/priority/R；缺R不失败，不做R字典维护或允许范围校验；priority独立必填。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "当前输入与身份/任务上下文一致"
+        },
+        {
+          "step": 11,
+          "from": "service",
+          "to": "ui",
+          "message": "返回绑定当前草稿的有效/失败行，保留原客户信息；无效行进入既有失败下载生命周期，检查失败/空结果清旧预览，确认禁用。",
+          "type": "response",
+          "api_id": null,
+          "condition": "相应检查结果"
+        },
+        {
+          "step": 12,
+          "from": "operator",
+          "to": "ui",
+          "message": "在原检查区统一填写priority并可逐条调整最终值，不替换成新的纯文本导入界面，不开放提交后priority手改。",
+          "type": "request",
+          "api_id": null,
+          "condition": "当前有效预览仍匹配草稿且在提交前"
+        },
+        {
+          "step": 13,
+          "from": "ui",
+          "to": "ui",
+          "message": "更新绑定同草稿的逐条最终priority；改文件/文本/原必要字段需重新检查，取消清当前预览不提交，提交中锁定避免重复。",
+          "type": "internal",
+          "api_id": null,
+          "condition": null
+        },
+        {
+          "step": 14,
+          "from": "operator",
+          "to": "ui",
+          "message": "确认当前检查通过的名单；取消则终止，无落账或旧名单提交。",
+          "type": "request",
+          "api_id": null,
+          "condition": "当前有效行及最终priority可提交"
+        },
+        {
+          "step": 15,
+          "from": "ui",
+          "to": "service",
+          "message": "确认提交当前草稿与逐条最终值；落账前复核身份/权限/source/租户任务、既有状态、当前输入与当前检查版本及最终priority。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "确认发起且未重复占用；真实内部路由未定"
+        },
+        {
+          "step": 16,
+          "from": "service",
+          "to": "ui",
+          "message": "复核失败/草稿失效/身份或任务变化时拒绝提交、清失效预览并给原因；不提交旧名单、不新增记录。",
+          "type": "response",
+          "api_id": null,
+          "condition": "最终守卫不通过"
+        },
+        {
+          "step": 17,
+          "from": "service",
+          "to": "service",
+          "message": "仅复核通过的有效行保存原基础信息/四客户字段和leadCode/最终priority/已给R、本地审计时间及独立record/单手机号batch；不添加DCC输入协议或通过初始导入绕过失败2次额度。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "原当前名单确认通过"
+        },
+        {
+          "step": 18,
+          "from": "service",
+          "to": "vendor",
+          "message": "同任务待提交按已保存最终priority高先/同级本地时间FIFO自动提交单号及必需供应商name等参数，保存本地batch→实际fileId；不将业务批/root当供应商fileId、不擅改isRepeat。",
+          "type": "external_call",
+          "api_id": "API-002",
+          "condition": "本地有效保存；已提交不撤回重排，未知不重复"
+        },
+        {
+          "step": 19,
+          "from": "vendor",
+          "to": "service",
+          "message": "返回原始result/description/errorCode和实际data.fileId/taskId/importTotal/successTotal/invalidTotal；仅真实已到响应记录，不伪造逐条全成功。",
+          "type": "response",
+          "api_id": "API-002",
+          "condition": "明确同步返回；无响应保持未知"
+        },
+        {
+          "step": 20,
+          "from": "service",
+          "to": "service",
+          "message": "保留准确同步成功及明确拒绝证据，未知/超时/矛盾待核；后续53分片关联与导出生命周期复用SEQ001/007，不把53导入拒绝当11类呼叫失败补提。",
+          "type": "internal",
+          "api_id": null,
+          "condition": null
+        },
+        {
+          "step": 21,
+          "from": "service",
+          "to": "ui",
+          "message": "展示原客户信息与新增字段最终值、本地record/batch和实际fileId及本次导入结果；手工仅平台查看、不向DCC回传，不显示DCC请求/root输入，不做每日衰减或提交后priority手改。",
+          "type": "response",
+          "api_id": null,
+          "condition": null
+        }
+      ],
+      "reason": "语义复核：外发前绑定执行权与预算；统一priority在最终确认前可填。接口事实未变。"
+    },
+    {
+      "date": "2026-10-13",
+      "phase": "S5",
+      "source_refs": [
+        "inputs/source-index.json#SRC-116"
+      ],
+      "G2_evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-006",
+        "scenario_id": "SC-001",
+        "name": "既有手工任务、原名单导入与供应商同步/53本地结果",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员（沿原任务查看/操作权限）",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "既有任务记录与原导入界面",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（合成）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti供应商（真实能力待核）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "仅在既有任务新建向导中明确确认创建：填写原任务信息和已约定正常规则，当前本轮选择手工来源；已有任务导入不重新创建任务。",
+            "type": "request",
+            "api_id": null,
+            "condition": "独立已有任务创建入口；不是每次名单导入必经步骤",
+            "step": 1
+          },
+          {
+            "from": "ui",
+            "to": "service",
+            "message": "按原身份/租户/任务创建权限提交当前配置；来源为本方保存字段，现有任务来源不能切换，不新增任务更新或策略发布操作。",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅新建任务明确确认；取消不创建",
+            "step": 2
+          },
+          {
+            "from": "service",
+            "to": "vendor",
+            "message": "复用既有任务创建能力与原必填信息/鉴权；已配置正常重呼字段按API-013消费，预测高级适用性/文档版本、三天窗口/初呼/跨批轮次待核，不自动采用文档默认或创建新通用策略。",
+            "type": "external_call",
+            "api_id": "API-013",
+            "condition": "仅既有任务创建确认且已有必填配置可准确表达；本轮合成，非实际创建",
+            "step": 3
+          },
+          {
+            "from": "vendor",
+            "to": "service",
+            "message": "返回供应商原result/description/errorCode及实际任务属性；data/TaskProperty类型或任务标识不明待核，不虚构创建成功或supplierTaskId。",
+            "type": "response",
+            "api_id": "API-013",
+            "condition": "对应本次既有任务创建响应；缺响应保持未知",
+            "step": 4
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "准确创建结果才保存原租户归属、supplierTaskId及锁定手工来源；未知/拒绝明确反馈，已存在任务继续沿已保存状态，不借新建解锁历史接口任务。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "独立新建结果已准确核实；已有任务不执行此新建事务",
+            "step": 5
+          },
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "在具体手工任务列表或任务内点击常驻导入客户入口，与已有失败记录人工补提交入口分开。",
+            "type": "request",
+            "api_id": null,
+            "condition": "当前既有任务初始名单导入入口",
+            "step": 6
+          },
+          {
+            "from": "ui",
+            "to": "service",
+            "message": "核当前登录身份、tenant/原任务、名单导入权限、锁定手工source及既有可导入状态；历史启动后初始补导不扩大。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 7
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "返回当前名单导入守卫结果；无权、非手工或状态不可导入时拒绝不落账。通过不赋予额外异常操作权限、不改变历史任务来源。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 8
+          },
+          {
+            "from": "ui",
+            "to": "operator",
+            "message": "常驻入口无权/不可导入保留禁用和原因；可导入则打开原large弹窗：业务类型、批次名称、原客户称呼/客户号码/联系备注/业务编码。",
+            "type": "response",
+            "api_id": null,
+            "condition": "按本次守卫结果分支，不隐藏常驻入口或授权混入历史来源",
+            "step": 9
+          },
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "沿CSV选文件或粘贴/编辑名单，只增加leadCode、最终priority与可选R；原业务编码独立，不新增requestId/isNewBatch/root控制或模板下载。",
+            "type": "request",
+            "api_id": null,
+            "condition": "当前导入守卫通过",
+            "step": 10
+          },
+          {
+            "from": "ui",
+            "to": "ui",
+            "message": "文件/文本/必要字段变化、读取或检查失败/空结果使旧可提交预览失效；所有解析/检查及逐条最终值绑定同一当前草稿，不能提交旧名单。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 11
+          },
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "点击原检查名单入口。",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "step": 12
+          },
+          {
+            "from": "ui",
+            "to": "service",
+            "message": "解析当前草稿原四客户字段、leadCode及可选R；通用CSV安全与输入校验保持，R缺失不失败。检查可先呈现priority待填行供原检查区统一/逐条填写。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 13
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "返回与当前输入/身份/任务绑定的已解析行、失败行及priority待填状态；解析失败/空结果清旧预览，缺最终priority可编辑但不能确认。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 14
+          },
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "在原检查区统一填写或逐条调整最终priority，保留原布局和原信息；不开放提交后priority手改。",
+            "type": "request",
+            "api_id": null,
+            "condition": "当前已解析草稿匹配输入；无需预先填完priority才可进入统一编辑",
+            "step": 15
+          },
+          {
+            "from": "ui",
+            "to": "ui",
+            "message": "重新校验本次最终有效行；每行最终必填priority完整且有有效行才可确认，变化后重做检查；提交中锁定。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 16
+          },
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "明确确认当前名单；取消不落账、不提交当前或旧名单。",
+            "type": "request",
+            "api_id": null,
+            "condition": "当前最终检查可确认；取消为独立无提交分支",
+            "step": 17
+          },
+          {
+            "from": "ui",
+            "to": "service",
+            "message": "提交当前草稿与逐条最终值，落账前重新核身份/权限、tenant/原task/source、既有状态、当前输入/检查版本；重复确认沿同次处理。",
+            "type": "request",
+            "api_id": null,
+            "condition": "明确确认且当前草稿未重复处理中；真实内部route未定",
+            "step": 18
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "复核失效、权限/任务变化或草稿已改时拒绝并清失效预览，给原因，不新增记录或提交旧名单。",
+            "type": "response",
+            "api_id": null,
+            "condition": "最终守卫不通过；本次不继续保存或导入",
+            "step": 19
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "仅复核通过的最终有效新业务行保存原基础信息/四客户字段、leadCode/最终priority/已给R和本地审计，独立recordId与单手机号batch；保存可核原root和来源，不覆盖旧记录，不以再次初始导入重置四元组失败累计账。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "当前名单最终守卫通过",
+            "step": 20
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "同任务待提交按已保存priority高先、同级本地FIFO；已提交不撤回重排、UNKNOWN不为排序新发，不恢复每日查询/priority衰减。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 21
+          },
+          {
+            "from": "service",
+            "to": "vendor",
+            "message": "按原supplierTaskId提交该单号、保存最终priority和供应商必需name等已核导入参数；本地batch/root不当fileId。每次新的业务尝试独立fileId为已审候选，任务排重/同号受理/并行仍待核，不自动追加旧fileId、不默认isRepeat=0/importTelAutoStart值。",
+            "type": "external_call",
+            "api_id": "API-002",
+            "condition": "有效新业务行已保存且本次未发起；同确认重放或提交UNKNOWN不能再执行",
+            "step": 22
+          },
+          {
+            "from": "vendor",
+            "to": "service",
+            "message": "保留本次实际result/description/errorCode与data.fileId/taskId/importTotal/successTotal/invalidTotal；仅真实已到响应，不用result=0或汇总数量任意指定每条成功。",
+            "type": "response",
+            "api_id": "API-002",
+            "condition": "本次明确同步响应；无响应不伪造",
+            "step": 23
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "按实际本次fileId与原号码/任务准确保存record/batch映射及逐条可信同步成功；只有汇总不能任意指认成功行。明确拒绝入本地导入失败，UNKNOWN/超时/矛盾保同次证据待核不盲重发；受理不等实际呼叫。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 24
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "在既有任务记录展示原客户信息/新增字段最终值、本地单号record/batch与真实fileId以及本次各阶段成功、拒绝或待核；不是外部结果交付。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 25
+          },
+          {
+            "from": "vendor",
+            "to": "service",
+            "message": "若已配置53，独立接收enterpriseId/taskId/fileId/fileName与totalFailedCount/totalBatchCount/currentBatchCount、failedTelList原始导入数据及failedReason；文档原类型和真实认证/ACK/事件身份仍待核。",
+            "type": "event",
+            "api_id": "API-003",
+            "condition": "独立后续53导入失败入口，含重复/乱序/迟到；未收到不推定零失败",
+            "step": 26
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "按核实enterprise→tenant、原task、本次实际fileId及原始号码/属性回查准确record/batch/root与来源；线索编码、最近同号/最新根或fileName最近批不替代精确匹配。多候选或真实关联矛盾保原证据待核。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "本次53事件已到；不把推送分片号当业务批次",
+            "step": 27
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "稳定事件/推送组和声明分片去重，保存total/current分片及已知完整性；重复不新增，乱序迟到不丢；声明冲突或同步/异步真实矛盾待核。收齐声明分片只证明该失败组收齐，不等全导入终态。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "关联可核且事件/分片声明可信；生产唯一ID/ACK/终态继续partial",
+            "step": 28
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "保存新增准确导入失败及原原因，纯重复复用原状态；后到新失败可进入后续快照，已导出同事件重复不再生。53或同步导入拒绝不是11类预测呼叫失败、不计实际呼叫、不触发三自动/八人工；已实际发起异常attempt得到导入拒绝仍保其used或UNKNOWN占用。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅可信准确53失败或同期已有导入证据；异常预算沿原attempt",
+            "step": 29
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "本地显示新导入失败、声明分片完整/不完整或关联待核，进入SEQ-007原失败快照下载；原root/fileId/分片去重及累计预算保留，不再复用延期SEQ-001。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 30
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "准确后续呼叫/话单/SIP结果另由SEQ-002本地保存分流，11类失败交SEQ-003，客户呼叫交SEQ-004完整三态；内部补提交固定原root/来源/保存priority，不构造新的外部业务请求。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "独立后续呼叫结果入口，不是53失败之后必然发生呼叫或自动重提",
+            "step": 31
+          }
+        ],
+        "notes": [
+          "本轮实际新G2已批准保留缺口重验S5～S7，证据runtime/g2-user-approval-wiki-20261013.json，当前接口事实指纹463b24041b0ebe18f4164fa3f8646e25be1fd12129b724bef540d96d8ec1d855；本次是合成方案的下游重核，不接受生产风险、不批准G3/真实调用/原型导入或05交付。旧G2仅保留历史。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "DCC接收/回传及应用接入整体延期，旧全文/参与方/消息/API关系保留decision_history或deferred_definition，不参与当前时序图集。",
+          "旧SEQ-001的供应商同步提交/数量/逐条证据与53事件关联、分片去重、导入失败分流已实际并入本SEQ消息22～30；延期SEQ001不再承担手工入口的公共依赖。前5条仅既有任务创建的独立意图，不会因再导名单重建任务。",
+          "SRC-112已有公共HTTP success/网络200OK接收依据和52/53传输重试配置；精确body/AND或OR、回调验真、稳定业务事件/导入组身份、持久ACK及错误/超时具体重发触发仍待核。传输retry/秒间隔不能变成本方额外2次、120秒、三天五呼或新的失败计划；重复消息继续沿原对象/确认时间处理。",
+          "SRC-114重确认53失败六类、分片字段和两种failedTelList表达线索，不证明稳定组ID/终态；公共HTTP接收依据不替代消息26～29要求的具体验真、准确关联、持久去重与原attempt保留。",
+          "SRC-111仅补既有API-012/013配置字段与模式边界的来源，不增加任务/导航配置调用、先解禁/先降级成功回执/先删后导门槛；具体目标任务的原生/导航受理和在途仍须生产证据。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-062",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-076",
+          "inputs/source-index.json#SRC-077",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-095",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-101",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-109",
+          "inputs/source-index.json#SRC-110",
+          "inputs/source-index.json#SRC-111",
+          "inputs/source-index.json#SRC-112",
+          "inputs/source-index.json#SRC-114"
+        ],
+        "status": "analysis_reviewed_WIKI_G2_gaps_retained",
+        "delivery_scope": "current_manual_and_internal_delivery",
+        "business_rule_ids": [
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-005",
+          "BR-006",
+          "BR-012",
+          "BR-013",
+          "BR-014",
+          "BR-015",
+          "BR-016",
+          "BR-018",
+          "BR-019",
+          "BR-021"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/g2-user-approval-wiki-20261013.json",
+          "interface_fingerprint": "463b24041b0ebe18f4164fa3f8646e25be1fd12129b724bef540d96d8ec1d855",
+          "actual_answer": "批准 G2，保留缺口重验 S5～S7",
+          "scope": "仅批准本轮接口事实及边界用于重验S5～S7；生产证据要求不变，13high/2medium保持open。",
+          "production_risk_accepted": false,
+          "production_calls_allowed": false,
+          "G3_approved": false,
+          "prototype_import_allowed": false,
+          "development_delivery_approved": false
+        }
+      },
+      "reason": "当前G2恢复DCC优先+天网共享；保留原手工/下载/指定删除操作，仅对齐来源及当前批准。"
+    },
+    {
+      "date": "2026-10-14",
+      "change_id": "CH-MANUAL-CODE-SOURCE-CORRECTION-20261014",
+      "actual_G2": "runtime/manual-code-g2-user-approval-20261014.json",
+      "before": {
+        "notes": [
+          "本轮G2已由用户实际批准，证据runtime/tianwang-g2-user-approval-20261013.json，接口事实指纹286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d；保留13high/4medium生产缺口，不接受生产风险、不批准G3/真实调用。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "SRC-112已有公共HTTP success/网络200OK接收依据和52/53传输重试配置；精确body/AND或OR、回调验真、稳定业务事件/导入组身份、持久ACK及错误/超时具体重发触发仍待核。传输retry/秒间隔不能变成本方额外2次、120秒、三天五呼或新的失败计划；重复消息继续沿原对象/确认时间处理。",
+          "SRC-114重确认53失败六类、分片字段和两种failedTelList表达线索，不证明稳定组ID/终态；公共HTTP接收依据不替代消息26～29要求的具体验真、准确关联、持久去重与原attempt保留。",
+          "SRC-111仅补既有API-012/013配置字段与模式边界的来源，不增加任务/导航配置调用、先解禁/先降级成功回执/先删后导门槛；具体目标任务的原生/导航受理和在途仍须生产证据。",
+          "本SEQ仅前5条覆盖既定任务创建的独立意图（接口/手工模式锁定）；后续名单及53段仅手工记录。DCC/天网导入请求及接收回执由SEQ-001，同一公共事件按准确原record分流而非重复处理，不在手工页新增token/requestId/flag。"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+          "interface_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d",
+          "scope": "same_received_G2_no_fact_change",
+          "risk_accepted": false,
+          "real_calls": false,
+          "G3_approved": false
+        },
+        "status": "S5_current_Tianwang_G2_scope_revalidated_production_gaps_retained"
+      }
+    }
+  ],
+  "decision_history": [
+    {
+      "at": "2026-10-11T10:08:12+08:00",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-006",
+        "scenario_id": "SC-001",
+        "name": "手工线索导入与提交前priority覆盖",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（模拟返回/未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "service",
+            "to": "service",
+            "message": "创建任务提交锁定接口/手工一种方式；后端校验taskId来源及tenant归属，不绑定应用",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "operator",
+            "to": "ui",
+            "message": "预外呼任务记录页点击常驻手工导入",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "ui",
+            "to": "operator",
+            "message": "展示线索编码/可选R/统一priority、逐行预览；无操作条件可置灰说明",
+            "type": "response",
+            "api_id": null,
+            "condition": "具体权限沿既有校验且不另定矩阵"
+          },
+          {
+            "step": 4,
+            "from": "operator",
+            "to": "ui",
+            "message": "统一priority后按单条覆盖，仍在提交前",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 5,
+            "from": "ui",
+            "to": "service",
+            "message": "逐行校验最终priority与必填线索编码/phone；R可选不做字典范围校验，不新增DCC requestId/previousBatchId输入或关联要求",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "service",
+            "message": "有效行按既有流程保存独立客户记录和单手机号业务批次及本次审计时间；无效行失败明细，其他有效继续；不新增手工关联入口/协议",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "vendor",
+            "message": "同一任务待提交按逐条本次最终priority高先、同级本次本地导入时间FIFO，单号批次自动提交；新业务批不复用旧fileId，保留本地业务batchId→每条供应商fileId映射；已提交不重排、未知不重复",
+            "type": "external_call",
+            "api_id": "API-002",
+            "condition": "本地有效保存后"
+          },
+          {
+            "step": 8,
+            "from": "vendor",
+            "to": "service",
+            "message": "合成明确接受/拒绝/未知；未知暂停，拒绝另记",
+            "type": "response",
+            "api_id": "API-002",
+            "condition": null
+          },
+          {
+            "step": 9,
+            "from": "service",
+            "to": "ui",
+            "message": "展示既有逐行结果、本地record/batch及供应商fileId映射和审计时间；提交后无priority手改和平台每日衰减；手工仅平台查看、不回传DCC，不新增DCC父根关联UI",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          }
+        ],
+        "notes": [
+          "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+          "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+          "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。",
+          "手工来源同样接收53异步导入失败、分片关联/去重、快照导出；仅平台查看不向DCC回传，复用SEQ-001/007，不重复功能。",
+          "SRC-083范围复核：请求级requestId/已知历史强制previous仅DCC接口新业务请求；手工不新增DCC请求/父批输入或关联要求，保留既有单号独立批、最终priority、record/fileId映射与审计时间。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-062",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-076",
+          "inputs/source-index.json#SRC-077",
+          "inputs/source-index.json#SRC-083"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "reason": "用户最新主/子根归组方案替代SRC-083逐行指定父批方案；旧事实只作历史，新G3未批准。",
+      "record_type": "draft_business_revision_not_approval"
+    },
+    {
+      "at": "2026-10-12",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-006",
+        "scenario_id": "SC-001",
+        "name": "手工线索导入与提交前priority覆盖",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（模拟返回/未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "service",
+            "to": "service",
+            "message": "创建任务提交锁定接口/手工一种方式；后端校验taskId来源及tenant归属，不绑定应用",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "operator",
+            "to": "ui",
+            "message": "预外呼任务记录页点击常驻手工导入",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "ui",
+            "to": "operator",
+            "message": "展示线索编码/可选R/统一priority、逐行预览；无操作条件可置灰说明",
+            "type": "response",
+            "api_id": null,
+            "condition": "具体权限沿既有校验且不另定矩阵"
+          },
+          {
+            "step": 4,
+            "from": "operator",
+            "to": "ui",
+            "message": "统一priority后按单条覆盖，仍在提交前",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 5,
+            "from": "ui",
+            "to": "service",
+            "message": "逐行校验最终priority和必填线索编码/phone；R可选不做字典范围校验，不新增DCC flag/request/root输入或关联要求",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "service",
+            "message": "有效行按既有流程保存独立客户记录和单手机号业务批次及本次审计时间；无效行失败明细，其他有效继续；不新增手工关联入口/协议",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "vendor",
+            "message": "同一任务待提交按逐条本次最终priority高先、同级本次本地导入时间FIFO，单号批次自动提交；新业务批不复用旧fileId，保留本地业务batchId→每条供应商fileId映射；已提交不重排、未知不重复",
+            "type": "external_call",
+            "api_id": "API-002",
+            "condition": "本地有效保存后"
+          },
+          {
+            "step": 8,
+            "from": "vendor",
+            "to": "service",
+            "message": "合成明确接受/拒绝/未知；未知暂停，拒绝另记",
+            "type": "response",
+            "api_id": "API-002",
+            "condition": null
+          },
+          {
+            "step": 9,
+            "from": "service",
+            "to": "ui",
+            "message": "展示既有逐行结果、本地record/batch及供应商fileId映射和审计时间；提交后无priority手改和平台每日衰减；手工仅平台查看、不回传DCC，不新增DCCflag/request/root输入或关联UI",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          }
+        ],
+        "notes": [
+          "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+          "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+          "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。",
+          "手工来源同样接收53异步导入失败、分片关联/去重、快照导出；仅平台查看不向DCC回传，复用SEQ-001/007，不重复功能。",
+          "手工保留既有独立record/单号batch、最终priority、provider fileId映射与审计时间；无DCC flag/request/root输入、不回传DCC，平台每日策略仍取消。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-062",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-076",
+          "inputs/source-index.json#SRC-077",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-095",
+        "inputs/source-index.json#SRC-096",
+        "inputs/source-index.json#SRC-100",
+        "inputs/source-index.json#SRC-101",
+        "inputs/source-index.json#SRC-102",
+        "inputs/source-index.json#SRC-103",
+        "inputs/source-index.json#SRC-106"
+      ],
+      "superseded_by": [
+        "SRC-095",
+        "SRC-096",
+        "SRC-100",
+        "SRC-101",
+        "SRC-102",
+        "SRC-103",
+        "SRC-106"
+      ],
+      "reason": "按本轮S3责任/源锁/失败补提交和SRC-106秒挂仅明确结果规则同步S5；保留旧时序追溯，不沿用旧G3或把G2缺口批准提升为生产verified。",
+      "record_type": "draft_sequence_revision_not_approval"
+    },
+    {
+      "change_id": "CH-DCC-20261012-DEFER-INTEGRATION-MANUAL-INTERNAL-LOOP",
+      "recorded_at": "2026-10-12",
+      "source_refs": [
+        "inputs/source-index.json#SRC-110"
+      ],
+      "reason": "消费SRC-110与本次实际G2：DCC及应用延期；当前手工、供应商本地结果/失败补提交与授权精准记录删除闭环。稳定ID及旧完整定义保留，不扩大业务功能或升级生产接口。",
+      "previous_definition": {
+        "schema_version": "1.0",
+        "id": "SEQ-006",
+        "scenario_id": "SC-001",
+        "name": "原手工大弹窗CSV导入、当前预览守卫及最终priority提交",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（模拟返回/未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "service",
+            "to": "service",
+            "message": "提交任务后锁定DCC接口或手工一种来源；租户任务归属和既有可导入状态沿原基线校验，历史启动后补导不扩大。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "operator",
+            "to": "ui",
+            "message": "在任务列表/任务内点击常驻“导入客户”入口，不从已有失败记录人工重提交入口进入。",
+            "type": "request",
+            "api_id": null,
+            "condition": "按当前选定任务锁定来源"
+          },
+          {
+            "step": 3,
+            "from": "ui",
+            "to": "service",
+            "message": "核当前身份/租户/任务、名单导入权限、source=手工及既有可导入状态。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "原名单导入权限，不由本轮补造角色矩阵"
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "返回当前名单导入守卫结果；拒绝不落账，通过仅允许既有手工名单操作，不改变任务来源或赋予异常重提交权限。",
+            "type": "response",
+            "api_id": null,
+            "condition": "当前身份/权限/source/租户任务及既有可导入状态校验结果",
+            "step": 4
+          },
+          {
+            "step": 5,
+            "from": "ui",
+            "to": "operator",
+            "message": "无权、非手工或状态不可导入时入口禁用并说明，后端拒绝不落账；恢复UI不授权混入DCC来源。",
+            "type": "response",
+            "api_id": null,
+            "condition": "权限/来源/任务守卫不通过"
+          },
+          {
+            "step": 6,
+            "from": "ui",
+            "to": "operator",
+            "message": "打开原large大弹窗：业务类型、批次名称、原客户称呼/客户号码/联系备注/对应业务编码四字段，保留CSV选文件/粘贴名单→检查→确认布局；仅补leadCode/priority/可选R。",
+            "type": "response",
+            "api_id": null,
+            "condition": "身份/source/任务状态与原导入权限通过"
+          },
+          {
+            "step": 7,
+            "from": "operator",
+            "to": "ui",
+            "message": "选择业务类型、填写批次名称，选择CSV文件或粘贴/编辑名单；业务编码与leadCode分别保留，不输入DCC requestId/isNewBatch/root或关联配置。",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 8,
+            "from": "ui",
+            "to": "ui",
+            "message": "按现有CSV文件/文本通用安全和输入规则读取当前草稿；文件/文本/类型/必要字段变化使旧预览失效，当前文件读取/解析结果绑定当前草稿，不能套用旧名单。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "不恢复旧UI历史去重/分配/调度业务规则"
+          },
+          {
+            "step": 9,
+            "from": "operator",
+            "to": "ui",
+            "message": "点击原“检查名单”。",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 10,
+            "from": "ui",
+            "to": "service",
+            "message": "解析并检查当前草稿原四客户字段、leadCode及可选R；缺R不失败。可在原检查区呈现已解析行的priority待填写/调整状态，不因尚未统一填写priority锁死该输入入口；最终导入仍要求每个有效行priority必填。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "当前输入与身份/任务上下文一致"
+          },
+          {
+            "step": 11,
+            "from": "service",
+            "to": "ui",
+            "message": "返回绑定当前草稿的已解析行、失败行及priority待填写状态，保留原客户信息；解析失败/空结果清旧预览，待填priority可编辑但确认禁用，完成最终有效校验后才可提交。",
+            "type": "response",
+            "api_id": null,
+            "condition": "相应检查结果"
+          },
+          {
+            "step": 12,
+            "from": "operator",
+            "to": "ui",
+            "message": "在原检查区统一填写priority并可逐条调整最终值，不替换成新的纯文本导入界面，不开放提交后priority手改。",
+            "type": "request",
+            "api_id": null,
+            "condition": "当前已解析检查草稿仍匹配输入，尚在最终提交前；包括priority待填写的行，不以预先填写priority作为统一编辑入口条件"
+          },
+          {
+            "step": 13,
+            "from": "ui",
+            "to": "ui",
+            "message": "更新绑定同草稿的逐条最终priority并重核最终有效行；必填缺失/无有效行禁确认。改文件/文本/原必要字段重做检查，取消不提交，提交中锁定防重复。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 14,
+            "from": "operator",
+            "to": "ui",
+            "message": "确认当前检查通过的名单；取消则终止，无落账或旧名单提交。",
+            "type": "request",
+            "api_id": null,
+            "condition": "当前有效行及最终priority可提交"
+          },
+          {
+            "step": 15,
+            "from": "ui",
+            "to": "service",
+            "message": "确认提交当前草稿与逐条最终值；落账前复核身份/权限/source/租户任务、既有状态、当前输入与当前检查版本及最终priority。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "确认发起且未重复占用；真实内部路由未定"
+          },
+          {
+            "step": 16,
+            "from": "service",
+            "to": "ui",
+            "message": "复核失败/草稿失效/身份或任务变化时拒绝提交、清失效预览并给原因；不提交旧名单、不新增记录。",
+            "type": "response",
+            "api_id": null,
+            "condition": "最终守卫不通过"
+          },
+          {
+            "step": 17,
+            "from": "service",
+            "to": "service",
+            "message": "仅复核通过的有效行保存原基础信息/四客户字段和leadCode/最终priority/已给R、本地审计时间及独立record/单手机号batch；不添加DCC输入协议或通过初始导入绕过失败2次额度。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "原当前名单确认通过"
+          },
+          {
+            "step": 18,
+            "from": "service",
+            "to": "vendor",
+            "message": "同任务待提交按已保存最终priority高先/同级本地时间FIFO自动提交单号及必需供应商name等参数，保存本地batch→实际fileId；不将业务批/root当供应商fileId、不擅改isRepeat。",
+            "type": "external_call",
+            "api_id": "API-002",
+            "condition": "本地有效保存；已提交不撤回重排，未知不重复"
+          },
+          {
+            "step": 19,
+            "from": "vendor",
+            "to": "service",
+            "message": "返回原始result/description/errorCode和实际data.fileId/taskId/importTotal/successTotal/invalidTotal；仅真实已到响应记录，不伪造逐条全成功。",
+            "type": "response",
+            "api_id": "API-002",
+            "condition": "明确同步返回；无响应保持未知"
+          },
+          {
+            "step": 20,
+            "from": "service",
+            "to": "service",
+            "message": "保留准确同步成功及明确拒绝证据，未知/超时/矛盾待核；后续53分片关联与导出生命周期复用SEQ001/007，不把53导入拒绝当11类呼叫失败补提。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 21,
+            "from": "service",
+            "to": "ui",
+            "message": "展示原客户信息与新增字段最终值、本地record/batch和实际fileId及本次导入结果；手工仅平台查看、不向DCC回传，不显示DCC请求/root输入，不做每日衰减或提交后priority手改。",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          }
+        ],
+        "notes": [
+          "本轮G2已批准保留真实接口缺口，时序消费该S4事实；不是生产联调或G3冻结。所有real_call_allowed=false，只作静态合成原型。",
+          "外部API引用只承接已登记能力，不编造端点/鉴权/ACK、字段或权限矩阵；API009为本方内部记录/UI能力，无外部调用，消息api_id=null。",
+          "SRC095/101恢复原UI和原四客户字段，不恢复旧客户代码中的业务去重、分配、任务状态或供应商调度规则；原布局大弹窗保留。",
+          "原对应业务编码与新增leadCode独立，不默认合并。手工无DCCflag/request/root输入，不新增前台供应商排重或回调配置。",
+          "仅初始名单导入；八类已有失败记录人工重提交另走SEQ003/API011。SRC-109已确认沿原任务现有操作权限，有权运营/管理员在授权租户任务内可处理；初始导入入口不替代当前任务授权，真实鉴权仍missing。",
+          "CSV上传/粘贴、当前检查结果和最终行编辑始终绑定同一草稿；换文件、改文本、空/失败检查使旧预览失效，取消不提交，最终落账前重新核身份/source/任务与priority。",
+          "手工后续可信失败转SEQ003，自动三类与人工八类按同租户＋原任务＋服务端已保存线索编码＋固定手机号累计，共享首次之外最多2次；DCC新业务、另开主批、新子批或供应商fileId变化均不重置。 原对应业务编码不替代leadCode；历史四要素/累计证据不足待核。真实秒挂转SEQ004仅查看明确判定与原话单，不再次提交、不建计划/额度/子批。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-062",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-076",
+          "inputs/source-index.json#SRC-077",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-095",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-101",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-109"
+        ],
+        "review_history": [
+          {
+            "at": "2026-10-10T15:18:55+08:00",
+            "before_message": {
+              "step": 7,
+              "from": "service",
+              "to": "vendor",
+              "message": "逐条最终priority自动提交供应商原任务新批次",
+              "type": "external_call",
+              "api_id": "API-002",
+              "condition": "本地有效保存后"
+            },
+            "basis": "AC-046、SRC-076/077；手工提交同任务既有排序口径，不新增操作"
+          },
+          {
+            "at": "2026-10-11T09:32:22+08:00",
+            "basis": "手工仍提交前统一/逐条priority；删除取消的后续每日策略并保留请求/业务批与供应商映射边界",
+            "source_ref": "inputs/source-index.json#SRC-083",
+            "record_type": "draft_semantic_revision_not_approval"
+          },
+          {
+            "at": "2026-10-11T09:34:33+08:00",
+            "basis": "根确认DCC批次协议不扩展到手工输入；恢复既有手工范围，仅取消每日策略并保留provider映射",
+            "source_ref": "inputs/source-index.json#SRC-083",
+            "record_type": "draft_semantic_scope_correction_not_approval"
+          },
+          {
+            "date": "2026-10-12",
+            "change_id": "CH-DCC-20261012-SEQUENCE-GUARD-ALIGNMENT",
+            "before_messages": [
+              {
+                "step": 1,
+                "from": "service",
+                "to": "service",
+                "message": "提交任务后锁定DCC接口或手工一种来源；租户任务归属和既有可导入状态沿原基线校验，历史启动后补导不扩大。",
+                "type": "internal",
+                "api_id": null,
+                "condition": null
+              },
+              {
+                "step": 2,
+                "from": "operator",
+                "to": "ui",
+                "message": "在任务列表/任务内点击常驻“导入客户”入口，不从已有失败记录人工重提交入口进入。",
+                "type": "request",
+                "api_id": null,
+                "condition": "按当前选定任务锁定来源"
+              },
+              {
+                "step": 3,
+                "from": "ui",
+                "to": "service",
+                "message": "核当前身份/租户/任务、名单导入权限、source=手工及既有可导入状态。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "原名单导入权限，不由本轮补造角色矩阵"
+              },
+              {
+                "from": "service",
+                "to": "ui",
+                "message": "返回当前名单导入守卫结果；拒绝不落账，通过仅允许既有手工名单操作，不改变任务来源或赋予异常重提交权限。",
+                "type": "response",
+                "api_id": null,
+                "condition": "当前身份/权限/source/租户任务及既有可导入状态校验结果",
+                "step": 4
+              },
+              {
+                "step": 5,
+                "from": "ui",
+                "to": "operator",
+                "message": "无权、非手工或状态不可导入时入口禁用并说明，后端拒绝不落账；恢复UI不授权混入DCC来源。",
+                "type": "response",
+                "api_id": null,
+                "condition": "权限/来源/任务守卫不通过"
+              },
+              {
+                "step": 6,
+                "from": "ui",
+                "to": "operator",
+                "message": "打开原large大弹窗：业务类型、批次名称、原客户称呼/客户号码/联系备注/对应业务编码四字段，保留CSV选文件/粘贴名单→检查→确认布局；仅补leadCode/priority/可选R。",
+                "type": "response",
+                "api_id": null,
+                "condition": "身份/source/任务状态与原导入权限通过"
+              },
+              {
+                "step": 7,
+                "from": "operator",
+                "to": "ui",
+                "message": "选择业务类型、填写批次名称，选择CSV文件或粘贴/编辑名单；业务编码与leadCode分别保留，不输入DCC requestId/isNewBatch/root或关联配置。",
+                "type": "request",
+                "api_id": null,
+                "condition": null
+              },
+              {
+                "step": 8,
+                "from": "ui",
+                "to": "ui",
+                "message": "按现有CSV文件/文本通用安全和输入规则读取当前草稿；文件/文本/类型/必要字段变化使旧预览失效，当前文件读取/解析结果绑定当前草稿，不能套用旧名单。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "不恢复旧UI历史去重/分配/调度业务规则"
+              },
+              {
+                "step": 9,
+                "from": "operator",
+                "to": "ui",
+                "message": "点击原“检查名单”。",
+                "type": "request",
+                "api_id": null,
+                "condition": null
+              },
+              {
+                "step": 10,
+                "from": "ui",
+                "to": "service",
+                "message": "检查当前草稿的原四客户字段及新增leadCode/priority/R；缺R不失败，不做R字典维护或允许范围校验；priority独立必填。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "当前输入与身份/任务上下文一致"
+              },
+              {
+                "step": 11,
+                "from": "service",
+                "to": "ui",
+                "message": "返回绑定当前草稿的有效/失败行，保留原客户信息；无效行进入既有失败下载生命周期，检查失败/空结果清旧预览，确认禁用。",
+                "type": "response",
+                "api_id": null,
+                "condition": "相应检查结果"
+              },
+              {
+                "step": 12,
+                "from": "operator",
+                "to": "ui",
+                "message": "在原检查区统一填写priority并可逐条调整最终值，不替换成新的纯文本导入界面，不开放提交后priority手改。",
+                "type": "request",
+                "api_id": null,
+                "condition": "当前有效预览仍匹配草稿且在提交前"
+              },
+              {
+                "step": 13,
+                "from": "ui",
+                "to": "ui",
+                "message": "更新绑定同草稿的逐条最终priority；改文件/文本/原必要字段需重新检查，取消清当前预览不提交，提交中锁定避免重复。",
+                "type": "internal",
+                "api_id": null,
+                "condition": null
+              },
+              {
+                "step": 14,
+                "from": "operator",
+                "to": "ui",
+                "message": "确认当前检查通过的名单；取消则终止，无落账或旧名单提交。",
+                "type": "request",
+                "api_id": null,
+                "condition": "当前有效行及最终priority可提交"
+              },
+              {
+                "step": 15,
+                "from": "ui",
+                "to": "service",
+                "message": "确认提交当前草稿与逐条最终值；落账前复核身份/权限/source/租户任务、既有状态、当前输入与当前检查版本及最终priority。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "确认发起且未重复占用；真实内部路由未定"
+              },
+              {
+                "step": 16,
+                "from": "service",
+                "to": "ui",
+                "message": "复核失败/草稿失效/身份或任务变化时拒绝提交、清失效预览并给原因；不提交旧名单、不新增记录。",
+                "type": "response",
+                "api_id": null,
+                "condition": "最终守卫不通过"
+              },
+              {
+                "step": 17,
+                "from": "service",
+                "to": "service",
+                "message": "仅复核通过的有效行保存原基础信息/四客户字段和leadCode/最终priority/已给R、本地审计时间及独立record/单手机号batch；不添加DCC输入协议或通过初始导入绕过失败2次额度。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "原当前名单确认通过"
+              },
+              {
+                "step": 18,
+                "from": "service",
+                "to": "vendor",
+                "message": "同任务待提交按已保存最终priority高先/同级本地时间FIFO自动提交单号及必需供应商name等参数，保存本地batch→实际fileId；不将业务批/root当供应商fileId、不擅改isRepeat。",
+                "type": "external_call",
+                "api_id": "API-002",
+                "condition": "本地有效保存；已提交不撤回重排，未知不重复"
+              },
+              {
+                "step": 19,
+                "from": "vendor",
+                "to": "service",
+                "message": "返回原始result/description/errorCode和实际data.fileId/taskId/importTotal/successTotal/invalidTotal；仅真实已到响应记录，不伪造逐条全成功。",
+                "type": "response",
+                "api_id": "API-002",
+                "condition": "明确同步返回；无响应保持未知"
+              },
+              {
+                "step": 20,
+                "from": "service",
+                "to": "service",
+                "message": "保留准确同步成功及明确拒绝证据，未知/超时/矛盾待核；后续53分片关联与导出生命周期复用SEQ001/007，不把53导入拒绝当11类呼叫失败补提。",
+                "type": "internal",
+                "api_id": null,
+                "condition": null
+              },
+              {
+                "step": 21,
+                "from": "service",
+                "to": "ui",
+                "message": "展示原客户信息与新增字段最终值、本地record/batch和实际fileId及本次导入结果；手工仅平台查看、不向DCC回传，不显示DCC请求/root输入，不做每日衰减或提交后priority手改。",
+                "type": "response",
+                "api_id": null,
+                "condition": null
+              }
+            ],
+            "reason": "语义复核：外发前绑定执行权与预算；统一priority在最终确认前可填。接口事实未变。"
+          }
+        ]
+      }
+    },
+    {
+      "recorded_at": "2026-10-13",
+      "record_type": "S5_revalidation_metadata_and_documentary_boundaries_under_actual_Wiki_G2",
+      "previous_current_metadata": {
+        "status": "analysis_reviewed_SRC110_G2_gaps_retained",
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-062",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-076",
+          "inputs/source-index.json#SRC-077",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-095",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-101",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-109",
+          "inputs/source-index.json#SRC-110"
+        ],
+        "notes": [
+          "本次实际G2仅允许保留缺口继续S5～S7，证据runtime/g2-user-approval-SRC110-20261012.json；不是G3冻结、生产联调、真实账号权限变更或供应商能力verified。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "DCC接收/回传及应用接入整体延期，旧全文/参与方/消息/API关系保留decision_history或deferred_definition，不参与当前时序图集。",
+          "旧SEQ-001的供应商同步提交/数量/逐条证据与53事件关联、分片去重、导入失败分流已实际并入本SEQ消息22～30；延期SEQ001不再承担手工入口的公共依赖。前5条仅既有任务创建的独立意图，不会因再导名单重建任务。"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/g2-user-approval-SRC110-20261012.json",
+          "interface_fingerprint": "dca9200a363d11c23af0cf75ba04f55f8191626a638790827ef767d59b1df755",
+          "scope": "仅合成方案分析，真实缺口保持"
+        }
+      },
+      "previous_file_sha256": "2da3679046720c0e2daea5876486c54b8907bd8062396f0ff71312257af2e726",
+      "complete_prior_file_evidence": "runtime/wiki-g2-downstream-revalidation-20261013.json",
+      "reason": "当前6时序消息/参与方目的已逐条与新G2核验，保持124消息正文；仅补来源、取证/字段边界和当前批准绑定。"
+    },
+    {
+      "date": "2026-10-14",
+      "change_id": "CH-MANUAL-CODE-SOURCE-CORRECTION-20261014",
+      "source_refs": [
+        "inputs/source-index.json#SRC-117"
+      ],
+      "before_messages": {
+        "8": {
+          "from": "ui",
+          "to": "operator",
+          "message": "常驻入口无权/不可导入保留禁用和原因；可导入则打开原large弹窗：业务类型、批次名称、原客户称呼/客户号码/联系备注/业务编码。",
+          "type": "response",
+          "api_id": null,
+          "condition": "按本次守卫结果分支，不隐藏常驻入口或授权混入历史来源",
+          "step": 9,
+          "message_id": "SEQ-006-LOCAL-009",
+          "legacy_step": 9
+        },
+        "9": {
+          "from": "operator",
+          "to": "ui",
+          "message": "沿CSV选文件或粘贴/编辑名单，只增加leadCode、最终priority与可选R；原业务编码独立，不新增requestId/isNewBatch/root控制或模板下载。",
+          "type": "request",
+          "api_id": null,
+          "condition": "当前导入守卫通过",
+          "step": 10,
+          "message_id": "SEQ-006-LOCAL-010",
+          "legacy_step": 10
+        },
+        "12": {
+          "from": "ui",
+          "to": "service",
+          "message": "解析当前草稿原四客户字段、leadCode及可选R；通用CSV安全与输入校验保持，R缺失不失败。检查可先呈现priority待填行供原检查区统一/逐条填写。",
+          "type": "internal",
+          "api_id": null,
+          "condition": null,
+          "step": 13,
+          "message_id": "SEQ-006-LOCAL-013",
+          "legacy_step": 13
+        },
+        "19": {
+          "from": "service",
+          "to": "service",
+          "message": "仅复核通过的最终有效新业务行保存原基础信息/四客户字段、leadCode/最终priority/已给R和本地审计，独立recordId与单手机号batch；保存可核原root和来源，不覆盖旧记录，不以再次初始导入重置四元组失败累计账。 当前实际手工record保存可信手工来源并仅平台查看；失败attempt继承该原来源，换app或新主不重置准确同四元组预算。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "当前名单最终守卫通过",
+          "step": 20,
+          "message_id": "SEQ-006-LOCAL-020",
+          "legacy_step": 20
+        }
+      }
+    }
+  ],
+  "status": "S5_manual_code_correction_revalidated_production_gaps_retained",
+  "delivery_scope": "current_DCC_Tianwang_manual_record_origin_policy",
+  "business_rule_ids": [
+    "BR-002",
+    "BR-003",
+    "BR-004",
+    "BR-005",
+    "BR-006",
+    "BR-012",
+    "BR-013",
+    "BR-014",
+    "BR-015",
+    "BR-016",
+    "BR-018",
+    "BR-019",
+    "BR-021"
+  ],
+  "g2_analysis_continuation": {
+    "status": "approved_actual_reply",
+    "date": "2026-10-14",
+    "evidence": "runtime/manual-code-g2-user-approval-20261014.json",
+    "interface_fingerprint": "fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4",
+    "production_risk_accepted": false,
+    "real_calls_allowed": false,
+    "G3_approved": false
+  }
+}

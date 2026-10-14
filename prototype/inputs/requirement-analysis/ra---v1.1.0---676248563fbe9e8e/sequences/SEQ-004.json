@@ -1,0 +1,257 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-004",
+  "scenario_id": "SC-004",
+  "name": "客户秒挂识别与每次结果回传",
+  "participants": [
+    {
+      "id": "ui",
+      "name": "任务记录页（模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心（模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti（未实接）",
+      "kind": "external_system"
+    },
+    {
+      "id": "dcc",
+      "name": "DCC（未实接）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "vendor",
+      "to": "service",
+      "message": "本次事件/话单或SIP更新，保留原始证据",
+      "type": "event",
+      "api_id": "API-004",
+      "condition": "按锁定任务来源执行"
+    },
+    {
+      "step": 2,
+      "from": "service",
+      "to": "service",
+      "message": "按已保存当前record/batch→供应商fileId及tenant/原task/leadCode/固定phone精确关联结果，读取原request行/root；无话单可无callID，关联不明待核，不按后来最近主重算旧结果",
+      "type": "internal",
+      "api_id": null,
+      "condition": "按锁定任务来源执行"
+    },
+    {
+      "step": 3,
+      "from": "service",
+      "to": "service",
+      "message": "记录风控/话单/SIP/finishRetryFlag；未知不当0；秒挂按真实接通与客户主动挂断0～2秒识别",
+      "type": "internal",
+      "api_id": null,
+      "condition": "按锁定任务来源执行"
+    },
+    {
+      "step": 4,
+      "from": "service",
+      "to": "dcc",
+      "message": "接口来源每次结果/同对象晚更新回传固定地址，携原requestId/行定位/recordId/当前batchId/已存rootBatchId及真实call/稳定事件和原结果；供应商无需新增这些DCC字段，真实可靠交付待核",
+      "type": "external_call",
+      "api_id": "API-010",
+      "condition": "可信新结果或同对象可交付晚更新；任务锁定接口来源"
+    },
+    {
+      "step": 5,
+      "from": "service",
+      "to": "ui",
+      "message": "手工来源仅平台查看；回传成功/失败/待核可观察，重复及晚更新不算新呼叫",
+      "type": "response",
+      "api_id": null,
+      "condition": "手工来源仅平台查看；接口任务显示对应回传状态"
+    },
+    {
+      "step": 6,
+      "from": "dcc",
+      "to": "service",
+      "message": "DCC决定是否/何时再次业务导入；新请求级requestId及逐行isNewBatch可选Boolean（缺省false）、同组固定phone、本次priority；不传父批字段，无平台计时/额度",
+      "type": "event",
+      "api_id": "API-001",
+      "condition": "DCC决定再次导入；复用SEQ-001接收契约，不保证供应商换主叫或重呼结果"
+    },
+    {
+      "step": 7,
+      "from": "service",
+      "to": "service",
+      "message": "鉴权/source/tenant/task校验后先按flag missing=false归一请求去重；同ID同内容回原逐行record/batch/root，异内容整重复请求拒绝；仅新ID逐行归组，改phone/历史关联不明不提交",
+      "type": "internal",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 8,
+      "from": "service",
+      "to": "dcc",
+      "message": "每有效新业务行总新record/batch：true新主root=batch；false/missing有同组已保存主则子直接root=按创建序列最近主，无主自动首主；重传返原root，不因新主变化重算，不重交供应商",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "按SEQ-001执行新请求或读取原结果"
+    }
+  ],
+  "notes": [
+    "G3未批准；仅结构化业务草稿，不实际发请求；DCC决策重导，供应商内部尝试完整性/链范围及可靠回传待核。",
+    "SRC-084/085/086主子归组/flag默认与请求幂等为本方业务确认；旧主子及旧请求root保留，不自动复用供应商fileId或改isRepeat。真实排重、旧批在途/并行及finishRetryFlag范围仍待核，不增先删或等最后一通门禁。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070",
+    "inputs/source-index.json#SRC-083",
+    "inputs/source-index.json#SRC-084",
+    "inputs/source-index.json#SRC-085",
+    "inputs/source-index.json#SRC-086"
+  ],
+  "review_history": [
+    {
+      "at": "2026-10-11T09:32:22+08:00",
+      "basis": "本次结果关联及DCC真重导采用明确requestId/previousBatchId，不继承旧日期/priority策略",
+      "source_ref": "inputs/source-index.json#SRC-083",
+      "record_type": "draft_semantic_revision_not_approval"
+    }
+  ],
+  "decision_history": [
+    {
+      "at": "2026-10-11T10:08:12+08:00",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-004",
+        "scenario_id": "SC-004",
+        "name": "客户秒挂识别与每次结果回传",
+        "participants": [
+          {
+            "id": "ui",
+            "name": "任务记录页（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（未实接）",
+            "kind": "external_system"
+          },
+          {
+            "id": "dcc",
+            "name": "DCC（未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "vendor",
+            "to": "service",
+            "message": "本次事件/话单或SIP更新，保留原始证据",
+            "type": "event",
+            "api_id": "API-004",
+            "condition": "按锁定任务来源执行"
+          },
+          {
+            "step": 2,
+            "from": "service",
+            "to": "service",
+            "message": "按已保存业务batchId→供应商fileId映射及tenant/task/leadCode/phone准确关联，读取requestId/parentBatchId/rootBatchId；无话单允许无callID，关联不明待核，不按最近同号猜父",
+            "type": "internal",
+            "api_id": null,
+            "condition": "按锁定任务来源执行"
+          },
+          {
+            "step": 3,
+            "from": "service",
+            "to": "service",
+            "message": "记录风控/话单/SIP/finishRetryFlag；未知不当0；秒挂按真实接通与客户主动挂断0～2秒识别",
+            "type": "internal",
+            "api_id": null,
+            "condition": "按锁定任务来源执行"
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "dcc",
+            "message": "接口来源每次结果及晚更新向后台固定地址回传，携requestId/行定位/batchId/parentBatchId/rootBatchId及原始结果；实际端点/字段/可靠交付未验证",
+            "type": "external_call",
+            "api_id": "API-010",
+            "condition": "可信新结果或同对象可交付晚更新；任务锁定接口来源"
+          },
+          {
+            "step": 5,
+            "from": "service",
+            "to": "ui",
+            "message": "手工来源仅平台查看；回传成功/失败/待核可观察，重复及晚更新不算新呼叫",
+            "type": "response",
+            "api_id": null,
+            "condition": "手工来源仅平台查看；接口任务显示对应回传状态"
+          },
+          {
+            "step": 6,
+            "from": "dcc",
+            "to": "service",
+            "message": "DCC自行决定是否/何时真重导；新请求级requestId、逐行精确previousBatchId及本次priority；无平台倒计时/额度",
+            "type": "event",
+            "api_id": "API-001",
+            "condition": "DCC决定再次导入；复用SEQ-001接收契约，不保证供应商换主叫或重呼结果"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "service",
+            "message": "鉴权后先核requestId完整内容：同内容重传返回原结果，异内容拒绝；仅新请求查历史链，已有同tenant/task/leadCode/phone必须明确previousBatchId且精确父归属一致；缺父/不明/不符拒绝或待核不提交，不新根、不猜最近同号",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 8,
+            "from": "service",
+            "to": "dcc",
+            "message": "有效真重导返回新batchId、parentBatchId=previousBatchId及父rootBatchId，采用本次DCCpriority；同请求重传返回原已保存逐行结果/同批映射，不重交供应商",
+            "type": "response",
+            "api_id": "API-001",
+            "condition": "按SEQ-001执行新请求或读取原结果"
+          }
+        ],
+        "notes": [
+          "G3未批准；仅结构化业务草稿，不实际发请求；DCC决策重导，供应商内部尝试完整性/链范围及可靠回传待核。",
+          "SRC-083已确认本方显式父根/请求幂等业务协议；真实供应商关联、SIP晚更新与可靠回传仍待核。本批priority采用本次DCC值，平台每日衰减取消；旧批历史保留，G3等待本轮重新核验确认。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "reason": "用户最新主/子根归组方案替代SRC-083逐行指定父批方案；旧事实只作历史，新G3未批准。",
+      "record_type": "draft_business_revision_not_approval"
+    }
+  ]
+}

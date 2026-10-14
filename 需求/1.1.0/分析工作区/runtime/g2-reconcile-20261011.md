@@ -1,0 +1,1 @@
+G2沿先前SRC084～086本方批次/幂等确认，补SRC087用户明确应用密钥用于token目的；API001外部字段/端点/鉴权证据不新增，source_scenario只扩展已要求的SC005及用途notes，仍missing。所有供应商request/response/status/timeout/idempotency/error事实不变，partial保留。只确认本方业务边界及合成演示风险，不证明生产密钥/CRUD/token撤销真实能力，不是G3。

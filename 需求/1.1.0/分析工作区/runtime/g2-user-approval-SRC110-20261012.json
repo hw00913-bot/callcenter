@@ -1,0 +1,377 @@
+{
+  "schema_version": "1.0",
+  "source": "actual_user_question_reply",
+  "question_item_id": "[\"request_user_input_async\",\"call_Dp0OzhpIfDi2Coc5XE08CI86\",0]",
+  "question": "是否批准新的 G2，按已更新的指定记录删除、失败补提交和未知结果处理接口方案继续 S5 时序、S6 页面、S7 功能对齐？DCC 与应用接入已延期，现有任务权限和首次外共享 2 次不变；AliCti 及浏览器视觉缺口继续保留，仅合成演示，不代表 G3 冻结。",
+  "answer": "批准 G2，保留缺口继续 S5～S7",
+  "interface_fingerprint": "dca9200a363d11c23af0cf75ba04f55f8191626a638790827ef767d59b1df755",
+  "interface_file_sha256": "4d55221272d56426a2dcf98b4098cc6c118515c219831c92e30637697fe1833d",
+  "review": "outputs/G2集中审阅方案.md",
+  "review_sha256": "af2d3f919fbc0b370d7b87c3713fe92b2644047e1dc7677261bb264494b11cb9",
+  "reviewed_proposal_rows": {
+    "API-011": {
+      "id": "API-011",
+      "name": "已失败记录人工异常重提交",
+      "provider": "本平台内部",
+      "source_scenario_ids": [
+        "SC-003"
+      ],
+      "used_by_sequence_ids": [],
+      "verification_status": "missing",
+      "source_refs": [
+        "inputs/source-index.json#SRC-089",
+        "inputs/source-index.json#SRC-090",
+        "inputs/source-index.json#SRC-091",
+        "inputs/source-index.json#SRC-092",
+        "inputs/source-index.json#SRC-093",
+        "inputs/source-index.json#SRC-094",
+        "inputs/source-index.json#SRC-096",
+        "inputs/source-index.json#SRC-099",
+        "inputs/source-index.json#SRC-102",
+        "inputs/source-index.json#SRC-103",
+        "inputs/source-index.json#SRC-106",
+        "inputs/source-index.json#SRC-109",
+        "inputs/source-index.json#SRC-110"
+      ],
+      "request_fields": [
+        "failedRecordId：拟定的既有准确失败处理对象标识，不是新名单或前台手机号输入",
+        "actionId：拟定人工操作幂等标识；同授权业务作用域/同ID同内容复用已保存attempt，异内容冲突不再次提交",
+        "expectedVersion：拟定失败对象版本，须与当前可操作对象一致；不能以旧稿/旧状态操作",
+        "confirmed：拟定Boolean明确确认意图，仅true进入实际服务端守卫；false/缺失不发起",
+        "原tenant/原task/保存leadCode/原phone（预算四要素）、source/root/priority/失败原因及预算均从服务端已保存对象读取；前台不能换scope、补猜线索编码或修改预算，操作身份来自认证上下文。"
+      ],
+      "response_fields": [
+        "拟定actionId/failedRecordId/currentVersion和原或本次attemptId（未创建时null）",
+        "disposition：拟定本次处理结果，含未确认/拒绝/待核/原处理复用/已安排或已执行；不把命令接收当供应商受理",
+        "state与reason：拟定等待/待核/执行/明确受理/明确拒绝/停止及明确原因，不伪造未知fileId",
+        "budget.used/reserved/available仍为拟定服务端字段，max=2；按同租户＋原task＋保存leadCode＋原phone跨主子批累计，未知占用保留。作用域业务已确认，真实聚合/持久化实现未验证。",
+        "实际supplier fileId仅在准确响应与映射存在时返回；原root/source/task/priority沿保存事实，前台不能改",
+        "四要素或累计/占用证据不可信时budget可unknown/null，不默认used=0/available=2。root关联不足仍阻断准确执行，但不按root重建预算；available只是算术值，未知占用仍禁止重发。"
+      ],
+      "auth": "人工八类沿该任务现有操作权限，由有该任务权限的运营人员或管理员执行；每次服务端核实身份及授权租户/原任务/准确记录范围和当前任务操作权限。角色身份、按钮可见、记录历史来源或初始名单导入入口本身不替代该任务当前授权；不新增角色、赋予真实账号权限或放开跨租户操作。 真实鉴权机制、路由和后端权限执行仍missing，本次业务选择不证明真实账号授权或服务已实现。",
+      "timeout": "未知结果保留原计划/尝试占用待核，人工重复点击不视为新业务补提交。",
+      "idempotency": "拟定在经认证且授权对象范围内按actionId核完整命令内容：同ID同内容返回原处理/attempt及其当前状态，不再次外发；同ID异内容拒绝冲突。expectedVersion不匹配或confirmed不为true不发起。不同actionId仍受同失败对象有效尝试和共享预算原子守卫约束，不能通过换ID/操作者重置额度。正式命名空间、持久化及事务方式待工程落实。 同ID同内容先返回原动作对应尝试的当前状态，即使对象后来升版也不重发；只有新的actionId才校验expectedVersion是否等于当前对象版本。前置身份/对象授权每次仍必核。 同四要素跨主批共享额度；不同actionId/failedRecordId或操作者、M1/M2新主均受同一预算已用/预占/未知守卫。actionId命名空间仍待工程确认，不把四要素预算直接冒充传输幂等键。",
+      "rate_limit": "首次外最多2次业务失败补提交；接口流量/频率保护待工程落实，不与三天五呼混用。",
+      "errors": [
+        "拟定业务反馈类别（不是已确认HTTP码）：NOT_CONFIRMED / PERMISSION_DENIED / PERMISSION_UNCONFIRMED / TARGET_NOT_FOUND / VERSION_CONFLICT / ACTION_CONTENT_CONFLICT / NOT_MANUAL_CAUSE / BUDGET_EXHAUSTED / ALREADY_PROCESSING / TASK_PAUSED / TASK_STOPPED / TARGET_CANCELLED / ASSOCIATION_UNCONFIRMED / DISPATCH_UNCERTAIN / PROVIDER_EXECUTION_UNCONFIRMED；名称待评审。"
+      ],
+      "notes": [
+        "SRC-102仅其余8类提供人工异常重提交，不是重新录入初始名单，不恢复已锁定任务的来源混用；3类自动有自身120秒安排。",
+        "失败3类自动与8类人工按同租户＋原任务＋已保存线索编码＋原手机号累计共享首次之外最多2次；同组合新增业务记录、另开主批及新子批均不重置。原因、方式、操作者、原导入审计ID/内部attemptId/供应商fileId/主子编号、重复事件、下载清理或取消变化不发新额度。实际新的业务补提交才计已用；预占不等已用，未知保持同槽占用。三天五呼仅供应商任务配置状态触发的正常重呼，失败补提交不计入；秒挂只本地分类/查看，无平台补提交预算或计划。",
+        "按可信事件与已保存tenant/原task/原始号码/实际fileId/业务记录映射定位触发对象；保存其原root及原来源。内部重导使用新内部业务尝试标识及必要新子批，直接关联触发记录保存的root，后来新主不重算旧root，不新增第三层，不伪造新导入请求。实际技术字段名/原子键由开发落实。",
+        "复用API-002供应商提交与API-009本地记录/结果查看；不再复用延期API-010交付。SRC-109业务角色/四要素额度维持；method/path、正式服务认证、稳定事件和原子并发尚未实现或验证，保持missing。",
+        "命令/版本/反馈的Agent工程提案曾获上轮G2保留缺口继续分析；本次DCC延期和删除入口改动导致接口事实变化，当前候选需新的G2，不继承旧批准。生产method/route不填，本轮不新授予账号权限。",
+        "S4新提案继续待新的G2；contract_status=proposed_review_pending保持。字段/反馈/路由为工程建议，不填生产method/route。人工按SRC109既有任务权限，不实际新授予角色或账号权限。",
+        "actionId/expectedVersion是后台命令元数据，不增加前台技术输入框；用户仍只选择已有八类失败记录并明确确认，不新增名单、手机号/priority/root编辑或秒挂补提交按钮。",
+        "必须先验身份/对象权限与tenant范围，再核actionId完整内容和当前目标状态。返回原attempt不代表可以跳过当前读取/操作授权；跨租户或无权不能借幂等键获取原结果。",
+        "自动3类与人工8类按四要素跨主批共max=2；used只计已证明实际发起，reserved是有效预占/是否外发不明的占用，available=max-used-reserved且不负。同槽不双计，实际已发起回应未知留used、外发边界不明留reserved，不能释放重发。历史账不可信返回unknown，不按新root初始化。",
+        "外发前原子保存同尝试独占执行权和预算预占，尚未实际发起不记used。证明实际发起后同槽转used，明确拒绝也算一次；无法证明是否发起则保持DISPATCH_UNCERTAIN及占用。只有证明根本未外发的取消/准备失败可释放预占，不能因供应商无话单、拒绝、无待呼叫或finishRetryFlag释放已用。",
+        "本方事务不证明AliCti恰好受理一次；默认禁止在未知后另建尝试或自动重发导入。可信受理核查/供应商请求幂等仍待API002/003及ISSUE035/037/038核实，不编造新查询端点，不默认isRepeat=0。",
+        "固定触发记录保存root/source/task/priority，M1旧失败仍关联M1，即使已有M2；预算另按租户＋原task＋保存leadCode＋原phone与M2共享。预算四要素从服务端保存对象读取；旧手工缺可信leadCode或四要素/累计已用及未知占用证据不能准确恢复时待核，预算可unknown/null，不以原对应业务编码、空值、recordId/rootBatchId或新生成线索编码替代，不默认used=0/available=2，不创建重提来补猜。root独立用于触发记录关联与子批归属，M1/M2同组共用预算且各自保留触发root；仅root关联不足时仍阻断该记录执行，不按新root建立新预算。 人工八类沿该任务现有操作权限，由有该任务权限的运营人员或管理员执行；每次服务端核实身份及授权租户/原任务/准确记录范围和当前任务操作权限。角色身份、按钮可见、记录历史来源或初始名单导入入口本身不替代该任务当前授权；不新增角色、赋予真实账号权限或放开跨租户操作。",
+        "保持暂停挂起、终止/准确目标明确取消停止待执行，服务端在人工确认和实际外发前都核生命周期/预算/关联/供应商执行权；已受理在途撤回未核不宣称完成。DCC交付延期；本地结果刷新不重导。",
+        "available为可信四要素累计预算的算术剩余，不代表当前记录可立即提交；任一有效尝试的提交/占用未知继续按既有守卫阻断，即使available显示1不可绕过。",
+        "预算四要素从服务端保存对象读取；旧手工缺可信leadCode或四要素/累计已用及未知占用证据不能准确恢复时待核，预算可unknown/null，不以原对应业务编码、空值、recordId/rootBatchId或新生成线索编码替代，不默认used=0/available=2，不创建重提来补猜。root独立用于触发记录关联与子批归属，M1/M2同组共用预算且各自保留触发root；仅root关联不足时仍阻断该记录执行，不按新root建立新预算。",
+        "expectedVersion用于新的操作并发守卫；同actionId同内容重放读取该动作原attempt的当前状态，不因随后版本升高另建或误当新命令。confirmed仅接受Boolean true，不隐式转换字符串或非Boolean。",
+        "PERMISSION_UNCONFIRMED若保留，只表示运行时不能核验具体任务授权，不再表示用户尚未决定人工角色；所有错误名称和HTTP映射仍为提案。"
+      ],
+      "endpoint": null,
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "real_call_allowed": false,
+      "business_manual_causes": [
+        "无可用中继",
+        "bad tel",
+        "真实号码为空！",
+        "no clid",
+        "bad clid",
+        "无可用中继信息",
+        "wrong obClidGroup",
+        "bad timeout range"
+      ],
+      "failure_budget_ref": "API-002.exception_reimport_contract",
+      "scope_relation": "active_internal_business_operation; not_a_new_supplier_redial_endpoint",
+      "contract_status": "proposed_review_pending",
+      "method": null,
+      "proposed_contract": {
+        "status": "proposed_review_pending",
+        "intent_traceability": {
+          "story_ids": [
+            "US-005",
+            "US-007"
+          ],
+          "acceptance_ids": [
+            "AC-064",
+            "AC-065",
+            "AC-066",
+            "AC-067",
+            "AC-068",
+            "AC-070",
+            "AC-073",
+            "AC-074",
+            "AC-076",
+            "AC-077",
+            "AC-078"
+          ],
+          "source_refs": [
+            "inputs/source-index.json#SRC-089",
+            "inputs/source-index.json#SRC-092",
+            "inputs/source-index.json#SRC-093",
+            "inputs/source-index.json#SRC-094",
+            "inputs/source-index.json#SRC-102",
+            "inputs/source-index.json#SRC-103",
+            "inputs/source-index.json#SRC-109",
+            "inputs/source-index.json#SRC-110"
+          ]
+        },
+        "naming_authority": "命令/版本/反馈字段是Agent建议。SRC102确认已有八类人工，SRC109确认失败四要素累计、新主不重置及沿任务现有权限由有权运营/管理员执行；具体路由/鉴权/审计/持久化与并发实现仍待评审。",
+        "command_fields": {
+          "failedRecordId": "既有可信失败处理对象ID",
+          "actionId": "操作幂等ID，不作额度ID",
+          "expectedVersion": "当前对象版本，正整数的命名/约束待工程确认",
+          "confirmed": "仅明确true可进入实际执行守卫"
+        },
+        "server_owned_fields": [
+          "原tenant",
+          "原task",
+          "保存leadCode",
+          "原phone",
+          "source",
+          "保存root（本次触发关联，不是预算ID）",
+          "保存priority",
+          "已确认失败原因和事件关联",
+          "按租户＋原task＋保存leadCode＋原phone跨主批累计的共享预算",
+          "当前任务/对象与尝试状态"
+        ],
+        "guards": [
+          "人工八类沿该任务现有操作权限，由有该任务权限的运营人员或管理员执行；每次服务端核实身份及授权租户/原任务/准确记录范围和当前任务操作权限。角色身份、按钮可见、记录历史来源或初始名单导入入口本身不替代该任务当前授权；不新增角色、赋予真实账号权限或放开跨租户操作。 当前授权证据无法核实时待核。",
+          "原因属于人工八类；三类自动和秒挂不使用此命令。",
+          "先判actionId完整内容：同内容返回原动作attempt（随后对象升版不新发），异内容冲突；仅新动作要求expectedVersion当前一致且confirmed为Boolean true。",
+          "可信准确记录/事件/实际fileId和原root，读服务端保存四要素；旧手工缺leadCode或身份/根映射不足待核，不补业务编码/空值/新root或改号来新发额度。",
+          "按同租户＋原task＋保存leadCode＋原phone原子核验累计used/reserved/未知占用、有效尝试及任务/目标生命周期；外发前预占与独占执行权，多个root共用预算，尚未发起不记used。",
+          "实际外发前复核同号受理/排重和原生/导航执行互斥；未核不宣称生产安全。"
+        ],
+        "proposed_dispositions": [
+          "NOT_CONFIRMED",
+          "REJECTED",
+          "PENDING_REVIEW",
+          "REPLAYED",
+          "ACCEPTED_FOR_PROCESSING",
+          "DISPATCHED"
+        ],
+        "unknown_recovery": "已证明实际发起的unknown保留used；无法证明是否实际发起则保留reserved。两者都锁定同一attempt/预算槽，先核查不新发。只有证明未发起可按同原子协议释放预占；明确拒绝仍计已用。没有可信核查能力则待核，不创建强制释放/重提UI。",
+        "examples": [
+          {
+            "kind": "synthetic_command",
+            "payload": {
+              "failedRecordId": "DEMO_FAILURE_001",
+              "actionId": "DEMO_ACTION_001",
+              "expectedVersion": 3,
+              "confirmed": true
+            }
+          },
+          {
+            "kind": "synthetic_unknown_after_proven_dispatch",
+            "payload": {
+              "actionId": "DEMO_ACTION_001",
+              "failedRecordId": "DEMO_FAILURE_001",
+              "currentVersion": 4,
+              "attemptId": "DEMO_ATTEMPT_001",
+              "disposition": "PENDING_REVIEW",
+              "state": "PROVIDER_RESPONSE_UNKNOWN",
+              "reason": "DISPATCH_PROVEN_RESPONSE_UNCONFIRMED",
+              "budget": {
+                "max": 2,
+                "used": 1,
+                "reserved": 0,
+                "available": 1
+              },
+              "supplierFileId": null
+            }
+          },
+          {
+            "kind": "synthetic_unknown_dispatch_boundary",
+            "payload": {
+              "actionId": "DEMO_ACTION_002",
+              "failedRecordId": "DEMO_FAILURE_002",
+              "currentVersion": 4,
+              "attemptId": "DEMO_ATTEMPT_002",
+              "disposition": "PENDING_REVIEW",
+              "state": "DISPATCH_UNCERTAIN",
+              "reason": "ACTUAL_DISPATCH_UNCONFIRMED",
+              "budget": {
+                "max": 2,
+                "used": 0,
+                "reserved": 1,
+                "available": 1
+              },
+              "supplierFileId": null
+            }
+          }
+        ],
+        "open_implementation_boundaries": [
+          "人工角色和四要素预算业务口径已由SRC109确认；具体后端鉴权/审计、预算技术键序列化/持久化/唯一性及原子并发尚未验证，不以本提案升级missing。",
+          "method/route/正式认证机制、actionId作用域、持久化/事务及版本并发处理尚未实现。",
+          "实际发起证据和reserved→used、取消恢复需要工程验证；供应商可核查受理/事件与在途能力仍partial。",
+          "API002导入与API009本地记录/结果被复用，不新增供应商HTTP任务重呼控制或新UI操作。",
+          "available只是算术值；四要素或累计占用证据不可恢复时用量unknown/null，执行仍依赖全部守卫。root不足独立阻断准确关联/执行，不按新root发两次额度。"
+        ],
+        "failure_budget_business_scope": {
+          "status": "business_confirmed_implementation_pending",
+          "source_refs": [
+            "inputs/source-index.json#SRC-109"
+          ],
+          "identity": "同租户＋原任务＋服务端保存leadCode＋原phone",
+          "extra_submission_limit": 2,
+          "initial_submission_included": false,
+          "new_root_resets": false,
+          "raw_trigger_root_unchanged": true,
+          "legacy_unknown": "预算四要素从服务端保存对象读取；旧手工缺可信leadCode或四要素/累计已用及未知占用证据不能准确恢复时待核，预算可unknown/null，不以原对应业务编码、空值、recordId/rootBatchId或新生成线索编码替代，不默认used=0/available=2，不创建重提来补猜。root独立用于触发记录关联与子批归属，M1/M2同组共用预算且各自保留触发root；仅root关联不足时仍阻断该记录执行，不按新root建立新预算。",
+          "technical_key_naming": "预算技术键/持久化/索引为工程实现待核；不是新增前台字段或已验证生产协议。"
+        }
+      },
+      "delivery_scope": "current_internal_failure_manual_command"
+    },
+    "API-014": {
+      "id": "API-014",
+      "name": "指定记录人工精准删除命令（本平台内部提案）",
+      "provider": "本平台内部",
+      "source_scenario_ids": [
+        "SC-006"
+      ],
+      "used_by_sequence_ids": [],
+      "verification_status": "missing",
+      "source_refs": [
+        "inputs/source-index.json#SRC-110",
+        "inputs/source-index.json#SRC-107"
+      ],
+      "endpoint": null,
+      "method": null,
+      "request_fields": [
+        "recordId：拟定本次指定已保存记录ID，不接收自由填写手机号/任务/fileId/root",
+        "actionId：拟定操作幂等ID；同授权作用域同ID同命令复用原动作",
+        "expectedVersion：拟定指定记录当前可操作版本，仅新动作核当前一致",
+        "confirmed：拟定Boolean确认，只有true进入删除执行守卫；不隐式转换",
+        "认证身份来自平台现有登录上下文；原租户/任务、source/固定phone、保存root、实际fileId与相关attempt、当前执行状态和共享预算均由服务端准确记录读取"
+      ],
+      "response_fields": [
+        "拟定actionId/recordId/currentVersion及原或本次deleteAttemptId；未建时null",
+        "拟定localPlanDisposition：尚未实际发起的该目标计划是否已停止，与远端删除分开",
+        "拟定remoteDisposition：待核/未发起/明确删除/明确跳过/明确拒绝/发起或响应未知，不能单凭result=0标全删",
+        "准确关联时保存供应商原result/description/errorCode/skippedCallingTels；不伪造fileId、在途撤回或全组取消",
+        "拟定reason和当前状态来自已保存原动作；历史审计/话单/映射/失败已用及未知占用保留"
+      ],
+      "auth": "沿用该任务现有操作权限，由有该任务权限的运营或管理员执行；服务端每次核实认证身份、授权租户/原任务和指定记录范围。按钮可见、角色称谓或记录历史来源不能替代当前授权；不新增角色、不变更真实账号权限、不授予跨租户操作。正式本方认证、路由及权限执行仍待工程核验。",
+      "timeout": "未知结果保持原删除动作与固定目标待核；不重发、不扩大目标、不创建新action以绕过未知。可信受理核查/结果恢复仍无生产协议。",
+      "idempotency": "每次先认证并核当前对象授权/tenant/task范围；拟定同actionId同完整命令返回原动作当前状态，同ID异内容拒绝。只有新action才核expectedVersion与Boolean true确认。不同actionId仍须目标有效操作、准确映射和执行权原子守卫；同操作重放不重复远端删除，真实键作用域/持久化/并发尚未定。",
+      "rate_limit": "本方接口访问频率待工程定义；删除不计失败补提交次数，不恢复已用或发放新预算。",
+      "errors": [
+        "拟定业务反馈类别，不是正式HTTP码：NOT_CONFIRMED / PERMISSION_DENIED / PERMISSION_UNCONFIRMED / TARGET_NOT_FOUND / VERSION_CONFLICT / ACTION_CONTENT_CONFLICT / ASSOCIATION_UNCONFIRMED / EXACT_SELECTOR_UNAVAILABLE / ALREADY_PROCESSING / EXECUTION_UNCONFIRMED / REMOTE_SKIPPED / REMOTE_REJECTED / DELETE_DISPATCH_UNCERTAIN"
+      ],
+      "notes": [
+        "SRC-110明确仅有原任务权限运营或管理员可删除指定记录；新增内部命令是承接该独立业务操作的工程建议，非新增供应商接口、应用凭证或本平台token。",
+        "前台仅在已有任务/记录上下文选择指定记录并确认；技术字段后台生成，不增加自由输入供应商taskId/fileId/root、tels、整组或整任务删除入口。",
+        "服务端保存固定本次目标，准确记录/实际供应商fileId及phone/root关联不足、同fileId多attempt无法精确选择时待核，不以同号、最新主批、fileName或status扩大目标。",
+        "API-006选择器是优先级，不是tels与fileId的AND。独占精确fileId按批删除仍为待核候选；skipCalling/skipRetry生产选值未定、二者不能同为1，不采用文档默认当项目决策。",
+        "在确认与实际远端外发前原子复核目标版本、当前授权、生命周期、准确映射及与失败提交/供应商在途的执行权；准确授权意图只停止这个目标尚未执行计划，不能停止同root或同号其他目标。",
+        "预算守卫用于防并发重导和保留原用量/预占，不把available>0作为删除资格；删除不清已用、不重置跨主批四要素预算。已证明未发起的计划才可按既有原子协议取消/释放原预占，是否发起未知占用不释放。",
+        "明确远端跳过/拒绝/未知单独记录，原供应商result=0不替代目标结果检查。数据库删除不证明在途通话中止或正常重呼取消；不新增先删后导、强制停止或供应商解禁策略。",
+        "原话单、秒挂分类、旧来源审计、触发root、actual fileId、内部attempt、幂等和预算证据仍保留；本轮只本地结果/进度查看，不向DCC回传。",
+        "当前上游US-008/SC-006及AC-016/024/025/061已合入：保留原稳定AC ID；该内部命令承接有原任务权限运营/管理员的指定记录精准删除，不新增功能或另建权限方案。切换目标/合成返回样例须清旧前台反馈，旧对象已保存业务证据不清。"
+      ],
+      "business_contract_status": "manual_target_and_existing_permission_business_confirmed_implementation_pending",
+      "contract_status": "proposed_review_pending_new_G2",
+      "real_call_allowed": false,
+      "scope_relation": "current_independent_internal_manual_target_delete_command; reuses_API006_supplier_delete_without_expanding_supplier_scope",
+      "delivery_scope": "current_internal_and_manual_delivery",
+      "issue_ids": [
+        "ISSUE-022",
+        "ISSUE-035",
+        "ISSUE-037",
+        "ISSUE-038"
+      ],
+      "proposed_contract": {
+        "status": "proposed_review_pending_new_G2",
+        "source_refs": [
+          "inputs/source-index.json#SRC-110",
+          "inputs/source-index.json#SRC-107"
+        ],
+        "command_fields": {
+          "recordId": "指定已保存记录ID",
+          "actionId": "操作幂等ID",
+          "expectedVersion": "新动作的当前对象版本",
+          "confirmed": "仅Boolean true可进入执行"
+        },
+        "server_owned_fields": [
+          "原tenant",
+          "原task",
+          "source",
+          "固定phone",
+          "保存root",
+          "指定记录实际fileId及attempt映射",
+          "当前任务/目标/删除/失败尝试状态",
+          "四要素失败已用及未知预占（删除不重置）"
+        ],
+        "guards": [
+          "沿用该任务现有操作权限，由有该任务权限的运营或管理员执行；服务端每次核实认证身份、授权租户/原任务和指定记录范围。按钮可见、角色称谓或记录历史来源不能替代当前授权；不新增角色、不变更真实账号权限、不授予跨租户操作。正式本方认证、路由及权限执行仍待工程核验。",
+          "先核同actionId完整内容，原动作重放不二次外发；仅新动作校验当前版本和确认。",
+          "固定本次指定记录；准确保存映射、独占fileId选择器及相关执行权不可证时待核，不扩大按同号/整root删除。",
+          "在本方原子边界内阻止本次目标未执行计划并锁同对象变更/补提交，实际远端外发前重核状态；供应商并发/在途撤回依然partial。",
+          "保留跨主批四要素用量及未知预占；只有证明未外发的取消才按同协议释放原预占，不另发额外2次。"
+        ],
+        "remote_selector_ref": "API-006.documented_selector_contract",
+        "remote_unknown_recovery": "沿原deleteAttempt和原精确目标保存未知，可信查证不足时待核，不另发deleteTaskTel/新动作重试，不扩大目标。",
+        "lifecycle_boundary": "本地方停止尚未执行目标计划与供应商实际删除不同；真实在途通话/正常重呼是否停止未核。",
+        "examples": [
+          {
+            "kind": "synthetic_command",
+            "payload": {
+              "recordId": "DEMO_RECORD_001",
+              "actionId": "DEMO_DELETE_ACTION_001",
+              "expectedVersion": 3,
+              "confirmed": true
+            }
+          },
+          {
+            "kind": "synthetic_remote_unknown",
+            "payload": {
+              "recordId": "DEMO_RECORD_001",
+              "actionId": "DEMO_DELETE_ACTION_001",
+              "currentVersion": 4,
+              "deleteAttemptId": "DEMO_DELETE_ATTEMPT_001",
+              "localPlanDisposition": "STOPPED_BEFORE_DISPATCH",
+              "remoteDisposition": "UNKNOWN",
+              "reason": "DELETE_RESPONSE_UNCONFIRMED"
+            }
+          }
+        ],
+        "open_implementation_boundaries": [
+          "method/route、现有登录机制的真实认证与服务端权限执行未核，不创建新token/auth方案。",
+          "actionId作用域、目标版本/执行权和持久化原子协议待工程实现；幂等建议不证明远端恰好一次。",
+          "独占fileId的实际精准边界、skipCalling/skipRetry选值、供应商在途效果及可靠未知查证待核，不真实调用。"
+        ],
+        "intent_traceability": {
+          "story_ids": [
+            "US-008"
+          ],
+          "acceptance_ids": [
+            "AC-016",
+            "AC-024",
+            "AC-025",
+            "AC-061"
+          ],
+          "scenario_ids": [
+            "SC-006"
+          ],
+          "source_refs": [
+            "inputs/source-index.json#SRC-110",
+            "inputs/source-index.json#SRC-107",
+            "inputs/source-index.json#SRC-109"
+          ],
+          "authority": "已合入SRC110当前US008与SC006完整正文，沿原任务权限指定记录精准删除；命令字段/幂等/版本/反馈仍为工程提案。"
+        },
+        "view_feedback_boundary": "当前记录或合成结果样例切换时清本次前台旧反馈；原操作/原目标已保存证据不抹；远端旧成功不能显示为新目标已处理。"
+      }
+    }
+  },
+  "scope": "continue S5-S7 synthetic analysis only; no real validation/G3/prototype import/development",
+  "reviewed_by": "用户"
+}

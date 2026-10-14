@@ -1,0 +1,70 @@
+接口鉴权
+
+接口说明
+
+所有接口权限验证都使用此接口方法实现，接口鉴权不能作为接口单独使用
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/{interface}
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10，{interface}接口路径，如/{interface}=webcall
+
+接口请求方式：
+
+GET/POST
+
+输入参数：
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+取值1，2； 取值说明：
+validateType=1时使用部门编号(departmentId)进行验证；
+validateType=2时使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001； | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101； | 
+
+timestamp | 
+Int | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明： 
+validateType=1时，sign=MD5({departmentId}+{timestamp}+{部门token值})； 
+validateType=2时，sign=MD5({enterpriseId}+{timestamp}+{部门token值})； 
+格式要求：32位全小写 | 
+
+返回：
+
+验证成功示例：执行接口请求，返回接口对应callback结果
+
+验证失败示例：验证失败，参数[sign]验证错误

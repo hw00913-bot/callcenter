@@ -1,0 +1,47 @@
+### Result
+{"checks":[{"file":"business-scenario-atlas.html","width":1440,"title":"业务流程与场景泳道图集 · 云呼叫中心 v1.1.0 原始需求重新分析草稿","bodyWidth":1440,"reading":"desktop-wide@1","directoryOpen":false,"formal":6,"svgCount":12,"remoteImages":[]},{"file":"interaction-sequence-atlas.html","width":1440,"title":"交互时序图集 · 云呼叫中心 v1.1.0 原始需求重新分析草稿","bodyWidth":1440,"reading":"desktop-wide@1","directoryOpen":false,"formal":9,"svgCount":9,"remoteImages":[]},{"file":"page-structure-atlas.html","width":1440,"title":"页面结构图 · 云呼叫中心 v1.1.0 原始需求重新分析草稿","bodyWidth":1440,"formal":1,"svgCount":1,"remoteImages":[]},{"file":"business-scenario-atlas.html","width":1920,"title":"业务流程与场景泳道图集 · 云呼叫中心 v1.1.0 原始需求重新分析草稿","bodyWidth":1920,"reading":"desktop-wide@1","directoryOpen":false,"formal":6,"svgCount":12,"remoteImages":[]},{"file":"interaction-sequence-atlas.html","width":1920,"title":"交互时序图集 · 云呼叫中心 v1.1.0 原始需求重新分析草稿","bodyWidth":1920,"reading":"desktop-wide@1","directoryOpen":false,"formal":9,"svgCount":9,"remoteImages":[]},{"file":"page-structure-atlas.html","width":1920,"title":"页面结构图 · 云呼叫中心 v1.1.0 原始需求重新分析草稿","bodyWidth":1920,"formal":1,"svgCount":1,"remoteImages":[]},{"file":"business-scenario-atlas.html","width":2560,"title":"业务流程与场景泳道图集 · 云呼叫中心 v1.1.0 原始需求重新分析草稿","bodyWidth":2560,"reading":"desktop-wide@1","directoryOpen":false,"formal":6,"svgCount":12,"remoteImages":[]},{"file":"interaction-sequence-atlas.html","width":2560,"title":"交互时序图集 · 云呼叫中心 v1.1.0 原始需求重新分析草稿","bodyWidth":2560,"reading":"desktop-wide@1","directoryOpen":false,"formal":9,"svgCount":9,"remoteImages":[]},{"file":"page-structure-atlas.html","width":2560,"title":"页面结构图 · 云呼叫中心 v1.1.0 原始需求重新分析草稿","bodyWidth":2560,"formal":1,"svgCount":1,"remoteImages":[]},{"control":"zoom-in","clicked":true},{"control":"zoom-out","clicked":true},{"control":"actual","clicked":true},{"control":"fit","clicked":true},{"control":"readable","clicked":true},{"control":"fullscreen","entered":true},{"control":"SVG download","filename":"FLOW-001-plantuml.svg","failure":null}],"errors":[],"warnings":[],"screenshots":["/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/runtime/G3-FLOW-001.png","/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/runtime/G3-SC-001.png","/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/runtime/G3-SC-004.png","/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/runtime/G3-SEQ-001.png","/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/runtime/G3-SEQ-004.png","/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/runtime/G3-pages.png"]}
+### Ran Playwright code
+```js
+await (async page => {
+ const report={checks:[],errors:[],warnings:[],screenshots:[]};
+ page.on('pageerror',e=>report.errors.push(e.message));
+ page.on('console',m=>{if(m.type()==='error')report.errors.push(m.text());if(m.type()==='warning')report.warnings.push(m.text())});
+ const base='http://127.0.0.1:8792/';
+ const docs=[['business-scenario-atlas.html',6],['interaction-sequence-atlas.html',9],['page-structure-atlas.html',1]];
+ for(const width of [1440,1920,2560]){
+  await page.setViewportSize({width,height:1000});
+  for(const [file,count] of docs){
+   await page.goto(base+file);
+   const state=await page.evaluate(()=>({title:document.title,width:innerWidth,bodyWidth:document.documentElement.scrollWidth,reading:document.body.dataset.readingLayout,directoryOpen:document.querySelector('.atlas-directory')?.open,formal:Array.from(document.querySelectorAll('[data-diagram-panel]')).filter(x=>!x.closest('details')||x.closest('details').open).length,svgCount:document.querySelectorAll('svg').length,remoteImages:Array.from(document.querySelectorAll('img,script[src]')).map(x=>x.src).filter(x=>/^https?:/.test(x)&&!x.startsWith(location.origin))}));
+   if(state.remoteImages.length)throw Error('Unexpected remote resource '+file);
+   if(state.svgCount<count)throw Error('Missing diagram '+file);
+   report.checks.push({file,width,...state});
+  }
+ }
+ await page.setViewportSize({width:1920,height:1000});
+ await page.goto(base+docs[0][0]);
+ const ids=['FLOW-001','SC-001','SC-004'];
+ for(const id of ids){
+  const panel=page.locator('#'+id+' [data-diagram-panel][data-renderer="plantuml"]').first();
+  await panel.locator('[data-diagram-action="fit"]').click();
+  const name='/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/runtime/G3-'+id+'.png';
+  await panel.screenshot({path:name});report.screenshots.push(name);
+ }
+ const panel=page.locator('#FLOW-001 [data-diagram-panel][data-renderer="plantuml"]').first();
+ for(const action of ['zoom-in','zoom-out','actual','fit','readable']){await panel.locator('[data-diagram-action="'+action+'"]').click();report.checks.push({control:action,clicked:true})}
+ await panel.locator('[data-diagram-action="fullscreen"]').click();
+ const fs=await page.evaluate(()=>!!document.fullscreenElement);report.checks.push({control:'fullscreen',entered:fs});
+ if(fs)await page.evaluate(()=>document.exitFullscreen());
+ const download=page.waitForEvent('download');await panel.locator('[data-diagram-action="download"]').click();const d=await download;report.checks.push({control:'SVG download',filename:d.suggestedFilename(),failure:await d.failure()});
+ for(const [file,id] of [[docs[1][0],'SEQ-001'],[docs[1][0],'SEQ-004']]){
+  await page.goto(base+file);const panel=page.locator('#'+id+' [data-diagram-panel]').first();
+  const name='/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/runtime/G3-'+id+'.png';await panel.screenshot({path:name});report.screenshots.push(name);
+ }
+ await page.goto(base+docs[2][0]);const name='/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/runtime/G3-pages.png';await page.locator('[data-diagram-panel]').first().screenshot({path:name});report.screenshots.push(name);
+ return report;
+}
+)(page);
+```
+### Events
+- Downloading file FLOW-001-plantuml.svg ...
+- Downloaded file FLOW-001-plantuml.svg to ".playwright-cli/FLOW-001-plantuml.svg"

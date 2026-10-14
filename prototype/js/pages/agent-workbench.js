@@ -9,6 +9,7 @@
   let seatLockDone=Promise.resolve();
   let answerTimer, ringTimer, lastSavedId = '', disposition = '', remark = '';
   let followup = CustomerFollowup.empty(), followupVersion = '', draftStored = true;
+  let agentCallStatusDraft = null;
   let modalMode=false, modalVisible=false, returnFocus=null;
   const modalId='assigned-call-dialog';
   let origin=null,originScroll=0,seatOptions={},workspaceTab='';
@@ -175,20 +176,21 @@
   }
   function persist() {
     if (restorationError) return;
-    draftStored = write(sessionKey, { scope, draft, call, phase, disposition, remark, followup, followupVersion, lastSavedId, demoResult, suspendedDraft, receivingOrigin }, sessionStorage);
+    draftStored = write(sessionKey, { scope, draft, call, phase, disposition, remark, followup, followupVersion, agentCallStatusDraft, lastSavedId, demoResult, suspendedDraft, receivingOrigin }, sessionStorage);
     updateDraftNotice();
   }
   function ensureScope() {
     if (scope === currentScope()) return;
     scope = currentScope(); workspaceTab = ''; seatOptions = {}; draft = {}; call = null; phase = 'idle'; error = ''; suspendedDraft=null;receivingOrigin=false;
     restorationError = '';
-    disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = ''; lastSavedId = '';
+    disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = ''; agentCallStatusDraft = null; lastSavedId = '';
     const saved = read(sessionKey, sessionStorage);
     if (saved?.scope !== scope) return;
     draft = saved.draft || {}; suspendedDraft=saved.suspendedDraft||null;receivingOrigin=!!saved.receivingOrigin;lastSavedId = saved.lastSavedId || '';
     delete draft.skillGroupId; delete draft.numberId;
     if(suspendedDraft) { delete suspendedDraft.skillGroupId; delete suspendedDraft.numberId; }
     demoResult = saved.demoResult || '接通'; disposition = saved.disposition || ''; remark = saved.remark || ''; followup = { ...CustomerFollowup.empty(), ...saved.followup }; followupVersion = saved.followupVersion || '';
+    agentCallStatusDraft = saved.agentCallStatusDraft || null;
     if (saved.call && ['offered', 'answering', 'dialing', 'ringing', 'connected', 'wrap'].includes(saved.phase)) {
       let committed;
       try {
@@ -206,7 +208,7 @@
         restorationError = '上次通话暂时无法恢复，请保留浏览器数据并刷新后重试'; error = restorationError; return;
       }
       if (call.processingStatus === '已完成') {
-        lastSavedId = call.callId; call = null; disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = '';
+        lastSavedId = call.callId; call = null; disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = ''; agentCallStatusDraft = null;
         draft = suspendedDraft || {}; suspendedDraft=null;persist(); return;
       }
       phase = 'wrap';
@@ -275,10 +277,10 @@
   }
   function beforeRouteChange(){if(modalVisible){modalVisible=false;ui.closeLayer(modalId,false);if(!busy())modalMode=false;updateDock();}}
   function dialogHint(){
-    if(receiving())return phase==='offered'||phase==='answering'?(call.workbenchKind==='predictive'?'客户已接通，等待您接听并继续沟通':'接听来电后进入沟通记录'):'通话中填写沟通记录，挂断后确认保存';
-    if(['dialing','ringing'].includes(phase))return '正在呼叫，客户接通后自动打开沟通记录';
-    if(phase==='connected')return '通话中填写沟通记录，挂断后确认保存';
     if(phase==='wrap')return '通话已结束，确认处理结果后保存';
+    if(receiving())return phase==='offered'||phase==='answering'?(call.workbenchKind==='predictive'?'客户已接通，等待您接听；可先填写跟进记录':'接听来电后进入沟通记录'):'通话中填写沟通记录，挂断后确认保存';
+    if(['dialing','ringing'].includes(phase))return '正在呼叫，可先填写跟进记录；通话结束后确认保存';
+    if(phase==='connected')return '通话中填写沟通记录，挂断后确认保存';
     return draft.customerTaskItemId?'确认客户号码后发起呼叫':'填写客户信息后发起预览外呼';
   }
   function sessionMeta(c){return '<div class="assigned-call-status"><span>'+esc(c.agent?.userName||'未关联坐席')+' · '+statusText()+'</span></div>'+(window.AliCtiSeatOperations?.connectionStatus?.().blocked?(window.SeatOperationUI?.notice()||''):'')+progress()+
@@ -292,7 +294,7 @@
   }
   function drawDialog(){
     if(!modalVisible)return;
-    // Keep the editor in place across mute and hangup events after connection.
+    // Keep the editor in place from dialing/ringing through connection and wrap-up.
     // Replacing its input nodes interrupts typing and Chinese input composition.
     const existing=document.getElementById(modalId);
     const editor=existing?.querySelector('[data-seat-record-call]');
@@ -302,11 +304,11 @@
       existing.querySelector('[data-seat-session-meta]').innerHTML=sessionMeta(config());
       editor.querySelector('[data-seat-call-summary]').innerHTML=recordSummary();
       editor.querySelector('#seat-error').textContent=error;
+      updateRecordRequirements(editor);
       updateDraftNotice();return;
     }
     const focusedId=document.activeElement?.id;
-    // The centered call view becomes the record editor only after connection
-    // (or after an unanswered call ends). Keep the same call and saved draft.
+    // Show the editor as soon as an outbound call starts; retain the same call and draft.
     const recordModal=canEditRecord();
     ui.openLayer(modalId,dialogBody(),'large',{nonModal:false});
     const node=document.getElementById(modalId),panel=node?.querySelector('.layer-panel'),backdrop=node?.querySelector('.layer-backdrop');
@@ -314,7 +316,7 @@
     if(backdrop)backdrop.onclick=()=>closeDialog();
     requestAnimationFrame(()=>{if(!modalVisible)return;const previous=focusedId&&document.getElementById(focusedId);if(previous&&node?.contains(previous))previous.focus();else (node?.querySelector('#seat-remark')||node?.querySelector('#seat-answer')||node?.querySelector('.seat-call-stage .seat-hangup')||node?.querySelector('select:not([disabled])')||node?.querySelector('button:not([disabled])'))?.focus({preventScroll:true});});
   }
-  function openDialog(){modalMode=true;modalVisible=true;drawDialog();const node=document.getElementById(modalId);if(node)node.style.zIndex=String(ui.nextLayerZIndex());updateDock();requestAnimationFrame(()=>document.getElementById(phase==='wrap'?'seat-disposition':phase==='offered'?'seat-answer':canEditRecord()?'seat-remark':draft.customerTaskItemId?(online?'seat-dial':'seat-online'):'seat-customer-name')?.focus());}
+  function openDialog(){modalMode=true;modalVisible=true;drawDialog();const node=document.getElementById(modalId);if(node)node.style.zIndex=String(ui.nextLayerZIndex());updateDock();requestAnimationFrame(()=>document.getElementById(phase==='wrap'?'seat-disposition':phase==='offered'&&canEditRecord()?'seat-record-answer':phase==='offered'?'seat-answer':canEditRecord()?'seat-remark':draft.customerTaskItemId?(online?'seat-dial':'seat-online'):'seat-customer-name')?.focus());}
   function minimizeDialog(){if(!busy())return closeDialog();modalVisible=false;ui.closeLayer(modalId);updateDock();refreshOrigin();showToast(phase==='wrap'?'处理结果尚未保存，可继续填写':'通话仍在进行，填写内容已保留','info');}
   function closeDialog(){
     if(busy()){minimizeDialog();return false;}
@@ -478,7 +480,7 @@
     // Both sources reach the agent after the customer leg has connected. This
     // must never become customer-unanswered when the agent misses the offer.
     demoEvent(call,'customer','Established',at);demoEvent(call,'agent','Ringing',at);
-    phase='offered';error='';disposition='';remark='';followup=CustomerFollowup.empty(call);followupVersion='';lastSavedId='';muted=false;
+    phase='offered';error='';disposition='';remark='';followup=CustomerFollowup.empty(call);followupVersion='';agentCallStatusDraft=null;lastSavedId='';muted=false;
     if(call.customerTaskItemId&&CustomerTasks.syncCall(call)!==true){call=null;phase='idle';draft=suspendedDraft;suspendedDraft=null;showToast('客户任务已变化，无法接收本次分配','warning');return false;}
     c.agent.currentCall=true;c.agent.agentStatus='振铃';
     saveRecord(call);persist();openDialog();return true;
@@ -542,7 +544,9 @@
     phase='wrap';muted=false;
     const agent=myAgent();if(agent){agent.currentCall=false;agent.agentStatus='话后处理';}
     window.AliCtiSeatOperations?.enterWrapup(call);
-    if(answered){saveRecord(call);refresh();return true;}
+    // Predictive offers already expose the form while the agent is ringing.
+    // Keep those drafts for confirmation even when the agent did not answer.
+    if(answered||call.workbenchKind==='predictive'){saveRecord(call);refresh();return true;}
     // An unanswered offer has no customer conversation to write up. Archive the
     // agent result while retaining the customer's established call evidence.
     call.agentDisposition=call.agentAnswerResult;call.dispositionAt=stamp(at);call.processingStatus='已完成';
@@ -591,7 +595,7 @@
     demoEvent(call, 'agent', 'Established');
     demoEvent(call, 'customer', 'Dialing');
     // Snapshot call resources; later configuration changes only affect the next call.
-    phase = 'dialing'; muted = false; error = ''; disposition = ''; remark = ''; followup = CustomerFollowup.empty(call); followupVersion = ''; lastSavedId = '';
+    phase = 'dialing'; muted = false; error = ''; disposition = ''; remark = ''; followup = CustomerFollowup.empty(call); followupVersion = ''; agentCallStatusDraft = null; lastSavedId = '';
     c.agent.currentCall = true; c.agent.agentStatus = '通话中'; refresh();
     ringTimer = setTimeout(() => { if (phase === 'dialing') { demoEvent(call, 'customer', 'Ringing'); phase = 'ringing'; refresh(); } }, 700);
     answerTimer = setTimeout(() => {
@@ -629,6 +633,9 @@
   function saveDisposition() {
     if (phase !== 'wrap' || !call || call.accountId !== AppState.account().accountId || call.tenantId !== AppState.get().tenantId) return;
     if (!data.nativeWorkbench.outcomes.includes(disposition)) return fail('请选择本次联系的处理结果', 'seat-disposition');
+    const needsCallStatus = CustomerFollowup.isUnansweredOutbound(call);
+    const selectedStatus = normalizeAgentCallStatus(agentCallStatusDraft);
+    if (needsCallStatus && !selectedStatus) return fail('请选择本次通话状态', 'seat-agent-call-status');
     const next = structuredClone(call);
     delete next.pendingDisposition;
     const businessResult = CustomerFollowup.save(next, followup, { wrapping: true, expectedVersion: followupVersion });
@@ -637,6 +644,12 @@
     // linked call/customer save fails, so retry does not conflict with our write.
     followupVersion = businessResult.values.updatedAt;
     call.customerFollowup = structuredClone(businessResult.values);
+    if (needsCallStatus) {
+      // The agent's record is separate from CDR, telephony evidence and reporting.
+      agentCallStatusDraft = { ...selectedStatus, recordedBy: AppState.account().accountId,
+        recordedAt: agentCallStatusDraft.recordedAt || new Date().toISOString() };
+      next.agentCallStatus = structuredClone(agentCallStatusDraft);
+    }
     next.agentDisposition = disposition; next.dispositionRemark = remark.trim(); next.processingStatus = '已完成';
     next.dispositionAt = stamp();
     const saved = saveRecord(next, true);
@@ -648,7 +661,7 @@
     const a = data.agents.find(r => r.contactCenterIdentityId === call.contactCenterIdentityId);
     call = null; phase = 'idle'; error = '';
     // Keep work resources for the next customer; config() still revalidates grants.
-    draft = suspendedDraft || {}; suspendedDraft=null;disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = '';
+    draft = suspendedDraft || {}; suspendedDraft=null;disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = ''; agentCallStatusDraft = null;
     if (a?.lifecycleStatus !== '已启用' || !a?.acceptNewTasks) release();
     else {a.agentStatus = online ? '话后处理' : '离线';if(online)window.SeatOperationUI?.afterRecordSaved();}
     if(modalMode){persist();modalMode=false;modalVisible=false;ui.closeLayer(modalId);updateDock();refreshOrigin();returnFocus?.focus?.();}
@@ -663,11 +676,40 @@
   }
   function canEditRecord() {
     const context=AppState.get();
-    return !!call && ['connected','wrap'].includes(phase) &&
+    const editablePhase=['dialing','ringing','connected','wrap'].includes(phase)||
+      call?.workbenchKind==='predictive'&&['offered','answering'].includes(phase);
+    return !!call && editablePhase &&
       context.activeDomain==='CLOUD_CONTACT_CENTER' && call.accountId===AppState.account().accountId &&
       call.tenantId===context.tenantId && call.enterpriseId===context.enterpriseId;
   }
   function setDisposition(value) { if (!canEditRecord()) return; disposition = value; clearFormError(); persist(); }
+  function normalizeAgentCallStatus(value) {
+    if (!value) return null;
+    const row = (window.AliCtiNumberStatus?.rows || []).find(([code, description]) => String(code) === String(value.code) && description === value.description);
+    return row ? { code: row[0], description: row[1] } : null;
+  }
+  function agentCallStatusKey(value) { return value ? JSON.stringify([String(value.code),value.description]) : ''; }
+  function setAgentCallStatus(value) {
+    if (!canEditRecord() || phase !== 'wrap' || !CustomerFollowup.isUnansweredOutbound(call)) return;
+    let parsed;
+    try { parsed = value ? JSON.parse(value) : null; } catch (_) { return; }
+    const selected = Array.isArray(parsed) && parsed.length === 2 ? normalizeAgentCallStatus({code:parsed[0],description:parsed[1]}) : null;
+    if (value && !selected) return;
+    agentCallStatusDraft = selected; clearFormError(); persist();
+  }
+  function updateRecordRequirements(editor) {
+    if (!editor) return;
+    const visible = phase === 'wrap' && CustomerFollowup.isUnansweredOutbound(call);
+    const field = editor.querySelector('[data-seat-agent-call-status]');
+    if (field) { field.hidden = !visible; field.style.display = visible ? '' : 'none'; }
+    const input = editor.querySelector('#seat-agent-call-status');
+    if (input) {
+      input.disabled = !visible;
+      if (visible) input.setAttribute('aria-required','true'); else input.removeAttribute('aria-required');
+      input.value = agentCallStatusKey(normalizeAgentCallStatus(agentCallStatusDraft));
+    }
+    CustomerFollowup.syncRequirements(editor,call,followup);
+  }
   function setFollowup(field, value) {
     if (!canEditRecord()) return;
     const next = CustomerFollowup.update(followup, call, field, value);
@@ -721,7 +763,7 @@
         (draft.note?'<div class="seat-contact-purpose"><strong>联系事项</strong><p>'+esc(draft.note)+'</p></div>':'')+
         fieldError()+
         '<div class="seat-primary-action">'+(!online?'<button id="seat-online" class="btn btn-primary" onclick="AgentWorkbench.signIn()"'+(signingIn||c.phoneReason?' disabled':'')+'>'+(signingIn?'登录中…':'登录，准备呼叫')+'</button>':'<button id="seat-dial" class="btn btn-primary" onclick="AgentWorkbench.dial()"'+(blocked?' disabled':'')+'>拨打客户</button>')+
-        '<span>'+(!online?'先登录坐席电话，再联系客户':c.reason?'请先处理坐席或号码配置':blocked?'请先置闲，并确认工作模式支持主动联系':'通话中填写记录，挂断后确认保存')+'</span></div></div>';
+        '<span>'+(!online?'先登录坐席电话，再联系客户':c.reason?'请先处理坐席或号码配置':blocked?'请先置闲，并确认工作模式支持主动联系':'拨打后即可填写记录，通话结束后确认保存')+'</span></div></div>';
     }
     const contacts = draft.customerTaskItemId ? [] : (window.CustomerDirectory?.list() || []).filter(r => r.tenantId === c.tenant?.tenantId && r.enterpriseId === c.tenant?.enterpriseId);
     return '<div class="seat-form">' + (assignedDialog || draft.customerTaskItemId ? '' : '<label class="field"><span>选择已有客户 ' + ui.help('从当前可见客户档案中带入号码。此处用于临时联系，不更改任何导入批次进度；处理分配任务请从待联系名单进入。', '已有客户选择说明') + '</span><select id="seat-contact" onchange="AgentWorkbench.chooseContact(this.value)"><option value="">直接输入新客户</option>' +
@@ -729,7 +771,7 @@
       '<div class="seat-field-grid"><label class="field"><span><em>*</em>客户称呼</span><input id="seat-customer-name"' + (draft.customerTaskItemId ? ' readonly' : '') + ' maxlength="40" value="' + esc(draft.customerName || '') + '" placeholder="请输入客户称呼" oninput="AgentWorkbench.updateField(\'customerName\',this.value)"></label>' +
       '<label class="field"><span><em>*</em>客户号码</span><input id="seat-phone"' + (draft.customerTaskItemId ? ' readonly' : '') + ' type="tel" maxlength="20" value="' + esc(draft.phone || '') + '" placeholder="手机号或带区号的固定电话" oninput="AgentWorkbench.updateField(\'phone\',this.value)"></label></div>' +
       '<label class="field"><span>联系备注</span><textarea id="seat-note" rows="2" maxlength="500" placeholder="记录本次需要沟通的内容（选填）" oninput="AgentWorkbench.updateField(\'note\',this.value)">' + esc(draft.note || '') + '</textarea></label>' +
-      fieldError() + '<div class="seat-primary-action">'+(!online?'<button id="seat-online" class="btn btn-primary" onclick="AgentWorkbench.signIn()"'+(signingIn||c.phoneReason?' disabled':'')+'>'+(signingIn?'登录中…':'登录，准备呼叫')+'</button>':'<button id="seat-dial" class="btn btn-primary" onclick="AgentWorkbench.dial()"' + (c.reason || window.AliCtiSeatOperations&&!AliCtiSeatOperations.canDial() ? ' disabled' : '') + '>预览外呼</button>')+'<span>' + (!online ? '先登录，再开始联系客户' : window.AliCtiSeatOperations&&!AliCtiSeatOperations.canDial()?'请先置闲，并确认工作模式支持主动联系':'通话中可填写记录，挂断后确认保存') + '</span></div></div>';
+      fieldError() + '<div class="seat-primary-action">'+(!online?'<button id="seat-online" class="btn btn-primary" onclick="AgentWorkbench.signIn()"'+(signingIn||c.phoneReason?' disabled':'')+'>'+(signingIn?'登录中…':'登录，准备呼叫')+'</button>':'<button id="seat-dial" class="btn btn-primary" onclick="AgentWorkbench.dial()"' + (c.reason || window.AliCtiSeatOperations&&!AliCtiSeatOperations.canDial() ? ' disabled' : '') + '>预览外呼</button>')+'<span>' + (!online ? '先登录，再开始联系客户' : window.AliCtiSeatOperations&&!AliCtiSeatOperations.canDial()?'请先置闲，并确认工作模式支持主动联系':'拨打后即可填写记录，通话结束后确认保存') + '</span></div></div>';
   }
   function activePanel() {
     if (canEditRecord()) return recordPanel();
@@ -754,20 +796,34 @@
   }
   function recordSummary(){
     const ended=phase==='wrap',state=CallState.view(call);
+    const waiting=receiving()&&['offered','answering'].includes(phase);
     const timer=phase==='connected'?duration(Math.max(0,Math.floor((Date.now()-call.answeredMs)/1000))):duration(call.durationSeconds||0);
+    let actions='';
+    if(waiting){
+      actions=Number(call.bindType)!==3?'<span class="seat-device-answer">请在电话上接听</span>':
+        '<button id="seat-record-answer" class="btn btn-primary seat-answer" onclick="AgentWorkbench.answerIncoming()"'+(phase==='answering'?' disabled':'')+'>'+(phase==='answering'?'正在接听…':call.answerAttempt?'重试接听':'接听')+'</button>';
+    } else if(!ended){
+      actions=(phase==='connected'?'<button class="btn" aria-label="'+(muted?'取消静音':'静音')+'" title="'+(muted?'取消静音':'静音')+'" aria-pressed="'+muted+'" onclick="AgentWorkbench.toggleMute()"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 10v2a6 6 0 0 0 12 0v-2M12 18v3M9 21h6"/></svg></button>':'')+
+        '<button class="btn seat-hangup" onclick="AgentWorkbench.end()">'+(phase==='connected'?'结束通话':'取消呼叫')+'</button>';
+    }
     return '<section class="seat-record-summary'+(ended?' is-ended':'')+'"><div class="seat-record-person"><span class="seat-avatar small">'+esc(call.customerName.slice(0,1))+'</span><div><strong>'+esc(call.customerName)+'</strong><span>'+esc(customerPhone(call))+' · '+esc(callLabel())+'</span></div></div>'+
       '<div class="seat-record-controls"><div class="seat-record-state"><span role="status">'+(ended?'通话已结束':statusText())+'</span><strong data-seat-timer>'+timer+'</strong></div>'+
-      (!ended?'<div class="seat-call-actions">'+(phase==='connected'?'<button class="btn" aria-label="'+(muted?'取消静音':'静音')+'" title="'+(muted?'取消静音':'静音')+'" aria-pressed="'+muted+'" onclick="AgentWorkbench.toggleMute()">'+'<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 10v2a6 6 0 0 0 12 0v-2M12 18v3M9 21h6"/></svg></button>':'')+
-      '<button class="btn seat-hangup" onclick="AgentWorkbench.end()">'+(phase==='connected'?'结束通话':'取消呼叫')+'</button></div>':'<span class="seat-record-answer" data-seat-result>'+esc(receiving()?call.agentAnswerResult:state.answerLabel)+'</span>')+'</div></section>'+
+      (!ended?'<div class="seat-call-actions">'+actions+'</div>':'<span class="seat-record-answer" data-seat-result>'+esc(receiving()?call.agentAnswerResult:state.answerLabel)+'</span>')+'</div></section>'+
       (ended?'<div data-seat-sync>'+syncNotice()+'</div>':'')+
       (ended&&!state.known?'<p class="seat-blocked" data-seat-unknown role="status">接通结果待确认，可先保存本次跟进记录。</p>':'');
   }
   function recordHeaderActions(){return phase==='wrap'?'<button class="btn btn-primary" id="seat-save" onclick="AgentWorkbench.saveDisposition()">保存并完成</button>'+(window.SeatOperationUI?.wrapupControl()||''):'';}
+  function agentCallStatusField() {
+    const visible = phase === 'wrap' && CustomerFollowup.isUnansweredOutbound(call), selected = agentCallStatusKey(normalizeAgentCallStatus(agentCallStatusDraft));
+    return '<label class="field" data-seat-agent-call-status' + (visible ? '' : ' hidden style="display:none"') + '><span><em>*</em>通话状态 <small>坐席记录，不改变线路结果</small></span><select id="seat-agent-call-status" onchange="AgentWorkbench.setAgentCallStatus(this.value)"' + (visible ? ' aria-required="true"' : ' disabled') + '><option value="">请选择通话状态</option>' +
+      (window.AliCtiNumberStatus?.rows || []).map(([code,description]) => { const key = agentCallStatusKey({code,description}); return '<option value="' + esc(key) + '"' + (selected === key ? ' selected' : '') + '>' + esc(description) + '</option>'; }).join('') + '</select></label>';
+  }
   function recordPanel(){
     return '<section class="seat-record-panel" data-seat-record-call="'+esc(call.callId)+'"><div class="seat-record-summary-sticky" data-seat-call-summary>'+recordSummary()+'</div><div class="seat-form seat-record-form">'+
       (call.customerNote?'<div class="seat-record-context"><strong>联系事项</strong><span>'+esc(call.customerNote)+'</span></div>':'')+
       '<label class="field"><span>沟通备注</span><textarea id="seat-remark" rows="4" maxlength="1000" placeholder="随时记录客户诉求、沟通要点或下次联系约定" oninput="AgentWorkbench.setRemark(this.value)">'+esc(remark)+'</textarea></label>'+
       '<p id="seat-draft-status" class="seat-draft-warning" role="alert"'+(draftStored?' hidden':'')+'>'+draftNotice()+'</p>'+
+      agentCallStatusField()+
       '<label class="field"><span><em>*</em>处理结果 <small>保存前确认</small></span><select id="seat-disposition" onchange="AgentWorkbench.setDisposition(this.value)"><option value="">请选择</option>'+data.nativeWorkbench.outcomes.map(s=>'<option'+(disposition===s?' selected':'')+'>'+esc(s)+'</option>').join('')+'</select></label>'+
       '<details class="phone-record-more" open><summary>客户业务信息</summary>'+CustomerFollowup.form(followup,call,'seat-followup','AgentWorkbench.setFollowup')+'</details>'+fieldError()+'</div></section>';
   }
@@ -848,6 +904,7 @@
     document.querySelectorAll('[data-seat-result]').forEach(node => { node.textContent = receiving() ? call.agentAnswerResult : CallState.view(call).answerLabel; });
     document.querySelectorAll('[data-seat-unknown]').forEach(node => { node.hidden = CallState.view(call).known; });
     document.querySelectorAll('[data-seat-timer]').forEach(node => { node.textContent = duration(call.durationSeconds || 0); });
+    updateRecordRequirements(document.querySelector('[data-seat-record-call]'));
     persist();
   });
   window.addEventListener('beforeunload', e => { if (busy()) { persist(); e.preventDefault(); e.returnValue = ''; } });
@@ -863,7 +920,7 @@
     openDialog,closeDialog,minimizeDialog,beforeRouteChange,receiveOffer,receiveStatus,answerIncoming,receivingContext,current:receivingContext,refreshTelephone,syncReceivingProgress,
 
     selectAssigned(r){ensureScope();if(busy()){open();return showToast('请先完成当前通话及结果填写','warning');}receivingOrigin=false;returnFocus=document.activeElement;origin=window.RouteRuntime?.snapshot?.()||null;originScroll=document.getElementById('page-content')?.scrollTop||0;draft={...draft,...CustomerBusiness.snapshot(r),customerDirectoryId:'',customerTaskItemId:r.id,customerName:r.name,phone:r.phone,note:r.note};error='';lastSavedId='';persist();modalMode=true;openDialog();},
-    updateField, chooseContact, dial, end, saveDisposition, toggleMute, setDisposition, setRemark, setFollowup, setDemoResult, records, bindingPanel, bindAccount, confirmDemoResult };
+    updateField, chooseContact, dial, end, saveDisposition, toggleMute, setDisposition, setRemark, setFollowup, setAgentCallStatus, setDemoResult, records, bindingPanel, bindAccount, confirmDemoResult };
   AppState.subscribe?.(()=>{ if(!hasSeat()||scope!==currentScope()) updateDock(); });
   document.addEventListener('keydown',e=>{
     if(e.defaultPrevented||!modalVisible||document.getElementById('seat-operation-drawer'))return;

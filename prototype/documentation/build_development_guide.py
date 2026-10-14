@@ -13,11 +13,15 @@ CONTENT = '''# 开发阅读指引
 
 ## 先确定依据
 
+v1.1.0 采用2026-10-09用户确认的业务规则；9月30日DCC增量已撤出有效链。当前原型待按新需求重建，G1/G2/G3尚未批准。参见[今日需求与待确认事项](v1.1.0-current-requirements.html)。
+
 从[功能说明](functional-spec.html)找到相关 FS 章节，结合[规则附表](interaction.html)确认状态、权限和业务边界。界面交互参考[当前原型](../index.html)；接口字段参考[字段对齐清单](field-alignment.html)及其引用的供应商原文，采用决定见[版本与变更记录](change-log.html)。
 
 当前交付仅包含 AliCti 云联络中心；`documentation/input/functions.json` 和 `pages.json` 已按现行范围筛选。`memory/`、`inputs/`、旧回归报告及证据目录只用于追溯，不作为生成新页面或功能的需求来源。AliCti 自动外呼（IVR）和预测任务的 `callRouteStrategy=2`（接口称“AI转人工”）属于现行接口能力，不能与历史上已移除的独立产品模块混同。
 
 开始接口开发前，只检查涉及的[待确认事项与接入准备](remaining-confirmations.html)。未知项不能按演示结果推断为供应商已支持。
+
+官方接口读取入口已于 2026-10-13 切换为 [LLM Wiki 接口索引](../references/index.html)。在原型根目录按编号运行 `python3 documentation/interface_sources.py read API-311`；`verify` 校验来源版本、inventory 与文件哈希。知识库位置可由 `LLM_WIKI_ROOT` 或 `--wiki-root` 指定，参见[来源说明](../references/README.md)。Wiki 查询结果须先经需求分析核验与冻结，再供原型消费；本次仅切换来源入口，不刷新业务批准或真实联调结论。
 
 ## 按任务阅读
 
@@ -30,7 +34,7 @@ CONTENT = '''# 开发阅读指引
 | 外呼任务、再次联系 | 功能说明 FS-08/09/10；D-090任务导入新客户仅本租户ADMIN，SUPER的任务创建、配置、控制和现有客户分配管理保留，OPERATOR仍不能导入；C-63定义直接导入条件。D-083预测任务最小可用座席数默认10、范围1–10，低于阈值自动暂停；只有autoStart=1且因座席不足自动暂停的任务，恢复达阈值后自动启动。自动外呼不显示该字段。D-086同一enterpriseId可登记多个外显导航，建任务时选一个，可配合多个号码池，见FA-197/198、C-73/74。导航核验及选号待CF-15联调，自动恢复待CF-18联调。任务编辑与再次联系沿用D-075/D-060；入口 `cloud-task-workspace.js` |
 | 通话记录与原任务关联 | 功能说明 [FS-11](functional-spec.html#FS-11)、[FS-14](functional-spec.html#FS-14)、[FS-15](functional-spec.html#FS-15)、附表 B/K、D-066/D-087；`cloud-call-records.js` 共用 `alicti-report-facts.js`，按 API-317/318/319/362 分清实际话单和任务设置；本地异步资料演示位于 `call-data-sync.js` |
 | 号码归属 | 功能说明 FS-06、D-067/D-068；导入即归属唯一业务租户，详情不嵌套管理 |
-| 号码池管理 | [四个官方接口摘录](../references/README.md)：`hybridGroup/list`、`create`、`delete`、`update`；D-081按当前租户唯一关联的enterpriseId隔离，租户管理员维护本租户号码池；预外呼和自动外呼任务从本租户池列表选名称，不允许手填跨租户池名 |
+| 号码池管理 | [LLM Wiki 号码池接口索引](../references/index.html#WIKI-HYBRIDGROUP-LIST)：`hybridGroup/list`、`create`、`delete`、`update`；D-081按当前租户唯一关联的enterpriseId隔离，租户管理员维护本租户号码池；预外呼和自动外呼任务从本租户池列表选名称，不允许手填跨租户池名 |
 | 呼入与报表 | 功能说明 FS-13/16；D-068当前账号单租户统计，不新增跨账号汇总；按需查看对应字段、状态规则与供应商原文 |
 | 跨系统协作或异步处理 | 按需查看[业务流程](../flowcharts/business-process.html)、[时序图](../flowcharts/sequence-interaction.html)、[系统蓝图](../related-systems/index.html)中的相关场景 |
 
@@ -71,7 +75,7 @@ D-087把通话结束、跟进保存和资料同步分开。话后资料同步中
 
 - 页面位于 `js/pages/`，共享逻辑位于 `js/components/`；从对应页面追踪实际依赖，不预设生产服务拆分。
 - [Mock 说明](../mock/README.md)介绍演示数据；按模块读取需要的样例即可。
-- [供应商原文索引](../references/README.md)保留官方快照和已采纳回复。先从字段清单取得 API-/DOC- 编号，再读取该份原文，避免将全部快照放入上下文。
+- [LLM Wiki 接口索引](../references/index.html)保留原 101 个 API-/DOC- 编号与来源映射，另有 4 个号码池补充检索 ID；官方接口按编号通过 `python3 documentation/interface_sources.py read API-311` 读取并校验，避免将全部原文放入上下文。[供应商原始资料说明](../references/README.md)保留回复、截图和历史 ZIP 定位。
 - 功能说明各节已有验收要点；相关原型检查位于 `qa/`。只运行与修改有关的检查，跨模块调整再扩大回归范围。
 
 ## 开发与验证边界

@@ -1,0 +1,2625 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "云外呼v1.1.0核心接入候选契约（工程评审稿）",
+    "version": "1.1.0-candidate.1",
+    "description": "本文件仅候选字段/结构/HTTP方案，不是当前正式接口或生产实现。3项核心操作从已有8项中细化；其他应用管理操作沿原草案。未改变G2、G3、生产缺口或用户先补齐生产证据要求。全部样例合成，所有服务地址example.invalid不可调用。"
+  },
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "servers": [
+    {
+      "url": "https://callcenter.example.invalid",
+      "description": "不可用示意域名；不指向真实网关。"
+    }
+  ],
+  "paths": {
+    "/v1/integration/token": {
+      "post": {
+        "operationId": "candidateIssueTenantToken",
+        "summary": "应用凭证换取指定租户token（候选）",
+        "description": "拟定路径/方法/JSON类型与Bearer方式均待工程评审；实际凭据、token及授权服务未提供。独立应用凭据不得作为DCC结果回传服务身份。",
+        "security": [],
+        "x-credential-authentication-required": true,
+        "x-current-operation-ref": "DCC-RST-TOKEN",
+        "requestBody": {
+          "required": true,
+          "description": "候选JSON认证输入。",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              },
+              "examples": {
+                "TOKEN-VALID": {
+                  "summary": "合成评审样例，不是真实请求或联调结果",
+                  "value": {
+                    "appId": "APP_SYN_DCC",
+                    "appSecret": "SYNTHETIC_INVALID_SECRET",
+                    "tenantId": "TENANT_SYN"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "仅实际签发成功；例中TTL不构成产品默认。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                },
+                "examples": {
+                  "TOKEN-RESPONSE": {
+                    "summary": "合成评审样例，不是真实请求或联调结果",
+                    "value": {
+                      "accessToken": "SYNTHETIC_INVALID_TOKEN",
+                      "tokenType": "Bearer",
+                      "expiresIn": 600,
+                      "tenantId": "TENANT_SYN",
+                      "appId": "APP_SYN_DCC"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "候选请求形状错误。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "候选凭据失败。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "候选租户无授权。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "具体非成功HTTP与错误码待工程定稿。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/leads/import": {
+      "post": {
+        "operationId": "candidateImportLeads",
+        "summary": "DCC／天网共用线索导入（候选）",
+        "description": "可信tenant/app来自认证。先授权再查请求重放；完整原始行含坏行进入稳定归一比较。新请求逐行校验，同ID异完整内容整请求冲突。接收回执只证明平台保存阶段，不等于供应商受理/拨打。",
+        "security": [
+          {
+            "CandidateTenantBearer": []
+          }
+        ],
+        "x-current-operation-ref": "DCC-RST-IMPORT",
+        "x-row-validation-schema": {
+          "$ref": "#/components/schemas/ImportValidRow"
+        },
+        "requestBody": {
+          "required": true,
+          "description": "仅信封形状验证；业务坏行不会因全请求schema被拒绝，另做逐行校验。",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SharedImportRequest"
+              },
+              "examples": {
+                "I01": {
+                  "summary": "合成评审样例，不是真实请求或联调结果",
+                  "value": {
+                    "taskId": 101,
+                    "requestId": "SYN-REQUEST-A",
+                    "rows": [
+                      {
+                        "leadCode": "SYN-LEAD-A",
+                        "phone": "SYNTHETIC_PHONE_A",
+                        "priority": 0
+                      },
+                      {
+                        "leadCode": "SYN-LEAD-B",
+                        "phone": "SYNTHETIC_PHONE_B"
+                      },
+                      null
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "平台逐行接收结果及原保存映射；重放保持原快照。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharedImportResponse"
+                },
+                "examples": {
+                  "I10": {
+                    "summary": "合成评审样例，不是真实请求或联调结果",
+                    "value": {
+                      "requestId": "SYN-REQUEST-A",
+                      "rows": [
+                        {
+                          "rowIndex": 0,
+                          "status": "ACCEPTED",
+                          "recordId": "SYN-RECORD-A",
+                          "batchId": "SYN-BATCH-A",
+                          "rootBatchId": "SYN-BATCH-A",
+                          "isNewBatch": false,
+                          "batchKind": "MAIN",
+                          "leadCode": "SYN-LEAD-A",
+                          "phone": "SYNTHETIC_PHONE_A"
+                        },
+                        {
+                          "rowIndex": 1,
+                          "status": "REJECTED",
+                          "reason": "Proposed missing priority reason"
+                        },
+                        {
+                          "rowIndex": 2,
+                          "status": "REJECTED",
+                          "reason": "Proposed non-object row reason"
+                        }
+                      ],
+                      "tenantId": "TENANT_SYN",
+                      "taskId": 101
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "JSON或请求信封形状错误，非单行字段错误。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "候选认证失败。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "候选租户/原任务无权限。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "同认证作用域requestId对应不同完整业务内容。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportRequestConflict"
+                },
+                "examples": {
+                  "I12": {
+                    "summary": "合成评审样例，不是真实请求或联调结果",
+                    "value": {
+                      "requestId": "SYN-REQUEST-A",
+                      "error": {
+                        "code": "REQUEST_CONTENT_CONFLICT",
+                        "message": "Synthetic changed complete-content conflict"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "不可确认本次接收结果时沿原requestId核查，不按新ID或供应商新尝试盲重发。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {
+    "dccResultDelivery": {
+      "description": "仅可信原DCC记录及继承其来源的内部attempt；目标由后台固定配置。这里没有真实地址，天网和手工不产生异步结果交付。",
+      "post": {
+        "operationId": "candidateDeliverDccResult",
+        "summary": "每次准确结果／进度向原DCC回传（候选）",
+        "description": "DCC可靠保存后ACK应精确匹配本次resultId/version；HTTP成功或schema有效不证明匹配或持久化。补送沿原ID/版本/内容，不再AliCti导入。",
+        "servers": [
+          {
+            "url": "https://dcc.example.invalid",
+            "description": "不可用示意域名；真实DCC接收地址及认证待双方确认。"
+          }
+        ],
+        "security": [
+          {
+            "CandidateDccServiceBearer": []
+          }
+        ],
+        "x-auth-proposal-only": true,
+        "x-current-operation-ref": "API-010",
+        "requestBody": {
+          "required": true,
+          "description": "按候选结果类别区分已发生的事实，不强填尚无的供应商标识。",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DccResultPayloadCandidate"
+              },
+              "examples": {
+                "DCC-01-SHORT-REAL-ZERO": {
+                  "summary": "合成评审样例，不是真实请求或联调结果",
+                  "value": {
+                    "resultId": "DEMO_RESULT_CALL_A",
+                    "resultVersion": 1,
+                    "resultCategory": "CALL_RESULT",
+                    "association": {
+                      "requestId": "DEMO_REQUEST_A",
+                      "recordId": "DEMO_RECORD_A",
+                      "batchId": "DEMO_BATCH_A",
+                      "rootBatchId": "DEMO_ROOT_A",
+                      "tenantId": "TENANT_SYN",
+                      "taskId": 1001,
+                      "leadCode": "LEAD_SYN_A",
+                      "phone": "PHONE_SYN_A",
+                      "callId": "DEMO_CALL_A",
+                      "rowIndex": 0
+                    },
+                    "providerResult": {
+                      "onHookSource": "客户挂断",
+                      "customerBridgeDuration": 0
+                    },
+                    "platformResult": {
+                      "shortHangupResult": "SHORT_HANGUP",
+                      "durationSeconds": 0,
+                      "evidence": {
+                        "customerAnswered": true,
+                        "customerHungUp": true,
+                        "durationTrusted": true
+                      }
+                    }
+                  }
+                },
+                "DCC-04-IMPORT-NO-CALL-FILE": {
+                  "summary": "合成进度样例，无通话时不填通话号",
+                  "value": {
+                    "resultId": "DEMO_RESULT_IMPORT_A",
+                    "resultVersion": 1,
+                    "resultCategory": "IMPORT_RESULT",
+                    "association": {
+                      "requestId": "DEMO_REQUEST_A",
+                      "recordId": "DEMO_RECORD_A",
+                      "batchId": "DEMO_BATCH_A",
+                      "rootBatchId": "DEMO_ROOT_A",
+                      "tenantId": "TENANT_SYN",
+                      "taskId": 1001,
+                      "leadCode": "LEAD_SYN_A",
+                      "phone": "PHONE_SYN_A",
+                      "fileId": null,
+                      "callId": null,
+                      "rowIndex": 0
+                    },
+                    "providerResult": null,
+                    "platformResult": {
+                      "importResult": {
+                        "state": "UNKNOWN",
+                        "reason": "SYNTHETIC_RESPONSE_MISSING"
+                      }
+                    }
+                  }
+                },
+                "DCC-05-MANUAL-PROGRESS-UNKNOWN-BUDGET": {
+                  "summary": "合成进度样例，无通话时不填通话号",
+                  "value": {
+                    "resultId": "DEMO_RESULT_PROGRESS_A",
+                    "resultVersion": 1,
+                    "resultCategory": "FAILURE_PROGRESS",
+                    "association": {
+                      "requestId": "DEMO_REQUEST_A",
+                      "recordId": "DEMO_RECORD_A",
+                      "batchId": "DEMO_BATCH_A",
+                      "rootBatchId": "DEMO_ROOT_A",
+                      "tenantId": "TENANT_SYN",
+                      "taskId": 1001,
+                      "leadCode": "LEAD_SYN_A",
+                      "phone": "PHONE_SYN_A",
+                      "fileId": null,
+                      "callId": null,
+                      "rowIndex": 0
+                    },
+                    "providerResult": {
+                      "message": "无可用中继"
+                    },
+                    "platformResult": {
+                      "failureProgress": {
+                        "state": "WAIT_MANUAL",
+                        "mode": "MANUAL",
+                        "autoDueAt": null,
+                        "budget": null
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ACK形状正确仍须匹配本次结果对象/版本并已可靠保存；accepted=false不是成功确认。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DccBusinessAckCandidate"
+                },
+                "examples": {
+                  "DCC-09-ACK-STRUCTURE": {
+                    "summary": "合成评审样例，不是真实请求或联调结果",
+                    "value": {
+                      "resultId": "DEMO_RESULT_CALL_A",
+                      "resultVersion": 1,
+                      "accepted": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "候选同ID同版异内容冲突，不覆盖已保存版本。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "传输失败、超时、缺失/不匹配ACK保原交付项待核或补送，具体时限/上限仍待定。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransportError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TokenRequest": {
+        "type": "object",
+        "required": [
+          "appId",
+          "appSecret",
+          "tenantId"
+        ],
+        "properties": {
+          "appId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "独立应用凭据ID；正式字段类型待工程定稿。"
+          },
+          "appSecret": {
+            "type": "string",
+            "minLength": 1,
+            "description": "应用密钥；仅合成占位示例，不放入查询参数或日志。",
+            "writeOnly": true
+          },
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "本次请求的单一授权租户。"
+          }
+        },
+        "additionalProperties": false,
+        "description": "候选JSON报文，不代表已存在token服务。"
+      },
+      "TokenResponse": {
+        "type": "object",
+        "required": [
+          "accessToken",
+          "tokenType",
+          "expiresIn",
+          "tenantId",
+          "appId"
+        ],
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "minLength": 1,
+            "description": "实际签发时的token；示例是无效合成串。"
+          },
+          "tokenType": {
+            "type": "string",
+            "const": "Bearer",
+            "description": "仅拟议传输方式，待现有网关/认证工程及调用方确认；不假定JWT。"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "本次签发有效秒数；没有规定固定TTL，示例值仅形状演示。"
+          },
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "服务器验证后实际绑定租户。"
+          },
+          "appId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "可信稳定应用身份；不能由后续导入body覆盖。"
+          }
+        },
+        "additionalProperties": false,
+        "description": "候选成功结构，未知有效期不伪装成已签发成功；真实撤权/失效机制待核。"
+      },
+      "TransportError": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "description": "候选错误代码；具体状态码/编码与现有网关兼容须工程确认。"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "description": "面向接入方的错误描述，不返回密钥/token。"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImportValidRow": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "leadCode",
+          "phone",
+          "priority"
+        ],
+        "properties": {
+          "rowId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Optional proposed client row locator; absence uses the preserved zero-based input array index. Uniqueness is a runtime rule, not phone/lead identity."
+          },
+          "leadCode": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Saved business lead code, separate from any original businessCode."
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Proposed string preserving the submitted phone; actual format/encryption/normalization require engineering agreement, no sample-specific regex."
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 999999,
+            "description": "Required platform value, no default. Supplier TaskTel priority is Int, default 0, greater means higher, maximum 999999 (SRC073 live-312.txt L37). Minimum 0 and strict integer wire type are THIS candidate proposal; the cited page does not explicitly state a minimum."
+          },
+          "R": {
+            "type": "string",
+            "description": "Optional metadata, no dictionary/enum/default and no authority or callback-routing meaning. Length/safe encoding unknown."
+          },
+          "isNewBatch": {
+            "type": "boolean",
+            "default": false,
+            "description": "Only omission normalizes to false; default is an annotation and validators do not insert it. null/0/1/string are invalid, not coerced."
+          }
+        },
+        "description": "Proposed per-row validator. Do not use as the request rows/items schema: invalid rows must remain in the request and receive individual receipts."
+      },
+      "SharedImportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "taskId",
+          "requestId",
+          "rows"
+        ],
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Proposed original supplier task identifier wire type, not a local remapped task. Supplier import taskId Int is SRC073 L24; positive-only restriction and local wire type remain proposed."
+          },
+          "requestId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Request-level business identity; candidate namespace trusted tenant+stable app+operation+requestId. taskId is compared content, not a namespace dimension."
+          },
+          "rows": {
+            "type": "array",
+            "minItems": 1,
+            "items": {},
+            "description": "Preserve every complete raw JSON row, including malformed/non-object rows. Each item is separately checked by ImportValidRow and service business guards. Proposed nonempty list; limits unknown."
+          }
+        },
+        "description": "Only the envelope is validated here. Authenticated tenant/stable app/source are server context, not caller-selected body fields. Closed envelope is a proposal requiring compatibility agreement; rows intentionally accept any parsed JSON item."
+      },
+      "ImportAcceptedRowReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rowIndex",
+          "status",
+          "recordId",
+          "batchId",
+          "rootBatchId",
+          "isNewBatch",
+          "batchKind",
+          "leadCode",
+          "phone"
+        ],
+        "properties": {
+          "rowIndex": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rowId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Proposed nonempty identifier string; exact encoding/length limits remain unconfirmed."
+          },
+          "status": {
+            "const": "ACCEPTED"
+          },
+          "recordId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Proposed nonempty identifier string; exact encoding/length limits remain unconfirmed."
+          },
+          "batchId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Proposed nonempty identifier string; exact encoding/length limits remain unconfirmed."
+          },
+          "rootBatchId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Proposed nonempty identifier string; exact encoding/length limits remain unconfirmed."
+          },
+          "isNewBatch": {
+            "type": "boolean"
+          },
+          "batchKind": {
+            "enum": [
+              "MAIN",
+              "CHILD"
+            ]
+          },
+          "supplierEvidence": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true,
+            "description": "Optional already-saved raw supplier evidence, with original source types retained; no claimed provider schema or aggregate-to-row success conversion. Association and trust are runtime evidence checks."
+          },
+          "leadCode": {
+            "type": "string",
+            "minLength": 1,
+            "description": "原已保存行的线索编码。"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 1,
+            "description": "原已保存行的固定号码；不因技术重放或补提交改写。"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "isNewBatch": {
+                  "const": true
+                }
+              },
+              "required": [
+                "isNewBatch"
+              ]
+            },
+            "then": {
+              "properties": {
+                "batchKind": {
+                  "const": "MAIN"
+                }
+              }
+            }
+          }
+        ],
+        "description": "ACCEPTED means the local record/receipt/map was durably saved, not supplier acceptance or an actual call. Root equality and exact map-to-row membership are runtime checks."
+      },
+      "ImportRejectedRowReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rowIndex",
+          "status",
+          "reason"
+        ],
+        "properties": {
+          "rowIndex": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rowId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Proposed nonempty identifier string; exact encoding/length limits remain unconfirmed."
+          },
+          "status": {
+            "const": "REJECTED"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "description": "Proposed per-row rejection, no fabricated record/batch/root or supplier success. Reason coding remains proposed."
+      },
+      "ImportPendingRowReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rowIndex",
+          "status",
+          "reason"
+        ],
+        "properties": {
+          "rowIndex": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rowId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Proposed nonempty identifier string; exact encoding/length limits remain unconfirmed."
+          },
+          "status": {
+            "const": "PENDING_REVIEW"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "description": "Proposed unresolved business association/identity row. This unallocated pending form submits nothing and guesses no saved mapping; other actually persisted states need a reviewed mapping rather than invented IDs."
+      },
+      "SharedImportResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "rows",
+          "tenantId",
+          "taskId"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Proposed nonempty identifier string; exact encoding/length limits remain unconfirmed."
+          },
+          "rows": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ImportAcceptedRowReceipt"
+                },
+                {
+                  "$ref": "#/components/schemas/ImportRejectedRowReceipt"
+                },
+                {
+                  "$ref": "#/components/schemas/ImportPendingRowReceipt"
+                }
+              ]
+            }
+          },
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "响应中回显服务端核验并保存的租户，不由请求body指定来源。"
+          },
+          "taskId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "响应中回显原已保存供应商任务；候选正整数类型待兼容确认。"
+          }
+        },
+        "description": "Proposed saved synchronous per-row receipt. Array length/order and each rowIndex must correspond exactly to the original request; schema alone cannot enforce that cross-document rule. Same-content replay returns this original receipt, without adding a replay marker or changing root/vendor evidence."
+      },
+      "ImportRequestConflict": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "error"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Proposed nonempty identifier string; exact encoding/length limits remain unconfirmed."
+          },
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "const": "REQUEST_CONTENT_CONFLICT"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "description": "Proposed error body and code only; no HTTP status is chosen here. Same authenticated request key with changed full normalized content rejects the repeated whole request and creates no new row/attempt."
+      },
+      "DccAssociationCandidate": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "recordId",
+          "batchId",
+          "rootBatchId",
+          "rowIndex",
+          "tenantId",
+          "taskId",
+          "leadCode",
+          "phone"
+        ],
+        "properties": {
+          "tenantId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "taskId": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "原供应商taskId，候选正整数，与共享导入草案一致；正式限值与历史兼容未确认，不修改原providerResult值型。"
+          },
+          "leadCode": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requestId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rowRef": {
+            "type": "string",
+            "minLength": 1,
+            "description": "旧提案的行引用仅作可选兼容项，正式兼容方案待双方确认；本候选定位使用原rowIndex，不能用它代替精确关联。"
+          },
+          "recordId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "batchId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rootBatchId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 1,
+            "description": "保存固定手机号；合成例仅PHONE_A别名，正式格式/安全传输待DCC评审。"
+          },
+          "fileId": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "callId": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eventRef": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attemptId": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "triggerRecordId": {
+            "anyOf": [
+              {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rowIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "原导入请求的零基行位置，与同步回执一致；内部补提交沿触发原记录，不伪造新DCC行。"
+          },
+          "rowId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "仅原请求确有rowId时保留原值；不是运行时重新生成的行标识。"
+          }
+        },
+        "additionalProperties": true,
+        "description": "关联值从可信已保存原record/trigger读取，schema不能证明对应真实call/event或正确业务归属。命名、ID类型与必需集合是工程候选。"
+      },
+      "DccResultPayloadCandidate": {
+        "type": "object",
+        "required": [
+          "resultId",
+          "resultVersion",
+          "resultCategory",
+          "association",
+          "providerResult",
+          "platformResult"
+        ],
+        "properties": {
+          "resultId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resultVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "resultCategory": {
+            "type": "string",
+            "enum": [
+              "CALL_RESULT",
+              "IMPORT_RESULT",
+              "FAILURE_PROGRESS"
+            ],
+            "description": "新增技术区分字段/三个编码仅候选，不声称双方确认或供应商已有。"
+          },
+          "association": {
+            "$ref": "#/components/schemas/DccAssociationCandidate"
+          },
+          "providerResult": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": true,
+            "description": "原供应商报文片段及其字段类型/空值原样保存；尚无原结果时可null，不伪造call/fileId。schema不验证raw是否被改写。"
+          },
+          "platformResult": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "resultCategory": {
+                  "const": "CALL_RESULT"
+                }
+              },
+              "required": [
+                "resultCategory"
+              ]
+            },
+            "then": {
+              "properties": {
+                "platformResult": {
+                  "type": "object",
+                  "required": [
+                    "shortHangupResult",
+                    "durationSeconds",
+                    "evidence"
+                  ],
+                  "properties": {
+                    "shortHangupResult": {
+                      "type": "string",
+                      "enum": [
+                        "SHORT_HANGUP",
+                        "NOT_SHORT_HANGUP",
+                        "UNKNOWN"
+                      ],
+                      "description": "本方候选分类编码；供应商原status/SIP不替换。可信性和整体冲突由运行时核实。"
+                    },
+                    "durationSeconds": {
+                      "type": [
+                        "number",
+                        "null"
+                      ],
+                      "minimum": 0,
+                      "description": "可信客户有效秒值或null；未知/缺失/异常/单位不明不补0。"
+                    },
+                    "evidence": {
+                      "type": "object",
+                      "required": [
+                        "customerAnswered",
+                        "customerHungUp",
+                        "durationTrusted"
+                      ],
+                      "properties": {
+                        "customerAnswered": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "customerHungUp": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "durationTrusted": {
+                          "type": "boolean",
+                          "description": "false是时长不可信，不是时长范围条件false。"
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "additionalProperties": true,
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "evidence": {
+                            "properties": {
+                              "durationTrusted": {
+                                "const": true
+                              }
+                            },
+                            "required": [
+                              "durationTrusted"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "evidence"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "durationSeconds": {
+                            "type": "number",
+                            "minimum": 0
+                          }
+                        }
+                      },
+                      "else": {
+                        "properties": {
+                          "durationSeconds": {
+                            "type": "null"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "shortHangupResult": {
+                            "const": "SHORT_HANGUP"
+                          }
+                        },
+                        "required": [
+                          "shortHangupResult"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "durationSeconds": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 2
+                          },
+                          "evidence": {
+                            "properties": {
+                              "customerAnswered": {
+                                "const": true
+                              },
+                              "customerHungUp": {
+                                "const": true
+                              },
+                              "durationTrusted": {
+                                "const": true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "not": {
+                        "anyOf": [
+                          {
+                            "required": [
+                              "failureProgress"
+                            ]
+                          },
+                          {
+                            "required": [
+                              "budget"
+                            ]
+                          },
+                          {
+                            "required": [
+                              "planId"
+                            ]
+                          },
+                          {
+                            "required": [
+                              "dueAt"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "association": {
+                  "anyOf": [
+                    {
+                      "required": [
+                        "callId"
+                      ],
+                      "properties": {
+                        "callId": {
+                          "type": [
+                            "string",
+                            "integer"
+                          ],
+                          "minLength": 1,
+                          "minimum": 1
+                        }
+                      }
+                    },
+                    {
+                      "required": [
+                        "eventRef"
+                      ],
+                      "properties": {
+                        "eventRef": {
+                          "type": [
+                            "string",
+                            "integer"
+                          ],
+                          "minLength": 1,
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  ],
+                  "description": "实际通话结果候选要求至少提供原保存call或稳定事件引用；仍须证明确切归属。导入/处理进度不套此要求。"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "resultCategory": {
+                  "const": "IMPORT_RESULT"
+                }
+              },
+              "required": [
+                "resultCategory"
+              ]
+            },
+            "then": {
+              "properties": {
+                "platformResult": {
+                  "type": "object",
+                  "required": [
+                    "importResult"
+                  ],
+                  "properties": {
+                    "importResult": {
+                      "type": "object",
+                      "required": [
+                        "state"
+                      ],
+                      "properties": {
+                        "state": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "本方已存导入状态的候选表示，正式编码待定；受理不等已呼叫。"
+                        },
+                        "reason": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "additionalProperties": true,
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "shortHangupResult"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "durationSeconds"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "resultCategory": {
+                  "const": "FAILURE_PROGRESS"
+                }
+              },
+              "required": [
+                "resultCategory"
+              ]
+            },
+            "then": {
+              "properties": {
+                "platformResult": {
+                  "type": "object",
+                  "required": [
+                    "failureProgress"
+                  ],
+                  "properties": {
+                    "failureProgress": {
+                      "type": "object",
+                      "required": [
+                        "state"
+                      ],
+                      "properties": {
+                        "state": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "候选状态文本，正式枚举待双方，不从字符串证明真实状态。"
+                        },
+                        "reason": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "mode": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "AUTO",
+                            "MANUAL",
+                            null
+                          ]
+                        },
+                        "confirmedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "候选编码尚未定稿，无自动时间默认值。"
+                        },
+                        "autoDueAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "attemptId": {
+                          "anyOf": [
+                            {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                {
+                                  "type": "integer",
+                                  "minimum": 1
+                                }
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "planId": {
+                          "anyOf": [
+                            {
+                              "oneOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                {
+                                  "type": "integer",
+                                  "minimum": 1
+                                }
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "budget": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "max": {
+                              "const": 2
+                            },
+                            "used": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0,
+                              "maximum": 2
+                            },
+                            "reserved": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0,
+                              "maximum": 2
+                            },
+                            "available": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0,
+                              "maximum": 2
+                            }
+                          },
+                          "additionalProperties": true
+                        }
+                      },
+                      "additionalProperties": true,
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "mode": {
+                                "const": "MANUAL"
+                              }
+                            },
+                            "required": [
+                              "mode"
+                            ]
+                          },
+                          "then": {
+                            "properties": {
+                              "autoDueAt": {
+                                "type": "null"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": true,
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "shortHangupResult"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "durationSeconds"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "DccBusinessAckCandidate": {
+        "type": "object",
+        "required": [
+          "resultId",
+          "resultVersion",
+          "accepted"
+        ],
+        "properties": {
+          "resultId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resultVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "accepted": {
+            "type": "boolean",
+            "description": "true只有接收端已可靠保存本次对应版本且验明ID/version匹配才确认；false可合法报文但不确认。"
+          }
+        },
+        "additionalProperties": true
+      },
+      "DccRoutingContextCandidate": {
+        "type": "object",
+        "required": [
+          "originalSource",
+          "originVerified",
+          "associationVerified"
+        ],
+        "properties": {
+          "originalSource": {
+            "const": "DCC"
+          },
+          "originVerified": {
+            "const": true
+          },
+          "associationVerified": {
+            "const": true
+          },
+          "savedOriginalAppId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true,
+        "description": "仅本方测试/后台资格上下文，不加入对DCCwire、不接受body自报。schema const只检查声称的形状；可信原来源须真实服务端重读/验真。"
+      },
+      "DccOutboundReviewCandidate": {
+        "type": "object",
+        "required": [
+          "routingContext",
+          "payload"
+        ],
+        "properties": {
+          "routingContext": {
+            "$ref": "#/components/schemas/DccRoutingContextCandidate"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/DccResultPayloadCandidate"
+          }
+        },
+        "additionalProperties": false,
+        "description": "非HTTP报文：本方审阅/测试包装，仅展示已保存原DCC来源才有外发资格；未实现。"
+      }
+    },
+    "securitySchemes": {
+      "CandidateTenantBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "仅工程提议；真实token服务未核实。服务端必须可信恢复单一tenant和稳定app，并核原任务归属；不假定JWT。"
+      },
+      "CandidateDccServiceBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "仅待DCC确认的服务端认证提议，与DCC/天网调用平台的应用token独立；不得转发应用密钥/token。"
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "本文采用的格式规范；不是AliCti业务来源。",
+    "url": "https://spec.openapis.org/oas/v3.1.0.html"
+  },
+  "x-status": "candidate_not_approved_not_implemented",
+  "x-prepared-at": "2026-10-13T23:29:31+08:00",
+  "x-current-interface-fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d",
+  "x-formal-source-sha256": {
+    "runtime/loop-state.json": "f95a585e33e574acd0622020522c5459e940408185eda7f1977ab95c8359d3c9",
+    "runtime/current-review-status.json": "c5c74ccef4d81026ba37fa86783116501bcd2e740c4288e28f7a7de3c535af4c",
+    "runtime/open-items.json": "14555a143ccd60884cfa2ccf03d6d1a817635c188c6cf420e759c8bb3edeb035",
+    "interfaces/interface-index.json": "ac95587b853195d40d8a12db1ca96630731924ad952b24ed76172ed415c1b7bf",
+    "memory/normalized-user-stories.json": "70ed0820162dca9fe8a4893f801c655788c18c20828a1a176c50f922045e19d0",
+    "memory/business-rules.json": "a98f7336cb73571c420d59ccfa3ad09049ef379d5cd6f408bee84a813ffd0136",
+    "memory/feature-list.json": "546768c8f3ec2d4148ef1cab4f4b062493f78cfa888eef5c5b5c38b4c46aea51",
+    "planning/page-index.json": "e27a904b84fcdf9865d0ef6b4ec46195bc85bd0b3982ee19ff80092bcfe0d132",
+    "runtime/tianwang-g2-user-approval-20261013.json": "4b7fee384e634cbe60c7cdcd71f333c4b12b1e0b90c2e17352e513d287d1de42"
+  },
+  "x-proposal-decisions": [
+    {
+      "id": "CAND-TOKEN-TRANSPORT",
+      "proposal": "POST /v1/integration/token，JSON body；获取后建议Authorization: Bearer。",
+      "authority": "new_technical_proposal_only",
+      "unresolved": "现有网关、密钥存储/签发、稳定app解析、tokenTTL及撤权策略；等待工程评审，不替代031。"
+    },
+    {
+      "id": "CAND-ID-WIRE",
+      "proposal": "本方record/batch、tenant/app及request等标识候选采用非空string；原供应商taskId在共用导入/回传候选中采用integer，不新建本地任务ID或重映射。实际类型/限制与历史调用兼容待评审。",
+      "authority": "new_technical_proposal_only",
+      "unresolved": "与现有调用方数字/string兼容及历史数据规范；不据此重写正式契约。"
+    },
+    {
+      "topic": "Schema placement",
+      "decision": "OpenAPI 3.1-compatible JSON Schema objects under components/schemas; refs use #/components/schemas/Name. This package specifies no actual method/path/server/security scheme."
+    },
+    {
+      "topic": "Envelope versus row",
+      "decision": "rows.items={} intentionally allows all parsed JSON; each raw item independently validates ImportValidRow, then saved business guards. Only JSON/envelope structural or authorization failure is whole-request rejection; bad row alone never makes the entire new request invalid."
+    },
+    {
+      "topic": "Candidate types and limits",
+      "decision": "Strict positive integer taskId, nonempty identifier strings, strict priority integer 0..999999, optional string R/rowId, closed named objects and nonempty rows are proposed engineering choices, not production facts. No max length/row count/request size, phone regex, token TTL or HTTP code is invented."
+    },
+    {
+      "topic": "Priority source",
+      "decision": "SRC073 official cached import page live-312.txt L24(taskId), L26(request priority) and L37(TaskTel priority) documents Int/default0/larger-higher/max999999. Platform priority is required and never defaults. No explicit minimum appears in that cited text; candidate minimum0 requires confirmation, not a supplier verified lower bound. Supplier optional/default semantics do not weaken platform requiredness.",
+      "raw_ref": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/任务号码导入接口.html",
+      "source_ref": "inputs/source-index.json#SRC-073"
+    },
+    {
+      "topic": "Row locator",
+      "decision": "Stable zero-based rowIndex in each receipt preserves even malformed input row position; rowId optional candidate client alias, never phone/lead identity. Duplicate rowId policy remains proposed runtime rejection/pending of colliding rows, not a schema uniqueItems over records."
+    },
+    {
+      "topic": "Normalization candidate",
+      "decision": "Preserve ordered complete parsed JSON rows including invalid/unknown fields. Only add isNewBatch:false to object rows where the property is absent; never coerce an invalid flag or inject priority/R. Compare canonical JSON with object key order ignored and arrays ordered; exact strings/types kept. Duplicate JSON object member keys must be detected before parse and rejected as ambiguous whole JSON, or a formally agreed equivalent must be defined; no drop-before-compare."
+    },
+    {
+      "topic": "Stored replay",
+      "decision": "Current auth tenant/stable app/original task permission/mode first; key candidate=(trusted tenant, trusted stable app, IMPORT, requestId). taskId and all raw row content participate in comparison. Same stable app with new valid token is same scope; different app is isolated. Same normalized complete content returns original stored receipt/map including invalid/pending rows, no new supplier request and no latest-root reselection; changed full content rejects the whole repeat."
+    },
+    {
+      "topic": "Source and supplier separation",
+      "decision": "Accepted row stores trusted original app/source server-side. Only original DCC record/its internal attempt is eligible for fixed DCC delivery via API010; TW/manual local, unknown/conflict pending. Local ACK and supplier evidence remain independent; no vendor params/fileId input or supply state inferred from aggregate success."
+    },
+    {
+      "topic": "Receipt association echo",
+      "decision": "根代理补入当前API001 response_fields对应的保存tenant/task与有效行leadCode/phone回显；具体字段层级为候选，数据必须来自原保存回执。同ID重放不得刷新这些值。"
+    },
+    {
+      "candidate": "resultCategory=CALL_RESULT/IMPORT_RESULT/FAILURE_PROGRESS",
+      "status": "unconfirmed_technical_discriminator",
+      "reason": "区分准确客户call三态与可能无call/fileId的导入/内部失败进度，不能冒充供应商状态。"
+    },
+    {
+      "candidate": "association和平台进度字段ID类型、required集合、state编码",
+      "status": "unconfirmed_schema_shape_and_legacy_compatibility",
+      "reason": "候选本方/tenant/lead/请求/行/record/batch/root标识string，原supplier taskId为integer minimum1（候选限值）；fileId/callId/eventRef/attempt不全局必填。格式/历史兼容待双方，原providerResult字段类型不改。"
+    },
+    {
+      "candidate": "DccRoutingContextCandidate/DccOutboundReviewCandidate",
+      "status": "backend_review_fixture_only_not_wire",
+      "reason": "测试包装读取服务端不可变原来源；不增对DCC字段或前台body source/回调配置。"
+    },
+    {
+      "candidate": "providerResult object或null/保留原字段",
+      "status": "candidate_container_only",
+      "reason": "保原供应商字段及类型，尚无结果不补值；raw是否完整未改写需证据校验，schema无法证明。"
+    },
+    {
+      "candidate": "shared rowIndex association",
+      "status": "unconfirmed_technical_alignment",
+      "reason": "对齐导入与同步回执行位置，原rowRef仅可选兼容。回传带原保存tenant/task/lead/phone；CALL_RESULT需call或稳定event引用，IMPORT_RESULT/FAILURE_PROGRESS不强填未发生通话。结构不证明来源或关联真实性。"
+    }
+  ],
+  "x-unverified-runtime-rules": [
+    {
+      "id": "U01",
+      "rule": "Authentication/current tenant/task/mode/known stable app checks run before lookup or row processing; unauthorized replay cannot reveal prior receipts. Actual auth/TTL/token revocation/source migration unknown."
+    },
+    {
+      "id": "U02",
+      "rule": "All rows including invalid input are canonically compared; same ID changed missing-priority row, added/deleted/reordered row, changed taskId or unknown field creates whole-request conflict without overwriting receipt or any new supplier call."
+    },
+    {
+      "id": "U03",
+      "rule": "Same app new valid token returns exact old mapping/root even after a later main; different authenticated app same requestId has independent technical map but same accurate business group/failure four-tuple budget."
+    },
+    {
+      "id": "U04",
+      "rule": "Root/batch equality for main, latest saved main for child, rowIndex count/order/uniqueness, original phone/lead historical consistency and persisted atomic mappings require service/database checks; schema is insufficient."
+    },
+    {
+      "id": "U05",
+      "rule": "isNewBatch default annotation does not execute normalization. true/false differences and nonBoolean invalid values retained; priority missing remains invalid and R omitted remains omitted."
+    },
+    {
+      "id": "U06",
+      "rule": "Local row ACCEPTED is not supplier accepted/called. Synchronous aggregate result0/import totals and 53 fragments do not fabricate per-row success/fileId/actual stable call or callback authority."
+    },
+    {
+      "id": "U07",
+      "rule": "Immutable original source per record/attempt; TW/manual no external callback; source unknown no DCC default; later root/app/source display changes cannot rewrite the old record."
+    },
+    {
+      "id": "U08",
+      "rule": "The schema cannot prove production persistence/concurrency/idempotency retention/token compatibility/ACK reliable delivery/supplier behavior or close ISSUE002/026/031/036."
+    },
+    "真实原来源与精确record/attempt/call或稳定事件关联只能读验真服务端保存事实；schema literal DCC/true不能证明身份或授权，TW/manual/unknown无交付对象。",
+    "三态正确性依客户接通/主动挂断/客户有效时长的可信来源与单位及整体证据冲突；schema通过不证明分类正确，也不以缺失为可信false。",
+    "只有真实新证据/进度变化提高同对象resultVersion；纯重复和补送复用原ID/version/content，旧ACK仅确认自身旧版，不回退当前视图。",
+    "ACK必须匹配实际发送的resultId/resultVersion且accepted严格true并已可靠保存；形状合法的错ID/错版、accepted=false或HTTP成功均不确认。",
+    "原vendor status/SIP/空值不能被平台分类覆盖，providerResult与原受控证据逐值/摘要对照仍待实现验证。",
+    "失败共享首次外2次账按同tenant/task/保存lead/fixedphone，不随app/root/file改变；used/reserved/available算术和真实实际发起/未知/取消互斥无法仅靠此结构证明。",
+    "自动三类120秒从首次可信确认起算；WAIT_MANUAL无需运营确认先保存，本地保存/策略不依DCCACK，八人工无统一120秒。",
+    "秒挂分类/结果补送不新建供应商提交、计划、预算、内部业务attempt/子批，不修改原生任务重呼。",
+    {
+      "id": "AUTHORITY-AND-SOURCE",
+      "status": "not_executed",
+      "rule": "服务端验证应用对指定租户的授权、原任务归属与当前权限；业务token不授予后台管理权，任务不绑应用；来源从认证与保存事实读取。"
+    },
+    {
+      "id": "CANDIDATE-ADOPTION",
+      "status": "not_approved",
+      "rule": "本候选不得直接供原型或生产消费；采用时按相应分析阶段更新正式接口事实并履行复核与门禁。"
+    }
+  ],
+  "x-offline-cases": [
+    {
+      "id": "TOKEN-VALID",
+      "schema": "TokenRequest",
+      "data": {
+        "appId": "APP_SYN_DCC",
+        "appSecret": "SYNTHETIC_INVALID_SECRET",
+        "tenantId": "TENANT_SYN"
+      },
+      "valid": true,
+      "checks": "合法候选形状，不验证凭据/授权"
+    },
+    {
+      "id": "TOKEN-MISSING-TENANT",
+      "schema": "TokenRequest",
+      "data": {
+        "appId": "APP_SYN_DCC",
+        "appSecret": "SYNTHETIC_INVALID_SECRET"
+      },
+      "valid": false,
+      "checks": "不能省略指定租户"
+    },
+    {
+      "id": "TOKEN-EMPTY-SECRET",
+      "schema": "TokenRequest",
+      "data": {
+        "appId": "APP_SYN_DCC",
+        "appSecret": "",
+        "tenantId": "TENANT_SYN"
+      },
+      "valid": false,
+      "checks": "空密钥形状错误"
+    },
+    {
+      "id": "TOKEN-NO-BODY-SOURCE",
+      "schema": "TokenRequest",
+      "data": {
+        "appId": "APP_SYN_DCC",
+        "appSecret": "SYNTHETIC_INVALID_SECRET",
+        "tenantId": "TENANT_SYN",
+        "source": "DCC"
+      },
+      "valid": false,
+      "checks": "来源不是自报字段"
+    },
+    {
+      "id": "TOKEN-RESPONSE",
+      "schema": "TokenResponse",
+      "data": {
+        "accessToken": "SYNTHETIC_INVALID_TOKEN",
+        "tokenType": "Bearer",
+        "expiresIn": 600,
+        "tenantId": "TENANT_SYN",
+        "appId": "APP_SYN_DCC"
+      },
+      "valid": true,
+      "checks": "600仅合成示例，不确认正式TTL"
+    },
+    {
+      "id": "TOKEN-UNKNOWN-TTL",
+      "schema": "TokenResponse",
+      "data": {
+        "accessToken": "SYNTHETIC_INVALID_TOKEN",
+        "tokenType": "Bearer",
+        "expiresIn": null,
+        "tenantId": "TENANT_SYN",
+        "appId": "APP_SYN_DCC"
+      },
+      "valid": false,
+      "checks": "未确定实际TTL不能伪装此候选已签发结构"
+    },
+    {
+      "id": "TOKEN-ERROR",
+      "schema": "TransportError",
+      "data": {
+        "code": "AUTHENTICATION_FAILED",
+        "message": "接入认证未通过"
+      },
+      "valid": true,
+      "checks": "无敏感信息的错误形状"
+    },
+    {
+      "id": "I01",
+      "schema": "SharedImportRequest",
+      "data": {
+        "taskId": 101,
+        "requestId": "SYN-REQUEST-A",
+        "rows": [
+          {
+            "leadCode": "SYN-LEAD-A",
+            "phone": "SYNTHETIC_PHONE_A",
+            "priority": 0
+          },
+          {
+            "leadCode": "SYN-LEAD-B",
+            "phone": "SYNTHETIC_PHONE_B"
+          },
+          null
+        ]
+      },
+      "valid": true,
+      "checks": [
+        "Envelope preserves malformed rows; valid row continues, invalid rows get receipts. Does not assert actual acceptance."
+      ]
+    },
+    {
+      "id": "I02",
+      "schema": "ImportValidRow",
+      "data": {
+        "leadCode": "SYN-LEAD-A",
+        "phone": "SYNTHETIC_PHONE_A",
+        "priority": 0
+      },
+      "valid": true,
+      "checks": [
+        "Required priority 0 is explicit; omitted flag normalizes false in runtime, not validator."
+      ]
+    },
+    {
+      "id": "I03",
+      "schema": "ImportValidRow",
+      "data": {
+        "leadCode": "SYN-LEAD-A",
+        "phone": "SYNTHETIC_PHONE_A",
+        "priority": 999999,
+        "isNewBatch": true,
+        "R": ""
+      },
+      "valid": true,
+      "checks": [
+        "Supplier documented upper maximum; R has no dictionary constraint."
+      ]
+    },
+    {
+      "id": "I04",
+      "schema": "ImportValidRow",
+      "data": {
+        "leadCode": "SYN-LEAD-B",
+        "phone": "SYNTHETIC_PHONE_B"
+      },
+      "valid": false,
+      "checks": [
+        "Missing priority fails this row only, no default."
+      ]
+    },
+    {
+      "id": "I05",
+      "schema": "ImportValidRow",
+      "data": {
+        "leadCode": "SYN-LEAD-A",
+        "phone": "SYNTHETIC_PHONE_A",
+        "priority": 1000000
+      },
+      "valid": false,
+      "checks": [
+        "Above SRC073 documented priority maximum."
+      ]
+    },
+    {
+      "id": "I06",
+      "schema": "ImportValidRow",
+      "data": {
+        "leadCode": "SYN-LEAD-A",
+        "phone": "SYNTHETIC_PHONE_A",
+        "priority": 0,
+        "isNewBatch": "false"
+      },
+      "valid": false,
+      "checks": [
+        "No Boolean coercion; envelope with this row remains valid."
+      ]
+    },
+    {
+      "id": "I07",
+      "schema": "ImportValidRow",
+      "data": null,
+      "valid": false,
+      "checks": [
+        "Non-object row is invalid per-row, not a malformed JSON/envelope failure."
+      ]
+    },
+    {
+      "id": "I08",
+      "schema": "SharedImportRequest",
+      "data": {
+        "taskId": 101,
+        "requestId": "SYN-REQUEST-A",
+        "rows": [
+          {
+            "leadCode": "SYN-LEAD-A",
+            "phone": "SYNTHETIC_PHONE_A",
+            "priority": 0
+          },
+          {
+            "leadCode": "SYN-LEAD-B",
+            "phone": "SYNTHETIC_PHONE_B"
+          },
+          null
+        ],
+        "appId": "SYN-FORGED-APP"
+      },
+      "valid": false,
+      "checks": [
+        "Closed-body proposal excludes caller-supplied authorization identity; actual app derives from auth."
+      ]
+    },
+    {
+      "id": "I09",
+      "schema": "SharedImportRequest",
+      "data": {
+        "taskId": 101,
+        "requestId": "SYN-REQUEST-A",
+        "rows": {
+          "leadCode": "SYN-LEAD-A"
+        }
+      },
+      "valid": false,
+      "checks": [
+        "rows must be an array; envelope-level structural failure."
+      ]
+    },
+    {
+      "id": "I10",
+      "schema": "SharedImportResponse",
+      "data": {
+        "requestId": "SYN-REQUEST-A",
+        "rows": [
+          {
+            "rowIndex": 0,
+            "status": "ACCEPTED",
+            "recordId": "SYN-RECORD-A",
+            "batchId": "SYN-BATCH-A",
+            "rootBatchId": "SYN-BATCH-A",
+            "isNewBatch": false,
+            "batchKind": "MAIN",
+            "leadCode": "SYN-LEAD-A",
+            "phone": "SYNTHETIC_PHONE_A"
+          },
+          {
+            "rowIndex": 1,
+            "status": "REJECTED",
+            "reason": "Proposed missing priority reason"
+          },
+          {
+            "rowIndex": 2,
+            "status": "REJECTED",
+            "reason": "Proposed non-object row reason"
+          }
+        ],
+        "tenantId": "TENANT_SYN",
+        "taskId": 101
+      },
+      "valid": true,
+      "checks": [
+        "Mixed saved receipt form; local ACCEPTED does not prove supplier acceptance."
+      ]
+    },
+    {
+      "id": "I11",
+      "schema": "ImportAcceptedRowReceipt",
+      "data": {
+        "rowIndex": 0,
+        "status": "ACCEPTED",
+        "recordId": "SYN-RECORD-A",
+        "batchId": "SYN-BATCH-A",
+        "rootBatchId": "SYN-BATCH-A",
+        "isNewBatch": true,
+        "batchKind": "CHILD",
+        "leadCode": "LEAD_SYN_A",
+        "phone": "PHONE_SYN_A"
+      },
+      "valid": false,
+      "checks": [
+        "True must select MAIN; false may be initial MAIN or later CHILD."
+      ]
+    },
+    {
+      "id": "I12",
+      "schema": "ImportRequestConflict",
+      "data": {
+        "requestId": "SYN-REQUEST-A",
+        "error": {
+          "code": "REQUEST_CONTENT_CONFLICT",
+          "message": "Synthetic changed complete-content conflict"
+        }
+      },
+      "valid": true,
+      "checks": [
+        "Candidate conflict body; runtime must detect changed rejected/pending rows as well as accepted ones."
+      ]
+    },
+    {
+      "id": "DCC-01-SHORT-REAL-ZERO",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_A",
+        "resultVersion": 1,
+        "resultCategory": "CALL_RESULT",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "callId": "DEMO_CALL_A",
+          "rowIndex": 0
+        },
+        "providerResult": {
+          "onHookSource": "客户挂断",
+          "customerBridgeDuration": 0
+        },
+        "platformResult": {
+          "shortHangupResult": "SHORT_HANGUP",
+          "durationSeconds": 0,
+          "evidence": {
+            "customerAnswered": true,
+            "customerHungUp": true,
+            "durationTrusted": true
+          }
+        }
+      },
+      "valid": true,
+      "checks": [
+        "仅合成可信前提，实际0纳入0～2，原vendorResult不变；schema不证明真实单位/挂断方。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-02-SHORT-TWO",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_A",
+        "resultVersion": 1,
+        "resultCategory": "CALL_RESULT",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "callId": "DEMO_CALL_A",
+          "rowIndex": 0
+        },
+        "providerResult": {
+          "onHookSource": "客户挂断",
+          "customerBridgeDuration": 2
+        },
+        "platformResult": {
+          "shortHangupResult": "SHORT_HANGUP",
+          "durationSeconds": 2,
+          "evidence": {
+            "customerAnswered": true,
+            "customerHungUp": true,
+            "durationTrusted": true
+          }
+        }
+      },
+      "valid": true,
+      "checks": [
+        "2秒含边界，仍需真实关联/来源/字段证明。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-03-UNKNOWN-NULL",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_UNKNOWN",
+        "resultVersion": 1,
+        "resultCategory": "CALL_RESULT",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "callId": "DEMO_CALL_A",
+          "rowIndex": 0
+        },
+        "providerResult": {
+          "onHookSource": null,
+          "customerBridgeDuration": null
+        },
+        "platformResult": {
+          "shortHangupResult": "UNKNOWN",
+          "durationSeconds": null,
+          "evidence": {
+            "customerAnswered": null,
+            "customerHungUp": null,
+            "durationTrusted": false
+          }
+        }
+      },
+      "valid": true,
+      "checks": [
+        "不可信时长保持null，不把durationTrusted=false当C=false。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-04-IMPORT-NO-CALL-FILE",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_IMPORT_A",
+        "resultVersion": 1,
+        "resultCategory": "IMPORT_RESULT",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "fileId": null,
+          "callId": null,
+          "rowIndex": 0
+        },
+        "providerResult": null,
+        "platformResult": {
+          "importResult": {
+            "state": "UNKNOWN",
+            "reason": "SYNTHETIC_RESPONSE_MISSING"
+          }
+        }
+      },
+      "valid": true,
+      "checks": [
+        "导入/本方待核进度可以没有call和实际fileId；不得补造供应商成功。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-05-MANUAL-PROGRESS-UNKNOWN-BUDGET",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_PROGRESS_A",
+        "resultVersion": 1,
+        "resultCategory": "FAILURE_PROGRESS",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "fileId": null,
+          "callId": null,
+          "rowIndex": 0
+        },
+        "providerResult": {
+          "message": "无可用中继"
+        },
+        "platformResult": {
+          "failureProgress": {
+            "state": "WAIT_MANUAL",
+            "mode": "MANUAL",
+            "autoDueAt": null,
+            "budget": null
+          }
+        }
+      },
+      "valid": true,
+      "checks": [
+        "真实WAIT_MANUAL不等运营确认，不套120秒；账不明为null，不默认0/2。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-06-UNKNOWN-MUST-NOT-FILL-ZERO",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_UNKNOWN",
+        "resultVersion": 1,
+        "resultCategory": "CALL_RESULT",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "callId": "DEMO_CALL_A",
+          "rowIndex": 0
+        },
+        "providerResult": {
+          "onHookSource": null,
+          "customerBridgeDuration": null
+        },
+        "platformResult": {
+          "shortHangupResult": "UNKNOWN",
+          "durationSeconds": 0,
+          "evidence": {
+            "customerAnswered": null,
+            "customerHungUp": null,
+            "durationTrusted": false
+          }
+        }
+      },
+      "valid": false,
+      "checks": [
+        "durationTrusted=false时durationSeconds必须null，禁止将缺失补0。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-07-SHORT-OUTSIDE-RANGE",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_A",
+        "resultVersion": 1,
+        "resultCategory": "CALL_RESULT",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "callId": "DEMO_CALL_A",
+          "rowIndex": 0
+        },
+        "providerResult": {
+          "onHookSource": "客户挂断",
+          "customerBridgeDuration": 0
+        },
+        "platformResult": {
+          "shortHangupResult": "SHORT_HANGUP",
+          "durationSeconds": 3,
+          "evidence": {
+            "customerAnswered": true,
+            "customerHungUp": true,
+            "durationTrusted": true
+          }
+        }
+      },
+      "valid": false,
+      "checks": [
+        "SHORT的形状至少限定可信0～2，分类真实性仍不由schema证明。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-08-MANUAL-NO-AUTO-DUE",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_PROGRESS_A",
+        "resultVersion": 1,
+        "resultCategory": "FAILURE_PROGRESS",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "fileId": null,
+          "callId": null,
+          "rowIndex": 0
+        },
+        "providerResult": {
+          "message": "无可用中继"
+        },
+        "platformResult": {
+          "failureProgress": {
+            "state": "WAIT_MANUAL",
+            "mode": "MANUAL",
+            "autoDueAt": "2026-10-13T12:02:00+08:00",
+            "budget": null
+          }
+        }
+      },
+      "valid": false,
+      "checks": [
+        "八人工不生成三自动120秒到期字段。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-09-ACK-STRUCTURE",
+      "schema": "DccBusinessAckCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_A",
+        "resultVersion": 1,
+        "accepted": true
+      },
+      "valid": true,
+      "checks": [
+        "accepted=true仅形状合法；还必须可靠保存且匹配实际发送版本，HTTP成功不足。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-10-ACK-BOOLEAN-NOT-STRING",
+      "schema": "DccBusinessAckCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_A",
+        "resultVersion": 1,
+        "accepted": "true"
+      },
+      "valid": false,
+      "checks": [
+        "候选accepted仅Boolean，不隐式转换字符串。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-11-ACK-WRONG-VERSION-RUNTIME-FAIL",
+      "schema": "DccBusinessAckCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_A",
+        "resultVersion": 2,
+        "accepted": true
+      },
+      "valid": true,
+      "checks": [
+        "结构合法，但当前所发版本1；业务确认必须失败，保版本1待补送，不能确认版本2或新导入。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-12-TW-UNDER-DCC-ROOT-NO-SEND",
+      "schema": "DccOutboundReviewCandidate",
+      "data": {
+        "routingContext": {
+          "originalSource": "TIANWANG",
+          "originVerified": true,
+          "associationVerified": true,
+          "savedOriginalAppId": "DEMO_APP_TW"
+        },
+        "payload": {
+          "resultId": "DEMO_RESULT_CALL_A",
+          "resultVersion": 1,
+          "resultCategory": "CALL_RESULT",
+          "association": {
+            "requestId": "DEMO_REQUEST_A",
+            "recordId": "DEMO_RECORD_A",
+            "batchId": "DEMO_BATCH_A",
+            "rootBatchId": "DEMO_ROOT_A",
+            "tenantId": "TENANT_SYN",
+            "taskId": 1001,
+            "leadCode": "LEAD_SYN_A",
+            "phone": "PHONE_SYN_A",
+            "callId": "DEMO_CALL_A",
+            "rowIndex": 0
+          },
+          "providerResult": {
+            "onHookSource": "客户挂断",
+            "customerBridgeDuration": 0
+          },
+          "platformResult": {
+            "shortHangupResult": "SHORT_HANGUP",
+            "durationSeconds": 0,
+            "evidence": {
+              "customerAnswered": true,
+              "customerHungUp": true,
+              "durationTrusted": true
+            }
+          }
+        }
+      },
+      "valid": false,
+      "checks": [
+        "仅本方资格包装形状拒绝TW；真实服务端原来源核查仍未执行，DCC root归属不能改投。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-13-KNOWN-FALSE-WITH-OTHER-UNKNOWN",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_UNKNOWN",
+        "resultVersion": 1,
+        "resultCategory": "CALL_RESULT",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "callId": "DEMO_CALL_A",
+          "rowIndex": 0
+        },
+        "providerResult": {
+          "onHookSource": null,
+          "customerBridgeDuration": null
+        },
+        "platformResult": {
+          "shortHangupResult": "NOT_SHORT_HANGUP",
+          "durationSeconds": null,
+          "evidence": {
+            "customerAnswered": false,
+            "customerHungUp": null,
+            "durationTrusted": false
+          }
+        }
+      },
+      "valid": true,
+      "checks": [
+        "合成前提准确关联且整体可信证据无冲突：可信A=false足以非秒挂，其他unknown不推翻；运行时必须验证这些前提。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    },
+    {
+      "id": "DCC-14-CALL-NO-ASSOCIATION",
+      "schema": "DccResultPayloadCandidate",
+      "data": {
+        "resultId": "DEMO_RESULT_CALL_A",
+        "resultVersion": 1,
+        "resultCategory": "CALL_RESULT",
+        "association": {
+          "requestId": "DEMO_REQUEST_A",
+          "recordId": "DEMO_RECORD_A",
+          "batchId": "DEMO_BATCH_A",
+          "rootBatchId": "DEMO_ROOT_A",
+          "tenantId": "TENANT_SYN",
+          "taskId": 1001,
+          "leadCode": "LEAD_SYN_A",
+          "phone": "PHONE_SYN_A",
+          "rowIndex": 0
+        },
+        "providerResult": {
+          "onHookSource": "客户挂断",
+          "customerBridgeDuration": 0
+        },
+        "platformResult": {
+          "shortHangupResult": "SHORT_HANGUP",
+          "durationSeconds": 0,
+          "evidence": {
+            "customerAnswered": true,
+            "customerHungUp": true,
+            "durationTrusted": true
+          }
+        }
+      },
+      "valid": false,
+      "checks": [
+        "实际通话结果必须有原call或稳定事件引用；该要求不套尚无通话的导入/进度。"
+      ],
+      "data_authority": "synthetic_only_no_real_call_or_identity_proof",
+      "execution_status": "not_executed_by_this_preparer"
+    }
+  ],
+  "x-scope-limits": {
+    "formal_interfaces_changed": false,
+    "production_evidence_closed": false,
+    "risk_accepted": false,
+    "acceptance_timing_changed": false,
+    "G3_approved": false,
+    "real_calls_allowed": false,
+    "formal_05_started": false
+  },
+  "x-review-before-adoption": [
+    "正式method/route与网关和历史调用兼容。",
+    "候选字段类型/限制/状态编码、完整归一及错误行规范。",
+    "真实token类型/TTL/撤权及stable app恢复；候选Bearer不代表现状。",
+    "结果对象粒度/版本与DCC兼容、ACK认证及补送时限上限。",
+    "供应商字段、事件/attempt身份和部署证据沿现有17项缺口；结构检查不能替代。"
+  ],
+  "x-candidate-part-source-records": [
+    {},
+    {
+      "source_sha256": {
+        "interfaces/interface-index.json": "ac95587b853195d40d8a12db1ca96630731924ad952b24ed76172ed415c1b7bf",
+        "runtime/s8-verification-case-pack-20261013.json": "235e9f3eaad66948ce87a87b11bcf1257f80fdf96e5b1954124b8a3c58058e8e",
+        "memory/normalized-user-stories.json": "70ed0820162dca9fe8a4893f801c655788c18c20828a1a176c50f922045e19d0",
+        "memory/business-rules.json": "a98f7336cb73571c420d59ccfa3ad09049ef379d5cd6f408bee84a813ffd0136",
+        "candidate-supplier-review/live-312.txt": "1bb9485e0d69d853dcc88739d26a2adfd203becdc2a12c1068024672d3b0df64",
+        "inputs/source-index.json": "2c9c7079fbe53e4b73396b853f85135f1392057ca24b02a42d8b193b037a778f"
+      },
+      "approved_mapping": [
+        {
+          "schema_fields": "taskId",
+          "refs": [
+            "API-001",
+            "AC-012",
+            "BR-016"
+          ],
+          "confirmed": "Original supplier task, tenant-owned/source-mode-authorized; not mapped to a local new task or app-bound."
+        },
+        {
+          "schema_fields": "rows/rowIndex and individual errors",
+          "refs": [
+            "API-001",
+            "AC-007",
+            "AC-047"
+          ],
+          "confirmed": "Bad row does not roll back other valid new rows; every original row has stable receipt location."
+        },
+        {
+          "schema_fields": "leadCode/phone/recordId/batchId/rootBatchId/batchKind/isNewBatch",
+          "refs": [
+            "API-001",
+            "AC-010",
+            "AC-048",
+            "AC-049"
+          ],
+          "confirmed": "Saved same tenant/task/lead group with fixed phone; each valid new row creates separate record/batch. true main root=batch; false/missing latest saved main child or first main. No previousBatchId/third layer."
+        },
+        {
+          "schema_fields": "priority/R",
+          "refs": [
+            "API-001",
+            "API-002",
+            "AC-005",
+            "AC-009",
+            "BR-021",
+            "SRC-073"
+          ],
+          "confirmed": "This call priority required, no default/daily decay; R optional, no dictionary or source authority. Candidate type/minimum distinguished from official maximum."
+        },
+        {
+          "schema_fields": "requestId/all complete rows/isNewBatch omission",
+          "refs": [
+            "API-001",
+            "AC-050",
+            "AC-051"
+          ],
+          "confirmed": "Auth before replay; full input including bad/pending rows is not filtered out; missing flag=false; persisted replay map/root preserved."
+        },
+        {
+          "schema_fields": "auth context outside body and immutable saved source",
+          "refs": [
+            "API-001",
+            "API-010",
+            "AC-047",
+            "AC-049",
+            "AC-050",
+            "BR-016",
+            "BR-017",
+            "SRC-116"
+          ],
+          "confirmed": "DCC/TW same schema, independent app credentials, app not business group/budget/task key. Only original DCC callback; TW/manual local; unknown never defaults DCC."
+        }
+      ],
+      "runtime_synthetic_scenarios_not_executed": [
+        {
+          "id": "R01",
+          "input": "Save request I01; retry same ID with explicit isNewBatch:false only on object rows where previously omitted.",
+          "expected": "Equivalent complete normalized input, original all-row receipt/map returned, zero new supplier submissions."
+        },
+        {
+          "id": "R02",
+          "input": "Save I01; same key change only missing-priority row leadCode or add its priority.",
+          "expected": "Whole repeated request conflict, not a new acceptance; accepted/pending/rejected originals preserved."
+        },
+        {
+          "id": "R03",
+          "input": "Trusted app A and B submit same literal requestId, same task/group/phone.",
+          "expected": "Separate technical requests and immutable sources; business group and shared four-tuple budget not divided by app."
+        },
+        {
+          "id": "R04",
+          "input": "Later main appears or app label changes, then same stable app retries saved request with a new valid token.",
+          "expected": "Auth first, exact saved old root/source/row receipt; no new batch/call/source reroute."
+        }
+      ]
+    },
+    {
+      "proposal_authority": "字段/类型/required集合/技术编码仅Agent候选，沿API010业务语义；不是双方批准或供应商wire事实",
+      "source_sha256": {
+        "interfaces/interface-index.json": "ac95587b853195d40d8a12db1ca96630731924ad952b24ed76172ed415c1b7bf",
+        "runtime/s8-verification-case-pack-20261013.json": "235e9f3eaad66948ce87a87b11bcf1257f80fdf96e5b1954124b8a3c58058e8e",
+        "casepack.current_preparation.DCC_result_ACK_review_card": "81568ed4408916b7ba7c1636b49952e7335a573254e5f2f833ba2bf5c27aa8b3"
+      },
+      "temporal_semantic_review_examples": [
+        {
+          "id": "DCC-TS-01-RESEND-ORIGINAL",
+          "given": "同resultId/version1已存准确内容，技术重送",
+          "expected": "原ID/version1/content逐值不变；不新call/attempt/budget",
+          "status": "not_executed"
+        },
+        {
+          "id": "DCC-TS-02-LATE-ACK",
+          "given": "当前结果已version2，收到版本1匹配ACK",
+          "expected": "仅确认原版本1交付，不确认version2、不降当前结果版",
+          "status": "not_executed"
+        },
+        {
+          "id": "DCC-TS-03-CLASSIFICATION-IS-NOT-SHAPE",
+          "given": "UNKNOWN报文形状合法，但真实A=false且整体准确无冲突",
+          "expected": "真实分类应NOT_SHORT_HANGUP；必须业务归一验证，不把schema合法当业务通过",
+          "status": "not_executed"
+        },
+        {
+          "id": "DCC-TS-04-SPOOFED-DCC-CONTEXT",
+          "given": "测试包装写DCC/true但服务端保存原来源是TW或未知",
+          "expected": "真实外发拒绝，schema包装合法不替代原来源核查",
+          "status": "not_executed"
+        }
+      ]
+    }
+  ]
+}

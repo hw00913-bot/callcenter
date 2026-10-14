@@ -1,0 +1,2482 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-003",
+  "scenario_id": "SC-003",
+  "name": "三自动120秒与八人工共享两次、原来源处理进度交付",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "该任务有权运营或管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "既有任务记录与原导入界面",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（合成）",
+      "kind": "system"
+    },
+    {
+      "id": "plans",
+      "name": "内部记录、计划与累计预算（逻辑参与方）",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti供应商（真实能力待核）",
+      "kind": "external_system"
+    },
+    {
+      "id": "dcc",
+      "name": "DCC固定结果接收端（真实契约待核）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "vendor",
+      "to": "service",
+      "message": "收到预测呼叫失败原taskId/fileId/customerNumber/failType/message/callTime等字段；无话单不等话单，无稳定callId/finishRetryFlag不伪造。完整事件身份/认证/重放仍partial。",
+      "type": "event",
+      "api_id": "API-003",
+      "condition": "独立本次供应商预测呼叫失败入口；不是53导入拒绝",
+      "step": 1,
+      "message_id": "SEQ-003-LOCAL-001",
+      "legacy_step": 1
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "从保存实际fileId/原task/原号码映射回查唯一触发record/batch、tenant/保存leadCode/固定phone及原root/source/priority，不能用leadCode单键、最近同号/后来新根代替。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "step": 2,
+      "message_id": "SEQ-003-LOCAL-002",
+      "legacy_step": 2
+    },
+    {
+      "from": "plans",
+      "to": "service",
+      "message": "返回可信唯一关联与原root/priority/来源；缺失/多候选/真实冲突返回待核，根关联不足与累计账不足分别保留原因，不猜或新造根。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 3,
+      "message_id": "SEQ-003-LOCAL-003",
+      "legacy_step": 3
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "去重核可信失败事件身份，并在平台收到且确认该准确失败时立即保存首次确认时间；纯重复/同事件可信晚更沿原对象，不新计划、不重计时计次。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "本次准确关联；时间不是supplier callTime、计划创建时刻或点击时刻",
+      "step": 4,
+      "message_id": "SEQ-003-LOCAL-004",
+      "legacy_step": 4
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "关联不明保原待核；同事件重复返回原处理进度和确认时间，不当新呼叫或新补提交。",
+      "type": "response",
+      "api_id": null,
+      "condition": "关联不明或纯重复：本次不安排新的失败执行",
+      "step": 5,
+      "message_id": "SEQ-003-LOCAL-005",
+      "legacy_step": 5
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "准确新原因分类：过频只任务规则，三自动/八人工才本轮失败处理；同步/53导入拒绝走SEQ-006/007，秒挂只SEQ-004本地判定。未知原因保待核不猜类。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "只有准确的新实际失败事件可新建相应处理；可信晚更只维护原对象",
+      "step": 6,
+      "message_id": "SEQ-003-LOCAL-006",
+      "legacy_step": 6
+    },
+    {
+      "from": "vendor",
+      "to": "vendor",
+      "message": "三自动依赖API-012既有外显导航配置/降级能力；真实3类覆盖、生效时点与同号再次受理待核，不能因时间经过认定换线，不新增配置调用或要求降级/解禁成功回执。",
+      "type": "action",
+      "api_id": "API-012",
+      "condition": "既有供应商导航依赖说明，不是当前已发生降级的通知",
+      "step": 7,
+      "message_id": "SEQ-003-LOCAL-007",
+      "legacy_step": 7
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "服务端从保存四元组读取跨记录/主子累计used/reserved及未知占用，三自动与八人工共享首次外max=2。合法DCC/天网新导入或再次初始手工导入、不同app/root/fileId/原因/方式/人/导出或删除均不重置。历史leadCode/账不足unknown，不以业务编码/空值/新root默认0/2。",
+      "type": "request",
+      "api_id": null,
+      "condition": "仅本轮11类，触发root只关联记录，预算另按tenant+原task+保存leadCode+固定phone",
+      "step": 8,
+      "message_id": "SEQ-003-LOCAL-008",
+      "legacy_step": 8
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "形成计划前核任务/指定记录状态和有效操作：pause挂起，终止或该记录准确取消停止待计划；在途不假撤回，计划/账/UNKNOWN占用保存，不能清同root或同号其他记录。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 9,
+      "message_id": "SEQ-003-LOCAL-009",
+      "legacy_step": 9
+    },
+    {
+      "from": "plans",
+      "to": "service",
+      "message": "返回可处理、累计用尽、暂停/停止或占用/生命周期待核；不通过只保存本地进度、不新发额度或供应商导入。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 10,
+      "message_id": "SEQ-003-LOCAL-010",
+      "legacy_step": 10
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "运营商禁呼/运营商限呼/restrict tel外呼黑名单保存唯一自动计划，到期取已保存本次首次可信确认时间+120秒；重复不推迟，后续真实新失败用新确认时间但账延续。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "仅自动三类且前置可处理；不先等供应商解禁/降级成功",
+      "step": 11,
+      "message_id": "SEQ-003-LOCAL-011",
+      "legacy_step": 11
+    },
+    {
+      "message_id": "SEQ-003-STATE-INITIAL",
+      "from": "service",
+      "to": "plans",
+      "message": "首次八类准确失败立即保存WAIT_MANUAL及真实原原因/共享额度或unknown、原确认时间/trigger/root/source，无需运营点击或确认；三类按已保存本次确认+120秒保真实等待计划。额度尽/暂停/停止/关联或执行权UNKNOWN按实际状态先留证，不新计划或假造可执行。每次准确已有对象状态保存均可独立触发原DCC进度交付，天网/手工查看。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "准确失败对象已确认，读取前置真实结果；首次待人工也触发保存/交付，不等UI查看、人工确认、120秒到期或实际补导",
+      "step": 12
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-01",
+      "from": "service",
+      "to": "plans",
+      "message": "读取本次已保存准确record/内部attempt的不可变原应用与来源、原request/行及trigger/root/file/call或可靠事件映射，准备此次真实结果/进度；不按任务接口标签、root拥有方、后来新主/最近app、R、显示名或body声明猜回传目标。",
+      "type": "request",
+      "api_id": null,
+      "condition": "独立本次准确结果/可信晚更或处理进度已保存；不等运营查看/确认或远端ACK，不作为后续策略前置",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 13
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-02",
+      "from": "plans",
+      "to": "service",
+      "message": "返回可信原DCC、可信原天网/手工仅查看，或来源/交付关联缺失冲突待核这三种互斥结论；内部attempt继承触发record原来源，不因操作者或新root改写旧对象。",
+      "type": "response",
+      "api_id": null,
+      "condition": "独立本次准确结果/可信晚更或处理进度已保存；不等运营查看/确认或远端ACK，不作为后续策略前置",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 14
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-03",
+      "from": "service",
+      "to": "plans",
+      "message": "天网及手工保同样本地结果、三态与处理进度，沿现有任务权限查看；不创建DCC或天网回调，不因同号/共享root混入DCC交付。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "可信原来源为天网或手工；与DCC/来源待核分支互斥",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 15
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-04",
+      "from": "service",
+      "to": "plans",
+      "message": "来源缺失/真实冲突或本次交付精确归属待核，仅保本方待核状态及原证据，不默认DCC、不造确定供应商call或外发地址；本地保存/可信判定与调度守卫继续独立。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "来源或交付关联unknown/conflict；与已可信DCC/本地来源互斥",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 16
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-05",
+      "from": "service",
+      "to": "plans",
+      "message": "仅原DCC对象持久准备API-010拟定同一结果对象resultId/resultVersion及本次准确内容/原始证据；可信晚更或真实进度变化沿原对象形成新版本，纯重复复用原版，补送不改旧内容。原call/request/行/record/batch/root/source及内部trigger关系保留，本方结果ID不替代供应商身份。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "仅精确原record或继承触发record来源的内部attempt，已保存可信原DCC来源且本次交付关联准确；天网/手工/来源待核不执行；版本/可靠保存/outbox为已审工程提案，正式字段/持久实现仍missing",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 17
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-06",
+      "from": "service",
+      "to": "dcc",
+      "message": "向后台固定DCC接收端独立交付该原DCC记录本次准确原供应商结果、可信更新或真实处理进度，带已审拟定关联/结果版本及必要原证据；秒挂明确输出本方三态。真实报文/认证/route/传输时限仍missing，不填实际URL或凭据；不发送天网/手工记录。",
+      "type": "external_call",
+      "api_id": "API-010",
+      "condition": "仅精确原record或继承触发record来源的内部attempt，已保存可信原DCC来源且本次交付关联准确；天网/手工/来源待核不执行；本地结果先保存，发起/等待/失败均不阻塞本地处理、人工或自动守卫",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 18
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-07",
+      "from": "dcc",
+      "to": "service",
+      "message": "接收端可靠保存该准确结果版本后，拟定返回匹配本次resultId/resultVersion的accepted=true业务ACK；accepted=false/缺失/异ID异版、HTTP成功或未知响应均不冒充该版本已确认。",
+      "type": "response",
+      "api_id": "API-010",
+      "condition": "仅精确原record或继承触发record来源的内部attempt，已保存可信原DCC来源且本次交付关联准确；天网/手工/来源待核不执行；仅实际业务响应到达的条件分支，生产持久ACK实现仍待双方",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 19
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-08",
+      "from": "service",
+      "to": "plans",
+      "message": "按实际发送的原对象/原版本核业务ACK并保存确认；低版乱序ACK仅确认自身旧交付，不确认新版、不回退本地结果/证据。即使DCC保存/ACK待核，本地结果与失败策略仍按独立已保存对象执行。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "本次准确匹配且可靠accepted=true ACK；与未确认/超时分支互斥",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 20
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-09",
+      "from": "service",
+      "to": "plans",
+      "message": "未确认、拒绝、不匹配ACK或网络失败/超时只保该交付原ID/版本/内容待补送及实际原因；不改变业务呼叫结果，不新call、失败计划、计时、内部业务attempt、单号子批或补提交预算，不解除UNKNOWN供应商占用。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "该交付版本未确认或传输未知；无须等收到ACK才保存本地状态",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 21
+    },
+    {
+      "message_id": "SEQ-003-DCC-INITIAL_PROGRESS-10",
+      "from": "service",
+      "to": "dcc",
+      "message": "仅补送仍属原可信DCC对象的同一resultId/resultVersion和原内容，重核精确目标/来源；不是新供应商导入或呼叫，不占额外2次，不改首次失败确认+120秒。真实补送间隔/上限/认证待核，不从供应商52/53 ACK或传输重试参数移用。",
+      "type": "compensation",
+      "api_id": "API-010",
+      "condition": "仅精确原record或继承触发record来源的内部attempt，已保存可信原DCC来源且本次交付关联准确；天网/手工/来源待核不执行；仅独立未确认交付补送触发，与新业务尝试/新结果版本分开",
+      "delivery_trigger": "首次准确失败/待自动120秒/WAIT_MANUAL/额度尽/暂停停止/UNKNOWN进度保存；独立事件",
+      "step": 22
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "自动显示确认+120秒等待；其余无可用中继、bad tel、真实号码为空、no clid、bad clid、无可用中继信息、wrong obClidGroup、bad timeout range仅待有权人工，不生成自动计时。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 23,
+      "message_id": "SEQ-003-LOCAL-012",
+      "legacy_step": 12
+    },
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "选择当前八类已有准确失败记录并明确确认补提交；核对资源/数据/配置，不新名单、不静默改phone/priority；取消/未确认仍待人工。",
+      "type": "request",
+      "api_id": null,
+      "condition": "独立后续合法人工意图/自动到期，不等待DCC发送或ACK；仅八类人工，按该任务原操作权限；三自动/秒挂不提供此提前人工操作",
+      "step": 24,
+      "message_id": "SEQ-003-LOCAL-013",
+      "legacy_step": 13
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "后台生成拟定failedRecordId/actionId/expectedVersion/Boolean confirmed=true，认证来自现有登录；用户仅选择已存记录并确认，不输入后台scope/root/预算字段。",
+      "type": "request",
+      "api_id": "API-011",
+      "condition": "当前八类明确确认，工程字段提案/真实route/auth未实现",
+      "step": 25,
+      "message_id": "SEQ-003-LOCAL-014",
+      "legacy_step": 14
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "每次先验当前认证、tenant/原task/准确对象及原任务操作权限；有权运营/管理员限授权范围，无权拒绝、具体授权无法核实时待核，不自动授新账号权。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 26,
+      "message_id": "SEQ-003-LOCAL-015",
+      "legacy_step": 15
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "授权后先按actionId核完整命令：同ID同内容读取原action对应attempt当前状态，后来对象升版仍不新发；异内容冲突拒绝。仅新action校验当前expectedVersion和Boolean true确认，不隐式转换。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "人工API-011入口；不同action也受同对象有效尝试和同四元组预算锁",
+      "step": 27,
+      "message_id": "SEQ-003-LOCAL-016",
+      "legacy_step": 16
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "返回未确认/无权/版本或内容冲突/待核/原动作复用等当前结果；命令接收不等供应商受理，重复确认不建新attempt、不消耗新次数。",
+      "type": "response",
+      "api_id": "API-011",
+      "condition": "仅本次人工命令当前反馈；重放/拒绝分支不继续新外发",
+      "step": 28,
+      "message_id": "SEQ-003-LOCAL-017",
+      "legacy_step": 17
+    },
+    {
+      "from": "plans",
+      "to": "service",
+      "message": "自动计划按原确认时间+120秒到期唤起；尚未到期继续等待，这个内部事件不是供应商降级通知或成功回执。",
+      "type": "event",
+      "api_id": null,
+      "condition": "独立后续合法人工意图/自动到期，不等待DCC发送或ACK；仅自动三类唯一计划；人工不等待这个时钟",
+      "step": 29,
+      "message_id": "SEQ-003-LOCAL-018",
+      "legacy_step": 18
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "到期自动或新的合法人工在实际执行前再核精确触发对象/root、当前权限/记录版本、四元组连续账与占用、task/record生命周期、供应商同号受理和原生/导航执行权；与SEQ-009同目标删除/取消共用执行互斥。",
+      "type": "request",
+      "api_id": null,
+      "condition": "不凭空话单、finishRetryFlag或新fileId推定安全；任何待核/冲突阻止外发",
+      "step": 30,
+      "message_id": "SEQ-003-LOCAL-019",
+      "legacy_step": 19
+    },
+    {
+      "from": "plans",
+      "to": "service",
+      "message": "返回执行通过或挂起/停止/累计用尽/有效占用或执行权待核；未通过不外发，恢复重核，终止或精确取消只停止本目标未执行计划。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 31,
+      "message_id": "SEQ-003-LOCAL-020",
+      "legacy_step": 20
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "准备内部触发事件/唯一计划及独立attempt、必要单号子batch，始终取触发记录已保存root/source/原task/priority。后来新根不重算旧root，子不挂上一子，无第三层，不伪造新的初始导入请求。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "仅执行前全部守卫通过的新本次业务尝试",
+      "step": 32,
+      "message_id": "SEQ-003-LOCAL-021",
+      "legacy_step": 21
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "外发前原子取得本attempt独占执行权并持久保存同四元组预算槽预占、trigger/root和状态；与目标删除/取消共享互斥，尚未实际发起不记used。原始导入时间审计，异常独立排队时间仍同task priority高先/FIFO。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "持久原子协议为已审工程提案，真实实现仍待核；不能外发后才补账",
+      "step": 33,
+      "message_id": "SEQ-003-LOCAL-022",
+      "legacy_step": 22
+    },
+    {
+      "from": "service",
+      "to": "vendor",
+      "message": "仅这个新业务attempt实际补导单号，沿保存task/priority及已审独立fileId候选；排重/isRepeat、受理及运行任务仍partial，不默认关排重，不用root充当fileId。",
+      "type": "external_call",
+      "api_id": "API-002",
+      "condition": "独占持久预占与执行权仍有效，外发前再次核同目标取消；UNKNOWN技术恢复不能另建尝试或new fileId",
+      "step": 34,
+      "message_id": "SEQ-003-LOCAL-023",
+      "legacy_step": 23
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "证明本次新业务已实际发起后同预算槽reserved→used，一次只计一槽；受理或明确拒绝均计。实际发起已证且响应unknown留used，是否发起不明留reserved，二者不双计且不释放再发。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "发起证据/崩溃恢复为工程待核；形成计划/点击/预占不算已用",
+      "step": 35,
+      "message_id": "SEQ-003-LOCAL-024",
+      "legacy_step": 24
+    },
+    {
+      "from": "vendor",
+      "to": "service",
+      "message": "返回本次原result/description/errorCode、实际data.fileId与导入数量；准确逐条证据才保存受理/拒绝，不以汇总result0任意判成功。",
+      "type": "response",
+      "api_id": "API-002",
+      "condition": "明确得到本次供应商响应，受理不等实际呼叫",
+      "step": 36,
+      "message_id": "SEQ-003-LOCAL-025",
+      "legacy_step": 25
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "准确受理保存本次actual fileId→attempt/batch/root，明确拒绝保原原因及已用；随后53导入失败沿SEQ-006/007同attempt保存，不触发新的11类计划，也不释放已用。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "本次明确且准确受理/拒绝分支",
+      "step": 37,
+      "message_id": "SEQ-003-LOCAL-026",
+      "legacy_step": 26
+    },
+    {
+      "from": "service",
+      "to": "plans",
+      "message": "本次发起/响应unknown沿原attempt和预算槽待核，actual fileId未知不伪造；禁止新action/新attempt/新fileId绕过。只有可证明根本未外发的取消/准备失败才按原原子协议释放该预占，已用/外发不明不能因无话单/拒绝/删除成功或finishRetryFlag释放。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "UNKNOWN或可证明未发起的取消为不同互斥恢复分支；没有新核查供应商端点",
+      "step": 38,
+      "message_id": "SEQ-003-LOCAL-027",
+      "legacy_step": 27
+    },
+    {
+      "message_id": "SEQ-003-STATE-UPDATE",
+      "from": "service",
+      "to": "plans",
+      "message": "独立保存本次实际变化或已有动作复用的准确失败处理进度及版本：等待/待人工/权限或生命周期待核、额度尽/暂停停止、实际发起/受理/拒绝或UNKNOWN占用；保原trigger/root/source/priority和四元组连续账。尚未实际发起不写used，响应/发起UNKNOWN仍原attempt槽不盲再发；DCC交付不能反向改策略或预算。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "每次准确状态变化、同对象可信更新/合法动作当前结果的独立保存触发，不以新supplier调用或operator查看为前置；纯重复复用原版",
+      "step": 39
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-01",
+      "from": "service",
+      "to": "plans",
+      "message": "读取本次已保存准确record/内部attempt的不可变原应用与来源、原request/行及trigger/root/file/call或可靠事件映射，准备此次真实结果/进度；不按任务接口标签、root拥有方、后来新主/最近app、R、显示名或body声明猜回传目标。",
+      "type": "request",
+      "api_id": null,
+      "condition": "独立本次准确结果/可信晚更或处理进度已保存；不等运营查看/确认或远端ACK，不作为后续策略前置",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 40
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-02",
+      "from": "plans",
+      "to": "service",
+      "message": "返回可信原DCC、可信原天网/手工仅查看，或来源/交付关联缺失冲突待核这三种互斥结论；内部attempt继承触发record原来源，不因操作者或新root改写旧对象。",
+      "type": "response",
+      "api_id": null,
+      "condition": "独立本次准确结果/可信晚更或处理进度已保存；不等运营查看/确认或远端ACK，不作为后续策略前置",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 41
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-03",
+      "from": "service",
+      "to": "plans",
+      "message": "天网及手工保同样本地结果、三态与处理进度，沿现有任务权限查看；不创建DCC或天网回调，不因同号/共享root混入DCC交付。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "可信原来源为天网或手工；与DCC/来源待核分支互斥",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 42
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-04",
+      "from": "service",
+      "to": "plans",
+      "message": "来源缺失/真实冲突或本次交付精确归属待核，仅保本方待核状态及原证据，不默认DCC、不造确定供应商call或外发地址；本地保存/可信判定与调度守卫继续独立。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "来源或交付关联unknown/conflict；与已可信DCC/本地来源互斥",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 43
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-05",
+      "from": "service",
+      "to": "plans",
+      "message": "仅原DCC对象持久准备API-010拟定同一结果对象resultId/resultVersion及本次准确内容/原始证据；可信晚更或真实进度变化沿原对象形成新版本，纯重复复用原版，补送不改旧内容。原call/request/行/record/batch/root/source及内部trigger关系保留，本方结果ID不替代供应商身份。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "仅精确原record或继承触发record来源的内部attempt，已保存可信原DCC来源且本次交付关联准确；天网/手工/来源待核不执行；版本/可靠保存/outbox为已审工程提案，正式字段/持久实现仍missing",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 44
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-06",
+      "from": "service",
+      "to": "dcc",
+      "message": "向后台固定DCC接收端独立交付该原DCC记录本次准确原供应商结果、可信更新或真实处理进度，带已审拟定关联/结果版本及必要原证据；秒挂明确输出本方三态。真实报文/认证/route/传输时限仍missing，不填实际URL或凭据；不发送天网/手工记录。",
+      "type": "external_call",
+      "api_id": "API-010",
+      "condition": "仅精确原record或继承触发record来源的内部attempt，已保存可信原DCC来源且本次交付关联准确；天网/手工/来源待核不执行；本地结果先保存，发起/等待/失败均不阻塞本地处理、人工或自动守卫",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 45
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-07",
+      "from": "dcc",
+      "to": "service",
+      "message": "接收端可靠保存该准确结果版本后，拟定返回匹配本次resultId/resultVersion的accepted=true业务ACK；accepted=false/缺失/异ID异版、HTTP成功或未知响应均不冒充该版本已确认。",
+      "type": "response",
+      "api_id": "API-010",
+      "condition": "仅精确原record或继承触发record来源的内部attempt，已保存可信原DCC来源且本次交付关联准确；天网/手工/来源待核不执行；仅实际业务响应到达的条件分支，生产持久ACK实现仍待双方",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 46
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-08",
+      "from": "service",
+      "to": "plans",
+      "message": "按实际发送的原对象/原版本核业务ACK并保存确认；低版乱序ACK仅确认自身旧交付，不确认新版、不回退本地结果/证据。即使DCC保存/ACK待核，本地结果与失败策略仍按独立已保存对象执行。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "本次准确匹配且可靠accepted=true ACK；与未确认/超时分支互斥",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 47
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-09",
+      "from": "service",
+      "to": "plans",
+      "message": "未确认、拒绝、不匹配ACK或网络失败/超时只保该交付原ID/版本/内容待补送及实际原因；不改变业务呼叫结果，不新call、失败计划、计时、内部业务attempt、单号子批或补提交预算，不解除UNKNOWN供应商占用。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "该交付版本未确认或传输未知；无须等收到ACK才保存本地状态",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 48
+    },
+    {
+      "message_id": "SEQ-003-DCC-UPDATED_PROGRESS-10",
+      "from": "service",
+      "to": "dcc",
+      "message": "仅补送仍属原可信DCC对象的同一resultId/resultVersion和原内容，重核精确目标/来源；不是新供应商导入或呼叫，不占额外2次，不改首次失败确认+120秒。真实补送间隔/上限/认证待核，不从供应商52/53 ACK或传输重试参数移用。",
+      "type": "compensation",
+      "api_id": "API-010",
+      "condition": "仅精确原record或继承触发record来源的内部attempt，已保存可信原DCC来源且本次交付关联准确；天网/手工/来源待核不执行；仅独立未确认交付补送触发，与新业务尝试/新结果版本分开",
+      "delivery_trigger": "每次准确本地处理进度/可信晚更保存；独立事件，不要求供应商新提交",
+      "step": 49
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "保存并本地显示原失败、自动/人工方式、本次确认/仅自动到期、used/reserved/available或unknown、trigger/root、attempt/actual fileId及等待/待人工/待核/受理/停止；available算术值不等可以绕过unknown占用。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 50,
+      "message_id": "SEQ-003-LOCAL-028",
+      "legacy_step": 28
+    },
+    {
+      "from": "ui",
+      "to": "operator",
+      "message": "当前八类按钮按任务权限、准确对象/版本、累计账/占用与pause/终止/取消禁用说明；服务端同样守卫。新真实失败另进本时序，重复/刷新不重计划，秒挂没有此按钮或额度。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 51,
+      "message_id": "SEQ-003-LOCAL-029",
+      "legacy_step": 29
+    }
+  ],
+  "notes": [
+    "本轮G2已由用户实际批准，证据runtime/manual-code-g2-user-approval-20261014.json，接口事实指纹fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4；按手工线索类单一编码说明继续S5-S7，保留13high/4medium生产缺口，不接受生产风险，不批准G3/真实调用。",
+    "DCC完整闭环恢复且最高优先级；天网/手工结果只平台查看。DCC参与方只接收原DCC对象，其来源来自record/继承内部attempt可信快照，任务接口标签、root拥有方、后来app/新主、R/名称/body不得猜路由，未知不默认DCC。",
+    "DCC交付段是准确保存结果/每次真实进度变化后的独立事件及互斥来源/ACK分支，消息展示顺序不构成等运营查看、确认、时钟到期、实际supplier补导或DCC响应后才继续本地处理的门槛。WAIT_MANUAL在首次保存即能交付；任何ACK/超时/补送都不新呼叫或预算。",
+    "现有本地消息固定message_id与legacy_step用于追溯旧身份/旧位置，不是新业务验收ID或真实wire字段；当前step仅按候选数组展示排序。原本地相对顺序和业务guard保留。",
+    "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+    "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+    "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+    "SRC-112已有公共HTTP success/网络200OK接收依据和52/53传输重试配置；精确body/AND或OR、回调验真、稳定业务事件/导入组身份、持久ACK及错误/超时具体重发触发仍待核。传输retry/秒间隔不能变成本方额外2次、120秒、三天五呼或新的失败计划；重复消息继续沿原对象/确认时间处理。",
+    "SRC-112辅助v10 /logCurl/list仅供后续索取/核对脱敏供应商推送轨迹，未作为本轮新增生产查询或UNKNOWN自动恢复端点。其type旧枚举未列52/53，日志uniqueId不当失败payload稳定ID，查询result0/-1与data.result1/0分开；查空或HTTP200不证明未拨、无在途、持久成功或后续执行权已清。",
+    "SRC-113批次话单候选仅可辅助供应商联调/取证，未增加本时序的新核查调用、恢复或重发动作；未知仍保原attempt/槽，不凭taskFileId可查、fileId独立、无话单或finishRetryFlag推定可安全外发。",
+    "SRC-111仅补既有API-012/013配置字段与模式边界的来源，不增加任务/导航配置调用、先解禁/先降级成功回执/先删后导门槛；具体目标任务的原生/导航受理和在途仍须生产证据。"
+  ],
+  "source_refs": [
+    "inputs/user-original-20261009.txt#第3条",
+    "inputs/source-index.json#SRC-002",
+    "inputs/source-index.json#SRC-043",
+    "inputs/source-index.json#SRC-050",
+    "inputs/source-index.json#SRC-051",
+    "inputs/source-index.json#SRC-056",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070",
+    "inputs/source-index.json#SRC-083",
+    "inputs/source-index.json#SRC-084",
+    "inputs/source-index.json#SRC-085",
+    "inputs/source-index.json#SRC-086",
+    "inputs/source-index.json#SRC-089",
+    "inputs/source-index.json#SRC-091",
+    "inputs/source-index.json#SRC-092",
+    "inputs/source-index.json#SRC-094",
+    "inputs/source-index.json#SRC-095",
+    "inputs/source-index.json#SRC-096",
+    "inputs/source-index.json#SRC-098",
+    "inputs/source-index.json#SRC-102",
+    "inputs/source-index.json#SRC-103",
+    "inputs/source-index.json#SRC-099",
+    "inputs/source-index.json#SRC-100",
+    "inputs/source-index.json#SRC-106",
+    "inputs/source-index.json#SRC-104",
+    "inputs/source-index.json#SRC-105",
+    "inputs/source-index.json#SRC-109",
+    "inputs/source-index.json#SRC-110",
+    "inputs/source-index.json#SRC-111",
+    "inputs/source-index.json#SRC-112",
+    "inputs/source-index.json#SRC-113",
+    "inputs/source-index.json#SRC-114",
+    "inputs/source-index.json#SRC-115",
+    "inputs/source-index.json#SRC-116"
+  ],
+  "review_history": [
+    {
+      "at": "2026-10-11T09:32:22+08:00",
+      "basis": "本次结果关联及DCC真重导采用明确requestId/previousBatchId，不继承旧日期/priority策略",
+      "source_ref": "inputs/source-index.json#SRC-083",
+      "record_type": "draft_semantic_revision_not_approval"
+    },
+    {
+      "at": "2026-10-12",
+      "basis": "当前G1范围与G2已批准缺口保留后的S5语义更新；用户最新秒挂仅回传决定SRC-106保持",
+      "source_ref": "inputs/source-index.json#SRC-106",
+      "record_type": "draft_semantic_revision_not_approval"
+    },
+    {
+      "date": "2026-10-12",
+      "change_id": "CH-DCC-20261012-SEQUENCE-GUARD-ALIGNMENT",
+      "before_messages": [
+        {
+          "step": 1,
+          "from": "vendor",
+          "to": "service",
+          "message": "提供本次预测呼叫失败原始字段：taskId/fileId/customerNumber/failType/message/callTime等；无话单无需等待话单，未提供callId或finishRetryFlag不伪造。实际事件类型、可信身份和完整回调协议仍partial。",
+          "type": "event",
+          "api_id": "API-003",
+          "condition": "收到供应商本次失败结果；文档标题不能单独决定运行事件编号"
+        },
+        {
+          "step": 2,
+          "from": "service",
+          "to": "plans",
+          "message": "按保存的实际record/batch→supplier fileId、tenant/原task/leadCode/固定phone回查唯一触发对象，读取原DCC requestId/行定位或手工来源审计及已保存root。",
+          "type": "request",
+          "api_id": null,
+          "condition": "使用原精确映射，不能以leadCode单键、最近同号或后来新主替代"
+        },
+        {
+          "step": 3,
+          "from": "plans",
+          "to": "service",
+          "message": "返回可信唯一关联及原root/priority/来源；多候选、缺失或真实冲突返回待核证据，不猜根、不伪造callId。",
+          "type": "response",
+          "api_id": null,
+          "condition": "未唯一关联则本次不建计划/不提交；准确关联才处理后续步骤"
+        },
+        {
+          "step": 4,
+          "from": "service",
+          "to": "plans",
+          "message": "核对稳定事件身份，保存本次准确失败首次在平台收到并确认的时间；纯重复复用原对象，可信晚更新沿同一对象保存，不新建计划、不重新计时/计次。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "可信准确关联；事件身份、原子去重和保存协议仍待工程落实"
+        },
+        {
+          "step": 5,
+          "from": "service",
+          "to": "ui",
+          "message": "显示关联待核或已保存重复结果的原处理状态；不将未知当确定失败，不把重复/晚更新作为新实际呼叫。",
+          "type": "response",
+          "api_id": null,
+          "condition": "关联不明或纯重复无新增可信信息；本次不发起补提交"
+        },
+        {
+          "step": 6,
+          "from": "service",
+          "to": "plans",
+          "message": "记录准确失败并分流：呼叫过频交正常任务规则；同步拒绝/53导入失败/DCC交付失败各走原流程；本轮11类才进入失败处理。秒挂仅交SEQ-004判定回传。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "已关联的新失败或需保存的可信更新；未知原因保留待核"
+        },
+        {
+          "step": 7,
+          "from": "vendor",
+          "to": "vendor",
+          "message": "三类自动补提依赖供应商既有外显导航配置能力：category=5、导航标识及可选池配置；实际触发、降级时点和同号再次受理仍partial，无独立成功回执或平台换主叫调用。",
+          "type": "action",
+          "api_id": "API-012",
+          "condition": "仅表达既有导航配置依赖；不是本次已发生降级的通知或生产保证"
+        },
+        {
+          "step": 8,
+          "from": "service",
+          "to": "plans",
+          "message": "形成计划/待人工对象前读取同一失败链首次外最多2次共享额度及现有占用；自动3类、人工8类共享，原因/方式/人/子批变化不重置，正常三天五呼独立。",
+          "type": "request",
+          "api_id": null,
+          "condition": "只有本轮11类；独立新业务预算边界保持待核"
+        },
+        {
+          "step": 9,
+          "from": "service",
+          "to": "plans",
+          "message": "形成计划前检查原任务与指定记录状态，并在尚未执行期间响应状态变化：暂停挂起，终止或对应记录明确取消/删除停止相关待计划；保留本地记录及占用。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "仅停止指定对象尚未执行计划，不影响同号其他批次；在途撤回未核不宣称成功"
+        },
+        {
+          "step": 10,
+          "from": "plans",
+          "to": "service",
+          "message": "返回可处理、两次已用尽、暂停、停止或占用/状态待核；额度耗尽停止失败补提，未知保留占用，不发放新次数。",
+          "type": "response",
+          "api_id": null,
+          "condition": "前置额度/生命周期检查；不通过则仅保存并交付当前处理状态"
+        },
+        {
+          "step": 11,
+          "from": "service",
+          "to": "plans",
+          "message": "对运营商禁呼、运营商限呼、restrict tel（外呼黑名单）保存唯一自动计划，到期=本次已保存失败确认时间+120秒。重复或同对象晚更新不重启；后续真实新失败使用其新确认时间且额度延续。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "仅自动三类且前置可处理；无先解禁或先取得降级成功回执门槛"
+        },
+        {
+          "step": 12,
+          "from": "service",
+          "to": "ui",
+          "message": "显示三类自动等待及确认时间+120秒；其余八类显示待人工：无可用中继、bad tel、真实号码为空、no clid、bad clid、无可用中继信息、wrong obClidGroup、bad timeout range。",
+          "type": "response",
+          "api_id": null,
+          "condition": "准确关联处理对象；八类不生成自动计时器，也不统一等待120秒"
+        },
+        {
+          "step": 13,
+          "from": "operator",
+          "to": "ui",
+          "message": "选择当前八类失败记录，核对资源、数据或配置后明确确认补提交；未确认保留待人工，不新录名单、不静默换phone/priority。",
+          "type": "request",
+          "api_id": null,
+          "condition": "仅八类人工失败；此操作与首次手工导入及其来源锁分开"
+        },
+        {
+          "step": 14,
+          "from": "ui",
+          "to": "service",
+          "message": "提交既有失败记录和原任务/触发事件定位及明确确认意图；生产报文/路由待实现，重复点击必须返回同一处理/尝试。",
+          "type": "request",
+          "api_id": "API-011",
+          "condition": "仅八类人工明确确认；具体角色矩阵尚待确认，不能默认运营/初始导入权限自动获权"
+        },
+        {
+          "step": 15,
+          "from": "service",
+          "to": "plans",
+          "message": "服务端核实人工操作权限与租户/任务/记录范围；DCC来源仍保留，不以禁止首次手工混入为由拒绝已导入异常记录处理。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "人工确认分支；无权拒绝、权限尚未定义待核，不绕过来源和记录校验"
+        },
+        {
+          "step": 16,
+          "from": "service",
+          "to": "ui",
+          "message": "返回无权/权限待核、等待或已受理人工处理意图及当前共享失败用量；重复请求沿原处理对象，不新增补提交。",
+          "type": "response",
+          "api_id": "API-011",
+          "condition": "人工操作当前结果；接口同时守卫，不能仅前端禁用按钮"
+        },
+        {
+          "step": 17,
+          "from": "plans",
+          "to": "service",
+          "message": "内部自动计划按保存的确认时间+120秒到期唤起本次处理；尚未到期继续等待。",
+          "type": "event",
+          "api_id": null,
+          "condition": "仅三类自动；这是平台内部计时事件，不是供应商降级通知或成功回执"
+        },
+        {
+          "step": 18,
+          "from": "service",
+          "to": "plans",
+          "message": "到期自动或已确认有权人工在实际执行前再次核对精确触发对象/root、共享剩余额度及占用、任务/记录状态、同号再次受理和供应商原生/导航在途执行权。",
+          "type": "request",
+          "api_id": null,
+          "condition": "供应商能力保留G2 partial；不能以空话单、单一finishRetryFlag或新fileId推断可安全并行"
+        },
+        {
+          "step": 19,
+          "from": "plans",
+          "to": "service",
+          "message": "返回执行前通过或挂起/停止/额度耗尽/占用未知/执行权冲突；未通过不发起，暂停恢复重核，终止/指定对象取消停止待计划。",
+          "type": "response",
+          "api_id": null,
+          "condition": "这是第二次额度与生命周期守卫；未知占用不释放再发，不能伪造在途撤回成功"
+        },
+        {
+          "step": 20,
+          "from": "service",
+          "to": "plans",
+          "message": "准备本次内部触发、计划和独立业务尝试标识及必要单号新子批；直接取触发记录保存root，沿原task/来源/priority追溯，保留原request/行审计。",
+          "type": "request",
+          "api_id": null,
+          "condition": "执行前通过；M1迟到失败即使已有M2仍固定M1，不用最近主算法、不伪DCC新request、不新增第三层"
+        },
+        {
+          "step": 21,
+          "from": "plans",
+          "to": "service",
+          "message": "返回本次内部尝试和必要新子batch、原root及保存priority；supplier fileId必须取实际响应，新建或追加的生产策略尚待核。",
+          "type": "response",
+          "api_id": null,
+          "condition": "原业务关联和内部尝试分开；手工历史根映射不足仍待核"
+        },
+        {
+          "step": 22,
+          "from": "service",
+          "to": "plans",
+          "message": "保存本次独立排队/尝试时间，同任务priority高先、同级FIFO；原导入时间保留审计，不恢复每日priority衰减，已受理不撤回重排。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "仅约束本平台提交次序，不承诺供应商实际拨打顺序；未实际发起不计业务次数"
+        },
+        {
+          "step": 23,
+          "from": "service",
+          "to": "vendor",
+          "message": "实际发起本次单号补导：taskId、name、taskTelList[].tel/保存priority及经核实的fileId/isRepeat策略。本次属于内部业务尝试，非DCC重新推线索。",
+          "type": "external_call",
+          "api_id": "API-002",
+          "condition": "执行前通过且开始新业务提交；旧fileId追加/新fileId同号接收及排重仍待核，不默认isRepeat=0"
+        },
+        {
+          "step": 24,
+          "from": "service",
+          "to": "plans",
+          "message": "本次实际新业务发起原子占共享失败额度一次；供应商受理或明确拒绝均计，超时/未知保留占用，技术传输恢复沿同一次尝试而非新发业务额度。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "与本次实际发起关联的计数事实；原子性和传输幂等由工程落实"
+        },
+        {
+          "step": 25,
+          "from": "vendor",
+          "to": "service",
+          "message": "返回实际result/description/errorCode、data.fileId及importTotal/successTotal/invalidTotal等原证据；不以result=0或汇总数量任意判定每条成功。",
+          "type": "response",
+          "api_id": "API-002",
+          "condition": "真实响应已收到；本能力仍partial，生产受理不等实际呼叫成功"
+        },
+        {
+          "step": 26,
+          "from": "service",
+          "to": "plans",
+          "message": "明确受理则保存实际fileId与当前尝试映射；明确拒绝保存原原因及已用次数，53导入失败按原导入证据处理，不以同步拒绝循环触发11类策略。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "受理/拒绝证据准确；无话单失败与同步/53导入失败保持区分"
+        },
+        {
+          "step": 27,
+          "from": "service",
+          "to": "plans",
+          "message": "超时、未收到响应或真实冲突保持本次尝试和额度占用待核，先核验受理，不新增尝试/子批、不释放额度盲目重发。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "本次供应商响应未知；不会虚构供应商已拒绝或可安全重试"
+        },
+        {
+          "step": 28,
+          "from": "service",
+          "to": "plans",
+          "message": "保存原失败、自动/人工方式、确认/到期时间、等待/待人工/待核/执行/受理/停止状态、共享用量、触发原root及实际fileId。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "每次准确处理状态变化均保存；后续真实新失败是下一次外部事件，不是此图无限重试"
+        },
+        {
+          "step": 29,
+          "from": "service",
+          "to": "dcc",
+          "message": "向固定DCC地址交付原失败及本方处理进度，携保存原requestId/行、record/实际batch/root、可信call或稳定事件；本方计划/尝试与供应商原字段分别表达。",
+          "type": "external_call",
+          "api_id": "API-010",
+          "condition": "仅锁定接口来源且已准确关联；任何等待/待人工/待核/受理/停止变化均按同一关联交付，正式报文/ACK仍missing"
+        },
+        {
+          "step": 30,
+          "from": "dcc",
+          "to": "service",
+          "message": "提供实际交付确认或可观察失败结果；正式ACK、认证、幂等及版本契约待实现，DCC只接收不调度补提。",
+          "type": "response",
+          "api_id": "API-010",
+          "condition": "收到接收端真实响应；没有响应不能伪造确认"
+        },
+        {
+          "step": 31,
+          "from": "service",
+          "to": "plans",
+          "message": "记录结果交付成功/失败/未知；失败或超时只保留同一结果/版本待补送，不新排120秒、不占失败次数、不再导入AliCti。",
+          "type": "internal",
+          "api_id": null,
+          "condition": "每次固定DCC交付结果；业务呼叫处理与结果交付独立"
+        },
+        {
+          "step": 32,
+          "from": "service",
+          "to": "dcc",
+          "message": "补送同一结果与处理进度版本，保持原request/记录/root和内部尝试对应关系。",
+          "type": "external_call",
+          "api_id": "API-010",
+          "condition": "仅接口交付失败/未知的可靠补送路径；策略由工程落实，不创建新补提"
+        },
+        {
+          "step": 33,
+          "from": "service",
+          "to": "ui",
+          "message": "呈现本次准确原失败、处理方式、共享额度、自动到期/待人工/待核/执行/受理/停止及交付状态；手工来源只平台查看，不回传DCC。",
+          "type": "response",
+          "api_id": null,
+          "condition": "沿原来源审计；秒挂只展示判定，无补提计划或用量，既有任务记录区域不新增顶级菜单"
+        },
+        {
+          "step": 34,
+          "from": "ui",
+          "to": "operator",
+          "message": "展示当前记录可执行性及禁用/待核原因；不把初始导入入口禁用替代异常权限，不因换原因或操作者重置次数。",
+          "type": "response",
+          "api_id": null,
+          "condition": "按具体记录和操作权限显示；未知能力不宣称生产可执行"
+        }
+      ],
+      "reason": "语义复核：外发前绑定执行权与预算；统一priority在最终确认前可填。接口事实未变。"
+    },
+    {
+      "date": "2026-10-14",
+      "change_id": "CH-MANUAL-CODE-SOURCE-CORRECTION-20261014",
+      "actual_G2": "runtime/manual-code-g2-user-approval-20261014.json",
+      "before": {
+        "notes": [
+          "当前SRC-116实际G2已批准保留缺口继续S5～S7，证据runtime/tianwang-g2-user-approval-20261013.json，当前接口指纹286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d；只合成方案重验，13high/4medium生产问题保留，未G3/真实调用/原型导入/05交付。",
+          "DCC完整闭环恢复且最高优先级；天网/手工结果只平台查看。DCC参与方只接收原DCC对象，其来源来自record/继承内部attempt可信快照，任务接口标签、root拥有方、后来app/新主、R/名称/body不得猜路由，未知不默认DCC。",
+          "DCC交付段是准确保存结果/每次真实进度变化后的独立事件及互斥来源/ACK分支，消息展示顺序不构成等运营查看、确认、时钟到期、实际supplier补导或DCC响应后才继续本地处理的门槛。WAIT_MANUAL在首次保存即能交付；任何ACK/超时/补送都不新呼叫或预算。",
+          "现有本地消息固定message_id与legacy_step用于追溯旧身份/旧位置，不是新业务验收ID或真实wire字段；当前step仅按候选数组展示排序。原本地相对顺序和业务guard保留。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "SRC-112已有公共HTTP success/网络200OK接收依据和52/53传输重试配置；精确body/AND或OR、回调验真、稳定业务事件/导入组身份、持久ACK及错误/超时具体重发触发仍待核。传输retry/秒间隔不能变成本方额外2次、120秒、三天五呼或新的失败计划；重复消息继续沿原对象/确认时间处理。",
+          "SRC-112辅助v10 /logCurl/list仅供后续索取/核对脱敏供应商推送轨迹，未作为本轮新增生产查询或UNKNOWN自动恢复端点。其type旧枚举未列52/53，日志uniqueId不当失败payload稳定ID，查询result0/-1与data.result1/0分开；查空或HTTP200不证明未拨、无在途、持久成功或后续执行权已清。",
+          "SRC-113批次话单候选仅可辅助供应商联调/取证，未增加本时序的新核查调用、恢复或重发动作；未知仍保原attempt/槽，不凭taskFileId可查、fileId独立、无话单或finishRetryFlag推定可安全外发。",
+          "SRC-111仅补既有API-012/013配置字段与模式边界的来源，不增加任务/导航配置调用、先解禁/先降级成功回执/先删后导门槛；具体目标任务的原生/导航受理和在途仍须生产证据。"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+          "interface_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d",
+          "actual_answer": "批准 G2，保留缺口继续 S5～S7",
+          "scope": "仅当前G2接口事实和来源/请求边界用于S5～S7重验；13high/4medium及真实契约保留。",
+          "production_risk_accepted": false,
+          "production_calls_allowed": false,
+          "G3_approved": false,
+          "prototype_import_allowed": false,
+          "development_delivery_approved": false
+        },
+        "status": "analysis_candidate_current_SRC116_actual_G2_gaps_retained"
+      }
+    }
+  ],
+  "decision_history": [
+    {
+      "at": "2026-10-11T10:08:12+08:00",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-003",
+        "scenario_id": "SC-003",
+        "name": "无话单失败原因记录与回传",
+        "participants": [
+          {
+            "id": "ui",
+            "name": "任务记录页（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（未实接）",
+            "kind": "external_system"
+          },
+          {
+            "id": "dcc",
+            "name": "DCC（未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "vendor",
+            "to": "service",
+            "message": "本次事件/话单或SIP更新，保留原始证据",
+            "type": "event",
+            "api_id": "API-003",
+            "condition": "按锁定任务来源执行"
+          },
+          {
+            "step": 2,
+            "from": "service",
+            "to": "service",
+            "message": "按已保存业务batchId→供应商fileId映射及tenant/task/leadCode/phone准确关联，读取requestId/parentBatchId/rootBatchId；无话单允许无callID，关联不明待核，不按最近同号猜父",
+            "type": "internal",
+            "api_id": null,
+            "condition": "按锁定任务来源执行"
+          },
+          {
+            "step": 3,
+            "from": "service",
+            "to": "service",
+            "message": "独立记录无话单失败原因，不等待客户事件/话单、不默认最后一通",
+            "type": "internal",
+            "api_id": null,
+            "condition": "按锁定任务来源执行"
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "dcc",
+            "message": "接口来源每次结果及晚更新向后台固定地址回传，携requestId/行定位/batchId/parentBatchId/rootBatchId及原始结果；实际端点/字段/可靠交付未验证",
+            "type": "external_call",
+            "api_id": "API-010",
+            "condition": "可信新结果或同对象可交付晚更新；任务锁定接口来源"
+          },
+          {
+            "step": 5,
+            "from": "service",
+            "to": "ui",
+            "message": "手工来源仅平台查看；回传成功/失败/待核可观察，重复及晚更新不算新呼叫",
+            "type": "response",
+            "api_id": null,
+            "condition": "手工来源仅平台查看；接口任务显示对应回传状态"
+          },
+          {
+            "step": 6,
+            "from": "dcc",
+            "to": "service",
+            "message": "DCC自行决定是否/何时真重导；新请求级requestId、逐行精确previousBatchId及本次priority；无平台倒计时/额度",
+            "type": "event",
+            "api_id": "API-001",
+            "condition": "DCC决定再次导入；复用SEQ-001接收契约，不保证供应商换主叫或重呼结果"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "service",
+            "message": "鉴权后先核requestId完整内容：同内容重传返回原结果，异内容拒绝；仅新请求查历史链，已有同tenant/task/leadCode/phone必须明确previousBatchId且精确父归属一致；缺父/不明/不符拒绝或待核不提交，不新根、不猜最近同号",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 8,
+            "from": "service",
+            "to": "dcc",
+            "message": "有效真重导返回新batchId、parentBatchId=previousBatchId及父rootBatchId，采用本次DCCpriority；同请求重传返回原已保存逐行结果/同批映射，不重交供应商",
+            "type": "response",
+            "api_id": "API-001",
+            "condition": "按SEQ-001执行新请求或读取原结果"
+          }
+        ],
+        "notes": [
+          "G3未批准；仅结构化业务草稿，不实际发请求；DCC决策重导，供应商内部尝试完整性/链范围及可靠回传待核。",
+          "SRC-083已确认本方显式父根/请求幂等业务协议；真实供应商关联、SIP晚更新与可靠回传仍待核。本批priority采用本次DCC值，平台每日衰减取消；旧批历史保留，G3等待本轮重新核验确认。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "reason": "用户最新主/子根归组方案替代SRC-083逐行指定父批方案；旧事实只作历史，新G3未批准。",
+      "record_type": "draft_business_revision_not_approval"
+    },
+    {
+      "at": "2026-10-12",
+      "record_type": "draft_semantic_revision_not_approval",
+      "before": {
+        "name": "无话单失败原因记录与回传",
+        "participants": [
+          {
+            "id": "ui",
+            "name": "任务记录页（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（未实接）",
+            "kind": "external_system"
+          },
+          {
+            "id": "dcc",
+            "name": "DCC（未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "vendor",
+            "to": "service",
+            "message": "本次事件/话单或SIP更新，保留原始证据",
+            "type": "event",
+            "api_id": "API-003",
+            "condition": "按锁定任务来源执行"
+          },
+          {
+            "step": 2,
+            "from": "service",
+            "to": "service",
+            "message": "按已保存当前record/batch→供应商fileId及tenant/原task/leadCode/固定phone精确关联结果，读取原request行/root；无话单可无callID，关联不明待核，不按后来最近主重算旧结果",
+            "type": "internal",
+            "api_id": null,
+            "condition": "按锁定任务来源执行"
+          },
+          {
+            "step": 3,
+            "from": "service",
+            "to": "service",
+            "message": "独立记录无话单失败原因，不等待客户事件/话单、不默认最后一通",
+            "type": "internal",
+            "api_id": null,
+            "condition": "按锁定任务来源执行"
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "dcc",
+            "message": "接口来源每次结果/同对象晚更新回传固定地址，携原requestId/行定位/recordId/当前batchId/已存rootBatchId及真实call/稳定事件和原结果；供应商无需新增这些DCC字段，真实可靠交付待核",
+            "type": "external_call",
+            "api_id": "API-010",
+            "condition": "可信新结果或同对象可交付晚更新；任务锁定接口来源"
+          },
+          {
+            "step": 5,
+            "from": "service",
+            "to": "ui",
+            "message": "手工来源仅平台查看；回传成功/失败/待核可观察，重复及晚更新不算新呼叫",
+            "type": "response",
+            "api_id": null,
+            "condition": "手工来源仅平台查看；接口任务显示对应回传状态"
+          },
+          {
+            "step": 6,
+            "from": "dcc",
+            "to": "service",
+            "message": "DCC决定是否/何时再次业务导入；新请求级requestId及逐行isNewBatch可选Boolean（缺省false）、同组固定phone、本次priority；不传父批字段，无平台计时/额度",
+            "type": "event",
+            "api_id": "API-001",
+            "condition": "DCC决定再次导入；复用SEQ-001接收契约，不保证供应商换主叫或重呼结果"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "service",
+            "message": "鉴权/source/tenant/task校验后先按flag missing=false归一请求去重；同ID同内容回原逐行record/batch/root，异内容整重复请求拒绝；仅新ID逐行归组，改phone/历史关联不明不提交",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 8,
+            "from": "service",
+            "to": "dcc",
+            "message": "每有效新业务行总新record/batch：true新主root=batch；false/missing有同组已保存主则子直接root=按创建序列最近主，无主自动首主；重传返原root，不因新主变化重算，不重交供应商",
+            "type": "response",
+            "api_id": "API-001",
+            "condition": "按SEQ-001执行新请求或读取原结果"
+          }
+        ],
+        "notes": [
+          "G3未批准；仅结构化业务草稿，不实际发请求；DCC决策重导，供应商内部尝试完整性/链范围及可靠回传待核。",
+          "SRC-084/085/086主子归组/flag默认与请求幂等为本方业务确认；旧主子及旧请求root保留，不自动复用供应商fileId或改isRepeat。真实排重、旧批在途/并行及finishRetryFlag范围仍待核，不增先删或等最后一通门禁。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086"
+        ]
+      },
+      "superseded_by": [
+        "SRC-089",
+        "SRC-091",
+        "SRC-102",
+        "SRC-103",
+        "SRC-106"
+      ],
+      "reason": "按本轮G1场景及G2接口缺口保留结论重建S5事实：失败3类自动确认+120秒/8类人工共享额外2次；秒挂仅判定结果交付，不由DCC或平台重导。旧消息只留历史，不继承旧G3/02/05。"
+    },
+    {
+      "change_id": "CH-DCC-20261012-DEFER-INTEGRATION-MANUAL-INTERNAL-LOOP",
+      "recorded_at": "2026-10-12",
+      "source_refs": [
+        "inputs/source-index.json#SRC-110"
+      ],
+      "reason": "消费SRC-110与本次实际G2：DCC及应用延期；当前手工、供应商本地结果/失败补提交与授权精准记录删除闭环。稳定ID及旧完整定义保留，不扩大业务功能或升级生产接口。",
+      "previous_definition": {
+        "schema_version": "1.0",
+        "id": "SEQ-003",
+        "scenario_id": "SC-003",
+        "name": "三类自动与八类人工失败补提交时序",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "该任务现有操作权限内的有权运营和管理员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "现有任务记录界面",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务",
+            "kind": "system"
+          },
+          {
+            "id": "plans",
+            "name": "内部记录、计划与额度（逻辑参与方）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti供应商（真实行为待核）",
+            "kind": "external_system"
+          },
+          {
+            "id": "dcc",
+            "name": "DCC（交付协议待实现）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "vendor",
+            "to": "service",
+            "message": "提供本次预测呼叫失败原始字段：taskId/fileId/customerNumber/failType/message/callTime等；无话单无需等待话单，未提供callId或finishRetryFlag不伪造。实际事件类型、可信身份和完整回调协议仍partial。",
+            "type": "event",
+            "api_id": "API-003",
+            "condition": "收到供应商本次失败结果；文档标题不能单独决定运行事件编号"
+          },
+          {
+            "step": 2,
+            "from": "service",
+            "to": "plans",
+            "message": "按保存的实际record/batch→supplier fileId、tenant/原task/leadCode/固定phone回查唯一触发对象，读取原DCC requestId/行定位或手工来源审计及已保存root。",
+            "type": "request",
+            "api_id": null,
+            "condition": "使用原精确映射，不能以leadCode单键、最近同号或后来新主替代"
+          },
+          {
+            "step": 3,
+            "from": "plans",
+            "to": "service",
+            "message": "返回可信唯一关联及原root/priority/来源；多候选、缺失或真实冲突返回待核证据，不猜根、不伪造callId。",
+            "type": "response",
+            "api_id": null,
+            "condition": "未唯一关联则本次不建计划/不提交；准确关联才处理后续步骤"
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "plans",
+            "message": "核对稳定事件身份，保存本次准确失败首次在平台收到并确认的时间；纯重复复用原对象，可信晚更新沿同一对象保存，不新建计划、不重新计时/计次。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "可信准确关联；事件身份、原子去重和保存协议仍待工程落实"
+          },
+          {
+            "step": 5,
+            "from": "service",
+            "to": "ui",
+            "message": "显示关联待核或已保存重复结果的原处理状态；不将未知当确定失败，不把重复/晚更新作为新实际呼叫。",
+            "type": "response",
+            "api_id": null,
+            "condition": "关联不明或纯重复无新增可信信息；本次不发起补提交"
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "plans",
+            "message": "记录准确失败并分流：呼叫过频交正常任务规则；同步拒绝/53导入失败/DCC交付失败各走原流程；本轮11类才进入失败处理。秒挂仅交SEQ-004判定回传。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "已关联的新失败或需保存的可信更新；未知原因保留待核"
+          },
+          {
+            "step": 7,
+            "from": "vendor",
+            "to": "vendor",
+            "message": "三类自动补提依赖供应商既有外显导航配置能力：category=5、导航标识及可选池配置；实际触发、降级时点和同号再次受理仍partial，无独立成功回执或平台换主叫调用。",
+            "type": "action",
+            "api_id": "API-012",
+            "condition": "仅表达既有导航配置依赖；不是本次已发生降级的通知或生产保证"
+          },
+          {
+            "step": 8,
+            "from": "service",
+            "to": "plans",
+            "message": "形成计划/待人工对象前按服务端保存四要素读取跨主批共享额度及现有占用。自动三类与人工八类按同租户＋原任务＋服务端已保存线索编码＋固定手机号累计，共享首次之外最多2次；DCC新业务、另开主批、新子批或供应商fileId变化均不重置。预算四要素及累计已用/未知占用必须可准确恢复；旧手工缺可信leadCode或累计证据时用量待核，不以对应业务编码、空值、recordId/root或新生成编码替代，不默认已用0/可用2，不建立新根发额度。 正常三天五呼独立，触发root不变。",
+            "type": "request",
+            "api_id": null,
+            "condition": "只有本轮11类；四要素/累计状态不可准确恢复时待核，不按新root发额度"
+          },
+          {
+            "step": 9,
+            "from": "service",
+            "to": "plans",
+            "message": "形成计划前检查原任务与指定记录状态，并在尚未执行期间响应状态变化：暂停挂起，终止或对应记录明确取消/删除停止相关待计划；保留本地记录及占用。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅停止指定对象尚未执行计划，不影响同号其他批次；在途撤回未核不宣称成功"
+          },
+          {
+            "step": 10,
+            "from": "plans",
+            "to": "service",
+            "message": "返回可处理、两次已用尽、暂停、停止或占用/状态待核；额度耗尽停止失败补提，未知保留占用，不发放新次数。",
+            "type": "response",
+            "api_id": null,
+            "condition": "前置额度/生命周期检查；不通过则仅保存并交付当前处理状态"
+          },
+          {
+            "step": 11,
+            "from": "service",
+            "to": "plans",
+            "message": "对运营商禁呼、运营商限呼、restrict tel（外呼黑名单）保存唯一自动计划，到期=本次已保存失败确认时间+120秒。重复或同对象晚更新不重启；后续真实新失败使用其新确认时间且额度延续。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅自动三类且前置可处理；无先解禁或先取得降级成功回执门槛"
+          },
+          {
+            "step": 12,
+            "from": "service",
+            "to": "ui",
+            "message": "显示三类自动等待及确认时间+120秒；其余八类显示待人工：无可用中继、bad tel、真实号码为空、no clid、bad clid、无可用中继信息、wrong obClidGroup、bad timeout range。",
+            "type": "response",
+            "api_id": null,
+            "condition": "准确关联处理对象；八类不生成自动计时器，也不统一等待120秒"
+          },
+          {
+            "step": 13,
+            "from": "operator",
+            "to": "ui",
+            "message": "选择当前八类失败记录，核对资源、数据或配置后明确确认补提交；未确认保留待人工，不新录名单、不静默换phone/priority。",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅八类人工失败；此操作与首次手工导入及其来源锁分开"
+          },
+          {
+            "step": 14,
+            "from": "ui",
+            "to": "service",
+            "message": "提交既有失败记录和原任务/触发事件定位及明确确认意图；生产报文/路由待实现，重复点击必须返回同一处理/尝试。",
+            "type": "request",
+            "api_id": "API-011",
+            "condition": "仅八类人工明确确认；沿原任务现有操作权限，有权运营/管理员在授权租户任务内处理，当前授权不可核实时待核"
+          },
+          {
+            "step": 15,
+            "from": "service",
+            "to": "plans",
+            "message": "服务端沿原任务现有操作权限核实有权运营/管理员及授权租户/任务/准确记录范围；保留DCC来源，不以初始手工混入禁令拒绝既有异常记录处理，不授予真实账号新权限。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "人工确认分支；无权拒绝、当前授权证据无法核实时待核；产品角色选择已SRC-109确认"
+          },
+          {
+            "step": 16,
+            "from": "service",
+            "to": "ui",
+            "message": "返回当前任务无权/授权不可核实、等待或已受理人工处理意图及四要素跨主批累计用量；重复请求复用原处理对象，不新增补提交。",
+            "type": "response",
+            "api_id": "API-011",
+            "condition": "人工操作当前结果；接口同时守卫，不能仅前端禁用按钮"
+          },
+          {
+            "step": 17,
+            "from": "plans",
+            "to": "service",
+            "message": "内部自动计划按保存的确认时间+120秒到期唤起本次处理；尚未到期继续等待。",
+            "type": "event",
+            "api_id": null,
+            "condition": "仅三类自动；这是平台内部计时事件，不是供应商降级通知或成功回执"
+          },
+          {
+            "step": 18,
+            "from": "service",
+            "to": "plans",
+            "message": "到期自动或已确认有权人工在实际执行前再次核对精确触发对象/root、四要素跨主批累计剩余额度及占用、任务/记录状态、同号再次受理和供应商原生/导航在途执行权。",
+            "type": "request",
+            "api_id": null,
+            "condition": "供应商能力保留G2 partial；不能以空话单、单一finishRetryFlag或新fileId推断可安全并行"
+          },
+          {
+            "step": 19,
+            "from": "plans",
+            "to": "service",
+            "message": "返回执行前通过或挂起/停止/额度耗尽/占用未知/执行权冲突；未通过不发起，暂停恢复重核，终止/指定对象取消停止待计划。",
+            "type": "response",
+            "api_id": null,
+            "condition": "这是第二次额度与生命周期守卫；未知占用不释放再发，不能伪造在途撤回成功"
+          },
+          {
+            "step": 20,
+            "from": "service",
+            "to": "plans",
+            "message": "准备本次内部触发、计划和独立业务尝试标识及必要单号新子批；直接取触发记录保存root，沿原task/来源/priority追溯，保留原request/行审计。",
+            "type": "request",
+            "api_id": null,
+            "condition": "执行前通过；M1迟到失败即使已有M2仍固定M1，不用最近主算法、不伪DCC新request、不新增第三层"
+          },
+          {
+            "step": 21,
+            "from": "plans",
+            "to": "service",
+            "message": "返回本次内部尝试和必要新子batch、原root及保存priority；supplier fileId必须取实际响应，新建或追加的生产策略尚待核。",
+            "type": "response",
+            "api_id": null,
+            "condition": "原业务关联和内部尝试分开；手工历史根映射不足仍待核"
+          },
+          {
+            "step": 22,
+            "from": "service",
+            "to": "plans",
+            "message": "保存本次独立排队/尝试时间，同任务priority高先、同级FIFO；原导入时间保留审计，不恢复每日priority衰减，已受理不撤回重排。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅约束本平台提交次序，不承诺供应商实际拨打顺序；未实际发起不计业务次数"
+          },
+          {
+            "step": 23,
+            "from": "service",
+            "to": "plans",
+            "message": "外发前原子取得本次尝试的独占执行权并持久化关联四要素跨主批共享失败额度预占、触发root/事件和任务状态；未实际发起不计已用次数，预占阻断并发，状态未知保留占用待核。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "执行前守卫通过；预占与实际发起计次的可靠边界由工程契约落实，不在外发后补登记"
+          },
+          {
+            "step": 24,
+            "from": "service",
+            "to": "vendor",
+            "message": "实际发起本次单号业务补导，沿原task与保存priority、经核实fileId/isRepeat策略；发起时将同次预占记为共享失败已用一次，受理/拒绝均保留，未知占用待核不新发。内部尝试不伪装DCC新请求。",
+            "type": "external_call",
+            "api_id": "API-002",
+            "condition": "持久化独占执行权及额度预占已存在；实际新业务提交一次计一次，旧/新fileId及isRepeat仍待核，不默认isRepeat=0"
+          },
+          {
+            "step": 25,
+            "from": "vendor",
+            "to": "service",
+            "message": "返回实际result/description/errorCode、data.fileId及importTotal/successTotal/invalidTotal等原证据；不以result=0或汇总数量任意判定每条成功。",
+            "type": "response",
+            "api_id": "API-002",
+            "condition": "真实响应已收到；本能力仍partial，生产受理不等实际呼叫成功"
+          },
+          {
+            "step": 26,
+            "from": "service",
+            "to": "plans",
+            "message": "明确受理则保存实际fileId与当前尝试映射；明确拒绝保存原原因及已用次数，53导入失败按原导入证据处理，不以同步拒绝循环触发11类策略。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "受理/拒绝证据准确；无话单失败与同步/53导入失败保持区分"
+          },
+          {
+            "step": 27,
+            "from": "service",
+            "to": "plans",
+            "message": "超时、未收到响应或真实冲突保持本次尝试和额度占用待核，先核验受理，不新增尝试/子批、不释放额度盲目重发。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "本次供应商响应未知；不会虚构供应商已拒绝或可安全重试"
+          },
+          {
+            "step": 28,
+            "from": "service",
+            "to": "plans",
+            "message": "保存原失败、自动/人工方式、确认/到期时间、等待/待人工/待核/执行/受理/停止状态、四要素跨主批累计共享用量、触发原root及实际fileId。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "每次准确处理状态变化均保存；后续真实新失败是下一次外部事件，不是此图无限重试"
+          },
+          {
+            "step": 29,
+            "from": "service",
+            "to": "dcc",
+            "message": "向固定DCC地址交付原失败及本方处理进度，携保存原requestId/行、record/实际batch/root、可信call或稳定事件；本方计划/尝试与供应商原字段分别表达。",
+            "type": "external_call",
+            "api_id": "API-010",
+            "condition": "仅锁定接口来源且已准确关联；任何等待/待人工/待核/受理/停止变化均按同一关联交付，正式报文/ACK仍missing"
+          },
+          {
+            "step": 30,
+            "from": "dcc",
+            "to": "service",
+            "message": "提供实际交付确认或可观察失败结果；正式ACK、认证、幂等及版本契约待实现，DCC只接收不调度补提。",
+            "type": "response",
+            "api_id": "API-010",
+            "condition": "收到接收端真实响应；没有响应不能伪造确认"
+          },
+          {
+            "step": 31,
+            "from": "service",
+            "to": "plans",
+            "message": "记录结果交付成功/失败/未知；失败或超时只保留同一结果/版本待补送，不新排120秒、不占失败次数、不再导入AliCti。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "每次固定DCC交付结果；业务呼叫处理与结果交付独立"
+          },
+          {
+            "step": 32,
+            "from": "service",
+            "to": "dcc",
+            "message": "补送同一结果与处理进度版本，保持原request/记录/root和内部尝试对应关系。",
+            "type": "external_call",
+            "api_id": "API-010",
+            "condition": "仅接口交付失败/未知的可靠补送路径；策略由工程落实，不创建新补提"
+          },
+          {
+            "step": 33,
+            "from": "service",
+            "to": "ui",
+            "message": "呈现本次准确原失败、处理方式、共享额度、自动到期/待人工/待核/执行/受理/停止及交付状态；手工来源只平台查看，不回传DCC。",
+            "type": "response",
+            "api_id": null,
+            "condition": "沿原来源审计；秒挂只展示判定，无补提计划或用量，既有任务记录区域不新增顶级菜单"
+          },
+          {
+            "step": 34,
+            "from": "ui",
+            "to": "operator",
+            "message": "展示当前记录可执行性及禁用/待核原因；不把初始导入入口禁用替代异常权限，不因换原因或操作者重置次数。",
+            "type": "response",
+            "api_id": null,
+            "condition": "按具体记录和操作权限显示；未知能力不宣称生产可执行"
+          }
+        ],
+        "notes": [
+          "本轮G2已批准以保留接口missing/partial继续分析；这是S5业务消息事实，不代表生产接口已实现、供应商能力verified或G3/原型/05重新批准，全部real_call_allowed=false。",
+          "plans仅为内部记录/计划/额度的逻辑责任，不规定数据库、队列、调度器或新增外部API；内部/UI消息null，供应商/DCC消息用已声明API。人工API-011真实路由/鉴权仍missing；角色范围已SRC-109确认沿原任务现有权限，有权运营/管理员可操作，不授真实账号权限。",
+          "API-012自调用只表达供应商既有导航配置依赖，绝非降级成功通知、独立导航调用或生效承诺，不以导航成功/解禁回执为平台120秒前置；平台不换主叫或解禁。",
+          "三类自动按平台收到并确认每次失败保存时间+120秒；八类人工无统一等待。自动三类与人工八类按同租户＋原任务＋服务端已保存线索编码＋固定手机号累计，共享首次之外最多2次；DCC新业务、另开主批、新子批或供应商fileId变化均不重置。 前置和实际执行前守卫均保留，触发root独立保存不重算。预算四要素及累计已用/未知占用必须可准确恢复；旧手工缺可信leadCode或累计证据时用量待核，不以对应业务编码、空值、recordId/root或新生成编码替代，不默认已用0/可用2，不建立新根发额度。",
+          "内部失败尝试固定触发记录root/来源/priority；新主不改变旧归属，不伪DCC新request，不自动改变isRepeat或先删旧号/等finishRetryFlag。",
+          "消息条件表达互斥分支，各状态变化的记录与回传按条件发生，不表示必须等到供应商提交后才回传等待状态；下一次真实新失败是新的外部事件。",
+          "SRC-106秒挂只识别并向DCC返回明确本方分类，绝不在此产生秒挂重呼、额外次数、等待或子批；回传补送不导入。"
+        ],
+        "source_refs": [
+          "inputs/user-original-20261009.txt#第3条",
+          "inputs/source-index.json#SRC-002",
+          "inputs/source-index.json#SRC-043",
+          "inputs/source-index.json#SRC-050",
+          "inputs/source-index.json#SRC-051",
+          "inputs/source-index.json#SRC-056",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-092",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-095",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-098",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-099",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-104",
+          "inputs/source-index.json#SRC-105",
+          "inputs/source-index.json#SRC-109"
+        ],
+        "review_history": [
+          {
+            "at": "2026-10-11T09:32:22+08:00",
+            "basis": "本次结果关联及DCC真重导采用明确requestId/previousBatchId，不继承旧日期/priority策略",
+            "source_ref": "inputs/source-index.json#SRC-083",
+            "record_type": "draft_semantic_revision_not_approval"
+          },
+          {
+            "at": "2026-10-12",
+            "basis": "当前G1范围与G2已批准缺口保留后的S5语义更新；用户最新秒挂仅回传决定SRC-106保持",
+            "source_ref": "inputs/source-index.json#SRC-106",
+            "record_type": "draft_semantic_revision_not_approval"
+          },
+          {
+            "date": "2026-10-12",
+            "change_id": "CH-DCC-20261012-SEQUENCE-GUARD-ALIGNMENT",
+            "before_messages": [
+              {
+                "step": 1,
+                "from": "vendor",
+                "to": "service",
+                "message": "提供本次预测呼叫失败原始字段：taskId/fileId/customerNumber/failType/message/callTime等；无话单无需等待话单，未提供callId或finishRetryFlag不伪造。实际事件类型、可信身份和完整回调协议仍partial。",
+                "type": "event",
+                "api_id": "API-003",
+                "condition": "收到供应商本次失败结果；文档标题不能单独决定运行事件编号"
+              },
+              {
+                "step": 2,
+                "from": "service",
+                "to": "plans",
+                "message": "按保存的实际record/batch→supplier fileId、tenant/原task/leadCode/固定phone回查唯一触发对象，读取原DCC requestId/行定位或手工来源审计及已保存root。",
+                "type": "request",
+                "api_id": null,
+                "condition": "使用原精确映射，不能以leadCode单键、最近同号或后来新主替代"
+              },
+              {
+                "step": 3,
+                "from": "plans",
+                "to": "service",
+                "message": "返回可信唯一关联及原root/priority/来源；多候选、缺失或真实冲突返回待核证据，不猜根、不伪造callId。",
+                "type": "response",
+                "api_id": null,
+                "condition": "未唯一关联则本次不建计划/不提交；准确关联才处理后续步骤"
+              },
+              {
+                "step": 4,
+                "from": "service",
+                "to": "plans",
+                "message": "核对稳定事件身份，保存本次准确失败首次在平台收到并确认的时间；纯重复复用原对象，可信晚更新沿同一对象保存，不新建计划、不重新计时/计次。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "可信准确关联；事件身份、原子去重和保存协议仍待工程落实"
+              },
+              {
+                "step": 5,
+                "from": "service",
+                "to": "ui",
+                "message": "显示关联待核或已保存重复结果的原处理状态；不将未知当确定失败，不把重复/晚更新作为新实际呼叫。",
+                "type": "response",
+                "api_id": null,
+                "condition": "关联不明或纯重复无新增可信信息；本次不发起补提交"
+              },
+              {
+                "step": 6,
+                "from": "service",
+                "to": "plans",
+                "message": "记录准确失败并分流：呼叫过频交正常任务规则；同步拒绝/53导入失败/DCC交付失败各走原流程；本轮11类才进入失败处理。秒挂仅交SEQ-004判定回传。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "已关联的新失败或需保存的可信更新；未知原因保留待核"
+              },
+              {
+                "step": 7,
+                "from": "vendor",
+                "to": "vendor",
+                "message": "三类自动补提依赖供应商既有外显导航配置能力：category=5、导航标识及可选池配置；实际触发、降级时点和同号再次受理仍partial，无独立成功回执或平台换主叫调用。",
+                "type": "action",
+                "api_id": "API-012",
+                "condition": "仅表达既有导航配置依赖；不是本次已发生降级的通知或生产保证"
+              },
+              {
+                "step": 8,
+                "from": "service",
+                "to": "plans",
+                "message": "形成计划/待人工对象前读取同一失败链首次外最多2次共享额度及现有占用；自动3类、人工8类共享，原因/方式/人/子批变化不重置，正常三天五呼独立。",
+                "type": "request",
+                "api_id": null,
+                "condition": "只有本轮11类；独立新业务预算边界保持待核"
+              },
+              {
+                "step": 9,
+                "from": "service",
+                "to": "plans",
+                "message": "形成计划前检查原任务与指定记录状态，并在尚未执行期间响应状态变化：暂停挂起，终止或对应记录明确取消/删除停止相关待计划；保留本地记录及占用。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "仅停止指定对象尚未执行计划，不影响同号其他批次；在途撤回未核不宣称成功"
+              },
+              {
+                "step": 10,
+                "from": "plans",
+                "to": "service",
+                "message": "返回可处理、两次已用尽、暂停、停止或占用/状态待核；额度耗尽停止失败补提，未知保留占用，不发放新次数。",
+                "type": "response",
+                "api_id": null,
+                "condition": "前置额度/生命周期检查；不通过则仅保存并交付当前处理状态"
+              },
+              {
+                "step": 11,
+                "from": "service",
+                "to": "plans",
+                "message": "对运营商禁呼、运营商限呼、restrict tel（外呼黑名单）保存唯一自动计划，到期=本次已保存失败确认时间+120秒。重复或同对象晚更新不重启；后续真实新失败使用其新确认时间且额度延续。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "仅自动三类且前置可处理；无先解禁或先取得降级成功回执门槛"
+              },
+              {
+                "step": 12,
+                "from": "service",
+                "to": "ui",
+                "message": "显示三类自动等待及确认时间+120秒；其余八类显示待人工：无可用中继、bad tel、真实号码为空、no clid、bad clid、无可用中继信息、wrong obClidGroup、bad timeout range。",
+                "type": "response",
+                "api_id": null,
+                "condition": "准确关联处理对象；八类不生成自动计时器，也不统一等待120秒"
+              },
+              {
+                "step": 13,
+                "from": "operator",
+                "to": "ui",
+                "message": "选择当前八类失败记录，核对资源、数据或配置后明确确认补提交；未确认保留待人工，不新录名单、不静默换phone/priority。",
+                "type": "request",
+                "api_id": null,
+                "condition": "仅八类人工失败；此操作与首次手工导入及其来源锁分开"
+              },
+              {
+                "step": 14,
+                "from": "ui",
+                "to": "service",
+                "message": "提交既有失败记录和原任务/触发事件定位及明确确认意图；生产报文/路由待实现，重复点击必须返回同一处理/尝试。",
+                "type": "request",
+                "api_id": "API-011",
+                "condition": "仅八类人工明确确认；具体角色矩阵尚待确认，不能默认运营/初始导入权限自动获权"
+              },
+              {
+                "step": 15,
+                "from": "service",
+                "to": "plans",
+                "message": "服务端核实人工操作权限与租户/任务/记录范围；DCC来源仍保留，不以禁止首次手工混入为由拒绝已导入异常记录处理。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "人工确认分支；无权拒绝、权限尚未定义待核，不绕过来源和记录校验"
+              },
+              {
+                "step": 16,
+                "from": "service",
+                "to": "ui",
+                "message": "返回无权/权限待核、等待或已受理人工处理意图及当前共享失败用量；重复请求沿原处理对象，不新增补提交。",
+                "type": "response",
+                "api_id": "API-011",
+                "condition": "人工操作当前结果；接口同时守卫，不能仅前端禁用按钮"
+              },
+              {
+                "step": 17,
+                "from": "plans",
+                "to": "service",
+                "message": "内部自动计划按保存的确认时间+120秒到期唤起本次处理；尚未到期继续等待。",
+                "type": "event",
+                "api_id": null,
+                "condition": "仅三类自动；这是平台内部计时事件，不是供应商降级通知或成功回执"
+              },
+              {
+                "step": 18,
+                "from": "service",
+                "to": "plans",
+                "message": "到期自动或已确认有权人工在实际执行前再次核对精确触发对象/root、共享剩余额度及占用、任务/记录状态、同号再次受理和供应商原生/导航在途执行权。",
+                "type": "request",
+                "api_id": null,
+                "condition": "供应商能力保留G2 partial；不能以空话单、单一finishRetryFlag或新fileId推断可安全并行"
+              },
+              {
+                "step": 19,
+                "from": "plans",
+                "to": "service",
+                "message": "返回执行前通过或挂起/停止/额度耗尽/占用未知/执行权冲突；未通过不发起，暂停恢复重核，终止/指定对象取消停止待计划。",
+                "type": "response",
+                "api_id": null,
+                "condition": "这是第二次额度与生命周期守卫；未知占用不释放再发，不能伪造在途撤回成功"
+              },
+              {
+                "step": 20,
+                "from": "service",
+                "to": "plans",
+                "message": "准备本次内部触发、计划和独立业务尝试标识及必要单号新子批；直接取触发记录保存root，沿原task/来源/priority追溯，保留原request/行审计。",
+                "type": "request",
+                "api_id": null,
+                "condition": "执行前通过；M1迟到失败即使已有M2仍固定M1，不用最近主算法、不伪DCC新request、不新增第三层"
+              },
+              {
+                "step": 21,
+                "from": "plans",
+                "to": "service",
+                "message": "返回本次内部尝试和必要新子batch、原root及保存priority；supplier fileId必须取实际响应，新建或追加的生产策略尚待核。",
+                "type": "response",
+                "api_id": null,
+                "condition": "原业务关联和内部尝试分开；手工历史根映射不足仍待核"
+              },
+              {
+                "step": 22,
+                "from": "service",
+                "to": "plans",
+                "message": "保存本次独立排队/尝试时间，同任务priority高先、同级FIFO；原导入时间保留审计，不恢复每日priority衰减，已受理不撤回重排。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "仅约束本平台提交次序，不承诺供应商实际拨打顺序；未实际发起不计业务次数"
+              },
+              {
+                "step": 23,
+                "from": "service",
+                "to": "vendor",
+                "message": "实际发起本次单号补导：taskId、name、taskTelList[].tel/保存priority及经核实的fileId/isRepeat策略。本次属于内部业务尝试，非DCC重新推线索。",
+                "type": "external_call",
+                "api_id": "API-002",
+                "condition": "执行前通过且开始新业务提交；旧fileId追加/新fileId同号接收及排重仍待核，不默认isRepeat=0"
+              },
+              {
+                "step": 24,
+                "from": "service",
+                "to": "plans",
+                "message": "本次实际新业务发起原子占共享失败额度一次；供应商受理或明确拒绝均计，超时/未知保留占用，技术传输恢复沿同一次尝试而非新发业务额度。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "与本次实际发起关联的计数事实；原子性和传输幂等由工程落实"
+              },
+              {
+                "step": 25,
+                "from": "vendor",
+                "to": "service",
+                "message": "返回实际result/description/errorCode、data.fileId及importTotal/successTotal/invalidTotal等原证据；不以result=0或汇总数量任意判定每条成功。",
+                "type": "response",
+                "api_id": "API-002",
+                "condition": "真实响应已收到；本能力仍partial，生产受理不等实际呼叫成功"
+              },
+              {
+                "step": 26,
+                "from": "service",
+                "to": "plans",
+                "message": "明确受理则保存实际fileId与当前尝试映射；明确拒绝保存原原因及已用次数，53导入失败按原导入证据处理，不以同步拒绝循环触发11类策略。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "受理/拒绝证据准确；无话单失败与同步/53导入失败保持区分"
+              },
+              {
+                "step": 27,
+                "from": "service",
+                "to": "plans",
+                "message": "超时、未收到响应或真实冲突保持本次尝试和额度占用待核，先核验受理，不新增尝试/子批、不释放额度盲目重发。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "本次供应商响应未知；不会虚构供应商已拒绝或可安全重试"
+              },
+              {
+                "step": 28,
+                "from": "service",
+                "to": "plans",
+                "message": "保存原失败、自动/人工方式、确认/到期时间、等待/待人工/待核/执行/受理/停止状态、共享用量、触发原root及实际fileId。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "每次准确处理状态变化均保存；后续真实新失败是下一次外部事件，不是此图无限重试"
+              },
+              {
+                "step": 29,
+                "from": "service",
+                "to": "dcc",
+                "message": "向固定DCC地址交付原失败及本方处理进度，携保存原requestId/行、record/实际batch/root、可信call或稳定事件；本方计划/尝试与供应商原字段分别表达。",
+                "type": "external_call",
+                "api_id": "API-010",
+                "condition": "仅锁定接口来源且已准确关联；任何等待/待人工/待核/受理/停止变化均按同一关联交付，正式报文/ACK仍missing"
+              },
+              {
+                "step": 30,
+                "from": "dcc",
+                "to": "service",
+                "message": "提供实际交付确认或可观察失败结果；正式ACK、认证、幂等及版本契约待实现，DCC只接收不调度补提。",
+                "type": "response",
+                "api_id": "API-010",
+                "condition": "收到接收端真实响应；没有响应不能伪造确认"
+              },
+              {
+                "step": 31,
+                "from": "service",
+                "to": "plans",
+                "message": "记录结果交付成功/失败/未知；失败或超时只保留同一结果/版本待补送，不新排120秒、不占失败次数、不再导入AliCti。",
+                "type": "internal",
+                "api_id": null,
+                "condition": "每次固定DCC交付结果；业务呼叫处理与结果交付独立"
+              },
+              {
+                "step": 32,
+                "from": "service",
+                "to": "dcc",
+                "message": "补送同一结果与处理进度版本，保持原request/记录/root和内部尝试对应关系。",
+                "type": "external_call",
+                "api_id": "API-010",
+                "condition": "仅接口交付失败/未知的可靠补送路径；策略由工程落实，不创建新补提"
+              },
+              {
+                "step": 33,
+                "from": "service",
+                "to": "ui",
+                "message": "呈现本次准确原失败、处理方式、共享额度、自动到期/待人工/待核/执行/受理/停止及交付状态；手工来源只平台查看，不回传DCC。",
+                "type": "response",
+                "api_id": null,
+                "condition": "沿原来源审计；秒挂只展示判定，无补提计划或用量，既有任务记录区域不新增顶级菜单"
+              },
+              {
+                "step": 34,
+                "from": "ui",
+                "to": "operator",
+                "message": "展示当前记录可执行性及禁用/待核原因；不把初始导入入口禁用替代异常权限，不因换原因或操作者重置次数。",
+                "type": "response",
+                "api_id": null,
+                "condition": "按具体记录和操作权限显示；未知能力不宣称生产可执行"
+              }
+            ],
+            "reason": "语义复核：外发前绑定执行权与预算；统一priority在最终确认前可填。接口事实未变。"
+          }
+        ]
+      }
+    },
+    {
+      "recorded_at": "2026-10-13",
+      "record_type": "S5_revalidation_metadata_and_documentary_boundaries_under_actual_Wiki_G2",
+      "previous_current_metadata": {
+        "status": "analysis_reviewed_SRC110_G2_gaps_retained",
+        "source_refs": [
+          "inputs/user-original-20261009.txt#第3条",
+          "inputs/source-index.json#SRC-002",
+          "inputs/source-index.json#SRC-043",
+          "inputs/source-index.json#SRC-050",
+          "inputs/source-index.json#SRC-051",
+          "inputs/source-index.json#SRC-056",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-092",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-095",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-098",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-099",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-104",
+          "inputs/source-index.json#SRC-105",
+          "inputs/source-index.json#SRC-109",
+          "inputs/source-index.json#SRC-110"
+        ],
+        "notes": [
+          "本次实际G2仅允许保留缺口继续S5～S7，证据runtime/g2-user-approval-SRC110-20261012.json；不是G3冻结、生产联调、真实账号权限变更或供应商能力verified。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "DCC接收/回传及应用接入整体延期，旧全文/参与方/消息/API关系保留decision_history或deferred_definition，不参与当前时序图集。"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/g2-user-approval-SRC110-20261012.json",
+          "interface_fingerprint": "dca9200a363d11c23af0cf75ba04f55f8191626a638790827ef767d59b1df755",
+          "scope": "仅合成方案分析，真实缺口保持"
+        }
+      },
+      "previous_file_sha256": "024d21a57ac58777c16d2cfb6bf3b220cdb71af1a945a2868b71fc06f835f660",
+      "complete_prior_file_evidence": "runtime/wiki-g2-downstream-revalidation-20261013.json",
+      "reason": "当前6时序消息/参与方目的已逐条与新G2核验，保持124消息正文；仅补来源、取证/字段边界和当前批准绑定。"
+    },
+    {
+      "change_id": "CH-V110-20261013-TIANWANG-S5-RESULT-DELIVERY",
+      "source_refs": [
+        "inputs/source-index.json#SRC-116",
+        "runtime/tianwang-g2-user-approval-20261013.json"
+      ],
+      "before_full_file": {
+        "path": "/private/tmp/tianwang-s5-results-20261013/before/SEQ-003.json",
+        "sha256": "a651e82a2fa1c496f050ccccfc8c2189ee26844d53ea9754fb27efa546f82405",
+        "complete_original_bytes_preserved": true
+      },
+      "before_current_definition": {
+        "schema_version": "1.0",
+        "id": "SEQ-003",
+        "scenario_id": "SC-003",
+        "name": "三自动120秒与八人工共享累计两次本地补提交",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "该任务有权运营或管理员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "既有任务记录与原导入界面",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（合成）",
+            "kind": "system"
+          },
+          {
+            "id": "plans",
+            "name": "内部记录、计划与累计预算（逻辑参与方）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti供应商（真实能力待核）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "from": "vendor",
+            "to": "service",
+            "message": "收到预测呼叫失败原taskId/fileId/customerNumber/failType/message/callTime等字段；无话单不等话单，无稳定callId/finishRetryFlag不伪造。完整事件身份/认证/重放仍partial。",
+            "type": "event",
+            "api_id": "API-003",
+            "condition": "独立本次供应商预测呼叫失败入口；不是53导入拒绝",
+            "step": 1
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "从保存实际fileId/原task/原号码映射回查唯一触发record/batch、tenant/保存leadCode/固定phone及原root/source/priority，不能用leadCode单键、最近同号/后来新根代替。",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "step": 2
+          },
+          {
+            "from": "plans",
+            "to": "service",
+            "message": "返回可信唯一关联与原root/priority/来源；缺失/多候选/真实冲突返回待核，根关联不足与累计账不足分别保留原因，不猜或新造根。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 3
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "去重核可信失败事件身份，并在平台收到且确认该准确失败时立即保存首次确认时间；纯重复/同事件可信晚更沿原对象，不新计划、不重计时计次。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "本次准确关联；时间不是supplier callTime、计划创建时刻或点击时刻",
+            "step": 4
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "关联不明保原待核；同事件重复返回原处理进度和确认时间，不当新呼叫或新补提交。",
+            "type": "response",
+            "api_id": null,
+            "condition": "关联不明或纯重复：本次不安排新的失败执行",
+            "step": 5
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "准确新原因分类：过频只任务规则，三自动/八人工才本轮失败处理；同步/53导入拒绝走SEQ-006/007，秒挂只SEQ-004本地判定。未知原因保待核不猜类。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "只有准确的新实际失败事件可新建相应处理；可信晚更只维护原对象",
+            "step": 6
+          },
+          {
+            "from": "vendor",
+            "to": "vendor",
+            "message": "三自动依赖API-012既有外显导航配置/降级能力；真实3类覆盖、生效时点与同号再次受理待核，不能因时间经过认定换线，不新增配置调用或要求降级/解禁成功回执。",
+            "type": "action",
+            "api_id": "API-012",
+            "condition": "既有供应商导航依赖说明，不是当前已发生降级的通知",
+            "step": 7
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "服务端从保存四元组读取跨记录/主子累计used/reserved及未知占用，三自动与八人工共享首次外max=2。合法再次初始导入、不同root/fileId/原因/方式/人/导出或删除不重置。历史leadCode/账不足unknown，不以业务编码/空值/新root默认0/2。",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅本轮11类，触发root只关联记录，预算另按tenant+原task+保存leadCode+固定phone",
+            "step": 8
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "形成计划前核任务/指定记录状态和有效操作：pause挂起，终止或该记录准确取消停止待计划；在途不假撤回，计划/账/UNKNOWN占用保存，不能清同root或同号其他记录。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 9
+          },
+          {
+            "from": "plans",
+            "to": "service",
+            "message": "返回可处理、累计用尽、暂停/停止或占用/生命周期待核；不通过只保存本地进度、不新发额度或供应商导入。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 10
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "运营商禁呼/运营商限呼/restrict tel外呼黑名单保存唯一自动计划，到期取已保存本次首次可信确认时间+120秒；重复不推迟，后续真实新失败用新确认时间但账延续。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅自动三类且前置可处理；不先等供应商解禁/降级成功",
+            "step": 11
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "自动显示确认+120秒等待；其余无可用中继、bad tel、真实号码为空、no clid、bad clid、无可用中继信息、wrong obClidGroup、bad timeout range仅待有权人工，不生成自动计时。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 12
+          },
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "选择当前八类已有准确失败记录并明确确认补提交；核对资源/数据/配置，不新名单、不静默改phone/priority；取消/未确认仍待人工。",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅八类人工，按该任务原操作权限；三自动/秒挂不提供此提前人工操作",
+            "step": 13
+          },
+          {
+            "from": "ui",
+            "to": "service",
+            "message": "后台生成拟定failedRecordId/actionId/expectedVersion/Boolean confirmed=true，认证来自现有登录；用户仅选择已存记录并确认，不输入后台scope/root/预算字段。",
+            "type": "request",
+            "api_id": "API-011",
+            "condition": "当前八类明确确认，工程字段提案/真实route/auth未实现",
+            "step": 14
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "每次先验当前认证、tenant/原task/准确对象及原任务操作权限；有权运营/管理员限授权范围，无权拒绝、具体授权无法核实时待核，不自动授新账号权。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 15
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "授权后先按actionId核完整命令：同ID同内容读取原action对应attempt当前状态，后来对象升版仍不新发；异内容冲突拒绝。仅新action校验当前expectedVersion和Boolean true确认，不隐式转换。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "人工API-011入口；不同action也受同对象有效尝试和同四元组预算锁",
+            "step": 16
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "返回未确认/无权/版本或内容冲突/待核/原动作复用等当前结果；命令接收不等供应商受理，重复确认不建新attempt、不消耗新次数。",
+            "type": "response",
+            "api_id": "API-011",
+            "condition": "仅本次人工命令当前反馈；重放/拒绝分支不继续新外发",
+            "step": 17
+          },
+          {
+            "from": "plans",
+            "to": "service",
+            "message": "自动计划按原确认时间+120秒到期唤起；尚未到期继续等待，这个内部事件不是供应商降级通知或成功回执。",
+            "type": "event",
+            "api_id": null,
+            "condition": "仅自动三类唯一计划；人工不等待这个时钟",
+            "step": 18
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "到期自动或新的合法人工在实际执行前再核精确触发对象/root、当前权限/记录版本、四元组连续账与占用、task/record生命周期、供应商同号受理和原生/导航执行权；与SEQ-009同目标删除/取消共用执行互斥。",
+            "type": "request",
+            "api_id": null,
+            "condition": "不凭空话单、finishRetryFlag或新fileId推定安全；任何待核/冲突阻止外发",
+            "step": 19
+          },
+          {
+            "from": "plans",
+            "to": "service",
+            "message": "返回执行通过或挂起/停止/累计用尽/有效占用或执行权待核；未通过不外发，恢复重核，终止或精确取消只停止本目标未执行计划。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 20
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "准备内部触发事件/唯一计划及独立attempt、必要单号子batch，始终取触发记录已保存root/source/原task/priority。后来新根不重算旧root，子不挂上一子，无第三层，不伪造新的初始导入请求。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅执行前全部守卫通过的新本次业务尝试",
+            "step": 21
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "外发前原子取得本attempt独占执行权并持久保存同四元组预算槽预占、trigger/root和状态；与目标删除/取消共享互斥，尚未实际发起不记used。原始导入时间审计，异常独立排队时间仍同task priority高先/FIFO。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "持久原子协议为已审工程提案，真实实现仍待核；不能外发后才补账",
+            "step": 22
+          },
+          {
+            "from": "service",
+            "to": "vendor",
+            "message": "仅这个新业务attempt实际补导单号，沿保存task/priority及已审独立fileId候选；排重/isRepeat、受理及运行任务仍partial，不默认关排重，不用root充当fileId。",
+            "type": "external_call",
+            "api_id": "API-002",
+            "condition": "独占持久预占与执行权仍有效，外发前再次核同目标取消；UNKNOWN技术恢复不能另建尝试或new fileId",
+            "step": 23
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "证明本次新业务已实际发起后同预算槽reserved→used，一次只计一槽；受理或明确拒绝均计。实际发起已证且响应unknown留used，是否发起不明留reserved，二者不双计且不释放再发。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "发起证据/崩溃恢复为工程待核；形成计划/点击/预占不算已用",
+            "step": 24
+          },
+          {
+            "from": "vendor",
+            "to": "service",
+            "message": "返回本次原result/description/errorCode、实际data.fileId与导入数量；准确逐条证据才保存受理/拒绝，不以汇总result0任意判成功。",
+            "type": "response",
+            "api_id": "API-002",
+            "condition": "明确得到本次供应商响应，受理不等实际呼叫",
+            "step": 25
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "准确受理保存本次actual fileId→attempt/batch/root，明确拒绝保原原因及已用；随后53导入失败沿SEQ-006/007同attempt保存，不触发新的11类计划，也不释放已用。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "本次明确且准确受理/拒绝分支",
+            "step": 26
+          },
+          {
+            "from": "service",
+            "to": "plans",
+            "message": "本次发起/响应unknown沿原attempt和预算槽待核，actual fileId未知不伪造；禁止新action/新attempt/新fileId绕过。只有可证明根本未外发的取消/准备失败才按原原子协议释放该预占，已用/外发不明不能因无话单/拒绝/删除成功或finishRetryFlag释放。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "UNKNOWN或可证明未发起的取消为不同互斥恢复分支；没有新核查供应商端点",
+            "step": 27
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "保存并本地显示原失败、自动/人工方式、本次确认/仅自动到期、used/reserved/available或unknown、trigger/root、attempt/actual fileId及等待/待人工/待核/受理/停止；available算术值不等可以绕过unknown占用。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 28
+          },
+          {
+            "from": "ui",
+            "to": "operator",
+            "message": "当前八类按钮按任务权限、准确对象/版本、累计账/占用与pause/终止/取消禁用说明；服务端同样守卫。新真实失败另进本时序，重复/刷新不重计划，秒挂没有此按钮或额度。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 29
+          }
+        ],
+        "notes": [
+          "本轮实际新G2已批准保留缺口重验S5～S7，证据runtime/g2-user-approval-wiki-20261013.json，当前接口事实指纹463b24041b0ebe18f4164fa3f8646e25be1fd12129b724bef540d96d8ec1d855；本次是合成方案的下游重核，不接受生产风险、不批准G3/真实调用/原型导入或05交付。旧G2仅保留历史。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "DCC接收/回传及应用接入整体延期，旧全文/参与方/消息/API关系保留decision_history或deferred_definition，不参与当前时序图集。",
+          "SRC-112已有公共HTTP success/网络200OK接收依据和52/53传输重试配置；精确body/AND或OR、回调验真、稳定业务事件/导入组身份、持久ACK及错误/超时具体重发触发仍待核。传输retry/秒间隔不能变成本方额外2次、120秒、三天五呼或新的失败计划；重复消息继续沿原对象/确认时间处理。",
+          "SRC-112辅助v10 /logCurl/list仅供后续索取/核对脱敏供应商推送轨迹，未作为本轮新增生产查询或UNKNOWN自动恢复端点。其type旧枚举未列52/53，日志uniqueId不当失败payload稳定ID，查询result0/-1与data.result1/0分开；查空或HTTP200不证明未拨、无在途、持久成功或后续执行权已清。",
+          "SRC-113批次话单候选仅可辅助供应商联调/取证，未增加本时序的新核查调用、恢复或重发动作；未知仍保原attempt/槽，不凭taskFileId可查、fileId独立、无话单或finishRetryFlag推定可安全外发。",
+          "SRC-111仅补既有API-012/013配置字段与模式边界的来源，不增加任务/导航配置调用、先解禁/先降级成功回执/先删后导门槛；具体目标任务的原生/导航受理和在途仍须生产证据。"
+        ],
+        "source_refs": [
+          "inputs/user-original-20261009.txt#第3条",
+          "inputs/source-index.json#SRC-002",
+          "inputs/source-index.json#SRC-043",
+          "inputs/source-index.json#SRC-050",
+          "inputs/source-index.json#SRC-051",
+          "inputs/source-index.json#SRC-056",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-092",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-095",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-098",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-099",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-104",
+          "inputs/source-index.json#SRC-105",
+          "inputs/source-index.json#SRC-109",
+          "inputs/source-index.json#SRC-110",
+          "inputs/source-index.json#SRC-111",
+          "inputs/source-index.json#SRC-112",
+          "inputs/source-index.json#SRC-113",
+          "inputs/source-index.json#SRC-114"
+        ],
+        "status": "analysis_reviewed_WIKI_G2_gaps_retained",
+        "delivery_scope": "current_manual_and_internal_delivery",
+        "business_rule_ids": [
+          "BR-003",
+          "BR-004",
+          "BR-007",
+          "BR-008",
+          "BR-009",
+          "BR-012",
+          "BR-013",
+          "BR-015",
+          "BR-016",
+          "BR-018",
+          "BR-019",
+          "BR-021",
+          "BR-022"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/g2-user-approval-wiki-20261013.json",
+          "interface_fingerprint": "463b24041b0ebe18f4164fa3f8646e25be1fd12129b724bef540d96d8ec1d855",
+          "actual_answer": "批准 G2，保留缺口重验 S5～S7",
+          "scope": "仅批准本轮接口事实及边界用于重验S5～S7；生产证据要求不变，13high/2medium保持open。",
+          "production_risk_accepted": false,
+          "production_calls_allowed": false,
+          "G3_approved": false,
+          "prototype_import_allowed": false,
+          "development_delivery_approved": false
+        }
+      },
+      "reason": "当前实际G2后恢复原DCC按record/attempt结果和进度交付，天网/手工仅查看；保护现有本地业务/guard和旧完整history。"
+    }
+  ],
+  "status": "S5_manual_code_correction_revalidated_production_gaps_retained",
+  "delivery_scope": "original_trusted_DCC_record_attempt_callback_Tianwang_manual_local_unknown_pending",
+  "business_rule_ids": [
+    "BR-003",
+    "BR-004",
+    "BR-007",
+    "BR-008",
+    "BR-009",
+    "BR-012",
+    "BR-013",
+    "BR-015",
+    "BR-016",
+    "BR-018",
+    "BR-019",
+    "BR-021",
+    "BR-022",
+    "BR-017"
+  ],
+  "g2_analysis_continuation": {
+    "status": "approved_actual_reply",
+    "date": "2026-10-14",
+    "evidence": "runtime/manual-code-g2-user-approval-20261014.json",
+    "interface_fingerprint": "fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4",
+    "production_risk_accepted": false,
+    "real_calls_allowed": false,
+    "G3_approved": false
+  },
+  "original_source_delivery_policy": {
+    "scope_source": "SRC-116",
+    "routing_unit": "exact_original_record_or_trigger_record_inherited_by_internal_failure_attempt",
+    "DCC": "trusted_original_DCC_only_fixed_backend",
+    "Tianwang": "LOCAL_ONLY_no_DCC_or_Tianwang_callback",
+    "manual": "LOCAL_ONLY",
+    "unknown_or_conflict": "pending_no_default_callback",
+    "stable_app_identity": "auth_context_plus_controlled_registration_proposed_not_implemented",
+    "task_app_binding": false,
+    "app_in_business_group_or_failure_budget": false,
+    "root_or_latest_app_used_for_routing": false,
+    "callback_ACK_controls_supplier_retry_or_budget": false
+  }
+}

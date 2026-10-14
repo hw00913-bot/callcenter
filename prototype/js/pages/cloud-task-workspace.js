@@ -15,14 +15,14 @@
   const centerKey = 'cloud-task-center-context-v1';
   const predictiveSteps = [{step:2,label:'任务与客户',hint:'联系谁'}, {step:4,label:'接听团队配置',hint:'如何接听'}, {step:5,label:'时间与重呼',hint:'何时联系'}, {step:6,label:'确认创建',hint:'检查并保存'}];
   const automaticSteps = [{step:4,label:'选择语音流程',hint:'接通后做什么'}, {step:5,label:'呼叫设置',hint:'何时与如何联系'}, {step:2,label:'客户名单',hint:'联系谁'}, {step:6,label:'确认创建',hint:'检查并保存'}];
-  function stepsFor(draft) { return draft.type === 'IVR 外呼' ? automaticSteps : predictiveSteps; }
+  function stepsFor(draft) { return draft.type === 'IVR 外呼' ? automaticSteps : isDccDraft(draft) ? predictiveSteps.map(item=>({...item,label:item.step===2?'任务与来源':item.step===5?'时间与供应商重呼':item.label})) : predictiveSteps; }
   const centerTabs = [
     { key: 'overview', label: '运行监控' },
+    { key: 'dcc-records', label: '客户与处理记录' },
     { key: 'customers', label: '客户数据' },
     { key: 'resources', label: '任务设置' },
     { key: 'execution', label: '执行明细' },
-    { key: 'calls', label: '通话记录' },
-    { key: 'results', label: '通话结果' }
+    { key: 'calls', label: '通话记录' }
   ];
   let taskStorageIssue = '';
   let drafts = loadDrafts();
@@ -169,6 +169,8 @@
 
   function persist() { sessionStorage.setItem(storageKey, JSON.stringify(drafts)); }
   function persistCreatedTask(row, options = {}) {
+    const sourceGuard=window.DccRuntime?.guardTaskUpdate?.(row);
+    if(sourceGuard&&!sourceGuard.ok)throw Error(sourceGuard.reason);
     const storage=taskStorage(),rows=readCreatedTasks(),current=rows.find(item=>item.taskId===row.taskId);
     if(options.allowAborted&&current?.abortedCreation&&sameTaskIdentity(current,row))row._localTaskRevision=current._localTaskRevision||0;
     if(options.restoreTransaction&&current?.status==='已删除'&&sameTaskIdentity(row,current)&&Number(row._localTaskRevision||0)===Number(current._localTaskRevision||0)){}else assertTaskVersion(row,current);
@@ -429,6 +431,7 @@
         sourceType: '客户导入批次',
         sourceRef: '',
         total: 0,
+        dccImportSource: '',
         planId: '',
         skillGroupId: '',
         ...AliCtiFields.callerSettingsFromAccount((CloudCallData.instances||[]).find(row=>row.enterpriseId===AppState.get().enterpriseId)||{}),
@@ -477,6 +480,8 @@
 
   function startRepeatPredictive(spec) {
     if(!canUseWorkspace()||!window.RepeatPredictive)return false;
+    const sourceGuard=window.DccRuntime?.guardLegacyWrite?.(spec?.sourceTaskId);
+    if(sourceGuard&&!sourceGuard.ok){showToast(sourceGuard.reason,'warning');return false;}
     if(!recoverRepeatArrangement()){showToast('上次联系安排尚未恢复，请检查浏览器存储后重试','warning');return false;}
     const checked=RepeatPredictive.validateSpec(spec);
     if(!checked.ok){showToast(checked.message||'所选客户暂时无法安排再次预外呼','warning');return false;}
@@ -629,6 +634,8 @@
   function flowName(id) { return displayName((CloudCallData.contactFlows || []).find(row => row.contactFlowId === id)?.name) || '未选择'; }
   function customerCount(draft) { return draft.repeatPredictive?(window.RepeatPredictive?.selectedRows(draft.repeatPredictive)||[]).length:(draft.values.customerIds || []).length; }
   function duplicateLabel(value) { return ['不去重，保留每条记录', '整个任务内去重', '本次导入号码去重', '每个批次内去重'][Number(value ?? 0)] || '未选择'; }
+  function isDccDraft(draft) { return draft?.type==='预外呼'&&!draft.editTaskId&&!draft.repeatPredictive; }
+  function hasDccTaskContext(draft) { return isDccDraft(draft)||Boolean(draft?.editTaskId&&window.DccRuntime?.isManagedTask(draft.editTaskId)); }
   function errorSlot(id) { return `<small class="wizard-field-error" id="${id}Error" hidden></small>`; }
   function retryText(draft) {
     const p = draft.values.retryPolicy;
@@ -716,10 +723,10 @@
   function basicStep(draft) {
     const v=draft.values,automatic=draft.type==='IVR 外呼';
     return `<div class="wizard-step-content">
-      ${heading(automatic?'选择要联系的客户':'先确定任务和客户',draft.repeatPredictive?'为这次跟进命名，并核对已选择的客户。':automatic?'选择本次联系的客户，也可以创建后再添加。':'为这次外呼命名，再选择要联系的客户。客户也可以在创建后添加。')}
+      ${heading(automatic?'选择要联系的客户':isDccDraft(draft)?'先确定任务和导入来源':'先确定任务和客户',draft.repeatPredictive?'为这次跟进命名，并核对已选择的客户。':automatic?'选择本次联系的客户，也可以创建后再添加。':'为这次外呼命名并选择一种来源，创建后在任务记录页接收或导入线索。')}
       ${automatic?'':taskIdentity(draft)}
-      ${customerSelection(draft)}
-      <details class="wizard-more" ${Number(v.isRepeat ?? 0) !== 0 ? 'open' : ''}><summary>重复号码处理<span>${esc(duplicateLabel(v.isRepeat))}</span></summary><div class="wizard-more-body"><label class="field"><span>遇到重复号码时</span><select id="wizardRepeat" onchange="CloudTaskWorkspace.update('isRepeat',this.value)">${[0,1,2,3].map(value => `<option value="${value}" ${Number(v.isRepeat ?? 0) === value ? 'selected' : ''}>${duplicateLabel(value)}</option>`).join('')}</select><small class="field-hint">用于客户导入任务时的号码处理，不修改原始客户名单。实际可呼叫数量以导入结果为准。</small></label></div></details>
+      ${draft.type==='预外呼'&&!draft.repeatPredictive?dccSourceSelection(draft):customerSelection(draft)}
+      ${isDccDraft(draft)?'<p class="wizard-soft-note dcc-keep-every-record"><strong>保留每条有效业务记录</strong>：每次有效推送逐行新建独立记录和单号批次；同号再次有效推送不会覆盖或去重旧记录。</p>':`<details class="wizard-more" ${Number(v.isRepeat ?? 0) !== 0 ? 'open' : ''}><summary>重复号码处理<span>${esc(duplicateLabel(v.isRepeat))}</span></summary><div class="wizard-more-body"><label class="field"><span>遇到重复号码时</span><select id="wizardRepeat" onchange="CloudTaskWorkspace.update('isRepeat',this.value)">${[0,1,2,3].map(value => `<option value="${value}" ${Number(v.isRepeat ?? 0) === value ? 'selected' : ''}>${duplicateLabel(value)}</option>`).join('')}</select><small class="field-hint">用于客户导入任务时的号码处理，不修改原始客户名单。实际可呼叫数量以导入结果为准。</small></label></div></details>`}
     </div>`;
   }
 
@@ -742,6 +749,21 @@
         <p class="field-hint">确认创建时才分配客户；保存草稿不会占用名单。跨批次的同号记录各自保留。</p></div>` : '<div class="wizard-empty"><strong>还没有可选的客户</strong><p>'+(CustomerTasks.canImportCustomers()?'可以先创建任务；预外呼可在任务操作列直接导入客户，自动外呼通过“导入与分配”添加客户。':'可以先创建任务，请由租户管理员导入新名单后再分配客户。')+'</p><button class="btn" onclick="CloudTaskWorkspace.setCustomerMode(&#39;later&#39;)">创建后再添加</button></div>'}
         ${errorSlot('wizardCustomers')}
     </section>`;
+  }
+
+  function dccSourceSelection(draft) {
+    const selected=draft.values.dccImportSource;
+    return `<section class="wizard-customers dcc-wizard-source" id="wizardDccSource" tabindex="-1" data-func-id="FUNC-016"><div class="wizard-section-title"><h3>任务导入来源</h3><span>确认创建后锁定</span></div><div class="wizard-choice-grid">
+      <label class="wizard-choice ${selected==='api'?'selected':''}"><input type="radio" name="dccImportSource" id="wizardDccSourceApi" value="api" ${selected==='api'?'checked':''} onchange="CloudTaskWorkspace.setDccSource(this.value)"><span><strong>DCC 接口导入</strong><small>按授权租户身份接收逐行线索，手工导入禁用</small></span></label>
+      <label class="wizard-choice ${selected==='manual'?'selected':''}"><input type="radio" name="dccImportSource" id="wizardDccSourceManual" value="manual" ${selected==='manual'?'checked':''} onchange="CloudTaskWorkspace.setDccSource(this.value)"><span><strong>手工导入</strong><small>在任务记录页预览线索并逐条设置 priority</small></span></label></div>
+      <p class="wizard-soft-note">线索在创建后的任务记录页接收或导入。每行需线索编码及独立 priority，R 可选；本版任务不使用旧名单分配。任务归租户，应用只追踪来源。</p>${errorSlot('wizardDccSource')}
+      <p class="dcc-muted">原有主叫权重和供应商重呼设置保留，与被叫 priority 及 DCC 业务重导分开。</p></section>`;
+  }
+  function setDccSource(source) {
+    const draft=activeDraft();
+    if(!draft||draft.editTaskId||draft.type!=='预外呼'||!['api','manual'].includes(source))return false;
+    draft.values.dccImportSource=source;draft.values.customerIds=[];draft.values.customerMode='later';
+    persist();AppState.setDirty(true);clearFormErrors();refresh(true);refreshPreview();return true;
   }
   function matchesCustomerQuery(row,query) { return !query || [row.name,row.phone,row.externalDocumentId].some(value => String(value || '').includes(query)); }
   function customerBusinessColumns() { return [{key:'businessType',label:'业务类型',render:(_,row)=>esc(CustomerBusiness.typeLabel(row))},{key:'externalDocumentId',label:'业务单据',render:(value,row)=>esc(CustomerBusiness.codeLabel(row))+'：'+esc(value||'—')}]; }
@@ -875,7 +897,7 @@
   function scheduleStep(draft) {
     const scheduled = draft.values.scheduleMode === '定时执行';
     return `<div class="wizard-step-content">
-      ${heading('设置呼叫时间与重呼', '先确定何时开始，再安排需要再次联系时的次数和间隔。')}
+      ${heading(hasDccTaskContext(draft)?'设置呼叫时间与供应商重呼':'设置呼叫时间与重呼', hasDccTaskContext(draft)?'保留 AliCti 任务内重呼设置，DCC 业务重导由 DCC 独立决定。':'先确定何时开始，再安排需要再次联系时的次数和间隔。')}
       ${draft.type==='IVR 外呼'?automaticCallSettings(draft):''}
       <section class="wizard-schedule"><h3>何时开始呼叫</h3><div class="wizard-choice-grid">
         <label class="wizard-choice ${!scheduled?'selected':''}"><input type="radio" name="scheduleMode" value="保存后手工启动" ${!scheduled?'checked':''} onchange="CloudTaskWorkspace.update('scheduleMode',this.value)"><span><strong>准备好后手动开始</strong><small>创建后，在任务列表操作启动</small></span></label>
@@ -884,12 +906,18 @@
       ${scheduled ? `<label class="field wizard-schedule-at"><span>计划开始时间 <b>*</b></span><input id="wizardScheduleAt" type="datetime-local" value="${esc(draft.values.scheduleAt)}" aria-describedby="wizardScheduleAtError" onchange="CloudTaskWorkspace.update('scheduleAt',this.value)">${errorSlot('wizardScheduleAt')}</label>` : ''}
       <label class="field wizard-schedule-at"><span><input type="checkbox" ${draft.values.stopScheduled?'checked':''} onchange="CloudTaskWorkspace.update('stopScheduled',this.checked)"> 设置结束时间</span><small class="field-hint">选填，按预约时间提交任务结束安排。</small></label>
       ${draft.values.stopScheduled?`<label class="field wizard-schedule-at"><span>计划结束时间 <b>*</b></span><input id="wizardStopAt" type="datetime-local" value="${esc(draft.values.stopAt||'')}" onchange="CloudTaskWorkspace.update('stopAt',this.value)">${errorSlot('wizardStopAt')}</label>`:''}
-      <p class="wizard-soft-note">${draft.editTaskId?'本次仅更新任务设置；已导入名单、任务状态与历史通话保持原样。':customerCount(draft) ? '已选客户将在确认创建时分配给任务。' : '尚未添加客户；请在启动前完成名单分配。'}${draft.type==='预外呼' ? scheduled ? '到点启动仍需满足客户名单和呼叫设置检查；只有座席不足触发的自动暂停，才会在可用人数达标后自动启动。' : '座席不足会自动暂停；人数恢复后需手动继续。人工暂停不会随人数恢复自动启动。' : scheduled ? '到点启动仍需满足客户名单和呼叫设置检查。' : ''}</p></section>
+      <p class="wizard-soft-note">${draft.editTaskId?'本次仅更新任务设置；已导入名单、任务状态与历史通话保持原样。':isDccDraft(draft)?'尚未接收/导入线索，请在任务记录页完成。':customerCount(draft) ? '已选客户将在确认创建时分配给任务。' : '尚未添加客户；请在启动前完成名单分配。'}${draft.type==='预外呼' ? scheduled ? '到点启动仍需满足客户名单和呼叫设置检查；只有座席不足触发的自动暂停，才会在可用人数达标后自动启动。' : '座席不足会自动暂停；人数恢复后需手动继续。人工暂停不会随人数恢复自动启动。' : scheduled ? '到点启动仍需满足客户名单和呼叫设置检查。' : ''}</p></section>
       ${taskExecutionSettings(draft)}
       ${timeConditionsStep(draft)}
-      ${AliCtiRetry.render(draft.values.retryPolicy,draft.type,draft.values.retryEditor)}
+      ${supplierRetryEditor(draft)}
       ${draft.type==='IVR 外呼'?commonSettings(draft):''}
     </div>`;
+  }
+
+  function supplierRetryEditor(draft) {
+    const html=AliCtiRetry.render(draft.values.retryPolicy,draft.type,draft.values.retryEditor);
+    if(!hasDccTaskContext(draft))return html;
+    return html.replaceAll('<h3>重呼设置</h3>','<h3>供应商重呼设置</h3>').replace('aria-label="重呼设置"','aria-label="供应商重呼设置"')+'<p class="wizard-soft-note">这里设置 AliCti 在任务内的供应商重呼，沿用既有字段。DCC 决定业务重导、恢复条件和业务计数，本页不建立 DCC 重导计划或额度。</p>';
   }
 
   function confirmStep(draft) {
@@ -897,30 +925,30 @@
     const rows = items => items.map(([label,value]) => `<dt>${label}</dt><dd>${esc(value)}</dd>`).join('');
     const card = (label, step, items) => `<section><div><h3>${label}</h3><button class="wizard-text-button" onclick="CloudTaskWorkspace.goStep(${step})" aria-label="修改${label}">修改</button></div><dl>${rows(items)}</dl></section>`;
     const resources = resourceSummary(v,draft);
-    const retry = retrySummaryRows(v,draft.type);
+    const retry = retrySummaryRows(v,draft.type).map(([label,value])=>[isDccDraft(draft)&&label==='再次呼叫'?'供应商重呼设置':label,value]);
     return `<div class="wizard-step-content">
       ${heading('检查一下，即可创建', '发现需要调整的内容，点击“修改”即可返回对应设置。', false)}
-      <div class="wizard-review-title"><span class="wizard-review-icon">✓</span><div><h3>${esc(v.name)}</h3><p>${esc(typeLabel(draft.type))} · ${esc(tenant(draft.tenantId).name || '')}</p></div><span class="wizard-review-state">${count?'待启动':'待添加客户'}</span></div>
+      <div class="wizard-review-title"><span class="wizard-review-icon">✓</span><div><h3>${esc(v.name)}</h3><p>${esc(typeLabel(draft.type))} · ${esc(tenant(draft.tenantId).name || '')}</p></div><span class="wizard-review-state">${isDccDraft(draft)?v.dccImportSource==='api'?'待接收线索':'待导入线索':count?'待启动':'待添加客户'}</span></div>
       <div class="wizard-review">
-        ${card('任务与客户',2,[...(isPredictive?[['任务名称',v.name],['所属组织',tenant(draft.tenantId).name]]:[]),['客户名单',count?`已选 ${count} 位，${draft.repeatPredictive?'建立新的联系安排':'创建时分配'}`:'创建后再添加'],...(draft.repeatPredictive?[['联系原因',draft.repeatPredictive.reason||'按所选客户的跟进需求'],['来源关系','保留原任务与历史通话']]:[]),['重复号码',duplicateLabel(v.isRepeat)],...(isPredictive?taskSettingsSummary(v,draft.type).slice(0,2):[])])}
+        ${card('任务与客户',2,[...(isPredictive?[['任务名称',v.name],['所属组织',tenant(draft.tenantId).name],['导入来源',v.dccImportSource==='api'?'DCC 接口导入（创建后锁定）':v.dccImportSource==='manual'?'手工导入（创建后锁定）':'尚未选择']]:[]),['客户名单',isPredictive?'创建后在任务记录页按锁定来源导入':count?`已选 ${count} 位，${draft.repeatPredictive?'建立新的联系安排':'创建时分配'}`:'创建后再添加'],...(draft.repeatPredictive?[['联系原因',draft.repeatPredictive.reason||'按所选客户的跟进需求'],['来源关系','保留原任务与历史通话']]:[]),['重复号码',isDccDraft(draft)?'保留每条有效记录，每次推送新建单号批次':duplicateLabel(v.isRepeat)],...(isPredictive?taskSettingsSummary(v,draft.type).slice(0,2):[])])}
         ${isPredictive?card('接听团队配置',4,resources):card('任务与语音流程',4,[['任务名称',v.name],['所属组织',tenant(draft.tenantId).name],...taskSettingsSummary(v,draft.type).slice(0,2),...resources])}
-        ${card('时间与重呼',5,[...(isPredictive?[]:callerSummary(v,null,draft)),['开始时间',v.scheduleMode==='定时执行'?v.scheduleAt.replace('T',' '):'准备好后手动开始'],['结束时间',v.stopScheduled?String(v.stopAt||'').replace('T',' '):'未设置'],...timeSummary(v,draft.tenantId),...retry,...taskSettingsSummary(v,draft.type).slice(2)])}
+        ${card(isDccDraft(draft)?'时间与供应商重呼':'时间与重呼',5,[...(isPredictive?[]:callerSummary(v,null,draft)),['开始时间',v.scheduleMode==='定时执行'?v.scheduleAt.replace('T',' '):'准备好后手动开始'],['结束时间',v.stopScheduled?String(v.stopAt||'').replace('T',' '):'未设置'],...timeSummary(v,draft.tenantId),...retry,...taskSettingsSummary(v,draft.type).slice(2)])}
       </div>
-      <p class="wizard-review-next">${count ? '创建后可在任务列表查看进度和操作启动。' : (!CustomerTasks.canImportCustomers()?'创建后可分配已有客户；新名单请由租户管理员导入。':draft.type==='预外呼'?'创建后，点击任务操作列的“导入客户”，名单自动加入当前任务。':'创建后，下一步是在“导入与分配”中为任务添加客户。')}</p>
+      <p class="wizard-review-next">${isDccDraft(draft)?v.dccImportSource==='api'?'创建后，进入当前任务的“客户与处理记录”页接收 DCC 接口线索。':'创建后，进入当前任务的“客户与处理记录”页点击“导入客户”，检查后确认名单。':count ? '创建后可在任务列表查看进度和操作启动。' : (!CustomerTasks.canImportCustomers()?'创建后可分配已有客户；新名单请由租户管理员导入。':draft.type==='预外呼'?'创建后，点击任务操作列的“导入客户”，名单自动加入当前任务。':'创建后，下一步是在“导入与分配”中为任务添加客户。')}</p>
     </div>`;
   }
 
   function preview(draft) {
-    const v=draft.values, ivr=draft.type==='IVR 外呼', count=customerCount(draft);
+    const v=draft.values, ivr=draft.type==='IVR 外呼', count=customerCount(draft), dcc=isDccDraft(draft);
     const isObg = !ivr && Number(v.callGroupType) === 2;
     const obgName = isObg ? (window.OutboundGroups?.forTask(v.outboundGroupId, draft)?.name || '未选择外呼组') : '';
     const selectedCnosCount = (Array.isArray(v.cnos) ? v.cnos : String(v.cnos || '').split(',').filter(Boolean)).length;
     const agentLabel = isObg ? (obgName || '未选择外呼组') : (selectedCnosCount > 0 ? `已选 ${selectedCnosCount} 位坐席` : '未选择坐席');
     return `<div class="wizard-preview-card"><span class="wizard-eyebrow">本次外呼</span><h3>${esc(v.name || '未命名任务')}</h3><p class="wizard-preview-org">${esc(tenant(draft.tenantId).name || '当前组织')}</p>
-      <ol class="wizard-call-path"><li><span>1</span><div><strong>自动拨打客户</strong><small>${count?'已选 '+count+' 位客户':'创建后可添加客户'}</small></div></li><li><span>2</span><div><strong>${ivr?'播放语音流程':(isObg?'外呼团队接听':'指定坐席接听')}</strong><small>${esc(ivr?selectedFlowName(draft):agentLabel)}</small></div></li></ol>
-      <dl class="wizard-preview-details"><dt>外显导航</dt><dd>${esc(callerNavigationLabel(callerFromAccount(draft,v)))}</dd><dt>开始时间</dt><dd>${esc(v.scheduleMode==='定时执行'?v.scheduleAt.replace('T',' '):'手动开始')}</dd><dt>呼叫时段</dt><dd>${esc(Number(v.autoTaskType)===1?'仅在指定时段呼叫':'连续呼叫')}</dd>${ivr?'':`<dt>坐席分配</dt><dd>${esc(AliCtiFields.callStrategyLabel(v.callStrategy))}</dd>`}<dt>再次呼叫</dt><dd>${esc(retryText(draft))}</dd></dl>
+      <ol class="wizard-call-path"><li><span>1</span><div><strong>${dcc?'按锁定来源导入线索':'自动拨打客户'}</strong><small>${dcc?'创建后进入任务记录页接收 / 导入':count?'已选 '+count+' 位客户':'创建后可添加客户'}</small></div></li><li><span>2</span><div><strong>${ivr?'播放语音流程':(isObg?'外呼团队接听':'指定坐席接听')}</strong><small>${esc(ivr?selectedFlowName(draft):agentLabel)}</small></div></li></ol>
+      <dl class="wizard-preview-details"><dt>外显导航</dt><dd>${esc(callerNavigationLabel(callerFromAccount(draft,v)))}</dd><dt>开始时间</dt><dd>${esc(v.scheduleMode==='定时执行'?v.scheduleAt.replace('T',' '):'手动开始')}</dd><dt>呼叫时段</dt><dd>${esc(Number(v.autoTaskType)===1?'仅在指定时段呼叫':'连续呼叫')}</dd>${ivr?'':`<dt>坐席分配</dt><dd>${esc(AliCtiFields.callStrategyLabel(v.callStrategy))}</dd>`}<dt>${dcc?'供应商重呼设置':'再次呼叫'}</dt><dd>${esc(retryText(draft))}</dd></dl>
       </div>
-      <div class="wizard-preview-help"><strong>${draft.step===2?(draft.repeatPredictive?'继续跟进原客户':'客户名单可以稍后添加'):draft.step===4?'只需选择已准备好的设置':draft.step===5?'重呼次数不含首次呼叫':'创建后继续管理任务'}</strong><p>${draft.step===2?(draft.repeatPredictive?'确认创建后生成新的联系安排，原线索与通话历史保留。':'草稿不会占用客户，确认创建时才分配名单。'):draft.step===4?'这里的选择仅作用于本次任务，不会修改团队成员或语音内容。':draft.step===5?'例如最多重呼 2 次，表示首次呼叫后最多再拨 2 次。':'名单和呼叫设置准备完成后，才能启动任务。'}</p></div>`;
+      <div class="wizard-preview-help"><strong>${draft.step===2?(dcc?'创建后按锁定来源导入':draft.repeatPredictive?'继续跟进原客户':'客户名单可以稍后添加'):draft.step===4?'只需选择已准备好的设置':draft.step===5?(dcc?'供应商重呼次数不含首次呼叫':'重呼次数不含首次呼叫'):'创建后继续管理任务'}</strong><p>${draft.step===2?(dcc?'确认创建时锁定接口或手工来源；随后在任务记录页接收或导入逐行线索，每条有效推送均新建单号批次。':draft.repeatPredictive?'确认创建后生成新的联系安排，原线索与通话历史保留。':'草稿不会占用客户，确认创建时才分配名单。'):draft.step===4?'这里的选择仅作用于本次任务，不会修改团队成员或语音内容。':draft.step===5?(dcc?'例如供应商最多重呼 2 次，表示首次呼叫后最多再拨 2 次；与 DCC 业务重导分开。':'例如最多重呼 2 次，表示首次呼叫后最多再拨 2 次。'):dcc?'创建后在任务记录页查看本地保存、供应商导入和实际呼叫状态。':'名单和呼叫设置准备完成后，才能启动任务。'}</p></div>`;
   }
 
   function editPreview(draft,row){
@@ -1110,6 +1138,7 @@
   function update(key, value) {
     const draft=activeDraft();if(!draft||!['name','description','businessTagNames','sourceType','sourceRef','total','scheduleMode','scheduleAt','stopScheduled','stopAt','isRepeat','minAvailableAgentCount','callStrategy','customerTimeout','autoComplete','forceEndFlag','retryStrategyOnlyToday','concurrency','callRouteStrategy','agentTimeout','wrapup','maxWaitTime','quotiety','predictAdjust','answerRate','warmUpDuration','isRewarm'].includes(key))return;
     if(draft.editTaskId&&['sourceType','sourceRef','total','isRepeat'].includes(key))return;
+    if(key==='isRepeat'&&isDccDraft(draft))return false;
     if(['callStrategy','callRouteStrategy','agentTimeout','wrapup','maxWaitTime','quotiety','predictAdjust','answerRate','warmUpDuration','isRewarm'].includes(key)&&draft.type!=='预外呼')return;
     draft.values[key]=value;persist();AppState.setDirty(true);clearFormErrors();
     if(key==='stopScheduled'&&!value){draft.values.stopAt='';draft.values.forceEndFlag=0;persist();}
@@ -1285,6 +1314,10 @@
       if(Array.from(String(v.name||'').trim()).length>=50)return fail('任务名称最多填写 49 个字。','wizardName');
     }
     if(step===2){
+      if(draft.type==='预外呼'&&!draft.editTaskId&&!draft.repeatPredictive){
+        if(!['api','manual'].includes(v.dccImportSource))return fail('请选择 DCC 接口或手工一种导入来源，确认创建后不可切换。','wizardDccSource');
+        if((v.customerIds||[]).length)return fail('本版新任务必须从任务记录页逐行导入，旧名单不能附着。','wizardDccSource');
+      }
       if(draft.repeatPredictive){
         const result=window.RepeatPredictive?.validateSpec(repeatSpecForDraft(draft));
         if(!result?.ok)return fail(result?.message||'所选客户暂时无法安排再次预外呼，请返回后重新选择。','wizardCustomers');
@@ -1406,6 +1439,7 @@
       callType: draft.type,
       status: '待分配客户',
       customerSourceMode: 'assigned',
+      ...(draft.type==='预外呼'?{dccManaged:true,dccSourceLocked:true,dccImportSource:draft.values.dccImportSource}:{}),
       // Only tasks created by this local wizard may use the opt-in result simulator.
       // Do not infer this flag from a seed ID, campaign ID or existing call history.
       localPrototypeTask: true,
@@ -1419,7 +1453,7 @@
       planSnapshotId: '',
       planSnapshot: null,
       campaignId: '',
-      listSource: '客户名单分配',
+      listSource: draft.type==='预外呼'?(draft.values.dccImportSource==='api'?'DCC 接口导入（锁定）':'手工导入（锁定）'):'客户名单分配',
       scheduleMode: draft.values.scheduleMode,
       scheduleAt: draft.values.scheduleMode === '定时执行' ? draft.values.scheduleAt.replace('T', ' ') : '手工启动',
       ...timeProperties(draft.values),
@@ -1461,12 +1495,16 @@
     const selectedIds=draft.values.customerIds||[];
     const repeatSpec=draft.repeatPredictive?repeatSpecForDraft(draft):null;
     if(repeatSpec)row.repeatContact=structuredClone(repeatSpec);
-    const attachment=repeatSpec?window.RepeatPredictive?.prepareAttachment(row,repeatSpec):CustomerTasks.prepareTaskAttachment?.(row,selectedIds);
+    const attachment=row.dccManaged?{ok:true,changes:[],dccManaged:true}:repeatSpec?window.RepeatPredictive?.prepareAttachment(row,repeatSpec):CustomerTasks.prepareTaskAttachment?.(row,selectedIds);
     if(!attachment?.ok){showFormError({message:attachment?.message||'客户分配未成功，任务尚未提交，请重新选择后重试'});return;}
     const before=structuredClone(draft);
     try{
       row.total=repeatSpec?attachment.changes.length:selectedIds.length;row.status=row.total?'待启动':'待分配客户';
       AliCtiDemo.taskCreated(row);
+      if(row.dccManaged){
+        if(!Number.isSafeInteger(row.demoProviderTaskId)||row.demoProviderTaskId<=0)throw Error('合成供应商任务标识缺失');
+        row.dccSupplierTaskId=String(row.demoProviderTaskId);
+      }
       syncImportDrafts(row,attachment.changes.map(change=>({...change.after,batchId:change.batchId,batchName:change.batchName})));
       const importIssues=row.alictiImportDrafts.flatMap(item=>item.pending||[]);
       if(importIssues.length){showFormError({message:[...new Set(importIssues)].join('；')});return;}
@@ -1477,7 +1515,7 @@
       if(!callerNavigationOptions(draft).some(item=>item.customerClidsGroup===row.customerClidsGroup)){showFormError({message:'所选外显导航已不在当前账号中，请重新选择。',target:'wizardCallerNavigation'});return;}
       const transaction={version:1,taskId:row.taskId,draftBefore:before,taskAfter:structuredClone(row),attachment,committed:false};
       journalStorage().setItem(creationJournalKey,JSON.stringify(transaction));
-      if(!CustomerTasks.commitTaskAttachment(attachment))throw Error('客户保存失败');
+      if(!row.dccManaged&&!CustomerTasks.commitTaskAttachment(attachment))throw Error('客户保存失败');
       persistCreatedTask(row,{allowAborted:true});
       draft.status='已提交';draft.savedAt=nowText();persist();
       journalStorage().setItem(creationJournalKey,JSON.stringify({...transaction,committed:true}));
@@ -1489,16 +1527,18 @@
     // Publish to the page only after both persistent records have committed.
     target.unshift(row);
     if (!CloudCallData.tasks.includes(row)) CloudCallData.tasks.unshift(row);
+    if(row.dccManaged){const registered=window.DccRuntime?.registerTask(row);if(!registered?.ok)showToast(registered?.reason||'任务已保存，记录初始化待重试','warning');}
     if(draft.values.saveAsTemplate&&AppState.canMenu('settings.plans'))CloudCallData.callPlans.push({...structuredClone(selectedPlan),callPlanId:CloudResourceRules.id('TEMPLATE'),name:row.name,isTemplate:true});
     try{journalStorage().removeItem(creationJournalKey);}catch(_){}
     AppState.setDirty(false);
     sessionStorage.removeItem(activeKey);
-    showToast(repeatSpec?'再次预外呼已安排，可在任务列表查看':row.total ? '任务已创建，所选客户已分配' : '任务已创建，可继续添加客户', 'success');
+    showToast(row.dccManaged?row.dccImportSource==='api'?'任务已创建，请到“客户与处理记录”页接收 DCC 接口线索。':'任务已创建，请到“客户与处理记录”页手工导入逐行线索。':repeatSpec?'再次预外呼已安排，可在任务列表查看':row.total ? '任务已创建，所选客户已分配' : '任务已创建，可继续添加客户', 'success');
     RouteRuntime.back({ fallback: routeForType(draft.type), refresh: true });
   }
 
   function submitEdit(draft){
     const row=taskById(draft.editTaskId);
+    if(window.DccRuntime?.isManagedTask(row)&&draft.values.dccImportSource!==row.dccImportSource){showFormError({message:'导入来源已在创建时锁定，编辑不能改变。'});return false;}
     if(!canEditTask(row)||row.taskId!==draft.taskId||row.callType!==draft.type||
       row.tenantId!==draft.tenantId||row.enterpriseId!==draft.enterpriseId||
       explicitSupplierTaskId(row)!==draft.editSupplierTaskId||taskEditFingerprint(row)!==draft.editSourceFingerprint){
@@ -1593,6 +1633,7 @@
   }
 
   function syncImportDrafts(row,customers) {
+    if(window.DccRuntime?.isManagedTask(row)){row.alictiImportDrafts=[];return;}
     const assignedRows=customers||(CustomerTasks.taskExecutionCustomers?CustomerTasks.taskExecutionCustomers(row):CustomerTasks.taskCustomers(row))||[],batchIds=[...new Set(assignedRows.map(r=>r.batchId))];
     row.alictiImportDrafts=batchIds.map(id=>{const items=assignedRows.filter(r=>r.batchId===id),isFollowup=items.every(item=>item.repeatContact?.sourceTaskId===row.taskId);return AliCtiFields.importFields(row,items,{batchId:id,name:items[0]?.batchName||id,isRepeat:isFollowup?0:row.isRepeat??0});});
     AliCtiDemo.imported(row,row.alictiImportDrafts);
@@ -1601,6 +1642,7 @@
   function syncAssignedCustomers() {
     if(!recoverRepeatArrangement()||!recoverDirectImport()||!refreshStoredTasks())return false;
     for(const row of CloudCallData.tasks || []) {
+      if(window.DccRuntime?.isManagedTask(row))continue;
       if(row.customerSourceMode!=='assigned' || !canAccessObject(row) || !['待分配客户','待启动'].includes(row.status))continue;
       const customers=CustomerTasks.taskExecutionCustomers?CustomerTasks.taskExecutionCustomers(row):CustomerTasks.taskCustomers(row);
       if(!customers)continue;
@@ -1629,12 +1671,17 @@
     } catch (_) { return false; }
   }
   function commitDirectImport(task,batch) {
+    const sourceGuard=window.DccRuntime?.guardLegacyWrite?.(task);
+    if(sourceGuard&&!sourceGuard.ok)return {ok:false,message:sourceGuard.reason};
     if(!CustomerTasks.canImportCustomers())return {ok:false,message:'仅租户管理员可导入客户'};
     if(!recoverDirectImport())return {ok:false,message:'上次导入尚未恢复，填写内容已保留，请检查存储后重试'};
     if(!CustomerTasks.canImportToTask(task)||!sameTaskIdentity(task,{...task,tenantId:batch.tenantId,enterpriseId:batch.enterpriseId}))return {ok:false,message:'任务状态已变化，请刷新后重新检查名单'};
+    const existing=CustomerTasks.taskExecutionCustomers?CustomerTasks.taskExecutionCustomers(task):CustomerTasks.taskCustomers(task);
+    if(!Array.isArray(existing)||existing.length!==Number(task.total||0))return {ok:false,message:'原任务名单尚未完整关联，请刷新后再导入，原客户继续保留'};
     const before=structuredClone(task),next=structuredClone(task);
-    next.total=batch.rows.length;next.status=next.total?'待启动':'待分配客户';
-    syncImportDrafts(next,batch.rows.map(row=>({...row,batchId:batch.id,batchName:batch.name,tenantId:batch.tenantId,enterpriseId:batch.enterpriseId})));
+    const added=batch.rows.map(row=>({...row,batchId:batch.id,batchName:batch.name,tenantId:batch.tenantId,enterpriseId:batch.enterpriseId}));
+    next.total=existing.length+added.length;next.status=next.total?'待启动':'待分配客户';
+    syncImportDrafts(next,[...existing,...added]);
     const issues=(next.alictiImportDrafts||[]).flatMap(request=>request.pending||[]);
     if(issues.length)return {ok:false,message:[...new Set(issues)].join('；')};
     const record={version:1,owner:importOwner,startedAt:Date.now(),batch:structuredClone(batch),before,after:structuredClone(next),committed:false};
@@ -1670,24 +1717,35 @@
     const seed=window.AliCtiDemo?.taskControlSeed?.(row);
     return Number.isSafeInteger(Number(seed?.id))&&Number(seed.id)>0?Number(seed.id):null;
   }
-  function canEditTask(row){
-    return !!row&&canAccessObject(row)&&!row.displayOnly&&['预外呼','IVR 外呼'].includes(row.callType)&&
-      !['已完成','已结束','已终止','已删除'].includes(row.status)&&Number(row.providerStatusCode)!==3&&
-      !row.alictiTaskControlPending&&!row.alictiTaskUpdatePending&&!!explicitSupplierTaskId(row);
+  function taskViewReason(row){return canAccessObject(row)?'':'当前身份没有此任务的查看权限';}
+  function taskEditReason(row){
+    if(!row||!canAccessObject(row))return '当前身份没有此任务的编辑权限';
+    if(window.HistorySnapshot?.read_only===true)return '历史快照为只读';
+    if(row.displayOnly)return '此任务仅供查看';
+    if(!['预外呼','IVR 外呼'].includes(row.callType))return '此任务类型暂不支持编辑';
+    if(['已完成','已结束','已终止','已删除'].includes(row.status)||Number(row.providerStatusCode)===3)return '任务已结束，不能编辑';
+    if(row.alictiTaskControlPending)return '任务状态待确认，暂不能编辑';
+    if(row.alictiTaskUpdatePending)return '上次修改结果待确认，暂不能编辑';
+    if(!explicitSupplierTaskId(row))return '任务编号待确认，暂不能编辑';
+    return '';
   }
+  function canEditTask(row){return !taskEditReason(row);}
   function taskEditFingerprint(row){
     return JSON.stringify({taskId:row.taskId,tenantId:row.tenantId,enterpriseId:row.enterpriseId,
+      dccManaged:row.dccManaged,dccImportSource:row.dccImportSource,dccSourceLocked:row.dccSourceLocked,dccSupplierTaskId:row.dccSupplierTaskId,
       callType:row.callType,providerTaskId:explicitSupplierTaskId(row),status:row.status,
       updatedAt:row.updatedAt||'',planSnapshotId:row.planSnapshotId||'',
       alictiUpdateDraft:row.alictiUpdateDraft?.fields||null});
   }
   function editTask(taskId){
     const row=taskById(taskId);
-    if(!canEditTask(row)){showToast('当前任务不可编辑，或供应商任务编号尚未确认','warning');return false;}
+    const reason=taskEditReason(row);
+    if(reason){showToast(reason,'warning');return false;}
     const draft=makeDraft(row.callType),saved=ensureSnapshotObject(row),base=copyTaskValues(row,draft.values);
     draft.tenantId=row.tenantId;draft.enterpriseId=row.enterpriseId;draft.taskId=row.taskId;draft.editTaskId=row.taskId;
     draft.editSupplierTaskId=explicitSupplierTaskId(row);draft.editSourceFingerprint=taskEditFingerprint(row);
     draft.values={...base,name:row.name||'',scheduleMode:saved.scheduleMode||row.scheduleMode||'保存后手工启动',
+      dccImportSource:row.dccImportSource||'',
       scheduleAt:String(saved.scheduleAt||row.scheduleAt||base.scheduleAt).replace(' ','T').slice(0,16),
       stopScheduled:!!saved.stopScheduled,stopAt:saved.stopAt?String(saved.stopAt).replace(' ','T').slice(0,16):'',
       forceEndFlag:saved.forceEndFlag??0,customerIds:[]};
@@ -1727,7 +1785,8 @@
     let saved = {};
     try { saved = JSON.parse(sessionStorage.getItem(centerKey) || '{}'); } catch (error) { saved = {}; }
     const taskId = options?.taskId || saved.taskId || '';
-    const tab = centerTabs.some(item => item.key === (options?.tab || saved.tab)) ? (options?.tab || saved.tab) : 'overview';
+    const requestedTab=(options?.tab||saved.tab)==='results'?'calls':(options?.tab||saved.tab);
+    const tab=centerTabs.some(item=>item.key===requestedTab)?requestedTab:'overview';
     if (!canAccessObject(taskById(taskId))) { sessionStorage.removeItem(centerKey); return { taskId: '', tab: 'overview' }; }
     return { taskId, tab };
   }
@@ -1740,14 +1799,17 @@
     const task = taskById(taskId);
     if (!canAccessObject(task)) return false;
     const current = RouteRuntime.snapshot();
-    const options = { taskId, tab: tab || 'overview' };
+    const options = { taskId, tab: tab==='results'?'calls':tab || 'overview' };
     if (current?.key === 'cloud-task-center' && current.options?.taskId === taskId) return navigateTo('cloud-task-center', options);
     return RouteRuntime.openSecondary('cloud-task-center', options);
   }
 
   function setTaskTab(tab) {
+    if(tab==='results')tab='calls';
     const context = readCenterContext();
     if (!context.taskId || !centerTabs.some(item => item.key === tab)) return;
+    if (tab === 'priority' && taskById(context.taskId)?.callType !== '预外呼') return;
+    if(tab==='calls')window.DccRecords?.clearCallFilter?.();
     saveCenterContext(context.taskId, tab);
     navigateTo('cloud-task-center', { taskId: context.taskId, tab });
   }
@@ -1769,10 +1831,38 @@
     return '<div class="call-sync-notice" data-task-sync-summary role="status" aria-live="polite" aria-atomic="true"><span>通话结果按已同步资料统计（含已有话单），完成进度仍按任务名单计算。</span><br><span>已同步 '+summary.synced+' / 当前记录 '+summary.total+' · 同步中 '+summary.pending+' · 待核对或同步异常 '+summary.errors+(facts.live?' · 通话中 '+facts.live:'')+'</span><span class="call-sync-time">最近同步：'+esc(summary.updatedAt||'尚无本轮同步时间')+'</span></div>';
   }
   function taskSyncOverview(facts) {
-    return '<div><span>客户已接通</span><strong>'+facts.answered+'</strong></div><div><span>已同步话单</span><strong>'+facts.synced.length+'</strong></div><div><span>接通结果未知</span><strong>'+facts.unknown+'</strong></div>';
-  }
-  function taskSyncResults(facts) {
     return ui.kpi('已同步话单',facts.synced.length,'含已有话单资料')+ui.kpi('客户已接通',facts.answered,'仅统计已同步资料')+ui.kpi('客户未接通',facts.unanswered,'仅统计明确未接通')+ui.kpi('接通结果未知',facts.unknown,'已同步但缺少明确接听结果');
+  }
+
+  function customerImportReason(row) {
+    if(!row||!canAccessObject(row))return '当前身份没有此任务的导入权限';
+    if(window.HistorySnapshot?.read_only===true)return '历史快照为只读';
+    if(row.isWizardDraft)return '请先完成任务创建';
+    if(row.displayOnly)return '此任务仅供查看';
+    if(['已完成','已结束','已终止','已删除'].includes(row.status)||Number(row.providerStatusCode)===3)return '任务已结束，不能导入客户';
+    if(window.DccRuntime?.isManagedTask(row))return AppState.canAction('task.create')&&AppState.authorizeObject('task.create',row)?'':'当前身份没有此任务的导入权限';
+    if(!CustomerTasks.canImportCustomers())return '仅租户管理员可导入客户';
+    if(row.customerSourceMode!=='assigned')return '当前任务未使用可补导的客户名单';
+    if(!['待分配客户','待启动'].includes(row.status)||Number(row.completed)||row.startedAt||row.campaignId)return '任务已开始，不能补导客户';
+    if(row.alictiTaskControlPending||row.alictiTaskUpdatePending)return '任务状态待核对';
+    return CustomerTasks.canImportToTask(row)?'':'当前任务暂不可导入客户';
+  }
+  function customerImportButton(row,{table=false}={}) {
+    if(row?.callType!=='预外呼'||!canAccessObject(row))return '';
+    const reason=customerImportReason(row);
+    return `<button ${table?'':'class="btn btn-primary"'} type="button" data-task-import="${esc(row.taskId)}" ${reason?'disabled':''} title="${esc(reason||'导入至当前任务')}" onclick="CloudTaskWorkspace.openCustomerImport('${esc(row.taskId)}')">导入客户</button>`;
+  }
+  function openCustomerImport(taskId) {
+    if(!taskId) {
+      const tasks=Array.from(new Map([...(CloudCallData.tasks||[]),...(CloudCallData.predictiveTasks||[])].filter(row=>row.callType==='预外呼'&&!row.isWizardDraft&&row.status!=='已删除'&&canAccessObject(row)).map(row=>[row.taskId,row])).values());
+      const preferred=tasks.find(row=>!customerImportReason(row));
+      ui.openLayer('task-import-select',`<div class="layer-header"><h2>导入客户</h2><button type="button" aria-label="关闭" onclick="PlatformUI.closeLayer('task-import-select')">×</button></div><div class="layer-body">${tasks.length?'<label class="field"><span>选择预外呼任务</span><select id="taskImportTarget">'+tasks.map(row=>'<option value="'+esc(row.taskId)+'" '+(row.taskId===preferred?.taskId?'selected':'')+' '+(customerImportReason(row)?'disabled':'')+'>'+esc(row.name)+' · '+esc(row.dccManaged===true?(row.dccImportSource==='api'?'DCC 接口导入':'手工导入'):row.status)+(customerImportReason(row)?' · '+esc(customerImportReason(row)):'')+'</option>').join('')+'</select></label>':ui.empty('请先创建预外呼任务')}<p class="field-hint">导入后，客户将加入所选任务。</p></div><div class="layer-footer"><button class="btn" type="button" onclick="PlatformUI.closeLayer('task-import-select')">取消</button><button class="btn btn-primary" type="button" id="taskImportContinue" ${preferred?'':'disabled'} onclick="CloudTaskWorkspace.openCustomerImport(document.getElementById('taskImportTarget').value)">继续</button></div>`,'large');return true;
+    }
+    const row=taskById(taskId),reason=customerImportReason(row);
+    if(reason){showToast(reason,'warning');return false;}
+    ui.closeLayer('task-import-select');
+    if(window.DccRuntime?.isManagedTask(row))return window.DccRecords?.openImport(row.taskId)||false;
+    CustomerTasks.importDialog(row.taskId);return true;
   }
 
   function centerActions(row) {
@@ -1783,8 +1873,9 @@
     if(canEditTask(row))buttons.push(`<button class="btn" onclick="CloudTaskWorkspace.editTask('${esc(row.taskId)}')">编辑任务</button>`);
     if (['待分配客户','待启动','异常'].includes(row.status)) buttons.push(`<button class="btn danger" onclick="CloudTaskWorkspace.controlTask('${row.taskId}','terminate')">终止任务</button>`);
     if (canDeleteTask(row)) buttons.push(`<button class="btn danger" onclick="CloudTaskWorkspace.deleteTask('${row.taskId}')">${row.repeatContact?'撤销本次安排':'删除任务'}</button>`);
-    if (CustomerTasks.canImportToTask(row)) buttons.push(`<button class="btn btn-primary" onclick="CustomerTasks.importDialog('${row.taskId}')">导入客户</button>`);
-    else if (['待分配客户','待启动'].includes(row.status)) buttons.push(`<button class="btn" onclick="CustomerTasks.open()">分配客户</button>`);
+    if(row.callType==='预外呼')buttons.push(customerImportButton(row));
+    if(window.DccRuntime?.isManagedTask(row))buttons.push(`<button class="btn" onclick="CloudTaskWorkspace.setTaskTab('dcc-records')">客户与处理记录</button>`);
+    else if (!CustomerTasks.canImportToTask(row)&&['待分配客户','待启动'].includes(row.status)) buttons.push(`<button class="btn" onclick="CustomerTasks.open()">分配客户</button>`);
     if (row.resourcePause) buttons.push('<span class="form-help">号码停用已阻止新拨号；恢复号码后，待启动任务可启动，执行中任务先暂停再继续。</span>');
     if (row.availabilityPause?.reason==='AVAILABLE_SEATS_BELOW_MIN') buttons.push(`<span class="form-help">可用座席 ${esc(row.availabilityPause.availableAgentCount)} 人，低于设置的 ${esc(row.availabilityPause.threshold)} 人，任务已自动暂停。${Number(row.autoStart)===1?'人数达到设置值后自动启动。':'人数恢复后需手动继续。'}</span>`);
     if (row.status === '待启动') buttons.push(Number(row.autoStart)===1?`<span class="form-help">已设置定时开始：${esc(row.scheduleAt||'按计划时间')}；到点由 AliCti 自动启动。</span>`:`<button class="btn btn-primary" onclick="CloudTaskWorkspace.controlTask('${row.taskId}','start')">启动任务</button>`);
@@ -1796,6 +1887,7 @@
 
   function centerContinue(row) {
     if (!['待分配客户','待启动'].includes(row.status)) return '';
+    if(window.DccRuntime?.isManagedTask(row))return `<div class="task-continue-card"><div><strong>${row.dccImportSource==='api'?'从 DCC 接收逐行线索':'从任务记录页手工导入线索'}</strong><span>来源已锁定；本地保存、供应商导入与实际呼叫分阶段记录。</span></div><button class="btn btn-primary" onclick="CloudTaskWorkspace.setTaskTab('dcc-records')">查看任务记录</button></div>`;
     if (row.status==='待启动'&&Number(row.autoStart)===1) return `<div class="task-continue-card"><div><strong>等待定时开始</strong><span>${esc(row.scheduleAt||'计划时间')}由 AliCti 自动启动；座席不足时按设置自动暂停。</span></div></div>`;
     let title,action,label;
     if (row.status === '待分配客户') {
@@ -1809,11 +1901,19 @@
   }
 
   function centerOverview(row) {
+    if(window.DccRuntime?.isManagedTask(row)){
+      const result=window.DccRuntime.taskRecords(row.taskId),data=result.ok?result.data:null;
+      const count=data?data.records.length:'待确认',accepted=data?data.records.filter(record=>record.importState==='accepted'&&!record.reviewReason).length:'待确认';
+      const review=data?data.records.filter(record=>record.reviewReason||record.importState==='unknown').length:'待确认';
+      const results=window.DccRecords?.resultSummary(row.taskId),facts=results?.ok?results.data:null;
+      const callSummary=facts?ui.kpi('通话记录',facts.calls,'每次通话统计一次')+ui.kpi('已接通',facts.answered,'包含已确认的秒挂')+ui.kpi('未接通',facts.unanswered,'只统计明确未接通')+ui.kpi('秒挂',facts.short,'已接通中的秒挂次数')+ui.kpi('呼叫异常',facts.anomalies,'已收到失败结果，尚无通话明细')+ui.kpi('结果待确认',facts.unknown,'另有 '+facts.reviews+' 条结果需要核对'):ui.alert('warning','通话统计待确认',results?.reason||'通话记录暂不可访问。');
+      return `${centerContinue(row)}<div class="task-center-grid"><article class="panel-card span-12"><div class="panel-header"><h2>客户导入概览</h2></div><div class="panel-body"><div class="task-progress-hero" data-dcc-task-summary><div><span>已保存客户</span><strong data-dcc-local-count>${count}</strong><small>呼叫进展见通话记录</small></div><div class="task-stat-strip"><div><span>导入已受理</span><strong>${accepted}</strong></div><div><span>导入待确认</span><strong>${review}</strong></div><div><span>信息校验未通过</span><strong>${data?data.localFailures.length:'待确认'}</strong></div></div></div><p class="wizard-soft-note">${data?'导入受理后等待呼叫；可在“客户与处理记录”查看客户名单与导入异常。':esc(result.reason)}</p></div></article><article class="panel-card span-12"><div class="panel-header"><h2>通话概览</h2><button class="btn-link" onclick="DccRecords.openCalls('${esc(row.taskId)}')">查看通话记录</button></div><div class="panel-body"><div class="dcc-phase-summary" data-dcc-call-summary>${callSummary}</div>${facts?'<p class="wizard-soft-note">呼叫异常单独展示，不计入通话次数；待确认结果不计为未接通。</p>':''}</div></article></div>`;
+    }
     const facts=syncedTaskFacts(row);
     const availabilityDemo=row.callType==='预外呼'&&row.simulation===true&&row.localPrototypeTask===true&&
       ['执行中','已暂停'].includes(row.status)&&canAccessObject(row)?
       `<details class="technical-details"><summary>演示座席人数变化</summary><p>仅模拟供应商按可用座席数自动暂停或恢复任务，不更改实际坐席状态。</p><label>观察到的可用座席数 <input id="task-available-seats" type="number" min="0" step="1" value="${esc(row.availabilityPause?.availableAgentCount??row.minAvailableAgentCount??10)}"></label><button type="button" class="btn" onclick="CloudTaskWorkspace.simulateAvailability('${esc(row.taskId)}')">应用演示人数</button></details>`:'';
-    return `${centerContinue(row)}<div class="task-center-grid"><article class="panel-card span-12"><div class="panel-header"><h2>运行概览</h2>${ui.help('完成进度按本任务呼叫名单条数统计，通话结果仅按已同步资料统计；再次联系安排单独计入名单。同步中、异常或未知结果不计为未接通。','运行概览统计口径')}</div><div class="panel-body"><div class="task-progress-hero"><div><span>完成进度</span><strong>${percent(row)}%</strong><small>${row.completed||0} / ${row.total||0}</small></div><div class="progress-track"><i style="width:${percent(row)}%"></i></div><div class="task-stat-strip" data-task-sync-overview>${taskSyncOverview(facts)}</div></div>${taskSyncNote(facts)}${availabilityDemo}</div></article></div>`;
+    return `${centerContinue(row)}<div class="task-center-grid"><article class="panel-card span-12"><div class="panel-header"><h2>运行概览</h2>${ui.help('完成进度按本任务呼叫名单条数统计，通话结果仅按已同步资料统计；再次联系安排单独计入名单。同步中、异常或未知结果不计为未接通。','运行概览统计口径')}</div><div class="panel-body"><div class="task-progress-hero"><div><span>完成进度</span><strong>${percent(row)}%</strong><small>${row.completed||0} / ${row.total||0}</small></div><div class="progress-track"><i style="width:${percent(row)}%"></i></div></div><div class="kpi-grid" data-task-sync-overview>${taskSyncOverview(facts)}</div>${taskSyncNote(facts)}${availabilityDemo}</div></article></div>`;
   }
   function simulateAvailability(taskId){
     const row=taskById(taskId),value=document.getElementById('task-available-seats')?.value;
@@ -1836,7 +1936,7 @@
   function centerCustomers(row) {
     const customers=window.CustomerTasks?.taskCustomers(row)||[];
     const assigned=window.CustomerTasks?.sortRowsForDisplay?.(customers)||ui.sortByUpdated?.(customers)||customers;
-    if(row.customerSourceMode==='assigned'||assigned.length)return `<article class="panel-card"><div class="panel-header"><h2>本任务呼叫名单 · ${assigned.length} 条 ${ui.help(row.callType==='预外呼'?'名单条数包含本任务的再次联系安排，不代表去重客户数；暂停任务继续后才会呼叫。':'按已分配到本任务的客户名单统计。','名单数量说明')}</h2>${window.RepeatPredictive?.taskToolbar(row)||''}</div><div class="panel-body">${ui.table([{key:'name',label:'客户称呼'},{key:'phone',label:'客户号码'},...(row.callType==='预外呼'?[{key:'repeatContact',label:'联系轮次',render:meta=>'第 '+(meta?.businessContactNo||1)+' 次'}]:[]),...customerBusinessColumns(),{key:'batchName',label:'来源批次'},{key:'note',label:'联系备注'},{key:'calls',label:'最近通话结果',render:calls=>esc(calls?.length?CallState.view(calls.at(-1)).answerLabel:'未呼叫')},...(row.callType==='预外呼'&&window.RepeatPredictive?[{key:'id',label:'操作',render:(_,customer)=>RepeatPredictive.rowAction(row,customer)}]:[])],assigned)}</div></article>`;
+    if(row.customerSourceMode==='assigned'||assigned.length)return `<article class="panel-card"><div class="panel-header"><h2>本任务呼叫名单 · ${assigned.length} 条 ${ui.help(row.callType==='预外呼'?'名单条数包含本任务的再次联系安排，不代表去重客户数；暂停任务继续后才会呼叫。':'按已分配到本任务的客户名单统计。','名单数量说明')}</h2><div class="task-customer-toolbar">${customerImportButton(row)}${window.RepeatPredictive?.taskToolbar(row)||''}</div></div><div class="panel-body">${ui.table([{key:'name',label:'客户称呼'},{key:'phone',label:'客户号码'},...(row.callType==='预外呼'?[{key:'repeatContact',label:'联系轮次',render:meta=>'第 '+(meta?.businessContactNo||1)+' 次'}]:[]),...customerBusinessColumns(),{key:'batchName',label:'来源批次'},{key:'note',label:'联系备注'},{key:'calls',label:'最近通话结果',render:calls=>esc(calls?.length?CallState.view(calls.at(-1)).answerLabel:'未呼叫')},...(row.callType==='预外呼'&&window.RepeatPredictive?[{key:'id',label:'操作',render:(_,customer)=>RepeatPredictive.rowAction(row,customer)}]:[])],assigned)}</div></article>`;
     return `<article class="panel-card"><div class="panel-header"><div><h2>客户数据</h2><p>${esc(row.listSource)} · 共 ${row.total} 条，仅展示前 ${Math.min(row.total, 8)} 条记录</p></div><button class="btn" onclick="doExport(event)">导出当前结果</button></div><div class="panel-body no-padding">${ui.table([{key:'batchItemId',label:'批次客户编号'},{key:'phone',label:'客户号码'},{key:'status',label:'执行状态',render:v=>ui.status(v)},{key:'attempt',label:'已呼叫次数'}],customerRows(row))}</div></article>`;
   }
 
@@ -1933,21 +2033,15 @@
     return `<article class="panel-card"><div class="panel-header"><div><h2>任务通话记录</h2></div><div><span data-task-sync-total>${calls.length} 条</span><button class="btn-link" onclick="CloudCallRecords.openFromTask('${row.taskId}','calls','records')">在通话记录中查看</button></div></div><div class="panel-body no-padding">${taskSyncNote(facts)}<div data-task-sync-calls>${ui.table(columns,calls,{emptyText:'当前任务尚未产生通话，启动执行后在这里查看'})}</div></div></article>`;
   }
 
-  function centerResults(row) {
-    const facts=syncedTaskFacts(row);
-    return `<div class="task-center-grid"><article class="panel-card span-12"><div class="panel-header"><h2>通话结果</h2><button class="btn-link" onclick="CloudCallRecords.openFromTask('${row.taskId}','results','records')">查看通话明细</button></div><div class="panel-body"><div class="kpi-grid" data-task-sync-results>${taskSyncResults(facts)}</div>${taskSyncNote(facts)}</div></article></div>`;
-  }
-
   window.addEventListener('call-data-sync',event=>{
     const changed=event.detail||{},host=document.querySelector('.cloud-task-center[data-task-sync-id]');
     if(!host)return;
     const row=taskById(host.dataset.taskSyncId),call=(CloudCallData.calls||[]).find(item=>item.callId===changed.callId);
-    if(!row||!call||!canAccessObject(row)||!AppState.authorizeObject('',call)||call.tenantId!==changed.tenantId||String(call.enterpriseId)!==String(changed.enterpriseId)||row.tenantId!==call.tenantId||String(row.enterpriseId)!==String(call.enterpriseId))return;
+    if(!row||window.DccRuntime?.isManagedTask(row)||!call||!canAccessObject(row)||!AppState.authorizeObject('',call)||call.tenantId!==changed.tenantId||String(call.enterpriseId)!==String(changed.enterpriseId)||row.tenantId!==call.tenantId||String(row.enterpriseId)!==String(call.enterpriseId))return;
     const facts=syncedTaskFacts(row);
     if(!facts.calls.some(item=>item.callId===call.callId))return;
-    const overview=host.querySelector('[data-task-sync-overview]'),results=host.querySelector('[data-task-sync-results]');
+    const overview=host.querySelector('[data-task-sync-overview]');
     if(overview)overview.innerHTML=taskSyncOverview(facts);
-    if(results)results.innerHTML=taskSyncResults(facts);
     const summary=host.querySelector('[data-task-sync-summary]');
     if(summary){const template=document.createElement('template');template.innerHTML=taskSyncNote(facts);summary.innerHTML=template.content.firstElementChild.innerHTML;}
     const list=host.querySelector('[data-task-sync-calls]');
@@ -1962,12 +2056,12 @@
   });
 
   function centerBody(row, tab) {
+    if(window.DccRuntime?.isManagedTask(row)&&(tab==='dcc-records'||tab==='customers'))return window.DccRecords?.render(row)||ui.empty('本版任务记录正在初始化');
     if (tab === 'customers') return centerCustomers(row);
     if (tab === 'resources') return centerResources(row);
     if (tab === 'execution') return centerExecution(row);
     if (tab === 'overview') return centerOverview(row) + OperationsMonitor.taskPanel(row);
-    if (tab === 'calls') return centerCalls(row);
-    if (tab === 'results') return centerResults(row);
+    if (tab === 'calls'||tab==='results') return window.DccRuntime?.isManagedTask(row)?window.DccRecords?.renderCalls(row)||ui.empty('通话记录正在初始化'):centerCalls(row);
     return centerOverview(row);
   }
 
@@ -1976,19 +2070,25 @@
     const row = taskById(context.taskId);
     if (!row || !AppState.authorizeObject('', row)) return `<section class="platform-page">${ui.pageHeader('任务中心', '未找到当前权限范围内的任务。')}<div class="panel-card"><div class="panel-body">${ui.empty('请从预外呼或自动外呼任务列表进入')}</div></div></section>`;
     saveCenterContext(row.taskId, context.tab);
-    const currentJourneyStage = context.tab === 'calls' ? 'records' : context.tab === 'results' ? 'results' : 'monitor';
+    window.DccRecords?.syncCallScope?.(row.taskId,context.tab);
+    const managed=window.DccRuntime?.isManagedTask(row),recordResult=managed?window.DccRuntime.taskRecords(row.taskId):null;
+    const localCount=recordResult?.ok?recordResult.data.records.length:'待核';
+    const statusLabel=row.alictiTaskControlPending?'待确认':managed?row.providerStatus||'供应商状态待核':row.status;
+    const currentJourneyStage = context.tab === 'calls' ? 'records' : 'monitor';
+    const callSummary=managed?window.DccRecords?.resultSummary(row.taskId):null;
+    const callCount=managed?(callSummary?.ok?callSummary.data.calls:'待确认'):taskCalls(row).length;
     const journeyActions = {
       prepare: `ScenarioReadiness.open('${row.callType === '预外呼' ? 'PREDICTIVE' : 'IVR_OUTBOUND'}','${row.tenantId}')`,
       create: `RouteRuntime.openSecondary('${routeForType(row.callType)}')`,
       monitor: `CloudTaskWorkspace.openTask('${row.taskId}','overview')`,
-      records: `CloudCallRecords.openFromTask('${row.taskId}','${context.tab}','records')`,
-      results: `CloudTaskWorkspace.setTaskTab('results')`
+      records: `CloudTaskWorkspace.setTaskTab('calls')`,
+      results: `CloudTaskWorkspace.setTaskTab('calls')`
     };
     return `<section class="platform-page cloud-task-center" data-task-sync-id="${esc(row.taskId)}">
       ${ui.pageHeader(`${typeLabel(row.callType)}任务详情`, `${esc(tenant(row.tenantId).name || '当前租户')} · 负责人 ${esc(row.owner || '—')}`, `<button class="btn" onclick="RouteRuntime.back({fallback:'${routeForType(row.callType)}'})">返回</button>${centerActions(row)}`)}
-      ${ui.journey({ current: currentJourneyStage, context: `${row.name} · ${row.alictiTaskControlPending?'状态待核对':row.status}`, branch: '当前任务范围', actions: journeyActions })}
-      <div class="task-center-hero"><div><span>任务名称</span><h2>${esc(row.name)}</h2></div><div><span>任务状态</span>${ui.status(row.alictiTaskControlPending?'待确认':row.status)}${row.alictiTaskControlPending?`<strong>状态待核对</strong><small>最后已知：${esc(row.status)}</small>`:''}${row.stopNewDialing?'<small>已停止发起新呼叫</small>':''}</div><div><span>执行时间</span><strong>${esc(row.scheduleAt || '—')}</strong><small>${row.startedAt ? `实际启动 ${esc(row.startedAt)}` : '实际启动后记录'}</small></div><div><span>当前进度</span><strong>${percent(row)}%</strong><small>${row.completed || 0} / ${row.total || 0}</small></div></div>
-      <div class="task-center-tabs">${centerTabs.map(item=>`<button class="${item.key===context.tab?'active':''}" onclick="CloudTaskWorkspace.setTaskTab('${item.key}')">${item.label}${item.key==='calls'?` <span>${taskCalls(row).length}</span>`:''}</button>`).join('')}</div>
+      ${ui.journey({ current: currentJourneyStage, context: `${row.name} · ${row.alictiTaskControlPending?'状态待核对':statusLabel}`, branch: '当前任务范围', actions: journeyActions })}
+      <div class="task-center-hero"><div><span>任务名称</span><h2>${esc(row.name)}</h2></div><div><span>${managed?'供应商状态':'任务状态'}</span>${ui.status(statusLabel)}${row.alictiTaskControlPending?`<strong>状态待核对</strong><small>最后已知：${esc(managed?row.providerStatus||'未记录':row.status)}</small>`:''}${row.stopNewDialing?'<small>已停止发起新呼叫</small>':''}</div><div><span>执行时间</span><strong>${esc(row.scheduleAt || '—')}</strong><small>${row.startedAt ? `实际启动 ${esc(row.startedAt)}` : '实际启动后记录'}</small></div>${managed?`<div><span>任务记录</span><strong>已保存客户 ${localCount}</strong><small>呼叫进展见通话记录</small></div>`:`<div><span>当前进度</span><strong>${percent(row)}%</strong><small>${row.completed || 0} / ${row.total || 0}</small></div>`}</div>
+      <div class="task-center-tabs">${centerTabs.filter(item=>(item.key!=='dcc-records'||window.DccRuntime?.isManagedTask(row))&&(item.key!=='customers'||!window.DccRuntime?.isManagedTask(row))&&(item.key!=='priority'||row.callType==='预外呼')).map(item=>`<button class="${item.key===context.tab?'active':''}" onclick="CloudTaskWorkspace.setTaskTab('${item.key}')">${item.label}${item.key==='calls'?` <span data-task-calls-count>${callCount}</span>`:''}</button>`).join('')}</div>
       <div class="task-center-body">${centerBody(row, context.tab)}</div>
     </section>`;
   }
@@ -2112,6 +2212,7 @@
     copied.enterpriseId = row.enterpriseId;
     copied.step = row.callType==='IVR 外呼'?4:2;copied.furthestIndex=0;
     copied.values = copyTaskValues(row,copied.values);
+    if(row.callType==='预外呼'){copied.values.dccImportSource='';copied.values.customerIds=[];copied.values.customerMode='later';}
     if(row.callType==='IVR 外呼'){copied.values.transferEnabled=false;copied.values.skillGroupId='';copied.values.executionQueueId='';}
     drafts.unshift(copied); persist();
     showToast('已复制任务配置；客户需重新分配', 'success');
@@ -2127,11 +2228,12 @@
     showToast(`${event.detail.requirementLabel || '配置'}已记录变更，提交时会重新校验`, 'warning');
   });
 
-  window.CloudTaskWorkspace = { addCallerPool,updateCallerPool,removeCallerPool,setCallerNavigation,renderTaskSettings:centerResources, refreshIvrList,deleteTask,canDeleteTask,canEditTask,editTask,centerActions,setCustomerMode,filterCustomers,toggleCustomer,clearCustomers,selectFilteredCustomers,start,startRepeatPredictive, render, update, updatePriority, setTimeMode, toggleTimeCondition, changeRetryCount, adjustRetryCount, changeRetryInterval, setRetryLayout, resetRetry, setRetryMode, setRetryTimeType, toggleRetryCode, addRetryRound, removeRetryRound, updateRetryRound, setTenant, selectPlan, setResource, toggleAgent, toggleAllAgents, saveDraft, next, previous, goStep, goConfigure, submit, cancel, listDraftTasks, openTask, renderCenter, setTaskTab, controlTask, simulateAvailability, copyTask, clearActiveContext, pauseForNumber, syncAssignedCustomers,
+  window.CloudTaskWorkspace = { setDccSource, addCallerPool,updateCallerPool,removeCallerPool,setCallerNavigation,renderTaskSettings:centerResources, refreshIvrList,deleteTask,canDeleteTask,taskViewReason,taskEditReason,canEditTask,editTask,centerActions,customerImportReason,customerImportButton,openCustomerImport,setCustomerMode,filterCustomers,toggleCustomer,clearCustomers,selectFilteredCustomers,start,startRepeatPredictive, render, update, updatePriority, setTimeMode, toggleTimeCondition, changeRetryCount, adjustRetryCount, changeRetryInterval, setRetryLayout, resetRetry, setRetryMode, setRetryTimeType, toggleRetryCode, addRetryRound, removeRetryRound, updateRetryRound, setTenant, selectPlan, setResource, toggleAgent, toggleAllAgents, saveDraft, next, previous, goStep, goConfigure, submit, cancel, listDraftTasks, openTask, renderCenter, setTaskTab, controlTask, simulateAvailability, copyTask, clearActiveContext, pauseForNumber, syncAssignedCustomers,
     commitDirectImport,recoverDirectImport,refreshStoredTasks,storedTasks:readCreatedTasks,taskStorageStatus:()=>taskStorageIssue,
-    isLocalSimulationTask(row){return !!row&&row.localPrototypeTask===true&&row.simulation===true&&row.customerSourceMode==='assigned'&&!row.displayOnly&&createdTasks.some(t=>t.taskId===row.taskId&&t.localPrototypeTask===true&&t.tenantId===row.tenantId&&t.enterpriseId===row.enterpriseId&&t.callType===row.callType);},
+    isLocalSimulationTask(row){return !window.DccRuntime?.isManagedTask(row)&&!!row&&row.localPrototypeTask===true&&row.simulation===true&&row.customerSourceMode==='assigned'&&!row.displayOnly&&createdTasks.some(t=>t.taskId===row.taskId&&t.localPrototypeTask===true&&t.tenantId===row.tenantId&&t.enterpriseId===row.enterpriseId&&t.callType===row.callType);},
     saveDemoTask(row,{confirmedInitialStart=false}={}){
       if(!canAccessObject(row)||!row.simulation)return false;
+      const guard=window.DccRuntime?.guardTaskUpdate?.(row);if(guard&&!guard.ok){showToast(guard.reason,'warning');return false;}
       if(confirmedInitialStart&&row.status==='执行中'&&!row.alictiTaskControlPending&&!row.planSnapshot&&!row.planSnapshotId&&!freezePlan(row,row.executionConfig||plan(row.planId),row.startedAt||nowText()))return false;
       persistCreatedTask(row);return true;
     },

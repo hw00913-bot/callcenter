@@ -29,7 +29,9 @@
 
   function initialize(includeInteractionDoc) {
   var pathname = window.location.pathname.toLowerCase();
-  var hostKey = pathname.indexOf('/docs/') >= 0
+  var hostKey = pathname.endsWith('/version-history.html')
+    ? 'versions'
+    : pathname.indexOf('/docs/') >= 0
     ? 'docs'
     : pathname.indexOf('/flowcharts/business-process.html') >= 0
       ? 'business-flow'
@@ -38,8 +40,10 @@
         : pathname.indexOf('/related-systems/') >= 0
           ? 'related-systems'
           : 'prototype';
+  var versionsUrl = new URL('version-history.html', root);
   var items = [
     { key: 'prototype', label: '原型页面', href: new URL('index.html', root).href },
+    { key: 'versions', label: '版本与变更', href: versionsUrl.href },
     { key: 'business-flow', label: '业务流程图', href: new URL('flowcharts/business-process.html', root).href },
     { key: 'sequence-flow', label: '时序交互图', href: new URL('flowcharts/sequence-interaction.html', root).href },
     { key: 'related-systems', label: '关联系统展示', href: new URL('related-systems/index.html', root).href }
@@ -155,13 +159,20 @@
     setView(link.dataset.deliveryKey, true);
   });
 
+  document.addEventListener('click', function (event) {
+    var jump = event.target.closest('[data-delivery-switch]');
+    if (!jump || !itemMap[jump.getAttribute('data-delivery-switch')]) return;
+    event.preventDefault();
+    setView(jump.getAttribute('data-delivery-switch'), true);
+  });
+
   window.addEventListener('message', function (event) {
     if (event.source !== frame.contentWindow || !event.data || event.data.type !== 'delivery-switch') return;
     setView(event.data.key, true);
   });
 
   window.addEventListener('popstate', function (event) {
-    var hashMatch = window.location.hash.match(/^#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)$/);
+    var hashMatch = window.location.hash.match(/^#delivery=(prototype|versions|docs|business-flow|sequence-flow|related-systems)$/);
     setView(event.state && event.state.deliveryKey ? event.state.deliveryKey : (hashMatch ? hashMatch[1] : hostKey), false);
   });
 
@@ -169,17 +180,15 @@
   document.body.insertBefore(nav, document.body.firstChild);
   document.body.appendChild(frame);
 
-  var initialMatch = window.location.hash.match(/^#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)$/);
+  var initialMatch = window.location.hash.match(/^#delivery=(prototype|versions|docs|business-flow|sequence-flow|related-systems)$/);
   setView(initialMatch ? initialMatch[1] : hostKey, false);
   }
 
-  fetch(new URL('config/workflow.json', root), { cache: 'no-store' })
-    .then(function (response) { return response.ok ? response.json() : {}; })
-    .then(function (workflow) {
-      var iteration = workflow && workflow.currentIteration;
-      var requested = iteration && iteration.requestedDeliverables;
-      return Boolean(requested && requested.interactionDoc === true);
-    })
-    .catch(function () { return false; })
-    .then(initialize);
+  if (window.HistorySnapshot && window.HistorySnapshot.read_only === true) {
+    initialize(window.HistorySnapshot.include_interaction_doc === true);
+    return;
+  }
+
+  var includeInteractionDoc = {include_interaction_doc};
+  initialize(includeInteractionDoc);
 })();

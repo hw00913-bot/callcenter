@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-13",
+  "kind": "actual_user_G1_approval_Tianwang_shared_ingest",
+  "gate": "G1",
+  "actual_question": "是否批准新增天网后的 G1 范围？S1／S2 已完成，保持 10 个故事、79 条验收、6 个场景：DCC 最高优先级完整闭环，天网共用导入接口并仅在平台查看；原手工界面、三类120秒／八类人工共享额外2次、秒挂不重呼及运营指定删除沿用。批准后进入 S3 流程与 S4 接口细化；真实应用身份／请求命名空间和生产缺口继续待核，不代表 G2／G3 或上线批准。审阅：Demo_Protype_2/需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md。",
+  "actual_answer": "批准 G1，继续 S3／S4",
+  "question_item_id": "[\"request_user_input_async\",\"call_KsNMgX9beAE6giJJMoEViWSn\",0]",
+  "approver": "用户（本会话实际答复）",
+  "scope_review": {
+    "date": "2026-10-13",
+    "kind": "Tianwang_G1_ready_review_not_approval",
+    "source": "SRC-116",
+    "gate": "G1",
+    "status": "pending_actual_user_approval",
+    "counts": {
+      "stories": 10,
+      "acceptance": 79,
+      "scenarios": 6
+    },
+    "actual_destination_answer": "天网只导入并在平台查看；DCC照常回传",
+    "review_path": "outputs/G2集中审阅方案.md",
+    "review_sha256": "90cbb7f002493fe44c1e4b5a0226d7766680b99e49a4ee933422b64654f1f11a",
+    "review_text": "# v1.1.0 本轮范围审阅：DCC优先闭环，天网共用导入\n\n2026-10-13。用户已明确：“天网只导入并在平台查看；DCC照常回传”。DCC完整闭环仍为最高优先级，本次天网复用同一接收能力。\n\n**S1／S2已完成，当前等待新增范围G1确认；S3～S9及G2／G3待本轮重验。** 本稿现在用于新增范围G1审阅，不是已经通过的G2接口方案。正式流程、接口矩阵、时序、页面和功能必须按新范围重验；旧图集或旧批准不能作为本轮通过证据。\n\n## 当前范围\n\n保持10个既有故事、79条既有验收和6个既有场景，不增加重复接收故事或天网专属导入页面。应用接入沿原简洁五操作及密钥/token用途，原手工CSV/粘贴/检查/确认界面保留；原型继续唯一prototype目录。正式功能数在S7核对。\n\n| 场景 | 本轮结果 |\n|---|---|\n| SC-001 | DCC/天网共用授权导入及逐行回执、原手工导入、单号两层批次及同步/53导入结果；只对原DCC结果回传 |\n| SC-002 | 每次可信call/话单/SIP保存和正常任务规则分流；DCC回传，天网/手工查看 |\n| SC-003 | 三类120秒自动、八类有权人工补提交；DCC原记录处理进度回传，天网/手工查看 |\n| SC-004 | 秒挂/非秒挂/待核及原证据保存；DCC明确分类回传，天网/手工查看；全部不秒挂重呼 |\n| SC-005 | DCC/天网独立应用凭据，共用应用五操作和指定授权租户token；不绑任务、不新增技术配置页面 |\n| SC-006 | 原任务有权运营/管理员精准删除指定记录，本地停止与远端结果分开；不恢复DCC删除接口 |\n\nDCC完整闭环和必要共同基础沿P0，运营指定删除沿P1；项目优先级不改变每条线索的priority。天网使用共同基础，不另起一套交付。\n\n## 能否共用接口\n\n可以。DCC与天网使用相同导入报文和逐行接收回执，不增加第二条导入接口。两方使用独立应用凭证；指定租户、原供应商任务、每条leadCode、phone、必填priority、可选R及isNewBatch沿原协议。天网仍会取得正常接收回执，后续呼叫结果和处理进度只在平台查看。\n\n| 接入方 | 导入 | 后续结果/处理进度 |\n|---|---|---|\n| DCC | 共用导入接口，独立应用凭据 | 仅该原来源的准确记录向后台固定DCC端回传 |\n| 天网 | 共用导入接口，独立应用凭据 | 沿平台原登录和任务权限查看，不向天网或DCC回传 |\n| 手工 | 原界面及现有操作权限 | 平台查看 |\n\n## 必须避免的跨应用问题\n\n- 技术建议按“租户＋验真稳定应用＋操作＋requestId”隔离请求。同应用换token仍在原作用域；不同应用即使requestId字面相同也不能返回对方回执。同一作用域完整归一内容一致返原逐行映射，冲突拒绝，不重新导入。正式技术键及历史兼容仍待S4/工程核验。\n- 接收时可信保存每条记录的原应用和结果去向；内部失败尝试继承触发记录原来源。后台根据鉴权上下文和受控应用登记取得身份，不接受body自报来源、应用名称或R决定回传。真实token稳定app身份及登记方案仍待核。\n- 业务主子组和失败次数不增加app维度。同租户/原任务/线索编码固定手机号的准确业务身份仍沿原关联；失败额度仍同四元组共享首次之外2次，另开主批或换应用不重置。跨应用业务身份冲突不猜配。\n- 天网子记录关联DCC主批时，天网记录仍只平台查看；DCC记录关联天网主批时仍按自身原DCC来源回传。不能用root拥有方、最近调用者或后来新主改写旧来源。来源缺失或冲突待核，不默认DCC。\n\n## 本轮复用的接口操作草案\n\n仍为14个接口核验台账行；应用接入及DCC交付按8项操作审阅，不等于8个已实现HTTP端点。以下已准备增量候选，正式S4矩阵尚待新G1后重验。\n\n| 操作 | 调用方/去向 |\n|---|---|\n| 应用列表、详情、新增、修改、删除（5项） | 原有超管管理；DCC/天网各自独立应用，保持简洁 |\n| 获取指定租户token | DCC/天网→平台；业务token不授予超管或运营权限 |\n| 接收线索并返回逐行回执 | DCC/天网→同一平台接口 |\n| 每次结果/进度回传及确认 | 平台→后台固定DCC端；只原DCC记录 |\n\n真实method/route、凭证/token时效/稳定app映射、请求键及迁移、DCC报文/版本/ACK等继续missing/partial；供应商参数与状态不因共用应用而升级。候选中的纯本地隔离检查只验证方案守卫，不是生产或联调证明。\n\n## 既定规则与缺口\n\n三类失败从平台收到并确认每次准确失败结果起算120秒，依赖供应商外显导航降级；八类沿原任务权限人工补提交。两者共享首次之外最多2次，四元组跨主批累计；UNKNOWN保原尝试与占用不盲重发。任务重呼状态才属于三天五呼；呼叫过频由任务规则处理。秒挂完整三态只保存/按原DCC来源回传，不重呼。平台不恢复每日衰减。\n\n指定删除须精确原记录和真实映射；不能以同号扩大整批范围，远端跳过/未知不当已删；历史映射、结果、已用及未知占用保留。原手工界面只按既定新增字段增补，不作界面大改。\n\n“先补齐生产证据”继续有效；用户暂未提供实际联调/后端仓库，继续准备验证材料。13项高等级生产未决未关闭，DCC交付/应用认证等中等级缺口继续保留；此次纳入天网不代表接受生产风险、G3冻结或真实调用。需求图集视觉只获准暂延，仍未标通过；旧02原型/05讨论稿与冻结包均保留。\n\n[用户原文与实际答复](../inputs/user-tianwang-reuse-20261013.md) · [当前故事](../memory/normalized-user-stories.json) · [场景清单](business-scenario-list.md) · [未决项](../runtime/open-items.json) · [阶段状态](../runtime/current-review-status.json)\n",
+    "source_sha256": {
+      "memory/normalized-user-stories.json": "70ed0820162dca9fe8a4893f801c655788c18c20828a1a176c50f922045e19d0",
+      "memory/project-facts.json": "60ce3e08fe2e99921ac679d1a6df75417f5cca1e968cebbf9452353ca3defa22",
+      "scenarios/scenario-index.json": "103ba878556865beeefcaed8c67895c6b86ee1c6f2b2cc4c2e35e205eac381c3",
+      "inputs/source-index.json": "2c9c7079fbe53e4b73396b853f85135f1392057ca24b02a42d8b193b037a778f",
+      "inputs/user-tianwang-reuse-20261013.md": "5ec1831e34dc26f19bfe7ba6efbfc8acfb8492198d6ac78ea38287c0dc90091a"
+    },
+    "DCC_priority": "highest_full_closed_loop",
+    "Tianwang": "same_ingest_platform_view_only",
+    "G2_or_G3_or_production_risk_approval": false
+  },
+  "G2_approved": false,
+  "G3_approved": false,
+  "production_risk_accepted": false,
+  "real_calls_allowed": false
+}

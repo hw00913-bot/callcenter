@@ -7,7 +7,20 @@
     const actual=Number(row?.[{skill:'providerSkillId',ivr:'providerIvrId',task:'providerTaskId',batch:'providerBatchId',agent:'providerAgentId'}[kind]]);
     if(Number.isSafeInteger(actual)&&actual>0)return actual;
     const key=[row?.enterpriseId,kind,row?.[{skill:'skillGroupId',ivr:'contactFlowId',task:'taskId',batch:'batchId',agent:'contactCenterIdentityId'}[kind]]].join('|');
-    if(!Number.isSafeInteger(ids[key])||ids[key]<1){ids[key]=Math.max(800000,...Object.values(ids).filter(Number.isSafeInteger))+1;sessionStorage.setItem('alicti-contract-demo-ids-v1',JSON.stringify(ids));}
+    if(!Number.isSafeInteger(ids[key])||ids[key]<1){
+      // New synthetic task IDs must also avoid persisted facts and retained DCC reservations.
+      const restoredTaskIds=kind==='task'?(root.CloudCallData?.tasks||[]).map(task=>task.demoProviderTaskId).filter(id=>Number.isSafeInteger(id)&&id>0):[];
+      let reservedTaskIds=[];
+      if(kind==='task'&&root.DccRuntime?.ledgerStorageKey){
+        const savedLedger=localStorage.getItem(root.DccRuntime.ledgerStorageKey);
+        if(savedLedger){
+          const ledger=JSON.parse(savedLedger);
+          if(!ledger||!ledger.tasks||typeof ledger.tasks!=='object'||Array.isArray(ledger.tasks))throw Error('合成供应商编号保留账本不可读取');
+          reservedTaskIds=Object.values(ledger.tasks).map(entry=>Number(entry?.task?.supplierTaskId)).filter(id=>Number.isSafeInteger(id)&&id>0);
+        }
+      }
+      ids[key]=Math.max(800000,...Object.values(ids).filter(Number.isSafeInteger),...restoredTaskIds,...reservedTaskIds)+1;sessionStorage.setItem('alicti-contract-demo-ids-v1',JSON.stringify(ids));
+    }
     return ids[key];
   }
   let preferences={phoneSettings:{},previewAsr:{}};try{const stored=JSON.parse(sessionStorage.getItem('alicti-demo-preferences-v1')||'null');if(stored?.phoneSettings&&stored?.previewAsr)preferences=stored;}catch(_){}

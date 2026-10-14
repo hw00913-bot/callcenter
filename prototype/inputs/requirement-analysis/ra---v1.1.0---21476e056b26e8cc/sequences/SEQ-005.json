@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-005",
+  "scenario_id": "SC-001",
+  "name": "系统设置应用接入与租户身份",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "超管（应用管理）",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "运营界面（合成模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "dcc",
+      "name": "DCC（模拟输入）",
+      "kind": "external_system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（模拟）",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "管理入口和服务端仅超管；租户管理员直达/调用拒绝，不改变配置",
+      "type": "request",
+      "api_id": null,
+      "condition": "应用管理操作"
+    },
+    {
+      "step": 2,
+      "from": "operator",
+      "to": "ui",
+      "message": "进入系统设置→应用接入管理维护模拟应用凭证/授权租户",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "ui",
+      "to": "service",
+      "message": "保存虚构应用配置及来源追踪，权限/时效具体实现待核",
+      "type": "internal",
+      "api_id": null,
+      "condition": "当前角色具有既有可操作权限；不新定矩阵"
+    },
+    {
+      "step": 4,
+      "from": "service",
+      "to": "ui",
+      "message": "显示应用与租户授权关系，不显示可用密钥/token",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "dcc",
+      "to": "service",
+      "message": "模拟应用凭证+tenantId交换指定租户身份",
+      "type": "external_call",
+      "api_id": "API-001",
+      "condition": null
+    },
+    {
+      "step": 6,
+      "from": "service",
+      "to": "dcc",
+      "message": "模拟租户token身份；任务属于租户不属于应用",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "授权有效"
+    }
+  ],
+  "notes": [
+    "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+    "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+    "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。",
+    "应用管理模块及本期已有管理操作仅超管可访问和执行，租户管理员不可进入或调用管理接口；菜单隐藏、直接页面访问和服务端鉴权均覆盖。租户管理员直接请求应被拒绝且不修改配置；不凭此新增启停等未纳入操作。 应用凭证加tenantId换租户token的业务鉴权不授予应用管理权限；任务仍归租户不绑定应用。普通运营既有导入/失败下载不因超管管理限制被移除；不创建/重置真实密钥、不修改真实账号权限。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-074"
+  ]
+}

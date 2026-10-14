@@ -73,6 +73,7 @@ python3 skill-library/loop-project-scaffolder/scripts/create_project.py "/absolu
 
 - `--sync-tools`：刷新工具脚本和项目内可读运行包。
 - `--sync-delivery-pages`：刷新四个核心视图与可选说明文档导航；不主动创建说明文档，已有内容页只保留、不覆盖。
+- `--sync-flowcharts`：仅维护源码的显式旧图集兼容入口；先核验已有链接，仅补缺失查看器/链接，保留自填内容和自定义菜单。现代安装包不携带退休模板，缺模板时拒绝恢复，不产生部分文件。
 - `--help`：查看完整参数，不在本说明重复脚本参数表。
 
 旧项目越过 S2 后缺少新审批记录时，必须由 PM 重新核对当前启动规划和 `CLAUDE.md`，再使用 `tools/loop_run.py approve-plan ... --reapprove-existing` 显式确认；不得从历史日志自动推定。
@@ -94,7 +95,7 @@ S1 启动规划必须记录底座路径、保留项、重置项和禁止修改�
 - 新项目始终以 `stage: "s0"` 启动。
 - 原型、业务流程图、时序交互图和关联系统展示通过 `js/delivery-nav.js` 在同一宿主页面切换；只有工作流明确请求说明文档时才增加该视图。
 - 新项目不创建 `docs/interaction.html`、`memory/annotation-prompt.md` 或 `memory/annotation-coverage.md` 占位文件；S9 只按显式开关生成。
-- 新建或新迭代会清除旧 `flowcharts/index.html`、`flowcharts/processon-links.txt`，流程图只接受本地 HTML 内容。
+- 新建或从底座创建新迭代不继承旧 `flowcharts/index.html`、`flowcharts/processon-links.txt`，默认流程图采用本地 HTML；刷新已有项目时保留用户旧文件和自定义导航。旧模板只作为源码兼容资产，不进入现代新建、嵌入运行包或个人安装包。
 - Mock 数据与页面逻辑分离；默认不引入前端框架、npm 或构建工具。
 - `annotations/annotations.js` 使用空对象初始化，不生成历史或示例标注。
 - 目标非空时先分析迁移；未经预览不应用破坏性迁移。
@@ -108,3 +109,7 @@ S1 启动规划必须记录底座路径、保留项、重置项和禁止修改�
 - 标注运行时模板：`skill-library/loop-project-scaffolder/assets/annotation-kit/`。
 
 不要在其它技能目录维护这些资源的副本。
+
+## 版本浏览增量
+
+新项目提供 version-history.html、js/version-nav.js 和 assets/css/version-history.css，以版本清单派生视图展示多版本、多变更及确认快照。新增版本与变更视图使用现有 js/delivery-nav.js 导航。清单缺失时明确显示未连接，不能默认批准。已有项目需获准后才调用刷新命令；本轮不批量同步业务项目。刷新时更新版本脚本和样式，并补缺失版本页；已有版本页正文、标题与清单路径保持，现有历史版本和台账不自动迁移或删除。

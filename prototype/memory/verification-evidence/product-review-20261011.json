@@ -1,0 +1,192 @@
+{
+  "kind": "actual_product_review",
+  "reviewed_at": "2026-10-11T08:18:34+08:00",
+  "project_id": "alicti-c7a41f75",
+  "version": "v1.1.0",
+  "reviewed_product_receipt": "3d0bc9931cd94e5b0bf4461f1d25ffa18d9da0a16464b6fb1dfc0d877e463592",
+  "user_decision": "2026-10-11 用户明确回复：暂不批准，继续审阅。",
+  "business_approval": "pending_actual_confirmation",
+  "operations_approval": "pending_actual_confirmation",
+  "scope": "本轮只读产品/源码审阅与合成运行复现；源码、冻结输入未改，未调用真实服务。",
+  "findings": [
+    {
+      "id": "REVIEW-20261011-001",
+      "priority": "P2",
+      "title": "矛盾状态被同刻旧状态重放解除并错误降级",
+      "functions": [
+        "FUNC-007",
+        "FUNC-008",
+        "FUNC-013"
+      ],
+      "steps": [
+        "step-08"
+      ],
+      "file": "js/components/dcc-runtime.js",
+      "line": 630,
+      "trigger": "同一record和asOf依次查询未拨、已接通、再重放未拨；矛盾仍未解决",
+      "observed": "第二次pending_review保持8；第三次恢复trusted=true并8→6",
+      "expected": "未解决的同刻矛盾继续待核，不通过重放解除并降级",
+      "suggested_repair": "保留同刻原始冲突集合/待核原因；重复旧证据不能恢复可信。",
+      "evidence": {
+        "case": "same-clock-conflicting-state-cleared-by-old-replay",
+        "task": {
+          "id": "TASK-PRED-D07972-e96c502d",
+          "name": "浏览器逐行验收-1791642307335-api"
+        },
+        "stages": [
+          {
+            "scenario": "STEP08-UNCALLED",
+            "priority": 8,
+            "state": "uncalled",
+            "trusted": true,
+            "asOf": "2026-10-10T04:00:00.000Z"
+          },
+          {
+            "scenario": "STEP08-CONNECTED",
+            "priority": 8,
+            "state": "pending_review",
+            "trusted": false,
+            "asOf": "2026-10-10T04:00:00.000Z"
+          },
+          {
+            "scenario": "STEP08-UNCALLED",
+            "priority": 6,
+            "state": "uncalled",
+            "trusted": true,
+            "asOf": "2026-10-10T04:00:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REVIEW-20261011-002",
+      "priority": "P2",
+      "title": "新CSV预览失败仍提交旧预览数据",
+      "functions": [
+        "FUNC-004"
+      ],
+      "steps": [
+        "step-05"
+      ],
+      "file": "js/components/dcc-records.js",
+      "line": 490,
+      "trigger": "预览有效A，再换成缺表头B并点击预览，出现缺少表头后仍点击提交",
+      "observed": "保存并自动提交旧A，不是当前文本B",
+      "expected": "新预览失败使当前提交失效，明确重新预览后才能提交",
+      "suggested_repair": "绑定当前CSV/有效预览版本；预览失败清空或冻结旧提交草稿。",
+      "evidence": {
+        "case": "invalid-new-preview-still-submits-old-draft",
+        "oldLead": "REVIEW-OLD-1791677668468",
+        "newLead": "REVIEW-NEW-1791677668468",
+        "observed": {
+          "warning": "缺少必填表头\n\n请使用 leadCode,phone,priority,R（R 可选）；旧客户名单不能替代本版逐行线索。",
+          "currentText": "wrongHeader,phone,priority\nREVIEW-NEW-1791677668468,18800001992,4",
+          "oldPreview": "REVIEW-OLD-1791677668468",
+          "submitEnabled": true
+        },
+        "added": [
+          {
+            "leadCode": "REVIEW-OLD-1791677668468",
+            "phone": "18800001991",
+            "priority": 3,
+            "importState": "accepted"
+          }
+        ],
+        "staleImportObserved": true
+      }
+    },
+    {
+      "id": "REVIEW-20261011-003",
+      "priority": "P2",
+      "title": "未可信纯SIP包阻止后续可信晚更新",
+      "functions": [
+        "FUNC-010",
+        "FUNC-013"
+      ],
+      "steps": [
+        "step-07"
+      ],
+      "file": "js/components/dcc-runtime.js",
+      "line": 545,
+      "trigger": "可信call→未可信纯SIP→完全可信且准确关联的SIP503，非SIP字段未矛盾",
+      "observed": "版本停在1、sipCause=null、交付1；相同包按未可信SIP→可信call→可信SIP顺序则版本2/sip503/交付2",
+      "expected": "未可信SIP独立待核，不冒充已确认的非SIP冲突永久阻挡合法更新",
+      "suggested_repair": "区分来源待核与真实非SIP冲突；精准可信更新不能被未可信包污染。",
+      "evidence": {
+        "actual_root_command": "node /private/tmp/dcc-untrusted-sip-review.cjs",
+        "actual_asserted_counterexample": true,
+        "untrusted_before_call": {
+          "version": 2,
+          "sipCause": 503,
+          "deliveries": 2
+        },
+        "untrusted_after_call": {
+          "version": 1,
+          "sipCause": null,
+          "deliveries": 1
+        }
+      }
+    },
+    {
+      "id": "REVIEW-20261011-004",
+      "priority": "P2",
+      "title": "切换输入对象后仍展示旧成功反馈",
+      "functions": [
+        "FUNC-002",
+        "FUNC-009"
+      ],
+      "steps": [
+        "step-04",
+        "step-09"
+      ],
+      "file": "js/components/dcc-records.js",
+      "line": 164,
+      "additional_file": "js/pages/application-access.js",
+      "additional_line": 66,
+      "trigger": "删除A成功后切换到未删B；或交换HQ成功后选择EPI-HQ但未再次交换",
+      "observed": "B仍未删除却显示仅选定批次删除成功；指定EPI-HQ仍显示HQ身份成功",
+      "expected": "反馈对应当前对象；切换输入应清反馈或明确标上次对象/时间",
+      "suggested_repair": "清理/绑定删除与身份交换反馈上下文。",
+      "evidence": [
+        {
+          "case": "changed-delete-target-after-success",
+          "A": {
+            "id": "DEMO-RECORD-341",
+            "batch": "DEMO-BATCH-341",
+            "phone": "18800001801"
+          },
+          "B": {
+            "id": "DEMO-RECORD-354",
+            "batch": "DEMO-BATCH-354",
+            "phone": "18800001801"
+          },
+          "first": "合成明确删除成功\n\n仅选定供应商批次标记已删并停止降级。本地记录、原链和同号其他批次保留；接口来源的删除状态独立交付。",
+          "observed": {
+            "selected": "DEMO-RECORD-354",
+            "target": "租户 / 供应商 taskId\nTEN-NISSAN-HQ / 800037\n本地 recordId / batchId\nDEMO-RECORD-354 / DEMO-BATCH-354\n供应商 fileId / tel\nDEMO-FILE-DEMO-BATCH-354 / 18800001801\n当前删除状态\n尚无明确删除结果本地保留；未停止此批次降级",
+            "feedback": "合成明确删除成功\n\n仅选定供应商批次标记已删并停止降级。本地记录、原链和同号其他批次保留；接口来源的删除状态独立交付。",
+            "currentDeleted": false,
+            "buttonEnabled": true
+          },
+          "misleadingSuccess": true
+        },
+        {
+          "case": "tenant-change-retains-previous-success",
+          "observed": {
+            "selectedTenant": "TEN-EPI-HQ",
+            "feedback": "指定租户的合成身份已返回\n\n身份占位不可用于真实请求，当前登录账号及管理权限保持原有状态。\n\n身份类型\n合成租户业务身份 · 不可用 token\n租户 / 任务归属\n东风日产总部 TEN-NISSAN-HQ\n来源应用追踪\nDEMO-DCC-APP-B\n应用管理权限\n未授予\n\n同租户的任务属于该租户，不因来源应用改变归属或操作范围。",
+            "oldIdentityStillVisible": true
+          }
+        }
+      ]
+    }
+  ],
+  "nonblocking_suggestion": "priority计算结果可概括改变/保持/待核数量，现提示只声称记录完成，不是错误声称降级成功。",
+  "source_sha256": {
+    "js/components/dcc-runtime.js": "110fc8cc54e9374b130ffb98c51916eb199ad5b4c0a8add5240373210b8ffb9a",
+    "js/components/dcc-records.js": "6002b3f6a12ba0bedb273c1804b726a4e5d4b47d38391c0669364f6f9c55e807",
+    "js/pages/application-access.js": "342dc1095c1c184d594bf42bbfa4b2d74b8415648fbee4599fa4ee05e80ef37e"
+  },
+  "formal_product_snapshot_exported": false,
+  "formal_05_created": false
+}

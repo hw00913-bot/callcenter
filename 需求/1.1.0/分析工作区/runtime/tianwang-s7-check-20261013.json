@@ -1,0 +1,2732 @@
+{
+  "date": "2026-10-13",
+  "stage": "S7",
+  "result": "pass",
+  "counts": {
+    "features": 19,
+    "stories": 10,
+    "acceptance_total": 79,
+    "acceptance_covered": 79,
+    "scenarios": 6,
+    "pages": 5,
+    "actions": 21
+  },
+  "granularity": "business-operation@2",
+  "errors": [],
+  "G2_evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+  "interface_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d",
+  "source_sha256": {
+    "memory/feature-list.json": "546768c8f3ec2d4148ef1cab4f4b062493f78cfa888eef5c5b5c38b4c46aea51",
+    "planning/page-index.json": "e27a904b84fcdf9865d0ef6b4ec46195bc85bd0b3982ee19ff80092bcfe0d132",
+    "outputs/feature-list.md": "a4492de7af5b240cce160eee6c8b4701698f7d2ac17644bf2f82a0a4b1d6b650",
+    "outputs/product-structure-and-business-process-baseline.md": "73241b6e593de958f979b4ee0966a3a49141ef67cb515ec0a932a090fe5ea4e0",
+    "outputs/page-structure-atlas.html": "0f60bb8b9d67fcfd7796248fe841bd6decb6e8888f2cc5513b2b996b7d37b3d1"
+  },
+  "operation_decomposition": {
+    "granularity_version": "business-operation@2",
+    "status": "prepared_pending_S5_S6_not_stage_completion",
+    "operations": [
+      {
+        "id": "FUNC-001",
+        "object": "既有应用及其租户授权配置",
+        "operation": "修改应用",
+        "trigger": "从应用列表或详情进入修改并提交时",
+        "completion_result": "仅更新所选已有应用并返回更新后的详情；修改失败或无权时不写入。appId及演示appSecret不自动重置。",
+        "source_story_ids": [
+          "US-009"
+        ],
+        "source_acceptance_ids": [
+          "AC-017",
+          "AC-044",
+          "AC-045",
+          "AC-056",
+          "AC-058"
+        ],
+        "source_scenario_ids": [
+          "SC-005"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-005"
+        ],
+        "split_rationale": "原FUNC-001保存收窄为修改已存在应用并保留稳定ID；查询列表FUNC-018、创建FUNC-019、详情FUNC-020、删除FUNC-021有不同触发和独立结果，按用户明确要求分列。填写、校验、取消、保存反馈和保持密钥属于修改明细；后台指定租户token交换复用FUNC-002。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-002",
+        "object": "应用租户身份",
+        "operation": "交换指定租户身份",
+        "trigger": "外部应用使用各自独立凭据与指定授权tenantId请求租户token",
+        "completion_result": "在后台返回指定租户合成身份或明确拒绝；删除应用的合成凭据/已发身份不可继续使用，不授予管理权限。",
+        "source_story_ids": [
+          "US-009"
+        ],
+        "source_acceptance_ids": [
+          "AC-017",
+          "AC-045",
+          "AC-058",
+          "AC-056",
+          "AC-057"
+        ],
+        "source_scenario_ids": [
+          "SC-005"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-001",
+          "SEQ-005"
+        ],
+        "split_rationale": "指定租户身份交换有独立后台接入触发和身份结果，保留FUNC-002但无日常页面。创建凭据归FUNC-019，显示/隐藏/复制密钥归FUNC-020详情明细，删除失效归FUNC-021及本能力使用前校验，不按测试按钮增加功能。 DCC/天网共用同一租户身份交换操作，不按调用方复制FUNC；可信应用传递为鉴权明细，不新增页面或来源登记操作。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-004",
+        "object": "本次业务导入的线索记录及独立单号批次",
+        "operation": "接收预外呼线索",
+        "trigger": "共享外部接口接收有效新业务请求或技术重传，或原手工导入弹窗确认当前有效名单",
+        "completion_result": "DCC／天网共用接口或原手工确认后逐行保存有效线索、独立record和单手机号batch；接口按可信应用请求作用域幂等并分配保存root，手工保留原字段和确认流程；无效/冲突/待核明确反馈，不提交旧草稿。",
+        "source_story_ids": [
+          "US-001",
+          "US-002",
+          "US-010"
+        ],
+        "source_acceptance_ids": [
+          "AC-001",
+          "AC-005",
+          "AC-006",
+          "AC-014",
+          "AC-015",
+          "AC-019",
+          "AC-029",
+          "AC-030",
+          "AC-031",
+          "AC-032",
+          "AC-036",
+          "AC-052",
+          "AC-059",
+          "AC-060",
+          "AC-069",
+          "AC-007",
+          "AC-009",
+          "AC-010",
+          "AC-012",
+          "AC-047",
+          "AC-048",
+          "AC-049",
+          "AC-050",
+          "AC-051"
+        ],
+        "source_scenario_ids": [
+          "SC-001",
+          "SC-002"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-001",
+          "SEQ-006"
+        ],
+        "split_rationale": "原FUNC-004恢复同一线索接收操作：DCC／天网共享payload，手工保留既定入口；两入口都形成逐行有效本地记录和单号批次。字段/草稿、请求归一/幂等、可信来源保存及主子/root映射是同次接收明细，不新增天网或主子拆批功能。初始供应商提交005、结果回传010、自动异常014、人工异常022分别有独立触发和完成结果；失败业务再次提交的必要API002调用归014/022明细，不重复计入005。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-005",
+        "object": "已保存的单号初始导入记录",
+        "operation": "自动提交导入批次",
+        "trigger": "共享接口或原手工有效初始记录保存后，满足当前任务和准确记录提交守卫",
+        "completion_result": "对已保存的有效初始线索按原任务及保存priority自动发起单号导入，保存本次实际fileId及明确受理/拒绝/未知证据；未知保持同次尝试不盲重发，受理不等于已呼叫。",
+        "source_story_ids": [
+          "US-001",
+          "US-002",
+          "US-005",
+          "US-010"
+        ],
+        "source_acceptance_ids": [
+          "AC-011",
+          "AC-013",
+          "AC-014",
+          "AC-015",
+          "AC-019",
+          "AC-032",
+          "AC-035",
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-046",
+          "AC-064",
+          "AC-073",
+          "AC-074",
+          "AC-012"
+        ],
+        "source_scenario_ids": [
+          "SC-001"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-001",
+          "SEQ-006"
+        ],
+        "split_rationale": "初始保存后自动向供应商提交并形成受理/拒绝/未知结果005，与本地线索接收004不同。自动失败014/人工失败022分别完成异常策略执行，虽复用同一API002提交技术实现，必要供应商调用归014/022明细，不另在005重复计算异常业务提交。fileId、数量、幂等和未知保留是005必要明细。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-006",
+        "object": "本次导入失败快照",
+        "operation": "下载导入失败记录",
+        "trigger": "选择准确任务记录的失败快照并请求下载",
+        "completion_result": "交付本次失败快照；仅可信下载成功清该快照明细文件，失败/中断/未知保留，必要关联及额度状态不清。",
+        "source_story_ids": [
+          "US-001",
+          "US-005"
+        ],
+        "source_acceptance_ids": [
+          "AC-008",
+          "AC-013",
+          "AC-029",
+          "AC-031",
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-052",
+          "AC-064",
+          "AC-066"
+        ],
+        "source_scenario_ids": [
+          "SC-001",
+          "SC-003"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-007"
+        ],
+        "split_rationale": "下载与可信完成后的本快照清理组成一次导出结果；文件生成/去重/后到分片是必要明细，不拆独立清理功能。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-009",
+        "object": "当前原任务中准确指定的供应商单号业务记录",
+        "operation": "删除指定供应商号码",
+        "trigger": "选择当前精确已有记录并明确确认供应商删除",
+        "completion_result": "仅指定对象被处理，本地计划停止和供应商删除结果分开保存；远端明确目标成功且未跳过才标已删，原记录/root/预算/证据保留。",
+        "source_story_ids": [
+          "US-008",
+          "US-001",
+          "US-005"
+        ],
+        "source_acceptance_ids": [
+          "AC-016",
+          "AC-024",
+          "AC-025",
+          "AC-052",
+          "AC-061",
+          "AC-073"
+        ],
+        "source_scenario_ids": [
+          "SC-006",
+          "SC-001",
+          "SC-003"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-009"
+        ],
+        "split_rationale": "沿已有FUNC-009删除操作继承，仅发起者按SRC-110改为原任务有权运营/管理员；精确选择/确认、停止对象待计划、保留证据和响应一致性组成一次删除结果，不重复新增删除或秒挂停止。US-008迁移旧AC016/024/025/061。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-010",
+        "object": "原DCC来源准确结果及进度的交付记录",
+        "operation": "回传原DCC来源每次结果",
+        "trigger": "本次记录或继承尝试可信保存为DCC且结果准确需要对外交付",
+        "completion_result": "仅可信保存原DCC来源且精确关联的记录/继承尝试，向固定DCC接收端交付每次原结果、秒挂分类及处理进度；未知/失败保留同版本交付状态，补送不重导供应商。天网/手工只平台查看。",
+        "source_story_ids": [
+          "US-006"
+        ],
+        "source_acceptance_ids": [
+          "AC-018",
+          "AC-037",
+          "AC-071",
+          "AC-075"
+        ],
+        "source_scenario_ids": [
+          "SC-001",
+          "SC-002",
+          "SC-003",
+          "SC-004"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-001",
+          "SEQ-002",
+          "SEQ-003",
+          "SEQ-004",
+          "SEQ-007"
+        ],
+        "split_rationale": "010是已有结果/进度的对外交付操作，与接收归一013、分类011/012和本地查询015独立；ACK、版本及交付补送是010明细，不拆重复回传功能。DCC/TW导入共用004，TW无外发结果操作；仅按本次原DCC来源，指定删除009结果沿本地现有范围，不复活DCC删除API。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-011",
+        "object": "已准确关联真实客户呼叫的本地秒挂判定",
+        "operation": "识别客户秒挂结果",
+        "trigger": "可信原呼叫字段或同call可信更新形成判定依据",
+        "completion_result": "保存本方秒挂/非秒挂/待核三态及原真实call/供应商结果，平台可查看；无重提交或计划。",
+        "source_story_ids": [
+          "US-004",
+          "US-008"
+        ],
+        "source_acceptance_ids": [
+          "AC-004",
+          "AC-021",
+          "AC-022",
+          "AC-023",
+          "AC-024",
+          "AC-027",
+          "AC-034"
+        ],
+        "source_scenario_ids": [
+          "SC-004",
+          "SC-006"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-004"
+        ],
+        "split_rationale": "本方三态判定有独立触发及结果，保持FUNC-011；三条件与证据/版本为判断明细，不按三个枚举拆功能。结果接收FUNC-013与查询FUNC-015复用，原DCC对外交付复用010，天网/手工本地查询015。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-012",
+        "object": "可信准确预测呼叫失败事件",
+        "operation": "接收并分类预测呼叫失败",
+        "trigger": "本次失败原始事件到达，包括无话单失败",
+        "completion_result": "准确保存原原因与关联，分为呼叫过频正常规则、三类自动、八类人工或未知待核；分类本身不占补提交次数。",
+        "source_story_ids": [
+          "US-003",
+          "US-001",
+          "US-005"
+        ],
+        "source_acceptance_ids": [
+          "AC-003",
+          "AC-020",
+          "AC-033",
+          "AC-035",
+          "AC-063",
+          "AC-066"
+        ],
+        "source_scenario_ids": [
+          "SC-003",
+          "SC-001"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-003"
+        ],
+        "split_rationale": "可信失败分类有独立事件触发和稳定分类结果，保持FUNC-012。三个策略去向及无话单是处理明细；后续自动/人工实际操作分属FUNC-014/022。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-013",
+        "object": "每次供应商普通call/话单/SIP结果及其本地一致性状态",
+        "operation": "接收关联并归一呼叫结果",
+        "trigger": "新的普通call/话单/SIP、同对象可信晚更新或重复/未知证据到达",
+        "completion_result": "每次可信普通呼叫及SIP准确关联后保存原始结果和本地版本；未知/真实冲突待核，重复复用原对象，不新增呼叫/计划或释放失败占用。",
+        "source_story_ids": [
+          "US-002",
+          "US-001",
+          "US-005",
+          "US-007",
+          "US-004"
+        ],
+        "source_acceptance_ids": [
+          "AC-002",
+          "AC-038",
+          "AC-035",
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-052",
+          "AC-062",
+          "AC-066",
+          "AC-067",
+          "AC-073",
+          "AC-078",
+          "AC-023"
+        ],
+        "source_scenario_ids": [
+          "SC-002",
+          "SC-001",
+          "SC-003",
+          "SC-004"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-002",
+          "SEQ-003",
+          "SEQ-004",
+          "SEQ-006",
+          "SEQ-007"
+        ],
+        "split_rationale": "同一业务对象“每次呼叫结果”在同一接收操作中形成归一保存结果；新可信、未知、重复和晚更新是同一操作的证据分支，不另造按状态功能。原FUNC-010的外发交付恢复且仅限原DCC来源，原本地保存子范围由FUNC-013明确继承；已有FUNC-013 ID/旧边界历史保留。失败原因分类FUNC-012、秒挂派生FUNC-011和查询FUNC-015各有独立结果，不被本项包入。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-014",
+        "object": "三类可信失败的自动补提交对象",
+        "operation": "自动补提交三类失败客户",
+        "trigger": "准确新禁呼/限呼/外呼黑名单失败确认且累计额度/状态允许，到本次确认+120秒",
+        "completion_result": "取得独占执行权后发起一次内部失败尝试并保存受理/拒绝/未知；不满足条件只等待、挂起、停止或待核。",
+        "source_story_ids": [
+          "US-002",
+          "US-003",
+          "US-004",
+          "US-008",
+          "US-001",
+          "US-005"
+        ],
+        "source_acceptance_ids": [
+          "AC-019",
+          "AC-020",
+          "AC-023",
+          "AC-025",
+          "AC-026",
+          "AC-027",
+          "AC-035",
+          "AC-052",
+          "AC-063",
+          "AC-064",
+          "AC-065",
+          "AC-066",
+          "AC-067",
+          "AC-068",
+          "AC-070",
+          "AC-072",
+          "AC-073",
+          "AC-074",
+          "AC-079"
+        ],
+        "source_scenario_ids": [
+          "SC-002",
+          "SC-003",
+          "SC-004",
+          "SC-006",
+          "SC-001"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-003"
+        ],
+        "split_rationale": "自动计划/120秒/关联/额度守卫和一次实际发起共同完成三类异常自动操作FUNC-014，不按三原因或计时器拆功能；供应商提交复用005，与独立人工022共享账而不重复计数。 本操作014/022分别有独立自动到期/人工确认触发，最终一次受理/拒绝/未知；API002复用是技术明细，005仅初始提交，按同次异常结果不重复计数。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-015",
+        "object": "当前授权原任务业务记录",
+        "operation": "查询任务业务记录",
+        "trigger": "进入/刷新原任务记录并按原记录分类查看",
+        "completion_result": "返回本地导入、普通call/SIP、失败处理、秒挂三态和指定删除结果及精确关联/预算状态；未知如实展示，查询不隐式执行。",
+        "source_story_ids": [
+          "US-001",
+          "US-002",
+          "US-005",
+          "US-007",
+          "US-004",
+          "US-008"
+        ],
+        "source_acceptance_ids": [
+          "AC-014",
+          "AC-015",
+          "AC-019",
+          "AC-028",
+          "AC-029",
+          "AC-032",
+          "AC-038",
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-052",
+          "AC-059",
+          "AC-070",
+          "AC-078",
+          "AC-004",
+          "AC-025"
+        ],
+        "source_scenario_ids": [
+          "SC-001",
+          "SC-002",
+          "SC-003",
+          "SC-004",
+          "SC-006"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-001",
+          "SEQ-002",
+          "SEQ-003",
+          "SEQ-004",
+          "SEQ-006",
+          "SEQ-007",
+          "SEQ-009"
+        ],
+        "split_rationale": "任务记录查询/筛选及展示状态共同形成同次只读FUNC-015结果；后台接收归一由013，独立导入/下载/删除/人工执行分别既有FUNC，不由查询吸收执行。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-016",
+        "object": "新预外呼任务",
+        "operation": "创建任务并锁定初始导入来源",
+        "trigger": "沿原任务向导确认创建",
+        "completion_result": "沿原任务向导保存租户任务及接口/手工初始来源，提交后锁定；接口模式接受经授权DCC/天网，不绑定应用。正常重呼配置与固定失败规则沿用，创建失败不伪成功、不改历史来源。",
+        "source_story_ids": [
+          "US-002",
+          "US-004",
+          "US-001",
+          "US-005",
+          "US-007"
+        ],
+        "source_acceptance_ids": [
+          "AC-026",
+          "AC-027",
+          "AC-029",
+          "AC-036",
+          "AC-072",
+          "AC-077"
+        ],
+        "source_scenario_ids": [
+          "SC-002",
+          "SC-004",
+          "SC-001",
+          "SC-003"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-006"
+        ],
+        "split_rationale": "创建保存及必需来源锁定/原策略信息形成一次016创建，字段不独立拆；后续自动/人工各014/022，供应商内部算法非本方新功能。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-017",
+        "object": "53异步导入失败分片",
+        "operation": "接收并关联异步导入失败",
+        "trigger": "初始或异常实际导入尝试的53失败分片到达",
+        "completion_result": "保存准确导入失败、实际record/batch/root/attempt和已声明分片完整性；乱序迟到保留、重复不新增、冲突待核，不触发预测失败补提。",
+        "source_story_ids": [
+          "US-001",
+          "US-005"
+        ],
+        "source_acceptance_ids": [
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-052",
+          "AC-063",
+          "AC-064",
+          "AC-066"
+        ],
+        "source_scenario_ids": [
+          "SC-001",
+          "SC-003"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-001",
+          "SEQ-003",
+          "SEQ-006",
+          "SEQ-007"
+        ],
+        "split_rationale": "53独立异步触发和稳定分片失败结果与005同步提交分开，保留017；去重/精确关联/完整性为明细，下载/查询各复用既有操作。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-018",
+        "object": "应用及其租户授权配置",
+        "operation": "查询应用列表",
+        "trigger": "进入应用接入菜单或查询/刷新列表时",
+        "completion_result": "返回授权范围内应用列表或明确空结果，不泄露其他权限数据；无权或未满足条件不伪造成功。",
+        "source_story_ids": [
+          "US-009"
+        ],
+        "source_acceptance_ids": [
+          "AC-044",
+          "AC-045",
+          "AC-053",
+          "AC-058"
+        ],
+        "source_scenario_ids": [
+          "SC-005"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-005"
+        ],
+        "split_rationale": "查询应用列表有用户明确要求的独立触发与可验收结果；应用列表FUNC-018、创建FUNC-019、详情FUNC-020、修改FUNC-001、删除FUNC-021分别登记。必要字段、筛选/分页、填写、校验、确认、显示/复制和错误反馈归对应主操作明细，后台token交换复用FUNC-002。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-019",
+        "object": "应用及其租户授权配置",
+        "operation": "创建应用",
+        "trigger": "从应用列表进入新增并提交时",
+        "completion_result": "保存独立应用及可访问租户，创建演示appId/appSecret并返回详情；无权或未满足条件不伪造成功。",
+        "source_story_ids": [
+          "US-009"
+        ],
+        "source_acceptance_ids": [
+          "AC-017",
+          "AC-044",
+          "AC-045",
+          "AC-055",
+          "AC-058"
+        ],
+        "source_scenario_ids": [
+          "SC-005"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-005"
+        ],
+        "split_rationale": "创建应用有用户明确要求的独立触发与可验收结果；应用列表FUNC-018、创建FUNC-019、详情FUNC-020、修改FUNC-001、删除FUNC-021分别登记。必要字段、筛选/分页、填写、校验、确认、显示/复制和错误反馈归对应主操作明细，后台token交换复用FUNC-002。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-020",
+        "object": "应用及其租户授权配置",
+        "operation": "查看应用详情",
+        "trigger": "从列表或创建/修改成功后进入指定应用详情时",
+        "completion_result": "返回指定已保存应用详情及必要密钥查看反馈，不修改或重置应用；无权或未满足条件不伪造成功。",
+        "source_story_ids": [
+          "US-009"
+        ],
+        "source_acceptance_ids": [
+          "AC-017",
+          "AC-044",
+          "AC-045",
+          "AC-054",
+          "AC-058"
+        ],
+        "source_scenario_ids": [
+          "SC-005"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-005"
+        ],
+        "split_rationale": "查看应用详情有用户明确要求的独立触发与可验收结果；应用列表FUNC-018、创建FUNC-019、详情FUNC-020、修改FUNC-001、删除FUNC-021分别登记。必要字段、筛选/分页、填写、校验、确认、显示/复制和错误反馈归对应主操作明细，后台token交换复用FUNC-002。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-021",
+        "object": "应用及其租户授权配置",
+        "operation": "删除应用",
+        "trigger": "从列表或详情选择具体应用并确认删除时",
+        "completion_result": "精确应用被删除，演示凭据及已发合成业务身份不可继续使用，其他对象保持；无权或未满足条件不伪造成功。",
+        "source_story_ids": [
+          "US-009"
+        ],
+        "source_acceptance_ids": [
+          "AC-044",
+          "AC-045",
+          "AC-057",
+          "AC-058"
+        ],
+        "source_scenario_ids": [
+          "SC-005"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-005"
+        ],
+        "split_rationale": "删除应用有用户明确要求的独立触发与可验收结果；应用列表FUNC-018、创建FUNC-019、详情FUNC-020、修改FUNC-001、删除FUNC-021分别登记。必要字段、筛选/分页、填写、校验、确认、显示/复制和错误反馈归对应主操作明细，后台token交换复用FUNC-002。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      },
+      {
+        "id": "FUNC-022",
+        "object": "八类已有可信失败记录",
+        "operation": "人工补提交八类失败客户",
+        "trigger": "选定准确已有八类失败对象并明确确认",
+        "completion_result": "条件/权限满足时发起本次内部尝试，保留原root/来源并保存受理/拒绝/未知；否则拒绝或待核，重复确认复用同次。",
+        "source_story_ids": [
+          "US-002",
+          "US-004",
+          "US-008",
+          "US-001",
+          "US-005",
+          "US-007"
+        ],
+        "source_acceptance_ids": [
+          "AC-019",
+          "AC-023",
+          "AC-025",
+          "AC-035",
+          "AC-052",
+          "AC-064",
+          "AC-065",
+          "AC-066",
+          "AC-067",
+          "AC-068",
+          "AC-070",
+          "AC-073",
+          "AC-074",
+          "AC-076",
+          "AC-077",
+          "AC-078"
+        ],
+        "source_scenario_ids": [
+          "SC-002",
+          "SC-004",
+          "SC-006",
+          "SC-001",
+          "SC-003"
+        ],
+        "planned_sequence_ids": [
+          "SEQ-003"
+        ],
+        "split_rationale": "原US-007独立用户确认和一次受理/拒绝/未知结果保持022，与初始名单004和自动014分离。确认、权限/额度、去重/root/原子预占是必要明细，按原因/页面/API不重复拆。 本操作014/022分别有独立自动到期/人工确认触发，最终一次受理/拒绝/未知；API002复用是技术明细，005仅初始提交，按同次异常结果不重复计数。",
+        "status": "prepared_pending_S5_S6_not_stage_completion"
+      }
+    ],
+    "no_split_merge_new_FUNC": true,
+    "rationale": "稳定004恢复两入口同本地接收操作，DCC/TW共用接口；005仅初始供应商提交，014/022异常调用API002归自身明细；010仅原DCC结果交付。五应用CRUD独立，token后台独立。字段/权限守卫/来源路由/幂等/root映射不另拆功能。"
+  },
+  "semantic_corrections": [
+    {
+      "feature": "FUNC-005",
+      "change": "AC073/074仅依赖，014/022主覆盖"
+    },
+    {
+      "feature": "FUNC-002",
+      "change": "token主操作SC005/SEQ005；SEQ001仅依赖上下文"
+    }
+  ],
+  "no_new_Tianwang_FUNC_PAGE_ACTION": true,
+  "production_verified": false,
+  "visual_verified": false,
+  "G3_approved": false,
+  "independent_candidate_semantic_review": {
+    "audit": "SRC116_S7_business-operation19_semantic_read_only@1",
+    "generated_at": "2026-10-13T21:54:00.039662+08:00",
+    "result": "attention",
+    "source_sha256": {
+      "memory/normalized-user-stories.json": "70ed0820162dca9fe8a4893f801c655788c18c20828a1a176c50f922045e19d0",
+      "memory/business-rules.json": "a98f7336cb73571c420d59ccfa3ad09049ef379d5cd6f408bee84a813ffd0136",
+      "memory/project-facts.json": "ed12557557eba7aee24d2faefb09f464d2f079f826b9f838b1d4b34392b45d73",
+      "memory/feature-list.json": "882fddb07381411a35fee551698b4d1bc22ac8b5ff86b74d4261763f4bf50b0b",
+      "interfaces/interface-index.json": "1c77fb05d16ce37200ea6b4149f1a043eeb70e07e2076eff1392f78ce1ee6cca",
+      "scenarios/scenario-index.json": "360fa89cc1ec939789e6ef4420f40e79dce79ed6612ccf2f17b4970b6429cdd7",
+      "inputs/source-index.json": "2c9c7079fbe53e4b73396b853f85135f1392057ca24b02a42d8b193b037a778f",
+      "runtime/tianwang-g2-user-approval-20261013.json": "4b7fee384e634cbe60c7cdcd71f333c4b12b1e0b90c2e17352e513d287d1de42",
+      "scenarios/SC-001.json": "6c528204ba687c84cdc6e6f5d591c0f12c46e36d350900be1fb60780f04e0ccb",
+      "scenarios/SC-002.json": "77b1a4174b7f255a6cd7d6c666304c4220d84dfc9649ca538a70556fcd7d9c36",
+      "scenarios/SC-003.json": "58464d59e6b4704b2c10fd561cb680cce1ca5176ca14687aab80843e2ed4efa5",
+      "scenarios/SC-004.json": "d3c8a7d17aa865b151740c56eaeedf80500fadca23cfba2efca36c9b28b1088b",
+      "scenarios/SC-005.json": "9eb2cc12895bbd6b1e4bfd5c86435c9fb73274c8885243fefa0731589db18fb5",
+      "scenarios/SC-006.json": "d2c8d893859fe3c2ae11f6fa59c937cec863373fba814dd48b2567bc791d81ce",
+      "sequences/SEQ-002.json": "cc28275807d136a2edc109169847d70b712694dd323d7808de383634064abc10",
+      "sequences/SEQ-003.json": "aa5702bd584e3fc15d3c2ca1de51099784222a6bd4cd703fa4b95d4d3dba4a88",
+      "sequences/SEQ-004.json": "6a22ea066c6fd472b4eb926187afedef045a9db8a80cef273f6f0f5510b5952c",
+      "sequences/SEQ-006.json": "853707d0d8b7c8c2ddb29c1e93247e57bc9f96a85a5eae69ee191e516b3ef3ad",
+      "sequences/SEQ-007.json": "208b3e13a2951702ebfe735ca1e9cc3d130ab98a0164805b61000a05cd59b0c6",
+      "sequences/SEQ-009.json": "929ff06d3e0d92d1fd050b930db8923bd47b247aa54e8e172e37bb1bcbbe4a5d",
+      "/private/tmp/tianwang-s6-s7-prep-20261013/feature-list-candidate.json": "caada65e3cabe04b6edb3f077d09d19fb69316b80afb79da7fee06a461f918db",
+      "/private/tmp/tianwang-s5-ingest-20261013/SEQ-001.json": "90122603f48de7b188ab86cb2ed1fb60fc76bf8c92b308dc47fb60a0d22c16ee",
+      "/private/tmp/tianwang-s5-ingest-20261013/SEQ-005.json": "99c6c0df6cdf71054bd46df966d024f5ffa78f32de5d4470aa844664b8422b8e"
+    },
+    "counts": {
+      "features": 19,
+      "stories": 10,
+      "acceptance": 79,
+      "scenario": 6,
+      "rules": 22,
+      "current_covered_acceptance": 79,
+      "covered_acceptance_after_expected_005_cleanup": 79,
+      "checks": 14,
+      "failed_checks": 0
+    },
+    "checks": [
+      {
+        "check": "19 stable business-operation@2 rows and stock boundary contract clear",
+        "passed": true,
+        "evidence": {
+          "count": 19,
+          "stock_errors": []
+        }
+      },
+      {
+        "check": "all current story/AC/SC/BR references known",
+        "passed": true,
+        "evidence": {
+          "US": 10,
+          "AC": 79,
+          "SC": 6,
+          "BR": 22
+        }
+      },
+      {
+        "check": "FUNC004 stable history and iteration lineage retained",
+        "passed": true,
+        "evidence": {
+          "id": "FUNC004",
+          "restored_scope": "DCC/TW shared receiver + originalmanual; no new receiveID"
+        }
+      },
+      {
+        "check": "one shared FUNC004 receiver no duplicate TW operation",
+        "passed": true,
+        "evidence": {
+          "primary_function": "FUNC004",
+          "source_AC": [
+            "AC047",
+            "AC048",
+            "AC049",
+            "AC050",
+            "AC051",
+            "AC060",
+            "AC069"
+          ]
+        }
+      },
+      {
+        "check": "005 initial-only result differs004 local-save",
+        "passed": true,
+        "evidence": {
+          "004": "逐行本地record/batch/root回执",
+          "005": "初始记录保存后供应商受理/拒绝/UNKNOWN"
+        }
+      },
+      {
+        "check": "014 automatic versus022 explicit manual independent triggers",
+        "passed": true,
+        "evidence": {
+          "014": "三类确认+120s自动",
+          "022": "现有八类失败明确人工确认",
+          "API002": "shared technical implementation, not extra FUNC005 business result"
+        }
+      },
+      {
+        "check": "no app in business budget nor task binding; crossapp immutable source",
+        "passed": true,
+        "evidence": {
+          "technical_request_key": "tenant+trustedstableapp+operation+requestId",
+          "business_budget_key": "tenant+originaltask+savedleadCode+fixedphone"
+        }
+      },
+      {
+        "check": "010 owns outbound callback and TWmanualunknown no external",
+        "passed": true,
+        "evidence": {
+          "external_delivery": "FUNC010 only",
+          "nonoutbound_functions": "004/005/011/012/013/014/015/017/022 save/provenance or use010 dependency"
+        }
+      },
+      {
+        "check": "ordinarycall/SIP every result013 and derived011/012 are separate outcomes",
+        "passed": true,
+        "evidence": {
+          "013": "rawcall/SIP consistent save",
+          "012": "stablefailure category",
+          "011": "derivedseconds3state",
+          "015": "readonly query"
+        }
+      },
+      {
+        "check": "seconds false-first conflict/unknown and no retry retained",
+        "passed": true,
+        "evidence": {
+          "AC": [
+            "AC004",
+            "AC021",
+            "AC022",
+            "AC034"
+          ],
+          "outbound_component": "FUNC010 viaAC075"
+        }
+      },
+      {
+        "check": "exact operational deletion009 originalpermission and unknownbudget preserved",
+        "passed": true,
+        "evidence": {
+          "API014": "originaltask internal authorizedcommand",
+          "API006": "exactcandidate only",
+          "noDCCdelete": true
+        }
+      },
+      {
+        "check": "app5 independent required operations + backstage token share",
+        "passed": true,
+        "evidence": {
+          "CRUD/read_functions": [
+            "001",
+            "018",
+            "019",
+            "020",
+            "021"
+          ],
+          "token_function": "002",
+          "no new admin operation/sourceUI": true
+        }
+      },
+      {
+        "check": "no restored daily decay or seconds/route configuration operation",
+        "passed": true,
+        "evidence": {
+          "retired": [
+            "Rdictionary",
+            "dailylookup",
+            "dailyprioritydecay"
+          ]
+        }
+      },
+      {
+        "check": "all79 AC current and after approved proposed ownership cleanup covered",
+        "passed": true,
+        "evidence": {
+          "current": 79,
+          "expected_after005_drop073074": 79,
+          "uncovered_after": [],
+          "AC073_main": [
+            "FUNC-014",
+            "FUNC-022"
+          ],
+          "AC074_main": [
+            "FUNC-014",
+            "FUNC-022"
+          ]
+        }
+      }
+    ],
+    "must_fix_before_formal_pass": [
+      {
+        "id": "S7-FUNC005-REUSE-CONFLICT",
+        "severity": "medium",
+        "summary": "014/022仍有旧正文把异常提交功能归于005，与005初始-only及各自行异常结果边界冲突。只改正文归属，复用API002不增功能。",
+        "patches": [
+          {
+            "path": "features[FUNC-014].boundary.split_rationale",
+            "old_exact_substring": "供应商提交复用005，与独立人工022共享账而不重复计数。",
+            "replacement": "仅复用API-002技术调用；本次异常受理/拒绝/未知结果归FUNC-014，与独立人工FUNC-022共享累计账，不触发或另计初始FUNC-005。",
+            "before_full_field": "自动计划/120秒/关联/额度守卫和一次实际发起共同完成三类异常自动操作FUNC-014，不按三原因或计时器拆功能；供应商提交复用005，与独立人工022共享账而不重复计数。 本操作014/022分别有独立自动到期/人工确认触发，最终一次受理/拒绝/未知；API002复用是技术明细，005仅初始提交，按同次异常结果不重复计数。",
+            "after_full_field": "自动计划/120秒/关联/额度守卫和一次实际发起共同完成三类异常自动操作FUNC-014，不按三原因或计时器拆功能；仅复用API-002技术调用；本次异常受理/拒绝/未知结果归FUNC-014，与独立人工FUNC-022共享累计账，不触发或另计初始FUNC-005。 本操作014/022分别有独立自动到期/人工确认触发，最终一次受理/拒绝/未知；API002复用是技术明细，005仅初始提交，按同次异常结果不重复计数。"
+          },
+          {
+            "path": "features[FUNC-022].boundary.included_scope[5]",
+            "old_exact_substring": "双击并发复用，公共调用005。",
+            "replacement": "双击并发复用，仅复用API-002技术调用；本次异常结果归FUNC-022，不触发或另计初始FUNC-005。",
+            "before_full_field": "外发前独占执行权/额度持久预占，实际新的业务发起记一次，明确受理/拒绝均计，未知留同槽/attempt；双击并发复用，公共调用005。",
+            "after_full_field": "外发前独占执行权/额度持久预占，实际新的业务发起记一次，明确受理/拒绝均计，未知留同槽/attempt；双击并发复用，仅复用API-002技术调用；本次异常结果归FUNC-022，不触发或另计初始FUNC-005。"
+          }
+        ],
+        "user_business_change_required": false
+      },
+      {
+        "id": "S7-FUNC005-AC-OWNERSHIP",
+        "severity": "medium",
+        "summary": "005的073/074改为dependency_acceptance_ids；014/022保主覆盖，无验收丢失，无新FUNC。",
+        "patches": [
+          {
+            "path": "features[FUNC-005].source_acceptance_ids",
+            "before": [
+              "AC-011",
+              "AC-013",
+              "AC-014",
+              "AC-015",
+              "AC-019",
+              "AC-032",
+              "AC-035",
+              "AC-039",
+              "AC-040",
+              "AC-041",
+              "AC-042",
+              "AC-043",
+              "AC-046",
+              "AC-064",
+              "AC-073",
+              "AC-074",
+              "AC-012"
+            ],
+            "after": [
+              "AC-011",
+              "AC-013",
+              "AC-014",
+              "AC-015",
+              "AC-019",
+              "AC-032",
+              "AC-035",
+              "AC-039",
+              "AC-040",
+              "AC-041",
+              "AC-042",
+              "AC-043",
+              "AC-046",
+              "AC-064",
+              "AC-012"
+            ],
+            "record_dependency_acceptance_ids": [
+              "AC-073",
+              "AC-074"
+            ],
+            "reason": "073/074的独立异常执行与priority主结果归014/022，005初始-only仅依赖约束，不重复归入业务操作主验收。"
+          }
+        ],
+        "user_business_change_required": false
+      }
+    ],
+    "expected_final_pass_requirements": [
+      "19 business-operation@2 IDs与主操作边界不增加；按精确补丁消除两处旧005异常归属文本。",
+      "005当前source_acceptance_ids不再把AC073/074当本操作主结果；可以dependency_acceptance_ids保存已确认共用约束；014/022仍承接主验收。",
+      "源覆盖仍79 AC；G2事实指纹不变，13high/4medium与auth/token/迁移/ACK/供应商缺口保持。",
+      "root已列出的当前deferred字段/旧G2/阶段显示及正文延期impact先留完整history后清理，候选S5/S6绑定状态在实际完成后回绑。"
+    ],
+    "operation_semantic_summary": [
+      {
+        "id": "FUNC-001",
+        "operation": "修改应用",
+        "business_object": "既有应用及其租户授权配置",
+        "trigger": "从应用列表或详情进入修改并提交时",
+        "result": "既有应用名称和可访问租户更新，appId及创建时演示密钥保持",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-017",
+          "AC-044",
+          "AC-045",
+          "AC-056",
+          "AC-058"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-002",
+        "operation": "交换指定租户身份",
+        "business_object": "应用租户身份",
+        "trigger": "外部应用使用各自独立凭据与指定授权tenantId请求租户token",
+        "result": "后台形成指定租户合成身份或明确拒绝",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-017",
+          "AC-045",
+          "AC-058",
+          "AC-056",
+          "AC-057"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-004",
+        "operation": "接收预外呼线索",
+        "business_object": "本次业务导入的线索记录及独立单号批次",
+        "trigger": "共享外部接口接收有效新业务请求或技术重传，或原手工导入弹窗确认当前有效名单",
+        "result": "DCC／天网共用接口或原手工确认后逐行保存有效线索、独立record和单手机号batch；接口按可信应用请求作用域幂等并分配保存root，手工保留原字段和确认流程；无效/冲突/待核明确反馈，不提交旧草稿。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-001",
+          "AC-005",
+          "AC-006",
+          "AC-014",
+          "AC-015",
+          "AC-019",
+          "AC-029",
+          "AC-030",
+          "AC-031",
+          "AC-032",
+          "AC-036",
+          "AC-052",
+          "AC-059",
+          "AC-060",
+          "AC-069",
+          "AC-007",
+          "AC-009",
+          "AC-010",
+          "AC-012",
+          "AC-047",
+          "AC-048",
+          "AC-049",
+          "AC-050",
+          "AC-051"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-005",
+        "operation": "自动提交导入批次",
+        "business_object": "已保存的单号初始导入记录",
+        "trigger": "共享接口或原手工有效初始记录保存后，满足当前任务和准确记录提交守卫",
+        "result": "对已保存的有效初始线索按原任务及保存priority自动发起单号导入，保存本次实际fileId及明确受理/拒绝/未知证据；未知保持同次尝试不盲重发，受理不等于已呼叫。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-011",
+          "AC-013",
+          "AC-014",
+          "AC-015",
+          "AC-019",
+          "AC-032",
+          "AC-035",
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-046",
+          "AC-064",
+          "AC-012"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-006",
+        "operation": "下载导入失败记录",
+        "business_object": "本次导入失败快照",
+        "trigger": "选择准确任务记录的失败快照并请求下载",
+        "result": "交付本次失败快照；仅可信下载成功清该快照明细文件，失败/中断/未知保留，必要关联及额度状态不清。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-008",
+          "AC-013",
+          "AC-029",
+          "AC-031",
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-052",
+          "AC-064",
+          "AC-066"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-009",
+        "operation": "删除指定供应商号码",
+        "business_object": "当前原任务中准确指定的供应商单号业务记录",
+        "trigger": "选择当前精确已有记录并明确确认供应商删除",
+        "result": "仅指定对象被处理，本地计划停止和供应商删除结果分开保存；远端明确目标成功且未跳过才标已删，原记录/root/预算/证据保留。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-016",
+          "AC-024",
+          "AC-025",
+          "AC-052",
+          "AC-061",
+          "AC-073"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-010",
+        "operation": "回传原DCC来源每次结果",
+        "business_object": "原DCC来源准确结果及进度的交付记录",
+        "trigger": "本次记录或继承尝试可信保存为DCC且结果准确需要对外交付",
+        "result": "仅可信保存原DCC来源且精确关联的记录/继承尝试，向固定DCC接收端交付每次原结果、秒挂分类及处理进度；未知/失败保留同版本交付状态，补送不重导供应商。天网/手工只平台查看。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-018",
+          "AC-037",
+          "AC-071",
+          "AC-075"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-011",
+        "operation": "识别客户秒挂结果",
+        "business_object": "已准确关联真实客户呼叫的本地秒挂判定",
+        "trigger": "可信原呼叫字段或同call可信更新形成判定依据",
+        "result": "保存本方秒挂/非秒挂/待核三态及原真实call/供应商结果，平台可查看；无重提交或计划。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-004",
+          "AC-021",
+          "AC-022",
+          "AC-023",
+          "AC-024",
+          "AC-027",
+          "AC-034"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-012",
+        "operation": "接收并分类预测呼叫失败",
+        "business_object": "可信准确预测呼叫失败事件",
+        "trigger": "本次失败原始事件到达，包括无话单失败",
+        "result": "准确保存原原因与关联，分为呼叫过频正常规则、三类自动、八类人工或未知待核；分类本身不占补提交次数。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-003",
+          "AC-020",
+          "AC-033",
+          "AC-035",
+          "AC-063",
+          "AC-066"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-013",
+        "operation": "接收关联并归一呼叫结果",
+        "business_object": "每次供应商普通call/话单/SIP结果及其本地一致性状态",
+        "trigger": "新的普通call/话单/SIP、同对象可信晚更新或重复/未知证据到达",
+        "result": "每次可信普通呼叫及SIP准确关联后保存原始结果和本地版本；未知/真实冲突待核，重复复用原对象，不新增呼叫/计划或释放失败占用。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-002",
+          "AC-038",
+          "AC-035",
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-052",
+          "AC-062",
+          "AC-066",
+          "AC-067",
+          "AC-073",
+          "AC-078",
+          "AC-023"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-014",
+        "operation": "自动补提交三类失败客户",
+        "business_object": "三类可信失败的自动补提交对象",
+        "trigger": "准确新禁呼/限呼/外呼黑名单失败确认且累计额度/状态允许，到本次确认+120秒",
+        "result": "取得独占执行权后发起一次内部失败尝试并保存受理/拒绝/未知；不满足条件只等待、挂起、停止或待核。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-019",
+          "AC-020",
+          "AC-023",
+          "AC-025",
+          "AC-026",
+          "AC-027",
+          "AC-035",
+          "AC-052",
+          "AC-063",
+          "AC-064",
+          "AC-065",
+          "AC-066",
+          "AC-067",
+          "AC-068",
+          "AC-070",
+          "AC-072",
+          "AC-073",
+          "AC-074",
+          "AC-079"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-015",
+        "operation": "查询任务业务记录",
+        "business_object": "当前授权原任务业务记录",
+        "trigger": "进入/刷新原任务记录并按原记录分类查看",
+        "result": "返回本地导入、普通call/SIP、失败处理、秒挂三态和指定删除结果及精确关联/预算状态；未知如实展示，查询不隐式执行。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-014",
+          "AC-015",
+          "AC-019",
+          "AC-028",
+          "AC-029",
+          "AC-032",
+          "AC-038",
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-052",
+          "AC-059",
+          "AC-070",
+          "AC-078",
+          "AC-004",
+          "AC-025"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-016",
+        "operation": "创建任务并锁定初始导入来源",
+        "business_object": "新预外呼任务",
+        "trigger": "沿原任务向导确认创建",
+        "result": "沿原任务向导保存租户任务及接口/手工初始来源，提交后锁定；接口模式接受经授权DCC/天网，不绑定应用。正常重呼配置与固定失败规则沿用，创建失败不伪成功、不改历史来源。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-026",
+          "AC-027",
+          "AC-029",
+          "AC-036",
+          "AC-072",
+          "AC-077"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-017",
+        "operation": "接收并关联异步导入失败",
+        "business_object": "53异步导入失败分片",
+        "trigger": "初始或异常实际导入尝试的53失败分片到达",
+        "result": "保存准确导入失败、实际record/batch/root/attempt和已声明分片完整性；乱序迟到保留、重复不新增、冲突待核，不触发预测失败补提。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-039",
+          "AC-040",
+          "AC-041",
+          "AC-042",
+          "AC-043",
+          "AC-052",
+          "AC-063",
+          "AC-064",
+          "AC-066"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-018",
+        "operation": "查询应用列表",
+        "business_object": "应用及其租户授权配置",
+        "trigger": "进入应用接入菜单或查询/刷新列表时",
+        "result": "返回授权范围内应用列表或明确空结果，不泄露其他权限数据",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-044",
+          "AC-045",
+          "AC-053",
+          "AC-058"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-019",
+        "operation": "创建应用",
+        "business_object": "应用及其租户授权配置",
+        "trigger": "从应用列表进入新增并提交时",
+        "result": "保存独立应用及可访问租户，创建演示appId/appSecret并返回详情",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-017",
+          "AC-044",
+          "AC-045",
+          "AC-055",
+          "AC-058"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-020",
+        "operation": "查看应用详情",
+        "business_object": "应用及其租户授权配置",
+        "trigger": "从列表或创建/修改成功后进入指定应用详情时",
+        "result": "返回指定已保存应用详情及必要密钥查看反馈，不修改或重置应用",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-017",
+          "AC-044",
+          "AC-045",
+          "AC-054",
+          "AC-058"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-021",
+        "operation": "删除应用",
+        "business_object": "应用及其租户授权配置",
+        "trigger": "从列表或详情选择具体应用并确认删除时",
+        "result": "精确应用被删除，演示凭据及已发合成业务身份不可继续使用，其他对象保持",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-044",
+          "AC-045",
+          "AC-057",
+          "AC-058"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      },
+      {
+        "id": "FUNC-022",
+        "operation": "人工补提交八类失败客户",
+        "business_object": "八类已有可信失败记录",
+        "trigger": "选定准确已有八类失败对象并明确确认",
+        "result": "条件/权限满足时发起本次内部尝试，保留原root/来源并保存受理/拒绝/未知；否则拒绝或待核，重复确认复用同次。",
+        "owned_acceptance_ids_after_expected_cleanup": [
+          "AC-019",
+          "AC-023",
+          "AC-025",
+          "AC-035",
+          "AC-052",
+          "AC-064",
+          "AC-065",
+          "AC-066",
+          "AC-067",
+          "AC-068",
+          "AC-070",
+          "AC-073",
+          "AC-074",
+          "AC-076",
+          "AC-077",
+          "AC-078"
+        ],
+        "interpretation": "独立业务操作；字段、按钮、授权/幂等、技术API/来源策略与必要反馈作为明细或跨功能约束；共用实现不新增功能计数。"
+      }
+    ],
+    "acceptance_semantic_coverage": [
+      {
+        "acceptance_id": "AC-001",
+        "statement": "不同手机号形成独立批次，各批次带对应线索编码；R可选，提供则保留来源追踪，缺R不失败。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-002",
+        "statement": "接收线路侧每次可信话单/call/SIP及原始结果，精确关联保存，运营沿既有任务权限查看；可信原DCC来源结果交US-006回传。呼叫过频和任务配置状态仅交AliCti原生重呼，11类失败转异常策略，秒挂仅判定不额外提交；原生覆盖/执行权互斥仍待核。",
+        "current_related_functions": [
+          "FUNC-013"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-013"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-003",
+        "statement": "接收并保存可信准确预测呼叫失败原始原因，可信原DCC来源交US-006回传、天网与手工平台查看。无话单失败不等待客户状态推送或话单；准确稳定事件身份与原因映射仍待核。",
+        "current_related_functions": [
+          "FUNC-012"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-012"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-004",
+        "statement": "准确判定秒挂后保存真实呼叫、原话单、供应商原结果、本方秒挂/非秒挂/待核三态及证据；可信原DCC来源交US-006明确回传DCC、天网与手工仅平台查看。秒挂不生成平台重导计划，不再提交供应商。",
+        "current_related_functions": [
+          "FUNC-011",
+          "FUNC-015"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-011",
+          "FUNC-015"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-005",
+        "statement": "接口与原手工导入的R均可选来源元数据，无需字典/允许范围校验；未传不导致行失败，提供则保留追踪，priority独立。保留旧R，不新增默认R枚举；通用输入安全/长度等正式规范仍待核。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-006",
+        "statement": "每次有效手工新业务新增recordId和单手机号batchId，不覆盖旧记录，保存phone/leadCode/可选R；外部（DCC/天网）新业务与技术重传按US-010，分别新行映射/原映射回执。平台失败补提另存内部执行与必要单号子批，固定触发root，重复确认/事件不新交；手工界面不新增requestId/isNewBatch或主批控制。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-007",
+        "statement": "一次外部调用方（DCC／天网）传入多客户，某条上述记录校验失败时仅拒绝该条，其余有效记录继续导入并按手机号拆批，不因该条失败整请求业务回滚。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-008",
+        "statement": "运营人员在云呼叫中心下载导入失败记录；未下载记录不设固定到期、持续保留；仅可信成功下载后删除本次成功导出的失败明细和对应文件，不影响成功客户和必要业务状态；失败、中断或未知保留。异步失败按固定快照清理，后到新失败留待下次，已导出重复不再生成；去重、关联、分片、内部尝试及累计已用/未知占用不随明细删除。",
+        "current_related_functions": [
+          "FUNC-006"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-006"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-009",
+        "statement": "外部调用方（DCC／天网）接口每条业务导入priority必填，未传仅该条失败，不补默认值，其他有效记录继续；本次有效priority独立于R，平台按本次外部调用方（DCC／天网）传入值保存、排序并提交供应商，不强制继承之前批次priority。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-010",
+        "statement": "外部调用方（DCC／天网）接口同tenant/原supplierTaskId/leadCode固定phone的真实再次业务导入用新请求级requestId；有效新行创建新记录/单手机号batchId并归同组。isNewBatch=true另开独立主(root=batch)，false/未传有主则新子挂最近已保存同组主，无主自动首主；不要求外部调用方（DCC／天网）提供上一批次，不仅因同组历史相同而拒绝。同ID同归一后完整内容技术重传返原逐行映射，不新建重交。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-011",
+        "statement": "有效手工客户完成当前校验、本地新增独立记录及单手机号批次后，以该原任务已保存的准确供应商任务ID和最终priority自动提交供应商接口，无需运营再手动提交；不采用统一预设供应商任务、不猜任务映射。",
+        "current_related_functions": [
+          "FUNC-005"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-012",
+        "statement": "外部调用方（DCC／天网）推送携带供应商任务ID taskId；自动提交供应商时直接使用，不做本地任务ID映射，不采用统一预设任务。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-005"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-005"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-013",
+        "statement": "本地校验保存成功但供应商明确拒绝接收时，纳入导入失败记录，供运营下载并展示供应商返回失败原因。 同步及53异步明确导入失败均适用，未知不误判；导入失败与呼叫失败分开。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-006"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005",
+          "FUNC-006"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-014",
+        "statement": "本地保存原客户四字段、leadCode/最终priority/可选R、原任务、原导入/record/batch时间及实际供应商映射；接口来源保存requestId/行和验真原接入应用、受控来源/结果路由审计、实际record/batch/root，应用不是任务绑定。原时间仅审计不衰减；平台补提保存触发root/priority/共享连续额度/内部尝试及排队时间，新主不重置。秒挂保存判定/原结果/本地版本仅可信原DCC来源按US-006交付，天网与手工平台查看，无补提交记录。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-005",
+          "FUNC-015"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-005",
+          "FUNC-015"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-015",
+        "statement": "平台取消每日定时查询当天/历史待跟进号码状态及自然日priority衰减，不因未拨、已拨未接通、跨日或原导入日期计算改写存量priority；仅服务衰减的状态查询退出。既有每次可信事件、话单/SIP及无话单失败记录和平台查看继续保留。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-005",
+          "FUNC-015"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-005",
+          "FUNC-015"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-016",
+        "statement": "有该原任务操作权限的运营或管理员选择并明确确认当前指定记录的供应商号码删除；服务端逐次核实当前权限、授权租户/原任务及准确record/batch/已保存实际fileId/phone，不按leadCode、root或同号整组扩大。只有指定供应商目标明确成功才标已删；本地客户记录、原来源审计、主子root、精确供应商/通话映射、去重和累计已用/未知占用继续保留。删除/取消意图已授权且目标准确后阻断该对象尚未执行失败计划，不影响其他批次；不假造已受理或在途呼叫撤回。",
+        "current_related_functions": [
+          "FUNC-009"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-009"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-017",
+        "statement": "超管在系统设置应用接入中分别进行应用列表、详情、新增、修改和删除；DCC和天网分别使用独立应用凭据加tenantId换指定授权租户token，校验应用有权访问该租户并允许一租户多应用。业务接口按验真租户及可核实的原接入应用识别请求，任务归租户不绑定应用。来源应用由token/服务端可信上下文及受控登记取得，保存用于来源审计和逐记录回传筛选，不从显示名、body source或R推断；不加入业务组或共享失败次数键。日常页简化为密钥用于token，身份交换技术演示不占日常页面，不新增来源分类/回传开关UI。原型仅合成，生产凭证/token及可信app识别契约待核。",
+        "current_related_functions": [
+          "FUNC-001",
+          "FUNC-002",
+          "FUNC-019",
+          "FUNC-020"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-001",
+          "FUNC-002",
+          "FUNC-019",
+          "FUNC-020"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-018",
+        "statement": "仅可信保存为DCC原接入来源且结果精确关联的记录，向后台固定DCC地址回传每次准确原始结果与本方异常处理进度，保留失败原因、秒挂、话单/SIP及原finishRetryFlag；天网与手工来源仅在平台查看。筛选读取服务端保存的原应用/来源/路由事实，不按接口任务标签、root所属应用、body source、显示名或R猜DCC；关联或来源不足待核，不误投。无前台接收地址设置或任务应用绑定。DCC回传失败仅补送同一结果，不新增供应商提交。",
+        "current_related_functions": [
+          "FUNC-010"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-010"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-019",
+        "statement": "平台异常补提交保留触发记录原任务、来源及保存root，用内部计划/尝试标识，新子批固定原root不随后来新主改变。外部来源保留原已验证应用、requestId/行审计及逐记录交付关系，可信原DCC交US-006、天网平台查看；不伪造新的外部业务请求；独立内部执行继续遵守累计共享失败额度与UNKNOWN占用。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-005",
+          "FUNC-014",
+          "FUNC-015",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-005",
+          "FUNC-014",
+          "FUNC-015",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-020",
+        "statement": "可信准确的11类预测呼叫失败分类保存。禁呼、限呼、restrict tel即外呼黑名单三类从平台收到并确认每次失败起算120秒自动补提交，线路降级依赖供应商外显导航，不先取得解禁/降级成功回执；其余八类仅人工。自动/人工共享首次外最多2次，无话单可信失败直接记录；导航覆盖、配置、执行权和真实事件仍待核。",
+        "current_related_functions": [
+          "FUNC-012",
+          "FUNC-014"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-012",
+          "FUNC-014"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-021",
+        "statement": "先准确关联同一真实呼叫；整体归属或可信证据冲突先待核。客户真实接听、客户主动挂断、可信客户有效接通时长0～2秒含真实0及2分别为true/false/unknown：任一可信false即明确非秒挂，即使其余unknown；三项均可信true才为秒挂；无false且至少一项unknown则待核。缺失/异常/负时长或单位未核为unknown，不补0，不以坐席桥接时长替代，生产字段/单位/挂断枚举仍待核。",
+        "current_related_functions": [
+          "FUNC-011"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-011"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-022",
+        "statement": "秒挂不再提交重呼，不发放秒挂补提交额度、不设置等待间隔或计时器、不生成异常子批；撤销旧额外2次、30分钟和4次规则。失败链最多额外2次保持独立。",
+        "current_related_functions": [
+          "FUNC-011"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-011"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-023",
+        "statement": "每次本地结果保留tenant/原task/保存leadCode/fixedphone、record/batch/root和准确实际fileId、call或稳定事件关系；接口来源保留原requestId/行。平台失败补提另留触发事件/记录、计划和内部尝试，后有新主不改变旧root；缺callId不按最近同号/近似时间猜配，仅符合US-006可信原DCC筛选的准确结果交付，天网/手工平台查看。",
+        "current_related_functions": [
+          "FUNC-011",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-011",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-024",
+        "statement": "指定记录删除/取消不抹本地原秒挂话单、准确关联、已保存三态判定及本地版本，不影响其他任务/同号其他批次。秒挂无待执行补提交计划，供应商指定删除只复用US-008当前权限与精确选择范围；不新增秒挂停止API，远端在途能力继续待核。",
+        "current_related_functions": [
+          "FUNC-009",
+          "FUNC-011"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-009",
+          "FUNC-011"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-025",
+        "statement": "对已授权且准确指定的删除/取消目标，原子停止仅该对象尚未执行失败计划；供应商明确成功后本地标记该目标已从供应商删除，失败或未知保持真实状态。平台分别展示本地计划停止与供应商删除结果，保存原记录/root/预算和证据；不清root整组、不影响其他同号批次、不释放已用或未知占用。在途取消和并发受理仍待核，不假造远端撤回。",
+        "current_related_functions": [
+          "FUNC-009",
+          "FUNC-014",
+          "FUNC-015",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-009",
+          "FUNC-014",
+          "FUNC-015",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-026",
+        "statement": "三天五呼仅适用于任务重呼规则配置状态触发的正常重呼执行流程；呼叫过频只交任务规则，11类失败平台补提交不认作该次数。三天起算、五呼是否含初呼及跨子批延续口径仍待供应商确认，本平台不汇总改写为失败额外次数。",
+        "current_related_functions": [
+          "FUNC-014",
+          "FUNC-016"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-014",
+          "FUNC-016"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-027",
+        "statement": "三天五呼仅针对任务重呼配置状态触发的呼叫；失败自动/人工共享额外2次不认作该次数。秒挂仅判定保存、可信原DCC来源明确回传DCC，绝无平台秒挂重呼计数/额度/计划；供应商原生覆盖仍待核，不新增再导入或停止其原生重呼。",
+        "current_related_functions": [
+          "FUNC-011",
+          "FUNC-014",
+          "FUNC-016"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-011",
+          "FUNC-014",
+          "FUNC-016"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-028",
+        "statement": "预外呼导入、呼叫结果、失败处理及秒挂判定沿既有任务级记录页和任务区域，常驻导入客户入口及原手工大弹窗保持，不新增顶级运营入口；恢复系统设置应用接入列表/新增/详情/修改/删除与后台租户token，仅超管管理，现有登录/租户/任务权限沿用。",
+        "current_related_functions": [
+          "FUNC-015"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-015"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-029",
+        "statement": "预外呼“导入客户”入口常驻，本轮对已锁手工来源的任务打开既有手工导入。当前权限、只读或任务状态不可导入时保留禁用入口和原因，后端同时校验当前租户任务归属、来源与既有可导入状态；不通过按钮改变历史任务补导规则。历史接口来源记录保留，不切换为手工，不通过本轮新增名单混入。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-006",
+          "FUNC-015",
+          "FUNC-016"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-006",
+          "FUNC-015",
+          "FUNC-016"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-030",
+        "statement": "手工priority统一/逐条填写，仅提交前可改；确认时每个有效行最终priority必填，保存后单手机号独立拆批自动提交。提交后无人工改priority或日龄自动降级；本轮恢复原手工界面体验，统一/逐条调整留在原检查区，原客户信息保留；不新增对外请求或主子控制输入。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-031",
+        "statement": "手工线索导入必需线索编码，R可选且无需字典维护/范围校验；一手机号一批次，缺R不失败。恢复原基础信息、客户四字段、CSV文件上传/粘贴、检查与确认，仅增加已确认leadCode/priority/R，不以全新纯文本编辑器替换原流程；失败沿本次可信成功下载后的快照清理规则。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-006"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-006"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-032",
+        "statement": "不执行每日状态查询、自然日priority衰减或存量priority改写。失败補提交用触发记录保存priority并留原时间审计；秒挂仅判定保存，可信原DCC来源明确回传、天网与手工查看，不提交重呼。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-005",
+          "FUNC-015"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-005",
+          "FUNC-015"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-033",
+        "statement": "无话单可信失败独立本地保存，允许无通话ID，以准确稳定事件关联原记录；未知/未返回不伪造话单、callId或默认最后一通标识。",
+        "current_related_functions": [
+          "FUNC-012"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-012"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-034",
+        "statement": "能确认已接听、客户挂断且真实接听时长0秒，纳入秒挂；未接通、缺失或异常时长不纳入。",
+        "current_related_functions": [
+          "FUNC-011"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-011"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-035",
+        "statement": "关联不明、提交超时、状态未知或真正可信证据冲突保留待核，不伪造成功/失败/最终状态；重复及可信SIP晚更新沿同一已保存对象，不算新呼叫、不重新建立失败计划或发起供应商导入。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-012",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005",
+          "FUNC-012",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-036",
+        "statement": "创建任务时按既定来源选择外部接口或原手工导入，提交后锁定；服务端校验当前租户、原任务与已锁导入模式，任务归租户不绑定应用。外部接口来源接收经独立应用凭证及租户/原任务权限验证的DCC或天网同schema请求，逐记录保存可信原接入来源；手工来源沿原CSV/粘贴名单。历史任务模式和数据保持，无法核实旧来源/应用关系不猜配，不切换手工或以自由body来源混入；不新增DCC/天网任务应用绑定或新接收菜单。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-016"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-016"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-037",
+        "statement": "可信原DCC来源记录每次准确结果向后台配置文件固定DCC接收地址回传；天网及手工只在平台查看，不新增天网回调或对外查询接口。不新增前台或租户接收端设置、任务应用绑定；真实接收地址和正式联调待双方提供，本轮需求/原型仅合成。",
+        "current_related_functions": [
+          "FUNC-010"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-010"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-038",
+        "statement": "每次可信结果保存原供应商finishRetryFlag Integer1最后一条/0否，未知或未返回独立表示，与SIP更新分开；不能据该标志宣布任务结束或无在途。每次准确结果和可信晚更新均保存，可信原DCC来源交US-006回传，不只保存/回传最后一条。 天网与手工同样保存每次准确原结果及可信晚更新，仅平台查看，不向DCC交付。",
+        "current_related_functions": [
+          "FUNC-013",
+          "FUNC-015"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-013",
+          "FUNC-015"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-039",
+        "statement": "同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-040",
+        "statement": "接收53导入失败分片，按enterpriseId经核实租户映射、原taskId、实际fileId及原始号码数据精确回查本次记录、保存root和线索编码；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅是失败推送分片，不是业务批次；去重、乱序、迟到保留。收齐只证明已声明该失败推送组，不证明全导入终态；未收到不推定零失败。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-041",
+        "statement": "导入阶段明确失败保存并展示原始原因及准确tenant/原task/record/batch/root/leadCode/phone与实际fileId关联；无准确关联待核。可信原DCC来源按US-006回传准确导入失败，天网与手工仅平台查看；导入失败不计实际呼叫、不触发11类呼叫失败补提交，结果交付失败不重新提交供应商。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-042",
+        "statement": "既有失败导出入口生成本次固定失败明细快照并显示已知分片完整性；未收齐或未知显示不完整/待核。可信成功下载仅删除本快照明细与文件，失败、中断或未知保留，后到新失败进入后续下载；保留必要业务关联、去重、分片、计划/内部尝试、累计已用及未知占用，已导出重复不再生，不能清空整批客户。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-043",
+        "statement": "使用合成数据验收同步部分成功、53分片乱序/重复/迟到及精确关联、下载成功后新失败再次导出和旧重复不再生；可信原DCC来源结果/进度交付与天网/手工仅查看分别验收，补送不新增导入或呼叫。映射、分片声明或可信结果冲突待核，缺零失败/终态协议不伪造完成；本轮分析不执行真实供应商或DCC调用。 同一已验证外部应用技术重传不新发；不同应用同字面requestId独立处理；自由source/name/R或来源未核不能把天网结果送DCC。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-017"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-044",
+        "statement": "本期应用列表/查看/新增/修改/删除均仅超管可访问执行，非超管含租户管理员和普通运营不能通过菜单、直接页面或管理调用越权，拒绝不改配置。应用身份发放的租户业务权不能代替管理权限；不自动新增启停、重置、收费或管理权限授予操作。",
+        "current_related_functions": [
+          "FUNC-001",
+          "FUNC-018",
+          "FUNC-019",
+          "FUNC-020",
+          "FUNC-021"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-001",
+          "FUNC-018",
+          "FUNC-019",
+          "FUNC-020",
+          "FUNC-021"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-045",
+        "statement": "应用凭证加tenantId换租户token的业务鉴权不授予应用管理权，任务仍归租户不绑定应用；普通运营既有导入/失败下载不因超管CRUD限制移除。原型创建/查看仅不可用合成密钥与身份，不创建/重置真实凭证、不改真实账号权限；真实生成/存储/token时效和删除撤权后的失效能力待技术核实。 DCC/天网独立应用身份不赋予平台运营/管理员权限；天网在平台查看仍沿已有登录及原任务权限。仅能识别tenant而不能确定原应用的生产token不足以判定来源，不猜唯一应用/默认DCC或用自由body来源补齐；真实token/会话如何保留稳定应用身份仍待工程核验。",
+        "current_related_functions": [
+          "FUNC-001",
+          "FUNC-002",
+          "FUNC-018",
+          "FUNC-019",
+          "FUNC-020",
+          "FUNC-021"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-001",
+          "FUNC-002",
+          "FUNC-018",
+          "FUNC-019",
+          "FUNC-020",
+          "FUNC-021"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-046",
+        "statement": "同一任务的待提交号码按优先级高先提交，同优先级按本地导入时间FIFO；不同任务独立。已提交不撤回重排，提交结果未知不为重排重复提交；一手机号一批次及priority透传保持，不承诺实际拨打顺序。",
+        "current_related_functions": [
+          "FUNC-005"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-047",
+        "statement": "外部调用方（DCC／天网）每次业务请求携请求级requestId，可多行/不同线索组；每行明确行定位、leadCode、phone、本次priority和可选Boolean isNewBatch，missing=false。新业务用新ID，所有有效新行均新recordId和独立单手机号batchId并保存rootBatchId；逐行回执同requestId及行定位，主子都不覆盖旧记录。false/缺省复用的是主批关联，不重用旧record/batch编号。 DCC和天网使用同一导入payload schema及逐行接收回执语义，分别以独立应用凭证鉴权；可信原接入应用和受控登记的来源/交付策略在记录保存时固定，body来源字段、应用显示名或可选R不得决定或伪造DCC回传。天网不新增外部结果推送或查询功能。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-048",
+        "statement": "仅外部调用方（DCC／天网）新业务有效行进行主子分配：同tenant/原supplierTaskId/leadCode组首次固定phone；true允许同组另开独立主(rootBatchId=batchId)。false/缺省有已保存同组主时新子root=最近主batch，无主自动首主root=batch。最近主按本地主批创建顺序/稳定顺序确定，不按最近同号/结果时间/priority/子批，子不挂上一子。外部调用方（DCC／天网） previousBatchId和parentBatchId不为本方必需请求/响应，也不暗中虚构parent。 应用是来源身份与路由审计，不成为业务归组键；业务身份准确相同的记录保持现行主子关系，各记录仍保留自己的原来源，不能用根批所属应用决定子记录回传。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-049",
+        "statement": "外部调用方（DCC／天网）新请求逐行校验tenant/原supplierTaskId/leadCode归属及固定phone；同组改号、归属冲突、历史组/主关系不明拒绝或待核不提交，其他有效行继续。跨tenant/原task隔离；同号多lead的准确身份/历史映射不能猜配。isNewBatch=true不绕过校验、不重置正常任务轮次或SRC-109已确认的四元组共享失败额度；flag提供必须Boolean，缺省false与显式false有效内容相同，不要求上一批字段。 请求鉴权与可信应用来源先于逐行处理；不能核实应用身份/登记时拒绝或待核，不猜应用、不默认DCC、不按tenant/task/同号或R推断。来源应用不分割已确认的业务组或失败四元组，跨来源确属同一业务四元组仍共享额度；历史业务身份冲突不猜配。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-050",
+        "statement": "外部调用方（DCC／天网）鉴权及租户/原任务归属后，先将各行missing isNewBatch归一false并在已验证调用应用的请求作用域内按requestId核对完整有效内容。同ID同归一后完整请求技术重传返原逐行接收结果、requestId+行定位+recordId/batchId/rootBatchId（含原失败/待核行），不重拆/新增/重交/新增实际呼叫。仅新ID才归组与主子分配；首导自动主或后来新主出现，旧请求重传仍原root，不重新选最近主。供应商证据独立保留，未知提交不因重传重交。 DCC与天网即使requestId字面相同也不共享另一应用的回执/映射或当成技术重传；同一应用更换有效token仍复用同请求作用域。命名空间不能用应用显示名、可选R、调用方自由source字段或临时token字串代替可信稳定应用身份。 技术建议采用tenant＋验真稳定app＋operation＋requestId命名空间；正式键、历史兼容及身份传递待S4/工程核验，本项不宣称已实现。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-051",
+        "statement": "同一已验证调用应用作用域内已保存requestId的外部调用方（DCC／天网）重复请求，missing isNewBatch=false归一后完整有效内容不同（行数/行定位、tenant/原任务及各行leadCode/phone/priority/归一flag/已给R等业务字段），明确内容冲突并拒整个重复请求，不覆盖原逐行结果、不为任何行新增批次或提交。修改号码/priority/flag不能冒充技术重试；未传与显式false归一相同，true与false不同。 不把另一应用的同ID当本应用内容冲突或返回另一应用结果；鉴权与当前tenant/task/source权限不得被重复请求查找绕过。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-052",
+        "statement": "每次结果按保存record/batch/root、原任务/原号码、实际fileId及可信callID或稳定事件精确匹配后保存；leadCode不能替代供应商/呼叫匹配。外部来源保留原已验证应用、requestId和行定位及逐记录路由事实，手工不新增外部协议；映射和审计不因下载/删除丢失，重复与可信晚更新不新增导入/呼叫/失败计划。内部补提固定触发记录原root；可信原DCC准确结果按US-006回传，天网/手工平台查看；原来源或精确关联不足待核，不猜/default DCC。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-006",
+          "FUNC-009",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-015",
+          "FUNC-017",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-006",
+          "FUNC-009",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-015",
+          "FUNC-017",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-053",
+        "statement": "超管可独立进入应用列表，看到已保存应用的名称和appId及详情、修改、删除入口，并可发起新增；没有应用时显示空列表和新增入口。列表读取不创建、修改或删除应用。无管理权限的身份不能通过菜单、直接页面或模型/服务端调用读取该管理列表。",
+        "current_related_functions": [
+          "FUNC-018"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-018"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-054",
+        "statement": "超管可对列表中的具体应用独立查看详情，准确显示该应用名称、appId、密钥与可访问业务租户，并可返回列表；查看不修改凭证或授权。不可用演示密钥须有必要提示；不存在或已删除的目标不显示其他应用详情。",
+        "current_related_functions": [
+          "FUNC-020"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-020"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-055",
+        "statement": "超管可独立新增应用，填写应用名称并选择可访问业务租户；有效保存后形成一个新应用及其appId/密钥，能在列表和详情查看；取消或保存失败不生成虚假的已保存应用。凭证业务用途为获取指定授权租户token，租户范围仍校验；原型仅生成不可用合成凭证。",
+        "current_related_functions": [
+          "FUNC-019"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-019"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-056",
+        "statement": "超管可独立修改已存在的具体应用名称和可访问业务租户；保存成功后列表及详情一致更新，appId及原密钥保持，不随普通修改自动重置。取消、目标不存在或保存失败保持原配置；撤销租户授权后合成模型拒绝该应用旧身份继续访问该租户，其他应用/仍授权租户不受误改。",
+        "current_related_functions": [
+          "FUNC-001",
+          "FUNC-002"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-001",
+          "FUNC-002"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-057",
+        "statement": "超管可针对具体应用独立发起删除并确认，取消不删除；保存成功后该应用从列表消失且不能再查看/修改或以其旧凭证获取新身份，合成模型使该应用已发身份失效。只作用选定应用，其他应用配置和身份不受影响；保存失败不先撤销身份或显示删除成功。已有业务任务、导入记录和结果/必要来源审计保留，不随删除应用级联删除。",
+        "current_related_functions": [
+          "FUNC-002",
+          "FUNC-021"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-002",
+          "FUNC-021"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-058",
+        "statement": "应用列表、新增、详情、修改等日常页面去掉非必要技术解释，以应用与接入密钥业务信息表达用途：生成密钥用于获取token。合成身份交换技术演示移出日常应用页，必要的演示密钥不可用提示保留；底层租户授权/业务身份与管理权限分离、普通修改不重置密钥的边界继续校验。",
+        "current_related_functions": [
+          "FUNC-001",
+          "FUNC-002",
+          "FUNC-018",
+          "FUNC-019",
+          "FUNC-020",
+          "FUNC-021"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-001",
+          "FUNC-002",
+          "FUNC-018",
+          "FUNC-019",
+          "FUNC-020",
+          "FUNC-021"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-059",
+        "statement": "预外呼任务列表和任务内“导入客户”入口常驻，按所选任务已锁定来源使用对应既有入口；手工来源保持原大弹窗，接口来源不混入手工名单，不切换来源。无权/只读/状态不允许保持禁用及原因；历史可补导任务仅未启动状态沿原权限/名单策略，保留旧名单批次累计，不借入口扩大启动后的初始导入策略。供应商运行任务接收矩阵仍待核。",
+        "current_related_functions": [
+          "FUNC-004",
+          "FUNC-015"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004",
+          "FUNC-015"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-060",
+        "statement": "原手工导入的上传/粘贴内容、检查结果和最终行编辑必须绑定同一当前草稿；换文件、改文本、检查失败/空结果使旧预览失效。提交处理中锁定，落账前复核身份、任务、当前输入与优先级；取消不提交旧名单。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-061",
+        "statement": "指定供应商删除切换目标记录或供应商结果样例时清除此前反馈，不把旧成功/失败显示为当前选择已处理。新操作由当前原任务权限的运营/管理员选择准确record/batch/fileId/phone并确认，服务端同时核实租户任务和当前权限；旧对象已保存删除证据继续留在旧记录。tels优先于fileId/fileName，不按AND交集选择；仅实际fileId独占精确单号目标时可采用不同时传tels的taskId+fileId候选，共享fileId多尝试不能精确定位则不外发。result=0可能跳过目标，必须核skippedCallingTels；skipRetry不保证取消原生重呼，正式skip选择及在途能力仍待核，不默认新增远端撤回。",
+        "current_related_functions": [
+          "FUNC-009"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-009"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-062",
+        "statement": "未可信纯SIP独立保留待核来源证据，不改已确认呼叫结果、不冒充可信非SIP冲突、不阻止随后准确可信call/SIP更新。验收未可信SIP→可信call→可信SIP及可信call→未可信SIP→可信SIP两种顺序：无其他真实可信矛盾时更新同一原call的SIP字段和本地版本，不新增呼叫；真正可信关联或非SIP结果冲突仍待核。",
+        "current_related_functions": [
+          "FUNC-013"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-013"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-063",
+        "statement": "除呼叫过频外11类失败：禁呼、限呼、restrict tel三类自动，其余无可用中继/bad tel/真实号码为空/no clid/bad clid/无可用中继信息/wrong obClidGroup/bad timeout range八类人工。过频只任务规则；未知原因、同步导入拒绝、53不进本策略。接口结果交付失败只补送，不能生成新的失败补提交。",
+        "current_related_functions": [
+          "FUNC-012",
+          "FUNC-014",
+          "FUNC-017"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-012",
+          "FUNC-014",
+          "FUNC-017"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-064",
+        "statement": "自动三类和人工八类按同租户＋原任务＋服务端已保存线索编码＋固定手机号累计，共享首次外最多2次失败补提交；另开主批、新子批、新fileId、原因、方式或操作人变化不重置。实际新的业务补提交发起占一次，明确接收或拒绝均计，未知保留占用待核；首次导入不计额外失败次数，正常任务重呼独立，秒挂无补提交。历史四元组或累计账不可恢复先待核，不以业务编码/空值/新root或新生成线索编码默认发2次；既有外部新业务记录亦不重置保存的累计账。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-014",
+          "FUNC-017",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-014",
+          "FUNC-017",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-065",
+        "statement": "自动3类等待2分钟，依赖供应商外显导航降级线路，平台不直接换主叫、不自动修改priority，也不自行解禁。2分钟从平台收到并确认每次准确失败结果起算；导航覆盖/生效和同号再次接收未核时不能宣称生产可执行。人工8类由有权任务处理用户核对资源、数据或配置后明确发起，不要求全部等待2分钟，不静默修改真实phone。",
+        "current_related_functions": [
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-066",
+        "statement": "同一准确失败事件最多形成一份有效自动计划或待人工对象；重复推送、重复确认、SIP晚更新不重建、不重复消耗额度、不重启计时，自动/人工并发沿同一独占执行守卫。120秒取首次保存本次准确失败确认时间，新的真实补提失败才按新确认时间起下一轮，额度延续；事件身份或提交未知保持同尝试占用待核。",
+        "current_related_functions": [
+          "FUNC-006",
+          "FUNC-012",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-017",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-006",
+          "FUNC-012",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-017",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-067",
+        "statement": "同一次后续执行在AliCti任务原生重呼与本方异常补提交之间保持互斥；不能按未查到话单、缺finishRetryFlag或单一最后标志推定无在途重呼。未核执行权时保持待核，不保证安全重提。",
+        "current_related_functions": [
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-068",
+        "statement": "触发M1的失败迟到且本地已保存M2时，本方补提交单号子批仍关联触发记录保存的M1 root，不改挂最近主；本地新增内部触发事件/尝试映射，不新增第三层业务批次，不按root分别发额度。手工不增加主批选择控制字段，可信历史root不足先待核。",
+        "current_related_functions": [
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-069",
+        "statement": "原客户称呼、客户号码、联系备注、对应业务编码完整保留为导入记录信息；线索编码与原业务编码不默认合并。新增leadCode/priority/R后仍支持原CSV选文件和粘贴输入，新增字段校验不能通过抛弃原信息实现。",
+        "current_related_functions": [
+          "FUNC-004"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-004"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-070",
+        "statement": "既有任务记录显示失败原始原因、三类自动/八类人工方式、四元组跨主批共享额外2次的已用/剩余及未知占用、本次确认时间和仅自动的+120秒到期，以及待人工/待核/执行中/受理/停止和触发root/fileId。八类在准确原记录提供沿任务现有权限的人工重提交入口；秒挂只展示三态和原话单，无额度、计划、倒计时或重提入口。",
+        "current_related_functions": [
+          "FUNC-014",
+          "FUNC-015",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-014",
+          "FUNC-015",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-071",
+        "statement": "可信原DCC来源记录每次准确结果与本方处理进度回传固定DCC接收端，DCC只接收不调度补提；天网及手工仅平台查看。内部自动/人工补提沿触发记录已保存原来源继承，不因执行者变为平台/运营或后来同root新记录改变回传目标。回传失败的补送只重复交付同一结果，不重新导入供应商。正式报文/ACK仍待核。",
+        "current_related_functions": [
+          "FUNC-010"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-010"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-072",
+        "statement": "正常任务重呼配置保持；失败三类自动120秒/八类人工共享首次外2次；秒挂仅结果且可信原DCC来源明确回传，无补提次数/等待参数。复用既有任务来源选择和记录区域，接口/手工初始来源提交后锁定，不新增顶级菜单或任意改自动范围/上限的发布配置。 DCC与天网共用外部接口模式和接收功能，结果只按各准确记录保存原来源筛选，天网不回传；任务仍不绑定应用。",
+        "current_related_functions": [
+          "FUNC-014",
+          "FUNC-016"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-014",
+          "FUNC-016"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-073",
+        "statement": "自动3类计划到期或人工8类明确发起时，在失败额度可用、关联准确、任务可执行及供应商执行权不冲突的条件下，实际发起一次并占用一次。成功/失败均计数，未知保留占用待核，不自动释放再发。暂停挂起、终止停止尚未执行计划，恢复后重新核查；人工不能绕过停止状态或次数，在途/技术传输恢复仍待核。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-009",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-009",
+          "FUNC-013",
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-074",
+        "statement": "本方自动或人工失败补提交保留原任务、触发记录保存priority和来源时间，按同任务待提交priority高先/同级本次排队FIFO；不因人工、导航降级或后来新主重取priority，不日衰减，已受理不撤回重排，未知不为排序重发。",
+        "current_related_functions": [
+          "FUNC-005",
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-014",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-075",
+        "statement": "仅可信原DCC来源记录，对准确秒挂输出明确的本方结果分类使DCC能辨认；天网与手工保存相同秒挂/非秒挂/待核三态及证据供原权限平台查看。保留原供应商结果、话单/call和保存request/行、实际batch/root及可信原应用来源。具体正式字段名、枚举和版本/ACK待接口核验，不能假称AliCti已有秒挂枚举；未知不标秒挂。重复/可信晚更新复用同一对象及原来源，交付失败仅补送结果，绝不提交供应商、计时或新建子批。",
+        "current_related_functions": [
+          "FUNC-010"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-010"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-076",
+        "statement": "其余8类失败仅提供人工重提交，不生成自动2分钟计划。用户明确选择当前失败记录并确认，操作仅补提交该记录，不新增或编辑一份客户名单，不静默更换真实phone。",
+        "current_related_functions": [
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-077",
+        "statement": "人工补提交沿原任务现有操作权限，在授权tenant/task内有权运营和管理员处理八类已保存失败，逐次核当前权和准确对象；包括接口来源已保存失败，不等于向DCC开放人工重提接口或应用token授予内部运营权限。保留原来源/request审计和触发root，创建内部尝试/必要子批，不迁来源、不伪造新的外部（DCC/天网）请求或给真实账号新权。 保存并继承触发记录验真原来源；DCC进度沿US-006交付、天网仅平台查看，运营操作者或共享root不改变原来源。",
+        "current_related_functions": [
+          "FUNC-016",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-016",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-078",
+        "statement": "人工与自动失败按同租户+原任务+线索编码+固定手机号共享首次外2次，另开主批也不重置。额度用尽、已有占用/未知、任务暂停/终止或当前任务权限不足时按钮不可执行并说明原因。双击/并发/重复反馈不产生额外一次，原因/方式/操作人变化不重置；服务端同步校验，不能仅前端禁用。",
+        "current_related_functions": [
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-022"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-022"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      },
+      {
+        "acceptance_id": "AC-079",
+        "statement": "3类自动补提交的线路降级由供应商外显导航承担，本平台只按策略补提交并记录结果，不承诺一定换线路或换主叫、不增加本方解禁接口。导航配置、生效时点、3类覆盖和排重/原生重呼交互在G2核验前保留partial/missing。",
+        "current_related_functions": [
+          "FUNC-014"
+        ],
+        "after_expected_cleanup_related_functions": [
+          "FUNC-014"
+        ],
+        "semantic_assessment": "覆盖；复合AC按已明确多个主操作/公共约束组合承接，不把共享校验或同一API调用重复计为新的业务操作。"
+      }
+    ],
+    "known_root_finalization_not_new_scope_problems": {
+      "current_deferred_fields_old_G2_and_phase": "root已明确会保历史后修订，未作为新增业务问题或据此要求重跑S1/G2",
+      "current_stale_deferral_impact_fields": [
+        {
+          "path": "features[FUNC-006].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        },
+        {
+          "path": "features[FUNC-009].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        },
+        {
+          "path": "features[FUNC-011].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        },
+        {
+          "path": "features[FUNC-012].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        },
+        {
+          "path": "features[FUNC-013].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        },
+        {
+          "path": "features[FUNC-014].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        },
+        {
+          "path": "features[FUNC-015].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        },
+        {
+          "path": "features[FUNC-016].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        },
+        {
+          "path": "features[FUNC-017].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        },
+        {
+          "path": "features[FUNC-022].change_detail.impact[0]",
+          "old": "DCC及应用子范围延期，保留共享本地能力和稳定ID",
+          "root_known_metadata_cleanup": true,
+          "suggested": "SRC115恢复DCC完整闭环及应用，本次SRC116纳入天网共用导入；原本地能力、权限、额度/root和供应商缺口保持。"
+        }
+      ],
+      "pending_actual_S5_operation_source_binding": [
+        "FUNC-001",
+        "FUNC-002",
+        "FUNC-004",
+        "FUNC-005",
+        "FUNC-006",
+        "FUNC-009",
+        "FUNC-010",
+        "FUNC-011",
+        "FUNC-012",
+        "FUNC-013",
+        "FUNC-014",
+        "FUNC-015",
+        "FUNC-016",
+        "FUNC-017",
+        "FUNC-018",
+        "FUNC-019",
+        "FUNC-020",
+        "FUNC-021",
+        "FUNC-022"
+      ],
+      "FUNC010_source_sequence007": "当前SEQ007仅下载/保留已有交付证据，无API010发送；正式回绑时应作为依赖/状态保护，不能用于证明010对外交付操作。实际消息应绑定001002003004，完整导入53路径以owner最终源为准。"
+    },
+    "no_other_required_semantic_repairs_found": true,
+    "no_formal_S7_pass_claimed": true,
+    "limits": [
+      "只读候选/当前业务事实及必要消息，未改候选或正式项目、门禁、接口事实。",
+      "不新建模型/代理，不浏览器或真实接口；不是G3冻结、风险接受或生产证明。",
+      "本报告attention针对尚待root正式修订的已定位两项；真实粒度与79AC覆盖已核对，修后再绑定实际最终源。"
+    ],
+    "sources_stable_at_report": true
+  },
+  "independent_findings_disposition": {
+    "S7-FUNC005-REUSE-CONFLICT": "resolved_exact_requested_text",
+    "S7-FUNC005-AC-OWNERSHIP": "resolved_dependency_only_79AC_remain",
+    "FUNC010_SEQ007": "dependency_only_no_delivery_operation_claim",
+    "historical_deferral": "history_preserved_current_metadata_updated"
+  },
+  "independent_final_review": {
+    "audit": "SRC116_S7_final_targeted_independent_fix_review@1",
+    "generated_at": "2026-10-13T21:59:55.934464+08:00",
+    "result": "pass",
+    "source_sha256": {
+      "memory/feature-list.json": "546768c8f3ec2d4148ef1cab4f4b062493f78cfa888eef5c5b5c38b4c46aea51",
+      "planning/page-index.json": "e27a904b84fcdf9865d0ef6b4ec46195bc85bd0b3982ee19ff80092bcfe0d132",
+      "memory/normalized-user-stories.json": "70ed0820162dca9fe8a4893f801c655788c18c20828a1a176c50f922045e19d0",
+      "interfaces/interface-index.json": "1c77fb05d16ce37200ea6b4149f1a043eeb70e07e2076eff1392f78ce1ee6cca",
+      "runtime/tianwang-g2-user-approval-20261013.json": "4b7fee384e634cbe60c7cdcd71f333c4b12b1e0b90c2e17352e513d287d1de42",
+      "sequences/SEQ-001.json": "9000266c4b18f84e538ac4dff29e7e0d144f062f9751fd2ccece366b6ec1aac8",
+      "sequences/SEQ-002.json": "cc28275807d136a2edc109169847d70b712694dd323d7808de383634064abc10",
+      "sequences/SEQ-003.json": "aa5702bd584e3fc15d3c2ca1de51099784222a6bd4cd703fa4b95d4d3dba4a88",
+      "sequences/SEQ-004.json": "6a22ea066c6fd472b4eb926187afedef045a9db8a80cef273f6f0f5510b5952c",
+      "sequences/SEQ-005.json": "28147d17bbea890f2c3ac565f5ab8d82a77a280c09f478b8c91e68cfcf1ab352",
+      "sequences/SEQ-006.json": "853707d0d8b7c8c2ddb29c1e93247e57bc9f96a85a5eae69ee191e516b3ef3ad",
+      "sequences/SEQ-007.json": "208b3e13a2951702ebfe735ca1e9cc3d130ab98a0164805b61000a05cd59b0c6",
+      "sequences/SEQ-009.json": "929ff06d3e0d92d1fd050b930db8923bd47b247aa54e8e172e37bb1bcbbe4a5d"
+    },
+    "prior_report": {
+      "path": "/private/tmp/tianwang-s7-feature-independent-review-20261013.json",
+      "sha256": "f1036449b332217a180edf85065c4eed75f25fc84013980a12fb5dff2ac66d4a",
+      "fixed_issue_ids": [
+        "S7-FUNC005-REUSE-CONFLICT",
+        "S7-FUNC005-AC-OWNERSHIP"
+      ]
+    },
+    "counts": {
+      "checks": 14,
+      "failed": 0,
+      "features": 19,
+      "acceptance": 79
+    },
+    "checks": [
+      {
+        "check": "014 old005 wording corrected exactly",
+        "passed": true,
+        "evidence": {
+          "field": "FUNC014.boundary.split_rationale",
+          "replacement": "仅复用API-002技术调用；本次异常受理/拒绝/未知结果归FUNC-014，与独立人工FUNC-022共享累计账，不触发或另计初始FUNC-005。"
+        }
+      },
+      {
+        "check": "022 old005 wording corrected exactly",
+        "passed": true,
+        "evidence": {
+          "field": "FUNC022.boundary.included_scope[5]",
+          "replacement": "双击并发复用，仅复用API-002技术调用；本次异常结果归FUNC-022，不触发或另计初始FUNC-005。"
+        }
+      },
+      {
+        "check": "005 sourceAC removes073074 while dependency preserves both",
+        "passed": true,
+        "evidence": {
+          "owned": [
+            "AC-011",
+            "AC-013",
+            "AC-014",
+            "AC-015",
+            "AC-019",
+            "AC-032",
+            "AC-035",
+            "AC-039",
+            "AC-040",
+            "AC-041",
+            "AC-042",
+            "AC-043",
+            "AC-046",
+            "AC-064",
+            "AC-012"
+          ],
+          "dependency": [
+            "AC-073",
+            "AC-074"
+          ]
+        }
+      },
+      {
+        "check": "014/022 keep actual073074 main acceptance",
+        "passed": true,
+        "evidence": {
+          "functions": [
+            "FUNC014",
+            "FUNC022"
+          ],
+          "AC": [
+            "AC073",
+            "AC074"
+          ]
+        }
+      },
+      {
+        "check": "same19 stable functions and all79 acceptance remain",
+        "passed": true,
+        "evidence": {
+          "features": 19,
+          "AC": 79,
+          "uncovered": [],
+          "unknownrefs": []
+        }
+      },
+      {
+        "check": "FUNC010 currentowned seq0012/3/4 only; 007 dependent retention",
+        "passed": true,
+        "evidence": {
+          "owned": [
+            "SEQ-001",
+            "SEQ-002",
+            "SEQ-003",
+            "SEQ-004"
+          ],
+          "dependency": [
+            "SEQ-007"
+          ]
+        }
+      },
+      {
+        "check": "FUNC002 owned onlySC005SEQ005 and ingress001 dependent",
+        "passed": true,
+        "evidence": {
+          "owned": [
+            "SEQ-005"
+          ],
+          "dependency": [
+            "SEQ-001"
+          ]
+        }
+      },
+      {
+        "check": "ACTION006 result-query primary015 background005017 no013",
+        "passed": true,
+        "evidence": {
+          "primary": [
+            "FUNC-015"
+          ],
+          "backend": [
+            "FUNC-005",
+            "FUNC-017"
+          ],
+          "UI_initiated_API": []
+        }
+      },
+      {
+        "check": "ACTION025 manual022 background010 no005",
+        "passed": true,
+        "evidence": {
+          "primary": [
+            "FUNC-022"
+          ],
+          "backend": [
+            "FUNC-010"
+          ],
+          "manual_actual_API002_is_detail": true
+        }
+      },
+      {
+        "check": "both repairedACTION evidence actualsource/messageIDs/SHAs/APIs match",
+        "passed": true,
+        "evidence": []
+      },
+      {
+        "check": "affectedFUNC currentS5 sourcebindings precise",
+        "passed": true,
+        "evidence": []
+      },
+      {
+        "check": "current fields removed olddeferral/phase while history retained",
+        "passed": true,
+        "evidence": []
+      },
+      {
+        "check": "allcurrentFUNC actualG2 evidence/fingerprint no inheritedold approval",
+        "passed": true,
+        "evidence": {
+          "wrong_current_FUNC": [],
+          "current_interface_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d"
+        }
+      },
+      {
+        "check": "currentS7 source labels notfrozen productiongaps retained",
+        "passed": true,
+        "evidence": {
+          "artifact_kind": "current_S7_feature_baseline_unfrozen",
+          "G2_evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+          "G3": "pending",
+          "production_evidence": "13high_4medium_open"
+        }
+      }
+    ],
+    "actual_problems": [],
+    "limitations": [
+      "仅前次报告两项修复、已指明延期/G2清理和受影响功能/操作源绑定，不重跑全量分析或模型。",
+      "不改共享/门禁/接口事实，不触发S8或真实调用。",
+      "S7修复核验pass不等于S8生产证据通过、G3冻结或风险接受。"
+    ],
+    "sources_stable_during_targeted_audit": true
+  }
+}

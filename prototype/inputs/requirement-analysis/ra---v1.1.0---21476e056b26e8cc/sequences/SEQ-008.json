@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-008",
+  "scenario_id": "SC-001",
+  "name": "北京时间自然日状态跟进与priority降级",
+  "participants": [
+    {
+      "id": "ui",
+      "name": "运营界面（合成模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti（模拟返回/未实接）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "service",
+      "to": "vendor",
+      "message": "合成查询当天/历史待跟进号码状态；全集/状态枚举待核",
+      "type": "external_call",
+      "api_id": "API-005",
+      "condition": "每日执行时刻由开发核实；排除已供应商删除"
+    },
+    {
+      "step": 2,
+      "from": "vendor",
+      "to": "service",
+      "message": "返回可信未拨/已拨未接通或未知状态",
+      "type": "response",
+      "api_id": "API-005",
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "service",
+      "to": "vendor",
+      "message": "合成补充查询预测话单；无话单不直接判未拨",
+      "type": "external_call",
+      "api_id": "API-004",
+      "condition": "需核验实际通话状态"
+    },
+    {
+      "step": 4,
+      "from": "vendor",
+      "to": "service",
+      "message": "合成通话结果及关联；未知不触发确定降级",
+      "type": "response",
+      "api_id": "API-004",
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "service",
+      "to": "service",
+      "message": "按北京时间原导入自然日每天降1，最低1；同日重复运行不重复扣级",
+      "type": "internal",
+      "api_id": null,
+      "condition": "可信符合每日跟进状态"
+    },
+    {
+      "step": 6,
+      "from": "service",
+      "to": "vendor",
+      "message": "合成修改具体记录priority，存量更新契约待核",
+      "type": "external_call",
+      "api_id": "API-005",
+      "condition": "目标priority已计算"
+    },
+    {
+      "step": 7,
+      "from": "service",
+      "to": "ui",
+      "message": "显示原日期/当前priority/状态或待核原因，重呼批次继承不重置",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+    "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+    "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070"
+  ]
+}

@@ -1,7 +1,7 @@
 /* Isolate this prototype and losslessly compact its large JSON journals. */
 (() => {
   'use strict';
-  const prefix = 'alicti-demo-v2:', packedPrefix = '\u001ealicti-json-dict-v1:';
+  const prefix = 'alicti-v1.1.0-dcc-e6baadcf:', packedPrefix = '\u001ealicti-json-dict-v1:';
   const compactKeys = new Set(['customer-task-batches-v1', 'local-task-result-journal-v1', 'customer-directory-v1']);
   const proto = Storage.prototype;
   const get = proto.getItem, set = proto.setItem, remove = proto.removeItem, key = proto.key;

@@ -10,11 +10,25 @@
   function sortRowsForDisplay(list){return sorted(list.map(row=>({...row,localUpdatedAt:rowUpdatedTime(row)})));}
   function batchUpdatedTime(batch){return latestTime([batch.updatedAt,batch.createdAt,...(batch.rows||[]).map(rowUpdatedTime)]);}
   let assignment=null,importTaskContext=null;
-  function taskOptions(method,b){return CloudCallData.tasks.filter(t=>t.tenantId===b.tenantId&&t.enterpriseId===b.enterpriseId&&t.callType===method&&['待分配客户','待启动'].includes(t.status)&&!Number(t.completed));}
+  function taskOptions(method,b){return CloudCallData.tasks.filter(t=>t.tenantId===b.tenantId&&t.enterpriseId===b.enterpriseId&&t.callType===method&&['待分配客户','待启动'].includes(t.status)&&!Number(t.completed)&&guardLegacyTask(t,b,false));}
   const now=()=>new Date().toLocaleString('sv-SE'),id=()=>crypto.randomUUID();
   const ctx=()=>AppState.get(),manager=()=>AppState.effectiveAccess().valid&&['ADMIN','SUPER_ADMIN'].includes(AppState.effectiveAccess().roleCode);
   const valid=()=>AppState.isReady()&&AppState.effectiveAccess().valid&&ctx().activeDomain==='CLOUD_CONTACT_CENTER';
   function canImportCustomers(){return valid()&&AppState.canAction('customer.import');}
+  // Resolve row/transaction targets against the task catalog; a forged copy cannot remove the managed marker.
+  function guardLegacyTask(taskOrId,where={},notify=true){
+    const identity=typeof taskOrId==='string'?{...where,taskId:taskOrId}:taskOrId;
+    if(identity?.dccManaged===true){if(notify)showToast('本版任务已锁定导入来源，请使用任务的线索导入入口；旧名单与再次联系不能写入。','warning');return false;}
+    if(!identity?.taskId)return true;
+    let stored=[];try{stored=window.CloudTaskWorkspace?.storedTasks?.()||[];}catch(_){}
+    const candidates=[identity,...[CloudCallData.tasks,CloudCallData.predictiveTasks,CloudCallData.ivrTasks,stored].flatMap(list=>list||[]).filter(task=>task.taskId===identity.taskId)];
+    for(const task of candidates){
+      const result=window.DccRuntime?.guardLegacyWrite?.(task);
+      if(task.dccManaged===true||result?.ok===false){if(notify)showToast(result?.reason||'本版任务已锁定导入来源，请使用任务的线索导入入口；旧名单与再次联系不能写入。','warning');return false;}
+    }
+    return true;
+  }
+  function guardLegacyBatch(batch,notify=true){return guardLegacyTask(batch,batch,notify)&&(!batch?.rows||Array.isArray(batch.rows))&&(batch?.rows||[]).every(row=>guardLegacyTask({...row,tenantId:batch.tenantId,enterpriseId:batch.enterpriseId},batch,notify));}
   function load(){try{const v=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(v))batches=v;}catch(_){}}
   function commit(){try{localStorage.setItem(key,JSON.stringify(batches));return true;}catch(_){load();showToast('保存失败：浏览器存储不可用，请重试','error');return false;}}
   function visible(){load();if(!valid())return [];const scoped=AppState.scoped(batches);return manager()?scoped:scoped.filter(b=>b.rows.some(r=>r.ownerId===ctx().accountId));}
@@ -53,13 +67,15 @@
   function assigned(r){return !!(r.ownerId||r.taskId);}
   function pendingForTask(tenantId,enterpriseId){return !valid()||!manager()?[]:visible().filter(b=>b.tenantId===tenantId&&b.enterpriseId===enterpriseId).flatMap(b=>b.rows.filter(r=>!assigned(r)&&!r.activeCallId&&r.followup!=='已完成').map(r=>({...r,batchId:b.id,batchName:b.name,batchCreatedAt:b.createdAt,batchUpdatedAt:b.updatedAt,tenantId:b.tenantId,enterpriseId:b.enterpriseId})));}
   function releaseUnstartedTask(task){
+    if(!guardLegacyTask(task))return false;
     if(task?.repeatContact)return window.RepeatPredictive?.releaseTask(task)===true;
     if(!valid()||!manager())return false;const scoped=visible().filter(b=>b.tenantId===task.tenantId&&b.enterpriseId===task.enterpriseId),linked=scoped.flatMap(b=>b.rows.filter(r=>r.taskId===task.taskId));
     if(linked.some(r=>r.activeCallId||r.calls?.length||r.followup==='已完成'))return false;
     linked.forEach(r=>{(r.history||(r.history=[])).push({at:now(),action:'删除未启动任务，返回待分配',previousTask:task.taskId});r.taskId='';r.taskName='';r.ownerId='';r.method='';r.updatedAt=now();});return commit();
   }
-  function validateTaskSelection(task,ids){const pool=pendingForTask(task.tenantId,task.enterpriseId);return Array.isArray(ids)&&new Set(ids).size===ids.length&&ids.every(id=>pool.some(r=>r.id===id));}
+  function validateTaskSelection(task,ids){if(!guardLegacyTask(task,task,false))return false;const pool=pendingForTask(task.tenantId,task.enterpriseId);return Array.isArray(ids)&&new Set(ids).size===ids.length&&ids.every(id=>pool.some(r=>r.id===id));}
   function attachToNewTask(task,ids){
+    if(!guardLegacyTask(task))return false;
     if(!valid()||!manager()||!['预外呼','IVR 外呼'].includes(task.callType)||task.status!=='待分配客户'||Number(task.completed)||!validateTaskSelection(task,ids))return false;
     if(!ids.length)return true;
     for(const b of batches.filter(b=>b.tenantId===task.tenantId&&b.enterpriseId===task.enterpriseId))for(const r of b.rows.filter(r=>ids.includes(r.id))){r.method=task.callType;r.taskId=task.taskId;r.taskName=task.name;r.ownerId='';r.history=r.history||[];r.history.push({at:now(),action:'创建任务时分配',method:task.callType,targetId:task.taskId});r.updatedAt=now();}
@@ -67,6 +83,7 @@
   }
   // Serializable row snapshots let the task wizard compensate a partial local save.
   function prepareTaskAttachment(task,ids){
+    if(!guardLegacyTask(task))return {ok:false,message:'本版任务不能使用旧名单分配入口'};
     if(!valid()||!manager()||!['预外呼','IVR 外呼'].includes(task.callType)||task.status!=='待分配客户'||Number(task.completed)||!validateTaskSelection(task,ids))return {ok:false};
     const changes=[];
     for(const b of batches.filter(b=>b.tenantId===task.tenantId&&b.enterpriseId===task.enterpriseId))for(const r of b.rows.filter(r=>ids.includes(r.id))){
@@ -77,6 +94,7 @@
     return {ok:true,taskId:task.taskId,tenantId:task.tenantId,enterpriseId:task.enterpriseId,changes};
   }
   function applyTaskAttachment(prepared,undo=false){
+    if(!guardLegacyTask(prepared)||(Array.isArray(prepared?.changes)&&!prepared.changes.every(change=>[change?.before,change?.after].every(row=>guardLegacyTask(row?{...row,tenantId:prepared.tenantId,enterpriseId:prepared.enterpriseId}:null)))))return false;
     if(prepared?.kind==='repeat-predictive')return undo?window.RepeatPredictive?.rollbackAttachment(prepared)===true:window.RepeatPredictive?.commitAttachment(prepared)===true;
     if(!prepared?.ok||!Array.isArray(prepared.changes)||!valid()||!manager()||!AppState.authorizeObject('',prepared))return false;
     load();const next=structuredClone(batches),equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
@@ -84,6 +102,7 @@
       const batch=next.find(b=>b.id===change.batchId&&b.tenantId===prepared.tenantId&&b.enterpriseId===prepared.enterpriseId),index=batch?.rows.findIndex(r=>r.id===change.rowId);
       if(!batch||index<0)return false;
       const current=batch.rows[index],desired=undo?change.before:change.after,expected=undo?change.after:change.before;
+      if(!guardLegacyTask({...current,tenantId:batch.tenantId,enterpriseId:batch.enterpriseId}))return false;
       if(equal(current,desired))continue;
       if(!equal(current,expected))return false;
       batch.rows[index]=structuredClone(desired);
@@ -92,7 +111,7 @@
   }
   function commitTaskAttachment(prepared){return applyTaskAttachment(prepared);}
   function rollbackTaskAttachment(prepared){return applyTaskAttachment(prepared,true);}
-  function reassignable(r,b){return !r.activeCallId&&r.followup!=='已完成'&&(!r.taskId||taskOptions(r.method,b).some(t=>t.taskId===r.taskId));}
+  function reassignable(r,b){return guardLegacyTask(r.taskId,b,false)&&!r.activeCallId&&r.followup!=='已完成'&&(!r.taskId||taskOptions(r.method,b).some(t=>t.taskId===r.taskId));}
   function setAssignmentView(view){if(!['pending','assigned','all'].includes(view))return;assignmentView=view;navigateTo('customer-tasks',{batchId:selectedBatch});}
   function updateSelection(){
     const all=Array.from(document.querySelectorAll('[name="customer-row"]')).filter(e=>!e.disabled),chosen=all.filter(e=>e.checked);
@@ -107,15 +126,16 @@
   function parse(text){
     text=String(text||'').replace(/^\uFEFF/,'');const separator=text.split('\n')[0].includes('\t')?'\t':',';
     const result=[];let cells=[],cell='',quoted=false;
-    for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++;}else quoted=!quoted;}else if(!quoted&&(c===separator||c==='\n')){cells.push(cell.trim());cell='';if(c==='\n'){if(cells.some(Boolean))result.push(cells);cells=[];}}else if(c!=='\r')cell+=c;}
-    if(quoted)throw Error('引号未闭合，请检查文件格式');cells.push(cell.trim());if(cells.some(Boolean))result.push(cells);return result;
+    for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++;}else quoted=!quoted;}else if(!quoted&&(c===separator||c==='\n')){cells.push(cell);cell='';if(c==='\n'){if(cells.some(Boolean))result.push(cells);cells=[];}}else if(c!=='\r')cell+=c;}
+    if(quoted)throw Error('引号未闭合，请检查文件格式');cells.push(cell);if(cells.some(value=>value.trim()))result.push(cells);return result;
   }
   function canImportToTask(task){
-    return canImportCustomers()&&!!task&&task.callType==='预外呼'&&!task.isWizardDraft&&!task.displayOnly&&task.customerSourceMode==='assigned'&&task.status==='待分配客户'&&!Number(task.total)&&!Number(task.completed)&&!task.startedAt&&!task.campaignId&&AppState.authorizeObject('task.create',task);
+    return canImportCustomers()&&!!task&&guardLegacyTask(task,task,false)&&task.callType==='预外呼'&&!task.isWizardDraft&&!task.displayOnly&&task.customerSourceMode==='assigned'&&['待分配客户','待启动'].includes(task.status)&&!Number(task.completed)&&!task.startedAt&&!task.campaignId&&!task.alictiTaskControlPending&&!task.alictiTaskUpdatePending&&Number(task.providerStatusCode)!==3&&window.HistorySnapshot?.read_only!==true&&AppState.authorizeObject('task.create',task);
   }
   function importDialog(taskId){
     if(!canImportCustomers())return showToast('仅租户管理员可导入客户','warning');
     const task=taskId?CloudCallData.tasks.find(t=>t.taskId===taskId):null;
+    if(taskId&&!guardLegacyTask(task||taskId))return false;
     if(taskId&&!canImportToTask(task))return showToast('当前任务不可导入客户，请刷新任务状态','warning');
     importTaskContext=task?{taskId:task.taskId,tenantId:task.tenantId,enterpriseId:task.enterpriseId,accountId:ctx().accountId,scopeTenantId:ctx().tenantId}:null;
     const tenant=importTenant();if(!tenant)return showToast('请进入实际业务租户后导入','warning');
@@ -129,12 +149,13 @@
         <section class="customer-import-section"><div class="customer-import-heading"><h3>准备客户名单</h3><button class="btn" onclick="CustomerTasks.fillSample()">填入示例</button></div>
           <div class="customer-import-upload"><label for="customer-import-file" class="btn">选择 CSV 文件</label><input id="customer-import-file" type="file" hidden accept=".csv,text/csv" onchange="CustomerTasks.readFile(this.files[0])"><span id="customer-import-filename">未选择文件 · UTF-8 格式，最大 1 MB</span></div>
           <div id="customer-import-schema">${importSchema('')}</div>
-          <label class="field"><span>粘贴或编辑名单 ${ui.help('按上方四列顺序填写；备注为空也要保留第三列。业务编码在 Excel 中设为文本，保留前导零。可带表头，每批最多 2000 位客户，同批重复号码保留第一条有效记录。')}</span><textarea id="customer-import-text" rows="6" oninput="CustomerTasks.invalidatePreview()" placeholder="请选择业务类型后填写名单"></textarea></label>
+          <label class="field"><span>粘贴或编辑名单 ${ui.help('按上方必填项顺序填写；备注为空也要保留第三列，末尾新增字段选填。业务编码在 Excel 中设为文本，保留前导零。可带表头，每批最多 2000 位客户，同批重复号码保留第一条有效记录。')}</span><textarea id="customer-import-text" rows="6" oninput="CustomerTasks.invalidatePreview()" placeholder="请选择业务类型后填写名单"></textarea></label>
         </section><div id="customer-import-preview" aria-live="polite"></div>
       </div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer('customer-import')">取消</button><button class="btn" onclick="CustomerTasks.previewImport()">检查名单</button><button class="btn btn-primary" id="customer-import-confirm" disabled onclick="CustomerTasks.confirmImport()">确认导入</button></div>`,'large');
   }
-  function importSchema(type){const meta=importBusiness(type);return '<table class="customer-import-guide"><thead><tr><th>客户称呼 <em>*</em></th><th>客户号码 <em>*</em></th><th>联系备注（选填）</th><th>'+(meta?esc(meta.codeLabel)+' <em>*</em>':'业务编码 <em>*</em>')+'</th></tr></thead><tbody><tr><td>最多40字</td><td>手机号或带区号的固定电话</td><td>本次沟通要点，最多500字</td><td>'+(meta?esc(meta.codeLabel)+'必填，文本格式，最多100字':'选择类型后显示对应字段')+'</td></tr></tbody></table>';}
-  function importTypeChanged(){invalidatePreview();const type=document.getElementById('customer-import-business-type')?.value||'',meta=importBusiness(type),schema=document.getElementById('customer-import-schema'),input=document.getElementById('customer-import-text');if(schema)schema.innerHTML=importSchema(type);if(input)input.placeholder=meta?'客户称呼,客户号码,联系备注,'+meta.codeLabel:'请选择业务类型后填写名单';}
+  const importedFields = () => CustomerBusiness.importedFields || [];
+  function importSchema(type){const meta=importBusiness(type);return '<table class="customer-import-guide"><thead><tr><th>客户称呼 <em>*</em></th><th>客户号码 <em>*</em></th><th>联系备注（选填）</th><th>'+(meta?esc(meta.codeLabel)+' <em>*</em>':'业务编码 <em>*</em>')+'</th>'+importedFields().map(field=>'<th>'+esc(field.label)+'（选填）</th>').join('')+'</tr></thead><tbody><tr><td>最多40字</td><td>手机号或带区号的固定电话</td><td>本次沟通要点，最多500字</td><td>'+(meta?esc(meta.codeLabel)+'必填，文本格式，最多100字':'选择类型后显示对应字段')+'</td>'+importedFields().map(()=>'<td>按文本保留原值</td>').join('')+'</tr></tbody></table>';}
+  function importTypeChanged(){invalidatePreview();const type=document.getElementById('customer-import-business-type')?.value||'',meta=importBusiness(type),schema=document.getElementById('customer-import-schema'),input=document.getElementById('customer-import-text');if(schema)schema.innerHTML=importSchema(type);if(input)input.placeholder=meta?'客户称呼,客户号码,联系备注,'+meta.codeLabel+','+importedFields().map(field=>field.label).join(','):'请选择业务类型后填写名单';}
   function invalidatePreview(){preview=null;importRevision++;const box=document.getElementById('customer-import-preview'),button=document.getElementById('customer-import-confirm');if(box)box.innerHTML='';if(button)button.disabled=true;}
   function fillSample(){
     if(!canImportCustomers())return;const input=document.getElementById('customer-import-text');if(!input)return;
@@ -142,24 +163,33 @@
     const type=document.getElementById('customer-import-business-type')?.value,meta=importBusiness(type);if(!meta)return showToast('请先选择已启用的业务类型','warning');
     const sample=window.CustomerImportSamples?.[type]||{name:meta.label+'示例名单',rows:[1,2,3].map((n)=>({name:'示例客户'+n,phone:'1380000000'+n,note:n===1?'预约联系':'',externalDocumentId:(meta.prefix||type)+'-00'+n}))};
     const csv=value=>{const text=String(value??'');return /[,"\r\n]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;};
-    input.value=['客户称呼','客户号码','联系备注',meta.codeLabel].map(csv).join(',')+'\n'+sample.rows.map(r=>[r.name,r.phone,r.note,r.externalDocumentId].map(csv).join(',')).join('\n');
+    input.value=['客户称呼','客户号码','联系备注',meta.codeLabel,...importedFields().map(field=>field.label)].map(csv).join(',')+'\n'+sample.rows.map(r=>[r.name,r.phone,r.note,r.externalDocumentId,...importedFields().map(field=>r[field.key]||'')].map(csv).join(',')).join('\n');
     const name=document.getElementById('customer-batch-name');if(name&&!name.value.trim())name.value=sample.name;invalidatePreview();showToast('已填入 '+sample.rows.length+' 位示例客户','success');
   }
   async function readFile(file){if(!file||!canImportCustomers())return;const scope=[ctx().tenantId,ctx().enterpriseId,ctx().accountId].join('|'),revision=++importRevision,el=document.getElementById('customer-import-text');if(file.size>1024*1024)return showToast('文件不能超过1MB','error');if(!/\.csv$/i.test(file.name))return showToast('请将Excel另存为CSV后导入','error');try{const text=await file.text();if(scope!==[ctx().tenantId,ctx().enterpriseId,ctx().accountId].join('|')||!canImportCustomers()||revision!==importRevision||el!==document.getElementById('customer-import-text'))return;if(el)el.value=text;const label=document.getElementById('customer-import-filename');if(label)label.textContent=file.name;invalidatePreview();}catch(_){showToast('文件读取失败，请重新选择','error');}}
   function prepare(name,text,businessType=''){
+    if(!guardLegacyTask(importTaskContext))throw Error('本版任务不能使用旧四列名单导入');
     if(!canImportCustomers())throw Error('仅租户管理员可导入客户');const tenant=importTenant();if(!tenant)throw Error('请进入实际业务租户后导入');
     const meta=importBusiness(businessType);if(!meta)throw Error('请选择已启用的业务类型');
     if(!name.trim()||name.trim().length>50)throw Error('请填写50字以内的批次名称');const list=parse(text);if(!list.length||list.length>2001)throw Error('每次导入1至2000位客户');
-    if(['客户称呼','客户姓名','姓名'].includes(list[0][0])){const header=list.shift();if(meta&&header[3]&&![meta.codeLabel,'外部单据标识'].includes(header[3]))throw Error('当前为'+meta.label+'，第四列表头应为“'+meta.codeLabel+'”，请检查名单或业务类型');}if(!list.length||list.length>2000)throw Error('每次导入1至2000位客户');const seen=new Set(),good=[],errors=[];
-    list.forEach((c,i)=>{const phone=(c[1]||'').replace(/[\s-]/g,'');let e='';if(!c[0]||c[0].length>40)e='称呼必填且不超过40字';else if(!/^(1[3-9]\d{9}|0\d{9,11})$/.test(phone))e='客户号码格式不正确';else if(c.length>4)e='最多四列：客户称呼、客户号码、联系备注、'+(meta?.codeLabel||'外部单据标识');else if(String(c[2]||'').length>500)e='备注不超过500字';else if(meta&&!c[3])e=meta.codeLabel+'必填';else if(meta&&c[3].length>100)e=meta.codeLabel+'不超过100字';else if(seen.has(phone))e='同批号码重复';if(e)errors.push({line:i+1,phone,reason:e});else{seen.add(phone);good.push({name:c[0],phone,note:c[2]||'',externalDocumentId:c[3]||'',businessType:meta?businessType:''});}});
+    let optionalColumns=importedFields();
+    if(['客户称呼','客户姓名','姓名'].includes(list[0][0].trim())){
+      const header=list.shift().map(value=>value.trim());
+      if(meta&&header[3]&&![meta.codeLabel,'外部单据标识'].includes(header[3]))throw Error('当前为'+meta.label+'，第四列表头应为“'+meta.codeLabel+'”，请检查名单或业务类型');
+      optionalColumns=header.slice(4).map(label=>importedFields().find(field=>field.label===label||field.key===label));
+      if(optionalColumns.some(field=>!field)||new Set(optionalColumns.map(field=>field.key)).size!==optionalColumns.length)throw Error('选填字段表头无法识别或重复，请按字段说明填写');
+    }
+    if(!list.length||list.length>2000)throw Error('每次导入1至2000位客户');const seen=new Set(),good=[],errors=[];
+    list.forEach((raw,i)=>{const c=raw.map((value,index)=>index<4?value.trim():value),phone=(c[1]||'').replace(/[\s-]/g,'');let e='';if(!c[0]||c[0].length>40)e='称呼必填且不超过40字';else if(!/^(1[3-9]\d{9}|0\d{9,11})$/.test(phone))e='客户号码格式不正确';else if(c.length>4+optionalColumns.length)e='名单列数与表头不一致，请检查字段说明';else if(String(c[2]||'').length>500)e='备注不超过500字';else if(meta&&!c[3])e=meta.codeLabel+'必填';else if(meta&&c[3].length>100)e=meta.codeLabel+'不超过100字';else if(seen.has(phone))e='同批号码重复';if(e)errors.push({line:i+1,phone,reason:e});else{seen.add(phone);good.push({name:c[0],phone,note:c[2]||'',externalDocumentId:c[3]||'',businessType:meta?businessType:'',...Object.fromEntries(optionalColumns.filter((field,index)=>raw.length>index+4).map((field,index)=>[field.key,c[index+4]]))});}});
     return {name:name.trim(),text,businessType:meta?businessType:'',tenantId:tenant.tenantId,enterpriseId:tenant.enterpriseId,accountId:ctx().accountId,codeLabel:meta.codeLabel,good,errors};
   }
-  function previewImport(){invalidatePreview();if(!canImportCustomers())return showToast('仅租户管理员可导入客户','warning');try{const type=document.getElementById('customer-import-business-type')?.value;if(!importBusiness(type))throw Error('请先选择已启用的业务类型');preview=prepare(document.getElementById('customer-batch-name').value,document.getElementById('customer-import-text').value,type);document.getElementById('customer-import-preview').innerHTML='<p>'+esc(CustomerBusiness.typeLabel(preview))+' · 可导入 '+preview.good.length+' 位，未通过 '+preview.errors.length+' 行。确认后仅导入有效行。</p>'+(preview.good.length?'<h3>有效名单预览（最多展示前10位）</h3>'+ui.table([{key:'name',label:'客户称呼'},{key:'phone',label:'客户号码'},{key:'note',label:'联系备注'},{key:'externalDocumentId',label:CustomerBusiness.codeLabel(preview),render:v=>esc(v||'—')}],preview.good.slice(0,10)):'')+(preview.errors.length?ui.table([{key:'line',label:'行'},{key:'phone',label:'号码'},{key:'reason',label:'未通过原因'}],preview.errors.slice(0,30)):'');document.getElementById('customer-import-confirm').disabled=!preview.good.length;}catch(e){preview=null;showToast(e.message,'error');}}
+  function previewImport(){invalidatePreview();if(!canImportCustomers())return showToast('仅租户管理员可导入客户','warning');try{const type=document.getElementById('customer-import-business-type')?.value;if(!importBusiness(type))throw Error('请先选择已启用的业务类型');preview=prepare(document.getElementById('customer-batch-name').value,document.getElementById('customer-import-text').value,type);document.getElementById('customer-import-preview').innerHTML='<p>'+esc(CustomerBusiness.typeLabel(preview))+' · 可导入 '+preview.good.length+' 位，未通过 '+preview.errors.length+' 行。确认后仅导入有效行。</p>'+(preview.good.length?'<h3>有效名单预览（最多展示前10位）</h3>'+ui.table([{key:'name',label:'客户称呼'},{key:'phone',label:'客户号码'},{key:'note',label:'联系备注'},{key:'externalDocumentId',label:CustomerBusiness.codeLabel(preview),render:v=>esc(v||'—')},...importedFields().map(field=>({key:field.key,label:field.label,render:v=>esc(v||'未提供')}))],preview.good.slice(0,10)):'')+(preview.errors.length?ui.table([{key:'line',label:'行'},{key:'phone',label:'号码'},{key:'reason',label:'未通过原因'}],preview.errors.slice(0,30)):'');document.getElementById('customer-import-confirm').disabled=!preview.good.length;}catch(e){preview=null;showToast(e.message,'error');}}
   function confirmImport(){
     if(!canImportCustomers())return showToast('仅租户管理员可导入客户','warning');
     if(!preview||preview.tenantId!==(importTaskContext?.tenantId||ctx().tenantId)||preview.enterpriseId!==ctx().enterpriseId||preview.accountId!==ctx().accountId)return showToast('工作范围已改变，请重新检查名单','error');
     if(document.getElementById('customer-batch-name')?.value.trim()!==preview.name||document.getElementById('customer-import-text')?.value!==preview.text||document.getElementById('customer-import-business-type')?.value!==preview.businessType||!importBusiness(preview.businessType)||importBusiness(preview.businessType).codeLabel!==preview.codeLabel)return showToast('名单或业务类型已修改，请重新检查','warning');
     const task=importTaskContext?CloudCallData.tasks.find(t=>t.taskId===importTaskContext.taskId):null;
+    if(!guardLegacyTask(task||importTaskContext))return false;
     if(importTaskContext&&(!canImportToTask(task)||task.tenantId!==importTaskContext.tenantId||task.enterpriseId!==importTaskContext.enterpriseId||ctx().accountId!==importTaskContext.accountId||ctx().tenantId!==importTaskContext.scopeTenantId))return showToast('任务状态或工作范围已改变，请重新打开导入','warning');
     load();const b={id:id(),name:preview.name,businessType:preview.businessType,tenantId:preview.tenantId,enterpriseId:preview.enterpriseId,createdAt:now(),createdBy:ctx().accountId,errors:preview.errors,rows:preview.good.map(c=>({...c,id:id(),ownerId:'',method:'',followup:'待联系',calls:[],history:[]}))};if(task)b.rows.forEach(r=>{r.method=task.callType;r.taskId=task.taskId;r.taskName=task.name;r.history.push({at:now(),action:'从任务导入并分配',method:task.callType,targetId:task.taskId});});
     if(task){const saved=window.CloudTaskWorkspace.commitDirectImport(task,b);if(!saved.ok)return showToast(saved.message,'error');}
@@ -170,6 +200,7 @@
   }
   // Import transactions change only their own batch, never a cached full list.
   function commitImportBatch(batch) {
+    if(!guardLegacyBatch(batch))return false;
     if(!canImportCustomers()||!batch?.id||batch.tenantId!==ctx().tenantId||batch.enterpriseId!==ctx().enterpriseId||!AppState.authorizeObject('customer.import',batch))return false;
     try {
       const raw=localStorage.getItem(key),current=JSON.parse(raw||'[]');if(!Array.isArray(current))return false;
@@ -180,15 +211,18 @@
     }catch(_){return false;}
   }
   function rollbackImportBatch(batch) {
+    if(!guardLegacyBatch(batch))return false;
     if(!batch?.id)return false;
     try {
       const raw=localStorage.getItem(key),current=JSON.parse(raw||'[]');if(!Array.isArray(current))return false;
       const existing=current.find(row=>row.id===batch.id);if(!existing)return true;
+      if(!guardLegacyBatch(existing))return false;
       if(JSON.stringify(existing)!==JSON.stringify(batch)||localStorage.getItem(key)!==raw)return false;
       const next=current.filter(row=>row.id!==batch.id);localStorage.setItem(key,JSON.stringify(next));batches=next;return true;
     }catch(_){return false;}
   }
   function missingTaskRecoverable(r,b) {
+    if(!guardLegacyTask(r?.taskId,b,false))return false;
     if(!valid()||!manager()||!r?.taskId||r.activeCallId||r.calls?.length||r.followup==='已完成')return false;
     const directoryStatus=window.CustomerDirectory?.status?.();
     if(directoryStatus?.storageIssue||directoryStatus?.conflictingCallIds?.length)return false;
@@ -202,6 +236,7 @@
   function recoverMissingTask(itemId,confirmed=false) {
     window.CustomerDirectory?.sync();window.CloudTaskWorkspace?.refreshStoredTasks?.();
     const item=row(itemId);if(!item||!missingTaskRecoverable(item.r,item.b))return showToast('任务或客户状态已变化，无法恢复分配，请刷新后核对','warning');
+    if(!guardLegacyTask(item.r.taskId,item.b))return false;
     if(!confirmed)return ui.confirm({id:'customer-recover-task',title:'恢复到待分配',body:'<p>当前浏览器未找到原任务“'+esc(item.r.taskName||item.r.taskId)+'”，该客户尚无通话或处理中记录。确认解除旧任务关联，将客户恢复为待分配？原任务编号会保留在分配历史中。</p>',confirmText:'恢复待分配',onConfirm(){recoverMissingTask(itemId,true);}});
     const r=item.r;r.history=r.history||[];r.history.push({at:now(),action:'原任务记录缺失，手动恢复待分配',previousTask:r.taskId,previousTaskName:r.taskName||''});
     r.taskId='';r.taskName='';r.method='';r.ownerId='';r.updatedAt=now();
@@ -210,9 +245,11 @@
   }
   function assign(itemIds,method,ownerId){
     if(!valid()||!manager()||!methods.includes(method))return false;load();const b=find(selectedBatch);if(!b)return false;
+    if(method!=='人工外呼'&&!guardLegacyTask(ownerId,b))return false;
     const task=method!=='人工外呼'?taskOptions(method,b).find(t=>t.taskId===ownerId):null;
     if(method==='人工外呼'?!owners(b.tenantId).some(a=>a.accountId===ownerId):!task)return false;
     const chosen=b.rows.filter(r=>itemIds.includes(r.id));if(!chosen.length||chosen.length!==new Set(itemIds).size||chosen.some(r=>r.activeCallId||r.followup==='已完成'))return false;
+    if(!chosen.every(r=>guardLegacyTask(r.taskId,b)))return false;
     if(chosen.some(r=>r.taskId&&!taskOptions(r.method,b).some(t=>t.taskId===r.taskId)))return false;
     chosen.forEach(r=>{r.history.push({at:now(),action:'分配',method,targetId:ownerId,previousOwner:r.ownerId,previousTask:r.taskId||''});r.method=method;r.ownerId=task?'':ownerId;r.taskId=task?.taskId||'';r.taskName=task?.name||'';r.updatedAt=now();});if(!commit())return false;window.CloudTaskWorkspace?.syncAssignedCustomers();return true;
   }
@@ -235,6 +272,7 @@
   }
   function confirmAssignment(){if(!assignment||assignment.accountId!==ctx().accountId||assignment.tenantId!==ctx().tenantId||assignment.batchId!==selectedBatch)return showToast('工作范围已变化，请重新选择客户','warning');if(!assign(assignment.ids,document.getElementById('customer-method')?.value,document.getElementById('customer-target')?.value))return showToast('请选择有效分配对象；已开始或完成的客户不能重新分配','warning');assignment=null;ui.closeLayer('customer-assign');open(selectedBatch);showToast('分配已保存','success');}
   function taskExecutionCustomers(task){
+    if(!guardLegacyTask(task,task,false))return null;
     if(!valid()||!task?.taskId||!AppState.authorizeObject('task.create',task)||!CloudCallData.tasks.some(t=>t.taskId===task.taskId&&t.tenantId===task.tenantId&&t.enterpriseId===task.enterpriseId))return null;
     load();return AppState.scoped(batches).filter(b=>b.tenantId===task.tenantId&&b.enterpriseId===task.enterpriseId).flatMap(b=>b.rows.filter(r=>r.taskId===task.taskId).map(r=>({...r,batchId:b.id,batchName:b.name,batchCreatedAt:b.createdAt,batchUpdatedAt:b.updatedAt,tenantId:b.tenantId,enterpriseId:b.enterpriseId,repeatCreatedBy:b.createdBy})));
   }
@@ -260,7 +298,7 @@
   function canCall(r){return valid()&&r.ownerId===ctx().accountId&&r.method==='人工外呼'&&r.followup!=='已完成'&&!r.activeCallId;}
   function mine(){return visible().flatMap(b=>rows(b).filter(r=>canCall(r)).map(r=>({...r,batchId:b.id,batchName:b.name,batchCreatedAt:b.createdAt,batchUpdatedAt:b.updatedAt,tenantId:b.tenantId,enterpriseId:b.enterpriseId})));}
   function pick(itemId){const item=row(itemId);if(!item||!canCall(item.r))return showToast('该客户已不可联系或不属于当前账号','warning');AgentWorkbench.selectAssigned(item.r);}
-  function claim(itemId,call){const item=row(itemId);if(!item||!canCall(item.r))return false;item.r.activeCallId=call.callId;item.r.updatedAt=now();return commit();}
+  function claim(itemId,call){const item=row(itemId);if(!item||!guardLegacyTask(item.r.taskId,item.b)||!canCall(item.r))return false;item.r.activeCallId=call.callId;item.r.updatedAt=now();return commit();}
   // A routed predictive call identifies a task row; it does not grant ownership of its batch.
   function receivingItem(taskId,itemId,agent){
     if(!valid()||!taskId||!itemId||!agent?.contactCenterIdentityId)return null;
@@ -275,6 +313,7 @@
   }
   function callSnapshot(call,remark){return {callId:call.callId,...CustomerBusiness.snapshot(call),...(window.RepeatPredictive?.callMetadata(call)||{}),result:call.result,at:call.endedAt,agentName:call.agentName,disposition:call.agentDisposition||'',remark:remark===undefined?call.dispositionRemark||'':remark,...(call.telephony?{telephony:structuredClone(call.telephony)}:{}),...(call.workbenchKind==='predictive'?{callSource:call.callSource,workbenchKind:call.workbenchKind,taskId:call.taskId,customerTaskItemId:call.customerTaskItemId,accountId:call.accountId,contactCenterIdentityId:call.contactCenterIdentityId,tenantId:call.tenantId,enterpriseId:call.enterpriseId,callee:call.callee,agentAnswerResult:call.agentAnswerResult,agentAnsweredAt:call.agentAnsweredAt}:{})};}
   function acceptTaskDemoResult(task,call){
+    if(!guardLegacyTask(task))return false;
     if(!valid()||!manager()||!call.simulation||task.status!=='执行中'||call.taskId!==task.taskId)return false;
     const item=row(call.customerTaskItemId);if(!item||item.b.tenantId!==task.tenantId||item.b.enterpriseId!==task.enterpriseId||item.r.taskId!==task.taskId||item.r.activeCallId)return false;
     if(item.r.calls.some(c=>c.callId===call.callId))return true;
@@ -283,8 +322,10 @@
     item.r.followup=answered&&call.agentDisposition!=='需要再次联系'&&(task.callType!=='预外呼'||window.CloudReportMetrics?.humanAnswer(call)===true)?'已完成':'待继续跟进';item.r.updatedAt=now();return commit();
   }
   function syncCall(call){
+    if(!guardLegacyTask(call))return false;
     if(!call.customerTaskItemId)return call.workbenchKind!=='predictive';load();
     const b=batches.find(b=>b.tenantId===call.tenantId&&b.enterpriseId===call.enterpriseId&&b.rows.some(r=>r.id===call.customerTaskItemId)),r=b?.rows.find(r=>r.id===call.customerTaskItemId);
+    if(r&&!guardLegacyTask(r.taskId,b))return false;
     if(!r)return false;const beforeRow=JSON.stringify(r),i=r.calls.findIndex(c=>c.callId===call.callId),active=r.activeCallId===call.callId;
     let receiving=false;
     if(call.workbenchKind==='predictive'){

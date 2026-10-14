@@ -9,8 +9,25 @@
   const ctx=()=>AppState.get();
   let selection=null;
   function allowed(){return AppState.isReady()&&AppState.effectiveAccess().valid&&ctx().activeDomain==='CLOUD_CONTACT_CENTER'&&AppState.canAction('task.create');}
+  function guardLegacyTask(taskOrId,notify=true){
+    const identity=typeof taskOrId==='string'?{taskId:taskOrId}:taskOrId;
+    if(identity?.dccManaged===true){if(notify)showToast('本版任务由 DCC 决定重导，请使用任务的线索导入入口；不能由平台安排再次联系。','warning');return false;}
+    if(!identity?.taskId)return true;
+    let stored=[];try{stored=window.CloudTaskWorkspace?.storedTasks?.()||[];}catch(_){}
+    const candidates=[identity,...[data.tasks,data.predictiveTasks,data.ivrTasks,stored].flatMap(list=>list||[]).filter(task=>task.taskId===identity.taskId)];
+    for(const task of candidates){
+      const result=window.DccRuntime?.guardLegacyWrite?.(task);
+      if(task.dccManaged===true||result?.ok===false){if(notify)showToast(result?.reason||'本版任务不能使用旧名单或平台再次联系入口。','warning');return false;}
+    }
+    return true;
+  }
+  function guardPreparedTargets(prepared){
+    if(!guardLegacyTask(prepared)||!guardLegacyTask(prepared?.spec?.sourceTaskId)||!guardLegacyTask(prepared?.newBatch))return false;
+    const targets=[...(Array.isArray(prepared?.newBatch?.rows)?prepared.newBatch.rows:[]),...(Array.isArray(prepared?.changes)?prepared.changes.flatMap(change=>[change?.before,change?.after]):[])];
+    return targets.every(target=>guardLegacyTask(target));
+  }
   function readBatches(){const value=JSON.parse(localStorage.getItem(batchKey)||'[]');if(!Array.isArray(value)||value.some(b=>!b||!Array.isArray(b.rows)))throw Error('客户名单暂时无法读取，请稍后重试');return value;}
-  function taskAllowed(task){return allowed()&&task?.callType==='预外呼'&&AppState.authorizeObject('task.create',task)&&String(task.enterpriseId)===String(ctx().enterpriseId)&&data.tenants.some(t=>t.tenantId===task.tenantId&&String(t.enterpriseId)===String(task.enterpriseId)&&t.status==='启用'&&(t.capabilitySet||[]).includes('CLOUD_CONTACT_CENTER'));}
+  function taskAllowed(task){return allowed()&&task?.callType==='预外呼'&&guardLegacyTask(task,false)&&AppState.authorizeObject('task.create',task)&&String(task.enterpriseId)===String(ctx().enterpriseId)&&data.tenants.some(t=>t.tenantId===task.tenantId&&String(t.enterpriseId)===String(task.enterpriseId)&&t.status==='启用'&&(t.capabilitySet||[]).includes('CLOUD_CONTACT_CENTER'));}
   function currentTask(identity){const matches=data.tasks.filter(task=>task.taskId===identity?.taskId&&scope(task,identity));return matches.length===1?matches[0]:null;}
   function taskBlockReason(task){
     if(!taskAllowed(task))return '当前任务不可安排再次联系';
@@ -61,6 +78,7 @@
   function validateSpec(spec){
     try{
       if(!allowed())return {ok:false,message:'当前没有安排预外呼的权限'};
+      if(!guardLegacyTask(spec?.sourceTaskId)||(Array.isArray(spec?.sourceRefs)&&!spec.sourceRefs.every(ref=>guardLegacyTask(ref))))return {ok:false,message:'本版任务不能由平台安排再次联系'};
       if(spec?.version!==1||!Array.isArray(spec.sourceRefs)||!spec.sourceRefs.length||spec.sourceRefs.length>2000)return {ok:false,message:'请选择 1 至 2000 位已接通且通话已结束的客户'};
       if(!spec.sourceTaskId||spec.sourceRefs.some(ref=>!ref||ref.taskId!==spec.sourceTaskId))return {ok:false,message:'请先选择原任务，仅可安排同一任务内的客户'};
       if(new Set(spec.sourceRefs.map(refKey)).size!==spec.sourceRefs.length)return {ok:false,message:'同一客户记录不能重复选择'};
@@ -87,6 +105,7 @@
   }
   function prepareAttachment(task,spec){
     try{
+      if(!guardLegacyTask(task))return {ok:false,message:'本版任务不能使用再次联系名单'};
       const verified=validateSpec(spec);if(!verified.ok)return verified;
       if(task?.taskId!==verified.sourceTaskId||!scope(task,verified))return {ok:false,message:'再次联系只能加入原任务，不能创建或转入其他任务'};
       task=currentTask(task);const blocked=taskBlockReason(task);if(blocked)return {ok:false,message:blocked};
@@ -98,8 +117,10 @@
   }
   function applyAttachment(prepared,undo=false){
     try{
+      if(!guardPreparedTargets(prepared))return false;
       if(!prepared?.ok||prepared.kind!=='repeat-predictive'||!allowed()||prepared.createdBy!==ctx().accountId||!AppState.authorizeObject('task.create',prepared)||String(prepared.enterpriseId)!==String(ctx().enterpriseId)||!prepared.newBatch||!scope(prepared,prepared.newBatch)||prepared.newBatch.createdBy!==prepared.createdBy||!Array.isArray(prepared.newBatch.rows)||!Array.isArray(prepared.changes))return false;
       const current=readBatches(),existing=current.find(b=>b.id===prepared.newBatch.id),equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+      if(existing&&!existing.rows.every(row=>guardLegacyTask(row)))return false;
       if(undo){
         if(!existing)return true;
         if(!equal(existing,prepared.newBatch)||data.calls.some(call=>scope(call,prepared)&&call.taskId===prepared.taskId&&existing.rows.some(row=>row.id===call.customerTaskItemId||(call.directoryMeta?.rowIds||[]).includes(row.id))))return false;
@@ -118,6 +139,7 @@
   }
   function open(filter={}){
     if(!allowed())return false;
+    if(!guardLegacyTask(filter.taskId))return false;
     let rows;try{rows=sources(filter);}catch(error){showToast(error.message,'warning');return false;}
     rows=ui.sortByUpdated?.(rows,['sourceCall.updatedAt','sourceCall.dispositionUpdatedAt','sourceCall.endedAt','sourceCall.at'])||rows;
     if(!filter.taskId){
@@ -143,6 +165,7 @@
   function selectAll(checked){if(!selectionCurrent())return;document.querySelectorAll('#repeat-predictive [name="repeat-source"]:not(:disabled)').forEach(e=>e.checked=checked);updateSelection();}
   function continueToWizard(){
     if(!selectionCurrent()){showToast('当前账号或租户已变化，请重新选择','warning');return false;}
+    if(!guardLegacyTask(selection.filter.taskId))return false;
     const spec={version:1,sourceRefs:selectedRefs(),sourceTaskId:selection.filter.taskId||'',reason:'',note:document.getElementById('repeat-contact-note')?.value.trim()||''},checked=validateSpec(spec);
     if(!checked.ok){showToast(checked.message,'warning');return false;}
     spec.sourceTaskId=checked.sourceTaskId;
@@ -174,8 +197,10 @@
   function callMetadata(row){return row?.repeatContact?{repeatContact:clone(row.repeatContact),...(row.brandId?{brandId:row.brandId}:{})}:{};}
   function releaseTask(task){
     try{
+      if(!guardLegacyTask(task))return false;
       if(!taskAllowed(task)||!task.repeatContact||!['待启动','待分配客户','已终止'].includes(task.status)||task.startedAt||task.campaignId||Number(task.completed)||data.calls.some(c=>c.taskId===task.taskId&&scope(c,task)))return false;
       const current=readBatches(),linked=current.filter(b=>scope(b,task)&&b.rows.some(r=>r.taskId===task.taskId));
+      if(!linked.every(batch=>batch.rows.every(row=>guardLegacyTask(row))))return false;
       if(linked.some(b=>b.createdBy!==ctx().accountId&&!['ADMIN','SUPER_ADMIN'].includes(AppState.effectiveAccess().roleCode)||b.rows.some(r=>r.taskId!==task.taskId||!r.repeatContact||r.activeCallId||(r.calls||[]).length)))return false;
       localStorage.setItem(batchKey,JSON.stringify(current.filter(b=>!linked.includes(b))));return true;
     }catch(_){return false;}

@@ -6,7 +6,12 @@
   const context = () => { const s = AppState.get(); return [s.accountId, s.enterpriseId, s.tenantId, s.activeDomain].join(':'); };
   const nonempty = value => Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null && String(value).trim() !== '';
   const typeOf = (call, values = {}) => String(call?.businessType || values.businessType || '');
+  const unavailableOriginalType = '该业务类型的表单暂不可用，请保留当前内容并联系管理员';
   const definitions = (call, values = {}) => CustomerBusiness.fields(typeOf(call, values), call || {});
+  function isUnansweredOutbound(call) {
+    return !!call && !!call.endedAt && call.endedAt !== '—' && call.direction === '呼出' &&
+      ['人工外呼', '预外呼'].includes(call.callType) && window.CallState?.view(call).answered === false;
+  }
   const optionId = option => typeof option === 'object' && option !== null ? String(option.id ?? '') : String(option);
   const optionLabel = option => typeof option === 'object' && option !== null ? String(option.label ?? '') : String(option);
   const selectedLabel = (field, value) => {
@@ -67,11 +72,12 @@
   }
   function validate(values, call, previous = {}) {
     const type = typeOf(call, values), result = { businessType:type, plannedStoreId:'' };
+    const optionalBusinessFields = isUnansweredOutbound(call);
     if (!type) return { ok:true, values:result };
-    if (!CustomerBusiness.get(type, call)) return { ok:false, field:'businessType', message:'业务分类已不可用，请重新选择' };
+    if (!CustomerBusiness.get(type, call)) return { ok:false, field:'businessType', message:call?.businessType ? unavailableOriginalType : '业务分类已不可用，请重新选择' };
     for (const field of definitions(call, values)) {
       const raw = values?.[field.id], value = field.type === 'multiselect' ? (Array.isArray(raw) ? [...new Set(raw.map(String))] : []) : String(raw ?? '').trim();
-      if (field.required && !nonempty(value)) return {ok:false,field:field.id,message:'请填写' + field.label};
+      if (field.required && !optionalBusinessFields && !nonempty(value)) return {ok:false,field:field.id,message:'请填写' + field.label};
       if (nonempty(value)) {
         if (['select','multiselect'].includes(field.type) && (Array.isArray(value) ? value : [value]).some(item => !field.options.some(option => optionId(option) === item))) return {ok:false,field:field.id,message:'请重新选择' + field.label};
         if (field.type === 'number' && !Number.isFinite(Number(value))) return {ok:false,field:field.id,message:'请为' + field.label + '填写有效数字'};
@@ -110,8 +116,8 @@
     if (live) { live.customerFollowup = structuredClone(snapshot); if (!live.businessType) live.businessType = snapshot.businessType; }
     return { ok: true, values: snapshot };
   }
-  function fieldControl(field, value, prefix, handler) {
-    const id = prefix + '-' + field.id, invoke = handler + '(' + JSON.stringify(field.id) + ',this.value)', required = field.required ? ' aria-required="true"' : '';
+  function fieldControl(field, value, prefix, handler, optionalBusinessFields = false) {
+    const id = prefix + '-' + field.id, invoke = handler + '(' + JSON.stringify(field.id) + ',this.value)', required = field.required ? ' data-followup-required-field' + (optionalBusinessFields ? '' : ' aria-required="true"') : '';
     const start = ' id="' + esc(id) + '"' + required;
     if (field.type === 'textarea') return '<textarea' + start + ' rows="3" maxlength="2000" oninput="' + esc(invoke) + '">' + esc(value || '') + '</textarea>';
     if (field.type === 'multiselect') {
@@ -127,15 +133,33 @@
   }
   function form(values, call, prefix, handler) {
     const current = { ...empty(call), ...values }, type = typeOf(call, current), meta = CustomerBusiness.get(type,call), fields = definitions(call,current);
-    const selector = call?.businessType ? '<p class="customer-followup-type">业务类型：<strong>' + esc(meta?.label || type) + '</strong></p>' : '<label class="field customer-followup-type"><span>业务类型</span><select id="' + esc(prefix+'-businessType') + '" onchange="' + esc(handler + "('businessType',this.value)") + '"><option value="">请选择业务类型</option>' + CustomerBusiness.list(call).map(item => '<option value="' + esc(item.id) + '"' + (item.id === type ? ' selected' : '') + '>' + esc(item.label) + '</option>').join('') + '</select></label>';
-    const fieldsHtml = fields.map(field => '<div class="field"><label for="' + esc(prefix+'-'+field.id) + '">' + (field.required ? '<em>*</em> ' : '') + esc(field.label) + (field.required ? '' : ' <small>（选填）</small>') + '</label>' + fieldControl(field,current[field.id],prefix,handler) + '</div>').join('');
-    return '<section class="customer-followup-form"><div class="customer-followup-heading"><h3>客户业务信息</h3><span>' + (fields.some(field => field.required) ? '标 * 的字段保存时必填' : '全部选填') + '</span></div>' + selector + (type ? (fields.length ? '<div class="customer-followup-grid">' + fieldsHtml + '</div>' : '<p class="customer-followup-hint">此业务分类暂未配置补充字段。</p>') : '<p class="customer-followup-hint">选择本次业务类型后，填写对应的客户信息。</p>') + '</section>';
+    const originalTypeUnavailable = !!call?.businessType && !meta;
+    const optionalBusinessFields = isUnansweredOutbound(call);
+    const selector = call?.businessType ? '<p class="customer-followup-type">业务类型：<strong>' + esc(call?.businessTypeLabel || meta?.label || type) + '</strong></p>' : '<label class="field customer-followup-type"><span>业务类型</span><select id="' + esc(prefix+'-businessType') + '" onchange="' + esc(handler + "('businessType',this.value)") + '"><option value="">请选择业务类型</option>' + CustomerBusiness.list(call).map(item => '<option value="' + esc(item.id) + '"' + (item.id === type ? ' selected' : '') + '>' + esc(item.label) + '</option>').join('') + '</select></label>';
+    const fieldsHtml = fields.map(field => '<div class="field"><label for="' + esc(prefix+'-'+field.id) + '">' + (field.required ? '<em data-followup-required-marker' + (optionalBusinessFields ? ' hidden' : '') + '>*</em> ' : '') + esc(field.label) + (field.required ? ' <small data-followup-optional-marker' + (optionalBusinessFields ? '' : ' hidden') + '>（选填）</small>' : ' <small>（选填）</small>') + '</label>' + fieldControl(field,current[field.id],prefix,handler,optionalBusinessFields) + '</div>').join('');
+    return '<section class="customer-followup-form"><div class="customer-followup-heading"><h3>客户业务信息</h3><span data-followup-requirement>' + (originalTypeUnavailable ? '表单暂不可用' : requirementHint(call,fields)) + '</span></div>' + selector + (originalTypeUnavailable ? '<p class="customer-followup-hint" role="status">' + unavailableOriginalType + '</p>' : type ? (fields.length ? '<div class="customer-followup-grid">' + fieldsHtml + '</div>' : '<p class="customer-followup-hint">此业务分类暂未配置补充字段。</p>') : '<p class="customer-followup-hint">选择本次业务类型后，填写对应的客户信息。</p>') + '<div class="customer-followup-source"><h4>导入时的客户信息</h4>' + CustomerBusiness.importedDetail(call || {}) + '</div>' + '</section>';
+  }
+  function requirementHint(call, fields) {
+    return isUnansweredOutbound(call) ? '本次未接通，业务信息可稍后补充' : fields.some(field => field.required) ? '标 * 的字段保存时必填' : '全部选填';
+  }
+  function syncRequirements(host, call, values = {}) {
+    if (!host) return;
+    const optionalBusinessFields = isUnansweredOutbound(call);
+    // Change only hints and attributes; keep draft input nodes and composition intact.
+    host.querySelectorAll('[data-followup-required-field]').forEach(node => {
+      if (optionalBusinessFields) node.removeAttribute('aria-required'); else node.setAttribute('aria-required','true');
+    });
+    host.querySelectorAll('[data-followup-required-marker]').forEach(node => { node.hidden = optionalBusinessFields; });
+    host.querySelectorAll('[data-followup-optional-marker]').forEach(node => { node.hidden = !optionalBusinessFields; });
+    const hint = host.querySelector('[data-followup-requirement]');
+    if (hint) hint.textContent = requirementHint(call,definitions(call,values));
   }
   function detail(values, source = {}) {
     if (Array.isArray(values?.groups)) return values.groups.length ? values.groups.map(group => '<section class="customer-business-group"><h4>' + esc(CustomerBusiness.typeLabel(group) || group.businessType) + (group.externalDocumentId ? ' · ' + esc(CustomerBusiness.codeLabel(group)) + '：' + esc(group.externalDocumentId) : '') + '</h4>' + detail(group.values,group) + '</section>').join('') : '<p class="table-sub">暂无已填写的业务信息</p>';
     const fields = definitions(source,values || {});
-    if (!fields.length) return '<p class="table-sub">暂无已填写的业务信息</p>';
-    return '<dl class="customer-followup-details">' + fields.map(field => {
+    const imported = source.callId ? CustomerBusiness.importedDetail(source) : ''; // Customer summaries combine calls; imported fields belong only to an exact call.
+    if (!fields.length) return imported + '<p class="table-sub">暂无已填写的业务信息</p>';
+    return imported + '<dl class="customer-followup-details">' + fields.map(field => {
       const raw = values?.[field.id], value = Array.isArray(raw) ? raw.map(item => selectedLabel(field,item)).join('、') : field.type === 'select' ? (nonempty(raw) ? selectedLabel(field,raw) : raw) : field.type === 'datetime' ? raw?.replace('T',' ') : raw;
       return '<div><dt>' + esc(field.label) + '</dt><dd' + (!nonempty(value) ? ' class="is-empty"' : '') + '>' + esc(nonempty(value) ? value : '未填写') + '</dd></div>';
     }).join('') + '</dl>';
@@ -171,5 +195,5 @@
     Pages['cloud-call-records'].openCall(id);
     showToast('业务信息已保存，客户档案与本次通话详情已更新', 'success');
   }
-  window.CustomerFollowup = { empty, update, identity, overlay, aggregate, stores, canEdit, validate, save, form, detail, openEditor, updateEditor, saveEditor };
+  window.CustomerFollowup = { empty, update, identity, overlay, aggregate, stores, canEdit, validate, save, form, detail, openEditor, updateEditor, saveEditor, isUnansweredOutbound, syncRequirements };
 })();

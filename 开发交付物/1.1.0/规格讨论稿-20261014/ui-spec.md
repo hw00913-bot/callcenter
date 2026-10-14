@@ -1,0 +1,11851 @@
+# 页面、交互与当前原型差异
+
+**schema_version**：1.0
+
+**主题**：v1.1.0 开发讨论稿：当前需求与既有页面交互差异
+
+**as_of**：2026-10-14
+
+**状态**：DRAFT_NOT_FROZEN_NOT_READY_FOR_DEVELOPMENT
+
+**source_root**：/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2
+
+**范围**
+
+**page_count**：5
+
+**page_count_status**：prior_S6_stale
+
+**feature_count**：19
+
+**feature_count_status**：prior_S7_stale
+
+**story_count**：12
+
+**acceptance_count**：104
+
+**scenario_count**：7
+
+**official_ui_action_count**：21
+
+**official_ui_action_count_status**：prior_S6_stale
+
+**draft_existing_ui_extension_count**：1
+
+**ui_overlay_navigation_count**：5
+
+**source_stage**：SRC125本轮04 S1/S2按12US/104AC/7SC通过22/16项；当前S2等待G1，G1/G2/G3pending，S3～S9stale。局部实现和开发讨论包不等正式门禁。
+
+**meaning**：保留旧5个PAGE ID作为已有界面定位，增加已有坐席工作台的DRAFT-UI-WORKBENCH规格，不新增产品顶级页面、不分配正式PAGE/FUNC/ACTION。12故事/104验收/7场景为当前需求范围。
+
+**engineering_status**：拨号即填单、预外呼坐席振铃编辑及明确未接外呼通话状态选择/条件校验/独立保存详情已完成局部合成修复；应用多对多/各应用回调、双方式接口及预测转当前坐席人工归属仍待实现或验证，真实契约和工程证据未齐。 SRC-124六项选填来源字段解析、本地保存及原界面展示已完成局部合成源码验证；浏览器导入/详情/早填定点通过，非整版视觉，真实API接收与生产时间格式尚待。 新接口业务批次号、完成沟通后本次通话与业务信息快照回调尚未实现。 本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。 SRC125业务类型已完成41组当前源码定点回归及原名单/详情浏览器核验。仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**ui_schema_boundary**：本文件是现有专用草稿清单，不是正式 plan.ui 导出；正式产品/开发验证仍为 pending。
+
+**priority_boundary**：P0主功能为应用接入、线索导入接口（含业务批次号）、早填/未接通填单及已完成沟通后的本次快照回调；关联查看、分配、继续跟进等依赖单列dependency。手工CSV与其他预测任务操作不因共页而整体升P0；优先级不等于实现、冻结或发布批准。
+
+**source_manifest**
+
+#### 1
+
+**存储语义键**：page
+
+**path**：需求/1.1.0/分析工作区/planning/page-index.json
+
+**sha256**：943f03bb2f375e817ef2ddf4184c4a8a2aea42923c0409f1137e8078013bdc1c
+
+**角色**：prior_stage_stale
+
+#### 2
+
+**存储语义键**：ac
+
+**path**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**sha256**：b264e69c08cbdad2459a39eb38296d588e7fc54e2f9555b031d2def572f76033
+
+**角色**：current_requirement
+
+#### 3
+
+**存储语义键**：feature
+
+**path**：需求/1.1.0/分析工作区/memory/feature-list.json
+
+**sha256**：a7df329ef2d3f069e2cba08d6b08a2c266fd8eec6c896444c767749c4eabbe12
+
+**角色**：prior_stage_stale
+
+#### 4
+
+**存储语义键**：records
+
+**path**：prototype/js/components/dcc-records.js
+
+**sha256**：0b51f8552229f5fcd5f6b8750bd055b26113ee3e5b19f7fb5ffba30c27251437
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 5
+
+**存储语义键**：workspace
+
+**path**：prototype/js/pages/cloud-task-workspace.js
+
+**sha256**：23023f84583721bfbbcd86e7b4d5f3e345b8d50116b11983a26affba65393805
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 6
+
+**存储语义键**：application
+
+**path**：prototype/js/pages/application-access.js
+
+**sha256**：c28978c32cd56ca2bfb3c7a2925c343c7ee37dfe8188aadacc2a570393f3a3d8
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 7
+
+**存储语义键**：runtime
+
+**path**：prototype/js/components/dcc-runtime.js
+
+**sha256**：7f598ffd388ef16433256c61e7dfd4e4ae09fbbfc46c3292ecc27613ed3ce2bb
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 8
+
+**存储语义键**：changes
+
+**path**：prototype/memory/change-log.md
+
+**sha256**：5593b067eade744fcb8bdcc956f8d37027350d01cc371da8b0ab543ce04da2ab
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 9
+
+**存储语义键**：call
+
+**path**：prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+**sha256**：7911e57cbd29721eb2d5a1055db48a478222f0fb6da383109fe57ab4b815fe5c
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 10
+
+**存储语义键**：manual
+
+**path**：prototype/memory/verification-evidence/manual-import-restoration-20261014.json
+
+**sha256**：929386dfc37e28f250528c9c50973746aa013c7a110ed696ad61498e040b13ed
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 11
+
+**存储语义键**：single
+
+**path**：prototype/memory/verification-evidence/manual-code-ui-review-20261014.json
+
+**sha256**：cd5410327743828f32db06cf5eab77ce63c87c0728be27000e7c580287e825ce
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 12
+
+**存储语义键**：ops
+
+**path**：prototype/memory/verification-evidence/operations-ux-repair-20261014.json
+
+**sha256**：ac018025ebbfb842c090053247c5c0b1e2ea929e6b8b9fa226e597614e56175f
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 13
+
+**存储语义键**：saveDecision
+
+**path**：需求/1.1.0/分析工作区/runtime/download-save-user-decision-20261014.json
+
+**sha256**：0079fdf9f823b017b192017e05275a23bc3fdb8b68fc8fb221055db23e6476b8
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 14
+
+**存储语义键**：saveProof
+
+**path**：需求/1.1.0/分析工作区/runtime/download-save-browser-proof-20261014.json
+
+**sha256**：c0e85f8080c4fadb76270aa889d1c36bdb00ba23b0467d360934ed24829a7a77
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 15
+
+**存储语义键**：project-facts
+
+**path**：需求/1.1.0/分析工作区/memory/project-facts.json
+
+**sha256**：550f34a7bc21527176f7030f581a594bf131d837b11930e548556f0a8484b085
+
+**角色**：current_requirement
+
+#### 16
+
+**存储语义键**：G2集中审阅方案
+
+**path**：需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md
+
+**sha256**：370b42fa629e36cadccd9da4aa843994fcf4550c5510841f9330640265453386
+
+**角色**：current_requirement
+
+#### 17
+
+**存储语义键**：user-tenant-callmode-callback-20261014
+
+**path**：需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md
+
+**sha256**：e386f91ee4f385df09d7ff8676961bcca89fe54a9b8b09cfb8e1180347075139
+
+**角色**：current_requirement
+
+#### 18
+
+**存储语义键**：user-workbench-followup-20261014
+
+**path**：需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md
+
+**sha256**：5f4ef530522f8474f332583390f3e6db61ae2e776c694e57a3b41fa30edbd47e
+
+**角色**：current_requirement
+
+#### 19
+
+**存储语义键**：user-all-app-callback-20261014
+
+**path**：需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md
+
+**sha256**：77d96163ca5b3f46c184e51d92a3c4d77c528f8b230037c0aef4288694dd44bb
+
+**角色**：current_requirement
+
+#### 20
+
+**存储语义键**：user-app-tenants-followup-owner-20261014
+
+**path**：需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**sha256**：0c5351a8352dea03b5a997f4e7cc323552be37a36b351970ed72a471b4469d06
+
+**角色**：current_requirement
+
+#### 21
+
+**存储语义键**：current-review-status
+
+**path**：需求/1.1.0/分析工作区/runtime/current-review-status.json
+
+**sha256**：9583f9e51fd6fa3d32f88108c1b014a2acfdc25d8dbb637e12d448e563b97d9a
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 22
+
+**存储语义键**：cloud-call-tasks
+
+**path**：prototype/js/pages/cloud-call-tasks.js
+
+**sha256**：3c9e11d592c1bde95caaae6303d40676b97da7a5bc17f9bd64743ea43583656c
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 23
+
+**存储语义键**：agent-workbench
+
+**path**：prototype/js/pages/agent-workbench.js
+
+**sha256**：49f0708e1187eb0ada6a5cced98f1fa46899042a15c16fada0ff33977267d3a0
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 24
+
+**存储语义键**：customer-tasks
+
+**path**：prototype/js/pages/customer-tasks.js
+
+**sha256**：ba5200d57d80291787615b29e5eea90a8b3009ff3748adc9f54d518f559f5a90
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 25
+
+**存储语义键**：customer-followup
+
+**path**：prototype/js/components/customer-followup.js
+
+**sha256**：6b701cb18597079dc5be5bf0ea3ec58eaf93989f2f5ddf1bb515e6d1bf0a2a42
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 26
+
+**存储语义键**：dcc-delivery-inline-repair-20261014
+
+**path**：prototype/memory/verification-evidence/dcc-delivery-inline-repair-20261014.json
+
+**sha256**：3ea8a1a2effe4bb834430109471173606234734fa0a2d7243a2c5319f32cfbd8
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 27
+
+**存储语义键**：import-entry-repair-20261014
+
+**path**：prototype/memory/verification-evidence/import-entry-repair-20261014.json
+
+**sha256**：96442e05ff2c14258c867216153a7ce63722e474e196e0098bd2f2d6593b2bf8
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 28
+
+**存储语义键**：task-actions-ui-repair-20261014
+
+**path**：prototype/memory/verification-evidence/task-actions-ui-repair-20261014.json
+
+**sha256**：e04077faaa7cf2630188bc2e284c98d7c4fc9e48be9d50f5a527bc32fab4f4eb
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 29
+
+**存储语义键**：source-index
+
+**path**：需求/1.1.0/分析工作区/inputs/source-index.json
+
+**sha256**：a54656e638d49b89f34a5c493f59cb979beb18f57049c12285208bb3dbf45f47
+
+**角色**：current_requirement
+
+#### 30
+
+**存储语义键**：current-scenario-list
+
+**path**：需求/1.1.0/分析工作区/outputs/business-scenario-list.md
+
+**sha256**：e8e3bb8d87bba7e03ffdc04bb70fbbdef1eb606467827fc183d9e33263c8cb42
+
+**角色**：current_requirement
+
+#### 31
+
+**path**：prototype/memory/verification-evidence/workbench-early-form-repair-20261014.json
+
+**sha256**：dcd3446b570092fa645ef14299b17b7938336bbee01cafa29a7a6b56afe0c8cd
+
+**角色**：local_synthetic_evidence_not_formal_business_approval
+
+**存储语义键**：workbench-early-form-repair-20261014
+
+#### 32
+
+**path**：prototype/js/components/workbench-overview.js
+
+**sha256**：b09009daef8c20f4428048d0708342cd487789bc54210dddc9b643ee63a1b2af
+
+**角色**：local_synthetic_evidence_not_formal_business_approval
+
+**存储语义键**：workbench-overview
+
+#### 33
+
+**存储语义键**：workbench-manual-status-20261014
+
+**path**：prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+**sha256**：738665bc9120b6760fbc5ddc172e1e61385c1b4991077f00e9b8527a746cd67c
+
+**角色**：local_synthetic_evidence_not_formal_business_approval
+
+#### 34
+
+**存储语义键**：user-workbench-manual-status-20261014
+
+**path**：需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md
+
+**sha256**：7c07aaa7bb8b16186d16ed5745d5edb1106cd476ff8616d666ca4099ef591acb
+
+**角色**：current_requirement_scoped_delta_pending_formal_recheck
+
+#### 35
+
+**存储语义键**：cloud-call-records
+
+**path**：prototype/js/pages/cloud-call-records.js
+
+**sha256**：6da436ac342c66ee60fc2d4782d51c741249056ad9ab68fe47e83bf8ea9d9959
+
+**角色**：actual_local_source_or_scoped_evidence
+
+#### 36
+
+**存储语义键**：alicti-number-status
+
+**path**：prototype/js/components/alicti-number-status.js
+
+**sha256**：e364f8b5cfb31ecf34dc48635d69dd7ac754b7a24faea7158d3d929160762226
+
+**角色**：local_dictionary_source_not_live_supplier_contract
+
+#### 37
+
+**存储语义键**：user-completed-communication-business-batch-20261014
+
+**path**：需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md
+
+**sha256**：9ce58da2c984f59e2d8fcf2bc3bf5e6cdafd072a050056b32251a57b1fc2de12
+
+**角色**：original_user_requirement_SRC123_current_target_not_frozen
+
+#### 38
+
+**存储语义键**：prototype-disposition-options
+
+**path**：prototype/mock/data.js
+
+**sha256**：22fa116694fd3a46f6a6d38e4cb1da90e2c471183a81b5039bc2d200788c3bce
+
+**角色**：read_only_actual_prototype_structure_not_new_callback_proof
+
+#### 39
+
+**存储语义键**：customer-business
+
+**path**：prototype/js/components/customer-business.js
+
+**sha256**：a9e7b1a616656fb770d61d335e4ebb1d87dcd31652aebb9237268eae3bd4a6a4
+
+**角色**：read_only_actual_prototype_structure_not_new_callback_proof
+
+#### 40
+
+**存储语义键**：current-scenario-index
+
+**path**：需求/1.1.0/分析工作区/scenarios/scenario-index.json
+
+**sha256**：926ab6548fcd9d630d7fb264400013f3cc61201ee93e3d410ea81fbf530cc42a
+
+**角色**：current_S2_scenarios_not_gate_approval
+
+#### 41
+
+**存储语义键**：completion-business-batch-s1-check-r2-20261014
+
+**path**：需求/1.1.0/分析工作区/runtime/completion-business-batch-s1-check-r2-20261014.json
+
+**sha256**：82548ac15e07c95cdb57f84e9ebffbe3d1db78e41d060c227ec49fefc2af8504
+
+**角色**：current_S1_normalization_evidence_not_gate_approval
+
+#### 42
+
+**存储语义键**：completion-business-batch-s2-check-r2-20261014
+
+**path**：需求/1.1.0/分析工作区/runtime/completion-business-batch-s2-check-r2-20261014.json
+
+**sha256**：587d2590671c1f17feeee7e9c965db3f45a4269df1fb1e23a638032664e9391b
+
+**角色**：current_S2_scenario_evidence_not_gate_approval
+
+#### 43
+
+**存储语义键**：user-intention-fields-20261014
+
+**path**：需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**sha256**：7f4945fc2e31ba10a320ee5efbe1c3fded5861f6be11851fedfbbcb0ae4e2083
+
+**角色**：original_user_source_SRC124_six_fields_UI_and_bounded_contract_proposals
+
+#### 44
+
+**存储语义键**：intent-fields-s1-check-r2-20261014
+
+**path**：需求/1.1.0/分析工作区/runtime/intent-fields-s1-check-r2-20261014.json
+
+**sha256**：e261845d2c68623674d479599dfcc2db31de789edb0425d0c1bddfbc5c8792d1
+
+**角色**：historical_SRC124_r2_checks_not_current_source_binding
+
+#### 45
+
+**存储语义键**：intent-fields-s2-check-r2-20261014
+
+**path**：需求/1.1.0/分析工作区/runtime/intent-fields-s2-check-r2-20261014.json
+
+**sha256**：b7619e02d3381ee6c0bc97d5ddce070f0690ed064ed2e6bfb73c1c2f6c6c6ab7
+
+**角色**：historical_SRC124_r2_checks_not_current_source_binding
+
+#### 46
+
+**存储语义键**：imported-customer-info-20261014
+
+**path**：prototype/memory/verification-evidence/imported-customer-info-20261014.json
+
+**sha256**：20db9a10c994eadaf8719f46913a7d41b27a3cc8b74538c0163187a5704a2401
+
+**角色**：current_local_synthetic_source_checks_not_API_or_callback_proof
+
+#### 47
+
+**存储语义键**：dcc-v1.1.0
+
+**path**：prototype/mock/dcc-v1.1.0.js
+
+**sha256**：c06080417cd05562087bb01dc92a62c20f88b4d472de66f66cff6adefd910d24
+
+**角色**：actual_local_synthetic_six_field_source_or_display_not_real_ingest_or_callback_proof
+
+#### 48
+
+**存储语义键**：index
+
+**path**：prototype/index.html
+
+**sha256**：8a4c75e4b8812c039a60fe7969e937002d2fadba00cf0cddfa211c677774ed70
+
+**角色**：actual_local_synthetic_six_field_source_or_display_not_real_ingest_or_callback_proof
+
+#### 49
+
+**存储语义键**：customer-directory
+
+**path**：prototype/js/components/customer-directory.js
+
+**sha256**：e65fdc3de4ae8c9ce5ec6a7f44f245dee000effb0365530c30a201125ae910a9
+
+**角色**：actual_local_synthetic_six_field_source_or_display_not_real_ingest_or_callback_proof
+
+#### 50
+
+**path**：需求/1.1.0/分析工作区/runtime/intent-fields-s1-check-r3-20261014.json
+
+**角色**：current_requirement_or_scoped_implementation_evidence
+
+**sha256**：83dce8372287687d80705b9ba428605bfe5d8d931c426c9bde2768840d72ffa4
+
+#### 51
+
+**path**：需求/1.1.0/分析工作区/runtime/intent-fields-s2-check-r3-20261014.json
+
+**角色**：current_requirement_or_scoped_implementation_evidence
+
+**sha256**：f2b7d26ce33f38e303ce71b0e272392827005fae80743c8e843b8fd33de65382
+
+#### 52
+
+**path**：prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**角色**：current_requirement_or_scoped_implementation_evidence
+
+**sha256**：f3c873bb5e980a3cf1de70eb5c323438aca5aa3da14ccab356b2551103252ed5
+
+#### 53
+
+**path**：prototype/memory/verification-evidence/imported-customer-info-detail-20261014.png
+
+**角色**：current_requirement_or_scoped_implementation_evidence
+
+**sha256**：2db448f92194ff6198529fd997ebb761c123e5331a4217db35e0ea3f12a86e12
+
+#### 54
+
+**path**：prototype/memory/verification-evidence/imported-customer-info-early-form-20261014.png
+
+**角色**：current_requirement_or_scoped_implementation_evidence
+
+**sha256**：570833f1663ce921a771f042eda23f1ad370a4eccd058cddd055aff778c9c332
+
+#### 55
+
+**path**：需求/1.1.0/分析工作区/inputs/user-import-business-type-20261014.md
+
+**角色**：current_requirement_SRC125
+
+**sha256**：1e7e898634ba9f2c22700810e47af4dba58c7afa0286e67e43dc03111135dba5
+
+#### 56
+
+**path**：prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**角色**：current_SRC125_requirement_or_scoped_runtime_evidence
+
+**sha256**：166f10e1e73d94150bb5935babcc262867cc55df96c640df630c034a44315dc1
+
+#### 57
+
+**path**：prototype/memory/verification-evidence/api-business-type-list-20261014.png
+
+**角色**：current_SRC125_requirement_or_scoped_runtime_evidence
+
+**sha256**：c815b5cfdfe81b992b9595e1d4454afdaa45a2f5b717b79d70163653ffef827e
+
+#### 58
+
+**path**：prototype/memory/verification-evidence/api-business-type-detail-20261014.png
+
+**角色**：current_SRC125_requirement_or_scoped_runtime_evidence
+
+**sha256**：95f4281e1e51b16979e2f408deeaa78a9cde6e73c0ec17516556cd7495c7a376
+
+#### 59
+
+**path**：需求/1.1.0/分析工作区/runtime/business-type-s1-check-20261014.json
+
+**角色**：current_SRC125_requirement_or_scoped_runtime_evidence
+
+**sha256**：b00797984a0bb83fe3ea470e3542936161a1142d593ea47e4001edf7519ba924
+
+#### 60
+
+**path**：需求/1.1.0/分析工作区/runtime/business-type-s2-check-20261014.json
+
+**角色**：current_SRC125_requirement_or_scoped_runtime_evidence
+
+**sha256**：de11602cf7596401d8655d8db5816bccf083ef3a15d51b4f1d5fa99281f936ad
+
+**global**
+
+**language**
+
+**直接范围**：面向运营显示客户、名单、导入批次、通话、异常原因、处理进度和下一步操作。
+
+**default_hidden**
+
+1. fileId、requestId、recordId、rootBatchId、SIP原字段、接口编号及missing/partial
+
+2. 提交原文、回执原文、技术重放/身份交换、合成事件按钮
+
+**detail_access**：排查所需技术字段放详情折叠区，默认收起；演示工具单独折叠。必要演示数据提示保留。
+
+**consistent_labels**
+
+**交付优先级**：优先级
+
+**R**：R（选填）
+
+**import**：客户名单
+
+**failures**：导入异常
+
+**delivery**：业务系统回传
+
+**deletion**：号码移除
+
+**calls**：通话记录
+
+**monitor**：运行监控
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-028
+
+2. AC-039
+
+3. AC-070
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/operations-ux-repair-20261014.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+**布局**
+
+**widths**
+
+1. 1440
+
+2. 1920
+
+3. 2560
+
+**modal**：手工导入使用原居中大弹窗，正文滚动，底部取消／检查名单／确认导入固定；不改为多层抽屉。
+
+**字段**：必填字段在前，联系备注与R选填排末；只读后台关联字段不占表单。 本轮六个导入业务字段选填列放客户必填和联系备注之后、R之前；原弹窗及检查/确认流程沿用。
+
+**状态**：每页均写明正常、加载、空、错误、无权限；未知业务状态显示待确认，不伪装为空或零。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-015
+
+**验收**
+
+1. AC-028
+
+2. AC-031
+
+3. AC-035
+
+4. AC-059
+
+5. AC-060
+
+6. AC-069
+
+7. AC-100
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/memory/verification-evidence/manual-import-restoration-20261014.json, prototype/memory/verification-evidence/manual-code-ui-review-20261014.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**workbench**：沿既有坐席工作台与跟进表单。振铃表单与适用接听/挂断控件同时可用，必填提示随客观接通状态变化；不增加技术面板。
+
+**权限**
+
+**application**：列表／新增／详情／修改／删除仅超管；应用token不授内部管理权。
+
+**task**：沿当前登录身份、租户和任务权限；查看、导入、下载、任务创建、八类人工补提交及指定删除分别核权；按钮隐藏或禁用不替代服务端校验。
+
+**mutable_context**：确认与外发前重新校验当前身份、租户、原任务、记录和状态；弹窗期间撤权或任务变化拒绝执行。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-006
+
+3. FUNC-009
+
+4. FUNC-015
+
+5. FUNC-016
+
+6. FUNC-022
+
+**验收**
+
+1. AC-029
+
+2. AC-044
+
+3. AC-045
+
+4. AC-059
+
+5. AC-060
+
+6. AC-077
+
+7. AC-078
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**workbench**：只编辑当前坐席/租户有权访问且准确关联的客户与通话；保存复核归属与版本。人工工号分配不授管理权，预外呼转人工的远端排他未核时不能开放安全再次拨号承诺。
+
+**source_routing**
+
+**target**：应用与租户多对多，各业务系统有自己的稳定应用凭据和回调地址。接口记录保存经鉴权的应用、明确租户及与应用登记一致的来源；所有应用来源包括DCC、天网按所属应用回调。仅无接入应用的手工界面导入在平台查看；人工外呼方式不等于手工导入来源。任务不另绑定应用。
+
+**application_ui**：仅超管在应用新增/修改维护本应用回调地址与关联租户；详情可查看。未配回调地址不能接口导入。任务与导入报文不允许任意临时地址。
+
+**forbidden_inputs**
+
+1. 任务绑定某个应用
+
+2. 名单中填写临时回调地址或切换来源接收方
+
+3. requestId/isNewBatch/token/raw JSON手工导入字段
+
+**not_inferred_from**
+
+1. 任务接口标签
+
+2. 应用显示名
+
+3. R
+
+4. 任意body source
+
+5. root归属或后来同组记录
+
+6. 人工外呼方式
+
+7. 当前操作人或其当前/最近租户
+
+8. 通用processingStatus已完成
+
+9. 同业务批次号的另一条记录
+
+**identity_proposal**：建议获取token时显式tenantId，验证应用有效关联后固定app/tenant；不默认第一个或最近租户，token不临时跨租户。正式协议待S4。
+
+**callback_details**：回传状态放准确客户/通话/异常详情，无独立回传页签。结束后选择“已完成沟通”并成功保存时，目标由后台按该记录原应用/原租户回调本次通话、业务信息与原业务批次号；本地保存成功与回调待发送/已送达/失败分别显示。补送只重送原事件，不再导入、分配或拨号；地址变化积压选址及正式ACK待核。 完成沟通载荷也携准确原导入行的意向门店、车系、Smartcode和留资时间，不能按同批其他客户或当前客户汇总替换。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-010
+
+**验收**
+
+1. AC-014
+
+2. AC-017
+
+3. AC-018
+
+4. AC-023
+
+5. AC-037
+
+6. AC-043
+
+7. AC-052
+
+8. AC-071
+
+9. AC-075
+
+10. AC-080
+
+11. AC-084
+
+12. AC-085
+
+13. AC-086
+
+14. AC-092
+
+15. AC-095
+
+16. AC-096
+
+17. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用凭据、多对多租户关联及各应用回调地址配置；回传执行与展示作为接口闭环依赖，不新增任务应用绑定。
+
+**优先组**
+
+1. P0-APP
+
+**source_contract_status**：SRC125 12US/104AC/7SC规范化及场景核验通过；当前G1/G2/G3pending，旧PAGE/FUNC/ACTION只是定位，S3～S9仍需重验。局部运行证据不等整版通过。
+
+**api_import_display**
+
+**call_mode**：接口显式指定预外呼或人工外呼，沿后台契约处理；不因此给原手工导入弹窗增加请求JSON、token或技术字段。
+
+**predictive**：核当前token租户与原任务、接口初始来源；按原任务坐席组分配，不用导入工号覆盖任务坐席组。
+
+**manual**：接口人工行指定同租户有效坐席工号，保留前导零并解析准确坐席身份；导入后保存分配到既有待联系，坐席主动联系才拨号，不伪造预测taskId/fileId/root。
+
+**callback**：两种方式的应用来源均先配置所属应用回调地址；方式与来源是两个维度。
+
+**状态**：draft_interface_and_UI_display_boundary_not_implemented
+
+**独立草案操作**
+
+1. DRAFT-OP-MANUAL-ASSIGN
+
+**验收**
+
+1. AC-080
+
+2. AC-081
+
+3. AC-082
+
+4. AC-083
+
+5. AC-086
+
+6. AC-092
+
+7. AC-093
+
+8. AC-094
+
+9. AC-099
+
+10. AC-100
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口的结果查看、两种外呼方式及准确分配反馈；接口本体为P0主功能，不为此新增请求JSON或技术面板，也不整体升级手工CSV界面。
+
+**优先组**
+
+1. P0-IMPORT
+
+**business_batch**：外部API请求必传业务批次号（拟名businessBatchNo），同一原应用/租户可反复用于多次新业务导入；requestId仍独立去重。界面只在准确导入记录/客户/通话详情读取原值，和平台批次号分别标识，不为手工CSV添加输入项，历史缺值显示未记录。 原有每次结果/进度与新增完成沟通回调均携对应准确记录的原号，不能以业务批次号单独识别通话或去重回调。
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**scenario_ids**
+
+1. SC-001
+
+**optional_business_context**
+
+**field_proposals**
+
+#### 1
+
+**存储语义键**：intentionStoreCode
+
+**label**：意向门店编码
+
+**field_id**：DFIELD-126
+
+**required**：False
+
+#### 2
+
+**存储语义键**：intentionStoreName
+
+**label**：意向门店名称
+
+**field_id**：DFIELD-127
+
+**required**：False
+
+#### 3
+
+**存储语义键**：intentionSeriesCode
+
+**label**：意向车系编码
+
+**field_id**：DFIELD-128
+
+**required**：False
+
+#### 4
+
+**存储语义键**：intentionSeries
+
+**label**：意向车系
+
+**field_id**：DFIELD-129
+
+**required**：False
+
+#### 5
+
+**存储语义键**：smartCode
+
+**label**：Smartcode
+
+**field_id**：DFIELD-130
+
+**required**：False
+
+#### 6
+
+**存储语义键**：leadCreatedAt
+
+**label**：留资时间
+
+**field_id**：DFIELD-131
+
+**required**：False
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 留资时间leadCreatedAt是业务系统提供的原线索留资时间，选填；与平台importedAt和跟进savedAt分别保存/展示。未提供不填当前时间，不由其他时间推算；按原提供值透传，正式wire类型、时间格式及时区待S4确认，不凭样例冻结。
+
+**display**：原手工CSV选填后置；检查名单完整预览已填六字段；客户/通话详情及既有坐席表单用业务名称只读展示原导入值，不增加技术请求页。缺值显示“未提供”，不补造编码或名称。 留资时间展示原提供值，与平台导入时间分开；长值可查看完整内容，不丢失编码。
+
+**snapshot_boundary**：完成沟通事件另携本记录本次导入保存的六个选填业务字段intentionStoreCode/intentionStoreName/intentionSeriesCode/intentionSeries/smartCode/leadCreatedAt；按原app/tenant/record及本次call准确关联，已填携原码/原名称/原Smartcode，未提供保留缺值，不能以其他同手机号/线索/批次的最新导入或后续编辑覆盖。本次导入业务信息与坐席本次填写的customerFollowup快照并列，原plannedStoreName不被导入意向门店覆盖；补送使用同一固定快照。 留资时间leadCreatedAt是业务系统提供的原线索留资时间，选填；与平台importedAt和跟进savedAt分别保存/展示。未提供不填当前时间，不由其他时间推算；按原提供值透传，正式wire类型、时间格式及时区待S4确认，不凭样例冻结。
+
+**验收**
+
+1. AC-099
+
+2. AC-100
+
+3. AC-101
+
+**状态**：local_synthetic_six_field_parse_save_display_source_checks_passed_browser_pending_external_ingest_and_completion_callback_not_implemented
+
+**来源**：需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**completion_callback**
+
+**状态**：draft_target_not_implemented
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：完成沟通保存后后台回调本次通话及客户业务信息，保留原业务批次号；相关状态在既有详情展示。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**触发**：本次外呼已结束，当前有权坐席明确选择现有处理结果“已完成沟通”，且本次通话/业务信息已可靠保存后；普通processingStatus已完成不等于该处理结果。
+
+**eligible_sources**：只对已鉴权并保存原应用/租户的API导入记录，两种外呼方式适用；原手工UI无原应用不默认外发，缺关联进入待核而非猜接收方。
+
+**payload_view**：只展示并回调本次call的通话记录、所保存customerFollowup业务信息快照及原业务批次号，不用跨通话aggregate覆盖本次内容。后台回调须同时带本次已填写业务字段的业务编码及已选选项业务编码，多选保留所有所选编码，不能只发label；编码从本次保存快照取得，不要求坐席另填。未填写项不伪造业务值，历史配置缺编码保持待核；正式字段结构、配置版本与历史兼容契约仍待。 字段/选项编码关联准确原租户在本次保存时的配置，不取当前切换租户或补送时最新配置。 完成沟通事件另携本记录本次导入保存的六个选填业务字段intentionStoreCode/intentionStoreName/intentionSeriesCode/intentionSeries/smartCode/leadCreatedAt；按原app/tenant/record及本次call准确关联，已填携原码/原名称/原Smartcode，未提供保留缺值，不能以其他同手机号/线索/批次的最新导入或后续编辑覆盖。本次导入业务信息与坐席本次填写的customerFollowup快照并列，原plannedStoreName不被导入意向门店覆盖；补送使用同一固定快照。 留资时间leadCreatedAt是业务系统提供的原线索留资时间，选填；与平台importedAt和跟进savedAt分别保存/展示。未提供不填当前时间，不由其他时间推算；按原提供值透传，正式wire类型、时间格式及时区待S4确认，不凭样例冻结。
+
+**local_vs_delivery**：本地保存结果与业务系统回调状态分开；回调待发送或失败不撤销已保存记录、不要求再次保存或拨打、不再次提交导入。回调重试只发送原事件的同一快照。 已填写字段或所选选项缺业务编码时，回调显示资料待完善并保留具体原因，不伪报完整送达；不因此阻断坐席本地保存或丢草稿，编码由既有配置权限维护，正式补齐/重送版本规则待核。 回调成功展示需对应正式业务接收确认，HTTP受理或本地保存不能替代；ACK定义未齐时不得伪装已送达。
+
+**presentation**：保留原表单与保存按钮，在保存成功提示及准确通话/客户详情内按需显示回调进度、异常及既有授权补送入口；不新增回调页签或要求坐席维护回调地址。 动态填单配置的字段/选项业务编码仅由后台快照承载，不给运营新增技术编码输入或默认展示；本轮导入的门店编码/车系编码/Smartcode是明确业务信息，按用户要求只读展示原值。 缺编码只向运营给出资料待完善的业务提示；配置操作沿既有权限，不要求坐席填技术码。
+
+**event_boundary**：保留已有每次结果/进度/秒挂等回调职责。完成沟通事件与原回调按事件/版本区分，重复保存、晚到话单与ACK不能覆盖已确认快照；正式字段、唯一性及修订策略待核。 原有每次结果/进度及新增完成沟通事件都带对应记录原业务批次号；历史缺值明确保留，不补造。
+
+**独立草案操作**
+
+1. DRAFT-OP-COMPLETION-CALLBACK
+
+**局部逻辑引用**
+
+1. DLOCAL-COMPLETION-CALLBACK
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-095
+
+2. AC-096
+
+3. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**页面来源状态**：prior_S6_stale_or_existing_workbench_no_new_formal_PAGE
+
+**scenario_ids**
+
+1. SC-007
+
+2. SC-002
+
+**字段引用**
+
+1. DFIELD-115
+
+2. DFIELD-124
+
+3. DFIELD-125
+
+4. DFIELD-089
+
+5. DFIELD-090
+
+6. DFIELD-091
+
+7. DFIELD-126
+
+8. DFIELD-127
+
+9. DFIELD-128
+
+10. DFIELD-129
+
+11. DFIELD-130
+
+12. DFIELD-131
+
+**backend_only_acceptance_ids**
+
+1. AC-098
+
+2. AC-101
+
+**business_code_mapping**：按准确原租户在本次保存时配置，冻结已填写字段的业务编码和值，单选/多选还带全部所选选项业务编码与值；不以中文标签或内部ID兜底。后续改配置不改原快照，历史缺码回调资料待完善且本地保存保留，不加运营编码输入。
+
+**pages**
+
+#### PAGE-001 应用接入列表
+
+**标识**：PAGE-001
+
+**名称**：应用接入列表
+
+**事实状态**：draft_target_with_explicit_local_overlay
+
+**路由**：application-access
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-018
+
+2. FUNC-019
+
+3. FUNC-020
+
+4. FUNC-001
+
+5. FUNC-021
+
+**验收**
+
+1. AC-017
+
+2. AC-028
+
+3. AC-037
+
+4. AC-044
+
+5. AC-045
+
+6. AC-053
+
+7. AC-057
+
+8. AC-058
+
+9. AC-084
+
+10. AC-085
+
+11. AC-086
+
+12. AC-092
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/pages/application-access.js, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**状态**
+
+**正常**：名称/appId查询、分页和新增；显示关联租户与回调地址已配置/未配置，未配置提示先配置后接口导入；每行详情/修改/删除。
+
+**加载**：查询或刷新中显示加载，阻止重复请求；已有数据不冒充本次结果。
+
+**空态**：无应用显示“暂无应用，可新增应用”；筛选无结果显示“未找到匹配应用”及重置。
+
+**错误**：读取失败显示原因及重试，保留查询条件；删除失败保留原行。
+
+**无权**：非超管隐藏菜单，直接访问显示“无权管理应用”，不显示应用或密钥。
+
+**字段**
+
+#### applicationQuery
+
+**标识**：applicationQuery
+
+**label**：应用名称或 appId
+
+**required**：False
+
+**position**：1
+
+**editability**：输入
+
+**rule**：查询/重置不修改应用。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-018
+
+**验收**
+
+1. AC-053
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**field_id**：DFIELD-007
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用名称或 appId；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**sections**
+
+#### 1 应用列表
+
+**名称**：应用列表
+
+**content**：查询、分页及新增；列表以应用名称、appId、关联租户和回调配置状态为必要信息，详情/修改/删除固定入口。一个租户允许关联多个应用，不显示一对一占用冲突。无token测试面板。
+
+**事实状态**：requirement_target
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-018
+
+**验收**
+
+1. AC-053
+
+2. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用列表；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**交互**
+
+#### ACTION-016 查询应用
+
+**标识**：ACTION-016
+
+**名称**：查询应用
+
+**事实状态**：requirement_target
+
+**触发**：进入列表或点击查询/刷新/分页
+
+**前提**
+
+1. 超管当前有管理权限
+
+**processing**：加载本次查询，结果返回前不混用其他条件数据
+
+**success_feedback**：展示匹配应用及总数
+
+**failure_feedback**：保留查询条件，显示读取失败和重试
+
+**return_path**：重置回全部应用
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-018
+
+**验收**
+
+1. AC-053
+
+2. AC-044
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：查询应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-017 新增应用
+
+**标识**：ACTION-017
+
+**名称**：新增应用
+
+**事实状态**：requirement_target
+
+**触发**：点击新增应用
+
+**前提**
+
+1. 超管
+
+**processing**：仅导航，不生成密钥
+
+**success_feedback**：进入新增表单
+
+**failure_feedback**：无权时不打开
+
+**return_path**：取消返回原列表
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-019
+
+**验收**
+
+1. AC-055
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：新增应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-018 查看应用
+
+**标识**：ACTION-018
+
+**名称**：查看应用
+
+**事实状态**：requirement_target
+
+**触发**：点击具体行查看详情
+
+**前提**
+
+1. 超管且目标存在
+
+**processing**：精确按应用标识读取
+
+**success_feedback**：进入当前应用详情
+
+**failure_feedback**：不存在/无权不显示其他应用
+
+**return_path**：返回列表保留查询
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-020
+
+**验收**
+
+1. AC-054
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：查看应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-019 修改应用
+
+**标识**：ACTION-019
+
+**名称**：修改应用
+
+**事实状态**：requirement_target
+
+**触发**：点击具体行修改
+
+**前提**
+
+1. 超管且目标存在
+
+**processing**：仅载入当前配置
+
+**success_feedback**：进入修改视图
+
+**failure_feedback**：不存在/无权不进入可保存状态
+
+**return_path**：取消返回列表
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-001
+
+**验收**
+
+1. AC-056
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：修改应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-020 删除应用
+
+**标识**：ACTION-020
+
+**名称**：删除应用
+
+**事实状态**：requirement_target
+
+**触发**：点击具体行删除
+
+**前提**
+
+1. 超管且目标存在
+
+**processing**：确认窗显示应用名和appId，确认后锁定当前操作
+
+**success_feedback**：成功移除该行；业务历史保留
+
+**failure_feedback**：取消无变化；失败保留行、配置及身份状态
+
+**return_path**：成功留在列表，详情删除成功也回列表
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-021
+
+**验收**
+
+1. AC-057
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：删除应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**official_actions**
+
+#### ACTION-016 查询应用列表
+
+**标识**：ACTION-016
+
+**名称**：查询应用列表
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 进入列表或点击查询/刷新/分页；加载本次查询，结果返回前不混用其他条件数据
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-018
+
+**验收**
+
+1. AC-044
+
+2. AC-045
+
+3. AC-053
+
+4. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：查询应用列表；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-017 进入新增应用
+
+**标识**：ACTION-017
+
+**名称**：进入新增应用
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击新增应用；仅导航，不生成密钥
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-019
+
+**验收**
+
+1. AC-044
+
+2. AC-045
+
+3. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：进入新增应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-018 查看指定应用详情
+
+**标识**：ACTION-018
+
+**名称**：查看指定应用详情
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击具体行查看详情；精确按应用标识读取
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-020
+
+**验收**
+
+1. AC-044
+
+2. AC-045
+
+3. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：查看指定应用详情；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-019 进入修改应用
+
+**标识**：ACTION-019
+
+**名称**：进入修改应用
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击具体行修改；仅载入当前配置
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-001
+
+**验收**
+
+1. AC-044
+
+2. AC-045
+
+3. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：进入修改应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-020 删除指定应用
+
+**标识**：ACTION-020
+
+**名称**：删除指定应用
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击具体行删除；确认窗显示应用名和appId，确认后锁定当前操作
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-001
+
+**function_ids**
+
+1. FUNC-021
+
+**验收**
+
+1. AC-044
+
+2. AC-045
+
+3. AC-057
+
+4. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-001, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：删除指定应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**原页面**
+
+1. PAGE-001
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**局部逻辑引用**
+
+1. DLOCAL-018
+
+2. DLOCAL-021
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用接入列表、凭据管理、关联租户与本应用回调配置；真实鉴权/token/回调契约仍待核。
+
+**优先组**
+
+1. P0-APP
+
+#### PAGE-002 预外呼任务记录页
+
+**标识**：PAGE-002
+
+**名称**：预外呼任务记录页
+
+**事实状态**：draft_target_with_explicit_local_overlay
+
+**路由**：predictive-tasks / task workspace
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-005
+
+3. FUNC-006
+
+4. FUNC-009
+
+5. FUNC-011
+
+6. FUNC-012
+
+7. FUNC-013
+
+8. FUNC-014
+
+9. FUNC-015
+
+10. FUNC-016
+
+11. FUNC-017
+
+12. FUNC-022
+
+13. FUNC-010
+
+**验收**
+
+1. AC-001
+
+2. AC-002
+
+3. AC-003
+
+4. AC-004
+
+5. AC-005
+
+6. AC-006
+
+7. AC-008
+
+8. AC-011
+
+9. AC-013
+
+10. AC-014
+
+11. AC-015
+
+12. AC-016
+
+13. AC-019
+
+14. AC-020
+
+15. AC-021
+
+16. AC-022
+
+17. AC-023
+
+18. AC-024
+
+19. AC-025
+
+20. AC-026
+
+21. AC-027
+
+22. AC-028
+
+23. AC-029
+
+24. AC-030
+
+25. AC-031
+
+26. AC-032
+
+27. AC-033
+
+28. AC-034
+
+29. AC-035
+
+30. AC-036
+
+31. AC-038
+
+32. AC-039
+
+33. AC-040
+
+34. AC-041
+
+35. AC-042
+
+36. AC-043
+
+37. AC-046
+
+38. AC-052
+
+39. AC-059
+
+40. AC-060
+
+41. AC-061
+
+42. AC-062
+
+43. AC-063
+
+44. AC-064
+
+45. AC-065
+
+46. AC-066
+
+47. AC-067
+
+48. AC-068
+
+49. AC-069
+
+50. AC-070
+
+51. AC-072
+
+52. AC-073
+
+53. AC-074
+
+54. AC-076
+
+55. AC-077
+
+56. AC-078
+
+57. AC-079
+
+58. AC-007
+
+59. AC-009
+
+60. AC-010
+
+61. AC-012
+
+62. AC-017
+
+63. AC-018
+
+64. AC-037
+
+65. AC-047
+
+66. AC-048
+
+67. AC-049
+
+68. AC-050
+
+69. AC-051
+
+70. AC-071
+
+71. AC-075
+
+72. AC-093
+
+73. AC-094
+
+74. AC-095
+
+75. AC-096
+
+76. AC-097
+
+77. AC-100
+
+78. AC-103
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+3. SC-002
+
+**状态**
+
+**正常**：沿原任务展示运行监控、客户与处理记录、任务设置、执行明细、唯一通话记录；导入入口常驻。 API来源相关记录/详情展示“业务批次号”，与平台批次号分列；同号多次导入仍为各自记录，历史缺值显示未记录。 原客户及通话详情、坐席填单上下文按准确记录只读展示意向门店编码/名称、意向车系编码/名称、Smartcode和留资时间；缺值显示未提供，不沿同号客户或最新汇总补造。 留资时间显示业务方原值，与平台导入时间/跟进保存时间区分。
+
+**加载**：当前区域加载；提交/删除/补提交执行中锁定相关按钮，保留已有信息并标处理中。 六字段随当前准确对象载入，切换对象不短暂显示上一客户值。
+
+**空态**：名单、导入异常、通话和号码移除各给准确空态；没有收到结果不等于未拨打、全成功或任务完成。 六个选填导入业务字段未传不视为错误，显示未提供。
+
+**错误**：读取失败显示待确认和重试；业务拒绝逐行原因；未知提交保留本次状态，禁止盲重发，不显示假零。 导入业务信息读取失败显示待确认，不以空值假装读取成功；已有跟进草稿不丢失。
+
+**无权**：任务不可访问不展示数据；可查看但无操作权保留禁用入口及原因，重新核权失败不落账。
+
+**字段**
+
+#### businessType
+
+**标识**：businessType
+
+**label**：业务类型
+
+**required**：True
+
+**position**：1
+
+**editability**：原手工导入选择；已保存接口来源类型只读
+
+**rule**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**事实状态**：local_synthetic_original_type_scoped_verified_real_API_pending
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+**验收**
+
+1. AC-031
+
+2. AC-060
+
+3. AC-069
+
+4. AC-103
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-103
+
+**field_id**：DFIELD-024
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-API-BUSINESS-TYPE-20261014
+
+**source_id**：SRC-125
+
+**说明**：请求级业务类型校验、原码保存/回执/既有结果模拟，原名单/详情和跟进按原类型。
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**verification**
+
+**source_checks_passed**：40
+
+**source_checks_failed**：0
+
+**syntax_checks_passed**：5
+
+**browser**：1280x720原名单类型列与客户详情通过，错误日志为空；浏览器未调用外部接收接口。
+
+**验证边界**
+
+1. 仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+#### importBatchName
+
+**标识**：importBatchName
+
+**label**：批次名称
+
+**required**：True
+
+**position**：2
+
+**editability**：输入
+
+**rule**：原弹窗基础信息；不要求用户填写系统批次号。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+**验收**
+
+1. AC-031
+
+2. AC-069
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-025
+
+#### name
+
+**标识**：name
+
+**label**：客户称呼
+
+**required**：True
+
+**position**：3
+
+**editability**：CSV/粘贴/检查区编辑
+
+**rule**：保留原客户称呼。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+**验收**
+
+1. AC-014
+
+2. AC-031
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-029
+
+#### phone
+
+**标识**：phone
+
+**label**：客户号码
+
+**required**：True
+
+**position**：4
+
+**editability**：CSV/粘贴/检查区编辑
+
+**rule**：沿原号码校验规则；不把失败重提交做成换号导入。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+**验收**
+
+1. AC-031
+
+2. AC-069
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-033
+
+#### leadCode
+
+**标识**：leadCode
+
+**label**：线索编码
+
+**required**：True
+
+**position**：5
+
+**editability**：文本
+
+**rule**：线索类只显示这一编码，保留前导零；新导入同值保存leadCode及兼容externalDocumentId，历史不改。旧双列一致可兼容，冲突阻止预览并保留输入。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+**验收**
+
+1. AC-014
+
+2. AC-031
+
+3. AC-069
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-032
+
+#### otherBusinessCode
+
+**标识**：otherBusinessCode
+
+**label**：售后单号／活动编码
+
+**required**：True
+
+**position**：6
+
+**editability**：按非线索业务类型显示
+
+**rule**：只在其他业务类型沿原动态业务字段展示；独立线索编码保留，不合并其他类型。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+**验收**
+
+1. AC-069
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-030
+
+#### priority
+
+**标识**：priority
+
+**label**：优先级
+
+**required**：True
+
+**position**：7
+
+**editability**：检查区统一/逐行编辑
+
+**rule**：最终有效行必填；只在提交前修改；提交后只读，无每日衰减。类型范围生产待核。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-005
+
+**验收**
+
+1. AC-030
+
+2. AC-031
+
+3. AC-032
+
+4. AC-046
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-034
+
+#### note
+
+**标识**：note
+
+**label**：联系备注
+
+**required**：False
+
+**position**：8
+
+**editability**：CSV/粘贴/检查区编辑
+
+**rule**：选填，位于必填字段后，与R分别保存。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+**验收**
+
+1. AC-014
+
+2. AC-031
+
+3. AC-069
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-031
+
+#### intentionStoreCode
+
+**标识**：intentionStoreCode
+
+**label**：意向门店编码（选填）
+
+**required**：False
+
+**position**：9
+
+**editability**：原手工CSV/粘贴中选填；检查名单、保存后客户/通话详情只读
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 展示具体字段名和原值；原手工导入列位于必填及联系备注之后、R之前。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-126
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：仅六个API导入业务字段在已有界面的查看依赖；不提升完整手工CSV功能优先级。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-015
+
+**验收**
+
+1. AC-099
+
+2. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### intentionStoreName
+
+**标识**：intentionStoreName
+
+**label**：意向门店名称（选填）
+
+**required**：False
+
+**position**：10
+
+**editability**：原手工CSV/粘贴中选填；检查名单、保存后客户/通话详情只读
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 展示具体字段名和原值；原手工导入列位于必填及联系备注之后、R之前。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-127
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：仅六个API导入业务字段在已有界面的查看依赖；不提升完整手工CSV功能优先级。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-015
+
+**验收**
+
+1. AC-099
+
+2. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### intentionSeriesCode
+
+**标识**：intentionSeriesCode
+
+**label**：意向车系编码（选填）
+
+**required**：False
+
+**position**：11
+
+**editability**：原手工CSV/粘贴中选填；检查名单、保存后客户/通话详情只读
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 展示具体字段名和原值；原手工导入列位于必填及联系备注之后、R之前。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-128
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：仅六个API导入业务字段在已有界面的查看依赖；不提升完整手工CSV功能优先级。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-015
+
+**验收**
+
+1. AC-099
+
+2. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### intentionSeries
+
+**标识**：intentionSeries
+
+**label**：意向车系（选填）
+
+**required**：False
+
+**position**：12
+
+**editability**：原手工CSV/粘贴中选填；检查名单、保存后客户/通话详情只读
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 展示具体字段名和原值；原手工导入列位于必填及联系备注之后、R之前。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-129
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：仅六个API导入业务字段在已有界面的查看依赖；不提升完整手工CSV功能优先级。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-015
+
+**验收**
+
+1. AC-099
+
+2. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### smartCode
+
+**标识**：smartCode
+
+**label**：Smartcode（选填）
+
+**required**：False
+
+**position**：13
+
+**editability**：原手工CSV/粘贴中选填；检查名单、保存后客户/通话详情只读
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 展示具体字段名和原值；原手工导入列位于必填及联系备注之后、R之前。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-130
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：仅六个API导入业务字段在已有界面的查看依赖；不提升完整手工CSV功能优先级。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-015
+
+**验收**
+
+1. AC-099
+
+2. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### leadCreatedAt
+
+**标识**：leadCreatedAt
+
+**label**：留资时间（选填）
+
+**required**：False
+
+**position**：14
+
+**editability**：原手工CSV/粘贴中选填；检查名单、保存后客户/通话详情只读
+
+**rule**：留资时间leadCreatedAt是业务系统提供的原线索留资时间，选填；与平台importedAt和跟进savedAt分别保存/展示。未提供不填当前时间，不由其他时间推算；按原提供值透传，正式wire类型、时间格式及时区待S4确认，不凭样例冻结。 原导入名单选填列后置，保存后只读展示。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-131
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：仅六个API导入业务字段在已有界面的查看依赖；不提升完整手工CSV功能优先级。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-015
+
+**验收**
+
+1. AC-099
+
+2. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### R
+
+**标识**：R
+
+**label**：R（选填）
+
+**required**：False
+
+**position**：15
+
+**editability**：CSV/粘贴/检查区编辑
+
+**rule**：最后一个手工选填列显示；前面为联系备注及新增六个选填导入业务字段。可选来源元数据，不设字典、不用作可信来源或路由。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+**验收**
+
+1. AC-005
+
+2. AC-031
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-035
+
+#### originalSource
+
+**标识**：originalSource
+
+**label**：来源
+
+**required**：False
+
+**position**：16
+
+**editability**：只读
+
+**rule**：读取已保存的原应用、租户与登记来源；未知显示待确认，不能用任务标签/R/人工方式推定来源。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+2. FUNC-010
+
+**验收**
+
+1. AC-018
+
+2. AC-036
+
+3. AC-052
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-042
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口来源记录的来源准确展示与P0导入/跟进上下文；共用字段不提升其他来源整项功能。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### callStatus
+
+**标识**：callStatus
+
+**label**：通话结果、客户通话时长、挂断方
+
+**required**：False
+
+**position**：17
+
+**editability**：只读
+
+**rule**：接通、未接通、秒挂、待确认；时长缺失不能补0；无话单异常独立。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-011
+
+2. FUNC-012
+
+3. FUNC-013
+
+4. FUNC-015
+
+**验收**
+
+1. AC-002
+
+2. AC-003
+
+3. AC-021
+
+4. AC-033
+
+5. AC-034
+
+6. AC-035
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-076
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口来源记录的通话结果、客户通话时长、挂断方准确展示与P0导入/跟进上下文；共用字段不提升其他来源整项功能。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+#### failureHandling
+
+**标识**：failureHandling
+
+**label**：异常原因、处理方式、剩余补提交次数、当前进度
+
+**required**：False
+
+**position**：18
+
+**editability**：只读/有权八类确认操作
+
+**rule**：三类自动从确认起120秒；八类人工；合计首次外最多2次，跨主批不重置；未知占用保留；秒挂不显示次数/倒计时/重提。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-012
+
+2. FUNC-014
+
+3. FUNC-015
+
+4. FUNC-022
+
+**验收**
+
+1. AC-063
+
+2. AC-064
+
+3. AC-065
+
+4. AC-066
+
+5. AC-070
+
+6. AC-073
+
+7. AC-078
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-068
+
+#### removalStatus
+
+**标识**：removalStatus
+
+**label**：号码移除进度
+
+**required**：False
+
+**position**：19
+
+**editability**：只读
+
+**rule**：平台计划停止与供应商号码移除分别呈现；被跳过/未知不显示已移除。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-009
+
+2. FUNC-015
+
+**验收**
+
+1. AC-016
+
+2. AC-025
+
+3. AC-061
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+**field_id**：DFIELD-103
+
+#### businessDelivery
+
+**标识**：businessDelivery
+
+**label**：业务系统回传状态
+
+**required**：False
+
+**position**：20
+
+**editability**：只读
+
+**rule**：按准确原应用/租户的记录及事件/版本显示待发送、已送达或失败；本地保存成功独立。完成沟通回调含本次通话/业务信息与原业务批次号，失败不重拨/重导/覆盖业务快照。手工UI无原应用不默认外发，历史缺关联显示待核；正式ACK及晚到处理待核。 已填字段或选项业务编码缺失显示资料待完善，不冒充完整发送成功；本地已保存继续保留，不给坐席新增技术编码输入，配置补齐沿现有权限。 已送达须有对应业务确认；不能仅凭本地保存或HTTP受理显示成功。
+
+**事实状态**：draft_current_requirement_not_implemented
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-010
+
+**验收**
+
+1. AC-018
+
+2. AC-037
+
+3. AC-071
+
+4. AC-075
+
+5. AC-084
+
+6. AC-086
+
+7. AC-095
+
+8. AC-096
+
+9. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**scenario_ids**
+
+1. SC-007
+
+2. SC-002
+
+**field_id**：DFIELD-089
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口来源记录的业务系统回传状态准确展示与P0导入/跟进上下文；共用字段不提升其他来源整项功能。
+
+**优先组**
+
+1. P0-IMPORT
+
+**related_field_ids**
+
+1. DFIELD-090
+
+2. DFIELD-091
+
+3. DFIELD-124
+
+4. DFIELD-125
+
+#### businessBatchNo
+
+**标识**：businessBatchNo
+
+**label**：业务批次号
+
+**required**：False
+
+**position**：21
+
+**editability**：只读，非手工导入/跟进表单输入
+
+**rule**：API请求级必传并保存的原业务批次号。同app/tenant可反复导入，同号不合并/覆盖记录、不替代requestId去重；与平台批次号分开显示。准确记录缺原值显示未记录，不用requestId、平台batch/root或当前批次补造。手工CSV及原手工UI无此新增字段。
+
+**field_id**：DFIELD-124
+
+**事实状态**：draft_target_not_implemented
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：API业务批次号的原值展示与本次回调定位；不新增运营输入。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-093
+
+2. AC-094
+
+3. AC-096
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：prior_S6_stale_or_existing_workbench_no_new_formal_PAGE
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-002
+
+**sections**
+
+#### 1 任务列表操作
+
+**名称**：任务列表操作
+
+**content**：普通预外呼任务固定“查看任务｜编辑｜导入客户”顺序；无权/状态不允许保持置灰并支持鼠标/键盘查看原因。客户与处理记录、待再次联系留在任务详情，列表不增加不同快捷入口。草稿仅保留继续创建/删除草稿。
+
+**事实状态**：implemented_local_task_actions_overlay
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-015
+
+2. FUNC-004
+
+**验收**
+
+1. AC-028
+
+2. AC-029
+
+3. AC-059
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, prototype/memory/verification-evidence/task-actions-ui-repair-20261014.json
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+#### 2 运行监控
+
+**名称**：运行监控
+
+**content**：展示任务通话总数、已接通（含秒挂）、未接通、秒挂子集、待确认；无话单异常单独计数，不计入通话总数。汇总、角标和明细来自同一实际结果源。读取失败标待确认，不显示零。
+
+**事实状态**：implemented_local_navigation_overlay
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+2. FUNC-013
+
+3. FUNC-011
+
+4. FUNC-012
+
+**验收**
+
+1. AC-002
+
+2. AC-021
+
+3. AC-033
+
+4. AC-035
+
+5. AC-039
+
+6. AC-062
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js
+
+#### 3 客户与处理记录 / 客户名单
+
+**名称**：客户与处理记录 / 客户名单
+
+**content**：默认列客户/号码、导入批次、优先级、导入时间、导入状态、呼叫进展、操作。已保存客户／导入已受理／已有通话记录分开；查看详情与查看通话按当前记录定位。
+
+**事实状态**：implemented_local_operations_overlay
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-028
+
+2. AC-039
+
+3. AC-052
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/operations-ux-repair-20261014.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0接口导入与填单后的准确客户/通话/回传结果查看；限定相关记录。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### 4 客户与处理记录 / 导入异常
+
+**名称**：客户与处理记录 / 导入异常
+
+**content**：信息校验失败及供应商明确导入失败按真实原因显示，未知待确认；失败快照可下载。53分片不完整要提示，导入异常不能混作11类呼叫失败。
+
+**事实状态**：requirement_target_with_local_display_repair
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-006
+
+2. FUNC-017
+
+3. FUNC-015
+
+**验收**
+
+1. AC-008
+
+2. AC-013
+
+3. AC-040
+
+4. AC-041
+
+5. AC-042
+
+6. AC-043
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/operations-ux-repair-20261014.json, 需求/1.1.0/分析工作区/runtime/download-save-user-decision-20261014.json, 需求/1.1.0/分析工作区/runtime/download-save-browser-proof-20261014.json
+
+#### 5 准确记录详情内的业务系统回传状态（无独立页签）
+
+**名称**：准确记录详情内的业务系统回传状态（无独立页签）
+
+**content**：移除独立DCC回传页签。目标全部API应用来源在准确客户/通话/异常/移除详情查看送达状态，完成沟通保存后的本次快照回调也在这里查看；本地已保存与回调待发送/成功/失败分开，异常才提示。手工UI无原应用不显示对外回调。当前仅原DCC内嵌回传有局部证据；全部应用及完成沟通新回调尚未实现。
+
+**事实状态**：local_DCC_inline_verified_all_app_target_pending
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-010
+
+2. FUNC-015
+
+**验收**
+
+1. AC-018
+
+2. AC-037
+
+3. AC-071
+
+4. AC-075
+
+5. AC-095
+
+6. AC-096
+
+7. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, prototype/memory/verification-evidence/dcc-delivery-inline-repair-20261014.json, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0接口导入与填单后的准确客户/通话/回传结果查看；限定相关记录。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### 6 客户与处理记录 / 号码移除
+
+**名称**：客户与处理记录 / 号码移除
+
+**content**：按准确客户记录及导入批次选择并确认；区分本地计划停止和远端删除。用户不输入fileId、actionId等技术字段。
+
+**事实状态**：requirement_target_with_local_display_repair
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-009
+
+2. FUNC-015
+
+**验收**
+
+1. AC-016
+
+2. AC-024
+
+3. AC-025
+
+4. AC-061
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/operations-ux-repair-20261014.json
+
+#### 7 通话记录
+
+**名称**：通话记录
+
+**content**：唯一任务级入口，包含每次通话明细及无话单呼叫异常。客户行“查看通话”仅看当前recordId，展示当前客户/批次范围；“查看全部”恢复全任务。旧results入口转到此处。普通旧任务保留录音和原详情。 目标通话详情复用现有“坐席处理结果”与“本次客户业务信息”，展示原业务批次号及准确完成沟通事件的回调状态；不得用同批另一条通话或客户跨通话汇总替代本次保存快照。
+
+**事实状态**：implemented_local_navigation_overlay
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+2. FUNC-013
+
+3. FUNC-011
+
+4. FUNC-012
+
+**验收**
+
+1. AC-002
+
+2. AC-021
+
+3. AC-028
+
+4. AC-033
+
+5. AC-035
+
+6. AC-052
+
+7. AC-062
+
+8. AC-095
+
+9. AC-096
+
+10. AC-097
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0接口导入与填单后的准确客户/通话/回传结果查看；限定相关记录。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### 8 任务设置／执行明细
+
+**名称**：任务设置／执行明细
+
+**content**：保留既有任务设置与执行明细。任务来源提交后锁定，正常重呼配置沿用；失败三类自动／八类人工共享2次和秒挂不重呼是固定边界，无任意修改范围/上限的配置。
+
+**事实状态**：requirement_target
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-016
+
+2. FUNC-014
+
+3. FUNC-015
+
+**验收**
+
+1. AC-026
+
+2. AC-027
+
+3. AC-036
+
+4. AC-059
+
+5. AC-072
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+#### 9 导入客户名单弹窗
+
+**名称**：导入客户名单弹窗
+
+**content**：居中大弹窗：填写名单→检查数据→确认导入；基础信息、CSV选择/粘贴、原检查区统一/逐行优先级、固定底部按钮；只有线索编码一个同义输入，选填后置。 任务行点击直接弹出导入；顶栏先选任务再直接弹出；不先打开查看任务看板。取消回原列表/任务并保留原筛选，成功刷新相关名单计数。
+
+**事实状态**：implemented_local_manual_overlay
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-005
+
+**验收**
+
+1. AC-014
+
+2. AC-029
+
+3. AC-030
+
+4. AC-031
+
+5. AC-059
+
+6. AC-060
+
+7. AC-069
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/manual-import-restoration-20261014.json, prototype/memory/verification-evidence/manual-code-ui-review-20261014.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+#### 10 客户导入业务信息
+
+**名称**：客户导入业务信息
+
+**content**：原手工导入弹窗保留客户必填项，六个新增业务字段作为后置选填CSV列；检查名单能核对所有已填值。客户名单查看详情和准确通话详情内只读展示六项业务名称与原值，缺值显示未提供；不新增业务信息页签、不大改主表、不要求码名称配齐。 留资时间leadCreatedAt是业务系统提供的原线索留资时间，选填；与平台importedAt和跟进savedAt分别保存/展示。未提供不填当前时间，不由其他时间推算；按原提供值透传，正式wire类型、时间格式及时区待S4确认，不凭样例冻结。
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-015
+
+**验收**
+
+1. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+**交互**
+
+#### ACTION-004 导入客户名单
+
+**标识**：ACTION-004
+
+**名称**：导入客户名单
+
+**事实状态**：implemented_local_manual_overlay
+
+**触发**：任务列表或任务内常驻“导入客户”
+
+**前提**
+
+1. 当前有导入权限
+
+2. 任务为已锁手工来源且既有状态允许导入
+
+**processing**：任务行直接打开原居中导入大弹窗；顶栏先选目标任务再直接弹窗，不打开任务管理看板。CSV或粘贴→检查→确认，字段变动使旧预览失效；确认前复核身份/原任务/当前草稿。 SRC-124六个新增CSV业务字段选填后置，检查名单可核对原值；未填仍可按原合法行确认。不得因未填代码或名称制造必填拦截。
+
+**success_feedback**：明确有效和失败行数，只保存当前有效行，自动按最终优先级提交；到名单查看结果
+
+**failure_feedback**：逐行说明错误；旧双编码冲突保留原文本；无有效行/待填/旧预览不能确认；失败不虚报成功
+
+**return_path**：取消关闭导入弹窗并回原列表/任务，保留列表筛选；成功刷新原列表和相关名单计数。
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+2. FUNC-005
+
+**验收**
+
+1. AC-029
+
+2. AC-030
+
+3. AC-031
+
+4. AC-059
+
+5. AC-060
+
+6. AC-069
+
+7. AC-100
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/memory/verification-evidence/manual-import-restoration-20261014.json, prototype/memory/verification-evidence/manual-code-ui-review-20261014.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/call-navigation-repair-20261014.json, prototype/memory/verification-evidence/import-entry-repair-20261014.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+#### ACTION-005 查看接口导入
+
+**标识**：ACTION-005
+
+**名称**：查看接口导入
+
+**事实状态**：requirement_target_source_routing_pending
+
+**触发**：接口来源任务点击常驻导入客户
+
+**前提**
+
+1. 有该任务查看权
+
+**processing**：接口来源任务直接打开导入说明/只读入口，不先弹出任务看板，不混入手工名单或请求JSON。全部应用接入显示自身记录与回传状态的新文案仍待实现。
+
+**success_feedback**：查看准确受理和逐记录来源状态
+
+**failure_feedback**：未知来源/映射显示待确认，不补猜DCC
+
+**return_path**：回当前任务名单
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-036
+
+2. AC-043
+
+3. AC-050
+
+4. AC-059
+
+5. AC-093
+
+6. AC-094
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**scenario_ids**
+
+1. SC-001
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的查看接口导入；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### ACTION-006 查看导入进展
+
+**标识**：ACTION-006
+
+**名称**：查看导入进展
+
+**事实状态**：requirement_target
+
+**触发**：打开客户名单/导入详情
+
+**前提**
+
+1. 有该任务查看权
+
+**processing**：分别读取本地保存、导入结果和实际通话 客户/通话详情从当前准确记录读取六个导入业务字段，只读原值，不用同号另一记录或跨通话汇总填补。
+
+**success_feedback**：准确同步证据显示正常结果；53关联到原记录，新增可信证据更新 API来源按原值查看业务批次号，平台批次号另列；同业务号多次导入不合并或去重。
+
+**failure_feedback**：仅汇总不能猜成功行，分片不全和冲突待确认；不会触发呼叫失败重提
+
+**return_path**：关闭详情回原记录
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+2. FUNC-017
+
+3. FUNC-005
+
+**验收**
+
+1. AC-039
+
+2. AC-040
+
+3. AC-041
+
+4. AC-093
+
+5. AC-094
+
+6. AC-100
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/operations-ux-repair-20261014.json, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**scenario_ids**
+
+1. SC-001
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的查看导入进展；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### ACTION-007 下载导入异常
+
+**标识**：ACTION-007
+
+**名称**：下载导入异常
+
+**事实状态**：requirement_target_local_save_feasibility_proved_backend_pending
+
+**触发**：点击下载导入异常
+
+**前提**
+
+1. 有当前任务下载权限
+
+2. 存在本次固定失败快照
+
+**processing**：先固定本次明细范围和已知完整性；支持浏览器选保存位置；写入关闭并确认完成后按快照清理
+
+**success_feedback**：提示文件保存完成；只清本快照明细文件，后到失败和必要业务账保留
+
+**failure_feedback**：取消/中断/未知保留；普通下载不宣称保存完成，不清记录；不完整明确提示
+
+**return_path**：留在异常页，必要时重新下载；不恢复已导出重复
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-006
+
+**验收**
+
+1. AC-008
+
+2. AC-042
+
+3. AC-043
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/runtime/download-save-user-decision-20261014.json, 需求/1.1.0/分析工作区/runtime/download-save-browser-proof-20261014.json, prototype/js/components/dcc-records.js
+
+#### ACTION-009 移除指定号码
+
+**标识**：ACTION-009
+
+**名称**：移除指定号码
+
+**事实状态**：requirement_target
+
+**触发**：准确记录点击移除
+
+**前提**
+
+1. 原任务当前操作权限
+
+2. record/batch/fileId/phone范围精确
+
+3. 无相同删除未知待核
+
+**processing**：确认窗显示客户、号码、导入批次和时间；确认后重新核权/版本/准确性；处理中防双击
+
+**success_feedback**：本地计划停止与远端移除分别反馈；明确目标成功且未跳过才标已移除
+
+**failure_feedback**：取消不执行；失败/未知保持真实状态；共享fileId不精确禁止外发；切换目标清旧反馈
+
+**return_path**：回原记录保留证据，不影响同号其他批次
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-009
+
+**验收**
+
+1. AC-016
+
+2. AC-024
+
+3. AC-025
+
+4. AC-061
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/operations-ux-repair-20261014.json
+
+#### ACTION-010 查看通话详情
+
+**标识**：ACTION-010
+
+**名称**：查看通话详情
+
+**事实状态**：implemented_navigation_overlay_business_target_pending
+
+**触发**：统一通话记录点击具体通话详情
+
+**前提**
+
+1. 有原任务查看权
+
+2. 结果准确关联
+
+**processing**：先显示接听/时长/挂断/结果和进度，技术原字段折叠 客户/通话详情从当前准确记录读取六个导入业务字段，只读原值，不用同号另一记录或跨通话汇总填补。
+
+**success_feedback**：同真实call的SIP晚更新只更新版本，重复不新增通话；正常任务重呼状态只读 目标准确详情同时保留本地已保存结果和独立回调状态，及本通保存时业务信息/原业务批次号。
+
+**failure_feedback**：不可信/冲突/缺失待确认；没有话单不推断无在途
+
+**return_path**：关闭回原列表并保留精确筛选
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+2. FUNC-013
+
+**验收**
+
+1. AC-002
+
+2. AC-026
+
+3. AC-035
+
+4. AC-038
+
+5. AC-052
+
+6. AC-062
+
+7. AC-095
+
+8. AC-096
+
+9. AC-097
+
+10. AC-100
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/call-navigation-repair-20261014.json, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**scenario_ids**
+
+1. SC-007
+
+2. SC-002
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的查看通话详情；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### ACTION-011 查看秒挂结果
+
+**标识**：ACTION-011
+
+**名称**：查看秒挂结果
+
+**事实状态**：requirement_target
+
+**触发**：打开准确通话结果
+
+**前提**
+
+1. 有原任务查看权
+
+**processing**：只读三态：秒挂／非秒挂／待确认及原证据
+
+**success_feedback**：准确真实接听+客户挂断+可信0～2秒均成立才秒挂；任一可信false为非秒挂
+
+**failure_feedback**：单位/时长/归属等不足待确认，缺失不能填0；不出现秒挂重提交、倒计时或次数
+
+**return_path**：关闭回统一通话记录
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+2. FUNC-011
+
+**验收**
+
+1. AC-004
+
+2. AC-021
+
+3. AC-022
+
+4. AC-027
+
+5. AC-034
+
+6. AC-075
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+#### ACTION-012 查看呼叫异常处理
+
+**标识**：ACTION-012
+
+**名称**：查看呼叫异常处理
+
+**事实状态**：requirement_target_new_retry_business_pending
+
+**触发**：打开呼叫异常或记录详情
+
+**前提**
+
+1. 有原任务查看权
+
+**processing**：只读失败原因/方式/累计已用剩余/未知占用/确认时间；只有自动三类显示120秒计划
+
+**success_feedback**：显示自动等待、待人工、处理中、已受理、停止、额度用尽等准确业务状态
+
+**failure_feedback**：未知关联/执行权/原因保持待核；查看不执行，53导入拒绝不进入此策略
+
+**return_path**：回统一通话记录或当前异常详情
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+2. FUNC-012
+
+3. FUNC-014
+
+**验收**
+
+1. AC-003
+
+2. AC-020
+
+3. AC-033
+
+4. AC-063
+
+5. AC-064
+
+6. AC-065
+
+7. AC-066
+
+8. AC-070
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js
+
+#### ACTION-014 查看客户与处理记录
+
+**标识**：ACTION-014
+
+**名称**：查看客户与处理记录
+
+**事实状态**：requirement_target
+
+**触发**：点击客户与处理记录及子页签
+
+**前提**
+
+1. 原任务查看权限
+
+**processing**：仅查询，当前对象/来源业务只读，技术关联折叠
+
+**success_feedback**：客户名单、导入异常、号码移除三子页签；通话统一用任务级通话记录；回传进入准确记录详情，无独立回传页签。
+
+**failure_feedback**：读取失败标待确认，不零填充；未知来源不默认DCC
+
+**return_path**：保留当前任务上下文
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+2. FUNC-010
+
+**验收**
+
+1. AC-014
+
+2. AC-018
+
+3. AC-028
+
+4. AC-039
+
+5. AC-052
+
+6. AC-070
+
+7. AC-071
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/components/dcc-records.js, prototype/memory/verification-evidence/operations-ux-repair-20261014.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的查看客户与处理记录；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### ACTION-015 新建任务
+
+**标识**：ACTION-015
+
+**名称**：新建任务
+
+**事实状态**：requirement_target
+
+**触发**：原任务向导点击确认创建
+
+**前提**
+
+1. 原创建权限及租户范围
+
+2. 既有字段有效
+
+**processing**：沿原接口/手工来源选择；提交后锁定来源，不绑定DCC/天网应用
+
+**success_feedback**：进入新任务，来源只读；DCC与天网按各自应用权限访问接口任务
+
+**failure_feedback**：失败不生成假任务，旧任务来源不迁改
+
+**return_path**：取消回任务列表，成功到当前任务
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-016
+
+**验收**
+
+1. AC-036
+
+2. AC-059
+
+3. AC-072
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+#### ACTION-025 重新提交失败客户
+
+**标识**：ACTION-025
+
+**名称**：重新提交失败客户
+
+**事实状态**：requirement_target_new_retry_business_pending
+
+**触发**：八类已有失败记录点击重新提交并确认
+
+**前提**
+
+1. 当前原任务操作权限
+
+2. 已保存准确失败对象
+
+3. 共享额外次数可用、无占用/未知、任务可执行、供应商执行权核明
+
+**processing**：确认显示客户/号码/本次导入批次/失败原因/剩余次数；只能该对象，不编辑名单、号码或优先级；服务端重新核查并原子占位
+
+**success_feedback**：明确发起新业务补提交才计一次，受理或拒绝均计；进度保留原来源与触发root
+
+**failure_feedback**：双击/并发复用同次；未知不释放、不盲重发；八类不统一等待120秒；无权/用尽/暂停/终止说明原因
+
+**return_path**：回原失败对象与最新进度
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-022
+
+**验收**
+
+1. AC-064
+
+2. AC-070
+
+3. AC-076
+
+4. AC-077
+
+5. AC-078
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+#### UI-OVERLAY-001 查看当前客户通话
+
+**标识**：UI-OVERLAY-001
+
+**名称**：查看当前客户通话
+
+**事实状态**：implemented_local_navigation_overlay
+
+**触发**：客户名单行/详情点击查看通话
+
+**前提**
+
+1. 当前任务和recordId均可访问
+
+**processing**：精确按当前recordId过滤，不以手机号选全部同号记录；关闭客户详情 客户/通话详情从当前准确记录读取六个导入业务字段，只读原值，不用同号另一记录或跨通话汇总填补。
+
+**success_feedback**：进入唯一通话记录，显示当前客户/批次范围
+
+**failure_feedback**：原记录无权/失效时拒绝，不展示其他客户记录
+
+**return_path**：查看全部恢复当前任务全部通话
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-028
+
+2. AC-052
+
+3. AC-100
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的查看当前客户通话；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### UI-OVERLAY-002 查看全部通话
+
+**标识**：UI-OVERLAY-002
+
+**名称**：查看全部通话
+
+**事实状态**：implemented_local_navigation_overlay
+
+**触发**：筛选状态点击查看全部或直接点击任务通话记录
+
+**前提**
+
+1. 当前任务查看权
+
+**processing**：清recordId筛选；切换其他页签/任务也清旧范围
+
+**success_feedback**：显示全任务准确通话和异常；同任务结果事件刷新保持当前有效筛选
+
+**failure_feedback**：读取失败显示不可访问，角标待确认
+
+**return_path**：返回客户名单可重新选择指定记录
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-028
+
+2. AC-052
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的查看全部通话；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### UI-OVERLAY-003 兼容旧通话结果入口
+
+**标识**：UI-OVERLAY-003
+
+**名称**：兼容旧通话结果入口
+
+**事实状态**：implemented_local_navigation_overlay
+
+**触发**：旧results路由／会话恢复／旧内嵌结果链接
+
+**前提**
+
+1. 当前任务查看权
+
+**processing**：路由至唯一通话记录，清过期客户筛选
+
+**success_feedback**：旧入口可达当前明细；两个同名通话结果页签不再显示
+
+**failure_feedback**：无权统一拒绝；普通旧任务仍使用原明细/录音
+
+**return_path**：由当前任务页签继续导航
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-028
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/memory/verification-evidence/call-navigation-repair-20261014.json, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js
+
+#### UI-OVERLAY-004 任务固定操作与直接导入
+
+**标识**：UI-OVERLAY-004
+
+**名称**：任务固定操作与直接导入
+
+**事实状态**：implemented_local_UI_repair_new_business_not_implemented
+
+**触发**：任务列表或准确记录详情
+
+**前提**
+
+1. 当前对象与操作权限有效
+
+**processing**：普通任务三按钮固定顺序，草稿独立；点击导入直接弹窗，取消保持列表筛选。
+
+**success_feedback**：保持原任务/客户范围及原始记录
+
+**failure_feedback**：无权拒绝，未知状态不伪报成功
+
+**return_path**：原列表或准确记录
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-028
+
+2. AC-029
+
+3. AC-059
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, prototype/memory/verification-evidence/task-actions-ui-repair-20261014.json
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+#### UI-OVERLAY-005 回传信息内嵌详情
+
+**标识**：UI-OVERLAY-005
+
+**名称**：回传信息内嵌详情
+
+**事实状态**：implemented_local_UI_repair_new_business_not_implemented
+
+**触发**：任务列表或准确记录详情
+
+**前提**
+
+1. 当前对象与操作权限有效
+
+**processing**：独立DCC回传页签已移除；历史原DCC回传内嵌准确记录详情。所有应用来源回调为本轮待实现目标。 SRC-123目标新增完成沟通事件状态，仍内嵌准确详情；只补送原快照，不改变本地已保存内容或发起拨号。该新增部分未实现。
+
+**success_feedback**：保持原任务/客户范围及原始记录
+
+**failure_feedback**：无权拒绝，未知状态不伪报成功
+
+**return_path**：原列表或准确记录
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-018
+
+2. AC-037
+
+3. AC-071
+
+4. AC-075
+
+5. AC-095
+
+6. AC-096
+
+7. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, prototype/memory/verification-evidence/dcc-delivery-inline-repair-20261014.json, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**scenario_ids**
+
+1. SC-007
+
+2. SC-002
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的回传信息内嵌详情；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+**official_actions**
+
+#### ACTION-004 常驻导入客户：手工来源
+
+**标识**：ACTION-004
+
+**名称**：常驻导入客户：手工来源
+
+**permission**：原手工名单导入按既有角色与tenant/task归属、锁定手工来源及既有可导入状态校验；常驻入口无权/不可导入/忙碌时禁用并说明，后端同时校验，不扩大历史启动后补导。
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 任务列表或任务内常驻“导入客户”；任务行直接打开原居中导入大弹窗；顶栏先选目标任务再直接弹窗，不打开任务管理看板。CSV或粘贴→检查→确认，字段变动使旧预览失效；确认前复核身份/原任务/当前草稿。
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-004
+
+**验收**
+
+1. AC-001
+
+2. AC-005
+
+3. AC-006
+
+4. AC-014
+
+5. AC-015
+
+6. AC-019
+
+7. AC-029
+
+8. AC-030
+
+9. AC-031
+
+10. AC-032
+
+11. AC-036
+
+12. AC-052
+
+13. AC-059
+
+14. AC-060
+
+15. AC-069
+
+16. AC-007
+
+17. AC-009
+
+18. AC-010
+
+19. AC-012
+
+20. AC-047
+
+21. AC-048
+
+22. AC-049
+
+23. AC-050
+
+24. AC-051
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+#### ACTION-006 展示模拟供应商导入结果
+
+**标识**：ACTION-006
+
+**名称**：展示模拟供应商导入结果
+
+**permission**：沿既有角色与对象范围校验；未确认的新权限契约保持待核
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 打开客户名单/导入详情；分别读取本地保存、导入结果和实际通话；准确同步证据显示正常结果；53关联到原记录，新增可信证据更新 API来源按原值查看业务批次号，平台批次号另列；同业务号多次导入不合并或去重。
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-014
+
+2. AC-015
+
+3. AC-019
+
+4. AC-028
+
+5. AC-029
+
+6. AC-032
+
+7. AC-038
+
+8. AC-039
+
+9. AC-040
+
+10. AC-041
+
+11. AC-042
+
+12. AC-043
+
+13. AC-052
+
+14. AC-059
+
+15. AC-070
+
+16. AC-078
+
+17. AC-004
+
+18. AC-025
+
+19. AC-093
+
+20. AC-094
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的展示模拟供应商导入结果；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### ACTION-007 下载导入失败记录
+
+**标识**：ACTION-007
+
+**名称**：下载导入失败记录
+
+**permission**：沿既有角色与对象范围校验；未确认的新权限契约保持待核
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击下载导入异常；先固定本次明细范围和已知完整性；支持浏览器选保存位置；写入关闭并确认完成后按快照清理
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-006
+
+**验收**
+
+1. AC-008
+
+2. AC-013
+
+3. AC-029
+
+4. AC-031
+
+5. AC-039
+
+6. AC-040
+
+7. AC-041
+
+8. AC-042
+
+9. AC-043
+
+10. AC-052
+
+11. AC-064
+
+12. AC-066
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+#### ACTION-009 删除指定供应商记录
+
+**标识**：ACTION-009
+
+**名称**：删除指定供应商记录
+
+**permission**：沿原任务现有操作权限，授权tenant/task内有权运营和管理员可操作；服务端在确认与外发前逐次验证当前权限及准确记录，不因按钮、角色名称或初始名单入口授新权。
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 准确记录点击移除；确认窗显示客户、号码、导入批次和时间；确认后重新核权/版本/准确性；处理中防双击
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-009
+
+**验收**
+
+1. AC-016
+
+2. AC-024
+
+3. AC-025
+
+4. AC-052
+
+5. AC-061
+
+6. AC-073
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+#### ACTION-010 查看可信呼叫结果与正常任务规则分流
+
+**标识**：ACTION-010
+
+**名称**：查看可信呼叫结果与正常任务规则分流
+
+**permission**：沿既有角色与对象范围校验；未确认的新权限契约保持待核
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 统一通话记录点击具体通话详情；先显示接听/时长/挂断/结果和进度，技术原字段折叠；同真实call的SIP晚更新只更新版本，重复不新增通话；正常任务重呼状态只读 目标准确详情同时保留本地已保存结果和独立回调状态，及本通保存时业务信息/原业务批次号。
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-014
+
+2. AC-015
+
+3. AC-019
+
+4. AC-028
+
+5. AC-029
+
+6. AC-032
+
+7. AC-038
+
+8. AC-039
+
+9. AC-040
+
+10. AC-041
+
+11. AC-042
+
+12. AC-043
+
+13. AC-052
+
+14. AC-059
+
+15. AC-070
+
+16. AC-078
+
+17. AC-004
+
+18. AC-025
+
+19. AC-002
+
+20. AC-026
+
+21. AC-035
+
+22. AC-062
+
+23. AC-095
+
+24. AC-096
+
+25. AC-097
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的查看可信呼叫结果与正常任务规则分流；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### ACTION-011 查看客户秒挂本地三态
+
+**标识**：ACTION-011
+
+**名称**：查看客户秒挂本地三态
+
+**permission**：沿既有角色与对象范围校验；未确认的新权限契约保持待核
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 打开准确通话结果；只读三态：秒挂／非秒挂／待确认及原证据
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-014
+
+2. AC-015
+
+3. AC-019
+
+4. AC-028
+
+5. AC-029
+
+6. AC-032
+
+7. AC-038
+
+8. AC-039
+
+9. AC-040
+
+10. AC-041
+
+11. AC-042
+
+12. AC-043
+
+13. AC-052
+
+14. AC-059
+
+15. AC-070
+
+16. AC-078
+
+17. AC-004
+
+18. AC-025
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+#### ACTION-012 查看预测呼叫失败分类与处理状态
+
+**标识**：ACTION-012
+
+**名称**：查看预测呼叫失败分类与处理状态
+
+**permission**：沿既有角色与对象范围校验；未确认的新权限契约保持待核
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 打开呼叫异常或记录详情；只读失败原因/方式/累计已用剩余/未知占用/确认时间；只有自动三类显示120秒计划
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-014
+
+2. AC-015
+
+3. AC-019
+
+4. AC-028
+
+5. AC-029
+
+6. AC-032
+
+7. AC-038
+
+8. AC-039
+
+9. AC-040
+
+10. AC-041
+
+11. AC-042
+
+12. AC-043
+
+13. AC-052
+
+14. AC-059
+
+15. AC-070
+
+16. AC-078
+
+17. AC-004
+
+18. AC-025
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+#### ACTION-014 查看任务记录
+
+**标识**：ACTION-014
+
+**名称**：查看任务记录
+
+**permission**：沿既有角色与对象范围校验；未确认的新权限契约保持待核
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击客户与处理记录及子页签；仅查询，当前对象/来源业务只读，技术关联折叠
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-014
+
+2. AC-015
+
+3. AC-019
+
+4. AC-028
+
+5. AC-029
+
+6. AC-032
+
+7. AC-038
+
+8. AC-039
+
+9. AC-040
+
+10. AC-041
+
+11. AC-042
+
+12. AC-043
+
+13. AC-052
+
+14. AC-059
+
+15. AC-070
+
+16. AC-078
+
+17. AC-004
+
+18. AC-025
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的查看任务记录；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### ACTION-015 既有任务新建向导确认创建并锁定来源
+
+**标识**：ACTION-015
+
+**名称**：既有任务新建向导确认创建并锁定来源
+
+**permission**：沿既有角色与tenant/task归属校验
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 原任务向导点击确认创建；沿原接口/手工来源选择；提交后锁定来源，不绑定DCC/天网应用
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-016
+
+**验收**
+
+1. AC-026
+
+2. AC-027
+
+3. AC-029
+
+4. AC-036
+
+5. AC-072
+
+6. AC-077
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+#### ACTION-025 人工重提交失败客户
+
+**标识**：ACTION-025
+
+**名称**：人工重提交失败客户
+
+**permission**：沿原任务现有操作权限，授权tenant/task内有权运营和管理员可操作；服务端在确认与外发前逐次验证当前权限及准确记录，不因按钮、角色名称或初始名单入口授新权。 API-011真实鉴权仍missing，不授新账号权。
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 八类已有失败记录点击重新提交并确认；确认显示客户/号码/本次导入批次/失败原因/剩余次数；只能该对象，不编辑名单、号码或优先级；服务端重新核查并原子占位
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-022
+
+**验收**
+
+1. AC-019
+
+2. AC-023
+
+3. AC-025
+
+4. AC-035
+
+5. AC-052
+
+6. AC-064
+
+7. AC-065
+
+8. AC-066
+
+9. AC-067
+
+10. AC-068
+
+11. AC-070
+
+12. AC-073
+
+13. AC-074
+
+14. AC-076
+
+15. AC-077
+
+16. AC-078
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+#### ACTION-005 查看接口导入说明
+
+**标识**：ACTION-005
+
+**名称**：查看接口导入说明
+
+**permission**：沿原任务查看权限展示接口来源受理/结果；DCC或天网真正接口写入分别按独立应用凭据、tenant/task归属及来源锁定校验，应用token不授内部运营或应用管理权限。
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 接口来源任务点击常驻导入客户；接口来源任务直接打开导入说明/只读入口，不先弹出任务看板，不混入手工名单或请求JSON。全部应用接入显示自身记录与回传状态的新文案仍待实现。；查看准确受理和逐记录来源状态
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-002
+
+**function_ids**
+
+1. FUNC-015
+
+**验收**
+
+1. AC-014
+
+2. AC-015
+
+3. AC-019
+
+4. AC-028
+
+5. AC-029
+
+6. AC-032
+
+7. AC-038
+
+8. AC-039
+
+9. AC-040
+
+10. AC-041
+
+11. AC-042
+
+12. AC-043
+
+13. AC-052
+
+14. AC-059
+
+15. AC-070
+
+16. AC-078
+
+17. AC-004
+
+18. AC-025
+
+19. AC-036
+
+20. AC-050
+
+21. AC-093
+
+22. AC-094
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-002, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0线索导入接口及填单的查看接口导入说明；同一入口的原手工来源功能不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+**原页面**
+
+1. PAGE-002
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**局部逻辑引用**
+
+1. DLOCAL-004-MANUAL
+
+2. DLOCAL-015
+
+3. DLOCAL-016
+
+4. DLOCAL-006
+
+5. DLOCAL-009
+
+6. DLOCAL-022
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：仅线索导入接口的记录查看、准确通话及回传状态反馈；该混合页的手工CSV导入、下载、重提、移除和任务配置不整体升P0。
+
+**优先组**
+
+1. P0-IMPORT
+
+**priority_exclusions**
+
+1. 原手工CSV文件上传/粘贴/检查/确认及对应字段沿既有优先级，不随接口导入升P0。
+
+2. 预测任务创建/设置、失败补提与号码移除沿既有范围，本次不整体重排优先级。
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+#### PAGE-003 新增应用
+
+**标识**：PAGE-003
+
+**名称**：新增应用
+
+**事实状态**：draft_target_with_explicit_local_overlay
+
+**路由**：application-access
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-003
+
+**function_ids**
+
+1. FUNC-019
+
+**验收**
+
+1. AC-017
+
+2. AC-037
+
+3. AC-044
+
+4. AC-045
+
+5. AC-055
+
+6. AC-058
+
+7. AC-084
+
+8. AC-085
+
+9. AC-086
+
+10. AC-092
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-003, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/pages/application-access.js, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**状态**
+
+**正常**：应用名称、关联租户与回调地址；租户多选，各应用独立地址。仅必要说明：接口导入前需配置回调地址。
+
+**加载**：创建中锁定表单和提交，不重复生成应用；未响应不得伪装创建成功。
+
+**空态**：初始空表单；无可选租户时说明暂不能创建。
+
+**错误**：字段错误就地提示；保存失败保留草稿；不生成虚假应用。
+
+**无权**：非超管直接入口拒绝，不提交或生成凭证。
+
+**字段**
+
+#### applicationName
+
+**标识**：applicationName
+
+**label**：应用名称
+
+**required**：True
+
+**position**：1
+
+**editability**：输入
+
+**rule**：必填；未确认生产长度/重名策略，不将演示限制当正式规则。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-003
+
+**function_ids**
+
+1. FUNC-019
+
+**验收**
+
+1. AC-055
+
+2. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-003, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**field_id**：DFIELD-002
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用名称；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### tenantIds
+
+**标识**：tenantIds
+
+**label**：关联租户
+
+**required**：True
+
+**position**：2
+
+**editability**：多选
+
+**rule**：多选有效租户；应用可关联多个租户，同一租户可关联多个应用。逐个校验有效且不重复，不按一对一规则拒绝其他应用；解除后的token及在途处置待核。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-003
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-017
+
+2. AC-085
+
+3. AC-092
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**field_id**：DFIELD-004
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：关联租户；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### callbackUrl
+
+**标识**：callbackUrl
+
+**label**：回调地址
+
+**required**：False
+
+**position**：3
+
+**editability**：仅超管新增/修改
+
+**rule**：保存本应用回调地址，重新打开与详情值一致。接口导入前必须已配置；应用草稿创建/编辑是否允许留空、URL规范及清空已有地址规则待S4/S6，不能擅自把“导入必配”改成“创建必填”。取消/失败不改原值。
+
+**事实状态**：implemented_local_callback_configuration_backend_contract_pending
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-003
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-037
+
+2. AC-084
+
+3. AC-086
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**field_id**：DFIELD-108
+
+**required_indicator**：标注“接口导入前需配置”；表单保存时空值策略待定，不捏造已定规则。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：回调地址；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**sections**
+
+#### 1 应用信息
+
+**名称**：应用信息
+
+**content**：仅必要应用信息：名称、关联租户、回调地址；密钥用于获取已关联租户身份。无身份交换测试台、来源回传开关或技术报文说明。
+
+**事实状态**：requirement_target
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-003
+
+**function_ids**
+
+1. FUNC-019
+
+**验收**
+
+1. AC-055
+
+2. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-003, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用信息；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**交互**
+
+#### ACTION-021 创建应用
+
+**标识**：ACTION-021
+
+**名称**：创建应用
+
+**事实状态**：implemented_local_callback_configuration_backend_contract_pending
+
+**触发**：点击创建
+
+**前提**
+
+1. 仅超管、当前对象/可授权租户有效
+
+2. 名称有效；每个关联租户有效且关系不重复；地址格式与空值校验方案待S4/S6
+
+**processing**：确认时复核权限与目标；保存名称、关联租户及本应用回调地址；防重复保存，不改其他应用或租户历史业务归属。普通修改不重置appId/密钥。
+
+**success_feedback**：保存成功后详情与重开表单保持相同关联租户/回调地址；仅有配置并不表示回调已送达。
+
+**failure_feedback**：校验/权限/保存失败保留输入与原配置，不自动选第一个租户；同租户已有其他应用不是冲突。取消不写入。
+
+**return_path**：取消到列表；成功到新应用详情
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-003
+
+**function_ids**
+
+1. FUNC-019
+
+**验收**
+
+1. AC-017
+
+2. AC-044
+
+3. AC-045
+
+4. AC-055
+
+5. AC-084
+
+6. AC-085
+
+7. AC-086
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-003, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：创建应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**official_actions**
+
+#### ACTION-021 创建应用
+
+**标识**：ACTION-021
+
+**名称**：创建应用
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击创建；确认时复核权限与目标；保存名称、关联租户及本应用回调地址；防重复保存，不改其他应用或租户历史业务归属。普通修改不重置appId/密钥。
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-003
+
+**function_ids**
+
+1. FUNC-019
+
+**验收**
+
+1. AC-017
+
+2. AC-044
+
+3. AC-045
+
+4. AC-055
+
+5. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-003, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：创建应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**原页面**
+
+1. PAGE-003
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**局部逻辑引用**
+
+1. DLOCAL-019
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：新增应用、凭据管理、关联租户与本应用回调配置；真实鉴权/token/回调契约仍待核。
+
+**优先组**
+
+1. P0-APP
+
+#### PAGE-004 应用详情
+
+**标识**：PAGE-004
+
+**名称**：应用详情
+
+**事实状态**：draft_target_with_explicit_local_overlay
+
+**路由**：application-access
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-020
+
+2. FUNC-002
+
+3. FUNC-001
+
+4. FUNC-021
+
+**验收**
+
+1. AC-017
+
+2. AC-037
+
+3. AC-044
+
+4. AC-045
+
+5. AC-054
+
+6. AC-057
+
+7. AC-058
+
+8. AC-084
+
+9. AC-085
+
+10. AC-086
+
+11. AC-092
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/pages/application-access.js, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**状态**
+
+**正常**：当前应用名称、appId、默认掩码密钥、关联租户、回调地址与创建时间；返回/修改/删除。缺地址明确显示未配置。
+
+**加载**：详情读取中，暂不显示其他应用遗留密钥；删除处理中防重复。
+
+**空态**：目标不存在或已删除显示“应用不存在或已删除”，可返回列表。
+
+**错误**：读取或复制失败明确反馈；删除失败保留应用与原配置。
+
+**无权**：非超管拒绝详情/密钥读取，不以应用业务token替代。
+
+**字段**
+
+#### appId
+
+**标识**：appId
+
+**label**：appId
+
+**required**：True
+
+**position**：1
+
+**editability**：只读/复制
+
+**rule**：准确显示当前应用，复制失败有反馈。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-020
+
+**验收**
+
+1. AC-054
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**field_id**：DFIELD-001
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：appId；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### appSecret
+
+**标识**：appSecret
+
+**label**：接入密钥
+
+**required**：True
+
+**position**：2
+
+**editability**：默认掩码/显示隐藏/复制
+
+**rule**：演示密钥不可用于真实接入；查看/复制不重置密钥。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-020
+
+**验收**
+
+1. AC-054
+
+2. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**field_id**：DFIELD-003
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：接入密钥；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### applicationInfo
+
+**标识**：applicationInfo
+
+**label**：应用名称、关联租户、创建时间
+
+**required**：True
+
+**position**：3
+
+**editability**：只读
+
+**rule**：精确目标不可访问时不给其他应用数据。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-020
+
+**验收**
+
+1. AC-054
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用名称、关联租户、创建时间；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### callbackUrl
+
+**标识**：callbackUrl
+
+**label**：回调地址
+
+**required**：False
+
+**position**：4
+
+**editability**：只读
+
+**rule**：准确显示本应用已保存地址；未配置显示“未配置，接口导入前请先补充”。不试发真实请求，不以保存成功代表送达。
+
+**事实状态**：implemented_local_callback_configuration_backend_contract_pending
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-037
+
+2. AC-084
+
+3. AC-086
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**field_id**：DFIELD-108
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：回调地址；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**sections**
+
+#### 1 应用与接入密钥
+
+**名称**：应用与接入密钥
+
+**content**：先应用名称、关联租户和回调地址，再appId/接入密钥；密钥默认掩码。只读详情不隐式修改关联或地址。
+
+**事实状态**：requirement_target
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-020
+
+**验收**
+
+1. AC-054
+
+2. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用与接入密钥；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**交互**
+
+#### ACTION-022 查看及复制密钥
+
+**标识**：ACTION-022
+
+**名称**：查看及复制密钥
+
+**事实状态**：requirement_target
+
+**触发**：打开详情／点击显示、隐藏或复制
+
+**前提**
+
+1. 超管且当前应用存在
+
+**processing**：读取当前目标，默认掩码；复制操作不保存数据
+
+**success_feedback**：明确复制成功，保持原密钥
+
+**failure_feedback**：读取或复制失败提示重试；无权不泄露
+
+**return_path**：返回列表
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-020
+
+**验收**
+
+1. AC-054
+
+2. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：查看及复制密钥；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-023 进入修改
+
+**标识**：ACTION-023
+
+**名称**：进入修改
+
+**事实状态**：requirement_target
+
+**触发**：点击修改
+
+**前提**
+
+1. 超管且当前应用存在
+
+**processing**：载入该应用编辑视图，不隐式保存
+
+**success_feedback**：进入PAGE-005
+
+**failure_feedback**：目标失效返回明确提示
+
+**return_path**：取消回当前详情
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-001
+
+**验收**
+
+1. AC-056
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：进入修改；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-024 删除当前应用
+
+**标识**：ACTION-024
+
+**名称**：删除当前应用
+
+**事实状态**：requirement_target
+
+**触发**：点击删除
+
+**前提**
+
+1. 超管且当前应用存在
+
+**processing**：复用精确删除确认，标明应用名/appId，确认后处理中
+
+**success_feedback**：仅删当前应用及其身份能力，业务记录保留，返回列表
+
+**failure_feedback**：取消/失败不变，不预先撤权
+
+**return_path**：成功到列表，取消留详情
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-021
+
+**验收**
+
+1. AC-057
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：删除当前应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**official_actions**
+
+#### ACTION-022 查看应用详情及密钥
+
+**标识**：ACTION-022
+
+**名称**：查看应用详情及密钥
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 打开详情／点击显示、隐藏或复制；读取当前目标，默认掩码；复制操作不保存数据
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-020
+
+**验收**
+
+1. AC-017
+
+2. AC-044
+
+3. AC-045
+
+4. AC-054
+
+5. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：查看应用详情及密钥；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-023 从详情修改应用
+
+**标识**：ACTION-023
+
+**名称**：从详情修改应用
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击修改；载入该应用编辑视图，不隐式保存
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-001
+
+**验收**
+
+1. AC-017
+
+2. AC-044
+
+3. AC-045
+
+4. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：从详情修改应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### ACTION-024 从详情删除应用
+
+**标识**：ACTION-024
+
+**名称**：从详情删除应用
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击删除；复用精确删除确认，标明应用名/appId，确认后处理中
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-004
+
+**function_ids**
+
+1. FUNC-021
+
+**验收**
+
+1. AC-044
+
+2. AC-045
+
+3. AC-057
+
+4. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-004, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：从详情删除应用；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**原页面**
+
+1. PAGE-004
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**局部逻辑引用**
+
+1. DLOCAL-020
+
+2. DLOCAL-021
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用详情、凭据管理、关联租户与本应用回调配置；真实鉴权/token/回调契约仍待核。
+
+**优先组**
+
+1. P0-APP
+
+#### PAGE-005 修改应用
+
+**标识**：PAGE-005
+
+**名称**：修改应用
+
+**事实状态**：draft_target_with_explicit_local_overlay
+
+**路由**：application-access
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-005
+
+**function_ids**
+
+1. FUNC-001
+
+**验收**
+
+1. AC-017
+
+2. AC-028
+
+3. AC-037
+
+4. AC-044
+
+5. AC-045
+
+6. AC-056
+
+7. AC-058
+
+8. AC-084
+
+9. AC-085
+
+10. AC-086
+
+11. AC-092
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-005, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, prototype/js/pages/application-access.js, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**状态**
+
+**正常**：应用名称、关联租户与回调地址；租户多选，各应用独立地址。仅必要说明：接口导入前需配置回调地址。
+
+**加载**：载入时禁止编辑；保存中锁定，明确处理中。
+
+**空态**：目标不存在或已删除，不能保存到其他应用，可返回列表。
+
+**错误**：校验就地反馈；保存失败保留编辑内容且原配置不变。
+
+**无权**：非超管或操作期间撤权拒绝，原配置不变。
+
+**字段**
+
+#### applicationName
+
+**标识**：applicationName
+
+**label**：应用名称
+
+**required**：True
+
+**position**：1
+
+**editability**：输入
+
+**rule**：必填；未确认生产长度/重名策略，不将演示限制当正式规则。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-005
+
+**function_ids**
+
+1. FUNC-001
+
+**验收**
+
+1. AC-056
+
+2. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-005, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**field_id**：DFIELD-002
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用名称；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### tenantIds
+
+**标识**：tenantIds
+
+**label**：关联租户
+
+**required**：True
+
+**position**：2
+
+**editability**：多选
+
+**rule**：多选有效租户；应用可关联多个租户，同一租户可关联多个应用。逐个校验有效且不重复，不按一对一规则拒绝其他应用；解除后的token及在途处置待核。
+
+**事实状态**：requirement_target_not_full_implementation_claim
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-005
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-017
+
+2. AC-085
+
+3. AC-092
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**field_id**：DFIELD-004
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：关联租户；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+#### callbackUrl
+
+**标识**：callbackUrl
+
+**label**：回调地址
+
+**required**：False
+
+**position**：3
+
+**editability**：仅超管新增/修改
+
+**rule**：保存本应用回调地址，重新打开与详情值一致。接口导入前必须已配置；应用草稿创建/编辑是否允许留空、URL规范及清空已有地址规则待S4/S6，不能擅自把“导入必配”改成“创建必填”。取消/失败不改原值。
+
+**事实状态**：implemented_local_callback_configuration_backend_contract_pending
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-005
+
+**draft_ui_page_ids**
+
+
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-037
+
+2. AC-084
+
+3. AC-086
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**field_id**：DFIELD-108
+
+**required_indicator**：标注“接口导入前需配置”；表单保存时空值策略待定，不捏造已定规则。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：回调地址；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**sections**
+
+#### 1 应用信息
+
+**名称**：应用信息
+
+**content**：仅必要应用信息：名称、关联租户、回调地址；密钥用于获取已关联租户身份。无身份交换测试台、来源回传开关或技术报文说明。
+
+**事实状态**：requirement_target
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-005
+
+**function_ids**
+
+1. FUNC-001
+
+**验收**
+
+1. AC-056
+
+2. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-005, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：应用信息；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**交互**
+
+#### ACTION-001 保存修改
+
+**标识**：ACTION-001
+
+**名称**：保存修改
+
+**事实状态**：implemented_local_callback_configuration_backend_contract_pending
+
+**触发**：点击保存
+
+**前提**
+
+1. 仅超管、当前对象/可授权租户有效
+
+2. 名称有效；每个关联租户有效且关系不重复；地址格式与空值校验方案待S4/S6
+
+**processing**：确认时复核权限与目标；保存名称、关联租户及本应用回调地址；防重复保存，不改其他应用或租户历史业务归属。普通修改不重置appId/密钥。
+
+**success_feedback**：保存成功后详情与重开表单保持相同关联租户/回调地址；仅有配置并不表示回调已送达。
+
+**failure_feedback**：校验/权限/保存失败保留输入与原配置，不自动选第一个租户；同租户已有其他应用不是冲突。取消不写入。
+
+**return_path**：取消回来源列表或详情，成功回当前详情
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-005
+
+**function_ids**
+
+1. FUNC-001
+
+**验收**
+
+1. AC-017
+
+2. AC-044
+
+3. AC-056
+
+4. AC-084
+
+5. AC-085
+
+6. AC-086
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-005, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：保存修改；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**official_actions**
+
+#### ACTION-001 保存应用修改
+
+**标识**：ACTION-001
+
+**名称**：保存应用修改
+
+**permission**：仅超管；租户管理员菜单隐藏、直接页面与管理接口拒绝且数据不变
+
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 点击保存；确认时复核权限与目标；保存名称、关联租户及本应用回调地址；防重复保存，不改其他应用或租户历史业务归属。普通修改不重置appId/密钥。
+
+**事实状态**：prior_action_id_draft_target_S6_stale
+
+**traceability**
+
+**page_ids**
+
+1. PAGE-005
+
+**function_ids**
+
+1. FUNC-001
+
+**验收**
+
+1. AC-017
+
+2. AC-044
+
+3. AC-045
+
+4. AC-056
+
+5. AC-058
+
+**来源**：需求/1.1.0/分析工作区/planning/page-index.json#PAGE-005, 需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：保存应用修改；限定当前应用管理职责。
+
+**优先组**
+
+1. P0-APP
+
+**原页面**
+
+1. PAGE-005
+
+**页面来源状态**：prior_S6_stale_not_current_reviewed
+
+**局部逻辑引用**
+
+1. DLOCAL-001
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：应用接入：修改应用、凭据管理、关联租户与本应用回调配置；真实鉴权/token/回调契约仍待核。
+
+**优先组**
+
+1. P0-APP
+
+#### DRAFT-UI-WORKBENCH 既有坐席工作台与待联系（本轮草稿扩展）
+
+**标识**：DRAFT-UI-WORKBENCH
+
+**名称**：既有坐席工作台与待联系（本轮草稿扩展）
+
+**原页面**
+
+
+
+**事实状态**：local_early_form_and_unanswered_status_verified_remaining_business_pending
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**路由**：seat-workbench / existing customer-tasks pending-contact
+
+**独立草案操作**
+
+1. DRAFT-OP-MANUAL-ASSIGN
+
+2. DRAFT-OP-FOLLOWUP
+
+3. DRAFT-OP-COMPLETION-CALLBACK
+
+**局部逻辑引用**
+
+1. DLOCAL-MANUAL-ASSIGN
+
+2. DLOCAL-FOLLOWUP
+
+3. DLOCAL-COMPLETION-CALLBACK
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-081
+
+2. AC-082
+
+3. AC-083
+
+4. AC-087
+
+5. AC-088
+
+6. AC-089
+
+7. AC-090
+
+8. AC-091
+
+9. AC-093
+
+10. AC-094
+
+11. AC-095
+
+12. AC-096
+
+13. AC-097
+
+14. AC-100
+
+15. AC-103
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, prototype/js/pages/agent-workbench.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-followup.js, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+3. SC-002
+
+**状态**
+
+**正常**：准确客户与通话上下文，人工成功发起拨号即显示原跟进表单，预外呼坐席振铃即可填写，适用接听/取消/挂断仍可操作。明确外呼客户未接且已结束时必选通话状态，选择处理结果后保存；未知、已接或仅坐席未接不套客户未接必选。目标继续跟进：人工客户保留原分配坐席待联系；预外呼转当前坐席人工待联系仍待实现/排他验证。 原客户及通话详情、坐席填单上下文按准确记录只读展示意向门店编码/名称、意向车系编码/名称、Smartcode和留资时间；缺值显示未提供，不沿同号客户或最新汇总补造。 留资时间显示业务方原值，与平台导入时间/跟进保存时间区分。
+
+**加载**：载入准确对象前不显示另一客户旧表单；保存时防重复，保持草稿和通话状态；未收到保存结果不移出原待联系。 新完成回调由后台排队，本地保存成功无需等待外部ACK；不能把回调待确认当作保存未完成。 六字段随当前准确对象载入，切换对象不短暂显示上一客户值。
+
+**空态**：没有分配客户显示暂无待联系客户；没有实际通话时不生成虚构跟进。接口分配尚未完成/未知显示原处理进度，不冒充空客户或保存成功。 六个选填导入业务字段未传不视为错误，显示未提供。
+
+**错误**：通话状态空选、字段校验、对象/权限/版本变化或写入失败保留草稿与原名单，提示修正项和重试；后到客观话单不覆盖人工状态/处理结果。明确选183未知有效，空白不是未知。 新回调失败仅在准确详情显示可处理状态，不回滚已保存业务、不提示再拨/重导；原应用/租户缺失则待核，不按当前人猜配。 若已填字段/所选选项缺业务编码，回调显示资料待完善；不阻断或撤销坐席本地保存，不丢草稿，缺码由现有配置权限处理。 导入业务信息读取失败显示待确认，不以空值假装读取成功；已有跟进草稿不丢失。
+
+**无权**：只允许当前租户有权坐席处理准确归属客户/通话，越权或对象变化拒绝保存/拨号；不展示其他坐席资料。
+
+**ringing**：人工外呼客户振铃与预外呼坐席振铃分开。后者客户可能已接通，不能以坐席未接改为客户未接；振铃→接通/结束/未接保持草稿。振铃只编辑草稿，不标完成/释放通话占用。
+
+**followup_guard_pending**：预外呼继续跟进已确认归当前坐席；若原任务执行权/远端排他证据不足，显示待确认并阻止立即再次拨号，保留待联系和溯源，不宣称远端已停止。
+
+**字段**
+
+#### businessType
+
+**标识**：businessType
+
+**label**：业务类型
+
+**required**：True
+
+**position**：1
+
+**field_id**：DFIELD-024
+
+**traceability**
+
+**验收**
+
+1. AC-103
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-103
+
+**editability**：原手工导入选择；已保存接口来源类型只读
+
+**rule**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**事实状态**：local_synthetic_original_type_scoped_verified_real_API_pending
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-API-BUSINESS-TYPE-20261014
+
+**source_id**：SRC-125
+
+**说明**：请求级业务类型校验、原码保存/回执/既有结果模拟，原名单/详情和跟进按原类型。
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**verification**
+
+**source_checks_passed**：40
+
+**source_checks_failed**：0
+
+**syntax_checks_passed**：5
+
+**browser**：1280x720原名单类型列与客户详情通过，错误日志为空；浏览器未调用外部接收接口。
+
+**验证边界**
+
+1. 仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+#### customerIdentity
+
+**标识**：customerIdentity
+
+**label**：客户与号码
+
+**required**：False
+
+**position**：1
+
+**editability**：只读
+
+**rule**：只读准确原客户/线索/手机号；接口人工分配保存原应用/租户，预外呼继续跟进保留原任务/记录/通话溯源。
+
+**事实状态**：draft_current_requirement_not_implemented
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-082
+
+2. AC-087
+
+3. AC-089
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**field_id**：DFIELD-037
+
+**related_field_ids**
+
+1. DFIELD-029
+
+2. DFIELD-032
+
+3. DFIELD-033
+
+4. DFIELD-123
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口导入/继续跟进依赖：客户与号码；不将预测转人工归属或排他视作已完成。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+#### followupDraft
+
+**标识**：followupDraft
+
+**label**：客户跟进表单
+
+**required**：False
+
+**position**：2
+
+**editability**：当前有权坐席且准确对象；人工dialing/ringing、预测offered/answering及connected/wrap可编辑
+
+**rule**：原跟进表单从人工成功发起拨号即显示，预外呼坐席振铃可填写；阶段切换、未接结束及收起重开保留内容，结束后方可正式保存。明确未接外呼在本地原型中允许留空业务必填字段；已填字段仍校验类型/范围，已接/未知/呼入沿原必填。各业务表单生产条件清单继续待S3/S6。
+
+**事实状态**：local_early_edit_and_conditional_validation_verified_production_rules_pending
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-087
+
+2. AC-090
+
+3. AC-091
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**field_id**：DFIELD-113
+
+**required_indicator**：未接通本地合成路径不强迫填写沟通后才能知道的业务必填；提示随客观结果动态变化且不重绘输入节点。生产业务条件清单仍待正式核验。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：未接通填单：客户跟进表单、准确对象和独立保存边界。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+#### objectiveCallResult
+
+**标识**：objectiveCallResult
+
+**label**：线路通话结果
+
+**required**：False
+
+**position**：3
+
+**editability**：只读
+
+**rule**：只读真实客户/坐席接通、时长与供应商结果，未知显示待确认；人工手选不覆盖统计、秒挂或客观结果。
+
+**事实状态**：local_objective_result_independence_verified_production_contract_pending
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-088
+
+2. AC-089
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**field_id**：DFIELD-076
+
+**related_field_ids**
+
+1. DFIELD-082
+
+2. DFIELD-084
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：未接通填单：线路通话结果、准确对象和独立保存边界。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+#### manualCallStatus
+
+**标识**：manualCallStatus
+
+**label**：通话状态（坐席记录）
+
+**required**：True
+
+**position**：4
+
+**editability**：仅当前有权坐席，外呼已结束且客观客户明确未接（answered === false）时显示并必选
+
+**rule**：沿API-327完整20项描述/16个编码，712为拒接；715与183各3个描述逐项保留，保存编码与描述。空白不默认替坐席选择，空选阻止保存；明确选择183“未知”有效。客户接通未知/已接通、预外呼客户已接但坐席未接均不要求，呼入不扩展。保存录入人/时间且不改线路原结果、话单、接通统计或秒挂。
+
+**事实状态**：local_selector_independent_save_and_detail_verified_formal_contract_pending
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-088
+
+2. AC-090
+
+3. AC-091
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**field_id**：DFIELD-114
+
+**required_indicator**：仅明确外呼客户未接且通话已结束时显示必填；拨号、振铃及其他客观状态不要求。
+
+**prototype_storage**：call.agentCallStatus = {code, description, recordedBy, recordedAt}；本地实现名称不自动成为正式存储/接口字段。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：未接通填单：通话状态（坐席记录）、准确对象和独立保存边界。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+**必填条件**：通话已结束且direction为呼出、callType为人工外呼或预外呼、客观客户answered严格为false；仅坐席腿未接不满足该条件。
+
+#### followupDisposition
+
+**标识**：followupDisposition
+
+**label**：处理结果
+
+**required**：True
+
+**position**：5
+
+**editability**：当前有权坐席，草稿可选；结束后最终保存
+
+**rule**：继续跟进与通话状态分开。兼容历史需要再次联系值；未接通不默认继续跟进，只有明确选择并保存成功才触发待联系规则。 现原型枚举键为“已完成沟通”，与“需要再次联系”等其他处理结果区分。只有该选择且结束后可靠保存成功，才适用新增完成沟通回调；所有结果均可能processingStatus=已完成，不能据此误触发。
+
+**事实状态**：existing_local_disposition_save_verified_predictive_followup_target_pending
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-089
+
+2. AC-090
+
+3. AC-091
+
+4. AC-095
+
+5. AC-096
+
+6. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**scenario_ids**
+
+1. SC-007
+
+2. SC-002
+
+**field_id**：DFIELD-115
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：未接通填单：处理结果、准确对象和独立保存边界。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+#### assignedAgent
+
+**标识**：assignedAgent
+
+**label**：跟进坐席
+
+**required**：False
+
+**position**：6
+
+**editability**：只读
+
+**rule**：人工客户保留原分配坐席；预外呼接入后继续跟进归当前坐席，不能按姓名或跨租户工号猜配。接口原始工号保留前导零，坐席UI只展示已核实归属。
+
+**事实状态**：draft_current_requirement_not_implemented
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-081
+
+2. AC-082
+
+3. AC-089
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**field_id**：DFIELD-111
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口导入/继续跟进依赖：跟进坐席；不将预测转人工归属或排他视作已完成。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+#### pendingContactState
+
+**标识**：pendingContactState
+
+**label**：跟进状态
+
+**required**：False
+
+**position**：7
+
+**editability**：只读
+
+**rule**：继续跟进保存成功保留/进入待联系，不标已完成，不重复新增同一客户。待联系不等于满足拨号条件，预外呼转人工先核排他。
+
+**事实状态**：draft_current_requirement_not_implemented
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-089
+
+2. AC-090
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**field_id**：DFIELD-119
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口导入/继续跟进依赖：跟进状态；不将预测转人工归属或排他视作已完成。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+#### executionGuard
+
+**标识**：executionGuard
+
+**label**：可联系状态
+
+**required**：False
+
+**position**：8
+
+**editability**：只读
+
+**rule**：原预测自动呼叫排他未核则显示待确认并禁用再次拨号，提供原因；停止本地计划不证明远端已停止。
+
+**事实状态**：draft_current_requirement_not_implemented
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-089
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**field_id**：DFIELD-120
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口导入/继续跟进依赖：可联系状态；不将预测转人工归属或排他视作已完成。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+#### followupHistory
+
+**标识**：followupHistory
+
+**label**：已保存跟进
+
+**required**：False
+
+**position**：9
+
+**editability**：只读
+
+**rule**：通话详情独立“坐席记录”展示本次人工通话状态、录入人和时间；编码与描述完整保存。处理结果与原客观线路结果各自保留；失败不伪造新历史，后到真实话单不改人工选择。 目标完成沟通回调使用本call保存时的customerFollowup，不用aggregate(calls)合并；通话详情展示本次客户业务信息与回调状态相互独立。新快照/回调未实现。
+
+**事实状态**：local_agent_status_detail_verified_formal_history_contract_pending
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-088
+
+2. AC-090
+
+3. AC-095
+
+4. AC-096
+
+5. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**scenario_ids**
+
+1. SC-007
+
+2. SC-002
+
+**field_id**：DFIELD-118
+
+**related_field_ids**
+
+1. DFIELD-116
+
+2. DFIELD-117
+
+3. DFIELD-125
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：未接通填单：已保存跟进、准确对象和独立保存边界。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+#### businessBatchNo
+
+**标识**：businessBatchNo
+
+**label**：业务批次号
+
+**required**：False
+
+**position**：10
+
+**editability**：只读，非手工导入/跟进表单输入
+
+**rule**：API请求级必传并保存的原业务批次号。同app/tenant可反复导入，同号不合并/覆盖记录、不替代requestId去重；与平台批次号分开显示。准确记录缺原值显示未记录，不用requestId、平台batch/root或当前批次补造。手工CSV及原手工UI无此新增字段。
+
+**field_id**：DFIELD-124
+
+**事实状态**：draft_target_not_implemented
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：API业务批次号的原值展示与本次回调定位；不新增运营输入。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-093
+
+2. AC-094
+
+3. AC-096
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：prior_S6_stale_or_existing_workbench_no_new_formal_PAGE
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-002
+
+#### completionDelivery
+
+**标识**：completionDelivery
+
+**label**：业务系统回传
+
+**required**：False
+
+**position**：11
+
+**editability**：仅准确客户/通话详情只读进度，异常补送沿既有权限
+
+**rule**：完成沟通可靠保存后，目标按原API应用/租户和本次事件显示待发送、已送达、失败或待确认；只回传同一快照与原业务批次号。保存成功独立于外部ACK，失败不重拨/重导或覆盖已保存业务。手工无原应用不默认外发。仅必要时展示状态，不显示工程快照原文，不新增页签。 已填字段或选项业务编码缺失显示资料待完善，不冒充完整发送成功；本地已保存继续保留，不给坐席新增技术编码输入，配置补齐沿现有权限。 已送达须有对应业务确认；不能仅凭本地保存或HTTP受理显示成功。
+
+**field_id**：DFIELD-089
+
+**related_field_ids**
+
+1. DFIELD-090
+
+2. DFIELD-091
+
+3. DFIELD-124
+
+4. DFIELD-125
+
+**事实状态**：draft_target_not_implemented
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：已完成沟通后台回调在原详情内的准确进度与失败反馈。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-095
+
+2. AC-096
+
+3. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：prior_S6_stale_or_existing_workbench_no_new_formal_PAGE
+
+**scenario_ids**
+
+1. SC-007
+
+2. SC-002
+
+#### intentionStoreCode
+
+**标识**：intentionStoreCode
+
+**label**：意向门店编码
+
+**required**：False
+
+**position**：12
+
+**editability**：只读，不由坐席在跟进表单修改原导入值
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 作为客户原导入业务信息，在既有填单页面同屏只读展示；与坐席动态填写业务信息独立，缺值显示未提供。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-126
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：原导入上下文只读展示，跟进和本次完成事件准确关联的依赖。
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### intentionStoreName
+
+**标识**：intentionStoreName
+
+**label**：意向门店名称
+
+**required**：False
+
+**position**：13
+
+**editability**：只读，不由坐席在跟进表单修改原导入值
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 作为客户原导入业务信息，在既有填单页面同屏只读展示；与坐席动态填写业务信息独立，缺值显示未提供。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-127
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：原导入上下文只读展示，跟进和本次完成事件准确关联的依赖。
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### intentionSeriesCode
+
+**标识**：intentionSeriesCode
+
+**label**：意向车系编码
+
+**required**：False
+
+**position**：14
+
+**editability**：只读，不由坐席在跟进表单修改原导入值
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 作为客户原导入业务信息，在既有填单页面同屏只读展示；与坐席动态填写业务信息独立，缺值显示未提供。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-128
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：原导入上下文只读展示，跟进和本次完成事件准确关联的依赖。
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### intentionSeries
+
+**标识**：intentionSeries
+
+**label**：意向车系
+
+**required**：False
+
+**position**：15
+
+**editability**：只读，不由坐席在跟进表单修改原导入值
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 作为客户原导入业务信息，在既有填单页面同屏只读展示；与坐席动态填写业务信息独立，缺值显示未提供。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-129
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：原导入上下文只读展示，跟进和本次完成事件准确关联的依赖。
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### smartCode
+
+**标识**：smartCode
+
+**label**：Smartcode
+
+**required**：False
+
+**position**：16
+
+**editability**：只读，不由坐席在跟进表单修改原导入值
+
+**rule**：六个导入业务字段逐行选填，两种外呼方式均适用；未传或留空不阻止合法导入。已填按字符串原值保存，编码和Smartcode保留前导零与大小写，不转数值、不凭名称查补编码、不凭编码补名称。各项可独立填写，不要求代码名称成对齐全；正式长度、格式、空值与错误码待核。不代替leadCode、requestId、businessBatchNo或填单plannedStoreName，也不改变原应用/租户/线索/通话归属。 作为客户原导入业务信息，在既有填单页面同屏只读展示；与坐席动态填写业务信息独立，缺值显示未提供。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-130
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：原导入上下文只读展示，跟进和本次完成事件准确关联的依赖。
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+#### leadCreatedAt
+
+**标识**：leadCreatedAt
+
+**label**：留资时间
+
+**required**：False
+
+**position**：17
+
+**editability**：只读，不由坐席在跟进表单修改原导入值
+
+**rule**：留资时间leadCreatedAt是业务系统提供的原线索留资时间，选填；与平台importedAt和跟进savedAt分别保存/展示。未提供不填当前时间，不由其他时间推算；按原提供值透传，正式wire类型、时间格式及时区待S4确认，不凭样例冻结。 在既有跟进表单客户原导入信息区只读展示。 长值可查看完整内容，不丢失编码。
+
+**field_id**：DFIELD-131
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：原导入上下文只读展示，跟进和本次完成事件准确关联的依赖。
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, 需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+**sections**
+
+#### 1 通话与跟进
+
+**名称**：通话与跟进
+
+**content**：通话状态和接听/挂断控件与原跟进表单同屏，先必需操作，选填信息后置。所有控件保持对象上下文；不新增技术状态面板。
+
+**事实状态**：local_early_form_and_unanswered_status_verified
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-087
+
+2. AC-088
+
+3. AC-090
+
+4. AC-091
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：拨号/坐席振铃即填与明确未接状态保存。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+#### 2 待联系与后续人工跟进
+
+**名称**：待联系与后续人工跟进
+
+**content**：复用既有分配给我的客户/待联系；人工接口导入有效分配后出现，坐席主动联系才拨号。继续跟进保存成功保留同一线索，预外呼转当前坐席人工跟进并显示可联系状态。无新顶级页面。
+
+**事实状态**：draft_target
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-081
+
+2. AC-082
+
+3. AC-083
+
+4. AC-089
+
+5. AC-090
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口人工分配和保存继续跟进后的待联系依赖；预测转人工仍待。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+#### 3 业务系统回传
+
+**名称**：业务系统回传
+
+**content**：已验API来源两模式均沿原应用回调。新增目标：外呼已结束、明确选择“已完成沟通”且本次可靠保存成功后，后台回调本次call、已保存客户业务信息与原业务批次号；原手工UI无应用不默认外发。当前操作人/最近租户不决定目标。只在原详情内按需显示回调状态，本地保存与送达分开，不加页签；新回调尚未实现，正式报文/ACK/字段映射待核。 后台同时回传本次已填写字段/所选选项业务编码（多选完整），不要求坐席另填编码；空值或历史缺编码不伪造。
+
+**事实状态**：draft_target
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-018
+
+2. AC-023
+
+3. AC-037
+
+4. AC-071
+
+5. AC-075
+
+6. AC-095
+
+7. AC-096
+
+8. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：完成沟通后本次call与客户业务信息回调，原批次号透传；显示复用详情。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+#### 4 客户原导入业务信息
+
+**名称**：客户原导入业务信息
+
+**content**：既有坐席跟进表单展示意向门店编码/名称、意向车系编码/名称、Smartcode和留资时间的只读原值；未提供显示未提供。坐席仍按原业务表单填写，计划门店plannedStoreName独立，不能为回调而临时改写导入码或借其他记录补值。 留资时间leadCreatedAt是业务系统提供的原线索留资时间，选填；与平台importedAt和跟进savedAt分别保存/展示。未提供不填当前时间，不由其他时间推算；按原提供值透传，正式wire类型、时间格式及时区待S4确认，不凭样例冻结。
+
+**事实状态**：implemented_local_synthetic_source_and_targeted_browser_checks_contract_proposed
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+**页面来源状态**：existing_page_location_not_new_formal_PAGE_or_S6_approval
+
+**交互**
+
+#### DRAFT-UI-FOLLOWUP-EDIT 拨号后及坐席振铃时填写跟进
+
+**标识**：DRAFT-UI-FOLLOWUP-EDIT
+
+**名称**：拨号后及坐席振铃时填写跟进
+
+**事实状态**：local_synthetic_early_edit_verified_full_business_pending
+
+**触发**：人工成功发起拨号(dialing/ringing)或预外呼坐席振铃/接听中(offered/answering)，准确通话对象已建立
+
+**前提**
+
+1. 当前坐席/租户/客户/通话可访问
+
+**processing**：原跟进表单可编辑并暂存；接听/取消/挂断适用操作保持。状态切换保留草稿，振铃不标完成。 本call原导入的六项业务信息作为只读客户上下文展示，不增加必填或覆盖已编辑跟进字段。
+
+**success_feedback**：接通/未接结束后仍能看到已填内容
+
+**failure_feedback**：对象未知不挂错客户；暂存失败提示并保留当前输入
+
+**return_path**：既有坐席工作台与当前坐席待联系
+
+**局部逻辑引用**
+
+1. DLOCAL-MANUAL-ASSIGN
+
+2. DLOCAL-FOLLOWUP
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-087
+
+2. AC-090
+
+3. AC-100
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-early-form-repair-20261014.json
+
+2. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：准确外呼对象建立后立即填单与持续草稿，不提前提交完成或释放占用。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+#### DRAFT-UI-FOLLOWUP-SAVE 结束后保存本次跟进
+
+**标识**：DRAFT-UI-FOLLOWUP-SAVE
+
+**名称**：结束后保存本次跟进
+
+**事实状态**：local_unanswered_save_verified_backend_and_predictive_followup_pending
+
+**触发**：通话结束后点击保存
+
+**前提**
+
+1. 准确客户/通话/当前坐席归属及版本有效，且通话已结束
+
+2. 处理结果已选；明确外呼客户未接时通话状态必选，完整编码+描述匹配；已填业务字段有效。已接/未知沿原业务必填，不以坐席未接推定客户未接。
+
+**processing**：分别保存坐席人工通话状态（编码/描述/录入人/时间）、处理结果与跟进，不覆盖客观话单。当前合成原型已核空选拦截、三个存储步骤失败重试、重复保存幂等与草稿恢复；正式后端原子/可恢复能力仍待工程证据。 SRC-123新增目标：明确“已完成沟通”且结束后的可靠保存成功才生成本次call/customerFollowup/原业务批次号快照并交后台回调；不使用通用processingStatus或aggregate作为触发/内容。此完成回调尚未实现。 新增完成回调目标同时冻结该记录原导入六字段，不能以坐席本次plannedStoreName或后续导入替换。该后台快照与回调仍未实现。
+
+**success_feedback**：本地详情可见独立坐席记录；既有人工需要再次联系保留原坐席待联系。目标预外呼转当前坐席人工待联系仍待实现与排他验证；不自动拨号。 API来源目标另显示业务系统回调待发送/已送达/失败，本地保存成功不依赖外部ACK；手工UI无原应用不默认外发。
+
+**failure_feedback**：权限/版本/校验/写入失败保草稿和原名单；重复保存返同次，不重复建条目；不强迫未接客户虚构业务信息 已保存后回调失败不回滚或覆盖业务、不再次拨号/导入；重试只发送原事件。 已填写业务字段/选项缺码属于回调资料待完善，不因此阻断本地保存或要求坐席填技术码。
+
+**return_path**：既有坐席工作台与当前坐席待联系
+
+**局部逻辑引用**
+
+1. DLOCAL-MANUAL-ASSIGN
+
+2. DLOCAL-FOLLOWUP
+
+3. DLOCAL-COMPLETION-CALLBACK
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-088
+
+2. AC-089
+
+3. AC-090
+
+4. AC-091
+
+5. AC-095
+
+6. AC-096
+
+7. AC-097
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**scenario_ids**
+
+1. SC-007
+
+2. SC-002
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：未接通通话状态/处理结果/已填业务字段校验及独立保存，失败与重复保存保护；继续跟进名单更新为依赖。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+**completion_callback_status**：draft_target_not_implemented
+
+**completion_callback_priority**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：已完成沟通结束且可靠保存后产生本次快照并回调，当前未实现。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+#### DRAFT-UI-PENDING-CONTACT 从待联系再次联系
+
+**标识**：DRAFT-UI-PENDING-CONTACT
+
+**名称**：从待联系再次联系
+
+**事实状态**：draft_target_not_implemented
+
+**触发**：当前坐席选择本人待联系客户并点击联系
+
+**前提**
+
+1. 同租户当前坐席、客户归属及现有拨号权限有效
+
+2. 无并行通话；预外呼转人工已具备经核实排他条件
+
+**processing**：沿既有人工外呼入口发起，不调用预测importTaskTel或重新分配；保留原应用/任务/记录溯源。
+
+**success_feedback**：进入本次人工通话，原跟进可查看
+
+**failure_feedback**：执行权/供应商停止未知时保留待联系，明确禁用原因，不宣称可安全再次拨号
+
+**return_path**：既有坐席工作台与当前坐席待联系
+
+**局部逻辑引用**
+
+1. DLOCAL-MANUAL-ASSIGN
+
+2. DLOCAL-FOLLOWUP
+
+**traceability**
+
+**page_ids**
+
+
+
+**draft_ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**function_ids**
+
+
+
+**验收**
+
+1. AC-081
+
+2. AC-082
+
+3. AC-083
+
+4. AC-089
+
+5. AC-090
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-tenant-callmode-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-followup-20261014.md, 需求/1.1.0/分析工作区/inputs/user-all-app-callback-20261014.md, 需求/1.1.0/分析工作区/inputs/user-app-tenants-followup-owner-20261014.md, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js
+
+**页面来源状态**：no_formal_PAGE_assignment_existing_workbench
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：导入后人工分配与继续跟进的再次联系依赖；预测远端停止/排他未核时不承诺可拨。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**official_actions**
+
+
+
+**规格阅读说明**：页面含完整目标规格；已实现部分以actual_implementation和绑定源码证据为准。P0主功能与dependency依赖分列，局部合成通过不代表整条AC、正式S1/S2增量或任一门禁通过。
+
+**当前已实现部分**
+
+**标识**：UI-LOCAL-UNANSWERED-STATUS-20261014
+
+**说明**：明确未接外呼的通话状态选择、独立保存与详情及本地业务表单条件校验已完成局部合成修复。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：未接通填单、空选拦截、保存恢复与独立详情；不扩展预测转人工归属或生产契约。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**source_id**：SRC-122
+
+**证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+**已实现**
+
+1. 只在外呼结束且客观客户明确未接时显示必填通话状态；未知/已接与客户已接坐席未接不误套，呼入不扩展。
+
+2. 完整20描述/16码；712拒接，715/183同码多描述保留编码+描述；未选必拦，明确183未知有效且不自动预选。
+
+3. 拨号/振铃已填内容在结束、收起重开和整页刷新后恢复；保存失败保留选择及草稿，重试/重复保存不新增重复记录。
+
+4. 人工状态、录入人和时间独立保存与详情展示，不覆写线路结果、话单、时长、接通统计或秒挂。
+
+5. 明确未接时允许业务必填留空，已填非法选择/数字/日期/超长仍拒绝，已接/未知/呼入保原必填；条件变化不重绘输入节点。
+
+6. 既有人工需要再次联系保留原坐席待联系路径已回归；预测转当前坐席人工归属未扩展。
+
+**verification**：SRC-122历史快照的28组与浏览器局部核验仍只证明当时范围；SRC-124当前来源字段改动由独立overlay的21组源码VM/存储/HTML检查承接，包括8组未接状态回归。当前新增六字段已定点核验原导入检查、保存后客户详情和拨号即填单；未重跑全桌面分辨率，不宣称完整104验收或生产测试通过。
+
+**验证边界**
+
+1. 预外呼继续跟进转当前坐席人工归属、溯源与供应商排他尚待实现和验证。
+
+2. 本地验证不证明后端认证、原子保存、并发和真实供应商/业务系统契约。
+
+3. AC-091各业务表单的生产必填/可选清单、正式状态存储与回调字段仍待S3/S4/S6；局部条件校验通过不等于整条验收冻结。
+
+4. 当前104条验收全量未执行，正式G1/G2/G3pending、S3～S9旧产物stale；各局部证据仅证明自身范围。
+
+5. 业务批次号API必传及详情展示、完成沟通可靠保存后的本次call/业务信息快照回调尚未实现，正式快照字段/配置版本/ACK及修订策略仍待。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**supporting_overlay_ids**
+
+1. UI-LOCAL-EARLY-FOLLOWUP-20261014
+
+2. UI-LOCAL-IMPORTED-BUSINESS-FIELDS-20261014
+
+**剩余范围**
+
+1. 预外呼继续跟进转当前坐席人工归属、溯源与供应商排他尚待实现和验证。
+
+2. 本地验证不证明后端认证、原子保存、并发和真实供应商/业务系统契约。
+
+3. AC-091各业务表单的生产必填/可选清单、正式状态存储与回调字段仍待S3/S4/S6；局部条件校验通过不等于整条验收冻结。
+
+4. 当前104条验收全量未执行，正式G1/G2/G3pending、S3～S9旧产物stale；各局部证据仅证明自身范围。
+
+5. 业务批次号API必传及详情展示、完成沟通可靠保存后的本次call/业务信息快照回调尚未实现，正式快照字段/配置版本/ACK及修订策略仍待。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：人工拨号/振铃与预外呼坐席振铃即填写、明确未接外呼的通话状态选择及结束后保存；接口分配、继续跟进和再次拨号单列dependency。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**implementation_overlay**
+
+#### UI-LOCAL-MANUAL-20261014
+
+**标识**：UI-LOCAL-MANUAL-20261014
+
+**说明**：原手工居中大弹窗和单线索编码已做局部恢复，必填/选填顺序及旧CSV冲突已做合成验证。
+
+**证据**
+
+1. prototype/memory/verification-evidence/manual-import-restoration-20261014.json
+
+2. prototype/memory/verification-evidence/manual-code-ui-review-20261014.json
+
+3. prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+**requirement_writeback**：单编码沿当前AC-031/069保留；PAGE-002仍是上轮S6定位，尚未按SRC118～121全量重验。
+
+**验证边界**：maxlength、文件大小、行数等demo实现限制并非本次自动冻结的生产字段规则。
+
+#### UI-LOCAL-OPERATIONS-20261014
+
+**标识**：UI-LOCAL-OPERATIONS-20261014
+
+**说明**：运营主表使用业务名称，技术字段/演示工具折叠；原五子页签先完成措辞修复，后通话子页迁走。
+
+**证据**
+
+1. prototype/memory/verification-evidence/operations-ux-repair-20261014.json
+
+2. prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+**requirement_writeback**：只确认本地显示修复，不证明最新DCC/天网路由和失败新策略已实现。
+
+#### UI-LOCAL-NAVIGATION-20261014
+
+**标识**：UI-LOCAL-NAVIGATION-20261014
+
+**说明**：重复通话结果入口移除；运行监控汇总，唯一通话记录明细，recordId精准过滤和查看全部已实现。
+
+**证据**
+
+1. prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+**verification**：24组合成语义检查，实际浏览器1440/1920/2560及旧任务保留检查通过；只限局部。
+
+**requirement_writeback**：本交付稿记录用户授权实现覆盖层；本次导航整合尚未作为新04结构化变更重新入账/核验，不据此修改PAGE/AC、G3或02全局状态。
+
+**验证边界**：原型主干仍旧冻结业务基线；当前12故事/104验收不由局部导航证据视作全量实现。
+
+#### UI-LOCAL-IMPORT-ENTRY-20261014
+
+**标识**：UI-LOCAL-IMPORT-ENTRY-20261014
+
+**说明**：任务行导入直接弹窗，顶栏选择任务后导入，不先打开任务管理看板；局部合成/浏览器回归已有证据。
+
+**证据**
+
+1. prototype/memory/verification-evidence/import-entry-repair-20261014.json
+
+2. prototype/memory/verification-evidence/task-actions-ui-repair-20261014.json
+
+**验证边界**：历史局部证据；后续修改源码时需按其来源指纹判断适用性，非本轮104验收全部验证。
+
+#### UI-LOCAL-DELIVERY-INLINE-20261014
+
+**标识**：UI-LOCAL-DELIVERY-INLINE-20261014
+
+**说明**：DCC独立页签移除，回传状态/补送/日志收进准确原DCC详情；手工及天网原型中隐藏。
+
+**证据**
+
+1. prototype/memory/verification-evidence/dcc-delivery-inline-repair-20261014.json
+
+**验证边界**：天网隐藏是旧原型事实，新全部应用回调目标已覆盖旧限制、但尚未实现；此证据只证明局部简化。
+
+#### UI-LOCAL-TASK-ACTIONS-20261014
+
+**标识**：UI-LOCAL-TASK-ACTIONS-20261014
+
+**说明**：普通预外呼固定查看任务/编辑/导入客户，草稿继续创建/删除草稿；禁用原因与直接访问守卫保持。
+
+**证据**
+
+1. prototype/memory/verification-evidence/task-actions-ui-repair-20261014.json
+
+**验证边界**：仅局部合成UI证据，不提升G1/G2/G3或新业务实现状态。
+
+#### UI-LOCAL-EARLY-FOLLOWUP-20261014
+
+**标识**：UI-LOCAL-EARLY-FOLLOWUP-20261014
+
+**说明**：拨打后即可填单及预外呼坐席振铃填写已完成局部合成修复。
+
+**证据**
+
+1. prototype/memory/verification-evidence/workbench-early-form-repair-20261014.json
+
+**已实现**
+
+1. 人工成功发起拨号即显示原跟进表单，dialing/ringing 可编辑；预外呼 offered/answering 可编辑。
+
+2. 拨号、振铃、接通、未接结束及收起/再开保留草稿；适用接听/取消/挂断控件仍可用。
+
+3. 仅结束后允许正式保存；已有权限、归属和版本守卫保持。
+
+4. 既有人工“需要再次联系”待联系路径有局部验证，不代表新预测转人工闭环完成。
+
+**verification**：该历史快照15项Node VM和浏览器1440/1920/2560已通过；其源码指纹只证明当时局部修复。当前SRC-122最终源码另由workbench-manual-status-20261014证据核验，不宣称本次重跑全部宽度。
+
+**验证边界**
+
+1. 预外呼继续跟进转当前坐席人工归属、溯源与供应商排他尚待实现和验证。
+
+2. 本地验证不证明后端认证、原子保存、并发和真实供应商/业务系统契约。
+
+3. AC-091各业务表单的生产必填/可选清单、正式状态存储与回调字段仍待S3/S4/S6；局部条件校验通过不等于整条验收冻结。
+
+4. 当前104条验收全量未执行，正式G1/G2/G3pending；旧局部证据不代表整版通过。
+
+5. 业务批次号API必传及详情展示、完成沟通可靠保存后的本次call/业务信息快照回调尚未实现，正式快照字段/配置版本/ACK及修订策略仍待。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：拨号/坐席振铃即填与草稿延续的已验证局部实现。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+#### UI-LOCAL-UNANSWERED-STATUS-20261014
+
+**标识**：UI-LOCAL-UNANSWERED-STATUS-20261014
+
+**说明**：明确未接外呼的通话状态选择、独立保存与详情及本地业务表单条件校验已完成局部合成修复。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：未接通填单、空选拦截、保存恢复与独立详情；不扩展预测转人工归属或生产契约。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**source_id**：SRC-122
+
+**证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+**已实现**
+
+1. 只在外呼结束且客观客户明确未接时显示必填通话状态；未知/已接与客户已接坐席未接不误套，呼入不扩展。
+
+2. 完整20描述/16码；712拒接，715/183同码多描述保留编码+描述；未选必拦，明确183未知有效且不自动预选。
+
+3. 拨号/振铃已填内容在结束、收起重开和整页刷新后恢复；保存失败保留选择及草稿，重试/重复保存不新增重复记录。
+
+4. 人工状态、录入人和时间独立保存与详情展示，不覆写线路结果、话单、时长、接通统计或秒挂。
+
+5. 明确未接时允许业务必填留空，已填非法选择/数字/日期/超长仍拒绝，已接/未知/呼入保原必填；条件变化不重绘输入节点。
+
+6. 既有人工需要再次联系保留原坐席待联系路径已回归；预测转当前坐席人工归属未扩展。
+
+**verification**：最终源码独立Node VM 28/28通过；浏览器核验空选拦截、712拒接选择、收起重开保持、未接空业务条件保存、详情独立记录及重载。完整枚举/三存储失败重试由VM覆盖；本次未重跑全部桌面宽度或真实设备。
+
+**验证边界**
+
+1. 预外呼继续跟进转当前坐席人工归属、溯源与供应商排他尚待实现和验证。
+
+2. 本地验证不证明后端认证、原子保存、并发和真实供应商/业务系统契约。
+
+3. AC-091各业务表单的生产必填/可选清单、正式状态存储与回调字段仍待S3/S4/S6；局部条件校验通过不等于整条验收冻结。
+
+4. 当前104条验收全量未执行，正式G1/G2/G3pending；旧局部证据不代表整版通过。
+
+5. 业务批次号API必传及详情展示、完成沟通可靠保存后的本次call/业务信息快照回调尚未实现，正式快照字段/配置版本/ACK及修订策略仍待。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+#### UI-LOCAL-IMPORTED-BUSINESS-FIELDS-20261014
+
+**标识**：UI-LOCAL-IMPORTED-BUSINESS-FIELDS-20261014
+
+**source_id**：SRC-124
+
+**说明**：原手工/合成接口模型导入六项选填来源字段、本地原值保存、检查/客户/通话详情及早填单只读上下文展示已实现；字段仍分本次准确记录。
+
+**证据**
+
+1. prototype/memory/verification-evidence/imported-customer-info-20261014.json
+
+**已实现**
+
+1. 原手工客户必填和原居中弹窗/检查确认沿用，联系备注后六项选填、R末列；旧四列入口保持字段顺序并后置追加。
+
+2. 六项字符串逐行原值及准确记录保存，编码前导零/大小写保留；空字段和旧数据未提供，不用plannedStoreName或其他同号来源补值。
+
+3. 客户与本次通话详情、拨号/振铃即开的既有填单表单只读展示六项；留资时间不补当前，和平台时间分开。
+
+4. 源字段保存本次准确通话本地快照，不回填旧通话历史；同号不同名单不串来源，长值全文保留及HTML转义。
+
+**verification**：实际源码VM/存储/HTML共21/21组通过；浏览器定点核验原导入检查、保存后客户详情及拨号即填单；源码与实际浏览器证据分别列明。
+
+**验证边界**
+
+1. 此局部改动只证明合成前端解析/保存/显示；真实外部API、应用认证和正式参数/时间格式尚未实现或核定。
+
+2. 完成沟通业务事件、可靠原子快照、字段/选项业务编码映射及真实回调未实现；旧本地值保存不等于业务ACK。
+
+3. 正式G1/G2/G3及完整104条验收/02全局测试仍待，不以局部源码验证替代。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：只限定六项原导入业务信息展示与本次跟进上下文，不整体提升手工导入功能。
+
+#### UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+#### UI-LOCAL-API-BUSINESS-TYPE-20261014
+
+**标识**：UI-LOCAL-API-BUSINESS-TYPE-20261014
+
+**source_id**：SRC-125
+
+**说明**：请求级业务类型校验、原码保存/回执/既有结果模拟，原名单/详情和跟进按原类型。
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**verification**
+
+**source_checks_passed**：40
+
+**source_checks_failed**：0
+
+**syntax_checks_passed**：5
+
+**browser**：1280x720原名单类型列与客户详情通过，错误日志为空；浏览器未调用外部接收接口。
+
+**验证边界**
+
+1. 仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**known_differences**
+
+#### UI-GAP-001
+
+**标识**：UI-GAP-001
+
+**说明**：局部原型已删DCC独立页签并仅在原DCC记录详情展示。当前要求全部应用来源包括天网均按各自应用回调，尚未实现。
+
+**impact**：新回调范围不能用旧原型DCC专属路由推断；手工UI无接入应用仍不回调。
+
+**状态**：draft_target_not_implemented
+
+**验收**
+
+1. AC-018
+
+2. AC-037
+
+3. AC-071
+
+4. AC-075
+
+5. AC-084
+
+6. AC-086
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0接口/填单的回传或后续联系依赖；不视为已实现。
+
+**优先组**
+
+1. P0-APP
+
+2. P0-IMPORT
+
+3. P0-FOLLOWUP
+
+#### UI-GAP-002
+
+**标识**：UI-GAP-002
+
+**说明**：原型业务账本仍旧冻结基线；三类120秒/八类共享2次、未知保留与精准删除新规则不因局部UI回归视作已实现。
+
+**状态**：full_alignment_pending
+
+**验收**
+
+1. AC-061
+
+2. AC-063
+
+3. AC-064
+
+4. AC-073
+
+5. AC-078
+
+#### UI-GAP-003
+
+**标识**：UI-GAP-003
+
+**说明**：系统保存窗口交互与本机写入关闭回读已有局部证据；失败快照后台清理/ACK/真实受支持浏览器仍待工程验证。普通下载保留记录。
+
+**状态**：local_feasibility_only
+
+**验收**
+
+1. AC-008
+
+2. AC-042
+
+3. AC-043
+
+#### UI-GAP-004
+
+**标识**：UI-GAP-004
+
+**说明**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。 既有多租户选择不证明正式多租户token完整实现。
+
+**状态**：partial_local_callback_configuration_remaining_backend_and_identity_gaps
+
+**验收**
+
+1. AC-017
+
+2. AC-084
+
+3. AC-085
+
+4. AC-086
+
+5. AC-092
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：P0应用接入/线索导入接口的真实实现与契约缺口，旧演示不证明完成。
+
+**优先组**
+
+1. P0-APP
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+#### UI-GAP-005
+
+**标识**：UI-GAP-005
+
+**说明**：接口双方式、人工工号映射及幂等分配是新草稿；旧前端手工分配不等于对外API或后端已存在。
+
+**状态**：draft_target_not_implemented
+
+**验收**
+
+1. AC-080
+
+2. AC-081
+
+3. AC-082
+
+4. AC-083
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：P0应用接入/线索导入接口的真实实现与契约缺口，旧演示不证明完成。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### UI-GAP-006
+
+**标识**：UI-GAP-006
+
+**说明**：拨号即填、预外呼坐席振铃编辑及明确未接外呼20描述/16码状态选择、未选拦截、草稿恢复、条件校验和独立详情已局部验证。预测转当前坐席人工归属/排他、正式存储/回调契约与生产业务条件清单仍待；既有人工需要再次联系不证明完整新闭环。
+
+**状态**：local_form_and_unanswered_status_verified_remaining_production_and_predictive_pending
+
+**来源**：prototype/js/pages/agent-workbench.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-followup.js, prototype/memory/verification-evidence/workbench-early-form-repair-20261014.json, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js
+
+**验收**
+
+1. AC-087
+
+2. AC-088
+
+3. AC-089
+
+4. AC-090
+
+5. AC-091
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：本地未接通填单已验证范围与未决生产契约边界；预测归属单列dependency。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+#### UI-GAP-007
+
+**标识**：UI-GAP-007
+
+**说明**：预外呼转人工继续跟进的供应商停呼/排他能力待验证；保存本地待联系并不证明原任务已停止或可安全再次拨号。
+
+**状态**：production_contract_pending
+
+**验收**
+
+1. AC-089
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：P0接口/填单的回传或后续联系依赖；不视为已实现。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+#### UI-GAP-008
+
+**标识**：UI-GAP-008
+
+**说明**：新增业务批次号仅API导入必传，可在同app/tenant反复用于新导入；当前原型未保存或展示该原号。完成沟通后的本次通话+客户业务信息快照回调也尚未实现，现有保存成功与旧DCC回传不能证明它已存在。 新回调还须携已填字段及全部所选选项的业务编码，取本次快照；现有原型值存储不证明此能力已存在，界面不增加编码输入。
+
+**状态**：draft_target_not_implemented
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：API业务批次号与完成沟通后台回调，详情复用及保存/送达分离。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**验收**
+
+1. AC-093
+
+2. AC-094
+
+3. AC-095
+
+4. AC-096
+
+5. AC-097
+
+6. AC-098
+
+**来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json, 需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md, 需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**scenario_ids**
+
+1. SC-001
+
+2. SC-007
+
+3. SC-002
+
+#### UI-GAP-009
+
+**标识**：UI-GAP-009
+
+**说明**：SRC-124六项原导入业务信息已在原界面局部合成实现，21组源码验证通过，浏览器导入/详情/早填定点通过，非整版视觉。真实API接收/认证、正式字段与留资时间类型/格式/时区、完成事件固化及回调仍未实现或待核；本地UI展示不证明后端原子快照、业务码映射或ACK。
+
+**状态**：local_synthetic_source_and_targeted_browser_passed_external_contract_not_implemented
+
+**验收**
+
+1. AC-099
+
+2. AC-100
+
+3. AC-101
+
+**字段引用**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：六字段接口接收与完成回调属于既有P0能力范围，界面只读展示为依赖；手工CSV整体优先级不变。
+
+**来源**：需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json
+
+**coverage**
+
+**all_page_ids**
+
+1. PAGE-001
+
+2. PAGE-002
+
+3. PAGE-003
+
+4. PAGE-004
+
+5. PAGE-005
+
+**all_page_ids_status**：prior_S6_stale
+
+**draft_ui_extension_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**all_requirement_acceptance_ids**
+
+1. AC-001
+
+2. AC-002
+
+3. AC-003
+
+4. AC-004
+
+5. AC-005
+
+6. AC-006
+
+7. AC-007
+
+8. AC-008
+
+9. AC-009
+
+10. AC-010
+
+11. AC-011
+
+12. AC-012
+
+13. AC-013
+
+14. AC-014
+
+15. AC-015
+
+16. AC-016
+
+17. AC-017
+
+18. AC-018
+
+19. AC-019
+
+20. AC-020
+
+21. AC-021
+
+22. AC-022
+
+23. AC-023
+
+24. AC-024
+
+25. AC-025
+
+26. AC-026
+
+27. AC-027
+
+28. AC-028
+
+29. AC-029
+
+30. AC-030
+
+31. AC-031
+
+32. AC-032
+
+33. AC-033
+
+34. AC-034
+
+35. AC-035
+
+36. AC-036
+
+37. AC-037
+
+38. AC-038
+
+39. AC-039
+
+40. AC-040
+
+41. AC-041
+
+42. AC-042
+
+43. AC-043
+
+44. AC-044
+
+45. AC-045
+
+46. AC-046
+
+47. AC-047
+
+48. AC-048
+
+49. AC-049
+
+50. AC-050
+
+51. AC-051
+
+52. AC-052
+
+53. AC-053
+
+54. AC-054
+
+55. AC-055
+
+56. AC-056
+
+57. AC-057
+
+58. AC-058
+
+59. AC-059
+
+60. AC-060
+
+61. AC-061
+
+62. AC-062
+
+63. AC-063
+
+64. AC-064
+
+65. AC-065
+
+66. AC-066
+
+67. AC-067
+
+68. AC-068
+
+69. AC-069
+
+70. AC-070
+
+71. AC-071
+
+72. AC-072
+
+73. AC-073
+
+74. AC-074
+
+75. AC-075
+
+76. AC-076
+
+77. AC-077
+
+78. AC-078
+
+79. AC-079
+
+80. AC-080
+
+81. AC-081
+
+82. AC-082
+
+83. AC-083
+
+84. AC-084
+
+85. AC-085
+
+86. AC-086
+
+87. AC-087
+
+88. AC-088
+
+89. AC-089
+
+90. AC-090
+
+91. AC-091
+
+92. AC-092
+
+93. AC-093
+
+94. AC-094
+
+95. AC-095
+
+96. AC-096
+
+97. AC-097
+
+98. AC-098
+
+99. AC-099
+
+100. AC-100
+
+101. AC-101
+
+102. AC-102
+
+103. AC-103
+
+104. AC-104
+
+**covered_acceptance_ids**
+
+1. AC-005
+
+2. AC-008
+
+3. AC-013
+
+4. AC-014
+
+5. AC-017
+
+6. AC-018
+
+7. AC-025
+
+8. AC-028
+
+9. AC-029
+
+10. AC-030
+
+11. AC-031
+
+12. AC-032
+
+13. AC-035
+
+14. AC-036
+
+15. AC-037
+
+16. AC-038
+
+17. AC-039
+
+18. AC-041
+
+19. AC-042
+
+20. AC-043
+
+21. AC-044
+
+22. AC-045
+
+23. AC-052
+
+24. AC-053
+
+25. AC-054
+
+26. AC-055
+
+27. AC-056
+
+28. AC-057
+
+29. AC-058
+
+30. AC-059
+
+31. AC-060
+
+32. AC-061
+
+33. AC-069
+
+34. AC-070
+
+35. AC-071
+
+36. AC-072
+
+37. AC-075
+
+38. AC-076
+
+39. AC-077
+
+40. AC-078
+
+41. AC-084
+
+42. AC-085
+
+43. AC-086
+
+44. AC-087
+
+45. AC-088
+
+46. AC-089
+
+47. AC-090
+
+48. AC-091
+
+49. AC-093
+
+50. AC-094
+
+51. AC-095
+
+52. AC-096
+
+53. AC-097
+
+54. AC-100
+
+55. AC-103
+
+**backend_only_acceptance_ids**
+
+1. AC-001
+
+2. AC-002
+
+3. AC-003
+
+4. AC-004
+
+5. AC-006
+
+6. AC-007
+
+7. AC-009
+
+8. AC-010
+
+9. AC-011
+
+10. AC-012
+
+11. AC-015
+
+12. AC-016
+
+13. AC-019
+
+14. AC-020
+
+15. AC-021
+
+16. AC-022
+
+17. AC-023
+
+18. AC-024
+
+19. AC-026
+
+20. AC-027
+
+21. AC-033
+
+22. AC-034
+
+23. AC-040
+
+24. AC-046
+
+25. AC-047
+
+26. AC-048
+
+27. AC-049
+
+28. AC-050
+
+29. AC-051
+
+30. AC-062
+
+31. AC-063
+
+32. AC-064
+
+33. AC-065
+
+34. AC-066
+
+35. AC-067
+
+36. AC-068
+
+37. AC-073
+
+38. AC-074
+
+39. AC-079
+
+40. AC-080
+
+41. AC-081
+
+42. AC-082
+
+43. AC-083
+
+44. AC-092
+
+45. AC-098
+
+46. AC-099
+
+47. AC-101
+
+48. AC-102
+
+49. AC-104
+
+**dispositions**
+
+#### 1
+
+**acceptance_id**：AC-001
+
+**story_id**：US-001
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：不同手机号形成独立批次，各批次带对应线索编码；R可选，提供则保留来源追踪，缺R不失败。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 2
+
+**acceptance_id**：AC-002
+
+**story_id**：US-002
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：接收线路侧每次可信话单/call/SIP及原始结果，精确关联保存，运营沿既有任务权限查看；已鉴权保存应用/source的接口来源结果（含DCC、天网）交US-006回调。呼叫过频和任务配置状态仅交AliCti原生重呼，11类失败转异常策略，秒挂仅判定不额外提交；原生覆盖/执行权互斥仍待核。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 3
+
+**acceptance_id**：AC-003
+
+**story_id**：US-003
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：接收并保存可信准确预测呼叫失败原始原因，应用接口来源含DCC/天网交US-006回调，无接入应用的手工UI来源平台查看。无话单失败不等待客户状态推送或话单；准确稳定事件身份与原因映射仍待核。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 4
+
+**acceptance_id**：AC-004
+
+**story_id**：US-004
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：准确判定秒挂后保存真实呼叫、原话单、供应商原结果、本方秒挂/非秒挂/待核三态及证据；应用接口来源含DCC/天网交US-006明确回调，无接入应用的手工UI来源仅平台查看。秒挂不生成平台重导计划，不再提交供应商。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 5
+
+**acceptance_id**：AC-005
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：接口与原手工导入的R均可选来源元数据，无需字典/允许范围校验；未传不导致行失败，提供则保留追踪，priority独立。保留旧R，不新增默认R枚举；通用输入安全/长度等正式规范仍待核。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 6
+
+**acceptance_id**：AC-006
+
+**story_id**：US-001
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：每次有效手工新业务新增recordId和单手机号batchId，不覆盖旧记录，保存phone/leadCode/可选R；外部（DCC/天网）新业务与技术重传按US-010，分别新行映射/原映射回执。平台失败补提另存内部执行与必要单号子批，固定触发root，重复确认/事件不新交；手工界面不新增requestId/isNewBatch或主批控制。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 7
+
+**acceptance_id**：AC-007
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：一次已鉴权外部调用方（DCC／天网）传入多客户，某条记录业务校验失败仅拒绝该条，其余有效记录继续；预外呼按原单手机号批次处理，人工外呼有效行按US-011保存并分配，不因单行业务失败整请求回滚。请求级身份、来源/外呼方式或技术重传冲突另按AC-080/050/051处理。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 8
+
+**acceptance_id**：AC-008
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：运营人员在云呼叫中心下载导入失败记录；未下载记录不设固定到期、持续保留；仅可信成功下载后删除本次成功导出的失败明细和对应文件，不影响成功客户和必要业务状态；失败、中断或未知保留。异步失败按固定快照清理，后到新失败留待下次，已导出重复不再生成；去重、关联、分片、内部尝试及累计已用/未知占用不随明细删除。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 9
+
+**acceptance_id**：AC-009
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：外部调用方（DCC／天网）每条业务导入priority沿原规则必填，未传仅该条失败，不补默认值；本次值独立于R，且不强制继承旧批次。预外呼按保存priority排序并提交原供应商任务；人工外呼保存该字段但不因此进入预测任务队列、不透传预测号码导入或自动拨号。人工列表排序是否使用priority未新增规则。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 10
+
+**acceptance_id**：AC-010
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：外部调用方（DCC／天网）接口同tenant/原supplierTaskId/leadCode固定phone的真实再次业务导入用新请求级requestId；有效新行创建新记录/单手机号batchId并归同组。isNewBatch=true另开独立主(root=batch)，false/未传有主则新子挂最近已保存同组主，无主自动首主；不要求外部调用方（DCC／天网）提供上一批次，不仅因同组历史相同而拒绝。同ID同归一后完整内容技术重传返原逐行映射，不新建重交。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 11
+
+**acceptance_id**：AC-011
+
+**story_id**：US-001
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：有效手工客户完成当前校验、本地新增独立记录及单手机号批次后，以该原任务已保存的准确供应商任务ID和最终priority自动提交供应商接口，无需运营再手动提交；不采用统一预设供应商任务、不猜任务映射。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 12
+
+**acceptance_id**：AC-012
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：仅预外呼导入携带准确的原供应商任务ID taskId；自动提交供应商时直接使用，不做本地任务ID猜测、不采用统一预设任务。人工外呼按US-011分配指定坐席；复用现有人工流程、无需预测taskId为本方设计建议待范围审阅，不伪造预测任务或fileId。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 13
+
+**acceptance_id**：AC-013
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：本地校验保存成功但供应商明确拒绝接收时，纳入导入失败记录，供运营下载并展示供应商返回失败原因。 同步及53异步明确导入失败均适用，未知不误判；导入失败与呼叫失败分开。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 14
+
+**acceptance_id**：AC-014
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：本地保存原客户称呼、号码、备注和按业务类型的编码，以及leadCode/最终priority/可选R；线索类新导入的单一编码同源写入leadCode与兼容externalDocumentId，其他类型及历史记录不批量改写。外部接口保存requestId/行、验真租户/稳定应用、由应用登记识别的业务来源及外呼方式；人工分配另保存原坐席工号及解析后的身份。预外呼保存原任务、record/batch/root、原时间和实际供应商映射，失败补提固定触发root/priority及共享连续额度；人工不伪造预测映射或预算。原接入来源不因应用改名/删除或后续同组记录改变。所有已鉴权并保存接入应用/source的接口来源准确结果（含DCC、天网）按US-006回调；原手工UI导入且无接入应用者仅平台查看，秒挂不补提交。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 15
+
+**acceptance_id**：AC-015
+
+**story_id**：US-001
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：平台取消每日定时查询当天/历史待跟进号码状态及自然日priority衰减，不因未拨、已拨未接通、跨日或原导入日期计算改写存量priority；仅服务衰减的状态查询退出。既有每次可信事件、话单/SIP及无话单失败记录和平台查看继续保留。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 16
+
+**acceptance_id**：AC-016
+
+**story_id**：US-008
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：有该原任务操作权限的运营或管理员选择并明确确认当前指定记录的供应商号码删除；服务端逐次核实当前权限、授权租户/原任务及准确record/batch/已保存实际fileId/phone，不按leadCode、root或同号整组扩大。只有指定供应商目标明确成功才标已删；本地客户记录、原来源审计、主子root、精确供应商/通话映射、去重和累计已用/未知占用继续保留。删除/取消意图已授权且目标准确后阻断该对象尚未执行失败计划，不影响其他批次；不假造已受理或在途呼叫撤回。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 17
+
+**acceptance_id**：AC-017
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：超管独立管理应用列表、详情、新增、修改和删除。应用与租户多对多：一个应用可关联多个有效租户，一个租户可关联DCC、天网等多个应用，各业务系统使用自己的应用凭据与回调地址。认证识别稳定应用，业务身份明确当前租户且须有有效关联，任务归租户不另绑应用。来源由稳定应用登记识别；报文source若保留仅一致性校验，不能换系统/回调。正式登记/认证及token字段为待核设计，原型仅合成。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 18
+
+**acceptance_id**：AC-018
+
+**story_id**：US-006
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：全部通过应用接口接入的业务来源（含DCC、天网），对精确关联的每次结果及真实处理进度均按所属应用的回调配置交付。原应用身份、tenant、与认证应用登记一致的来源与接收时实际关联分别保存，不由外呼方式判断是否回调：接口人工外呼也回调，手工UI导入且没有接入应用才仅平台查看。预外呼保留真实任务/批次/话单及原finishRetryFlag，人工只携实际客户/分配/通话关联；真实客观通话结果与坐席人工记录分开。回调失败只补送同一结果，不重新导入、分配或拨号；各应用分别配置回调地址；积压结果选址仍待核。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 19
+
+**acceptance_id**：AC-019
+
+**story_id**：US-002
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：平台异常补提交保留触发记录原任务、来源及保存root，用内部计划/尝试标识，新子批固定原root不随后来新主改变。外部来源保留原已验证应用、requestId/行审计及逐记录交付关系，接口来源含DCC/天网交US-006回调，无接入应用的手工UI来源平台查看；不伪造新的外部业务请求；独立内部执行继续遵守累计共享失败额度与UNKNOWN占用。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 20
+
+**acceptance_id**：AC-020
+
+**story_id**：US-003
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：可信准确的11类预测呼叫失败分类保存。禁呼、限呼、restrict tel即外呼黑名单三类从平台收到并确认每次失败起算120秒自动补提交，线路降级依赖供应商外显导航，不先取得解禁/降级成功回执；其余八类仅人工。自动/人工共享首次外最多2次，无话单可信失败直接记录；导航覆盖、配置、执行权和真实事件仍待核。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 21
+
+**acceptance_id**：AC-021
+
+**story_id**：US-004
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：先准确关联同一真实呼叫；整体归属或可信证据冲突先待核。客户真实接听、客户主动挂断、可信客户有效接通时长0～2秒含真实0及2分别为true/false/unknown：任一可信false即明确非秒挂，即使其余unknown；三项均可信true才为秒挂；无false且至少一项unknown则待核。缺失/异常/负时长或单位未核为unknown，不补0，不以坐席桥接时长替代，生产字段/单位/挂断枚举仍待核。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 22
+
+**acceptance_id**：AC-022
+
+**story_id**：US-004
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：秒挂不再提交重呼，不发放秒挂补提交额度、不设置等待间隔或计时器、不生成异常子批；撤销旧额外2次、30分钟和4次规则。仅预外呼的11类失败链共享最多额外2次保持独立，不因人工外呼分配新增该额度。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 23
+
+**acceptance_id**：AC-023
+
+**story_id**：US-004
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：每次本地结果保留tenant、保存leadCode/fixedphone及准确真实call或稳定事件关系。预外呼另留原task/record/batch/root及实际fileId；人工只留实际客户/分配/坐席/通话关联，不伪造预测映射。接口均保存原requestId/行及与认证应用登记一致的来源；预测内部失败补提固定触发root，后有新主不改旧root。缺真实callId/稳定事件不按最近同号或近似时间猜配；符合US-006的全部应用接口来源准确结果交付（含DCC、天网），无接入应用的手工UI来源仅平台查看。人工生产结果映射待S4核验。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 24
+
+**acceptance_id**：AC-024
+
+**story_id**：US-008
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：指定记录删除/取消不抹本地原秒挂话单、准确关联、已保存三态判定及本地版本，不影响其他任务/同号其他批次。秒挂无待执行补提交计划，供应商指定删除只复用US-008当前权限与精确选择范围；不新增秒挂停止API，远端在途能力继续待核。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 25
+
+**acceptance_id**：AC-025
+
+**story_id**：US-008
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：对已授权且准确指定的删除/取消目标，原子停止仅该对象尚未执行失败计划；供应商明确成功后本地标记该目标已从供应商删除，失败或未知保持真实状态。平台分别展示本地计划停止与供应商删除结果，保存原记录/root/预算和证据；不清root整组、不影响其他同号批次、不释放已用或未知占用。在途取消和并发受理仍待核，不假造远端撤回。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 26
+
+**acceptance_id**：AC-026
+
+**story_id**：US-002
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：三天五呼仅适用于任务重呼规则配置状态触发的正常重呼执行流程；呼叫过频只交任务规则，11类失败平台补提交不认作该次数。三天起算、五呼是否含初呼及跨子批延续口径仍待供应商确认，本平台不汇总改写为失败额外次数。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 27
+
+**acceptance_id**：AC-027
+
+**story_id**：US-004
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：仅预外呼三天五呼针对任务重呼配置状态触发的呼叫，预测失败自动/人工共享额外2次不认作该次数。秒挂仅判定保存，全部应用接口来源且精确关联的记录按应用配置回调，绝无平台秒挂重呼计数/额度/计划；人工外呼分配不自动套用预测任务重呼规则。供应商原生覆盖仍待核，不新增再导入或停止其原生重呼。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 28
+
+**acceptance_id**：AC-028
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼导入、呼叫结果、失败处理及秒挂判定沿既有任务级记录页和任务区域，常驻导入客户入口及原手工大弹窗保持，不新增顶级运营入口；恢复系统设置应用接入列表/新增/详情/修改/删除与后台租户token，仅超管管理，现有登录/租户/任务权限沿用。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 29
+
+**acceptance_id**：AC-029
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼“导入客户”入口常驻，本轮对已锁手工来源的任务打开既有手工导入。当前权限、只读或任务状态不可导入时保留禁用入口和原因，后端同时校验当前租户任务归属、来源与既有可导入状态；不通过按钮改变历史任务补导规则。历史接口来源记录保留，不切换为手工，不通过本轮新增名单混入。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 30
+
+**acceptance_id**：AC-030
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：手工priority统一/逐条填写，仅提交前可改；确认时每个有效行最终priority必填，保存后单手机号独立拆批自动提交。提交后无人工改priority或日龄自动降级；本轮恢复原手工界面体验，统一/逐条调整留在原检查区，原客户信息保留；不新增对外请求或主子控制输入。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 31
+
+**acceptance_id**：AC-031
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：手工线索类只显示并填写一个必需的“线索编码”，复用原动态编码输入，不额外要求同义“业务编码”。保留原基础信息、称呼、号码、备注、CSV文件上传／粘贴／检查／确认；最终priority必填且提交前可统一或逐行填写，联系备注和R选填后置。R无需字典维护/范围校验，缺R不失败；一手机号一批次，失败沿本次可信成功下载后的快照清理规则。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 32
+
+**acceptance_id**：AC-032
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：不执行每日状态查询、自然日priority衰减或存量priority改写。失败補提交用触发记录保存priority并留原时间审计；秒挂仅判定保存，应用接口来源含DCC/天网均按应用配置回调，无接入应用的手工UI来源平台查看，不提交重呼。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 33
+
+**acceptance_id**：AC-033
+
+**story_id**：US-003
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：无话单可信失败独立本地保存，允许无通话ID，以准确稳定事件关联原记录；未知/未返回不伪造话单、callId或默认最后一通标识。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 34
+
+**acceptance_id**：AC-034
+
+**story_id**：US-004
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：能确认已接听、客户挂断且真实接听时长0秒，纳入秒挂；未接通、缺失或异常时长不纳入。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 35
+
+**acceptance_id**：AC-035
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：关联不明、提交超时、状态未知或真正可信证据冲突保留待核，不伪造成功/失败/最终状态；重复及可信SIP晚更新沿同一已保存对象，不算新呼叫、不重新建立失败计划或发起供应商导入。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 36
+
+**acceptance_id**：AC-036
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼任务创建按既定外部接口或原手工导入选择来源，提交后锁定；服务端校验当前token租户、原任务归属和锁定模式，任务归租户不另绑应用。接口模式接受与该租户有效关联的应用之同schema请求，保存稳定应用及其已登记业务来源，仍按原任务坐席组分配。人工外呼分支按US-011，不借此改预外呼来源或给历史任务混入名单。历史模式/数据保留，身份/归属不足不猜配。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 37
+
+**acceptance_id**：AC-037
+
+**story_id**：US-006
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：全部接入业务系统（含天网）都需回调：本方服务使用应用配置的回调地址，不再只对DCC发送。应用未配置回调地址不得进行接口导入，按AC-086明确拒绝，不先收线索后等地址。仅超管沿应用配置维护地址，任务和导入报文不提供任意临时回调URL。手工UI来源无接入应用仍仅平台查看；各应用分别配置自己的回调地址，正式URL/鉴权/ACK及配置变更积压策略待核。 同一应用回调承接多个租户时，本方候选报文保留准确原tenantId、稳定应用及原业务记录/请求标识以区分归属，不按最近一次申请token的租户改路由；具体字段、签名、版本与ACK待S4。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 38
+
+**acceptance_id**：AC-038
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：每次可信结果保存原供应商finishRetryFlag Integer1最后一条/0否，未知或未返回独立表示，与SIP更新分开；不能据该标志宣布任务结束或无在途。每次准确结果和可信晚更新均保存，应用接口来源含DCC/天网交US-006回调，不只保存/回传最后一条；无接入应用的手工UI来源同样保存每次准确原结果及可信晚更新，仅平台查看。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 39
+
+**acceptance_id**：AC-039
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 40
+
+**acceptance_id**：AC-040
+
+**story_id**：US-001
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：接收53导入失败分片，按enterpriseId经核实租户映射、原taskId、实际fileId及原始号码数据精确回查本次记录、保存root和线索编码；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅是失败推送分片，不是业务批次；去重、乱序、迟到保留。收齐只证明已声明该失败推送组，不证明全导入终态；未收到不推定零失败。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 41
+
+**acceptance_id**：AC-041
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：导入阶段明确失败保存并展示原始原因及准确tenant/原task/record/batch/root/leadCode/phone与实际fileId关联；无准确关联待核。已鉴权保存应用/source的全部接口来源按US-006回调准确导入失败，无接入应用的手工UI来源仅平台查看；导入失败不计实际呼叫、不触发11类呼叫失败补提交，结果交付失败不重新提交供应商。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 42
+
+**acceptance_id**：AC-042
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：既有失败导出入口生成本次固定失败明细快照并显示已知分片完整性；未收齐或未知显示不完整/待核。可信成功下载仅删除本快照明细与文件，失败、中断或未知保留，后到新失败进入后续下载；保留必要业务关联、去重、分片、计划/内部尝试、累计已用及未知占用，已导出重复不再生，不能清空整批客户。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 43
+
+**acceptance_id**：AC-043
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：合成验收预外呼同步部分成功、53分片乱序/重复/迟到与准确关联、失败快照生命周期；各应用接口来源含DCC/天网及人工外呼均回调，无接入应用的手工UI来源仅查看。缺回调配置则接口导入拒绝且不落客户/分配/批次或供应商提交；回调补送不新导入、分配或呼叫。应用多租户使用明确租户身份，跨租户任务/坐席拒绝；来源声明不能更换应用身份/回调。幂等、登记和历史兼容仍待S4，本轮仅合成。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 44
+
+**acceptance_id**：AC-044
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：本期应用列表/查看/新增/修改/删除均仅超管可访问执行，非超管含租户管理员和普通运营不能通过菜单、直接页面或管理调用越权，拒绝不改配置。应用身份发放的租户业务权不能代替管理权限；不自动新增启停、重置、收费或管理权限授予操作。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 45
+
+**acceptance_id**：AC-045
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：应用凭据可针对已有效关联的租户取得该租户业务身份，不授应用管理或运营/管理员权。本方建议获取token时显式指定tenantId，核应用与租户关联后签发绑定稳定app和该tenant的token；缺失、无效或未授权租户拒绝，不默认首个/最近租户。导入body、原任务或指定坐席若与token租户不一致拒绝；切换租户需取得对应身份，不通过请求字段切租户。正式字段、时效、关联撤销和旧token处置待S4/工程核验，真实账号权限不改变。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 46
+
+**acceptance_id**：AC-046
+
+**story_id**：US-001
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：同一任务的待提交号码按优先级高先提交，同优先级按本地导入时间FIFO；不同任务独立。已提交不撤回重排，提交结果未知不为重排重复提交；一手机号一批次及priority透传保持，不承诺实际拨打顺序。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 47
+
+**acceptance_id**：AC-047
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：外部接口每次业务请求携requestId、多行定位及leadCode/phone/priority，外呼方式按AC-080。各系统使用自己的稳定应用身份和明确的当前租户，须有效关联；接收前核该应用回调配置，缺失按AC-086拒绝，人工外呼也不豁免。预外呼沿可选Boolean isNewBatch及新record/单号batch/root，人工不套主子字段。原app/tenant/业务来源及交付关系保存；source若保留只校验与应用登记一致，不以名称/R或报文自行换来源。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 48
+
+**acceptance_id**：AC-048
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：仅预外呼新业务有效行按同tenant/原supplierTaskId/leadCode固定phone归组；true另开独立主root=batch，false/缺省新子挂最近已保存同组主，无主自动首主。最近主按本地主批稳定顺序，不按结果/priority/同号/子批，子不挂子，无需previousBatchId。应用与其登记来源仅用于鉴权审计及原记录回调，不加入预外呼业务组/失败预算键；同组不同应用各保留原接入来源，不按root决定子记录接收端。人工不使用本条主子规则。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 49
+
+**acceptance_id**：AC-049
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：仅预外呼新业务逐行核token租户、原supplierTaskId、leadCode及固定phone；改号、归属冲突或历史主关系不明拒绝/待核，其他有效行继续。isNewBatch必须Boolean，缺省false，不绕校验或重置正常任务轮次/失败额度。先核稳定app与token租户有效关联，按应用登记保存来源；source若保留仅一致性校验，非法/冲突不得改路由或默认DCC。应用/来源不分割既定业务组和额度，历史身份冲突不猜配。人工分支核同租户坐席，不虚构任务组。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 50
+
+**acceptance_id**：AC-050
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：鉴权稳定应用、当前租户及其有效关联，校验外呼方式和分支对象后，按建议tenant+stableApp+operation+requestId作用域核完整归一内容。技术重传返原逐行接收/拒绝/待核结果和实际映射，不新保存、分配、提交或呼叫。预外呼missing isNewBatch归一false，返原record/batch/root，不重选新主；人工只返真实客户/分配。外呼方式、坐席工号与保留的source一致性字段纳入内容比较；不能改source切换命名空间。不同应用或租户各自隔离，正式键与历史回执兼容待S4。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 51
+
+**acceptance_id**：AC-051
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：在已鉴权tenant+stableApp+operation的拟定作用域内，同requestId完整有效内容不同拒整个重复请求，不覆盖原回执或新增记录/分配/批次/供应商提交/呼叫。比较实际方式、预测原taskId或人工工号、行定位及leadCode/phone/priority/R等；保留source时还核与应用登记一致。预测missing isNewBatch与false归一相同，true不同。跨租户/应用不得借ID复用另一主体回执，正式命名空间、完整摘要及历史兼容待S4。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 52
+
+**acceptance_id**：AC-052
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：准确结果保存其实际record、号码及可信callID或稳定事件，leadCode不能替代真实呼叫身份。预外呼另保存原task/batch/root及实际fileId；人工沿真实客户/坐席分配/呼叫关联，不伪造预测字段。接口来源保留原验真app/tenant、requestId/行和与认证应用登记一致的来源，原手工不新增对外协议。去重/审计不因下载或删除丢失；预外呼补提固定触发root。应用接口来源含DCC/天网且关联准确者按US-006回调，无接入应用的手工UI来源仅查看；来源或关联不足待核，不默认DCC。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 53
+
+**acceptance_id**：AC-053
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：超管可独立进入应用列表，看到已保存应用的名称和appId及详情、修改、删除入口，并可发起新增；没有应用时显示空列表和新增入口。列表读取不创建、修改或删除应用。无管理权限的身份不能通过菜单、直接页面或模型/服务端调用读取该管理列表。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 54
+
+**acceptance_id**：AC-054
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：超管查看具体应用详情，准确显示名称、appId、密钥、已关联业务租户列表与已保存回调配置；查看不修改配置或密钥。不可用合成密钥保留必要提示，不存在/已删除目标不显示其他应用详情。回调覆盖该应用接口导入的全部业务来源；无接入应用的手工UI来源不因同租户有配置而回调。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 55
+
+**acceptance_id**：AC-055
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：超管新增应用，填写名称、选择其关联的有效业务租户并配置本应用回调地址；支持多个租户，同租户也可关联其他应用。有效保存形成独立appId/密钥及关联，取消/失败不造成功。DCC/天网等分别使用自身应用及回调，未配置回调地址不得接口导入。应用自身无回调配置时是否允许先保存草稿及地址校验细节待S2/S4，不把保存配置等同于生产接入可用。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 56
+
+**acceptance_id**：AC-056
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：超管修改应用名称、已关联租户与本应用回调地址，保存后列表/详情一致，appId/密钥保持。支持多对多，新增/解除关联应核有效对象和权限；已有业务、历史来源和租户归属不随修改静默迁移。取消、冲突、目标不存在或写入失败保持原配置，其他应用不误改。解除关联后的token、在途导入及积压回调处置待S4/工程验证。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 57
+
+**acceptance_id**：AC-057
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：超管可针对具体应用独立发起删除并确认，取消不删除；保存成功后该应用从列表消失且不能再查看/修改或以其旧凭证获取新身份，合成模型使该应用已发身份失效。只作用选定应用，其他应用配置和身份不受影响；保存失败不先撤销身份或显示删除成功。已有业务任务、导入记录和结果/必要来源审计保留，不随删除应用级联删除。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 58
+
+**acceptance_id**：AC-058
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：应用页面简洁表达名称、关联租户、接入密钥与本应用回调地址，去掉日常运营不必要的技术解释及身份交换演示；多租户关联清晰可读，普通修改不重置密钥。来源采用稳定应用登记，具体配置字段待S3/S4，不增不必要管理菜单。管理权与租户业务权分开，原型合成凭据保留必要提示。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 59
+
+**acceptance_id**：AC-059
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼任务列表和任务内“导入客户”入口常驻，按所选任务已锁定来源使用对应既有入口；手工来源保持原大弹窗，接口来源不混入手工名单，不切换来源。无权/只读/状态不允许保持禁用及原因；历史可补导任务仅未启动状态沿原权限/名单策略，保留旧名单批次累计，不借入口扩大启动后的初始导入策略。供应商运行任务接收矩阵仍待核。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 60
+
+**acceptance_id**：AC-060
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：原手工导入的上传/粘贴内容、检查结果和最终行编辑必须绑定同一当前草稿；换文件、改文本、检查失败/空结果使旧预览失效。提交处理中锁定，落账前复核身份、任务、当前输入与优先级；取消不提交旧名单。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 61
+
+**acceptance_id**：AC-061
+
+**story_id**：US-008
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：指定供应商删除切换目标记录或供应商结果样例时清除此前反馈，不把旧成功/失败显示为当前选择已处理。新操作由当前原任务权限的运营/管理员选择准确record/batch/fileId/phone并确认，服务端同时核实租户任务和当前权限；旧对象已保存删除证据继续留在旧记录。tels优先于fileId/fileName，不按AND交集选择；仅实际fileId独占精确单号目标时可采用不同时传tels的taskId+fileId候选，共享fileId多尝试不能精确定位则不外发。result=0可能跳过目标，必须核skippedCallingTels；skipRetry不保证取消原生重呼，正式skip选择及在途能力仍待核，不默认新增远端撤回。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 62
+
+**acceptance_id**：AC-062
+
+**story_id**：US-002
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：未可信纯SIP独立保留待核来源证据，不改已确认呼叫结果、不冒充可信非SIP冲突、不阻止随后准确可信call/SIP更新。验收未可信SIP→可信call→可信SIP及可信call→未可信SIP→可信SIP两种顺序：无其他真实可信矛盾时更新同一原call的SIP字段和本地版本，不新增呼叫；真正可信关联或非SIP结果冲突仍待核。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 63
+
+**acceptance_id**：AC-063
+
+**story_id**：US-005
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：除呼叫过频外11类失败：禁呼、限呼、restrict tel三类自动，其余无可用中继/bad tel/真实号码为空/no clid/bad clid/无可用中继信息/wrong obClidGroup/bad timeout range八类人工。过频只任务规则；未知原因、同步导入拒绝、53不进本策略。接口结果交付失败只补送，不能生成新的失败补提交。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 64
+
+**acceptance_id**：AC-064
+
+**story_id**：US-005
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：自动三类和人工八类按同租户＋原任务＋服务端已保存线索编码＋固定手机号累计，共享首次外最多2次失败补提交；另开主批、新子批、新fileId、原因、方式或操作人变化不重置。实际新的业务补提交发起占一次，明确接收或拒绝均计，未知保留占用待核；首次导入不计额外失败次数，正常任务重呼独立，秒挂无补提交。历史四元组或累计账不可恢复先待核，不以业务编码/空值/新root或新生成线索编码默认发2次；既有外部新业务记录亦不重置保存的累计账。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 65
+
+**acceptance_id**：AC-065
+
+**story_id**：US-005
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：自动3类等待2分钟，依赖供应商外显导航降级线路，平台不直接换主叫、不自动修改priority，也不自行解禁。2分钟从平台收到并确认每次准确失败结果起算；导航覆盖/生效和同号再次接收未核时不能宣称生产可执行。人工8类由有权任务处理用户核对资源、数据或配置后明确发起，不要求全部等待2分钟，不静默修改真实phone。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 66
+
+**acceptance_id**：AC-066
+
+**story_id**：US-005
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：同一准确失败事件最多形成一份有效自动计划或待人工对象；重复推送、重复确认、SIP晚更新不重建、不重复消耗额度、不重启计时，自动/人工并发沿同一独占执行守卫。120秒取首次保存本次准确失败确认时间，新的真实补提失败才按新确认时间起下一轮，额度延续；事件身份或提交未知保持同尝试占用待核。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 67
+
+**acceptance_id**：AC-067
+
+**story_id**：US-005
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：同一次后续执行在AliCti任务原生重呼与本方异常补提交之间保持互斥；不能按未查到话单、缺finishRetryFlag或单一最后标志推定无在途重呼。未核执行权时保持待核，不保证安全重提。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 68
+
+**acceptance_id**：AC-068
+
+**story_id**：US-005
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：触发M1的失败迟到且本地已保存M2时，本方补提交单号子批仍关联触发记录保存的M1 root，不改挂最近主；本地新增内部触发事件/尝试映射，不新增第三层业务批次，不按root分别发额度。手工不增加主批选择控制字段，可信历史root不足先待核。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 69
+
+**acceptance_id**：AC-069
+
+**story_id**：US-001
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：原客户信息完整保留，原编码按实际业务类型命名。线索类使用一个“线索编码”输入，本次新导入以同一值保存leadCode和兼容键externalDocumentId，不批量改写历史记录；售后类／活动类继续对应单据名称及现有独立leadCode，本轮不重定义。原CSV选文件／粘贴与检查确认保持；旧线索类CSV若含两编码列且值相同可兼容，值不一致应提示并保留输入供修正，不静默覆盖或丢弃原信息。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 70
+
+**acceptance_id**：AC-070
+
+**story_id**：US-005
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：既有任务记录显示失败原始原因、三类自动/八类人工方式、四元组跨主批共享额外2次的已用/剩余及未知占用、本次确认时间和仅自动的+120秒到期，以及待人工/待核/执行中/受理/停止和触发root/fileId。八类在准确原记录提供沿任务现有权限的人工重提交入口；秒挂只展示三态和原话单，无额度、计划、倒计时或重提入口。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 71
+
+**acceptance_id**：AC-071
+
+**story_id**：US-006
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：全部应用接口来源（含DCC、天网）的准确结果和实际平台处理进度按所属应用回调配置交付；接入系统不因此接管平台预测失败补提。预外呼内部尝试继承触发记录原应用/source，不因执行者或后来同root记录改变；人工分配也保留实际客户/分配/通话关联并回调。补送只交同一结果，不重导供应商、不再分配或拨号。未配回调地址不得接口导入；应用地址变更后的接收目标、正式报文/ACK与地址变更积压选址待核。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 72
+
+**acceptance_id**：AC-072
+
+**story_id**：US-005
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：仅预外呼任务沿原正常重呼配置，失败三类自动120秒/八类人工共享首次外2次，秒挂仅结果且全部应用接口来源按原应用配置回调，无补提次数/等待参数。预外呼接口/原手工来源提交后锁定，允许与当前租户有效关联的应用按接口模式导入；原应用及登记来源保留，任务不另绑应用且首次按任务坐席组分配。人工分支按US-011分配，预外呼继续跟进转当前坐席人工按US-012，不据此改原预测规则或宣称供应商已停止自动呼叫。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 73
+
+**acceptance_id**：AC-073
+
+**story_id**：US-005
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：自动3类计划到期或人工8类明确发起时，在失败额度可用、关联准确、任务可执行及供应商执行权不冲突的条件下，实际发起一次并占用一次。成功/失败均计数，未知保留占用待核，不自动释放再发。暂停挂起、终止停止尚未执行计划，恢复后重新核查；人工不能绕过停止状态或次数，在途/技术传输恢复仍待核。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 74
+
+**acceptance_id**：AC-074
+
+**story_id**：US-005
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：本方自动或人工失败补提交保留原任务、触发记录保存priority和来源时间，按同任务待提交priority高先/同级本次排队FIFO；不因人工、导航降级或后来新主重取priority，不日衰减，已受理不撤回重排，未知不为排序重发。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 75
+
+**acceptance_id**：AC-075
+
+**story_id**：US-006
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：全部应用接口来源含DCC/天网均对准确秒挂输出明确本方分类并按应用配置回调；无接入应用的手工UI来源保存同样三态供本地查看。保留原供应商结果及真实call、实际request/行/客户/分配关联，预测字段仅用于真实预外呼对象；坐席人工选择的通话状态不替代秒挂证据或供应商结果。来源由认证应用的稳定业务系统登记识别；报文source若保留仅校验一致性，不改变身份或接收目标。字段/版本/ACK及人工话单映射待核；未知不标秒挂，补送不产生供应商提交、新分配或计时。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 76
+
+**acceptance_id**：AC-076
+
+**story_id**：US-007
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：其余8类失败仅提供人工重提交，不生成自动2分钟计划。用户明确选择当前失败记录并确认，操作仅补提交该记录，不新增或编辑一份客户名单，不静默更换真实phone。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 77
+
+**acceptance_id**：AC-077
+
+**story_id**：US-007
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：人工补提交沿原任务现有操作权限，在授权tenant/task内有权运营和管理员处理八类已保存失败，逐次核当前权和准确对象；包括接口来源已保存失败，不等于向接入系统开放人工重提接口或应用token授予内部运营权限。保留原来源/request审计和触发root，创建内部尝试/必要子批，不迁来源、不伪造新的外部（DCC/天网）请求或给真实账号新权。 保存并继承触发记录已校验保存的原应用登记来源；全部应用接口来源进度含DCC/天网沿US-006交付，无接入应用的手工UI来源仅平台查看，运营操作者或共享root不改变原来源。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 78
+
+**acceptance_id**：AC-078
+
+**story_id**：US-007
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+**current_requirement**：预外呼范围：人工与自动失败按同租户+原任务+线索编码+固定手机号共享首次外2次，另开主批也不重置。额度用尽、已有占用/未知、任务暂停/终止或当前任务权限不足时按钮不可执行并说明原因。双击/并发/重复反馈不产生额外一次，原因/方式/操作人变化不重置；服务端同步校验，不能仅前端禁用。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 79
+
+**acceptance_id**：AC-079
+
+**story_id**：US-005
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：预外呼范围：3类自动补提交的线路降级由供应商外显导航承担，本平台只按策略补提交并记录结果，不承诺一定换线路或换主叫、不增加本方解禁接口。导航配置、生效时点、3类覆盖和排重/原生重呼交互在G2核验前保留partial/missing。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 80
+
+**acceptance_id**：AC-080
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：导入接口明确外呼方式（预外呼或人工外呼）；先核稳定应用与当前明确租户的有效关联及应用回调地址。预外呼按原任务坐席组，人工须指定同租户有效坐席工号按US-011。业务来源由应用登记识别，报文source若保留仅做一致性校验；不能用它换租户/系统或回调地址。全部应用接口来源均按原应用配置回调，人工外呼不等于手工UI来源。字段名/层级与身份传递为本方设计待S4。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 81
+
+**acceptance_id**：AC-081
+
+**story_id**：US-011
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：人工外呼行指定坐席工号，本方建议按租户及已有供应商实例关系查找唯一有效坐席，再解析关联账号/坐席身份；工号按原始字符串保存并保留前导零，不按显示姓名或跨租户同工号猜配。沿现有分配规则核账号及租户成员启用、有效坐席关联、坐席已启用/同步成功并接受新任务。工号缺失、无效、冲突或无可用关联时该行明确失败/待核且不自动改派，其他有效行继续；不要求坐席在线才保存分配，真实拨号前另核登录与当前可用状态。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口人工分配/查看与继续跟进待联系依赖；不将既有人工路径外推为预测转人工已完成。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### 82
+
+**acceptance_id**：AC-082
+
+**story_id**：US-011
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：人工外呼有效行保存独立客户/导入记录、原应用/租户、source、requestId/行、线索/号码及最终priority后，按已核实坐席分配到既有待联系区域；本方建议无需预测taskId，不生成虚构供应商fileId/预测主子root，也不调用importTaskTel或自动拨号。priority沿原必填保存但不进入预测队列。坐席本人从待联系点击联系客户后才按既有人工工作台拨号；预测三天五呼、3类120秒/8类共享2次和预测任务精准删除不自动套用人工分配。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口人工分配/查看与继续跟进待联系依赖；不将既有人工路径外推为预测转人工已完成。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### 83
+
+**acceptance_id**：AC-083
+
+**story_id**：US-011
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：同一人工导入在建议tenant+stableApp+operation+requestId作用域技术重传，返原保存与分配结果，不重复客户/派发/拨号；同ID改方式、工号或业务内容报冲突，不能重传换坐席或改source另获次数。不同应用/租户各自隔离。原子保存分配及未知恢复待工程核验，未完成/未知保留原处理如实反馈；分配前复核目标，失败不误写他人客户。保存原app/tenant及已登记来源供本应用回调；人工方式不等于手工UI来源。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口人工分配/查看与继续跟进待联系依赖；不将既有人工路径外推为预测转人工已完成。
+
+**优先组**
+
+1. P0-IMPORT
+
+#### 84
+
+**acceptance_id**：AC-084
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：应用新增/修改提供本应用回调地址并持久保存，重开/详情显示相同值；普通保存不重置appId/密钥，取消/失败保持原配置。DCC、天网等各应用分别配置地址，全部接口来源必须先配置才能导入；无接入应用的手工UI来源不发送。URL格式/安全校验、变更后积压结果取值时点与正式ACK仍待核，不编造地址或试发真实请求。
+
+**meaning**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+#### 85
+
+**acceptance_id**：AC-085
+
+**story_id**：US-009
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-001
+
+2. PAGE-003
+
+3. PAGE-004
+
+4. PAGE-005
+
+**current_requirement**：创建/修改允许应用与租户多对多，核每个关联租户真实有效且关系不重复；同一租户已关联其他应用不是冲突。DCC/天网分别保留自己的appId/凭据/回调配置。历史已有多关联及业务记录保留，不按已取代的一对一方案静默删除、合并或迁移；解除关联后的token/在途请求和历史接收目标处置待S4/工程验证，不默认首个租户。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 86
+
+**acceptance_id**：AC-086
+
+**story_id**：US-010
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-003
+
+2. PAGE-004
+
+3. PAGE-005
+
+**current_requirement**：应用未配置回调地址时不得接口导入，覆盖全部应用接入业务系统含DCC/天网和两种外呼方式；本方建议在新业务落账前统一检查，缺失则明确返回未配置原因，不新增客户/分配/预测批次/供应商提交，补配置后方可重新发起。不能先导入再排队等地址，也不回退到旧固定DCC地址或其他应用地址。正式错误结构、历史技术重传只读回执及地址删除并发守卫待S4，不把URL已填写当作已完成真实联调。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+#### 87
+
+**acceptance_id**：AC-087
+
+**story_id**：US-012
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**current_requirement**：人工外呼客户振铃及预外呼坐席振铃时支持填写客户跟进表单。本方建议从准确通话对象建立后允许草稿编辑并持续暂存，接听/挂断和客户/坐席状态仍可见且可用，接通或结束时保留已填内容，不清空重开；正式保存等通话结束后执行，不在振铃阶段标记处理完成或释放通话占用。人工客户振铃与预外呼坐席振铃分开：后者可能客户已接通，坐席未接不改成客户未接。具体dialing/offered/answering覆盖与草稿恢复为待审设计，不扩呼入。
+
+**meaning**：本地提前填单、明确未接状态、条件校验、草稿/重试及独立详情已有绑定证据；后端、生产业务条件、正式存储/回调契约、当前G1审阅及后续S3～S9重验仍待，不代表整条验收运行通过或冻结。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：拨号/振铃提前填写、明确未接状态选择及保存保护；当前仅本地原型相关部分验证。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+#### 88
+
+**acceptance_id**：AC-088
+
+**story_id**：US-012
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**current_requirement**：明确本次外呼客户未接通且通话已结束时，客服坐席须在原跟进表单选择“通话状态”才能保存；沿用AliCti API-327号码状态识别编码的完整20项描述（16个编码），包含712拒接。715和183同码多描述须同时保存所选编码与描述，不合并丢义；坐席明确选择183“未知”是有效选择，空白未选仍不得保存，不能因客观结果未知自动选为183。人工状态、录入人/时间与处理结果独立保存，不覆盖供应商原结果、客户/坐席客观接通证据、时长、接通统计或秒挂判据。客户接通情况未知或已接通时不猜为未接，预外呼客户已接而坐席未接不套该客户未接必选规则；呼入范围不扩展。已填草稿在未接结束后保留到可保存界面，不自动关窗丢失。正式存储字段与接口契约待S3/S4核验。
+
+**meaning**：本地提前填单、明确未接状态、条件校验、草稿/重试及独立详情已有绑定证据；后端、生产业务条件、正式存储/回调契约、当前G1审阅及后续S3～S9重验仍待，不代表整条验收运行通过或冻结。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：拨号/振铃提前填写、明确未接状态选择及保存保护；当前仅本地原型相关部分验证。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+#### 89
+
+**acceptance_id**：AC-089
+
+**story_id**：US-012
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**current_requirement**：只有处理结果选择继续跟进且保存成功，线索才沿本规则保留待联系。人工客户保留原分配坐席；预外呼接入当前坐席后的继续跟进转该坐席后续人工处理，保留原客户/线索及历次跟进，不另造线索或自动拨号。本方建议兼容历史“需要再次联系”值，并保留原预测task/record/call/app/tenant溯源。人工后续与原任务自动呼叫不得并发；需核供应商停止/排他能力，未取得证据不宣称已停止或已可安全再次拨号。未接通不自动等于继续跟进。
+
+**meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：接口人工分配/查看与继续跟进待联系依赖；不将既有人工路径外推为预测转人工已完成。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+#### 90
+
+**acceptance_id**：AC-090
+
+**story_id**：US-012
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**current_requirement**：保存跟进前复核当前坐席/租户/通话/客户归属及记录版本；未选必填处理结果或规定通话状态、业务字段校验失败、权限/对象变化或写入失败时，保留本次草稿和原名单状态，不假报成功、不提前移出待联系或误改他人线索。重复保存不新增重复跟进或重复待联系客户；保存与名单更新的原子/可恢复实现待工程核验。后到真实话单只更新客观证据，不覆写已保存人工通话状态或继续跟进决定。
+
+**meaning**：本地提前填单、明确未接状态、条件校验、草稿/重试及独立详情已有绑定证据；后端、生产业务条件、正式存储/回调契约、当前G1审阅及后续S3～S9重验仍待，不代表整条验收运行通过或冻结。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：拨号/振铃提前填写、明确未接状态选择及保存保护；当前仅本地原型相关部分验证。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+#### 91
+
+**acceptance_id**：AC-091
+
+**story_id**：US-012
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. DRAFT-UI-WORKBENCH
+
+**current_requirement**：未接通保存的通话状态条件按AC-088：明确外呼客户未接且已结束才必选，沿完整号码状态字典保存人工选择的编码与描述；空白未选与明确选择183“未知”区分。其余本方校验提案仍为校验处理结果及当时可获得的基础信息，不强迫填写必须经客户沟通才能获得的业务必填字段，也不虚构沟通内容。各业务表单的其他必填/可选清单及条件校验继续待S3/S6；校验/保存失败保草稿和原名单。未接通不默认继续跟进，只有选该处理结果才适用AC-089。
+
+**meaning**：本地提前填单、明确未接状态、条件校验、草稿/重试及独立详情已有绑定证据；后端、生产业务条件、正式存储/回调契约、当前G1审阅及后续S3～S9重验仍待，不代表整条验收运行通过或冻结。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：拨号/振铃提前填写、明确未接状态选择及保存保护；当前仅本地原型相关部分验证。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**局部原型证据**
+
+1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+#### 92
+
+**acceptance_id**：AC-092
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：多租户身份验收提案：同一应用可分别申请已关联租户A/B身份并各自导入；缺tenantId、未关联租户、A身份请求B任务/坐席或正文租户时明确拒绝且不新增业务。另一应用在同租户的请求与回调仍归其自身配置，不按报文source切应用。关联撤销、旧token及并发变更的正式响应/有效期需S4和工程补证，不默认首个或最近租户。
+
+**meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+#### 93
+
+**acceptance_id**：AC-093
+
+**story_id**：US-010
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+2. DRAFT-UI-WORKBENCH
+
+**current_requirement**：全部应用接口新导入（预外呼和人工外呼）必须提供外部业务批次号，候选名businessBatchNo；先按稳定应用和token明确租户校验归属，再逐记录保存对应原值。同一app+tenant可在多个新业务请求中复用同一个业务批次号，不因重复批次号拒绝新请求；各次新业务仍使用独立requestId并沿原记录、预测任务或人工坐席分支处理。跨app或tenant的同值不得混合归属。请求级字段及逐行继承为本方建议，正式字段名、层级、长度、格式和错误结构待S4；原手工CSV不新增该必填字段。
+
+**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：外部业务批次号API必传/可复用/原值回传；UI只读展示，不新增手工字段。
+
+**优先组**
+
+1. P0-IMPORT
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**scenario_ids**
+
+1. SC-001
+
+#### 94
+
+**acceptance_id**：AC-094
+
+**story_id**：US-010
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+2. DRAFT-UI-WORKBENCH
+
+**current_requirement**：业务批次号只是外部业务关联标识，不是技术去重键，也不替代平台batchId/rootBatchId或供应商fileId。按原app+tenant+operation+requestId拟定作用域比较完整内容时须包含businessBatchNo；同requestId同内容返回原逐行结果不重导/重派，同requestId改业务批次号属于冲突且不覆盖原记录。新业务使用新requestId可复用原业务批次号，但不绕过同线索固定手机号、原主子批次/任务规则或重置预测失败首次外共享2次。历史缺少业务批次号保留明确缺值，不从平台批次、fileId、R或最近请求猜造；旧请求兼容及准确错误码待核。
+
+**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：外部业务批次号API必传/可复用/原值回传；UI只读展示，不新增手工字段。
+
+**优先组**
+
+1. P0-IMPORT
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**scenario_ids**
+
+1. SC-001
+
+#### 95
+
+**acceptance_id**：AC-095
+
+**story_id**：US-012
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+2. DRAFT-UI-WORKBENCH
+
+**current_requirement**：仅本次外呼通话已结束、坐席本次处理结果明确为“已完成沟通”，且本次跟进及客户业务信息保存成功后，生成该次完成沟通回调所需的已保存快照。通用处理状态“已完成”不能代替“已完成沟通”；未保存、保存失败、振铃/通话中或其他处理结果不触发此完成事件。快照关联准确原应用/租户/记录及本次call，冻结本次保存的业务信息和处理结果/录入人时间，不取跨通话聚合、后续编辑或其他客户资料。坐席选择该处理结果不证明客户接通，不改客观话单、时长、统计或秒挂；原继续跟进去向不变，手工无接入应用来源不新增外部回调。保存与快照/事件的原子可靠性及正式快照字段为待核提案。
+
+**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：已完成沟通可靠保存后的本次快照回调与独立送达反馈。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**scenario_ids**
+
+1. SC-007
+
+#### 96
+
+**acceptance_id**：AC-096
+
+**story_id**：US-006
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+2. DRAFT-UI-WORKBENCH
+
+**current_requirement**：对准确原应用接口来源的完成沟通事件，按保存的原应用、tenant和业务记录路由到该应用配置的对应业务系统，回调本次通话记录、本次已保存的客户业务信息快照及该记录原businessBatchNo。不能以最近应用/租户token/同批其他记录、外呼方式或临时URL改接收端；预外呼和人工接口来源均适用。原有每次结果/进度回调也携带对应记录原业务批次号，字段缺失时明确保留历史缺值、不猜造。话单未齐或部分字段未知时保留真实已知与缺失状态，不为“已完成沟通”伪造接通；动态业务字段标识/类型/选项与配置版本、通话记录具体结构、晚到话单后续交付机制及正式签名/ACK契约仍待S4核验。
+
+**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：已完成沟通可靠保存后的本次快照回调与独立送达反馈。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**scenario_ids**
+
+1. SC-002
+
+#### 97
+
+**acceptance_id**：AC-097
+
+**story_id**：US-006
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+2. DRAFT-UI-WORKBENCH
+
+**current_requirement**：新增完成沟通回调不替代或撤销既有每次通话结果、真实进度、秒挂分类及失败结果回调。建议按准确记录、本次call及保存版本形成稳定事件身份；重复保存/重复通知不重复生成同一完成事件，交付失败仅补送该事件的原业务批次号与已保存快照，不重新导入、分配或拨号。业务批次号可复用，不能用它单独去重回调。补送不偷偷读取当前业务表单或跨通话聚合；后到话单只按正式更新/版本方案补充同一call的客观事实，不覆写原已保存业务快照。稳定事件ID、版本、接收ACK、超时/补送策略、地址变更积压目标及重复或修改保存语义继续待双方契约与工程证据，不将HTTP受理或本地保存当作业务系统已接收成功。
+
+**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：已完成沟通可靠保存后的本次快照回调与独立送达反馈。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**scenario_ids**
+
+1. SC-002
+
+#### 98
+
+**acceptance_id**：AC-098
+
+**story_id**：US-006
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：完成沟通回调中的本次已填写客户业务信息（含选填业务字段），须携带对应字段业务编码及已保存值；枚举选项还须携配置的选项业务编码和值，多选包含全部选中项编码，不得只发中文标签或内部字段/选项ID。与AC-096的本次已保存快照绑定，按原租户保存当时配置冻结字段及选项业务编码、值和可溯源配置信息，后续配置改名或改码不改写原快照，补送沿同一快照。未填写的选填字段不伪造值或选项编码；已填写字段或已选选项缺业务编码时，标记“回调资料待完善”，不得以label/内部ID兜底并声称完整交付成功，也不得因此阻止满足既有校验的坐席本地保存或丢失草稿。历史缺编码不猜造，正式报文字段、配置版本/值类型、缺码补全及恢复交付规则待双方契约与工程验证。验收须覆盖文本字段业务编码、单选及多选全部编码、空选填、已填缺码、本地保存成功但交付待完善，以及保存后改配置再补送仍用原码原值。
+
+**meaning**：字段/选项业务编码由后台从本次保存时原租户配置快照生成，不增加坐席技术输入或默认编码展示。UI只承接独立回调资料待完善反馈；该编码契约能力尚未实现，不由原型跟进保存证明。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：完成沟通回调的已填字段与所选选项业务编码快照，多选全量、缺码保持本地保存。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**scenario_ids**
+
+1. SC-002
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+#### 99
+
+**acceptance_id**：AC-099
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：业务系统导入客户接口API-001／DCC-RST-IMPORT在每条线索增加意向门店编码、意向门店名称、意向车系编码、意向车系、Smartcode和留资时间；本方拟逐行选填字符串intentionStoreCode、intentionStoreName、intentionSeriesCode、intentionSeries、smartCode、leadCreatedAt，原leadCode、phone、priority必填不变，预外呼仍核指定taskId，人工外呼仍核指定坐席。提供时按准确原应用、token租户、requestId/行及客户记录保存原字符串，编码保留前导零与大小写；缺值不猜造、不以计划到店门店或其他同号资料替代，Smartcode不推断语义。完整请求幂等内容包含所提供六字段，同requestId改任一字段按原冲突边界处理，技术重传不覆盖已保存来源信息；新requestId沿既有业务规则。同号/同批号复用不串不同导入记录。本次不修改API-002供应商报文，不把这些字段新增为手工导入必填；正式字段名、长度、空值与兼容契约待S4。 留资时间保存业务系统提供的原值，不等于平台importedAt/savedAt或呼叫开始时间；缺值不默认当前时间或从导入时间推算，格式、时区、精度及校验/兼容规则待正式契约。
+
+**meaning**：本方API的六个选填来源字段接收/保存与幂等为后端契约；本地合成模型仅局部验证，正式外部API未实现。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：六项原导入业务信息的接口接收、准确UI展示或完成沟通快照回调；仅限本验收对应能力。
+
+**优先组**
+
+1. P0-IMPORT
+
+**scenario_ids**
+
+1. SC-001
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+#### 100
+
+**acceptance_id**：AC-100
+
+**story_id**：US-012
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+2. DRAFT-UI-WORKBENCH
+
+**current_requirement**：在既有导入预览/检查区、客户详情、通话详情及坐席拨号/振铃阶段即可打开的跟进表单客户业务信息区，按“意向门店编码、意向门店名称、意向车系编码、意向车系、Smartcode、留资时间”展示准确本次导入记录保存的原值；选填来源信息置于必填业务信息之后，缺值显示“未提供”，长值可查看完整内容而不丢失编码。按原租户/应用/客户记录及本次call关联，不能从最近同号、其他导入批次、计划到店门店或当前编辑表单补猜；原导入意向只读展示与坐席本次跟进编辑值明确区分，后续编辑不悄改导入快照。保留原手工大弹窗、常驻导入入口和早填跟进交互，不为本次新增独立页面、技术说明、额外必填或门店/车系联动查询。历史无值也显示未提供，不批量改写。 留资时间显示本次原业务来源值，明确与导入/保存时间分开；缺值未提供，不默认当前时间，不悄改时区、精度或以导入时刻替代。
+
+**meaning**：六项原导入业务信息在原导入检查/客户详情/通话详情和早填单页面局部实现，21组源码定向验证通过，浏览器导入/详情/早填定点通过，非整版视觉。真实API、来源可靠归属与正式回调不由UI证明；未将手工CSV整体升P0。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**范围**：六项原导入业务信息的接口接收、准确UI展示或完成沟通快照回调；仅限本验收对应能力。
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**scenario_ids**
+
+1. SC-007
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+#### 101
+
+**acceptance_id**：AC-101
+
+**story_id**：US-006
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：已完成沟通的本次保存事件在原app/tenant/record及本call快照中保留六项原导入业务字段及原businessBatchNo，回调对应原应用业务系统时携带已提供的原字符串；缺值保留明确未提供语义，不从后续导入、最新客户聚合、计划到店门店或新配置补猜。意向门店编码/名称、意向车系编码/车系、Smartcode及留资时间与坐席本次填写业务信息分开标识，Smartcode不转换或派生，补送沿同事件原快照。已填选填业务字段和所选枚举项仍按AC-098冻结保存时业务编码及值、多选全量；六项来源字段不得代替真实跟进字段业务编码或表单计划到店记录。完成触发、每次结果/进度回调、缺码资料待完善不阻止有效本地保存及补送不重导/重拨规则不变；正式回调结构、字段映射、空值/缺码兼容及可靠快照仍待S4与工程核验。 回调留资时间携本次原业务来源值，不能用平台importedAt/savedAt、当前时刻或呼叫时间替代；缺值语义及正式格式/时区/精度仍待契约。
+
+**meaning**：完成沟通事件携本记录本次原导入六字段及原业务批次号为后台快照/回调契约；本地通话来源快照不证明事件生成、字段业务码或真实业务ACK已实现。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**范围**：六项原导入业务信息的接口接收、准确UI展示或完成沟通快照回调；仅限本验收对应能力。
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**scenario_ids**
+
+1. SC-002
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+#### 102
+
+**acceptance_id**：AC-102
+
+**story_id**：US-010
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：业务系统导入客户接口API-001／DCC-RST-IMPORT新增请求级必填businessType，一次新请求只导入一种业务类型；必须提交当前已验真token租户配置内启用的稳定业务类型编码，不取展示名称或由source、callMode、手机号、任务默认值推断。新业务缺失、无效、不属于当前租户或停用类型时明确拒收，不新增客户、不分配坐席、不提交供应商。通过后将原类型编码及名称快照按原app/tenant/request行/record逐条保存。不同类型分次导入仍可复用businessBatchNo，原leadCode、phone、priority必填及taskId/坐席分支不变；类型不加入既有线索/批次归组或失败额度键，不因换类型重新获得补提交次数。完成当前身份鉴权后，完整幂等内容包含businessType；同app+tenant+requestId同内容技术重放返回原受理回执，不重复保存/分配/提交，不因后来停用类型改写或重解释原请求；同requestId改类型冲突。原手工流程的业务类型选择沿用，历史记录不批量回填，不据此修改API-002供应商报文。正式码集合、字段版本、旧调用迁移及可靠持久校验仍待S4/工程核验。
+
+**meaning**：41组源码定点及原名单/详情浏览器证据仅证明指定本地模拟路径；仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-IMPORT
+
+**范围**：仅本次接口业务类型接收/展示表单/原类型回调，其他手工CSV及任务能力不整体提级。
+
+**scenario_ids**
+
+1. SC-001
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-import-business-type-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-125
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+#### 103
+
+**acceptance_id**：AC-103
+
+**story_id**：US-012
+
+**disposition**：ui_spec_with_server_dependencies
+
+**ui_page_ids**
+
+1. PAGE-002
+
+2. DRAFT-UI-WORKBENCH
+
+**current_requirement**：接口导入后，客户名单、客户详情、准确本次通话详情及坐席拨号/振铃即可打开的跟进表单展示本记录保存的业务类型名称并保留稳定编码，按该原类型载入客户业务表单；不要求坐席为已确定类型的接口线索重新选择，也不允许静默切换原类型。原类型从准确app/tenant/record及本call取得，不从source、callMode、最近同号或其他批次推断。类型后续改名或停用不改写历史原类型或把旧记录切换到其他类型，若原业务表单暂不可用则说明原因并保留草稿，不能默认其他表单。历史无值显示未提供且不批量猜补。原手工导入已选业务类型的流程、单一线索编码、原弹窗与六项选填来源信息后置保持；不新增独立页面或业务类型配置功能。
+
+**meaning**：41组源码定点及原名单/详情浏览器证据仅证明指定本地模拟路径；仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：仅本次接口业务类型接收/展示表单/原类型回调，其他手工CSV及任务能力不整体提级。
+
+**scenario_ids**
+
+1. SC-007
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-import-business-type-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-125
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+#### 104
+
+**acceptance_id**：AC-104
+
+**story_id**：US-006
+
+**disposition**：backend_contract_no_new_user_action
+
+**ui_page_ids**
+
+
+
+**current_requirement**：向对应原应用业务系统回调每次准确结果、进度及已完成沟通的保存快照时，均携本记录原businessType稳定编码，并与原businessBatchNo、线索编码及准确app/tenant/record/call关联；业务类型展示名称不能替代编码，source和callMode分别保留。原每次回调及完成沟通触发条件不变，六项原来源字段、本次已填业务字段及枚举项编码和值继续按AC-098/101的保存时快照回传。补送沿同事件原类型快照，配置后续改名/停用、同手机号新导入或同业务批次重复使用不得替换原类型；类型不改变回调所属应用与租户、不触发新导入/分配/重拨。旧记录无类型不伪造默认，旧事件兼容与正式payload/ACK、表单版本及可靠保存仍待S4与工程核验，未证明真实回调可用。
+
+**meaning**：41组源码定点及原名单/详情浏览器证据仅证明指定本地模拟路径；仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**范围**：仅本次接口业务类型接收/展示表单/原类型回调，其他手工CSV及任务能力不整体提级。
+
+**scenario_ids**
+
+1. SC-002
+
+**来源**：需求/1.1.0/分析工作区/inputs/user-import-business-type-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-125
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**official_action_ids**
+
+1. ACTION-016
+
+2. ACTION-017
+
+3. ACTION-018
+
+4. ACTION-019
+
+5. ACTION-020
+
+6. ACTION-004
+
+7. ACTION-006
+
+8. ACTION-007
+
+9. ACTION-009
+
+10. ACTION-010
+
+11. ACTION-011
+
+12. ACTION-012
+
+13. ACTION-014
+
+14. ACTION-015
+
+15. ACTION-025
+
+16. ACTION-005
+
+17. ACTION-021
+
+18. ACTION-022
+
+19. ACTION-023
+
+20. ACTION-024
+
+21. ACTION-001
+
+**official_action_ids_status**：prior_S6_stale
+
+**local_navigation_overlay_ids**
+
+1. UI-OVERLAY-001
+
+2. UI-OVERLAY-002
+
+3. UI-OVERLAY-003
+
+4. UI-OVERLAY-004
+
+5. UI-OVERLAY-005
+
+**draft_workbench_action_ids**
+
+1. DRAFT-UI-FOLLOWUP-EDIT
+
+2. DRAFT-UI-FOLLOWUP-SAVE
+
+3. DRAFT-UI-PENDING-CONTACT
+
+**claim**：104条当前验收逐项分为UI呈现及后端依赖或后端契约，无遗漏登记；不是104条实现或运行测试全部通过。AC102/104为请求级类型与回调契约，AC103为原名单/详情/跟进表单展示；局部原型证据另列，真实接口、可靠快照与ACK仍待实现。
+
+**priority_policy_ref**：draft-20261014.json#priority_policy.user_request
+
+**priority_application_note**：沿现有P0应用/导入/跟进政策；SRC125业务类型AC102/104属导入与回调主范围，AC103原类型展示/表单是必要依赖。六项来源字段AC099/101主范围、AC100展示依赖保持；手工CSV及其他任务能力不整体升P0。
+
+**prototype_completion_observation**
+
+**状态**：read_only_actual_source_not_new_feature_implementation
+
+**disposition_key**：已完成沟通
+
+**other_outcomes**
+
+1. 需要再次联系
+
+2. 客户暂无需求
+
+3. 号码有误
+
+4. 客户拒绝联系
+
+**save_call_fields**
+
+1. agentDisposition
+
+2. dispositionRemark
+
+3. processingStatus
+
+4. dispositionAt
+
+5. customerFollowup
+
+**business_snapshot**：call.customerFollowup={businessType, enabled fieldId: scalar string or multiselect array, plannedStoreId, updatedAt, updatedBy}; journal identity uses enterpriseId+tenantId+phone+callId.
+
+**known_configuration_gap**：当前customerFollowup仅保存本次字段ID/选项ID值，未绑定字段/选项businessKey、标签或配置版本快照。用户现已要求回调已填写字段及所选选项的业务编码，多选携全部所选编码；此后台快照能力尚未实现，正式格式/历史缺编码兼容仍待。 现CustomerBusiness允许业务编码留空，因此不能推断当前可完整发送；目标缺码回调待完善与本地保存成功分开，补齐由既有配置权限处理。
+
+**detail_location**：通话详情已有坐席处理结果与本次客户业务信息；业务状态和客观线路结果分开。
+
+**not_implemented**
+
+1. API业务批次号输入/保存/详情
+
+2. 已完成沟通保存后生成不可变本次快照并按原应用回调
+
+3. SRC-124六个导入业务字段的真实对外接口接收及完成事件固化/回调（本地展示由独立局部证据另列）
+
+**来源**：prototype/mock/data.js, prototype/js/pages/agent-workbench.js, prototype/js/components/customer-followup.js, prototype/js/components/customer-business.js, prototype/js/pages/cloud-call-records.js, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json
+
+**six_import_business_fields_local_snapshot**：SRC-124局部实现把原记录六项来源字段复制到本次准确通话，旧历史不从当前客户回填；展示在导入检查、客户/通话详情及跟进表单只读区。该本地数据快照不是正式完成沟通事件的原子保存/业务码/真实回调证明。
+
+**business_type_delta**
+
+**范围**：原名单/客户与通话详情/坐席原跟进表单
+
+**rule**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**field_ref**：DFIELD-024
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**实现状态**：local_synthetic_predictive_receiver_and_existing_UI_scoped_pass
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**验证边界**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。

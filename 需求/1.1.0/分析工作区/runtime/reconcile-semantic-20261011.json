@@ -1,0 +1,524 @@
+{
+  "schema_version": "1.0",
+  "kind": "independent_readonly_semantic_alignment_review",
+  "date": "2026-10-11",
+  "requirements_root": "/private/tmp/dcc-reconcile-20261011",
+  "prototype_root": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype",
+  "status": "pass",
+  "checks": [
+    {
+      "id": "ALIGN-001",
+      "title": "当前完整有效范围与稳定ID",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "counts": {
+          "FUNC": 17,
+          "AC": 62,
+          "BR": 21,
+          "SC": 5,
+          "SEQ": 8,
+          "PAGE": 5
+        },
+        "active_function_ids": [
+          "FUNC-001",
+          "FUNC-002",
+          "FUNC-004",
+          "FUNC-005",
+          "FUNC-006",
+          "FUNC-009",
+          "FUNC-010",
+          "FUNC-011",
+          "FUNC-012",
+          "FUNC-013",
+          "FUNC-015",
+          "FUNC-016",
+          "FUNC-017",
+          "FUNC-018",
+          "FUNC-019",
+          "FUNC-020",
+          "FUNC-021"
+        ]
+      }
+    },
+    {
+      "id": "ALIGN-002",
+      "title": "SRC087/088追加且旧来源完整保留",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "old_sources_001_086_equal": true,
+        "user_raw_ref": "inputs/user-prototype-review-20261011.txt",
+        "interpretation": "原话修改公共保留，仅解释为修改功能；新指令不冒充G3或业务/运营冻结审批"
+      }
+    },
+    {
+      "id": "ALIGN-003",
+      "title": "原主子请求协议AC047～052逐对象完整保持",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "compared_to": "/private/tmp/dcc-lead-group-revision-20261011/memory/normalized-user-stories.json",
+        "acceptance_ids": [
+          "AC-047",
+          "AC-048",
+          "AC-049",
+          "AC-050",
+          "AC-051",
+          "AC-052"
+        ]
+      }
+    },
+    {
+      "id": "ALIGN-004",
+      "title": "退役功能时序操作及修改历史不丢失",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "retired_function_ids": [
+          "FUNC-003",
+          "FUNC-014",
+          "FUNC-007",
+          "FUNC-008"
+        ],
+        "retired_sequence_ids": [
+          "SEQ-008"
+        ],
+        "retired_action_ids": [
+          "ACTION-008",
+          "ACTION-002"
+        ],
+        "old_decision_history_prefixes_preserved": true
+      }
+    },
+    {
+      "id": "ALIGN-005",
+      "title": "应用五个独立操作按各自触发和结果拆分",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "operation_ids": [
+          "FUNC-018",
+          "FUNC-019",
+          "FUNC-020",
+          "FUNC-001",
+          "FUNC-021"
+        ],
+        "source": "SRC-087",
+        "mapping": "查询列表018/新增019/详情020/修改001/删除021；字段、确认、显示复制为主操作明细；旧001复用修改不重编号"
+      }
+    },
+    {
+      "id": "ALIGN-006",
+      "title": "FUNC002是后台租户身份交换，日常UI不再技术演示",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "function_ref": "memory/feature-list.json#FUNC-002",
+        "retired_action": "ACTION-002",
+        "background_sequence": "SEQ-005后台请求；同一租户可多应用，任务归租户，业务身份不授管理权",
+        "page004_relation": "PAGE004.function_ids包含FUNC002仅后台凭证/授权前置上下文，backend_context_function_ids和note显式隔离。所有action来源无FUNC002；详情secret仍FUNC020，不把查看密钥当token交换；退役ACTION002未恢复。"
+      }
+    },
+    {
+      "id": "ALIGN-007",
+      "title": "真实接口能力不因合成CRUD/主子模型提升",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "statuses": {
+          "API-001": "missing",
+          "API-002": "partial",
+          "API-003": "partial",
+          "API-004": "partial",
+          "API-005": "not_required",
+          "API-006": "partial",
+          "API-007": "not_required",
+          "API-008": "not_required",
+          "API-009": "not_required",
+          "API-010": "missing"
+        },
+        "production_pending": "生成/存储/CRUD/token撤销时效、供应商同号排重/在途并行/精准删除仍待核；无真实调用"
+      }
+    },
+    {
+      "id": "ALIGN-008",
+      "title": "应用CRUD都校验管理权限并精确到保存对象",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "prototype_refs": [
+          "js/components/dcc-runtime.js:35-110",
+          "js/pages/application-access.js:application/save/remove"
+        ],
+        "reviewed_behavior": "列表读取不写；创建/修改先持久化再替换状态；修改原标识/密钥保持；删除仅选定app并在保存成功后清其合成身份，ledger任务记录不删；身份/对象变化守卫清旧上下文"
+      }
+    },
+    {
+      "id": "ALIGN-009",
+      "title": "应用页面表达密钥用途且精简无多余技术交换",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "ui_ref": "js/pages/application-access.js",
+        "reviewed_behavior": "列表/新增/详情/修改齐全，appSecret默认遮罩、显示复制属于详情，必要不可用演示提示保留，无启停/重置/收费"
+      }
+    },
+    {
+      "id": "ALIGN-010",
+      "title": "DCC主子分配直接挂最近已保存主，不要求previous/parent",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "acceptance_refs": [
+          "AC-047",
+          "AC-048",
+          "AC-049"
+        ],
+        "prototype_ref": "js/components/dcc-runtime.js#importRows",
+        "reviewed_behavior": "tenant/原供应商任务/leadCode组固定phone；true新主；false缺省有主新子，无主自动首主；同号多lead未放开；手工不新增flag/request/root"
+      }
+    },
+    {
+      "id": "ALIGN-011",
+      "title": "完整请求归一幂等先于主子分配，重传保留原root",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "acceptance_refs": [
+          "AC-050",
+          "AC-051",
+          "AC-052"
+        ],
+        "prototype_ref": "js/components/dcc-runtime.js#receiveDcc",
+        "reviewed_behavior": "鉴权/任务范围和行标识先核；同ID相同归一内容返原逐行结果不重交，异内容整重复请求拒；后来新主不重算旧请求映射"
+      }
+    },
+    {
+      "id": "ALIGN-012",
+      "title": "平台每日查询衰减和后台重导退出，两来源本次priority保持",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "acceptance_refs": [
+          "AC-009",
+          "AC-014",
+          "AC-015",
+          "AC-030",
+          "AC-032",
+          "AC-046"
+        ],
+        "prototype_ref": "js/components/dcc-runtime.js:623-626",
+        "reviewed_behavior": "接口取本次DCC priority、手工提交前最终值；同任务高先FIFO且未知不重交，无日龄改写/自动重导计时预算"
+      }
+    },
+    {
+      "id": "ALIGN-013",
+      "title": "任务列表与记录页常驻来源分派入口",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "acceptance_refs": [
+          "AC-029",
+          "AC-059"
+        ],
+        "prototype_refs": [
+          "js/pages/cloud-call-tasks.js#predictiveImportCustomers",
+          "js/pages/cloud-task-workspace.js:1830-1863",
+          "js/components/dcc-records.js#dccImportCustomers"
+        ],
+        "reviewed_behavior": "列表入口选择具体任务，任务内跨页签按钮常驻；锁来源按接口/手工分派；任务状态/权限/只读禁用与原因，历史未启动补导保留"
+      }
+    },
+    {
+      "id": "ALIGN-014",
+      "title": "CSV新文本或失败预览阻止旧稿提交",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "acceptance_ref": "AC-060",
+        "prototype_ref": "js/components/dcc-records.js#previewManualCsv/invalidateManualPreview/submitManual",
+        "reviewed_behavior": "输入变化和失败/空预览清旧稿；提交前必须当前有效预览；统一/逐条priority修改仅当前草稿"
+      }
+    },
+    {
+      "id": "ALIGN-015",
+      "title": "CSV处理等待期间也阻止文本变化后的旧稿提交",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "acceptance_ref": "AC-060",
+        "prototype_ref": "js/components/dcc-records.js#submitManual",
+        "resolution": "处理中锁定全部输入/按钮；await后重核同draft、文本/previewSource、固定rows/DOM预览字段、账号/租户/enterprise/domain/原任务/来源/权限；变化清旧预览取消导入，恢复编辑并要求重新预览。",
+        "actual_vm_evidence": {
+          "path": "/private/tmp/dcc-manual-race-regression-result-20261011.json",
+          "case_count": 13,
+          "source_sha_matches_current": true
+        },
+        "actual_browser_evidence": {
+          "path": "/private/tmp/dcc-full-manual-race-fixed-browser-result.json",
+          "ordinaryEntry": true,
+          "observations": [
+            {
+              "case": "ordinary in-flight editing blocked",
+              "allControlsDisabled": true,
+              "submittedLead": "VISIBLE-A",
+              "records": 1
+            },
+            {
+              "case": "programmatic text change revalidated after await",
+              "oldASaved": false,
+              "restoredEditor": true,
+              "repreviewRequired": true,
+              "submittedAfterRepreview": "VISIBLE-B"
+            },
+            {
+              "case": "storage failure restores editable retry",
+              "failedSaveWroteNothing": true,
+              "retrySavesExactlyOne": true
+            }
+          ],
+          "pageErrors": []
+        },
+        "validation_limit": "本Agent实际读取了独立执行所得13VM与3普通入口浏览器案例结果并比对当前源码SHA，未代跑这些用例，不由源码字符串单独判本项Pass"
+      }
+    },
+    {
+      "id": "ALIGN-016",
+      "title": "删除反馈随精确对象/样例切换清除但保存证据保留",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "acceptance_ref": "AC-061",
+        "prototype_ref": "js/components/dcc-records.js#selectDeletionRecord/selectDeletionScenario",
+        "reviewed_behavior": "切换仅清UI反馈，保存删除证据仍留旧对象；精确record/batch/fileId作用，不按root或lead清组，原request/root映射保留"
+      }
+    },
+    {
+      "id": "ALIGN-017",
+      "title": "未可信SIP独立待核，不毒化确认call并允许后续可信更新",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "acceptance_ref": "AC-062",
+        "prototype_ref": "js/components/dcc-runtime.js#addResultReview/receiveCallResult",
+        "reviewed_behavior": "不可信证据blocksResult=false独立保留；可信精准call/SIP同原对象更新及版本交付不新呼叫，真实非SIP矛盾仍block待核；两顺序由实际browser/model回归承担"
+      }
+    },
+    {
+      "id": "ALIGN-018",
+      "title": "应用PAGE/FUNC trace跟当前五页面事实一致",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "prototype_ref": "js/pages/application-access.js#render",
+        "mapping": "应用列表001/018、新增003/019、详情004/020、修改005/001、删除确认021；凭据查看不误归FUNC002"
+      }
+    },
+    {
+      "id": "ALIGN-019",
+      "title": "应用场景AC归属准确不挟入外呼行为",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "scenario_ref": "scenarios/SC-005.json#acceptance_points",
+        "removed_unrelated": "AC001～004属于外呼主流程，非应用管理"
+      }
+    },
+    {
+      "id": "ALIGN-020",
+      "title": "应用删除图成功路径必须有实际保存成功条件",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "scenario_ref": "scenarios/SC-005.json#flow_diagram",
+        "acceptance_ref": "AC-057",
+        "sequence_ref": "SEQ-005 12～13",
+        "reviewed_requirement": "确认后必须进入平台DELETE_OK权限/对象/删除保存结果决策；成功到DELETED、失败到DELETE_FAIL保留配置与身份。取消独立返回详情，失败不经成功节点。详情克隆仅同义展现，不增加功能。RESULT后REQUEST是可选独立DCC后台请求，没有新请求结束UI，不强制页面换token。"
+      }
+    },
+    {
+      "id": "ALIGN-021",
+      "title": "60字/重名/即时生产token撤销未从demo提升为业务事实",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "scope_limit": "代码60字/重名仅实现选择；应用删除/授权撤销拒旧身份是明确合成演示边界，生产token即时撤销/存储/算法/时效未核验；不新增启停重置"
+      }
+    },
+    {
+      "id": "ALIGN-022",
+      "title": "修正应用删除/可选后台身份路径的正式图绑定当前事实",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "official_readonly_binding_errors": [],
+        "SC005_svg_bindings": [
+          {
+            "renderer": "plantuml",
+            "fact_binding": true,
+            "svg_binding": true,
+            "render_pass": true
+          },
+          {
+            "renderer": "native",
+            "fact_binding": true,
+            "svg_binding": true,
+            "render_pass": true
+          }
+        ],
+        "method": "调用安装版business_diagrams只读核对全部业务图事实与SVG绑定；本项不等于浏览器视觉审查或人工冻结"
+      }
+    },
+    {
+      "id": "ALIGN-023",
+      "title": "当前审阅图页复制与实际四视图回归绑定最终候选文件",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "support_path": "/private/tmp/dcc-full-regression-support-20261011.json",
+        "support_sha256": "1901085f05258e4804debb730f7d30218a92d31f5eed7f688596e9302f4aa4a4",
+        "current_source_file_count": 23,
+        "source_mismatches": [],
+        "evidence_mismatches": [],
+        "svg_checks": [
+          {
+            "source": "/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/outputs/business-scenario-atlas.html",
+            "target": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/flowcharts/business-process.html",
+            "source_sha_matches": true,
+            "svg_count": 14,
+            "svg_byte_equal": true,
+            "target_sha_matches": true,
+            "explicit_G3_pending": true
+          },
+          {
+            "source": "/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/outputs/interaction-sequence-atlas.html",
+            "target": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/flowcharts/sequence-interaction.html",
+            "source_sha_matches": true,
+            "svg_count": 8,
+            "svg_byte_equal": true,
+            "target_sha_matches": true,
+            "explicit_G3_pending": true
+          },
+          {
+            "source": "/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/outputs/business-scenario-atlas.html",
+            "target": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/draft/business-scenario-atlas.html",
+            "source_sha_matches": true,
+            "mirror_byte_equal": true
+          },
+          {
+            "source": "/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/outputs/interaction-sequence-atlas.html",
+            "target": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/draft/interaction-sequence-atlas.html",
+            "source_sha_matches": true,
+            "mirror_byte_equal": true
+          },
+          {
+            "source": "/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis/outputs/page-structure-atlas.html",
+            "target": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/draft/page-structure-atlas.html",
+            "source_sha_matches": true,
+            "mirror_byte_equal": true
+          }
+        ],
+        "actual_review_primary_observations": 48,
+        "actual_core_width_observations": 12,
+        "scope": "当前G3待批准审阅版图页与候选行为已对齐；正式read-only输入替换/冻结批准未完成，不继承旧pack或伪造审批"
+      }
+    },
+    {
+      "id": "ALIGN-024",
+      "title": "独立最终facts与官方逐阶段复制事实一致",
+      "status": "pass",
+      "scope": "semantic_fact_and_source_review",
+      "evidence": {
+        "fact_file_count": 24,
+        "official_root": "/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis",
+        "mismatches": [],
+        "status_limit": "只核事实内容，未替官方controller推进阶段/批准"
+      }
+    }
+  ],
+  "fact_sha256": {
+    "memory/business-rules.json": "57a283bbc1db1d1ec240247cd74cacf1fababcda91c81091586f7312a8b89f06",
+    "memory/feature-list.json": "7e923dd6a5d31de010bb80899c75fb83cf14b83c90fe310650d6c7f247065d4e",
+    "memory/normalized-user-stories.json": "752480ac211c9a205b1dcd18aaa5df96913be5cc8137c00d5a466cbeebe3db60",
+    "memory/project-facts.json": "9b76e66c29985658dfe516b2455a61ec511b79126cd416e2d432076b118b5150",
+    "scenarios/SC-001.json": "b1284d85f4c210846ad9aaee0d8410e040a67d5ff12571ba3cdc89476d5f6090",
+    "scenarios/SC-002.json": "e243398d31e76b607b46229199e0eabcd4a67b3bce26ef1b0c09b5926d6c794b",
+    "scenarios/SC-003.json": "87a360e9a32d43a4b749d1909eda631953ba27946ec864f8d660c660a15e331f",
+    "scenarios/SC-004.json": "ba69ff84a81378340c026ca2435cb86a4eb24aafb9f552ae7aded66a7dee7b1f",
+    "scenarios/SC-005.json": "29c4044fb3154ba2cced43799f8dd17a666fc6f8f72a96df65617ba5a24f3c5b",
+    "scenarios/scenario-index.json": "57879ae2836cd9035eb5d84a713ef57622c49fa62236081ca9710c9a28c68325",
+    "sequences/SEQ-001.json": "0da139e6b1ece51686e879ca95656fd2a5dca5cc0617f32c7a0ddbc94a9604f4",
+    "sequences/SEQ-002.json": "1c49e16318cecf0d8347a3b9d08dbee20118979458bede39777ec11e2d254a51",
+    "sequences/SEQ-003.json": "d7992aacf17013458f722c135019e68536d4c64409db26d8d07a090b16ae5d8d",
+    "sequences/SEQ-004.json": "607d6aed6f82374db2327ffcfdccd9f74231e4eb3bf702b4a0894b9c0188b0cc",
+    "sequences/SEQ-005.json": "eb09126324046b3735204e4031db91c8bc855e1d6cd945579d49d41e3b19577d",
+    "sequences/SEQ-006.json": "ef0b699d200fc30de98d9fe6e1b5bb0cacb8fe8cd7e073043da2bb4ac2a30e70",
+    "sequences/SEQ-007.json": "506e391fc231e6ffc9fb1e0969d4bcb1d412a68c01e991edbe1d3176792da6a8",
+    "sequences/SEQ-008.json": "cd3f683e1dff634b99889339bcade7c6176ce91a618a264ea8c97f7630207bef",
+    "sequences/SEQ-009.json": "7e369ec4bd81f709c26ef1be5b402e62d131b63e2b6a9e04bc002f500316fc11",
+    "sequences/sequence-index.json": "ae7011e4ad3efc2ef43ad999d038d30c694c5e429e3ea9ab3db7bbfb31a4e3f7",
+    "interfaces/interface-index.json": "caf9cbd1e9baa91945eb6b98e68cc782b5266954b3d8e3fe67892187fc0e92f9",
+    "planning/page-index.json": "7bdcc3aecc586d98527b2b1e6d77aa71acab40e5fd4efa0af3f9898f1f0027f3",
+    "inputs/source-index.json": "d5856d960d22b23372ea0415058168b4972e2e7dc58a146572328ec46f68659e",
+    "runtime/open-items.json": "e56f547e6e6dad2da7c15577e06546282c3ca39f28710bfe547753d3dfb97bac"
+  },
+  "prototype_sha256": {
+    "index.html": "419691930ad7e658669f070c2307ccbaf1854f8e686bb6937e5a96153cd61e54",
+    "mock/data.js": "22fa116694fd3a46f6a6d38e4cb1da90e2c471183a81b5039bc2d200788c3bce",
+    "mock/dcc-v1.1.0.js": "cfdd64f932d5a928a5f9546bf311479c5ae42b24717d2f59808fd4f4e05fb155",
+    "js/app.js": "2eeee2d08664afd2b79bfe047ead53aa26d9243e1ada86df9571750588c38a0c",
+    "js/nav.js": "9e7635f747306cf4fa8d5f78ae2343465779e089c20cc4d8b32b0d175f9505ab",
+    "js/common.js": "494f785f85e327a4ef764e4b4941701609d34f5eeff79df67c809d126642a492",
+    "js/components/platform-ui.js": "5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2",
+    "js/components/dcc-runtime.js": "76cbf804cb885e385ceb520ff0f1fb9cf264cb03c5f887330bd91f497f8b7729",
+    "js/components/dcc-records.js": "e3596871adf85bf6802846a26a97c62c6d67a7ca2f81b773a9c461c9f5417f4d",
+    "js/components/alicti-fields.js": "5ccf3f3ccc82166bc1106614d02f7e21d744830666fd9824c2de8f45bb82dd26",
+    "js/components/alicti-demo.js": "44eacacad4d29d7735c3da6569e70ce981d99f98df6918c0de4328262bd2c825",
+    "js/components/customer-business.js": "59b65a99e8bdcfef9233f607b1b71a01ab3dbcb5fa6781979fe0aeafc88003c3",
+    "js/components/repeat-predictive.js": "843f84635af6f96ca31a47b67bfa1f1c3194b3e1f2a1bc9d6a73935634c6e39a",
+    "js/pages/application-access.js": "f36933d24f5b9c8ecf6033ae726c4162dc251738d6d4222bcdf3684223477f77",
+    "js/pages/customer-tasks.js": "4c7794d9f00e5df3c7a8b490bbc1319b924a88e7ff460f8fa90eb94048e2b958",
+    "js/pages/cloud-task-workspace.js": "4e6e2a8efe9f258e33d33b931b676b5307d1d12478571f371a9e3471a7a6c2ea",
+    "js/pages/cloud-call-tasks.js": "9e1edfc32fd15405817cbec859bf0ce17cb896b5ac87afffae3d4e5bb86198fb",
+    "assets/css/dcc-v1.1.0.css": "fe64344d8007bf59d3bbd9cdd9c8446c78cbc4e461aad4bff3627e8a3b6c2cdc",
+    "js/delivery-nav.js": "dbbd29af01bc107960726720784e26c7863a9a0a284bd2b217533c28d0cb6f9c",
+    "flowcharts/business-process.html": "6d60622fa75f0d84f5df75350483e903de263aa95888419a7559bdbcca90f100",
+    "flowcharts/sequence-interaction.html": "802c9dd0e732b12d83e8845d89ad01c0b27e1dea54322e214c23e9b8995b8c99",
+    "related-systems/index.html": "bcf2b0cb4077d27a0e5ac4250e5953ef5b69b689ccb0e78c27b1afe22377ae76",
+    "js/review-view-cache.js": "dddc7f481bf8ee26249668a38f9fb7413c605510369446affc5e9e32afc2e081"
+  },
+  "source_evidence_sha256": {
+    "inputs/glossary.md": "71a27e466a308e9a27baef6cdf55e309eaa09426750559edf46a4085956bd6e7",
+    "inputs/source-index.json": "d5856d960d22b23372ea0415058168b4972e2e7dc58a146572328ec46f68659e",
+    "inputs/user-batch-contract-20261011.txt": "94d590def107146f8d4d9b9b37a1177fff1eb0a8f64ec3b8a68ebf31028d2079",
+    "inputs/user-decision-20261011.txt": "c30eb7f5fbde23b429da79141382b025e89dc6df743056fa0ce3b1ad6806736b",
+    "inputs/user-original-20261009.txt": "16e4b4bda11f786bb60a84c0d133d7a7547b983edc00942380f78d74d7bd460b",
+    "inputs/user-prototype-review-20261011.txt": "4873a00b4baf395e009ca7cb3c76d0e6cec73410f3a462005db87a8d7eca13b2",
+    "inputs/user-stories.md": "54114a93eb1126804df6de59a86d69c96686ba5f0f3f7578092129cf7a1c8aee"
+  },
+  "reviewed_external_evidence_sha256": {
+    "/private/tmp/dcc-manual-race-regression-result-20261011.json": "5b226fae89edb6a7abbd04b403e2206bf45baa07f43527ac7358194cb9c75955",
+    "/private/tmp/dcc-full-manual-race-fixed-browser-result.json": "48b0623fefa46382d9ed90764f79d15b01b371c295a4d0886bbcc708f657667b",
+    "/private/tmp/dcc-full-markers-browser-result.json": "5d34ce18a6b01a93de1966c6acb37cdd0e7a95f92cb645bd77e490a5ce1a8590",
+    "/private/tmp/dcc-full-regression-support-20261011.json": "1901085f05258e4804debb730f7d30218a92d31f5eed7f688596e9302f4aa4a4",
+    "/private/tmp/dcc-full-current-view-svg-provenance.json": "23a166393d2e5080c47f967dc0a3cf72d91ee0a5d0dbc428de782a85913a3ba0",
+    "/private/tmp/dcc-full-current-core-browser-result.json": "78fe23b5229cc3978d80bb06e04175a1b4ba8689c152582717f4882acbf32628",
+    "/private/tmp/dcc-full-current-review-browser-result.json": "2df68bb6dbcbfb2334b88f6efec76e0de3cb39201ad7eb7f8185762c5e174f61"
+  },
+  "remaining_transition": {
+    "current_reviewed_graphs_aligned": true,
+    "formal_alignment_approved": false,
+    "formal_readonly_input_replaced": false,
+    "note": "当前唯一prototype审阅版图页已复用当前04 SVG且明确G3-pending，实际桌面四视图观察已复验；旧已冻结输入保持历史只读，正式冻结批准/导入仍待合法流程，不将当前审阅版对齐视为正式产品批准。"
+  },
+  "authority_limit": {
+    "read_only_review": true,
+    "facts_or_state_mutated": false,
+    "G3_approved": false,
+    "product_review_approved": false,
+    "real_apis_called": false,
+    "browser_regression_in_this_review": false,
+    "note": "此报告是事实与源码独立语义审查，不能代替verification_plan的实际浏览器/模型回归，不能由源码条件声称真实供应商能力或人类批准。"
+  }
+}

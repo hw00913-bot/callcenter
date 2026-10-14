@@ -45,6 +45,7 @@
       { key: 'extensions', page: 'extension-management', label: '分机管理', icon: '机', domain: 'CLOUD_CONTACT_CENTER', permission: 'resources.extensions' },
       { key: 'time-conditions', page: 'time-condition-management', label: '时间条件', icon: '时', domain: 'CLOUD_CONTACT_CENTER', permission: 'settings.times' },
       { key: 'alicti-accounts', page: 'alicti-accounts', label: 'AliCti 账号管理', permission: 'system.instances' },
+      { key: 'application-access', page: 'application-access', label: '应用接入管理', permission: 'system.applications' },
       { key: 'event-callbacks', page: 'system-center', label: '通话数据异常', permission: 'system.events', view: 'events' },
       { key: 'audit', page: 'system-center', label: '操作审计', permission: 'system.audit', view: 'audit' }
     ] }
@@ -57,6 +58,7 @@
     (group.children || []).filter(item => item.type !== 'section').forEach(item => { routes[item.key] = { ...item, domain: item.domain || group.domain, breadcrumb: [group.label, item.label], parent: group.key }; });
   });
   // 不作为独立菜单；保留场景内检查及配置返回路径的权限校验。
+  routes['application-access'].breadcrumb = ['系统设置', '应用接入管理'];
   routes['agent-skills'] = { key: 'agent-skills', page: 'agent-center', label: '坐席分组与等级', permission: 'agents.manage', domain: 'CLOUD_CONTACT_CENTER', view: 'skills', parent: 'agents', breadcrumb: ['坐席与技能', '技能管理', '坐席分组与等级'], internal: true };
   // Historical line-management bookmarks now open number management.
   routes['lines'] = { key: 'lines', page: 'resource-lines', permission: 'resources.numbers', domain: 'CLOUD_CONTACT_CENTER', internal: true, redirect: 'numbers' };

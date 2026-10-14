@@ -1,0 +1,614 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-006",
+  "name": "运营精准删除指定供应商记录与本地计划停止",
+  "summary": "有原任务操作权限的运营/管理员明确选定并确认唯一记录，原子停止该目标未执行失败计划；可精准表达时才候选供应商删除，本地取消与远端结果分别保存。",
+  "actors": [
+    "有权运营和管理员（沿任务现有权限）",
+    "云呼叫中心",
+    "AliCti供应商"
+  ],
+  "trigger": "有该任务权限的运营或管理员在既有任务记录选择具体对象并确认删除",
+  "scope": "in_scope",
+  "status": "S3_current_Tianwang_G1_scope_preserved_delete_G2_pending",
+  "source_story_ids": [
+    "US-008"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-110",
+    "inputs/source-index.json#SRC-107",
+    "inputs/source-index.json#SRC-109",
+    "inputs/source-index.json#SRC-115",
+    "inputs/source-index.json#SRC-116"
+  ],
+  "business_rule_ids": [
+    "BR-007",
+    "BR-012",
+    "BR-013",
+    "BR-015",
+    "BR-016",
+    "BR-019"
+  ],
+  "acceptance_points": [
+    "AC-016",
+    "AC-024",
+    "AC-025",
+    "AC-061"
+  ],
+  "design_notes": [
+    "独立发起意图复用既有PAGE-002/删除记录操作；不新增顶级页面、权限授予或通用策略操作。",
+    "SRC-107tels优先不是与fileId取AND；仅独占fileId是本轮候选精确选择器，不设默认skip值。",
+    "确认/权限/预算与当前目标必须服务端守卫；未知响应不等删除成功，更不证明在途撤回。",
+    "SRC-115及本轮实际G1恢复DCC完整闭环，指定删除仍仅原任务有权运营/管理员；此场景主/备选步骤及图逐值保持，不恢复DCC删除或扩同号/root。",
+    "本轮范围批准不代表G2/G3或生产接口确认；原删除/在途/授权/原子证据缺口继续保留。"
+  ],
+  "preconditions": [
+    "当前登录身份在授权tenant/原task内沿既有任务操作权限允许删除该准确对象；不是仅角色名或按钮可见。",
+    "具体record/batch/phone映射准确，保存root、每次真实supplier fileId及内部attempt关联可核；不按leadCode/root/最近同号扩大范围。",
+    "真实AliCti删除/跳过/在途和取消并发仍partial；独占fileId选择器仅候选，共享fileId多attempt不可定位则不外发。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "有权运营和管理员（沿任务现有权限）",
+      "action": "在既有任务记录选择具体供应商号码记录发起删除",
+      "system_response": "加载本次record/batch/实际fileId/phone及保存root；切换目标/结果样例清此前反馈，不抹旧目标业务证据。",
+      "rule_ids": [
+        "BR-007",
+        "BR-016"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "有权运营和管理员（沿任务现有权限）",
+      "action": "核对本次精确对象并明确确认删除",
+      "system_response": "取消不操作；服务端每次核当前身份/tenant/task/该对象的原任务操作权限及目标版本，拒绝/冲突不误删其他对象。",
+      "rule_ids": [
+        "BR-007",
+        "BR-015",
+        "BR-016"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "云呼叫中心",
+      "action": "对已授权且准确确认的目标原子保存取消意图，停止其尚未执行失败计划",
+      "system_response": "只作用该记录关联待执行计划，不按root/leadCode清组；保留停止证据、已用与UNKNOWN占用，不把本地停止显示为远端已删或在途已撤回。",
+      "rule_ids": [
+        "BR-007",
+        "BR-013",
+        "BR-015"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云呼叫中心",
+      "action": "核实本次实际fileId是否独占该精确目标并可用于供应商删除",
+      "system_response": "tels优先于fileId/fileName而非AND；仅独占fileId时，以原taskId+fileId候选按批选择、不同时传tels。不确定或共享fileId多attempt无法定位则保留待核、不外发、不扩大同号范围。",
+      "rule_ids": [
+        "BR-007",
+        "BR-012",
+        "BR-015"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云呼叫中心",
+      "action": "准确选择器和当前守卫通过时，候选发起本次供应商删除",
+      "system_response": "不新增默认skipCalling/skipRetry或先删后重导策略；重复/UNKNOWN沿原操作证据核查，不盲重发。生产接口仍partial，只使用独立合成情形。",
+      "rule_ids": [
+        "BR-007",
+        "BR-015"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "AliCti供应商",
+      "action": "返回本次供应商原始删除结果与skippedCallingTels等可核证据",
+      "system_response": "result=0也可能跳过目标，必须核本次目标是否实际被删；skipRetry不证明原生后续重呼停止，不假造在途撤回。",
+      "rule_ids": [
+        "BR-007",
+        "BR-015"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "云呼叫中心",
+      "action": "只在当前精确目标明确成功时标其已从供应商删除；拒绝/跳过/UNKNOWN分别保存",
+      "system_response": "本地record/root/fileId/call、秒挂三态、内部计划/attempt、共享已用/UNKNOWN预算和去重证据保留，不级联其他同号/主子/任务。",
+      "rule_ids": [
+        "BR-007",
+        "BR-013",
+        "BR-015",
+        "BR-019"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "有权运营和管理员（沿任务现有权限）",
+      "action": "查看本次精准目标的本地待计划停止与供应商删除结果",
+      "system_response": "本地停止和远端成功/拒绝/跳过/UNKNOWN分别显示；保存历史业务证据、失败额度不重置，秒挂没有可停止的本方重导计划。",
+      "rule_ids": [
+        "BR-007",
+        "BR-011",
+        "BR-013",
+        "BR-019"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "用户取消本次删除确认",
+      "steps": [
+        "不停止计划、不调用供应商、不修改任何目标结果。"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "当前任务/对象权限不足或确认前身份/目标版本变化",
+      "steps": [
+        "服务端拒绝或重新核当前目标；不授予新权限、不借旧选择误删。"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "记录/批次/fileId/phone关联缺失、多候选或真实冲突",
+      "steps": [
+        "待核，不猜根或按最近同号确定目标，不进行远端删除。"
+      ]
+    },
+    {
+      "id": "ALT-004",
+      "condition": "实际fileId共享多个attempt或选择器无法仅表示当前目标",
+      "steps": [
+        "本地已准确确认的停止标记保留；远端待核不外发，不同时传tels期待AND，不扩大批次/同号删除。"
+      ]
+    },
+    {
+      "id": "ALT-005",
+      "condition": "供应商明确失败、目标被跳过或只有部分/非目标成功",
+      "steps": [
+        "保存原原因/跳过列表，不标当前目标已删；本地已确认待计划停止保留。"
+      ]
+    },
+    {
+      "id": "ALT-006",
+      "condition": "供应商超时、响应未知或结果可信矛盾",
+      "steps": [
+        "保留本次操作证据待核，不盲重发删除、不释放业务补提交UNKNOWN占用，不伪造远端成功或在途撤回。"
+      ]
+    },
+    {
+      "id": "ALT-007",
+      "condition": "目标有业务补提交已发起/在途或预算UNKNOWN占用",
+      "steps": [
+        "本地取消仅阻断未执行计划；已发起和未知占用不释放，远端在途行为仍按供应商能力待核，不追加停止原生规则API。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "用户明确取消不产生副作用；当前授权确认只作用具体目标待计划及可准确表达的供应商对象。",
+    "本地停止与远端已删是两个分别核实的状态；失败/跳过/UNKNOWN不假成功。",
+    "必要本地记录/root/fileId/call/三态及失败累计已用/UNKNOWN证据保留，其他同号记录/批次/任务不受误删。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "有权运营和管理员（沿任务现有权限）",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云呼叫中心",
+        "kind": "system"
+      },
+      {
+        "id": "vendor",
+        "name": "AliCti供应商",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "operator",
+        "type": "start",
+        "order": 1,
+        "label": "现有任务记录删除意图"
+      },
+      {
+        "id": "SELECT",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 2,
+        "label": "选择当前record/batch/fileId/号码\n换目标清旧反馈",
+        "step_ref": 1
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "operator",
+        "type": "decision",
+        "order": 3,
+        "label": "确认本次具体目标删除？",
+        "step_ref": 2
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 4,
+        "label": "取消：无写无调用"
+      },
+      {
+        "id": "AUTH",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 5,
+        "label": "当前身份/tenant/原task\n及准确对象操作权限通过？"
+      },
+      {
+        "id": "DENY",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 6,
+        "label": "无权/上下文变化：拒绝\n不授新权限不误删"
+      },
+      {
+        "id": "LINK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "目标record/batch/fileId/phone\n关联唯一可信？"
+      },
+      {
+        "id": "BADLINK",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 8,
+        "label": "关联缺失/冲突：待核\n不猜目标不远端调用"
+      },
+      {
+        "id": "STOP",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 9,
+        "label": "原子停止本目标未执行失败计划\n保留停止及已用/UNKNOWN预算",
+        "step_ref": 3
+      },
+      {
+        "id": "INFLIGHT",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 10,
+        "label": "本目标是否有已发起/在途\n或UNKNOWN业务占用？"
+      },
+      {
+        "id": "KEEP",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "保留已发起/在途与UNKNOWN占用\n不宣称已撤回/释放",
+        "step_ref": 3
+      },
+      {
+        "id": "SELECTOR",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 12,
+        "label": "实际fileId独占精确目标\n可表达本次远端删除？",
+        "step_ref": 4
+      },
+      {
+        "id": "SHARED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 13,
+        "label": "共享fileId/多attempt无法精准定位\n远端不外发，本地停止保留"
+      },
+      {
+        "id": "DISPATCH",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 14,
+        "label": "候选taskId+独占fileId\n不同时tels，不默认skip",
+        "step_ref": 5
+      },
+      {
+        "id": "RESULT",
+        "lane_id": "vendor",
+        "type": "event",
+        "order": 15,
+        "label": "原result/原因及skippedCallingTels",
+        "step_ref": 6
+      },
+      {
+        "id": "KNOWN",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 16,
+        "label": "删除响应可信明确无矛盾？"
+      },
+      {
+        "id": "UNKNOWN",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 17,
+        "label": "删除UNKNOWN待核\n不盲再发，不释补提占用"
+      },
+      {
+        "id": "SUCCESS",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 18,
+        "label": "本精确目标明确已删\n且未被跳过？"
+      },
+      {
+        "id": "REJECT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 19,
+        "label": "拒绝/跳过/部分未删\n不标当前目标成功"
+      },
+      {
+        "id": "DELETED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 20,
+        "label": "只标当前供应商对象已删\n本地业务与三态/预算保留",
+        "step_ref": 7
+      },
+      {
+        "id": "SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 21,
+        "label": "保存本次目标/取消/远端结果证据\n同号其他记录不改变",
+        "step_ref": 7
+      },
+      {
+        "id": "VIEW",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 22,
+        "label": "本地计划停止与远端删除状态\n分开显示本次准确反馈",
+        "step_ref": 8
+      },
+      {
+        "id": "END",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 23,
+        "label": "保留历史/原root/call/去重/预算\n在途能力继续待核"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "SELECT"
+      },
+      {
+        "from": "SELECT",
+        "to": "CONFIRM"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "AUTH",
+        "label": "确认当前目标"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-001"
+      },
+      {
+        "from": "AUTH",
+        "to": "LINK",
+        "label": "当前授权与上下文通过"
+      },
+      {
+        "from": "AUTH",
+        "to": "DENY",
+        "label": "无权/上下文变化",
+        "path_id": "ALT-002",
+        "type": "failure"
+      },
+      {
+        "from": "LINK",
+        "to": "STOP",
+        "label": "关联唯一可信"
+      },
+      {
+        "from": "LINK",
+        "to": "BADLINK",
+        "label": "未知/冲突",
+        "path_id": "ALT-003",
+        "type": "failure"
+      },
+      {
+        "from": "STOP",
+        "to": "INFLIGHT"
+      },
+      {
+        "from": "INFLIGHT",
+        "to": "KEEP",
+        "label": "存在已发起/在途/UNKNOWN",
+        "path_id": "ALT-007"
+      },
+      {
+        "from": "INFLIGHT",
+        "to": "SELECTOR",
+        "label": "无上述已占用证据"
+      },
+      {
+        "from": "KEEP",
+        "to": "SELECTOR"
+      },
+      {
+        "from": "SELECTOR",
+        "to": "DISPATCH",
+        "label": "fileId独占且选择器精准"
+      },
+      {
+        "from": "SELECTOR",
+        "to": "SHARED",
+        "label": "共享/选择器不明",
+        "path_id": "ALT-004",
+        "type": "failure"
+      },
+      {
+        "from": "SHARED",
+        "to": "SAVE"
+      },
+      {
+        "from": "DISPATCH",
+        "to": "RESULT"
+      },
+      {
+        "from": "RESULT",
+        "to": "KNOWN"
+      },
+      {
+        "from": "KNOWN",
+        "to": "SUCCESS",
+        "label": "本次响应明确可信"
+      },
+      {
+        "from": "KNOWN",
+        "to": "UNKNOWN",
+        "label": "超时/未知/真实矛盾",
+        "path_id": "ALT-006",
+        "type": "failure"
+      },
+      {
+        "from": "UNKNOWN",
+        "to": "SAVE"
+      },
+      {
+        "from": "SUCCESS",
+        "to": "DELETED",
+        "label": "精确目标已删且未跳过"
+      },
+      {
+        "from": "SUCCESS",
+        "to": "REJECT",
+        "label": "拒绝/跳过/非目标或部分",
+        "path_id": "ALT-005",
+        "type": "failure"
+      },
+      {
+        "from": "REJECT",
+        "to": "SAVE"
+      },
+      {
+        "from": "DELETED",
+        "to": "SAVE"
+      },
+      {
+        "from": "SAVE",
+        "to": "VIEW"
+      },
+      {
+        "from": "VIEW",
+        "to": "END"
+      }
+    ]
+  },
+  "current_scope_approval": {
+    "gate": "G1",
+    "approval_ref": "runtime/dcc-restart-g1-user-approval-20261013.json",
+    "approval_sha256": "86c89c11de053fb95681f79bbedfe9eea312747ded6afa6fce01bbd7d5bab6b3",
+    "scope_source": "SRC-115",
+    "actual_answer": "批准 G1，按 DCC 优先继续",
+    "G2_approved": false,
+    "G3_approved": false,
+    "production_verified": false
+  },
+  "analysis_phase": "S3_current_delete_preserved_candidate_pending_parent_validation",
+  "decision_history": [
+    {
+      "date": "2026-10-13",
+      "change_id": "CH-V110-20261013-DCC-FULL-LOOP-S3-DELETE-SCOPE",
+      "source_refs": [
+        "inputs/source-index.json#SRC-115"
+      ],
+      "scope_approval": {
+        "gate": "G1",
+        "approval_ref": "runtime/dcc-restart-g1-user-approval-20261013.json",
+        "approval_sha256": "86c89c11de053fb95681f79bbedfe9eea312747ded6afa6fce01bbd7d5bab6b3",
+        "scope_source": "SRC-115",
+        "actual_answer": "批准 G1，按 DCC 优先继续",
+        "G2_approved": false,
+        "G3_approved": false,
+        "production_verified": false
+      },
+      "reason": "只补本轮范围依据，指定记录删除职责/权限/选择器/主备选流程和图均保持当前有效定义；不恢复DCC删除。",
+      "previous_metadata": {
+        "source_refs": [
+          "inputs/source-index.json#SRC-110",
+          "inputs/source-index.json#SRC-107",
+          "inputs/source-index.json#SRC-109"
+        ],
+        "design_notes": [
+          "独立发起意图复用既有PAGE-002/删除记录操作；不新增顶级页面、权限授予或通用策略操作。",
+          "SRC-107tels优先不是与fileId取AND；仅独占fileId是本轮候选精确选择器，不设默认skip值。",
+          "确认/权限/预算与当前目标必须服务端守卫；未知响应不等删除成功，更不证明在途撤回。"
+        ]
+      },
+      "unchanged_business_body_sha256": "32199b2eb59b596b19b3a4a79716b56907942183e98ff207ff5162df46a336dd"
+    },
+    {
+      "change_id": "CH-V110-20261013-TIANWANG-SHARED-INGEST",
+      "source_refs": [
+        "inputs/source-index.json#SRC-116"
+      ],
+      "before": {
+        "status": "confirmed_scope_supplier_gaps_retained",
+        "candidate_phase": null,
+        "scope": "in_scope"
+      },
+      "reason": "原授权指定记录删除所有业务步骤/ALT/泳道保持；仅本轮G1与来源追溯更新。"
+    }
+  ],
+  "candidate_provenance": {
+    "base_path": "scenarios/SC-006.json",
+    "base_sha256": "3e0e6b490de1e394c7598ff1f2adf93e6a0a00465eff2e965a1b9790df070625",
+    "flow_diagram_unchanged": true,
+    "main_flow_unchanged": true,
+    "alternate_flows_unchanged": true,
+    "DCC_delete_added": false
+  },
+  "candidate_validation": {
+    "check_type": "pure_local_model_and_native_geometry",
+    "executed": true,
+    "model_errors": [],
+    "geometry_errors": [],
+    "main_steps_referenced": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "alternate_paths_referenced": [
+      "ALT-001",
+      "ALT-002",
+      "ALT-003",
+      "ALT-004",
+      "ALT-005",
+      "ALT-006",
+      "ALT-007"
+    ],
+    "formal_PlantUML_rendered": false,
+    "browser_visual_verified": false,
+    "production_verified": false,
+    "stage_complete_claimed": false,
+    "shared_files_modified": false
+  },
+  "candidate_phase": "S3_actual_G1_Tianwang_scope"
+}

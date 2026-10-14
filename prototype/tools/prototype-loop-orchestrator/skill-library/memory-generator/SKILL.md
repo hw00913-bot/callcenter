@@ -47,7 +47,7 @@ description: PM 原型 loop 的项目记忆生成技能。Use at S3 to materiali
 
 1. 先运行 `python3 tools/import_analysis.py verify .`，确认基线未漂移且与 S2 计划批准摘要一致。
 2. 运行 `python3 tools/import_analysis.py materialize .`，由确定性适配器生成 `project.md`、`business-rules.md`、`feature-list.md`、`source-materials.md`、`field-map.md`、`open-items.md`、基线元数据和导入决策。
-3. 只可补充原型专属的展示决策；不得覆盖适配器生成的范围、规则、功能、接口或页面事实，不得修改 `inputs/requirement-analysis/`。
+3. 原型专属展示决策写入 `docs/decisions.md`，问题与用户决定写入 `memory/open-items.md`。适配器生成的 project/business-rules/feature-list/source-materials/field-map 五份事实视图保持只读；门禁从冻结包重新生成预期内容比对，不允许在这些文件末尾混写新决策。不得修改 `inputs/requirement-analysis/`。
 4. 上游资料没有字段级结构时，保留适配器生成的 `No field-level source` 声明；不得为通过门禁臆造字段。
 5. 保留 `project-facts` 中的角色职责、系统边界、产品结构和状态模型；在 `project.md` 提供完整冻结入口及 `SC/SEQ` 明细索引，供后续按步骤读取。记忆摘要不得替代或缩减上游事实；假设与接受风险保持原状态。
 6. 新顺序包必须保留 `page_structure_atlas` 入口及页面的 SC/SEQ/FUNC 关联；只消费 S7 已完成最终功能映射且通过 G3 的版本。历史包缺少新增图时保持兼容，不原地补图。

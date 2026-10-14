@@ -33,10 +33,10 @@
 
 ## 依据
 
-- [座席操作](https://wiki.alicti.cn/html/wiki/工具条/座席操作.html)：项目归档 API-304，以及 qa/evidence-extensions-20260920/alicti-exten-agent-operations.html。
-- [座席通话操作](https://wiki.alicti.cn/html/wiki/工具条/座席通话操作.html)：本轮浏览器直接复核，项目归档 API-305。
-- [软电话通话操作](https://wiki.alicti.cn/html/wiki/工具条/软电话通话操作.html)：项目归档 API-306。
-- SDK setup、连接生命周期与状态规则见[规则附表](interaction.html)、[字段对齐清单 FA-170–179](field-alignment.html#FA-170)及[待确认项 CF-11](remaining-confirmations.html#CF-11)；实现参考现有 AliCtiReceiving 校验，官方原文按 API-304、API-306、DOC-339 编号在 references/alicti 查阅。
+- [座席操作 API-304](../references/index.html#API-304)：按编号读取 LLM Wiki 原文；既有 API-304 快照已归档，qa/evidence-extensions-20260920/alicti-exten-agent-operations.html 保留原阶段证据。
+- [座席通话操作 API-305](../references/index.html#API-305)：按编号读取 LLM Wiki 原文；既有浏览器复核与 API-305 快照仍按当时证据追溯。
+- [软电话通话操作 API-306](../references/index.html#API-306)：按编号读取 LLM Wiki 原文；既有 API-306 快照已归档。
+- SDK setup、连接生命周期与状态规则见[规则附表](interaction.html)、[字段对齐清单 FA-170–179](field-alignment.html#FA-170)及[待确认项 CF-11](remaining-confirmations.html#CF-11)；实现参考现有 AliCtiReceiving 校验，官方原文按 API-304、API-306、[DOC-339](../references/index.html#DOC-339)编号从 LLM Wiki 读取，方法与历史归档定位见[来源说明](../references/README.md)。新原文经需求分析核验冻结后才更新产品采用规则，不直接覆盖本页历史业务基线。
 
 生产接入时须将模拟回执替换为真实 SDK 回调/事件，并执行真实线路验证；当前页面不通过点击直接宣称真实电话成功。
 

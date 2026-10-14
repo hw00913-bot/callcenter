@@ -2,7 +2,8 @@
 from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit,unquote
-import hashlib,json,re
+import argparse,hashlib,json,re,sys,zipfile
+from interface_sources import InterfaceSources, InterfaceSourceError
 from functional_content import VERSION,SECTIONS,CURRENT_FUNCTIONS
 ROOT=Path(__file__).resolve().parents[1]
 checks=[]
@@ -10,6 +11,68 @@ def load(path):return json.loads((ROOT/path).read_text())
 def check(name,condition):
     if not condition:raise AssertionError(name)
     checks.append(name)
+
+def verify_interface_evidence():
+    """Check the new reader and original evidence without requiring retired views."""
+    resolver=InterfaceSources()
+    current=resolver.verify_all()
+    if not current['ok']:
+        raise InterfaceSourceError('; '.join(current['errors']))
+    fields=load('docs/field-alignment.json')
+    sources=fields['sources']
+    ids={source['id'] for source in sources}
+    check('原101来源编号保持且全部映射到Wiki',len(sources)==len(ids)==101 and ids<=set(resolver.sources))
+    for source in sources:
+        row=resolver.sources[source['id']]
+        check(source['id']+'官方URL身份保持',unquote(source['url'])==unquote(row['url']))
+        original=resolver.legacy_snapshot_bytes(source['id']+'.txt')
+        tables=json.loads(resolver.legacy_snapshot_bytes(source['id']+'.json'))
+        check(source['id']+'历史正文及表格可追溯',bool(original.strip()) and isinstance(tables,list))
+        basis=source.get('hashBasis','original_html')
+        check(source['id']+'历史哈希依据明确',basis in {'original_html','extracted_text_snapshot','preserved_tool_capture_bytes'})
+        canonical=resolver.legacy_snapshot_bytes(source['id']+('.html' if basis=='original_html' else '.txt'))
+        check(source['id']+'历史采用哈希保持',hashlib.sha256(canonical).hexdigest()==source['sha256'])
+        if source.get('htmlSha256'):
+            check(source['id']+'历史HTML哈希保持',hashlib.sha256(resolver.legacy_snapshot_bytes(source['id']+'.html')).hexdigest()==source['htmlSha256'])
+    for action in ('list','create','delete','update'):
+        ident='WIKI-HYBRIDGROUP-'+action.upper()
+        check(ident+'号码池检索入口完整',ident in resolver.sources and resolver.sources[ident]['endpoint']=='/interface/v10/hybridGroup/'+action)
+    archive=(ROOT/resolver.config['legacyArchive']).resolve()
+    with zipfile.ZipFile(archive) as bundle:
+        manifest=json.loads(bundle.read(resolver.config['legacyArchiveManifest']))
+    for item in manifest['files']:
+        original=resolver.legacy_snapshot_bytes(item['path'])
+        check(item['path']+'归档成员哈希保持',len(original)==item['size'] and hashlib.sha256(original).hexdigest()==item['sha256'])
+    feedback=list((ROOT/'references/supplier-feedback').iterdir())
+    for original in (ROOT/'documentation/input/supplier-feedback').iterdir():
+        if original.is_file():
+            retained=ROOT/'references/supplier-feedback'/original.name
+            check(original.name+'供应商回复原件保留',retained.is_file() and retained.read_bytes()==original.read_bytes())
+    for name in ('01-basic-task.png','02-seat-customer.png','03-advanced.png','README.md'):
+        check(name+'界面证据保留',(ROOT/'references/user-task-settings'/name).is_file())
+    check('原型不携带已归档官方原文',not (ROOT/'references/alicti').exists())
+    check('读取入口与索引存在',all((ROOT/p).is_file() for p in ('references/index.html','references/interface-sources.json','config/interface-sources.json')))
+    return {'result':'pass','scope':'interface_reader_current_wiki_and_historical_evidence_not_business_approval',
+            'currentSources':current['source_count'],'currentDocuments':current['file_count'],
+            'legacySources':len(sources),'historicalFiles':len(manifest['files']),
+            'retainedSupplierFiles':len([p for p in feedback if p.is_file()]),
+            'wikiPages':current['wiki_pages'],'checks':len(checks)}
+
+if '--interfaces-only' in sys.argv[1:]:
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--interfaces-only',action='store_true',help='Verify current Wiki reads and archived evidence independently of old business views')
+    parser.parse_args()
+    try:
+        print(json.dumps(verify_interface_evidence(),ensure_ascii=False,indent=2))
+    except (InterfaceSourceError,AssertionError,OSError,ValueError,zipfile.BadZipFile) as exc:
+        print(json.dumps({'result':'fail','scope':'interface_reader_and_historical_evidence','error':str(exc)},ensure_ascii=False),file=sys.stderr)
+        raise SystemExit(1)
+    raise SystemExit(0)
+
+interface_resolver=InterfaceSources()
+wiki_report=interface_resolver.verify_all()
+check('当前官方接口来源经Wiki版本及哈希核验',wiki_report['ok'])
+def historical_text(name):return interface_resolver.legacy_snapshot_bytes(name).decode('utf-8')
 
 spec=load('docs/functional-spec.json');fields=load('docs/field-alignment.json');rules=load('docs/rules-appendix.json');pending=load('docs/remaining-confirmations.json');changes=load('docs/change-log.json');facts=load('documentation/input/consolidated-reviewed-facts.json')
 fieldids={x['id'] for x in fields['mappings']};ruleids={x['id'] for x in rules['rules']}
@@ -99,7 +162,7 @@ current={x['id']:x for x in spec['sections']};fm={x['id']:x for x in fields['map
 seat_logout=json.dumps(current['FS-12'],ensure_ascii=False)
 logout_rules=' '.join(json.dumps(next(x for x in rules['rules'] if x['id']==ident),ensure_ascii=False) for ident in ['G-08','G-46'])
 check('D076坐席普通退出固定保留电话绑定',decisions['D-076']['sourceRef']=='SRC-106' and decisions['D-076']['sourceType']=='user_product_requirement' and decisions['D-076']['sourceIds']==['API-304'] and all(token in seat_logout+logout_rules for token in ['logoutMode=1','removeBinding=0','不提供解绑选项','本地坐席分机配置']))
-check('产品字段映射与官方能力分别标识','removeBinding=0' in fm['FA-011']['action'] and 'removeBinding=0' in fm['FA-171']['rule'] and 'removeBinding 0保留、1解除' in fm['FA-171']['rule'] and 'removeBinding' in (ROOT/'references/alicti/API-304.txt').read_text())
+check('产品字段映射与历史官方能力分别标识','removeBinding=0' in fm['FA-011']['action'] and 'removeBinding=0' in fm['FA-171']['rule'] and 'removeBinding 0保留、1解除' in fm['FA-171']['rule'] and 'removeBinding' in historical_text('API-304.txt'))
 check('现行退出规则不提供解绑选择',not any(token in seat_logout+logout_rules for token in ['removeBinding显式0/1','removeBinding=0或1','可明确选1解绑','选择removeBinding=0保留或1解绑']))
 task_setting_ids={f'FA-{n}' for n in range(200,213)}
 check('本轮任务设置映射取自现有任务接口且证据层级明确',task_setting_ids<=fieldids and all({'API-311','DOC-338'}<=set(fm[ident]['sourceIds']) and '截图仅证入口' in fm[ident]['evidence'] for ident in task_setting_ids))
@@ -218,7 +281,7 @@ check('D081号码池四接口与租户任务契约完整',
       len(decisions['D-081']['officialUrls'])==4 and
       all(any(url.endswith(name) for url in decisions['D-081']['officialUrls'])
           for name in pool_sources.values()) and
-      all((ROOT/'references/alicti'/('hybrid-group-'+action+'.md')).is_file()
+      all('WIKI-HYBRIDGROUP-'+action.upper() in interface_resolver.sources and bool(historical_text('hybrid-group-'+action+'.md'))
           for action in pool_sources) and
       all(token in fm['FA-198']['rule']+fm['FA-198']['action'] for token in
           ['hybridGroup/list','租户管理员','当前enterpriseId','手动选填整数','越小越优先','不传groupId']) and
@@ -300,26 +363,26 @@ check('模式切换证据与专项脚本可追溯',mode_review['verificationEvid
 
 check('官方来源编号完整唯一且无伪造的项目端点',len({s['id'] for s in fields['sources']})==101 and not {'API-324','API-325','API-326'} & {s['id'] for s in fields['sources']})
 for source in fields['sources']:
-    path=ROOT/'references/alicti'/source['id']
+    ident=source['id']
     origin=urlsplit(source['url'])
     capture_time_known=bool(source.get('retrievedAt'))
     capture_time_explicitly_unknown=source.get('originalCaptureTime')=='not_recorded' and bool(source.get('reviewedAt'))
-    check(source['id']+'原文和表格保留来源身份',origin.scheme=='https' and origin.netloc=='wiki.alicti.cn' and source['status']==200 and (capture_time_known or capture_time_explicitly_unknown) and path.with_suffix('.txt').is_file() and bool(path.with_suffix('.txt').read_text().strip()) and path.with_suffix('.json').is_file() and isinstance(json.loads(path.with_suffix('.json').read_text()),list))
+    check(ident+'历史原文和表格保留来源身份',origin.scheme=='https' and origin.netloc=='wiki.alicti.cn' and source['status']==200 and (capture_time_known or capture_time_explicitly_unknown) and bool(historical_text(ident+'.txt').strip()) and isinstance(json.loads(historical_text(ident+'.json')),list))
     basis=source.get('hashBasis','original_html')
     check(source['id']+'哈希依据明确',basis in {'original_html','extracted_text_snapshot','preserved_tool_capture_bytes'})
-    canonical=path.with_suffix('.html' if basis=='original_html' else '.txt')
-    check(source['id']+'官方快照内容哈希不变',canonical.is_file() and hashlib.sha256(canonical.read_bytes()).hexdigest()==source['sha256'])
+    canonical=interface_resolver.legacy_snapshot_bytes(ident+('.html' if basis=='original_html' else '.txt'))
+    check(ident+'历史官方快照内容哈希不变',hashlib.sha256(canonical).hexdigest()==source['sha256'])
     if source.get('htmlSha256'):
-        html=path.with_suffix('.html')
-        check(source['id']+'HTML与文本哈希分开核验',html.is_file() and hashlib.sha256(html.read_bytes()).hexdigest()==source['htmlSha256'])
+        html=interface_resolver.legacy_snapshot_bytes(ident+'.html')
+        check(ident+'历史HTML与文本哈希分开核验',hashlib.sha256(html).hexdigest()==source['htmlSha256'])
     if source['id'] in {f'API-{n}' for n in range(396,404)}:
-        check(source['id']+'资源接口保留采集证据',path.with_suffix('.html').is_file() and bool(source.get('originalEvidence')) and source.get('snapshotCapture')=='text_tables_and_html')
+        check(ident+'资源接口保留历史采集证据',bool(historical_text(ident+'.html')) and bool(source.get('originalEvidence')) and source.get('snapshotCapture')=='text_tables_and_html')
 reviewed_sources={p['url']:p for p in load('documentation/input/daily-resource-official-review.json')['pages']}
 for source in (s for s in fields['sources'] if s['id'] in {f'API-{n}' for n in range(396,404)}):
     page=reviewed_sources[source['url']]
     check(source['id']+'资源接口与独立采集元数据一致',hashlib.sha256(page['text'].encode()).hexdigest()==source['sha256'] and hashlib.sha256(page['html'].encode()).hexdigest()==source['htmlSha256'] and page['originalEvidence']==source['originalEvidence'])
 update_source=next(s for s in fields['sources'] if s['id']=='API-404')
-check('API404更新任务来源与原始证据字节一致',update_source['endpoint']=='/interface/v10/task/update' and all((ROOT/'references/alicti'/('API-404.'+ext)).read_bytes()==(ROOT/'qa/evidence-time-conditions-20260920'/('alicti-time-6.'+ext)).read_bytes() for ext in ['txt','html']) and update_source['reviewDecision']=='D-073')
+check('API404更新任务历史来源与采用哈希一致',update_source['endpoint']=='/interface/v10/task/update' and hashlib.sha256(interface_resolver.legacy_snapshot_bytes('API-404.txt')).hexdigest()==update_source['sha256'] and hashlib.sha256(interface_resolver.legacy_snapshot_bytes('API-404.html')).hexdigest()==update_source['htmlSha256'] and update_source['reviewDecision']=='D-073')
 predictive_flag_catalog=[f for f in fields['catalog'] if f['sourceId']=='API-318' and f['field']=='sipCauseAsyncUpdateFlag']
 check('预测异步标识保留官方描述及采用字段映射',len(predictive_flag_catalog)==1 and predictive_flag_catalog[0]['mappingIds']==['FA-071'] and predictive_flag_catalog[0]['type']=='Integer' and predictive_flag_catalog[0]['description']=='呼叫结果异步更新标识')
 

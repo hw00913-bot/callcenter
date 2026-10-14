@@ -3,50 +3,10 @@
 
   var EMBED_PARAM = 'delivery_embed';
 
-  // Presentation-only adaptation: keep the frozen diagram content intact.
-  function showAtlasSidebar() {
-    var directory = document.querySelector('details.atlas-directory');
-    if (!directory) return;
-    var sidebar = document.createElement('aside');
-    sidebar.className = 'atlas-directory atlas-directory--sidebar';
-    sidebar.setAttribute('aria-label', '图集目录');
-    var title = document.createElement('h2');
-    title.className = 'atlas-directory-title';
-    title.textContent = window.location.pathname.indexOf('sequence-interaction') >= 0 ? '时序目录' : '流程与场景';
-    sidebar.appendChild(title);
-    var list = directory.querySelector('nav');
-    if (!list) return;
-    sidebar.appendChild(list);
-    directory.replaceWith(sidebar);
-    document.body.classList.add('has-atlas-sidebar');
-    var stylesheet = document.createElement('link');
-    stylesheet.rel = 'stylesheet';
-    stylesheet.href = new URL('../assets/css/atlas-sidebar.css', document.currentScript.src).href;
-    stylesheet.addEventListener('load', function () { window.dispatchEvent(new Event('resize')); });
-    document.head.appendChild(stylesheet);
-    var links = Array.from(list.querySelectorAll('a[href^="#"]'));
-    function select(id) {
-      links.forEach(function (link) {
-        var selected = link.hash === '#' + id;
-        link.classList.toggle('is-active', selected);
-        if (selected) link.setAttribute('aria-current', 'location');
-        else link.removeAttribute('aria-current');
-      });
-    }
-    list.addEventListener('click', function (event) {
-      var link = event.target.closest('a[href^="#"]');
-      if (link) select(link.hash.slice(1));
-    });
-    select(window.location.hash.slice(1) || (links[0] && links[0].hash.slice(1)));
-    window.addEventListener('hashchange', function () { select(window.location.hash.slice(1)); });
-  }
-
-  showAtlasSidebar();
-
   function bindEmbeddedActions() {
     document.addEventListener('click', function (event) {
       var jump = event.target.closest('[data-delivery-switch]');
-      if (!jump || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || (event.button !== undefined && event.button !== 0)) return;
+      if (!jump) return;
       event.preventDefault();
       window.parent.postMessage({
         type: 'delivery-switch',
@@ -55,7 +15,7 @@
     });
   }
 
-  if (window.self !== window.top) {
+  if (window.self !== window.top || new URLSearchParams(window.location.search).get(EMBED_PARAM) === '1') {
     bindEmbeddedActions();
     return;
   }
@@ -67,9 +27,11 @@
     ? new URL('../', script.src)
     : new URL('./', window.location.href);
 
-  function initialize() {
+  function initialize(includeInteractionDoc) {
   var pathname = window.location.pathname.toLowerCase();
-  var hostKey = pathname.indexOf('/docs/') >= 0
+  var hostKey = pathname.endsWith('/version-history.html')
+    ? 'versions'
+    : pathname.indexOf('/docs/') >= 0
     ? 'docs'
     : pathname.indexOf('/flowcharts/business-process.html') >= 0
       ? 'business-flow'
@@ -78,13 +40,21 @@
         : pathname.indexOf('/related-systems/') >= 0
           ? 'related-systems'
           : 'prototype';
+  var versionsUrl = new URL('version-history.html', root);
   var items = [
     { key: 'prototype', label: '原型页面', href: new URL('index.html', root).href },
-    { key: 'docs', label: '说明文档', href: new URL('docs/functional-spec.html', root).href },
+    { key: 'versions', label: '版本与变更', href: versionsUrl.href },
     { key: 'business-flow', label: '业务流程图', href: new URL('flowcharts/business-process.html', root).href },
     { key: 'sequence-flow', label: '时序交互图', href: new URL('flowcharts/sequence-interaction.html', root).href },
-    { key: 'related-systems', label: '关联系统蓝图', href: new URL('related-systems/index.html', root).href }
+    { key: 'related-systems', label: '关联系统展示', href: new URL('related-systems/index.html', root).href }
   ];
+  if (includeInteractionDoc) {
+    items.splice(1, 0, {
+      key: 'docs',
+      label: '说明文档',
+      href: new URL('docs/interaction.html', root).href
+    });
+  }
   var itemMap = {};
   items.forEach(function (item) { itemMap[item.key] = item; });
 
@@ -101,15 +71,14 @@
       ':root{--delivery-nav-height:48px}',
       'body.has-delivery-nav{padding-top:var(--delivery-nav-height)!important}',
       'body.has-delivery-frame{overflow:hidden!important}',
-      'body.has-delivery-nav .auth-gateway{top:var(--delivery-nav-height)}',
-      '.delivery-nav{position:fixed;z-index:10012;top:0;left:0;right:0;height:var(--delivery-nav-height);display:flex;align-items:center;gap:24px;padding:0 20px 0 72px;background:#fff;border-bottom:1px solid #e5e7eb;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}',
+      '.delivery-nav{position:fixed;z-index:10000;top:0;left:0;right:0;height:var(--delivery-nav-height);display:flex;align-items:center;gap:24px;padding:0 20px 0 72px;background:#fff;border-bottom:1px solid #e5e7eb;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}',
       '.delivery-nav__brand{flex:0 0 auto;font-size:13px;font-weight:600;color:#374151;letter-spacing:0}',
       '.delivery-nav__tabs{align-self:stretch;display:flex;align-items:stretch;gap:4px;min-width:0;overflow-x:auto}',
       '.delivery-nav__link{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:88px;padding:0 14px;color:#4b5563;text-decoration:none!important;font-size:14px;font-weight:500;white-space:nowrap}',
       '.delivery-nav__link:hover{color:#111827;background:#f8fafc}',
       '.delivery-nav__link.is-active{color:#2563eb;font-weight:600}',
       '.delivery-nav__link.is-active:after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:#2563eb}',
-      '.delivery-nav__frame{position:fixed;z-index:10010;left:0;right:0;bottom:0;top:var(--delivery-nav-height);width:100%;height:calc(100vh - var(--delivery-nav-height));border:0;background:#f5f7fa;display:none}',
+      '.delivery-nav__frame{position:fixed;z-index:9998;left:0;right:0;bottom:0;top:var(--delivery-nav-height);width:100%;height:calc(100vh - var(--delivery-nav-height));border:0;background:#f5f7fa;display:none}',
       '.delivery-nav__frame.is-visible{display:block}',
       'body.has-delivery-nav>.main-layout{height:calc(100vh - var(--delivery-nav-height) - 52px)!important}',
       'body.has-delivery-nav>.app-layout{height:calc(100vh - var(--delivery-nav-height))!important;min-height:calc(100vh - var(--delivery-nav-height))!important}',
@@ -141,26 +110,6 @@
     tabs.appendChild(link);
   });
   nav.appendChild(tabs);
-
-  // Standalone documents use real links, so browser back/forward and open-in-new-tab
-  // retain normal navigation. Only the prototype shell owns embedded delivery views.
-  if (hostKey !== 'prototype') {
-    updateActive(hostKey);
-    document.body.classList.add('has-delivery-nav');
-    document.body.insertBefore(nav, document.body.firstChild);
-    // Repair previously shared delivery hashes without leaving the old body visible.
-    var standaloneMatch = window.location.hash.match(/^#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)$/);
-    if (standaloneMatch) {
-      var standaloneTarget = standaloneMatch[1];
-      if (standaloneTarget !== hostKey) window.location.replace(itemMap[standaloneTarget].href);
-      else {
-        var cleanUrl = new URL(window.location.href);
-        cleanUrl.hash = '';
-        window.history.replaceState(null, '', cleanUrl.href);
-      }
-    }
-    return;
-  }
 
   var frame = document.createElement('iframe');
   frame.className = 'delivery-nav__frame';
@@ -205,9 +154,16 @@
 
   tabs.addEventListener('click', function (event) {
     var link = event.target.closest('[data-delivery-key]');
-    if (!link || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || (event.button !== undefined && event.button !== 0)) return;
+    if (!link) return;
     event.preventDefault();
     setView(link.dataset.deliveryKey, true);
+  });
+
+  document.addEventListener('click', function (event) {
+    var jump = event.target.closest('[data-delivery-switch]');
+    if (!jump || !itemMap[jump.getAttribute('data-delivery-switch')]) return;
+    event.preventDefault();
+    setView(jump.getAttribute('data-delivery-switch'), true);
   });
 
   window.addEventListener('message', function (event) {
@@ -216,7 +172,7 @@
   });
 
   window.addEventListener('popstate', function (event) {
-    var hashMatch = window.location.hash.match(/^#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)$/);
+    var hashMatch = window.location.hash.match(/^#delivery=(prototype|versions|docs|business-flow|sequence-flow|related-systems)$/);
     setView(event.state && event.state.deliveryKey ? event.state.deliveryKey : (hashMatch ? hashMatch[1] : hostKey), false);
   });
 
@@ -224,10 +180,15 @@
   document.body.insertBefore(nav, document.body.firstChild);
   document.body.appendChild(frame);
 
-  var initialMatch = window.location.hash.match(/^#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)$/);
+  var initialMatch = window.location.hash.match(/^#delivery=(prototype|versions|docs|business-flow|sequence-flow|related-systems)$/);
   setView(initialMatch ? initialMatch[1] : hostKey, false);
   }
 
-  // This delivered document is available without fetching workflow metadata.
-  initialize();
+  if (window.HistorySnapshot && window.HistorySnapshot.read_only === true) {
+    initialize(window.HistorySnapshot.include_interaction_doc === true);
+    return;
+  }
+
+  var includeInteractionDoc = false;
+  initialize(includeInteractionDoc);
 })();

@@ -1,0 +1,580 @@
+{
+  "audit_date": "2026-10-12",
+  "input": {
+    "product_ir_path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/开发交付物/1.1.0/规划工作区/product-ir.json",
+    "product_ir_sha256": "3c090ae99479943456a7ff302b62000be93e206ddd08f993a3ca89215154f4ac",
+    "plan_sha256": "558cc98129aaa03daa59e0fd016aa4e90d93853abc2560e3fd9ab775ce7a7e5b"
+  },
+  "frozen_api_inventory": [
+    {
+      "id": "API-001",
+      "name": "应用凭证换指定租户token与DCC导入接收",
+      "provider": "云呼叫中心",
+      "endpoint": "未确认；不编造路由",
+      "verification_status": "missing",
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "request_fields": [
+        "应用凭证（真实字段名/类型待核）",
+        "tenantId",
+        "租户token",
+        "原supplier taskId",
+        "requestId（一次请求可含多行）",
+        "逐行leadCode/phone（同组phone固定）",
+        "逐行isNewBatch（可选Boolean，missing=false）",
+        "R渠道（可选来源元数据）",
+        "逐行priority（本次DCC值）"
+      ],
+      "response_fields": [
+        "原已保存逐行接收结果及行定位（实际结构待开发）",
+        "requestId",
+        "recordId",
+        "batchId",
+        "rootBatchId",
+        "tenant/task/leadCode/phone及isNewBatch归一值/实际主子归属"
+      ],
+      "auth": "DCC租户token业务目标，真实交换/校验契约待核",
+      "timeout": "未核实；未知结果暂停，不自动当失败",
+      "idempotency": "鉴权及source/tenant/task验证后，按isNewBatch missing=false归一的有效完整业务请求去重：同ID同内容返回原逐行record/batch/root，不重建不重交；同ID异内容整重复request拒绝。后来新主不重算旧请求root；技术键/原子性待开发。",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-001"
+      ],
+      "direction": "DCC→平台（应用凭证换租户token、业务导入）；超管前端→平台（应用管理拆分项）",
+      "current_scope": "active",
+      "method": "未在冻结IR单独定义"
+    },
+    {
+      "id": "API-002",
+      "name": "供应商单号码批次导入",
+      "provider": "AliCti",
+      "endpoint": "/interface/{version}/task/importTaskTel",
+      "verification_status": "partial",
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "request_fields": [
+        "taskId",
+        "taskTelList[].tel",
+        "taskTelList[].priority",
+        "fileId（文档：可选，提供则向现有批次增加号码）"
+      ],
+      "response_fields": [
+        "result",
+        "description",
+        "data.fileId",
+        "data.taskId",
+        "data.importTotal 请求号码总数",
+        "data.successTotal 成功导入号码数",
+        "data.invalidTotal 非法号码数"
+      ],
+      "auth": "供应商鉴权不得与DCC租户token混用；见SRC-057原文，调用资格未实测",
+      "timeout": "未核实；未知结果暂停，不自动当失败",
+      "idempotency": "技术请求、回调去重与并发键未核实，不用业务每推送新批次替代",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-002"
+      ],
+      "direction": "平台→AliCti",
+      "current_scope": "active",
+      "method": "未在冻结IR单独定义"
+    },
+    {
+      "id": "API-003",
+      "name": "预测呼叫/导入失败及降级结果事件",
+      "provider": "AliCti",
+      "endpoint": "/cc/create_push_action（配置接口；实际回调契约待核）",
+      "verification_status": "partial",
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "request_fields": [
+        "推送设置配置（不是业务回调完整契约）"
+      ],
+      "response_fields": [
+        "事件52预测呼叫失败",
+        "事件53导入号码失败",
+        "事件1060降级执行结果",
+        "53.enterpriseId",
+        "53.taskId",
+        "53.fileId",
+        "53.fileName",
+        "53.totalFailedCount",
+        "53.totalBatchCount",
+        "53.currentBatchCount",
+        "53.failedTelList[].原始导入数据",
+        "53.failedTelList[].failedReason"
+      ],
+      "auth": "供应商鉴权不得与DCC租户token混用；见SRC-057原文，调用资格未实测",
+      "timeout": "未核实；未知结果暂停，不自动当失败",
+      "idempotency": "技术请求、回调去重与并发键未核实，不用业务每推送新批次替代",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-003"
+      ],
+      "direction": "平台→AliCti推送配置；AliCti→平台事件接收（两种操作须分列）",
+      "current_scope": "active",
+      "method": "未在冻结IR单独定义"
+    },
+    {
+      "id": "API-004",
+      "name": "预测话单查询及秒挂候选数据",
+      "provider": "AliCti",
+      "endpoint": "/cc/list_cdr_predictive_call",
+      "verification_status": "partial",
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "request_fields": [
+        "startTime",
+        "startTimeEnd",
+        "任务/批次/号码定位（需逐字段核对）"
+      ],
+      "response_fields": [
+        "onHookSource：响应String，示例客户挂断",
+        "customerBridgeDuration：Integer客户接听时长",
+        "endTime：Long结束时间",
+        "status Integer及statusDesc",
+        "sipCause Integer原字段口径",
+        "obSipCause String",
+        "sipCauseAsyncUpdateFlag Integer（非最后一通）",
+        "finishRetryFlag Integer：1最后一条，0否；未知分开",
+        "degradeRound Integer",
+        "telRetryRound Integer"
+      ],
+      "auth": "供应商鉴权不得与DCC租户token混用；见SRC-057原文，调用资格未实测",
+      "timeout": "未核实；未知结果暂停，不自动当失败",
+      "idempotency": "技术请求、回调去重与并发键未核实，不用业务每推送新批次替代",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-004"
+      ],
+      "direction": "平台→AliCti",
+      "current_scope": "active",
+      "method": "未在冻结IR单独定义"
+    },
+    {
+      "id": "API-005",
+      "name": "每日号码状态查询与存量priority修改（已取消，退出当前范围）",
+      "provider": "AliCti",
+      "endpoint": null,
+      "verification_status": "not_required",
+      "business_contract_status": "retired_not_required",
+      "request_fields": [],
+      "response_fields": [],
+      "auth": "供应商鉴权不得与DCC租户token混用；见SRC-057原文，调用资格未实测",
+      "timeout": "未核实；未知结果暂停，不自动当失败",
+      "idempotency": "技术请求、回调去重与并发键未核实，不用业务每推送新批次替代",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-005"
+      ],
+      "direction": "退出范围",
+      "current_scope": "out_of_scope",
+      "method": "未在冻结IR单独定义"
+    },
+    {
+      "id": "API-006",
+      "name": "精准删除供应商任务内号码",
+      "provider": "AliCti",
+      "endpoint": "未确认；不编造路由",
+      "verification_status": "partial",
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "request_fields": [
+        "供应商taskId/批次/手机号（精确字段未核实）"
+      ],
+      "response_fields": [
+        "成功/失败/未知（具体码未核实）"
+      ],
+      "auth": "供应商鉴权不得与DCC租户token混用；见SRC-057原文，调用资格未实测",
+      "timeout": "未核实；未知结果暂停，不自动当失败",
+      "idempotency": "技术请求、回调去重与并发键未核实，不用业务每推送新批次替代",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-006"
+      ],
+      "direction": "平台→AliCti",
+      "current_scope": "active",
+      "method": "未在冻结IR单独定义"
+    },
+    {
+      "id": "API-007",
+      "name": "平台换主叫接口（退出当前范围）",
+      "provider": "AliCti",
+      "endpoint": "未确认；不编造路由",
+      "verification_status": "not_required",
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "request_fields": [
+        "原任务同线索关联新批次",
+        "线路风控语义（专用标识/路由契约未核实）"
+      ],
+      "response_fields": [
+        "主叫选择及再次呼叫结果（未核实）"
+      ],
+      "auth": "供应商鉴权不得与DCC租户token混用；见SRC-057原文，调用资格未实测",
+      "timeout": "未核实；未知结果暂停，不自动当失败",
+      "idempotency": "技术请求、回调去重与并发键未核实，不用业务每推送新批次替代",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-007"
+      ],
+      "direction": "退出范围",
+      "current_scope": "out_of_scope",
+      "method": "未在冻结IR单独定义"
+    },
+    {
+      "id": "API-008",
+      "name": "系统风控解除/恢复依据（DCC职责，退出平台接口范围）",
+      "provider": "AliCti",
+      "endpoint": null,
+      "verification_status": "not_required",
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "request_fields": [],
+      "response_fields": [],
+      "auth": "供应商鉴权不得与DCC租户token混用；见SRC-057原文，调用资格未实测",
+      "timeout": "未核实；未知结果暂停，不自动当失败",
+      "idempotency": "技术请求、回调去重与并发键未核实，不用业务每推送新批次替代",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-008"
+      ],
+      "direction": "DCC职责，退出平台接口范围",
+      "current_scope": "out_of_scope",
+      "method": "未在冻结IR单独定义"
+    },
+    {
+      "id": "API-009",
+      "name": "本地记录、失败下载生命周期与提交前手工编辑",
+      "provider": "本平台内部",
+      "endpoint": "未确认；不编造路由",
+      "verification_status": "not_required",
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "request_fields": [],
+      "response_fields": [],
+      "auth": "本地原型权限矩阵沿既有基线核对，不在分析新定",
+      "timeout": "未核实；未知结果暂停，不自动当失败",
+      "idempotency": "技术请求、回调去重与并发键未核实，不用业务每推送新批次替代",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-009"
+      ],
+      "direction": "前端→平台内部服务（仍需本方接口规划）",
+      "current_scope": "active",
+      "method": "未在冻结IR单独定义",
+      "scope_note": "not_required仅表示无外部供应商依赖，不表示本平台失败下载、记录查看、编辑能力取消；内部生产端点未定。"
+    },
+    {
+      "id": "API-010",
+      "name": "平台向DCC每次结果回传",
+      "provider": "云呼叫中心/DCC",
+      "endpoint": "后台配置文件固定接收地址；未设置实际URL",
+      "verification_status": "missing",
+      "business_contract_status": "business_confirmed_implementation_pending",
+      "request_fields": [
+        "requestId（对应原业务请求）",
+        "原行定位及tenant/原task/leadCode/固定phone",
+        "recordId",
+        "当前batchId",
+        "已保存rootBatchId",
+        "真实call或稳定事件关联",
+        "发生时间/阶段/结果或失败原因",
+        "客户/坐席实际接听/秒挂识别",
+        "话单状态/SIP原字段及来源",
+        "finishRetryFlag Integer1/0及未知状态"
+      ],
+      "response_fields": [
+        "接收确认（契约交开发）"
+      ],
+      "auth": "认证、验真与配置安全交开发；不将密钥提交仓库",
+      "timeout": "交开发落实可靠交付，不据超时改业务呼叫结果",
+      "idempotency": "重复通知/晚更新按同对象，补送不产生新呼叫，技术键交开发",
+      "real_call_allowed": false,
+      "source_refs": [
+        "product-input.json#API-010"
+      ],
+      "direction": "平台→DCC，DCC→平台ACK",
+      "current_scope": "active",
+      "method": "未在冻结IR单独定义"
+    }
+  ],
+  "supplemental_document_facts": [
+    {
+      "parent_api": "API-002",
+      "operation": "导入一个实际业务号码批次",
+      "method": "POST JSON",
+      "endpoint": "/interface/{version}/task/importTaskTel",
+      "evidence_id": "DOC-IMPORT",
+      "document_required": [
+        "公共供应商鉴权 validateType + 条件必填departmentId/enterpriseId + timestamp + sign",
+        "name 批次名称",
+        "taskId",
+        "taskTelList（每行tel）"
+      ],
+      "product_required": [
+        "每批单号",
+        "本次DCC或手工最终priority映射taskTelList[].priority；本平台必填，不使用供应商默认0"
+      ],
+      "optional": [
+        "fileId：传入表示追加旧供应商批次，本方案新批不传旧fileId",
+        "isRepeat 默认1任务内排重，参数策略仍待联调，不擅改",
+        "importTelAutoStart 默认0；实际配置及禁呼覆盖待核"
+      ],
+      "response": [
+        "result/description/errorCode",
+        "data.fileId/taskId/importTotal/successTotal/invalidTotal"
+      ],
+      "warning": "IR摘要遗漏文档必填name，应在开发清单补列为供应商契约字段；未定义生产命名规则，不把batchId/rootBatchId当fileId。"
+    },
+    {
+      "parent_api": "API-002/API-006支撑查询",
+      "operation": "getTaskFile",
+      "method": "GET/POST",
+      "endpoint": "/interface/{version}/task/getTaskFile",
+      "evidence_id": "DOC-FILE",
+      "required": [
+        "公共供应商鉴权",
+        "taskId",
+        "fileId"
+      ],
+      "response": [
+        "result/description/errorCode",
+        "data.taskFileResponse（嵌套示例含taskFile/restrictTelList）"
+      ],
+      "warning": "以本次实际fileId查询；嵌套结构、类型表Int而示例String需真实核对，不能填本地主/子batchId。"
+    },
+    {
+      "parent_api": "API-002/API-006支撑查询",
+      "operation": "listTaskTel",
+      "method": "GET/POST",
+      "endpoint": "/interface/{version}/task/listTaskTel",
+      "evidence_id": "DOC-TELS",
+      "required": [
+        "公共供应商鉴权",
+        "taskId"
+      ],
+      "optional": [
+        "fileId",
+        "tel",
+        "fileName",
+        "status",
+        "isRestrict",
+        "limit/offset/returnCount",
+        "时间范围成对传入"
+      ],
+      "response": [
+        "result/description/errorCode",
+        "data.taskTelList",
+        "totalCount（returnCount条件）"
+      ],
+      "warning": "本次精确核对使用已映射fileId加tel，但完整关联/并发语义仍待核；该查询不是复活已取消的每日衰减API-005。"
+    },
+    {
+      "parent_api": "API-006",
+      "operation": "deleteTaskTel",
+      "method": "GET/POST",
+      "endpoint": "/interface/{version}/task/deleteTaskTel",
+      "evidence_id": "DOC-DELETE",
+      "required": [
+        "公共供应商鉴权",
+        "taskId"
+      ],
+      "optional": [
+        "fileId/fileName/status/tels",
+        "skipCalling",
+        "skipRetry"
+      ],
+      "response": [
+        "result/description/errorCode",
+        "data.skippedCallingTels（可选）"
+      ],
+      "warning": "选择器有优先级：tels最高>fileId或fileName>status>全任务，不可声称taskId+fileId+tels是AND交集；fileName删最近批不可替代精确fileId。skipCalling=1有跳过时仍可能result=0，skipCalling和skipRetry不可同时为1。不能用成功码认定目标全部删完，不能声称删除已中止真实在途呼叫。"
+    },
+    {
+      "parent_api": "API-004",
+      "operation": "list_cdr_predictive_call",
+      "method": "GET",
+      "endpoint": "/cc/list_cdr_predictive_call",
+      "evidence_id": "DOC-CDR",
+      "required": [
+        "公共供应商鉴权（从文档示例确认有公共参数，完整鉴权见供应商鉴权文档）",
+        "startTime",
+        "startTimeEnd（跨度不超一个月）"
+      ],
+      "optional": [
+        "taskIds",
+        "mainUniqueId",
+        "callId",
+        "requestUniqueId",
+        "customerNumber与匹配方式",
+        "limit/offset或scrollSearch/scrollId"
+      ],
+      "response": [
+        "cdrPredictiveCall[]",
+        "requestId（供应商HTTP请求ID，不是DCC导入requestId）",
+        "pageNumber/pageSize/totalCount/scrollId"
+      ],
+      "warning": "未列fileId请求/返回，不能标为按fileId直接查话单。靠已保存可信call↔fileId映射归属；不得按当前同号最近主猜归属。onHookSource查询Integer[]响应String，真实枚举/时长单位/接听证据仍待核。"
+    },
+    {
+      "parent_api": "API-003",
+      "operation": "推送设置",
+      "method": "POST JSON",
+      "endpoint": "/cc/create_push_action",
+      "evidence_id": "DOC-PUSH-CONFIG",
+      "required": [
+        "name",
+        "type",
+        "targetUrlId 或 url/method/contentType/timeout二选一"
+      ],
+      "warning": "配置接口≠平台实际回调URL；认证/ACK/重放须另定。事件52/53/1060、8/16/17均不自动扩为已验证能力。"
+    }
+  ],
+  "documents": [
+    {
+      "id": "DOC-IMPORT",
+      "path": "/private/tmp/dcc-v1.1.0-20261011-revision/candidate-supplier-review/live-312.txt",
+      "sha256": "1bb9485e0d69d853dcc88739d26a2adfd203becdc2a12c1068024672d3b0df64",
+      "original_url": "https://wiki.alicti.cn/html/wiki/API/预测式外呼/任务号码导入接口.html",
+      "note": "已存只读文本；URL从同目录候选审阅HTML证据表核对。"
+    },
+    {
+      "id": "DOC-FILE",
+      "path": "/private/tmp/dcc-alicti-获取任务批次信息接口-20261011.txt",
+      "sha256": "fba6565d72a549fd359382257ff6030c0ea364714a11e96527b65ec37a0a5714",
+      "original_url": null,
+      "note": "已存只读文本，正文含完整API地址。未从本轮可见快照元数据找回原文URL；不得假称本轮浏览验证URL。"
+    },
+    {
+      "id": "DOC-TELS",
+      "path": "/private/tmp/dcc-alicti-任务号码查询接口-20261011.txt",
+      "sha256": "1d172b8fbe9814a5cee0328ef6e9410f3a3672855d4f2ec120b8479d1bd41ab2",
+      "original_url": null,
+      "note": "已存只读文本，正文含完整API地址。未从本轮可见快照元数据找回原文URL。"
+    },
+    {
+      "id": "DOC-DELETE",
+      "path": "/private/tmp/dcc-alicti-任务号码删除接口-20261011.txt",
+      "sha256": "6b0f597adfc755dd4e6b77890ea3fcdea6e6cf1f6beb5bc760b8e616363d93f6",
+      "original_url": null,
+      "note": "已存只读文本，正文含完整API地址。未从本轮可见快照元数据找回原文URL。"
+    },
+    {
+      "id": "DOC-CDR",
+      "path": "/private/tmp/dcc-v1.1.0-20261011-revision/candidate-supplier-review/live-318.txt",
+      "sha256": "5a10243f95b6f888a1dbec11f965db4034fd6ae0c9aacc606b1b4bc615f5a366",
+      "original_url": "https://wiki.alicti.cn/html/wiki/API/通话记录/预测式外呼/预测外呼通话记录接口.html",
+      "note": "只读文档，不证明精确call/fileId关联已实现。"
+    },
+    {
+      "id": "DOC-PUSH-CONFIG",
+      "path": "/private/tmp/dcc-v1.1.0-20261011-revision/candidate-supplier-review/live-315.txt",
+      "sha256": "f77449af48f7ea98785cef83c6a83a6f30278f3707323703076ed14828624560",
+      "original_url": "https://wiki.alicti.cn/html/wiki/API/配置管理/推送管理/新增推送设置接口.html",
+      "note": "配置接口；并非实际回调接收接口和完整ACK契约。"
+    },
+    {
+      "id": "DOC-PUSH-53",
+      "path": "/private/tmp/dcc-v1.1.0-20261011-revision/candidate-supplier-review/live-fail-import.txt",
+      "sha256": "63cb3166e0e7068b0b28b816666bc3c673b125cf95ba5b0cdbd5827f9cf8ee45",
+      "original_url": "https://wiki.alicti.cn/html/wiki/API/字段定义/推送变量和值/预测外呼导入号码失败推送变量.html",
+      "note": "变量表，不是认证、ACK、重试、终态和幂等完整协议。"
+    },
+    {
+      "id": "DOC-PUSH-8",
+      "path": "/private/tmp/dcc-v1.1.0-20261011-revision/candidate-supplier-review/挂机推送时底层变量和值.txt",
+      "sha256": "b89ca041b051e2df7c44764adc81788d6aed288daa6257f5e1d340f73fd25861",
+      "original_url": "https://wiki.alicti.cn/html/wiki/API/字段定义/推送变量和值/挂机推送时底层变量和值.html",
+      "note": "只使用预测外呼段；不同呼叫产品字段不得串用。"
+    },
+    {
+      "id": "DOC-PUSH-52",
+      "path": "/private/tmp/dcc-v1.1.0-20261011-revision/candidate-supplier-review/预测外呼呼叫失败推送变量.txt",
+      "sha256": "f1dc0c98ca9f465699398783b5e27f50f023f4ceec5a2e005503ef54861079fd",
+      "original_url": "https://wiki.alicti.cn/html/wiki/API/字段定义/推送变量和值/预测外呼呼叫失败推送变量.html",
+      "note": "正文标题误写客户接听，按URL/失败字段识别；不能因此把它当16。"
+    },
+    {
+      "id": "DOC-PUSH-16",
+      "path": "/private/tmp/dcc-v1.1.0-20261011-revision/candidate-supplier-review/预测外呼客户接听状态推送变量.txt",
+      "sha256": "d59f8dc685f628b136592cbe958360aa2b8025cadc2cff6424fbbed2749fda67",
+      "original_url": "https://wiki.alicti.cn/html/wiki/API/字段定义/推送变量和值/预测外呼客户接听状态推送变量.html",
+      "note": "result为success/error，事件名或success不单独证明实际客户接通。"
+    },
+    {
+      "id": "DOC-PUSH-17",
+      "path": "/private/tmp/dcc-v1.1.0-20261011-revision/candidate-supplier-review/预测外呼双方接听推送变量.txt",
+      "sha256": "f7e242fb1ea884941a8fe767be49783281d99eb78ec14fcb023f6f51b0813e41",
+      "original_url": "https://wiki.alicti.cn/html/wiki/API/字段定义/推送变量和值/预测外呼双方接听推送变量.html",
+      "note": "正向双方接听证据，uniqueId与主话单ID关系仍待核。"
+    }
+  ],
+  "critical_mapping": [
+    "本地每有效新行生成recordId/batchId；主root=self，子root=最近已保存主，最多主子两层。批次归属不等于供应商fileId。",
+    "每实际业务batch保存本次供应商实际fileId；root不提交为fileId，false不复用旧fileId；不凭新本地batch就断言供应商会接收同号。",
+    "API-001同requestId完整归一内容相同返原逐行映射，missing isNewBatch=false，不重交供应商；异内容整重复请求拒绝。",
+    "53通过enterprise/task/fileId与原始号码核对本次本地映射；totalBatchCount/currentBatchCount仅失败分片号，不能当业务批次或供应商fileId。没有零失败/终态保证不能因未收到53判全成功。",
+    "17可提供task/file/tel/uniqueId，但uniqueId与CDR mainUniqueId精确关系未证；8预测挂机候选有cdr_task_file_id/cdr_task_id/cdr_main_unique_id，可作为建立可信映射的待核来源。",
+    "16含success/error且无明确通话ID；52含enterprise/task/fileId/customerNumber/failType/message/callTime但无明确callId。未知同次关联不得按手机号/时间近似强行归一，52失败类别不能全部等同线路风控。",
+    "查询与回调使用本次已保存root，后来新主不重算旧事件；DCC回传字段由平台本地关联补齐，不要求供应商返回DCC新增业务字段。"
+  ],
+  "current_deferred_issues": [
+    {
+      "id": "ISSUE-002",
+      "disposition": "deferred",
+      "reason": "业务主子批和请求重试规则已确认；生产事务原子性、并发创建顺序、同号再次导入的供应商排重和独立fileId接收证据仍缺。保留待核，不以合成验证证明实际接收。",
+      "evidence_refs": [
+        "product-input.json#ISSUE-002"
+      ]
+    },
+    {
+      "id": "ISSUE-005",
+      "disposition": "deferred",
+      "reason": "客户真实接听且主动挂断、0至2秒含边界规则明确；供应商接通字段、主动挂断枚举、真实时长单位尚未形成可执行映射。保留待核，不能以坐席桥接时长代替。",
+      "evidence_refs": [
+        "product-input.json#ISSUE-005"
+      ]
+    },
+    {
+      "id": "ISSUE-008",
+      "disposition": "deferred",
+      "reason": "只有可信的本次下载成功才清理该快照明细文件；真实成功信号和中断区分仍未确定，不能以点击、链接生成或服务器开始响应作为成功。",
+      "evidence_refs": [
+        "product-input.json#ISSUE-008"
+      ]
+    },
+    {
+      "id": "ISSUE-022",
+      "disposition": "deferred",
+      "reason": "删除目标必须精确到本次实际供应商批次号码，其他同号批次及本地关联保留；供应商执行中删除、并发、幂等和可信成功确认未实测。",
+      "evidence_refs": [
+        "product-input.json#ISSUE-022"
+      ]
+    },
+    {
+      "id": "ISSUE-026",
+      "disposition": "deferred",
+      "reason": "逐行回执及每次结果的当前batch/root映射已明确；固定地址认证、ACK、去重晚更新与补送可靠性仍待正式接口协议和联调。补送不能变成业务重导。",
+      "evidence_refs": [
+        "product-input.json#ISSUE-026"
+      ]
+    },
+    {
+      "id": "ISSUE-027",
+      "disposition": "deferred",
+      "reason": "53通知的精确fileId、原始号码、分片完整性保留；认证、稳定事件ID、零失败通知、迟到更正、failedTelList实际编码与可关联证据未核。",
+      "evidence_refs": [
+        "product-input.json#ISSUE-027"
+      ]
+    },
+    {
+      "id": "ISSUE-029",
+      "disposition": "deferred",
+      "reason": "自动启动不得突破禁呼与呼叫时间，但全部时间覆盖、时区跨日、任务各状态接收行为仍缺供应商实证；不增平台放行定时器。",
+      "evidence_refs": [
+        "product-input.json#ISSUE-029"
+      ]
+    },
+    {
+      "id": "ISSUE-031",
+      "disposition": "deferred",
+      "reason": "应用五项操作与密钥获取token目的已批准；真实密钥生成和安全存储、CRUD持久化、删除后的既有token撤销时效仍未定义。合成立即失效和当前名称长度不升级为生产事实。",
+      "evidence_refs": [
+        "product-input.json#ISSUE-031"
+      ]
+    }
+  ],
+  "status": "readonly_audit_completed; no_network_no_business_api_calls; documentation_evidence_does_not_upgrade_partial_missing"
+}

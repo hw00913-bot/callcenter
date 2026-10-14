@@ -1,0 +1,891 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-13",
+  "kind": "DCC_full_loop_restart_S3_actual_check",
+  "result": "pass",
+  "G1_actual_approval": "runtime/dcc-restart-g1-user-approval-20261013.json",
+  "G1_approved_review_original": {
+    "sha256": "7178dc1a69750ef976a302576d79d3ea08c9aff9325d8c361a8847935a4c5fc1",
+    "text": "# v1.1.0 重启审阅：DCC完整闭环最高优先级\n\n2026-10-13，用户明确要求重启当前版本，并选择“完整闭环：线索导入＋结果回传＋必要应用接入”。已从04 S1重开，S1/S2材料完成，当前等待新G1范围确认；旧延期范围G1/G2及旧S8报告仅历史。**本稿的接口清单是待S3/S4核验的预备契约，正式API清单、时序、页面、FUNC和图集尚未按新范围重建；不构成G2/G3或开发交付。**\n\n## 本次重启范围\n\n10个故事、79条稳定验收、6个既有场景。US-006/009/010及22条原延期验收恢复，不新增重复US/AC；正式功能数量需S7重新核对，旧12功能不是重启后的最终数量。项目版本仍v1.1.0，同版登记增量变更；原型继续唯一prototype目录。\n\n| 场景 | 本轮范围 | 项目优先级 |\n|---|---|---|\n| SC-001 | DCC接收/回执/主子批＋原手工导入＋供应商同步/53导入结果 | P0 |\n| SC-002 | 每次可信call/话单/SIP保存与正常规则分流，接口来源结果交DCC | P0 |\n| SC-003 | 三类自动/八类人工失败补提交，接口来源处理进度交DCC | P0 |\n| SC-004 | 完整秒挂三态/原证据保存，接口来源明确分类交DCC | P0 |\n| SC-005 | 必要应用五操作/密钥及指定授权租户token | P0 |\n| SC-006 | 现有任务权限运营/管理员精准删除指定记录 | P1 |\n\nDCC只推送线索/本次priority并接收结果；失败补提仍由呼叫中心负责。恢复完整闭环不恢复DCC删除入口；指定删除沿SC-006。项目优先级不改变号码priority。\n\n## 优先对齐的接口清单（8项操作）\n\n这里按独立操作列清单，不等同已实现HTTP端点数。真实method/route、认证方式、时效/超时与重送配置未提供，均保持待定，不能把示例当可调用接口。应用管理为本方现有超管操作，DCC外部只需后三项业务对接。\n\n| 操作 | 调用方向 | 最小输入/输出及业务约束 | 现有事实来源 |\n|---|---|---|---|\n| 应用列表 | 超管→平台 | 返回应用名称/appId及既有详情/修改/删除入口，读取不产生配置 | US-009 / AC-053 |\n| 应用详情 | 超管→平台 | 准确指定应用的名称/appId/接入密钥及授权租户；只读 | AC-054 |\n| 应用新增 | 超管→平台 | 名称/授权租户有效保存后形成应用及密钥，失败/取消不假成功 | AC-055 |\n| 应用修改 | 超管→平台 | 名称/授权租户更新，普通修改保持appId/原密钥 | AC-056 |\n| 应用删除 | 超管→平台 | 确认指定对象，其他应用/业务任务记录保留；撤权/已发token真实失效待核 | AC-057 |\n| 获取指定租户token | DCC→平台 | 应用凭证＋tenantId，验证授权；token绑定租户业务身份，不授超管管理权，任务不绑定应用 | AC-017/044/045 |\n| 接收DCC线索及逐行回执 | DCC→平台 | requestId＋原供应商taskId＋各行定位/leadCode/phone/本次priority/可选R/isNewBatch；有效行保存record/batch/root，重传复用原映射 | US-010 / AC-007/009/010/012/047～051 |\n| 每次结果/进度回传及业务确认 | 平台→固定后台DCC接收端 | 准确原request/行/业务记录及真实file/call/事件；原供应商结果、导入阶段/异常进度、明确秒挂三态；结果对象/版本/ACK提案待双方确认，补送只交同结果 | US-006 / AC-018/037/071/075 |\n\n## 导入契约：已定业务与待定技术分开\n\n- 先校验授权租户、原任务及锁定接口来源，再把缺省isNewBatch归一false并按完整请求核requestId。新业务用新requestId；同ID同内容返原逐行接收结果/映射，包括原失败和待核行；同ID异内容拒整份重复请求，不覆盖旧数据或新交供应商。\n- 本次priority逐行必填、不补默认、不继承旧批、不每日衰减。新请求某行校验失败仅该行拒绝，其他有效行继续；系统/网络崩溃原子恢复仍需工程证明。\n- 同tenant/原供应商taskId/leadCode首次固定phone。true另开主批；false/缺省生成最近已保存同组主下的新子，无主自动首主；子直接挂主，只有两层。false复用主关联，绝不复用旧record/batch。无需previousBatchId/parentBatchId；后有新主不改旧请求或旧失败root。\n- taskId直接是供应商任务ID，仍须验证租户/任务归属；不设统一任务或猜映射。单号实际供应商fileId逐尝试保存，新fileId受理/原生轮次与在途仍待验证。\n\nrequestId技术命名空间、跨app同ID、完整内容规范化/行顺序、同请求主创建稳定顺序、保留期与并发原子性仍待本方/DCC确认。同号多lead准确独立身份不能猜配；SRC-109已明确共享额度四元组和新主不重置，不重问次数口径。\n\n## 结果契约与补送\n\n接口来源每次准确导入/呼叫/失败/秒挂结果及平台进度交固定后台接收端；手工仅平台查看。53的六类导入失败与11类预测呼叫失败分开，片齐只该声明失败组完整，不推整导入终态；原finishRetryFlag保留原类型/未知，不推任务全部结束。\n\n候选采用本方持久resultId＋resultVersion：同call可信更新升同对象版本，同版同内容补送；DCC低版不回退，旧ACK不确认新版。业务ACK须确认准确对象/版本及持久接收，不能只看HTTP200。该组字段名、内容、认证、持久版本/ACK和补送间隔/上限是待审提案，不是AliCti现有保证或已冻结正式路由。\n\n秒挂沿当前0～2秒含真实0及2、任一可信false优先非秒挂、全true才秒挂、其余及总体可信冲突待核。缺失不补0，不覆盖供应商原status；明确分类回传不生成秒挂计时/额度/attempt/子批。\n\n## 沿用的内部闭环及界面\n\n三类失败从平台收到并确认准确结果起120秒自动补提交，依赖供应商外显导航；八类由原任务有权运营/管理员人工处理。自动/人工共享首次外最多2次，按租户＋原任务＋保存leadCode＋固定phone累计，新主/子/file/方式/原因/操作人不重置。实际发起计已用，明确拒绝也计；UNKNOWN保原尝试/占用，不盲重发。平台失败子批固定触发记录保存root及priority。\n\n原手工大弹窗、CSV/粘贴/检查/确认和原四字段保留，仅原已定leadCode/priority/R新增；不加DCC requestId/isNewBatch/root控件。应用页面继续简洁，只表达接入密钥用途，身份交换技术演示不占日常页面。指定删除依现有任务权限，精确file独占及tels优先级/skip/未知约束保持，旧DCC删除请求不恢复。\n\n## 对接双方接下来需要定稿的事项\n\n1. 凭证/token字段与认证、tenant绑定、时效、删除/撤租户授权后的失效：本方认证负责人＋DCC。\n2. 导入真实method/route/schema及旧字段兼容、行定位/priority/R/phone正式格式：本方接口负责人＋DCC。\n3. requestId范围、完整内容规范化、行顺序、持久去重/并发与恢复：本方后端＋DCC。\n4. 固定接收URL/认证、结果对象版本及业务ACK、低版/冲突、超时与补送策略：DCC接收端＋本方交付负责人。\n5. AliCti同号file受理、52/53身份、导航/原生执行权、有效时长和挂断侧真实证据：AliCti＋本方接入。\n\n以上由对应技术负责人核对，不要求业务重复决定已确认120秒、额外2次、权限或秒挂阈值。用户“先补齐生产证据”仍有效；13项原high及027/036原medium保持，026/031恢复当前open medium。既有模型和供应商5组取证模板保留，旧范围模型结果仅历史，不能证明本轮完整DCC闭环。\n\n[当前故事与全部判据](../inputs/user-stories.md) · [六场景清单](business-scenario-list.md) · [预备契约及10个合成样例](../runtime/dcc-restart-interface-draft-20261013.json) · [重启前完整证据](../runtime/dcc-restart-before-20261013.json)。原型、旧05正文和历史冻结包保持原件；完整接口矩阵、图集和功能基线需顺序重验。\n"
+  },
+  "business_rules": 22,
+  "business_flows": 4,
+  "scenario_count": 6,
+  "scenario_checks": [
+    {
+      "id": "SC-001",
+      "sha256": "5d55adea9b0465ea2da7e6d3c2daf660ada2c7c79e0505e7c59e3637319b59df",
+      "main_steps": 15,
+      "ALT": 14,
+      "nodes": 92,
+      "native_geometry_structure_errors": 0,
+      "stock_compile_pass": true
+    },
+    {
+      "id": "SC-002",
+      "sha256": "ca8e37ac6922da969d9ffbc4f35866d4597a6015462bc1ef6e8281fc6c465842",
+      "main_steps": 11,
+      "ALT": 10,
+      "nodes": 34,
+      "native_geometry_structure_errors": 0,
+      "stock_compile_pass": true
+    },
+    {
+      "id": "SC-003",
+      "sha256": "22da72379b09ad40bea358d3ddc1fa6be6e65404b9951dc8976c3991ae93148c",
+      "main_steps": 22,
+      "ALT": 13,
+      "nodes": 61,
+      "native_geometry_structure_errors": 0,
+      "stock_compile_pass": true
+    },
+    {
+      "id": "SC-004",
+      "sha256": "281ccd8eab8beefefbe9a2db6a619bac99b870652c6eb21c40ababdefc98cec5",
+      "main_steps": 12,
+      "ALT": 7,
+      "nodes": 23,
+      "native_geometry_structure_errors": 0,
+      "stock_compile_pass": true
+    },
+    {
+      "id": "SC-005",
+      "sha256": "45ef89e692ef6451c53698e039dd5196b100e9dd9d2263d1420c038998765bc7",
+      "main_steps": 14,
+      "ALT": 5,
+      "nodes": 58,
+      "native_geometry_structure_errors": 0,
+      "stock_compile_pass": true
+    },
+    {
+      "id": "SC-006",
+      "sha256": "c3ad5c0b03f097d633e2b4d6acfc1759ac6578923281b815efe9bb3b04e76c83",
+      "main_steps": 8,
+      "ALT": 7,
+      "nodes": 23,
+      "native_geometry_structure_errors": 0,
+      "stock_compile_pass": true
+    }
+  ],
+  "business_html_binding_errors": [],
+  "local_PlantUML_rendered_diagrams": 10,
+  "actual_native_structure_geometry": "pass",
+  "current_atlas_sha256": "6564a04f1562e5e4acd1f4834c18ed56db49eef9c504343991a9d1ca0b36fbb3",
+  "drawings_and_semantic_repair_evidence": {
+    "SC001-structured-check.json": {
+      "sha256": "67e9c8eaf2a448b35299fd2e65ecf2820bbd222c4f104a6e8f6623ae0d2b9c1e",
+      "report": {
+        "source": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/分析工作区/scenarios/SC-001.json",
+        "source_sha256": "adddc9d655ba70e5aec96ced86519ae9a7d2a97b368d287683685953a6f6e880",
+        "candidate": "/private/tmp/SC001-structured.json",
+        "candidate_sha256": "5d55adea9b0465ea2da7e6d3c2daf660ada2c7c79e0505e7c59e3637319b59df",
+        "original_nodes_preserved": true,
+        "cloned_shared_drawing_nodes": {
+          "E4": "E4-DCC-BRANCH",
+          "VIEW-M": "VIEW-M-DCC-BRANCH",
+          "END-DCC-M": "END-DCC-M-DCC-BRANCH",
+          "E3": "E3-DCC-BRANCH",
+          "RES-M": "RES-M-DCC-BRANCH",
+          "D3": "D3-DCC-BRANCH",
+          "STORE-SYNC": "STORE-SYNC-DCC-BRANCH",
+          "DCC-M": "DCC-M-DCC-BRANCH",
+          "ACK-M": "ACK-M-DCC-BRANCH",
+          "CALL-M": "CALL-M-DCC-BRANCH",
+          "END-M": "END-M-DCC-BRANCH",
+          "PEND-DCC-M": "PEND-DCC-M-DCC-BRANCH",
+          "SOURCE-SYNC": "SOURCE-SYNC-DCC-BRANCH",
+          "SYNC-SUCCESS": "SYNC-SUCCESS-DCC-BRANCH",
+          "SUB-M": "SUB-M-DCC-BRANCH",
+          "VIEW53": "VIEW53-DECLARATION-PENDING",
+          "MODE53": "MODE53-DECLARATION-PENDING",
+          "CALL53": "CALL53-DECLARATION-PENDING",
+          "ACK53": "ACK53-DECLARATION-PENDING",
+          "PEND53": "PEND53-DECLARATION-PENDING",
+          "DONE53": "DONE53-DECLARATION-PENDING",
+          "DONE53-DCC-RESULT": "DONE53-DCC-RESULT-DECLARATION-PENDING",
+          "DCC53": "DCC53-DECLARATION-PENDING",
+          "DONE53_RESULT_LEAF": "DONE53-DCC-RESULT"
+        },
+        "business_fields_unchanged": true,
+        "structural_errors": [],
+        "geometry_errors": [],
+        "node_count": 92,
+        "edge_count": 99,
+        "real_calls": 0,
+        "project_modified": false,
+        "skill_modified": false,
+        "gates_advanced": false,
+        "visual_verified": false,
+        "plantuml_compile": "pass",
+        "plantuml_local_render": "pass",
+        "local_runtime": "jar:/opt/homebrew/Cellar/plantuml/1.2026.7/libexec/plantuml.jar",
+        "puml_path": "/private/tmp/SC001-structured.puml",
+        "puml_sha256": "59c2a9c07fbef070793270e21c8db8c45f9c0cfa25d790227a000147a90a592f",
+        "svg_path": "/private/tmp/SC001-structured.svg",
+        "svg_sha256": "d214f3f7d0f72a9cdc25cad5aabe69ad2b20ea9707d4eed043ef7e6e0f701a75",
+        "semantic_path_equivalence": {
+          "old_complete_path_count": 80,
+          "new_complete_path_count": 80,
+          "projected_old_node_semantic_equivalence": true,
+          "checks": {
+            "all_semantic_path_sets_equal": true,
+            "path_multiplicity_equal": true,
+            "all_projected_edges_equal": true,
+            "all_clone_node_semantics_equal": true,
+            "each_path_at_most_one_business_supplier_submission": true,
+            "technical_same_request_replay_never_submits": true,
+            "same_request_content_conflict_never_submits": true,
+            "all_bad_rows_reply_without_supplier_submission": true,
+            "independent_53_events_never_submit": true,
+            "interface_return_has_no_operator_view_prerequisite": true
+          },
+          "mechanism": "绘图副本仅经drawing_reuse_of投影原节点，所有条件/ALT边和值保持；不是新增真实操作或调用。"
+        },
+        "source_unchanged_during_validation": true
+      }
+    },
+    "SC002-structured-check.json": {
+      "sha256": "b81cad4355ea8f31e6ca072ce29aea1ec2613a19123f8d403bf6c1e1380f56d2",
+      "report": {
+        "schema_version": "1.0",
+        "source": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/分析工作区/scenarios/SC-002.json",
+        "source_sha256": "528a060c264960529227ded7f0e7c6f904490d4b21cc459fe3a0a47c4450f27b",
+        "candidate": "/private/tmp/SC002-structured.json",
+        "candidate_sha256": "ca8e37ac6922da969d9ffbc4f35866d4597a6015462bc1ef6e8281fc6c465842",
+        "repair_nodes": [
+          {
+            "node": "E",
+            "incoming": 2,
+            "copied_subgraph_nodes": 1
+          },
+          {
+            "node": "DCC-WAIT-END",
+            "incoming": 2,
+            "copied_subgraph_nodes": 1
+          }
+        ],
+        "original_nodes": 32,
+        "new_nodes": 34,
+        "original_terminal_paths": 27,
+        "projected_paths_equal": true,
+        "main_flow_ALT_AC_rules_unchanged": true,
+        "compile_pass": true,
+        "native_structure_geometry_errors": 0,
+        "visual_verified": false
+      }
+    },
+    "SC004-structured-check.json": {
+      "sha256": "13fc84b36e64bbab12d7d9a4a5a78b0804ea5058fd25fcf760734ff68c1212f1",
+      "report": {
+        "schema_version": "1.0",
+        "source": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/分析工作区/scenarios/SC-004.json",
+        "source_sha256": "5a75c1477b087b91da28a823fae4a1c667c9e5b27516e800f2148f8cc93f8392",
+        "candidate": "/private/tmp/SC004-structured.json",
+        "candidate_sha256": "281ccd8eab8beefefbe9a2db6a619bac99b870652c6eb21c40ababdefc98cec5",
+        "repair_nodes": [
+          {
+            "node": "DCC-WAIT-END",
+            "incoming": 2,
+            "copied_subgraph_nodes": 1
+          }
+        ],
+        "original_nodes": 22,
+        "new_nodes": 23,
+        "original_terminal_paths": 14,
+        "projected_paths_equal": true,
+        "main_flow_ALT_AC_rules_unchanged": true,
+        "compile_pass": true,
+        "native_structure_geometry_errors": 0,
+        "visual_verified": false
+      }
+    },
+    "SC005-structured-check.json": {
+      "sha256": "8d619f69277a13f002fd09f16f1438476f1bd3752f559048a9f5e0a2c3b1335f",
+      "report": {
+        "schema_version": "1.0",
+        "source": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/分析工作区/scenarios/SC-005.json",
+        "source_sha256": "a577352fb92bce679463028e3bd9bbeff75672426d57af12cbbb6cd43131ddd9",
+        "candidate": "/private/tmp/SC005-structured.json",
+        "candidate_sha256": "45ef89e692ef6451c53698e039dd5196b100e9dd9d2263d1420c038998765bc7",
+        "repair_nodes": [
+          {
+            "node": "RESULT",
+            "incoming": 11,
+            "copied_subgraph_nodes": 2
+          },
+          {
+            "node": "END_UI",
+            "incoming": 2,
+            "copied_subgraph_nodes": 1
+          }
+        ],
+        "original_nodes": 37,
+        "new_nodes": 58,
+        "original_terminal_paths": 15,
+        "projected_paths_equal": true,
+        "main_flow_ALT_AC_rules_unchanged": true,
+        "compile_pass": true,
+        "native_structure_geometry_errors": 0,
+        "visual_verified": false
+      }
+    },
+    "dcc-restart-SC005-independent-review-20261013.json": {
+      "sha256": "87c38914902e75413206d86d905ecebc5cd403516d126dd8efb01b2601c51490",
+      "report": {
+        "schema_version": "1.0",
+        "review": "SC005_independent_drawing_projection_business_equivalence",
+        "before": {
+          "path": "/private/tmp/dcc-restart-s3-app-delete-20261013/SC005.json",
+          "sha256": "a577352fb92bce679463028e3bd9bbeff75672426d57af12cbbb6cd43131ddd9",
+          "full_graph_available": true,
+          "nodes": 37,
+          "edges": 47
+        },
+        "candidate": {
+          "path": "/private/tmp/SC005-structured.json",
+          "sha256": "45ef89e692ef6451c53698e039dd5196b100e9dd9d2263d1420c038998765bc7",
+          "nodes": 58,
+          "edges": 57
+        },
+        "project_current_sha256": "45ef89e692ef6451c53698e039dd5196b100e9dd9d2263d1420c038998765bc7",
+        "check_file_sha256": "8d619f69277a13f002fd09f16f1438476f1bd3752f559048a9f5e0a2c3b1335f",
+        "independent_checks": {
+          "before_snapshot_matches_declared_hash": true,
+          "candidate_matches_declared_hash": true,
+          "terminal_paths_before": 15,
+          "terminal_paths_after": 15,
+          "terminal_path_multiset_equal_under_reuse_projection": true,
+          "edge_labels_ALT_types_equal_under_projection": true,
+          "projected_edge_set_equal": true,
+          "node_semantics_equal_except_order": true,
+          "main_flow_ALT_AC_rules_unchanged": true,
+          "branch_counts": {
+            "create": 3,
+            "detail": 2,
+            "modify": 3,
+            "delete": 3,
+            "list_only": 1,
+            "management_denied": 1,
+            "token_success": 1,
+            "token_failure_or_unknown": 1
+          },
+          "maximum_effect_nodes_per_path": 1,
+          "list_and_detail_no_application_mutations": true,
+          "management_no_automatic_identity_issue": true,
+          "token_entry_independent_of_management": true
+        },
+        "copied_drawing_nodes": {
+          "END_UI": 11,
+          "RESULT": 10
+        },
+        "path_evidence": [
+          {
+            "branch": "create",
+            "terminal": "END_UI",
+            "effects": [
+              "CREATED"
+            ],
+            "ALT": [],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "FORM",
+              "NEW_SUBMIT",
+              "NEW_OK",
+              "CREATED",
+              "DETAIL_NEW",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "新增",
+              "明确提交",
+              "有效且保存明确成功"
+            ]
+          },
+          {
+            "branch": "create",
+            "terminal": "END_UI",
+            "effects": [],
+            "ALT": [
+              "ALT-002"
+            ],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "FORM",
+              "NEW_SUBMIT",
+              "NEW_OK",
+              "NEW_FAIL",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "新增",
+              "明确提交",
+              "输入/权限问题或保存未成功"
+            ]
+          },
+          {
+            "branch": "create",
+            "terminal": "END_UI",
+            "effects": [],
+            "ALT": [
+              "ALT-004"
+            ],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "FORM",
+              "NEW_SUBMIT",
+              "NEW_CANCEL",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "新增",
+              "取消"
+            ]
+          },
+          {
+            "branch": "detail",
+            "terminal": "END_UI",
+            "effects": [],
+            "ALT": [],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "DETAIL_GET",
+              "DETAIL_VIEW",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "查看详情",
+              "当前权限及精确对象有效"
+            ]
+          },
+          {
+            "branch": "detail",
+            "terminal": "END_UI",
+            "effects": [],
+            "ALT": [
+              "ALT-003"
+            ],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "DETAIL_GET",
+              "DETAIL_FAIL",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "查看详情",
+              "权限/对象变化或不存在"
+            ]
+          },
+          {
+            "branch": "modify",
+            "terminal": "END_UI",
+            "effects": [
+              "EDITED"
+            ],
+            "ALT": [],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "EDIT",
+              "EDIT_SUBMIT",
+              "EDIT_OK",
+              "EDITED",
+              "DETAIL_EDIT",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "修改",
+              "明确提交",
+              "有效且保存明确成功"
+            ]
+          },
+          {
+            "branch": "modify",
+            "terminal": "END_UI",
+            "effects": [],
+            "ALT": [
+              "ALT-003"
+            ],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "EDIT",
+              "EDIT_SUBMIT",
+              "EDIT_OK",
+              "EDIT_FAIL",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "修改",
+              "明确提交",
+              "权限/对象/输入变化或保存失败"
+            ]
+          },
+          {
+            "branch": "modify",
+            "terminal": "END_UI",
+            "effects": [],
+            "ALT": [
+              "ALT-004"
+            ],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "EDIT",
+              "EDIT_SUBMIT",
+              "EDIT_CANCEL",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "修改",
+              "取消"
+            ]
+          },
+          {
+            "branch": "delete",
+            "terminal": "END_UI",
+            "effects": [
+              "DELETED"
+            ],
+            "ALT": [],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "DEL",
+              "CONFIRM",
+              "DELETE_OK",
+              "DELETED",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "删除",
+              "确认该应用",
+              "有效且删除明确成功"
+            ]
+          },
+          {
+            "branch": "delete",
+            "terminal": "END_UI",
+            "effects": [],
+            "ALT": [
+              "ALT-003"
+            ],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "DEL",
+              "CONFIRM",
+              "DELETE_OK",
+              "DELETE_FAIL",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "删除",
+              "确认该应用",
+              "权限/对象变化或保存失败"
+            ]
+          },
+          {
+            "branch": "delete",
+            "terminal": "END_UI",
+            "effects": [],
+            "ALT": [
+              "ALT-004"
+            ],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "DEL",
+              "CONFIRM",
+              "DETAIL_CANCEL",
+              "RESULT",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "删除",
+              "取消"
+            ]
+          },
+          {
+            "branch": "list_only",
+            "terminal": "END_UI",
+            "effects": [],
+            "ALT": [],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "LOAD_LIST",
+              "OP",
+              "END_UI"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "当前管理权限通过",
+              "只看列表结束"
+            ]
+          },
+          {
+            "branch": "management_denied",
+            "terminal": "DENIED",
+            "effects": [],
+            "ALT": [
+              "ALT-001"
+            ],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "LIST",
+              "PERM",
+              "DENIED"
+            ],
+            "branch_labels": [
+              "应用管理请求",
+              "无管理权限"
+            ]
+          },
+          {
+            "branch": "token_success",
+            "terminal": "END",
+            "effects": [
+              "IDENTITY"
+            ],
+            "ALT": [],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "TOKEN",
+              "AUTH",
+              "IDENTITY",
+              "END"
+            ],
+            "branch_labels": [
+              "独立后台身份申请",
+              "有效授权且发放明确成功"
+            ]
+          },
+          {
+            "branch": "token_failure_or_unknown",
+            "terminal": "AUTH_FAIL",
+            "effects": [],
+            "ALT": [
+              "ALT-005"
+            ],
+            "projected_nodes": [
+              "S",
+              "REQUEST",
+              "TOKEN",
+              "AUTH",
+              "AUTH_FAIL"
+            ],
+            "branch_labels": [
+              "独立后台身份申请",
+              "无效/未授权/失败或未知"
+            ]
+          }
+        ],
+        "findings": [],
+        "status": "usable_as_business_path_equivalent_drawing_repair",
+        "limitations": [
+          "Graph/path equivalence only; no runtime application, credentials, provider or persistence behavior was executed.",
+          "No independent compile or browser visual verification in this audit."
+        ],
+        "claims": {
+          "S3_passed": false,
+          "G2_approved": false,
+          "visual_verified": false,
+          "production_verified": false,
+          "project_modified": false
+        }
+      }
+    },
+    "SC003-structured-check.json": {
+      "sha256": "b8f784d1b394b64beb0868d29bca576b2b9d117c4d422cc18ee5f315a54ffbd4",
+      "report": {
+        "schema_version": "1.0",
+        "date": "2026-10-13",
+        "kind": "SC003_manual_wait_semantic_repair_stock_plantuml_candidate",
+        "shared_base_path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/分析工作区/scenarios/SC-003.json",
+        "base_sha256": "16cc8d7a70ceff173e525f926ac853f708ecc1bfa4d53c9ff35f2ce8f11da44a",
+        "semantic_reference_path": "/private/tmp/dcc-restart-s3-results-20261013/SC003-semantic-before-drawing-expansion.json",
+        "semantic_reference_sha256": "7b497e37eb8a1d2bf44656dfc3498cbb03e18502c0607c13cb174f26fe81ea78",
+        "candidate_path": "/private/tmp/dcc-restart-s3-results-20261013/SC003-structured.json",
+        "candidate_sha256": "22da72379b09ad40bea358d3ddc1fa6be6e65404b9951dc8976c3991ae93148c",
+        "puml_path": "/private/tmp/dcc-restart-s3-results-20261013/SC003-structured.puml",
+        "puml_sha256": "74bc3f65951d1d3c7d03f0976a5411a9d3eaea7ddc21e2c18b3fc07be9c33e90",
+        "svg_path": "/private/tmp/dcc-restart-s3-results-20261013/SC003-structured.svg",
+        "svg_sha256": "9d35f2b02e098174001cf8e47d3806f5716e92aa27a4630b5d480e113b8ded5d",
+        "manual_wait_without_user_or_actual_submit_path": [
+          "MANUAL-STATE",
+          "DUE",
+          "WAIT-REASON",
+          "MANUALWAIT",
+          "REPORT",
+          "DCC-SOURCE",
+          "DCC-SEND"
+        ],
+        "formed_progress_independent_delivery_paths": {
+          "WAIT": [
+            "WAIT",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "MANUALWAIT": [
+            "MANUALWAIT",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "LIMIT": [
+            "LIMIT",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "LIMIT-PRE": [
+            "LIMIT-PRE",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "PAUSED": [
+            "PAUSED",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "PAUSED-PRE": [
+            "PAUSED-PRE",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "STOPPED": [
+            "STOPPED",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "STOPPED-PRE": [
+            "STOPPED-PRE",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "REVIEW": [
+            "REVIEW",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "REVIEW-PRE": [
+            "REVIEW-PRE",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "UNKNOWN": [
+            "UNKNOWN",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ],
+          "NOAUTH": [
+            "NOAUTH",
+            "REPORT",
+            "DCC-SOURCE",
+            "DCC-SEND"
+          ]
+        },
+        "semantic_changes": [
+          "八类首次失败先由平台保存准确待人工，不以人员确认/查看作为报告前置。",
+          "原DUE检查当前触发；满足后自动或原记录独立人工分流，只有人工表达原MANUAL意图，权限/执行守卫必经。",
+          "原保存失败独立人工/原自动到期只读原对象/确认时间，不重计失败、重建自动或改root/预算。"
+        ],
+        "drawing_expansions": [
+          {
+            "kind": "exclusive_delivery_subprocess",
+            "incoming_from": "DCC-UPDATE-SAME",
+            "original_entry": "REPORT",
+            "drawing_entry": "REPORT-UPDATE-DRAW",
+            "drawing_nodes": {
+              "DCC-CONFIRM": "DCC-CONFIRM-UPDATE-DRAW",
+              "DCC-UNBOUND": "DCC-UNBOUND-UPDATE-DRAW",
+              "DCC-RECEIVE": "DCC-RECEIVE-UPDATE-DRAW",
+              "DCC-SOURCE": "DCC-SOURCE-UPDATE-DRAW",
+              "DCC-WAIT-END": "DCC-WAIT-END-UPDATE-DRAW",
+              "VIEW": "VIEW-UPDATE-DRAW",
+              "REPORT": "REPORT-UPDATE-DRAW",
+              "DCC-PENDING": "DCC-PENDING-UPDATE-DRAW",
+              "DCC-ACCEPTED": "DCC-ACCEPTED-UPDATE-DRAW",
+              "DCC-SEND": "DCC-SEND-UPDATE-DRAW"
+            }
+          },
+          {
+            "kind": "exclusive_end",
+            "incoming_from": "DCC-UNBOUND",
+            "original_end": "DCC-WAIT-END",
+            "drawing_end": "DCC-WAIT-END-PATH-DRAW-1-2",
+            "projected_end": "DCC-WAIT-END"
+          },
+          {
+            "kind": "exclusive_end",
+            "incoming_from": "DCC-UNBOUND-UPDATE-DRAW",
+            "original_end": "DCC-WAIT-END-UPDATE-DRAW",
+            "drawing_end": "DCC-WAIT-END-UPDATE-DRAW-PATH-DRAW-2-2",
+            "projected_end": "DCC-WAIT-END"
+          }
+        ],
+        "drawing_projected_full_path_language_equal": true,
+        "semantic_unique_paths": 167,
+        "semantic_path_multiplicity": 167,
+        "drawing_unique_projected_paths": 167,
+        "drawing_path_multiplicity": 167,
+        "no_condition_or_effect_dropped": true,
+        "clone_type_lane_label_step_exactly_equal": true,
+        "AC_ids_unchanged": true,
+        "main_flow_step_count_unchanged": true,
+        "structural_errors": [],
+        "native_geometry_errors": [],
+        "stock_compile_pass": true,
+        "local_JAR_real_render_pass": true,
+        "plantuml_runtime": {
+          "command": [
+            "/opt/homebrew/opt/openjdk/bin/java",
+            "-Djava.awt.headless=true",
+            "-jar",
+            "/opt/homebrew/Cellar/plantuml/1.2026.7/libexec/plantuml.jar"
+          ],
+          "description": "jar:/opt/homebrew/Cellar/plantuml/1.2026.7/libexec/plantuml.jar",
+          "jar_sha256": "33aa7ed0ca843e300690230d09268e1f526fdde7e86fecdfa39fb80412cafcde",
+          "version_output": "PlantUML version 1.2026.7 / e131e27 [2026-08-25 09:35:51 UTC]\n(GPL source distribution)\n\nBuild Version: 1.2026.7\nGit Commit: e131e27\nCompile Time: 2026-08-25 09:35:51 UTC\n\nJava Runtime: OpenJDK Runtime Environment\nJVM: OpenJDK 64-Bit Server VM\nDefault Encoding: UTF-8\nLanguage: zh\nCountry: CN\n \nPLANTUML_LIMIT_SIZE: 4096\n\nGraphViz: dot - graphviz version 15.1.1 (20260805.0921)\nInstallation seems OK. File generation OK"
+        },
+        "nodes": 61,
+        "edges": 75,
+        "all_existing_node_ids_retained": true,
+        "source_still_same_at_finish": true,
+        "shared_files_written": [],
+        "real_supplier_or_DCC_calls": 0,
+        "stage_or_gate_advanced": false,
+        "G2_G3_approved": false,
+        "browser_visual_pass": false,
+        "production_verified": false,
+        "consumer_rules": [
+          "本地真引擎成功不替代正式图集/浏览器视觉或G2。",
+          "互斥绘图克隆以drawing_reuse_of完整路径投影，不新增实际执行或次数。",
+          "父级合入前核base SHA；仅TMP，不改技能/共享。"
+        ]
+      }
+    }
+  },
+  "manual_initial_pending_independent_delivery_fixed": true,
+  "original_scene6_steps_ALT_and_diagram_unchanged": true,
+  "supplier_calls": 0,
+  "prototype_changes": 0,
+  "protected": {
+    "prototype_code": {
+      "count": 280,
+      "unchanged": true
+    },
+    "development_body": {
+      "count": 75,
+      "unchanged": true
+    },
+    "frozen_requirements": {
+      "count": 6,
+      "unchanged": true
+    }
+  },
+  "visual_verified": false,
+  "requirement_atlas_visual_deferral": "existing user accepted requirement atlas only; never prototype visual waiver",
+  "G2_approved": false,
+  "G3_approved": false,
+  "production_issues_closed": [],
+  "source_sha256": {
+    "memory/business-rules.json": "9031bfc70203be4c3b0fd6272a09dda5e620a2270186ac960262ef90efa4cfa0",
+    "memory/normalized-user-stories.json": "a8bf70162aeb3b6e6d3766476f7de33d20fb04018baea03a97851537f0fb9a50",
+    "scenarios/scenario-index.json": "dd48817d576734a0eaed7a751a36b7ec72711ab53e8026ab821da960e00f8f14"
+  }
+}

@@ -35,7 +35,7 @@ S0 只判断是否启动或继续 loop，不产出需求结论。
 - LLM Wiki、query 输出或 loop-context 是需求分析输入，不是原型补充资料。新提交的 Wiki 材料尚未纳入冻结包时先路由需求分析 Loop；原型 S1/S3 及后续阶段不读取正文、不查询知识库、不重新提取事实。
 - 用户提供冻结包时，先从当前技能包运行 `python3 <skill-dir>/orchestrator/scripts/import_analysis.py inspect <package>`；创建/同步原型目录后，在 S0/S1/S2 且计划批准前运行项目内 `python3 tools/import_analysis.py import . <package>`。导入脚本必须核对三个人工门禁、核验状态、整包清单、逐文件 SHA-256 和基线指纹。
 - 目标目录不存在或没有 `config/workflow.json`：先在 loop 源仓库调用 create-project 脚手架创建最小结构，但生成项目状态仍必须从 S0 开始写日志。
-- 目标目录已有 `config/workflow.json`：**在读取项目内任何工具前**，先从当前总控技能包调用 `skill-library/loop-project-scaffolder/scripts/create_project.py "目标目录" --sync-runtime`。该动作幂等刷新项目内确定性脚本、阶段技能和“四个核心视图 + 可选说明文档”切换壳，不覆盖业务文件、memory、annotations、已有 `docs/interaction.html` 正文或已经生成的本地 HTML 图内容；它会移除已停用的 ProcessOn 聚合页和链接清单。随后再读取 `python3 tools/loop_run.py status .` 和 `python3 tools/loop_run.py dispatch .`；不能因为缓存存在跳过 S0-S3。
+- 目标目录已有 `config/workflow.json`：**在读取项目内任何工具前**，先从当前总控技能包调用 `skill-library/loop-project-scaffolder/scripts/create_project.py "目标目录" --sync-runtime`。该动作幂等刷新项目内确定性脚本、阶段技能和“四个核心视图 + 可选说明文档”切换壳，不覆盖业务文件、memory、annotations、已有 `docs/interaction.html` 正文或已经生成的本地 HTML 图内容；现代默认不生成已停用的 ProcessOn 聚合页和链接清单，已有旧资产与自定义导航保持原位。随后再读取 `python3 tools/loop_run.py status .` 和 `python3 tools/loop_run.py dispatch .`；不能因为缓存存在跳过 S0-S3。
 - 用户只是询问、审计、维护 loop 本身或修改技能库时，不进入业务项目 loop。
 - 已有项目处于 none 终态且需要继续一轮迭代时，先确认 final 快照无漂移，再运行 begin-iteration 并提供本轮名称。该动作归档上一轮控制状态、重置 loop-owned 记忆和标注并回到 S0，不能用强制完成 S0 伪装新一轮。
 - S0 完成后必须进入 S1 项目讨论，由 S1 澄清目的、范围、非范围、资料、迭代方式、验收方向，以及是否明确要求说明文档或标注；未要求即记录为不生成。
@@ -63,6 +63,15 @@ S0 只判断是否启动或继续 loop，不产出需求结论。
 新版 FUNC 按 `business-operation@2`，以“业务对象＋单一主操作＋可验收结果”为单位，不与 SC、模块、页面一一对应。开通／停用／恢复／删除、配置／发布／默认切换等已确认的独立操作，不在原型侧重新合并成管理包。S3 保留冻结 `boundary`（含 `business_object/primary_action`）、AC 与 `change_detail`，S6 依据操作边界拆实现任务；一个 FUNC 可对应多个任务，不能据此新增或重拆 FUNC。条目数不是标准功能点数或价格。历史包（含 `minimal-business-process@1`）保持只读，其粒度如需升级应退回需求分析，不能在原型补充／重编号。说明文档、标注和报价仍只按明确要求生成。
 
 结构化 JSON 是事实源，Markdown/HTML 是其确认与评审视图；图文冲突回到需求分析 Loop，不在原型侧任选一个重写。S3 保留事实与图集入口，S6 按相关 SC/SEQ 拆分交互和验收，S7 实现并复用图集，S8 对照事实与时序核验行为。说明文档/标注仍是按明确要求生成的原型可选产物，不影响这些上游输入的必需性。
+
+## 交付阅读与输出边界
+
+- PM、业务与运营评审先对照本版需求确认入口中的产品蓝图、业务流程和交互时序，再查看原型及已明确请求的功能说明。复用已有统一交付导航和“版本与变更”入口，不另建重复目录页或版本清单。
+- 开发 Agent 消费当前有效的标准产品交接包：`product-input.json` 是评审输入，`project-handoff.json` 是跨阶段契约，`manifest.json` 与独立 `prototype/` 快照共同提供完整性和可查看的批准内容。阅读页面或公开版本状态不能替代既有接包和开工门禁。
+- 工作区中的规划、步骤、验收映射、核验日志、审批依据和工具服务于执行与追溯，不复制为 PM 日常阅读清单或同义 PRD。仍按既有门禁保留这些文件及本地冻结基线消费副本；正式静态视图沿用现有排除规则，不以阅读入口整理为由物理搬移。
+- 业务事实只在上游冻结 JSON 中维护，再按现有规则生成 Markdown/HTML 视图；原型专属决策仍写入既有 decisions/open-items。三阶段沿用同一台账，版本清单与变更日志标记段保持派生视图，不新增平行事实、变更或批准台账。
+- 保持两个可选交付默认关闭，按已记录的明确请求生成现有说明文档或标注准备；不因文件缺失取消用户已选择的交付。保留用户提供的正式 PRD 和已请求的说明，不自行附加同义 PRD 多格式副本、`bundle.zip`、checklist 或第二套交付包。
+- 标准快照中的 `.source-html`、`source.txt`、全部已注册文件和正式历史继续保留。它们用于核对只读适配前后字节及实际消费内容，不能按重复名称停止生成、删减或覆盖。
 
 ## 运行角色
 
@@ -115,9 +124,11 @@ S7 发现问题即记录，S8 必须在 `memory/verification-log.md` 汇总双�
 - **每个阶段边界由总控运行 `python3 tools/loop_run.py complete . --stage SN`**——技能一律不写 `complete`。脚本跑该阶段门禁：通过则推进；失败则总控按脚本提示定位回到哪个阶段/技能重做，不自行改状态。
 - S7 实现由 `prototype-builder` 依据 S3 记忆、项目级 `CLAUDE.md` 和 S6 执行步骤构建；导入模式下用 `python3 tools/import_analysis.py publish-diagrams .` 复用上游自包含 HTML 图集，只注入原型交付导航、语义标记和来源指纹，不重新渲染图形几何。`prototype-verifier` 在 S7 作为单步验证支持，在 S8 作为全局验证 owner。
 - loop 在 S9 按需补充与收尾阶段结束：两个开关均为 false 时不生成说明文档、标注提示词或覆盖清单，直接执行 final；只验证明确请求的可选交付。推送 GitHub 是 loop 外的**手工**步骤，见 `docs/pm-guide.md`。
-- 计划批准后或项目进入 none 终态后，PM 若新增明确要求，运行 `request-deliverables --interaction-doc` 或 `request-deliverables --annotations` 并记录请求人和依据；终态会自动回到 S9。生成所请求产物后重新完成 S9。
+- 计划批准后新增可选交付，运行 `request-deliverables --interaction-doc` 或 `--annotations` 并记录请求人和依据。仅补说明文档时终态回 S9；S6 之后首次追加标注则回 S6，补拆分和锚点、重新完成 S7/S8 后再进入 S9。脚本保留历史记录并开启新的验证区段，旧通过记录不替代本轮复验。
 - 只有本轮已明确请求标注时，PM 手工回写后才运行 approve-annotations 重跑 final 并刷新终态快照；只运行 check 不会恢复干净终态。
 - 任一门禁发现导入文件、manifest、handoff、基线指纹或验收映射中的 `AC/FUNC/PAGE/ACTION` 覆盖漂移时，停止原型 Loop；业务事实变化应回到需求分析 Loop 形成新 G3 基线，再开启新一轮原型迭代。
+
+旧项目升级后，缺少交付选择绑定的审批必须由 PM 重新确认并用 `approve-plan --reapprove-existing` 补录，明确保留所需可选项；不能根据缺失字段自动取消说明文档或标注。旧版完成快照必须重跑 final 后才更新，不自动把当前文件视为已验收。
 
 ## LLM Wiki 的上游边界
 
@@ -160,3 +171,9 @@ LLM Wiki 仅由 `requirement-analysis-loop` 消费：先与用户故事、业务
 - 如果本文件与 `orchestrator/` 不一致，以 `orchestrator/` 和生成项目内脚本为准。
 
 如果脚本报告失败，总控只负责定位应回到哪个阶段或技能，不自行改写 `workflow.json`、`stage-log.md` 或伪造通过记录。
+
+## 跨阶段项目版本与评审交接
+
+遵循 [VERSION_WORKFLOW.md](VERSION_WORKFLOW.md)：业务项目版本、同版多变更与审批快照分别记录；三阶段使用同一台账。旧记录不得补盖新摘要；真实审批不能由 Agent 生成记录代替。
+
+标准交付使用 `--project-root`，路径和版本入口见 VERSION_WORKFLOW.md。确认快照禁止覆盖，旧 `--out` 仅保留兼容。实际业务审批、开版规则和批准人员仍由用户决定。

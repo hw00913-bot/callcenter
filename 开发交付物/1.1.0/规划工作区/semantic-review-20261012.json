@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "reviewer": "/root/plan_logic",
+  "review_type": "independent_readonly_product_semantic_review",
+  "reviewed_at": "2026-10-12T07:28:42.290828+08:00",
+  "objects": [
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/开发交付物/1.1.0/规划工作区/plan.json",
+      "sha256": "558cc98129aaa03daa59e0fd016aa4e90d93853abc2560e3fd9ab775ce7a7e5b"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/开发交付物/1.1.0/规划工作区/product-ir.json",
+      "sha256": "3c090ae99479943456a7ff302b62000be93e206ddd08f993a3ca89215154f4ac"
+    }
+  ],
+  "scope_summary": {
+    "selected_features": 17,
+    "acceptance_checks": 62,
+    "global_invariants": 21,
+    "global_flows": 6,
+    "locals": 19,
+    "canonical_fields": 80,
+    "pages": 5
+  },
+  "actual_review": [
+    "实际回读现行17功能、62AC、21BR、5场景、8时序；历史decision/scope/review事实不作为当前业务规则。",
+    "逐条比较62个CHECK.expected与原AC正文一致；检查同号新request与同request重试、主子root冻结、独立供应商file映射和未知不重交。",
+    "回读局部/字段/UI的应用五项操作和后台鉴权权限、创建锁来源、当前CSV预览守卫、优先级/FIFO、阶段证据及53片齐边界。",
+    "回读失败快照清理范围、下载成功信号边界、精准删除、未可信SIP隔离、可信晚更新同对象、每次DCC交付与手工只查看。",
+    "核对五个UI页各有normal/loading/empty/error/no_permission，以及列表空态、应用目标精确绑定和任务常驻导入入口。",
+    "对发现的七组问题发送根协调修订建议，并重新读取当前plan确认修订实存；未自行改plan、来源、评审状态或导出。"
+  ],
+  "findings": [
+    {
+      "id": "SEM-001",
+      "original_issue": "Task.supplierTaskId曾被外部响应通用保存规则覆盖，可能与任务创建锁定冲突",
+      "location": "logic.fields[FLD-004]",
+      "resolution": "已改为创建成功保存锁定；后续DCC/供应商任务号仅校验和存原证据，不回写任务归属。",
+      "status": "corrected_and_reread"
+    },
+    {
+      "id": "SEM-002",
+      "original_issue": "isNewBatch缺省归一措辞仅指新业务行，技术重传口径不完整",
+      "location": "logic.fields[FLD-007].default",
+      "resolution": "已明确所有DCC请求行含技术重传先missing=false归一再比较完整内容。",
+      "status": "corrected_and_reread"
+    },
+    {
+      "id": "SEM-003",
+      "original_issue": "请求级字段通用保存时机可能漏掉全失败或待核请求的原回执",
+      "location": "logic.fields[FLD-002,FLD-015,FIELD-ROW-ID].persistence",
+      "resolution": "已明确鉴权/请求格式有效后的完整逐行判定均保存，允许有效行数为零，未建业务对象不造record/batch号。",
+      "status": "corrected_and_reread"
+    },
+    {
+      "id": "SEM-004",
+      "original_issue": "应用字段只列超管读取，遗漏LOCAL002后台鉴权读取需要",
+      "location": "logic.fields[FIELD-APP-ID,FLD-089,FLD-093].permissions",
+      "resolution": "已补受权后台鉴权校验用途，不扩大前台管理读取和明文密钥展示权限。",
+      "status": "corrected_and_reread"
+    },
+    {
+      "id": "SEM-005",
+      "original_issue": "原始导入审计时间被误写为来源必需提供而当前原型首次本地接收生成",
+      "location": "logic.fields[FIELD-ORIGINAL-IMPORT-AT]",
+      "resolution": "已回到每新业务记录首次receivedAt生成并保存；重传不重算，历史缺失不补造，未新增DCC时间必填。",
+      "status": "corrected_and_reread"
+    },
+    {
+      "id": "SEM-006",
+      "original_issue": "列表查询/总数/分页可见条件要求存在应用对象，与空态可继续查询冲突",
+      "location": "ui.pages[UI-PAGE-001].fields",
+      "resolution": "已分别明确空态查询保留、读取完成显示0、空态有效分页禁用，不依赖有应用对象。",
+      "status": "corrected_and_reread"
+    },
+    {
+      "id": "SEM-007",
+      "original_issue": "历史问题处置包含3天、不本地排序、任务命名空间未定及G2 pending旧措辞",
+      "location": "issue_dispositions[ISSUE-010,ISSUE-013,ISSUE-018,ISSUE-030]",
+      "resolution": "根协调发现前三项，我补充030；最终回读均以当前无固定到期、同任务priority/FIFO、原供应商任务直用及历史审计语义表达。",
+      "status": "corrected_and_reread"
+    }
+  ],
+  "unresolved_external_items": [
+    "ISSUE-002",
+    "ISSUE-005",
+    "ISSUE-008",
+    "ISSUE-022",
+    "ISSUE-026",
+    "ISSUE-027",
+    "ISSUE-029",
+    "ISSUE-031"
+  ],
+  "conclusion": "未发现新增内部语义矛盾；带明确外部阻断的讨论稿可审阅。",
+  "limitations": [
+    "本证据是实际只读语义复核记录，不是用户业务批准、正式产品语义门禁通过或真实接口运行验证。",
+    "原8个deferred问题保留；真实供应商同号接收/排重、客户时长映射、下载成功、精准删除、DCC可靠交付、53事件、任务状态/时间和凭证契约尚未核实。",
+    "未指定生产目标仓库、技术栈和模块落点；不得将本产品规格讨论稿称为READY_FOR_DEVELOPMENT或已实施代码。"
+  ]
+}

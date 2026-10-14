@@ -1,14 +1,15 @@
-"""Refresh reviewed documentation from portable, authored local inputs.
+"""Render adopted documentation without recapturing official interface documents.
 
-Does not fetch the network or mutate frozen analysis inputs / pre-existing official
-snapshots. Run before build_delivery.py and build_development_guide.py. Only its owned
-field review, confirmations, appendix Markdown, decisions and new references change.
+Current interface documents are read through the verified LLM Wiki adapter. Adopted
+field mappings and catalog rows remain the reviewed project version; changed Wiki
+facts must first pass upstream analysis, rather than being substituted here.
 """
 from pathlib import Path
 from collections import Counter
 from urllib.parse import unquote
 from html import escape
 import hashlib, json, re
+from interface_sources import InterfaceSources, InterfaceSourceError
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / 'docs'
@@ -29,7 +30,8 @@ def table(headers, rows):
     return '\n'.join(['| '+' | '.join(headers)+' |','|'+'|'.join(['---']*len(headers))+'|']+['| '+' | '.join(clean(c) for c in row)+' |' for row in rows])+'\n'
 
 def refs(row, sources):
-    return ' / '.join('['+i+']('+sources[i]['url']+')' for i in row.get('sourceIds',[]) if i in sources) or '平台本地规则（D-059）' if row.get('area')=='客户业务信息' else ' / '.join('['+i+']('+sources[i]['url']+')' for i in row.get('sourceIds',[]) if i in sources) or '平台本地规则'
+    links=' / '.join('['+i+'](../references/index.html#'+i+')' for i in row.get('sourceIds',[]) if i in sources)
+    return links or ('平台本地规则（D-059）' if row.get('area')=='客户业务信息' else '平台本地规则')
 
 def refresh_catalog_mappings(audit):
     # Recompute project traceability after every authored mapping override, also
@@ -44,41 +46,22 @@ def refresh_catalog_mappings(audit):
     return audit
 
 def sources_and_catalog(audit):
-    # Each authored source names its capture input. Existing captures retain their
-    # metadata/basis; new report captures also retain HTML for independent review.
-    reviews={}
-    existing={unquote(p['url']):p['id'] for p in audit['sources']}
-    for source in DATA['sources']:
-        input_name=source.get('reviewInput','inbound-official-review.json')
-        if input_name not in reviews:
-            reviews[input_name]=json.loads((INPUT/input_name).read_text())
-        review=reviews[input_name]
-        byurl={unquote(p['url']):p for p in review['pages']}
-        sid=source['id']; page=byurl[unquote(source['url'])]
-        assert page['status']==200
-        assert existing.get(unquote(source['url']),sid)==sid, 'Duplicate official URL under different ID'
-        name=source.get('name') or unquote(source['url']).split('/')[-1].removesuffix('.html')
-        text=page['text']; blocks=page.get('sectionedTables') or [dict(section=name,rows=rows) for rows in page['tables']]
-        raw=ROOT/'references/alicti'/sid
-        captures=[('.txt',text),('.json',json.dumps(blocks,ensure_ascii=False,indent=2)+'\n')]
-        if 'html' in page: captures.append(('.html',page['html']))
-        for suffix,content in captures:
-            path=raw.with_suffix(suffix)
-            if path.exists(): assert path.read_text()==content, 'Refusing to rewrite snapshot '+str(path)
-            else: path.write_text(content)
-        metadata=dict(id=sid,name=name,url=source['url'],status=200,retrievedAt=page.get('retrievedAt',review['retrievedAt']),sha256=hashlib.sha256(text.encode()).hexdigest(),tables=len(blocks),characters=len(text),endpoint=source['endpoint'],reviewDecision=source.get('reviewDecision','D-024'),hashBasis='extracted_text_snapshot',snapshotCapture='text_and_tables')
-        if page.get('preserveExistingTextSnapshot'):
-            metadata.update(hashBasis='preserved_tool_capture_bytes',snapshotCapture=page.get('captureFormat','existing_capture'),reviewedAt=page.get('reviewedAt'),originalCaptureTime=page.get('originalCaptureTime','not_recorded'))
-        if 'html' in page:
-            metadata.update(snapshotCapture='text_tables_and_html',htmlSha256=hashlib.sha256(page['html'].encode()).hexdigest(),htmlHashBasis='official_html_snapshot',originalEvidence=page.get('originalEvidence',''))
-        audit['sources']=[s for s in audit['sources'] if s['id']!=sid]+[metadata]
-        audit['catalog']=[f for f in audit['catalog'] if f['sourceId']!=sid]
-        for ti,block in enumerate(blocks,1):
-            head=block['rows'][0]
-            if '类型' not in head: continue
-            for fi,cells in enumerate(block['rows'][1:],1):
-                row=dict(zip(head,cells)); field=cells[0] if cells else ''; section=block.get('section',name)
-                audit['catalog'].append(dict(id=f'{sid}-T{ti:02}-F{fi:03}',sourceId=sid,section=section,field=field,type=row.get('类型',''),required=row.get('要求',row.get('可选','返回字段/按方法')),description=row.get('描述',row.get('说明','')),constraints=row.get('备注',''),mappingIds=[],adoption='',url=source['url']))
+    # Do not rebuild an adopted catalog from either historical capture JSON or a
+    # newly published Wiki page. Only the reading/provenance binding changes here.
+    resolver=InterfaceSources()
+    report=resolver.verify_all()
+    if not report['ok']:
+        raise InterfaceSourceError('; '.join(report['errors']))
+    existing={source['id']:source for source in audit['sources']}
+    for source in audit['sources']+DATA['sources']:
+        sid=source['id']
+        current=resolver.sources.get(sid)
+        if current is None or sid not in existing:
+            raise InterfaceSourceError('New source requires upstream review and catalog binding: '+sid)
+        if unquote(current['url'])!=unquote(source['url']):
+            raise InterfaceSourceError('Official source identity changed: '+sid)
+    if any(row['sourceId'] not in existing for row in audit['catalog']):
+        raise InterfaceSourceError('Adopted catalog has an unbound source')
     return audit
 
 def fields(render=True):
@@ -107,7 +90,7 @@ def fields(render=True):
     audit['scope']=base+' 本轮统一更新：'+DATA['scopeNote']
     dump(DOC/'field-alignment.json',audit)
     if not render: return audit
-    md=['# AliCti 原型字段级对齐复核','',f"版本：{VERSION}。读取 {audit['sourceCount']} 份官方正文/字段定义；逐项复核 {audit['reviewedMappingCount']} 项原型字段映射，附 {audit['catalogFieldCount']} 条带接口/方法上下文的字段契约。",'','；'.join(f'{k} {v} 项' for k,v in audit['counts'].items())+'。','',audit['scope'],'','## 原型采用字段','',table(['编号','业务字段','接口或本地字段','方向 / 类型 / 必填','最终规则','结论与处理','来源'],[[m['id'],m['label'],m['field'],m['direction']+' / '+m['type']+' / '+m['required'],m['rule'],m['status']+'；'+m['action'],refs(m,sources)] for m in audit['mappings']]),'## 官方来源','',table(['来源','文档','接口','原文'],[[s['id'],s['name'],s.get('endpoint') or '字段模型 / 工具条','[查看官方原文]('+s['url']+')'] for s in audit['sources']]),'完整字段契约见 [结构化清单](field-alignment.json) 与 [字段复核页面](field-alignment.html)。原始官方正文及表格保存在 [原始资料目录](../references/README.md)；平台数据不会额外放入供应商请求。','']
+    md=['# AliCti 原型字段级对齐复核','',f"版本：{VERSION}。读取 {audit['sourceCount']} 份官方正文/字段定义；逐项复核 {audit['reviewedMappingCount']} 项原型字段映射，附 {audit['catalogFieldCount']} 条带接口/方法上下文的字段契约。",'','；'.join(f'{k} {v} 项' for k,v in audit['counts'].items())+'。','',audit['scope'],'','## 原型采用字段','',table(['编号','业务字段','接口或本地字段','方向 / 类型 / 必填','最终规则','结论与处理','来源'],[[m['id'],m['label'],m['field'],m['direction']+' / '+m['type']+' / '+m['required'],m['rule'],m['status']+'；'+m['action'],refs(m,sources)] for m in audit['mappings']]),'## 官方来源','',table(['来源','文档','接口','原文'],[[s['id'],s['name'],s.get('endpoint') or '字段模型 / 工具条','[读取 Wiki 来源](../references/index.html#'+s['id']+')'] for s in audit['sources']]),'完整字段契约见 [结构化清单](field-alignment.json) 与 [字段复核页面](field-alignment.html)。现行官方正文按编号从 [LLM Wiki 接口索引](../references/index.html)读取；以上采用字段与来源哈希保留原核验版本，历史原件见 [来源及归档说明](../references/README.md)。新文档条款经上游核验冻结后采用；平台数据不会额外放入供应商请求。','']
     (DOC/'field-alignment.md').write_text('\n'.join(md))
     html=(DOC/'field-alignment.html').read_text()
     # Include every current adoption category in filtering; unadopted APIs are not green successes.

@@ -1,0 +1,684 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-13",
+  "kind": "04_S8_derived_internal_model_validation_candidate",
+  "status": "passed_under_explicit_model_assumptions",
+  "model": {
+    "states": 7440,
+    "transitions": 42264,
+    "maximum_shortest_path_depth": 13,
+    "operation_counts": {
+      "authorized_cancel_unstarted": 2768,
+      "reserve": 328,
+      "pause_task": 3376,
+      "terminate_keeps_started_unknown": 6752,
+      "current_permission_changed_in_model_only": 7440,
+      "confirmed_failure_time_plus_120_seconds": 2136,
+      "later_main_root_does_not_reset_budget": 3720,
+      "persist_intent": 328,
+      "resume_task_recheck_guards": 3376,
+      "crash_before_physical_start": 2920,
+      "known_local_start": 328,
+      "physical_start_then_crash_before_used_save": 328,
+      "cancel_intent_keeps_attempt_and_slot": 2624,
+      "trusted_proof_not_started_same_attempt": 2920,
+      "trusted_proof_started_same_attempt": 2920
+    },
+    "invariant_failures": 0
+  },
+  "cases": [
+    {
+      "id": "MV-01",
+      "name": "预占和持久意图不提前计已用",
+      "source_refs": [
+        "BR-013",
+        "AC-064",
+        "ISSUE-038"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "reserved": 1,
+        "used": 0,
+        "physical_starts": 0
+      }
+    },
+    {
+      "id": "MV-02",
+      "name": "外发后落账前崩溃仍保留同尝试占用",
+      "source_refs": [
+        "BR-013",
+        "AC-066",
+        "AC-073",
+        "ISSUE-038"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "model_oracle_started": true,
+        "used_not_yet_proven_saved": 0,
+        "unknown_held": 1,
+        "external_truth_is_not_a_production_query": true
+      }
+    },
+    {
+      "id": "MV-03",
+      "name": "取消、新主批、补证不重发或返还实际次数",
+      "source_refs": [
+        "BR-007",
+        "BR-012",
+        "AC-064",
+        "AC-073"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "same_attempt": true,
+        "used_after_trusted_start_proof": 1,
+        "additional_network_starts": 0
+      }
+    },
+    {
+      "id": "MV-04",
+      "name": "可信未发起证明才解除未用占用",
+      "source_refs": [
+        "BR-007",
+        "AC-073",
+        "ISSUE-038"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "requires_external_trusted_proof": true,
+        "query_empty_or_delete_success_is_not_proof": true
+      }
+    },
+    {
+      "id": "MV-05",
+      "name": "执行前复核权限、暂停、终止与取消",
+      "source_refs": [
+        "BR-016",
+        "BR-022",
+        "AC-073",
+        "AC-078"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "blocked_actions_do_not_start_requests": true,
+        "actual_account_permissions_not_tested": true
+      }
+    },
+    {
+      "id": "MV-06",
+      "name": "四元组缺失守卫与原root/priority快照",
+      "source_refs": [
+        "BR-002",
+        "BR-003",
+        "BR-012",
+        "AC-064"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "root_not_in_budget_key": true,
+        "no_new_lead_or_priority_defaults": true,
+        "trigger_root_and_priority_unchanged": true
+      }
+    },
+    {
+      "id": "MV-07",
+      "name": "重复准确事件不新建计划、不重启120秒",
+      "source_refs": [
+        "BR-008",
+        "BR-009",
+        "AC-066"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "original_due": 120,
+        "duplicate_receive_times": [
+          30,
+          119,
+          120,
+          180
+        ],
+        "stable_verified_event_identity_assumed": true,
+        "frequency_no_platform_plan": true,
+        "manual_no_120_second_deadline": true,
+        "unverified_identity_does_not_plan": true
+      }
+    },
+    {
+      "id": "MV-08",
+      "name": "秒挂三态27组合与关联/时长边界",
+      "source_refs": [
+        "BR-010",
+        "BR-011",
+        "AC-021",
+        "AC-022"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "valid_association_combinations": 27,
+        "invalid_association_combinations": 27,
+        "outcomes": {
+          "SHORT_HANGUP": 1,
+          "NOT_SHORT_HANGUP": 19,
+          "UNKNOWN": 7
+        },
+        "no_plan_or_budget_mutation": true,
+        "provider_field_unit_mapping_not_proven": true
+      }
+    },
+    {
+      "id": "MV-09",
+      "name": "下载只清可信成功快照成员版本",
+      "source_refs": [
+        "BR-005",
+        "BR-019",
+        "ISSUE-008"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "failed_download_retains_all": true,
+        "late_or_new_versions_retained": true,
+        "budget_audit_unchanged": true,
+        "trusted_download_completion_source_assumed_not_implemented": true
+      }
+    },
+    {
+      "id": "MV-10",
+      "name": "同任务保存priority优先及同级FIFO",
+      "source_refs": [
+        "BR-021"
+      ],
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "saved_values_only": true,
+        "no_daily_decay": true,
+        "actual_vendor_call_order_not_proven": true
+      }
+    }
+  ],
+  "unsafe_policy_counterexamples": [
+    {
+      "id": "CE-01",
+      "wrong_policy": "UNKNOWN直接释放占用",
+      "detected": true,
+      "trace": [
+        "A持久意图",
+        "A实际发起后崩溃",
+        "错误释放A未知占用",
+        "B实际发起并计1",
+        "C实际发起并计2"
+      ],
+      "local_used": 2,
+      "physical_starts": 3,
+      "violation": "首次外实际补提交3次，超过共享上限2",
+      "source_refs": [
+        "AC-064",
+        "AC-073"
+      ]
+    },
+    {
+      "id": "CE-02",
+      "wrong_policy": "把root加入额度key使新主批获得新额度",
+      "detected": true,
+      "trace": [
+        "原四元组已补1次",
+        "另开主批错误建新额度",
+        "新主批再补2次"
+      ],
+      "physical_starts_same_confirmed_four_tuple": 3,
+      "violation": "新主批错误重置累计预算",
+      "source_refs": [
+        "BR-012",
+        "AC-064"
+      ]
+    },
+    {
+      "id": "CE-03",
+      "wrong_policy": "重复事件覆盖首次确认时间",
+      "detected": true,
+      "expected_due": 120,
+      "wrong_due": 150,
+      "source_refs": [
+        "AC-066"
+      ]
+    },
+    {
+      "id": "CE-04",
+      "wrong_policy": "把缺失客户时长当0秒",
+      "detected": true,
+      "expected": "UNKNOWN",
+      "wrong": "SHORT_HANGUP",
+      "source_refs": [
+        "AC-021"
+      ]
+    },
+    {
+      "id": "CE-05",
+      "wrong_policy": "外发前遗漏当前权限/任务状态/取消/到期守卫",
+      "detected": true,
+      "assertion_reason": "operation after precise cancellation",
+      "source_refs": [
+        "BR-016",
+        "BR-022",
+        "AC-073",
+        "AC-078"
+      ]
+    }
+  ],
+  "extension_cases": [
+    {
+      "id": "EX-01",
+      "name": "提交前中断无部分关联，重试一份映射",
+      "candidate_group": "M01",
+      "candidate_variant": "precommit_failure",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "relations": 5
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-011",
+        "interfaces/interface-index.json#API-014",
+        "memory/business-rules.json#BR-015",
+        "memory/business-rules.json#BR-016"
+      ],
+      "issue_ids": [
+        "ISSUE-002",
+        "ISSUE-036",
+        "ISSUE-038"
+      ]
+    },
+    {
+      "id": "EX-02",
+      "name": "响应丢失后同内容复用，异内容不覆盖",
+      "candidate_group": "M01",
+      "candidate_variant": "commit_response_lost",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "intents": 1
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-011",
+        "interfaces/interface-index.json#API-014",
+        "memory/business-rules.json#BR-015",
+        "memory/business-rules.json#BR-016"
+      ],
+      "issue_ids": [
+        "ISSUE-002",
+        "ISSUE-036",
+        "ISSUE-038"
+      ]
+    },
+    {
+      "id": "EX-03",
+      "name": "升版后合法重放返原尝试当前态",
+      "candidate_group": "M01",
+      "candidate_variant": "replay_after_version_change",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "held": 1
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-011",
+        "interfaces/interface-index.json#API-014",
+        "memory/business-rules.json#BR-015",
+        "memory/business-rules.json#BR-016"
+      ],
+      "issue_ids": [
+        "ISSUE-002",
+        "ISSUE-036",
+        "ISSUE-038"
+      ]
+    },
+    {
+      "id": "EX-04",
+      "name": "授权先行，完整内容含类型，旧版本和第二动作拒绝",
+      "candidate_group": "M01",
+      "candidate_variant": "denied_or_conflicting_new_command",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "attempts": 1,
+        "external_sends": 0
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-011",
+        "interfaces/interface-index.json#API-014",
+        "memory/business-rules.json#BR-015",
+        "memory/business-rules.json#BR-016"
+      ],
+      "issue_ids": [
+        "ISSUE-002",
+        "ISSUE-036",
+        "ISSUE-038"
+      ]
+    },
+    {
+      "id": "EX-05",
+      "name": "定向取消先成立，只释放证明未发的原预占",
+      "candidate_group": "M05",
+      "candidate_variant": "cancel_linearizes_before_dispatch",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "other_same_phone_record_unchanged": true
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-014",
+        "memory/business-rules.json#BR-007",
+        "memory/normalized-user-stories.json#AC-016",
+        "memory/normalized-user-stories.json#AC-073"
+      ],
+      "issue_ids": [
+        "ISSUE-022",
+        "ISSUE-038",
+        "ISSUE-029"
+      ]
+    },
+    {
+      "id": "EX-06",
+      "name": "实际发起或UNKNOWN后删除，不退次数或占用",
+      "candidate_group": "M05",
+      "candidate_variant": "dispatch_linearizes_first_or_uncertain",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "phases_checked": [
+          "started",
+          "unknown",
+          "intent"
+        ]
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-014",
+        "memory/business-rules.json#BR-007",
+        "memory/normalized-user-stories.json#AC-016",
+        "memory/normalized-user-stories.json#AC-073"
+      ],
+      "issue_ids": [
+        "ISSUE-022",
+        "ISSUE-038",
+        "ISSUE-029"
+      ]
+    },
+    {
+      "id": "EX-07",
+      "name": "额度已用完仍能授权定向删除",
+      "candidate_group": "M05",
+      "candidate_variant": "quota_exhausted_delete_allowed",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "used": 2
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-014",
+        "memory/business-rules.json#BR-007",
+        "memory/normalized-user-stories.json#AC-016",
+        "memory/normalized-user-stories.json#AC-073"
+      ],
+      "issue_ids": [
+        "ISSUE-022",
+        "ISSUE-038",
+        "ISSUE-029"
+      ]
+    },
+    {
+      "id": "EX-08",
+      "name": "删除未知重放不外发，旧回包不套新目标",
+      "candidate_group": "M05",
+      "candidate_variant": "delete_unknown_replay",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "model_sends": 1
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-014",
+        "memory/business-rules.json#BR-007",
+        "memory/normalized-user-stories.json#AC-016",
+        "memory/normalized-user-stories.json#AC-073"
+      ],
+      "issue_ids": [
+        "ISSUE-022",
+        "ISSUE-038",
+        "ISSUE-029"
+      ]
+    },
+    {
+      "id": "EX-09",
+      "name": "独占file只发task加file，未知不扩大",
+      "candidate_group": "M06",
+      "candidate_variant": "exclusive_file_candidate",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "tels_in_request": false
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-006",
+        "inputs/source-index.json#SRC-107"
+      ],
+      "issue_ids": [
+        "ISSUE-022",
+        "ISSUE-037"
+      ]
+    },
+    {
+      "id": "EX-10",
+      "name": "共享file和同号多尝试无法隔离时不调用",
+      "candidate_group": "M06",
+      "candidate_variant": "shared_file_multiple_attempts",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "model_sends": 0
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-006",
+        "inputs/source-index.json#SRC-107"
+      ],
+      "issue_ids": [
+        "ISSUE-022",
+        "ISSUE-037"
+      ]
+    },
+    {
+      "id": "EX-11",
+      "name": "总体0但目标被跳过仍未删除",
+      "candidate_group": "M06",
+      "candidate_variant": "result0_target_skipped",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "remote": "SKIPPED",
+        "held": 1
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-006",
+        "inputs/source-index.json#SRC-107"
+      ],
+      "issue_ids": [
+        "ISSUE-022",
+        "ISSUE-037"
+      ]
+    },
+    {
+      "id": "EX-12",
+      "name": "显式skip互斥，无默认；删除不推断原生停止",
+      "candidate_group": "M06",
+      "candidate_variant": "skip_retry_and_mutual_exclusion",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "production_skip_default": null
+      },
+      "source_refs": [
+        "interfaces/interface-index.json#API-006",
+        "inputs/source-index.json#SRC-107"
+      ],
+      "issue_ids": [
+        "ISSUE-022",
+        "ISSUE-037"
+      ]
+    },
+    {
+      "id": "EX-13",
+      "name": "53数组和编码数组归一，坏形状不猜，不走呼叫失败计划",
+      "candidate_group": "M10",
+      "candidate_variant": "array_and_encoded_array",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "bad_shapes_checked": 4,
+        "raw_shape_preserved": true
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-114",
+        "memory/normalized-user-stories.json#AC-039",
+        "memory/normalized-user-stories.json#AC-040",
+        "memory/business-rules.json#BR-018"
+      ],
+      "issue_ids": [
+        "ISSUE-027",
+        "ISSUE-035",
+        "ISSUE-037"
+      ]
+    },
+    {
+      "id": "EX-14",
+      "name": "乱序重复幂等，无组或模糊映射待核，冲突不覆盖",
+      "candidate_group": "M10",
+      "candidate_variant": "out_of_order_duplicates_and_missing_group",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "part_indices": [
+          1,
+          2
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-114",
+        "memory/normalized-user-stories.json#AC-039",
+        "memory/normalized-user-stories.json#AC-040",
+        "memory/business-rules.json#BR-018"
+      ],
+      "issue_ids": [
+        "ISSUE-027",
+        "ISSUE-035",
+        "ISSUE-037"
+      ]
+    },
+    {
+      "id": "EX-15",
+      "name": "失败片齐仅组完整，无53不等零失败，保留准确同步行证据",
+      "candidate_group": "M10",
+      "candidate_variant": "declared_fragments_complete_not_whole_import",
+      "result": "pass_under_stated_model_assumptions",
+      "observations": {
+        "whole_import_terminal": null
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-114",
+        "memory/normalized-user-stories.json#AC-039",
+        "memory/normalized-user-stories.json#AC-040",
+        "memory/business-rules.json#BR-018"
+      ],
+      "issue_ids": [
+        "ISSUE-027",
+        "ISSUE-035",
+        "ISSUE-037"
+      ]
+    }
+  ],
+  "extension_mutation_tests": [
+    {
+      "id": "MX-01",
+      "unsafe_policy": "提交中断留下部分记录",
+      "detected": true,
+      "assertion": "abort left partial record/batch/root/source/intent"
+    },
+    {
+      "id": "MX-02",
+      "unsafe_policy": "重放跳过当前授权",
+      "detected": true,
+      "assertion": "executable expected-value assertion"
+    },
+    {
+      "id": "MX-03",
+      "unsafe_policy": "Boolean与数字隐式转换",
+      "detected": true,
+      "assertion": "Boolean/numeric conflated"
+    },
+    {
+      "id": "MX-04",
+      "unsafe_policy": "共享file加tels假装交集",
+      "detected": true,
+      "assertion": "executable expected-value assertion"
+    },
+    {
+      "id": "MX-05",
+      "unsafe_policy": "result0忽略目标跳过",
+      "detected": true,
+      "assertion": "executable expected-value assertion"
+    },
+    {
+      "id": "MX-06",
+      "unsafe_policy": "远端删除返还已用或未知占用",
+      "detected": true,
+      "assertion": "executable expected-value assertion"
+    },
+    {
+      "id": "MX-07",
+      "unsafe_policy": "53片齐等整个导入成功",
+      "detected": true,
+      "assertion": "failure-fragment completion invented whole-import terminal"
+    },
+    {
+      "id": "MX-08",
+      "unsafe_policy": "缺组身份或模糊file猜配",
+      "detected": true,
+      "assertion": "executable expected-value assertion"
+    }
+  ],
+  "call_evidence_examples": {
+    "candidate": "M08_same_call_reference_reducer",
+    "truth_cases": 27,
+    "arrival_permutations": 24,
+    "trusted_conflict_permutations": 6,
+    "association_conflict_permutations": 2,
+    "checks": "local assertions only",
+    "production_protocol_proved": false,
+    "persistent_versioning_proved": false,
+    "network_or_project_writes": false,
+    "issues_closed": false,
+    "G3_approved": false
+  },
+  "candidate_outline_sha256": "6fc5f007aba7c1328e2466cadfa4ff4834c8f729d7f9a46c275ddbc876414822",
+  "source_sha256": {
+    "memory/business-rules.json": "baaf6cc7537392f072f6bc8e0cf6547f4b8ae5526443855f71387637b67a9a53",
+    "memory/normalized-user-stories.json": "9ce11ec4171a83565e7f5470da83d1a9de7c5dd1d20348d3b2a85efd60989cae",
+    "interfaces/interface-index.json": "6cbaeb51b2ce9c721e0a1234bf42402756de8d5b3ca70074e94f0c2517aed1d1",
+    "runtime/g2-user-approval-wiki-20261013.json": "ebeb24ed0a1fea7e07e6823c938a90f4c43437e422f6f3ffa2e880029acf2a89",
+    "runtime/open-items.json": "ddf6897b80de4d56aa3ddec9faa01af7468dd804f3b61f580454ec4dc265e70c"
+  },
+  "script_sha256": "36d2d144debb45951a61b02e1433270edadcb08ff25a8b7cdca12f1f752ecdf1",
+  "model_assumptions": [
+    "准确事件/原记录/四元组/root与权限/供应商执行权输入来自可信证据，模型不生成或验证这些证据。",
+    "每个模型操作作为抽象原子步；真实跨实例事务/持久化与网络边界仍需工程证明。",
+    "physical_starts位图仅测试oracle；生产不能据本地UNKNOWN或查询为空得出该真相。",
+    "可信已发起/未发起及下载成功证明由外部提供；模型未实现核查端点或浏览器真实下载完成。",
+    "删除响应测试使用可信准确目标的canonical Int结果；字符串0示例与实际原始报文归一仍待验证，无生产skip默认。",
+    "53组身份/精确file映射、1～3分片索引均为合成fixture；不是供应商已承诺的稳定字段或编号规则。",
+    "同call样本label/信任/绑定已由外部oracle给定，补证只合并无矛盾事实；可信更正/版本/身份规则未实现。"
+  ],
+  "cannot_prove": [
+    "后端实现或生产部署正确",
+    "供应商同号受理/唯一拨打/轮次与在途",
+    "52/53稳定身份/鉴权/重放",
+    "实际导航降级与120秒生效",
+    "客户有效时长单位或挂断方映射",
+    "实际供应商精准删除",
+    "真实账号权限或真实下载完成",
+    "供应商正常三天五呼的配置/计数"
+  ],
+  "production_calls": 0,
+  "prototype_changes": 0,
+  "formal_05_started": false,
+  "production_issues_closed": [],
+  "production_risk_accepted": false,
+  "G3_approved": false,
+  "consumer_rules": {
+    "prototype_input": false,
+    "formal_backend_design": false,
+    "verification_candidate_only": true
+  }
+}

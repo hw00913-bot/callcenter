@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -13,10 +14,11 @@ import subprocess
 import sys
 import tempfile
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 
 
-LOOP_TOOL_VERSION = "2026-09-06-analysis-generation-order-v1"
+LOOP_TOOL_VERSION = "2026-10-08-chain-integrity-v3"
 
 STAGES = [f"S{i}" for i in range(10)]
 STAGE_NAMES = {
@@ -189,31 +191,16 @@ CLAUDE_REQUIRED_MARKERS = [
     "## 项目执行边界",
 ]
 FINAL_SNAPSHOT_PATH = Path("memory/final-snapshot.json")
-FINAL_SNAPSHOT_PATTERNS = [
-    "annotations/annotations.js",
-    "memory/annotation-prompt.md",
-    "memory/annotation-coverage.md",
-    "memory/acceptance-map.md",
-    "memory/execution-steps.md",
-    "memory/verification-log.md",
-    "memory/source-materials.md",
-    "memory/field-map.md",
-    "memory/feature-list.md",
-    "memory/requirement-analysis-baseline.json",
-    "config/requirement-analysis.json",
-    "inputs/requirement-analysis/**/*",
-    "flowcharts/**/*",
-    "related-systems/**/*.html",
-    "docs/**/*.html",
-    "index.html",
-    "pages/**/*.html",
-    "js/**/*.js",
-    "mock/**/*.js",
-    "assets/css/**/*.css",
-]
-FINAL_SNAPSHOT_EXCLUDED_PARTS = {".git", "node_modules", "tools"}
-PLAN_APPROVAL_VERSION = "plan-approval-v1"
-IMPORTED_PLAN_APPROVAL_VERSION = "plan-approval-v2-analysis"
+FINAL_SNAPSHOT_VERSION = 2
+FINAL_SNAPSHOT_EXCLUDED_PARTS = {
+    ".git", "node_modules", "tools", ".loop-history", "__pycache__", ".claude", ".codex", ".agents",
+}
+FINAL_SNAPSHOT_EXCLUDED_FILES = {
+    "config/workflow.json", "memory/final-snapshot.json", "memory/stage-log.md",
+    "memory/loop-status.md", "memory/circuit-state.json", ".DS_Store",
+}
+PLAN_APPROVAL_VERSION = "plan-approval-v3-deliverables"
+IMPORTED_PLAN_APPROVAL_VERSION = "plan-approval-v3-analysis-deliverables"
 ANALYSIS_CONFIG_PATH = Path("config/requirement-analysis.json")
 ITERATION_ARCHIVE_ROOT = Path(".loop-history/iterations")
 
@@ -300,17 +287,38 @@ def requirement_analysis_binding(project: Path) -> tuple[str | None, list[str]]:
     return manifest_hash or None, errors
 
 
+@lru_cache(maxsize=1)
+def control_preflight():
+    path = Path(__file__).with_name("loop_preflight.py")
+    spec = importlib.util.spec_from_file_location("loop_control_preflight", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def snapshot_policy(project: Path) -> dict:
+    workflow = load_json(project / "config/workflow.json")
+    iteration = workflow.get("currentIteration", {})
+    return {key: iteration.get(key) for key in (
+        "planApprovalId", "approvedDeliverables", "requestedDeliverables", "optionalDeliverableRequests",
+    )}
+
+
+def snapshot_file_hash(path: Path) -> str:
+    if path.is_symlink():
+        return hashlib.sha256(("symlink:" + os.readlink(path)).encode()).hexdigest()
+    return file_sha256(path)
+
+
 def final_snapshot_files(project: Path) -> list[Path]:
     files: set[Path] = set()
-    for pattern in FINAL_SNAPSHOT_PATTERNS:
-        for path in project.glob(pattern):
-            if not path.is_file():
-                continue
-            try:
-                relative = path.relative_to(project)
-            except ValueError:
-                continue
-            if any(part in FINAL_SNAPSHOT_EXCLUDED_PARTS for part in relative.parts):
+    for directory, names, filenames in os.walk(project, followlinks=False):
+        # Prune tool/history trees rather than hashing only selected extensions.
+        names[:] = [name for name in names if name not in FINAL_SNAPSHOT_EXCLUDED_PARTS]
+        for name in filenames + [name for name in names if (Path(directory) / name).is_symlink()]:
+            path = Path(directory) / name
+            relative = path.relative_to(project).as_posix()
+            if relative in FINAL_SNAPSHOT_EXCLUDED_FILES or name == ".DS_Store":
                 continue
             files.add(path)
     return sorted(files, key=lambda item: item.relative_to(project).as_posix())
@@ -320,15 +328,17 @@ def build_final_snapshot(project: Path) -> dict:
     files = []
     for path in final_snapshot_files(project):
         relative = path.relative_to(project).as_posix()
-        stat = path.stat()
+        stat = path.lstat()
         files.append(
             {
                 "path": relative,
-                "sha256": file_sha256(path),
+                "sha256": snapshot_file_hash(path),
                 "mtime": datetime.fromtimestamp(stat.st_mtime).isoformat(timespec="seconds"),
             }
         )
     return {
+        "snapshotVersion": FINAL_SNAPSHOT_VERSION,
+        "workflowPolicy": snapshot_policy(project),
         "toolVersion": LOOP_TOOL_VERSION,
         "createdAt": datetime.now().isoformat(timespec="seconds"),
         "gate": "final",
@@ -353,9 +363,14 @@ def final_dirty_report(project: Path) -> dict:
             "message": "项目已进入 none 终态，但缺少 memory/final-snapshot.json；请重新运行 final。",
         }
     snapshot = load_json(snapshot_path)
+    if snapshot.get("snapshotVersion") != FINAL_SNAPSHOT_VERSION:
+        return {"dirty": True, "reason": "snapshot-upgrade-required", "changed": [],
+                "message": "旧版 final 快照覆盖不完整；请重新运行 final，不能自动给当前文件补盖通过。"}
     old_files = {item.get("path"): item for item in snapshot.get("files", []) if isinstance(item, dict)}
-    current = {path.relative_to(project).as_posix(): file_sha256(path) for path in final_snapshot_files(project)}
+    current = {path.relative_to(project).as_posix(): snapshot_file_hash(path) for path in final_snapshot_files(project)}
     changed: list[str] = []
+    if snapshot.get("workflowPolicy") != snapshot_policy(project):
+        changed.append("modified:config/workflow.json#approved-deliverables")
     for relative, old in sorted(old_files.items()):
         if relative not in current:
             changed.append(f"deleted:{relative}")
@@ -536,6 +551,7 @@ def plan_approval_id(
     startup_hash: str,
     claude_hash: str,
     analysis_manifest_hash: str | None = None,
+    approved_deliverables: dict | None = None,
 ) -> str:
     parts = [
         project_record_salt(project),
@@ -548,6 +564,8 @@ def plan_approval_id(
     ]
     if analysis_manifest_hash:
         parts.extend(["requirement-analysis", analysis_manifest_hash])
+    if approved_deliverables is not None:
+        parts.extend(["deliverables", control_preflight().canonical_hash(approved_deliverables)])
     payload = ":".join(parts)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
@@ -575,6 +593,7 @@ def validate_plan_approval(project: Path) -> list[str]:
     if errors:
         return errors
 
+    errors.extend(control_preflight().deliverable_approval_errors(iteration))
     requested = iteration.get("requestedDeliverables")
     if requested is not None:
         if not isinstance(requested, dict):
@@ -605,7 +624,7 @@ def validate_plan_approval(project: Path) -> list[str]:
         if iteration.get("approvedRequirementAnalysisManifestSha256") != analysis_hash:
             errors.append("需求分析冻结基线未被当前 PM 计划批准记录绑定，必须重新执行 approve-plan")
         if iteration.get("planApprovalVersion") != IMPORTED_PLAN_APPROVAL_VERSION:
-            errors.append("导入基线项目必须使用 plan-approval-v2-analysis 审批记录")
+            errors.append("导入基线项目必须使用绑定交付选择的 v3 审批记录")
     expected = plan_approval_id(
         project,
         str(iteration["name"]),
@@ -615,6 +634,7 @@ def validate_plan_approval(project: Path) -> list[str]:
         startup_hash,
         claude_hash,
         analysis_hash,
+        iteration.get("approvedDeliverables"),
     )
     if iteration.get("planApprovalId") != expected:
         errors.append("计划审批记录校验失败，必须由 approve-plan 重新生成")
@@ -655,6 +675,10 @@ def approve_plan(args: argparse.Namespace) -> int:
         return 1
 
     approved_at = datetime.now().isoformat(timespec="seconds")
+    approved_deliverables = {
+        "interactionDoc": bool(args.with_interaction_doc),
+        "annotations": bool(args.with_annotations),
+    }
     startup_hash = file_sha256(project / STARTUP_PLAN_PATH)
     claude_hash = file_sha256(project / CLAUDE_PATH)
     approval_id = plan_approval_id(
@@ -666,6 +690,7 @@ def approve_plan(args: argparse.Namespace) -> int:
         startup_hash,
         claude_hash,
         analysis_hash,
+        approved_deliverables,
     )
     mark_iteration_flags(
         project,
@@ -683,10 +708,9 @@ def approve_plan(args: argparse.Namespace) -> int:
         planApprovalVersion=IMPORTED_PLAN_APPROVAL_VERSION if analysis_hash else PLAN_APPROVAL_VERSION,
         planApprovalId=approval_id,
         startupPlanFrozenAt=approved_at,
-        requestedDeliverables={
-            "interactionDoc": bool(args.with_interaction_doc),
-            "annotations": bool(args.with_annotations),
-        },
+        approvedDeliverables=approved_deliverables,
+        requestedDeliverables=approved_deliverables,
+        optionalDeliverableRequests=[],
     )
     freeze_startup_plan(project, approved_at)
     write_loop_status(
@@ -740,25 +764,40 @@ def request_deliverables(args: argparse.Namespace) -> int:
     workflow = load_json(workflow_path)
     iteration = workflow.setdefault("currentIteration", {})
     current = requested_deliverables(project)
-    current["interactionDoc"] = current["interactionDoc"] or bool(args.interaction_doc)
-    current["annotations"] = current["annotations"] or bool(args.annotations)
+    new_annotations = bool(args.annotations) and not current["annotations"]
+    restart_stage = "s6" if new_annotations and stage in {"s7", "s8", "s9", "none"} else ("s9" if stage == "none" else None)
+    flags = {"interactionDoc": bool(args.interaction_doc), "annotations": bool(args.annotations)}
+    current = {key: current[key] or flags[key] for key in current}
     iteration["requestedDeliverables"] = current
-    iteration["optionalDeliverableRequest"] = {
-        "requestedAt": datetime.now().isoformat(timespec="seconds"),
+    record = {
+        "requestedAt": datetime.now().isoformat(timespec="microseconds"),
         "requestedBy": requested_by,
         "evidence": evidence,
+        "deliverables": flags,
+        "restartStage": restart_stage,
     }
-    if stage == "none":
-        workflow_stages(workflow)["s9"] = "pending"
-        workflow["stage"] = "s9"
+    requests = iteration.setdefault("optionalDeliverableRequests", [])
+    previous_id = requests[-1]["requestId"] if requests else iteration["planApprovalId"]
+    record["requestId"] = control_preflight().deliverable_request_id(iteration["planApprovalId"], previous_id, record)
+    requests.append(record)
+    if restart_stage:
+        for number in range(int(restart_stage[1:]), 10):
+            workflow_stages(workflow)[f"s{number}"] = "pending"
+            append_stage_log(project, f"S{number}", "none", "invalidated",
+                             f"Optional request {record['requestId']}", "", "", "none", evidence)
+        workflow["stage"] = restart_stage
+    if restart_stage == "s6":
+        log = project / "memory/verification-log.md"
+        with log.open("a", encoding="utf-8") as handle:
+            handle.write(f"\n<!-- verification-epoch: {record['requestId']} -->\n")
     write_json(workflow_path, workflow)
     print(
         "Optional deliverables requested: "
         f"interactionDoc={str(current['interactionDoc']).lower()}, "
         f"annotations={str(current['annotations']).lower()}."
     )
-    if stage == "none":
-        print("Workflow reopened at S9; generate only the requested outputs, then complete S9 again.")
+    if restart_stage:
+        print(f"Workflow reopened at {restart_stage.upper()}; complete the affected stages again.")
     return 0
 
 
@@ -898,7 +937,7 @@ def classify_error(error: str) -> tuple[str, str, str]:
         return (
             "agent",
             "字段级资料未完成",
-            "让 Agent 阅读 API 文档、参考项目或截图，提取字段、枚举、页面位置、展示规则，写入 memory/field-map.md。",
+            "导入模式先核对冻结基线与物化结果；事实缺口回需求分析 Loop，不直接改写冻结字段。非导入模式按已确认资料补齐字段映射。",
         )
     if any(marker in error for marker in ["项目记忆基线", "memory/project.md", "decisions.md"]):
         return (
@@ -1280,6 +1319,58 @@ def rollback_workflow_stage(project: Path, stage: str) -> bool:
     return True
 
 
+def reopen_stage(args: argparse.Namespace) -> int:
+    project = Path(args.project).expanduser().resolve()
+    stage = normalize_stage(args.stage)
+    current = current_workflow_stage(project)
+    if stage not in {"S6", "S7"} or current not in {"s6", "s7", "s8", "s9", "none"}:
+        print("- ERROR: reopen 仅允许已到实施区段的项目回 S6/S7")
+        return 1
+    if not args.reason.strip() or (current != "none" and STAGES.index(stage) > STAGES.index(current.upper())):
+        print("- ERROR: reopen 不允许向前跳阶段，且必须提供原因")
+        return 1
+    from project_versions import register_change, VersionError
+    try:
+        register_change(project, getattr(args, "change_id", None), "product", args.reason,
+                        str(project / "memory/change-log.md"), [stage])
+    except VersionError as exc:
+        print(f"- ERROR: {exc}")
+        return 1
+    path = project / "config/workflow.json"
+    value = load_json(path)
+    value["stage"] = stage.lower()
+    for affected in STAGES[STAGES.index(stage):]:
+        workflow_stages(value)[affected.lower()] = "pending"
+    value["verificationEpoch"] = hashlib.sha256((datetime.now().isoformat() + args.reason + os.urandom(16).hex()).encode()).hexdigest()[:16]
+    value.setdefault("reopens", []).append({"from": current, "to": stage.lower(), "reason": args.reason, "at": datetime.now().isoformat()})
+    # Keep historical evidence; the new epoch prevents its reuse.
+    write_json(path, value)
+    print(f"Reopened {stage}; downstream verification invalidated.")
+    return 0
+
+
+def record_verification(args: argparse.Namespace) -> int:
+    project = Path(args.project).expanduser().resolve()
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("verification_gate", project / "tools/loop_preflight.py")
+    gate = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gate)
+    record = load_json(Path(args.record_json))
+    required = {"Step", "Scope", "Result", "Local URL / File", "Tool", "Command / Check", "Passed", "Failed", "Evidence", "Consecutive Failures"}
+    if not required.issubset(record) or record["Scope"] not in {"step", "diagram", "global"} or record["Result"] not in {"pass", "fail"}:
+        print("- ERROR: 必须提供完整的新验证记录 JSON；不接受旧日志批量盖章")
+        return 1
+    if any("\n" in str(v) or "\r" in str(v) for v in record.values()):
+        return 1
+    content, epoch = gate.verification_binding(project)
+    record.update({"Content Digest": content, "Verification Epoch": epoch})
+    path = project / "memory/verification-log.md"
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write("\n## Fresh verification assertion\n" + "".join(f"- {k}: {v}\n" for k, v in record.items()))
+    print("Verification assertion recorded for current content; caller remains responsible for actual checks.")
+    return 0
+
+
 def complete_stage(args: argparse.Namespace) -> int:
     project = Path(args.project).expanduser().resolve()
     stage = normalize_stage(args.stage)
@@ -1317,11 +1408,7 @@ def complete_stage(args: argparse.Namespace) -> int:
                 )
                 print(output)
                 return 1
-            rolled = rollback_workflow_stage(project, stage)
-            if rolled:
-                print(f"Workflow stage rolled back to {stage} (--force).")
-            else:
-                print(f"Workflow stage is already {stage}.")
+            print(f"Rechecking {stage} without changing workflow; use reopen for repairs.")
         else:
             current = current_workflow_stage(project) or "unknown"
             output = f"- ERROR: 当前 workflow.stage={current}，不能完成 {stage}。如需回退并重新完成，请使用 --force。"
@@ -1651,6 +1738,17 @@ def report(args: argparse.Namespace) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    reopen_parser = subparsers.add_parser("reopen", help="Reopen S6/S7 and invalidate downstream evidence")
+    reopen_parser.add_argument("project")
+    reopen_parser.add_argument("--stage", type=normalize_stage, required=True)
+    reopen_parser.add_argument("--reason", required=True)
+    reopen_parser.add_argument("--change-id")
+    reopen_parser.set_defaults(func=reopen_stage)
+    record_parser = subparsers.add_parser("record-verification", help="Append a fresh assertion bound to content and epoch")
+    record_parser.add_argument("project")
+    record_parser.add_argument("--record-json", required=True)
+    record_parser.set_defaults(func=record_verification)
 
     status_parser = subparsers.add_parser("status", help="Print workflow status")
     status_parser.add_argument("project", nargs="?", default=".")

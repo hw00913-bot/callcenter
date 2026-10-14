@@ -1,0 +1,300 @@
+{
+  "schema_version": "1.0",
+  "review_kind": "read_only_requirement_semantic_review",
+  "workspace": "/private/tmp/dcc-lead-group-revision-20261011",
+  "reviewed_at": "2026-10-11T10:12:04+08:00",
+  "source_decisions": [
+    "SRC-084",
+    "SRC-085",
+    "SRC-086"
+  ],
+  "superseded_comparison": "/private/tmp/dcc-v1.1.0-20261011-revision",
+  "result": "no_current_semantic_conflicts_found",
+  "checks": [
+    {
+      "check": "stable_scope",
+      "result": "pass",
+      "basis": [
+        "13FUNC",
+        "52AC",
+        "21BR",
+        "4SC",
+        "8SEQ",
+        "2PAGE",
+        "12ACTION"
+      ],
+      "finding": "稳定ID和范围计数不变，52AC正文修订并全部有有效FUNC覆盖，FUNC所引用AC所属US均已列入；不新增页面/模块/独立功能。"
+    },
+    {
+      "check": "optional_boolean_default",
+      "result": "pass",
+      "basis": [
+        "AC-047",
+        "BR-003",
+        "API-001 request_fields / business_batch_contract"
+      ],
+      "finding": "isNewBatch逐行可选Boolean，仅缺省归一false，非Boolean不隐式当false；手工无该新增字段。"
+    },
+    {
+      "check": "false_is_new_business",
+      "result": "pass",
+      "basis": [
+        "AC-006",
+        "AC-047",
+        "BR-002",
+        "FUNC-004",
+        "FUNC-005",
+        "SEQ-001"
+      ],
+      "finding": "新业务ID每个有效行总新recordId/batchId，false/缺省有主只复用主关联，不复用旧record/batch，不跳过本地保存或供应商提交；技术重传另走幂等。"
+    },
+    {
+      "check": "false_without_main",
+      "result": "pass",
+      "basis": [
+        "AC-048",
+        "BR-012",
+        "FUNC-004",
+        "API-001 false_without_main",
+        "SEQ-001"
+      ],
+      "finding": "false或缺省且同组无已保存主时自动首主，独立新record/batch且rootBatchId=batchId；不拒绝缺旧批字段，不仅true才能主。"
+    },
+    {
+      "check": "true_and_multiple_mains",
+      "result": "pass",
+      "basis": [
+        "AC-048",
+        "BR-012",
+        "FUNC-004",
+        "API-001 true_main"
+      ],
+      "finding": "每次有效新业务true均建立独立新主root=batch，同组可多个主；后续false/缺省挂当时最近已保存主，不覆盖原主/子。"
+    },
+    {
+      "check": "fixed_group_and_latest_main",
+      "result": "pass",
+      "basis": [
+        "AC-049",
+        "BR-012",
+        "API-001 group_identity / latest_main_selection",
+        "SC-001"
+      ],
+      "finding": "固定tenant/原supplierTaskId/leadCode组首次固定phone，后续同phone；最近主按该组本地主批稳定保存创建顺序，不按最近同号/呼叫结果/priority/子批挑选。子只直接关联主root，不建立逐层父链；改号/历史冲突/多lead同号未决不放开、不提交不明行。"
+    },
+    {
+      "check": "request_normalization_and_order",
+      "result": "pass",
+      "basis": [
+        "AC-050",
+        "AC-051",
+        "BR-004",
+        "API-001 processing_order",
+        "SEQ-001"
+      ],
+      "finding": "auth及来源/tenant/task校验后，按isNewBatch缺省false归一的有效完整请求内容处理requestId幂等，只有新ID进行逐行归组和主子分配。缺省与显式false等价，true与false不同；同ID异有效内容冲突拒整重复请求。"
+    },
+    {
+      "check": "retry_keeps_original_root",
+      "result": "pass",
+      "basis": [
+        "AC-050",
+        "BR-004",
+        "FUNC-004",
+        "FUNC-015",
+        "API-001 same_request_retry"
+      ],
+      "finding": "同ID同内容优先返回原已保存逐行record/batch/root及失败/待核结果，不重拆重交；后来另开新主，旧请求重传仍当时root，不重新选最近主。true原请求重传也只形成一次主。"
+    },
+    {
+      "check": "previous_parent_withdrawn",
+      "result": "pass",
+      "basis": [
+        "AC-048",
+        "AC-052",
+        "BR-012",
+        "API-001 request_fields / response_fields",
+        "FUNC-004",
+        "PAGE-002"
+      ],
+      "finding": "previous/parent已退出当前必需请求/响应及页面输入，不再要求已知历史缺父拒绝，也不虚构parent；原显式父方案只作历史，当前否定说明明确取消。root仍必须保存和返回。"
+    },
+    {
+      "check": "exact_result_mapping",
+      "result": "pass",
+      "basis": [
+        "AC-023",
+        "AC-052",
+        "BR-017",
+        "API-003",
+        "API-010",
+        "FUNC-010"
+      ],
+      "finding": "leadCode仅归组/查看，不能单键匹配通话。结果仍按精确vendorfileId/实际batch/原始号码及callID或稳定事件回查原保存record/request/root；后来新主不改旧结果归属，供应商无需提供本方新增字段。"
+    },
+    {
+      "check": "delete_and_download_retention",
+      "result": "pass",
+      "basis": [
+        "BR-007",
+        "BR-019",
+        "FUNC-006",
+        "FUNC-009",
+        "SEQ-007",
+        "SEQ-009"
+      ],
+      "finding": "精准删除只当前具体batch及供应商目标，不按root/lead整组删除；本地record/request/root主子和精确供应商通话映射保留。下载仅清本次失败快照明细/文件，保留请求防重、root、主创建顺序及必要去重/分片/交付状态。"
+    },
+    {
+      "check": "manual_boundary",
+      "result": "pass",
+      "basis": [
+        "AC-030",
+        "BR-014",
+        "SEQ-006",
+        "SC-001 ALT-007",
+        "PAGE-002 ACTION-004"
+      ],
+      "finding": "手工沿原字段、提交前最终priority、独立record/单号batch及平台查看；不新增DCCflag/request/root输入、父校验或归组界面。PAGE仅补既有DCC导入flag/root必要展示，无新增技术参数入口。"
+    },
+    {
+      "check": "priority_and_existing_capabilities",
+      "result": "pass",
+      "basis": [
+        "BR-003",
+        "BR-006",
+        "BR-021",
+        "FUNC-001/002/011/012/013/016/017"
+      ],
+      "finding": "无每日状态查询/衰减/旧priority继承，本次DCC输入或手工最终值、同任务高先/同级FIFO及已提交不重排保留。鉴权、超管管理、来源锁定、53失败/迟到去重/快照下载、每次结果/SIP晚更新/finish未知区分、真实客户0～2秒秒挂、无话单失败、可靠补送与DCC真实计次边界均保留。"
+    },
+    {
+      "check": "supplier_limits",
+      "result": "pass",
+      "basis": [
+        "API-002 business_batch_mapping / notes",
+        "API-006",
+        "API-010",
+        "runtime/open-items.json"
+      ],
+      "finding": "本方新batch/root不能保证供应商同号再接收或再次拨打，不自动复用旧fileId追加或改变isRepeat，不新增先删或等finishRetryFlag业务门禁。真实同号排重、执行中并行/取消、认证ACK、稳定创建顺序和原子性仍partial/missing待开发。"
+    }
+  ],
+  "counts": {
+    "active_functions": 13,
+    "acceptance_criteria": 52,
+    "business_rules": 21,
+    "scenarios": 4,
+    "active_sequences": 8,
+    "pages": 2,
+    "active_actions": 12
+  },
+  "active_function_ids": [
+    "FUNC-001",
+    "FUNC-002",
+    "FUNC-004",
+    "FUNC-005",
+    "FUNC-006",
+    "FUNC-009",
+    "FUNC-010",
+    "FUNC-011",
+    "FUNC-012",
+    "FUNC-013",
+    "FUNC-015",
+    "FUNC-016",
+    "FUNC-017"
+  ],
+  "reference_errors": [],
+  "retired_and_prior_history_checks": {
+    "memory/feature-list.json": {
+      "retired_exactly_preserved": true,
+      "existing_history_prefix_exactly_preserved": true
+    },
+    "planning/page-index.json": {
+      "retired_exactly_preserved": true,
+      "existing_history_prefix_exactly_preserved": true
+    }
+  },
+  "requirement_semantic_cases": [
+    {
+      "case": "新ID首行missing且无主",
+      "expected": "新record A/新batch A，自动主root=A"
+    },
+    {
+      "case": "随后新ID false且已有主A",
+      "expected": "新record B/新batch B，子root=A，不能复用A编号"
+    },
+    {
+      "case": "随后新ID true",
+      "expected": "新record C/新batch C，独立主root=C，保留A/B"
+    },
+    {
+      "case": "C保存后重传B原request",
+      "expected": "仍原record B/batch B/root A，不新建不重交"
+    },
+    {
+      "case": "C保存后新ID missing",
+      "expected": "新record D/batch D，子root=C"
+    },
+    {
+      "case": "A已有后又新ID true",
+      "expected": "另建独立主，不并回A；同ID true技术重传仍只一次"
+    },
+    {
+      "case": "同ID原missing改显式false，其他有效业务内容一致",
+      "expected": "归一等价，返回原逐行结果/映射"
+    },
+    {
+      "case": "同ID从false改true或priority等有效字段变化",
+      "expected": "整个重复请求内容冲突，不新建/不提交"
+    },
+    {
+      "case": "主/子结果晚到时已有更晚主",
+      "expected": "按原实际batch/fileId/call/event精确回查保存root，不按lead最近主改归属"
+    }
+  ],
+  "api_verification_statuses": {
+    "API-001": "missing",
+    "API-002": "partial",
+    "API-003": "partial",
+    "API-004": "partial",
+    "API-005": "not_required",
+    "API-006": "partial",
+    "API-007": "not_required",
+    "API-008": "not_required",
+    "API-009": "not_required",
+    "API-010": "missing"
+  },
+  "limits": [
+    "本报告审阅事实文本、来源/引用和跨产物语义，没有运行真实接口、原型实现或并发/持久化测试；语义案例是需求预期复核，不是代码测试结果。",
+    "不批准G1/G2/G3，不推进02/04/05状态或改旧冻结包/真实原型/台账。",
+    "旧parent关键词可存在before/retired/history或明确取消的否定说明；它们不构成当前必需协议。"
+  ],
+  "reviewed_file_sha256": {
+    "interfaces/interface-index.json": "99325bdd25b16d490ae43d1365ee6c7b269cd1e0c35d76738365a6cb48056bbd",
+    "memory/business-rules.json": "1c430f00c4124ae90b8e812d114556816c95ee8b5b82aec1570f459bb8727cf3",
+    "memory/feature-list.json": "25a6358ea9a8f2ddc7448b0f694bf6e31c617e4746f464e0b4075be9b54baa37",
+    "memory/normalized-user-stories.json": "92733deb9ed8308ecdbf0f326c89c7200cde7d118a1bc2bd57964fce98368cb4",
+    "memory/project-facts.json": "aebe659fc345f2784235918ecc1de4408dce9bd5c371c06e99185cd5315919ea",
+    "planning/page-index.json": "2189dc8fe5f70fbb29f5fc9a1eb85ad9283ef9f20721f1e78bca6e4ec1f67d86",
+    "scenarios/SC-001.json": "b1284d85f4c210846ad9aaee0d8410e040a67d5ff12571ba3cdc89476d5f6090",
+    "scenarios/SC-002.json": "e243398d31e76b607b46229199e0eabcd4a67b3bce26ef1b0c09b5926d6c794b",
+    "scenarios/SC-003.json": "87a360e9a32d43a4b749d1909eda631953ba27946ec864f8d660c660a15e331f",
+    "scenarios/SC-004.json": "ba69ff84a81378340c026ca2435cb86a4eb24aafb9f552ae7aded66a7dee7b1f",
+    "scenarios/scenario-index.json": "353eb90845d1b9635cd2fa030b240df2d554359977ecbd27f06392f25c4fd209",
+    "sequences/SEQ-001.json": "0da139e6b1ece51686e879ca95656fd2a5dca5cc0617f32c7a0ddbc94a9604f4",
+    "sequences/SEQ-002.json": "1c49e16318cecf0d8347a3b9d08dbee20118979458bede39777ec11e2d254a51",
+    "sequences/SEQ-003.json": "d7992aacf17013458f722c135019e68536d4c64409db26d8d07a090b16ae5d8d",
+    "sequences/SEQ-004.json": "607d6aed6f82374db2327ffcfdccd9f74231e4eb3bf702b4a0894b9c0188b0cc",
+    "sequences/SEQ-005.json": "109efc54fb133666bf207edbca714a5ff753c4725abf18d30303e109ebab2bd9",
+    "sequences/SEQ-006.json": "ef0b699d200fc30de98d9fe6e1b5bb0cacb8fe8cd7e073043da2bb4ac2a30e70",
+    "sequences/SEQ-007.json": "506e391fc231e6ffc9fb1e0969d4bcb1d412a68c01e991edbe1d3176792da6a8",
+    "sequences/SEQ-008.json": "cd3f683e1dff634b99889339bcade7c6176ce91a618a264ea8c97f7630207bef",
+    "sequences/SEQ-009.json": "7e369ec4bd81f709c26ef1be5b402e62d131b63e2b6a9e04bc002f500316fc11",
+    "sequences/sequence-index.json": "b48317c040ab9bd361f61ecc4deb41b72a13e481ae59648a784dcb67f5255f07",
+    "inputs/source-index.json": "29fd1223e0ac269ddd350cdfd059318f682835a38ba57d3937b2e67ce67125d1",
+    "runtime/open-items.json": "303ae05c8a3dbcd4862eef74511d7fdba970ee281c9525c43d7f131289871172"
+  },
+  "verified_against_current_workspace": "/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis",
+  "actual_current_files_matching": 23
+}

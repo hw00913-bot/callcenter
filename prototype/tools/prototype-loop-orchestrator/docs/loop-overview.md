@@ -67,7 +67,7 @@ python3 tools/loop_run.py check . --preflight-stage final
 python3 tools/loop_run.py complete . --stage S6 --output-artifacts "memory/task-plan.md, memory/execution-steps.md, memory/acceptance-map.md"
 ```
 
-S2 的 PM 确认是独立的 approve-plan 动作，不由 complete 自动生成。说明文档和标注通过 approve-plan 的显式参数记录，默认关闭；S2 后新增请求使用 request-deliverables，终态项目会回到 S9。已完成项目开始新一轮时使用 begin-iteration；已明确请求标注且手工回写后使用 approve-annotations。这些动作都会执行确定性状态处理，不能靠手改 workflow.json 代替。
+S2 的 PM 确认是独立的 approve-plan 动作，不由 complete 自动生成。说明文档和标注的初次选择绑定审批摘要，追加请求形成可校验的记录链。S2 后使用 request-deliverables：终态补说明文档回 S9；S6 之后首次开启标注回 S6，并使 S6-S9 完成状态及旧验证证据失效。已完成项目开始新一轮时使用 begin-iteration；已请求标注且手工回写后使用 approve-annotations。不能靠手改 workflow.json 代替。
 
 冻结需求包的入口：
 

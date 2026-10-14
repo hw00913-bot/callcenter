@@ -1,13 +1,53 @@
-# AliCti 云联络中心原型与说明文档
+# 云外呼平台
 
-当前文档版本 `2026-09-21-ui-field-alignment-1`，本轮文档已与客户档案、两类外呼任务及四类通话详情的修改对齐。此版本尚未推送，实际发布记录以统一变更记录为准。
+GitHub发布副本采用仓库根目录入口：打开 `index.html` 进入唯一 `prototype/`，需求和开发交付物沿原目录查看。历史归档位于仓库根 `归档/`；历史映射与冻结资料保留原件，发布副本仅适配访问路径。
 
-- [原型入口](prototype/index.html) · [运行与维护说明](prototype/README.md)
-- [功能说明](prototype/docs/functional-spec.html) · [规则附表](prototype/docs/interaction.html)
-- [字段对齐](prototype/docs/field-alignment.html) · [待确认事项](prototype/docs/remaining-confirmations.html)
-- [业务流程图](prototype/flowcharts/business-process.html) · [时序图](prototype/flowcharts/sequence-interaction.html) · [系统蓝图](prototype/related-systems/index.html)
-- [按需阅读指引](prototype/docs/development.html) · [版本与变更](prototype/docs/change-log.html)
+本轮补齐接口导入的请求级必填 `businessType`：一次请求一种业务类型，按验真租户启用配置校验，逐条保存并关联客户展示、跟进表单和原应用回调规格；不同类型分次导入仍可复用业务批次号。已保存的同内容请求只返回原回执，改类型使用新请求编号。原手工流程沿用，历史记录不猜填类型。
 
-原型、正式说明和接口证据共同维护，不再生成独立开发包或重复交付目录。开发按任务选读对应章节和代码；字段、规则及待确认数量以正式文档当前统计为准。
+本次业务类型局部核验通过：41组定点回归和5份语法检查；浏览器已确认原客户名单和详情可读。原类型表单不可用时保留填写内容并明确提示。证据见[业务类型核验](prototype/memory/verification-evidence/api-business-type-20261014.json)。当前落地范围为既有预外呼合成接收；完整人工导入接口和真实回调仍待实现。
 
-`analysis/`、`requirements/` 保留冻结输入，供应商原始快照不改写；用户澄清与项目采用规则在现行说明中单独记录。本地演示与验证不代表供应商真实接入已经完成。
+应用回调地址遗漏已修复：新增、修改支持保存，列表显示配置状态，详情可查看；历史未配置值保留，合成接口导入会要求先配置。8项定点检查和浏览器新增／修改／重开验证通过，真实回调仍待实现。
+
+日常从 [index.html](index.html) 进入，唯一原型工作目录是 [prototype/](prototype/)。v1.1.0 已在这个目录中继续维护，原型不按版本新增文件夹。
+
+当前状态（2026-10-14）：04已完成本次SRC-125的S1／S2增量核验，12个故事、104条验收、7个场景；G1／G2／G3待确认，旧S3～S9需重验。本轮增加六项选填来源资料：意向门店编码／名称、意向车系编码／名称、Smartcode和留资时间；保存原值，留资时间与平台导入时间区分，完成沟通回调按原记录携带。继续保留可复用业务批次号，以及已完成沟通保存后回调本次通话和客户业务信息快照，已填选填字段和选项业务编码一并回传。应用多对多、双外呼方式及人工指定坐席、全部应用回调、早填单和继续跟进沿用。13项高、9项中、1项低未决保留，按已确认顺序分阶段补证。
+
+上一需求快照 `3fb3c1cfd4db…`（17 功能／62 验收／21 规则）和上一已批准原型 `5b0319787ae9…` 作为历史保留，原批准不覆盖本轮范围。唯一 `prototype` 已有手工导入、运营文案、直接导入、统一任务操作及通话入口等局部修复；拨号即填单、预外呼坐席振铃填写及草稿保留已完成局部修复，15项定点检查和浏览器验证见[本次证据](prototype/memory/verification-evidence/workbench-early-form-repair-20261014.json)。人工未接通状态选择、独立保存与详情及条件必填已补齐，28组定点回归与浏览器核验见[本次证据](prototype/memory/verification-evidence/workbench-manual-status-20261014.json)。六项来源资料已在原导入流程、客户／通话详情和早填单页局部实现，21项定点检查与浏览器局部核验见[本轮证据](prototype/memory/verification-evidence/imported-customer-info-20261014.json)。最新身份、双方式接口、全应用回调、业务批次号与完成沟通快照、预测转人工归属仍待实现。真实接口保持 partial／missing，仅合成演示。
+
+05 已更新[2026-10-14 开发交付讨论版](开发交付物/1.1.0/README.md)，同步104条验收并单列已有原型与新需求差异。19个FUNC、22个BR、5个PAGE及14个API沿用旧编号并形成讨论投影，正式下游分析待重验；人工分配、坐席跟进、完成沟通回调另列独立草案。当前不是正式开发开工包；正式仓库、技术栈和工程规范仍待提供。
+
+原型 66 项回归映射及三种桌面宽度验证见 [原型验证日志](prototype/memory/verification-log.md)，阶段状态见 [工作流](prototype/config/workflow.json)，用户批准证据见 [上一方案产品批准](memory/product-approval-20261012.json)。旧控制记录、S2／CLAUDE、五份事实及产品输入原件保存在既有归档 ZIP。入口见 [当前正式需求](需求/1.1.0/README.md)。
+
+## 日常使用的目录
+
+| 目录 | 用途 |
+| --- | --- |
+| [prototype/](prototype/) | 唯一可编辑、可演示的原型工作目录；直接在此迭代。 |
+| [需求/](需求/) | 按版本保存 04 需求输出及冻结包。 |
+| [开发交付物/](开发交付物/) | 按版本保存 05 开发输出；[v1.1.0](开发交付物/1.1.0/README.md) 当前为规格讨论稿，待补接口证据及工程资料。 |
+| [历史归档](归档/) | GitHub发布副本中的历史资料压缩保存，供追溯或恢复。 |
+| [memory/](memory/) | 项目级共享版本台账，交由工作流维护。 |
+
+2026-10-13 起，官方接口统一从外部 LLM Wiki 按需读取；[接口索引](prototype/references/index.html)保留原 101 个 API-/DOC- 编号和来源映射，并补充 4 个号码池检索 ID。`prototype/references/`只保留轻量映射、供应商回复和用户截图，旧官方原文已压缩为[接口来源切换归档 ZIP](归档/历史资料/2026-10-13-接口来源切换.zip)。读取、校验与跨机器知识库定位见[来源说明](prototype/references/README.md)。新接口事实仍先经需求分析核验与冻结，原型只消费冻结结论；本次来源切换不替换历史批准、版本依据或真实联调证据。
+
+读取迁移已完成：现行 `prototype/references/` 从 2,984,469 字节减至 786,554 字节（15 个文件，减少约 73.6%）；历史原件独立 ZIP 为 781,196 字节，不计入原型目录。专项检查使用 `documentation/verify_documentation.py --interfaces-only`，验证范围为 Wiki 来源与历史原件，不代表旧业务文档全量检查或业务批准。
+
+[原型版本/](原型版本/) 仅存此前保留的 1.0 只读历史快照，仍由版本导航直接引用；不是现行原型工作目录。未新增 1.1.0 原型快照目录，后续不另建按版本的原型工作目录或输出目录。`memory/` 保存共享审批台账，两个版本清单文件为运行及工具所需，保留原路径。
+
+2026-10-12 已清理冗余展开内容：顶层旧 `analysis/`、旧 `blueprint/` 和旧接口缺口清单已合并收纳为[旧分析与生成源 ZIP](归档/历史资料/2026-10-12-旧分析与生成源.zip)；现行接口内容见下方 v1.1.0 开发清单。旧生成器需要重建历史产物时，可按原相对目录解压；当前原型页面正常运行不依赖该压缩包。
+
+2026-10-11 整理前的完整旧工作目录已逐文件核对并压缩为[整理前工作目录 ZIP](归档/历史资料/2026-10-11-目录整理/整理前工作目录.zip)，移除了其展开副本。它与旁边 G3 控制记录 ZIP 内容不同，二者均保留。原 `prototype-v1.1.0` 已归回唯一 `prototype`。本次整理及恢复路径见[清理记录](归档/历史资料/2026-10-12-清理记录.json)，此前迁移记录见[目录整理记录](归档/历史资料/2026-10-11-目录整理/目录整理记录.json)。
+
+本地源项目的归档位于上一级；GitHub发布副本的归档位于仓库根目录 `归档/`；历史证据中的原路径按[归档位置映射](memory/archive-location.json)定位。旧审批记录保持原件，本地启动器兼容旧归档访问地址。
+
+## 查看当前内容
+
+- [当前原型](index.html) · [运行说明](prototype/README.md) · [版本与变更](prototype/version-history.html)
+- [业务流程](prototype/flowcharts/business-process.html) · [交互时序](prototype/flowcharts/sequence-interaction.html) · [关联系统](prototype/related-systems/index.html)
+- [v1.1.0 正式需求](需求/1.1.0/README.md) · [当前产品评审输入](prototype/product-input.json)
+- [v1.1.0 开发规划入口](开发交付物/1.1.0/README.md)
+- [本轮接口核验矩阵](需求/1.1.0/分析工作区/outputs/system-sequence-interface-verification-matrix.md) · [本版开发接口清单](开发交付物/1.1.0/规格讨论稿-20261014/interface-list.md)
+
+[启动原型.command](启动原型.command) 是本地 HTTP 启动器，服务根覆盖整个项目，进入同一份 `prototype`。直接打开根 `index.html` 可进入原型，完整运行以 HTTP 模式为准。
+
+`版本清单.js` 与 `版本清单.json` 是同一共享台账导出的展示数据，不能当作产品批准或开发开工授权。冻结需求、历史快照和历史批准记录保持原样；本次目录整理不代表产品冻结、真实联调或网站发布。

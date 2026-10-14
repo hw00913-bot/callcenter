@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <script src="js/alicti-storage.js?v=20260921-same-task1"></script>
+  <script src="js/alicti-storage.js?v=20261010-dcc-step04"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AliCti 云外呼原型</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%231677ff' d='M32 4l28 28-28 28L4 32z'/%3E%3Cpath fill='%23fff' d='M32 18l14 14-14 14-14-14z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="assets/css/global.css?v=20260905-fix1">
   <link rel="stylesheet" href="assets/css/app.css?v=20260930-tenant-scope1">
+  <link rel="stylesheet" href="assets/css/version-history.css?v=20261008-version1">
   <link rel="stylesheet" href="assets/css/agent-workbench.css?v=20260928-record-actions1">
   <link rel="stylesheet" href="assets/css/repeat-predictive.css?v=20260916-repeat1">
   <link rel="stylesheet" href="assets/css/seat-detail.css?v=20260911-seat-detail1">
@@ -33,7 +34,7 @@
   <link rel="stylesheet" href="assets/css/call-media.css?v=20260921-call-chat2">
   <link rel="stylesheet" href="assets/css/task-retry.css?v=20260914-retry-ivr1">
 <link rel="stylesheet" href="assets/css/alicti-contracts.css?v=20260912-contracts7">
-  <link rel="stylesheet" href="assets/css/task-create.css?v=20260923-task-settings1">
+  <link rel="stylesheet" href="assets/css/task-create.css?v=20261014-task-actions1">
   <link rel="stylesheet" href="assets/css/secondary-navigation.css?v=20260920-confirm-top1">
   <link rel="stylesheet" href="assets/css/legacy-drawers.css?v=20260915-drawer1">
   <link rel="stylesheet" href="assets/css/inbound-routing.css?v=20260915-inbound1">
@@ -42,11 +43,12 @@
   <link rel="stylesheet" href="assets/css/time-condition-management.css?v=20260921-times-simple1">
   <link rel="stylesheet" href="assets/css/extension-management.css?v=20260920-extensions-menu1">
   <link rel="stylesheet" href="assets/css/auth-showcase.css?v=20260923-product-entry1">
+  <link rel="stylesheet" href="assets/css/dcc-v1.1.0.css?v=20261014-operations-ui2">
 </head>
 <body>
   <section id="authGateway" class="auth-gateway" aria-live="polite"></section>
   <header class="top-bar app-topbar">
-    <div class="top-bar-left"><span class="app-name">云外呼平台 · AliCti <small>演示</small></span></div>
+    <div class="top-bar-left"><span class="app-name">云外呼平台 · AliCti <small>v1.1.0 · 合成演示</small></span></div>
     <div class="breadcrumb" id="breadcrumb"><span class="bc-current">工作台</span></div>
     <div class="right-area app-context-tools">
       <span class="scope-chip" id="scopeLabel">请先登录</span>
@@ -60,9 +62,9 @@
         <summary>项目资料</summary>
         <div class="material-menu-panel">
           <a href="#delivery=prototype" data-delivery-open="prototype">产品原型</a>
+          <a href="version-history.html" data-delivery-open="versions" data-delivery-switch="versions">版本与变更</a>
           <a href="#delivery=business-flow" data-delivery-open="business-flow">业务流程图</a>
           <a href="#delivery=sequence-flow" data-delivery-open="sequence-flow">时序交互图</a>
-          <a href="flowcharts/page-structure.html" target="_blank">页面结构图</a>
           <a href="#delivery=related-systems" data-delivery-open="related-systems">关联系统蓝图</a>
         </div>
       </details>
@@ -80,6 +82,11 @@
         <span class="logo-text">统一外呼</span>
       </div>
       <nav id="businessNavigation" aria-label="统一外呼中台主导航"></nav>
+      <aside id="version-review-notice" role="note" style="flex:0 0 auto;margin:10px 14px;padding:10px 12px;background:#3d4c58;border:1px solid #a48a50;border-radius:6px;color:#fff1c2;font-size:12px;line-height:1.6;overflow-wrap:anywhere">
+        <div data-version-nav style="margin:0 0 8px;padding:8px"></div>
+        <strong>v1.1.0 · 合成演示</strong><br>本地合成演示；本轮修改待审阅。
+        <a href="version-history.html" data-delivery-switch="versions" style="display:block;margin-top:6px;color:#c4dcff">查看版本与变更</a>
+      </aside>
       <div class="sidebar-footnote" id="demo-tools-entry"><button class="demo-switch-trigger" type="button" onclick="DemoSwitch.open()">演示工具</button><span class="demo-only-caption">仅原型</span></div>
     </aside>
 
@@ -89,6 +96,7 @@
   </div>
 
   <script src="mock/data.js?v=20260929-multiple-navigation1"></script>
+  <script src="mock/dcc-v1.1.0.js?v=20261014-api-business-type1"></script>
   <script src="mock/demo-kit.js?v=20260924-business-direct-fields1"></script>
   <script src="mock/demo-resources.js?v=20260922-single-tenant1"></script>
   <script src="mock/demo-activity.js?v=20260921-demo-small5"></script>
@@ -109,37 +117,40 @@
 <script src="js/components/tenant-supervisor-policy.js?v=20260918-tenant-monitor1"></script>
 <script src="js/components/alicti-fields.js?v=20260929-multiple-navigation1"></script>
 <script src="js/components/alicti-ivr.js?v=20260922-single-tenant1"></script>
-<script src="js/components/alicti-demo.js?v=20260922-caller-navigation1"></script>
+<script src="js/components/alicti-demo.js?v=20261010-step05h"></script>
 <script src="js/components/call-state.js?v=20260920-inbound-status1"></script>
 <script src="js/components/alicti-report-facts.js?v=20260916-reports1"></script>
 <script src="js/components/report-metrics.js?v=20260916-reports1"></script>
   <script src="mock/demo-compact.js?v=20260924-cloud-only1"></script>
   <script src="mock/demo-install.js?v=20260921-demo-small5"></script>
   <script src="js/components/alicti-accounts.js?v=20260930-local-logic-fixes1"></script>
-  <script src="js/app.js?v=20260930-customer-import-admin1"></script>
+  <script src="js/app.js?v=20261010-dcc-step04"></script>
+  <script src="js/components/dcc-runtime.js?v=20261014-api-business-type1"></script>
+  <script src="js/components/dcc-records.js?v=20261014-api-business-type1"></script>
+  <script src="js/pages/application-access.js?v=20261014-application-callback1"></script>
   <script src="js/components/demo-switch.js?v=20260930-tenant-scope1"></script>
   <script src="js/components/resource-rules.js?v=20260922-caller-navigation1"></script>
-  <script src="js/components/customer-business.js?v=20260924-business-direct-fields1"></script>
+  <script src="js/components/customer-business.js?v=20261014-api-business-type1"></script>
   <script src="js/pages/business-categories.js?v=20260924-business-direct-fields1"></script>
-  <script src="mock/customer-followup.js?v=20260915-business-info1"></script>
-  <script src="js/components/customer-followup.js?v=20260923-business-templates1"></script>
-  <script src="js/components/customer-directory.js?v=20260930-call-sync2"></script>
+  <script src="mock/customer-followup.js?v=20261014-api-business-type2"></script>
+  <script src="js/components/customer-followup.js?v=20261014-api-business-type2"></script>
+  <script src="js/components/customer-directory.js?v=20261014-intention-info1"></script>
   <script src="js/components/alicti-receiving.js?20260920-incoming-actions1"></script>
   <script src="js/components/call-data-sync.js?v=20260930-call-sync2"></script>
-  <script src="js/pages/agent-workbench.js?v=20260930-call-sync2"></script>
+  <script src="js/pages/agent-workbench.js?v=20261014-manual-status1"></script>
   <script src="js/pages/scenario-readiness.js?v=20260929-multiple-navigation1"></script>
   <script src="js/components/role-charts.js?v=20260915-drawer1"></script>
   <script src="js/components/role-focus.js?v=20260918-number-management1"></script>
   <script src="js/pages/home.js?v=20260924-cloud-only1"></script>
-  <script src="js/components/workbench-overview.js?v=20260930-tenant-scope1"></script>
+  <script src="js/components/workbench-overview.js?v=20261014-early-followup1"></script>
   <script src="js/components/account-tenant-forms.js?v=20260924-cloud-only1"></script>
   <script src="js/pages/account-tenant.js?v=20260924-cloud-only1"></script>
   <script src="js/pages/alicti-accounts.js?v=20260929-multiple-navigation1"></script>
   <script src="js/components/business-issues.js?v=20260921-list-order2"></script>
   <script src="js/pages/agent-center.js?v=20260922-single-tenant1"></script>
     <script src="js/components/manual-skill-access.js?v=20260915-drawer1"></script>
-    <script src="js/pages/customer-tasks.js?v=20260930-customer-import-admin1"></script>
-  <script src="js/components/repeat-predictive.js?v=20260921-list-order2"></script>
+    <script src="js/pages/customer-tasks.js?v=20261014-intention-info1"></script>
+  <script src="js/components/repeat-predictive.js?v=20261010-step05"></script>
     <script src="js/pages/customer-demo.js?v=20260920-number-seat2"></script>
   <script src="js/components/alicti-queue-contracts.js?v=20260918-queues2"></script>
   <script src="js/components/alicti-number-pools.js?v=20260930-local-logic-fixes1"></script>
@@ -160,10 +171,10 @@
   <script src="mock/time-conditions.js?v=20260922-single-tenant1"></script>
   <script src="js/components/alicti-time-conditions.js?v=20260930-local-logic-fixes1"></script>
   <script src="js/pages/time-condition-management.js?v=20260922-single-tenant1"></script>
-  <script src="js/pages/cloud-task-workspace.js?v=20260930-customer-import-admin1"></script>
-  <script src="js/pages/cloud-call-tasks.js?v=20260923-task-edit1"></script>
+  <script src="js/pages/cloud-task-workspace.js?v=20261014-task-actions1"></script>
+  <script src="js/pages/cloud-call-tasks.js?v=20261014-task-actions1"></script>
   <script src="js/components/call-media.js?v=20260930-call-sync2"></script>
-  <script src="js/pages/cloud-call-records.js?v=20260930-call-sync2"></script>
+  <script src="js/pages/cloud-call-records.js?v=20261014-manual-status1"></script>
   <script src="js/pages/customer-directory.js?v=20260921-list-order2"></script>
   <script src="js/components/alicti-report-summary.js?v=20260920-supplier-clarifications1"></script>
   <script src="js/components/lead-report.js?v=20260923-business-templates1"></script>
@@ -189,7 +200,7 @@
   <script src="mock/demo-ready.js?v=20260921-demo-small5"></script>
   <script src="mock/inbound-routing.js?v=20260922-single-tenant1"></script>
   <script src="js/components/alicti-inbound.js?v=20260920-times1"></script>
-  <script src="js/nav.js?v=20260924-cloud-only3"></script>
+  <script src="js/nav.js?v=20261010-dcc-step04"></script>
   <script>
     window.AnnotationConfig = {
       projectId: 'prototype-f200ca62',
@@ -199,7 +210,10 @@
       }
     };
   </script>
-  <script src="js/delivery-nav.js?v=20260919-navigation2"></script>
+  <script src="../版本清单.js" data-project-version-index></script>
+  <script src="js/version-nav.js?v=20261009-static-entry1"></script>
+  <script src="js/delivery-nav.js"></script>
+  <script src="js/review-view-cache.js?v=20261011-frozen1"></script>
 <script src="js/components/alicti-contract-panel.js?20260920-phone-actions1"></script>
 </body>
 </html>

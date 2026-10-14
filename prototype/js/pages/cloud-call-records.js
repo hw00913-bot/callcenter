@@ -254,10 +254,16 @@
       ...(facts.taskId?[['AliCti 任务编号',facts.taskId]]:[]),
       ...(data.retryRound!==null?[[facts.kind==='automatic'?'重呼次数':'重试轮次',data.retryRound]]:[]),
       ...(data.finishRetryFlag!==null?[['是否最终一次呼叫',data.finishRetryFlag===1?'是':'否']]:[])];
+    const agentCallStatus = call.agentCallStatus;
+    const agentStatusSection = agentCallStatus?.description ? ui.detailSection('坐席记录',
+      '<div data-agent-call-status>' + grid([['通话状态',agentCallStatus.description],
+        ['录入人',agentCallStatus.recordedBy === call.accountId ? call.agentName || agentCallStatus.recordedBy : agentCallStatus.recordedBy || '未记录'],
+        ['录入时间',stateTime(agentCallStatus.recordedAt)]]) + '<p class="table-sub">坐席填写的联系情况，线路结果保持原记录。</p></div>') : '';
     return '<div class="layer-header"><div><h2>通话详情 <small>'+esc(call.callId)+'</small></h2><p data-call-sync-part="header">'+esc(ui.callTypeLabel(call.callType))+' · '+esc(state.stageLabel+' · '+data.resultLabel)+'</p></div><button aria-label="关闭通话详情" onclick="PlatformUI.closeLayer(\'cloud-call-detail\')">×</button></div>'+
       '<div class="layer-body call-review-body"><div class="call-review-left">'+(withMedia?CloudCallMedia.render(call):'')+'</div><div class="call-review-right"><div data-call-sync-part="summary">'+syncPanel(call)+'</div><p id="call-detail-sync-live" class="call-sync-sr-only" role="status" aria-live="polite" aria-atomic="true"></p><div class="call-review-tabs" role="tablist" aria-label="通话详情内容"><button role="tab" id="call-review-result-tab" aria-controls="call-review-result" aria-selected="true" onclick="CloudCallRecords.reviewTab(\'result\')">通话结果</button><button role="tab" id="call-review-info-tab" aria-controls="call-review-info" aria-selected="false" onclick="CloudCallRecords.reviewTab(\'info\')">详细信息</button></div><div class="call-review-pane" id="call-review-result" role="tabpanel" aria-labelledby="call-review-result-tab"><div data-call-sync-part="facts">'+
       ui.detailSection('接听结果',grid(resultRows)+'<dl class="detail-grid"><dt>号码状态识别</dt><dd>'+numberStatusMarkup(call)+'</dd></dl>')+
       ui.detailSection('本通坐席与语音',grid(participants))+'</div>'+
+      agentStatusSection+
       ui.detailSection('业务信息',grid([['来源任务',sourceTask],...(contactLabel?[['联系轮次',contactLabel]]:[]),['坐席处理结果',CustomerDirectory.dispositionLabel(call)||'未填写']])+(window.RepeatPredictive?.contactOrigin(call)||'')+(task?window.RepeatPredictive?.callAction(call)||'':''))+
       ui.detailSection('本次客户业务信息',CustomerFollowup.detail(call.customerFollowup,call))+
       (call.customerNote||call.dispositionRemark?ui.detailSection('联系备注',grid([['客户称呼',call.customerName||'未记录'],['联系备注',call.customerNote||'—'],['处理备注',call.dispositionRemark||'—']])):'')+

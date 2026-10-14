@@ -1,0 +1,865 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-005",
+  "scenario_id": "SC-005",
+  "name": "应用五操作与DCC/天网独立凭据换指定租户token",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "超级管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "应用管理界面",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "dcc",
+      "name": "外部接入应用（DCC/天网，后台token申请者）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "message_id": "SEQ-005-M001",
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "超管独立查询已保存应用列表；空列表仍可新增，读取不自动创建/修改/删除配置。",
+      "type": "request",
+      "api_id": null,
+      "condition": "现有超管当前身份；非超管不能菜单/直达管理",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        1
+      ],
+      "historical_step": 1
+    },
+    {
+      "message_id": "SEQ-005-M002",
+      "step": 2,
+      "from": "ui",
+      "to": "service",
+      "message": "逐次按当前登录超管管理权读取列表；tenant业务token/运营/租户管理员不能代管理权，不发放新账号权限。",
+      "type": "request",
+      "api_id": "API-001",
+      "condition": "[同步内部请求] 原APP-LIST操作；真实管理method/route仍missing",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        1,
+        2
+      ],
+      "historical_step": 2
+    },
+    {
+      "message_id": "SEQ-005-M002-D",
+      "step": 3,
+      "from": "service",
+      "to": "ui",
+      "message": "权限/身份变化明确拒绝且无写，不读其他对象或用业务token越权；各独立管理操作同样逐次服务端核权限/精确目标。",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "[同步返回] 任一管理请求非超管/当前权限不能确认",
+      "delivery_mode": "sync_return",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        2
+      ],
+      "lineage_message_id": "SEQ-005-M002"
+    },
+    {
+      "message_id": "SEQ-005-M003",
+      "step": 4,
+      "from": "service",
+      "to": "ui",
+      "message": "返回已保存应用名称/appId及原详情/修改/删除入口；空列表保持空，列表结果不是生成凭据。",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "[同步返回] 当前管理权与列表读取结果明确",
+      "delivery_mode": "sync_return",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        3
+      ],
+      "historical_step": 3
+    },
+    {
+      "message_id": "SEQ-005-M004",
+      "step": 5,
+      "from": "operator",
+      "to": "ui",
+      "message": "独立新增应用名称/可访问租户；DCC与天网各自应用凭据，不新增source类别/回传开关/任务app绑定输入。",
+      "type": "request",
+      "api_id": null,
+      "condition": "明确新建意图；取消不生成保存应用",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        4,
+        5
+      ],
+      "historical_step": 4
+    },
+    {
+      "message_id": "SEQ-005-M005",
+      "step": 6,
+      "from": "ui",
+      "to": "service",
+      "message": "核当前超管、输入和授权范围后保存新应用/接入凭据；生产算法/安全存储/事务未知，合成凭据不可用。来源受控登记为后台技术提案，不以名称/R确定系统去向。",
+      "type": "request",
+      "api_id": "API-001",
+      "condition": "[同步内部请求] 原APP-CREATE；取消/失败不造新应用或密钥",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        5,
+        6
+      ],
+      "historical_step": 5
+    },
+    {
+      "message_id": "SEQ-005-M006",
+      "step": 7,
+      "from": "service",
+      "to": "ui",
+      "message": "当前保存明确成功后列入列表/详情，失败或未知如实反馈不伪造凭据成功；不会自动发业务token。",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "[同步返回] 当前新增结果与对象准确关联",
+      "delivery_mode": "sync_return",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        6,
+        7,
+        12
+      ],
+      "historical_step": 6
+    },
+    {
+      "message_id": "SEQ-005-M007",
+      "step": 8,
+      "from": "operator",
+      "to": "ui",
+      "message": "独立查看精确已保存应用详情，按需显示/复制原密钥；仅必要不可用演示提示，不堆身份交换技术面板。",
+      "type": "request",
+      "api_id": null,
+      "condition": "原详情操作；显示/复制是明细，不新服务动作",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        7
+      ],
+      "historical_step": 7
+    },
+    {
+      "message_id": "SEQ-005-M007-A",
+      "step": 9,
+      "from": "ui",
+      "to": "service",
+      "message": "当前超管与精确app对象读取原详情；不存在/删除/权限变化不显示另一个应用，不修改密钥或授权。",
+      "type": "request",
+      "api_id": "API-001",
+      "condition": "[同步内部请求] 原APP-DETAIL；无写",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        7
+      ],
+      "lineage_message_id": "SEQ-005-M007"
+    },
+    {
+      "message_id": "SEQ-005-M007-B",
+      "step": 10,
+      "from": "service",
+      "to": "ui",
+      "message": "准确返回该应用名称/appId/原密钥及可访问租户，保可用性演示提示，生产展示/脱敏策略仍待核。",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "[同步返回] 精确详情读取明确；错误对象/无权明确拒绝",
+      "delivery_mode": "sync_return",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        7
+      ],
+      "lineage_message_id": "SEQ-005-M007"
+    },
+    {
+      "message_id": "SEQ-005-M008",
+      "step": 11,
+      "from": "operator",
+      "to": "ui",
+      "message": "独立修改指定应用名称/可访问租户；取消不改配置，不把显示名编辑当原历史来源或回传路由修改。",
+      "type": "request",
+      "api_id": null,
+      "condition": "已有精确对象明确修改",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        8
+      ],
+      "historical_step": 8
+    },
+    {
+      "message_id": "SEQ-005-M009",
+      "step": 12,
+      "from": "ui",
+      "to": "service",
+      "message": "逐次核超管/对象/输入并保存修改，appId和原密钥保持；合成模型按当前授权拒绝撤销tenant旧身份，真实已发token失效时点/机制未核。已保存record原来源/root不随名称/授权变化重写。",
+      "type": "request",
+      "api_id": "API-001",
+      "condition": "[同步内部请求] 原APP-UPDATE；失败原配置不变、不重置密钥",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        9
+      ],
+      "historical_step": 9
+    },
+    {
+      "message_id": "SEQ-005-M010",
+      "step": 13,
+      "from": "service",
+      "to": "ui",
+      "message": "返回本次指定应用真实保存结果并一致更新列表/详情；对象/身份变化不保旧成功反馈，失败不伪造更新。",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "[同步返回] 本次当前修改结果，不新增启停/重置",
+      "delivery_mode": "sync_return",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        7,
+        12
+      ],
+      "historical_step": 10
+    },
+    {
+      "message_id": "SEQ-005-M011",
+      "step": 14,
+      "from": "operator",
+      "to": "ui",
+      "message": "精确选择该应用并确认删除；取消不删、不停止其他应用或业务记录。",
+      "type": "request",
+      "api_id": null,
+      "condition": "独立原APP-DELETE意图，仅超管",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        10
+      ],
+      "historical_step": 11
+    },
+    {
+      "message_id": "SEQ-005-M012",
+      "step": 15,
+      "from": "ui",
+      "to": "service",
+      "message": "重新核当前超管/精确对象/确认并删除指定应用；保存失败/未知不先撤销并冒成功；其他应用及已存业务任务/记录/root/原来源/结果审计保留。",
+      "type": "request",
+      "api_id": "API-001",
+      "condition": "[同步内部请求] 原APP-DELETE；非供应商号码删除，不向DCC/TW开放内部运营删除",
+      "delivery_mode": "request",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        11
+      ],
+      "historical_step": 12
+    },
+    {
+      "message_id": "SEQ-005-M013",
+      "step": 16,
+      "from": "service",
+      "to": "ui",
+      "message": "明确删除成功后列表移除该app，合成凭据/已发合成身份失效且不能换新token；真实旧token撤权/时效待核，未知不伪成功，保原业务来源和任务，不级联删除。",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "[同步返回] 当前精确删除保存结果",
+      "delivery_mode": "sync_return",
+      "rule_ids": [
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        12
+      ],
+      "historical_step": 13
+    },
+    {
+      "message_id": "SEQ-005-M014",
+      "step": 17,
+      "from": "dcc",
+      "to": "service",
+      "message": "DCC或天网各用独立应用凭据+tenantId在后台申请指定授权租户身份；同一token用途，不在日常管理UI增加技术交换或source配置面板。",
+      "type": "external_call",
+      "api_id": "API-001",
+      "condition": "[同步请求] 原TOKEN操作独立于五管理操作，当前仅方案/合成",
+      "delivery_mode": "sync_request",
+      "rule_ids": [
+        "BR-001"
+      ],
+      "source_main_step_refs": [
+        13
+      ],
+      "historical_step": 14
+    },
+    {
+      "message_id": "SEQ-005-M014-A",
+      "step": 18,
+      "from": "service",
+      "to": "service",
+      "message": "验证凭据/当前tenant授权并可信恢复稳定app与受控来源登记；不按body source/名称/R/唯一app猜DCC，task仍归tenant不绑app。稳定app+tenant+operation请求域候选随token续发不变，app不入业务组/次数四元组；生产协议/持久化待核。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "后台TOKEN请求；真实验真/登记能力仍missing",
+      "delivery_mode": "internal",
+      "rule_ids": [
+        "BR-001"
+      ],
+      "source_main_step_refs": [
+        14
+      ],
+      "lineage_message_id": "SEQ-005-M014"
+    },
+    {
+      "message_id": "SEQ-005-M015",
+      "step": 19,
+      "from": "service",
+      "to": "dcc",
+      "message": "有效且授权明确时返回指定租户不可用合成业务身份及可核实app关系；删除/无效/越界明确拒绝，不授运营/管理权。tenant-only而无稳定app或登记不足不默认为DCC/发可确定来源的新身份。",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "[同步返回] 实际本次发放/拒绝明确；字段/TTL/撤权/稳定app协议仍missing",
+      "delivery_mode": "sync_return",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ],
+      "source_main_step_refs": [
+        14
+      ],
+      "historical_step": 15
+    },
+    {
+      "message_id": "SEQ-005-M015-U",
+      "step": 20,
+      "from": "service",
+      "to": "service",
+      "message": "发放/认证/稳定原app确认未知时保待核，不假称可用身份，不进入新外部导入或用显示名/default DCC補來源。",
+      "type": "timeout",
+      "api_id": null,
+      "condition": "本次交换未知；不执行真实身份或追加新UI",
+      "delivery_mode": "unknown_or_timeout",
+      "rule_ids": [
+        "BR-001"
+      ],
+      "source_main_step_refs": [
+        14
+      ],
+      "lineage_message_id": "SEQ-005-M015"
+    }
+  ],
+  "notes": [
+    "本轮G2已由用户实际批准，证据runtime/manual-code-g2-user-approval-20261014.json，接口事实指纹fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4；按手工线索类单一编码说明继续S5-S7，保留13high/4medium生产缺口，不接受生产风险，不批准G3/真实调用。",
+    "旧15step消息语义保稳定message_id/historical_step；补原详情读/返和逐次权限/未知守卫用原family衍生，无新产品操作/HTTP端点。各管理操作可独立发起，并非必须顺序做完才token。",
+    "五管理操作仅超管，租户业务token不授超管/运营/任务删除权。源登记/稳定app是受控后台技术提案，不新增source/UI回传开关、task-app绑定、启停/密钥重置/收费/自动账号授权。",
+    "DCC/TW各独立app凭据；只认证解析可信稳定app/tenant才能支撑共用请求隔离与原来源保存，token字串/名称/R/body声明不能替代；真实route/TTL/安全存储/撤权/身份传递仍missing。",
+    "真实应用删除/撤授权不能从合成模型提升verified，原任务/record/root/结果审计保留；五操作和TOKEN的时序是方案，不改变原API事实或对任何服务真实调用。",
+    "当前所有partial/missing/real_call_allowed=false与生产缺口保持；不批准G3/风险接受，未修改接口索引。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-087",
+    "inputs/source-index.json#SRC-088",
+    "inputs/source-index.json#SRC-074",
+    "inputs/source-index.json#SRC-110",
+    "inputs/source-index.json#SRC-115",
+    "inputs/source-index.json#SRC-116"
+  ],
+  "decision_history": [
+    {
+      "change_id": "CH-DCC-20261012-DEFER-INTEGRATION-MANUAL-INTERNAL-LOOP",
+      "recorded_at": "2026-10-12",
+      "source_refs": [
+        "inputs/source-index.json#SRC-110"
+      ],
+      "reason": "消费SRC-110与本次实际G2：DCC及应用延期；当前手工、供应商本地结果/失败补提交与授权精准记录删除闭环。稳定ID及旧完整定义保留，不扩大业务功能或升级生产接口。",
+      "previous_definition": {
+        "schema_version": "1.0",
+        "id": "SEQ-005",
+        "scenario_id": "SC-005",
+        "name": "应用列表、新增、详情、修改、删除与后台租户身份",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "超级管理员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "应用管理界面",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务",
+            "kind": "system"
+          },
+          {
+            "id": "dcc",
+            "name": "DCC",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "ui",
+            "message": "查询应用列表；空列表/无筛选结果仍可新增",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅超管管理"
+          },
+          {
+            "step": 2,
+            "from": "ui",
+            "to": "service",
+            "message": "按当前管理权限读取应用列表",
+            "type": "internal",
+            "api_id": null,
+            "condition": "无权限/当前身份变化拒绝，不读写配置"
+          },
+          {
+            "step": 3,
+            "from": "service",
+            "to": "ui",
+            "message": "返回名称/appId/创建时间和对象操作入口",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 4,
+            "from": "operator",
+            "to": "ui",
+            "message": "新增：提交应用名称和可访问租户",
+            "type": "request",
+            "api_id": null,
+            "condition": "本次明确新建意图"
+          },
+          {
+            "step": 5,
+            "from": "ui",
+            "to": "service",
+            "message": "校验并保存新应用；生成/提供接入凭证",
+            "type": "internal",
+            "api_id": null,
+            "condition": "原型仅不可用合成appId/secret，生产算法/存储待核"
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "ui",
+            "message": "成功进入详情；失败明确提示且不伪造凭证",
+            "type": "response",
+            "api_id": null,
+            "condition": "保存结果对应当前操作"
+          },
+          {
+            "step": 7,
+            "from": "operator",
+            "to": "ui",
+            "message": "查看详情，按需显示/复制密钥",
+            "type": "request",
+            "api_id": null,
+            "condition": "详情操作明细，不显示技术身份交换参数"
+          },
+          {
+            "step": 8,
+            "from": "operator",
+            "to": "ui",
+            "message": "修改：提交指定应用名称/授权变更",
+            "type": "request",
+            "api_id": null,
+            "condition": "独立已有对象操作"
+          },
+          {
+            "step": 9,
+            "from": "ui",
+            "to": "service",
+            "message": "保存指定应用变更，appId和密钥保持；合成已发身份按当前租户授权校验",
+            "type": "internal",
+            "api_id": null,
+            "condition": "逐次权限/对象校验；失败保留旧配置"
+          },
+          {
+            "step": 10,
+            "from": "service",
+            "to": "ui",
+            "message": "返回当前修改结果，身份/对象变化清旧反馈",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 11,
+            "from": "operator",
+            "to": "ui",
+            "message": "确认删除指定应用；取消保持配置",
+            "type": "request",
+            "api_id": null,
+            "condition": "独立删除意图"
+          },
+          {
+            "step": 12,
+            "from": "ui",
+            "to": "service",
+            "message": "精确删除指定应用，权限/对象变化拒绝",
+            "type": "internal",
+            "api_id": null,
+            "condition": "不扩为启停或重置密钥"
+          },
+          {
+            "step": 13,
+            "from": "service",
+            "to": "ui",
+            "message": "删除成功后合成凭证及已发合成身份失效，该凭证不能申请新token；失败不显示成功，真实既有token撤销/时效机制仍待核",
+            "type": "response",
+            "api_id": null,
+            "condition": "既有token真实撤销/时效机制仍待核"
+          },
+          {
+            "step": 14,
+            "from": "dcc",
+            "to": "service",
+            "message": "后台appId/凭证+tenantId申请业务身份",
+            "type": "external_call",
+            "api_id": "API-001",
+            "condition": "不在日常应用UI演示技术交换"
+          },
+          {
+            "step": 15,
+            "from": "service",
+            "to": "dcc",
+            "message": "有效且租户授权返回租户业务身份；已删除/无效凭证或越界租户拒绝",
+            "type": "response",
+            "api_id": "API-001",
+            "condition": "不授应用管理权，任务仍归租户；真实契约missing"
+          }
+        ],
+        "notes": [
+          "来源SRC-087/SRC-088直接要求的应用操作/简化，不按原型按钮临时反推未经授权功能。",
+          "新增/修改/删除/查询/查看分别验收，显示和复制作为查看明细；无新增密钥重置、启停、计费或自动权限。",
+          "原型只合成数据，真实凭据算法、存储、CRUD端点、token时效/撤销机制仍待核；API-001 missing保持。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-087",
+          "inputs/source-index.json#SRC-088",
+          "inputs/source-index.json#SRC-074"
+        ]
+      }
+    },
+    {
+      "change_id": "CH-V110-20261013-S5-TIANWANG-SHARED-INGEST",
+      "source_refs": [
+        "inputs/source-index.json#SRC-116"
+      ],
+      "actual_G2_evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+      "reason": "Revalidated from current SC/BR/API/AC rather than treating deferred definition as current behavior; old message step provenance retained as stable message_id and historical_step.",
+      "previous": {
+        "schema_version": "1.0",
+        "id": "SEQ-005",
+        "scenario_id": "SC-005",
+        "name": "应用列表、新增、详情、修改、删除与后台租户身份",
+        "participants": [],
+        "messages": [],
+        "notes": [
+          "SRC-110明确本轮延期而非退役/删除；旧完整参与方/消息/API关系保存deferred_definition及历史。",
+          "不参与本轮current sequence-index.sequences或当前图集；SEQ001公共同步/53已并入SEQ006，SEQ005应用/token不再是手工前置。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-087",
+          "inputs/source-index.json#SRC-088",
+          "inputs/source-index.json#SRC-074",
+          "inputs/source-index.json#SRC-110"
+        ],
+        "status": "deferred_this_release",
+        "delivery_scope": "deferred_dcc_application_integration"
+      }
+    }
+  ],
+  "deferred_definition": {
+    "schema_version": "1.0",
+    "id": "SEQ-005",
+    "scenario_id": "SC-005",
+    "name": "应用列表、新增、详情、修改、删除与后台租户身份",
+    "participants": [
+      {
+        "id": "operator",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "ui",
+        "name": "应用管理界面",
+        "kind": "system"
+      },
+      {
+        "id": "service",
+        "name": "云呼叫中心业务服务",
+        "kind": "system"
+      },
+      {
+        "id": "dcc",
+        "name": "DCC",
+        "kind": "external_system"
+      }
+    ],
+    "messages": [
+      {
+        "step": 1,
+        "from": "operator",
+        "to": "ui",
+        "message": "查询应用列表；空列表/无筛选结果仍可新增",
+        "type": "request",
+        "api_id": null,
+        "condition": "仅超管管理"
+      },
+      {
+        "step": 2,
+        "from": "ui",
+        "to": "service",
+        "message": "按当前管理权限读取应用列表",
+        "type": "internal",
+        "api_id": null,
+        "condition": "无权限/当前身份变化拒绝，不读写配置"
+      },
+      {
+        "step": 3,
+        "from": "service",
+        "to": "ui",
+        "message": "返回名称/appId/创建时间和对象操作入口",
+        "type": "response",
+        "api_id": null,
+        "condition": null
+      },
+      {
+        "step": 4,
+        "from": "operator",
+        "to": "ui",
+        "message": "新增：提交应用名称和可访问租户",
+        "type": "request",
+        "api_id": null,
+        "condition": "本次明确新建意图"
+      },
+      {
+        "step": 5,
+        "from": "ui",
+        "to": "service",
+        "message": "校验并保存新应用；生成/提供接入凭证",
+        "type": "internal",
+        "api_id": null,
+        "condition": "原型仅不可用合成appId/secret，生产算法/存储待核"
+      },
+      {
+        "step": 6,
+        "from": "service",
+        "to": "ui",
+        "message": "成功进入详情；失败明确提示且不伪造凭证",
+        "type": "response",
+        "api_id": null,
+        "condition": "保存结果对应当前操作"
+      },
+      {
+        "step": 7,
+        "from": "operator",
+        "to": "ui",
+        "message": "查看详情，按需显示/复制密钥",
+        "type": "request",
+        "api_id": null,
+        "condition": "详情操作明细，不显示技术身份交换参数"
+      },
+      {
+        "step": 8,
+        "from": "operator",
+        "to": "ui",
+        "message": "修改：提交指定应用名称/授权变更",
+        "type": "request",
+        "api_id": null,
+        "condition": "独立已有对象操作"
+      },
+      {
+        "step": 9,
+        "from": "ui",
+        "to": "service",
+        "message": "保存指定应用变更，appId和密钥保持；合成已发身份按当前租户授权校验",
+        "type": "internal",
+        "api_id": null,
+        "condition": "逐次权限/对象校验；失败保留旧配置"
+      },
+      {
+        "step": 10,
+        "from": "service",
+        "to": "ui",
+        "message": "返回当前修改结果，身份/对象变化清旧反馈",
+        "type": "response",
+        "api_id": null,
+        "condition": null
+      },
+      {
+        "step": 11,
+        "from": "operator",
+        "to": "ui",
+        "message": "确认删除指定应用；取消保持配置",
+        "type": "request",
+        "api_id": null,
+        "condition": "独立删除意图"
+      },
+      {
+        "step": 12,
+        "from": "ui",
+        "to": "service",
+        "message": "精确删除指定应用，权限/对象变化拒绝",
+        "type": "internal",
+        "api_id": null,
+        "condition": "不扩为启停或重置密钥"
+      },
+      {
+        "step": 13,
+        "from": "service",
+        "to": "ui",
+        "message": "删除成功后合成凭证及已发合成身份失效，该凭证不能申请新token；失败不显示成功，真实既有token撤销/时效机制仍待核",
+        "type": "response",
+        "api_id": null,
+        "condition": "既有token真实撤销/时效机制仍待核"
+      },
+      {
+        "step": 14,
+        "from": "dcc",
+        "to": "service",
+        "message": "后台appId/凭证+tenantId申请业务身份",
+        "type": "external_call",
+        "api_id": "API-001",
+        "condition": "不在日常应用UI演示技术交换"
+      },
+      {
+        "step": 15,
+        "from": "service",
+        "to": "dcc",
+        "message": "有效且租户授权返回租户业务身份；已删除/无效凭证或越界租户拒绝",
+        "type": "response",
+        "api_id": "API-001",
+        "condition": "不授应用管理权，任务仍归租户；真实契约missing"
+      }
+    ],
+    "notes": [
+      "来源SRC-087/SRC-088直接要求的应用操作/简化，不按原型按钮临时反推未经授权功能。",
+      "新增/修改/删除/查询/查看分别验收，显示和复制作为查看明细；无新增密钥重置、启停、计费或自动权限。",
+      "原型只合成数据，真实凭据算法、存储、CRUD端点、token时效/撤销机制仍待核；API-001 missing保持。"
+    ],
+    "source_refs": [
+      "inputs/source-index.json#SRC-087",
+      "inputs/source-index.json#SRC-088",
+      "inputs/source-index.json#SRC-074"
+    ]
+  },
+  "status": "S5_manual_code_correction_revalidated_production_gaps_retained",
+  "delivery_scope": "in_scope",
+  "candidate_phase": "S5_materialized_and_checked_pending_S8_G3",
+  "current_G2": {
+    "evidence": "runtime/manual-code-g2-user-approval-20261014.json",
+    "interface_fingerprint": "fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4",
+    "scope_approval_only": true,
+    "production_risk_accepted": false,
+    "G3_approved": false,
+    "real_calls_allowed": false,
+    "status": "approved_actual_reply",
+    "actual_answer": "批准 G2，保留缺口继续 S5～S7"
+  },
+  "source_contracts": {
+    "scenario_sha256": "9eb2cc12895bbd6b1e4bfd5c86435c9fb73274c8885243fefa0731589db18fb5",
+    "source_scenario": "scenarios/SC-005.json",
+    "stories_sha256": "70ed0820162dca9fe8a4893f801c655788c18c20828a1a176c50f922045e19d0",
+    "rules_sha256": "a98f7336cb73571c420d59ccfa3ad09049ef379d5cd6f408bee84a813ffd0136",
+    "interface_G2_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d"
+  },
+  "review_history": [
+    {
+      "date": "2026-10-14",
+      "change_id": "CH-MANUAL-CODE-SOURCE-CORRECTION-20261014",
+      "actual_G2": "runtime/manual-code-g2-user-approval-20261014.json",
+      "before": {
+        "notes": [
+          "消费实际SRC116 G2（286bb840…）当前SC005五管理操作及后台TOKEN，不恢复旧deferred范围为现行；所有旧participant稳定ID保留，历史dcc在本图仅后台token申请者，无DCC结果callback。SEQ001固定结果接收方与共用导入client独立。",
+          "旧15step消息语义保稳定message_id/historical_step；补原详情读/返和逐次权限/未知守卫用原family衍生，无新产品操作/HTTP端点。各管理操作可独立发起，并非必须顺序做完才token。",
+          "五管理操作仅超管，租户业务token不授超管/运营/任务删除权。源登记/稳定app是受控后台技术提案，不新增source/UI回传开关、task-app绑定、启停/密钥重置/收费/自动账号授权。",
+          "DCC/TW各独立app凭据；只认证解析可信稳定app/tenant才能支撑共用请求隔离与原来源保存，token字串/名称/R/body声明不能替代；真实route/TTL/安全存储/撤权/身份传递仍missing。",
+          "真实应用删除/撤授权不能从合成模型提升verified，原任务/record/root/结果审计保留；五操作和TOKEN的时序是方案，不改变原API事实或对任何服务真实调用。",
+          "当前所有partial/missing/real_call_allowed=false与生产缺口保持；不批准G3/风险接受，未修改接口索引。"
+        ],
+        "g2_analysis_continuation": null,
+        "status": "analysis_reviewed_SRC116_G2_gaps_retained"
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "type": "current_G2_actual_reply_reconciliation",
+      "before_current_G2": {
+        "evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+        "interface_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d",
+        "scope_approval_only": true,
+        "production_risk_accepted": false,
+        "G3_approved": false,
+        "real_calls_allowed": false
+      }
+    }
+  ],
+  "g2_analysis_continuation": {
+    "status": "approved_actual_reply",
+    "date": "2026-10-14",
+    "evidence": "runtime/manual-code-g2-user-approval-20261014.json",
+    "interface_fingerprint": "fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4",
+    "production_risk_accepted": false,
+    "real_calls_allowed": false,
+    "G3_approved": false
+  }
+}

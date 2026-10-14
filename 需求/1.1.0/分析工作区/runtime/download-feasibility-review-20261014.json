@@ -1,0 +1,232 @@
+{
+  "review_date": "2026-10-14",
+  "issue_id": "ISSUE-008",
+  "review_type": "official_document_feasibility_review_not_implementation_validation",
+  "status": "product_save_interaction_accepted_engineering_and_target_environment_validation_pending",
+  "project_mutated": false,
+  "browser_operated": false,
+  "production_called": false,
+  "issue_may_be_closed": false,
+  "summary": "用户已接受系统保存交互及不支持时普通下载保留记录的策略。推荐路径仍为选择保存位置、写完整快照、等待 close 成功、回读校验，再由绑定快照的完成回执触发精准清理。客户端报告的可信模型、目标环境支持表和生产实现验证仍待工程完成；普通下载、HTTP成功和自动化下载事件均不能代替该判据。",
+  "local_evidence": [
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/分析工作区/runtime/open-items.json",
+      "locator": "items[id=ISSUE-008]",
+      "finding": "high/open；现有可信完成事件、绑定快照/成员版本、幂等与真实异常验证待核；用户分阶段验收没有关闭该项。"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/分析工作区/inputs/user-stories.md",
+      "locator": "AC-008, AC-031, AC-042, AC-043",
+      "finding": "仅可信成功下载后清本次失败明细和文件；失败/中断/未知保留；迟到记录及业务关联、去重、分片、次数状态不清。"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md",
+      "locator": "失败下载快照与精确清理（ISSUE-008）及推进依赖与验收时点",
+      "finding": "不可变快照、授权、准确成员版本、幂等完成和异常保护已定为候选设计；下载可行性须先核，实际实现测试开发后上线前补。"
+    },
+    {
+      "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/dcc-records.js",
+      "locator": "snapshotCard / downloadFailureSnapshot / signalSnapshotDownload，约 305、339、353 行",
+      "finding": "现有 Blob + a.download + click 只记录 clicked；独立按钮用 trustedSyntheticCompletion 模拟成功。这种明确区分应保留，不能将既有合成通过升级为生产完成信号证据。"
+    }
+  ],
+  "official_sources": [
+    {
+      "id": "WEB-FS-01",
+      "title": "WHATWG File System Standard — FileSystemWritableFileStream",
+      "url": "https://fs.spec.whatwg.org/#api-filesystemwritablefilestream",
+      "short_quote": "No changes are written to the actual file on disk until the stream has been closed.",
+      "finding": "close 算法查询写权限并执行安全检查，更新文件后才 resolve；权限、安全或写入失败会 reject。getFile 可读取句柄对应的当前文件状态。它不是永久存储或用户已阅读的证明。",
+      "additional_anchor": "https://fs.spec.whatwg.org/#api-filesystemfilehandle-getfile"
+    },
+    {
+      "id": "WEB-FSA-02",
+      "title": "WICG File System Access — local picker and permissions",
+      "url": "https://wicg.github.io/file-system-access/#api-showsavefilepicker",
+      "short_quote": "the local file system could just as well be backed by a cloud provider",
+      "finding": "showSaveFilePicker 是安全上下文能力，需要用户激活，受顶层同源约束；取消或不允许的目标会失败。返回句柄不代表内容已写入。所选位置可能由云盘提供，不能保证物理本机磁盘。规范仍为 Community Group draft。"
+    },
+    {
+      "id": "WEB-CHROME-03",
+      "title": "Chrome for Developers — File System Access API",
+      "url": "https://developer.chrome.com/docs/capabilities/web-apis/file-system-access",
+      "short_quote": "pipeTo() closes the destination pipe by default, no need to close it.",
+      "finding": "官方给出保存文件、写流和 close 的实际使用路径，并建议能力检测；API 支持主要集中 Chromium。应在用户手势期间先请求保存句柄，避免异步准备消耗激活。具体受管终端版本/策略必须验证。"
+    },
+    {
+      "id": "WEB-HTML-04",
+      "title": "WHATWG HTML Standard — Downloading resources",
+      "url": "https://html.spec.whatwg.org/multipage/links.html#downloading-resources",
+      "short_quote": "When the download completes successfully, invoke WebDriver BiDi download end",
+      "finding": "HTML 下载完成钩子指向 WebDriver BiDi 自动化协议。不能因为标准中有 complete 就声称普通网页拥有 download-complete DOM 事件；点击、响应到达和文件保存不同。",
+      "inference": "按此能力边界，现有普通 a.download 入口不足以独立实现页面可判定的真实保存完成。"
+    },
+    {
+      "id": "WEB-EXT-05",
+      "title": "Chrome Extensions — downloads API",
+      "url": "https://developer.chrome.com/docs/extensions/reference/api/downloads",
+      "short_quote": "You must declare the \"downloads\" permission in the extension manifest to use this API.",
+      "finding": "扩展可以通过 downloadId/onChanged 观察 complete，文档把完整临时文件转成目标文件与 complete 关联；这是安装且获授权的扩展能力，不是普通网页 API。扩展部署及可信回执协议属于额外方案。"
+    }
+  ],
+  "paths": [
+    {
+      "id": "A",
+      "name": "用户授权文件保存流",
+      "recommendation": "产品保存交互已接受；工程可信模型、支持表及生产验证待完成，不视为方案全面通过",
+      "feasibility": "官方能力依据成立；目标浏览器实际可用性未测试",
+      "preconditions": [
+        "平台正式部署为安全上下文；跨域 iframe 不能假定可用。",
+        "目标终端具备 showSaveFilePicker、createWritable、getFile，且未被企业策略禁用；逐一验证 Chrome/Edge 实际版本，不凭浏览器名字自动承诺支持。",
+        "用户在原下载操作中选择保存位置并授权写入；现有生成快照可提前完成，点击时先打开系统保存对话框。",
+        "工程明确可信客户端报告的信任模型，实施服务端当前权限校验、快照绑定、CSRF/重放与幂等防护。",
+        "仅把用户选择的可访问文件作为交付目标；不能用 OPFS/IndexedDB 中的应用内部副本冒充用户取得文件。"
+      ],
+      "candidate_sequence": [
+        "后端持久保存不可变 snapshotId、version、成员 ID+版本、文件身份、精确字节数/摘要及当前主体/租户/任务归属，颁发绑定这些对象的不可猜导出操作身份。",
+        "用户点击后打开系统保存对话框；取消或权限失败直接保留。获得句柄只代表目标选择完成。",
+        "鉴权获取该快照精确字节并验证 manifest。若采用流式写入，应在验证最终长度/摘要后才 close，不能默认 pipeTo 已关闭但尚未做完整性验证。不得把错误页或部分文件写完当成功。",
+        "等待 writable.close() resolve，随后通过同句柄 getFile 回读并比较精确字节数和内容摘要；回读异常或不匹配不发成功回执。",
+        "持久记录最小完成待回执项，不存整份敏感 CSV 到普通日志；发送完成事件绑定导出操作、snapshotId/version、文件摘要及字节数。不得上传本地路径。",
+        "后端按当前授权及已持久快照验证完成报告和一次性/幂等身份，事务记录已接受完成与精准清理计划；按原成员 ID+版本条件清理失败明细，导出文件按唯一对象版本清理。",
+        "保留已处理完成、成员版本墓碑和必要业务审计。文件对象删除失败可幂等恢复；新失败、新版本、业务客户、原关联、去重、分片、次数和历史结果不进入清理集合。"
+      ],
+      "what_it_proves": [
+        "在正常受信客户端执行、API 遵守规范的前提下，页面观察到用户授权目标的写流成功关闭。",
+        "回读匹配进一步表明当时所选文件句柄可读取本次预期字节，排除写错快照/截断等常见实现错误。"
+      ],
+      "what_it_does_not_prove": [
+        "不证明用户打开、阅读或永久保留了文件；之后手工删除/修改不会撤销先前完成。",
+        "不保证操作系统断电后的持久性、云盘已同步到远端，或目标必定是物理本机磁盘。",
+        "不是服务端可独立核验的浏览器/操作系统远程证明。合法用户、被篡改页面或受控客户端能够伪造完成请求；随机 token/签名 manifest 只能绑定身份和快照，不能凭空证明 close 已执行。",
+        "当前原型的合成成功按钮、自动化下载事件、HTTP 200 都不能代替这条真实执行链。"
+      ]
+    },
+    {
+      "id": "B",
+      "name": "普通浏览器下载链接",
+      "feasibility": "可下载但页面无等价保存完成判据",
+      "rule": "只记发起/未知并保留明细及文件；不能自动清理。若业务要求所有普通浏览器都自动清理，当前路径不满足。",
+      "selection_implication": "用户已接受不支持A时采用普通下载但保留记录的策略；不能自动清理。"
+    },
+    {
+      "id": "C",
+      "name": "受管浏览器扩展或受管客户端",
+      "feasibility": "存在独立监测下载状态的能力，可作为更高信任要求的工程方向",
+      "rule": "扩展/客户端自己绑定导出操作与真实 downloadId，监听 complete，并通过受控回执链报告；页面不能自行伪造该观察。",
+      "selection_implication": "新增安装、权限、版本和终端管理成本；需要专门可信端点/签名或认证设计及真实验证。它也不天然证明用户阅读或永久保留。当前不推荐为赶进度默认扩张范围。"
+    }
+  ],
+  "failure_rules": [
+    {
+      "case": "取消保存对话框/拒绝权限/不支持 API",
+      "action": "不发完成回执，保留原快照和失败明细；显示可操作的原因。不能偷偷退回点击即清理。"
+    },
+    {
+      "case": "下载中断/长度或摘要不符/HTTP 错误/返回错误页",
+      "action": "不确认完成，尽力 abort 写流，保留服务端数据。空文件或临时文件存在不等成功。"
+    },
+    {
+      "case": "本地磁盘不足/安全扫描失败/close 拒绝",
+      "action": "保留，记录失败或未知；write resolve 不覆盖 close 失败。"
+    },
+    {
+      "case": "文件授权在写入或回读前撤销",
+      "action": "API 失败则不回执；保留。用户稍后重新授权并完整成功后才能再确认。"
+    },
+    {
+      "case": "平台账号/任务权限在完成处理前被撤销",
+      "action": "后端拒绝新完成确认及清理，保留。已下载的用户本地文件不能被假装远程撤回；不得绕过当前授权重试。"
+    },
+    {
+      "case": "close/回读成功但完成请求未到后端",
+      "action": "本地显示已保存、平台确认待完成；后端保留。仍获授权时仅重发同一完成事件，不重新生成快照或扩大成员集合。"
+    },
+    {
+      "case": "后端已接受完成并清理但 ACK 响应丢失",
+      "action": "重发同一事件或查询同一操作状态返回原结果；不重复清理、不误清后到记录。客户端未收到确认前不自行断言平台清理成功。"
+    },
+    {
+      "case": "页面崩溃/关闭发生在本地完成与待回执持久化之间",
+      "action": "后端仍保留；恢复后若没有足够完成记录，不能补造成功。重新获得授权回读原句柄验证或再次保存原快照，采用同一快照范围。"
+    },
+    {
+      "case": "错快照/错文件/过期凭证/跨主体/跨租户/旧版本回执",
+      "action": "不清理；记录可审计拒绝。重新授权操作仍不得把旧成员集合替换为当前全集。"
+    },
+    {
+      "case": "同一记录产生新版本/迟到新失败/两个导出重叠",
+      "action": "仅对完成快照原成员版本条件处理；新版本和新失败保留；重复成员清理幂等，不能按任务或导入批次整表删除。"
+    },
+    {
+      "case": "完成已接收后清理事务或对象文件删除失败",
+      "action": "持久完成与清理状态，按原成员版本和对象版本恢复；不把部分清理标成全部成功，不要求重复下载来触发清理。"
+    }
+  ],
+  "product_choice_required": {
+    "required": false,
+    "reason": "用户已明确接受系统保存方式及不支持时普通下载保留记录；无需重复询问这项产品选择。具体支持表、可信模型和生产证据仍待工程核实，若验证发现新的产品差异再单独提交。",
+    "recommended_question": "是否接受在本期指定的受支持桌面浏览器中，选择保存位置并由平台确认文件写入完成后清理；不支持此能力的浏览器保留记录并提示更换浏览器？",
+    "engineering_decisions": [
+      "可信完成指正常受控页面执行报告，还是必须防恶意客户端伪造的终端证明。",
+      "具体浏览器、版本、操作系统、HTTPS/嵌入方式与企业策略支持表。",
+      "完成身份、当前授权、重放防护、回执状态查询、事务及异步对象清理恢复。"
+    ],
+    "not_approved_by_this_review": [
+      "具体浏览器/版本/操作系统/企业策略支持表通过",
+      "新增用户确认已下载按钮",
+      "普通下载自动清理",
+      "ISSUE-008关闭",
+      "G3冻结",
+      "真实外部调用"
+    ],
+    "status": "answered_for_save_interaction_and_unsupported_fallback_only"
+  },
+  "real_validation_pending": [
+    "目标部署真实浏览器/终端的 showSaveFilePicker 安全上下文、用户激活、权限与企业策略可用性；不是自动化专用事件。",
+    "实际 UI 操作写入合成固定快照、close resolve、回读摘要、后端接受完成、精确清理的完整轨迹。",
+    "用户取消、连接截断、错误正文、写盘失败、安全拦截、文件权限撤销、回读失败/改变与平台撤权。",
+    "完成请求丢失、ACK 丢失、浏览器关闭/崩溃、后端重启、事务失败及对象删除失败恢复。",
+    "错主体/租户/快照/版本/摘要/字节数、重放、两次同时下载、后到新失败、同成员新版本和完整审计保留。",
+    "确认本地下载产物不被清理动作删除；仅后端导出临时文件及本快照失败明细是清理对象。"
+  ],
+  "recommended_project_update": "记录产品保存交互和不支持时保留策略accepted；008仍high/open，技术可行性验证与生产证据未通过。本地诊断页只采当前浏览器前端合成文件保存证据，不含后端回执、业务清理或真实客户数据。",
+  "product_decision": {
+    "date": "2026-10-14",
+    "source": "actual_user_reply_relayed_by_root",
+    "actual_answer": "接受该保存方式，继续验证（推荐）",
+    "status": "accepted",
+    "accepted_scope": [
+      "受支持桌面浏览器中选择保存位置的系统交互",
+      "不支持该保存能力时，普通下载保留失败明细及导出文件，不能自动清理"
+    ],
+    "not_approved": [
+      "工程可信客户端报告模型",
+      "具体浏览器/版本/操作系统/企业策略支持表",
+      "完成回执与清理生产实现通过",
+      "ISSUE-008关闭",
+      "G3冻结或真实外部调用"
+    ]
+  },
+  "local_diagnostic": {
+    "path": "runtime/download-save-capability-probe-20261014.html",
+    "status": "prepared_not_executed",
+    "scope": "native_api_detection_and_user_triggered_synthetic_file_write_close_readback",
+    "real_numbers": false,
+    "network_requests": false,
+    "business_completion_ack": false,
+    "business_cleanup": false,
+    "persistent_storage": false
+  },
+  "actual_frontend_validation": {
+    "status": "pass_current_IAB_synthetic_save_only",
+    "date": "2026-10-14",
+    "evidence": "runtime/download-save-browser-proof-20261014.json",
+    "bytes": 145,
+    "write_close_and_readback_match": true,
+    "user_native_dialog_reply": "已保存",
+    "backend_completion_ack_tested": false,
+    "business_cleanup_tested": false,
+    "target_production_support_matrix_tested": false
+  }
+}

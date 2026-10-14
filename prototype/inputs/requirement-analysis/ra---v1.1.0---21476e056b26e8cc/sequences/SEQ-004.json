@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-004",
+  "scenario_id": "SC-004",
+  "name": "客户秒挂识别与每次结果回传",
+  "participants": [
+    {
+      "id": "ui",
+      "name": "任务记录页（模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心（模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti（未实接）",
+      "kind": "external_system"
+    },
+    {
+      "id": "dcc",
+      "name": "DCC（未实接）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "vendor",
+      "to": "service",
+      "message": "本次事件/话单或SIP更新，保留原始证据",
+      "type": "event",
+      "api_id": "API-004",
+      "condition": "按锁定任务来源执行"
+    },
+    {
+      "step": 2,
+      "from": "service",
+      "to": "service",
+      "message": "准确回查任务/批次/线索编码/手机号；无话单允许无callID，关联不明待核",
+      "type": "internal",
+      "api_id": null,
+      "condition": "按锁定任务来源执行"
+    },
+    {
+      "step": 3,
+      "from": "service",
+      "to": "service",
+      "message": "记录风控/话单/SIP/finishRetryFlag；未知不当0；秒挂按真实接通与客户主动挂断0～2秒识别",
+      "type": "internal",
+      "api_id": null,
+      "condition": "按锁定任务来源执行"
+    },
+    {
+      "step": 4,
+      "from": "service",
+      "to": "dcc",
+      "message": "接口来源：每次结果回传后台固定接收地址；字段为业务候选，不造供应商参数",
+      "type": "external_call",
+      "api_id": "API-010",
+      "condition": "按锁定任务来源执行"
+    },
+    {
+      "step": 5,
+      "from": "service",
+      "to": "ui",
+      "message": "手工来源仅平台查看；回传成功/失败/待核可观察，重复及晚更新不算新呼叫",
+      "type": "response",
+      "api_id": null,
+      "condition": "按锁定任务来源执行"
+    },
+    {
+      "step": 6,
+      "from": "dcc",
+      "to": "service",
+      "message": "DCC自行决定是否/何时再次导入；新批次关联原记录，平台无倒计时或额度",
+      "type": "event",
+      "api_id": "API-001",
+      "condition": "按锁定任务来源执行"
+    }
+  ],
+  "notes": [
+    "G3未批准；仅结构化业务草稿，不实际发请求；DCC决策重导，供应商内部尝试完整性/链范围及可靠回传待核。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070"
+  ]
+}

@@ -1,0 +1,1020 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-004",
+  "name": "客户秒挂识别与每次结果回传",
+  "summary": "客户真实接通、客户主动挂断、有效时长0～2秒含真实0/2；识别回传DCC，不在平台调度重导。",
+  "actors": [
+    "云呼叫中心",
+    "AliCti供应商",
+    "DCC",
+    "运营人员"
+  ],
+  "trigger": "供应商本次结果事件或话单更新",
+  "preconditions": [
+    "已保存当前record/batch→supplier fileId及tenant/原task/leadCode/固定phone可准确关联，读回原request行/root；不按后来新主重算旧事件",
+    "任务来源创建提交后锁定，技术未知保留待核",
+    "同phone多leadCode等既有未决业务歧义仍待核，不因新flag/归组键自动许可或纳组；手工不扩展DCC协议。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "AliCti供应商",
+      "action": "获取本次事件/话单并保留原字段来源",
+      "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+      "rule_ids": [
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云呼叫中心",
+      "action": "按已保存当前record/batch→supplier fileId和原号码数据关联结果，读回原request行/root；缺失或冲突待核",
+      "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+      "rule_ids": [
+        "BR-012",
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "云呼叫中心",
+      "action": "记录本次风控/话单/SIP及最后一通；秒挂按真实组合识别",
+      "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+      "rule_ids": [
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云呼叫中心",
+      "action": "按锁定来源分流：接口结果携原requestId/行定位/recordId/当前batchId/已存rootBatchId及真实call/事件回传，手工仅平台查看",
+      "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+      "rule_ids": [
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "DCC",
+      "action": "DCC决定是否/何时再次业务导入；新requestId及逐行isNewBatch可选Boolean（缺省false）、同组固定phone、本次priority",
+      "system_response": "平台无倒计时/额度，接收复用SC-001/SEQ-001主子协议，不传父批字段；不保证供应商换主叫/排重接收/无并行在途",
+      "rule_ids": [
+        "BR-002",
+        "BR-003",
+        "BR-012"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "云呼叫中心",
+      "action": "鉴权后先按flag缺省false归一请求去重；新ID逐行核同tenant/原task/lead固定phone和历史归组，分配新record/batch及主/子root",
+      "system_response": "true独立新主root=batch；false/missing有同组主则新子直接最近已保存主，无主首主；最近按保存创建序列，旧请求回原映射不重交；改phone/历史关联不明不提交",
+      "rule_ids": [
+        "BR-002",
+        "BR-003",
+        "BR-004",
+        "BR-012",
+        "BR-015"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "结果/关联未知或冲突",
+      "steps": [
+        "保留待核，不伪造最终结果，不按查询空值反推无话单"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "重复、晚更新或回传失败",
+      "steps": [
+        "重复不作为新呼叫，晚更新同对象；失败可观察可补送，技术策略交开发"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "手工来源任务",
+      "steps": [
+        "平台查看，不回传DCC，不改变锁定来源"
+      ]
+    },
+    {
+      "id": "ALT-004",
+      "condition": "同tenant/原task/leadCode固定phone改变，或历史归组关联不明/冲突",
+      "steps": [
+        "该行拒绝或待核且不提交，不按最近同号/结果/priority猜根；同请求重传先回原映射"
+      ]
+    },
+    {
+      "id": "ALT-005",
+      "condition": "同requestId归一有效完整业务请求相同重传",
+      "steps": [
+        "返回原逐行record/batch/root，新主后来变化也不重算，不重建不重交；flag missing与false归一一致"
+      ]
+    },
+    {
+      "id": "ALT-006",
+      "condition": "同requestId归一完整业务内容不同",
+      "steps": [
+        "整重复request冲突拒绝，不覆盖原逐行结果"
+      ]
+    }
+  ],
+  "postconditions": [
+    "接口任务每次结果/同对象更新携原request行/record/batch/root，手工仅平台查看；无话单不伪造callID。",
+    "DCC负责再次业务导入决策，本平台无每日衰减、倒计时或额度。",
+    "每有效新业务行新record/batch；true独立新主，false/missing有同组已保存主则子直接root、无主首主；最近主只按保存创建序列。",
+    "旧请求同归一内容重传回原root不受后来新主影响、不重复供应商导入；供应商排重/精准删除/旧批并行在途仍待核，不自动先删或等finish。"
+  ],
+  "acceptance_points": [
+    "AC-004",
+    "AC-021",
+    "AC-022",
+    "AC-023",
+    "AC-024",
+    "AC-027",
+    "AC-034",
+    "AC-035",
+    "AC-048",
+    "AC-049",
+    "AC-050",
+    "AC-051",
+    "AC-052"
+  ],
+  "source_story_ids": [
+    "US-004",
+    "US-001"
+  ],
+  "source_refs": [
+    "inputs/user-original-20261009.txt#第4条",
+    "inputs/source-index.json#SRC-045",
+    "inputs/source-index.json#SRC-002",
+    "inputs/source-index.json#SRC-046",
+    "inputs/source-index.json#SRC-047",
+    "inputs/source-index.json#SRC-048",
+    "inputs/source-index.json#SRC-049",
+    "inputs/source-index.json#SRC-050",
+    "inputs/source-index.json#SRC-051",
+    "inputs/source-index.json#SRC-056",
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070",
+    "inputs/source-index.json#SRC-083",
+    "inputs/source-index.json#SRC-084",
+    "inputs/source-index.json#SRC-085",
+    "inputs/source-index.json#SRC-086"
+  ],
+  "business_rule_ids": [
+    "BR-010",
+    "BR-012",
+    "BR-015",
+    "BR-016",
+    "BR-017",
+    "BR-002",
+    "BR-003",
+    "BR-004",
+    "BR-006"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "vendor",
+        "name": "AliCti供应商",
+        "kind": "external_system"
+      },
+      {
+        "id": "platform",
+        "name": "云呼叫中心",
+        "kind": "system"
+      },
+      {
+        "id": "dcc",
+        "name": "DCC",
+        "kind": "external_system"
+      },
+      {
+        "id": "operator",
+        "name": "运营人员",
+        "kind": "actor"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "S",
+        "lane_id": "vendor",
+        "type": "start",
+        "order": 1,
+        "label": "本次结果或更新"
+      },
+      {
+        "id": "N1",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 2,
+        "label": "获取本次事件/话单并保留原字段来源",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 3,
+        "label": "当前record/batch→fileId映射\n原request行/root与号码可信？",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 4,
+        "label": "保存话单/SIP/最后一通；秒挂按真实客户接通、\n客户主动挂断、客户接通时长0～2秒识别\n新结果或可交付更新？",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 5,
+        "label": "任务为接口来源？",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "dcc",
+        "type": "decision",
+        "order": 7,
+        "label": "DCC是否决定真重导？",
+        "step_ref": 5
+      },
+      {
+        "id": "E",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 30,
+        "label": "保存关联；无平台重导/每日衰减"
+      },
+      {
+        "id": "E1",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 9,
+        "label": "结果待核"
+      },
+      {
+        "id": "E2",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 10,
+        "label": "重复/晚更新/失败补送"
+      },
+      {
+        "id": "E3",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 11,
+        "label": "手工仅平台查看"
+      },
+      {
+        "id": "RET",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "每次结果携原request行\nrecord/当前batch/已存root回传",
+        "step_ref": 4
+      },
+      {
+        "id": "NEWREQ",
+        "lane_id": "dcc",
+        "type": "action",
+        "order": 12,
+        "label": "新requestId+逐行isNewBatch\n缺省false；同组固定phone、本次priority",
+        "step_ref": 5
+      },
+      {
+        "id": "REQUEST",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 13,
+        "label": "鉴权/source/tenant/task后\nflag missing=false归一请求分类",
+        "step_ref": 6
+      },
+      {
+        "id": "GROUP",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 14,
+        "label": "同tenant/原task/lead固定phone\n历史归组可信？",
+        "step_ref": 6
+      },
+      {
+        "id": "SAVEMAIN",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 17,
+        "label": "true新record/batch\n独立新主root=batch",
+        "step_ref": 6
+      },
+      {
+        "id": "REPLAY",
+        "lane_id": "dcc",
+        "type": "end",
+        "order": 16,
+        "label": "回原逐行record/batch/root\n后来新主不重算，不重交"
+      },
+      {
+        "id": "IDCONFLICT",
+        "lane_id": "dcc",
+        "type": "end",
+        "order": 17,
+        "label": "同ID异内容整重复请求拒绝"
+      },
+      {
+        "id": "GROUPCONFLICT",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 20,
+        "label": "改phone/历史关联不明冲突\n拒绝或待核不提交"
+      },
+      {
+        "id": "E-NEW-BATCH",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 31,
+        "label": "新record/batch及主/子root保存；复用SC-001提交"
+      },
+      {
+        "id": "MAINFLAG",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 15,
+        "label": "isNewBatch为true？",
+        "step_ref": 6
+      },
+      {
+        "id": "HASMAIN",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 16,
+        "label": "同组已有已保存主？",
+        "step_ref": 6
+      },
+      {
+        "id": "SAVECHILD",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 18,
+        "label": "false/missing有主：新子record/batch\n直接root=按创建序列最近主",
+        "step_ref": 6
+      },
+      {
+        "id": "SAVEFIRST",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 19,
+        "label": "false/missing无主：新record/batch\n自动首主root=batch",
+        "step_ref": 6
+      }
+    ],
+    "edges": [
+      {
+        "from": "S",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "关联明确"
+      },
+      {
+        "from": "N3",
+        "to": "N4",
+        "label": "新可信结果或同对象晚更新"
+      },
+      {
+        "from": "N4",
+        "to": "RET",
+        "label": "接口来源"
+      },
+      {
+        "from": "N2",
+        "to": "E1",
+        "label": "未知/冲突",
+        "path_id": "ALT-001",
+        "type": "failure"
+      },
+      {
+        "from": "N3",
+        "to": "E2",
+        "label": "纯重复或回传待补送",
+        "path_id": "ALT-002",
+        "type": "failure"
+      },
+      {
+        "from": "N4",
+        "to": "E3",
+        "label": "手工",
+        "path_id": "ALT-003",
+        "type": "failure"
+      },
+      {
+        "from": "RET",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "E",
+        "label": "不重导"
+      },
+      {
+        "from": "N5",
+        "to": "NEWREQ",
+        "label": "决定真重导"
+      },
+      {
+        "from": "NEWREQ",
+        "to": "REQUEST"
+      },
+      {
+        "from": "REQUEST",
+        "to": "GROUP",
+        "label": "新的requestId"
+      },
+      {
+        "from": "REQUEST",
+        "to": "REPLAY",
+        "label": "同ID同完整内容",
+        "path_id": "ALT-005"
+      },
+      {
+        "from": "REQUEST",
+        "to": "IDCONFLICT",
+        "label": "同ID异内容",
+        "path_id": "ALT-006",
+        "type": "failure"
+      },
+      {
+        "from": "GROUP",
+        "to": "GROUPCONFLICT",
+        "label": "改phone/历史关联不明或冲突",
+        "path_id": "ALT-004",
+        "type": "failure"
+      },
+      {
+        "from": "SAVEMAIN",
+        "to": "E-NEW-BATCH"
+      },
+      {
+        "from": "GROUP",
+        "to": "MAINFLAG",
+        "label": "同组固定phone与历史可信"
+      },
+      {
+        "from": "MAINFLAG",
+        "to": "SAVEMAIN",
+        "label": "true：独立新主"
+      },
+      {
+        "from": "MAINFLAG",
+        "to": "HASMAIN",
+        "label": "false或missing"
+      },
+      {
+        "from": "HASMAIN",
+        "to": "SAVECHILD",
+        "label": "有主"
+      },
+      {
+        "from": "HASMAIN",
+        "to": "SAVEFIRST",
+        "label": "无主"
+      },
+      {
+        "from": "SAVECHILD",
+        "to": "E-NEW-BATCH"
+      },
+      {
+        "from": "SAVEFIRST",
+        "to": "E-NEW-BATCH"
+      }
+    ]
+  },
+  "design_notes": [
+    "业务确认来自SRC-063～070；供应商尝试完整性、字段映射与可靠交付待技术核实；G3未批准。",
+    "SRC-084/085/086按固定phone归组及flag缺省false主子协议取代指定父方案；子直接root，最近主按保存创建序列，旧请求/旧事件root不重算。",
+    "原SIP/finishRetry/无话单/秒挂与精准删除边界保留；fileId/isRepeat/旧批在途并行仍partial，不增等最后一通或先删门禁；G3待本轮重新核验确认。",
+    "recordId为平台本地记录ID，根回执/回传字段从已保存映射补齐，不伪装供应商新增字段；同号多lead既有歧义保持待核。"
+  ],
+  "decision_history": [
+    {
+      "before": "识别已接听且客户侧挂断、接听时长不超过2秒的秒挂候选；等待30分钟按原任务关联新批次重提，整链首次外最多4次；DCC成功删除取消指定待执行重呼",
+      "source_refs": [
+        "inputs/user-original-20261009.txt#第4条",
+        "inputs/source-index.json#SRC-045",
+        "inputs/source-index.json#SRC-002",
+        "inputs/source-index.json#SRC-046",
+        "inputs/source-index.json#SRC-047",
+        "inputs/source-index.json#SRC-048",
+        "inputs/source-index.json#SRC-049",
+        "inputs/source-index.json#SRC-050",
+        "inputs/source-index.json#SRC-051",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-061"
+      ],
+      "superseded_by": "SRC-063～070",
+      "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+    },
+    {
+      "before_postconditions": [
+        "接口任务每次结果及其更新回传DCC，手工任务仅平台查看",
+        "DCC负责重新导入决策，平台不建立重呼计划",
+        "原导入日期、priority与新批次关联保留"
+      ],
+      "superseded_by": "SRC-083",
+      "reason": "明确本次结果关联与DCC重导精确父根/请求幂等；不继承旧日期priority及每日策略。"
+    },
+    {
+      "at": "2026-10-11T10:08:12+08:00",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SC-004",
+        "name": "客户秒挂识别与每次结果回传",
+        "summary": "客户真实接通、客户主动挂断、有效时长0～2秒含真实0/2；识别回传DCC，不在平台调度重导。",
+        "actors": [
+          "云呼叫中心",
+          "AliCti供应商",
+          "DCC",
+          "运营人员"
+        ],
+        "trigger": "供应商本次结果事件或话单更新",
+        "preconditions": [
+          "已保存业务batchId→供应商fileId映射及tenant/task/leadCode/phone可准确关联，并能读回requestId/parentBatchId/rootBatchId；不找最近同号",
+          "任务来源创建提交后锁定，技术未知保留待核"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "AliCti供应商",
+            "action": "获取本次事件/话单并保留原字段来源",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云呼叫中心",
+            "action": "按已保存业务batch→supplier fileId映射及tenant/task/leadCode/phone关联当前结果，读回requestId/parent/root；缺失或冲突待核",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-012",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "云呼叫中心",
+            "action": "记录本次风控/话单/SIP及最后一通；秒挂按真实组合识别",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云呼叫中心",
+            "action": "按锁定来源分流：接口任务结果携requestId/行定位/batchId/parentBatchId/rootBatchId回传固定DCC地址，手工仅平台查看",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "DCC",
+            "action": "DCC决定是否/何时真重导；重导传新requestId、该行精确previousBatchId和本次priority",
+            "system_response": "平台无倒计时或额度；新请求接收复用SC-001/SEQ-001，不保证供应商换主叫或重新呼叫结果",
+            "rule_ids": [
+              "BR-002",
+              "BR-003",
+              "BR-012"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "云呼叫中心",
+            "action": "核完整请求幂等及父同tenant/task/leadCode/phone；有效真重导新batch/parent/root采用本次priority，旧批原样保留",
+            "system_response": "鉴权后先比requestId完整内容：同请求同内容回原逐行结果/批映射不重交，异内容拒绝；仅新请求查历史，已有同tenant/task/leadCode/phone必须previousBatchId，缺父/不明/不符拒绝或暂停不提交，不新根不猜最近父",
+            "rule_ids": [
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-012",
+              "BR-015"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-001",
+            "condition": "结果/关联未知或冲突",
+            "steps": [
+              "保留待核，不伪造最终结果，不按查询空值反推无话单"
+            ]
+          },
+          {
+            "id": "ALT-002",
+            "condition": "重复、晚更新或回传失败",
+            "steps": [
+              "重复不作为新呼叫，晚更新同对象；失败可观察可补送，技术策略交开发"
+            ]
+          },
+          {
+            "id": "ALT-003",
+            "condition": "手工来源任务",
+            "steps": [
+              "平台查看，不回传DCC，不改变锁定来源"
+            ]
+          },
+          {
+            "id": "ALT-004",
+            "condition": "已有同tenant/task/leadCode/phone历史的新业务行缺previousBatchId，或父不存在/不唯一/归属不符",
+            "steps": [
+              "该行拒绝或暂停待核，不提交供应商、不另建独立新根，不按最近同号猜父；同请求重传优先返回原映射"
+            ]
+          },
+          {
+            "id": "ALT-005",
+            "condition": "同requestId完整内容重传",
+            "steps": [
+              "返回原已保存逐行结果/同批父根映射，不新增批次、不重交供应商"
+            ]
+          },
+          {
+            "id": "ALT-006",
+            "condition": "同requestId异内容",
+            "steps": [
+              "冲突拒绝，不覆盖原记录，不当新业务请求"
+            ]
+          }
+        ],
+        "postconditions": [
+          "接口任务每次结果及其更新回传DCC，手工任务仅平台查看",
+          "DCC负责重新导入决策，平台不建立重呼计划",
+          "真重导保存新batchId、parentBatchId=逐行previousBatchId及父rootBatchId，本批使用本次DCCpriority/导入时间；旧批历史保留，无每日衰减/旧策略继承",
+          "相同请求完整内容重传返回原逐行结果/同批映射，不创建新业务批且不重复供应商导入"
+        ],
+        "acceptance_points": [
+          "AC-004",
+          "AC-021",
+          "AC-022",
+          "AC-023",
+          "AC-024",
+          "AC-027",
+          "AC-034",
+          "AC-035",
+          "AC-048",
+          "AC-049",
+          "AC-050",
+          "AC-051",
+          "AC-052"
+        ],
+        "source_story_ids": [
+          "US-004",
+          "US-001"
+        ],
+        "source_refs": [
+          "inputs/user-original-20261009.txt#第4条",
+          "inputs/source-index.json#SRC-045",
+          "inputs/source-index.json#SRC-002",
+          "inputs/source-index.json#SRC-046",
+          "inputs/source-index.json#SRC-047",
+          "inputs/source-index.json#SRC-048",
+          "inputs/source-index.json#SRC-049",
+          "inputs/source-index.json#SRC-050",
+          "inputs/source-index.json#SRC-051",
+          "inputs/source-index.json#SRC-056",
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083"
+        ],
+        "business_rule_ids": [
+          "BR-010",
+          "BR-012",
+          "BR-015",
+          "BR-016",
+          "BR-017",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-006"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "vendor",
+              "name": "AliCti供应商",
+              "kind": "external_system"
+            },
+            {
+              "id": "platform",
+              "name": "云呼叫中心",
+              "kind": "system"
+            },
+            {
+              "id": "dcc",
+              "name": "DCC",
+              "kind": "external_system"
+            },
+            {
+              "id": "operator",
+              "name": "运营人员",
+              "kind": "actor"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "S",
+              "lane_id": "vendor",
+              "type": "start",
+              "order": 1,
+              "label": "本次结果或更新"
+            },
+            {
+              "id": "N1",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 2,
+              "label": "获取本次事件/话单并保留原字段来源",
+              "step_ref": 1
+            },
+            {
+              "id": "N2",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 3,
+              "label": "本方batch→fileId映射及\ntenant/task/leadCode/phone可信？",
+              "step_ref": 2
+            },
+            {
+              "id": "N3",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 4,
+              "label": "保存话单/SIP/最后一通；秒挂按真实客户接通、\n客户主动挂断、客户接通时长0～2秒识别\n新结果或可交付更新？",
+              "step_ref": 3
+            },
+            {
+              "id": "N4",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 5,
+              "label": "任务为接口来源？",
+              "step_ref": 4
+            },
+            {
+              "id": "N5",
+              "lane_id": "dcc",
+              "type": "decision",
+              "order": 7,
+              "label": "DCC是否决定真重导？",
+              "step_ref": 5
+            },
+            {
+              "id": "E",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 30,
+              "label": "保存关联；无平台重导/每日衰减"
+            },
+            {
+              "id": "E1",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 9,
+              "label": "结果待核"
+            },
+            {
+              "id": "E2",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 10,
+              "label": "重复/晚更新/失败补送"
+            },
+            {
+              "id": "E3",
+              "lane_id": "operator",
+              "type": "end",
+              "order": 11,
+              "label": "手工仅平台查看"
+            },
+            {
+              "id": "RET",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 6,
+              "label": "每次结果携request/行定位\nbatch/parent/root回传固定地址",
+              "step_ref": 4
+            },
+            {
+              "id": "NEWREQ",
+              "lane_id": "dcc",
+              "type": "action",
+              "order": 12,
+              "label": "新requestId+逐行previousBatchId\n本次DCCpriority",
+              "step_ref": 5
+            },
+            {
+              "id": "REQUEST",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 13,
+              "label": "完整业务请求分类",
+              "step_ref": 6
+            },
+            {
+              "id": "PARENT",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 14,
+              "label": "已有链明确previousBatchId\n精确父存在且同归属？",
+              "step_ref": 6
+            },
+            {
+              "id": "SAVEBATCH",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 15,
+              "label": "新batch；parent=previous/root取父\n本次priority；复用SC-001提交",
+              "step_ref": 6
+            },
+            {
+              "id": "REPLAY",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 16,
+              "label": "同请求同内容返回原结果\n不新批、不重交"
+            },
+            {
+              "id": "IDCONFLICT",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 17,
+              "label": "同ID异内容拒绝"
+            },
+            {
+              "id": "BADPARENT",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 18,
+              "label": "已有链缺父/父不明不符\n拒绝或暂停，不新根不提交"
+            },
+            {
+              "id": "E-NEW-BATCH",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 31,
+              "label": "新业务批与精确父根已保存；复用SC-001跟进提交"
+            }
+          ],
+          "edges": [
+            {
+              "from": "S",
+              "to": "N1"
+            },
+            {
+              "from": "N1",
+              "to": "N2"
+            },
+            {
+              "from": "N2",
+              "to": "N3",
+              "label": "关联明确"
+            },
+            {
+              "from": "N3",
+              "to": "N4",
+              "label": "新可信结果或同对象晚更新"
+            },
+            {
+              "from": "N4",
+              "to": "RET",
+              "label": "接口来源"
+            },
+            {
+              "from": "N2",
+              "to": "E1",
+              "label": "未知/冲突",
+              "path_id": "ALT-001",
+              "type": "failure"
+            },
+            {
+              "from": "N3",
+              "to": "E2",
+              "label": "纯重复或回传待补送",
+              "path_id": "ALT-002",
+              "type": "failure"
+            },
+            {
+              "from": "N4",
+              "to": "E3",
+              "label": "手工",
+              "path_id": "ALT-003",
+              "type": "failure"
+            },
+            {
+              "from": "RET",
+              "to": "N5"
+            },
+            {
+              "from": "N5",
+              "to": "E",
+              "label": "不重导"
+            },
+            {
+              "from": "N5",
+              "to": "NEWREQ",
+              "label": "决定真重导"
+            },
+            {
+              "from": "NEWREQ",
+              "to": "REQUEST"
+            },
+            {
+              "from": "REQUEST",
+              "to": "PARENT",
+              "label": "新的requestId"
+            },
+            {
+              "from": "REQUEST",
+              "to": "REPLAY",
+              "label": "同ID同完整内容",
+              "path_id": "ALT-005"
+            },
+            {
+              "from": "REQUEST",
+              "to": "IDCONFLICT",
+              "label": "同ID异内容",
+              "path_id": "ALT-006",
+              "type": "failure"
+            },
+            {
+              "from": "PARENT",
+              "to": "SAVEBATCH",
+              "label": "父归属校验通过"
+            },
+            {
+              "from": "PARENT",
+              "to": "BADPARENT",
+              "label": "已有链缺父/父不明或不匹配",
+              "path_id": "ALT-004",
+              "type": "failure"
+            },
+            {
+              "from": "SAVEBATCH",
+              "to": "E-NEW-BATCH"
+            }
+          ]
+        },
+        "design_notes": [
+          "业务确认来自SRC-063～070；供应商尝试完整性、字段映射与可靠交付待技术核实；G3未批准。",
+          "SRC-083明确本方请求幂等和精确父根；本次DCCpriority不继承旧批。SIP/finishRetry/无话单/秒挂原边界及供应商未核能力保留；G3待本轮重新确认。",
+          "已有链真重导必须精确previousBatchId；缺父拒绝/待核不新根。同请求鉴权后的完整内容去重优先于历史父检查。"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "reason": "用户最新主/子根归组方案替代SRC-083逐行指定父批方案；旧事实只作历史，新G3未批准。",
+      "record_type": "draft_business_revision_not_approval"
+    }
+  ]
+}

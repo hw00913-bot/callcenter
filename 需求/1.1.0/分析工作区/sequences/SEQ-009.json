@@ -1,0 +1,1210 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-009",
+  "scenario_id": "SC-006",
+  "name": "运营指定记录删除命令、目标计划停止及远端结果",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "该任务有权运营或管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "既有任务记录与原导入界面",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（合成）",
+      "kind": "system"
+    },
+    {
+      "id": "records",
+      "name": "内部业务/原话单与判定证据（逻辑参与方）",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti供应商（真实能力待核）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "在既有任务记录选择具体已保存记录发起指定供应商对象删除，不自由填写任务/fileId/phone/root或整组删除。",
+      "type": "request",
+      "api_id": null,
+      "condition": "有原任务操作权限的运营或管理员当前独立意图",
+      "step": 1,
+      "message_id": "SEQ-009-LOCAL-001",
+      "legacy_step": 1
+    },
+    {
+      "from": "ui",
+      "to": "ui",
+      "message": "绑定当前record/目标版本；切换目标或合成结果样例清旧前台成功/失败反馈，旧目标已保存证据不抹，不把旧成功展示给新对象。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 2,
+      "message_id": "SEQ-009-LOCAL-002",
+      "legacy_step": 2
+    },
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "明确核对并确认这个指定记录；取消不提交命令、不停止计划、不调用供应商。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次准确目标；取消为无副作用分支",
+      "step": 3,
+      "message_id": "SEQ-009-LOCAL-003",
+      "legacy_step": 3
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "后台生成拟定recordId/actionId/expectedVersion/Boolean confirmed=true，认证来自现有登录；scope/phone/root/fileId/attempt/预算和生命周期均从服务端已保存目标读取，不新增前台技术输入。",
+      "type": "request",
+      "api_id": "API-014",
+      "condition": "仅明确确认；method/route/生产鉴权仍missing，不隐式转换true字符串",
+      "step": 4,
+      "message_id": "SEQ-009-LOCAL-004",
+      "legacy_step": 4
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "每次先认证并核当前tenant/原task/记录范围和既有任务操作权限；角色/按钮/历史source不代替授权。无权拒绝或具体授权未核待核，不授新账号权。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "step": 5,
+      "message_id": "SEQ-009-LOCAL-005",
+      "legacy_step": 5
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "授权后先核actionId完整命令：同ID同内容返回原deleteAttempt当前状态，目标后来升版仍不新发；异内容冲突拒绝。仅新action校验expectedVersion当前一致及Boolean true确认。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "API-014命令幂等先于新版本/确认守卫，当前授权仍每次先验",
+      "step": 6,
+      "message_id": "SEQ-009-LOCAL-006",
+      "legacy_step": 6
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "原动作重放返回其当前localPlanDisposition/remoteDisposition/原因；未确认、无权、版本/内容冲突不新建删除尝试或二次外发。",
+      "type": "response",
+      "api_id": "API-014",
+      "condition": "重放/拒绝互斥分支，此次不继续新远端请求",
+      "step": 7,
+      "message_id": "SEQ-009-LOCAL-007",
+      "legacy_step": 7
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "新合法命令准确回查固定record/batch/phone/原task、保存root与每次actual fileId/attempt；关联不足、多候选或真实冲突待核，不按leadCode/root/最近同号或fileName猜目标。",
+      "type": "request",
+      "api_id": null,
+      "condition": "仅新的确认且版本一致命令",
+      "step": 8,
+      "message_id": "SEQ-009-LOCAL-008",
+      "legacy_step": 8
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "返回准确固定对象与当前关联/计划/尝试状态，或关联待核；关联不明不停止不确定对象、不调用远端。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 9,
+      "message_id": "SEQ-009-LOCAL-009",
+      "legacy_step": 9
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "在本方原子边界锁这个目标的版本/变更/失败补提交执行权，保存授权精确取消意图，停止仅其尚未实际发起失败计划；同号其他record/同root其他子批不动。删除资格不以预算available>0判断。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "新准确授权意图确认、目标可精确关联；必须与SEQ-003该目标外发互斥",
+      "step": 10,
+      "message_id": "SEQ-009-LOCAL-010",
+      "legacy_step": 10
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "保留跨主批四元组used及UNKNOWN槽；已证明未外发的原预占才可按同原子协议取消释放，是否发起不明/已发起均保占用，不因删除再发两次。已有在途/正常重呼效果仍待供应商核实。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "本地方停止未执行计划不等远端已删/在途已撤回",
+      "step": 11,
+      "message_id": "SEQ-009-LOCAL-011",
+      "legacy_step": 11
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "固定本次deleteAttempt/目标，核实际fileId是否独占当前精确业务对象。API-006是tels优先fileId/fileName再status而非AND；sharedfile多attempt无法精准表示本次则远端待核不外发，不扩大同号、root、整批或全任务。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 12,
+      "message_id": "SEQ-009-LOCAL-012",
+      "legacy_step": 12
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "当关联已准确并本地停止已保存，但sharedfile/选择器/执行权不可核时，返回本地停止证据和远端待核/未发起；不假装远端失败已释放预算或已全删。",
+      "type": "response",
+      "api_id": "API-014",
+      "condition": "候选远端选择器/执行权不满足，不执行后续供应商调用",
+      "step": 13,
+      "message_id": "SEQ-009-LOCAL-013",
+      "legacy_step": 13
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "实际远端外发前再次核当前身份/tenant/task/目标授权、固定版本/映射/选择器及同对象执行权；用同deleteAttempt持久独占，不与新的失败补导或目标变化竞跑。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "只有独占精确fileId、当前全部守卫通过才候选外发，供应商在途仍partial",
+      "step": 14,
+      "message_id": "SEQ-009-LOCAL-014",
+      "legacy_step": 14
+    },
+    {
+      "from": "service",
+      "to": "vendor",
+      "message": "候选按文档原鉴权及taskId+独占实际fileId精准按批删除，不同时tels，不用fileName最近批/status或全任务扩大目标；skipCalling/skipRetry生产值未定，二者不能同为1，不能把文档默认当本项目决策。",
+      "type": "external_call",
+      "api_id": "API-006",
+      "condition": "本次独占选择器和执行权可核才合成候选；不先删后导、不承诺在途撤回",
+      "step": 15,
+      "message_id": "SEQ-009-LOCAL-015",
+      "legacy_step": 15
+    },
+    {
+      "from": "vendor",
+      "to": "service",
+      "message": "保留本次原result/description/errorCode及data.skippedCallingTels；result0可包含跳过，必须核当前精确目标实际结果，不把skipRetry缓存/墓碑行为当取消正常重呼保证。",
+      "type": "response",
+      "api_id": "API-006",
+      "condition": "只在本次明确响应已到；无响应不伪造",
+      "step": 16,
+      "message_id": "SEQ-009-LOCAL-016",
+      "legacy_step": 16
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "只有本次精确目标明确已删且不在skippedCallingTels等跳过/未删证据中才标远端已删；保留原record/root/actual fileId/call、来源审计、秒挂三态及attempt/去重/停止/共享预算，不级联其他同号记录。 各应用的已保存原来源/结果去向及原请求关联保持，不按root或当前操作者改投；删除反馈与原DCC呼叫结果回传分开。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "准确核实本目标明确成功；result0本身不充分",
+      "step": 17,
+      "message_id": "SEQ-009-LOCAL-017",
+      "legacy_step": 17
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "明确拒绝、目标跳过或只非目标/部分成功分别保存原证据，不标本目标已删；本地已确认待计划停止保留，不把拒绝当恢复补提交或发新额度。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "本次明确失败/跳过/非目标成功互斥结果分支",
+      "step": 18,
+      "message_id": "SEQ-009-LOCAL-018",
+      "legacy_step": 18
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "删除是否发起或远端响应unknown/真实矛盾沿原deleteAttempt与固定目标待核，不盲重发、不换action绕过、不扩大选择器；已用/外发不明失败预算不释放，本地已确认取消状态独立保留。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "本次发起/回应UNKNOWN，与明确成功或拒绝不同分支；没有新供应商核查端点",
+      "step": 19,
+      "message_id": "SEQ-009-LOCAL-019",
+      "legacy_step": 19
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "以已存本次action/record/currentVersion/deleteAttempt及原因反馈localPlanDisposition与remoteDisposition，明确区分未执行计划停止和远端成功/拒绝/跳过/未发起/unknown。",
+      "type": "response",
+      "api_id": "API-014",
+      "condition": null,
+      "step": 20,
+      "message_id": "SEQ-009-LOCAL-020",
+      "legacy_step": 20
+    },
+    {
+      "from": "ui",
+      "to": "operator",
+      "message": "展示当前准确目标删除反馈及保留的业务历史；不复用旧对象样例结果，不显示已经撤回在途或取消供应商原生规则。秒挂没有本方可停止重導计划，原call和三态仍保留。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 21,
+      "message_id": "SEQ-009-LOCAL-021",
+      "legacy_step": 21
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "此后的本目标失败执行前继续读已存取消/任务状态守卫：pause挂起恢复重核，终止/精确取消阻断未执行；其他同号对象不受取消标记误伤，预算共享也不扩大停止范围。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "后续内部到期/人工事件；不会因远端删除失败或unknown自动恢复本目标执行",
+      "step": 22,
+      "message_id": "SEQ-009-LOCAL-022",
+      "legacy_step": 22
+    }
+  ],
+  "notes": [
+    "本轮G2已由用户实际批准，证据runtime/manual-code-g2-user-approval-20261014.json，接口事实指纹fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4；按手工线索类单一编码说明继续S5-S7，保留13high/4medium生产缺口，不接受生产风险，不批准G3/真实调用。",
+    "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+    "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+    "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+    "SRC-112辅助v10 /logCurl/list仅供后续索取/核对脱敏供应商推送轨迹，未作为本轮新增生产查询或UNKNOWN自动恢复端点。其type旧枚举未列52/53，日志uniqueId不当失败payload稳定ID，查询result0/-1与data.result1/0分开；查空或HTTP200不证明未拨、无在途、持久成功或后续执行权已清。",
+    "SRC-113的v10批次话单查询候选及日志取证不证明精确删除已经完成、在途已撤回或原生待执行已清；本时序“没有新供应商核查端点”只指未增加生产UNKNOWN恢复调用。沿原deleteAttempt/目标和已有精确选择器/互斥守卫，不放大删除范围或恢复失败计划。",
+    "指定记录删除是原任务有权运营/管理员的独立平台操作；DCC/天网导入记录可按同一准确目标规则被授权处理，但应用token不授内部权限。删除反馈仅平台，不借此增加DCC或天网删除/删除回调接口；原呼叫结果与失败进度仍按保存record/attempt原来源由其各自时序处理。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070",
+    "inputs/source-index.json#SRC-083",
+    "inputs/source-index.json#SRC-084",
+    "inputs/source-index.json#SRC-085",
+    "inputs/source-index.json#SRC-086",
+    "inputs/source-index.json#SRC-025",
+    "inputs/source-index.json#SRC-048",
+    "inputs/source-index.json#SRC-089",
+    "inputs/source-index.json#SRC-091",
+    "inputs/source-index.json#SRC-094",
+    "inputs/source-index.json#SRC-096",
+    "inputs/source-index.json#SRC-100",
+    "inputs/source-index.json#SRC-102",
+    "inputs/source-index.json#SRC-103",
+    "inputs/source-index.json#SRC-106",
+    "inputs/source-index.json#SRC-109",
+    "inputs/source-index.json#SRC-107",
+    "inputs/source-index.json#SRC-110",
+    "inputs/source-index.json#SRC-112",
+    "inputs/source-index.json#SRC-113",
+    "inputs/source-index.json#SRC-116",
+    "inputs/source-index.json#SRC-115"
+  ],
+  "review_history": [
+    {
+      "at": "2026-10-10T15:18:55+08:00",
+      "basis": "补齐AC-025及FUNC-009已确认删除状态反馈，不新增端点或供应商能力"
+    },
+    {
+      "at": "2026-10-11T09:32:22+08:00",
+      "basis": "取消停止每日衰减残留，删除仍限定精准业务批与供应商映射；父根仅追溯",
+      "source_ref": "inputs/source-index.json#SRC-083",
+      "record_type": "draft_semantic_revision_not_approval"
+    },
+    {
+      "date": "2026-10-13",
+      "phase": "S5",
+      "source_refs": [
+        "inputs/source-index.json#SRC-116"
+      ],
+      "G2_evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-009",
+        "scenario_id": "SC-006",
+        "name": "运营指定记录删除命令、目标计划停止及远端结果",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "该任务有权运营或管理员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "既有任务记录与原导入界面",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（合成）",
+            "kind": "system"
+          },
+          {
+            "id": "records",
+            "name": "内部业务/原话单与判定证据（逻辑参与方）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti供应商（真实能力待核）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "在既有任务记录选择具体已保存记录发起指定供应商对象删除，不自由填写任务/fileId/phone/root或整组删除。",
+            "type": "request",
+            "api_id": null,
+            "condition": "有原任务操作权限的运营或管理员当前独立意图",
+            "step": 1
+          },
+          {
+            "from": "ui",
+            "to": "ui",
+            "message": "绑定当前record/目标版本；切换目标或合成结果样例清旧前台成功/失败反馈，旧目标已保存证据不抹，不把旧成功展示给新对象。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 2
+          },
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "明确核对并确认这个指定记录；取消不提交命令、不停止计划、不调用供应商。",
+            "type": "request",
+            "api_id": null,
+            "condition": "本次准确目标；取消为无副作用分支",
+            "step": 3
+          },
+          {
+            "from": "ui",
+            "to": "service",
+            "message": "后台生成拟定recordId/actionId/expectedVersion/Boolean confirmed=true，认证来自现有登录；scope/phone/root/fileId/attempt/预算和生命周期均从服务端已保存目标读取，不新增前台技术输入。",
+            "type": "request",
+            "api_id": "API-014",
+            "condition": "仅明确确认；method/route/生产鉴权仍missing，不隐式转换true字符串",
+            "step": 4
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "每次先认证并核当前tenant/原task/记录范围和既有任务操作权限；角色/按钮/历史source不代替授权。无权拒绝或具体授权未核待核，不授新账号权。",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "step": 5
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "授权后先核actionId完整命令：同ID同内容返回原deleteAttempt当前状态，目标后来升版仍不新发；异内容冲突拒绝。仅新action校验expectedVersion当前一致及Boolean true确认。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "API-014命令幂等先于新版本/确认守卫，当前授权仍每次先验",
+            "step": 6
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "原动作重放返回其当前localPlanDisposition/remoteDisposition/原因；未确认、无权、版本/内容冲突不新建删除尝试或二次外发。",
+            "type": "response",
+            "api_id": "API-014",
+            "condition": "重放/拒绝互斥分支，此次不继续新远端请求",
+            "step": 7
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "新合法命令准确回查固定record/batch/phone/原task、保存root与每次actual fileId/attempt；关联不足、多候选或真实冲突待核，不按leadCode/root/最近同号或fileName猜目标。",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅新的确认且版本一致命令",
+            "step": 8
+          },
+          {
+            "from": "records",
+            "to": "service",
+            "message": "返回准确固定对象与当前关联/计划/尝试状态，或关联待核；关联不明不停止不确定对象、不调用远端。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 9
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "在本方原子边界锁这个目标的版本/变更/失败补提交执行权，保存授权精确取消意图，停止仅其尚未实际发起失败计划；同号其他record/同root其他子批不动。删除资格不以预算available>0判断。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "新准确授权意图确认、目标可精确关联；必须与SEQ-003该目标外发互斥",
+            "step": 10
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "保留跨主批四元组used及UNKNOWN槽；已证明未外发的原预占才可按同原子协议取消释放，是否发起不明/已发起均保占用，不因删除再发两次。已有在途/正常重呼效果仍待供应商核实。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "本地方停止未执行计划不等远端已删/在途已撤回",
+            "step": 11
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "固定本次deleteAttempt/目标，核实际fileId是否独占当前精确业务对象。API-006是tels优先fileId/fileName再status而非AND；sharedfile多attempt无法精准表示本次则远端待核不外发，不扩大同号、root、整批或全任务。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 12
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "当关联已准确并本地停止已保存，但sharedfile/选择器/执行权不可核时，返回本地停止证据和远端待核/未发起；不假装远端失败已释放预算或已全删。",
+            "type": "response",
+            "api_id": "API-014",
+            "condition": "候选远端选择器/执行权不满足，不执行后续供应商调用",
+            "step": 13
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "实际远端外发前再次核当前身份/tenant/task/目标授权、固定版本/映射/选择器及同对象执行权；用同deleteAttempt持久独占，不与新的失败补导或目标变化竞跑。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "只有独占精确fileId、当前全部守卫通过才候选外发，供应商在途仍partial",
+            "step": 14
+          },
+          {
+            "from": "service",
+            "to": "vendor",
+            "message": "候选按文档原鉴权及taskId+独占实际fileId精准按批删除，不同时tels，不用fileName最近批/status或全任务扩大目标；skipCalling/skipRetry生产值未定，二者不能同为1，不能把文档默认当本项目决策。",
+            "type": "external_call",
+            "api_id": "API-006",
+            "condition": "本次独占选择器和执行权可核才合成候选；不先删后导、不承诺在途撤回",
+            "step": 15
+          },
+          {
+            "from": "vendor",
+            "to": "service",
+            "message": "保留本次原result/description/errorCode及data.skippedCallingTels；result0可包含跳过，必须核当前精确目标实际结果，不把skipRetry缓存/墓碑行为当取消正常重呼保证。",
+            "type": "response",
+            "api_id": "API-006",
+            "condition": "只在本次明确响应已到；无响应不伪造",
+            "step": 16
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "只有本次精确目标明确已删且不在skippedCallingTels等跳过/未删证据中才标远端已删；保留原record/root/actual fileId/call、来源审计、秒挂三态及attempt/去重/停止/共享预算，不级联其他同号记录。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "准确核实本目标明确成功；result0本身不充分",
+            "step": 17
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "明确拒绝、目标跳过或只非目标/部分成功分别保存原证据，不标本目标已删；本地已确认待计划停止保留，不把拒绝当恢复补提交或发新额度。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "本次明确失败/跳过/非目标成功互斥结果分支",
+            "step": 18
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "删除是否发起或远端响应unknown/真实矛盾沿原deleteAttempt与固定目标待核，不盲重发、不换action绕过、不扩大选择器；已用/外发不明失败预算不释放，本地已确认取消状态独立保留。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "本次发起/回应UNKNOWN，与明确成功或拒绝不同分支；没有新供应商核查端点",
+            "step": 19
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "以已存本次action/record/currentVersion/deleteAttempt及原因反馈localPlanDisposition与remoteDisposition，明确区分未执行计划停止和远端成功/拒绝/跳过/未发起/unknown。",
+            "type": "response",
+            "api_id": "API-014",
+            "condition": null,
+            "step": 20
+          },
+          {
+            "from": "ui",
+            "to": "operator",
+            "message": "展示当前准确目标删除反馈及保留的业务历史；不复用旧对象样例结果，不显示已经撤回在途或取消供应商原生规则。秒挂没有本方可停止重導计划，原call和三态仍保留。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 21
+          },
+          {
+            "from": "service",
+            "to": "records",
+            "message": "此后的本目标失败执行前继续读已存取消/任务状态守卫：pause挂起恢复重核，终止/精确取消阻断未执行；其他同号对象不受取消标记误伤，预算共享也不扩大停止范围。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "后续内部到期/人工事件；不会因远端删除失败或unknown自动恢复本目标执行",
+            "step": 22
+          }
+        ],
+        "notes": [
+          "本轮实际新G2已批准保留缺口重验S5～S7，证据runtime/g2-user-approval-wiki-20261013.json，当前接口事实指纹463b24041b0ebe18f4164fa3f8646e25be1fd12129b724bef540d96d8ec1d855；本次是合成方案的下游重核，不接受生产风险、不批准G3/真实调用/原型导入或05交付。旧G2仅保留历史。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "DCC接收/回传及应用接入整体延期，旧全文/参与方/消息/API关系保留decision_history或deferred_definition，不参与当前时序图集。",
+          "SRC-112辅助v10 /logCurl/list仅供后续索取/核对脱敏供应商推送轨迹，未作为本轮新增生产查询或UNKNOWN自动恢复端点。其type旧枚举未列52/53，日志uniqueId不当失败payload稳定ID，查询result0/-1与data.result1/0分开；查空或HTTP200不证明未拨、无在途、持久成功或后续执行权已清。",
+          "SRC-113的v10批次话单查询候选及日志取证不证明精确删除已经完成、在途已撤回或原生待执行已清；本时序“没有新供应商核查端点”只指未增加生产UNKNOWN恢复调用。沿原deleteAttempt/目标和已有精确选择器/互斥守卫，不放大删除范围或恢复失败计划。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-025",
+          "inputs/source-index.json#SRC-048",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-109",
+          "inputs/source-index.json#SRC-107",
+          "inputs/source-index.json#SRC-110",
+          "inputs/source-index.json#SRC-112",
+          "inputs/source-index.json#SRC-113"
+        ],
+        "business_rule_ids": [
+          "BR-007",
+          "BR-011",
+          "BR-012",
+          "BR-013",
+          "BR-015",
+          "BR-016",
+          "BR-019"
+        ],
+        "status": "analysis_reviewed_WIKI_G2_gaps_retained",
+        "delivery_scope": "current_manual_and_internal_delivery",
+        "g2_analysis_continuation": {
+          "evidence": "runtime/g2-user-approval-wiki-20261013.json",
+          "interface_fingerprint": "463b24041b0ebe18f4164fa3f8646e25be1fd12129b724bef540d96d8ec1d855",
+          "actual_answer": "批准 G2，保留缺口重验 S5～S7",
+          "scope": "仅批准本轮接口事实及边界用于重验S5～S7；生产证据要求不变，13high/2medium保持open。",
+          "production_risk_accepted": false,
+          "production_calls_allowed": false,
+          "G3_approved": false,
+          "prototype_import_allowed": false,
+          "development_delivery_approved": false
+        }
+      },
+      "reason": "当前G2恢复DCC优先+天网共享；保留原手工/下载/指定删除操作，仅对齐来源及当前批准。"
+    },
+    {
+      "date": "2026-10-14",
+      "change_id": "CH-MANUAL-CODE-SOURCE-CORRECTION-20261014",
+      "actual_G2": "runtime/manual-code-g2-user-approval-20261014.json",
+      "before": {
+        "notes": [
+          "本轮G2已由用户实际批准，证据runtime/tianwang-g2-user-approval-20261013.json，接口事实指纹286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d；保留13high/4medium生产缺口，不接受生产风险、不批准G3/真实调用。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "SRC-112辅助v10 /logCurl/list仅供后续索取/核对脱敏供应商推送轨迹，未作为本轮新增生产查询或UNKNOWN自动恢复端点。其type旧枚举未列52/53，日志uniqueId不当失败payload稳定ID，查询result0/-1与data.result1/0分开；查空或HTTP200不证明未拨、无在途、持久成功或后续执行权已清。",
+          "SRC-113的v10批次话单查询候选及日志取证不证明精确删除已经完成、在途已撤回或原生待执行已清；本时序“没有新供应商核查端点”只指未增加生产UNKNOWN恢复调用。沿原deleteAttempt/目标和已有精确选择器/互斥守卫，不放大删除范围或恢复失败计划。",
+          "指定记录删除是原任务有权运营/管理员的独立平台操作；DCC/天网导入记录可按同一准确目标规则被授权处理，但应用token不授内部权限。删除反馈仅平台，不借此增加DCC或天网删除/删除回调接口；原呼叫结果与失败进度仍按保存record/attempt原来源由其各自时序处理。"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+          "interface_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d",
+          "scope": "same_received_G2_no_fact_change",
+          "risk_accepted": false,
+          "real_calls": false,
+          "G3_approved": false
+        },
+        "status": "S5_current_Tianwang_G2_scope_revalidated_production_gaps_retained"
+      }
+    }
+  ],
+  "decision_history": [
+    {
+      "at": "2026-10-11T10:08:12+08:00",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-009",
+        "scenario_id": "SC-001",
+        "name": "DCC精准删除成功与本地留存",
+        "participants": [
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "dcc",
+            "name": "DCC（模拟输入）",
+            "kind": "external_system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（模拟返回/未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "dcc",
+            "to": "service",
+            "message": "租户身份及具体task/业务batchId/leadCode/phone删除请求；不以parent/root代替当前精准目标",
+            "type": "external_call",
+            "api_id": "API-001",
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "service",
+            "to": "vendor",
+            "message": "按精准业务目标映射其供应商fileId执行合成删除；实际供应商字段作用域/并发契约待核",
+            "type": "external_call",
+            "api_id": "API-006",
+            "condition": "目标同tenant/task且精确batch/leadCode/phone关联已核"
+          },
+          {
+            "step": 3,
+            "from": "vendor",
+            "to": "service",
+            "message": "合成明确成功/失败/未知结果",
+            "type": "response",
+            "api_id": "API-006",
+            "condition": null
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "service",
+            "message": "精准删除成功保留本地客户、requestId及业务batch/parent/root关联，不覆盖同号其他批次；平台无每日衰减或待执行重导；供应商执行中删除契约待核",
+            "type": "internal",
+            "api_id": null,
+            "condition": "成功精准记录"
+          },
+          {
+            "step": 5,
+            "from": "service",
+            "to": "ui",
+            "message": "精准删除成功保留本地客户、requestId及业务batch/parent/root关联，不覆盖同号其他批次；平台无每日衰减或待执行重导；供应商执行中删除契约待核",
+            "type": "response",
+            "api_id": null,
+            "condition": "成功"
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "ui",
+            "message": "失败不标删除；超时/矛盾待核暂停，不承诺撤销已执行呼叫",
+            "type": "response",
+            "api_id": null,
+            "condition": "失败/未知"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "dcc",
+            "message": "向删除方DCC反馈精准本次目标的成功/失败/未知及已知requestId/batchId/parentBatchId/rootBatchId；失败不标已删除、未知待核，不覆盖同号其他批次",
+            "type": "response",
+            "api_id": "API-001",
+            "condition": "对应DCC删除请求；准确关联本次tenant/task/batchId/leadCode/phone"
+          }
+        ],
+        "notes": [
+          "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+          "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+          "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "reason": "用户最新主/子根归组方案替代SRC-083逐行指定父批方案；旧事实只作历史，新G3未批准。",
+      "record_type": "draft_business_revision_not_approval"
+    },
+    {
+      "at": "2026-10-12",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-009",
+        "scenario_id": "SC-001",
+        "name": "DCC精准删除成功与本地留存",
+        "participants": [
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "dcc",
+            "name": "DCC（模拟输入）",
+            "kind": "external_system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（模拟返回/未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "dcc",
+            "to": "service",
+            "message": "租户身份及具体原task/当前record/batch/leadCode/phone精准删除请求；root仅追溯，不代替当前目标或扩大整组删除",
+            "type": "external_call",
+            "api_id": "API-001",
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "service",
+            "to": "vendor",
+            "message": "按精准业务目标映射其供应商fileId执行合成删除；实际供应商字段作用域/并发契约待核",
+            "type": "external_call",
+            "api_id": "API-006",
+            "condition": "目标同tenant/task且精确batch/leadCode/phone关联已核"
+          },
+          {
+            "step": 3,
+            "from": "vendor",
+            "to": "service",
+            "message": "合成明确成功/失败/未知结果",
+            "type": "response",
+            "api_id": "API-006",
+            "condition": null
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "service",
+            "message": "精准删除成功保留本地当前record、原request行及已保存batch/root主子映射，不覆盖同号其他批；平台无每日衰减/待执行重导，供应商在途取消契约仍待核",
+            "type": "internal",
+            "api_id": null,
+            "condition": "成功精准记录"
+          },
+          {
+            "step": 5,
+            "from": "service",
+            "to": "ui",
+            "message": "精准删除成功保留本地当前record、原request行及已保存batch/root主子映射，不覆盖同号其他批；平台无每日衰减/待执行重导，供应商在途取消契约仍待核",
+            "type": "response",
+            "api_id": null,
+            "condition": "成功"
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "ui",
+            "message": "失败不标删除；超时/矛盾待核暂停，不承诺撤销已执行呼叫",
+            "type": "response",
+            "api_id": null,
+            "condition": "失败/未知"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "dcc",
+            "message": "向删除方DCC反馈精准当前目标成功/失败/未知及已知原request行/record/batch/root；失败不标删除、未知待核，root后来有新主也不改旧目标，不扩同号其他批",
+            "type": "response",
+            "api_id": "API-001",
+            "condition": "对应DCC删除请求；准确关联本次tenant/task/batchId/leadCode/phone"
+          }
+        ],
+        "notes": [
+          "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+          "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+          "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。",
+          "主子归属不等于必须先删才可重导；沿既有精准删除职责，不新增整组删除、在途取消保证或重导门禁。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086"
+        ],
+        "review_history": [
+          {
+            "at": "2026-10-10T15:18:55+08:00",
+            "basis": "补齐AC-025及FUNC-009已确认删除状态反馈，不新增端点或供应商能力"
+          },
+          {
+            "at": "2026-10-11T09:32:22+08:00",
+            "basis": "取消停止每日衰减残留，删除仍限定精准业务批与供应商映射；父根仅追溯",
+            "source_ref": "inputs/source-index.json#SRC-083",
+            "record_type": "draft_semantic_revision_not_approval"
+          }
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-089",
+        "inputs/source-index.json#SRC-094",
+        "inputs/source-index.json#SRC-096",
+        "inputs/source-index.json#SRC-102",
+        "inputs/source-index.json#SRC-103",
+        "inputs/source-index.json#SRC-106"
+      ],
+      "reason": "消费本轮SC/BR与G2接口边界：失败3自动120秒/8人工共享额外2次；秒挂仅识别回传。下载和定向删除保留必要追溯、内部尝试及预算，不升级供应商或下载成功协议。",
+      "record_type": "draft_sequence_revision_not_approval"
+    },
+    {
+      "change_id": "CH-DCC-20261012-DEFER-INTEGRATION-MANUAL-INTERNAL-LOOP",
+      "recorded_at": "2026-10-12",
+      "source_refs": [
+        "inputs/source-index.json#SRC-110"
+      ],
+      "reason": "消费SRC-110与本次实际G2：DCC及应用延期；当前手工、供应商本地结果/失败补提交与授权精准记录删除闭环。稳定ID及旧完整定义保留，不扩大业务功能或升级生产接口。",
+      "previous_definition": {
+        "schema_version": "1.0",
+        "id": "SEQ-009",
+        "scenario_id": "SC-001",
+        "name": "定向删除与未执行失败计划停止",
+        "participants": [
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "dcc",
+            "name": "DCC（模拟输入）",
+            "kind": "external_system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（模拟返回/未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "dcc",
+            "to": "service",
+            "message": "沿既有租户身份及来源关联提交明确的本次精准删除意图：指定原task和当前record/batch/phone；root仅追溯，真实DCC删除报文/路由不在本时序臆造。",
+            "type": "external_call",
+            "api_id": "API-001",
+            "condition": "既有DCC精准删除业务请求；不是新的线索导入或整组删除"
+          },
+          {
+            "step": 2,
+            "from": "service",
+            "to": "service",
+            "message": "核对请求权限、同tenant/原task、具体record/batch/phone及其已保存实际supplier fileId与原root；缺失/多候选/矛盾待核，不按leadCode、最近主批或同号猜目标，不调用供应商删除。",
+            "type": "internal",
+            "api_id": "API-006",
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "service",
+            "to": "service",
+            "message": "对已授权且准确指定目标的明确取消/删除意图，原子停止该目标关联尚未执行的失败补提交计划并保留停止标记；不影响同root其他主子批，不释放已用或未知占用，不把本地计划停止标成供应商已删除。",
+            "type": "internal",
+            "api_id": "API-006",
+            "condition": "明确取消/删除意图及准确目标已确认"
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "vendor",
+            "message": "保存的原task、本次实际supplier fileId与phone用于识别本次业务对象，供应商选择器按API-006原文：tels优先于fileId/fileName，二者不是AND。仅实际fileId独占精确目标时，合成演示候选以taskId＋fileId按批删除且不同时tels；同fileId多attempt不能定位本次尝试时先待核，不扩大同号或整批删除。真实受理/在途/并发继续partial，不新增默认skip或先删策略。",
+            "type": "external_call",
+            "api_id": "API-006",
+            "condition": "现有权限、准确本次对象及独占fileId映射均已确认时，才模拟候选外发；共享fileId或选择器不能精准表达目标时不外发。"
+          },
+          {
+            "step": 5,
+            "from": "vendor",
+            "to": "service",
+            "message": "读取本次合成明确目标成功、拒绝/失败或超时/未知，并保留原证据。result=0可能含跳过，需查data.skippedCallingTels是否含目标；跳过/部分/未可信结果不能标本次全删。skipRetry数据库/缓存差异不保证取消原生重呼；正式skip选择未定，不默认新增取消能力。",
+            "type": "response",
+            "api_id": "API-006",
+            "condition": "只读文档边界下的独立合成结果"
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "service",
+            "message": "只有指定本次供应商目标明确成功才标其已从供应商删除。保留当前record、原request/行与source、batch/root主子映射、内部失败attempt/已用/未知占用及原话单和秒挂分类；不级联删除同号其他批。",
+            "type": "internal",
+            "api_id": "API-006",
+            "condition": "指定目标明确删除成功"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "ui",
+            "message": "显示本次精确对象删除成功与对应未执行失败计划已停止，保留本地历史及供应商原始通话/秒挂结果；不宣称已撤销已受理或在途呼叫。",
+            "type": "response",
+            "api_id": null,
+            "condition": "指定目标明确删除成功"
+          },
+          {
+            "step": 8,
+            "from": "service",
+            "to": "service",
+            "message": "供应商失败不标已删除；未知/超时/真实矛盾保留本次证据待核，不盲目再发删除、不释放未知尝试占用。已确认本地精准取消标记保留，不凭失败或未知假造远端撤回成功。",
+            "type": "internal",
+            "api_id": "API-006",
+            "condition": "指定供应商目标失败或删除结果未知/矛盾"
+          },
+          {
+            "step": 9,
+            "from": "service",
+            "to": "ui",
+            "message": "反馈准确对象的失败/未知及待核状态；不复用上一个删除对象的成功反馈、不扩同号其他批；本地未执行计划停止和供应商删除状态分别展示。",
+            "type": "response",
+            "api_id": null,
+            "condition": "供应商删除失败/未知，或目标本身尚未可靠关联"
+          },
+          {
+            "step": 10,
+            "from": "service",
+            "to": "service",
+            "message": "对应失败计划的执行前守卫继续核对任务和准确记录：暂停保留计划但阻止执行，恢复需重核；终止停止待执行，定向取消只阻断对应对象。已提交/在途取消仍依供应商待核，不据root清整组或finishRetryFlag保证无在途。",
+            "type": "internal",
+            "api_id": "API-006",
+            "condition": "相关尚未执行失败计划被状态变化影响"
+          },
+          {
+            "step": 11,
+            "from": "service",
+            "to": "dcc",
+            "message": "向删除请求方反馈本次精准目标成功/失败/未知及已保存原request行/record/batch/root，真实回复字段与认证仍待核；原root后来出现新主不改变旧目标。",
+            "type": "response",
+            "api_id": "API-001",
+            "condition": "对应本次DCC精准删除请求；不虚构未关联对象ID"
+          },
+          {
+            "step": 12,
+            "from": "service",
+            "to": "dcc",
+            "message": "仅DCC接口来源沿固定接收地址交付本次真实删除/失败处理进度及原来源映射；手工来源只平台查看。既有原话单/SIP/秒挂分类保持各自对象与版本，删除不生成秒挂重导或新DCC请求。",
+            "type": "external_call",
+            "api_id": "API-010",
+            "condition": "已准确关联的接口来源结果或进度需交付；真实回传服务尚未实接"
+          },
+          {
+            "step": 13,
+            "from": "dcc",
+            "to": "service",
+            "message": "合成对应本次结果的可信ACK或失败/未确认；真实ACK结构、版本和重复/晚更新认证机制仍missing，不由HTTP超时改变删除业务结果。",
+            "type": "response",
+            "api_id": "API-010",
+            "condition": "独立合成交付结果"
+          },
+          {
+            "step": 14,
+            "from": "service",
+            "to": "service",
+            "message": "交付失败仅补送同一结果或可信版本，不重新删除、不重新导入、不另建失败计划、不重复计次；保留原删除/取消证据和未知占用。",
+            "type": "internal",
+            "api_id": "API-010",
+            "condition": "接口来源结果交付失败或ACK未可信确认"
+          }
+        ],
+        "notes": [
+          "保持既有DCC精准删除入口；API-001仅复用原租户/来源和请求关联，不补造真实入口字段。API-006文档已明确tels优先且非AND：独占精确fileId仅候选按批删除、不同时tels；shared-file多attempt不能定位单次则不扩大删除。result=0检查skippedCallingTels，不从skipRetry差异推定无在途或原生重呼已取消。真实作用域/并发/受理和回执仍partial，未定生产skip值。",
+          "本地授权的定向取消/删除意图停止准确目标尚未执行的失败计划，与供应商是否明确删除成功分开。只有目标明确成功才标供应商已删，失败/未知不伪造远端状态；不按root/leadCode清整组、不影响同号其他主子记录。",
+          "保存原source/request行、触发root、supplier fileId/call、失败内部计划/attempt、已用及未知占用和停止证据；后来新主不重算旧对象，取消/删除不重置四要素跨主批累计失败额度；预算共享不扩大本次删除/停止范围，M1/M2仍分别保留触发root。",
+          "暂停挂起待计划、终止或定向取消停止其未执行计划；真实已受理/在途撤回能力保持待核，不新增先删后导入、等finish或导航成功回执门槛。",
+          "秒挂没有平台补提交计划；保留原话单、供应商原始结果及本方明确秒挂分类，并沿原来源交付/查看。不因删除添加秒挂重呼或自动停止供应商原生重呼规则。",
+          "API-010仅负责结果/处理进度交付，ACK缺失仅补送，不重复供应商删除/导入或消耗业务失败额度。所有外部交互均引用既有API；此为合成条件时序，无真实请求、状态或接口事实升级。",
+          "API-009是无需新增外部依赖的内部能力证据；纯UI/持久化/快照动作api_id=null，不把not_required画成接口调用。业务边界仍参照S4索引。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-025",
+          "inputs/source-index.json#SRC-048",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-109",
+          "inputs/source-index.json#SRC-107"
+        ],
+        "review_history": [
+          {
+            "at": "2026-10-10T15:18:55+08:00",
+            "basis": "补齐AC-025及FUNC-009已确认删除状态反馈，不新增端点或供应商能力"
+          },
+          {
+            "at": "2026-10-11T09:32:22+08:00",
+            "basis": "取消停止每日衰减残留，删除仍限定精准业务批与供应商映射；父根仅追溯",
+            "source_ref": "inputs/source-index.json#SRC-083",
+            "record_type": "draft_semantic_revision_not_approval"
+          }
+        ],
+        "business_rule_ids": [
+          "BR-007",
+          "BR-012",
+          "BR-015",
+          "BR-016",
+          "BR-017",
+          "BR-018",
+          "BR-019"
+        ]
+      }
+    },
+    {
+      "recorded_at": "2026-10-13",
+      "record_type": "S5_revalidation_metadata_and_documentary_boundaries_under_actual_Wiki_G2",
+      "previous_current_metadata": {
+        "status": "analysis_reviewed_SRC110_G2_gaps_retained",
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-025",
+          "inputs/source-index.json#SRC-048",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-109",
+          "inputs/source-index.json#SRC-107",
+          "inputs/source-index.json#SRC-110"
+        ],
+        "notes": [
+          "本次实际G2仅允许保留缺口继续S5～S7，证据runtime/g2-user-approval-SRC110-20261012.json；不是G3冻结、生产联调、真实账号权限变更或供应商能力verified。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "DCC接收/回传及应用接入整体延期，旧全文/参与方/消息/API关系保留decision_history或deferred_definition，不参与当前时序图集。"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/g2-user-approval-SRC110-20261012.json",
+          "interface_fingerprint": "dca9200a363d11c23af0cf75ba04f55f8191626a638790827ef767d59b1df755",
+          "scope": "仅合成方案分析，真实缺口保持"
+        }
+      },
+      "previous_file_sha256": "94dde30bc136626314534d93e7086be80e6cd2642c6d31cf66f1b8fc02c96c50",
+      "complete_prior_file_evidence": "runtime/wiki-g2-downstream-revalidation-20261013.json",
+      "reason": "当前6时序消息/参与方目的已逐条与新G2核验，保持124消息正文；仅补来源、取证/字段边界和当前批准绑定。"
+    }
+  ],
+  "business_rule_ids": [
+    "BR-007",
+    "BR-011",
+    "BR-012",
+    "BR-013",
+    "BR-015",
+    "BR-016",
+    "BR-019"
+  ],
+  "status": "S5_manual_code_correction_revalidated_production_gaps_retained",
+  "delivery_scope": "current_DCC_Tianwang_manual_record_origin_policy",
+  "g2_analysis_continuation": {
+    "status": "approved_actual_reply",
+    "date": "2026-10-14",
+    "evidence": "runtime/manual-code-g2-user-approval-20261014.json",
+    "interface_fingerprint": "fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4",
+    "production_risk_accepted": false,
+    "real_calls_allowed": false,
+    "G3_approved": false
+  }
+}

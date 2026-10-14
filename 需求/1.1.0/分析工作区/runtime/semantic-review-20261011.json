@@ -1,0 +1,252 @@
+{
+  "schema_version": "1.0",
+  "review_kind": "read_only_requirement_semantic_review",
+  "reviewed_at": "2026-10-11T09:39:26+08:00",
+  "workspace": "/private/tmp/dcc-v1.1.0-20261011-revision",
+  "frozen_comparison_baseline": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/inputs/requirement-analysis/ra---v1.1.0---21476e056b26e8cc",
+  "source_decision": "SRC-083",
+  "result": "no_current_semantic_conflicts_found",
+  "checks": [
+    {
+      "check": "cancelled_daily_rules",
+      "result": "pass",
+      "basis": [
+        "BR-006",
+        "AC-015",
+        "AC-032",
+        "FUNC-007/FUNC-008 retirement",
+        "ACTION-008 retirement",
+        "API-005 not_required",
+        "SEQ-008 inactive"
+      ],
+      "finding": "有效事实取消每日状态查询、自然日priority衰减及其派生存量改写，既有事件/话单/无话单失败结果能力保留。旧每天减1/最低1仅存在历史、退役对象或明确说明已取代的备注，不是当前规则。"
+    },
+    {
+      "check": "priority_responsibility",
+      "result": "pass",
+      "basis": [
+        "BR-003",
+        "BR-021",
+        "AC-009",
+        "AC-014",
+        "AC-019"
+      ],
+      "finding": "DCC本次逐行priority直接保存和提交，不因跨日、原导入时间或旧批次priority改写。原时间只审计，手工提交前统一/逐条最终priority保持。同任务高先/同级FIFO、已提交不重排、未知不重复保持。"
+    },
+    {
+      "check": "request_level_identity",
+      "result": "pass",
+      "basis": [
+        "AC-047",
+        "AC-050",
+        "API-001 business_batch_contract",
+        "SEQ-001"
+      ],
+      "finding": "requestId为一次DCC请求级，可多行；逐行返回同requestId、行定位及独立batch/parent/root。真正重导新requestId，技术重传返回整个原请求已保存逐行结果/映射，包括失败/待核行，不新增批次或重交。"
+    },
+    {
+      "check": "same_id_changed_content",
+      "result": "pass",
+      "basis": [
+        "AC-051",
+        "BR-002",
+        "BR-004",
+        "SEQ-001"
+      ],
+      "finding": "完整内容不同的同ID重复请求整体冲突拒绝，不覆盖原逐行结果、不为该重复请求任何行新建/提交。具体技术作用域、规范化和并发原子性仍待开发。"
+    },
+    {
+      "check": "auth_retry_parent_order",
+      "result": "pass",
+      "basis": [
+        "AC-048",
+        "AC-050",
+        "BR-004",
+        "BR-012",
+        "API-001",
+        "SEQ-001"
+      ],
+      "finding": "先既有鉴权/租户任务来源校验，后请求级幂等，再只对新请求逐行校验历史父关系。原首导请求重传优先返回旧映射，不因已有历史误拒。"
+    },
+    {
+      "check": "explicit_parent_required_for_known_history",
+      "result": "pass",
+      "basis": [
+        "AC-019",
+        "AC-048",
+        "AC-049",
+        "BR-012",
+        "FUNC-004",
+        "SC-001",
+        "SEQ-001"
+      ],
+      "finding": "已知同tenant/原supplier taskId/leadCode/phone历史的新请求行必须previousBatchId；缺失/不存在/不唯一/范围不符/父链不明拒绝或待核且不提交，不猜最近同号、不另开新根。仅无既有链且无未决歧义首次parent=null/root=self；精确父推导root。改号/多号/多线索歧义保留待核。"
+    },
+    {
+      "check": "supplier_mapping_and_result_lineage",
+      "result": "pass",
+      "basis": [
+        "API-002",
+        "API-003",
+        "API-010",
+        "AC-052",
+        "FUNC-010",
+        "FUNC-015"
+      ],
+      "finding": "业务batch、供应商fileId和53失败分片号分开；按已保存精确映射关联供应商结果。回执和逐次DCC结果携请求/行及当前父根关联，不要求供应商提供本方新协议字段，不将真实partial/missing能力提升为verified。"
+    },
+    {
+      "check": "manual_boundary",
+      "result": "pass",
+      "basis": [
+        "BR-014",
+        "AC-030",
+        "SEQ-006",
+        "SC-001 ALT-007 / VM / SAVE-M",
+        "PAGE-002 ACTION-004"
+      ],
+      "finding": "手工沿原字段校验、提交前最终priority、独立本地record/单号batch、供应商映射、失败下载和平台查看，仅取消日衰减。没有DCC requestId/previousBatchId输入、父校验或关联重导UI。"
+    },
+    {
+      "check": "historical_data_retention",
+      "result": "pass",
+      "basis": [
+        "AC-052",
+        "BR-019",
+        "FUNC-006",
+        "SEQ-007",
+        "SEQ-009"
+      ],
+      "finding": "失败导出只清本次快照明细/文件；精准删除只作用指定供应商目标，本地记录与必要关联留存。接口请求幂等与父根谱系不随明细清理/供应商删除丢失，手工既有本地关联保留。"
+    },
+    {
+      "check": "stable_ids_and_coverage",
+      "result": "pass",
+      "basis": [
+        "memory/feature-list.json",
+        "memory/normalized-user-stories.json",
+        "planning/page-index.json"
+      ],
+      "finding": "13有效FUNC、52有效AC、21BR、4SC、8有效SEQ、2PAGE、12有效ACTION；52AC全部至少一个有效FUNC覆盖，全部已引用AC与所属US匹配，页面/操作引用无失效ID。退役007/008保留完整旧对象与ID，003/014旧退役不复用。"
+    },
+    {
+      "check": "existing_capabilities_retained",
+      "result": "pass",
+      "basis": [
+        "FUNC-001",
+        "FUNC-002",
+        "FUNC-006",
+        "FUNC-009",
+        "FUNC-010",
+        "FUNC-011",
+        "FUNC-012",
+        "FUNC-013",
+        "FUNC-016",
+        "FUNC-017",
+        "AC-038～046"
+      ],
+      "finding": "超管应用管理/独立租户身份、锁定任务来源、精准删除、53失败分片、快照下载/迟到去重、每次结果/SIP晚更新/finishRetryFlag未知区分、真实客户0～2秒秒挂、无话单失败、可靠补送、待核守卫和同任务提交次序均保留；未新增平台调度/额度/换主叫或其他模块页面。"
+    }
+  ],
+  "counts": {
+    "active_functions": 13,
+    "acceptance_criteria": 52,
+    "business_rules": 21,
+    "scenarios": 4,
+    "active_sequences": 8,
+    "pages": 2,
+    "active_actions": 12
+  },
+  "active_function_ids": [
+    "FUNC-001",
+    "FUNC-002",
+    "FUNC-004",
+    "FUNC-005",
+    "FUNC-006",
+    "FUNC-009",
+    "FUNC-010",
+    "FUNC-011",
+    "FUNC-012",
+    "FUNC-013",
+    "FUNC-015",
+    "FUNC-016",
+    "FUNC-017"
+  ],
+  "retired_complete_original_objects": {
+    "FUNC-007": true,
+    "FUNC-008": true
+  },
+  "unchanged_active_feature_objects": [
+    "FUNC-001",
+    "FUNC-002",
+    "FUNC-006",
+    "FUNC-011",
+    "FUNC-012",
+    "FUNC-013",
+    "FUNC-016",
+    "FUNC-017"
+  ],
+  "reference_errors": [],
+  "resolved_review_findings": [
+    {
+      "finding": "BR-021当前notes曾残留保留自然日最低1衰减",
+      "resolution": "当前note已取消，旧note保留decision_history"
+    },
+    {
+      "finding": "SEQ-006/SC-001 ALT-007曾误给手工要求DCC请求及父批协议",
+      "resolution": "手工时序/场景/VM-SAVE-M/下载保留已恢复原边界，DCC协议仅接口适用"
+    },
+    {
+      "finding": "ISSUE-022当前question曾保留每日衰减与存量改写待办",
+      "resolution": "当前question与related_ids现仅保留精准删除工程核实，旧内容保留before历史"
+    },
+    {
+      "finding": "FUNC-005/FUNC-015引用AC-019而未列US-002",
+      "resolution": "两功能source_story_ids补US-002，归属引用核对零错误"
+    }
+  ],
+  "api_verification_statuses": {
+    "API-001": "missing",
+    "API-002": "partial",
+    "API-003": "partial",
+    "API-004": "partial",
+    "API-005": "not_required",
+    "API-006": "partial",
+    "API-007": "not_required",
+    "API-008": "not_required",
+    "API-009": "not_required",
+    "API-010": "missing"
+  },
+  "limits": [
+    "只审阅需求事实及引用/语义，不代表真实API、浏览器原型、并发持久化或供应商去重已验证。",
+    "不批准G1/G2/G3，不推进02/04/05阶段，不改旧冻结包、真实原型、台账或审批。",
+    "技术键作用域、行定位编码、请求内容规范化、并发原子性、供应商未知提交与真实认证/ACK仍交开发核实。"
+  ],
+  "reviewed_file_sha256": {
+    "interfaces/interface-index.json": "b228ab44d0da8ae212d8d441440722a4837d50b1a32133475083ab11ebfd6a6c",
+    "memory/business-rules.json": "5c31d277d88c964be65e8d455b9454b86ecb8a2a01d784282db32b3f3892bc63",
+    "memory/feature-list.json": "4dd468462a94b4f3ce7b402a47b4072db3f3aab5a8173d04acf6f11b678921b9",
+    "memory/normalized-user-stories.json": "1d23bc219dde8d158cbe1762c0b2d90f1456fdf331230c96150741601f067c83",
+    "memory/project-facts.json": "c27a9c7b0371c755b8d3fa2a40bef63fd3cce0b87cce91302937059bbf97739d",
+    "planning/page-index.json": "3d8b7fd130f667eb168bdde9a4f00fb1dc2bde06442dbe761b57d8ae22317104",
+    "scenarios/SC-001.json": "07c7f2381b215ee24d554e7519ee0c1e9d29b01c33f199b5cc5c414896579a87",
+    "scenarios/SC-002.json": "7baf6848d4ddb1fec3279a2e98e72dbc96eed9ac338c3a4d05d163571027cd54",
+    "scenarios/SC-003.json": "a9efab02146fea96402002c5385436fe52bc7d1621df2cbcd4cb0dece251c31a",
+    "scenarios/SC-004.json": "a7c310af51e33f70b0f92b20ad32a791dc1e70dcec8b0dbad9f39088fe8e766b",
+    "scenarios/scenario-index.json": "6652cb11edaf9369ff91a75b54d76ba582d16d267e887909f837cf5afd54d6f8",
+    "sequences/SEQ-001.json": "055b2138c01a93ca8994e665f6cd334cde2c0bd0f8ebd500097446eaeff948af",
+    "sequences/SEQ-002.json": "6279983afa07e09e5775cad873ff59fb5dc39ea0e6fe2ba62eef0e6bfce1d9f8",
+    "sequences/SEQ-003.json": "d87a869b6ec546cc1c952bfba667325bfa15ba343d25ba28133004b3f15c80bd",
+    "sequences/SEQ-004.json": "f1f35e358521fc97c5c01e0d0bca354bf1c44553b0f934922f281720bbb843d3",
+    "sequences/SEQ-005.json": "109efc54fb133666bf207edbca714a5ff753c4725abf18d30303e109ebab2bd9",
+    "sequences/SEQ-006.json": "7840bdc006d901275c554580ffe76bd4c18722edbf0a20bc5bd9a46e04ecd321",
+    "sequences/SEQ-007.json": "14d0c9677352b286f5c8bbb3c774c8da8c130a8eeaf15b6f6e21825fedd8caf8",
+    "sequences/SEQ-008.json": "cd3f683e1dff634b99889339bcade7c6176ce91a618a264ea8c97f7630207bef",
+    "sequences/SEQ-009.json": "c7b7a596ee4ae920cdf85be7af45af7dccae5adcfd2b2fb4590fb64d5a263846",
+    "sequences/sequence-index.json": "ee747c2a5a5bfed7293361f83265e1ea947cbcd78d9e3e15f710af7aff29c10f",
+    "inputs/source-index.json": "da1ee0945ac88bfea4346a9c375d4639e2f84c7099e372863f5b0886b9774a2b",
+    "runtime/open-items.json": "caab1ecab7e4b3e1f7bd00e47d7ae6d7402ecd865c184b007d42d29dae484d5a"
+  },
+  "verified_against_current_workspace": "/Users/huhaowen/Documents/Codex/2026-10-09/task/dcc-v1.1.0-reanalysis",
+  "actual_current_files_matching": 23
+}

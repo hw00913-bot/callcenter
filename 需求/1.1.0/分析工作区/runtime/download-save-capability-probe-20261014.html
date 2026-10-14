@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; base-uri 'none'; form-action 'none'">
+<title>下载保存能力验证 · 仅合成文件</title>
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172b4d;background:#f4f7fb}*{box-sizing:border-box}body{margin:0}main{max-width:1040px;margin:32px auto;padding:0 24px 40px}h1{font-size:26px;margin-bottom:12px}h2{font-size:19px}p{line-height:1.65}.card{background:#fff;border:1px solid #dfe6ef;border-radius:12px;padding:22px;margin-top:18px}.note{background:#fff8df;border-left:4px solid #d7a824;padding:12px 16px}.muted{color:#586b82}table{width:100%;border-collapse:collapse}th,td{text-align:left;border-bottom:1px solid #e8edf4;padding:10px;vertical-align:top;overflow-wrap:anywhere}th{font-weight:600;width:45%}button{background:#165dce;border:0;border-radius:7px;padding:12px 20px;color:white;font:inherit;cursor:pointer}button:disabled{background:#94a5bd;cursor:not-allowed}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 ui-monospace,monospace;background:#f6f8fb;padding:15px;border-radius:6px}.status{font-weight:650;padding:12px 0}.status[data-outcome=success]{color:#197040}.status[data-outcome=exception],.status[data-outcome=denied],.status[data-outcome=content_mismatch]{color:#ad302b}li{line-height:1.7;margin:7px 0}code{font-family:ui-monospace,monospace}@media(max-width:600px){main{padding:0 12px}.card{padding:16px}th{width:52%}}
+</style>
+</head>
+<body>
+<main>
+<h1>下载保存能力验证</h1>
+<p class="muted">仅验证当前浏览器的前端文件保存能力。没有外网请求、真实客户数据、业务完成回执或业务删除操作，也不会使用本地存储。</p>
+<p class="note">页面不会自动保存文件。点击下方按钮后，请在系统对话框中选择新文件位置。成功仅表示本次写入关闭后可回读到相同内容，不代表生产支持表、后端确认或清理已经通过。</p>
+<section class="card" aria-labelledby="capability-heading">
+<h2 id="capability-heading">当前环境的原生能力</h2>
+<table aria-label="浏览器能力"><tbody id="capabilities"></tbody></table>
+<p id="support-summary" role="status"></p>
+</section>
+<section class="card" aria-labelledby="save-heading">
+<h2 id="save-heading">保存固定合成文件</h2>
+<p>建议文件名：<strong>云外呼-下载验证-合成.csv</strong>。测试文件使用无效的演示号码标签，不含真实手机号；不会读取用户其他文件。</p>
+<pre id="synthetic-content" aria-label="固定合成内容"></pre>
+<button id="save-test" type="button">保存合成测试文件</button>
+<p id="probe-status" class="status" data-outcome="not_started" role="status" aria-live="polite">尚未执行保存验证。</p>
+<ol id="step-log" aria-label="当前验证步骤"></ol>
+</section>
+<section class="card" aria-labelledby="result-heading">
+<h2 id="result-heading">本页执行记录</h2>
+<p class="muted">记录仅保留在当前页面内存中，刷新即丢失。取消、权限拒绝及异常会如实记录；任何结果均不会触发业务清理。</p>
+<pre id="probe-result" aria-label="结构化验证结果"></pre>
+</section>
+</main>
+<script>
+'use strict';
+(() => {
+  const content = '\uFEFF线索编码,号码,失败原因\r\nSYNTH-LEAD-001,DEMO-PHONE-A,仅合成下载验证\r\nSYNTH-LEAD-002,DEMO-PHONE-B,不连接任何呼叫服务\r\n';
+  const encoder = typeof TextEncoder === 'function' ? new TextEncoder() : null;
+  const expectedBytes = encoder ? encoder.encode(content) : null;
+  const capabilities = {
+    isSecureContext: window.isSecureContext === true,
+    showSaveFilePicker: typeof window.showSaveFilePicker === 'function',
+    FileSystemFileHandle: typeof window.FileSystemFileHandle === 'function',
+    createWritable: typeof window.FileSystemFileHandle?.prototype?.createWritable === 'function',
+    getFile: typeof window.FileSystemFileHandle?.prototype?.getFile === 'function',
+    writableStreamClose: typeof window.FileSystemWritableFileStream?.prototype?.close === 'function',
+    sha256: typeof window.crypto?.subtle?.digest === 'function',
+    TextEncoder: encoder !== null,
+    topLevelPage: window.top === window,
+    userAgent: navigator.userAgent,
+    pageOrigin: location.origin
+  };
+  const required = ['isSecureContext','showSaveFilePicker','createWritable','getFile','writableStreamClose','sha256','TextEncoder'];
+  const supported = required.every(key => capabilities[key] === true);
+  const labels = {
+    isSecureContext:'安全上下文 isSecureContext',showSaveFilePicker:'原生保存选择器 showSaveFilePicker',
+    FileSystemFileHandle:'文件句柄接口',createWritable:'文件写入流 createWritable',getFile:'文件回读 getFile',
+    writableStreamClose:'写入流 close',sha256:'SHA-256 摘要能力',TextEncoder:'UTF-8 编码能力',
+    topLevelPage:'当前为顶层页面',userAgent:'浏览器标识（不代表已获支持）',pageOrigin:'当前页面来源'
+  };
+  const output = {
+    diagnostic:'download-save-capability-probe-20261014',
+    scope:'front_end_synthetic_file_save_only',
+    loadedAt:new Date().toISOString(),capabilities,
+    expectedByteLength:expectedBytes?.length ?? null,
+    networkRequests:false,businessCompletionAck:false,businessCleanup:false,persistentStorage:false,
+    runs:[]
+  };
+  const button=document.getElementById('save-test');
+  const status=document.getElementById('probe-status');
+  const steps=document.getElementById('step-log');
+  const result=document.getElementById('probe-result');
+  const render=()=>{result.textContent=JSON.stringify(output,null,2);};
+  const setStatus=(outcome,message)=>{status.dataset.outcome=outcome;status.textContent=message;};
+  for(const [key,value] of Object.entries(capabilities)) {
+    const tr=document.createElement('tr'),th=document.createElement('th'),td=document.createElement('td');
+    th.textContent=labels[key];td.textContent=typeof value==='boolean'?(value?'可用 / true':'不可用 / false'):value;
+    tr.append(th,td);document.getElementById('capabilities').append(tr);
+  }
+  document.getElementById('synthetic-content').textContent=content.replace(/^\uFEFF/,'');
+  document.getElementById('support-summary').textContent=supported
+    ?'必要接口可见；这只是能力检测，尚未证明保存成功。请点击按钮执行。'
+    :'缺少必要能力，保存按钮已禁用；记录保留，不改用普通下载伪造成功。缺少：'+required.filter(key=>!capabilities[key]).join('、');
+  button.disabled=!supported;
+  render();
+  const digest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),value=>value.toString(16).padStart(2,'0')).join('');
+  button.addEventListener('click',async()=>{
+    if(button.disabled||!supported)return;
+    button.disabled=true;
+    steps.replaceChildren();
+    const run={runNumber:output.runs.length+1,startedAt:new Date().toISOString(),outcome:'running',stage:'picker',steps:[]};
+    output.runs.push(run);
+    const log=(stage,message)=>{
+      run.stage=stage;
+      const item={stage,message,at:new Date().toISOString()};run.steps.push(item);
+      const li=document.createElement('li');li.textContent=message;steps.append(li);render();
+    };
+    let writable=null,closed=false;
+    setStatus('running','等待系统保存位置选择。');
+    log('picker','1. 请求系统保存对话框；尚未写入文件。');
+    try {
+      // Keep the picker call before the first asynchronous work, preserving the click activation.
+      const handle=await window.showSaveFilePicker({
+        suggestedName:'云外呼-下载验证-合成.csv',
+        types:[{description:'CSV 合成验证文件',accept:{'text/csv':['.csv']}}]
+      });
+      log('file_selected','2. 用户已选择保存目标；尚不表示文件内容已保存。');
+      run.fileName=handle.name;
+      run.expectedByteLength=expectedBytes.length;
+      run.expectedSha256=await digest(expectedBytes);
+      log('create_writable','3. 创建用户授权的文件写入流。');
+      writable=await handle.createWritable();
+      log('write','4. 写入固定合成 CSV 字节。');
+      await writable.write(expectedBytes);
+      log('close','5. 等待写入流关闭完成；write 成功不直接当保存成功。');
+      await writable.close();
+      closed=true;run.closeResolved=true;
+      log('readback','6. close 已成功；读取同一目标文件校验内容。');
+      const file=await handle.getFile();
+      const observedBytes=new Uint8Array(await file.arrayBuffer());
+      run.observedByteLength=observedBytes.length;
+      run.observedSha256=await digest(observedBytes);
+      run.byteLengthMatches=observedBytes.length===expectedBytes.length;
+      run.bytesMatch=run.byteLengthMatches&&observedBytes.every((value,index)=>value===expectedBytes[index]);
+      run.sha256Matches=run.observedSha256===run.expectedSha256;
+      if(!run.bytesMatch||!run.sha256Matches){
+        run.outcome='content_mismatch';
+        log('content_mismatch','保存后内容与固定合成内容不一致；不能确认保存成功。');
+        setStatus(run.outcome,'内容核对失败。未发送业务回执，未清理任何业务记录。');
+      } else {
+        run.outcome='success';
+        log('success','7. 本次前端保存验证通过：关闭成功，回读字节和 SHA-256 均一致。');
+        setStatus('success','本次合成文件保存成功，回读内容一致。仅前端能力通过；没有业务回执或清理。');
+      }
+    } catch(error) {
+      run.failedStage=run.stage;
+      run.error={name:String(error?.name||'Error'),message:String(error?.message||error)};
+      if(error?.name==='AbortError'&&run.stage==='picker'){
+        run.outcome='canceled_or_aborted';
+        setStatus(run.outcome,'保存选择已取消或被浏览器终止（AbortError）；未确认成功，未清理业务记录。');
+      } else if(['NotAllowedError','SecurityError'].includes(error?.name)){
+        run.outcome='denied';
+        setStatus(run.outcome,'权限或浏览器安全策略拒绝本次操作；未确认成功，未清理业务记录。');
+      } else {
+        run.outcome='exception';
+        setStatus(run.outcome,'保存验证发生异常（'+run.error.name+'）；未确认成功，未清理业务记录。');
+      }
+      log(run.outcome,'异常发生于 '+run.failedStage+'：'+run.error.name+' — '+run.error.message);
+      if(writable&&!closed){
+        try{await writable.abort();run.abortAttempt='resolved';}
+        catch(abortError){run.abortAttempt='rejected';run.abortErrorName=String(abortError?.name||'Error');}
+      }
+    } finally {
+      run.finishedAt=new Date().toISOString();
+      run.businessCompletionAck=false;run.businessCleanup=false;
+      button.disabled=!supported;
+      render();
+    }
+  });
+})();
+</script>
+</body>
+</html>

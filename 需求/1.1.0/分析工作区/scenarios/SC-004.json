@@ -1,0 +1,4396 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-004",
+  "name": "客户秒挂三态、原证据保存及DCC明确分类",
+  "summary": "保留现行三条件false优先/unknown/总体可信冲突待核规则及原话单证据；可信原DCC记录明确回传三态，天网/手工平台查看。秒挂绝无平台重呼、计时、额度、attempt或新子批。",
+  "actors": [
+    "AliCti供应商",
+    "云呼叫中心",
+    "运营人员",
+    "DCC（结果接收方）"
+  ],
+  "trigger": "准确呼叫结果或同一对象可信晚更新需要本地秒挂判定",
+  "preconditions": [
+    "tenant/原task/record/batch/root/实际fileId/phone及call或可靠事件归属准确；整体关联冲突先待核，不猜最近同号。",
+    "只使用客户真实接听、客户主动挂断及客户有效接通时长三条件；来源/单位/枚举未核或缺失/负时长为unknown，不把坐席桥接时长当客户时长。",
+    "客户真实0与2秒含边界；任一条件可信false即可明确非秒挂，全真才秒挂，没有false且存在unknown才待核。",
+    "本方秒挂只识别保存三态；可信原DCC记录准确判定交DCC，天网/手工平台查看；不重导、不建等待/额度/内部attempt/子批，不新增控制供应商原生任务规则操作。",
+    "仅本次记录保存的可信原DCC来源，或继承该DCC触发记录的内部失败尝试，才向后台固定DCC端交付；天网和手工仅按现有平台任务权限查看。来源缺失、冲突或DCC交付关联待核不误投、不默认DCC，不阻断已有合法本地保存。来源取自接收时的验真应用上下文及受控登记候选并随原记录保存，不由body自报、应用名称、R、root拥有方、最近调用应用或后来的主批决定；真实稳定app映射与登记、HTTP/认证/报文/ACK仍待S4和工程核验。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "AliCti供应商",
+      "action": "提供本次实际呼叫/话单及客户接通、挂断方、客户实际接通时长等原始字段。",
+      "system_response": "原字段、单位与来源如实保存，平台派生秒挂结果不冒充供应商已有状态枚举。",
+      "rule_ids": [
+        "BR-010",
+        "BR-011"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云呼叫中心",
+      "action": "用准确call/可靠事件及保存record/batch→实际fileId、tenant/原task/leadCode/固定phone唯一关联并读取保存root",
+      "system_response": "未知、多候选或真实冲突待核；不按最近同号/后来新主猜归属，不伪造供应商callId。",
+      "rule_ids": [
+        "BR-012",
+        "BR-015"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "云呼叫中心",
+      "action": "识别新结果、同对象可信更新和纯重复，读取当前原话单、本地判定与证据版本",
+      "system_response": "纯重复复用原记录；可信晚更新只维护同一实际呼叫，不新增真实呼叫、提交或计划。",
+      "rule_ids": [
+        "BR-015",
+        "BR-019"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云呼叫中心",
+      "action": "保留客户真实呼叫、供应商原始结果与字段来源，保存接通/挂断方/有效时长的可信程度。",
+      "system_response": "不抹话单、不把真实秒挂改成导入失败，不补未知时长为0，不用坐席桥接时长替代客户接通时长。",
+      "rule_ids": [
+        "BR-010",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云呼叫中心",
+      "action": "按客户真实接听、客户主动挂断、客户有效接通时长0～2秒组合判定，真实0和2秒纳入。",
+      "system_response": "整体归属/证据冲突先待核；任一条件可信false即明确非秒挂，即使其余未知。全三项可信true才秒挂；无false且至少一项unknown则待核，不补0或把单位未核当false。",
+      "rule_ids": [
+        "BR-010",
+        "BR-015"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "云呼叫中心",
+      "action": "准确满足条件时生成明确秒挂判定，保存与原call/记录的关联。",
+      "system_response": "秒挂为本方派生业务判定，与供应商原status/SIP及真实话单分别保存；本方存储字段/版本和供应商单位/枚举仍需工程核验，不伪造供应商枚举。",
+      "rule_ids": [
+        "BR-010",
+        "BR-011"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "云呼叫中心",
+      "action": "保存本地秒挂/非秒挂/待核、判定依据版本和原话单、实际batch/root/fileId及来源审计",
+      "system_response": "本次仅识别保存，不生成重导/计划/计时器/额度/内部业务attempt或新子批；后有新根不改原对象，不主动改变任务状态。",
+      "rule_ids": [
+        "BR-011",
+        "BR-012",
+        "BR-015"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "运营人员",
+      "action": "按原查看权限在既有任务记录查看真实原话单和本地三态",
+      "system_response": "本地保存查看不以外部交付确认作为前提；判定待核准确显示原证据；不显示秒挂重提交入口、次数或倒计时。原DCC来源交付状态独立记录；天网/手工无对外交付。",
+      "rule_ids": [
+        "BR-010",
+        "BR-011",
+        "BR-015"
+      ]
+    },
+    {
+      "step": 9,
+      "actor": "云呼叫中心",
+      "action": "读取本次原记录保存的可信来源；内部失败尝试继承触发记录的原来源，区分原DCC交付、天网/手工平台查看和来源待核。",
+      "system_response": "仅准确原DCC记录或继承其来源的内部尝试，且本次原对象/DCC接收关联无冲突，才进入固定后台交付。天网/手工沿既有平台权限查看；来源缺失/冲突或DCC交付关联不明保留待核、不默认DCC。不能按root拥有方、应用名称、R、当前调用者或后来主批改变既存来源；可信应用映射与登记仍候选。",
+      "rule_ids": [
+        "BR-012",
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 10,
+      "actor": "云呼叫中心",
+      "action": "仅针对可信原DCC记录或继承其来源的内部失败尝试，将本次准确原对象结果、可信判定及处理进度交后台固定DCC接收端。",
+      "system_response": "保留原供应商结果和原记录来源，准确record/root/fileId/call或可靠事件关联仅用于追溯，不决定结果去向。天网和手工记录即使同组或挂DCC主批也不交DCC；原DCC记录即使挂天网主批仍沿自身原来源。无前台地址或任务应用绑定；正式报文/身份/版本/HTTP/认证仍S4候选。",
+      "rule_ids": [
+        "BR-012",
+        "BR-015",
+        "BR-017"
+      ]
+    },
+    {
+      "step": 11,
+      "actor": "DCC（结果接收方）",
+      "action": "按双方待核契约接收并确认本次准确结果/进度；DCC只接收不调度失败补提交。",
+      "system_response": "业务确认应准确对应本次原对象结果及当前交付版本；可靠保存、ACK和真实认证/超时行为到S4核验，不假定HTTP成功即业务确认。",
+      "rule_ids": [
+        "BR-017"
+      ]
+    },
+    {
+      "step": 12,
+      "actor": "云呼叫中心",
+      "action": "保存本次准确交付确认，或将未确认/失败/超时/不匹配沿原结果保留待补送。",
+      "system_response": "补送仅原对象结果与原交付版本，不新call/供应商导入/失败计划/计时/次数/子批；旧确认不确认较新可信更新。交付状态与本地方结果、失败计划及预算分开，秒挂不补导、不控制供应商规则。正式ACK/持久重送协议仍S4候选。",
+      "rule_ids": [
+        "BR-011",
+        "BR-015",
+        "BR-017"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "实际记录/批次/呼叫关联缺失、多候选或真实冲突",
+      "steps": [
+        "保留原字段待核，不强配最近同号，不生成确定归属或秒挂结论；整体冲突解决后按同一实际对象重新核验。"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "纯重复结果或更新没有新增可信信息",
+      "steps": [
+        "纯重复复用原话单/判定和证据版本；可信更新维护同一呼叫，不当新call、不导入供应商。",
+        "原DCC来源纯重复沿原结果对象及已有交付状态处理，未确认交付只允许候选补送原对象结果；不新call/版本或业务操作。"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "任意一个必要条件已有可信false（其余可unknown）",
+      "steps": [
+        "明确非秒挂，保存可信false的原证据与其余字段状态；不能以其余字段缺失将已可确定非秒挂降成待核。"
+      ]
+    },
+    {
+      "id": "ALT-004",
+      "condition": "没有可信false且至少一个条件unknown；或整体证据真实冲突",
+      "steps": [
+        "字段缺失/异常/单位或枚举未核独立unknown，不补0、不任选矛盾证据；整体关联冲突先待核，后续准确可信晚更新沿同呼叫重判。"
+      ]
+    },
+    {
+      "id": "ALT-013",
+      "condition": "本次已保存可信原来源为天网或手工，沿平台原权限查看",
+      "steps": [
+        "本地保存本次原结果/判定/处理进度；天网和手工不向天网或DCC交付。新应用、同组或DCC主批不解锁或迁移历史原来源。"
+      ]
+    },
+    {
+      "id": "ALT-014",
+      "condition": "固定DCC端本次交付失败、超时、业务确认缺失或不能对应原对象当前交付版本",
+      "steps": [
+        "保留原结果及交付待补送；仅候选补送原对象原版本，具体ACK/重送到S4核验。",
+        "不重新提交供应商，不新call/失败或秒挂计划、不重计120秒/失败次数，不改变原root/实际fileId或既有UNKNOWN占用。"
+      ]
+    },
+    {
+      "id": "ALT-015",
+      "condition": "已保存来源或本次DCC交付对象/后台端关联不准确、缺失或冲突",
+      "steps": [
+        "保留准确已有的本地结果和原证据、交付关联待核，不误投某DCC线索；不重分原root或猜最近同号。",
+        "后续可信核查沿原对象处理；本地计划/预算事实与交付待核状态独立，不由交付错误触发业务补提。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "同一真实对象的原话单/供应商原结果和本地三态与证据版本完整保留；可信晚更不新增实际呼叫。",
+    "三条件27种组合：全真秒挂，任一可信false非秒挂，其余待核；整体关联冲突先待核。",
+    "秒挂从不生成平台补提交、等待、次数、业务attempt或子批，不新增停止供应商原生规则操作。",
+    "可信原DCC记录及继承其来源的内部尝试每次准确结果/可信更新与处理进度交固定后台DCC端，天网/手工仅平台查看。交付确认/待补送独立保存；本方负责失败补提，DCC不调度。交付故障只候选补送结果，不新增业务呼叫/提交/计划/计时/次数，秒挂不补提或停止供应商。"
+  ],
+  "acceptance_points": [
+    "AC-004",
+    "AC-021",
+    "AC-022",
+    "AC-023",
+    "AC-027",
+    "AC-034",
+    "AC-018",
+    "AC-037",
+    "AC-075"
+  ],
+  "source_story_ids": [
+    "US-004",
+    "US-006"
+  ],
+  "source_refs": [
+    "inputs/user-original-20261009.txt#第4条",
+    "inputs/source-index.json#SRC-045",
+    "inputs/source-index.json#SRC-002",
+    "inputs/source-index.json#SRC-046",
+    "inputs/source-index.json#SRC-047",
+    "inputs/source-index.json#SRC-048",
+    "inputs/source-index.json#SRC-049",
+    "inputs/source-index.json#SRC-050",
+    "inputs/source-index.json#SRC-051",
+    "inputs/source-index.json#SRC-056",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070",
+    "inputs/source-index.json#SRC-083",
+    "inputs/source-index.json#SRC-084",
+    "inputs/source-index.json#SRC-085",
+    "inputs/source-index.json#SRC-086",
+    "inputs/source-index.json#SRC-089",
+    "inputs/source-index.json#SRC-091",
+    "inputs/source-index.json#SRC-092",
+    "inputs/source-index.json#SRC-094",
+    "inputs/source-index.json#SRC-095",
+    "inputs/source-index.json#SRC-096",
+    "inputs/source-index.json#SRC-098",
+    "inputs/source-index.json#SRC-100",
+    "inputs/source-index.json#SRC-103",
+    "inputs/source-index.json#SRC-106",
+    "inputs/source-index.json#SRC-110",
+    "inputs/source-index.json#SRC-115",
+    "inputs/source-index.json#SRC-116"
+  ],
+  "business_rule_ids": [
+    "BR-010",
+    "BR-011",
+    "BR-012",
+    "BR-013",
+    "BR-015",
+    "BR-019",
+    "BR-017"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "vendor",
+        "name": "AliCti供应商",
+        "kind": "external_system"
+      },
+      {
+        "id": "platform",
+        "name": "云呼叫中心",
+        "kind": "system"
+      },
+      {
+        "id": "operator",
+        "name": "运营人员",
+        "kind": "actor"
+      },
+      {
+        "id": "dcc",
+        "name": "DCC（结果接收方）",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "vendor",
+        "type": "start",
+        "order": 1,
+        "label": "本次呼叫结果或可信更新"
+      },
+      {
+        "id": "RESULT",
+        "lane_id": "vendor",
+        "type": "event",
+        "order": 2,
+        "label": "提供原呼叫与话单",
+        "step_ref": 1
+      },
+      {
+        "id": "LINK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 3,
+        "label": "关联到具体记录与呼叫？",
+        "step_ref": 2
+      },
+      {
+        "id": "UNIQUE",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 4,
+        "label": "新结果或同call可信更新？",
+        "step_ref": 3
+      },
+      {
+        "id": "SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 5,
+        "label": "保存原话单与判定证据",
+        "step_ref": 4
+      },
+      {
+        "id": "HANGUP",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 6,
+        "label": "三条件有可信false\n或全部可信true，且无整体冲突？",
+        "step_ref": 5
+      },
+      {
+        "id": "YES",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 8,
+        "label": "标记平台派生秒挂结果",
+        "step_ref": 6
+      },
+      {
+        "id": "NO",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 9,
+        "label": "记录明确非秒挂"
+      },
+      {
+        "id": "UNCERTAIN",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 10,
+        "label": "判定待核；保留原字段"
+      },
+      {
+        "id": "STATUS",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "保存判定与来源追溯",
+        "step_ref": 7
+      },
+      {
+        "id": "BADLINK",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 15,
+        "label": "整体关联/真实证据冲突待核\n不推断当前call/记录归属"
+      },
+      {
+        "id": "REPEAT",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 16,
+        "label": "复用原判定/原话单/证据版本\n不新增call或补提交"
+      },
+      {
+        "id": "VIEW",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 17,
+        "label": "天网/手工沿平台任务权限查看\n本次原结果/三态/处理状态",
+        "step_ref": 8
+      },
+      {
+        "id": "HANGUP-MATCH",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "三项均为可信true？"
+      },
+      {
+        "id": "DCC-SOURCE",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 12,
+        "label": "已保存可信原来源？\nDCC交付；天网/手工查看\n来源缺失/冲突待核",
+        "step_ref": 9
+      },
+      {
+        "id": "DCC-SEND",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 13,
+        "label": "仅原DCC记录/继承其来源的尝试\n向固定DCC端交付本次结果/进度",
+        "step_ref": 10
+      },
+      {
+        "id": "DCC-RECEIVE",
+        "lane_id": "dcc",
+        "type": "action",
+        "order": 14,
+        "label": "接收本次结果/进度\n准确业务确认候选，待S4",
+        "step_ref": 11
+      },
+      {
+        "id": "DCC-CONFIRM",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 18,
+        "label": "本次原对象/交付版本\n已获准确业务确认？（待S4）",
+        "step_ref": 12
+      },
+      {
+        "id": "DCC-ACCEPTED",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 19,
+        "label": "保存本次准确交付确认\n不改变原呼叫/计划/预算",
+        "step_ref": 12
+      },
+      {
+        "id": "DCC-PENDING",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 20,
+        "label": "交付失败/未确认：原结果待补送\n不新call/导入/计划/计时计次",
+        "step_ref": 12
+      },
+      {
+        "id": "DCC-UNBOUND",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 21,
+        "label": "原来源或DCC交付关联待核\n不默认DCC，不改本地结果/预算",
+        "step_ref": 9
+      },
+      {
+        "id": "DCC-WAIT-END",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 22,
+        "label": "原业务证据与对象保留\n交付待核/待补送，不重复业务"
+      },
+      {
+        "id": "DCC-WAIT-END-DRAW1-1",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 23,
+        "label": "原业务证据与对象保留\n交付待核/待补送，不重复业务",
+        "drawing_reuse_of": "DCC-WAIT-END"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "RESULT"
+      },
+      {
+        "from": "RESULT",
+        "to": "LINK"
+      },
+      {
+        "from": "SAVE",
+        "to": "HANGUP"
+      },
+      {
+        "from": "YES",
+        "to": "STATUS"
+      },
+      {
+        "from": "NO",
+        "to": "STATUS"
+      },
+      {
+        "from": "UNCERTAIN",
+        "to": "STATUS"
+      },
+      {
+        "from": "LINK",
+        "to": "UNIQUE",
+        "label": "关联唯一且可信"
+      },
+      {
+        "from": "LINK",
+        "to": "BADLINK",
+        "label": "未知或冲突",
+        "path_id": "ALT-001",
+        "type": "failure"
+      },
+      {
+        "from": "UNIQUE",
+        "to": "SAVE",
+        "label": "新结果或同call可信更新"
+      },
+      {
+        "from": "UNIQUE",
+        "to": "REPEAT",
+        "label": "纯重复且无新增信息",
+        "path_id": "ALT-002"
+      },
+      {
+        "from": "HANGUP",
+        "to": "HANGUP-MATCH",
+        "label": "任一可信false或三项全真"
+      },
+      {
+        "from": "HANGUP",
+        "to": "UNCERTAIN",
+        "label": "无false且有unknown/整体冲突",
+        "path_id": "ALT-004",
+        "type": "failure"
+      },
+      {
+        "from": "HANGUP-MATCH",
+        "to": "YES",
+        "label": "三项全真：真实0～2秒含边界"
+      },
+      {
+        "from": "HANGUP-MATCH",
+        "to": "NO",
+        "label": "任一可信false，其余可unknown",
+        "path_id": "ALT-003"
+      },
+      {
+        "from": "STATUS",
+        "to": "DCC-SOURCE"
+      },
+      {
+        "from": "DCC-SOURCE",
+        "to": "VIEW",
+        "label": "可信原天网或手工：仅平台查看",
+        "path_id": "ALT-013"
+      },
+      {
+        "from": "DCC-SOURCE",
+        "to": "DCC-SEND",
+        "label": "可信原DCC/继承其来源的尝试，交付关联准确"
+      },
+      {
+        "from": "DCC-SOURCE",
+        "to": "DCC-UNBOUND",
+        "label": "原来源缺失/冲突，或DCC交付关联待核",
+        "path_id": "ALT-015",
+        "type": "failure"
+      },
+      {
+        "from": "DCC-SEND",
+        "to": "DCC-RECEIVE"
+      },
+      {
+        "from": "DCC-RECEIVE",
+        "to": "DCC-CONFIRM"
+      },
+      {
+        "from": "DCC-CONFIRM",
+        "to": "DCC-ACCEPTED",
+        "label": "准确确认对应本次原对象/交付版本"
+      },
+      {
+        "from": "DCC-CONFIRM",
+        "to": "DCC-PENDING",
+        "label": "失败/超时/未知或确认不匹配",
+        "path_id": "ALT-014",
+        "type": "failure"
+      },
+      {
+        "from": "DCC-PENDING",
+        "to": "DCC-WAIT-END"
+      },
+      {
+        "from": "DCC-UNBOUND",
+        "to": "DCC-WAIT-END-DRAW1-1"
+      }
+    ]
+  },
+  "design_notes": [
+    "SRC-116及本会话实际G1批准：DCC最高优先级闭环，天网共用导入但仅平台查看。只细化已有源分支标签/谓词，不新增业务控制流、页面或天网回传。真实应用身份、来源受控登记、请求命名空间与生产缺口仍待S4/工程核验；不是G2/G3、风险接受或生产批准。",
+    "原本地可信关联、源SIP隔离、可信false优先三态、3自动确认起120秒/8人工四元组共额外2次、原root/UNKNOWN及独立fileId候选保持。准确交付只读保存事实，不改任务/记录来源或真实账号权限。",
+    "DCC泳道仅表达结果接收责任；固定后台端、业务确认/版本/补送是待S4核验提案，不写正式字段/路由/认证/超时，不凭HTTP完成确认业务收到，不让交付ACK成为本地保存或失败调度前提。",
+    "天网/手工按既有平台权限查看；原DCC接口来源也保留已有本地查看权，本图交付分支表达外部接收责任，不新增查看限制或技术控制页。",
+    "生产AliCti同号/在途/导航、稳定52/53身份、时长单位/挂断侧和真实本方持久化仍partial/missing；不真实调用、不新增先删/先解禁/导航成功回执或停止供应商能力。",
+    "共享结束/结果节点按互斥分支作绘图展开，drawing_reuse_of记录原节点；完整原路径投影等价，不增加实际业务操作。",
+    "结果路由只读取本次记录/内部失败触发记录保存的可信原来源；即使天网子记录挂DCC主批仍仅平台查看，即使DCC记录挂天网主批仍只按自身DCC来源交付。未知来源不默认DCC；body、应用名称、R、root拥有方及后来调用方均不能决定去向。技术验真/登记为待核候选，不增加前台配置。"
+  ],
+  "scope": "in_scope",
+  "status": "S3_draft_actual_Tianwang_G1_scope_approved_G2_pending",
+  "g1_scope_context": {
+    "source_id": "SRC-116",
+    "evidence": "runtime/tianwang-g1-user-approval-20261013.json",
+    "evidence_sha256": "aa18ca7adb11cc1261645ba86de37782ee0d80c54bc967050d903e90086e422b",
+    "actual_answer": "批准 G1，继续 S3／S4",
+    "G2_approved_for_current_revision": false,
+    "G3_approved": false,
+    "production_verified": false
+  },
+  "decision_history": [
+    {
+      "before": "识别已接听且客户侧挂断、接听时长不超过2秒的秒挂候选；等待30分钟按原任务关联新批次重提，整链首次外最多4次；DCC成功删除取消指定待执行重呼",
+      "source_refs": [
+        "inputs/user-original-20261009.txt#第4条",
+        "inputs/source-index.json#SRC-045",
+        "inputs/source-index.json#SRC-002",
+        "inputs/source-index.json#SRC-046",
+        "inputs/source-index.json#SRC-047",
+        "inputs/source-index.json#SRC-048",
+        "inputs/source-index.json#SRC-049",
+        "inputs/source-index.json#SRC-050",
+        "inputs/source-index.json#SRC-051",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-061"
+      ],
+      "superseded_by": "SRC-063～070",
+      "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+    },
+    {
+      "before_postconditions": [
+        "接口任务每次结果及其更新回传DCC，手工任务仅平台查看",
+        "DCC负责重新导入决策，平台不建立重呼计划",
+        "原导入日期、priority与新批次关联保留"
+      ],
+      "superseded_by": "SRC-083",
+      "reason": "明确本次结果关联与DCC重导精确父根/请求幂等；不继承旧日期priority及每日策略。"
+    },
+    {
+      "at": "2026-10-11T10:08:12+08:00",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SC-004",
+        "name": "客户秒挂识别与每次结果回传",
+        "summary": "客户真实接通、客户主动挂断、有效时长0～2秒含真实0/2；识别回传DCC，不在平台调度重导。",
+        "actors": [
+          "云呼叫中心",
+          "AliCti供应商",
+          "DCC",
+          "运营人员"
+        ],
+        "trigger": "供应商本次结果事件或话单更新",
+        "preconditions": [
+          "已保存业务batchId→供应商fileId映射及tenant/task/leadCode/phone可准确关联，并能读回requestId/parentBatchId/rootBatchId；不找最近同号",
+          "任务来源创建提交后锁定，技术未知保留待核"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "AliCti供应商",
+            "action": "获取本次事件/话单并保留原字段来源",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云呼叫中心",
+            "action": "按已保存业务batch→supplier fileId映射及tenant/task/leadCode/phone关联当前结果，读回requestId/parent/root；缺失或冲突待核",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-012",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "云呼叫中心",
+            "action": "记录本次风控/话单/SIP及最后一通；秒挂按真实组合识别",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云呼叫中心",
+            "action": "按锁定来源分流：接口任务结果携requestId/行定位/batchId/parentBatchId/rootBatchId回传固定DCC地址，手工仅平台查看",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "DCC",
+            "action": "DCC决定是否/何时真重导；重导传新requestId、该行精确previousBatchId和本次priority",
+            "system_response": "平台无倒计时或额度；新请求接收复用SC-001/SEQ-001，不保证供应商换主叫或重新呼叫结果",
+            "rule_ids": [
+              "BR-002",
+              "BR-003",
+              "BR-012"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "云呼叫中心",
+            "action": "核完整请求幂等及父同tenant/task/leadCode/phone；有效真重导新batch/parent/root采用本次priority，旧批原样保留",
+            "system_response": "鉴权后先比requestId完整内容：同请求同内容回原逐行结果/批映射不重交，异内容拒绝；仅新请求查历史，已有同tenant/task/leadCode/phone必须previousBatchId，缺父/不明/不符拒绝或暂停不提交，不新根不猜最近父",
+            "rule_ids": [
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-012",
+              "BR-015"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-001",
+            "condition": "结果/关联未知或冲突",
+            "steps": [
+              "保留待核，不伪造最终结果，不按查询空值反推无话单"
+            ]
+          },
+          {
+            "id": "ALT-002",
+            "condition": "重复、晚更新或回传失败",
+            "steps": [
+              "重复不作为新呼叫，晚更新同对象；失败可观察可补送，技术策略交开发"
+            ]
+          },
+          {
+            "id": "ALT-003",
+            "condition": "手工来源任务",
+            "steps": [
+              "平台查看，不回传DCC，不改变锁定来源"
+            ]
+          },
+          {
+            "id": "ALT-004",
+            "condition": "已有同tenant/task/leadCode/phone历史的新业务行缺previousBatchId，或父不存在/不唯一/归属不符",
+            "steps": [
+              "该行拒绝或暂停待核，不提交供应商、不另建独立新根，不按最近同号猜父；同请求重传优先返回原映射"
+            ]
+          },
+          {
+            "id": "ALT-005",
+            "condition": "同requestId完整内容重传",
+            "steps": [
+              "返回原已保存逐行结果/同批父根映射，不新增批次、不重交供应商"
+            ]
+          },
+          {
+            "id": "ALT-006",
+            "condition": "同requestId异内容",
+            "steps": [
+              "冲突拒绝，不覆盖原记录，不当新业务请求"
+            ]
+          }
+        ],
+        "postconditions": [
+          "接口任务每次结果及其更新回传DCC，手工任务仅平台查看",
+          "DCC负责重新导入决策，平台不建立重呼计划",
+          "真重导保存新batchId、parentBatchId=逐行previousBatchId及父rootBatchId，本批使用本次DCCpriority/导入时间；旧批历史保留，无每日衰减/旧策略继承",
+          "相同请求完整内容重传返回原逐行结果/同批映射，不创建新业务批且不重复供应商导入"
+        ],
+        "acceptance_points": [
+          "AC-004",
+          "AC-021",
+          "AC-022",
+          "AC-023",
+          "AC-024",
+          "AC-027",
+          "AC-034",
+          "AC-035",
+          "AC-048",
+          "AC-049",
+          "AC-050",
+          "AC-051",
+          "AC-052"
+        ],
+        "source_story_ids": [
+          "US-004",
+          "US-001"
+        ],
+        "source_refs": [
+          "inputs/user-original-20261009.txt#第4条",
+          "inputs/source-index.json#SRC-045",
+          "inputs/source-index.json#SRC-002",
+          "inputs/source-index.json#SRC-046",
+          "inputs/source-index.json#SRC-047",
+          "inputs/source-index.json#SRC-048",
+          "inputs/source-index.json#SRC-049",
+          "inputs/source-index.json#SRC-050",
+          "inputs/source-index.json#SRC-051",
+          "inputs/source-index.json#SRC-056",
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083"
+        ],
+        "business_rule_ids": [
+          "BR-010",
+          "BR-012",
+          "BR-015",
+          "BR-016",
+          "BR-017",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-006"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "vendor",
+              "name": "AliCti供应商",
+              "kind": "external_system"
+            },
+            {
+              "id": "platform",
+              "name": "云呼叫中心",
+              "kind": "system"
+            },
+            {
+              "id": "dcc",
+              "name": "DCC",
+              "kind": "external_system"
+            },
+            {
+              "id": "operator",
+              "name": "运营人员",
+              "kind": "actor"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "S",
+              "lane_id": "vendor",
+              "type": "start",
+              "order": 1,
+              "label": "本次结果或更新"
+            },
+            {
+              "id": "N1",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 2,
+              "label": "获取本次事件/话单并保留原字段来源",
+              "step_ref": 1
+            },
+            {
+              "id": "N2",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 3,
+              "label": "本方batch→fileId映射及\ntenant/task/leadCode/phone可信？",
+              "step_ref": 2
+            },
+            {
+              "id": "N3",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 4,
+              "label": "保存话单/SIP/最后一通；秒挂按真实客户接通、\n客户主动挂断、客户接通时长0～2秒识别\n新结果或可交付更新？",
+              "step_ref": 3
+            },
+            {
+              "id": "N4",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 5,
+              "label": "任务为接口来源？",
+              "step_ref": 4
+            },
+            {
+              "id": "N5",
+              "lane_id": "dcc",
+              "type": "decision",
+              "order": 7,
+              "label": "DCC是否决定真重导？",
+              "step_ref": 5
+            },
+            {
+              "id": "E",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 30,
+              "label": "保存关联；无平台重导/每日衰减"
+            },
+            {
+              "id": "E1",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 9,
+              "label": "结果待核"
+            },
+            {
+              "id": "E2",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 10,
+              "label": "重复/晚更新/失败补送"
+            },
+            {
+              "id": "E3",
+              "lane_id": "operator",
+              "type": "end",
+              "order": 11,
+              "label": "手工仅平台查看"
+            },
+            {
+              "id": "RET",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 6,
+              "label": "每次结果携request/行定位\nbatch/parent/root回传固定地址",
+              "step_ref": 4
+            },
+            {
+              "id": "NEWREQ",
+              "lane_id": "dcc",
+              "type": "action",
+              "order": 12,
+              "label": "新requestId+逐行previousBatchId\n本次DCCpriority",
+              "step_ref": 5
+            },
+            {
+              "id": "REQUEST",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 13,
+              "label": "完整业务请求分类",
+              "step_ref": 6
+            },
+            {
+              "id": "PARENT",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 14,
+              "label": "已有链明确previousBatchId\n精确父存在且同归属？",
+              "step_ref": 6
+            },
+            {
+              "id": "SAVEBATCH",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 15,
+              "label": "新batch；parent=previous/root取父\n本次priority；复用SC-001提交",
+              "step_ref": 6
+            },
+            {
+              "id": "REPLAY",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 16,
+              "label": "同请求同内容返回原结果\n不新批、不重交"
+            },
+            {
+              "id": "IDCONFLICT",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 17,
+              "label": "同ID异内容拒绝"
+            },
+            {
+              "id": "BADPARENT",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 18,
+              "label": "已有链缺父/父不明不符\n拒绝或暂停，不新根不提交"
+            },
+            {
+              "id": "E-NEW-BATCH",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 31,
+              "label": "新业务批与精确父根已保存；复用SC-001跟进提交"
+            }
+          ],
+          "edges": [
+            {
+              "from": "S",
+              "to": "N1"
+            },
+            {
+              "from": "N1",
+              "to": "N2"
+            },
+            {
+              "from": "N2",
+              "to": "N3",
+              "label": "关联明确"
+            },
+            {
+              "from": "N3",
+              "to": "N4",
+              "label": "新可信结果或同对象晚更新"
+            },
+            {
+              "from": "N4",
+              "to": "RET",
+              "label": "接口来源"
+            },
+            {
+              "from": "N2",
+              "to": "E1",
+              "label": "未知/冲突",
+              "path_id": "ALT-001",
+              "type": "failure"
+            },
+            {
+              "from": "N3",
+              "to": "E2",
+              "label": "纯重复或回传待补送",
+              "path_id": "ALT-002",
+              "type": "failure"
+            },
+            {
+              "from": "N4",
+              "to": "E3",
+              "label": "手工",
+              "path_id": "ALT-003",
+              "type": "failure"
+            },
+            {
+              "from": "RET",
+              "to": "N5"
+            },
+            {
+              "from": "N5",
+              "to": "E",
+              "label": "不重导"
+            },
+            {
+              "from": "N5",
+              "to": "NEWREQ",
+              "label": "决定真重导"
+            },
+            {
+              "from": "NEWREQ",
+              "to": "REQUEST"
+            },
+            {
+              "from": "REQUEST",
+              "to": "PARENT",
+              "label": "新的requestId"
+            },
+            {
+              "from": "REQUEST",
+              "to": "REPLAY",
+              "label": "同ID同完整内容",
+              "path_id": "ALT-005"
+            },
+            {
+              "from": "REQUEST",
+              "to": "IDCONFLICT",
+              "label": "同ID异内容",
+              "path_id": "ALT-006",
+              "type": "failure"
+            },
+            {
+              "from": "PARENT",
+              "to": "SAVEBATCH",
+              "label": "父归属校验通过"
+            },
+            {
+              "from": "PARENT",
+              "to": "BADPARENT",
+              "label": "已有链缺父/父不明或不匹配",
+              "path_id": "ALT-004",
+              "type": "failure"
+            },
+            {
+              "from": "SAVEBATCH",
+              "to": "E-NEW-BATCH"
+            }
+          ]
+        },
+        "design_notes": [
+          "业务确认来自SRC-063～070；供应商尝试完整性、字段映射与可靠交付待技术核实；G3未批准。",
+          "SRC-083明确本方请求幂等和精确父根；本次DCCpriority不继承旧批。SIP/finishRetry/无话单/秒挂原边界及供应商未核能力保留；G3待本轮重新确认。",
+          "已有链真重导必须精确previousBatchId；缺父拒绝/待核不新根。同请求鉴权后的完整内容去重优先于历史父检查。"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "reason": "用户最新主/子根归组方案替代SRC-083逐行指定父批方案；旧事实只作历史，新G3未批准。",
+      "record_type": "draft_business_revision_not_approval"
+    },
+    {
+      "at": "2026-10-12",
+      "record_type": "draft_business_revision_not_approval",
+      "before": {
+        "name": "客户秒挂识别与每次结果回传",
+        "summary": "客户真实接通、客户主动挂断、有效时长0～2秒含真实0/2；识别回传DCC，不在平台调度重导。",
+        "actors": [
+          "云呼叫中心",
+          "AliCti供应商",
+          "DCC",
+          "运营人员"
+        ],
+        "trigger": "供应商本次结果事件或话单更新",
+        "preconditions": [
+          "已保存当前record/batch→supplier fileId及tenant/原task/leadCode/固定phone可准确关联，读回原request行/root；不按后来新主重算旧事件",
+          "任务来源创建提交后锁定，技术未知保留待核",
+          "同phone多leadCode等既有未决业务歧义仍待核，不因新flag/归组键自动许可或纳组；手工不扩展DCC协议。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "AliCti供应商",
+            "action": "获取本次事件/话单并保留原字段来源",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云呼叫中心",
+            "action": "按已保存当前record/batch→supplier fileId和原号码数据关联结果，读回原request行/root；缺失或冲突待核",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-012",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "云呼叫中心",
+            "action": "记录本次风控/话单/SIP及最后一通；秒挂按真实组合识别",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云呼叫中心",
+            "action": "按锁定来源分流：接口结果携原requestId/行定位/recordId/当前batchId/已存rootBatchId及真实call/事件回传，手工仅平台查看",
+            "system_response": "每次结果准确追溯，未知与false分开；未核能力仅模拟",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "DCC",
+            "action": "DCC决定是否/何时再次业务导入；新requestId及逐行isNewBatch可选Boolean（缺省false）、同组固定phone、本次priority",
+            "system_response": "平台无倒计时/额度，接收复用SC-001/SEQ-001主子协议，不传父批字段；不保证供应商换主叫/排重接收/无并行在途",
+            "rule_ids": [
+              "BR-002",
+              "BR-003",
+              "BR-012"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "云呼叫中心",
+            "action": "鉴权后先按flag缺省false归一请求去重；新ID逐行核同tenant/原task/lead固定phone和历史归组，分配新record/batch及主/子root",
+            "system_response": "true独立新主root=batch；false/missing有同组主则新子直接最近已保存主，无主首主；最近按保存创建序列，旧请求回原映射不重交；改phone/历史关联不明不提交",
+            "rule_ids": [
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-012",
+              "BR-015"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-001",
+            "condition": "结果/关联未知或冲突",
+            "steps": [
+              "保留待核，不伪造最终结果，不按查询空值反推无话单"
+            ]
+          },
+          {
+            "id": "ALT-002",
+            "condition": "重复、晚更新或回传失败",
+            "steps": [
+              "重复不作为新呼叫，晚更新同对象；失败可观察可补送，技术策略交开发"
+            ]
+          },
+          {
+            "id": "ALT-003",
+            "condition": "手工来源任务",
+            "steps": [
+              "平台查看，不回传DCC，不改变锁定来源"
+            ]
+          },
+          {
+            "id": "ALT-004",
+            "condition": "同tenant/原task/leadCode固定phone改变，或历史归组关联不明/冲突",
+            "steps": [
+              "该行拒绝或待核且不提交，不按最近同号/结果/priority猜根；同请求重传先回原映射"
+            ]
+          },
+          {
+            "id": "ALT-005",
+            "condition": "同requestId归一有效完整业务请求相同重传",
+            "steps": [
+              "返回原逐行record/batch/root，新主后来变化也不重算，不重建不重交；flag missing与false归一一致"
+            ]
+          },
+          {
+            "id": "ALT-006",
+            "condition": "同requestId归一完整业务内容不同",
+            "steps": [
+              "整重复request冲突拒绝，不覆盖原逐行结果"
+            ]
+          }
+        ],
+        "postconditions": [
+          "接口任务每次结果/同对象更新携原request行/record/batch/root，手工仅平台查看；无话单不伪造callID。",
+          "DCC负责再次业务导入决策，本平台无每日衰减、倒计时或额度。",
+          "每有效新业务行新record/batch；true独立新主，false/missing有同组已保存主则子直接root、无主首主；最近主只按保存创建序列。",
+          "旧请求同归一内容重传回原root不受后来新主影响、不重复供应商导入；供应商排重/精准删除/旧批并行在途仍待核，不自动先删或等finish。"
+        ],
+        "acceptance_points": [
+          "AC-004",
+          "AC-021",
+          "AC-022",
+          "AC-023",
+          "AC-024",
+          "AC-027",
+          "AC-034",
+          "AC-035",
+          "AC-048",
+          "AC-049",
+          "AC-050",
+          "AC-051",
+          "AC-052"
+        ],
+        "source_story_ids": [
+          "US-004",
+          "US-001"
+        ],
+        "business_rule_ids": [
+          "BR-010",
+          "BR-012",
+          "BR-015",
+          "BR-016",
+          "BR-017",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-006"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "vendor",
+              "name": "AliCti供应商",
+              "kind": "external_system"
+            },
+            {
+              "id": "platform",
+              "name": "云呼叫中心",
+              "kind": "system"
+            },
+            {
+              "id": "dcc",
+              "name": "DCC",
+              "kind": "external_system"
+            },
+            {
+              "id": "operator",
+              "name": "运营人员",
+              "kind": "actor"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "S",
+              "lane_id": "vendor",
+              "type": "start",
+              "order": 1,
+              "label": "本次结果或更新"
+            },
+            {
+              "id": "N1",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 2,
+              "label": "获取本次事件/话单并保留原字段来源",
+              "step_ref": 1
+            },
+            {
+              "id": "N2",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 3,
+              "label": "当前record/batch→fileId映射\n原request行/root与号码可信？",
+              "step_ref": 2
+            },
+            {
+              "id": "N3",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 4,
+              "label": "保存话单/SIP/最后一通；秒挂按真实客户接通、\n客户主动挂断、客户接通时长0～2秒识别\n新结果或可交付更新？",
+              "step_ref": 3
+            },
+            {
+              "id": "N4",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 5,
+              "label": "任务为接口来源？",
+              "step_ref": 4
+            },
+            {
+              "id": "N5",
+              "lane_id": "dcc",
+              "type": "decision",
+              "order": 7,
+              "label": "DCC是否决定真重导？",
+              "step_ref": 5
+            },
+            {
+              "id": "E",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 30,
+              "label": "保存关联；无平台重导/每日衰减"
+            },
+            {
+              "id": "E1",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 9,
+              "label": "结果待核"
+            },
+            {
+              "id": "E2",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 10,
+              "label": "重复/晚更新/失败补送"
+            },
+            {
+              "id": "E3",
+              "lane_id": "operator",
+              "type": "end",
+              "order": 11,
+              "label": "手工仅平台查看"
+            },
+            {
+              "id": "RET",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 6,
+              "label": "每次结果携原request行\nrecord/当前batch/已存root回传",
+              "step_ref": 4
+            },
+            {
+              "id": "NEWREQ",
+              "lane_id": "dcc",
+              "type": "action",
+              "order": 12,
+              "label": "新requestId+逐行isNewBatch\n缺省false；同组固定phone、本次priority",
+              "step_ref": 5
+            },
+            {
+              "id": "REQUEST",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 13,
+              "label": "鉴权/source/tenant/task后\nflag missing=false归一请求分类",
+              "step_ref": 6
+            },
+            {
+              "id": "GROUP",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 14,
+              "label": "同tenant/原task/lead固定phone\n历史归组可信？",
+              "step_ref": 6
+            },
+            {
+              "id": "SAVEMAIN",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 17,
+              "label": "true新record/batch\n独立新主root=batch",
+              "step_ref": 6
+            },
+            {
+              "id": "REPLAY",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 16,
+              "label": "回原逐行record/batch/root\n后来新主不重算，不重交"
+            },
+            {
+              "id": "IDCONFLICT",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 17,
+              "label": "同ID异内容整重复请求拒绝"
+            },
+            {
+              "id": "GROUPCONFLICT",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 20,
+              "label": "改phone/历史关联不明冲突\n拒绝或待核不提交"
+            },
+            {
+              "id": "E-NEW-BATCH",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 31,
+              "label": "新record/batch及主/子root保存；复用SC-001提交"
+            },
+            {
+              "id": "MAINFLAG",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 15,
+              "label": "isNewBatch为true？",
+              "step_ref": 6
+            },
+            {
+              "id": "HASMAIN",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 16,
+              "label": "同组已有已保存主？",
+              "step_ref": 6
+            },
+            {
+              "id": "SAVECHILD",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 18,
+              "label": "false/missing有主：新子record/batch\n直接root=按创建序列最近主",
+              "step_ref": 6
+            },
+            {
+              "id": "SAVEFIRST",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 19,
+              "label": "false/missing无主：新record/batch\n自动首主root=batch",
+              "step_ref": 6
+            }
+          ],
+          "edges": [
+            {
+              "from": "S",
+              "to": "N1"
+            },
+            {
+              "from": "N1",
+              "to": "N2"
+            },
+            {
+              "from": "N2",
+              "to": "N3",
+              "label": "关联明确"
+            },
+            {
+              "from": "N3",
+              "to": "N4",
+              "label": "新可信结果或同对象晚更新"
+            },
+            {
+              "from": "N4",
+              "to": "RET",
+              "label": "接口来源"
+            },
+            {
+              "from": "N2",
+              "to": "E1",
+              "label": "未知/冲突",
+              "path_id": "ALT-001",
+              "type": "failure"
+            },
+            {
+              "from": "N3",
+              "to": "E2",
+              "label": "纯重复或回传待补送",
+              "path_id": "ALT-002",
+              "type": "failure"
+            },
+            {
+              "from": "N4",
+              "to": "E3",
+              "label": "手工",
+              "path_id": "ALT-003",
+              "type": "failure"
+            },
+            {
+              "from": "RET",
+              "to": "N5"
+            },
+            {
+              "from": "N5",
+              "to": "E",
+              "label": "不重导"
+            },
+            {
+              "from": "N5",
+              "to": "NEWREQ",
+              "label": "决定真重导"
+            },
+            {
+              "from": "NEWREQ",
+              "to": "REQUEST"
+            },
+            {
+              "from": "REQUEST",
+              "to": "GROUP",
+              "label": "新的requestId"
+            },
+            {
+              "from": "REQUEST",
+              "to": "REPLAY",
+              "label": "同ID同完整内容",
+              "path_id": "ALT-005"
+            },
+            {
+              "from": "REQUEST",
+              "to": "IDCONFLICT",
+              "label": "同ID异内容",
+              "path_id": "ALT-006",
+              "type": "failure"
+            },
+            {
+              "from": "GROUP",
+              "to": "GROUPCONFLICT",
+              "label": "改phone/历史关联不明或冲突",
+              "path_id": "ALT-004",
+              "type": "failure"
+            },
+            {
+              "from": "SAVEMAIN",
+              "to": "E-NEW-BATCH"
+            },
+            {
+              "from": "GROUP",
+              "to": "MAINFLAG",
+              "label": "同组固定phone与历史可信"
+            },
+            {
+              "from": "MAINFLAG",
+              "to": "SAVEMAIN",
+              "label": "true：独立新主"
+            },
+            {
+              "from": "MAINFLAG",
+              "to": "HASMAIN",
+              "label": "false或missing"
+            },
+            {
+              "from": "HASMAIN",
+              "to": "SAVECHILD",
+              "label": "有主"
+            },
+            {
+              "from": "HASMAIN",
+              "to": "SAVEFIRST",
+              "label": "无主"
+            },
+            {
+              "from": "SAVECHILD",
+              "to": "E-NEW-BATCH"
+            },
+            {
+              "from": "SAVEFIRST",
+              "to": "E-NEW-BATCH"
+            }
+          ]
+        },
+        "design_notes": [
+          "业务确认来自SRC-063～070；供应商尝试完整性、字段映射与可靠交付待技术核实；G3未批准。",
+          "SRC-084/085/086按固定phone归组及flag缺省false主子协议取代指定父方案；子直接root，最近主按保存创建序列，旧请求/旧事件root不重算。",
+          "原SIP/finishRetry/无话单/秒挂与精准删除边界保留；fileId/isRepeat/旧批在途并行仍partial，不增等最后一通或先删门禁；G3待本轮重新核验确认。",
+          "recordId为平台本地记录ID，根回执/回传字段从已保存映射补齐，不伪装供应商新增字段；同号多lead既有歧义保持待核。"
+        ]
+      },
+      "superseded_by": [
+        "SRC-089",
+        "SRC-091",
+        "SRC-094",
+        "SRC-098",
+        "SRC-102",
+        "SRC-103"
+      ],
+      "reason": "用户重新明确平台异常补提交责任、两类各额外2次；G1范围反馈确认3类自动2分钟、其余8类人工，自动起算为平台收到并确认本次失败。旧场景仅保留历史，非本轮G3或供应商能力验证。"
+    },
+    {
+      "at": "2026-10-12",
+      "record_type": "draft_business_revision_not_approval",
+      "before": {
+        "name": "真实客户秒挂识别与独立补提交",
+        "summary": "保留真实呼叫；形成独立秒挂计划，额外最多2次，与失败额度分别累计。间隔未定或执行权未核时不自动执行；新子批固定原root，接口任务回传处理进度，手工仅查看。",
+        "actors": [
+          "AliCti供应商",
+          "云呼叫中心",
+          "运营人员",
+          "DCC"
+        ],
+        "trigger": "客户已接听且主动挂断，可信时长0～2秒",
+        "preconditions": [
+          "可按实际call/稳定事件与已保存record/batch→supplier fileId及tenant/原task/leadCode/固定phone唯一准确关联，并读回触发记录原request行和已保存root。",
+          "秒挂判定需要客户真实接通、客户主动挂断及可信客户实际有效接通时长；缺失/异常不补0，真实0和2秒纳入。",
+          "任务来源创建提交后锁定，原话单及关联证据保留；失败和秒挂各首次外最多2次，任务正常重呼计数独立。",
+          "秒挂等待间隔及起算尚未确认；同号受理、排重、原生重呼互斥、字段单位及在途取消仍待S4核验，当前只形成参数待定计划，不自动执行。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "AliCti供应商",
+            "action": "提供客户本次呼叫/话单及可核对的接通、挂断方和客户有效接通时长字段。",
+            "system_response": "保留供应商原字段与单位来源，不用坐席桥接时长替代客户接通时长。",
+            "rule_ids": [
+              "BR-010",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云呼叫中心",
+            "action": "核对本次call/稳定事件与已保存record/batch→fileId及tenant/原task/leadCode/固定phone，取回原request行和触发记录保存root。",
+            "system_response": "关联不明或真实冲突待核，不能按最近同号或后来新主强配。",
+            "rule_ids": [
+              "BR-012",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "云呼叫中心",
+            "action": "识别新的真实结果或同对象可信更新，查询既有秒挂处理对象。",
+            "system_response": "重复通知、原请求重传或晚更新不产生第二份秒挂计划、不重复计次；真实更新保留原话单。",
+            "rule_ids": [
+              "BR-015",
+              "BR-017",
+              "BR-019"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云呼叫中心",
+            "action": "同时确认客户已真实接听、客户主动挂断、可信客户有效时长0～2秒，包含真实0及2。",
+            "system_response": "未接通、null或异常时长不纳入；判定字段单位和映射待S4核实，未知不当0秒。",
+            "rule_ids": [
+              "BR-010",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "云呼叫中心",
+            "action": "保存实际客户呼叫、原话单和判定证据，标注秒挂及后续处理状态。",
+            "system_response": "秒挂不改写成导入失败或抹除真实呼叫；正常任务重呼、失败补提与秒挂补提分别记录。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011",
+              "BR-013",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "云呼叫中心",
+            "action": "读取同一秒挂处理链首次之外最多2次已用次数和当前尝试占用。",
+            "system_response": "失败补提交用量不占秒挂额度；子批、原因变化或重复结果不重置，实际发起一次成功/失败均计。",
+            "rule_ids": [
+              "BR-011",
+              "BR-013",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 7,
+            "actor": "云呼叫中心",
+            "action": "建立独立秒挂计划，保存触发call/事件、原root、剩余额度及当前参数待定状态。",
+            "system_response": "秒挂间隔及起算未确认，不采用自动失败2分钟、不恢复历史30分钟/额外4次。",
+            "rule_ids": [
+              "BR-011",
+              "BR-012",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 8,
+            "actor": "云呼叫中心",
+            "action": "形成计划前检查原任务及指定记录是否可处理；尚未执行期间持续响应暂停、终止和具体对象明确删除/取消。",
+            "system_response": "暂停挂起相关待计划；终止或对应记录明确取消停止相关待计划，不新排可执行计划；恢复后重新核查，已提交和在途撤回仍待核。",
+            "rule_ids": [
+              "BR-007",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 9,
+            "actor": "云呼叫中心",
+            "action": "检查秒挂独立等待间隔及起算依据是否已获得业务确认。",
+            "system_response": "本轮当前为未确认，保持参数待定且不自动执行；图中已确认分支只描述参数未来定稿后的业务条件，不代表批准默认值。",
+            "rule_ids": [
+              "BR-011",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 10,
+            "actor": "云呼叫中心",
+            "action": "仅在参数已经确认后，检查本次唯一秒挂计划的保存执行时间。",
+            "system_response": "未到则等待；重复/晚更新不另排计划、不重新计时；后续新的真实秒挂是新的外部触发事件。",
+            "rule_ids": [
+              "BR-011",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 11,
+            "actor": "云呼叫中心",
+            "action": "到期前重新核对准确关联、秒挂额度/占用、原任务与指定记录状态，以及供应商同号受理/原生任务重呼执行权。",
+            "system_response": "任务暂停挂起；终止或指定记录明确取消停止相关尚未执行计划；关联/占用/执行权未核待核，不能按单一finishRetryFlag保证无在途。",
+            "rule_ids": [
+              "BR-007",
+              "BR-011",
+              "BR-012",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 12,
+            "actor": "云呼叫中心",
+            "action": "创建内部秒挂尝试及必要新子批，直接关联触发记录保存root；保存原task、来源和priority，不伪造DCC新request。",
+            "system_response": "后来新主不改变旧root，无第三层；保留原话单与原请求审计、内部计划/尝试分别追溯，supplier fileId新建或复用尚待核。",
+            "rule_ids": [
+              "BR-003",
+              "BR-004",
+              "BR-011",
+              "BR-012",
+              "BR-021"
+            ]
+          },
+          {
+            "step": 13,
+            "actor": "云呼叫中心",
+            "action": "沿同任务priority高先、同级FIFO实际发起新的秒挂业务补提交并原子占一次秒挂额度。",
+            "system_response": "受理或拒绝均计数；未知保留占用待核，技术传输恢复不多建业务批或当新额度；不影响失败剩余额度。",
+            "rule_ids": [
+              "BR-004",
+              "BR-011",
+              "BR-015",
+              "BR-021"
+            ]
+          },
+          {
+            "step": 14,
+            "actor": "AliCti供应商",
+            "action": "AliCti受理本次导入，提供实际响应与可用fileId等证据。",
+            "system_response": "不假设新子批必定绕过供应商排重、重置任务轮次或保证再次呼叫；不自行先删旧批或叠加原生重呼。",
+            "rule_ids": [
+              "BR-004",
+              "BR-015",
+              "BR-018"
+            ]
+          },
+          {
+            "step": 15,
+            "actor": "云呼叫中心",
+            "action": "核对本次供应商受理证据，区分明确受理、明确拒绝和未知/冲突。",
+            "system_response": "拒绝保存真实原因与用量；未知维持占用不自动重发；result=0不推定每条接收成功。",
+            "rule_ids": [
+              "BR-004",
+              "BR-015",
+              "BR-018"
+            ]
+          },
+          {
+            "step": 16,
+            "actor": "云呼叫中心",
+            "action": "保存真实秒挂证据、计划、已用/剩余秒挂额度、参数待定/等待/待核/受理/停止状态及触发记录root/fileId。",
+            "system_response": "失败及任务正常重呼计数另列；此处只结束本次处理，后续真实结果仍是外部新事件。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011",
+              "BR-012",
+              "BR-013",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 17,
+            "actor": "云呼叫中心",
+            "action": "按锁定来源分流每次真实呼叫结果及秒挂处理进度；接口取原request行/实际batch/root固定回传，手工仅平台查看。",
+            "system_response": "内部补提标识不能冒充DCC请求，原root不因后有新主重算；不新增手工DCC输入字段。",
+            "rule_ids": [
+              "BR-016",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 18,
+            "actor": "DCC",
+            "action": "DCC接收原真实呼叫结果、秒挂识别及参数待定/等待/受理/停止等处理进度。",
+            "system_response": "DCC不调度秒挂再次推送；正式回传字段、ACK和可靠交付待核。",
+            "rule_ids": [
+              "BR-011",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 19,
+            "actor": "云呼叫中心",
+            "action": "检查向固定DCC接收端的交付是否得到明确确认。",
+            "system_response": "失败或未知只补送同一结果，不重新导入供应商、不重复计次。",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-001",
+            "condition": "结果或实际记录/批次关联未知、多候选或真实冲突",
+            "steps": [
+              "保存原始结果待核，不猜原root或强配同号，不生成确定秒挂结论与可执行计划。"
+            ]
+          },
+          {
+            "id": "ALT-002",
+            "condition": "重复通知、原请求重传或同对象晚更新",
+            "steps": [
+              "同对象可信更新保留原话单，复用原计划；不多排计划、不重新计时、不重复消耗额度。"
+            ]
+          },
+          {
+            "id": "ALT-003",
+            "condition": "未真实接通、非客户主动挂断、时长null/异常/大于2秒或条件未知",
+            "steps": [
+              "保留真实呼叫/原话单；明确非秒挂不纳入，判定未知待核，不把空值当0；按原结果回传，不进入秒挂补提。"
+            ]
+          },
+          {
+            "id": "ALT-004",
+            "condition": "秒挂额度首次外两次用尽",
+            "steps": [
+              "停止本类并显示原因；失败类剩余额度不被占用，子批或原因变化不重置秒挂次数。"
+            ]
+          },
+          {
+            "id": "ALT-005",
+            "condition": "秒挂等待间隔或起算尚未确定",
+            "steps": [
+              "保存唯一参数待定计划，不自动执行；不套用失败3类2分钟，不恢复30分钟或额外4次。"
+            ]
+          },
+          {
+            "id": "ALT-006",
+            "condition": "参数已确认但执行时间未到",
+            "steps": [
+              "等待已保存执行时间，重复结果不重启或另排计划。"
+            ]
+          },
+          {
+            "id": "ALT-007",
+            "condition": "原关联、计数/占用、提交状态或供应商原生执行权未知/冲突",
+            "steps": [
+              "保留待核和已有占用；不叠加同次后续呼叫，不以空话单或finishRetryFlag单字段推断可执行，不释放未知占用再次发送。"
+            ]
+          },
+          {
+            "id": "ALT-008",
+            "condition": "任务暂停、终止或指定记录明确删除/取消",
+            "steps": [
+              "暂停挂起相关尚未执行计划，恢复后重核；终止停止；删除/取消只作用具体对象关联的尚未执行计划，不影响同号其他批次。真实在途撤回行为待核。"
+            ]
+          },
+          {
+            "id": "ALT-009",
+            "condition": "本次实际新业务补提明确拒绝",
+            "steps": [
+              "保存真实拒绝、尝试和秒挂已用次数；不抹原话单，不改记原呼叫为导入失败，不自动循环再次发送。"
+            ]
+          },
+          {
+            "id": "ALT-010",
+            "condition": "本次补提交响应超时、未知或冲突",
+            "steps": [
+              "保留占用待核，核实实际受理；不多建子批、不伪供应商fileId、不释放后重发。"
+            ]
+          },
+          {
+            "id": "ALT-011",
+            "condition": "手工来源任务",
+            "steps": [
+              "仅平台显示原话单和处理进度，不回传DCC，不新增DCCrequest/isNewBatch协议。"
+            ]
+          },
+          {
+            "id": "ALT-012",
+            "condition": "向DCC交付失败或ACK未确认",
+            "steps": [
+              "只补送同一呼叫结果与处理进度，不重复计划、不消耗秒挂次数、不再次导入供应商。"
+            ]
+          }
+        ],
+        "postconditions": [
+          "真实客户秒挂按接通＋客户主动挂断＋可信有效0～2秒识别，真实0/2纳入；原话单保留，不把未接通/null/异常视为秒挂。",
+          "独立秒挂链首次外最多2次，实际新的业务补提交发起即占一次，成功/失败均计，未知保留占用；失败额度和任务三天五呼另计，不重置子批或重复事件额度。",
+          "当前秒挂等待间隔及起算未定，仅生成参数待定计划，不自动执行；不恢复30分钟/额外4次，也不套用自动失败2分钟。",
+          "必要新子批固定触发记录保存原root，沿原task、来源与priority，保留原request/call及内部触发尝试证据；后来新主不改变旧关联，不新增第三层、不伪DCC新请求。",
+          "暂停挂起、终止停止和指定记录明确删除/取消只阻断对应尚未执行计划；已提交和在途撤回保持待核。",
+          "接口任务每次真实呼叫与秒挂处理进度回传固定DCC接收端，手工仅平台查看；回传补送不导入。供应商新的真实结果是下次外部事件，不构造图内重复执行回路。"
+        ],
+        "acceptance_points": [
+          "AC-004",
+          "AC-021",
+          "AC-022",
+          "AC-023",
+          "AC-024",
+          "AC-027",
+          "AC-034",
+          "AC-035",
+          "AC-067",
+          "AC-068",
+          "AC-070",
+          "AC-071",
+          "AC-072",
+          "AC-073",
+          "AC-074",
+          "AC-075"
+        ],
+        "source_story_ids": [
+          "US-004",
+          "US-006"
+        ],
+        "business_rule_ids": [
+          "BR-003",
+          "BR-004",
+          "BR-007",
+          "BR-010",
+          "BR-011",
+          "BR-012",
+          "BR-013",
+          "BR-015",
+          "BR-016",
+          "BR-017",
+          "BR-018",
+          "BR-019",
+          "BR-021"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "vendor",
+              "name": "AliCti供应商",
+              "kind": "external_system"
+            },
+            {
+              "id": "platform",
+              "name": "云呼叫中心",
+              "kind": "system"
+            },
+            {
+              "id": "operator",
+              "name": "运营人员",
+              "kind": "actor"
+            },
+            {
+              "id": "dcc",
+              "name": "DCC",
+              "kind": "external_system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "START",
+              "lane_id": "vendor",
+              "type": "start",
+              "order": 1,
+              "label": "本次呼叫结果到达"
+            },
+            {
+              "id": "RESULT",
+              "lane_id": "vendor",
+              "type": "event",
+              "order": 2,
+              "label": "提供真实呼叫与话单",
+              "step_ref": 1
+            },
+            {
+              "id": "LINK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 3,
+              "label": "结果与原记录关联可信？",
+              "step_ref": 2
+            },
+            {
+              "id": "UNIQUE",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 4,
+              "label": "是否已有同一结果？",
+              "step_ref": 3
+            },
+            {
+              "id": "HANGUP",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 5,
+              "label": "真实客户秒挂条件齐全？",
+              "step_ref": 4
+            },
+            {
+              "id": "EVIDENCE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 6,
+              "label": "保存秒挂与原话单",
+              "step_ref": 5
+            },
+            {
+              "id": "BUDGET",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 7,
+              "label": "秒挂独立额度可用？",
+              "step_ref": 6
+            },
+            {
+              "id": "PLAN",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 9,
+              "label": "保存唯一秒挂计划",
+              "step_ref": 7
+            },
+            {
+              "id": "PARAMETER",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 10,
+              "label": "秒挂间隔与起算已确认？",
+              "step_ref": 9
+            },
+            {
+              "id": "DUE",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 11,
+              "label": "已到已确认执行时间？",
+              "step_ref": 10
+            },
+            {
+              "id": "GUARD",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 12,
+              "label": "本次秒挂补提能否执行？",
+              "step_ref": 11
+            },
+            {
+              "id": "ATTEMPT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 13,
+              "label": "固定原root准备本次尝试",
+              "step_ref": 12
+            },
+            {
+              "id": "SUBMIT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 14,
+              "label": "发起补提交并占秒挂一次",
+              "step_ref": 13
+            },
+            {
+              "id": "VENDOR",
+              "lane_id": "vendor",
+              "type": "action",
+              "order": 15,
+              "label": "受理本次导入并响应",
+              "step_ref": 14
+            },
+            {
+              "id": "ACK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 16,
+              "label": "本次导入响应能否确定？",
+              "step_ref": 15
+            },
+            {
+              "id": "REPORT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 40,
+              "label": "保存本次状态与独立额度",
+              "step_ref": 16
+            },
+            {
+              "id": "SOURCE",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 41,
+              "label": "任务为接口来源？",
+              "step_ref": 17
+            },
+            {
+              "id": "DCC",
+              "lane_id": "dcc",
+              "type": "action",
+              "order": 42,
+              "label": "接收话单与处理进度",
+              "step_ref": 18
+            },
+            {
+              "id": "DELIVERY",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 43,
+              "label": "结果交付已确认？",
+              "step_ref": 19
+            },
+            {
+              "id": "NOTHANGUP",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 24,
+              "label": "非秒挂／条件未知：保留原结果"
+            },
+            {
+              "id": "LIMIT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 25,
+              "label": "秒挂两次用尽：停止本类"
+            },
+            {
+              "id": "PARAMWAIT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 26,
+              "label": "参数未定：记录计划不执行"
+            },
+            {
+              "id": "WAIT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 27,
+              "label": "未到期：保留唯一计划"
+            },
+            {
+              "id": "PAUSED",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 28,
+              "label": "暂停：挂起待计划"
+            },
+            {
+              "id": "STOPPED",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 29,
+              "label": "终止／指定记录取消：停止"
+            },
+            {
+              "id": "REVIEW",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 30,
+              "label": "关联／占用／执行权待核"
+            },
+            {
+              "id": "ACCEPTED",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 31,
+              "label": "明确受理：保存实际fileId"
+            },
+            {
+              "id": "REJECTED",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 32,
+              "label": "明确拒绝：保存原因与次数"
+            },
+            {
+              "id": "UNKNOWN",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 33,
+              "label": "响应未知：保留占用待核"
+            },
+            {
+              "id": "BADLINK",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 44,
+              "label": "关联待核；不推断结果归属"
+            },
+            {
+              "id": "REPEAT",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 45,
+              "label": "保留原话单与计划；不重计次"
+            },
+            {
+              "id": "VIEW",
+              "lane_id": "operator",
+              "type": "end",
+              "order": 46,
+              "label": "平台查看真实话单与处理状态"
+            },
+            {
+              "id": "DONE",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 47,
+              "label": "本次结果与处理进度已交付"
+            },
+            {
+              "id": "RESEND",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 48,
+              "label": "同一结果待补送；不再导入"
+            },
+            {
+              "id": "STATUS",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 8,
+              "label": "原任务与指定记录可处理？",
+              "step_ref": 8
+            }
+          ],
+          "edges": [
+            {
+              "from": "START",
+              "to": "RESULT"
+            },
+            {
+              "from": "RESULT",
+              "to": "LINK"
+            },
+            {
+              "from": "EVIDENCE",
+              "to": "BUDGET"
+            },
+            {
+              "from": "PLAN",
+              "to": "PARAMETER"
+            },
+            {
+              "from": "ATTEMPT",
+              "to": "SUBMIT"
+            },
+            {
+              "from": "SUBMIT",
+              "to": "VENDOR"
+            },
+            {
+              "from": "VENDOR",
+              "to": "ACK"
+            },
+            {
+              "from": "REPORT",
+              "to": "SOURCE"
+            },
+            {
+              "from": "DCC",
+              "to": "DELIVERY"
+            },
+            {
+              "from": "LINK",
+              "to": "UNIQUE",
+              "label": "关联明确"
+            },
+            {
+              "from": "LINK",
+              "to": "BADLINK",
+              "label": "未知或冲突",
+              "path_id": "ALT-001",
+              "type": "failure"
+            },
+            {
+              "from": "UNIQUE",
+              "to": "HANGUP",
+              "label": "新的准确结果"
+            },
+            {
+              "from": "UNIQUE",
+              "to": "REPEAT",
+              "label": "同对象已处理或仅更新",
+              "path_id": "ALT-002"
+            },
+            {
+              "from": "HANGUP",
+              "to": "EVIDENCE",
+              "label": "接通＋客户挂断＋可信0～2秒"
+            },
+            {
+              "from": "HANGUP",
+              "to": "NOTHANGUP",
+              "label": "任一不满足或判定未知",
+              "path_id": "ALT-003"
+            },
+            {
+              "from": "BUDGET",
+              "to": "LIMIT",
+              "label": "两次已用尽",
+              "path_id": "ALT-004"
+            },
+            {
+              "from": "BUDGET",
+              "to": "REVIEW",
+              "label": "未用尽但占用或计数不明",
+              "path_id": "ALT-007",
+              "type": "failure"
+            },
+            {
+              "from": "PARAMETER",
+              "to": "DUE",
+              "label": "已获业务确认"
+            },
+            {
+              "from": "PARAMETER",
+              "to": "PARAMWAIT",
+              "label": "尚未确认（本轮当前）",
+              "path_id": "ALT-005"
+            },
+            {
+              "from": "DUE",
+              "to": "GUARD",
+              "label": "已到期"
+            },
+            {
+              "from": "DUE",
+              "to": "WAIT",
+              "label": "未到期",
+              "path_id": "ALT-006"
+            },
+            {
+              "from": "GUARD",
+              "to": "ATTEMPT",
+              "label": "全部通过且额度可用"
+            },
+            {
+              "from": "GUARD",
+              "to": "STOPPED",
+              "label": "任务终止或指定对象已取消",
+              "path_id": "ALT-008"
+            },
+            {
+              "from": "GUARD",
+              "to": "PAUSED",
+              "label": "未停止但任务暂停",
+              "path_id": "ALT-008"
+            },
+            {
+              "from": "GUARD",
+              "to": "LIMIT",
+              "label": "任务可执行但额度已用尽",
+              "path_id": "ALT-004"
+            },
+            {
+              "from": "GUARD",
+              "to": "REVIEW",
+              "label": "前述条件未阻断但关联／占用／执行权未核",
+              "path_id": "ALT-007",
+              "type": "failure"
+            },
+            {
+              "from": "ACK",
+              "to": "ACCEPTED",
+              "label": "明确受理证据"
+            },
+            {
+              "from": "ACK",
+              "to": "REJECTED",
+              "label": "明确拒绝",
+              "path_id": "ALT-009",
+              "type": "failure"
+            },
+            {
+              "from": "ACK",
+              "to": "UNKNOWN",
+              "label": "未知或冲突",
+              "path_id": "ALT-010",
+              "type": "failure"
+            },
+            {
+              "from": "NOTHANGUP",
+              "to": "REPORT"
+            },
+            {
+              "from": "LIMIT",
+              "to": "REPORT"
+            },
+            {
+              "from": "PARAMWAIT",
+              "to": "REPORT"
+            },
+            {
+              "from": "WAIT",
+              "to": "REPORT"
+            },
+            {
+              "from": "PAUSED",
+              "to": "REPORT"
+            },
+            {
+              "from": "STOPPED",
+              "to": "REPORT"
+            },
+            {
+              "from": "REVIEW",
+              "to": "REPORT"
+            },
+            {
+              "from": "ACCEPTED",
+              "to": "REPORT"
+            },
+            {
+              "from": "REJECTED",
+              "to": "REPORT"
+            },
+            {
+              "from": "UNKNOWN",
+              "to": "REPORT"
+            },
+            {
+              "from": "SOURCE",
+              "to": "DCC",
+              "label": "接口来源"
+            },
+            {
+              "from": "SOURCE",
+              "to": "VIEW",
+              "label": "手工来源",
+              "path_id": "ALT-011"
+            },
+            {
+              "from": "DELIVERY",
+              "to": "DONE",
+              "label": "交付已确认"
+            },
+            {
+              "from": "DELIVERY",
+              "to": "RESEND",
+              "label": "失败或未确认",
+              "path_id": "ALT-012",
+              "type": "failure"
+            },
+            {
+              "from": "BUDGET",
+              "to": "STATUS",
+              "label": "可用且无占用"
+            },
+            {
+              "from": "STATUS",
+              "to": "PLAN",
+              "label": "可处理且未取消"
+            },
+            {
+              "from": "STATUS",
+              "to": "PAUSED",
+              "label": "未停止但任务暂停",
+              "path_id": "ALT-008"
+            },
+            {
+              "from": "STATUS",
+              "to": "STOPPED",
+              "label": "任务终止或指定对象已取消",
+              "path_id": "ALT-008"
+            }
+          ]
+        },
+        "design_notes": [
+          "SRC-094保留失败和秒挂各额外2次独立额度；SRC-102/103只确认自动失败3类的2分钟，不确认秒挂间隔或起算。当前参数待定明确阻断自动执行。",
+          "原话单、SIP及finishRetryFlag逐对象证据保留，不以最后标记单独推断无在途或全部任务完成；秒挂是否被供应商原生重呼同时覆盖待核，不能双方并发安排。",
+          "流程范围为单次准确呼叫结果的识别与本次计划/尝试处理；下一次真实呼叫结果作为外部新事件，DAG不隐藏真实无限重试。",
+          "supplier fileId复用/新建、isRepeat、原生轮次和精准在途取消待S4核验；本图为业务条件，不声明已生产验证。",
+          "参数未知和两次用尽分别记录，不把失败额度耗尽错误阻断秒挂剩余额度；独立新业务预算边界仍待核。本轮G3尚未批准。"
+        ]
+      },
+      "superseded_by": "SRC-106",
+      "reason": "用户最新明确：秒挂派生结果返回DCC，不再提交重呼。此前秒挂额外2次、等待和子批规则仅保留历史，不进入有效场景。失败3类自动/8类人工共享额外2次保持。"
+    },
+    {
+      "date": "2026-10-12",
+      "change_id": "CH-LAYOUT-SC004-20261012",
+      "record_type": "layout_repair_not_business_revision",
+      "reason": "本地正式PlantUML SVG静态发现穿节点/标签线条，经总控从S3失效后修复；不是新增业务或G2/G3批准。",
+      "previous_source_sha256": "4a68d1dc4e57e0a65ac6f0f314c5c867fc0b8cd1cdf6185cd76e07347b38cfac",
+      "previous_flow_diagram": {
+        "lanes": [
+          {
+            "id": "vendor",
+            "name": "AliCti供应商",
+            "kind": "external_system"
+          },
+          {
+            "id": "platform",
+            "name": "云呼叫中心",
+            "kind": "system"
+          },
+          {
+            "id": "operator",
+            "name": "运营人员",
+            "kind": "actor"
+          },
+          {
+            "id": "dcc",
+            "name": "DCC",
+            "kind": "external_system"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "START",
+            "lane_id": "vendor",
+            "type": "start",
+            "order": 1,
+            "label": "本次呼叫结果或可信更新"
+          },
+          {
+            "id": "RESULT",
+            "lane_id": "vendor",
+            "type": "event",
+            "order": 2,
+            "label": "提供原呼叫与话单",
+            "step_ref": 1
+          },
+          {
+            "id": "LINK",
+            "lane_id": "platform",
+            "type": "decision",
+            "order": 3,
+            "label": "关联到具体记录与呼叫？",
+            "step_ref": 2
+          },
+          {
+            "id": "UNIQUE",
+            "lane_id": "platform",
+            "type": "decision",
+            "order": 4,
+            "label": "有新增可信结果信息？",
+            "step_ref": 3
+          },
+          {
+            "id": "SAVE",
+            "lane_id": "platform",
+            "type": "action",
+            "order": 5,
+            "label": "保存原话单与判定证据",
+            "step_ref": 4
+          },
+          {
+            "id": "HANGUP",
+            "lane_id": "platform",
+            "type": "decision",
+            "order": 6,
+            "label": "接通、挂断方、时长可判定？",
+            "step_ref": 5
+          },
+          {
+            "id": "YES",
+            "lane_id": "platform",
+            "type": "action",
+            "order": 7,
+            "label": "标记平台派生秒挂结果",
+            "step_ref": 6
+          },
+          {
+            "id": "NO",
+            "lane_id": "platform",
+            "type": "action",
+            "order": 8,
+            "label": "记录明确非秒挂"
+          },
+          {
+            "id": "UNCERTAIN",
+            "lane_id": "platform",
+            "type": "action",
+            "order": 9,
+            "label": "判定待核；保留原字段"
+          },
+          {
+            "id": "STATUS",
+            "lane_id": "platform",
+            "type": "action",
+            "order": 10,
+            "label": "保存判定与来源追溯",
+            "step_ref": 7
+          },
+          {
+            "id": "SOURCE",
+            "lane_id": "platform",
+            "type": "decision",
+            "order": 11,
+            "label": "任务为接口来源？",
+            "step_ref": 8
+          },
+          {
+            "id": "DCC",
+            "lane_id": "dcc",
+            "type": "action",
+            "order": 12,
+            "label": "接收原结果与秒挂判定",
+            "step_ref": 9
+          },
+          {
+            "id": "ACK",
+            "lane_id": "platform",
+            "type": "decision",
+            "order": 13,
+            "label": "本次结果交付已确认？",
+            "step_ref": 10
+          },
+          {
+            "id": "BADLINK",
+            "lane_id": "platform",
+            "type": "end",
+            "order": 14,
+            "label": "关联待核；不推断DCC归属"
+          },
+          {
+            "id": "REPEAT",
+            "lane_id": "platform",
+            "type": "end",
+            "order": 15,
+            "label": "复用原判定与交付状态"
+          },
+          {
+            "id": "VIEW",
+            "lane_id": "operator",
+            "type": "end",
+            "order": 16,
+            "label": "平台查看原话单与秒挂判定"
+          },
+          {
+            "id": "DONE",
+            "lane_id": "dcc",
+            "type": "end",
+            "order": 17,
+            "label": "本次原结果与判定已交付"
+          },
+          {
+            "id": "RESEND",
+            "lane_id": "platform",
+            "type": "end",
+            "order": 18,
+            "label": "同一结果待补送；不导入"
+          }
+        ],
+        "edges": [
+          {
+            "from": "START",
+            "to": "RESULT"
+          },
+          {
+            "from": "RESULT",
+            "to": "LINK"
+          },
+          {
+            "from": "SAVE",
+            "to": "HANGUP"
+          },
+          {
+            "from": "YES",
+            "to": "STATUS"
+          },
+          {
+            "from": "NO",
+            "to": "STATUS"
+          },
+          {
+            "from": "UNCERTAIN",
+            "to": "STATUS"
+          },
+          {
+            "from": "STATUS",
+            "to": "SOURCE"
+          },
+          {
+            "from": "DCC",
+            "to": "ACK"
+          },
+          {
+            "from": "LINK",
+            "to": "UNIQUE",
+            "label": "关联唯一且可信"
+          },
+          {
+            "from": "LINK",
+            "to": "BADLINK",
+            "label": "未知或冲突",
+            "path_id": "ALT-001",
+            "type": "failure"
+          },
+          {
+            "from": "UNIQUE",
+            "to": "SAVE",
+            "label": "新结果或需交付可信更新"
+          },
+          {
+            "from": "UNIQUE",
+            "to": "REPEAT",
+            "label": "纯重复且无新增信息",
+            "path_id": "ALT-002"
+          },
+          {
+            "from": "HANGUP",
+            "to": "YES",
+            "label": "明确满足三个条件"
+          },
+          {
+            "from": "HANGUP",
+            "to": "NO",
+            "label": "已可判定但不满足",
+            "path_id": "ALT-003"
+          },
+          {
+            "from": "HANGUP",
+            "to": "UNCERTAIN",
+            "label": "字段不足或判定冲突",
+            "path_id": "ALT-004",
+            "type": "failure"
+          },
+          {
+            "from": "SOURCE",
+            "to": "DCC",
+            "label": "接口来源"
+          },
+          {
+            "from": "SOURCE",
+            "to": "VIEW",
+            "label": "手工来源",
+            "path_id": "ALT-005"
+          },
+          {
+            "from": "ACK",
+            "to": "DONE",
+            "label": "交付已确认"
+          },
+          {
+            "from": "ACK",
+            "to": "RESEND",
+            "label": "失败或未确认",
+            "path_id": "ALT-006",
+            "type": "failure"
+          }
+        ]
+      },
+      "changes": [
+        "HANGUP保留main_flow第5步与判据可定职责，将原三路判定规约为HANGUP→HANGUP-MATCH两层二路。",
+        "可准确确定且三条件同时满足→YES；已可判定但不满足→NO ALT-003；字段不足或判定冲突→UNCERTAIN ALT-004。",
+        "真实客户接听、主动挂断、可信0～2秒含0/2、原话单、待核与秒挂只判定交付均沿现行正文，不增加重提计划/额度/子批。",
+        "可判定指秒挂组合结论可定：已知任一条件不满足即可明确非秒挂；不附加所有原始字段必须齐全的门槛。"
+      ],
+      "known_defects": [
+        "原HANGUP→NO ALT-003分支标签前缀与横线压线"
+      ],
+      "preserved_fields": [
+        "schema_version",
+        "id",
+        "name",
+        "summary",
+        "actors",
+        "trigger",
+        "preconditions",
+        "main_flow",
+        "alternate_flows",
+        "postconditions",
+        "acceptance_points",
+        "source_story_ids",
+        "source_refs",
+        "business_rule_ids",
+        "design_notes"
+      ],
+      "evidence_directory": "/private/tmp/callcenter-SC002-SC004-layout-bq4pd8sd",
+      "verification_boundary": "本地内存编译/结构核验/隔离SVG与PNG静态复核；正式全量atlas由总控生成，浏览器未运行。"
+    },
+    {
+      "recorded_at": "2026-10-12",
+      "change_id": "CH-DCC-20261012-DEFER-DCC-APPLICATION-MANUAL-INTERNAL",
+      "source_refs": [
+        "inputs/source-index.json#SRC-110"
+      ],
+      "reason": "用户SRC-110明确DCC及应用接入延期；本轮优先手工及内部闭环，并保留原任务权限内运营/管理员发起指定供应商记录删除。此候选不审批门禁、不升级接口状态。",
+      "previous_definition": {
+        "schema_version": "1.0",
+        "id": "SC-004",
+        "name": "真实客户秒挂识别与判定结果回传",
+        "summary": "客户真实接听、客户主动挂断且可信客户时长0～2秒含0/2时，保存原话单并生成明确平台派生秒挂结果；接口任务回传DCC、手工仅查看。秒挂不再安排平台补提交或重呼。",
+        "actors": [
+          "AliCti供应商",
+          "云呼叫中心",
+          "运营人员",
+          "DCC"
+        ],
+        "trigger": "供应商本次真实呼叫结果或同对象可信话单更新",
+        "preconditions": [
+          "实际call/稳定事件可与保存record/batch→supplier fileId及tenant/原task/leadCode/固定phone唯一准确关联，读回原request行和已保存root；后来新主不改旧归属。",
+          "秒挂组合需要客户真实接通、客户主动挂断和可信客户有效接通时长；未接通、缺失或异常不补0。字段单位及实际映射仍待S4核验。",
+          "任务来源锁定：接口回传固定DCC接收端，手工仅平台查看；原话单、判定证据和必要交付去重状态保留。",
+          "SRC-106已取消平台秒挂再次提交；正常供应商任务重呼配置的具体覆盖尚待核，不因此添加供应商停止/取消API。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "AliCti供应商",
+            "action": "提供本次实际呼叫/话单及客户接通、挂断方、客户实际接通时长等原始字段。",
+            "system_response": "原字段、单位与来源如实保存，平台派生秒挂结果不冒充供应商已有状态枚举。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云呼叫中心",
+            "action": "用实际call/稳定事件及已保存record/batch→supplier fileId、tenant/原task/leadCode/固定phone唯一关联，读回原request行及保存的root。",
+            "system_response": "未知、多候选或真实冲突待核；不按最近同号/后来新主猜归属，不伪造供应商callId。",
+            "rule_ids": [
+              "BR-012",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "云呼叫中心",
+            "action": "识别新结果、同对象需交付的可信更新和纯重复，读取当前呼叫已有原话单、判定与交付记录。",
+            "system_response": "纯重复复用原记录；可信晚更新仍更新同一呼叫并在需要时回传，不记为新实际呼叫。",
+            "rule_ids": [
+              "BR-015",
+              "BR-017",
+              "BR-019"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云呼叫中心",
+            "action": "保留客户真实呼叫、供应商原始结果与字段来源，保存接通/挂断方/有效时长的可信程度。",
+            "system_response": "不抹话单、不把真实秒挂改成导入失败，不补未知时长为0，不用坐席桥接时长替代客户接通时长。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "云呼叫中心",
+            "action": "按客户真实接听、客户主动挂断、客户有效接通时长0～2秒组合判定，真实0和2秒纳入。",
+            "system_response": "明确不符合为非秒挂；字段缺失/异常/单位未核导致不能判定时为待核，不能输出确定秒挂。",
+            "rule_ids": [
+              "BR-010",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "云呼叫中心",
+            "action": "准确满足条件时生成明确秒挂判定，保存与原call/记录的关联。",
+            "system_response": "秒挂是平台派生业务结果，保留供应商原结果；正式回传字段/枚举契约由S4核验，不自行伪造供应商字段。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 7,
+            "actor": "云呼叫中心",
+            "action": "保存秒挂/非秒挂/待核判定、原话单证据、实际batch/root/fileId和原request行；后有新主不重算旧root。",
+            "system_response": "本次仅识别与交付；不生成秒挂重呼/补提计划、计时器、额度、内部提交尝试或新子批，不改变任务状态。",
+            "rule_ids": [
+              "BR-011",
+              "BR-012",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 8,
+            "actor": "云呼叫中心",
+            "action": "按创建时锁定来源处理结果：接口向固定DCC接收端回传真实呼叫和秒挂判定，手工只在平台查看。",
+            "system_response": "回传沿原requestId/行定位、tenant/原task/leadCode/phone、实际batch/root与call/稳定事件，不混用来源，不伪DCC新请求。",
+            "rule_ids": [
+              "BR-016",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 9,
+            "actor": "DCC",
+            "action": "DCC接收原真实呼叫结果以及明确的秒挂判定；不能确定时接收可表达的待核状态和原证据。",
+            "system_response": "正式结果代码、字段、判定更新和ACK契约仍待核；返回秒挂结果本身不触发平台重新提交。",
+            "rule_ids": [
+              "BR-011",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 10,
+            "actor": "云呼叫中心",
+            "action": "记录固定接收端实际交付结果，区分明确确认和失败/未知。",
+            "system_response": "补送仅重复交付同一结果及版本，不重新导入、不新建子批；工程去重、重试及ACK边界待核。",
+            "rule_ids": [
+              "BR-015",
+              "BR-017"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-001",
+            "condition": "实际记录/批次/呼叫关联缺失、多候选或真实冲突",
+            "steps": [
+              "保留原字段待核，不强配最近同号、不生成确定归属或秒挂结论，待准确关联后再交付。"
+            ]
+          },
+          {
+            "id": "ALT-002",
+            "condition": "纯重复结果或更新没有新增可信信息",
+            "steps": [
+              "复用原判定、原话单与交付状态；不当新实际呼叫。需要补送时只交付同一结果，不重新导入。"
+            ]
+          },
+          {
+            "id": "ALT-003",
+            "condition": "已能确定不满足秒挂组合条件",
+            "steps": [
+              "保留真实原结果，标记非秒挂；未接通、非客户主动挂断、可信时长大于2秒等明确非秒挂，不生成秒挂结果。"
+            ]
+          },
+          {
+            "id": "ALT-004",
+            "condition": "字段缺失、异常、单位未核或判定依据真实冲突",
+            "steps": [
+              "保存判定待核与原证据；null或未知不当0秒，不输出确定秒挂；后续可信字段按同一呼叫更新并按需要交付。"
+            ]
+          },
+          {
+            "id": "ALT-005",
+            "condition": "手工来源任务",
+            "steps": [
+              "平台查看原话单和秒挂/非秒挂/待核判定，不回传DCC，不新增DCC输入协议。"
+            ]
+          },
+          {
+            "id": "ALT-006",
+            "condition": "向DCC交付失败、超时或ACK未知",
+            "steps": [
+              "记录交付状态并补送同一原结果和判定，不再次导入AliCti、不生成秒挂计划或新子批；可靠交付契约待核。"
+            ]
+          }
+        ],
+        "postconditions": [
+          "明确满足客户真实接通＋客户主动挂断＋可信客户时长0～2秒时输出平台派生秒挂结果，真实0/2纳入；缺失/异常/冲突保持待核。",
+          "真实呼叫、供应商原始结果与话单完整保留；派生秒挂不冒充AliCti已有枚举，不改记为导入失败，不抹除原证据。",
+          "接口任务沿实际call/记录、原request行及保存batch/root回传DCC原结果和秒挂判定；手工仅平台查看，后来新主不重算旧root。",
+          "不安排平台秒挂再次提交，不生成秒挂等待时间、补提次数、计划、提交尝试或子批。失败3类自动/8类人工共享额外2次与任务正常规则保持各自边界。",
+          "重复和可信晚更新沿同一call/稳定事件维护判定及交付版本，不增加实际呼叫；交付失败仅补送，不导入。",
+          "供应商原生任务重呼对秒挂的覆盖仍待核；停止平台秒挂补提不等于调用供应商停止API，不宣称已有在途呼叫已取消。"
+        ],
+        "acceptance_points": [
+          "AC-004",
+          "AC-021",
+          "AC-022",
+          "AC-023",
+          "AC-024",
+          "AC-027",
+          "AC-034",
+          "AC-035",
+          "AC-070",
+          "AC-071",
+          "AC-072",
+          "AC-075"
+        ],
+        "source_story_ids": [
+          "US-004",
+          "US-006"
+        ],
+        "source_refs": [
+          "inputs/user-original-20261009.txt#第4条",
+          "inputs/source-index.json#SRC-045",
+          "inputs/source-index.json#SRC-002",
+          "inputs/source-index.json#SRC-046",
+          "inputs/source-index.json#SRC-047",
+          "inputs/source-index.json#SRC-048",
+          "inputs/source-index.json#SRC-049",
+          "inputs/source-index.json#SRC-050",
+          "inputs/source-index.json#SRC-051",
+          "inputs/source-index.json#SRC-056",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-092",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-095",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-098",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106"
+        ],
+        "business_rule_ids": [
+          "BR-010",
+          "BR-011",
+          "BR-012",
+          "BR-013",
+          "BR-015",
+          "BR-016",
+          "BR-017",
+          "BR-019"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "vendor",
+              "name": "AliCti供应商",
+              "kind": "external_system"
+            },
+            {
+              "id": "platform",
+              "name": "云呼叫中心",
+              "kind": "system"
+            },
+            {
+              "id": "operator",
+              "name": "运营人员",
+              "kind": "actor"
+            },
+            {
+              "id": "dcc",
+              "name": "DCC",
+              "kind": "external_system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "START",
+              "lane_id": "vendor",
+              "type": "start",
+              "order": 1,
+              "label": "本次呼叫结果或可信更新"
+            },
+            {
+              "id": "RESULT",
+              "lane_id": "vendor",
+              "type": "event",
+              "order": 2,
+              "label": "提供原呼叫与话单",
+              "step_ref": 1
+            },
+            {
+              "id": "LINK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 3,
+              "label": "关联到具体记录与呼叫？",
+              "step_ref": 2
+            },
+            {
+              "id": "UNIQUE",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 4,
+              "label": "有新增可信结果信息？",
+              "step_ref": 3
+            },
+            {
+              "id": "SAVE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 5,
+              "label": "保存原话单与判定证据",
+              "step_ref": 4
+            },
+            {
+              "id": "HANGUP",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 6,
+              "label": "秒挂组合能否准确判定？",
+              "step_ref": 5
+            },
+            {
+              "id": "YES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 8,
+              "label": "标记平台派生秒挂结果",
+              "step_ref": 6
+            },
+            {
+              "id": "NO",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 9,
+              "label": "记录明确非秒挂"
+            },
+            {
+              "id": "UNCERTAIN",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 10,
+              "label": "判定待核；保留原字段"
+            },
+            {
+              "id": "STATUS",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 11,
+              "label": "保存判定与来源追溯",
+              "step_ref": 7
+            },
+            {
+              "id": "SOURCE",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 12,
+              "label": "任务为接口来源？",
+              "step_ref": 8
+            },
+            {
+              "id": "DCC",
+              "lane_id": "dcc",
+              "type": "action",
+              "order": 13,
+              "label": "接收原结果与秒挂判定",
+              "step_ref": 9
+            },
+            {
+              "id": "ACK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 14,
+              "label": "本次结果交付已确认？",
+              "step_ref": 10
+            },
+            {
+              "id": "BADLINK",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 15,
+              "label": "关联待核；不推断DCC归属"
+            },
+            {
+              "id": "REPEAT",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 16,
+              "label": "复用原判定与交付状态"
+            },
+            {
+              "id": "VIEW",
+              "lane_id": "operator",
+              "type": "end",
+              "order": 17,
+              "label": "平台查看原话单与秒挂判定"
+            },
+            {
+              "id": "DONE",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 18,
+              "label": "本次原结果与判定已交付"
+            },
+            {
+              "id": "RESEND",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 19,
+              "label": "同一结果待补送；不导入"
+            },
+            {
+              "id": "HANGUP-MATCH",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 7,
+              "label": "三个秒挂条件同时满足？"
+            }
+          ],
+          "edges": [
+            {
+              "from": "START",
+              "to": "RESULT"
+            },
+            {
+              "from": "RESULT",
+              "to": "LINK"
+            },
+            {
+              "from": "SAVE",
+              "to": "HANGUP"
+            },
+            {
+              "from": "YES",
+              "to": "STATUS"
+            },
+            {
+              "from": "NO",
+              "to": "STATUS"
+            },
+            {
+              "from": "UNCERTAIN",
+              "to": "STATUS"
+            },
+            {
+              "from": "STATUS",
+              "to": "SOURCE"
+            },
+            {
+              "from": "DCC",
+              "to": "ACK"
+            },
+            {
+              "from": "LINK",
+              "to": "UNIQUE",
+              "label": "关联唯一且可信"
+            },
+            {
+              "from": "LINK",
+              "to": "BADLINK",
+              "label": "未知或冲突",
+              "path_id": "ALT-001",
+              "type": "failure"
+            },
+            {
+              "from": "UNIQUE",
+              "to": "SAVE",
+              "label": "新结果或需交付可信更新"
+            },
+            {
+              "from": "UNIQUE",
+              "to": "REPEAT",
+              "label": "纯重复且无新增信息",
+              "path_id": "ALT-002"
+            },
+            {
+              "from": "SOURCE",
+              "to": "DCC",
+              "label": "接口来源"
+            },
+            {
+              "from": "SOURCE",
+              "to": "VIEW",
+              "label": "手工来源",
+              "path_id": "ALT-005"
+            },
+            {
+              "from": "ACK",
+              "to": "DONE",
+              "label": "交付已确认"
+            },
+            {
+              "from": "ACK",
+              "to": "RESEND",
+              "label": "失败或未确认",
+              "path_id": "ALT-006",
+              "type": "failure"
+            },
+            {
+              "from": "HANGUP",
+              "to": "HANGUP-MATCH",
+              "label": "满足与否可确定"
+            },
+            {
+              "from": "HANGUP",
+              "to": "UNCERTAIN",
+              "label": "字段不足/冲突，不能确定",
+              "path_id": "ALT-004",
+              "type": "failure"
+            },
+            {
+              "from": "HANGUP-MATCH",
+              "to": "YES",
+              "label": "客户接听＋主动挂断＋可信0～2秒"
+            },
+            {
+              "from": "HANGUP-MATCH",
+              "to": "NO",
+              "label": "已可判定但不满足",
+              "path_id": "ALT-003"
+            }
+          ]
+        },
+        "design_notes": [
+          "SRC-106是本场景最新权威：秒挂明确返回DCC，不再平台重呼。原额外2次/等待/子批规则只留决策历史，不进入本期有效流程。",
+          "判定字段、可信单位、原始状态和平台派生秒挂结果之间保留区分；正式报文/结果代码和DCC兼容性仍由S4核验，不制造供应商已存在枚举。",
+          "可信晚更新可以更新同一呼叫的判定并再次交付；纯重复只复用交付状态，可靠身份、判定版本、ACK和补送幂等契约仍待核。",
+          "供应商正常任务重呼覆盖继续保持未知边界，不擅加停止供应商呼叫API；不会仅因秒挂派生结果而更改原任务配置。",
+          "泳道覆盖单次呼叫结果识别与交付，不包含秒挂提交调度。本轮G3尚未批准，真实接口能力仍待S4。"
+        ]
+      }
+    },
+    {
+      "date": "2026-10-13",
+      "change_id": "CH-V110-20261013-DCC-FULL-LOOP-RESTART",
+      "source_refs": [
+        "inputs/source-index.json#SRC-115"
+      ],
+      "reason": "用户实际G1恢复DCC完整闭环；保留最新内部处理事实，仅新增准确接口来源交付和手工查看分支。旧G2/生产验证不沿用。",
+      "previous_definition": {
+        "schema_version": "1.0",
+        "id": "SC-004",
+        "name": "客户秒挂本地三态与原话单保存",
+        "summary": "精确关联同一呼叫并保存原证据，客户已接听/主动挂断/可信有效0～2秒三条件进行本地三态判定；不补提交或改变供应商原结果。",
+        "actors": [
+          "AliCti供应商",
+          "云呼叫中心",
+          "运营人员"
+        ],
+        "trigger": "准确呼叫结果或同一对象可信晚更新需要本地秒挂判定",
+        "preconditions": [
+          "tenant/原task/record/batch/root/实际fileId/phone及call或可靠事件归属准确；整体关联冲突先待核，不猜最近同号。",
+          "只使用客户真实接听、客户主动挂断及客户有效接通时长三条件；来源/单位/枚举未核或缺失/负时长为unknown，不把坐席桥接时长当客户时长。",
+          "客户真实0与2秒含边界；任一条件可信false即可明确非秒挂，全真才秒挂，没有false且存在unknown才待核。",
+          "本方秒挂只本地识别保存查看；不重导、不建等待/额度/内部attempt/子批、不新增控制供应商原生任务规则操作。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "AliCti供应商",
+            "action": "提供本次实际呼叫/话单及客户接通、挂断方、客户实际接通时长等原始字段。",
+            "system_response": "原字段、单位与来源如实保存，平台派生秒挂结果不冒充供应商已有状态枚举。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云呼叫中心",
+            "action": "用准确call/可靠事件及保存record/batch→实际fileId、tenant/原task/leadCode/固定phone唯一关联并读取保存root",
+            "system_response": "未知、多候选或真实冲突待核；不按最近同号/后来新主猜归属，不伪造供应商callId。",
+            "rule_ids": [
+              "BR-012",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "云呼叫中心",
+            "action": "识别新结果、同对象可信更新和纯重复，读取当前原话单、本地判定与证据版本",
+            "system_response": "纯重复复用原记录；可信晚更新只维护同一实际呼叫，不新增真实呼叫、提交或计划。",
+            "rule_ids": [
+              "BR-015",
+              "BR-019"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云呼叫中心",
+            "action": "保留客户真实呼叫、供应商原始结果与字段来源，保存接通/挂断方/有效时长的可信程度。",
+            "system_response": "不抹话单、不把真实秒挂改成导入失败，不补未知时长为0，不用坐席桥接时长替代客户接通时长。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "云呼叫中心",
+            "action": "按客户真实接听、客户主动挂断、客户有效接通时长0～2秒组合判定，真实0和2秒纳入。",
+            "system_response": "整体归属/证据冲突先待核；任一条件可信false即明确非秒挂，即使其余未知。全三项可信true才秒挂；无false且至少一项unknown则待核，不补0或把单位未核当false。",
+            "rule_ids": [
+              "BR-010",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "云呼叫中心",
+            "action": "准确满足条件时生成明确秒挂判定，保存与原call/记录的关联。",
+            "system_response": "秒挂为本方派生业务判定，与供应商原status/SIP及真实话单分别保存；本方存储字段/版本和供应商单位/枚举仍需工程核验，不伪造供应商枚举。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011"
+            ]
+          },
+          {
+            "step": 7,
+            "actor": "云呼叫中心",
+            "action": "保存本地秒挂/非秒挂/待核、判定依据版本和原话单、实际batch/root/fileId及来源审计",
+            "system_response": "本次仅识别保存，不生成重导/计划/计时器/额度/内部业务attempt或新子批；后有新根不改原对象，不主动改变任务状态。",
+            "rule_ids": [
+              "BR-011",
+              "BR-012",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 8,
+            "actor": "运营人员",
+            "action": "按原查看权限在既有任务记录查看真实原话单和本地三态",
+            "system_response": "判定待核准确显示原证据；不依赖DCC交付、不显示秒挂重提交入口或次数/倒计时。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011",
+              "BR-015"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-001",
+            "condition": "实际记录/批次/呼叫关联缺失、多候选或真实冲突",
+            "steps": [
+              "保留原字段待核，不强配最近同号，不生成确定归属或秒挂结论；整体冲突解决后按同一实际对象重新核验。"
+            ]
+          },
+          {
+            "id": "ALT-002",
+            "condition": "纯重复结果或更新没有新增可信信息",
+            "steps": [
+              "纯重复复用原话单/判定和证据版本；可信更新维护同一呼叫，不当新call、不导入供应商。"
+            ]
+          },
+          {
+            "id": "ALT-003",
+            "condition": "任意一个必要条件已有可信false（其余可unknown）",
+            "steps": [
+              "明确非秒挂，保存可信false的原证据与其余字段状态；不能以其余字段缺失将已可确定非秒挂降成待核。"
+            ]
+          },
+          {
+            "id": "ALT-004",
+            "condition": "没有可信false且至少一个条件unknown；或整体证据真实冲突",
+            "steps": [
+              "字段缺失/异常/单位或枚举未核独立unknown，不补0、不任选矛盾证据；整体关联冲突先待核，后续准确可信晚更新沿同呼叫重判。"
+            ]
+          }
+        ],
+        "postconditions": [
+          "同一真实对象的原话单/供应商原结果和本地三态与证据版本完整保留；可信晚更不新增实际呼叫。",
+          "三条件27种组合：全真秒挂，任一可信false非秒挂，其余待核；整体关联冲突先待核。",
+          "秒挂从不生成平台补提交、等待、次数、业务attempt或子批，不新增停止供应商原生规则操作。"
+        ],
+        "acceptance_points": [
+          "AC-004",
+          "AC-021",
+          "AC-022",
+          "AC-023",
+          "AC-027",
+          "AC-034"
+        ],
+        "source_story_ids": [
+          "US-004"
+        ],
+        "source_refs": [
+          "inputs/user-original-20261009.txt#第4条",
+          "inputs/source-index.json#SRC-045",
+          "inputs/source-index.json#SRC-002",
+          "inputs/source-index.json#SRC-046",
+          "inputs/source-index.json#SRC-047",
+          "inputs/source-index.json#SRC-048",
+          "inputs/source-index.json#SRC-049",
+          "inputs/source-index.json#SRC-050",
+          "inputs/source-index.json#SRC-051",
+          "inputs/source-index.json#SRC-056",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-092",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-095",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-098",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-110"
+        ],
+        "business_rule_ids": [
+          "BR-010",
+          "BR-011",
+          "BR-012",
+          "BR-013",
+          "BR-015",
+          "BR-019"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "vendor",
+              "name": "AliCti供应商",
+              "kind": "external_system"
+            },
+            {
+              "id": "platform",
+              "name": "云呼叫中心",
+              "kind": "system"
+            },
+            {
+              "id": "operator",
+              "name": "运营人员",
+              "kind": "actor"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "START",
+              "lane_id": "vendor",
+              "type": "start",
+              "order": 1,
+              "label": "本次呼叫结果或可信更新"
+            },
+            {
+              "id": "RESULT",
+              "lane_id": "vendor",
+              "type": "event",
+              "order": 2,
+              "label": "提供原呼叫与话单",
+              "step_ref": 1
+            },
+            {
+              "id": "LINK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 3,
+              "label": "关联到具体记录与呼叫？",
+              "step_ref": 2
+            },
+            {
+              "id": "UNIQUE",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 4,
+              "label": "新结果或同call可信更新？",
+              "step_ref": 3
+            },
+            {
+              "id": "SAVE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 5,
+              "label": "保存原话单与判定证据",
+              "step_ref": 4
+            },
+            {
+              "id": "HANGUP",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 6,
+              "label": "三条件有可信false\n或全部可信true，且无整体冲突？",
+              "step_ref": 5
+            },
+            {
+              "id": "YES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 8,
+              "label": "标记平台派生秒挂结果",
+              "step_ref": 6
+            },
+            {
+              "id": "NO",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 9,
+              "label": "记录明确非秒挂"
+            },
+            {
+              "id": "UNCERTAIN",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 10,
+              "label": "判定待核；保留原字段"
+            },
+            {
+              "id": "STATUS",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 11,
+              "label": "保存判定与来源追溯",
+              "step_ref": 7
+            },
+            {
+              "id": "BADLINK",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 15,
+              "label": "整体关联/真实证据冲突待核\n不推断当前call/记录归属"
+            },
+            {
+              "id": "REPEAT",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 16,
+              "label": "复用原判定/原话单/证据版本\n不新增call或补提交"
+            },
+            {
+              "id": "VIEW",
+              "lane_id": "operator",
+              "type": "end",
+              "order": 17,
+              "label": "本地查看原话单与三态\n无重提交入口/次数/倒计时",
+              "step_ref": 8
+            },
+            {
+              "id": "HANGUP-MATCH",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 7,
+              "label": "三项均为可信true？"
+            }
+          ],
+          "edges": [
+            {
+              "from": "START",
+              "to": "RESULT"
+            },
+            {
+              "from": "RESULT",
+              "to": "LINK"
+            },
+            {
+              "from": "SAVE",
+              "to": "HANGUP"
+            },
+            {
+              "from": "YES",
+              "to": "STATUS"
+            },
+            {
+              "from": "NO",
+              "to": "STATUS"
+            },
+            {
+              "from": "UNCERTAIN",
+              "to": "STATUS"
+            },
+            {
+              "from": "LINK",
+              "to": "UNIQUE",
+              "label": "关联唯一且可信"
+            },
+            {
+              "from": "LINK",
+              "to": "BADLINK",
+              "label": "未知或冲突",
+              "path_id": "ALT-001",
+              "type": "failure"
+            },
+            {
+              "from": "UNIQUE",
+              "to": "SAVE",
+              "label": "新结果或同call可信更新"
+            },
+            {
+              "from": "UNIQUE",
+              "to": "REPEAT",
+              "label": "纯重复且无新增信息",
+              "path_id": "ALT-002"
+            },
+            {
+              "from": "HANGUP",
+              "to": "HANGUP-MATCH",
+              "label": "任一可信false或三项全真"
+            },
+            {
+              "from": "HANGUP",
+              "to": "UNCERTAIN",
+              "label": "无false且有unknown/整体冲突",
+              "path_id": "ALT-004",
+              "type": "failure"
+            },
+            {
+              "from": "HANGUP-MATCH",
+              "to": "YES",
+              "label": "三项全真：真实0～2秒含边界"
+            },
+            {
+              "from": "HANGUP-MATCH",
+              "to": "NO",
+              "label": "任一可信false，其余可unknown",
+              "path_id": "ALT-003"
+            },
+            {
+              "from": "STATUS",
+              "to": "VIEW"
+            }
+          ]
+        },
+        "design_notes": [
+          "当前主/备选流程与flow_diagram仅表达本轮手工或内部处理；DCC与应用接入延期定义及原图完整保留在decision_history，不参与本轮执行泳道。",
+          "全程保留既有登录、租户、任务和对象操作权限；不自动改变账号权限、解锁或迁移历史任务来源。",
+          "AliCti接口仍partial/missing；不默认排重参数、skip值或在途撤回，不执行真实调用。原型仅合成，S3候选不是G2/G3通过证据。"
+        ],
+        "scope": "in_scope",
+        "status": "confirmed_scope_supplier_gaps_retained"
+      },
+      "complete_before_file": "/private/tmp/dcc-restart-s3-results-20261013/before/SC-004.json",
+      "complete_before_sha256": "36f3ea3991fd3413e908a43b7fed5dbf377886cc5509fe39656b64d3f2243ab0"
+    },
+    {
+      "date": "2026-10-13",
+      "change_id": "CH-V110-20261013-TIANWANG-SHARED-INGEST",
+      "source_id": "SRC-116",
+      "reason": "Actual user G1 adds shared Tianwang ingest with platform viewing only; original DCC-record delivery retained.",
+      "previous_current_fact": {
+        "schema_version": "1.0",
+        "id": "SC-004",
+        "name": "客户秒挂三态、原证据保存及DCC明确分类",
+        "summary": "保留现行三条件false优先/unknown/总体可信冲突待核规则及原话单证据；接口来源明确回传三态，手工查看。秒挂绝无平台重呼、计时、额度、attempt或新子批。",
+        "actors": [
+          "AliCti供应商",
+          "云呼叫中心",
+          "运营人员",
+          "DCC（结果接收方）"
+        ],
+        "trigger": "准确呼叫结果或同一对象可信晚更新需要本地秒挂判定",
+        "preconditions": [
+          "tenant/原task/record/batch/root/实际fileId/phone及call或可靠事件归属准确；整体关联冲突先待核，不猜最近同号。",
+          "只使用客户真实接听、客户主动挂断及客户有效接通时长三条件；来源/单位/枚举未核或缺失/负时长为unknown，不把坐席桥接时长当客户时长。",
+          "客户真实0与2秒含边界；任一条件可信false即可明确非秒挂，全真才秒挂，没有false且存在unknown才待核。",
+          "本方秒挂只识别保存三态；接口来源准确判定交DCC，手工查看；不重导、不建等待/额度/内部attempt/子批，不新增控制供应商原生任务规则操作。",
+          "准确保存的接口来源只向后台固定DCC接收端交付原对象每次结果及处理进度；手工来源本地查看。来源/关联/接收端不明不误投，不阻断已合法保存的本地结果。正式HTTP、认证、报文、ACK与补送在S4核验；当前仅G1范围批准。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "AliCti供应商",
+            "action": "提供本次实际呼叫/话单及客户接通、挂断方、客户实际接通时长等原始字段。",
+            "system_response": "原字段、单位与来源如实保存，平台派生秒挂结果不冒充供应商已有状态枚举。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云呼叫中心",
+            "action": "用准确call/可靠事件及保存record/batch→实际fileId、tenant/原task/leadCode/固定phone唯一关联并读取保存root",
+            "system_response": "未知、多候选或真实冲突待核；不按最近同号/后来新主猜归属，不伪造供应商callId。",
+            "rule_ids": [
+              "BR-012",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "云呼叫中心",
+            "action": "识别新结果、同对象可信更新和纯重复，读取当前原话单、本地判定与证据版本",
+            "system_response": "纯重复复用原记录；可信晚更新只维护同一实际呼叫，不新增真实呼叫、提交或计划。",
+            "rule_ids": [
+              "BR-015",
+              "BR-019"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云呼叫中心",
+            "action": "保留客户真实呼叫、供应商原始结果与字段来源，保存接通/挂断方/有效时长的可信程度。",
+            "system_response": "不抹话单、不把真实秒挂改成导入失败，不补未知时长为0，不用坐席桥接时长替代客户接通时长。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "云呼叫中心",
+            "action": "按客户真实接听、客户主动挂断、客户有效接通时长0～2秒组合判定，真实0和2秒纳入。",
+            "system_response": "整体归属/证据冲突先待核；任一条件可信false即明确非秒挂，即使其余未知。全三项可信true才秒挂；无false且至少一项unknown则待核，不补0或把单位未核当false。",
+            "rule_ids": [
+              "BR-010",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "云呼叫中心",
+            "action": "准确满足条件时生成明确秒挂判定，保存与原call/记录的关联。",
+            "system_response": "秒挂为本方派生业务判定，与供应商原status/SIP及真实话单分别保存；本方存储字段/版本和供应商单位/枚举仍需工程核验，不伪造供应商枚举。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011"
+            ]
+          },
+          {
+            "step": 7,
+            "actor": "云呼叫中心",
+            "action": "保存本地秒挂/非秒挂/待核、判定依据版本和原话单、实际batch/root/fileId及来源审计",
+            "system_response": "本次仅识别保存，不生成重导/计划/计时器/额度/内部业务attempt或新子批；后有新根不改原对象，不主动改变任务状态。",
+            "rule_ids": [
+              "BR-011",
+              "BR-012",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 8,
+            "actor": "运营人员",
+            "action": "按原查看权限在既有任务记录查看真实原话单和本地三态",
+            "system_response": "本地保存查看不以外部交付确认作为前提；判定待核准确显示原证据；不显示秒挂重提交入口、次数或倒计时。接口来源交付状态独立记录。",
+            "rule_ids": [
+              "BR-010",
+              "BR-011",
+              "BR-015"
+            ]
+          },
+          {
+            "step": 9,
+            "actor": "云呼叫中心",
+            "action": "读取已保存的准确来源、原请求行/记录/root及本次原结果或处理进度，区分接口交付和手工查看。",
+            "system_response": "接口来源与DCC目标准确才进入固定后台交付；手工来源按原权限本地查看；来源/关联/目标不明仅保待核，不误投、不修改原业务状态。",
+            "rule_ids": [
+              "BR-012",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 10,
+            "actor": "云呼叫中心",
+            "action": "针对接口来源，将本次准确原对象结果、可信判定及处理进度交后台固定DCC接收端。",
+            "system_response": "保留原供应商结果、准确记录/root/fileId/call或可靠事件关联；不设前台地址或任务应用绑定。正式报文/身份/版本/HTTP与认证仍S4候选，不凭空定义已可用字段或路由。",
+            "rule_ids": [
+              "BR-012",
+              "BR-015",
+              "BR-017"
+            ]
+          },
+          {
+            "step": 11,
+            "actor": "DCC（结果接收方）",
+            "action": "按双方待核契约接收并确认本次准确结果/进度；DCC只接收不调度失败补提交。",
+            "system_response": "业务确认应准确对应本次原对象结果及当前交付版本；可靠保存、ACK和真实认证/超时行为到S4核验，不假定HTTP成功即业务确认。",
+            "rule_ids": [
+              "BR-017"
+            ]
+          },
+          {
+            "step": 12,
+            "actor": "云呼叫中心",
+            "action": "保存本次准确交付确认，或将未确认/失败/超时/不匹配沿原结果保留待补送。",
+            "system_response": "补送仅原对象结果与原交付版本，不新call/供应商导入/失败计划/计时/次数/子批；旧确认不确认较新可信更新。交付状态与本地方结果、失败计划及预算分开，秒挂不补导、不控制供应商规则。正式ACK/持久重送协议仍S4候选。",
+            "rule_ids": [
+              "BR-011",
+              "BR-015",
+              "BR-017"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-001",
+            "condition": "实际记录/批次/呼叫关联缺失、多候选或真实冲突",
+            "steps": [
+              "保留原字段待核，不强配最近同号，不生成确定归属或秒挂结论；整体冲突解决后按同一实际对象重新核验。"
+            ]
+          },
+          {
+            "id": "ALT-002",
+            "condition": "纯重复结果或更新没有新增可信信息",
+            "steps": [
+              "纯重复复用原话单/判定和证据版本；可信更新维护同一呼叫，不当新call、不导入供应商。",
+              "接口来源纯重复沿原结果对象及已有交付状态处理，未确认交付只允许候选补送原对象结果；不新call/版本或业务操作。"
+            ]
+          },
+          {
+            "id": "ALT-003",
+            "condition": "任意一个必要条件已有可信false（其余可unknown）",
+            "steps": [
+              "明确非秒挂，保存可信false的原证据与其余字段状态；不能以其余字段缺失将已可确定非秒挂降成待核。"
+            ]
+          },
+          {
+            "id": "ALT-004",
+            "condition": "没有可信false且至少一个条件unknown；或整体证据真实冲突",
+            "steps": [
+              "字段缺失/异常/单位或枚举未核独立unknown，不补0、不任选矛盾证据；整体关联冲突先待核，后续准确可信晚更新沿同呼叫重判。"
+            ]
+          },
+          {
+            "id": "ALT-013",
+            "condition": "本次已保存来源为手工，沿原权限本地查看",
+            "steps": [
+              "本地保存本次原结果/判定/处理进度；不向DCC交付，不因接口来源恢复而解锁或迁移历史来源。"
+            ]
+          },
+          {
+            "id": "ALT-014",
+            "condition": "固定DCC端本次交付失败、超时、业务确认缺失或不能对应原对象当前交付版本",
+            "steps": [
+              "保留原结果及交付待补送；仅候选补送原对象原版本，具体ACK/重送到S4核验。",
+              "不重新提交供应商，不新call/失败或秒挂计划、不重计120秒/失败次数，不改变原root/实际fileId或既有UNKNOWN占用。"
+            ]
+          },
+          {
+            "id": "ALT-015",
+            "condition": "已保存来源或本次DCC交付对象/后台端关联不准确、缺失或冲突",
+            "steps": [
+              "保留准确已有的本地结果和原证据、交付关联待核，不误投某DCC线索；不重分原root或猜最近同号。",
+              "后续可信核查沿原对象处理；本地计划/预算事实与交付待核状态独立，不由交付错误触发业务补提。"
+            ]
+          }
+        ],
+        "postconditions": [
+          "同一真实对象的原话单/供应商原结果和本地三态与证据版本完整保留；可信晚更不新增实际呼叫。",
+          "三条件27种组合：全真秒挂，任一可信false非秒挂，其余待核；整体关联冲突先待核。",
+          "秒挂从不生成平台补提交、等待、次数、业务attempt或子批，不新增停止供应商原生规则操作。",
+          "接口来源每次准确结果/可信更新及内部处理进度交固定后台DCC端，手工本地查看。交付确认/待补送独立保存；本方负责失败补提，DCC不调度。交付故障只候选补送结果，不新增业务呼叫/提交/计划/计时/次数，秒挂不补提或停止供应商。"
+        ],
+        "acceptance_points": [
+          "AC-004",
+          "AC-021",
+          "AC-022",
+          "AC-023",
+          "AC-027",
+          "AC-034",
+          "AC-018",
+          "AC-037",
+          "AC-075"
+        ],
+        "source_story_ids": [
+          "US-004",
+          "US-006"
+        ],
+        "source_refs": [
+          "inputs/user-original-20261009.txt#第4条",
+          "inputs/source-index.json#SRC-045",
+          "inputs/source-index.json#SRC-002",
+          "inputs/source-index.json#SRC-046",
+          "inputs/source-index.json#SRC-047",
+          "inputs/source-index.json#SRC-048",
+          "inputs/source-index.json#SRC-049",
+          "inputs/source-index.json#SRC-050",
+          "inputs/source-index.json#SRC-051",
+          "inputs/source-index.json#SRC-056",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-092",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-095",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-098",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-110",
+          "inputs/source-index.json#SRC-115"
+        ],
+        "business_rule_ids": [
+          "BR-010",
+          "BR-011",
+          "BR-012",
+          "BR-013",
+          "BR-015",
+          "BR-019",
+          "BR-017"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "vendor",
+              "name": "AliCti供应商",
+              "kind": "external_system"
+            },
+            {
+              "id": "platform",
+              "name": "云呼叫中心",
+              "kind": "system"
+            },
+            {
+              "id": "operator",
+              "name": "运营人员",
+              "kind": "actor"
+            },
+            {
+              "id": "dcc",
+              "name": "DCC（结果接收方）",
+              "kind": "external_system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "START",
+              "lane_id": "vendor",
+              "type": "start",
+              "order": 1,
+              "label": "本次呼叫结果或可信更新"
+            },
+            {
+              "id": "RESULT",
+              "lane_id": "vendor",
+              "type": "event",
+              "order": 2,
+              "label": "提供原呼叫与话单",
+              "step_ref": 1
+            },
+            {
+              "id": "LINK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 3,
+              "label": "关联到具体记录与呼叫？",
+              "step_ref": 2
+            },
+            {
+              "id": "UNIQUE",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 4,
+              "label": "新结果或同call可信更新？",
+              "step_ref": 3
+            },
+            {
+              "id": "SAVE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 5,
+              "label": "保存原话单与判定证据",
+              "step_ref": 4
+            },
+            {
+              "id": "HANGUP",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 6,
+              "label": "三条件有可信false\n或全部可信true，且无整体冲突？",
+              "step_ref": 5
+            },
+            {
+              "id": "YES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 8,
+              "label": "标记平台派生秒挂结果",
+              "step_ref": 6
+            },
+            {
+              "id": "NO",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 9,
+              "label": "记录明确非秒挂"
+            },
+            {
+              "id": "UNCERTAIN",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 10,
+              "label": "判定待核；保留原字段"
+            },
+            {
+              "id": "STATUS",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 11,
+              "label": "保存判定与来源追溯",
+              "step_ref": 7
+            },
+            {
+              "id": "BADLINK",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 15,
+              "label": "整体关联/真实证据冲突待核\n不推断当前call/记录归属"
+            },
+            {
+              "id": "REPEAT",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 16,
+              "label": "复用原判定/原话单/证据版本\n不新增call或补提交"
+            },
+            {
+              "id": "VIEW",
+              "lane_id": "operator",
+              "type": "end",
+              "order": 17,
+              "label": "本地查看原话单与三态\n无重提交入口/次数/倒计时",
+              "step_ref": 8
+            },
+            {
+              "id": "HANGUP-MATCH",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 7,
+              "label": "三项均为可信true？"
+            },
+            {
+              "id": "DCC-SOURCE",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 12,
+              "label": "已保存来源/交付关联准确？\n接口交DCC，手工查看",
+              "step_ref": 9
+            },
+            {
+              "id": "DCC-SEND",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 13,
+              "label": "固定后台DCC端交本次准确结果/进度\n原对象/保存root，不重做业务",
+              "step_ref": 10
+            },
+            {
+              "id": "DCC-RECEIVE",
+              "lane_id": "dcc",
+              "type": "action",
+              "order": 14,
+              "label": "接收本次结果/进度\n准确业务确认候选，待S4",
+              "step_ref": 11
+            },
+            {
+              "id": "DCC-CONFIRM",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 18,
+              "label": "本次原对象/交付版本\n已获准确业务确认？（待S4）",
+              "step_ref": 12
+            },
+            {
+              "id": "DCC-ACCEPTED",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 19,
+              "label": "保存本次准确交付确认\n不改变原呼叫/计划/预算",
+              "step_ref": 12
+            },
+            {
+              "id": "DCC-PENDING",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 20,
+              "label": "交付失败/未确认：原结果待补送\n不新call/导入/计划/计时计次",
+              "step_ref": 12
+            },
+            {
+              "id": "DCC-UNBOUND",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 21,
+              "label": "来源/交付关联待核不误投\n本地结果/计划/预算独立保留",
+              "step_ref": 9
+            },
+            {
+              "id": "DCC-WAIT-END",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 22,
+              "label": "原业务证据与对象保留\n交付待核/待补送，不重复业务"
+            },
+            {
+              "id": "DCC-WAIT-END-DRAW1-1",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 23,
+              "label": "原业务证据与对象保留\n交付待核/待补送，不重复业务",
+              "drawing_reuse_of": "DCC-WAIT-END"
+            }
+          ],
+          "edges": [
+            {
+              "from": "START",
+              "to": "RESULT"
+            },
+            {
+              "from": "RESULT",
+              "to": "LINK"
+            },
+            {
+              "from": "SAVE",
+              "to": "HANGUP"
+            },
+            {
+              "from": "YES",
+              "to": "STATUS"
+            },
+            {
+              "from": "NO",
+              "to": "STATUS"
+            },
+            {
+              "from": "UNCERTAIN",
+              "to": "STATUS"
+            },
+            {
+              "from": "LINK",
+              "to": "UNIQUE",
+              "label": "关联唯一且可信"
+            },
+            {
+              "from": "LINK",
+              "to": "BADLINK",
+              "label": "未知或冲突",
+              "path_id": "ALT-001",
+              "type": "failure"
+            },
+            {
+              "from": "UNIQUE",
+              "to": "SAVE",
+              "label": "新结果或同call可信更新"
+            },
+            {
+              "from": "UNIQUE",
+              "to": "REPEAT",
+              "label": "纯重复且无新增信息",
+              "path_id": "ALT-002"
+            },
+            {
+              "from": "HANGUP",
+              "to": "HANGUP-MATCH",
+              "label": "任一可信false或三项全真"
+            },
+            {
+              "from": "HANGUP",
+              "to": "UNCERTAIN",
+              "label": "无false且有unknown/整体冲突",
+              "path_id": "ALT-004",
+              "type": "failure"
+            },
+            {
+              "from": "HANGUP-MATCH",
+              "to": "YES",
+              "label": "三项全真：真实0～2秒含边界"
+            },
+            {
+              "from": "HANGUP-MATCH",
+              "to": "NO",
+              "label": "任一可信false，其余可unknown",
+              "path_id": "ALT-003"
+            },
+            {
+              "from": "STATUS",
+              "to": "DCC-SOURCE"
+            },
+            {
+              "from": "DCC-SOURCE",
+              "to": "VIEW",
+              "label": "准确手工来源：仅本地查看",
+              "path_id": "ALT-013"
+            },
+            {
+              "from": "DCC-SOURCE",
+              "to": "DCC-SEND",
+              "label": "准确接口来源且本次交付关联无冲突"
+            },
+            {
+              "from": "DCC-SOURCE",
+              "to": "DCC-UNBOUND",
+              "label": "来源或交付关联缺失/冲突",
+              "path_id": "ALT-015",
+              "type": "failure"
+            },
+            {
+              "from": "DCC-SEND",
+              "to": "DCC-RECEIVE"
+            },
+            {
+              "from": "DCC-RECEIVE",
+              "to": "DCC-CONFIRM"
+            },
+            {
+              "from": "DCC-CONFIRM",
+              "to": "DCC-ACCEPTED",
+              "label": "准确确认对应本次原对象/交付版本"
+            },
+            {
+              "from": "DCC-CONFIRM",
+              "to": "DCC-PENDING",
+              "label": "失败/超时/未知或确认不匹配",
+              "path_id": "ALT-014",
+              "type": "failure"
+            },
+            {
+              "from": "DCC-PENDING",
+              "to": "DCC-WAIT-END"
+            },
+            {
+              "from": "DCC-UNBOUND",
+              "to": "DCC-WAIT-END-DRAW1-1"
+            }
+          ]
+        },
+        "design_notes": [
+          "SRC-115实际G1已批准恢复DCC完整闭环。当前S3候选在最新本地事实上补准确接口来源交付，旧DCC延期定义/原图完整保留历史；当前不是G2/G3或生产批准。",
+          "原本地可信关联、源SIP隔离、可信false优先三态、3自动确认起120秒/8人工四元组共额外2次、原root/UNKNOWN及独立fileId候选保持。准确交付只读保存事实，不改任务/记录来源或真实账号权限。",
+          "DCC泳道仅表达结果接收责任；固定后台端、业务确认/版本/补送是待S4核验提案，不写正式字段/路由/认证/超时，不凭HTTP完成确认业务收到，不让交付ACK成为本地保存或失败调度前提。",
+          "手工来源按既有权限查看；接口来源也保留已有本地查看权，本图交付分支表达外部接收责任，不新增查看限制或技术控制页。",
+          "生产AliCti同号/在途/导航、稳定52/53身份、时长单位/挂断侧和真实本方持久化仍partial/missing；不真实调用、不新增先删/先解禁/导航成功回执或停止供应商能力。",
+          "共享结束/结果节点按互斥分支作绘图展开，drawing_reuse_of记录原节点；完整原路径投影等价，不增加实际业务操作。"
+        ],
+        "scope": "in_scope",
+        "status": "S3_draft_actual_G1_scope_approved_G2_pending",
+        "g1_scope_context": {
+          "source_id": "SRC-115",
+          "evidence": "runtime/dcc-restart-g1-user-approval-20261013.json",
+          "evidence_sha256": "86c89c11de053fb95681f79bbedfe9eea312747ded6afa6fce01bbd7d5bab6b3",
+          "actual_answer": "批准 G1，按 DCC 优先继续",
+          "G2_approved_for_restart": false,
+          "G3_approved": false,
+          "production_verified": false
+        }
+      }
+    }
+  ],
+  "delivery_source_policy": {
+    "business_scope": "SRC-116_actual_G1_approved",
+    "routing_unit": "original_record_or_inherited_trigger_record_for_internal_failure_attempt",
+    "DCC": "only_saved_trusted_original_DCC_records_or_inherited_attempts",
+    "Tianwang": "platform_view_only_no_outbound_callback",
+    "manual": "platform_view_only",
+    "unknown_or_conflict": "retain_pending_no_default_DCC",
+    "identity_mapping": "auth_context_and_controlled_registration_candidate_not_production_verified",
+    "excluded_routing_authorities": [
+      "body_self_report",
+      "application_display_name",
+      "R",
+      "root_owner",
+      "latest_caller",
+      "newer_main_batch"
+    ],
+    "app_in_business_group_or_failure_budget": false,
+    "G2_G3_production_approval": false
+  }
+}

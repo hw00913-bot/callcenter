@@ -1,0 +1,13211 @@
+# 独立操作与分支
+
+#### DLOCAL-001 修改应用
+
+**标识**：DLOCAL-001
+
+**主题**：修改应用
+
+**功能**
+
+1. FUNC-001
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-017
+
+2. AC-044
+
+3. AC-056
+
+4. AC-058
+
+5. AC-084
+
+6. AC-085
+
+**business_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**触发**：超管修改当前指定应用
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-006
+
+6. DFIELD-108
+
+7. DFIELD-121
+
+**输出**
+
+1. DFIELD-002
+
+2. DFIELD-004
+
+3. DFIELD-108
+
+4. DFIELD-121
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-006
+
+6. DFIELD-108
+
+7. DFIELD-121
+
+**步骤**
+
+#### DLOCAL-001-S1
+
+**标识**：DLOCAL-001-S1
+
+**action**：超管修改当前指定应用
+
+**reads**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-006
+
+6. DFIELD-108
+
+7. DFIELD-121
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+#### DLOCAL-001-S2
+
+**标识**：DLOCAL-001-S2
+
+**action**：核所有关联租户有效且无重复；同租户关联其他app允许
+
+**reads**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-006
+
+6. DFIELD-108
+
+7. DFIELD-121
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+#### DLOCAL-001-S3
+
+**标识**：DLOCAL-001-S3
+
+**action**：保存名称/租户关联/回调并保持appId/密钥；不迁历史业务
+
+**reads**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-006
+
+6. DFIELD-108
+
+7. DFIELD-121
+
+**writes**
+
+1. DFIELD-002
+
+2. DFIELD-004
+
+3. DFIELD-108
+
+4. DFIELD-121
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+**分支**
+
+#### DLOCAL-001-B1
+
+**标识**：DLOCAL-001-B1
+
+**条件**：取消或失败
+
+**结果**：取消或失败：原配置保留
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-006
+
+6. DFIELD-108
+
+7. DFIELD-121
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-044
+
+3. CHECK-056
+
+4. CHECK-058
+
+5. CHECK-084
+
+6. CHECK-085
+
+#### DLOCAL-001-B2
+
+**标识**：DLOCAL-001-B2
+
+**条件**：解除关联或地址变更
+
+**结果**：解除关联或地址变更：旧token/在途/积压处置待核，不擅猜
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-006
+
+6. DFIELD-108
+
+7. DFIELD-121
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-044
+
+3. CHECK-056
+
+4. CHECK-058
+
+5. CHECK-084
+
+6. CHECK-085
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**来源映射**：memory/normalized-user-stories.json#AC-017, memory/normalized-user-stories.json#AC-044, memory/normalized-user-stories.json#AC-056, memory/normalized-user-stories.json#AC-058, memory/normalized-user-stories.json#AC-084, memory/normalized-user-stories.json#AC-085, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-001
+
+2. memory/business-rules.json#BR-001
+
+3. memory/business-rules.json#BR-020
+
+4. sequences/SEQ-005.json
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-044
+
+3. CHECK-056
+
+4. CHECK-058
+
+5. CHECK-084
+
+6. CHECK-085
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-APP
+
+**范围**
+
+1. 修改应用、有效多租户关联与该应用回调地址；仅超管管理，保留原凭据与来源审计边界
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+#### DLOCAL-002 交换明确租户身份
+
+**标识**：DLOCAL-002
+
+**主题**：交换明确租户身份
+
+**功能**
+
+1. FUNC-002
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-017
+
+2. AC-045
+
+3. AC-092
+
+**business_rule_ids**
+
+1. BR-001
+
+**触发**：应用凭据请求明确tenantId身份（提案）
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-001
+
+2. DFIELD-003
+
+3. DFIELD-004
+
+4. DFIELD-006
+
+5. DFIELD-010
+
+**输出**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-013
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-003
+
+3. DFIELD-004
+
+4. DFIELD-006
+
+5. DFIELD-010
+
+6. DFIELD-011
+
+7. DFIELD-012
+
+8. DFIELD-013
+
+**步骤**
+
+#### DLOCAL-002-S1
+
+**标识**：DLOCAL-002-S1
+
+**action**：应用凭据请求明确tenantId身份（提案）
+
+**reads**
+
+1. DFIELD-001
+
+2. DFIELD-003
+
+3. DFIELD-004
+
+4. DFIELD-006
+
+5. DFIELD-010
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+#### DLOCAL-002-S2
+
+**标识**：DLOCAL-002-S2
+
+**action**：验证应用有效及该tenant有效关联，不默认首个/最近
+
+**reads**
+
+1. DFIELD-001
+
+2. DFIELD-003
+
+3. DFIELD-004
+
+4. DFIELD-006
+
+5. DFIELD-010
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+#### DLOCAL-002-S3
+
+**标识**：DLOCAL-002-S3
+
+**action**：签发绑定stableApp/tenant的业务token；不授超管/运营权
+
+**reads**
+
+1. DFIELD-001
+
+2. DFIELD-003
+
+3. DFIELD-004
+
+4. DFIELD-006
+
+5. DFIELD-010
+
+**writes**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-013
+
+**规则**
+
+1. BR-001
+
+**分支**
+
+#### DLOCAL-002-B1
+
+**标识**：DLOCAL-002-B1
+
+**条件**：缺tenant或未关联拒绝，不发其他租户身份
+
+**结果**：缺tenant或未关联拒绝，不发其他租户身份
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-003
+
+3. DFIELD-004
+
+4. DFIELD-006
+
+5. DFIELD-010
+
+6. DFIELD-011
+
+7. DFIELD-012
+
+8. DFIELD-013
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-045
+
+3. CHECK-092
+
+#### DLOCAL-002-B2
+
+**标识**：DLOCAL-002-B2
+
+**条件**：token时效/解除关联及旧token撤销正式机制待核
+
+**结果**：token时效/解除关联及旧token撤销正式机制待核
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-003
+
+3. DFIELD-004
+
+4. DFIELD-006
+
+5. DFIELD-010
+
+6. DFIELD-011
+
+7. DFIELD-012
+
+8. DFIELD-013
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-045
+
+3. CHECK-092
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-001
+
+**来源映射**：memory/normalized-user-stories.json#AC-017, memory/normalized-user-stories.json#AC-045, memory/normalized-user-stories.json#AC-092, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-002
+
+2. memory/business-rules.json#BR-001
+
+3. memory/business-rules.json#BR-002
+
+4. memory/business-rules.json#BR-003
+
+5. memory/business-rules.json#BR-004
+
+6. memory/business-rules.json#BR-005
+
+7. memory/business-rules.json#BR-006
+
+8. memory/business-rules.json#BR-007
+
+9. memory/business-rules.json#BR-014
+
+10. memory/business-rules.json#BR-015
+
+11. sequences/SEQ-001.json
+
+12. sequences/SEQ-005.json
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-045
+
+3. CHECK-092
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-APP
+
+2. P0-IMPORT
+
+**范围**
+
+1. 应用凭据申请明确租户身份；核有效关联并绑定app/tenant，跨租户任务或工号拒绝
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+#### DLOCAL-004-EXTERNAL 按应用租户与外呼方式接收接口线索
+
+**标识**：DLOCAL-004-EXTERNAL
+
+**主题**：按应用租户与外呼方式接收接口线索
+
+**功能**
+
+1. FUNC-004
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-007
+
+2. AC-009
+
+3. AC-010
+
+4. AC-012
+
+5. AC-014
+
+6. AC-047
+
+7. AC-048
+
+8. AC-049
+
+9. AC-050
+
+10. AC-051
+
+11. AC-080
+
+12. AC-086
+
+13. AC-092
+
+14. AC-093
+
+15. AC-094
+
+16. AC-099
+
+17. AC-102
+
+**business_rule_ids**
+
+1. BR-001
+
+2. BR-002
+
+3. BR-003
+
+4. BR-004
+
+5. BR-012
+
+**触发**：先鉴权app/明确tenant有效关联，核callback已配置及方式；body/task/seat不得跨tenant
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-015
+
+5. DFIELD-019
+
+6. DFIELD-020
+
+7. DFIELD-021
+
+8. DFIELD-022
+
+9. DFIELD-029
+
+10. DFIELD-030
+
+11. DFIELD-031
+
+12. DFIELD-032
+
+13. DFIELD-033
+
+14. DFIELD-034
+
+15. DFIELD-035
+
+16. DFIELD-036
+
+17. DFIELD-108
+
+18. DFIELD-109
+
+19. DFIELD-110
+
+20. DFIELD-121
+
+21. DFIELD-124
+
+22. DFIELD-126
+
+23. DFIELD-127
+
+24. DFIELD-128
+
+25. DFIELD-129
+
+26. DFIELD-130
+
+27. DFIELD-131
+
+28. DFIELD-024
+
+**输出**
+
+1. DFIELD-023
+
+2. DFIELD-037
+
+3. DFIELD-038
+
+4. DFIELD-039
+
+5. DFIELD-040
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-043
+
+9. DFIELD-044
+
+10. DFIELD-045
+
+11. DFIELD-046
+
+12. DFIELD-047
+
+13. DFIELD-124
+
+14. DFIELD-126
+
+15. DFIELD-127
+
+16. DFIELD-128
+
+17. DFIELD-129
+
+18. DFIELD-130
+
+19. DFIELD-131
+
+20. DFIELD-024
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-015
+
+5. DFIELD-019
+
+6. DFIELD-020
+
+7. DFIELD-021
+
+8. DFIELD-022
+
+9. DFIELD-023
+
+10. DFIELD-029
+
+11. DFIELD-030
+
+12. DFIELD-031
+
+13. DFIELD-032
+
+14. DFIELD-033
+
+15. DFIELD-034
+
+16. DFIELD-035
+
+17. DFIELD-036
+
+18. DFIELD-037
+
+19. DFIELD-038
+
+20. DFIELD-039
+
+21. DFIELD-040
+
+22. DFIELD-041
+
+23. DFIELD-042
+
+24. DFIELD-043
+
+25. DFIELD-044
+
+26. DFIELD-045
+
+27. DFIELD-046
+
+28. DFIELD-047
+
+29. DFIELD-108
+
+30. DFIELD-109
+
+31. DFIELD-110
+
+32. DFIELD-121
+
+33. DFIELD-124
+
+34. DFIELD-126
+
+35. DFIELD-127
+
+36. DFIELD-128
+
+37. DFIELD-129
+
+38. DFIELD-130
+
+39. DFIELD-131
+
+40. DFIELD-024
+
+**步骤**
+
+#### DLOCAL-004-EXTERNAL-S1
+
+**标识**：DLOCAL-004-EXTERNAL-S1
+
+**action**：先鉴权当前稳定app及明确tenant有效关联，并检查原请求完整内容；已受理同内容技术重放只读返回原回执，不因类型后来停用而改写历史。仅新业务继续检查本应用回调、businessType、callMode、businessBatchNo及原任务/坐席权限。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-015
+
+5. DFIELD-019
+
+6. DFIELD-020
+
+7. DFIELD-021
+
+8. DFIELD-022
+
+9. DFIELD-029
+
+10. DFIELD-030
+
+11. DFIELD-031
+
+12. DFIELD-032
+
+13. DFIELD-033
+
+14. DFIELD-034
+
+15. DFIELD-035
+
+16. DFIELD-036
+
+17. DFIELD-108
+
+18. DFIELD-109
+
+19. DFIELD-110
+
+20. DFIELD-121
+
+21. DFIELD-124
+
+22. DFIELD-024
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-002
+
+3. BR-003
+
+4. BR-004
+
+5. BR-012
+
+#### DLOCAL-004-EXTERNAL-S2
+
+**标识**：DLOCAL-004-EXTERNAL-S2
+
+**action**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-015
+
+5. DFIELD-019
+
+6. DFIELD-020
+
+7. DFIELD-021
+
+8. DFIELD-022
+
+9. DFIELD-029
+
+10. DFIELD-030
+
+11. DFIELD-031
+
+12. DFIELD-032
+
+13. DFIELD-033
+
+14. DFIELD-034
+
+15. DFIELD-035
+
+16. DFIELD-036
+
+17. DFIELD-108
+
+18. DFIELD-109
+
+19. DFIELD-110
+
+20. DFIELD-121
+
+21. DFIELD-124
+
+22. DFIELD-024
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-002
+
+3. BR-003
+
+4. BR-004
+
+5. BR-012
+
+#### DLOCAL-004-EXTERNAL-S3
+
+**标识**：DLOCAL-004-EXTERNAL-S3
+
+**action**：逐行校验：预外呼按准确原供应商taskId、任务坐席组与单号主子保存，交DLOCAL-005首次自动提交；人工按agentWorkNo交DLOCAL-MANUAL-ASSIGN入本人待联系，不伪造预测ID；行失败不阻其他有效行。 有效新行保存原业务批次号，后续回传从原记录取；不以此合并客户/平台主子或重置额度。 每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-015
+
+5. DFIELD-019
+
+6. DFIELD-020
+
+7. DFIELD-021
+
+8. DFIELD-022
+
+9. DFIELD-029
+
+10. DFIELD-030
+
+11. DFIELD-031
+
+12. DFIELD-032
+
+13. DFIELD-033
+
+14. DFIELD-034
+
+15. DFIELD-035
+
+16. DFIELD-036
+
+17. DFIELD-108
+
+18. DFIELD-109
+
+19. DFIELD-110
+
+20. DFIELD-121
+
+21. DFIELD-124
+
+22. DFIELD-024
+
+**writes**
+
+1. DFIELD-023
+
+2. DFIELD-037
+
+3. DFIELD-038
+
+4. DFIELD-039
+
+5. DFIELD-040
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-043
+
+9. DFIELD-044
+
+10. DFIELD-045
+
+11. DFIELD-046
+
+12. DFIELD-047
+
+13. DFIELD-124
+
+**规则**
+
+1. BR-001
+
+2. BR-002
+
+3. BR-003
+
+4. BR-004
+
+5. BR-012
+
+#### DLOCAL-004-EXTERNAL-INTENT-FIELDS
+
+**标识**：DLOCAL-004-EXTERNAL-INTENT-FIELDS
+
+**action**：按本次有效行保存六个选填原文本，纳入完整请求内容比较；不新增必填、成对必填或按编码数值化。原手工流程只增末尾选填列。 留资时间用业务来源原值，与平台导入/保存时间区别；缺失不补当前时间。
+
+**reads**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**writes**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**规则**
+
+1. DGR-IMPORTED-INTENT
+
+#### DLOCAL-004-EXTERNAL-BUSINESS-TYPE
+
+**标识**：DLOCAL-004-EXTERNAL-BUSINESS-TYPE
+
+**action**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。 在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。 每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**reads**
+
+1. DFIELD-024
+
+**writes**
+
+1. DFIELD-024
+
+**规则**
+
+1. DGR-IMPORT-BUSINESS-TYPE
+
+**分支**
+
+#### DLOCAL-004-EXTERNAL-B1
+
+**标识**：DLOCAL-004-EXTERNAL-B1
+
+**条件**：缺callback拒绝整次新导入，零客户/分配/批次/外发
+
+**结果**：缺callback拒绝整次新导入，零客户/分配/批次/外发
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-015
+
+5. DFIELD-019
+
+6. DFIELD-020
+
+7. DFIELD-021
+
+8. DFIELD-022
+
+9. DFIELD-023
+
+10. DFIELD-029
+
+11. DFIELD-030
+
+12. DFIELD-031
+
+13. DFIELD-032
+
+14. DFIELD-033
+
+15. DFIELD-034
+
+16. DFIELD-035
+
+17. DFIELD-036
+
+18. DFIELD-037
+
+19. DFIELD-038
+
+20. DFIELD-039
+
+21. DFIELD-040
+
+22. DFIELD-041
+
+23. DFIELD-042
+
+24. DFIELD-043
+
+25. DFIELD-044
+
+26. DFIELD-045
+
+27. DFIELD-046
+
+28. DFIELD-047
+
+29. DFIELD-108
+
+30. DFIELD-109
+
+31. DFIELD-110
+
+32. DFIELD-121
+
+**验证引用**
+
+1. CHECK-007
+
+2. CHECK-009
+
+3. CHECK-010
+
+4. CHECK-012
+
+5. CHECK-014
+
+6. CHECK-047
+
+7. CHECK-048
+
+8. CHECK-049
+
+9. CHECK-050
+
+10. CHECK-051
+
+11. CHECK-080
+
+12. CHECK-086
+
+13. CHECK-092
+
+#### DLOCAL-004-EXTERNAL-B2
+
+**标识**：DLOCAL-004-EXTERNAL-B2
+
+**条件**：来源不符或身份不明拒绝，不默认DCC、不切应用
+
+**结果**：来源不符或身份不明拒绝，不默认DCC、不切应用
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-015
+
+5. DFIELD-019
+
+6. DFIELD-020
+
+7. DFIELD-021
+
+8. DFIELD-022
+
+9. DFIELD-023
+
+10. DFIELD-029
+
+11. DFIELD-030
+
+12. DFIELD-031
+
+13. DFIELD-032
+
+14. DFIELD-033
+
+15. DFIELD-034
+
+16. DFIELD-035
+
+17. DFIELD-036
+
+18. DFIELD-037
+
+19. DFIELD-038
+
+20. DFIELD-039
+
+21. DFIELD-040
+
+22. DFIELD-041
+
+23. DFIELD-042
+
+24. DFIELD-043
+
+25. DFIELD-044
+
+26. DFIELD-045
+
+27. DFIELD-046
+
+28. DFIELD-047
+
+29. DFIELD-108
+
+30. DFIELD-109
+
+31. DFIELD-110
+
+32. DFIELD-121
+
+**验证引用**
+
+1. CHECK-007
+
+2. CHECK-009
+
+3. CHECK-010
+
+4. CHECK-012
+
+5. CHECK-014
+
+6. CHECK-047
+
+7. CHECK-048
+
+8. CHECK-049
+
+9. CHECK-050
+
+10. CHECK-051
+
+11. CHECK-080
+
+12. CHECK-086
+
+13. CHECK-092
+
+#### DLOCAL-004-EXTERNAL-B3
+
+**标识**：DLOCAL-004-EXTERNAL-B3
+
+**条件**：未知同请求保原处理，不新派发
+
+**结果**：未知同请求保原处理，不新派发
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-012
+
+4. DFIELD-015
+
+5. DFIELD-019
+
+6. DFIELD-020
+
+7. DFIELD-021
+
+8. DFIELD-022
+
+9. DFIELD-023
+
+10. DFIELD-029
+
+11. DFIELD-030
+
+12. DFIELD-031
+
+13. DFIELD-032
+
+14. DFIELD-033
+
+15. DFIELD-034
+
+16. DFIELD-035
+
+17. DFIELD-036
+
+18. DFIELD-037
+
+19. DFIELD-038
+
+20. DFIELD-039
+
+21. DFIELD-040
+
+22. DFIELD-041
+
+23. DFIELD-042
+
+24. DFIELD-043
+
+25. DFIELD-044
+
+26. DFIELD-045
+
+27. DFIELD-046
+
+28. DFIELD-047
+
+29. DFIELD-108
+
+30. DFIELD-109
+
+31. DFIELD-110
+
+32. DFIELD-121
+
+**验证引用**
+
+1. CHECK-007
+
+2. CHECK-009
+
+3. CHECK-010
+
+4. CHECK-012
+
+5. CHECK-014
+
+6. CHECK-047
+
+7. CHECK-048
+
+8. CHECK-049
+
+9. CHECK-050
+
+10. CHECK-051
+
+11. CHECK-080
+
+12. CHECK-086
+
+13. CHECK-092
+
+#### DLOCAL-004-EXTERNAL-TYPE-INVALID
+
+**标识**：DLOCAL-004-EXTERNAL-TYPE-INVALID
+
+**条件**：新业务缺失、跨租户、无效或停用的businessType
+
+**结果**：整次拒收，零新增客户、分配、供应商提交和预算消耗；明确类型错误。
+
+**字段引用**
+
+1. DFIELD-024
+
+**验证引用**
+
+1. CHECK-102
+
+#### DLOCAL-004-EXTERNAL-TYPE-REPLAY
+
+**标识**：DLOCAL-004-EXTERNAL-TYPE-REPLAY
+
+**条件**：原请求同内容重放；该类型后续停用
+
+**结果**：身份授权仍有效时返回原回执，不新增、不重新验证为新业务；原ID改类型则冲突。
+
+**字段引用**
+
+1. DFIELD-024
+
+**验证引用**
+
+1. CHECK-102
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+2. 新API请求必须传业务批次号，逐行保存；与旧手工批次名称和内部主子批分离。
+
+3. 按本次有效行保存六个选填原文本，纳入完整请求内容比较；不新增必填、成对必填或按编码数值化。原手工流程只增末尾选填列。
+
+4. 请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。 在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。 每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**global_rule_ids**
+
+1. BR-001
+
+2. BR-002
+
+3. BR-003
+
+4. BR-004
+
+5. BR-012
+
+6. DGR-BUSINESS-BATCH
+
+7. DGR-IMPORTED-INTENT
+
+8. DGR-IMPORT-BUSINESS-TYPE
+
+**来源映射**：memory/normalized-user-stories.json#AC-007, memory/normalized-user-stories.json#AC-009, memory/normalized-user-stories.json#AC-010, memory/normalized-user-stories.json#AC-012, memory/normalized-user-stories.json#AC-014, memory/normalized-user-stories.json#AC-047, memory/normalized-user-stories.json#AC-048, memory/normalized-user-stories.json#AC-049, memory/normalized-user-stories.json#AC-050, memory/normalized-user-stories.json#AC-051, memory/normalized-user-stories.json#AC-080, memory/normalized-user-stories.json#AC-086, memory/normalized-user-stories.json#AC-092, memory/project-facts.json, memory/normalized-user-stories.json#AC-093, memory/normalized-user-stories.json#AC-094, inputs/source-index.json#SRC-123, memory/normalized-user-stories.json#AC-099, inputs/source-index.json#SRC-124, inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-004
+
+2. memory/business-rules.json#BR-001
+
+3. memory/business-rules.json#BR-002
+
+4. memory/business-rules.json#BR-003
+
+5. memory/business-rules.json#BR-004
+
+6. memory/business-rules.json#BR-006
+
+7. memory/business-rules.json#BR-012
+
+8. memory/business-rules.json#BR-014
+
+9. memory/business-rules.json#BR-015
+
+10. memory/business-rules.json#BR-016
+
+11. memory/business-rules.json#BR-013
+
+12. memory/business-rules.json#BR-017
+
+13. sequences/SEQ-001.json
+
+14. sequences/SEQ-006.json
+
+**验证引用**
+
+1. CHECK-007
+
+2. CHECK-009
+
+3. CHECK-010
+
+4. CHECK-012
+
+5. CHECK-014
+
+6. CHECK-047
+
+7. CHECK-048
+
+8. CHECK-049
+
+9. CHECK-050
+
+10. CHECK-051
+
+11. CHECK-080
+
+12. CHECK-086
+
+13. CHECK-092
+
+14. CHECK-093
+
+15. CHECK-094
+
+16. CHECK-099
+
+17. CHECK-102
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-IMPORT
+
+**范围**
+
+1. 接口导入明确外呼方式；预外呼必填原供应商taskId并核租户、权限及有效性，人工必填同租户有效agentWorkNo
+
+2. 稳定应用/租户身份、缺回调拒绝、逐行处理与原请求去重，预测沿任务组、人工进入指定坐席待联系
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**business_type_local_evidence**
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+#### DLOCAL-004-MANUAL 原弹窗手工接收
+
+**标识**：DLOCAL-004-MANUAL
+
+**主题**：原弹窗手工接收
+
+**功能**
+
+1. FUNC-004
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-001
+
+2. AC-005
+
+3. AC-006
+
+4. AC-014
+
+5. AC-028
+
+6. AC-029
+
+7. AC-030
+
+8. AC-031
+
+9. AC-059
+
+10. AC-060
+
+11. AC-069
+
+12. AC-015
+
+13. AC-099
+
+**business_rule_ids**
+
+1. BR-003
+
+2. BR-014
+
+3. BR-016
+
+**触发**：预外呼手工来源常驻入口直接打开原大弹窗，禁用保原因
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-024
+
+8. DFIELD-025
+
+9. DFIELD-026
+
+10. DFIELD-027
+
+11. DFIELD-028
+
+12. DFIELD-029
+
+13. DFIELD-030
+
+14. DFIELD-031
+
+15. DFIELD-032
+
+16. DFIELD-033
+
+17. DFIELD-034
+
+18. DFIELD-035
+
+19. DFIELD-126
+
+20. DFIELD-127
+
+21. DFIELD-128
+
+22. DFIELD-129
+
+23. DFIELD-130
+
+24. DFIELD-131
+
+**输出**
+
+1. DFIELD-037
+
+2. DFIELD-038
+
+3. DFIELD-039
+
+4. DFIELD-040
+
+5. DFIELD-042
+
+6. DFIELD-043
+
+7. DFIELD-044
+
+8. DFIELD-045
+
+9. DFIELD-046
+
+10. DFIELD-047
+
+11. DFIELD-126
+
+12. DFIELD-127
+
+13. DFIELD-128
+
+14. DFIELD-129
+
+15. DFIELD-130
+
+16. DFIELD-131
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-024
+
+8. DFIELD-025
+
+9. DFIELD-026
+
+10. DFIELD-027
+
+11. DFIELD-028
+
+12. DFIELD-029
+
+13. DFIELD-030
+
+14. DFIELD-031
+
+15. DFIELD-032
+
+16. DFIELD-033
+
+17. DFIELD-034
+
+18. DFIELD-035
+
+19. DFIELD-037
+
+20. DFIELD-038
+
+21. DFIELD-039
+
+22. DFIELD-040
+
+23. DFIELD-042
+
+24. DFIELD-043
+
+25. DFIELD-044
+
+26. DFIELD-045
+
+27. DFIELD-046
+
+28. DFIELD-047
+
+29. DFIELD-126
+
+30. DFIELD-127
+
+31. DFIELD-128
+
+32. DFIELD-129
+
+33. DFIELD-130
+
+34. DFIELD-131
+
+**步骤**
+
+#### DLOCAL-004-MANUAL-S1
+
+**标识**：DLOCAL-004-MANUAL-S1
+
+**action**：预外呼手工来源常驻入口直接打开原大弹窗，禁用保原因
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-024
+
+8. DFIELD-025
+
+9. DFIELD-026
+
+10. DFIELD-027
+
+11. DFIELD-028
+
+12. DFIELD-029
+
+13. DFIELD-030
+
+14. DFIELD-031
+
+15. DFIELD-032
+
+16. DFIELD-033
+
+17. DFIELD-034
+
+18. DFIELD-035
+
+**writes**
+
+
+
+**规则**
+
+1. BR-003
+
+2. BR-014
+
+3. BR-016
+
+#### DLOCAL-004-MANUAL-S2
+
+**标识**：DLOCAL-004-MANUAL-S2
+
+**action**：CSV上传/粘贴/检查同草稿版本，线索类单一编码、priority提交前统一/逐行填写，选填后置
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-024
+
+8. DFIELD-025
+
+9. DFIELD-026
+
+10. DFIELD-027
+
+11. DFIELD-028
+
+12. DFIELD-029
+
+13. DFIELD-030
+
+14. DFIELD-031
+
+15. DFIELD-032
+
+16. DFIELD-033
+
+17. DFIELD-034
+
+18. DFIELD-035
+
+**writes**
+
+
+
+**规则**
+
+1. BR-003
+
+2. BR-014
+
+3. BR-016
+
+#### DLOCAL-004-MANUAL-S3
+
+**标识**：DLOCAL-004-MANUAL-S3
+
+**action**：最终权限/任务/来源/当前输入重核后保存单号批次自动导入，不加requestId/主子控件
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-024
+
+8. DFIELD-025
+
+9. DFIELD-026
+
+10. DFIELD-027
+
+11. DFIELD-028
+
+12. DFIELD-029
+
+13. DFIELD-030
+
+14. DFIELD-031
+
+15. DFIELD-032
+
+16. DFIELD-033
+
+17. DFIELD-034
+
+18. DFIELD-035
+
+**writes**
+
+1. DFIELD-037
+
+2. DFIELD-038
+
+3. DFIELD-039
+
+4. DFIELD-040
+
+5. DFIELD-042
+
+6. DFIELD-043
+
+7. DFIELD-044
+
+8. DFIELD-045
+
+9. DFIELD-046
+
+10. DFIELD-047
+
+**规则**
+
+1. BR-003
+
+2. BR-014
+
+3. BR-016
+
+#### DLOCAL-004-MANUAL-INTENT-FIELDS
+
+**标识**：DLOCAL-004-MANUAL-INTENT-FIELDS
+
+**action**：按本次有效行保存六个选填原文本，纳入完整请求内容比较；不新增必填、成对必填或按编码数值化。原手工流程只增末尾选填列。 留资时间用业务来源原值，与平台导入/保存时间区别；缺失不补当前时间。
+
+**reads**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**writes**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**规则**
+
+1. DGR-IMPORTED-INTENT
+
+**分支**
+
+#### DLOCAL-004-MANUAL-B1
+
+**标识**：DLOCAL-004-MANUAL-B1
+
+**条件**：取消/空或失败检查令旧预览不可提交
+
+**结果**：取消/空或失败检查令旧预览不可提交
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-024
+
+8. DFIELD-025
+
+9. DFIELD-026
+
+10. DFIELD-027
+
+11. DFIELD-028
+
+12. DFIELD-029
+
+13. DFIELD-030
+
+14. DFIELD-031
+
+15. DFIELD-032
+
+16. DFIELD-033
+
+17. DFIELD-034
+
+18. DFIELD-035
+
+19. DFIELD-037
+
+20. DFIELD-038
+
+21. DFIELD-039
+
+22. DFIELD-040
+
+23. DFIELD-042
+
+24. DFIELD-043
+
+25. DFIELD-044
+
+26. DFIELD-045
+
+27. DFIELD-046
+
+28. DFIELD-047
+
+**验证引用**
+
+1. CHECK-001
+
+2. CHECK-005
+
+3. CHECK-006
+
+4. CHECK-014
+
+5. CHECK-028
+
+6. CHECK-029
+
+7. CHECK-030
+
+8. CHECK-031
+
+9. CHECK-059
+
+10. CHECK-060
+
+11. CHECK-069
+
+#### DLOCAL-004-MANUAL-B2
+
+**标识**：DLOCAL-004-MANUAL-B2
+
+**条件**：旧双编码冲突提示不覆盖；历史不批量改写
+
+**结果**：旧双编码冲突提示不覆盖；历史不批量改写
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-024
+
+8. DFIELD-025
+
+9. DFIELD-026
+
+10. DFIELD-027
+
+11. DFIELD-028
+
+12. DFIELD-029
+
+13. DFIELD-030
+
+14. DFIELD-031
+
+15. DFIELD-032
+
+16. DFIELD-033
+
+17. DFIELD-034
+
+18. DFIELD-035
+
+19. DFIELD-037
+
+20. DFIELD-038
+
+21. DFIELD-039
+
+22. DFIELD-040
+
+23. DFIELD-042
+
+24. DFIELD-043
+
+25. DFIELD-044
+
+26. DFIELD-045
+
+27. DFIELD-046
+
+28. DFIELD-047
+
+**验证引用**
+
+1. CHECK-001
+
+2. CHECK-005
+
+3. CHECK-006
+
+4. CHECK-014
+
+5. CHECK-028
+
+6. CHECK-029
+
+7. CHECK-030
+
+8. CHECK-031
+
+9. CHECK-059
+
+10. CHECK-060
+
+11. CHECK-069
+
+#### DLOCAL-004-MANUAL-B3
+
+**标识**：DLOCAL-004-MANUAL-B3
+
+**条件**：无app手工来源仅平台查看，不因同租户有callback发送
+
+**结果**：无app手工来源仅平台查看，不因同租户有callback发送
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-024
+
+8. DFIELD-025
+
+9. DFIELD-026
+
+10. DFIELD-027
+
+11. DFIELD-028
+
+12. DFIELD-029
+
+13. DFIELD-030
+
+14. DFIELD-031
+
+15. DFIELD-032
+
+16. DFIELD-033
+
+17. DFIELD-034
+
+18. DFIELD-035
+
+19. DFIELD-037
+
+20. DFIELD-038
+
+21. DFIELD-039
+
+22. DFIELD-040
+
+23. DFIELD-042
+
+24. DFIELD-043
+
+25. DFIELD-044
+
+26. DFIELD-045
+
+27. DFIELD-046
+
+28. DFIELD-047
+
+**验证引用**
+
+1. CHECK-001
+
+2. CHECK-005
+
+3. CHECK-006
+
+4. CHECK-014
+
+5. CHECK-028
+
+6. CHECK-029
+
+7. CHECK-030
+
+8. CHECK-031
+
+9. CHECK-059
+
+10. CHECK-060
+
+11. CHECK-069
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+2. 按本次有效行保存六个选填原文本，纳入完整请求内容比较；不新增必填、成对必填或按编码数值化。原手工流程只增末尾选填列。
+
+**global_rule_ids**
+
+1. BR-003
+
+2. BR-014
+
+3. BR-016
+
+4. DGR-IMPORTED-INTENT
+
+**来源映射**：memory/normalized-user-stories.json#AC-001, memory/normalized-user-stories.json#AC-005, memory/normalized-user-stories.json#AC-006, memory/normalized-user-stories.json#AC-014, memory/normalized-user-stories.json#AC-028, memory/normalized-user-stories.json#AC-029, memory/normalized-user-stories.json#AC-030, memory/normalized-user-stories.json#AC-031, memory/normalized-user-stories.json#AC-059, memory/normalized-user-stories.json#AC-060, memory/normalized-user-stories.json#AC-069, memory/project-facts.json, memory/normalized-user-stories.json#AC-015, memory/normalized-user-stories.json#AC-099, inputs/source-index.json#SRC-124
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-004
+
+2. memory/business-rules.json#BR-001
+
+3. memory/business-rules.json#BR-002
+
+4. memory/business-rules.json#BR-003
+
+5. memory/business-rules.json#BR-004
+
+6. memory/business-rules.json#BR-006
+
+7. memory/business-rules.json#BR-012
+
+8. memory/business-rules.json#BR-014
+
+9. memory/business-rules.json#BR-015
+
+10. memory/business-rules.json#BR-016
+
+11. memory/business-rules.json#BR-013
+
+12. memory/business-rules.json#BR-017
+
+13. sequences/SEQ-001.json
+
+14. sequences/SEQ-006.json
+
+**验证引用**
+
+1. CHECK-001
+
+2. CHECK-005
+
+3. CHECK-006
+
+4. CHECK-014
+
+5. CHECK-028
+
+6. CHECK-029
+
+7. CHECK-030
+
+8. CHECK-031
+
+9. CHECK-059
+
+10. CHECK-060
+
+11. CHECK-069
+
+12. CHECK-015
+
+13. CHECK-099
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+#### DLOCAL-005 预外呼自动提交导入批次
+
+**标识**：DLOCAL-005
+
+**主题**：预外呼自动提交导入批次
+
+**功能**
+
+1. FUNC-005
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-011
+
+2. AC-012
+
+3. AC-013
+
+4. AC-035
+
+5. AC-039
+
+6. AC-041
+
+7. AC-046
+
+8. AC-064
+
+**business_rule_ids**
+
+1. BR-004
+
+2. BR-013
+
+3. BR-018
+
+4. BR-021
+
+**触发**：仅预测有效已保存对象进入队列；同任务priority高先同级FIFO
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-041
+
+11. DFIELD-042
+
+12. DFIELD-046
+
+13. DFIELD-109
+
+**输出**
+
+1. DFIELD-048
+
+2. DFIELD-049
+
+3. DFIELD-050
+
+4. DFIELD-051
+
+5. DFIELD-052
+
+6. DFIELD-053
+
+7. DFIELD-054
+
+8. DFIELD-055
+
+9. DFIELD-056
+
+10. DFIELD-057
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-041
+
+11. DFIELD-042
+
+12. DFIELD-046
+
+13. DFIELD-048
+
+14. DFIELD-049
+
+15. DFIELD-050
+
+16. DFIELD-051
+
+17. DFIELD-052
+
+18. DFIELD-053
+
+19. DFIELD-054
+
+20. DFIELD-055
+
+21. DFIELD-056
+
+22. DFIELD-057
+
+23. DFIELD-109
+
+**步骤**
+
+#### DLOCAL-005-S1
+
+**标识**：DLOCAL-005-S1
+
+**action**：仅预测有效已保存对象进入队列；同任务priority高先同级FIFO
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-041
+
+11. DFIELD-042
+
+12. DFIELD-046
+
+13. DFIELD-109
+
+**writes**
+
+
+
+**规则**
+
+1. BR-004
+
+2. BR-013
+
+3. BR-018
+
+4. BR-021
+
+#### DLOCAL-005-S2
+
+**标识**：DLOCAL-005-S2
+
+**action**：以准确原supplierTaskId及单号批次建立真实尝试并提交
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-041
+
+11. DFIELD-042
+
+12. DFIELD-046
+
+13. DFIELD-109
+
+**writes**
+
+
+
+**规则**
+
+1. BR-004
+
+2. BR-013
+
+3. BR-018
+
+4. BR-021
+
+#### DLOCAL-005-S3
+
+**标识**：DLOCAL-005-S3
+
+**action**：保存准确同步结果及实际fileId，分开本地保存/导入/实际呼叫阶段
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-041
+
+11. DFIELD-042
+
+12. DFIELD-046
+
+13. DFIELD-109
+
+**writes**
+
+1. DFIELD-048
+
+2. DFIELD-049
+
+3. DFIELD-050
+
+4. DFIELD-051
+
+5. DFIELD-052
+
+6. DFIELD-053
+
+7. DFIELD-054
+
+8. DFIELD-055
+
+9. DFIELD-056
+
+10. DFIELD-057
+
+**规则**
+
+1. BR-004
+
+2. BR-013
+
+3. BR-018
+
+4. BR-021
+
+**分支**
+
+#### DLOCAL-005-B1
+
+**标识**：DLOCAL-005-B1
+
+**条件**：只有汇总数不猜逐行成功
+
+**结果**：只有汇总数不猜逐行成功
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-041
+
+11. DFIELD-042
+
+12. DFIELD-046
+
+13. DFIELD-048
+
+14. DFIELD-049
+
+15. DFIELD-050
+
+16. DFIELD-051
+
+17. DFIELD-052
+
+18. DFIELD-053
+
+19. DFIELD-054
+
+20. DFIELD-055
+
+21. DFIELD-056
+
+22. DFIELD-057
+
+23. DFIELD-109
+
+**验证引用**
+
+1. CHECK-011
+
+2. CHECK-012
+
+3. CHECK-013
+
+4. CHECK-035
+
+5. CHECK-039
+
+6. CHECK-041
+
+7. CHECK-046
+
+8. CHECK-064
+
+#### DLOCAL-005-B2
+
+**标识**：DLOCAL-005-B2
+
+**条件**：同步拒绝归导入异常不进11类呼叫失败；UNKNOWN保同attempt不盲重发
+
+**结果**：同步拒绝归导入异常不进11类呼叫失败；UNKNOWN保同attempt不盲重发
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-041
+
+11. DFIELD-042
+
+12. DFIELD-046
+
+13. DFIELD-048
+
+14. DFIELD-049
+
+15. DFIELD-050
+
+16. DFIELD-051
+
+17. DFIELD-052
+
+18. DFIELD-053
+
+19. DFIELD-054
+
+20. DFIELD-055
+
+21. DFIELD-056
+
+22. DFIELD-057
+
+23. DFIELD-109
+
+**验证引用**
+
+1. CHECK-011
+
+2. CHECK-012
+
+3. CHECK-013
+
+4. CHECK-035
+
+5. CHECK-039
+
+6. CHECK-041
+
+7. CHECK-046
+
+8. CHECK-064
+
+#### DLOCAL-005-B3
+
+**标识**：DLOCAL-005-B3
+
+**条件**：人工方式不得进入该动作
+
+**结果**：人工方式不得进入该动作
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-041
+
+11. DFIELD-042
+
+12. DFIELD-046
+
+13. DFIELD-048
+
+14. DFIELD-049
+
+15. DFIELD-050
+
+16. DFIELD-051
+
+17. DFIELD-052
+
+18. DFIELD-053
+
+19. DFIELD-054
+
+20. DFIELD-055
+
+21. DFIELD-056
+
+22. DFIELD-057
+
+23. DFIELD-109
+
+**验证引用**
+
+1. CHECK-011
+
+2. CHECK-012
+
+3. CHECK-013
+
+4. CHECK-035
+
+5. CHECK-039
+
+6. CHECK-041
+
+7. CHECK-046
+
+8. CHECK-064
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-004
+
+2. BR-013
+
+3. BR-018
+
+4. BR-021
+
+**来源映射**：memory/normalized-user-stories.json#AC-011, memory/normalized-user-stories.json#AC-012, memory/normalized-user-stories.json#AC-013, memory/normalized-user-stories.json#AC-035, memory/normalized-user-stories.json#AC-039, memory/normalized-user-stories.json#AC-041, memory/normalized-user-stories.json#AC-046, memory/normalized-user-stories.json#AC-064, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-005
+
+2. memory/business-rules.json#BR-003
+
+3. memory/business-rules.json#BR-004
+
+4. memory/business-rules.json#BR-006
+
+5. memory/business-rules.json#BR-012
+
+6. memory/business-rules.json#BR-013
+
+7. memory/business-rules.json#BR-015
+
+8. memory/business-rules.json#BR-018
+
+9. memory/business-rules.json#BR-019
+
+10. memory/business-rules.json#BR-021
+
+11. sequences/SEQ-001.json
+
+12. sequences/SEQ-006.json
+
+**验证引用**
+
+1. CHECK-011
+
+2. CHECK-012
+
+3. CHECK-013
+
+4. CHECK-035
+
+5. CHECK-039
+
+6. CHECK-041
+
+7. CHECK-046
+
+8. CHECK-064
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+**范围**
+
+1. 仅作为预外呼接口有效行首次自动提交原供应商任务的必要依赖，沿实际taskId/单号批次/priority；不借此将手工CSV导入整体提级
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**outside_scope**：本局部未列出的其他职责保留既有范围和排序，不由依赖自动扩成新的P0主目标。
+
+#### DLOCAL-006 下载导入失败记录
+
+**标识**：DLOCAL-006
+
+**主题**：下载导入失败记录
+
+**功能**
+
+1. FUNC-006
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-008
+
+2. AC-013
+
+3. AC-042
+
+4. AC-052
+
+**business_rule_ids**
+
+1. BR-005
+
+2. BR-019
+
+**触发**：原任务权限核失败对象，固定本次快照及已知分片完整性
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-037
+
+6. DFIELD-092
+
+7. DFIELD-093
+
+8. DFIELD-094
+
+**输出**
+
+1. DFIELD-095
+
+2. DFIELD-096
+
+3. DFIELD-097
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-037
+
+6. DFIELD-092
+
+7. DFIELD-093
+
+8. DFIELD-094
+
+9. DFIELD-095
+
+10. DFIELD-096
+
+11. DFIELD-097
+
+**步骤**
+
+#### DLOCAL-006-S1
+
+**标识**：DLOCAL-006-S1
+
+**action**：原任务权限核失败对象，固定本次快照及已知分片完整性
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-037
+
+6. DFIELD-092
+
+7. DFIELD-093
+
+8. DFIELD-094
+
+**writes**
+
+
+
+**规则**
+
+1. BR-005
+
+2. BR-019
+
+#### DLOCAL-006-S2
+
+**标识**：DLOCAL-006-S2
+
+**action**：支持浏览器选择保存位置，写入关闭及回读的本地证明仅可行性证据；正式完成协议待核
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-037
+
+6. DFIELD-092
+
+7. DFIELD-093
+
+8. DFIELD-094
+
+**writes**
+
+
+
+**规则**
+
+1. BR-005
+
+2. BR-019
+
+#### DLOCAL-006-S3
+
+**标识**：DLOCAL-006-S3
+
+**action**：可信本次保存完成后仅清本快照明细/文件，保客户关联去重预算
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-037
+
+6. DFIELD-092
+
+7. DFIELD-093
+
+8. DFIELD-094
+
+**writes**
+
+1. DFIELD-095
+
+2. DFIELD-096
+
+3. DFIELD-097
+
+**规则**
+
+1. BR-005
+
+2. BR-019
+
+**分支**
+
+#### DLOCAL-006-B1
+
+**标识**：DLOCAL-006-B1
+
+**条件**：取消/失败/未知或普通下载保记录
+
+**结果**：取消/失败/未知或普通下载保记录
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-037
+
+6. DFIELD-092
+
+7. DFIELD-093
+
+8. DFIELD-094
+
+9. DFIELD-095
+
+10. DFIELD-096
+
+11. DFIELD-097
+
+**验证引用**
+
+1. CHECK-008
+
+2. CHECK-013
+
+3. CHECK-042
+
+4. CHECK-052
+
+#### DLOCAL-006-B2
+
+**标识**：DLOCAL-006-B2
+
+**条件**：迟到新失败下次下载；重复已导出事件不再生
+
+**结果**：迟到新失败下次下载；重复已导出事件不再生
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-037
+
+6. DFIELD-092
+
+7. DFIELD-093
+
+8. DFIELD-094
+
+9. DFIELD-095
+
+10. DFIELD-096
+
+11. DFIELD-097
+
+**验证引用**
+
+1. CHECK-008
+
+2. CHECK-013
+
+3. CHECK-042
+
+4. CHECK-052
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-005
+
+2. BR-019
+
+**来源映射**：memory/normalized-user-stories.json#AC-008, memory/normalized-user-stories.json#AC-013, memory/normalized-user-stories.json#AC-042, memory/normalized-user-stories.json#AC-052, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-006
+
+2. memory/business-rules.json#BR-005
+
+3. memory/business-rules.json#BR-013
+
+4. memory/business-rules.json#BR-015
+
+5. memory/business-rules.json#BR-018
+
+6. memory/business-rules.json#BR-019
+
+7. sequences/SEQ-007.json
+
+8. runtime/download-save-user-decision-20261014.json
+
+9. runtime/download-save-browser-proof-20261014.json
+
+**验证引用**
+
+1. CHECK-008
+
+2. CHECK-013
+
+3. CHECK-042
+
+4. CHECK-052
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+#### DLOCAL-009 删除指定供应商号码
+
+**标识**：DLOCAL-009
+
+**主题**：删除指定供应商号码
+
+**功能**
+
+1. FUNC-009
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-016
+
+2. AC-024
+
+3. AC-025
+
+4. AC-061
+
+**business_rule_ids**
+
+1. BR-007
+
+2. BR-015
+
+**触发**：仅预测，权限/目标/版本及操作幂等验证后明确确认
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-033
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-052
+
+11. DFIELD-066
+
+12. DFIELD-068
+
+13. DFIELD-069
+
+14. DFIELD-070
+
+15. DFIELD-072
+
+16. DFIELD-098
+
+17. DFIELD-099
+
+18. DFIELD-100
+
+**输出**
+
+1. DFIELD-101
+
+2. DFIELD-102
+
+3. DFIELD-103
+
+4. DFIELD-104
+
+5. DFIELD-105
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-033
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-052
+
+11. DFIELD-066
+
+12. DFIELD-068
+
+13. DFIELD-069
+
+14. DFIELD-070
+
+15. DFIELD-072
+
+16. DFIELD-098
+
+17. DFIELD-099
+
+18. DFIELD-100
+
+19. DFIELD-101
+
+20. DFIELD-102
+
+21. DFIELD-103
+
+22. DFIELD-104
+
+23. DFIELD-105
+
+**步骤**
+
+#### DLOCAL-009-S1
+
+**标识**：DLOCAL-009-S1
+
+**action**：仅预测，权限/目标/版本及操作幂等验证后明确确认
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-033
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-052
+
+11. DFIELD-066
+
+12. DFIELD-068
+
+13. DFIELD-069
+
+14. DFIELD-070
+
+15. DFIELD-072
+
+16. DFIELD-098
+
+17. DFIELD-099
+
+18. DFIELD-100
+
+**writes**
+
+
+
+**规则**
+
+1. BR-007
+
+2. BR-015
+
+#### DLOCAL-009-S2
+
+**标识**：DLOCAL-009-S2
+
+**action**：授权准确取消先阻断该对象未执行计划，保已用/UNKNOWN
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-033
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-052
+
+11. DFIELD-066
+
+12. DFIELD-068
+
+13. DFIELD-069
+
+14. DFIELD-070
+
+15. DFIELD-072
+
+16. DFIELD-098
+
+17. DFIELD-099
+
+18. DFIELD-100
+
+**writes**
+
+
+
+**规则**
+
+1. BR-007
+
+2. BR-015
+
+#### DLOCAL-009-S3
+
+**标识**：DLOCAL-009-S3
+
+**action**：独占fileId候选taskId+fileId不同时tels；检查真实结果和skippedCallingTels
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-033
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-052
+
+11. DFIELD-066
+
+12. DFIELD-068
+
+13. DFIELD-069
+
+14. DFIELD-070
+
+15. DFIELD-072
+
+16. DFIELD-098
+
+17. DFIELD-099
+
+18. DFIELD-100
+
+**writes**
+
+1. DFIELD-101
+
+2. DFIELD-102
+
+3. DFIELD-103
+
+4. DFIELD-104
+
+5. DFIELD-105
+
+**规则**
+
+1. BR-007
+
+2. BR-015
+
+**分支**
+
+#### DLOCAL-009-B1
+
+**标识**：DLOCAL-009-B1
+
+**条件**：取消/旧版本/无权不写不调用
+
+**结果**：取消/旧版本/无权不写不调用
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-033
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-052
+
+11. DFIELD-066
+
+12. DFIELD-068
+
+13. DFIELD-069
+
+14. DFIELD-070
+
+15. DFIELD-072
+
+16. DFIELD-098
+
+17. DFIELD-099
+
+18. DFIELD-100
+
+19. DFIELD-101
+
+20. DFIELD-102
+
+21. DFIELD-103
+
+22. DFIELD-104
+
+23. DFIELD-105
+
+**验证引用**
+
+1. CHECK-016
+
+2. CHECK-024
+
+3. CHECK-025
+
+4. CHECK-061
+
+#### DLOCAL-009-B2
+
+**标识**：DLOCAL-009-B2
+
+**条件**：共享fileId不能精确选择不外发不扩大范围
+
+**结果**：共享fileId不能精确选择不外发不扩大范围
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-033
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-052
+
+11. DFIELD-066
+
+12. DFIELD-068
+
+13. DFIELD-069
+
+14. DFIELD-070
+
+15. DFIELD-072
+
+16. DFIELD-098
+
+17. DFIELD-099
+
+18. DFIELD-100
+
+19. DFIELD-101
+
+20. DFIELD-102
+
+21. DFIELD-103
+
+22. DFIELD-104
+
+23. DFIELD-105
+
+**验证引用**
+
+1. CHECK-016
+
+2. CHECK-024
+
+3. CHECK-025
+
+4. CHECK-061
+
+#### DLOCAL-009-B3
+
+**标识**：DLOCAL-009-B3
+
+**条件**：跳过/失败/未知不报已删除，也不释放额度
+
+**结果**：跳过/失败/未知不报已删除，也不释放额度
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-033
+
+7. DFIELD-037
+
+8. DFIELD-038
+
+9. DFIELD-039
+
+10. DFIELD-052
+
+11. DFIELD-066
+
+12. DFIELD-068
+
+13. DFIELD-069
+
+14. DFIELD-070
+
+15. DFIELD-072
+
+16. DFIELD-098
+
+17. DFIELD-099
+
+18. DFIELD-100
+
+19. DFIELD-101
+
+20. DFIELD-102
+
+21. DFIELD-103
+
+22. DFIELD-104
+
+23. DFIELD-105
+
+**验证引用**
+
+1. CHECK-016
+
+2. CHECK-024
+
+3. CHECK-025
+
+4. CHECK-061
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-007
+
+2. BR-015
+
+**来源映射**：memory/normalized-user-stories.json#AC-016, memory/normalized-user-stories.json#AC-024, memory/normalized-user-stories.json#AC-025, memory/normalized-user-stories.json#AC-061, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-009
+
+2. memory/business-rules.json#BR-007
+
+3. memory/business-rules.json#BR-011
+
+4. memory/business-rules.json#BR-012
+
+5. memory/business-rules.json#BR-013
+
+6. memory/business-rules.json#BR-015
+
+7. memory/business-rules.json#BR-019
+
+8. sequences/SEQ-009.json
+
+**验证引用**
+
+1. CHECK-016
+
+2. CHECK-024
+
+3. CHECK-025
+
+4. CHECK-061
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+#### DLOCAL-010 按原应用向业务系统回调结果
+
+**标识**：DLOCAL-010
+
+**主题**：按原应用向业务系统回调结果
+
+**功能**
+
+1. FUNC-010
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-018
+
+2. AC-037
+
+3. AC-071
+
+4. AC-075
+
+5. AC-032
+
+6. AC-096
+
+7. AC-097
+
+8. AC-104
+
+**business_rule_ids**
+
+1. BR-017
+
+**触发**：准确原app/tenant/request行及实际对象关联保存，每次结果/晚更/进度形成版本
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-019
+
+3. DFIELD-022
+
+4. DFIELD-037
+
+5. DFIELD-041
+
+6. DFIELD-042
+
+7. DFIELD-043
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-078
+
+11. DFIELD-084
+
+12. DFIELD-085
+
+13. DFIELD-086
+
+14. DFIELD-087
+
+15. DFIELD-088
+
+16. DFIELD-108
+
+17. DFIELD-109
+
+18. DFIELD-111
+
+19. DFIELD-114
+
+20. DFIELD-115
+
+21. DFIELD-122
+
+22. DFIELD-123
+
+23. DFIELD-124
+
+24. DFIELD-024
+
+**输出**
+
+1. DFIELD-089
+
+2. DFIELD-090
+
+3. DFIELD-091
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-019
+
+3. DFIELD-022
+
+4. DFIELD-037
+
+5. DFIELD-041
+
+6. DFIELD-042
+
+7. DFIELD-043
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-078
+
+11. DFIELD-084
+
+12. DFIELD-085
+
+13. DFIELD-086
+
+14. DFIELD-087
+
+15. DFIELD-088
+
+16. DFIELD-089
+
+17. DFIELD-090
+
+18. DFIELD-091
+
+19. DFIELD-108
+
+20. DFIELD-109
+
+21. DFIELD-111
+
+22. DFIELD-114
+
+23. DFIELD-115
+
+24. DFIELD-122
+
+25. DFIELD-123
+
+26. DFIELD-124
+
+27. DFIELD-024
+
+**步骤**
+
+#### DLOCAL-010-S1
+
+**标识**：DLOCAL-010-S1
+
+**action**：准确原app/tenant/request行及实际对象关联保存，每次结果/晚更/进度形成版本
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-019
+
+3. DFIELD-022
+
+4. DFIELD-037
+
+5. DFIELD-041
+
+6. DFIELD-042
+
+7. DFIELD-043
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-078
+
+11. DFIELD-084
+
+12. DFIELD-085
+
+13. DFIELD-086
+
+14. DFIELD-087
+
+15. DFIELD-088
+
+16. DFIELD-108
+
+17. DFIELD-109
+
+18. DFIELD-111
+
+19. DFIELD-114
+
+20. DFIELD-115
+
+21. DFIELD-122
+
+22. DFIELD-123
+
+**writes**
+
+
+
+**规则**
+
+1. BR-017
+
+#### DLOCAL-010-S2
+
+**标识**：DLOCAL-010-S2
+
+**action**：全部应用来源含天网，两种方式均取原应用callback；预测只带真实预测映射，人工保真实分配/通话 每次交付携该导入记录原businessBatchNo，历史缺失按正式兼容策略待核，不从最新批次补造。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-019
+
+3. DFIELD-022
+
+4. DFIELD-037
+
+5. DFIELD-041
+
+6. DFIELD-042
+
+7. DFIELD-043
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-078
+
+11. DFIELD-084
+
+12. DFIELD-085
+
+13. DFIELD-086
+
+14. DFIELD-087
+
+15. DFIELD-088
+
+16. DFIELD-108
+
+17. DFIELD-109
+
+18. DFIELD-111
+
+19. DFIELD-114
+
+20. DFIELD-115
+
+21. DFIELD-122
+
+22. DFIELD-123
+
+23. DFIELD-124
+
+**writes**
+
+
+
+**规则**
+
+1. BR-017
+
+#### DLOCAL-010-S3
+
+**标识**：DLOCAL-010-S3
+
+**action**：正式ACK待双方；匹配原结果版本才确认，补送只同一结果
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-019
+
+3. DFIELD-022
+
+4. DFIELD-037
+
+5. DFIELD-041
+
+6. DFIELD-042
+
+7. DFIELD-043
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-078
+
+11. DFIELD-084
+
+12. DFIELD-085
+
+13. DFIELD-086
+
+14. DFIELD-087
+
+15. DFIELD-088
+
+16. DFIELD-108
+
+17. DFIELD-109
+
+18. DFIELD-111
+
+19. DFIELD-114
+
+20. DFIELD-115
+
+21. DFIELD-122
+
+22. DFIELD-123
+
+**writes**
+
+1. DFIELD-089
+
+2. DFIELD-090
+
+3. DFIELD-091
+
+**规则**
+
+1. BR-017
+
+#### DLOCAL-010-BUSINESS-TYPE
+
+**标识**：DLOCAL-010-BUSINESS-TYPE
+
+**action**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**reads**
+
+1. DFIELD-024
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-IMPORT-BUSINESS-TYPE
+
+**分支**
+
+#### DLOCAL-010-B1
+
+**标识**：DLOCAL-010-B1
+
+**条件**：无app手工UI不创建交付
+
+**结果**：无app手工UI不创建交付
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-019
+
+3. DFIELD-022
+
+4. DFIELD-037
+
+5. DFIELD-041
+
+6. DFIELD-042
+
+7. DFIELD-043
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-078
+
+11. DFIELD-084
+
+12. DFIELD-085
+
+13. DFIELD-086
+
+14. DFIELD-087
+
+15. DFIELD-088
+
+16. DFIELD-089
+
+17. DFIELD-090
+
+18. DFIELD-091
+
+19. DFIELD-108
+
+20. DFIELD-109
+
+21. DFIELD-111
+
+22. DFIELD-114
+
+23. DFIELD-115
+
+24. DFIELD-122
+
+25. DFIELD-123
+
+**验证引用**
+
+1. CHECK-018
+
+2. CHECK-037
+
+3. CHECK-071
+
+4. CHECK-075
+
+#### DLOCAL-010-B2
+
+**标识**：DLOCAL-010-B2
+
+**条件**：来源/归属或地址变更积压策略不明待核，不用默认DCC/其他app端
+
+**结果**：来源/归属或地址变更积压策略不明待核，不用默认DCC/其他app端
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-019
+
+3. DFIELD-022
+
+4. DFIELD-037
+
+5. DFIELD-041
+
+6. DFIELD-042
+
+7. DFIELD-043
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-078
+
+11. DFIELD-084
+
+12. DFIELD-085
+
+13. DFIELD-086
+
+14. DFIELD-087
+
+15. DFIELD-088
+
+16. DFIELD-089
+
+17. DFIELD-090
+
+18. DFIELD-091
+
+19. DFIELD-108
+
+20. DFIELD-109
+
+21. DFIELD-111
+
+22. DFIELD-114
+
+23. DFIELD-115
+
+24. DFIELD-122
+
+25. DFIELD-123
+
+**验证引用**
+
+1. CHECK-018
+
+2. CHECK-037
+
+3. CHECK-071
+
+4. CHECK-075
+
+#### DLOCAL-010-B3
+
+**标识**：DLOCAL-010-B3
+
+**条件**：发送失败不重导、不重新分配或拨号
+
+**结果**：发送失败不重导、不重新分配或拨号
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-019
+
+3. DFIELD-022
+
+4. DFIELD-037
+
+5. DFIELD-041
+
+6. DFIELD-042
+
+7. DFIELD-043
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-078
+
+11. DFIELD-084
+
+12. DFIELD-085
+
+13. DFIELD-086
+
+14. DFIELD-087
+
+15. DFIELD-088
+
+16. DFIELD-089
+
+17. DFIELD-090
+
+18. DFIELD-091
+
+19. DFIELD-108
+
+20. DFIELD-109
+
+21. DFIELD-111
+
+22. DFIELD-114
+
+23. DFIELD-115
+
+24. DFIELD-122
+
+25. DFIELD-123
+
+**验证引用**
+
+1. CHECK-018
+
+2. CHECK-037
+
+3. CHECK-071
+
+4. CHECK-075
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+2. 既有每次结果/进度回调保留；携原记录业务批次号，新增完成沟通事件由独立操作生成，可共用交付设施。
+
+3. 每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**global_rule_ids**
+
+1. BR-017
+
+2. DGR-IMPORT-BUSINESS-TYPE
+
+**来源映射**：memory/normalized-user-stories.json#AC-018, memory/normalized-user-stories.json#AC-037, memory/normalized-user-stories.json#AC-071, memory/normalized-user-stories.json#AC-075, memory/project-facts.json, memory/normalized-user-stories.json#AC-032, memory/normalized-user-stories.json#AC-096, memory/normalized-user-stories.json#AC-097, inputs/source-index.json#SRC-123, inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-104
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-010
+
+2. memory/business-rules.json#BR-008
+
+3. memory/business-rules.json#BR-009
+
+4. memory/business-rules.json#BR-010
+
+5. memory/business-rules.json#BR-011
+
+6. memory/business-rules.json#BR-012
+
+7. memory/business-rules.json#BR-015
+
+8. memory/business-rules.json#BR-016
+
+9. memory/business-rules.json#BR-017
+
+10. memory/business-rules.json#BR-018
+
+11. memory/business-rules.json#BR-019
+
+12. sequences/SEQ-001.json
+
+13. sequences/SEQ-002.json
+
+14. sequences/SEQ-003.json
+
+15. sequences/SEQ-004.json
+
+16. sequences/SEQ-007.json
+
+**验证引用**
+
+1. CHECK-018
+
+2. CHECK-037
+
+3. CHECK-071
+
+4. CHECK-075
+
+5. CHECK-032
+
+6. CHECK-096
+
+7. CHECK-097
+
+8. CHECK-104
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-APP
+
+2. P0-IMPORT
+
+3. P0-FOLLOWUP
+
+**范围**
+
+1. 已接收接口来源结果按原应用回调并处理补送；所有应用含DCC/天网，不因外呼方式换路由；不因补送再导入或拨号
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**outside_scope**：本局部未列出的其他职责保留既有范围和排序，不由依赖自动扩成新的P0主目标。
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**business_type_local_evidence**
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+#### DLOCAL-011 识别客户秒挂结果
+
+**标识**：DLOCAL-011
+
+**主题**：识别客户秒挂结果
+
+**功能**
+
+1. FUNC-011
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-004
+
+2. AC-021
+
+3. AC-022
+
+4. AC-023
+
+5. AC-027
+
+6. AC-034
+
+**business_rule_ids**
+
+1. BR-010
+
+2. BR-011
+
+3. BR-017
+
+**触发**：先准确同一真实呼叫关联，保存原始证据
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-037
+
+2. DFIELD-041
+
+3. DFIELD-042
+
+4. DFIELD-058
+
+5. DFIELD-060
+
+6. DFIELD-061
+
+7. DFIELD-062
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-079
+
+11. DFIELD-080
+
+12. DFIELD-081
+
+13. DFIELD-082
+
+14. DFIELD-083
+
+15. DFIELD-109
+
+**输出**
+
+1. DFIELD-084
+
+2. DFIELD-085
+
+3. DFIELD-086
+
+4. DFIELD-087
+
+5. DFIELD-088
+
+**字段引用**
+
+1. DFIELD-037
+
+2. DFIELD-041
+
+3. DFIELD-042
+
+4. DFIELD-058
+
+5. DFIELD-060
+
+6. DFIELD-061
+
+7. DFIELD-062
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-079
+
+11. DFIELD-080
+
+12. DFIELD-081
+
+13. DFIELD-082
+
+14. DFIELD-083
+
+15. DFIELD-084
+
+16. DFIELD-085
+
+17. DFIELD-086
+
+18. DFIELD-087
+
+19. DFIELD-088
+
+20. DFIELD-109
+
+**步骤**
+
+#### DLOCAL-011-S1
+
+**标识**：DLOCAL-011-S1
+
+**action**：先准确同一真实呼叫关联，保存原始证据
+
+**reads**
+
+1. DFIELD-037
+
+2. DFIELD-041
+
+3. DFIELD-042
+
+4. DFIELD-058
+
+5. DFIELD-060
+
+6. DFIELD-061
+
+7. DFIELD-062
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-079
+
+11. DFIELD-080
+
+12. DFIELD-081
+
+13. DFIELD-082
+
+14. DFIELD-083
+
+15. DFIELD-109
+
+**writes**
+
+
+
+**规则**
+
+1. BR-010
+
+2. BR-011
+
+3. BR-017
+
+#### DLOCAL-011-S2
+
+**标识**：DLOCAL-011-S2
+
+**action**：客户真接听/主动挂断/可信0～2秒任一false非秒挂，全true秒挂，无false含unknown待核
+
+**reads**
+
+1. DFIELD-037
+
+2. DFIELD-041
+
+3. DFIELD-042
+
+4. DFIELD-058
+
+5. DFIELD-060
+
+6. DFIELD-061
+
+7. DFIELD-062
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-079
+
+11. DFIELD-080
+
+12. DFIELD-081
+
+13. DFIELD-082
+
+14. DFIELD-083
+
+15. DFIELD-109
+
+**writes**
+
+
+
+**规则**
+
+1. BR-010
+
+2. BR-011
+
+3. BR-017
+
+#### DLOCAL-011-S3
+
+**标识**：DLOCAL-011-S3
+
+**action**：保存三态与原因；全部接口来源交回调，无app手工UI查看
+
+**reads**
+
+1. DFIELD-037
+
+2. DFIELD-041
+
+3. DFIELD-042
+
+4. DFIELD-058
+
+5. DFIELD-060
+
+6. DFIELD-061
+
+7. DFIELD-062
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-079
+
+11. DFIELD-080
+
+12. DFIELD-081
+
+13. DFIELD-082
+
+14. DFIELD-083
+
+15. DFIELD-109
+
+**writes**
+
+1. DFIELD-084
+
+2. DFIELD-085
+
+3. DFIELD-086
+
+4. DFIELD-087
+
+5. DFIELD-088
+
+**规则**
+
+1. BR-010
+
+2. BR-011
+
+3. BR-017
+
+**分支**
+
+#### DLOCAL-011-B1
+
+**标识**：DLOCAL-011-B1
+
+**条件**：整体真实冲突先待核
+
+**结果**：整体真实冲突先待核
+
+**字段引用**
+
+1. DFIELD-037
+
+2. DFIELD-041
+
+3. DFIELD-042
+
+4. DFIELD-058
+
+5. DFIELD-060
+
+6. DFIELD-061
+
+7. DFIELD-062
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-079
+
+11. DFIELD-080
+
+12. DFIELD-081
+
+13. DFIELD-082
+
+14. DFIELD-083
+
+15. DFIELD-084
+
+16. DFIELD-085
+
+17. DFIELD-086
+
+18. DFIELD-087
+
+19. DFIELD-088
+
+20. DFIELD-109
+
+**验证引用**
+
+1. CHECK-004
+
+2. CHECK-021
+
+3. CHECK-022
+
+4. CHECK-023
+
+5. CHECK-027
+
+6. CHECK-034
+
+#### DLOCAL-011-B2
+
+**标识**：DLOCAL-011-B2
+
+**条件**：单位未核/时长缺失不补零，坐席人工状态不替代
+
+**结果**：单位未核/时长缺失不补零，坐席人工状态不替代
+
+**字段引用**
+
+1. DFIELD-037
+
+2. DFIELD-041
+
+3. DFIELD-042
+
+4. DFIELD-058
+
+5. DFIELD-060
+
+6. DFIELD-061
+
+7. DFIELD-062
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-079
+
+11. DFIELD-080
+
+12. DFIELD-081
+
+13. DFIELD-082
+
+14. DFIELD-083
+
+15. DFIELD-084
+
+16. DFIELD-085
+
+17. DFIELD-086
+
+18. DFIELD-087
+
+19. DFIELD-088
+
+20. DFIELD-109
+
+**验证引用**
+
+1. CHECK-004
+
+2. CHECK-021
+
+3. CHECK-022
+
+4. CHECK-023
+
+5. CHECK-027
+
+6. CHECK-034
+
+#### DLOCAL-011-B3
+
+**标识**：DLOCAL-011-B3
+
+**条件**：秒挂无平台计划/额度/重导
+
+**结果**：秒挂无平台计划/额度/重导
+
+**字段引用**
+
+1. DFIELD-037
+
+2. DFIELD-041
+
+3. DFIELD-042
+
+4. DFIELD-058
+
+5. DFIELD-060
+
+6. DFIELD-061
+
+7. DFIELD-062
+
+8. DFIELD-075
+
+9. DFIELD-076
+
+10. DFIELD-079
+
+11. DFIELD-080
+
+12. DFIELD-081
+
+13. DFIELD-082
+
+14. DFIELD-083
+
+15. DFIELD-084
+
+16. DFIELD-085
+
+17. DFIELD-086
+
+18. DFIELD-087
+
+19. DFIELD-088
+
+20. DFIELD-109
+
+**验证引用**
+
+1. CHECK-004
+
+2. CHECK-021
+
+3. CHECK-022
+
+4. CHECK-023
+
+5. CHECK-027
+
+6. CHECK-034
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-010
+
+2. BR-011
+
+3. BR-017
+
+**来源映射**：memory/normalized-user-stories.json#AC-004, memory/normalized-user-stories.json#AC-021, memory/normalized-user-stories.json#AC-022, memory/normalized-user-stories.json#AC-023, memory/normalized-user-stories.json#AC-027, memory/normalized-user-stories.json#AC-034, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-011
+
+2. memory/business-rules.json#BR-010
+
+3. memory/business-rules.json#BR-011
+
+4. memory/business-rules.json#BR-012
+
+5. memory/business-rules.json#BR-015
+
+6. sequences/SEQ-004.json
+
+**验证引用**
+
+1. CHECK-004
+
+2. CHECK-021
+
+3. CHECK-022
+
+4. CHECK-023
+
+5. CHECK-027
+
+6. CHECK-034
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+#### DLOCAL-012 接收并分类预测呼叫失败
+
+**标识**：DLOCAL-012
+
+**主题**：接收并分类预测呼叫失败
+
+**功能**
+
+1. FUNC-012
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-003
+
+2. AC-020
+
+3. AC-033
+
+4. AC-063
+
+5. AC-066
+
+**business_rule_ids**
+
+1. BR-008
+
+2. BR-009
+
+3. BR-017
+
+**触发**：仅准确可信预测失败，允许无话单但须稳定事件
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+**输出**
+
+1. DFIELD-063
+
+2. DFIELD-064
+
+3. DFIELD-065
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+14. DFIELD-063
+
+15. DFIELD-064
+
+16. DFIELD-065
+
+**步骤**
+
+#### DLOCAL-012-S1
+
+**标识**：DLOCAL-012-S1
+
+**action**：仅准确可信预测失败，允许无话单但须稳定事件
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+**writes**
+
+
+
+**规则**
+
+1. BR-008
+
+2. BR-009
+
+3. BR-017
+
+#### DLOCAL-012-S2
+
+**标识**：DLOCAL-012-S2
+
+**action**：去重后保存原始原因与首次确认时间；3自动/8人工分流
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+**writes**
+
+
+
+**规则**
+
+1. BR-008
+
+2. BR-009
+
+3. BR-017
+
+#### DLOCAL-012-S3
+
+**标识**：DLOCAL-012-S3
+
+**action**：精确应用来源回调原失败，内部处理不等ACK
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+**writes**
+
+1. DFIELD-063
+
+2. DFIELD-064
+
+3. DFIELD-065
+
+**规则**
+
+1. BR-008
+
+2. BR-009
+
+3. BR-017
+
+**分支**
+
+#### DLOCAL-012-B1
+
+**标识**：DLOCAL-012-B1
+
+**条件**：过频只原任务规则
+
+**结果**：过频只原任务规则
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+14. DFIELD-063
+
+15. DFIELD-064
+
+16. DFIELD-065
+
+**验证引用**
+
+1. CHECK-003
+
+2. CHECK-020
+
+3. CHECK-033
+
+4. CHECK-063
+
+5. CHECK-066
+
+#### DLOCAL-012-B2
+
+**标识**：DLOCAL-012-B2
+
+**条件**：53/同步导入拒绝/未知原因不进11类补提
+
+**结果**：53/同步导入拒绝/未知原因不进11类补提
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+14. DFIELD-063
+
+15. DFIELD-064
+
+16. DFIELD-065
+
+**验证引用**
+
+1. CHECK-003
+
+2. CHECK-020
+
+3. CHECK-033
+
+4. CHECK-063
+
+5. CHECK-066
+
+#### DLOCAL-012-B3
+
+**标识**：DLOCAL-012-B3
+
+**条件**：事件不准先待核不造callId
+
+**结果**：事件不准先待核不造callId
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+14. DFIELD-063
+
+15. DFIELD-064
+
+16. DFIELD-065
+
+**验证引用**
+
+1. CHECK-003
+
+2. CHECK-020
+
+3. CHECK-033
+
+4. CHECK-063
+
+5. CHECK-066
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-008
+
+2. BR-009
+
+3. BR-017
+
+**来源映射**：memory/normalized-user-stories.json#AC-003, memory/normalized-user-stories.json#AC-020, memory/normalized-user-stories.json#AC-033, memory/normalized-user-stories.json#AC-063, memory/normalized-user-stories.json#AC-066, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-012
+
+2. memory/business-rules.json#BR-008
+
+3. memory/business-rules.json#BR-009
+
+4. memory/business-rules.json#BR-013
+
+5. memory/business-rules.json#BR-015
+
+6. memory/business-rules.json#BR-018
+
+7. sequences/SEQ-003.json
+
+**验证引用**
+
+1. CHECK-003
+
+2. CHECK-020
+
+3. CHECK-033
+
+4. CHECK-063
+
+5. CHECK-066
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+#### DLOCAL-013 接收关联并归一客观呼叫结果
+
+**标识**：DLOCAL-013
+
+**主题**：接收关联并归一客观呼叫结果
+
+**功能**
+
+1. FUNC-013
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-002
+
+2. AC-023
+
+3. AC-035
+
+4. AC-038
+
+5. AC-052
+
+6. AC-062
+
+**business_rule_ids**
+
+1. BR-008
+
+2. BR-015
+
+3. BR-017
+
+**触发**：按实际方式精确关联真实call/稳定事件；人工不造预测映射
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-014
+
+3. DFIELD-015
+
+4. DFIELD-037
+
+5. DFIELD-038
+
+6. DFIELD-039
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-052
+
+10. DFIELD-058
+
+11. DFIELD-059
+
+12. DFIELD-060
+
+13. DFIELD-061
+
+14. DFIELD-062
+
+15. DFIELD-109
+
+16. DFIELD-111
+
+17. DFIELD-122
+
+18. DFIELD-123
+
+**输出**
+
+1. DFIELD-075
+
+2. DFIELD-076
+
+3. DFIELD-077
+
+4. DFIELD-078
+
+5. DFIELD-079
+
+6. DFIELD-080
+
+7. DFIELD-081
+
+8. DFIELD-082
+
+9. DFIELD-083
+
+10. DFIELD-086
+
+11. DFIELD-087
+
+12. DFIELD-088
+
+13. DFIELD-106
+
+14. DFIELD-107
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-014
+
+3. DFIELD-015
+
+4. DFIELD-037
+
+5. DFIELD-038
+
+6. DFIELD-039
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-052
+
+10. DFIELD-058
+
+11. DFIELD-059
+
+12. DFIELD-060
+
+13. DFIELD-061
+
+14. DFIELD-062
+
+15. DFIELD-075
+
+16. DFIELD-076
+
+17. DFIELD-077
+
+18. DFIELD-078
+
+19. DFIELD-079
+
+20. DFIELD-080
+
+21. DFIELD-081
+
+22. DFIELD-082
+
+23. DFIELD-083
+
+24. DFIELD-086
+
+25. DFIELD-087
+
+26. DFIELD-088
+
+27. DFIELD-106
+
+28. DFIELD-107
+
+29. DFIELD-109
+
+30. DFIELD-111
+
+31. DFIELD-122
+
+32. DFIELD-123
+
+**步骤**
+
+#### DLOCAL-013-S1
+
+**标识**：DLOCAL-013-S1
+
+**action**：按实际方式精确关联真实call/稳定事件；人工不造预测映射
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-014
+
+3. DFIELD-015
+
+4. DFIELD-037
+
+5. DFIELD-038
+
+6. DFIELD-039
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-052
+
+10. DFIELD-058
+
+11. DFIELD-059
+
+12. DFIELD-060
+
+13. DFIELD-061
+
+14. DFIELD-062
+
+15. DFIELD-109
+
+16. DFIELD-111
+
+17. DFIELD-122
+
+18. DFIELD-123
+
+**writes**
+
+
+
+**规则**
+
+1. BR-008
+
+2. BR-015
+
+3. BR-017
+
+#### DLOCAL-013-S2
+
+**标识**：DLOCAL-013-S2
+
+**action**：未可信纯SIP另存待核不污染原call；可信晚更沿同一对象版本
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-014
+
+3. DFIELD-015
+
+4. DFIELD-037
+
+5. DFIELD-038
+
+6. DFIELD-039
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-052
+
+10. DFIELD-058
+
+11. DFIELD-059
+
+12. DFIELD-060
+
+13. DFIELD-061
+
+14. DFIELD-062
+
+15. DFIELD-109
+
+16. DFIELD-111
+
+17. DFIELD-122
+
+18. DFIELD-123
+
+**writes**
+
+
+
+**规则**
+
+1. BR-008
+
+2. BR-015
+
+3. BR-017
+
+#### DLOCAL-013-S3
+
+**标识**：DLOCAL-013-S3
+
+**action**：保finishRetryFlag原1/0/未知，不据此断言无在途；人工记录独立
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-014
+
+3. DFIELD-015
+
+4. DFIELD-037
+
+5. DFIELD-038
+
+6. DFIELD-039
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-052
+
+10. DFIELD-058
+
+11. DFIELD-059
+
+12. DFIELD-060
+
+13. DFIELD-061
+
+14. DFIELD-062
+
+15. DFIELD-109
+
+16. DFIELD-111
+
+17. DFIELD-122
+
+18. DFIELD-123
+
+**writes**
+
+1. DFIELD-075
+
+2. DFIELD-076
+
+3. DFIELD-077
+
+4. DFIELD-078
+
+5. DFIELD-079
+
+6. DFIELD-080
+
+7. DFIELD-081
+
+8. DFIELD-082
+
+9. DFIELD-083
+
+10. DFIELD-086
+
+11. DFIELD-087
+
+12. DFIELD-088
+
+13. DFIELD-106
+
+14. DFIELD-107
+
+**规则**
+
+1. BR-008
+
+2. BR-015
+
+3. BR-017
+
+**分支**
+
+#### DLOCAL-013-B1
+
+**标识**：DLOCAL-013-B1
+
+**条件**：真正可信关联或原结果冲突待核
+
+**结果**：真正可信关联或原结果冲突待核
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-014
+
+3. DFIELD-015
+
+4. DFIELD-037
+
+5. DFIELD-038
+
+6. DFIELD-039
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-052
+
+10. DFIELD-058
+
+11. DFIELD-059
+
+12. DFIELD-060
+
+13. DFIELD-061
+
+14. DFIELD-062
+
+15. DFIELD-075
+
+16. DFIELD-076
+
+17. DFIELD-077
+
+18. DFIELD-078
+
+19. DFIELD-079
+
+20. DFIELD-080
+
+21. DFIELD-081
+
+22. DFIELD-082
+
+23. DFIELD-083
+
+24. DFIELD-086
+
+25. DFIELD-087
+
+26. DFIELD-088
+
+27. DFIELD-106
+
+28. DFIELD-107
+
+29. DFIELD-109
+
+30. DFIELD-111
+
+31. DFIELD-122
+
+32. DFIELD-123
+
+**验证引用**
+
+1. CHECK-002
+
+2. CHECK-023
+
+3. CHECK-035
+
+4. CHECK-038
+
+5. CHECK-052
+
+6. CHECK-062
+
+#### DLOCAL-013-B2
+
+**标识**：DLOCAL-013-B2
+
+**条件**：重复不新呼叫/计划；晚更不覆写人工状态/继续跟进
+
+**结果**：重复不新呼叫/计划；晚更不覆写人工状态/继续跟进
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-014
+
+3. DFIELD-015
+
+4. DFIELD-037
+
+5. DFIELD-038
+
+6. DFIELD-039
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-052
+
+10. DFIELD-058
+
+11. DFIELD-059
+
+12. DFIELD-060
+
+13. DFIELD-061
+
+14. DFIELD-062
+
+15. DFIELD-075
+
+16. DFIELD-076
+
+17. DFIELD-077
+
+18. DFIELD-078
+
+19. DFIELD-079
+
+20. DFIELD-080
+
+21. DFIELD-081
+
+22. DFIELD-082
+
+23. DFIELD-083
+
+24. DFIELD-086
+
+25. DFIELD-087
+
+26. DFIELD-088
+
+27. DFIELD-106
+
+28. DFIELD-107
+
+29. DFIELD-109
+
+30. DFIELD-111
+
+31. DFIELD-122
+
+32. DFIELD-123
+
+**验证引用**
+
+1. CHECK-002
+
+2. CHECK-023
+
+3. CHECK-035
+
+4. CHECK-038
+
+5. CHECK-052
+
+6. CHECK-062
+
+#### DLOCAL-013-B3
+
+**标识**：DLOCAL-013-B3
+
+**条件**：应用接口每次准确结果交DLOCAL-010
+
+**结果**：应用接口每次准确结果交DLOCAL-010
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-014
+
+3. DFIELD-015
+
+4. DFIELD-037
+
+5. DFIELD-038
+
+6. DFIELD-039
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-052
+
+10. DFIELD-058
+
+11. DFIELD-059
+
+12. DFIELD-060
+
+13. DFIELD-061
+
+14. DFIELD-062
+
+15. DFIELD-075
+
+16. DFIELD-076
+
+17. DFIELD-077
+
+18. DFIELD-078
+
+19. DFIELD-079
+
+20. DFIELD-080
+
+21. DFIELD-081
+
+22. DFIELD-082
+
+23. DFIELD-083
+
+24. DFIELD-086
+
+25. DFIELD-087
+
+26. DFIELD-088
+
+27. DFIELD-106
+
+28. DFIELD-107
+
+29. DFIELD-109
+
+30. DFIELD-111
+
+31. DFIELD-122
+
+32. DFIELD-123
+
+**验证引用**
+
+1. CHECK-002
+
+2. CHECK-023
+
+3. CHECK-035
+
+4. CHECK-038
+
+5. CHECK-052
+
+6. CHECK-062
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-008
+
+2. BR-015
+
+3. BR-017
+
+**来源映射**：memory/normalized-user-stories.json#AC-002, memory/normalized-user-stories.json#AC-023, memory/normalized-user-stories.json#AC-035, memory/normalized-user-stories.json#AC-038, memory/normalized-user-stories.json#AC-052, memory/normalized-user-stories.json#AC-062, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-013
+
+2. memory/business-rules.json#BR-008
+
+3. memory/business-rules.json#BR-009
+
+4. memory/business-rules.json#BR-011
+
+5. memory/business-rules.json#BR-012
+
+6. memory/business-rules.json#BR-013
+
+7. memory/business-rules.json#BR-015
+
+8. memory/business-rules.json#BR-018
+
+9. memory/business-rules.json#BR-019
+
+10. sequences/SEQ-002.json
+
+11. sequences/SEQ-003.json
+
+12. sequences/SEQ-004.json
+
+13. sequences/SEQ-006.json
+
+14. sequences/SEQ-007.json
+
+15. sequences/SEQ-009.json
+
+**验证引用**
+
+1. CHECK-002
+
+2. CHECK-023
+
+3. CHECK-035
+
+4. CHECK-038
+
+5. CHECK-052
+
+6. CHECK-062
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+2. P0-IMPORT
+
+**范围**
+
+1. 只提升准确关联客观客户/坐席结果及其与人工记录隔离的依赖范围；保未知，不把人工状态覆盖线路事实或推成秒挂/失败调度
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**outside_scope**：本局部未列出的其他职责保留既有范围和排序，不由依赖自动扩成新的P0主目标。
+
+#### DLOCAL-014 自动补提交三类失败客户
+
+**标识**：DLOCAL-014
+
+**主题**：自动补提交三类失败客户
+
+**功能**
+
+1. FUNC-014
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-020
+
+2. AC-064
+
+3. AC-065
+
+4. AC-066
+
+5. AC-067
+
+6. AC-068
+
+7. AC-073
+
+8. AC-074
+
+9. AC-079
+
+10. AC-019
+
+**business_rule_ids**
+
+1. BR-009
+
+2. BR-012
+
+3. BR-013
+
+4. BR-015
+
+5. BR-021
+
+**触发**：准确3类新失败首次确认+120秒形成唯一计划，重复不重启
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-039
+
+9. DFIELD-041
+
+10. DFIELD-042
+
+11. DFIELD-063
+
+12. DFIELD-064
+
+13. DFIELD-065
+
+14. DFIELD-069
+
+15. DFIELD-070
+
+16. DFIELD-071
+
+17. DFIELD-072
+
+18. DFIELD-073
+
+19. DFIELD-074
+
+**输出**
+
+1. DFIELD-048
+
+2. DFIELD-049
+
+3. DFIELD-050
+
+4. DFIELD-051
+
+5. DFIELD-052
+
+6. DFIELD-053
+
+7. DFIELD-054
+
+8. DFIELD-055
+
+9. DFIELD-066
+
+10. DFIELD-067
+
+11. DFIELD-068
+
+12. DFIELD-070
+
+13. DFIELD-071
+
+14. DFIELD-072
+
+15. DFIELD-073
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-039
+
+9. DFIELD-041
+
+10. DFIELD-042
+
+11. DFIELD-048
+
+12. DFIELD-049
+
+13. DFIELD-050
+
+14. DFIELD-051
+
+15. DFIELD-052
+
+16. DFIELD-053
+
+17. DFIELD-054
+
+18. DFIELD-055
+
+19. DFIELD-063
+
+20. DFIELD-064
+
+21. DFIELD-065
+
+22. DFIELD-066
+
+23. DFIELD-067
+
+24. DFIELD-068
+
+25. DFIELD-069
+
+26. DFIELD-070
+
+27. DFIELD-071
+
+28. DFIELD-072
+
+29. DFIELD-073
+
+30. DFIELD-074
+
+**步骤**
+
+#### DLOCAL-014-S1
+
+**标识**：DLOCAL-014-S1
+
+**action**：准确3类新失败首次确认+120秒形成唯一计划，重复不重启
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-039
+
+9. DFIELD-041
+
+10. DFIELD-042
+
+11. DFIELD-063
+
+12. DFIELD-064
+
+13. DFIELD-065
+
+14. DFIELD-069
+
+15. DFIELD-070
+
+16. DFIELD-071
+
+17. DFIELD-072
+
+18. DFIELD-073
+
+19. DFIELD-074
+
+**writes**
+
+
+
+**规则**
+
+1. BR-009
+
+2. BR-012
+
+3. BR-013
+
+4. BR-015
+
+5. BR-021
+
+#### DLOCAL-014-S2
+
+**标识**：DLOCAL-014-S2
+
+**action**：形成及实际发起前核权限/状态/精确root/累计四元组/供应商执行权，原子占用提案待验
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-039
+
+9. DFIELD-041
+
+10. DFIELD-042
+
+11. DFIELD-063
+
+12. DFIELD-064
+
+13. DFIELD-065
+
+14. DFIELD-069
+
+15. DFIELD-070
+
+16. DFIELD-071
+
+17. DFIELD-072
+
+18. DFIELD-073
+
+19. DFIELD-074
+
+**writes**
+
+
+
+**规则**
+
+1. BR-009
+
+2. BR-012
+
+3. BR-013
+
+4. BR-015
+
+5. BR-021
+
+#### DLOCAL-014-S3
+
+**标识**：DLOCAL-014-S3
+
+**action**：发起新业务占一次，固定触发root/priority/来源，不随新主改挂
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-039
+
+9. DFIELD-041
+
+10. DFIELD-042
+
+11. DFIELD-063
+
+12. DFIELD-064
+
+13. DFIELD-065
+
+14. DFIELD-069
+
+15. DFIELD-070
+
+16. DFIELD-071
+
+17. DFIELD-072
+
+18. DFIELD-073
+
+19. DFIELD-074
+
+**writes**
+
+1. DFIELD-048
+
+2. DFIELD-049
+
+3. DFIELD-050
+
+4. DFIELD-051
+
+5. DFIELD-052
+
+6. DFIELD-053
+
+7. DFIELD-054
+
+8. DFIELD-055
+
+9. DFIELD-066
+
+10. DFIELD-067
+
+11. DFIELD-068
+
+12. DFIELD-070
+
+13. DFIELD-071
+
+14. DFIELD-072
+
+15. DFIELD-073
+
+**规则**
+
+1. BR-009
+
+2. BR-012
+
+3. BR-013
+
+4. BR-015
+
+5. BR-021
+
+**分支**
+
+#### DLOCAL-014-B1
+
+**标识**：DLOCAL-014-B1
+
+**条件**：导航由供应商承担，经过120秒不证明换线成功
+
+**结果**：导航由供应商承担，经过120秒不证明换线成功
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-039
+
+9. DFIELD-041
+
+10. DFIELD-042
+
+11. DFIELD-048
+
+12. DFIELD-049
+
+13. DFIELD-050
+
+14. DFIELD-051
+
+15. DFIELD-052
+
+16. DFIELD-053
+
+17. DFIELD-054
+
+18. DFIELD-055
+
+19. DFIELD-063
+
+20. DFIELD-064
+
+21. DFIELD-065
+
+22. DFIELD-066
+
+23. DFIELD-067
+
+24. DFIELD-068
+
+25. DFIELD-069
+
+26. DFIELD-070
+
+27. DFIELD-071
+
+28. DFIELD-072
+
+29. DFIELD-073
+
+30. DFIELD-074
+
+**验证引用**
+
+1. CHECK-020
+
+2. CHECK-064
+
+3. CHECK-065
+
+4. CHECK-066
+
+5. CHECK-067
+
+6. CHECK-068
+
+7. CHECK-073
+
+8. CHECK-074
+
+9. CHECK-079
+
+#### DLOCAL-014-B2
+
+**标识**：DLOCAL-014-B2
+
+**条件**：受理/拒绝均计，UNKNOWN保同attempt占用不盲发
+
+**结果**：受理/拒绝均计，UNKNOWN保同attempt占用不盲发
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-039
+
+9. DFIELD-041
+
+10. DFIELD-042
+
+11. DFIELD-048
+
+12. DFIELD-049
+
+13. DFIELD-050
+
+14. DFIELD-051
+
+15. DFIELD-052
+
+16. DFIELD-053
+
+17. DFIELD-054
+
+18. DFIELD-055
+
+19. DFIELD-063
+
+20. DFIELD-064
+
+21. DFIELD-065
+
+22. DFIELD-066
+
+23. DFIELD-067
+
+24. DFIELD-068
+
+25. DFIELD-069
+
+26. DFIELD-070
+
+27. DFIELD-071
+
+28. DFIELD-072
+
+29. DFIELD-073
+
+30. DFIELD-074
+
+**验证引用**
+
+1. CHECK-020
+
+2. CHECK-064
+
+3. CHECK-065
+
+4. CHECK-066
+
+5. CHECK-067
+
+6. CHECK-068
+
+7. CHECK-073
+
+8. CHECK-074
+
+9. CHECK-079
+
+#### DLOCAL-014-B3
+
+**标识**：DLOCAL-014-B3
+
+**条件**：暂停挂起、终止停未执行；秒挂和人工外呼不进入
+
+**结果**：暂停挂起、终止停未执行；秒挂和人工外呼不进入
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-017
+
+4. DFIELD-032
+
+5. DFIELD-033
+
+6. DFIELD-034
+
+7. DFIELD-037
+
+8. DFIELD-039
+
+9. DFIELD-041
+
+10. DFIELD-042
+
+11. DFIELD-048
+
+12. DFIELD-049
+
+13. DFIELD-050
+
+14. DFIELD-051
+
+15. DFIELD-052
+
+16. DFIELD-053
+
+17. DFIELD-054
+
+18. DFIELD-055
+
+19. DFIELD-063
+
+20. DFIELD-064
+
+21. DFIELD-065
+
+22. DFIELD-066
+
+23. DFIELD-067
+
+24. DFIELD-068
+
+25. DFIELD-069
+
+26. DFIELD-070
+
+27. DFIELD-071
+
+28. DFIELD-072
+
+29. DFIELD-073
+
+30. DFIELD-074
+
+**验证引用**
+
+1. CHECK-020
+
+2. CHECK-064
+
+3. CHECK-065
+
+4. CHECK-066
+
+5. CHECK-067
+
+6. CHECK-068
+
+7. CHECK-073
+
+8. CHECK-074
+
+9. CHECK-079
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-009
+
+2. BR-012
+
+3. BR-013
+
+4. BR-015
+
+5. BR-021
+
+**来源映射**：memory/normalized-user-stories.json#AC-020, memory/normalized-user-stories.json#AC-064, memory/normalized-user-stories.json#AC-065, memory/normalized-user-stories.json#AC-066, memory/normalized-user-stories.json#AC-067, memory/normalized-user-stories.json#AC-068, memory/normalized-user-stories.json#AC-073, memory/normalized-user-stories.json#AC-074, memory/normalized-user-stories.json#AC-079, memory/project-facts.json, memory/normalized-user-stories.json#AC-019
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-014
+
+2. memory/business-rules.json#BR-003
+
+3. memory/business-rules.json#BR-007
+
+4. memory/business-rules.json#BR-008
+
+5. memory/business-rules.json#BR-009
+
+6. memory/business-rules.json#BR-012
+
+7. memory/business-rules.json#BR-013
+
+8. memory/business-rules.json#BR-015
+
+9. memory/business-rules.json#BR-016
+
+10. memory/business-rules.json#BR-019
+
+11. memory/business-rules.json#BR-021
+
+12. sequences/SEQ-003.json
+
+**验证引用**
+
+1. CHECK-020
+
+2. CHECK-064
+
+3. CHECK-065
+
+4. CHECK-066
+
+5. CHECK-067
+
+6. CHECK-068
+
+7. CHECK-073
+
+8. CHECK-074
+
+9. CHECK-079
+
+10. CHECK-019
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+#### DLOCAL-015 查询任务业务记录
+
+**标识**：DLOCAL-015
+
+**主题**：查询任务业务记录
+
+**功能**
+
+1. FUNC-015
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-014
+
+2. AC-028
+
+3. AC-029
+
+4. AC-035
+
+5. AC-038
+
+6. AC-039
+
+7. AC-041
+
+8. AC-042
+
+9. AC-052
+
+10. AC-059
+
+11. AC-070
+
+12. AC-078
+
+13. AC-100
+
+14. AC-103
+
+**business_rule_ids**
+
+1. BR-014
+
+2. BR-015
+
+3. BR-017
+
+4. BR-018
+
+**触发**：沿任务权限读取准确客户/异常/呼叫及处理记录
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-037
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-043
+
+10. DFIELD-047
+
+11. DFIELD-053
+
+12. DFIELD-063
+
+13. DFIELD-064
+
+14. DFIELD-065
+
+15. DFIELD-067
+
+16. DFIELD-068
+
+17. DFIELD-070
+
+18. DFIELD-072
+
+19. DFIELD-073
+
+20. DFIELD-075
+
+21. DFIELD-076
+
+22. DFIELD-084
+
+23. DFIELD-089
+
+24. DFIELD-102
+
+25. DFIELD-103
+
+26. DFIELD-109
+
+27. DFIELD-126
+
+28. DFIELD-127
+
+29. DFIELD-128
+
+30. DFIELD-129
+
+31. DFIELD-130
+
+32. DFIELD-131
+
+33. DFIELD-024
+
+**输出**
+
+
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-037
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-043
+
+10. DFIELD-047
+
+11. DFIELD-053
+
+12. DFIELD-063
+
+13. DFIELD-064
+
+14. DFIELD-065
+
+15. DFIELD-067
+
+16. DFIELD-068
+
+17. DFIELD-070
+
+18. DFIELD-072
+
+19. DFIELD-073
+
+20. DFIELD-075
+
+21. DFIELD-076
+
+22. DFIELD-084
+
+23. DFIELD-089
+
+24. DFIELD-102
+
+25. DFIELD-103
+
+26. DFIELD-109
+
+27. DFIELD-126
+
+28. DFIELD-127
+
+29. DFIELD-128
+
+30. DFIELD-129
+
+31. DFIELD-130
+
+32. DFIELD-131
+
+33. DFIELD-024
+
+**步骤**
+
+#### DLOCAL-015-S1
+
+**标识**：DLOCAL-015-S1
+
+**action**：沿任务权限读取准确客户/异常/呼叫及处理记录
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-037
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-043
+
+10. DFIELD-047
+
+11. DFIELD-053
+
+12. DFIELD-063
+
+13. DFIELD-064
+
+14. DFIELD-065
+
+15. DFIELD-067
+
+16. DFIELD-068
+
+17. DFIELD-070
+
+18. DFIELD-072
+
+19. DFIELD-073
+
+20. DFIELD-075
+
+21. DFIELD-076
+
+22. DFIELD-084
+
+23. DFIELD-089
+
+24. DFIELD-102
+
+25. DFIELD-103
+
+26. DFIELD-109
+
+**writes**
+
+
+
+**规则**
+
+1. BR-014
+
+2. BR-015
+
+3. BR-017
+
+4. BR-018
+
+#### DLOCAL-015-S2
+
+**标识**：DLOCAL-015-S2
+
+**action**：运营文本区分已保存/导入受理/客观通话；技术证据收进详情
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-037
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-043
+
+10. DFIELD-047
+
+11. DFIELD-053
+
+12. DFIELD-063
+
+13. DFIELD-064
+
+14. DFIELD-065
+
+15. DFIELD-067
+
+16. DFIELD-068
+
+17. DFIELD-070
+
+18. DFIELD-072
+
+19. DFIELD-073
+
+20. DFIELD-075
+
+21. DFIELD-076
+
+22. DFIELD-084
+
+23. DFIELD-089
+
+24. DFIELD-102
+
+25. DFIELD-103
+
+26. DFIELD-109
+
+**writes**
+
+
+
+**规则**
+
+1. BR-014
+
+2. BR-015
+
+3. BR-017
+
+4. BR-018
+
+#### DLOCAL-015-S3
+
+**标识**：DLOCAL-015-S3
+
+**action**：所有有接入应用记录在客户/通话详情显示回调，异常才提示；不恢复独立DCC页签
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-037
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-043
+
+10. DFIELD-047
+
+11. DFIELD-053
+
+12. DFIELD-063
+
+13. DFIELD-064
+
+14. DFIELD-065
+
+15. DFIELD-067
+
+16. DFIELD-068
+
+17. DFIELD-070
+
+18. DFIELD-072
+
+19. DFIELD-073
+
+20. DFIELD-075
+
+21. DFIELD-076
+
+22. DFIELD-084
+
+23. DFIELD-089
+
+24. DFIELD-102
+
+25. DFIELD-103
+
+26. DFIELD-109
+
+**writes**
+
+
+
+**规则**
+
+1. BR-014
+
+2. BR-015
+
+3. BR-017
+
+4. BR-018
+
+#### DLOCAL-015-INTENT-FIELDS
+
+**标识**：DLOCAL-015-INTENT-FIELDS
+
+**action**：现有导入预览/客户与通话详情/坐席拨号及振铃早填页展示原六字段，未提供显示未提供；原导入信息只读，与计划到店门店和后续跟进字段区分。 留资时间用业务来源原值，与平台导入/保存时间区别；缺失不补当前时间。
+
+**reads**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-IMPORTED-INTENT
+
+#### DLOCAL-015-BUSINESS-TYPE
+
+**标识**：DLOCAL-015-BUSINESS-TYPE
+
+**action**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**reads**
+
+1. DFIELD-024
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-IMPORT-BUSINESS-TYPE
+
+**分支**
+
+#### DLOCAL-015-B1
+
+**标识**：DLOCAL-015-B1
+
+**条件**：无应用手工记录不显示业务系统回调
+
+**结果**：无应用手工记录不显示业务系统回调
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-037
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-043
+
+10. DFIELD-047
+
+11. DFIELD-053
+
+12. DFIELD-063
+
+13. DFIELD-064
+
+14. DFIELD-065
+
+15. DFIELD-067
+
+16. DFIELD-068
+
+17. DFIELD-070
+
+18. DFIELD-072
+
+19. DFIELD-073
+
+20. DFIELD-075
+
+21. DFIELD-076
+
+22. DFIELD-084
+
+23. DFIELD-089
+
+24. DFIELD-102
+
+25. DFIELD-103
+
+26. DFIELD-109
+
+**验证引用**
+
+1. CHECK-014
+
+2. CHECK-028
+
+3. CHECK-029
+
+4. CHECK-035
+
+5. CHECK-038
+
+6. CHECK-039
+
+7. CHECK-041
+
+8. CHECK-042
+
+9. CHECK-052
+
+10. CHECK-059
+
+11. CHECK-070
+
+12. CHECK-078
+
+#### DLOCAL-015-B2
+
+**标识**：DLOCAL-015-B2
+
+**条件**：未知保待核，统计不由导入数或人工状态推测
+
+**结果**：未知保待核，统计不由导入数或人工状态推测
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-037
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-043
+
+10. DFIELD-047
+
+11. DFIELD-053
+
+12. DFIELD-063
+
+13. DFIELD-064
+
+14. DFIELD-065
+
+15. DFIELD-067
+
+16. DFIELD-068
+
+17. DFIELD-070
+
+18. DFIELD-072
+
+19. DFIELD-073
+
+20. DFIELD-075
+
+21. DFIELD-076
+
+22. DFIELD-084
+
+23. DFIELD-089
+
+24. DFIELD-102
+
+25. DFIELD-103
+
+26. DFIELD-109
+
+**验证引用**
+
+1. CHECK-014
+
+2. CHECK-028
+
+3. CHECK-029
+
+4. CHECK-035
+
+5. CHECK-038
+
+6. CHECK-039
+
+7. CHECK-041
+
+8. CHECK-042
+
+9. CHECK-052
+
+10. CHECK-059
+
+11. CHECK-070
+
+12. CHECK-078
+
+#### DLOCAL-015-B3
+
+**标识**：DLOCAL-015-B3
+
+**条件**：常驻导入直接开原导入入口，基础列表操作统一顺序
+
+**结果**：常驻导入直接开原导入入口，基础列表操作统一顺序
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-037
+
+7. DFIELD-041
+
+8. DFIELD-042
+
+9. DFIELD-043
+
+10. DFIELD-047
+
+11. DFIELD-053
+
+12. DFIELD-063
+
+13. DFIELD-064
+
+14. DFIELD-065
+
+15. DFIELD-067
+
+16. DFIELD-068
+
+17. DFIELD-070
+
+18. DFIELD-072
+
+19. DFIELD-073
+
+20. DFIELD-075
+
+21. DFIELD-076
+
+22. DFIELD-084
+
+23. DFIELD-089
+
+24. DFIELD-102
+
+25. DFIELD-103
+
+26. DFIELD-109
+
+**验证引用**
+
+1. CHECK-014
+
+2. CHECK-028
+
+3. CHECK-029
+
+4. CHECK-035
+
+5. CHECK-038
+
+6. CHECK-039
+
+7. CHECK-041
+
+8. CHECK-042
+
+9. CHECK-052
+
+10. CHECK-059
+
+11. CHECK-070
+
+12. CHECK-078
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+2. 现有导入预览/客户与通话详情/坐席拨号及振铃早填页展示原六字段，未提供显示未提供；原导入信息只读，与计划到店门店和后续跟进字段区分。
+
+3. 客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**global_rule_ids**
+
+1. BR-014
+
+2. BR-015
+
+3. BR-017
+
+4. BR-018
+
+5. DGR-IMPORTED-INTENT
+
+6. DGR-IMPORT-BUSINESS-TYPE
+
+**来源映射**：memory/normalized-user-stories.json#AC-014, memory/normalized-user-stories.json#AC-028, memory/normalized-user-stories.json#AC-029, memory/normalized-user-stories.json#AC-035, memory/normalized-user-stories.json#AC-038, memory/normalized-user-stories.json#AC-039, memory/normalized-user-stories.json#AC-041, memory/normalized-user-stories.json#AC-042, memory/normalized-user-stories.json#AC-052, memory/normalized-user-stories.json#AC-059, memory/normalized-user-stories.json#AC-070, memory/normalized-user-stories.json#AC-078, memory/project-facts.json, memory/normalized-user-stories.json#AC-100, inputs/source-index.json#SRC-124, inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-103
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-015
+
+2. memory/business-rules.json#BR-009
+
+3. memory/business-rules.json#BR-010
+
+4. memory/business-rules.json#BR-011
+
+5. memory/business-rules.json#BR-012
+
+6. memory/business-rules.json#BR-013
+
+7. memory/business-rules.json#BR-014
+
+8. memory/business-rules.json#BR-015
+
+9. memory/business-rules.json#BR-016
+
+10. memory/business-rules.json#BR-018
+
+11. memory/business-rules.json#BR-019
+
+12. memory/business-rules.json#BR-022
+
+13. sequences/SEQ-002.json
+
+14. sequences/SEQ-003.json
+
+15. sequences/SEQ-004.json
+
+16. sequences/SEQ-006.json
+
+17. sequences/SEQ-007.json
+
+18. sequences/SEQ-009.json
+
+19. prototype/memory/verification-evidence/call-navigation-repair-20261014.json
+
+**验证引用**
+
+1. CHECK-014
+
+2. CHECK-028
+
+3. CHECK-029
+
+4. CHECK-035
+
+5. CHECK-038
+
+6. CHECK-039
+
+7. CHECK-041
+
+8. CHECK-042
+
+9. CHECK-052
+
+10. CHECK-059
+
+11. CHECK-070
+
+12. CHECK-078
+
+13. CHECK-100
+
+14. CHECK-103
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+2. P0-FOLLOWUP
+
+**范围**：仅既有预外呼任务范围内的接口导入记录、准确客观状态及关联详情查看；人工客户/通话/跟进详情由DRAFT-OP-FOLLOWUP承接，不套用预测标识。手工CSV、下载、删除和报表不整体提级。
+
+**来源**：draft-20261014.json#priority_policy.user_request
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**business_type_local_evidence**
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+#### DLOCAL-016 创建预外呼任务并锁定初始来源
+
+**标识**：DLOCAL-016
+
+**主题**：创建预外呼任务并锁定初始来源
+
+**功能**
+
+1. FUNC-016
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-026
+
+2. AC-027
+
+3. AC-036
+
+4. AC-072
+
+5. AC-077
+
+**business_rule_ids**
+
+1. BR-008
+
+2. BR-013
+
+3. BR-016
+
+**触发**：按既有权限建立预外呼任务，选择接口/手工初始来源并提交后锁定
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-018
+
+**输出**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-016
+
+4. DFIELD-017
+
+5. DFIELD-018
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-018
+
+**步骤**
+
+#### DLOCAL-016-S1
+
+**标识**：DLOCAL-016-S1
+
+**action**：按既有权限建立预外呼任务，选择接口/手工初始来源并提交后锁定
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-018
+
+**writes**
+
+
+
+**规则**
+
+1. BR-008
+
+2. BR-013
+
+3. BR-016
+
+#### DLOCAL-016-S2
+
+**标识**：DLOCAL-016-S2
+
+**action**：接口来源允许有效关联该tenant的应用，不另绑app，首次坐席分配沿任务组
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-018
+
+**writes**
+
+
+
+**规则**
+
+1. BR-008
+
+2. BR-013
+
+3. BR-016
+
+#### DLOCAL-016-S3
+
+**标识**：DLOCAL-016-S3
+
+**action**：正常重呼、预测失败3自动8人工共享2次、秒挂不重呼保持
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-018
+
+**writes**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-016
+
+4. DFIELD-017
+
+5. DFIELD-018
+
+**规则**
+
+1. BR-008
+
+2. BR-013
+
+3. BR-016
+
+**分支**
+
+#### DLOCAL-016-B1
+
+**标识**：DLOCAL-016-B1
+
+**条件**：不迁历史来源或扩大已启动补导
+
+**结果**：不迁历史来源或扩大已启动补导
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-018
+
+**验证引用**
+
+1. CHECK-026
+
+2. CHECK-027
+
+3. CHECK-036
+
+4. CHECK-072
+
+5. CHECK-077
+
+#### DLOCAL-016-B2
+
+**标识**：DLOCAL-016-B2
+
+**条件**：接口人工外呼另走分配；预测继续跟进转当前坐席人工不证明原任务停止
+
+**结果**：接口人工外呼另走分配；预测继续跟进转当前坐席人工不证明原任务停止
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-016
+
+6. DFIELD-017
+
+7. DFIELD-018
+
+**验证引用**
+
+1. CHECK-026
+
+2. CHECK-027
+
+3. CHECK-036
+
+4. CHECK-072
+
+5. CHECK-077
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-008
+
+2. BR-013
+
+3. BR-016
+
+**来源映射**：memory/normalized-user-stories.json#AC-026, memory/normalized-user-stories.json#AC-027, memory/normalized-user-stories.json#AC-036, memory/normalized-user-stories.json#AC-072, memory/normalized-user-stories.json#AC-077, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-016
+
+2. memory/business-rules.json#BR-008
+
+3. memory/business-rules.json#BR-009
+
+4. memory/business-rules.json#BR-011
+
+5. memory/business-rules.json#BR-013
+
+6. memory/business-rules.json#BR-016
+
+7. memory/business-rules.json#BR-022
+
+8. sequences/SEQ-006.json
+
+**验证引用**
+
+1. CHECK-026
+
+2. CHECK-027
+
+3. CHECK-036
+
+4. CHECK-072
+
+5. CHECK-077
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+#### DLOCAL-017 接收并关联预测异步导入失败
+
+**标识**：DLOCAL-017
+
+**主题**：接收并关联预测异步导入失败
+
+**功能**
+
+1. FUNC-017
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-039
+
+2. AC-040
+
+3. AC-041
+
+4. AC-042
+
+5. AC-043
+
+6. AC-052
+
+**business_rule_ids**
+
+1. BR-018
+
+2. BR-019
+
+**触发**：53按核实enterprise租户映射/原task/实际fileId/原始phone精确匹配
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+**输出**
+
+1. DFIELD-092
+
+2. DFIELD-093
+
+3. DFIELD-094
+
+4. DFIELD-106
+
+5. DFIELD-107
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+14. DFIELD-092
+
+15. DFIELD-093
+
+16. DFIELD-094
+
+17. DFIELD-106
+
+18. DFIELD-107
+
+**步骤**
+
+#### DLOCAL-017-S1
+
+**标识**：DLOCAL-017-S1
+
+**action**：53按核实enterprise租户映射/原task/实际fileId/原始phone精确匹配
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+**writes**
+
+
+
+**规则**
+
+1. BR-018
+
+2. BR-019
+
+#### DLOCAL-017-S2
+
+**标识**：DLOCAL-017-S2
+
+**action**：去重乱序迟到分片保存，分片收齐仅该组不等导入全终态
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+**writes**
+
+
+
+**规则**
+
+1. BR-018
+
+2. BR-019
+
+#### DLOCAL-017-S3
+
+**标识**：DLOCAL-017-S3
+
+**action**：准确导入失败供查看下载及本应用回调，不计真实呼叫/触发11类
+
+**reads**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+**writes**
+
+1. DFIELD-092
+
+2. DFIELD-093
+
+3. DFIELD-094
+
+4. DFIELD-106
+
+5. DFIELD-107
+
+**规则**
+
+1. BR-018
+
+2. BR-019
+
+**分支**
+
+#### DLOCAL-017-B1
+
+**标识**：DLOCAL-017-B1
+
+**条件**：多候选待核，不按最近同号匹配
+
+**结果**：多候选待核，不按最近同号匹配
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+14. DFIELD-092
+
+15. DFIELD-093
+
+16. DFIELD-094
+
+17. DFIELD-106
+
+18. DFIELD-107
+
+**验证引用**
+
+1. CHECK-039
+
+2. CHECK-040
+
+3. CHECK-041
+
+4. CHECK-042
+
+5. CHECK-043
+
+6. CHECK-052
+
+#### DLOCAL-017-B2
+
+**标识**：DLOCAL-017-B2
+
+**条件**：未收到不推零失败，已导出重复不再生
+
+**结果**：未收到不推零失败，已导出重复不再生
+
+**字段引用**
+
+1. DFIELD-014
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-038
+
+5. DFIELD-039
+
+6. DFIELD-041
+
+7. DFIELD-042
+
+8. DFIELD-052
+
+9. DFIELD-058
+
+10. DFIELD-059
+
+11. DFIELD-060
+
+12. DFIELD-061
+
+13. DFIELD-062
+
+14. DFIELD-092
+
+15. DFIELD-093
+
+16. DFIELD-094
+
+17. DFIELD-106
+
+18. DFIELD-107
+
+**验证引用**
+
+1. CHECK-039
+
+2. CHECK-040
+
+3. CHECK-041
+
+4. CHECK-042
+
+5. CHECK-043
+
+6. CHECK-052
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-018
+
+2. BR-019
+
+**来源映射**：memory/normalized-user-stories.json#AC-039, memory/normalized-user-stories.json#AC-040, memory/normalized-user-stories.json#AC-041, memory/normalized-user-stories.json#AC-042, memory/normalized-user-stories.json#AC-043, memory/normalized-user-stories.json#AC-052, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-017
+
+2. memory/business-rules.json#BR-004
+
+3. memory/business-rules.json#BR-012
+
+4. memory/business-rules.json#BR-013
+
+5. memory/business-rules.json#BR-015
+
+6. memory/business-rules.json#BR-018
+
+7. memory/business-rules.json#BR-019
+
+8. sequences/SEQ-006.json
+
+9. sequences/SEQ-007.json
+
+10. sequences/SEQ-003.json
+
+**验证引用**
+
+1. CHECK-039
+
+2. CHECK-040
+
+3. CHECK-041
+
+4. CHECK-042
+
+5. CHECK-043
+
+6. CHECK-052
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：dependency
+
+**优先组**
+
+1. P0-IMPORT
+
+**范围**：仅首次预测接口导入53异步失败的准确归属与回执；后续失败补提交、下载及手工CSV范围不整体提级。
+
+**来源**：draft-20261014.json#priority_policy.user_request
+
+#### DLOCAL-018 查询应用列表
+
+**标识**：DLOCAL-018
+
+**主题**：查询应用列表
+
+**功能**
+
+1. FUNC-018
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-044
+
+2. AC-053
+
+3. AC-058
+
+**business_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**触发**：超管访问列表并按现有筛选分页读取
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-007
+
+2. DFIELD-008
+
+**输出**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-004
+
+4. DFIELD-005
+
+5. DFIELD-006
+
+6. DFIELD-009
+
+7. DFIELD-108
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-004
+
+4. DFIELD-005
+
+5. DFIELD-006
+
+6. DFIELD-007
+
+7. DFIELD-008
+
+8. DFIELD-009
+
+9. DFIELD-108
+
+**步骤**
+
+#### DLOCAL-018-S1
+
+**标识**：DLOCAL-018-S1
+
+**action**：超管访问列表并按现有筛选分页读取
+
+**reads**
+
+1. DFIELD-007
+
+2. DFIELD-008
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+#### DLOCAL-018-S2
+
+**标识**：DLOCAL-018-S2
+
+**action**：展示已存名称/appId及查看修改删除、新增入口，关联租户及回调简洁呈现
+
+**reads**
+
+1. DFIELD-007
+
+2. DFIELD-008
+
+**writes**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-004
+
+4. DFIELD-005
+
+5. DFIELD-006
+
+6. DFIELD-009
+
+7. DFIELD-108
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+**分支**
+
+#### DLOCAL-018-B1
+
+**标识**：DLOCAL-018-B1
+
+**条件**：无应用显示空态和新增
+
+**结果**：无应用显示空态和新增
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-004
+
+4. DFIELD-005
+
+5. DFIELD-006
+
+6. DFIELD-007
+
+7. DFIELD-008
+
+8. DFIELD-009
+
+9. DFIELD-108
+
+**验证引用**
+
+1. CHECK-044
+
+2. CHECK-053
+
+3. CHECK-058
+
+#### DLOCAL-018-B2
+
+**标识**：DLOCAL-018-B2
+
+**条件**：非超管菜单/直达/管理调用拒绝，无写入
+
+**结果**：非超管菜单/直达/管理调用拒绝，无写入
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-004
+
+4. DFIELD-005
+
+5. DFIELD-006
+
+6. DFIELD-007
+
+7. DFIELD-008
+
+8. DFIELD-009
+
+9. DFIELD-108
+
+**验证引用**
+
+1. CHECK-044
+
+2. CHECK-053
+
+3. CHECK-058
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**来源映射**：memory/normalized-user-stories.json#AC-044, memory/normalized-user-stories.json#AC-053, memory/normalized-user-stories.json#AC-058, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-018
+
+2. memory/business-rules.json#BR-001
+
+3. memory/business-rules.json#BR-020
+
+4. sequences/SEQ-005.json
+
+**验证引用**
+
+1. CHECK-044
+
+2. CHECK-053
+
+3. CHECK-058
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-APP
+
+**范围**
+
+1. 查询应用列表，按现有超管权限找到各系统应用及其配置
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+#### DLOCAL-019 创建应用
+
+**标识**：DLOCAL-019
+
+**主题**：创建应用
+
+**功能**
+
+1. FUNC-019
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-017
+
+2. AC-044
+
+3. AC-055
+
+4. AC-058
+
+5. AC-084
+
+6. AC-085
+
+**business_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**触发**：超管填写名称/多个有效关联租户及本应用回调
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-002
+
+2. DFIELD-004
+
+3. DFIELD-108
+
+4. DFIELD-121
+
+**输出**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**步骤**
+
+#### DLOCAL-019-S1
+
+**标识**：DLOCAL-019-S1
+
+**action**：超管填写名称/多个有效关联租户及本应用回调
+
+**reads**
+
+1. DFIELD-002
+
+2. DFIELD-004
+
+3. DFIELD-108
+
+4. DFIELD-121
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+#### DLOCAL-019-S2
+
+**标识**：DLOCAL-019-S2
+
+**action**：多对多允许，共享租户不是重复应用冲突，关系本身去重
+
+**reads**
+
+1. DFIELD-002
+
+2. DFIELD-004
+
+3. DFIELD-108
+
+4. DFIELD-121
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+#### DLOCAL-019-S3
+
+**标识**：DLOCAL-019-S3
+
+**action**：保存独立appId/密钥及配置，原业务系统分别用自身app
+
+**reads**
+
+1. DFIELD-002
+
+2. DFIELD-004
+
+3. DFIELD-108
+
+4. DFIELD-121
+
+**writes**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+**分支**
+
+#### DLOCAL-019-B1
+
+**标识**：DLOCAL-019-B1
+
+**条件**：取消/失败不造成功
+
+**结果**：取消/失败不造成功
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-044
+
+3. CHECK-055
+
+4. CHECK-058
+
+5. CHECK-084
+
+6. CHECK-085
+
+#### DLOCAL-019-B2
+
+**标识**：DLOCAL-019-B2
+
+**条件**：缺callback不能导入；是否允许先保存无地址应用草稿待审
+
+**结果**：缺callback不能导入；是否允许先保存无地址应用草稿待审
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-044
+
+3. CHECK-055
+
+4. CHECK-058
+
+5. CHECK-084
+
+6. CHECK-085
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**来源映射**：memory/normalized-user-stories.json#AC-017, memory/normalized-user-stories.json#AC-044, memory/normalized-user-stories.json#AC-055, memory/normalized-user-stories.json#AC-058, memory/normalized-user-stories.json#AC-084, memory/normalized-user-stories.json#AC-085, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-019
+
+2. memory/business-rules.json#BR-001
+
+3. memory/business-rules.json#BR-020
+
+4. sequences/SEQ-005.json
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-044
+
+3. CHECK-055
+
+4. CHECK-058
+
+5. CHECK-084
+
+6. CHECK-085
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-APP
+
+**范围**
+
+1. 创建独立应用及多租户关联、凭据与回调配置；无回调能否存草稿继续待审，缺回调禁止导入
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+#### DLOCAL-020 查看应用详情
+
+**标识**：DLOCAL-020
+
+**主题**：查看应用详情
+
+**功能**
+
+1. FUNC-020
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-017
+
+2. AC-044
+
+3. AC-054
+
+4. AC-058
+
+5. AC-084
+
+6. AC-085
+
+**business_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**触发**：超管按指定应用查询准确详情
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-001
+
+**输出**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**步骤**
+
+#### DLOCAL-020-S1
+
+**标识**：DLOCAL-020-S1
+
+**action**：超管按指定应用查询准确详情
+
+**reads**
+
+1. DFIELD-001
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+#### DLOCAL-020-S2
+
+**标识**：DLOCAL-020-S2
+
+**action**：只读显示名称/appId/密钥/多租户关联及保存回调，保合成密钥提示
+
+**reads**
+
+1. DFIELD-001
+
+**writes**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+**分支**
+
+#### DLOCAL-020-B1
+
+**标识**：DLOCAL-020-B1
+
+**条件**：不存在/删除目标不展示其他应用
+
+**结果**：不存在/删除目标不展示其他应用
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-044
+
+3. CHECK-054
+
+4. CHECK-058
+
+5. CHECK-084
+
+6. CHECK-085
+
+#### DLOCAL-020-B2
+
+**标识**：DLOCAL-020-B2
+
+**条件**：读取不改配置，非超管拒绝
+
+**结果**：读取不改配置，非超管拒绝
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-002
+
+3. DFIELD-003
+
+4. DFIELD-004
+
+5. DFIELD-005
+
+6. DFIELD-006
+
+7. DFIELD-108
+
+8. DFIELD-121
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-044
+
+3. CHECK-054
+
+4. CHECK-058
+
+5. CHECK-084
+
+6. CHECK-085
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**来源映射**：memory/normalized-user-stories.json#AC-017, memory/normalized-user-stories.json#AC-044, memory/normalized-user-stories.json#AC-054, memory/normalized-user-stories.json#AC-058, memory/normalized-user-stories.json#AC-084, memory/normalized-user-stories.json#AC-085, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-020
+
+2. memory/business-rules.json#BR-001
+
+3. memory/business-rules.json#BR-020
+
+4. sequences/SEQ-005.json
+
+**验证引用**
+
+1. CHECK-017
+
+2. CHECK-044
+
+3. CHECK-054
+
+4. CHECK-058
+
+5. CHECK-084
+
+6. CHECK-085
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-APP
+
+**范围**
+
+1. 查看应用详情、授权租户、凭据与回调地址
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
+
+**证据**
+
+1. prototype/memory/verification-evidence/application-callback-ui-20261014.json
+
+**范围**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+#### DLOCAL-021 删除应用
+
+**标识**：DLOCAL-021
+
+**主题**：删除应用
+
+**功能**
+
+1. FUNC-021
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-044
+
+2. AC-057
+
+**business_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**触发**：超管选择准确应用明确确认
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-001
+
+2. DFIELD-006
+
+**输出**
+
+1. DFIELD-006
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-006
+
+**步骤**
+
+#### DLOCAL-021-S1
+
+**标识**：DLOCAL-021-S1
+
+**action**：超管选择准确应用明确确认
+
+**reads**
+
+1. DFIELD-001
+
+2. DFIELD-006
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+#### DLOCAL-021-S2
+
+**标识**：DLOCAL-021-S2
+
+**action**：保存成功才删除配置并使其不能再取新身份；合成旧身份失效与真实撤销区分
+
+**reads**
+
+1. DFIELD-001
+
+2. DFIELD-006
+
+**writes**
+
+
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+#### DLOCAL-021-S3
+
+**标识**：DLOCAL-021-S3
+
+**action**：保留其他应用及历史业务/来源审计，不级联任务或结果
+
+**reads**
+
+1. DFIELD-001
+
+2. DFIELD-006
+
+**writes**
+
+1. DFIELD-006
+
+**规则**
+
+1. BR-001
+
+2. BR-020
+
+**分支**
+
+#### DLOCAL-021-B1
+
+**标识**：DLOCAL-021-B1
+
+**条件**：取消/写入失败原配置/身份不提前失效
+
+**结果**：取消/写入失败原配置/身份不提前失效
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-006
+
+**验证引用**
+
+1. CHECK-044
+
+2. CHECK-057
+
+#### DLOCAL-021-B2
+
+**标识**：DLOCAL-021-B2
+
+**条件**：真实旧token/在途及积压回调策略待核
+
+**结果**：真实旧token/在途及积压回调策略待核
+
+**字段引用**
+
+1. DFIELD-001
+
+2. DFIELD-006
+
+**验证引用**
+
+1. CHECK-044
+
+2. CHECK-057
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-001
+
+2. BR-020
+
+**来源映射**：memory/normalized-user-stories.json#AC-044, memory/normalized-user-stories.json#AC-057, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-021
+
+2. memory/business-rules.json#BR-001
+
+3. memory/business-rules.json#BR-020
+
+4. sequences/SEQ-005.json
+
+**验证引用**
+
+1. CHECK-044
+
+2. CHECK-057
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-APP
+
+**范围**
+
+1. 删除应用独立操作及原有权限/引用守卫；历史接入归属不改写
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+#### DLOCAL-022 人工补提交八类失败客户
+
+**标识**：DLOCAL-022
+
+**主题**：人工补提交八类失败客户
+
+**功能**
+
+1. FUNC-022
+
+**feature_mapping_status**：carried_forward_pending_S7
+
+**验收**
+
+1. AC-064
+
+2. AC-065
+
+3. AC-066
+
+4. AC-067
+
+5. AC-068
+
+6. AC-073
+
+7. AC-074
+
+8. AC-076
+
+9. AC-077
+
+10. AC-078
+
+**business_rule_ids**
+
+1. BR-012
+
+2. BR-013
+
+3. BR-015
+
+4. BR-021
+
+5. BR-022
+
+**触发**：仅有原任务权运营/管理员明确当前8类失败记录并确认；不新增客户名单或改真实号码
+
+**前提**
+
+1. 当前操作身份及目标归属准确；本轮仅讨论稿，真实依赖未闭合不能据此真实调用。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-032
+
+7. DFIELD-033
+
+8. DFIELD-034
+
+9. DFIELD-037
+
+10. DFIELD-039
+
+11. DFIELD-041
+
+12. DFIELD-042
+
+13. DFIELD-063
+
+14. DFIELD-064
+
+15. DFIELD-065
+
+16. DFIELD-069
+
+17. DFIELD-070
+
+18. DFIELD-071
+
+19. DFIELD-072
+
+20. DFIELD-073
+
+21. DFIELD-074
+
+22. DFIELD-098
+
+23. DFIELD-099
+
+24. DFIELD-100
+
+**输出**
+
+1. DFIELD-048
+
+2. DFIELD-049
+
+3. DFIELD-050
+
+4. DFIELD-051
+
+5. DFIELD-052
+
+6. DFIELD-053
+
+7. DFIELD-054
+
+8. DFIELD-055
+
+9. DFIELD-066
+
+10. DFIELD-068
+
+11. DFIELD-070
+
+12. DFIELD-071
+
+13. DFIELD-072
+
+14. DFIELD-073
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-032
+
+7. DFIELD-033
+
+8. DFIELD-034
+
+9. DFIELD-037
+
+10. DFIELD-039
+
+11. DFIELD-041
+
+12. DFIELD-042
+
+13. DFIELD-048
+
+14. DFIELD-049
+
+15. DFIELD-050
+
+16. DFIELD-051
+
+17. DFIELD-052
+
+18. DFIELD-053
+
+19. DFIELD-054
+
+20. DFIELD-055
+
+21. DFIELD-063
+
+22. DFIELD-064
+
+23. DFIELD-065
+
+24. DFIELD-066
+
+25. DFIELD-068
+
+26. DFIELD-069
+
+27. DFIELD-070
+
+28. DFIELD-071
+
+29. DFIELD-072
+
+30. DFIELD-073
+
+31. DFIELD-074
+
+32. DFIELD-098
+
+33. DFIELD-099
+
+34. DFIELD-100
+
+**步骤**
+
+#### DLOCAL-022-S1
+
+**标识**：DLOCAL-022-S1
+
+**action**：仅有原任务权运营/管理员明确当前8类失败记录并确认；不新增客户名单或改真实号码
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-032
+
+7. DFIELD-033
+
+8. DFIELD-034
+
+9. DFIELD-037
+
+10. DFIELD-039
+
+11. DFIELD-041
+
+12. DFIELD-042
+
+13. DFIELD-063
+
+14. DFIELD-064
+
+15. DFIELD-065
+
+16. DFIELD-069
+
+17. DFIELD-070
+
+18. DFIELD-071
+
+19. DFIELD-072
+
+20. DFIELD-073
+
+21. DFIELD-074
+
+22. DFIELD-098
+
+23. DFIELD-099
+
+24. DFIELD-100
+
+**writes**
+
+
+
+**规则**
+
+1. BR-012
+
+2. BR-013
+
+3. BR-015
+
+4. BR-021
+
+5. BR-022
+
+#### DLOCAL-022-S2
+
+**标识**：DLOCAL-022-S2
+
+**action**：同action先重放/去重再校验，实际发起前核状态/精确对象/root/共享额度/原生执行权
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-032
+
+7. DFIELD-033
+
+8. DFIELD-034
+
+9. DFIELD-037
+
+10. DFIELD-039
+
+11. DFIELD-041
+
+12. DFIELD-042
+
+13. DFIELD-063
+
+14. DFIELD-064
+
+15. DFIELD-065
+
+16. DFIELD-069
+
+17. DFIELD-070
+
+18. DFIELD-071
+
+19. DFIELD-072
+
+20. DFIELD-073
+
+21. DFIELD-074
+
+22. DFIELD-098
+
+23. DFIELD-099
+
+24. DFIELD-100
+
+**writes**
+
+
+
+**规则**
+
+1. BR-012
+
+2. BR-013
+
+3. BR-015
+
+4. BR-021
+
+5. BR-022
+
+#### DLOCAL-022-S3
+
+**标识**：DLOCAL-022-S3
+
+**action**：新业务占一次沿原priority/root/source，所有应用来源進度各自回调
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-032
+
+7. DFIELD-033
+
+8. DFIELD-034
+
+9. DFIELD-037
+
+10. DFIELD-039
+
+11. DFIELD-041
+
+12. DFIELD-042
+
+13. DFIELD-063
+
+14. DFIELD-064
+
+15. DFIELD-065
+
+16. DFIELD-069
+
+17. DFIELD-070
+
+18. DFIELD-071
+
+19. DFIELD-072
+
+20. DFIELD-073
+
+21. DFIELD-074
+
+22. DFIELD-098
+
+23. DFIELD-099
+
+24. DFIELD-100
+
+**writes**
+
+1. DFIELD-048
+
+2. DFIELD-049
+
+3. DFIELD-050
+
+4. DFIELD-051
+
+5. DFIELD-052
+
+6. DFIELD-053
+
+7. DFIELD-054
+
+8. DFIELD-055
+
+9. DFIELD-066
+
+10. DFIELD-068
+
+11. DFIELD-070
+
+12. DFIELD-071
+
+13. DFIELD-072
+
+14. DFIELD-073
+
+**规则**
+
+1. BR-012
+
+2. BR-013
+
+3. BR-015
+
+4. BR-021
+
+5. BR-022
+
+**分支**
+
+#### DLOCAL-022-B1
+
+**标识**：DLOCAL-022-B1
+
+**条件**：无统一120秒；3自动不增提前人工入口
+
+**结果**：无统一120秒；3自动不增提前人工入口
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-032
+
+7. DFIELD-033
+
+8. DFIELD-034
+
+9. DFIELD-037
+
+10. DFIELD-039
+
+11. DFIELD-041
+
+12. DFIELD-042
+
+13. DFIELD-048
+
+14. DFIELD-049
+
+15. DFIELD-050
+
+16. DFIELD-051
+
+17. DFIELD-052
+
+18. DFIELD-053
+
+19. DFIELD-054
+
+20. DFIELD-055
+
+21. DFIELD-063
+
+22. DFIELD-064
+
+23. DFIELD-065
+
+24. DFIELD-066
+
+25. DFIELD-068
+
+26. DFIELD-069
+
+27. DFIELD-070
+
+28. DFIELD-071
+
+29. DFIELD-072
+
+30. DFIELD-073
+
+31. DFIELD-074
+
+32. DFIELD-098
+
+33. DFIELD-099
+
+34. DFIELD-100
+
+**验证引用**
+
+1. CHECK-064
+
+2. CHECK-065
+
+3. CHECK-066
+
+4. CHECK-067
+
+5. CHECK-068
+
+6. CHECK-073
+
+7. CHECK-074
+
+8. CHECK-076
+
+9. CHECK-077
+
+10. CHECK-078
+
+#### DLOCAL-022-B2
+
+**标识**：DLOCAL-022-B2
+
+**条件**：额度尽/未知/暂停终止/无权禁用和服务端拒绝
+
+**结果**：额度尽/未知/暂停终止/无权禁用和服务端拒绝
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-032
+
+7. DFIELD-033
+
+8. DFIELD-034
+
+9. DFIELD-037
+
+10. DFIELD-039
+
+11. DFIELD-041
+
+12. DFIELD-042
+
+13. DFIELD-048
+
+14. DFIELD-049
+
+15. DFIELD-050
+
+16. DFIELD-051
+
+17. DFIELD-052
+
+18. DFIELD-053
+
+19. DFIELD-054
+
+20. DFIELD-055
+
+21. DFIELD-063
+
+22. DFIELD-064
+
+23. DFIELD-065
+
+24. DFIELD-066
+
+25. DFIELD-068
+
+26. DFIELD-069
+
+27. DFIELD-070
+
+28. DFIELD-071
+
+29. DFIELD-072
+
+30. DFIELD-073
+
+31. DFIELD-074
+
+32. DFIELD-098
+
+33. DFIELD-099
+
+34. DFIELD-100
+
+**验证引用**
+
+1. CHECK-064
+
+2. CHECK-065
+
+3. CHECK-066
+
+4. CHECK-067
+
+5. CHECK-068
+
+6. CHECK-073
+
+7. CHECK-074
+
+8. CHECK-076
+
+9. CHECK-077
+
+10. CHECK-078
+
+#### DLOCAL-022-B3
+
+**标识**：DLOCAL-022-B3
+
+**条件**：UNKNOWN保原attempt；秒挂/接口人工分配不进入
+
+**结果**：UNKNOWN保原attempt；秒挂/接口人工分配不进入
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-013
+
+3. DFIELD-014
+
+4. DFIELD-015
+
+5. DFIELD-017
+
+6. DFIELD-032
+
+7. DFIELD-033
+
+8. DFIELD-034
+
+9. DFIELD-037
+
+10. DFIELD-039
+
+11. DFIELD-041
+
+12. DFIELD-042
+
+13. DFIELD-048
+
+14. DFIELD-049
+
+15. DFIELD-050
+
+16. DFIELD-051
+
+17. DFIELD-052
+
+18. DFIELD-053
+
+19. DFIELD-054
+
+20. DFIELD-055
+
+21. DFIELD-063
+
+22. DFIELD-064
+
+23. DFIELD-065
+
+24. DFIELD-066
+
+25. DFIELD-068
+
+26. DFIELD-069
+
+27. DFIELD-070
+
+28. DFIELD-071
+
+29. DFIELD-072
+
+30. DFIELD-073
+
+31. DFIELD-074
+
+32. DFIELD-098
+
+33. DFIELD-099
+
+34. DFIELD-100
+
+**验证引用**
+
+1. CHECK-064
+
+2. CHECK-065
+
+3. CHECK-066
+
+4. CHECK-067
+
+5. CHECK-068
+
+6. CHECK-073
+
+7. CHECK-074
+
+8. CHECK-076
+
+9. CHECK-077
+
+10. CHECK-078
+
+**结果**
+
+1. 成功结果依本动作准确保存/读取；拒绝或未知不伪造后续成功。
+
+**global_rule_ids**
+
+1. BR-012
+
+2. BR-013
+
+3. BR-015
+
+4. BR-021
+
+5. BR-022
+
+**来源映射**：memory/normalized-user-stories.json#AC-064, memory/normalized-user-stories.json#AC-065, memory/normalized-user-stories.json#AC-066, memory/normalized-user-stories.json#AC-067, memory/normalized-user-stories.json#AC-068, memory/normalized-user-stories.json#AC-073, memory/normalized-user-stories.json#AC-074, memory/normalized-user-stories.json#AC-076, memory/normalized-user-stories.json#AC-077, memory/normalized-user-stories.json#AC-078, memory/project-facts.json
+
+**historical_source_keys**
+
+1. memory/feature-list.json#FUNC-022
+
+2. memory/business-rules.json#BR-003
+
+3. memory/business-rules.json#BR-004
+
+4. memory/business-rules.json#BR-007
+
+5. memory/business-rules.json#BR-009
+
+6. memory/business-rules.json#BR-012
+
+7. memory/business-rules.json#BR-013
+
+8. memory/business-rules.json#BR-015
+
+9. memory/business-rules.json#BR-016
+
+10. memory/business-rules.json#BR-019
+
+11. memory/business-rules.json#BR-021
+
+12. memory/business-rules.json#BR-022
+
+13. sequences/SEQ-003.json
+
+**验证引用**
+
+1. CHECK-064
+
+2. CHECK-065
+
+3. CHECK-066
+
+4. CHECK-067
+
+5. CHECK-068
+
+6. CHECK-073
+
+7. CHECK-074
+
+8. CHECK-076
+
+9. CHECK-077
+
+10. CHECK-078
+
+**unverified**
+
+1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+#### DLOCAL-MANUAL-ASSIGN 接口人工外呼分配至指定坐席
+
+**标识**：DLOCAL-MANUAL-ASSIGN
+
+**主题**：接口人工外呼分配至指定坐席
+
+**功能**
+
+
+
+**独立草案操作**
+
+1. DRAFT-OP-MANUAL-ASSIGN
+
+**验收**
+
+1. AC-081
+
+2. AC-082
+
+3. AC-083
+
+4. AC-093
+
+5. AC-094
+
+6. AC-099
+
+7. AC-102
+
+8. AC-103
+
+**business_rule_ids**
+
+
+
+**触发**：接收流程已验证app/tenant/回调/人工方式及请求幂等，逐行解析同租户原始工号
+
+**前提**
+
+1. 仅既有人工/预外呼范围，当前身份及对象归属准确；本方实现细化未形成正式冻结。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-019
+
+4. DFIELD-020
+
+5. DFIELD-021
+
+6. DFIELD-022
+
+7. DFIELD-029
+
+8. DFIELD-030
+
+9. DFIELD-031
+
+10. DFIELD-032
+
+11. DFIELD-033
+
+12. DFIELD-034
+
+13. DFIELD-035
+
+14. DFIELD-037
+
+15. DFIELD-041
+
+16. DFIELD-042
+
+17. DFIELD-108
+
+18. DFIELD-109
+
+19. DFIELD-110
+
+20. DFIELD-124
+
+21. DFIELD-126
+
+22. DFIELD-127
+
+23. DFIELD-128
+
+24. DFIELD-129
+
+25. DFIELD-130
+
+26. DFIELD-131
+
+27. DFIELD-024
+
+**输出**
+
+1. DFIELD-023
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-042
+
+5. DFIELD-043
+
+6. DFIELD-047
+
+7. DFIELD-111
+
+8. DFIELD-112
+
+9. DFIELD-119
+
+10. DFIELD-122
+
+11. DFIELD-124
+
+12. DFIELD-126
+
+13. DFIELD-127
+
+14. DFIELD-128
+
+15. DFIELD-129
+
+16. DFIELD-130
+
+17. DFIELD-131
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-019
+
+4. DFIELD-020
+
+5. DFIELD-021
+
+6. DFIELD-022
+
+7. DFIELD-023
+
+8. DFIELD-029
+
+9. DFIELD-030
+
+10. DFIELD-031
+
+11. DFIELD-032
+
+12. DFIELD-033
+
+13. DFIELD-034
+
+14. DFIELD-035
+
+15. DFIELD-037
+
+16. DFIELD-041
+
+17. DFIELD-042
+
+18. DFIELD-043
+
+19. DFIELD-047
+
+20. DFIELD-108
+
+21. DFIELD-109
+
+22. DFIELD-110
+
+23. DFIELD-111
+
+24. DFIELD-112
+
+25. DFIELD-119
+
+26. DFIELD-122
+
+27. DFIELD-124
+
+28. DFIELD-126
+
+29. DFIELD-127
+
+30. DFIELD-128
+
+31. DFIELD-129
+
+32. DFIELD-130
+
+33. DFIELD-131
+
+34. DFIELD-024
+
+**步骤**
+
+#### DLOCAL-MANUAL-ASSIGN-S1
+
+**标识**：DLOCAL-MANUAL-ASSIGN-S1
+
+**action**：接收流程已验证app/tenant/回调/人工方式及请求幂等，逐行解析同租户原始工号
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-019
+
+4. DFIELD-020
+
+5. DFIELD-021
+
+6. DFIELD-022
+
+7. DFIELD-029
+
+8. DFIELD-030
+
+9. DFIELD-031
+
+10. DFIELD-032
+
+11. DFIELD-033
+
+12. DFIELD-034
+
+13. DFIELD-035
+
+14. DFIELD-037
+
+15. DFIELD-041
+
+16. DFIELD-042
+
+17. DFIELD-108
+
+18. DFIELD-109
+
+19. DFIELD-110
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-MANUAL-ASSIGN
+
+#### DLOCAL-MANUAL-ASSIGN-S2
+
+**标识**：DLOCAL-MANUAL-ASSIGN-S2
+
+**action**：核账号/成员/坐席关联启用、同步成功、接受任务；不要求在线即可保存分配
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-019
+
+4. DFIELD-020
+
+5. DFIELD-021
+
+6. DFIELD-022
+
+7. DFIELD-029
+
+8. DFIELD-030
+
+9. DFIELD-031
+
+10. DFIELD-032
+
+11. DFIELD-033
+
+12. DFIELD-034
+
+13. DFIELD-035
+
+14. DFIELD-037
+
+15. DFIELD-041
+
+16. DFIELD-042
+
+17. DFIELD-108
+
+18. DFIELD-109
+
+19. DFIELD-110
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-MANUAL-ASSIGN
+
+#### DLOCAL-MANUAL-ASSIGN-S3
+
+**标识**：DLOCAL-MANUAL-ASSIGN-S3
+
+**action**：真实客户及分配一体可恢复保存，进入本人待联系；由本人点击联系后按既有拨号守卫才拨打 同时保留接口记录原businessBatchNo供后续回调；不是预测批次。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-019
+
+4. DFIELD-020
+
+5. DFIELD-021
+
+6. DFIELD-022
+
+7. DFIELD-029
+
+8. DFIELD-030
+
+9. DFIELD-031
+
+10. DFIELD-032
+
+11. DFIELD-033
+
+12. DFIELD-034
+
+13. DFIELD-035
+
+14. DFIELD-037
+
+15. DFIELD-041
+
+16. DFIELD-042
+
+17. DFIELD-108
+
+18. DFIELD-109
+
+19. DFIELD-110
+
+20. DFIELD-124
+
+**writes**
+
+1. DFIELD-023
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-042
+
+5. DFIELD-043
+
+6. DFIELD-047
+
+7. DFIELD-111
+
+8. DFIELD-112
+
+9. DFIELD-119
+
+10. DFIELD-122
+
+11. DFIELD-124
+
+**规则**
+
+1. DGR-MANUAL-ASSIGN
+
+#### DLOCAL-MANUAL-ASSIGN-INTENT-FIELDS
+
+**标识**：DLOCAL-MANUAL-ASSIGN-INTENT-FIELDS
+
+**action**：按本次有效行保存六个选填原文本，纳入完整请求内容比较；不新增必填、成对必填或按编码数值化。原手工流程只增末尾选填列。 留资时间用业务来源原值，与平台导入/保存时间区别；缺失不补当前时间。
+
+**reads**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**writes**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**规则**
+
+1. DGR-IMPORTED-INTENT
+
+#### DLOCAL-MANUAL-ASSIGN-BUSINESS-TYPE
+
+**标识**：DLOCAL-MANUAL-ASSIGN-BUSINESS-TYPE
+
+**action**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。 客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**reads**
+
+1. DFIELD-024
+
+**writes**
+
+1. DFIELD-024
+
+**规则**
+
+1. DGR-IMPORT-BUSINESS-TYPE
+
+**分支**
+
+#### DLOCAL-MANUAL-ASSIGN-B1
+
+**标识**：DLOCAL-MANUAL-ASSIGN-B1
+
+**条件**：无效/缺失/跨租户/冲突工号本行失败，不自动改派
+
+**结果**：无效/缺失/跨租户/冲突工号本行失败，不自动改派
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-019
+
+4. DFIELD-020
+
+5. DFIELD-021
+
+6. DFIELD-022
+
+7. DFIELD-023
+
+8. DFIELD-029
+
+9. DFIELD-030
+
+10. DFIELD-031
+
+11. DFIELD-032
+
+12. DFIELD-033
+
+13. DFIELD-034
+
+14. DFIELD-035
+
+15. DFIELD-037
+
+16. DFIELD-041
+
+17. DFIELD-042
+
+18. DFIELD-043
+
+19. DFIELD-047
+
+20. DFIELD-108
+
+21. DFIELD-109
+
+22. DFIELD-110
+
+23. DFIELD-111
+
+24. DFIELD-112
+
+25. DFIELD-119
+
+26. DFIELD-122
+
+**验证引用**
+
+1. CHECK-081
+
+2. CHECK-082
+
+3. CHECK-083
+
+#### DLOCAL-MANUAL-ASSIGN-B2
+
+**标识**：DLOCAL-MANUAL-ASSIGN-B2
+
+**条件**：同请求同内容返回原分配；改工号/方式拒冲突，UNKNOWN沿原对象
+
+**结果**：同请求同内容返回原分配；改工号/方式拒冲突，UNKNOWN沿原对象
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-019
+
+4. DFIELD-020
+
+5. DFIELD-021
+
+6. DFIELD-022
+
+7. DFIELD-023
+
+8. DFIELD-029
+
+9. DFIELD-030
+
+10. DFIELD-031
+
+11. DFIELD-032
+
+12. DFIELD-033
+
+13. DFIELD-034
+
+14. DFIELD-035
+
+15. DFIELD-037
+
+16. DFIELD-041
+
+17. DFIELD-042
+
+18. DFIELD-043
+
+19. DFIELD-047
+
+20. DFIELD-108
+
+21. DFIELD-109
+
+22. DFIELD-110
+
+23. DFIELD-111
+
+24. DFIELD-112
+
+25. DFIELD-119
+
+26. DFIELD-122
+
+**验证引用**
+
+1. CHECK-081
+
+2. CHECK-082
+
+3. CHECK-083
+
+#### DLOCAL-MANUAL-ASSIGN-B3
+
+**标识**：DLOCAL-MANUAL-ASSIGN-B3
+
+**条件**：无预测taskId/fileId/root，不用importTaskTel或自动拨号、不套预测失败额度
+
+**结果**：无预测taskId/fileId/root，不用importTaskTel或自动拨号、不套预测失败额度
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-011
+
+3. DFIELD-019
+
+4. DFIELD-020
+
+5. DFIELD-021
+
+6. DFIELD-022
+
+7. DFIELD-023
+
+8. DFIELD-029
+
+9. DFIELD-030
+
+10. DFIELD-031
+
+11. DFIELD-032
+
+12. DFIELD-033
+
+13. DFIELD-034
+
+14. DFIELD-035
+
+15. DFIELD-037
+
+16. DFIELD-041
+
+17. DFIELD-042
+
+18. DFIELD-043
+
+19. DFIELD-047
+
+20. DFIELD-108
+
+21. DFIELD-109
+
+22. DFIELD-110
+
+23. DFIELD-111
+
+24. DFIELD-112
+
+25. DFIELD-119
+
+26. DFIELD-122
+
+**验证引用**
+
+1. CHECK-081
+
+2. CHECK-082
+
+3. CHECK-083
+
+**结果**
+
+1. 保存/分配成功才更新名单；失败及未知保原对象，后续真实执行需依赖补证。
+
+2. 人工接口记录保留原业务批次，不生成预测batch/root/fileId。
+
+3. 按本次有效行保存六个选填原文本，纳入完整请求内容比较；不新增必填、成对必填或按编码数值化。原手工流程只增末尾选填列。
+
+4. 每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。 客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**global_rule_ids**
+
+1. DGR-MANUAL-ASSIGN
+
+2. DGR-BUSINESS-BATCH
+
+3. DGR-IMPORTED-INTENT
+
+4. DGR-IMPORT-BUSINESS-TYPE
+
+**来源映射**：memory/normalized-user-stories.json#AC-081, memory/normalized-user-stories.json#AC-082, memory/normalized-user-stories.json#AC-083, memory/project-facts.json, memory/normalized-user-stories.json#AC-093, memory/normalized-user-stories.json#AC-094, inputs/source-index.json#SRC-123, memory/normalized-user-stories.json#AC-099, inputs/source-index.json#SRC-124, inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103
+
+**验证引用**
+
+1. CHECK-081
+
+2. CHECK-082
+
+3. CHECK-083
+
+4. CHECK-093
+
+5. CHECK-094
+
+6. CHECK-099
+
+7. CHECK-102
+
+8. CHECK-103
+
+**unverified**
+
+1. 正式工号映射/报文/条件枚举/持久原子与恢复/预测转人工排他待S3～S8及工程核验。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-IMPORT
+
+**范围**
+
+1. 人工方式按agentWorkNo解析当前租户唯一有效坐席，保存分配并进入该坐席待联系；不自动拨号或伪造预测taskId/fileId
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**business_type_local_evidence**
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+#### DLOCAL-FOLLOWUP 振铃填写并保存跟进及待联系去向
+
+**标识**：DLOCAL-FOLLOWUP
+
+**主题**：振铃填写并保存跟进及待联系去向
+
+**功能**
+
+
+
+**独立草案操作**
+
+1. DRAFT-OP-FOLLOWUP
+
+**验收**
+
+1. AC-087
+
+2. AC-088
+
+3. AC-089
+
+4. AC-090
+
+5. AC-091
+
+6. AC-095
+
+7. AC-100
+
+8. AC-103
+
+**business_rule_ids**
+
+
+
+**触发**：准确人工/预外呼通话关联后，人工拨号/振铃与预测坐席待接听/接听中可填写原表单；保适用接听/取消/挂断，客户腿和坐席腿区分。
+
+**前提**
+
+1. 仅既有人工/预外呼范围，当前身份及对象归属准确；本方实现细化未形成正式冻结。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-118
+
+16. DFIELD-119
+
+17. DFIELD-120
+
+18. DFIELD-122
+
+19. DFIELD-123
+
+20. DFIELD-124
+
+21. DFIELD-126
+
+22. DFIELD-127
+
+23. DFIELD-128
+
+24. DFIELD-129
+
+25. DFIELD-130
+
+26. DFIELD-131
+
+27. DFIELD-024
+
+**输出**
+
+1. DFIELD-111
+
+2. DFIELD-113
+
+3. DFIELD-114
+
+4. DFIELD-115
+
+5. DFIELD-116
+
+6. DFIELD-117
+
+7. DFIELD-118
+
+8. DFIELD-119
+
+9. DFIELD-120
+
+10. DFIELD-123
+
+11. DFIELD-125
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-116
+
+16. DFIELD-117
+
+17. DFIELD-118
+
+18. DFIELD-119
+
+19. DFIELD-120
+
+20. DFIELD-122
+
+21. DFIELD-123
+
+22. DFIELD-124
+
+23. DFIELD-125
+
+24. DFIELD-126
+
+25. DFIELD-127
+
+26. DFIELD-128
+
+27. DFIELD-129
+
+28. DFIELD-130
+
+29. DFIELD-131
+
+30. DFIELD-024
+
+**步骤**
+
+#### DLOCAL-FOLLOWUP-S1
+
+**标识**：DLOCAL-FOLLOWUP-S1
+
+**action**：准确人工/预外呼通话关联后，人工拨号/振铃与预测坐席待接听/接听中可填写原表单；保适用接听/取消/挂断，客户腿和坐席腿区分。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-118
+
+16. DFIELD-119
+
+17. DFIELD-120
+
+18. DFIELD-122
+
+19. DFIELD-123
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-FOLLOWUP
+
+#### DLOCAL-FOLLOWUP-S2
+
+**标识**：DLOCAL-FOLLOWUP-S2
+
+**action**：通话结束后核当前坐席/tenant/customer/call/版本；明确外呼客户未接才必选人工通话状态，选API-327完整20项/16码中的编码+描述；空白拒绝，183未知明确选择有效。已接/客观未知或预测客户已接坐席未接不套，呼入不扩；其他业务条件必填按AC-091仍待完整清单。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-118
+
+16. DFIELD-119
+
+17. DFIELD-120
+
+18. DFIELD-122
+
+19. DFIELD-123
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-FOLLOWUP
+
+#### DLOCAL-FOLLOWUP-S3
+
+**标识**：DLOCAL-FOLLOWUP-S3
+
+**action**：人工通话状态编码+描述、录入人/时间与处理结果独立保存，不覆盖线路/CDR、客户/坐席接通、时长、统计或秒挂；继续跟进成功才保待联系，人工原坐席、预测当前坐席后续人工并保原追踪；同一保存绑定跟进坐席。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-118
+
+16. DFIELD-119
+
+17. DFIELD-120
+
+18. DFIELD-122
+
+19. DFIELD-123
+
+**writes**
+
+1. DFIELD-111
+
+2. DFIELD-114
+
+3. DFIELD-115
+
+4. DFIELD-116
+
+5. DFIELD-117
+
+6. DFIELD-118
+
+7. DFIELD-119
+
+8. DFIELD-123
+
+**规则**
+
+1. DGR-FOLLOWUP
+
+#### DLOCAL-FOLLOWUP-S4
+
+**标识**：DLOCAL-FOLLOWUP-S4
+
+**action**：预测转人工排他未知保待确认，不宣称原任务停或安全再拨；本人主动联系不另造线索
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-118
+
+16. DFIELD-119
+
+17. DFIELD-120
+
+18. DFIELD-122
+
+19. DFIELD-123
+
+**writes**
+
+1. DFIELD-113
+
+2. DFIELD-114
+
+3. DFIELD-115
+
+4. DFIELD-116
+
+5. DFIELD-117
+
+6. DFIELD-118
+
+7. DFIELD-119
+
+8. DFIELD-120
+
+9. DFIELD-123
+
+**规则**
+
+1. DGR-FOLLOWUP
+
+#### DLOCAL-FOLLOWUP-S5
+
+**标识**：DLOCAL-FOLLOWUP-S5
+
+**action**：通话已结束、准确处理结果为已完成沟通且本次保存成功提交后，可靠衔接本call/保存版本的完成快照；草稿/校验失败/其他处理结果不生成该事件。正式事务与恢复待核，不先展示回传成功。
+
+**reads**
+
+1. DFIELD-075
+
+2. DFIELD-115
+
+3. DFIELD-116
+
+4. DFIELD-117
+
+5. DFIELD-118
+
+6. DFIELD-124
+
+**writes**
+
+1. DFIELD-125
+
+**规则**
+
+1. DGR-COMPLETION-CALLBACK
+
+#### DLOCAL-FOLLOWUP-INTENT-FIELDS
+
+**标识**：DLOCAL-FOLLOWUP-INTENT-FIELDS
+
+**action**：现有导入预览/客户与通话详情/坐席拨号及振铃早填页展示原六字段，未提供显示未提供；原导入信息只读，与计划到店门店和后续跟进字段区分。 留资时间用业务来源原值，与平台导入/保存时间区别；缺失不补当前时间。
+
+**reads**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-IMPORTED-INTENT
+
+#### DLOCAL-FOLLOWUP-BUSINESS-TYPE
+
+**标识**：DLOCAL-FOLLOWUP-BUSINESS-TYPE
+
+**action**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**reads**
+
+1. DFIELD-024
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-IMPORT-BUSINESS-TYPE
+
+**分支**
+
+#### DLOCAL-FOLLOWUP-B1
+
+**标识**：DLOCAL-FOLLOWUP-B1
+
+**条件**：未接不自动选择继续跟进
+
+**结果**：未接不自动选择继续跟进
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-116
+
+16. DFIELD-117
+
+17. DFIELD-118
+
+18. DFIELD-119
+
+19. DFIELD-120
+
+20. DFIELD-122
+
+21. DFIELD-123
+
+**验证引用**
+
+1. CHECK-087
+
+2. CHECK-088
+
+3. CHECK-089
+
+4. CHECK-090
+
+5. CHECK-091
+
+#### DLOCAL-FOLLOWUP-B2
+
+**标识**：DLOCAL-FOLLOWUP-B2
+
+**条件**：校验/权限/版本/写入失败保草稿与原名单，重复保存不重复跟进或名单
+
+**结果**：校验/权限/版本/写入失败保草稿与原名单，重复保存不重复跟进或名单
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-116
+
+16. DFIELD-117
+
+17. DFIELD-118
+
+18. DFIELD-119
+
+19. DFIELD-120
+
+20. DFIELD-122
+
+21. DFIELD-123
+
+**验证引用**
+
+1. CHECK-087
+
+2. CHECK-088
+
+3. CHECK-089
+
+4. CHECK-090
+
+5. CHECK-091
+
+#### DLOCAL-FOLLOWUP-B3
+
+**标识**：DLOCAL-FOLLOWUP-B3
+
+**条件**：迟到话单只更新客观结果，不覆写人工状态/去向
+
+**结果**：迟到话单只更新客观结果，不覆写人工状态/去向
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-116
+
+16. DFIELD-117
+
+17. DFIELD-118
+
+18. DFIELD-119
+
+19. DFIELD-120
+
+20. DFIELD-122
+
+21. DFIELD-123
+
+**验证引用**
+
+1. CHECK-087
+
+2. CHECK-088
+
+3. CHECK-089
+
+4. CHECK-090
+
+5. CHECK-091
+
+#### DLOCAL-FOLLOWUP-B4
+
+**标识**：DLOCAL-FOLLOWUP-B4
+
+**条件**：API-327字典已确认；其他业务表单条件必填、正式保存恢复和供应商排他尚未全部闭合
+
+**结果**：只采用已确认20项编码与描述；按AC-091保留其余业务字段清单和真实事务/预测排他待核，不拿局部合成验证替代。
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-015
+
+3. DFIELD-037
+
+4. DFIELD-041
+
+5. DFIELD-042
+
+6. DFIELD-075
+
+7. DFIELD-076
+
+8. DFIELD-082
+
+9. DFIELD-084
+
+10. DFIELD-109
+
+11. DFIELD-111
+
+12. DFIELD-113
+
+13. DFIELD-114
+
+14. DFIELD-115
+
+15. DFIELD-116
+
+16. DFIELD-117
+
+17. DFIELD-118
+
+18. DFIELD-119
+
+19. DFIELD-120
+
+20. DFIELD-122
+
+21. DFIELD-123
+
+**验证引用**
+
+1. CHECK-087
+
+2. CHECK-088
+
+3. CHECK-089
+
+4. CHECK-090
+
+5. CHECK-091
+
+#### DLOCAL-FOLLOWUP-B5
+
+**标识**：DLOCAL-FOLLOWUP-B5
+
+**条件**：明确外呼客户未接且已结束，人工状态为空或编码/描述不成有效字典项
+
+**结果**：拒绝保存并定位通话状态，保留选择、草稿及原名单；不得只用715/183编码绕过描述校验。
+
+**字段引用**
+
+1. DFIELD-075
+
+2. DFIELD-076
+
+3. DFIELD-082
+
+4. DFIELD-113
+
+5. DFIELD-114
+
+6. DFIELD-115
+
+7. DFIELD-116
+
+8. DFIELD-117
+
+9. DFIELD-118
+
+**验证引用**
+
+1. CHECK-088
+
+2. CHECK-090
+
+3. CHECK-091
+
+#### DLOCAL-FOLLOWUP-B6
+
+**标识**：DLOCAL-FOLLOWUP-B6
+
+**条件**：已接通、客户接通情况未知或预测客户已接而坐席未接
+
+**结果**：不猜为客户未接、不自动选择183，沿原适用表单校验；客观证据保持待核或已接事实。
+
+**字段引用**
+
+1. DFIELD-075
+
+2. DFIELD-076
+
+3. DFIELD-082
+
+4. DFIELD-113
+
+5. DFIELD-114
+
+6. DFIELD-115
+
+7. DFIELD-116
+
+8. DFIELD-117
+
+9. DFIELD-118
+
+**验证引用**
+
+1. CHECK-088
+
+2. CHECK-090
+
+3. CHECK-091
+
+#### DLOCAL-FOLLOWUP-B7
+
+**标识**：DLOCAL-FOLLOWUP-B7
+
+**条件**：明确选择183未知，或715/183的任一其他合法同码描述
+
+**结果**：按准确编码+描述保存人工记录；不合并同码选项，不等同于未选择，不改供应商事实。
+
+**字段引用**
+
+1. DFIELD-075
+
+2. DFIELD-076
+
+3. DFIELD-082
+
+4. DFIELD-113
+
+5. DFIELD-114
+
+6. DFIELD-115
+
+7. DFIELD-116
+
+8. DFIELD-117
+
+9. DFIELD-118
+
+**验证引用**
+
+1. CHECK-088
+
+2. CHECK-090
+
+3. CHECK-091
+
+**结果**
+
+1. 保存/分配成功才更新名单；失败及未知保原对象，后续真实执行需依赖补证。
+
+2. 仅精确已完成沟通的可靠保存成功通知完成沟通回调操作；processingStatus=已完成只表示表单已处理，不能代替处理结果。
+
+3. 现有导入预览/客户与通话详情/坐席拨号及振铃早填页展示原六字段，未提供显示未提供；原导入信息只读，与计划到店门店和后续跟进字段区分。
+
+4. 客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**global_rule_ids**
+
+1. DGR-FOLLOWUP
+
+2. DGR-COMPLETION-CALLBACK
+
+3. DGR-IMPORTED-INTENT
+
+4. DGR-IMPORT-BUSINESS-TYPE
+
+**来源映射**：memory/normalized-user-stories.json#AC-087, memory/normalized-user-stories.json#AC-088, memory/normalized-user-stories.json#AC-089, memory/normalized-user-stories.json#AC-090, memory/normalized-user-stories.json#AC-091, memory/project-facts.json, inputs/source-index.json#SRC-122, memory/normalized-user-stories.json#AC-095, inputs/source-index.json#SRC-123, memory/normalized-user-stories.json#AC-100, inputs/source-index.json#SRC-124, inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-103
+
+**验证引用**
+
+1. CHECK-087
+
+2. CHECK-088
+
+3. CHECK-089
+
+4. CHECK-090
+
+5. CHECK-091
+
+6. CHECK-095
+
+7. CHECK-100
+
+8. CHECK-103
+
+**unverified**
+
+1. 正式字段/API/后端持久原子与恢复、各业务表单其他必填/选填清单及预测转人工排他待S3～S8及工程核验；人工状态字典已按SRC-122收敛，不再整体列为未定。
+
+2. SRC123完成沟通快照与回调、业务批次号尚未在原型/后端实现；既有早填和未接状态证据不覆盖新能力。
+
+**read_only_evidence_note**：DFIELD-084仅展示同通话已有秒挂三态，来源DLOCAL-011；跟进动作不重算或写入秒挂结果。人工状态不能改变该证据。
+
+**局部原型证据**
+
+**标识**：UI-LOCAL-MANUAL-STATUS-20261014
+
+**说明**：原早填单局部修复上新增明确外呼客户未接结束后的人工状态及条件校验；仅本地合成范围。
+
+**证据**
+
+1. prototype/memory/verification-evidence/workbench-early-form-repair-20261014.json
+
+2. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
+
+**已实现**
+
+1. 人工成功发起拨号即显示原跟进表单，dialing/ringing 可编辑；预外呼 offered/answering 可编辑。
+
+2. 拨号、振铃、接通、未接结束及收起/再开保留草稿；适用接听/取消/挂断控件仍可用。
+
+3. 仅结束后允许正式保存；已有权限、归属和版本守卫保持。
+
+4. 既有人工“需要再次联系”待联系路径有局部验证，不代表新预测转人工闭环完成。
+
+5. 原表单展示API-327完整20项/16码，空白不通过，715/183同码项分别保存编码及描述，明确183未知可选。
+
+6. 明确外呼客户未接且结束才必选，客观未知/已接及预测客户已接坐席未接不误用；呼入不扩展。
+
+7. 人工状态独立保存录入人/时间，草稿收起重开/重载可恢复；详情并列展示人工状态与线路原结果。
+
+8. 当前合成业务表单未接时允许业务信息稍后补充，已填非法值仍拒绝；各业务完整条件清单仍待S3/S6。
+
+**verification**：workbench-manual-status最终源码28组VM通过；浏览器验证人工拨号早填、明确未接20项选择、空选阻止、拒接保存、收起恢复与重载详情。此前早填三宽度证据仍限定原范围，本次不宣称重跑全宽度/全部枚举浏览器路径。
+
+**验证边界**
+
+1. 预外呼继续跟进转当前坐席人工归属、完整溯源及供应商排他仍待实现和验证。
+
+2. 完整业务条件必填/选填清单、后端持久化并发恢复、正式认证/回调/供应商运行仍未验证。
+
+3. 正式S1/S2增量复验、G1/G2/G3及正式05就绪均未完成；不是整版或全部92项验收通过。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**prior_evidence_retained**
+
+1. prototype/memory/verification-evidence/workbench-early-form-repair-20261014.json
+
+**time_boundary**：此前局部运行证据及当时门禁状况；当前SRC123需求已重验S1/S2，新回调仍未实现。
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**范围**
+
+1. 人工拨号/振铃及预外呼坐席振铃即可填写原跟进表单，通话阶段变化保留草稿
+
+2. 明确外呼客户未接且通话已结束才必选通话状态，按API-327完整20项保存编码与描述；未选阻止保存，客观线路结果保持独立
+
+**basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
+
+**meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**dependency_scopes**
+
+#### 1
+
+**角色**：dependency
+
+**范围**：既有继续跟进仅在保存成功后保留本人待联系；预外呼转当前坐席人工跟进及原任务排他继续待实现/供应商核验。
+
+**验收**
+
+1. AC-089
+
+#### 2
+
+**角色**：dependency
+
+**范围**：可靠保存、重复提交去重、失败保草稿及原名单、身份/对象/版本复核；人工状态与客观结果隔离。
+
+**验收**
+
+1. AC-090
+
+2. AC-091
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**business_type_local_evidence**
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+#### DLOCAL-COMPLETION-CALLBACK 完成沟通后回调本次通话与客户业务信息
+
+**标识**：DLOCAL-COMPLETION-CALLBACK
+
+**主题**：完成沟通后回调本次通话与客户业务信息
+
+**功能**
+
+
+
+**独立草案操作**
+
+1. DRAFT-OP-COMPLETION-CALLBACK
+
+**验收**
+
+1. AC-095
+
+2. AC-096
+
+3. AC-097
+
+4. AC-098
+
+5. AC-101
+
+6. AC-104
+
+**business_rule_ids**
+
+
+
+**触发**：本次外呼通话结束且坐席选择准确处理结果“已完成沟通”，本次跟进及业务信息可靠保存成功。
+
+**前提**
+
+1. 准确追溯原接口导入app/tenant/record/call，应用有回调配置；手工无app来源不外发。
+
+2. 保存权限/对象/版本及条件必填已通过；不能用processingStatus已完成作为触发。
+
+3. 本次需求限外呼；不将呼入保存扩展为新的完成沟通回调触发。
+
+**输入**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+13. DFIELD-024
+
+14. DFIELD-126
+
+15. DFIELD-127
+
+16. DFIELD-128
+
+17. DFIELD-129
+
+18. DFIELD-130
+
+19. DFIELD-131
+
+**输出**
+
+1. DFIELD-125
+
+2. DFIELD-089
+
+3. DFIELD-090
+
+4. DFIELD-091
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+13. DFIELD-125
+
+14. DFIELD-089
+
+15. DFIELD-090
+
+16. DFIELD-091
+
+17. DFIELD-024
+
+18. DFIELD-126
+
+19. DFIELD-127
+
+20. DFIELD-128
+
+21. DFIELD-129
+
+22. DFIELD-130
+
+23. DFIELD-131
+
+**步骤**
+
+#### DLOCAL-COMPLETION-CALLBACK-S1
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-S1
+
+**action**：复核本次外呼call已结束、agentDisposition恰为已完成沟通以及保存成功版本；保存失败或其他处理结果不形成完成事件。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-COMPLETION-CALLBACK
+
+#### DLOCAL-COMPLETION-CALLBACK-S2
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-S2
+
+**action**：以本call及本次已保存customerFollowup构造DFIELD-125，绑定原记录业务批次、身份、保存版本及客观未知；不取aggregate或该客户最新其他通话。服务端可靠事件与保存一致性为待实现提案。 本次已填写选填业务字段必须回传配置的字段业务编码；有选项字段同时回传选中选项业务编码及对应值，多选包含全部选中编码。编码与值来自本次保存时原租户业务配置快照，后续改配置不改变原补送内容；不能仅发中文label或内部id。未填写字段不伪造取值；已填写字段或选项缺业务码标回调资料待完善/待核，不冒充完整发送成功，也不擅自阻断本地保存或丢失草稿。
+
+**reads**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+13. DFIELD-024
+
+**writes**
+
+1. DFIELD-125
+
+**规则**
+
+1. DGR-COMPLETION-CALLBACK
+
+#### DLOCAL-COMPLETION-CALLBACK-S3
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-S3
+
+**action**：从准确原app回调配置定位业务系统，在原tenant记录范围交付不可变快照；批次同名不改变接收端。实际网络调用只由正式工程实现，本原型关闭。
+
+**reads**
+
+1. DFIELD-125
+
+2. DFIELD-108
+
+3. DFIELD-041
+
+4. DFIELD-010
+
+**writes**
+
+1. DFIELD-089
+
+2. DFIELD-091
+
+**规则**
+
+1. DGR-COMPLETION-CALLBACK
+
+#### DLOCAL-COMPLETION-CALLBACK-S4
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-S4
+
+**action**：按正式待审事件/版本ACK确认；补送沿同事件快照，相同call/保存版本不重建。晚到客观话单可按待审版本补全但不静默改已确认快照。
+
+**reads**
+
+1. DFIELD-125
+
+2. DFIELD-089
+
+3. DFIELD-090
+
+4. DFIELD-091
+
+**writes**
+
+1. DFIELD-089
+
+2. DFIELD-090
+
+**规则**
+
+1. DGR-COMPLETION-CALLBACK
+
+#### DLOCAL-COMPLETION-CALLBACK-INTENT-FIELDS
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-INTENT-FIELDS
+
+**action**：完成沟通快照固化本次原导入六字段，按原app/tenant/record/call取值；不把计划到店门店、最新同号/跨通话资料替换原值，选填业务字段编码规则仍适用。 留资时间用业务来源原值，与平台导入/保存时间区别；缺失不补当前时间。
+
+**reads**
+
+1. DFIELD-126
+
+2. DFIELD-127
+
+3. DFIELD-128
+
+4. DFIELD-129
+
+5. DFIELD-130
+
+6. DFIELD-131
+
+**writes**
+
+1. DFIELD-125
+
+**规则**
+
+1. DGR-IMPORTED-INTENT
+
+#### DLOCAL-COMPLETION-CALLBACK-BUSINESS-TYPE
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-BUSINESS-TYPE
+
+**action**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**reads**
+
+1. DFIELD-024
+
+**writes**
+
+
+
+**规则**
+
+1. DGR-IMPORT-BUSINESS-TYPE
+
+**分支**
+
+#### DLOCAL-COMPLETION-CALLBACK-B1
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-B1
+
+**条件**：呼叫中/仅草稿/保存失败/继续跟进等其他处理结果
+
+**结果**：不生成完成沟通事件；继续跟进仍按原待联系规则。
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+13. DFIELD-125
+
+14. DFIELD-089
+
+15. DFIELD-090
+
+16. DFIELD-091
+
+**验证引用**
+
+1. CHECK-095
+
+2. CHECK-096
+
+3. CHECK-097
+
+#### DLOCAL-COMPLETION-CALLBACK-B2
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-B2
+
+**条件**：无原应用的手工UI来源
+
+**结果**：只保留平台通话与业务表单，不制造回调接收方。
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+13. DFIELD-125
+
+14. DFIELD-089
+
+15. DFIELD-090
+
+16. DFIELD-091
+
+**验证引用**
+
+1. CHECK-095
+
+2. CHECK-096
+
+3. CHECK-097
+
+#### DLOCAL-COMPLETION-CALLBACK-B3
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-B3
+
+**条件**：原app/tenant/record/call或历史批次缺失
+
+**结果**：保持未知/待核，不能按同号、同业务批次或当前操作人猜目标；历史缺批次兼容待正式协议。
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+13. DFIELD-125
+
+14. DFIELD-089
+
+15. DFIELD-090
+
+16. DFIELD-091
+
+**验证引用**
+
+1. CHECK-095
+
+2. CHECK-096
+
+3. CHECK-097
+
+#### DLOCAL-COMPLETION-CALLBACK-B4
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-B4
+
+**条件**：原应用回调失败或结果未知
+
+**结果**：保原事件交付状态并按协议补送/核验；不重新保存跟进、导入或拨号。
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+13. DFIELD-125
+
+14. DFIELD-089
+
+15. DFIELD-090
+
+16. DFIELD-091
+
+**验证引用**
+
+1. CHECK-095
+
+2. CHECK-096
+
+3. CHECK-097
+
+#### DLOCAL-COMPLETION-CALLBACK-B5
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-B5
+
+**条件**：保存重复/ACK重复或旧版本ACK
+
+**结果**：同保存版本不重复完成业务；仅匹配事件版本确认，不确认更新事件。
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+13. DFIELD-125
+
+14. DFIELD-089
+
+15. DFIELD-090
+
+16. DFIELD-091
+
+**验证引用**
+
+1. CHECK-095
+
+2. CHECK-096
+
+3. CHECK-097
+
+#### DLOCAL-COMPLETION-CALLBACK-B6
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-B6
+
+**条件**：话单/录音或字段配置证据晚到/缺失
+
+**结果**：快照保明确缺失/未知，字段清单与等待或新版本补全策略待评审；不填假零值、假接通或聚合其他通话补齐。
+
+**字段引用**
+
+1. DFIELD-010
+
+2. DFIELD-037
+
+3. DFIELD-041
+
+4. DFIELD-075
+
+5. DFIELD-076
+
+6. DFIELD-108
+
+7. DFIELD-114
+
+8. DFIELD-115
+
+9. DFIELD-116
+
+10. DFIELD-117
+
+11. DFIELD-118
+
+12. DFIELD-124
+
+13. DFIELD-125
+
+14. DFIELD-089
+
+15. DFIELD-090
+
+16. DFIELD-091
+
+**验证引用**
+
+1. CHECK-095
+
+2. CHECK-096
+
+3. CHECK-097
+
+#### DLOCAL-COMPLETION-CALLBACK-B7
+
+**标识**：DLOCAL-COMPLETION-CALLBACK-B7
+
+**条件**：已填选填业务字段或选中选项缺少业务编码
+
+**结果**：保本次保存成功事实，将回调标为资料待完善/待核；不得用label或内部ID替代并报完整成功，不要求坐席另填技术码。正式缺码修复/补全事件版本规则仍待评审。
+
+**字段引用**
+
+1. DFIELD-089
+
+2. DFIELD-125
+
+**验证引用**
+
+1. CHECK-098
+
+**结果**
+
+1. 每次结果/进度回调保留；新增完成事件与其独立去重/确认，传输设施可复用。
+
+2. 本地已保存与回调待发/成功/失败分开；失败补送只交付相同快照，不产生新拨号、导入、分配或跟进。
+
+3. 完成沟通快照固化本次原导入六字段，按原app/tenant/record/call取值；不把计划到店门店、最新同号/跨通话资料替换原值，选填业务字段编码规则仍适用。
+
+4. 每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**global_rule_ids**
+
+1. DGR-COMPLETION-CALLBACK
+
+2. DGR-IMPORTED-INTENT
+
+3. DGR-IMPORT-BUSINESS-TYPE
+
+**来源映射**：memory/normalized-user-stories.json#AC-095, memory/normalized-user-stories.json#AC-096, memory/normalized-user-stories.json#AC-097, inputs/source-index.json#SRC-123, memory/normalized-user-stories.json#AC-098, memory/normalized-user-stories.json#AC-101, inputs/source-index.json#SRC-124, inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-104
+
+**验证引用**
+
+1. CHECK-095
+
+2. CHECK-096
+
+3. CHECK-097
+
+4. CHECK-098
+
+5. CHECK-101
+
+6. CHECK-104
+
+**unverified**
+
+1. 正式事件名称/字段、业务字段键与配置版本、ACK、版本补全和回调目标变更策略尚待接收方评审；保存/事件原子、恢复与幂等需真实工程验证。
+
+2. 现有customer-business.js允许field/option.businessKey为空；CustomerFollowup仅存内部字段ID和值，未保存业务码映射。补全配置与已保存快照/新事件版本如何关联需工程细化，不能静默用当前配置重写旧快照。
+
+**实现状态**：requirements_and_design_only_not_implemented
+
+**交付优先级**
+
+**级别**：P0
+
+**角色**：primary
+
+**优先组**
+
+1. P0-FOLLOWUP
+
+**范围**：完成沟通快照生成与原业务系统交付
+
+**来源**：draft-20261014.json#priority_policy.scope_extensions
+
+**business_type_contract**
+
+**存储语义键**：businessType
+
+**field_ref**：DFIELD-024
+
+**级别**：request
+
+**required**：True
+
+**wire_type**：string_code
+
+**one_type_per_request**：True
+
+**authority**：authenticated_token_tenant_enabled_stable_business_type_code
+
+**new_request_validation**：请求级必填businessType，使用已验真的token租户当前启用的稳定业务类型编码；一次请求仅一种业务类型，适用预外呼及人工外呼。缺失、无效或已停用的新业务请求整次拒收，不保存客户、分配、占用补提交额度或提交供应商。不同类型分次导入，可复用同businessBatchNo；不以来源source或callMode代替类型。
+
+**idempotency**：在当前身份/授权复核后，先按原幂等作用域核完整请求内容；businessType纳入内容比较但不新增幂等命名空间。同requestId改类型是内容冲突；已受理同内容技术重放只读返回原回执、不再新增，即使该类型后来停用也不改写已受理记录。不因改类型改变原leadCode/手机号归组、主子批或共享失败累计键。
+
+**persist**：每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+
+**display_and_form**：客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
+
+**callback**：每次结果/进度及已完成沟通回调均携准确原app/tenant/record/call导入时保存的businessType稳定码和既有businessBatchNo；补送沿原事件快照。类型后续改名或停用不重算原码，历史未知不猜值，不只回传类型名称，也不替代已填字段/选项业务编码。正式回调报文与ACK仍待契约及工程验证。
+
+**classification_keys_unchanged**：True
+
+**formal_contract_status**：PROPOSED_CURRENT_SCOPE_NOT_S4_VERIFIED
+
+**来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
+
+**business_type_local_evidence**
+
+**证据**
+
+1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。

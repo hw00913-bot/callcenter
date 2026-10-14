@@ -3,6 +3,10 @@
   'use strict';
   const storageKey = 'customer-business-config-v3';
   const fieldTypes = ['text','textarea','number','select','multiselect','date','datetime'];
+  const importedFields = Object.freeze([
+    ['intentionStoreCode','意向门店编码'],['intentionStoreName','意向门店名称'],
+    ['intentionSeriesCode','意向车系编码'],['intentionSeries','意向车系'],['smartCode','Smartcode'],['leadCreatedAt','留资时间']
+  ].map(([key,label]) => Object.freeze({key,label})));
   const clone = value => JSON.parse(JSON.stringify(value));
   const text = value => value == null ? '' : String(value);
   const object = value => !!value && typeof value === 'object' && !Array.isArray(value);
@@ -140,6 +144,21 @@
       return {ok:true,rows:clone(bundle.types),fields:clone(bundle.fields),scope,revision:data.revision,context:context()};
     } catch (_) { return {ok:false,rows:[],fields:[],message:'业务配置暂时无法读取，请刷新后重试',scope,context:context()}; }
   }
+  // Read only: caller must already resolve an application identity. Never use the active UI tenant as fallback.
+  function resolveImportType(type, source) {
+    if (!source || !text(source.tenantId) || !text(source.enterpriseId)) return {ok:false,code:'INVALID_BUSINESS_SCOPE',message:'无法确认业务类型所属租户'};
+    const scope = {tenantId:text(source.tenantId),enterpriseId:text(source.enterpriseId)};
+    if (!(root.CloudCallData?.tenants || []).some(row => !row.builtIn && row.status === '启用' && sameScope(scopeOf(row),scope))) return {ok:false,code:'INVALID_BUSINESS_SCOPE',message:'业务租户不可用'};
+    if (typeof type !== 'string' || !type) return {ok:false,code:'MISSING_BUSINESS_TYPE',message:'请提供业务类型编码'};
+    if (!safeId(type)) return {ok:false,code:'INVALID_BUSINESS_TYPE',message:'业务类型编码无效'};
+    try {
+      const {data} = load(), bundle = data.scopes.find(row => sameScope(row,scope)) || defaults();
+      const row = bundle.types.find(item => item.id === type);
+      if (!row) return {ok:false,code:'INVALID_BUSINESS_TYPE',message:'该租户未配置此业务类型'};
+      if (!row.enabled) return {ok:false,code:'BUSINESS_TYPE_DISABLED',message:'该业务类型已停用，请选择已启用的类型'};
+      return {ok:true,row:clone(row),scope};
+    } catch (_) { return {ok:false,code:'BUSINESS_CONFIG_UNAVAILABLE',message:'业务配置暂时无法读取，请稍后重试'}; }
+  }
   function fieldCatalog(source = {}) { const data = catalog(source); return {...data,rows:data.fields}; }
   function list(source = {}, includeDisabled = false) { return catalog(source).rows.filter(row => includeDisabled || row.enabled); }
   function get(type, source = {}) {
@@ -165,8 +184,18 @@
     const one = item => options.find(row => row.id === text(item))?.label || text(item);
     return Array.isArray(value) ? value.map(one).join('、') : one(value);
   }
-  function snapshot(source) { const value = source || {}; return {businessType:get(value.businessType,value) ? value.businessType : '',externalDocumentId:text(value.externalDocumentId)}; }
-  function typeLabel(source) { return get(source?.businessType,source)?.label || ''; }
+  function importSnapshot(source = {}) {
+    return Object.fromEntries(importedFields.filter(field => Object.hasOwn(source,field.key) && typeof source[field.key] === 'string').map(field => [field.key,source[field.key]]));
+  }
+  function importedDetail(source = {}) {
+    const esc = root.PlatformUI.escape;
+    return '<dl class="customer-followup-details" data-imported-customer-info>' + importedFields.map(field => {
+      const value = typeof source[field.key] === 'string' && source[field.key].trim() ? source[field.key] : '';
+      return '<div><dt>' + esc(field.label) + '</dt><dd' + (!value ? ' class="is-empty"' : '') + ' data-imported-field="' + field.key + '">' + esc(value || '未提供') + '</dd></div>';
+    }).join('') + '</dl>';
+  }
+  function snapshot(source) { const value = source || {}; return {businessType:safeId(value.businessType) ? value.businessType : '',...(typeof value.businessTypeLabel === 'string' ? {businessTypeLabel:value.businessTypeLabel} : {}),externalDocumentId:text(value.externalDocumentId),...importSnapshot(value)}; }
+  function typeLabel(source) { return source?.businessTypeLabel || get(source?.businessType,source)?.label || ''; }
   function codeLabel(source) { return get(source?.businessType,source)?.codeLabel || '外部单据标识'; }
   function newId(prefix = 'field') { return prefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,9); }
 
@@ -224,5 +253,5 @@
     const row = get(id,source);
     return row ? save({...row,enabled:!!enabled},source,options) : fail('当前租户内没有此业务分类');
   }
-  root.CustomerBusiness = Object.freeze({storageKey,fieldTypes:Object.freeze(fieldTypes),context,scopeOf,canManage,tenants,catalog,fieldCatalog,list,get,getField,fields,optionLabel,snapshot,typeLabel,codeLabel,newId,presetField,normalize,normalizeField,save,saveField,deleteField,setEnabled});
+  root.CustomerBusiness = Object.freeze({storageKey,fieldTypes:Object.freeze(fieldTypes),context,scopeOf,canManage,tenants,catalog,resolveImportType,fieldCatalog,list,get,getField,fields,optionLabel,importedFields,importSnapshot,importedDetail,snapshot,typeLabel,codeLabel,newId,presetField,normalize,normalizeField,save,saveField,deleteField,setEnabled});
 })(window);

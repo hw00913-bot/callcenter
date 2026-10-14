@@ -1,338 +1,82 @@
 # 验收映射
 
-绑定当前冻结基线，功能以各自完整边界验收；缺少供应商契约时核对待确认状态且无成功写入。
+> S6计划，8标准列。R-004～065每行保留一个完整冻结AC正文及正/异常oracle；另R001入口、R002业务图、R003时序/关联、R066现行投影。Status依据本轮实际模型／浏览器、修后定点复验及最终源SHA对账更新为Pass；正式S8全局验证另行。Decision / Reason保留S6原计划说明，不代替当前实测证据。96FLD精确绑定execution-steps，FUNC002用后台证据，不以查看密钥代替。
 
-| Requirement ID | 需求 | 验收 | 验证 | 状态 | 说明 | Source IDs |
-|---|---|---|---|---|---|---|
-| R-001 | AC-001对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-001 |
-| R-002 | AC-002对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-002 |
-| R-003 | AC-003对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-003 |
-| R-004 | AC-004对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-004 |
-| R-005 | AC-005对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-005 |
-| R-006 | AC-006对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-006 |
-| R-007 | AC-009对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-009 |
-| R-008 | AC-010对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-010 |
-| R-009 | AC-011对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-011 |
-| R-010 | AC-012对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-012 |
-| R-011 | AC-013对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-013 |
-| R-012 | AC-014对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-014 |
-| R-013 | AC-015对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-015 |
-| R-014 | AC-016对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-016 |
-| R-015 | AC-017对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-017 |
-| R-016 | AC-018对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-018 |
-| R-017 | AC-021对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-021 |
-| R-018 | AC-022对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-022 |
-| R-019 | AC-027对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-027 |
-| R-020 | AC-028对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-028 |
-| R-021 | AC-029对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-029 |
-| R-022 | AC-030对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-030 |
-| R-023 | AC-031对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-031 |
-| R-024 | AC-032对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-032 |
-| R-025 | AC-033对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-033 |
-| R-026 | AC-034对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-034 |
-| R-027 | AC-035对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-035 |
-| R-028 | AC-036对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-036 |
-| R-029 | AC-037对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-037 |
-| R-030 | AC-038对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-038 |
-| R-031 | AC-039对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-039 |
-| R-032 | AC-0391对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-0391 |
-| R-033 | AC-0392对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-0392 |
-| R-034 | AC-0393对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-0393 |
-| R-035 | AC-0394对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-0394 |
-| R-036 | AC-0395对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-0395 |
-| R-037 | AC-0396对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-0396 |
-| R-038 | AC-040对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-040 |
-| R-039 | AC-101对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-101 |
-| R-040 | AC-102对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-102 |
-| R-041 | AC-103对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-103 |
-| R-042 | AC-104对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-104 |
-| R-043 | AC-105对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-105 |
-| R-044 | AC-106对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-106 |
-| R-045 | AC-107对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-107 |
-| R-046 | AC-1071对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-1071 |
-| R-047 | AC-108对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-108 |
-| R-048 | AC-1081对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-1081 |
-| R-049 | AC-1082对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-1082 |
-| R-050 | AC-109对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-109 |
-| R-051 | AC-1091对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-1091 |
-| R-052 | AC-110对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-110 |
-| R-053 | AC-1101对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-1101 |
-| R-054 | AC-2011对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2011 |
-| R-055 | AC-2012对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2012 |
-| R-056 | AC-2013对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2013 |
-| R-057 | AC-2031对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2031 |
-| R-058 | AC-2032对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2032 |
-| R-059 | AC-2033对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2033 |
-| R-060 | AC-2041对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2041 |
-| R-061 | AC-2042对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2042 |
-| R-062 | AC-2051对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2051 |
-| R-063 | AC-2052对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2052 |
-| R-064 | AC-2061对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2061 |
-| R-065 | AC-2062对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2062 |
-| R-066 | AC-2071对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2071 |
-| R-067 | AC-2072对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2072 |
-| R-068 | AC-2073对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2073 |
-| R-069 | AC-2074对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2074 |
-| R-070 | AC-2081对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2081 |
-| R-071 | AC-2082对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | AC-2082 |
-| R-072 | ACTION-10101对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10101 |
-| R-073 | ACTION-10103对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10103 |
-| R-074 | ACTION-10104对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10104 |
-| R-075 | ACTION-10105对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10105 |
-| R-076 | ACTION-10106对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10106 |
-| R-077 | ACTION-10107对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10107 |
-| R-078 | ACTION-10201对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10201 |
-| R-079 | ACTION-10202对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10202 |
-| R-080 | ACTION-10301对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10301 |
-| R-081 | ACTION-10302对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10302 |
-| R-082 | ACTION-10401对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10401 |
-| R-083 | ACTION-10402对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10402 |
-| R-084 | ACTION-10403对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10403 |
-| R-085 | ACTION-10404对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10404 |
-| R-086 | ACTION-10405对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-10405 |
-| R-087 | ACTION-20101对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20101 |
-| R-088 | ACTION-20102对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20102 |
-| R-089 | ACTION-20103对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20103 |
-| R-090 | ACTION-20201对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20201 |
-| R-091 | ACTION-20202对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20202 |
-| R-092 | ACTION-20203对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20203 |
-| R-093 | ACTION-20204对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20204 |
-| R-094 | ACTION-20205对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20205 |
-| R-095 | ACTION-20301对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20301 |
-| R-096 | ACTION-20302对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20302 |
-| R-097 | ACTION-20303对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20303 |
-| R-098 | ACTION-20304对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20304 |
-| R-099 | ACTION-20305对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20305 |
-| R-100 | ACTION-20306对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20306 |
-| R-101 | ACTION-20307对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20307 |
-| R-102 | ACTION-20401对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20401 |
-| R-103 | ACTION-20402对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20402 |
-| R-104 | ACTION-20403对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20403 |
-| R-105 | ACTION-20404对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20404 |
-| R-106 | ACTION-20501对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20501 |
-| R-107 | ACTION-20502对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20502 |
-| R-108 | ACTION-20503对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20503 |
-| R-109 | ACTION-20601对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20601 |
-| R-110 | ACTION-20602对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20602 |
-| R-111 | ACTION-20901对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20901 |
-| R-112 | ACTION-20902对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20902 |
-| R-113 | ACTION-20903对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-20903 |
-| R-114 | ACTION-21001对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21001 |
-| R-115 | ACTION-21002对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21002 |
-| R-116 | ACTION-21003对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21003 |
-| R-117 | ACTION-21101对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21101 |
-| R-118 | ACTION-21102对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21102 |
-| R-119 | ACTION-21103对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21103 |
-| R-120 | ACTION-21104对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21104 |
-| R-121 | ACTION-21105对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21105 |
-| R-122 | ACTION-21301对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21301 |
-| R-123 | ACTION-21302对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21302 |
-| R-124 | ACTION-21303对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21303 |
-| R-125 | ACTION-21304对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21304 |
-| R-126 | ACTION-21401对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21401 |
-| R-127 | ACTION-21402对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21402 |
-| R-128 | ACTION-21403对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21403 |
-| R-129 | ACTION-21404对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21404 |
-| R-130 | ACTION-21501对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21501 |
-| R-131 | ACTION-21502对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21502 |
-| R-132 | ACTION-21503对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21503 |
-| R-133 | ACTION-21601对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21601 |
-| R-134 | ACTION-21602对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21602 |
-| R-135 | ACTION-21603对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21603 |
-| R-136 | ACTION-21604对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21604 |
-| R-137 | ACTION-21605对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21605 |
-| R-138 | ACTION-21606对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21606 |
-| R-139 | ACTION-21701对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21701 |
-| R-140 | ACTION-21702对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21702 |
-| R-141 | ACTION-21801对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21801 |
-| R-142 | ACTION-21802对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-21802 |
-| R-143 | ACTION-22001对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22001 |
-| R-144 | ACTION-22002对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22002 |
-| R-145 | ACTION-22101对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22101 |
-| R-146 | ACTION-22102对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22102 |
-| R-147 | ACTION-22103对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22103 |
-| R-148 | ACTION-22104对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22104 |
-| R-149 | ACTION-22105对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22105 |
-| R-150 | ACTION-22201对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22201 |
-| R-151 | ACTION-22202对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22202 |
-| R-152 | ACTION-22301对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22301 |
-| R-153 | ACTION-22302对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22302 |
-| R-154 | ACTION-22303对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22303 |
-| R-155 | ACTION-22401对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22401 |
-| R-156 | ACTION-22402对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22402 |
-| R-157 | ACTION-22403对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22403 |
-| R-158 | ACTION-22501对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22501 |
-| R-159 | ACTION-22502对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22502 |
-| R-160 | ACTION-22503对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22503 |
-| R-161 | ACTION-22601对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22601 |
-| R-162 | ACTION-22602对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22602 |
-| R-163 | ACTION-22603对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22603 |
-| R-164 | ACTION-22701对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22701 |
-| R-165 | ACTION-22702对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22702 |
-| R-166 | ACTION-22703对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22703 |
-| R-167 | ACTION-22801对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22801 |
-| R-168 | ACTION-22802对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22802 |
-| R-169 | ACTION-22803对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22803 |
-| R-170 | ACTION-22901对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22901 |
-| R-171 | ACTION-22902对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22902 |
-| R-172 | ACTION-22903对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-22903 |
-| R-173 | ACTION-23001对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23001 |
-| R-174 | ACTION-23002对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23002 |
-| R-175 | ACTION-23003对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23003 |
-| R-176 | ACTION-23101对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23101 |
-| R-177 | ACTION-23201对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23201 |
-| R-178 | ACTION-23301对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23301 |
-| R-179 | ACTION-23401对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23401 |
-| R-180 | ACTION-23501对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23501 |
-| R-181 | ACTION-23601对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23601 |
-| R-182 | ACTION-23701对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23701 |
-| R-183 | ACTION-23801对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23801 |
-| R-184 | ACTION-23901对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-23901 |
-| R-185 | ACTION-24001对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24001 |
-| R-186 | ACTION-24002对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24002 |
-| R-187 | ACTION-24003对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24003 |
-| R-188 | ACTION-24004对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24004 |
-| R-189 | ACTION-24005对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24005 |
-| R-190 | ACTION-24006对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24006 |
-| R-191 | ACTION-24101对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24101 |
-| R-192 | ACTION-24201对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24201 |
-| R-193 | ACTION-24202对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24202 |
-| R-194 | ACTION-24203对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24203 |
-| R-195 | ACTION-24301对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24301 |
-| R-196 | ACTION-24302对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24302 |
-| R-197 | ACTION-24401对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24401 |
-| R-198 | ACTION-24402对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24402 |
-| R-199 | ACTION-24501对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24501 |
-| R-200 | ACTION-24502对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24502 |
-| R-201 | ACTION-24601对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24601 |
-| R-202 | ACTION-24602对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24602 |
-| R-203 | ACTION-24603对应冻结需求 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | ACTION-24603 |
-| R-204 | FUNC-101 关联已有账号与坐席 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-101 |
-| R-205 | FUNC-104 发起人工呼叫 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-104 |
-| R-206 | FUNC-106 保存处理结果 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-106 |
-| R-207 | FUNC-108 归集云呼叫统计 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-108 |
-| R-208 | FUNC-110 查看任务执行详情 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-110 |
-| R-209 | FUNC-111 暂停任务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-111 |
-| R-210 | FUNC-112 继续任务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-112 |
-| R-211 | FUNC-113 终止任务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-113 |
-| R-212 | FUNC-201 建立登录上下文 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-201 |
-| R-213 | FUNC-202 退出登录上下文 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-202 |
-| R-214 | FUNC-203 校验业务域访问权限 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-203 |
-| R-215 | FUNC-204 创建租户 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-204 |
-| R-216 | FUNC-205 修改租户授权 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-205 |
-| R-217 | FUNC-206 查询租户 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-206 |
-| R-218 | FUNC-207 创建账号并加入租户 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-207 |
-| R-219 | FUNC-208 复用账号加入租户 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-208 |
-| R-220 | FUNC-209 查询账号 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-209 |
-| R-221 | FUNC-210 单个开通坐席 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-210 |
-| R-222 | FUNC-211 导入已有坐席 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-211 |
-| R-223 | FUNC-213 重新同步失败项 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-213 |
-| R-224 | FUNC-214 停用坐席 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-214 |
-| R-225 | FUNC-215 恢复坐席 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-215 |
-| R-226 | FUNC-216 删除坐席关联 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-216 |
-| R-227 | FUNC-217 查询坐席 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-217 |
-| R-228 | FUNC-218 查询同步记录 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-218 |
-| R-229 | FUNC-219 创建服务技能配置 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-219 |
-| R-230 | FUNC-220 查询技能配置 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-220 |
-| R-231 | FUNC-221 添加技能组成员 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-221 |
-| R-232 | FUNC-222 修改坐席技能等级 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-222 |
-| R-233 | FUNC-223 移出技能组成员 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-223 |
-| R-234 | FUNC-224 查询坐席技能关系 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-224 |
-| R-235 | FUNC-229 登记已开通线路 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-229 |
-| R-236 | FUNC-230 查询线路 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-230 |
-| R-237 | FUNC-231 导入企业号码 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-231 |
-| R-238 | FUNC-232 加入供应商账号号码 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-232 |
-| R-239 | FUNC-233 查询号码 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-233 |
-| R-240 | FUNC-234 保存租户用号授权 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-234 |
-| R-241 | FUNC-235 查询租户用号授权 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-235 |
-| R-242 | FUNC-236 隔离号码业务使用 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-236 |
-| R-243 | FUNC-237 恢复号码业务使用 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-237 |
-| R-244 | FUNC-238 导入客户批次 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-238 |
-| R-245 | FUNC-239 查询客户批次 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-239 |
-| R-246 | FUNC-240 分配客户 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-240 |
-| R-247 | FUNC-241 改派客户 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-241 |
-| R-248 | FUNC-242 查询批次客户 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-242 |
-| R-249 | FUNC-243 查看客户联系记录 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-243 |
-| R-250 | FUNC-244 归集客户联系结果 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-244 |
-| R-251 | FUNC-245 创建预外呼任务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-245 |
-| R-252 | FUNC-246 创建IVR外呼任务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-246 |
-| R-253 | FUNC-247 保存任务草稿 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-247 |
-| R-254 | FUNC-248 查询外呼任务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-248 |
-| R-255 | FUNC-249 启动外呼任务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-249 |
-| R-256 | FUNC-250 删除未启动任务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-250 |
-| R-257 | FUNC-251 保存呼入服务规则 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-251 |
-| R-258 | FUNC-252 查询呼入服务规则 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-252 |
-| R-259 | FUNC-253 接待客户呼入 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-253 |
-| R-260 | FUNC-254 执行呼入兜底 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-254 |
-| R-261 | FUNC-255 查看供应商账号资源概览 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-255 |
-| R-262 | FUNC-256 查看租户任务概览 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-256 |
-| R-263 | FUNC-257 查看本人待联络与成效 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-257 |
-| R-264 | FUNC-258 开启本人电话服务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-258 |
-| R-265 | FUNC-259 关闭本人电话服务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-259 |
-| R-266 | FUNC-260 静音本人通话 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-260 |
-| R-267 | FUNC-261 取消本人通话静音 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-261 |
-| R-268 | FUNC-262 结束本人通话 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-262 |
-| R-269 | FUNC-263 归一通话结果 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-263 |
-| R-270 | FUNC-264 查询通话记录 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-264 |
-| R-271 | FUNC-265 查看通话详情 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-265 |
-| R-272 | FUNC-266 播放通话录音 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-266 |
-| R-273 | FUNC-270 查询通话数据异常 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-270 |
-| R-274 | FUNC-271 补查遗漏通话数据 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-271 |
-| R-275 | FUNC-272 查询云呼叫报表 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-272 |
-| R-276 | FUNC-273 导出云呼叫报表 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-273 |
-| R-277 | FUNC-274 查询操作审计 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-274 |
-| R-278 | FUNC-275 导出操作审计 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-275 |
-| R-279 | FUNC-276 查询手机号客户档案 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-276 |
-| R-280 | FUNC-277 查看手机号档案详情 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-277 |
-| R-281 | FUNC-278 开通智能外呼套餐 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-278 |
-| R-282 | FUNC-279 调整智能外呼服务时长 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-279 |
-| R-283 | FUNC-280 调整智能外呼可用分钟 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-280 |
-| R-284 | FUNC-281 查询充值调账记录 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-281 |
-| R-285 | FUNC-282 下载通话录音 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | FUNC-282 |
-| R-286 | PAGE-101 坐席维护与账号关联 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-101 |
-| R-287 | PAGE-102 运营工作台 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-102 |
-| R-288 | PAGE-103 通话记录列表 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-103 |
-| R-289 | PAGE-104 通话详情 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-104 |
-| R-290 | PAGE-201 登录与租户/业务域选择 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-201 |
-| R-291 | PAGE-202 账号管理 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-202 |
-| R-292 | PAGE-203 租户管理 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-203 |
-| R-293 | PAGE-204 技能组成员与等级 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-204 |
-| R-294 | PAGE-205 配置记录 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-205 |
-| R-295 | PAGE-206 技能组管理 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-206 |
-| R-296 | PAGE-207 关联系统展示 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-207 |
-| R-297 | PAGE-209 导入与分配 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-209 |
-| R-298 | PAGE-210 导入客户弹窗 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-210 |
-| R-299 | PAGE-211 批次客户与分配弹窗 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-211 |
-| R-300 | PAGE-213 预外呼任务列表 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-213 |
-| R-301 | PAGE-214 IVR外呼任务列表 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-214 |
-| R-302 | PAGE-215 创建预外呼/IVR任务向导 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-215 |
-| R-303 | PAGE-216 任务详情与执行控制 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-216 |
-| R-304 | PAGE-217 呼入服务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-217 |
-| R-305 | PAGE-218 呼入规则配置 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-218 |
-| R-306 | PAGE-220 线路管理 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-220 |
-| R-307 | PAGE-221 号码管理 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-221 |
-| R-308 | PAGE-222 号码详情·使用范围 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-222 |
-| R-309 | PAGE-223 通话数据异常 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-223 |
-| R-310 | PAGE-224 操作审计 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-224 |
-| R-311 | PAGE-225 通话总览 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-225 |
-| R-312 | PAGE-226 外呼任务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-226 |
-| R-313 | PAGE-227 呼入服务 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-227 |
-| R-314 | PAGE-228 坐席成效 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-228 |
-| R-315 | PAGE-229 服务技能 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-229 |
-| R-316 | PAGE-230 AI外呼列表 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-230 |
-| R-317 | PAGE-231 AI外呼拦截 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-231 |
-| R-318 | PAGE-232 AI通道管理 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-232 |
-| R-319 | PAGE-233 AI业务场景 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-233 |
-| R-320 | PAGE-234 AI标签管理 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-234 |
-| R-321 | PAGE-235 AI通话记录 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-235 |
-| R-322 | PAGE-236 AI线索记录 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-236 |
-| R-323 | PAGE-237 AI通话统计 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-237 |
-| R-324 | PAGE-238 AI计费统计 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-238 |
-| R-325 | PAGE-239 AI线索统计 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-239 |
-| R-326 | PAGE-240 人工呼叫弹窗 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-240 |
-| R-327 | PAGE-241 AI任务详情及原有弹窗 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-241 |
-| R-328 | PAGE-242 坐席工作台 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-242 |
-| R-329 | PAGE-243 客户档案 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-243 |
-| R-330 | PAGE-244 客户档案详情 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-244 |
-| R-331 | PAGE-245 关联坐席弹窗 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-245 |
-| R-332 | PAGE-246 客户跟进 | 复用页面并依新接口状态处理 | function-review.md 双向源码审阅；browser-evidence.json 路由/核心路径 | passed | 本地演示；缺失能力不模拟成功 | PAGE-246 |
+| Requirement ID | Requirement | Acceptance Criteria | Verification | Status | Decision / Reason | Source IDs | Step IDs |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| R-001 | 当前唯一HTTP入口/业务与阅读导航 | 正：入口/四必选tab/当前frame/返回上下文可用；异常：无权直达拒绝，普通reload不旧图或循环 | 3宽prototype-verifier浏览器DOM/console/404、源码SHA | Pass | LOCAL基础设施，待本轮实测，不用旧pass | LOCAL | step-01 |
+| R-002 | 独立发布官方业务流程/场景图集 | 正：2FLOW/5SC当前676源meta和SVG逐字节；异常：缺图/漂移/改几何不得完成 | 官方publish后SHA/SVG对账，浏览器目录/fit/zoom/fullscreen/下载 | Pass | 必选阅读，非说明标注；图不替代业务执行 | SC-001, SC-002, SC-003, SC-004, SC-005 | step-02 |
+| R-003 | 独立发布原生时序及关联阅读 | 正：8nativeSEQ/meta/源SVG一致，DCC/平台/供应商与身份分离；异常：不恢复008/旧scope/生产保证 | 8SEQ属性/SHA/SVG对账，浏览器时序/关联导航工具 | Pass | 独立于业务图，关联取冻结systems不新业务 | SEQ-001, SEQ-002, SEQ-003, SEQ-004, SEQ-005, SEQ-006, SEQ-007, SEQ-009, SC-001, SC-002, SC-003, SC-004, SC-005 | step-03 |
+| R-004 | 不同手机号形成独立批次，各批次带对应线索编码；R可选，提供则保留来源追踪，缺R不失败。 | 正：两手机号独立record/batch并带leadCode，提供R则追踪；异常／否定：缺R仍有效，不生成默认R或按R排序 | prototype-verifier：import-model:mixed_rows, records-browser:manualValidRows；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-001, FUNC-004, PAGE-002, ACTION-004, ACTION-005 | step-05 |
+| R-005 | 关联线路侧风控的每次话单/SIP及结果；接口任务回传DCC，由DCC决定是否再次导入。供应商导航可能自动降级，不承诺绝对换主叫，不叠加平台重导。 | 正：精确call/SIP线路结果逐次交付DCC；异常／否定：未知待核，无平台换主叫/计时器，重复不增呼叫 | prototype-verifier：result-model:S07-01/02/03/09/11/14, result-browser:short/nonshort/no-added-imports, boundary-source:platform-has-no-DCC-budget-or-scheduler；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-002, FUNC-010, PAGE-002, ACTION-010 | step-07 |
+| R-006 | 可信且准确关联的预测呼叫失败事件回传原因，无话单失败不等待客户状态推送/话单；精确事件编号与原因映射待核。 | 正：稳定无话单失败准确关联后立即记录回传；异常／否定：无callID不造话单，关联不明待核、未核原因不编码 | prototype-verifier：result-model:S07-04/05/06/07, result-browser:no-CDR-and-empty-query；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-003, FUNC-012, PAGE-002, ACTION-012 | step-07 |
+| R-007 | 平台识别自定义秒挂并回传DCC，不由平台启动30分钟自动重导；手工任务仅平台查看。 | 正：可信秒挂识别后接口交付、手工查看；异常／否定：不启动30分钟平台重导；未满足可信条件不标秒挂 | prototype-verifier：result-model:S07-01/02/03/09/11/14, result-browser:short/nonshort/no-added-imports, boundary-source:platform-has-no-DCC-budget-or-scheduler；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-004, FUNC-011, PAGE-002, ACTION-011 | step-07 |
+| R-008 | 接口与手工导入的R渠道为可选来源元数据，无需字典维护，不做字典允许范围校验；未传R不导致该条失败，传入则保留追踪；priority独立。保留旧记录R值，不新增默认R枚举；通用输入安全/长度校验仍需技术定义。 | 正：R缺省有效，已给来源追踪且旧R保持；异常／否定：无字典/默认枚举/范围拒绝，priority不从R推导 | prototype-verifier：import-model:mixed_rows, records-browser:manualValidRows；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-005, FUNC-004, PAGE-002, ACTION-004, ACTION-005 | step-05 |
+| R-009 | 每次有效新业务导入新增独立本地recordId和单手机号batchId，不覆盖旧记录；保留手机号、线索编码及已提供可选R。DCC接口每个有效新行归固定phone同组并保存主子root；相同requestId和归一后完整有效内容技术重试复用原逐行结果，不新增记录或批次、不重交。 | 正：新业务有效行新record/batch/root，旧行保持；异常／否定：同request同归一内容原映射，编号/供应商尝试不增 | prototype-verifier：main-child-model:checks, payload-model:cases, batch-browser:main-child-samples；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-006, FUNC-004, PAGE-002, ACTION-004, ACTION-005 | step-05 |
+| R-010 | 一次DCC传入多客户，某条上述记录校验失败时仅拒绝该条，其余有效记录继续导入并按手机号拆批，不因该条失败整请求业务回滚。 | 正：多行两有效一无效仅拒无效，两有效独立保存提交；异常／否定：某行缺字段不回滚其他行，逐行反馈 | prototype-verifier：import-model:mixed_rows, records-browser:manualValidRows；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-007, FUNC-004, PAGE-002, ACTION-004, ACTION-005 | step-05 |
+| R-011 | 运营人员在云呼叫中心下载导入失败记录；未下载记录不设固定到期、持续保留；仅成功下载后删除本次成功导出的失败明细和对应导出文件，不影响成功导入客户；下载失败或中断保留。 异步失败按本次导出快照清理；后到新失败保留，已导出重复不再生成，必要去重/关联/交付状态不随明细删除。 | 正：可信成功只清固定失败快照成员版本/文件；异常／否定：点击不清；失败中断/后到新失败保留，旧重复不再生 | prototype-verifier：failure-model:S06-01..15+extras, failure-browser:snapshot/download/shards/repair, payload-model:cleanup-preserves-mapping；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-008, FUNC-006, PAGE-002, ACTION-007 | step-06 |
+| R-012 | DCC接口每条业务导入priority必填，未传仅该条失败，不补默认值，其他有效记录继续；本次有效priority独立于R，平台按本次DCC传入值保存、排序并提交供应商，不强制继承之前批次priority。 | 正：本次priority保存/排序/透传，旧批不同值不继承；异常／否定：缺priority仅该行拒绝、不补默认，R可空 | prototype-verifier：import-model:mixed_rows, records-browser:manualValidRows；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-009, FUNC-004, PAGE-002, ACTION-004, ACTION-005 | step-05 |
+| R-013 | DCC接口同tenant/原supplierTaskId/leadCode固定phone的真实再次业务导入用新请求级requestId；有效新行创建新记录/单手机号batchId并归同组。isNewBatch=true另开独立主(root=batch)，false/未传有主则新子挂最近已保存同组主，无主自动首主；不要求DCC提供上一批次，不仅因同组历史相同而拒绝。同ID同归一后完整内容技术重传返原逐行映射，不新建重交。 | 正：新ID同固定phone组true新主/false新子/无主首主；异常／否定：原请求重传原编号/root，不因同组历史或缺上批拒绝 | prototype-verifier：main-child-model:checks, payload-model:cases, batch-browser:main-child-samples；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-010, FUNC-004, PAGE-002, ACTION-004, ACTION-005 | step-05 |
+| R-014 | 有效客户完成校验、本地新增独立记录及新批次后，自动提交供应商接口，无需运营手动提交。 | 正：有效本地记录拆批完成后自动供应商尝试；异常／否定：无手工提交门槛，无效未存行不交，未知不重交 | prototype-verifier：import-model:mixed_rows, records-browser:manualValidRows；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-011, FUNC-005, PAGE-002, ACTION-004, ACTION-005, ACTION-006 | step-05 |
+| R-015 | DCC推送携带供应商任务ID taskId；自动提交供应商时直接使用，不做本地任务ID映射，不采用统一预设任务。 | 正：原供应商taskId直接提交且可追溯归属；异常／否定：不改统一预设/本地taskId，越界拒绝 | prototype-verifier：import-model:mixed_rows, records-browser:manualValidRows；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-012, FUNC-004, FUNC-005, PAGE-002, ACTION-004, ACTION-005, ACTION-006 | step-05 |
+| R-016 | 本地校验保存成功但供应商明确拒绝接收时，纳入导入失败记录，供运营下载并展示供应商返回失败原因。 同步及53异步明确导入失败均适用，未知不误判；导入失败与呼叫失败分开。 | 正：供应商明确拒绝的原原因进入导入失败可导出；异常／否定：未知不当失败；导入失败不计call、不混呼叫失败 | prototype-verifier：failure-model:S06-01..15+extras, failure-browser:snapshot/download/shards/repair, payload-model:cleanup-preserves-mapping；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-013, FUNC-005, FUNC-006, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-007 | step-05, step-06 |
+| R-017 | 本地保存线索、本次实际priority和每次接收/新记录批次创建时间；DCC接口保存tenant/原supplierTaskId/leadCode固定phone组、requestId+行定位、recordId/batchId/rootBatchId及精确供应商/通话映射。DCC用本次输入priority，手工沿提交前统一/逐条最终值；原始导入时间仅审计，不用于平台衰减或决定本次priority。 | 正：本次priority、审计时间和request/行/record/batch/root映射落账；异常／否定：跨日/新主不改旧值/root，手工无DCC输入 | prototype-verifier：main-child-model:checks, payload-model:cases, batch-browser:main-child-samples；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-014, FUNC-004, FUNC-005, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-014 | step-05, step-08 |
+| R-018 | 平台取消每日定时查询当天/历史待跟进号码状态及自然日priority衰减，不因未拨、已拨未接通、跨日或原导入日期计算并改写存量priority；仅服务衰减的状态查询一并退出。既有每次事件/话单/无话单失败的记录与按任务来源回传或查看继续保留。 | 正：跨日/未拨/未接通priority保持，事件话单失败仍可查交付；异常／否定：无每日查询/衰减/API005活动调用，不造替代人工查状态 | prototype-verifier：main-child-model:retired-daily-query-no-write, result-model:unchangedImports；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-015, FUNC-004, FUNC-005, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-014 | step-05, step-08 |
+| R-019 | DCC删除仅指定原任务具体供应商批次的号码，明确成功后本地记录、必要幂等结果、固定phone组/主子root及精确供应商/通话映射保留并标记该实际批次已删。不按leadCode/主批/分组整体删除，不作用同组其他主子或其他任务同号批次。 | 正：精确task/batch/fileId/phone成功只标该供应商对象已删；异常／否定：同组/同号其他任务不变，本地request/root精确映射留存 | prototype-verifier：deletion-model:exact-main-child/scope/result/replay, records-browser:preciseDeletionDoesNotSpread, payload-model:delete-preserves-root；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-016, FUNC-009, PAGE-002, ACTION-009 | step-09 |
+| R-020 | 超管在系统设置应用接入中分别进行应用列表、详情、新增、修改和删除；应用凭据加tenantId换指定授权租户token，校验应用有权访问该租户并允许一租户多应用。业务接口按租户身份识别，任务归租户不绑定应用，来源应用仅审计追踪；日常页简化为密钥用于token，身份交换技术演示不占日常页面。原型仅合成，生产凭证/token契约待核。 | 正：五应用操作可发起，有效应用+授权tenant后台获合成身份；异常／否定：未授权tenant拒绝，身份不授管理权，无日常技术交换UI | prototype-verifier：application-browser:crud/roles, application-model:management-guards, operator-browser:ordinary-business-without-management；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-017, FUNC-001, FUNC-002, FUNC-019, FUNC-020, PAGE-003, PAGE-004, PAGE-005, ACTION-017, ACTION-018, ACTION-019, ACTION-021, ACTION-022, ACTION-023, ACTION-001 | step-04 |
+| R-021 | 平台每次回传接口任务的风控失败原因、秒挂识别、话单状态、SIP状态及finishRetryFlag；后台配置固定DCC接收地址，无前台配置或任务应用绑定。 | 正：每次风控/秒挂/话单/SIP/finish按固定后台端交付；异常／否定：无前台URL/任务绑应用，未知保持、禁真实回调 | prototype-verifier：result-model:S07-04/08/10/13/14, result-browser:per-call/SIP/no-CDR/repair, payload-model:precise-DCC-association；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-018, FUNC-010, PAGE-002, ACTION-010 | step-07 |
+| R-022 | DCC决定是否及何时再次业务导入，新业务用新requestId、可多行，各行本次priority与可选Boolean isNewBatch，未传归一false。平台先鉴权/归一后完整请求幂等，仅新ID逐行按tenant/原supplierTaskId/leadCode固定phone归组；true新独立主root=batch，false/缺省有主新子root=最近已保存同组主，无主自动首主。有效新行始终新record/batch，逐行回执requestId+行定位/组归属/batch/root，无需DCC previous、不虚构parent。本次priority以DCC输入、不旧继承，原时间审计；DCC汇总真实呼叫计数，平台不建额度。 | 正：DCC新ID取本次priority，按flag新record/batch/root；异常／否定：旧请求幂等先原映射，无继承/日期策略/平台次数额度 | prototype-verifier：main-child-model:checks, payload-model:cases, batch-browser:main-child-samples；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-019, FUNC-004, FUNC-005, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-014 | step-05, step-08, step-09 |
+| R-023 | 禁呼未解禁、限呼未到期及无可用中继失败回传真实原因，由DCC判断恢复条件与重导，不绕过限制、不在平台设置自动恢复或重导预算。 | 正：禁呼/限呼/无中继可信失败原原因交付DCC；异常／否定：不绕限制，不平台恢复/解除/预算，未知不补猜 | prototype-verifier：result-model:S07-04/05/06/07, result-browser:no-CDR-and-empty-query；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-020, FUNC-012, PAGE-002, ACTION-012 | step-07 |
+| R-024 | 秒挂须客户真实接通、客户主动挂断、客户实际接通有效时长0～2秒含真实0及2；null、未接通、异常不纳入，不以坐席桥接时长替代；字段单位及映射交开发供应商核实。 | 正：真接通+客户挂断+可信客户时长0及2都秒挂；异常／否定：未接通/null/异常/坐席时长不纳，真实映射待核 | prototype-verifier：result-model:S07-01/02/03/09/11/14, result-browser:short/nonshort/no-added-imports, boundary-source:platform-has-no-DCC-budget-or-scheduler；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-021, FUNC-011, PAGE-002, ACTION-011 | step-07 |
+| R-025 | 秒挂是否/何时重导及次数由DCC决策，原30分钟业务上下文不形成平台计时器；不再发放独立额外4次。 | 正：每次秒挂结果交付DCC；异常／否定：无30分钟平台计时器或额外4次额度，不生成新导入 | prototype-verifier：result-model:S07-01/02/03/09/11/14, result-browser:short/nonshort/no-added-imports, boundary-source:platform-has-no-DCC-budget-or-scheduler；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-022, FUNC-011, PAGE-002, ACTION-011 | step-07 |
+| R-026 | 接口任务每次结果携tenant/原supplierTaskId/leadCode/phone、requestId+行定位、该实际记录batchId/rootBatchId和真实callID或稳定事件；供应商未给平台业务字段时由已保存vendorfileId/实际批次/原始号码精确映射回查，不新增供应商协议承诺。leadCode仅组归属，不可单键匹配结果，也不按最近同号/最近主/结果时间替换实际call批次。手工仍沿既有记录/独立批次/号码/通话事件仅平台查看，不新增DCCflag/request/主子协议。 | 正：实际batch/fileId/号码/call事件回查原request/行/root；异常／否定：lead或最新主不替定位，手工无DCC协议/交付 | prototype-verifier：result-model:S07-04/08/10/13/14, result-browser:per-call/SIP/no-CDR/repair, payload-model:precise-DCC-association；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-023, FUNC-011, PAGE-002, ACTION-011 | step-07 |
+| R-027 | 平台无秒挂待执行重导；定向删除保留本地及必要关联记录，明确成功仅标记对应供应商批次已删除，不影响其他任务或同号其他批次，不创建每日衰减或重导计划。 | 正：秒挂相关精确批删除成功保留本地关联；异常／否定：无平台计划/日衰减，同号其他任务不受影响 | prototype-verifier：deletion-model:exact-main-child/scope/result/replay, records-browser:preciseDeletionDoesNotSpread, payload-model:delete-preserves-root；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-024, FUNC-009, FUNC-011, PAGE-002, ACTION-009, ACTION-011 | step-07, step-09 |
+| R-028 | 指定供应商记录明确删除成功后本地保留并回传删除状态；平台无待执行重导计划或每日priority衰减，供应商执行中/并发删除由开发核实，不作用其他同号记录。 | 正：精确对象可信成功删除状态交付、本地保留；异常／否定：拒绝/未知不标已删，不承诺在途取消/并发，无平台日策略 | prototype-verifier：deletion-model:exact-main-child/scope/result/replay, records-browser:preciseDeletionDoesNotSpread, payload-model:delete-preserves-root；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-025, FUNC-009, PAGE-002, ACTION-009 | step-09 |
+| R-029 | 三天五呼及重导次数由DCC管理，单任务范围，初呼及秒挂同计5次目标，首次导入当日第1天；普通双方接通停止但秒挂例外。平台不重复调度计数。 | 正：去重实际call供DCC逐次判断，三天五呼只外部背景；异常／否定：无平台计预算/调度，普通接通/秒挂分开不制造次数 | prototype-verifier：result-model:S07-01/02/03/09/11/14, result-browser:short/nonshort/no-added-imports, boundary-source:platform-has-no-DCC-budget-or-scheduler；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-026, FUNC-010, PAGE-002, ACTION-010 | step-07, step-08 |
+| R-030 | 初呼与秒挂共用单任务5次目标，由DCC按真实尝试汇总；重新导入请求或重复通知不直接计实际呼叫，平台不新增业务额度。 | 正：重导request和重复事件不直接增实际call数；异常／否定：无额外4次/平台5次额度，DCC汇总真实尝试 | prototype-verifier：result-model:S07-01/02/03/09/11/14, result-browser:short/nonshort/no-added-imports, boundary-source:platform-has-no-DCC-budget-or-scheduler；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-027, FUNC-010, PAGE-002, ACTION-010 | step-07, step-08 |
+| R-031 | 系统设置新增应用接入管理菜单，承载列表、新增、详情、修改、删除各独立操作；预外呼导入/重呼记录仍为任务级独立记录页，不建独立顶级运营入口，预外呼保留常驻导入客户入口。 | 正：系统设置应用五操作和任务级记录可达；异常／否定：无独立顶级运营中心，常驻导入锁来源，不新增页 | prototype-verifier：records-browser:permanent-entry/locked-source/legacy-disabled, markers-browser:PAGE-002, operator-browser:ordinary-business-without-management；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-028, FUNC-001, FUNC-015, FUNC-018, PAGE-001, PAGE-002, PAGE-005, ACTION-016, ACTION-019, ACTION-014, ACTION-023, ACTION-001 | step-01, step-04, step-08 |
+| R-032 | 预外呼“导入客户”入口常驻，按任务已锁DCC接口或手工来源进入对应入口；接口任务不能手工混入，手工任务按既有导入并仅平台查看结果。权限/状态不可导入时保留禁用入口和原因，后端同时校验来源、租户任务归属；不通过按钮改变既有历史任务可补导状态规则。 | 正：接口/手工任务按锁来源开对应入口，一直可见；异常／否定：无权/状态不允许禁用有因，接口不能混手工且模型拒绝 | prototype-verifier：records-browser:permanent-entry/locked-source/legacy-disabled, markers-browser:PAGE-002, operator-browser:ordinary-business-without-management；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-029, FUNC-004, FUNC-006, FUNC-015, FUNC-016, PAGE-002, ACTION-004, ACTION-005, ACTION-007, ACTION-014, ACTION-015 | step-05, step-08 |
+| R-033 | 手工priority统一/逐条填写，仅提交前可改，最终值保存后单手机号独立拆批自动提交；提交后无人工改priority或日龄自动降级。手工不新增DCC requestId/isNewBatch/归组主子接口要求，接口来源任务仍拒绝手工混入。 | 正：当前手工预览统一/逐行priority最终值自动单号拆批；异常／否定：提交后无改值/衰减，无DCC输入，接口拒混入 | prototype-verifier：import-model:manual_priority, records-browser:manualValidRows, manual-race-browser:preview-current-priority；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-030, FUNC-004, PAGE-002, ACTION-004, ACTION-005 | step-05 |
+| R-034 | 手工线索导入必需线索编码，R可选且无需字典维护/范围校验；一手机号一批次，缺R不失败；失败沿用成功下载后本次明细/文件删除规则。 | 正：手工leadCode必填、R可空、一号一批、失败快照可下；异常／否定：缺leadCode仅行失败，缺R不失败，下载失败不清关联 | prototype-verifier：import-model:manual_priority, records-browser:manualValidRows, manual-race-browser:preview-current-priority；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-031, FUNC-004, FUNC-006, PAGE-002, ACTION-004, ACTION-005, ACTION-007 | step-05, step-06 |
+| R-035 | 本次已保存/提交的priority不因北京时间换日、原导入时间、之前批次priority或工作时间自动变化；平台不执行每日状态查询、自然日衰减或存量priority写回，也不保留线路/秒挂30分钟重导调度。 | 正：跨北京时间日与工作时段已存/已交priority保持；异常／否定：无每日状态写回/30分钟调度，新请求只取新值 | prototype-verifier：main-child-model:retired-daily-query-no-write, result-model:unchangedImports；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-032, FUNC-004, FUNC-005, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-014 | step-05, step-08 |
+| R-036 | 无话单失败独立回传，允许无通话ID，以稳定事件关联本地导入记录；未知/未返回不伪造话单或默认最后一通标识。 | 正：无callID稳定无话单事件准确关联交付；异常／否定：未知不造话单/默认最后一通或实际call | prototype-verifier：result-model:S07-04/05/06/07, result-browser:no-CDR-and-empty-query；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-033, FUNC-012, PAGE-002, ACTION-012 | step-07 |
+| R-037 | 能确认已接听、客户挂断且真实接听时长0秒，纳入秒挂；未接通、缺失或异常时长不纳入。 | 正：真接通客户挂断可信0秒为秒挂；异常／否定：未接通0/null/异常不纳，不用坐席时长推断 | prototype-verifier：result-model:S07-01/02/03/09/11/14, result-browser:short/nonshort/no-added-imports, boundary-source:platform-has-no-DCC-budget-or-scheduler；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-034, FUNC-011, PAGE-002, ACTION-011 | step-07 |
+| R-038 | 关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。 | 正：未知/超时/冲突待核可见，晚更新重复不新call，补送可观察；异常／否定：不造成功/失败/终态，补送不再导入 | prototype-verifier：import-model:sync_exact/sync_aggregate/sync_conflict/same_task_fifo/submitted_unknown_guard, result-model:S07-12, failure-model:conflict-and-repair；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-035, FUNC-005, FUNC-013, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-010, ACTION-011 | step-05, step-06, step-07 |
+| R-039 | 创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。 | 正：创建前选来源、提交后只读并校验tenant/原task；异常／否定：直接模型切来源/混入拒绝，任务归租户不绑应用 | prototype-verifier：import-model:source_tenant_guards/old_attachment_guards/copy_edit, failure-browser:actual-api-manual-wizard, records-browser:locked-source；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-036, FUNC-004, FUNC-016, PAGE-002, ACTION-004, ACTION-005, ACTION-015 | step-05 |
+| R-040 | 接口任务每次结果向后台配置文件固定地址回传DCC；手工任务不回传仅平台查看，不新增前台或租户接收端设置，不设置实际URL或发送真实回调。 | 正：接口每次结果固定后台端、手工平台投影；异常／否定：无前台/租户URL、真实请求或手工DCC交付 | prototype-verifier：result-model:S07-04/08/10/13/14, result-browser:per-call/SIP/no-CDR/repair, payload-model:precise-DCC-association；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-037, FUNC-010, FUNC-015, PAGE-002, ACTION-010, ACTION-014 | step-07, step-08 |
+| R-041 | finishRetryFlag Integer1最后一条/0否，未知或未返回独立表示；与SIP异步更新分开，不能据其宣布整个任务或DCC计划完成；每次结果回传，不只最终一次。 | 正：finish1/0/未知分开，SIP更新同一call；异常／否定：1不宣布任务完成，未返不默认1，仍逐次交付 | prototype-verifier：result-model:S07-04/08/10/13/14, result-browser:per-call/SIP/no-CDR/repair, payload-model:precise-DCC-association；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-038, FUNC-010, FUNC-015, PAGE-002, ACTION-010, ACTION-014 | step-07, step-08 |
+| R-042 | 同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。 | 正：三阶段/原始数量来源明确、准确成功正常记录；异常／否定：result0不推全成功，汇总不盲选行、矛盾待核 | prototype-verifier：import-model:sync_exact/sync_aggregate/sync_conflict/same_task_fifo/submitted_unknown_guard, result-model:S07-12, failure-model:conflict-and-repair；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-039, FUNC-005, FUNC-006, FUNC-010, FUNC-013, FUNC-015, FUNC-017, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-007, ACTION-010, ACTION-011, ACTION-014 | step-05, step-06, step-08 |
+| R-043 | 接收53失败结果分片，按enterpriseId经核实租户映射、taskId、fileId及原始号码数据回查本次本地批次和leadCode；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅为失败推送分片，不是业务批次；重复不新增、乱序迟到不丢。收齐已声明分片只证明该失败推送组收齐，不证明全导入终态；未收到不推定零失败。 | 正：53精确enterprise映租户/task/fileId/原始号码，乱序迟到不丢重复不增；异常／否定：多候选/声明冲突待核，分片非batch，收齐非全终态/未收非0失败 | prototype-verifier：failure-model:S06-01..15+extras, failure-browser:snapshot/download/shards/repair, payload-model:cleanup-preserves-mapping；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-040, FUNC-005, FUNC-006, FUNC-010, FUNC-013, FUNC-015, FUNC-017, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-007, ACTION-010, ACTION-011, ACTION-014 | step-06, step-08 |
+| R-044 | 接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。 | 正：接口导入失败原原因及精确关联交付，手工查看；异常／否定：导入失败不计call/重导，補送不再次供应商提交 | prototype-verifier：failure-model:S06-01..15+extras, failure-browser:snapshot/download/shards/repair, payload-model:cleanup-preserves-mapping；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-041, FUNC-005, FUNC-006, FUNC-010, FUNC-013, FUNC-015, FUNC-017, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-007, ACTION-010, ACTION-011, ACTION-014 | step-06, step-07 |
+| R-045 | 在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。 | 正：快照成员/完整性明确，可信成功清仅对应版本文件；异常／否定：不完整未知提示，失败中断/后到失败/去重交付保留 | prototype-verifier：failure-model:S06-01..15+extras, failure-browser:snapshot/download/shards/repair, payload-model:cleanup-preserves-mapping；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-042, FUNC-005, FUNC-006, FUNC-010, FUNC-013, FUNC-015, FUNC-017, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-007, ACTION-010, ACTION-011, ACTION-014 | step-06, step-08 |
+| R-046 | 使用显式合成数据验收：同步部分成功并关联异步失败；失败分片乱序、重复及迟到；下载成功后新失败可再次导出、旧重复不再生；DCC回传失败可补送且不新增导入/实际呼叫。映射冲突、分片声明冲突或结果矛盾保持待核；无零失败推送及终态协议不伪造完成。 | 正：新合成运行覆盖部分证据/53乱序重复迟到/下载后新失败/补送；异常／否定：映射数量分片结果冲突待核，旧重复不再生、无终态不伪造完成 | prototype-verifier：failure-model:S06-01..15+extras, failure-browser:snapshot/download/shards/repair, payload-model:cleanup-preserves-mapping；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-043, FUNC-005, FUNC-006, FUNC-010, FUNC-013, FUNC-015, FUNC-017, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-007, ACTION-010, ACTION-011, ACTION-014 | step-06, step-07 |
+| R-047 | 本期应用列表/查看/新增/修改/删除均仅超管可访问执行，非超管含租户管理员和普通运营不能通过菜单、直接页面或管理调用越权，拒绝不改配置。应用身份发放的租户业务权不能代替管理权限；不自动新增启停、重置、收费或管理权限授予操作。 | 正：超管五操作，每次校验当前身份/对象；异常／否定：租户管理员/运营菜单直达调用拒绝且不变，业务身份不授管理 | prototype-verifier：application-browser:crud/roles, application-model:management-guards, operator-browser:ordinary-business-without-management；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-044, FUNC-001, FUNC-018, FUNC-019, FUNC-020, FUNC-021, PAGE-001, PAGE-003, PAGE-004, PAGE-005, ACTION-016, ACTION-017, ACTION-018, ACTION-019, ACTION-020, ACTION-021, ACTION-022, ACTION-023, ACTION-024, ACTION-001 | step-04 |
+| R-048 | 应用凭证加tenantId换租户token的业务鉴权不授予应用管理权，任务仍归租户不绑定应用；普通运营既有导入/失败下载不因超管CRUD限制移除。原型创建/查看仅不可用合成密钥与身份，不创建/重置真实凭证、不改真实账号权限；真实生成/存储/token时效和删除撤权后的失效能力待技术核实。 | 正：指定授权tenant合成身份有效，运营原导入下载仍可用；异常／否定：无管理下放/真实凭据，未授权/删凭据拒绝，生产机制待核 | prototype-verifier：application-browser:roles/syntheticIdentity, application-model:business-identity-no-management, operator-browser:ordinary-business-import-download；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-045, FUNC-001, FUNC-002, FUNC-018, FUNC-019, FUNC-020, FUNC-021, PAGE-001, PAGE-003, PAGE-004, PAGE-005, ACTION-016, ACTION-017, ACTION-018, ACTION-019, ACTION-020, ACTION-021, ACTION-022, ACTION-023, ACTION-024, ACTION-001 | step-04, step-05, step-06 |
+| R-049 | 同一任务的待提交号码按优先级高先提交，同优先级按本地导入时间FIFO；不同任务独立。已提交不撤回重排，提交结果未知不为重排重复提交；一手机号一批次及priority透传保持，不承诺实际拨打顺序。 | 正：同任务待提交高priority先、同级本地FIFO/原值透传；异常／否定：跨任务独立，已交不重排、未知不重交，不保证拨号次序 | prototype-verifier：import-model:sync_exact/sync_aggregate/sync_conflict/same_task_fifo/submitted_unknown_guard, result-model:S07-12, failure-model:conflict-and-repair；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-046, FUNC-005, PAGE-002, ACTION-004, ACTION-005, ACTION-006 | step-05 |
+| R-050 | DCC每次业务请求携请求级requestId，可多行/不同线索组；每行明确行定位、leadCode、phone、本次priority和可选Boolean isNewBatch，missing=false。新业务用新ID，所有有效新行均新recordId和独立单手机号batchId并保存rootBatchId；逐行回执同requestId及行定位，主子都不覆盖旧记录。false/缺省复用的是主批关联，不重用旧record/batch编号。 | 正：多行回执同request+行定位，每新有效行新record/batch/root；异常／否定：false复用主关系不是编号；missing=false，非法类型逐行失败 | prototype-verifier：main-child-model:checks, payload-model:cases, batch-browser:main-child-samples；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-047, FUNC-004, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-014 | step-05 |
+| R-051 | 仅DCC新业务有效行进行主子分配：同tenant/原supplierTaskId/leadCode组首次固定phone；true允许同组另开独立主(rootBatchId=batchId)。false/缺省有已保存同组主时新子root=最近主batch，无主自动首主root=batch。最近主按本地主批创建顺序/稳定顺序确定，不按最近同号/结果时间/priority/子批，子不挂上一子。DCC previousBatchId和parentBatchId不为本方必需请求/响应，也不暗中虚构parent。 | 正：true可多主，false有主新子直接最近保存主，缺省无主首主；异常／否定：不选同号/子/结果时间/priority，不传或虚构parent链 | prototype-verifier：main-child-model:checks, payload-model:cases, batch-browser:main-child-samples；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-048, FUNC-004, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-014 | step-05 |
+| R-052 | DCC新请求逐行校验tenant/原supplierTaskId/leadCode组归属及固定phone；同组改号、归属冲突、历史组/主关系不明或冲突，明确拒绝或待核不提交，不改旧记录/盲配，其他有效行继续。跨tenant/原任务不混组，相同leadCode在不同合法作用域隔离处理。同号多lead未决关系不自动放开，isNewBatch=true不绕过，也不改DCC计次；isNewBatch提供时必须Boolean、缺省false与显式false有效内容相同，不因缺上一批次字段拒绝。 | 正：固定phone合法行继续，跨tenant/原task合法组隔离；异常／否定：改号/归属/历史冲突/同号多lead未决/非法Boolean不交，true不绕过 | prototype-verifier：main-child-model:checks, payload-model:cases, batch-browser:main-child-samples；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-049, FUNC-004, FUNC-005, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-014 | step-05 |
+| R-053 | DCC鉴权及租户/原任务归属后，先将各行missing isNewBatch归一false并按requestId核对完整有效内容。同ID同归一后完整请求技术重传返原逐行接收结果、requestId+行定位+recordId/batchId/rootBatchId（含原失败/待核行），不重拆/新增/重交/新增实际呼叫。仅新ID才归组与主子分配；首导自动主或后来新主出现，旧请求重传仍原root，不重新选最近主。供应商证据独立保留，未知提交不因重传重交。 | 正：auth归属后归一完整request，同内容原逐行含失败待核映射；异常／否定：后来新主/历史不改旧root，不增记录批提交call，未知不重交 | prototype-verifier：main-child-model:checks, payload-model:cases, batch-browser:main-child-samples；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-050, FUNC-004, FUNC-005, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-014 | step-05 |
+| R-054 | 已保存requestId的DCC重复请求，missing isNewBatch=false归一后完整有效内容不同（行数/行定位、tenant/原任务及各行leadCode/phone/priority/归一flag/已给R等业务字段），明确内容冲突并拒整个重复请求，不覆盖原逐行结果、不为任何行新增批次或提交。修改号码/priority/flag不能冒充技术重试；未传与显式false归一相同，true与false不同。 | 正：missing和false其余内容相同返原结果；异常／否定：sameID变行数/定位/归属/phone/priority/flag/R拒整重复、不覆盖新增 | prototype-verifier：main-child-model:checks, payload-model:cases, batch-browser:main-child-samples；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-051, FUNC-004, FUNC-005, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-006, ACTION-014 | step-05 |
+| R-055 | DCC逐行回执携requestId+行定位、tenant/原supplierTaskId/leadCode/phone及recordId/batchId/rootBatchId；结果由精确vendorfileId/实际批次/原始号码及callID或稳定事件匹配后携保存的相同业务关联回传。leadCode归组不替代实际供应商/call匹配；previous/parent不再必需且不虚构。原逐行幂等结果、固定phone组/主子root/精确供应商通话映射不随失败快照清理或精准删除丢失；重复/晚更新/补送不新增导入或呼叫。手工仅平台查看不新增DCC协议。 | 正：回执/精确结果保留原request/行/record/batch/root；异常／否定：新主不改旧root，导出删除不丢映射，晚更新补送不新call，手工无协议 | prototype-verifier：payload-model:cases, deletion-model:preserved-request-root, failure-model:snapshot-clears-only-detail, result-model:exact-call-mapping；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-052, FUNC-004, FUNC-006, FUNC-009, FUNC-010, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-007, ACTION-009, ACTION-010, ACTION-014 | step-05, step-06, step-07, step-08, step-09 |
+| R-056 | 超管可独立进入应用列表，看到已保存应用的名称和appId及详情、修改、删除入口，并可发起新增；没有应用时显示空列表和新增入口。列表读取不创建、修改或删除应用。无管理权限的身份不能通过菜单、直接页面或模型/服务端调用读取该管理列表。 | 正：超管精确列表/空态与操作入口，读取无写入；异常／否定：非管理直达/模型拒读，无匹配不变已存应用 | prototype-verifier：application-browser:crud.list, application-extra-browser:query/pagination, application-edge-browser:empty-list-and-no-read-writes；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-053, FUNC-018, PAGE-001, ACTION-016 | step-04 |
+| R-057 | 超管可对列表中的具体应用独立查看详情，准确显示该应用名称、appId、密钥与可访问业务租户，并可返回列表；查看不修改凭证或授权。不可用演示密钥须有必要提示；不存在或已删除的目标不显示其他应用详情。 | 正：精确详情/掩码/显示复制返回不改配置；异常／否定：不存在已删不显其他对象，复制失败反馈、不可用提示保留 | prototype-verifier：application-browser:crud.detail/key-mask/reveal, application-extra-browser:copy-boundary, application-edge-browser:missing/deleted-target；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-054, FUNC-020, PAGE-004, ACTION-018, ACTION-022 | step-04 |
+| R-058 | 超管可独立新增应用，填写应用名称并选择可访问业务租户；有效保存后形成一个新应用及其appId/密钥，能在列表和详情查看；取消或保存失败不生成虚假的已保存应用。凭证业务用途为获取指定授权租户token，租户范围仍校验；原型仅生成不可用合成凭证。 | 正：名称租户有效创建独立合成凭据，列表详情可见；异常／否定：取消/校验/存储失败不生成已存应用或假成功，未授权tenant后台拒绝 | prototype-verifier：application-browser:crud.create/invalid-input, application-edge-browser:create-cancel/storage-failure, application-model:create；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-055, FUNC-019, PAGE-003, ACTION-017, ACTION-021 | step-04 |
+| R-059 | 超管可独立修改已存在的具体应用名称和可访问业务租户；保存成功后列表及详情一致更新，appId及原密钥保持，不随普通修改自动重置。取消、目标不存在或保存失败保持原配置；撤销租户授权后合成模型拒绝该应用旧身份继续访问该租户，其他应用/仍授权租户不受误改。 | 正：修改所选名称租户一致更新，原appId/secret保持；异常／否定：取消/目标无效/存储失败不变，撤tenant旧身份拒该tenant，其他保留 | prototype-verifier：application-browser:crud.modify/key-stable, application-edge-browser:edit-cancel/storage-failure, application-model:revoked-tenant-only；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-056, FUNC-001, FUNC-002, PAGE-005, ACTION-019, ACTION-023, ACTION-001 | step-04 |
+| R-060 | 超管可针对具体应用独立发起删除并确认，取消不删除；保存成功后该应用从列表消失且不能再查看/修改或以其旧凭证获取新身份，合成模型使该应用已发身份失效。只作用选定应用，其他应用配置和身份不受影响；保存失败不先撤销身份或显示删除成功。已有业务任务、导入记录和结果/必要来源审计保留，不随删除应用级联删除。 | 正：精确确认删除成功，列表消失且旧合成凭据/已发身份失效；异常／否定：取消/失败不先撤权，其他应用身份/任务记录/历史来源不级联删 | prototype-verifier：application-browser:crud.delete/cancel/revoked, application-edge-browser:precise-delete-no-business-cascade/storage-failure, application-model:exact-app-only；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-057, FUNC-002, FUNC-021, PAGE-001, PAGE-004, ACTION-020, ACTION-024 | step-04 |
+| R-061 | 应用列表、新增、详情、修改等日常页面去掉非必要技术解释，以应用与接入密钥业务信息表达用途：生成密钥用于获取token。合成身份交换技术演示移出日常应用页，必要的演示密钥不可用提示保留；底层租户授权/业务身份与管理权限分离、普通修改不重置密钥的边界继续校验。 | 正：日常四view简洁表达密钥用于token、必要合成提示；异常／否定：无技术交换面板，复制归详情，普通改不重置/不授管理 | prototype-verifier：application-browser:purpose/no-technical-panel, application-model:credential-and-identity-synthetic, markers-browser:background-token-has-no-daily-action；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-058, FUNC-001, FUNC-002, FUNC-018, FUNC-019, FUNC-020, FUNC-021, PAGE-001, PAGE-003, PAGE-004, PAGE-005, ACTION-016, ACTION-017, ACTION-018, ACTION-019, ACTION-020, ACTION-021, ACTION-022, ACTION-023, ACTION-024, ACTION-001 | step-04 |
+| R-062 | 预外呼任务列表和任务内保持“导入客户”入口可见；入口按选定任务已锁来源打开DCC接口合成接收或既有手工导入，不能切换或混用来源。当前身份/只读/任务状态不可导入时保留禁用入口及明确原因，不以隐藏替代说明。历史可补导任务仅未启动状态按既有权限/名单规则补导，保留原名单/批次并累计；不藉常驻入口扩展启动后的历史任务导入策略。 | 正：列表/任务内常驻按锁来源，历史未启动补导原名单批累计；异常／否定：只读/无权/运行禁用有因，不切来源或扩旧启动后规则 | prototype-verifier：records-browser:permanent-entry/locked-source/legacy-disabled, markers-browser:PAGE-002, operator-browser:ordinary-business-without-management；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-059, FUNC-004, FUNC-015, PAGE-002, ACTION-004, ACTION-005, ACTION-014 | step-05, step-08 |
+| R-063 | 手工CSV提交只能使用当前文本对应的有效预览草稿：文本变化立即使旧预览不可提交；新文本预览失败同样清除或冻结旧提交草稿并要求重新预览。提交前复核文本与有效预览一致，未有效预览不提交旧数据；统一/逐条priority修改只作用当前有效预览，成功提交仍沿既有逐行校验/最终priority/单号拆批。 | 正：当前成功CSV预览才可交，priority只当前有效预览；异常／否定：改文本/空失败预览禁旧稿，busy/落账前重核文本身份任务、竞态取消 | prototype-verifier：records-browser:manualInvalidPreview, manual-race-model:13-controlled-cases, manual-race-browser:normal/forced-csv/storage-failure；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-060, FUNC-004, PAGE-002, ACTION-004, ACTION-005 | step-05 |
+| R-064 | 精准供应商删除页面切换目标记录或供应商结果样例时，清除此前目标/样例的成功或失败反馈，不把旧结果显示为当前选择已处理。新操作按当前精确record/batch/fileId/号码与既有租户任务守卫执行；此前已保存的对应删除证据继续留在对应旧对象中，不因清反馈被抹掉。 | 正：切精确record或样例清旧反馈，新结果只当前target；异常／否定：旧成功不用于新目标、旧保存删除证据不抹、范围不扩 | prototype-verifier：records-browser:deletion-feedback-target/scenario-change, deletion-model:saved-precise-target-evidence；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-061, FUNC-009, PAGE-002, ACTION-009 | step-09 |
+| R-065 | 未可信的纯SIP包保留独立待核来源证据，不改写已确认呼叫业务结果、不冒充已确认非SIP冲突，也不阻止随后准确关联且可信的call/SIP更新。分别验证“未可信SIP→可信call→可信SIP”和“可信call→未可信SIP→可信SIP”：无其他真实非SIP矛盾时均更新同一原call的SIP字段及相应交付版本，不新增实际呼叫；真正可信的关联或非SIP结果冲突仍待核。 | 正：两种未可信SIP/可信call/可信SIP顺序更新同原call/交付版本；异常／否定：未可信独立待核不毒化，不新call，真正可信非SIP/关联冲突待核 | prototype-verifier：SIP-model:both-trust-orderings/duplicates, result-model:S07-12-true-trusted-conflict；隔离VM/浏览器新证据，源码SHA/时间/对象前后 | Pass | 冻结完整原AC；外部风险原样、仅合成，待S7实测 | AC-062, FUNC-010, FUNC-013, PAGE-002, ACTION-006, ACTION-010, ACTION-011 | step-07 |
+| R-066 | 现行product-input投影与新基线/真实实现一致 | 正：17FUNC/62AC/21BR/2FLOW/5SC/8SEQ/5PAGE20ACTION/96FLD、source/实施/后台身份/退休关系一致；异常：无旧15/46/2当当前、documents空、业务运营pending/05none、无伪S8通过 | JSON/ID/正文/关系/FLD/源摘要/真实实施对账，markers仅投影链路 | Pass | D-011受控同名重建，不另说明副本，不当S8普通实现 | FUNC-001, FUNC-002, FUNC-004, FUNC-005, FUNC-006, FUNC-009, FUNC-010, FUNC-011, FUNC-012, FUNC-013, FUNC-015, FUNC-016, FUNC-017, FUNC-018, FUNC-019, FUNC-020, FUNC-021, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013, AC-014, AC-015, AC-016, AC-017, AC-018, AC-019, AC-020, AC-021, AC-022, AC-023, AC-024, AC-025, AC-026, AC-027, AC-028, AC-029, AC-030, AC-031, AC-032, AC-033, AC-034, AC-035, AC-036, AC-037, AC-038, AC-039, AC-040, AC-041, AC-042, AC-043, AC-044, AC-045, AC-046, AC-047, AC-048, AC-049, AC-050, AC-051, AC-052, AC-053, AC-054, AC-055, AC-056, AC-057, AC-058, AC-059, AC-060, AC-061, AC-062, PAGE-001, PAGE-002, PAGE-003, PAGE-004, PAGE-005, ACTION-016, ACTION-017, ACTION-018, ACTION-019, ACTION-020, ACTION-004, ACTION-005, ACTION-006, ACTION-007, ACTION-009, ACTION-010, ACTION-011, ACTION-012, ACTION-014, ACTION-015, ACTION-021, ACTION-022, ACTION-023, ACTION-024, ACTION-001 | step-10 |
+
+## 映射与执行规则
+
+- R001～066各唯一，Step IDs均实际step01～10。Source IDs只当前有效AC/FUNC/PAGE/ACTION及允许SC/SEQ；同一行FUNC有该AC真实来源关系，退役ID不进有效覆盖。
+- 全覆盖62AC/17FUNC/5PAGE/20ACTION，不能以仅列ID代替行为验收。业务/时序各独立R和Step；发布图不替代页面/模型执行。
+- prototype-verifier在本轮S7稳定后fresh运行，证据附输入/URL/状态、源码SHA、执行时间、676基线和当前step。/tmp脚本S06/S07是历史caseID，旧结果不充新通过。
+- 隔离session=dcc-update-verification，本地VM/浏览器分别证明自身范围；实际CSV点击不等清理，可信成功独立合成信号，生产API/媒体/认证/下载工程未联调。
+- 60字/重名/恢复仅额外demo防御，不加冻结AC。CSV竞态、删除目标反馈、两种SIP序列各有独立正/否判据。
+- 新事实问题回04，不改readonly来满足测试。无新方向问题，不改open-items/field-map，原风险/业务运营pending/05none保留。
+- S8全局另行；本计划不含S9说明/标注、产品代批或阶段控制。Status由实际验证owner据新证据更新。

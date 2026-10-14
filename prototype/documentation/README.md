@@ -33,7 +33,7 @@
 - `functional_content.py` 是功能说明源，`build_delivery.py` 生成 HTML、Markdown 和结构化索引；当前原型仅展示 AliCti 云联络中心，正式功能说明为 23 个章节，FS-22～FS-24 对应分机、时间条件、业务分类。
 - `input/functions.json` 和 `input/pages.json` 是当前范围的规范化清单。旧 `memory/feature-list.md` 与上级冻结分析仅用于追溯；重建时先筛除已移除范围，再写入规范化清单，不能把历史条目交给代码生成工具当作现行需求。
 - 当前字段、附表覆盖与产品决定统一编写于 `input/consolidated-reviewed-facts.json`，由 `refresh_reviewed_facts.py` 更新正式字段清单、待确认、附表与decisions。附表正文保留 `../docs/rules-appendix.md` 及原编号；既有官方核验快照不改写。
-- 简短开发入口为 `../docs/development.html` 和 `../docs/development.md`，按任务指向现有正式资料，不再另建模型、契约、任务或验收副本。官方接口快照与供应商澄清证据保存于 `../references/`。
+- 简短开发入口为 `../docs/development.html` 和 `../docs/development.md`，按任务指向现有正式资料，不再另建模型、契约、任务或验收副本。官方接口统一通过 [LLM Wiki 接口索引](../references/index.html)按 API-/DOC- 编号读取；`../references/`只保留轻量来源映射、供应商澄清原件及用户截图，旧官方快照见[归档说明](../references/README.md)。
 - 流程源为 `../blueprint/current-business-diagrams.json` 与 `current-task-sequences.json`，蓝图源为 `../blueprint/build_blueprint.py`。不修改冻结分析输入或供应商原始快照来冒充新规则。
 - 当前规则包括：技能不再关联 ServiceType；新增坐席技能非必填；预测分配采用指定坐席或外呼组；分机通过独立目录受控选择；电话工具条自动选择人工外显，正式保存后自动置闲；任务关联时间条件；业务分类页内统一维护分类及字段，分类直接引用字段库并配置 `required`。重呼草稿可未填完整地保存或退出，下一步与确认创建严格校验。再次联系保持原任务 ID，仅追加新的批次与执行条目，不新建任务；时间优先级手工必填正整数，同账号内唯一。
 - 沿用展示规则：客户列表不固定“线索 / 意向”，导入记录不嵌套查看批次；任务列表不显示内部执行配置或下一次重呼推断。两类任务确认及设置详情共用三个信息分组，并展示本任务保存或冻结值。有接口来源时，通话结果、时间、工号和时长来自相应话单接口；来源或字段不可用不补本地值，纯本地演示记录仍按本地来源展示；关联任务按账号、租户、类型和任务标识核对，冲突不回退到其他任务。关联设置默认折叠，不带管理入口。
@@ -41,6 +41,8 @@
 功能、字段、附表、流程时序、蓝图与待确认项使用同一事实版本。供应商原文、用户转述澄清、本地产品设计、原型模拟与生产目标分别记录。早期线路登记、号码绑定技能/坐席、技能团队选人、固定六项全部选填或保存后手动置闲仅是历史背景，不再描述为现行操作。
 
 ## 完整生成顺序
+
+2026-10-13 接口来源切换只维护读取器、索引和现行导航，不执行下方历史文档完整生成流程，也不刷新冻结输入、业务决定或批准。新增接口事实须由需求分析核验冻结后导入，原型不能直接消费 Wiki 查询输出。
 
 在原型根目录运行，使用 Python 标准库。先生成正式说明，再生成图集和变更记录，最后核验内容与链接。
 
@@ -62,7 +64,15 @@ python3 documentation/verify_documentation.py
 
 ## 回归与事实边界
 
-`qa/run-offline-checks.py` 检查本地契约及交互，`documentation/verify_documentation.py` 统一检查正式资料、链接与原文。本版验证见[坐席登录回归](../qa/seat-login-regression-20260923.json)；[工作模式专项回归](../qa/working-mode-regression-20260923.json)与[工作模式首版验证](../qa/working-mode-verification-20260922.json)保留为前一阶段证据。[账号多导航验证](../qa/multi-caller-navigation-verification-20260922.json)保留为此前版本证据。[单账号唯一业务租户验证](../qa/single-tenant-verification-20260922.json)保留为上一版证据。[文档同步验证](../qa/ui-field-docs-verification-20260921.json)、[任务详情对齐](../qa/task-detail-alignment-20260921.json)、[通话详情对齐](../qa/call-detail-alignment-20260921.json)、[原任务再次联系验证](../qa/same-task-repeat-verification-20260921.json)和[手工优先级验证](../qa/time-priority-manual-verification-20260921.json)保留为9月21日各对应修改的历史证据，不重新标成本轮验证。[9 月 20 日回归报告](../reviews/daily-regression-20260920.html)、[当日统一验证记录](../qa/daily-alignment-verification-20260920.json)、此前 `full-regression-20260920` 及其 `evidence-20260920` 均保留为历史，不重新标成本轮证据。
+本次接口来源迁移，在 `prototype/` 根目录运行专项检查：
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 documentation/verify_documentation.py --interfaces-only
+```
+
+专项验证现行 Wiki 来源和历史归档原件，不代表旧业务文档全量检查通过或业务批准。未指定 `--interfaces-only` 的旧全量检查在迁移前已因缺少可选 `docs/interaction.html` 失败，本次不据此宣称旧检查可用。
+
+`qa/run-offline-checks.py` 检查本地契约及交互，`documentation/verify_documentation.py` 统一检查正式资料、链接与原文。现行 Wiki 读取先运行 `python3 documentation/interface_sources.py verify` 校验 active 版本、inventory 与文件哈希，再运行 `python3 documentation/interface_sources.py read API-311` 按需读取；使用 `LLM_WIKI_ROOT` 或 `--wiki-root` 重定位外部知识库。历史原件通过读取器的 `legacy` 命令只读从归档 ZIP 提取，不能冒充 Wiki 当前内容。本版验证见[坐席登录回归](../qa/seat-login-regression-20260923.json)；[工作模式专项回归](../qa/working-mode-regression-20260923.json)与[工作模式首版验证](../qa/working-mode-verification-20260922.json)保留为前一阶段证据。[账号多导航验证](../qa/multi-caller-navigation-verification-20260922.json)保留为此前版本证据。[单账号唯一业务租户验证](../qa/single-tenant-verification-20260922.json)保留为上一版证据。[文档同步验证](../qa/ui-field-docs-verification-20260921.json)、[任务详情对齐](../qa/task-detail-alignment-20260921.json)、[通话详情对齐](../qa/call-detail-alignment-20260921.json)、[原任务再次联系验证](../qa/same-task-repeat-verification-20260921.json)和[手工优先级验证](../qa/time-priority-manual-verification-20260921.json)保留为9月21日各对应修改的历史证据，不重新标成本轮验证。[9 月 20 日回归报告](../reviews/daily-regression-20260920.html)、[当日统一验证记录](../qa/daily-alignment-verification-20260920.json)、此前 `full-regression-20260920` 及其 `evidence-20260920` 均保留为历史，不重新标成本轮证据。
 
 供应商主题当前为 9 项（CF-15外显导航，CF-16工作模式与呼入，CF-17自动任务IVR更新）、接入准备 3 类；本地回归通过不表示供应商真实接入完成。CF-11 的 `Monitor.setOffline` 回执标识等未决问题继续保留；当前调用采用官方字段及本地保护，不把模拟回执当作真实保证。
 

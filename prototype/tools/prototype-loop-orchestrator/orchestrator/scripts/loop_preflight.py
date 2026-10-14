@@ -445,6 +445,7 @@ def derive_analysis_id_catalog(root: Path, handoff: dict, errors: list[str]) -> 
 
 def check_requirement_analysis_baseline(target: Path, stage: str, errors: list[str]) -> None:
     """Re-verify a frozen analysis package and its prototype-side binding."""
+    initial_error_count = len(errors)
     config_path = target / "config" / "requirement-analysis.json"
     config = load_json(config_path, errors)
     if not config:
@@ -593,8 +594,8 @@ def check_requirement_analysis_baseline(target: Path, stage: str, errors: list[s
     iteration = workflow.get("currentIteration") if isinstance(workflow.get("currentIteration"), dict) else {}
     if iteration.get("approvedRequirementAnalysisManifestSha256") != manifest_hash:
         errors.append("S2 PM 计划批准记录未绑定当前需求分析 manifest SHA-256")
-    if iteration.get("planApprovalVersion") != "plan-approval-v2-analysis":
-        errors.append("导入需求分析基线时计划审批版本必须为 plan-approval-v2-analysis")
+    if iteration.get("planApprovalVersion") not in {"plan-approval-v2-analysis", "plan-approval-v3-analysis-deliverables"}:
+        errors.append("导入需求分析基线时计划审批版本不受支持")
     frozen = workflow.get("frozenArtifacts") if isinstance(workflow.get("frozenArtifacts"), dict) else {}
     freeze = frozen.get("requirement-analysis:manifest") if isinstance(frozen.get("requirement-analysis:manifest"), dict) else {}
     if freeze.get("sha256") != manifest_hash:
@@ -648,6 +649,16 @@ def check_requirement_analysis_baseline(target: Path, stage: str, errors: list[s
                 if f'name="requirement-analysis-fingerprint" content="{baseline.get("fingerprint")}"' not in text:
                     errors.append(f"交付图缺少需求分析 fingerprint 来源标识：{relative}")
 
+    if len(errors) == initial_error_count:
+        command = [sys.executable, str(Path(__file__).with_name("import_analysis.py")),
+                   "verify-derived", str(target), "--stage", stage]
+        try:
+            result = subprocess.run(command, capture_output=True, text=True, timeout=30, check=False)
+            if result.returncode:
+                errors.append("冻结派生产物核验失败：" + (result.stderr or result.stdout).strip())
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            errors.append(f"冻结派生产物核验无法完成：{exc}")
+
 
 def project_record_salt(target: Path) -> str:
     for relative_path in [Path("config/project.json"), Path("config/workflow.json")]:
@@ -684,6 +695,8 @@ def expected_plan_approval_id(target: Path, iteration: dict) -> str:
     analysis = load_json_silent(target / "config" / "requirement-analysis.json")
     if analysis.get("mode") == "imported" and analysis.get("manifestSha256"):
         parts.extend(["requirement-analysis", str(analysis["manifestSha256"])])
+    if isinstance(iteration.get("approvedDeliverables"), dict):
+        parts.extend(["deliverables", canonical_hash(iteration["approvedDeliverables"])])
     payload = ":".join(parts)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
@@ -770,10 +783,52 @@ def strict_bool(value: object) -> bool:
     return value is True
 
 
+def deliverable_request_id(approval_id: str, previous_id: str, record: dict) -> str:
+    fields = {key: record.get(key) for key in
+              ("requestedAt", "requestedBy", "evidence", "deliverables", "restartStage")}
+    return canonical_hash([approval_id, previous_id, fields])[:16]
+
+
+def deliverable_approval_errors(iteration: dict) -> list[str]:
+    approved = iteration.get("approvedDeliverables")
+    keys = ("interactionDoc", "annotations")
+    if not isinstance(approved, dict) or set(approved) != set(keys) or any(type(approved[key]) is not bool for key in keys):
+        return ["审批记录未绑定可选交付选择；请由 PM 确认原选择后使用 approve-plan --reapprove-existing 补录，不得自动关闭交付项。"]
+    effective = dict(approved)
+    requests = iteration.get("optionalDeliverableRequests", [])
+    if not isinstance(requests, list):
+        return ["可选交付追加请求必须是记录数组"]
+    errors = []
+    previous_id = str(iteration.get("planApprovalId") or "")
+    for record in requests:
+        if not isinstance(record, dict):
+            errors.append("可选交付追加请求格式错误")
+            continue
+        flags = record.get("deliverables")
+        if (not isinstance(flags, dict) or set(flags) != set(keys)
+                or any(type(flags[key]) is not bool for key in keys) or not any(flags.values())):
+            errors.append("可选交付追加请求缺少有效的交付选择")
+            continue
+        if (not value_is_iso_timestamp(record.get("requestedAt")) or not str(record.get("requestedBy") or "").strip()
+                or len(str(record.get("evidence") or "").strip()) < 6
+                or record.get("restartStage") not in {None, "s6", "s9"}):
+            errors.append("可选交付追加请求缺少确认依据或回流阶段无效")
+        expected = deliverable_request_id(str(iteration.get("planApprovalId") or ""), previous_id, record)
+        if record.get("requestId") != expected:
+            errors.append("可选交付追加请求摘要不一致，必须重新记录明确请求")
+        previous_id = expected
+        effective = {key: effective[key] or flags[key] for key in keys}
+    if iteration.get("requestedDeliverables") != effective:
+        errors.append("可选交付开关与 PM 批准及追加请求不一致，不能直接修改或删除 requestedDeliverables")
+    return errors
+
+
 def requested_deliverables(target: Path, errors: list[str] | None = None) -> dict[str, bool]:
     """Read explicit optional-deliverable flags; absent legacy flags default to false."""
     workflow = load_json_silent(target / "config" / "workflow.json")
     iteration = workflow.get("currentIteration")
+    if errors is not None and isinstance(iteration, dict) and iteration.get("planConfirmed") is True:
+        errors.extend(deliverable_approval_errors(iteration))
     raw = iteration.get("requestedDeliverables") if isinstance(iteration, dict) else None
     if raw is None:
         return {"interactionDoc": False, "annotations": False}
@@ -889,8 +944,8 @@ def check_workflow_state(target: Path, stage: str, errors: list[str], completing
             manifest_hash = str(analysis.get("manifestSha256") or "")
             if iteration.get("approvedRequirementAnalysisManifestSha256") != manifest_hash:
                 errors.append("计划门禁未绑定需求分析 manifest：currentIteration.approvedRequirementAnalysisManifestSha256")
-            if iteration.get("planApprovalVersion") != "plan-approval-v2-analysis":
-                errors.append("导入需求分析基线时 planApprovalVersion 必须为 plan-approval-v2-analysis")
+            if iteration.get("planApprovalVersion") != "plan-approval-v3-analysis-deliverables":
+                errors.append("导入需求分析基线需补录绑定交付选择的 v3 审批")
         startup = target / "memory" / "project-startup-plan.md"
         claude = target / "CLAUDE.md"
         if startup.exists() and iteration.get("approvedStartupPlanSha256") != hashlib.sha256(startup.read_bytes()).hexdigest():
@@ -927,8 +982,10 @@ def check_workflow_stage_log_consistency(
     # other stage stays checked, and a standalone preflight run (no
     # --completing-stage) keeps full strictness.
     exempt = (completing_stage or "").strip().upper()
-    records = stage_log_records(target)
-    for record in records:
+    latest = {}
+    for record in stage_log_records(target):
+        latest[record.get("stage", "").strip().upper()] = record
+    for record in latest.values():
         stage_value = record.get("stage", "").strip().upper()
         match = re.search(r"S(?:10|11|0|1|2|3|4|5|6|7|8|9)", stage_value)
         if not match:
@@ -1401,13 +1458,14 @@ def parse_key_value_records(
     path: Path,
     key_map: dict[str, str],
     record_start_key: str,
+    text: str | None = None,
 ) -> list[dict[str, str]]:
     if not path.exists():
         return []
     records: list[dict[str, str]] = []
     current: dict[str, str] = {}
     fence_depth = 0
-    for raw_line in read_text(path).splitlines():
+    for raw_line in (read_text(path) if text is None else text).splitlines():
         stripped = raw_line.strip()
         if stripped.startswith(("```", "~~~")):
             fence_depth = fence_depth - 1 if fence_depth > 0 else 1
@@ -1435,12 +1493,27 @@ def parse_key_value_records(
 
 
 def parse_verification_records(target: Path) -> list[dict[str, str]]:
+    workflow = load_json_silent(target / "config/workflow.json")
+    iteration = workflow.get("currentIteration", {})
+    requests = iteration.get("optionalDeliverableRequests", []) if isinstance(iteration, dict) else []
+    epochs = [record.get("requestId") for record in requests
+              if isinstance(record, dict) and record.get("restartStage") == "s6"] if isinstance(requests, list) else []
+    path = target / "memory" / "verification-log.md"
+    text = read_text(path) if path.exists() else ""
+    if epochs:
+        marker = f"<!-- verification-epoch: {epochs[-1]} -->"
+        if marker not in text:
+            return []
+    # Reapproval may replace the request chain, but must not revive old evidence.
+    text = re.split(r"<!-- verification-epoch: [0-9a-f]{16} -->", text)[-1]
     return parse_key_value_records(
-        target / "memory" / "verification-log.md",
+        path,
         key_map={
             "step": "step",
             "step_id": "step",
             "scope": "scope",
+            "content_digest": "content_digest",
+            "verification_epoch": "verification_epoch",
             "result": "result",
         "date": "date",
         "timestamp": "date",
@@ -1456,8 +1529,10 @@ def parse_verification_records(target: Path) -> list[dict[str, str]]:
         "evidence": "evidence",
         "consecutive_failures": "consecutive_failures",
         "next_action": "next_action",
+        "visible_elements": "visible_elements",
         },
         record_start_key="step",
+        text=text,
     )
 
 
@@ -1502,10 +1577,30 @@ def check_execution_step_format(target: Path, stage: str, errors: list[str]) -> 
             "### Annotation Impact",
             "### 标注影响",
         ]
+    seen_steps = set()
     for step_id, block in blocks:
+        if step_id in seen_steps:
+            errors.append(f"重复执行步骤 ID：{step_id}")
+        seen_steps.add(step_id)
         for label, markers in required_sections.items():
-            if not any(marker.lower() in block.lower() for marker in markers):
+            headings = list(re.finditer(r"^###\s+([^\n]+)\n", block, re.M))
+            contents = [block[m.end():headings[i+1].start() if i+1 < len(headings) else len(block)].strip()
+                        for i, m in enumerate(headings)
+                        if any(m.group(1).strip().lower() == marker[4:].strip().lower() for marker in markers)]
+            if not contents or not any(re.sub(r"[\s*`-]", "", value) for value in contents):
                 errors.append(f"执行步骤 {step_id} 缺少必需字段：{label}")
+        skill = re.search(r"^### (?:Verification Skill|验证技能)\s*\n([^#]+)", block, re.M | re.I)
+        if skill and re.sub(r"[\s*`-]", "", skill.group(1)) != "prototypeverifier":
+            errors.append(f"执行步骤 {step_id} 验证技能必须为 prototype-verifier")
+        files_section = re.search(r"^### (?:Files|文件)\s*\n([^#]+)", block, re.M | re.I)
+        if files_section:
+            candidates = re.findall(r"[\w./*?-]+\.[\w*?/-]+", files_section.group(1))
+            if not candidates:
+                errors.append(f"执行步骤 {step_id} 必须列出精确文件")
+            for name in candidates:
+                parts = PurePosixPath(name).parts
+                if name.startswith("/") or ".." in parts or any(c in name for c in "*?") or parts[0] in {"tools", ".git"}:
+                    errors.append(f"执行步骤 {step_id} 文件超出业务可编辑边界：{name}")
         if not annotations_requested:
             continue
         required_match = re.search(
@@ -1556,6 +1651,7 @@ def acceptance_rows(target: Path) -> list[dict[str, str]]:
                 "status": cells[4],
                 "reason": cells[5] if len(cells) > 5 else "",
                 "source_ids": cells[6] if len(cells) > 6 else "",
+                "step_ids": cells[7] if len(cells) > 7 else "",
             }
         )
     return rows
@@ -1568,13 +1664,25 @@ def check_acceptance_map(target: Path, stage: str, errors: list[str]) -> None:
     if not rows:
         errors.append("验收映射缺少需求行：memory/acceptance-map.md")
         return
+    seen_rows = set()
+    planned = set(extract_step_ids(target))
+    mapped_steps = set()
     for row in rows:
+        if row["id"] in seen_rows:
+            errors.append(f"重复验收 Requirement ID：{row['id']}")
+        seen_rows.add(row["id"])
+        steps = set(re.findall(r"step-\d+", row["step_ids"].lower()))
+        if not steps or steps - planned:
+            errors.append(f"验收映射缺少合法 Step IDs：{row['id']}；追加第八列关联执行任务，不删除旧表")
+        mapped_steps.update(steps)
         if any(value_is_empty(row[key]) for key in ["id", "requirement", "acceptance", "verification", "status"]):
             errors.append(f"验收映射存在空字段：{row.get('id') or 'unknown'}")
         if not re.match(r"^R-\d+$", row["id"]):
             errors.append(f"验收映射 Requirement ID 格式错误：{row['id']}，应使用 R-001")
         if contains_unresolved_placeholder(" | ".join(row.values())):
             errors.append(f"验收映射仍包含占位内容：{row['id']}")
+    if planned - mapped_steps:
+        errors.append("验收映射未承接执行步骤：" + ", ".join(sorted(planned - mapped_steps)))
     analysis = load_json_silent(target / "config" / "requirement-analysis.json")
     if analysis.get("mode") == "imported":
         metadata = imported_analysis_metadata(target)
@@ -1587,6 +1695,15 @@ def check_acceptance_map(target: Path, stage: str, errors: list[str]) -> None:
         for key in ("acceptanceIds", "scenarioIds", "sequenceIds", "interfaceIds"):
             allowed.update(str(value) for value in metadata.get(key, []) if isinstance(value, str) and value)
         covered: set[str] = set()
+        root = safe_analysis_path(target, analysis.get("baselineRoot"))
+        relations = {}
+        if root:
+            handoff = load_json_silent(root / "prototype-handoff.json")
+            entry = handoff.get("entrypoints", {}).get("feature_list", {})
+            feature_path = safe_analysis_path(root, entry.get("path"))
+            if feature_path:
+                for feature in load_json_silent(feature_path).get("features", []):
+                    relations[feature.get("id")] = set(feature.get("source_acceptance_ids", []))
         for row in rows:
             raw_sources = row.get("source_ids", "").strip()
             if value_is_empty(raw_sources):
@@ -1598,6 +1715,13 @@ def check_acceptance_map(target: Path, stage: str, errors: list[str]) -> None:
             unknown = tokens - allowed
             if unknown:
                 errors.append(f"验收映射引用未知上游 ID：{row['id']} -> {', '.join(sorted(unknown))}")
+            funcs = {token for token in tokens if token.startswith("FUNC-")}
+            acs = {token for token in tokens if token.startswith("AC-")}
+            for func in funcs:
+                if relations.get(func) and not (relations[func] & acs):
+                    errors.append(f"验收映射未承接功能的上游 AC：{row['id']} / {func}")
+            if funcs and relations and acs - set().union(*(relations.get(func, set()) for func in funcs)):
+                errors.append(f"验收映射 AC 与同一行 FUNC 来源关系不一致：{row['id']}")
             covered.update(tokens & required)
         missing_sources = sorted(required - covered)
         if missing_sources:
@@ -1619,6 +1743,29 @@ def check_acceptance_map(target: Path, stage: str, errors: list[str]) -> None:
                     )
 
 
+def verification_binding(target: Path) -> tuple[str, str]:
+    """Bind executable content, the plan and baseline, independently of log text."""
+    workflow = load_json_silent(target / "config/workflow.json")
+    files = {}
+    roots = ("product-input.json", "project-version.json", "index.html", "assets", "js", "mock", "flowcharts", "related-systems",
+             "inputs", "config/nav.json", "config/project.json", "config/requirement-analysis.json",
+             "memory/execution-steps.md", "memory/acceptance-map.md", "memory/project.md",
+             "memory/business-rules.md", "memory/field-map.md", "memory/feature-list.md")
+    for name in roots:
+        entry = target / name
+        for path in sorted(entry.rglob("*")) if entry.is_dir() else [entry]:
+            if path.is_file():
+                if path.is_symlink():
+                    files[path.relative_to(target).as_posix()] = "symlink"
+                else:
+                    files[path.relative_to(target).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+    iteration = workflow.get("currentIteration", {})
+    payload = {"files": files, "approval": iteration.get("planApprovalId"),
+               "requests": [r for r in iteration.get("optionalDeliverableRequests", []) if r.get("restartStage") == "s6"]}
+    content = hashlib.sha256(json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    return content, str(workflow.get("verificationEpoch", "initial"))
+
+
 def check_verification_records(target: Path, stage: str, errors: list[str]) -> None:
     if stage not in {"s8", "s9", "final"}:
         return
@@ -1627,10 +1774,14 @@ def check_verification_records(target: Path, stage: str, errors: list[str]) -> N
         errors.append("验证日志缺少机器可读记录；必须包含 Step/Scope/Result 等键值行")
         return
     planned_steps = set(extract_step_ids(target))
-    for record in records:
+    latest = {}
+    for index, record in enumerate(records):
         result = record.get("result", "").lower()
         scope = record.get("scope", "").lower()
         step = normalize_step(record.get("step", ""))
+        if scope not in {"step", "global", "diagram"} or result not in {"pass", "fail"}:
+            errors.append(f"验证日志 {step or 'unknown'} Scope/Result 无效")
+        latest[(scope, step if scope != "global" else "global")] = (index, record)
         failed = record.get("failed", "")
         evidence = record.get("evidence", "")
         for key in ["local_url_file", "tool", "command_check", "passed", "evidence", "consecutive_failures"]:
@@ -1667,23 +1818,29 @@ def check_verification_records(target: Path, stage: str, errors: list[str]) -> N
                     pass
         if scope == "step" and result in {"pass", "fail"} and step not in planned_steps:
             errors.append(f"验证日志包含未在 execution-steps.md 中定义的步骤：{step}")
-    passed_steps = {
-        normalize_step(record.get("step", ""))
-        for record in records
-        if record.get("result", "").lower() == "pass"
-        and record.get("scope", "").lower() == "step"
-    }
+    content, epoch = verification_binding(target)
+    for (scope, step), (_, record) in latest.items():
+        if record.get("content_digest") != content or record.get("verification_epoch") != epoch:
+            errors.append(f"验证证据已过期或未绑定内容/轮次：{scope}/{step}；重新验证并用 record-verification 记录，不得给旧日志补摘要")
     for step_id in extract_step_ids(target):
-        if step_id not in passed_steps:
-            errors.append(f"验证日志缺少执行步骤 pass 记录：{step_id}")
+        current = latest.get(("step", step_id))
+        if not current or current[1].get("result", "").lower() != "pass":
+            errors.append(f"验证日志缺少执行步骤最新 pass 记录：{step_id}")
     if stage in {"s9", "final"}:
-        has_global_pass = any(
-            record.get("result", "").lower() == "pass"
-            and record.get("scope", "").lower() == "global"
-            for record in records
-        )
-        if not has_global_pass:
-            errors.append("验证日志缺少全局验证 pass 记录")
+        global_record = latest.get(("global", "global"))
+        latest_step = max((index for (scope, _), (index, _) in latest.items() if scope == "step"), default=-1)
+        if not global_record or global_record[1].get("result", "").lower() != "pass":
+            errors.append("验证日志缺少全局验证最新 pass 记录")
+        elif global_record[0] < latest_step:
+            errors.append("全局验证早于最新单步验证，必须重新执行全局验证")
+        for diagram in ("business-flow", "sequence-flow"):
+            entry = latest.get(("diagram", diagram))
+            if not entry or entry[0] < latest_step or entry[1].get("result", "").lower() != "pass":
+                errors.append(f"缺少最新图集浏览器可见性验证：{diagram}，Scope: diagram")
+                continue
+            visible = entry[1].get("visible_elements", "")
+            if not visible.isdigit() or int(visible) < 2:
+                errors.append(f"图集 {diagram} 必须记录浏览器实际可见元素数 Visible Elements，不能统计隐藏语义标记")
 
 
 def evidence_indicates_failure(evidence: str) -> bool:
@@ -2468,6 +2625,28 @@ def check_delivery_diagrams(target: Path, stage: str, errors: list[str]) -> None
         errors.append("关联系统展示状态必须为 empty 或 ready：data-related-systems-state")
 
 
+def delivery_javascript_text(text: str) -> tuple[str, str]:
+    """Keep navigation strings, but exclude comments from mechanism checks.
+
+    The second result also masks strings, so quoted examples cannot pretend
+    to declare or invoke the generated interaction-document flag.
+    """
+    tokens = re.compile(
+        r'''(?P<string>"(?:\\[\s\S]|[^"\\])*(?:"|\Z)|'(?:\\[\s\S]|[^'\\])*(?:'|\Z)|`(?:\\[\s\S]|[^`\\])*(?:`|\Z))'''
+        r'''|(?P<comment>//[^\r\n]*|/\*[\s\S]*?(?:\*/|\Z))'''
+    )
+
+    def blank(value: str) -> str:
+        return re.sub(r"[^\r\n]", " ", value)
+
+    without_comments = tokens.sub(
+        lambda match: blank(match.group()) if match.lastgroup == "comment" else match.group(),
+        text,
+    )
+    executable = tokens.sub(lambda match: blank(match.group()), text)
+    return without_comments, executable
+
+
 def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> None:
     if stage not in {"s8", "s9", "final"}:
         return
@@ -2504,7 +2683,7 @@ def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> No
     if not nav_script.exists():
         errors.append("缺失统一交付内部切换脚本：js/delivery-nav.js")
         return
-    nav_text = read_text(nav_script)
+    nav_text, executable = delivery_javascript_text(read_text(nav_script))
     required_markers = [
         "原型页面",
         "业务流程图",
@@ -2514,9 +2693,6 @@ def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> No
         "flowcharts/business-process.html",
         "flowcharts/sequence-interaction.html",
         "related-systems/index.html",
-        "config/workflow.json",
-        "requestedDeliverables",
-        "interactionDoc",
         "delivery_embed",
         "data-delivery-frame",
         "allowfullscreen",
@@ -2524,13 +2700,56 @@ def check_delivery_navigation(target: Path, stage: str, errors: list[str]) -> No
         "data-delivery-switch",
         "postMessage",
         "history.pushState",
-        "#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)",
     ]
+    route_markers = (
+        "#delivery=(prototype|docs|business-flow|sequence-flow|related-systems)",
+        "#delivery=(prototype|versions|docs|business-flow|sequence-flow|related-systems)",
+    )
+    if not any(marker in nav_text for marker in route_markers):
+        errors.append("统一交付内部切换脚本缺少交付视图路由")
+    if (target / "version-history.html").exists():
+        required_markers.extend(["版本与变更", "version-history.html", route_markers[1]])
+        for relative in ("js/version-nav.js", "assets/css/version-history.css"):
+            if not (target / relative).is_file():
+                errors.append(f"版本入口缺少运行资产：{relative}")
     for marker in required_markers:
         if marker not in nav_text:
             errors.append(f"统一交付内部切换脚本缺少机制：js/delivery-nav.js -> {marker}")
 
-    if requested_deliverables(target)["interactionDoc"]:
+    interaction_doc = requested_deliverables(target)["interactionDoc"]
+    flag_declarations = re.findall(
+        r"(?m)^[ \t]*(?:var|let|const)[ \t]+includeInteractionDoc[ \t]*=[ \t]*(true|false)[ \t]*;[ \t]*$",
+        executable,
+    )
+    flag_assignments = re.findall(r"\bincludeInteractionDoc\s*=(?!=)", executable)
+    flag_calls = re.findall(
+        r"(?m)^[ \t]*initialize\s*\(\s*includeInteractionDoc\s*\)\s*;[ \t]*$",
+        executable,
+    )
+    if flag_assignments or flag_declarations or flag_calls:
+        if len(flag_declarations) != 1 or len(flag_assignments) != 1:
+            errors.append("统一交付导航必须声明唯一静态布尔开关：includeInteractionDoc = true/false")
+        elif (flag_declarations[0] == "true") != interaction_doc:
+            errors.append("统一交付导航静态开关与 currentIteration.requestedDeliverables.interactionDoc 不一致；请同步交付导航")
+        if len(flag_calls) != 1:
+            errors.append("统一交付导航缺少唯一实际初始化调用：initialize(includeInteractionDoc)")
+    else:
+        # Existing projects may retain the explicit workflow-fetch chain.
+        # Mere field names, comments, or quoted examples are insufficient.
+        legacy_fetch = re.search(
+            r'''\bfetch\s*\(\s*new\s+URL\s*\(\s*(["'])config/workflow\.json\1\s*,\s*root\s*\)''',
+            nav_text,
+        ) and re.search(r"\bfetch\s*\(\s*new\s+URL\s*\(", executable)
+        legacy_chain = all(re.search(pattern, executable) for pattern in (
+            r"\bvar\s+iteration\s*=\s*workflow\s*&&\s*workflow\.currentIteration\s*;",
+            r"\bvar\s+requested\s*=\s*iteration\s*&&\s*iteration\.requestedDeliverables\s*;",
+            r"\breturn\s+Boolean\s*\(\s*requested\s*&&\s*requested\.interactionDoc\s*===\s*true\s*\)\s*;",
+            r"\.then\s*\(\s*initialize\s*\)\s*;",
+        ))
+        if not legacy_fetch or not legacy_chain:
+            errors.append("统一交付导航缺少静态布尔开关及实际初始化调用：includeInteractionDoc / initialize(includeInteractionDoc)")
+
+    if interaction_doc:
         for marker in ["说明文档", "docs/interaction.html"]:
             if marker not in nav_text:
                 errors.append(f"已请求说明文档，但统一交付导航缺少机制：{marker}")

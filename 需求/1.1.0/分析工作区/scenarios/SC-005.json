@@ -1,0 +1,2889 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-005",
+  "name": "必要应用接入与指定授权租户token",
+  "summary": "超管沿既有简洁应用五操作管理指定应用和租户授权；DCC/天网分别使用独立应用凭据申请指定授权租户业务身份并共用导入schema。可信原接入关系保存供逐记录结果去向：DCC照常回传、天网仅平台查看；稳定app身份与受控登记仍待S4核验，不扩管理UI或控制流。",
+  "actors": [
+    "超级管理员",
+    "云呼叫中心",
+    "外部接入应用（DCC/天网）"
+  ],
+  "trigger": "超管明确发起应用列表/新增/详情/修改/删除；或DCC/天网独立以各自应用凭据申请指定授权租户业务身份",
+  "preconditions": [
+    "应用管理仅当前具有管理权限的超管可操作；菜单、直达页和每次模型/服务读写均校验，不靠按钮可见性授权。",
+    "应用名称及可访问业务租户沿已确认最小输入；DCC/天网分别用独立应用凭据，任务归租户不绑定应用。原接入应用来自验真token/服务端可信上下文及受控登记，保存供来源审计与逐记录结果去向；稳定app/登记方案仍待S4，不从显示名、body source或R推断，业务身份不授应用管理权限。",
+    "应用列表/新增/详情/修改视图沿既有简洁设计，密钥用途仅获取指定授权租户token；后台身份交换不占日常UI。",
+    "普通修改不重置appId/密钥；指定应用删除、授权撤销按准确对象/租户处理，不级联其他应用/身份、业务任务、导入记录、结果或必要来源审计。",
+    "仅合成方案与不可用于真实服务的凭证/身份；生产管理route、算法、密钥存储、token TTL及已发真实token撤销/时效契约仍待核。",
+    "本轮用户已实际批准SRC-116天网复用范围G1：天网只导入并在平台查看、DCC照常回传；S3候选不代表G2/G3、生产风险接受或真实对接完成，不新增启停、重置密钥、收费、来源分类/回传开关UI或权限授予。",
+    "接入方与任务接口/手工模式分开；业务主子组及共享失败次数四元组不增加app维度。逐记录原接入关系经可信接入链保存，补提尝试与进度继承触发记录，不从root拥有方、最近调用者或后来新主重选；来源缺失/冲突待核，不默认DCC。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员",
+      "action": "列表分支：进入应用接入管理并发起应用列表查询",
+      "system_response": "当前请求按登录身份和精确上下文处理；未授权不展示管理数据。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云呼叫中心",
+      "action": "核对当前应用管理权限及精确对象上下文；每次管理读写重新校验",
+      "system_response": "仅有权超管继续；直达页、管理读写越权拒绝，当前配置不变，租户业务身份不获管理权。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "云呼叫中心",
+      "action": "列表分支：读取现有应用并返回查询结果",
+      "system_response": "显示名称、appId、创建时间与详情/修改/删除入口；空结果仍可新增。查询不创建/修改/删除应用，筛选与分页只是列表明细。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "超级管理员",
+      "action": "选择本次独立操作：新增、查看当前应用详情、修改或删除；只查看列表可结束",
+      "system_response": "按该操作和精确应用分支处理，不把五操作混为一次保存或自动身份申请。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "超级管理员",
+      "action": "新增分支：填写应用名称与可访问业务租户并明确提交，或取消",
+      "system_response": "取消不创建应用或凭证；输入无效保留当前输入问题，不能假造已保存。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "云呼叫中心",
+      "action": "新增分支：当前权限及有效输入通过后保存新应用并提供appId/appSecret",
+      "system_response": "成功形成一个新应用并进入其详情；仅合成不可用凭证。保存失败不生成虚假成功，实际生产生成/存储待核。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "超级管理员",
+      "action": "详情分支或创建/修改成功后：查看所选应用与按需显示/隐藏/复制凭证",
+      "system_response": "准确显示当前应用名称、appId、可访问租户、创建时间及默认掩码密钥；不存在/已删除或权限变化不显示其他应用。查看/复制不修改授权或密钥，日常页无技术身份交换面板。复制失败明确反馈，不改凭证或授权。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "超级管理员",
+      "action": "修改分支：明确选择已有应用，填写名称/可访问业务租户变更并提交，或取消",
+      "system_response": "取消保持原配置和身份；不增加重置密钥操作，不隐含改变其他应用。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 9,
+      "actor": "云呼叫中心",
+      "action": "修改分支：当前权限/对象与输入校验通过后保存该应用变更",
+      "system_response": "列表及详情更新同一应用，原appId/创建密钥保持；撤销指定租户授权后合成旧身份不能继续访问该租户，其他应用及仍授权租户不受误改。失败不提前撤权、不覆盖配置。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 10,
+      "actor": "超级管理员",
+      "action": "删除分支：核对指定应用并明确确认，或取消",
+      "system_response": "取消不删应用、不撤凭证或身份；只选择该应用，不扩大同租户/任务范围。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 11,
+      "actor": "云呼叫中心",
+      "action": "删除分支：当前权限/对象通过且删除保存成功时只删除该应用",
+      "system_response": "该应用不再列表/可查看修改，也不能旧凭证换新身份；仅合成已发身份失效。其他应用及身份、业务任务、导入记录、结果与必要来源审计保留；失败不先撤权，真实token撤销机制待核。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 12,
+      "actor": "云呼叫中心",
+      "action": "管理分支：返回当前操作的明确成功、失败或取消结果并结束",
+      "system_response": "对应当前对象状态；列表/详情只读，取消或失败保持原事实。管理结束不自动请求租户token。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 13,
+      "actor": "外部接入应用（DCC/天网）",
+      "action": "独立后台身份分支：DCC/天网以各自独立有效应用凭据与明确tenantId申请该租户业务身份",
+      "system_response": "两方复用同一身份申请schema，不依赖本次管理操作先发生；每次仅申请其指定租户业务身份，不是应用管理授权，也不自动导入或回传。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    },
+    {
+      "step": 14,
+      "actor": "云呼叫中心",
+      "action": "身份分支：验证应用仍有效及该tenant授权，仅在本次身份发放明确成功时返回该租户业务身份",
+      "system_response": "无效/已删除应用或未授权租户拒绝；失败/未知不假造身份成功。仅合成身份用于方案，真实route/TTL/算法、验真稳定app身份与受控登记仍待S4核验；可信原接入关系供后续逐记录路由保存，不新增body来源或配置UI。后续DCC/天网共用导入另走SC-001，DCC原记录照常回传、天网平台查看。",
+      "rule_ids": [
+        "BR-001",
+        "BR-020"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "当前身份没有应用管理权限",
+      "steps": [
+        "拒绝菜单/直达或管理数据读写，不展示管理数据、不写配置、不授新权限。"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "新增必要输入无效、当前权限/上下文变化或新增保存未明确成功",
+      "steps": [
+        "提示本次输入/保存问题，不创建虚假已保存应用，不提供假成功凭证。"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "详情/修改/删除当前对象不存在、权限或对象上下文变化，修改输入无效或保存失败",
+      "steps": [
+        "对本次准确对象拒绝或提示问题；保持原配置/授权/凭证，不显示其他应用，不提前撤权，不假成功。"
+      ]
+    },
+    {
+      "id": "ALT-004",
+      "condition": "取消当前新增、修改或删除",
+      "steps": [
+        "本次操作无持久变更；原配置/凭证/身份不提前改变，不自动申请token。"
+      ]
+    },
+    {
+      "id": "ALT-005",
+      "condition": "后台身份申请的凭证无效/已删除、tenant未授权，或身份发放失败/未知",
+      "steps": [
+        "明确无效/未授权时拒绝新身份；失败或未知保留当前请求待核，不假造租户身份或新增管理权，不把管理成功当token成功。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "应用列表、新增、详情、修改、删除是五个独立业务操作，各自对应准确结果；列表和详情只读，取消/失败不假造保存。",
+    "普通修改保持原appId和密钥；指定删除/指定租户撤权不级联其他应用/身份、任务、业务记录、结果或必要来源审计。",
+    "DCC/天网独立应用凭据＋tenantId只换指定授权租户业务身份，任务归租户不绑定应用，业务身份不授应用管理或内部运营权限。原接入关系由可信上下文/受控登记取得并保存供逐记录结果去向；稳定app/登记协议仍S4待核。",
+    "管理操作结束不自动请求token；DCC/天网独立后台请求另行验证，并共用后续导入schema。DCC原记录照常回传、天网仅平台查看，不按body name/source/R、root拥有方或最近调用者改变去向。真实route、TTL、算法、密钥存储及真实token撤销机制继续待核，本轮没有真实凭证或真实调用。"
+  ],
+  "acceptance_points": [
+    "AC-017",
+    "AC-028",
+    "AC-044",
+    "AC-045",
+    "AC-053",
+    "AC-054",
+    "AC-055",
+    "AC-056",
+    "AC-057",
+    "AC-058"
+  ],
+  "source_story_ids": [
+    "US-009"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-087",
+    "inputs/source-index.json#SRC-088",
+    "inputs/source-index.json#SRC-074",
+    "inputs/source-index.json#SRC-110",
+    "inputs/source-index.json#SRC-115",
+    "inputs/source-index.json#SRC-116"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "admin",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云呼叫中心",
+        "kind": "system"
+      },
+      {
+        "id": "dcc",
+        "name": "外部接入应用（DCC/天网）",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "S",
+        "lane_id": "platform",
+        "type": "start",
+        "order": 1,
+        "label": "应用管理意图或DCC/天网独立后台身份申请"
+      },
+      {
+        "id": "LIST",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 3,
+        "label": "发起应用列表/管理查询",
+        "step_ref": 1
+      },
+      {
+        "id": "PERM",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 4,
+        "label": "当前身份具有应用管理权限？",
+        "step_ref": 2
+      },
+      {
+        "id": "OP",
+        "lane_id": "admin",
+        "type": "decision",
+        "order": 7,
+        "label": "本次明确操作，或只看列表结束？",
+        "step_ref": 4
+      },
+      {
+        "id": "FORM",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 8,
+        "label": "新增：名称与可访问业务租户",
+        "step_ref": 5
+      },
+      {
+        "id": "NEW_OK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 11,
+        "label": "当前权限及新增输入有效\n且新建保存明确成功？",
+        "step_ref": 6
+      },
+      {
+        "id": "CREATED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 12,
+        "label": "保存新应用并提供appId/密钥\n仅不可用合成凭证",
+        "step_ref": 6
+      },
+      {
+        "id": "EDIT",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 15,
+        "label": "修改：所选应用名称及租户范围",
+        "step_ref": 8
+      },
+      {
+        "id": "EDIT_OK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 18,
+        "label": "当前权限/对象及输入有效\n且修改保存明确成功？",
+        "step_ref": 9
+      },
+      {
+        "id": "EDITED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 19,
+        "label": "仅修改该应用，appId/密钥保持\n合成身份按当前租户授权校验",
+        "step_ref": 9
+      },
+      {
+        "id": "DEL",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 22,
+        "label": "删除：核对指定当前应用",
+        "step_ref": 10
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "admin",
+        "type": "decision",
+        "order": 23,
+        "label": "明确确认删除该应用？",
+        "step_ref": 10
+      },
+      {
+        "id": "DELETED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 25,
+        "label": "只删该应用及合成凭证/身份\n任务/记录/来源审计保留",
+        "step_ref": 11
+      },
+      {
+        "id": "TOKEN",
+        "lane_id": "dcc",
+        "type": "action",
+        "order": 54,
+        "label": "DCC/天网各自独立应用凭据+tenantId\\n申请指定授权租户业务身份",
+        "step_ref": 13
+      },
+      {
+        "id": "AUTH",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 55,
+        "label": "应用有效且tenant已授权\n身份发放明确成功？",
+        "step_ref": 14
+      },
+      {
+        "id": "IDENTITY",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 57,
+        "label": "返回该应用指定租户合成身份\\n稳定app/登记待S4，不授管理权",
+        "step_ref": 14
+      },
+      {
+        "id": "END",
+        "lane_id": "dcc",
+        "type": "end",
+        "order": 58,
+        "label": "本次独立身份申请结束\\n后续共用导入另走SC-001"
+      },
+      {
+        "id": "DENIED",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 5,
+        "label": "拒绝管理：无读取/无写入\n配置及权限保持"
+      },
+      {
+        "id": "AUTH_FAIL",
+        "lane_id": "dcc",
+        "type": "end",
+        "order": 56,
+        "label": "无效/未授权拒绝\n发放失败/未知待核，不假成功"
+      },
+      {
+        "id": "DETAIL_NEW",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 14,
+        "label": "查看本次新应用详情\n密钥默认掩码/按需显示复制",
+        "step_ref": 7
+      },
+      {
+        "id": "DETAIL_VIEW",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 30,
+        "label": "查看所选应用详情/掩码密钥\n按需显示复制，无技术交换面板",
+        "step_ref": 7
+      },
+      {
+        "id": "DETAIL_EDIT",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 21,
+        "label": "查看修改后同一应用详情\n显示复制不重置密钥",
+        "step_ref": 7
+      },
+      {
+        "id": "DETAIL_CANCEL",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 27,
+        "label": "取消删除：当前应用\n凭证/身份保持",
+        "step_ref": 10
+      },
+      {
+        "id": "NEW_FAIL",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 13,
+        "label": "新增输入/保存问题\n不假造应用或成功凭证"
+      },
+      {
+        "id": "EDIT_FAIL",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 20,
+        "label": "修改失败/对象变化\n不提前撤权或覆盖旧配置"
+      },
+      {
+        "id": "DELETE_FAIL",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 26,
+        "label": "删除失败/对象变化\n不提前撤权或显示成功"
+      },
+      {
+        "id": "DELETE_OK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 24,
+        "label": "当前权限/对象有效\n且删除保存明确成功？",
+        "step_ref": 11
+      },
+      {
+        "id": "RESULT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 31,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12
+      },
+      {
+        "id": "REQUEST",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 2,
+        "label": "本次独立请求属于哪种业务？"
+      },
+      {
+        "id": "END_UI",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 42,
+        "label": "本次应用管理操作结束"
+      },
+      {
+        "id": "LOAD_LIST",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "读取已有应用列表\n名称/appId/创建时间及操作入口",
+        "step_ref": 3
+      },
+      {
+        "id": "NEW_SUBMIT",
+        "lane_id": "admin",
+        "type": "decision",
+        "order": 9,
+        "label": "明确提交本次新建？",
+        "step_ref": 5
+      },
+      {
+        "id": "NEW_CANCEL",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 10,
+        "label": "取消新增：无应用/凭证写入"
+      },
+      {
+        "id": "EDIT_SUBMIT",
+        "lane_id": "admin",
+        "type": "decision",
+        "order": 16,
+        "label": "明确提交本次修改？",
+        "step_ref": 8
+      },
+      {
+        "id": "EDIT_CANCEL",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 17,
+        "label": "取消修改：旧配置与身份保持"
+      },
+      {
+        "id": "DETAIL_GET",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 28,
+        "label": "当前管理权限与所选对象有效？",
+        "step_ref": 2
+      },
+      {
+        "id": "DETAIL_FAIL",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 29,
+        "label": "详情对象不存在/权限变化\n不显示其他应用，不写配置"
+      },
+      {
+        "id": "END_UI-DRAW1-1",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 43,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-1",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 32,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW1-2",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 45,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-2",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 34,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW1-3",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 46,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-3",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 35,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW1-4",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 47,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-4",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 36,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW1-5",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 48,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-5",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 37,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW1-6",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 49,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-6",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 38,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW1-7",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 50,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-7",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 39,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW1-8",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 51,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-8",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 40,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW1-9",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 52,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-9",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 41,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW1-10",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 44,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      },
+      {
+        "id": "RESULT-DRAW1-10",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 33,
+        "label": "返回本次准确成功/失败/取消\n不自动申请业务token",
+        "step_ref": 12,
+        "drawing_reuse_of": "RESULT"
+      },
+      {
+        "id": "END_UI-DRAW2-1",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 53,
+        "label": "本次应用管理操作结束",
+        "drawing_reuse_of": "END_UI"
+      }
+    ],
+    "edges": [
+      {
+        "from": "S",
+        "to": "REQUEST"
+      },
+      {
+        "from": "REQUEST",
+        "to": "LIST",
+        "label": "应用管理请求"
+      },
+      {
+        "from": "REQUEST",
+        "to": "TOKEN",
+        "label": "独立后台身份申请"
+      },
+      {
+        "from": "LIST",
+        "to": "PERM"
+      },
+      {
+        "from": "PERM",
+        "to": "LOAD_LIST",
+        "label": "当前管理权限通过"
+      },
+      {
+        "from": "PERM",
+        "to": "DENIED",
+        "label": "无管理权限",
+        "path_id": "ALT-001",
+        "type": "failure"
+      },
+      {
+        "from": "LOAD_LIST",
+        "to": "OP"
+      },
+      {
+        "from": "OP",
+        "to": "FORM",
+        "label": "新增"
+      },
+      {
+        "from": "OP",
+        "to": "DETAIL_GET",
+        "label": "查看详情"
+      },
+      {
+        "from": "OP",
+        "to": "EDIT",
+        "label": "修改"
+      },
+      {
+        "from": "OP",
+        "to": "DEL",
+        "label": "删除"
+      },
+      {
+        "from": "OP",
+        "to": "END_UI",
+        "label": "只看列表结束"
+      },
+      {
+        "from": "FORM",
+        "to": "NEW_SUBMIT"
+      },
+      {
+        "from": "NEW_SUBMIT",
+        "to": "NEW_OK",
+        "label": "明确提交"
+      },
+      {
+        "from": "NEW_SUBMIT",
+        "to": "NEW_CANCEL",
+        "label": "取消",
+        "path_id": "ALT-004"
+      },
+      {
+        "from": "NEW_CANCEL",
+        "to": "RESULT"
+      },
+      {
+        "from": "NEW_OK",
+        "to": "CREATED",
+        "label": "有效且保存明确成功"
+      },
+      {
+        "from": "NEW_OK",
+        "to": "NEW_FAIL",
+        "label": "输入/权限问题或保存未成功",
+        "path_id": "ALT-002",
+        "type": "failure"
+      },
+      {
+        "from": "NEW_FAIL",
+        "to": "RESULT-DRAW1-1"
+      },
+      {
+        "from": "CREATED",
+        "to": "DETAIL_NEW"
+      },
+      {
+        "from": "DETAIL_NEW",
+        "to": "RESULT-DRAW1-2"
+      },
+      {
+        "from": "EDIT",
+        "to": "EDIT_SUBMIT"
+      },
+      {
+        "from": "EDIT_SUBMIT",
+        "to": "EDIT_OK",
+        "label": "明确提交"
+      },
+      {
+        "from": "EDIT_SUBMIT",
+        "to": "EDIT_CANCEL",
+        "label": "取消",
+        "path_id": "ALT-004"
+      },
+      {
+        "from": "EDIT_CANCEL",
+        "to": "RESULT-DRAW1-3"
+      },
+      {
+        "from": "EDIT_OK",
+        "to": "EDITED",
+        "label": "有效且保存明确成功"
+      },
+      {
+        "from": "EDIT_OK",
+        "to": "EDIT_FAIL",
+        "label": "权限/对象/输入变化或保存失败",
+        "path_id": "ALT-003",
+        "type": "failure"
+      },
+      {
+        "from": "EDIT_FAIL",
+        "to": "RESULT-DRAW1-4"
+      },
+      {
+        "from": "EDITED",
+        "to": "DETAIL_EDIT"
+      },
+      {
+        "from": "DETAIL_EDIT",
+        "to": "RESULT-DRAW1-5"
+      },
+      {
+        "from": "DEL",
+        "to": "CONFIRM"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "DELETE_OK",
+        "label": "确认该应用"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "DETAIL_CANCEL",
+        "label": "取消",
+        "path_id": "ALT-004"
+      },
+      {
+        "from": "DETAIL_CANCEL",
+        "to": "RESULT-DRAW1-6"
+      },
+      {
+        "from": "DELETE_OK",
+        "to": "DELETED",
+        "label": "有效且删除明确成功"
+      },
+      {
+        "from": "DELETE_OK",
+        "to": "DELETE_FAIL",
+        "label": "权限/对象变化或保存失败",
+        "path_id": "ALT-003",
+        "type": "failure"
+      },
+      {
+        "from": "DELETE_FAIL",
+        "to": "RESULT-DRAW1-7"
+      },
+      {
+        "from": "DELETED",
+        "to": "RESULT-DRAW1-8"
+      },
+      {
+        "from": "DETAIL_GET",
+        "to": "DETAIL_VIEW",
+        "label": "当前权限及精确对象有效"
+      },
+      {
+        "from": "DETAIL_GET",
+        "to": "DETAIL_FAIL",
+        "label": "权限/对象变化或不存在",
+        "path_id": "ALT-003",
+        "type": "failure"
+      },
+      {
+        "from": "DETAIL_FAIL",
+        "to": "RESULT-DRAW1-9"
+      },
+      {
+        "from": "DETAIL_VIEW",
+        "to": "RESULT-DRAW1-10"
+      },
+      {
+        "from": "RESULT",
+        "to": "END_UI-DRAW2-1"
+      },
+      {
+        "from": "TOKEN",
+        "to": "AUTH"
+      },
+      {
+        "from": "AUTH",
+        "to": "IDENTITY",
+        "label": "有效授权且发放明确成功"
+      },
+      {
+        "from": "AUTH",
+        "to": "AUTH_FAIL",
+        "label": "无效/未授权/失败或未知",
+        "path_id": "ALT-005",
+        "type": "failure"
+      },
+      {
+        "from": "IDENTITY",
+        "to": "END"
+      },
+      {
+        "from": "RESULT-DRAW1-1",
+        "to": "END_UI-DRAW1-1"
+      },
+      {
+        "from": "RESULT-DRAW1-2",
+        "to": "END_UI-DRAW1-2"
+      },
+      {
+        "from": "RESULT-DRAW1-3",
+        "to": "END_UI-DRAW1-3"
+      },
+      {
+        "from": "RESULT-DRAW1-4",
+        "to": "END_UI-DRAW1-4"
+      },
+      {
+        "from": "RESULT-DRAW1-5",
+        "to": "END_UI-DRAW1-5"
+      },
+      {
+        "from": "RESULT-DRAW1-6",
+        "to": "END_UI-DRAW1-6"
+      },
+      {
+        "from": "RESULT-DRAW1-7",
+        "to": "END_UI-DRAW1-7"
+      },
+      {
+        "from": "RESULT-DRAW1-8",
+        "to": "END_UI-DRAW1-8"
+      },
+      {
+        "from": "RESULT-DRAW1-9",
+        "to": "END_UI-DRAW1-9"
+      },
+      {
+        "from": "RESULT-DRAW1-10",
+        "to": "END_UI-DRAW1-10"
+      }
+    ]
+  },
+  "decision_history": [
+    {
+      "recorded_at": "2026-10-12",
+      "change_id": "CH-DCC-20261012-DEFER-DCC-APPLICATION-MANUAL-INTERNAL",
+      "source_refs": [
+        "inputs/source-index.json#SRC-110"
+      ],
+      "reason": "用户SRC-110明确DCC及应用接入延期；本轮优先手工及内部闭环，并保留原任务权限内运营/管理员发起指定供应商记录删除。此候选不审批门禁、不升级接口状态。",
+      "previous_definition": {
+        "schema_version": "1.0",
+        "id": "SC-005",
+        "name": "超管建立与维护应用接入凭证",
+        "summary": "超管从应用列表新增或维护指定应用，查看用于获取租户token的appId/appSecret；新增、修改、详情和删除为独立可发起操作，日常UI不展示技术身份交换参数。DCC在后台使用有效凭证与tenantId换业务身份，应用管理权与业务身份分离。原型仅合成密钥，生产生成/存储/服务契约和既有token撤销机制仍待核。",
+        "actors": [
+          "超级管理员",
+          "云呼叫中心",
+          "DCC"
+        ],
+        "trigger": "超管需要建立或维护DCC应用接入凭证",
+        "preconditions": [
+          "应用管理只允许已就绪超级管理员，菜单、直达和每次模型/服务写入均校验。",
+          "沿既有合法业务租户授权边界，任务归租户不归应用；凭证换业务token不授予应用管理权。",
+          "本次不新增启停、重置密钥、计费或生产接口承诺；模拟密钥/token不可用于真实服务。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "超级管理员",
+            "action": "进入应用列表查询现有应用",
+            "system_response": "显示应用名称、appId、创建时间与详情/修改/删除入口；无记录或无查询结果仍可新增",
+            "rule_ids": [
+              "BR-001",
+              "BR-020"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "超级管理员",
+            "action": "新增应用并填写名称和必要的可访问租户；或者选择已有应用的详情、修改、删除",
+            "system_response": "按当前明确操作和精确对象校验，不把列表/新增/查看/修改/删除混为一次保存",
+            "rule_ids": [
+              "BR-001",
+              "BR-020"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "云呼叫中心",
+            "action": "保存新应用并提供appId和appSecret",
+            "system_response": "成功进入应用详情；原型返回合成不可用值，保存失败不显示成功或假凭证",
+            "rule_ids": [
+              "BR-001",
+              "BR-020"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "超级管理员",
+            "action": "按需查看/复制凭证，或修改/确认删除当前应用",
+            "system_response": "详情默认遮罩、按需显示复制；修改保留原appId/密钥，合成业务身份解析始终按当前租户授权校验；删除取消不变，成功删除精确应用，其合成凭证及已发合成身份失效。删除后不能再凭其密钥申请新业务token，既有token的真实撤销/时效机制仍待核。",
+            "rule_ids": [
+              "BR-001",
+              "BR-020"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "DCC",
+            "action": "在后台以有效应用凭证与tenantId申请租户业务身份",
+            "system_response": "仅授权有效时返回该租户业务身份；无效/已删除凭证/未授权租户拒绝，不产生应用管理权限",
+            "rule_ids": [
+              "BR-001",
+              "BR-020"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-001",
+            "condition": "当前身份无应用管理权限",
+            "steps": [
+              "拒绝访问或写入，配置不变"
+            ]
+          },
+          {
+            "id": "ALT-002",
+            "condition": "新增必要输入无效",
+            "steps": [
+              "提示当前输入问题，不保存/生成成功凭证"
+            ]
+          },
+          {
+            "id": "ALT-003",
+            "condition": "保存失败或当前对象已变化",
+            "steps": [
+              "保留原配置，明确失败，重新打开当前对象后处理"
+            ]
+          },
+          {
+            "id": "ALT-004",
+            "condition": "取消删除",
+            "steps": [
+              "当前应用及凭证保留"
+            ]
+          },
+          {
+            "id": "ALT-005",
+            "condition": "凭证已删除/无效或租户未授权",
+            "steps": [
+              "拒绝新租户身份发放，管理权限不改变"
+            ]
+          }
+        ],
+        "postconditions": [
+          "新增/修改/删除的结果对应当前应用；列表和详情仅显示保存事实。",
+          "DCC业务身份与应用管理身份分离；日常应用页不承担技术身份交换演示。",
+          "应用管理结果结束后，不自动调用token交换；只有DCC另行发起后台身份申请时才验证凭证/租户。"
+        ],
+        "acceptance_points": [
+          "AC-017",
+          "AC-028",
+          "AC-044",
+          "AC-045",
+          "AC-053",
+          "AC-054",
+          "AC-055",
+          "AC-056",
+          "AC-057",
+          "AC-058"
+        ],
+        "source_story_ids": [
+          "US-001"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-087",
+          "inputs/source-index.json#SRC-088",
+          "inputs/source-index.json#SRC-074"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "admin",
+              "name": "超级管理员",
+              "kind": "actor"
+            },
+            {
+              "id": "platform",
+              "name": "云呼叫中心",
+              "kind": "system"
+            },
+            {
+              "id": "dcc",
+              "name": "DCC",
+              "kind": "external_system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "S",
+              "lane_id": "admin",
+              "type": "start",
+              "order": 1,
+              "label": "建立或维护应用接入凭证"
+            },
+            {
+              "id": "LIST",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 2,
+              "label": "进入列表查询应用",
+              "step_ref": 1
+            },
+            {
+              "id": "PERM",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 3,
+              "label": "当前身份具有应用管理权限？"
+            },
+            {
+              "id": "OP",
+              "lane_id": "admin",
+              "type": "decision",
+              "order": 4,
+              "label": "本次明确业务操作",
+              "step_ref": 2
+            },
+            {
+              "id": "FORM",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 5,
+              "label": "新增：填写名称和可访问租户"
+            },
+            {
+              "id": "NEW_OK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 6,
+              "label": "输入有效且保存成功？"
+            },
+            {
+              "id": "CREATED",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 7,
+              "label": "提供appId和appSecret\n原型仅不可用合成值",
+              "step_ref": 3
+            },
+            {
+              "id": "EDIT",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 9,
+              "label": "修改：明确当前应用和变更",
+              "step_ref": 4
+            },
+            {
+              "id": "EDIT_OK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 10,
+              "label": "当前对象有效且保存成功？"
+            },
+            {
+              "id": "EDITED",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 11,
+              "label": "修改成功，原appId/密钥保持\n合成身份按当前租户授权校验"
+            },
+            {
+              "id": "DEL",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 13,
+              "label": "删除：明确精确当前应用",
+              "step_ref": 4
+            },
+            {
+              "id": "CONFIRM",
+              "lane_id": "admin",
+              "type": "decision",
+              "order": 14,
+              "label": "确认删除？"
+            },
+            {
+              "id": "DELETED",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 16,
+              "label": "仅删除该应用\n合成凭证/已发身份失效\n真实token撤销机制待核"
+            },
+            {
+              "id": "TOKEN",
+              "lane_id": "dcc",
+              "type": "action",
+              "order": 21,
+              "label": "后台凭证+tenantId申请业务身份",
+              "step_ref": 5
+            },
+            {
+              "id": "AUTH",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 22,
+              "label": "凭证有效且租户已授权？"
+            },
+            {
+              "id": "IDENTITY",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 23,
+              "label": "返回指定租户业务身份\n不授应用管理权"
+            },
+            {
+              "id": "END",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 24,
+              "label": "使用该租户业务身份"
+            },
+            {
+              "id": "DENIED",
+              "lane_id": "admin",
+              "type": "end",
+              "order": 26,
+              "label": "拒绝管理，配置不变"
+            },
+            {
+              "id": "AUTH_FAIL",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 23,
+              "label": "拒绝新身份发放"
+            },
+            {
+              "id": "DETAIL_NEW",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 8,
+              "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+              "step_ref": 4
+            },
+            {
+              "id": "DETAIL_VIEW",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 18,
+              "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+              "step_ref": 4
+            },
+            {
+              "id": "DETAIL_EDIT",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 12,
+              "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+              "step_ref": 4
+            },
+            {
+              "id": "DETAIL_CANCEL",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 17,
+              "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+              "step_ref": 4
+            },
+            {
+              "id": "NEW_FAIL",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 7,
+              "label": "保存/对象问题：提示失败\n不伪造成功或覆盖旧数据"
+            },
+            {
+              "id": "EDIT_FAIL",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 11,
+              "label": "保存/对象问题：提示失败\n不伪造成功或覆盖旧数据"
+            },
+            {
+              "id": "DELETE_FAIL",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 16,
+              "label": "保存/对象问题：提示失败\n不伪造成功或覆盖旧数据"
+            },
+            {
+              "id": "DELETE_OK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 15,
+              "label": "当前权限/对象有效且删除保存成功？"
+            },
+            {
+              "id": "RESULT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 19,
+              "label": "返回当前操作的真实结果\n成功/失败/取消各自保留配置状态"
+            },
+            {
+              "id": "REQUEST",
+              "lane_id": "dcc",
+              "type": "decision",
+              "order": 20,
+              "label": "DCC是否独立申请租户身份？"
+            },
+            {
+              "id": "END_UI",
+              "lane_id": "admin",
+              "type": "end",
+              "order": 21,
+              "label": "本次管理操作结束"
+            }
+          ],
+          "edges": [
+            {
+              "from": "S",
+              "to": "LIST"
+            },
+            {
+              "from": "LIST",
+              "to": "PERM"
+            },
+            {
+              "from": "PERM",
+              "to": "OP",
+              "label": "有权限"
+            },
+            {
+              "from": "PERM",
+              "to": "DENIED",
+              "label": "无权限",
+              "path_id": "ALT-001",
+              "type": "failure"
+            },
+            {
+              "from": "OP",
+              "to": "FORM",
+              "label": "新增"
+            },
+            {
+              "from": "OP",
+              "to": "DETAIL_VIEW",
+              "label": "查看详情"
+            },
+            {
+              "from": "OP",
+              "to": "EDIT",
+              "label": "修改"
+            },
+            {
+              "from": "OP",
+              "to": "DEL",
+              "label": "删除"
+            },
+            {
+              "from": "FORM",
+              "to": "NEW_OK"
+            },
+            {
+              "from": "NEW_OK",
+              "to": "CREATED",
+              "label": "有效且保存成功"
+            },
+            {
+              "from": "NEW_OK",
+              "to": "NEW_FAIL",
+              "label": "输入无效或保存失败",
+              "path_id": "ALT-002",
+              "type": "failure"
+            },
+            {
+              "from": "CREATED",
+              "to": "DETAIL_NEW"
+            },
+            {
+              "from": "EDIT",
+              "to": "EDIT_OK"
+            },
+            {
+              "from": "EDIT_OK",
+              "to": "EDITED",
+              "label": "有效且保存成功"
+            },
+            {
+              "from": "EDIT_OK",
+              "to": "EDIT_FAIL",
+              "label": "对象变化或保存失败",
+              "path_id": "ALT-003",
+              "type": "failure"
+            },
+            {
+              "from": "EDITED",
+              "to": "DETAIL_EDIT"
+            },
+            {
+              "from": "DEL",
+              "to": "CONFIRM"
+            },
+            {
+              "from": "CONFIRM",
+              "to": "DELETE_OK",
+              "label": "确认"
+            },
+            {
+              "from": "CONFIRM",
+              "to": "DETAIL_CANCEL",
+              "label": "取消",
+              "path_id": "ALT-004"
+            },
+            {
+              "from": "DELETED",
+              "to": "RESULT"
+            },
+            {
+              "from": "TOKEN",
+              "to": "AUTH"
+            },
+            {
+              "from": "AUTH",
+              "to": "IDENTITY",
+              "label": "凭证有效且租户授权"
+            },
+            {
+              "from": "AUTH",
+              "to": "AUTH_FAIL",
+              "label": "凭证无效/已删除或租户未授权",
+              "path_id": "ALT-005",
+              "type": "failure"
+            },
+            {
+              "from": "IDENTITY",
+              "to": "END"
+            },
+            {
+              "from": "DETAIL_NEW",
+              "to": "RESULT"
+            },
+            {
+              "from": "DETAIL_VIEW",
+              "to": "RESULT"
+            },
+            {
+              "from": "DETAIL_EDIT",
+              "to": "RESULT"
+            },
+            {
+              "from": "DETAIL_CANCEL",
+              "to": "RESULT"
+            },
+            {
+              "from": "DELETE_OK",
+              "to": "DELETED",
+              "label": "对象有效且删除成功"
+            },
+            {
+              "from": "DELETE_OK",
+              "to": "DELETE_FAIL",
+              "label": "权限/对象变化或保存失败",
+              "type": "failure",
+              "path_id": "ALT-003"
+            },
+            {
+              "from": "NEW_FAIL",
+              "to": "RESULT"
+            },
+            {
+              "from": "EDIT_FAIL",
+              "to": "RESULT"
+            },
+            {
+              "from": "DELETE_FAIL",
+              "to": "RESULT"
+            },
+            {
+              "from": "RESULT",
+              "to": "REQUEST"
+            },
+            {
+              "from": "REQUEST",
+              "to": "TOKEN",
+              "label": "独立DCC请求"
+            },
+            {
+              "from": "REQUEST",
+              "to": "END_UI",
+              "label": "没有新DCC请求"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "date": "2026-10-13",
+      "change_id": "CH-V110-20261013-DCC-FULL-LOOP-S3-APP",
+      "source_refs": [
+        "inputs/source-index.json#SRC-115"
+      ],
+      "scope_approval": {
+        "gate": "G1",
+        "approval_ref": "runtime/dcc-restart-g1-user-approval-20261013.json",
+        "approval_sha256": "86c89c11de053fb95681f79bbedfe9eea312747ded6afa6fce01bbd7d5bab6b3",
+        "scope_source": "SRC-115",
+        "actual_answer": "批准 G1，按 DCC 优先继续",
+        "G2_approved": false,
+        "G3_approved": false,
+        "production_verified": false
+      },
+      "reason": "按实际G1恢复必要应用五操作与独立后台租户身份申请；仅取有效延期定义，保持当前生产缺口与简化UI，不回滚其他旧规则。",
+      "previous_definition": {
+        "schema_version": "1.0",
+        "id": "SC-005",
+        "name": "超管建立与维护应用接入凭证",
+        "summary": "SRC-110已将应用接入列表/新增/详情/修改/删除、密钥及后台token整体延期；历史定义与已实现资料保留，不作为本轮手工闭环前置。",
+        "actors": [],
+        "trigger": "延期，本轮无应用接入执行触发",
+        "preconditions": [],
+        "main_flow": [],
+        "alternate_flows": [],
+        "postconditions": [],
+        "acceptance_points": [],
+        "source_story_ids": [
+          "US-009"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-087",
+          "inputs/source-index.json#SRC-088",
+          "inputs/source-index.json#SRC-074",
+          "inputs/source-index.json#SRC-110"
+        ],
+        "flow_diagram": {
+          "lanes": [],
+          "nodes": [],
+          "edges": []
+        },
+        "scope": "out_of_scope",
+        "status": "deferred_this_release",
+        "design_notes": [
+          "当前主/备选流程与flow_diagram仅表达本轮手工或内部处理；DCC与应用接入延期定义及原图完整保留在decision_history，不参与本轮执行泳道。",
+          "全程保留既有登录、租户、任务和对象操作权限；不自动改变账号权限、解锁或迁移历史任务来源。",
+          "AliCti接口仍partial/missing；不默认排重参数、skip值或在途撤回，不执行真实调用。原型仅合成，S3候选不是G2/G3通过证据。"
+        ],
+        "deferred_definition": {
+          "schema_version": "1.0",
+          "id": "SC-005",
+          "name": "超管建立与维护应用接入凭证",
+          "summary": "超管从应用列表新增或维护指定应用，查看用于获取租户token的appId/appSecret；新增、修改、详情和删除为独立可发起操作，日常UI不展示技术身份交换参数。DCC在后台使用有效凭证与tenantId换业务身份，应用管理权与业务身份分离。原型仅合成密钥，生产生成/存储/服务契约和既有token撤销机制仍待核。",
+          "actors": [
+            "超级管理员",
+            "云呼叫中心",
+            "DCC"
+          ],
+          "trigger": "超管需要建立或维护DCC应用接入凭证",
+          "preconditions": [
+            "应用管理只允许已就绪超级管理员，菜单、直达和每次模型/服务写入均校验。",
+            "沿既有合法业务租户授权边界，任务归租户不归应用；凭证换业务token不授予应用管理权。",
+            "本次不新增启停、重置密钥、计费或生产接口承诺；模拟密钥/token不可用于真实服务。"
+          ],
+          "main_flow": [
+            {
+              "step": 1,
+              "actor": "超级管理员",
+              "action": "进入应用列表查询现有应用",
+              "system_response": "显示应用名称、appId、创建时间与详情/修改/删除入口；无记录或无查询结果仍可新增",
+              "rule_ids": [
+                "BR-001",
+                "BR-020"
+              ]
+            },
+            {
+              "step": 2,
+              "actor": "超级管理员",
+              "action": "新增应用并填写名称和必要的可访问租户；或者选择已有应用的详情、修改、删除",
+              "system_response": "按当前明确操作和精确对象校验，不把列表/新增/查看/修改/删除混为一次保存",
+              "rule_ids": [
+                "BR-001",
+                "BR-020"
+              ]
+            },
+            {
+              "step": 3,
+              "actor": "云呼叫中心",
+              "action": "保存新应用并提供appId和appSecret",
+              "system_response": "成功进入应用详情；原型返回合成不可用值，保存失败不显示成功或假凭证",
+              "rule_ids": [
+                "BR-001",
+                "BR-020"
+              ]
+            },
+            {
+              "step": 4,
+              "actor": "超级管理员",
+              "action": "按需查看/复制凭证，或修改/确认删除当前应用",
+              "system_response": "详情默认遮罩、按需显示复制；修改保留原appId/密钥，合成业务身份解析始终按当前租户授权校验；删除取消不变，成功删除精确应用，其合成凭证及已发合成身份失效。删除后不能再凭其密钥申请新业务token，既有token的真实撤销/时效机制仍待核。",
+              "rule_ids": [
+                "BR-001",
+                "BR-020"
+              ]
+            },
+            {
+              "step": 5,
+              "actor": "DCC",
+              "action": "在后台以有效应用凭证与tenantId申请租户业务身份",
+              "system_response": "仅授权有效时返回该租户业务身份；无效/已删除凭证/未授权租户拒绝，不产生应用管理权限",
+              "rule_ids": [
+                "BR-001",
+                "BR-020"
+              ]
+            }
+          ],
+          "alternate_flows": [
+            {
+              "id": "ALT-001",
+              "condition": "当前身份无应用管理权限",
+              "steps": [
+                "拒绝访问或写入，配置不变"
+              ]
+            },
+            {
+              "id": "ALT-002",
+              "condition": "新增必要输入无效",
+              "steps": [
+                "提示当前输入问题，不保存/生成成功凭证"
+              ]
+            },
+            {
+              "id": "ALT-003",
+              "condition": "保存失败或当前对象已变化",
+              "steps": [
+                "保留原配置，明确失败，重新打开当前对象后处理"
+              ]
+            },
+            {
+              "id": "ALT-004",
+              "condition": "取消删除",
+              "steps": [
+                "当前应用及凭证保留"
+              ]
+            },
+            {
+              "id": "ALT-005",
+              "condition": "凭证已删除/无效或租户未授权",
+              "steps": [
+                "拒绝新租户身份发放，管理权限不改变"
+              ]
+            }
+          ],
+          "postconditions": [
+            "新增/修改/删除的结果对应当前应用；列表和详情仅显示保存事实。",
+            "DCC业务身份与应用管理身份分离；日常应用页不承担技术身份交换演示。",
+            "应用管理结果结束后，不自动调用token交换；只有DCC另行发起后台身份申请时才验证凭证/租户。"
+          ],
+          "acceptance_points": [
+            "AC-017",
+            "AC-028",
+            "AC-044",
+            "AC-045",
+            "AC-053",
+            "AC-054",
+            "AC-055",
+            "AC-056",
+            "AC-057",
+            "AC-058"
+          ],
+          "source_story_ids": [
+            "US-001"
+          ],
+          "source_refs": [
+            "inputs/source-index.json#SRC-087",
+            "inputs/source-index.json#SRC-088",
+            "inputs/source-index.json#SRC-074"
+          ],
+          "flow_diagram": {
+            "lanes": [
+              {
+                "id": "admin",
+                "name": "超级管理员",
+                "kind": "actor"
+              },
+              {
+                "id": "platform",
+                "name": "云呼叫中心",
+                "kind": "system"
+              },
+              {
+                "id": "dcc",
+                "name": "DCC",
+                "kind": "external_system"
+              }
+            ],
+            "nodes": [
+              {
+                "id": "S",
+                "lane_id": "admin",
+                "type": "start",
+                "order": 1,
+                "label": "建立或维护应用接入凭证"
+              },
+              {
+                "id": "LIST",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 2,
+                "label": "进入列表查询应用",
+                "step_ref": 1
+              },
+              {
+                "id": "PERM",
+                "lane_id": "platform",
+                "type": "decision",
+                "order": 3,
+                "label": "当前身份具有应用管理权限？"
+              },
+              {
+                "id": "OP",
+                "lane_id": "admin",
+                "type": "decision",
+                "order": 4,
+                "label": "本次明确业务操作",
+                "step_ref": 2
+              },
+              {
+                "id": "FORM",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 5,
+                "label": "新增：填写名称和可访问租户"
+              },
+              {
+                "id": "NEW_OK",
+                "lane_id": "platform",
+                "type": "decision",
+                "order": 6,
+                "label": "输入有效且保存成功？"
+              },
+              {
+                "id": "CREATED",
+                "lane_id": "platform",
+                "type": "action",
+                "order": 7,
+                "label": "提供appId和appSecret\n原型仅不可用合成值",
+                "step_ref": 3
+              },
+              {
+                "id": "EDIT",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 9,
+                "label": "修改：明确当前应用和变更",
+                "step_ref": 4
+              },
+              {
+                "id": "EDIT_OK",
+                "lane_id": "platform",
+                "type": "decision",
+                "order": 10,
+                "label": "当前对象有效且保存成功？"
+              },
+              {
+                "id": "EDITED",
+                "lane_id": "platform",
+                "type": "action",
+                "order": 11,
+                "label": "修改成功，原appId/密钥保持\n合成身份按当前租户授权校验"
+              },
+              {
+                "id": "DEL",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 13,
+                "label": "删除：明确精确当前应用",
+                "step_ref": 4
+              },
+              {
+                "id": "CONFIRM",
+                "lane_id": "admin",
+                "type": "decision",
+                "order": 14,
+                "label": "确认删除？"
+              },
+              {
+                "id": "DELETED",
+                "lane_id": "platform",
+                "type": "action",
+                "order": 16,
+                "label": "仅删除该应用\n合成凭证/已发身份失效\n真实token撤销机制待核"
+              },
+              {
+                "id": "TOKEN",
+                "lane_id": "dcc",
+                "type": "action",
+                "order": 21,
+                "label": "后台凭证+tenantId申请业务身份",
+                "step_ref": 5
+              },
+              {
+                "id": "AUTH",
+                "lane_id": "platform",
+                "type": "decision",
+                "order": 22,
+                "label": "凭证有效且租户已授权？"
+              },
+              {
+                "id": "IDENTITY",
+                "lane_id": "platform",
+                "type": "action",
+                "order": 23,
+                "label": "返回指定租户业务身份\n不授应用管理权"
+              },
+              {
+                "id": "END",
+                "lane_id": "dcc",
+                "type": "end",
+                "order": 24,
+                "label": "使用该租户业务身份"
+              },
+              {
+                "id": "DENIED",
+                "lane_id": "admin",
+                "type": "end",
+                "order": 26,
+                "label": "拒绝管理，配置不变"
+              },
+              {
+                "id": "AUTH_FAIL",
+                "lane_id": "dcc",
+                "type": "end",
+                "order": 23,
+                "label": "拒绝新身份发放"
+              },
+              {
+                "id": "DETAIL_NEW",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 8,
+                "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+                "step_ref": 4
+              },
+              {
+                "id": "DETAIL_VIEW",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 18,
+                "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+                "step_ref": 4
+              },
+              {
+                "id": "DETAIL_EDIT",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 12,
+                "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+                "step_ref": 4
+              },
+              {
+                "id": "DETAIL_CANCEL",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 17,
+                "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+                "step_ref": 4
+              },
+              {
+                "id": "NEW_FAIL",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 7,
+                "label": "保存/对象问题：提示失败\n不伪造成功或覆盖旧数据"
+              },
+              {
+                "id": "EDIT_FAIL",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 11,
+                "label": "保存/对象问题：提示失败\n不伪造成功或覆盖旧数据"
+              },
+              {
+                "id": "DELETE_FAIL",
+                "lane_id": "admin",
+                "type": "action",
+                "order": 16,
+                "label": "保存/对象问题：提示失败\n不伪造成功或覆盖旧数据"
+              },
+              {
+                "id": "DELETE_OK",
+                "lane_id": "platform",
+                "type": "decision",
+                "order": 15,
+                "label": "当前权限/对象有效且删除保存成功？"
+              },
+              {
+                "id": "RESULT",
+                "lane_id": "platform",
+                "type": "action",
+                "order": 19,
+                "label": "返回当前操作的真实结果\n成功/失败/取消各自保留配置状态"
+              },
+              {
+                "id": "REQUEST",
+                "lane_id": "dcc",
+                "type": "decision",
+                "order": 20,
+                "label": "DCC是否独立申请租户身份？"
+              },
+              {
+                "id": "END_UI",
+                "lane_id": "admin",
+                "type": "end",
+                "order": 21,
+                "label": "本次管理操作结束"
+              }
+            ],
+            "edges": [
+              {
+                "from": "S",
+                "to": "LIST"
+              },
+              {
+                "from": "LIST",
+                "to": "PERM"
+              },
+              {
+                "from": "PERM",
+                "to": "OP",
+                "label": "有权限"
+              },
+              {
+                "from": "PERM",
+                "to": "DENIED",
+                "label": "无权限",
+                "path_id": "ALT-001",
+                "type": "failure"
+              },
+              {
+                "from": "OP",
+                "to": "FORM",
+                "label": "新增"
+              },
+              {
+                "from": "OP",
+                "to": "DETAIL_VIEW",
+                "label": "查看详情"
+              },
+              {
+                "from": "OP",
+                "to": "EDIT",
+                "label": "修改"
+              },
+              {
+                "from": "OP",
+                "to": "DEL",
+                "label": "删除"
+              },
+              {
+                "from": "FORM",
+                "to": "NEW_OK"
+              },
+              {
+                "from": "NEW_OK",
+                "to": "CREATED",
+                "label": "有效且保存成功"
+              },
+              {
+                "from": "NEW_OK",
+                "to": "NEW_FAIL",
+                "label": "输入无效或保存失败",
+                "path_id": "ALT-002",
+                "type": "failure"
+              },
+              {
+                "from": "CREATED",
+                "to": "DETAIL_NEW"
+              },
+              {
+                "from": "EDIT",
+                "to": "EDIT_OK"
+              },
+              {
+                "from": "EDIT_OK",
+                "to": "EDITED",
+                "label": "有效且保存成功"
+              },
+              {
+                "from": "EDIT_OK",
+                "to": "EDIT_FAIL",
+                "label": "对象变化或保存失败",
+                "path_id": "ALT-003",
+                "type": "failure"
+              },
+              {
+                "from": "EDITED",
+                "to": "DETAIL_EDIT"
+              },
+              {
+                "from": "DEL",
+                "to": "CONFIRM"
+              },
+              {
+                "from": "CONFIRM",
+                "to": "DELETE_OK",
+                "label": "确认"
+              },
+              {
+                "from": "CONFIRM",
+                "to": "DETAIL_CANCEL",
+                "label": "取消",
+                "path_id": "ALT-004"
+              },
+              {
+                "from": "DELETED",
+                "to": "RESULT"
+              },
+              {
+                "from": "TOKEN",
+                "to": "AUTH"
+              },
+              {
+                "from": "AUTH",
+                "to": "IDENTITY",
+                "label": "凭证有效且租户授权"
+              },
+              {
+                "from": "AUTH",
+                "to": "AUTH_FAIL",
+                "label": "凭证无效/已删除或租户未授权",
+                "path_id": "ALT-005",
+                "type": "failure"
+              },
+              {
+                "from": "IDENTITY",
+                "to": "END"
+              },
+              {
+                "from": "DETAIL_NEW",
+                "to": "RESULT"
+              },
+              {
+                "from": "DETAIL_VIEW",
+                "to": "RESULT"
+              },
+              {
+                "from": "DETAIL_EDIT",
+                "to": "RESULT"
+              },
+              {
+                "from": "DETAIL_CANCEL",
+                "to": "RESULT"
+              },
+              {
+                "from": "DELETE_OK",
+                "to": "DELETED",
+                "label": "对象有效且删除成功"
+              },
+              {
+                "from": "DELETE_OK",
+                "to": "DELETE_FAIL",
+                "label": "权限/对象变化或保存失败",
+                "type": "failure",
+                "path_id": "ALT-003"
+              },
+              {
+                "from": "NEW_FAIL",
+                "to": "RESULT"
+              },
+              {
+                "from": "EDIT_FAIL",
+                "to": "RESULT"
+              },
+              {
+                "from": "DELETE_FAIL",
+                "to": "RESULT"
+              },
+              {
+                "from": "RESULT",
+                "to": "REQUEST"
+              },
+              {
+                "from": "REQUEST",
+                "to": "TOKEN",
+                "label": "独立DCC请求"
+              },
+              {
+                "from": "REQUEST",
+                "to": "END_UI",
+                "label": "没有新DCC请求"
+              }
+            ]
+          }
+        },
+        "business_rule_ids": [],
+        "deferred_source_story_ids": [
+          "US-009"
+        ],
+        "deferred_notes": [
+          "延期而非退役或删除需求；不删除原型既有应用界面/凭据历史资料，不宣称生产对接已完成。",
+          "本轮既有登录/租户/任务权限保持，不由延期应用接入取消业务授权守卫。"
+        ]
+      }
+    },
+    {
+      "change_id": "CH-V110-SRC116-SC005-LABEL-ALIGNMENT",
+      "source_refs": [
+        "inputs/source-index.json#SRC-116"
+      ],
+      "actual_G1_ref": "runtime/tianwang-g1-user-approval-20261013.json",
+      "reason": "天网复用导入且仅平台查看，DCC照常回传；保留现有管理五操作和独立token控制流，仅TMP候选。",
+      "before": {
+        "summary": "超管独立发起应用列表查询、新增、详情查看、修改及指定应用删除，以简洁凭证信息支持DCC后台获取指定授权租户业务token。五操作各有结果，普通修改保留appId/密钥，删除不级联业务任务/记录；管理权与租户业务权分开。后台身份申请独立于管理操作，真实route、TTL、算法、存储和撤权机制继续待核，无真实凭证。",
+        "trigger": "超管明确发起应用列表/新增/详情/修改/删除；或DCC独立以应用凭证申请指定授权租户业务身份",
+        "actors": [
+          "超级管理员",
+          "云呼叫中心",
+          "DCC"
+        ],
+        "preconditions": [
+          "应用管理仅当前具有管理权限的超管可操作；菜单、直达页和每次模型/服务读写均校验，不靠按钮可见性授权。",
+          "应用名称及可访问业务租户沿已确认最小输入；任务归租户不绑定应用，来源应用仅审计追踪；业务身份不能获得应用管理权限。",
+          "应用列表/新增/详情/修改视图沿既有简洁设计，密钥用途仅获取指定授权租户token；后台身份交换不占日常UI。",
+          "普通修改不重置appId/密钥；指定应用删除、授权撤销按准确对象/租户处理，不级联其他应用/身份、业务任务、导入记录、结果或必要来源审计。",
+          "仅合成方案与不可用于真实服务的凭证/身份；生产管理route、算法、密钥存储、token TTL及已发真实token撤销/时效契约仍待核。",
+          "本轮G1已实际批准SRC-115恢复范围；S3候选不代表G2/G3、生产风险接受或真实对接完成，不新增启停、重置密钥、收费或权限授予。"
+        ],
+        "main_flow_13_14": [
+          {
+            "step": 13,
+            "actor": "DCC",
+            "action": "独立后台身份分支：以有效应用凭据与明确tenantId申请该租户业务身份",
+            "system_response": "不依赖本次管理操作先发生；请求仅代表指定租户业务身份申请，不是应用管理授权。",
+            "rule_ids": [
+              "BR-001",
+              "BR-020"
+            ]
+          },
+          {
+            "step": 14,
+            "actor": "云呼叫中心",
+            "action": "身份分支：验证应用仍有效及该tenant授权，仅在本次身份发放明确成功时返回该租户业务身份",
+            "system_response": "无效/已删除应用或未授权租户拒绝；失败/未知不假造身份成功。仅合成身份用于方案，真实route/TTL/算法仍待核；不自动调用业务导入，后续DCC业务请求另走SC-001。",
+            "rule_ids": [
+              "BR-001",
+              "BR-020"
+            ]
+          }
+        ],
+        "postconditions": [
+          "应用列表、新增、详情、修改、删除是五个独立业务操作，各自对应准确结果；列表和详情只读，取消/失败不假造保存。",
+          "普通修改保持原appId和密钥；指定删除/指定租户撤权不级联其他应用/身份、任务、业务记录、结果或必要来源审计。",
+          "后台应用凭证＋tenantId只换指定授权租户业务身份，任务归租户不绑定应用，业务身份不授应用管理权限。",
+          "管理操作结束不会自动请求token；DCC独立后台请求另行验证。真实route、TTL、算法、密钥存储及真实token撤销机制继续待核，本轮没有真实凭证或真实调用。"
+        ],
+        "current_scope_approval": {
+          "gate": "G1",
+          "approval_ref": "runtime/dcc-restart-g1-user-approval-20261013.json",
+          "approval_sha256": "86c89c11de053fb95681f79bbedfe9eea312747ded6afa6fce01bbd7d5bab6b3",
+          "scope_source": "SRC-115",
+          "actual_answer": "批准 G1，按 DCC 优先继续",
+          "G2_approved": false,
+          "G3_approved": false,
+          "production_verified": false
+        },
+        "flow_label_lane_changes": {
+          "lanes": [
+            {
+              "id": "admin",
+              "name": "超级管理员",
+              "kind": "actor"
+            },
+            {
+              "id": "platform",
+              "name": "云呼叫中心",
+              "kind": "system"
+            },
+            {
+              "id": "dcc",
+              "name": "DCC",
+              "kind": "external_system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "S",
+              "lane_id": "platform",
+              "type": "start",
+              "order": 1,
+              "label": "应用管理意图或DCC后台身份申请"
+            },
+            {
+              "id": "TOKEN",
+              "lane_id": "dcc",
+              "type": "action",
+              "order": 54,
+              "label": "独立后台应用凭据+tenantId\n申请指定租户业务身份",
+              "step_ref": 13
+            },
+            {
+              "id": "IDENTITY",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 57,
+              "label": "返回指定租户合成业务身份\n不授管理权，真实契约待核",
+              "step_ref": 14
+            },
+            {
+              "id": "END",
+              "lane_id": "dcc",
+              "type": "end",
+              "order": 58,
+              "label": "本次身份申请结束\n后续业务请求另走SC-001"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "scope": "in_scope",
+  "status": "confirmed_scope_supplier_gaps_retained",
+  "design_notes": [
+    "依据SRC-116及实际G1“批准 G1，继续 S3／S4”对齐DCC/天网独立应用凭据和共用能力；只TMP S3 owner候选，旧定义/审批历史保留，不继承旧G2/G3。",
+    "沿既有应用列表/新增/详情/修改四个薄逻辑视图和指定删除确认，不要求新HTML/目录；密钥用于获取token，必要合成不可用提示保留。",
+    "AC-028为US-001所属的共同页面/权限边界，US-009专属验收为AC-017/044/045/053～058；不复制故事或新增验收ID。",
+    "后台租户身份交换有独立触发，与UI管理请求在图入口分流；外部应用泳道统一表示DCC或天网独立一次申请，不表示两方同时获发身份，不增加日常技术面板、app-task绑定、来源分类/回传开关、启停/收费/密钥重置。",
+    "本轮真实凭证、管理接口/route、TTL、算法、存储及token撤权契约仍partial/missing；仅合成方案，生产缺口不能由历史图或G1批准关闭。",
+    "共享结束/结果节点按互斥分支作绘图展开，drawing_reuse_of记录原节点；完整原路径投影等价，不增加实际业务操作。",
+    "稳定原app身份与受控应用登记是S4技术提案，保存用于来源审计及逐记录DCC路由/天网仅查看；不依据应用显示名、body name/source/R或root拥有方猜去向。本图没有DCC结果回调分支，交付沿SC-002。",
+    "仅对齐label/泳道名称与文字说明；全部稳定node/edge/step/ALT ID、边标签和drawing_reuse_of副本保持，业务主子组与次数四元组不加入app，不新建业务功能或控制流。"
+  ],
+  "deferred_definition": {
+    "schema_version": "1.0",
+    "id": "SC-005",
+    "name": "超管建立与维护应用接入凭证",
+    "summary": "超管从应用列表新增或维护指定应用，查看用于获取租户token的appId/appSecret；新增、修改、详情和删除为独立可发起操作，日常UI不展示技术身份交换参数。DCC在后台使用有效凭证与tenantId换业务身份，应用管理权与业务身份分离。原型仅合成密钥，生产生成/存储/服务契约和既有token撤销机制仍待核。",
+    "actors": [
+      "超级管理员",
+      "云呼叫中心",
+      "DCC"
+    ],
+    "trigger": "超管需要建立或维护DCC应用接入凭证",
+    "preconditions": [
+      "应用管理只允许已就绪超级管理员，菜单、直达和每次模型/服务写入均校验。",
+      "沿既有合法业务租户授权边界，任务归租户不归应用；凭证换业务token不授予应用管理权。",
+      "本次不新增启停、重置密钥、计费或生产接口承诺；模拟密钥/token不可用于真实服务。"
+    ],
+    "main_flow": [
+      {
+        "step": 1,
+        "actor": "超级管理员",
+        "action": "进入应用列表查询现有应用",
+        "system_response": "显示应用名称、appId、创建时间与详情/修改/删除入口；无记录或无查询结果仍可新增",
+        "rule_ids": [
+          "BR-001",
+          "BR-020"
+        ]
+      },
+      {
+        "step": 2,
+        "actor": "超级管理员",
+        "action": "新增应用并填写名称和必要的可访问租户；或者选择已有应用的详情、修改、删除",
+        "system_response": "按当前明确操作和精确对象校验，不把列表/新增/查看/修改/删除混为一次保存",
+        "rule_ids": [
+          "BR-001",
+          "BR-020"
+        ]
+      },
+      {
+        "step": 3,
+        "actor": "云呼叫中心",
+        "action": "保存新应用并提供appId和appSecret",
+        "system_response": "成功进入应用详情；原型返回合成不可用值，保存失败不显示成功或假凭证",
+        "rule_ids": [
+          "BR-001",
+          "BR-020"
+        ]
+      },
+      {
+        "step": 4,
+        "actor": "超级管理员",
+        "action": "按需查看/复制凭证，或修改/确认删除当前应用",
+        "system_response": "详情默认遮罩、按需显示复制；修改保留原appId/密钥，合成业务身份解析始终按当前租户授权校验；删除取消不变，成功删除精确应用，其合成凭证及已发合成身份失效。删除后不能再凭其密钥申请新业务token，既有token的真实撤销/时效机制仍待核。",
+        "rule_ids": [
+          "BR-001",
+          "BR-020"
+        ]
+      },
+      {
+        "step": 5,
+        "actor": "DCC",
+        "action": "在后台以有效应用凭证与tenantId申请租户业务身份",
+        "system_response": "仅授权有效时返回该租户业务身份；无效/已删除凭证/未授权租户拒绝，不产生应用管理权限",
+        "rule_ids": [
+          "BR-001",
+          "BR-020"
+        ]
+      }
+    ],
+    "alternate_flows": [
+      {
+        "id": "ALT-001",
+        "condition": "当前身份无应用管理权限",
+        "steps": [
+          "拒绝访问或写入，配置不变"
+        ]
+      },
+      {
+        "id": "ALT-002",
+        "condition": "新增必要输入无效",
+        "steps": [
+          "提示当前输入问题，不保存/生成成功凭证"
+        ]
+      },
+      {
+        "id": "ALT-003",
+        "condition": "保存失败或当前对象已变化",
+        "steps": [
+          "保留原配置，明确失败，重新打开当前对象后处理"
+        ]
+      },
+      {
+        "id": "ALT-004",
+        "condition": "取消删除",
+        "steps": [
+          "当前应用及凭证保留"
+        ]
+      },
+      {
+        "id": "ALT-005",
+        "condition": "凭证已删除/无效或租户未授权",
+        "steps": [
+          "拒绝新租户身份发放，管理权限不改变"
+        ]
+      }
+    ],
+    "postconditions": [
+      "新增/修改/删除的结果对应当前应用；列表和详情仅显示保存事实。",
+      "DCC业务身份与应用管理身份分离；日常应用页不承担技术身份交换演示。",
+      "应用管理结果结束后，不自动调用token交换；只有DCC另行发起后台身份申请时才验证凭证/租户。"
+    ],
+    "acceptance_points": [
+      "AC-017",
+      "AC-028",
+      "AC-044",
+      "AC-045",
+      "AC-053",
+      "AC-054",
+      "AC-055",
+      "AC-056",
+      "AC-057",
+      "AC-058"
+    ],
+    "source_story_ids": [
+      "US-001"
+    ],
+    "source_refs": [
+      "inputs/source-index.json#SRC-087",
+      "inputs/source-index.json#SRC-088",
+      "inputs/source-index.json#SRC-074"
+    ],
+    "flow_diagram": {
+      "lanes": [
+        {
+          "id": "admin",
+          "name": "超级管理员",
+          "kind": "actor"
+        },
+        {
+          "id": "platform",
+          "name": "云呼叫中心",
+          "kind": "system"
+        },
+        {
+          "id": "dcc",
+          "name": "DCC",
+          "kind": "external_system"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "S",
+          "lane_id": "admin",
+          "type": "start",
+          "order": 1,
+          "label": "建立或维护应用接入凭证"
+        },
+        {
+          "id": "LIST",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 2,
+          "label": "进入列表查询应用",
+          "step_ref": 1
+        },
+        {
+          "id": "PERM",
+          "lane_id": "platform",
+          "type": "decision",
+          "order": 3,
+          "label": "当前身份具有应用管理权限？"
+        },
+        {
+          "id": "OP",
+          "lane_id": "admin",
+          "type": "decision",
+          "order": 4,
+          "label": "本次明确业务操作",
+          "step_ref": 2
+        },
+        {
+          "id": "FORM",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 5,
+          "label": "新增：填写名称和可访问租户"
+        },
+        {
+          "id": "NEW_OK",
+          "lane_id": "platform",
+          "type": "decision",
+          "order": 6,
+          "label": "输入有效且保存成功？"
+        },
+        {
+          "id": "CREATED",
+          "lane_id": "platform",
+          "type": "action",
+          "order": 7,
+          "label": "提供appId和appSecret\n原型仅不可用合成值",
+          "step_ref": 3
+        },
+        {
+          "id": "EDIT",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 9,
+          "label": "修改：明确当前应用和变更",
+          "step_ref": 4
+        },
+        {
+          "id": "EDIT_OK",
+          "lane_id": "platform",
+          "type": "decision",
+          "order": 10,
+          "label": "当前对象有效且保存成功？"
+        },
+        {
+          "id": "EDITED",
+          "lane_id": "platform",
+          "type": "action",
+          "order": 11,
+          "label": "修改成功，原appId/密钥保持\n合成身份按当前租户授权校验"
+        },
+        {
+          "id": "DEL",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 13,
+          "label": "删除：明确精确当前应用",
+          "step_ref": 4
+        },
+        {
+          "id": "CONFIRM",
+          "lane_id": "admin",
+          "type": "decision",
+          "order": 14,
+          "label": "确认删除？"
+        },
+        {
+          "id": "DELETED",
+          "lane_id": "platform",
+          "type": "action",
+          "order": 16,
+          "label": "仅删除该应用\n合成凭证/已发身份失效\n真实token撤销机制待核"
+        },
+        {
+          "id": "TOKEN",
+          "lane_id": "dcc",
+          "type": "action",
+          "order": 21,
+          "label": "后台凭证+tenantId申请业务身份",
+          "step_ref": 5
+        },
+        {
+          "id": "AUTH",
+          "lane_id": "platform",
+          "type": "decision",
+          "order": 22,
+          "label": "凭证有效且租户已授权？"
+        },
+        {
+          "id": "IDENTITY",
+          "lane_id": "platform",
+          "type": "action",
+          "order": 23,
+          "label": "返回指定租户业务身份\n不授应用管理权"
+        },
+        {
+          "id": "END",
+          "lane_id": "dcc",
+          "type": "end",
+          "order": 24,
+          "label": "使用该租户业务身份"
+        },
+        {
+          "id": "DENIED",
+          "lane_id": "admin",
+          "type": "end",
+          "order": 26,
+          "label": "拒绝管理，配置不变"
+        },
+        {
+          "id": "AUTH_FAIL",
+          "lane_id": "dcc",
+          "type": "end",
+          "order": 23,
+          "label": "拒绝新身份发放"
+        },
+        {
+          "id": "DETAIL_NEW",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 8,
+          "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+          "step_ref": 4
+        },
+        {
+          "id": "DETAIL_VIEW",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 18,
+          "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+          "step_ref": 4
+        },
+        {
+          "id": "DETAIL_EDIT",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 12,
+          "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+          "step_ref": 4
+        },
+        {
+          "id": "DETAIL_CANCEL",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 17,
+          "label": "详情：按需显示/复制密钥\n不展示技术交换参数",
+          "step_ref": 4
+        },
+        {
+          "id": "NEW_FAIL",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 7,
+          "label": "保存/对象问题：提示失败\n不伪造成功或覆盖旧数据"
+        },
+        {
+          "id": "EDIT_FAIL",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 11,
+          "label": "保存/对象问题：提示失败\n不伪造成功或覆盖旧数据"
+        },
+        {
+          "id": "DELETE_FAIL",
+          "lane_id": "admin",
+          "type": "action",
+          "order": 16,
+          "label": "保存/对象问题：提示失败\n不伪造成功或覆盖旧数据"
+        },
+        {
+          "id": "DELETE_OK",
+          "lane_id": "platform",
+          "type": "decision",
+          "order": 15,
+          "label": "当前权限/对象有效且删除保存成功？"
+        },
+        {
+          "id": "RESULT",
+          "lane_id": "platform",
+          "type": "action",
+          "order": 19,
+          "label": "返回当前操作的真实结果\n成功/失败/取消各自保留配置状态"
+        },
+        {
+          "id": "REQUEST",
+          "lane_id": "dcc",
+          "type": "decision",
+          "order": 20,
+          "label": "DCC是否独立申请租户身份？"
+        },
+        {
+          "id": "END_UI",
+          "lane_id": "admin",
+          "type": "end",
+          "order": 21,
+          "label": "本次管理操作结束"
+        }
+      ],
+      "edges": [
+        {
+          "from": "S",
+          "to": "LIST"
+        },
+        {
+          "from": "LIST",
+          "to": "PERM"
+        },
+        {
+          "from": "PERM",
+          "to": "OP",
+          "label": "有权限"
+        },
+        {
+          "from": "PERM",
+          "to": "DENIED",
+          "label": "无权限",
+          "path_id": "ALT-001",
+          "type": "failure"
+        },
+        {
+          "from": "OP",
+          "to": "FORM",
+          "label": "新增"
+        },
+        {
+          "from": "OP",
+          "to": "DETAIL_VIEW",
+          "label": "查看详情"
+        },
+        {
+          "from": "OP",
+          "to": "EDIT",
+          "label": "修改"
+        },
+        {
+          "from": "OP",
+          "to": "DEL",
+          "label": "删除"
+        },
+        {
+          "from": "FORM",
+          "to": "NEW_OK"
+        },
+        {
+          "from": "NEW_OK",
+          "to": "CREATED",
+          "label": "有效且保存成功"
+        },
+        {
+          "from": "NEW_OK",
+          "to": "NEW_FAIL",
+          "label": "输入无效或保存失败",
+          "path_id": "ALT-002",
+          "type": "failure"
+        },
+        {
+          "from": "CREATED",
+          "to": "DETAIL_NEW"
+        },
+        {
+          "from": "EDIT",
+          "to": "EDIT_OK"
+        },
+        {
+          "from": "EDIT_OK",
+          "to": "EDITED",
+          "label": "有效且保存成功"
+        },
+        {
+          "from": "EDIT_OK",
+          "to": "EDIT_FAIL",
+          "label": "对象变化或保存失败",
+          "path_id": "ALT-003",
+          "type": "failure"
+        },
+        {
+          "from": "EDITED",
+          "to": "DETAIL_EDIT"
+        },
+        {
+          "from": "DEL",
+          "to": "CONFIRM"
+        },
+        {
+          "from": "CONFIRM",
+          "to": "DELETE_OK",
+          "label": "确认"
+        },
+        {
+          "from": "CONFIRM",
+          "to": "DETAIL_CANCEL",
+          "label": "取消",
+          "path_id": "ALT-004"
+        },
+        {
+          "from": "DELETED",
+          "to": "RESULT"
+        },
+        {
+          "from": "TOKEN",
+          "to": "AUTH"
+        },
+        {
+          "from": "AUTH",
+          "to": "IDENTITY",
+          "label": "凭证有效且租户授权"
+        },
+        {
+          "from": "AUTH",
+          "to": "AUTH_FAIL",
+          "label": "凭证无效/已删除或租户未授权",
+          "path_id": "ALT-005",
+          "type": "failure"
+        },
+        {
+          "from": "IDENTITY",
+          "to": "END"
+        },
+        {
+          "from": "DETAIL_NEW",
+          "to": "RESULT"
+        },
+        {
+          "from": "DETAIL_VIEW",
+          "to": "RESULT"
+        },
+        {
+          "from": "DETAIL_EDIT",
+          "to": "RESULT"
+        },
+        {
+          "from": "DETAIL_CANCEL",
+          "to": "RESULT"
+        },
+        {
+          "from": "DELETE_OK",
+          "to": "DELETED",
+          "label": "对象有效且删除成功"
+        },
+        {
+          "from": "DELETE_OK",
+          "to": "DELETE_FAIL",
+          "label": "权限/对象变化或保存失败",
+          "type": "failure",
+          "path_id": "ALT-003"
+        },
+        {
+          "from": "NEW_FAIL",
+          "to": "RESULT"
+        },
+        {
+          "from": "EDIT_FAIL",
+          "to": "RESULT"
+        },
+        {
+          "from": "DELETE_FAIL",
+          "to": "RESULT"
+        },
+        {
+          "from": "RESULT",
+          "to": "REQUEST"
+        },
+        {
+          "from": "REQUEST",
+          "to": "TOKEN",
+          "label": "独立DCC请求"
+        },
+        {
+          "from": "REQUEST",
+          "to": "END_UI",
+          "label": "没有新DCC请求"
+        }
+      ]
+    }
+  },
+  "business_rule_ids": [
+    "BR-001",
+    "BR-020"
+  ],
+  "priority": "P0",
+  "current_scope_approval": {
+    "gate": "G1",
+    "approval_ref": "runtime/tianwang-g1-user-approval-20261013.json",
+    "approval_sha256": "aa18ca7adb11cc1261645ba86de37782ee0d80c54bc967050d903e90086e422b",
+    "scope_source": "SRC-116",
+    "actual_answer": "批准 G1，继续 S3／S4",
+    "G2_approved": false,
+    "G3_approved": false,
+    "production_verified": false
+  },
+  "analysis_phase": "S3_Tianwang_shared_ingest_owner_TMP_candidate",
+  "candidate_provenance": {
+    "base_path": "scenarios/SC-005.json",
+    "base_sha256": "45ef89e692ef6451c53698e039dd5196b100e9dd9d2263d1420c038998765bc7",
+    "scope_source": "SRC-116",
+    "actual_G1_ref": "runtime/tianwang-g1-user-approval-20261013.json",
+    "actual_G1_sha256": "aa18ca7adb11cc1261645ba86de37782ee0d80c54bc967050d903e90086e422b",
+    "S1_source_sha256": {
+      "memory/normalized-user-stories.json": "70ed0820162dca9fe8a4893f801c655788c18c20828a1a176c50f922045e19d0",
+      "memory/project-facts.json": "60ce3e08fe2e99921ac679d1a6df75417f5cca1e968cebbf9452353ca3defa22"
+    },
+    "stable_nodes_edges_steps_ALT_preserved": true,
+    "drawing_reuse_of_preserved": true,
+    "independent_token_entry": true,
+    "real_credentials_present": false,
+    "shared_files_modified": false
+  },
+  "candidate_validation": {
+    "check_type": "TMP_stock_swimlane_geometry_and_local_PlantUML_compile",
+    "executed": true,
+    "model_errors": [],
+    "geometry_errors": [],
+    "main_steps_referenced": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "alternate_paths_referenced": [
+      "ALT-001",
+      "ALT-002",
+      "ALT-003",
+      "ALT-004",
+      "ALT-005"
+    ],
+    "terminal_paths": 15,
+    "projected_path_language_equal": true,
+    "formal_PlantUML_rendered": false,
+    "local_PlantUML_compile": true,
+    "browser_visual_verified": false,
+    "production_verified": false,
+    "stage_complete_claimed": false,
+    "shared_files_modified": false
+  },
+  "candidate_phase": "SRC116_current_G1_bound_SC005_label_lane_notes_alignment_no_control_flow_change"
+}

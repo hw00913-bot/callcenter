@@ -1,0 +1,787 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-001",
+  "name": "DCC客户接收与按手机号拆批",
+  "summary": "接收DCC客户并按一个手机号一个批次拆分，保留线索编码；R为可选来源元数据，提供则保留追踪，缺R不失败且无需字典维护；在云呼叫中心本地持久保存导入客户记录；支持导入失败记录导出；导入接口增加独立优先级字段；有效客户保存拆批后自动提交供应商接口；本地优先级配置与每日自然日降级；DCC定向删除供应商号码；应用凭据换租户token；创建提交锁定单一任务来源，后端校验，接口任务回传、手工仅查看。 同步证据与53失败分片独立处理，按来源回传，快照导出不删除必要业务状态。",
+  "actors": [
+    "DCC",
+    "云呼叫中心",
+    "AliCti供应商",
+    "运营人员"
+  ],
+  "trigger": "DCC主动传入外呼客户数据",
+  "preconditions": [
+    "应用及租户授权配置是已确认业务目标；无真实凭据",
+    "每行独立判断，未约定的幂等行为不推定",
+    "应用配置仅由超管维护；租户管理员直达管理页面/接口拒绝；业务租户token不授予管理权"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "DCC",
+      "action": "使用授权应用凭证与tenantId申请租户token",
+      "system_response": "验证应用租户授权；返回值/时效待定",
+      "rule_ids": [
+        "BR-001"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "DCC",
+      "action": "携租户token提交客户和供应商taskId",
+      "system_response": "按租户/task归属及创建提交锁定方式逐行校验，接口任务拒绝手工混入",
+      "rule_ids": [
+        "BR-001",
+        "BR-003"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "云呼叫中心",
+      "action": "对有效行保存独立客户记录和单手机号批次",
+      "system_response": "关联原始导入来源，不覆盖历史",
+      "rule_ids": [
+        "BR-002"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云呼叫中心",
+      "action": "待提交记录高优先级先、同级本地时间FIFO自动提交供应商",
+      "system_response": "已提交不撤回重排；未知提交不重复；仅同任务，不同任务独立，实际拨打次序不承诺",
+      "rule_ids": [
+        "BR-003",
+        "BR-004"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "AliCti供应商",
+      "action": "返回号码导入业务结果",
+      "system_response": "保留同步数量及准确成功证据；result0不等逐条全成功，未知待核",
+      "rule_ids": [
+        "BR-004"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "云呼叫中心",
+      "action": "按后续事件跟进该条记录",
+      "system_response": "每日可信状态priority降级或DCC精准删除；每次结果按任务来源回传/查看，不自建重导",
+      "rule_ids": [
+        "BR-006",
+        "BR-007"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "AliCti供应商",
+      "action": "异步推送导入失败结果分片",
+      "system_response": "关联本次导入批次及leadCode，去重/迟到处理；接口回传DCC、手工只查看，失败不计呼叫；导出按快照清理",
+      "rule_ids": [
+        "BR-018",
+        "BR-019"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-001",
+      "condition": "身份/授权无效",
+      "steps": [
+        "拒绝当前请求，不创建业务记录"
+      ]
+    },
+    {
+      "id": "ALT-002",
+      "condition": "该行线索编码/priority/目标等必要校验失败（缺R不失败、不做字典范围校验）",
+      "steps": [
+        "该行失败明细进入FLOW-002",
+        "其他有效行继续，不回滚整请求"
+      ]
+    },
+    {
+      "id": "ALT-003",
+      "condition": "供应商明确拒绝",
+      "steps": [
+        "保留已保存本地记录",
+        "失败进入FLOW-002"
+      ]
+    },
+    {
+      "id": "ALT-004",
+      "condition": "结果未知或超时",
+      "steps": [
+        "结果待核实暂停，核实后再处理，不自动再次提交",
+        "明确拒绝/重复通知独立记录，不算新实际呼叫"
+      ]
+    },
+    {
+      "id": "ALT-005",
+      "condition": "删除失败/未知或执行并发边界不明",
+      "steps": [
+        "不标供应商已删除",
+        "实际并发保护方式待G2决策"
+      ]
+    },
+    {
+      "id": "ALT-006",
+      "condition": "手工导入逐行校验失败",
+      "steps": [
+        "失败入同一下载生命周期",
+        "按钮常驻；无操作权限时的具体矩阵待核，不伪造许可"
+      ]
+    },
+    {
+      "id": "ALT-007",
+      "condition": "本次业务为手工线索导入",
+      "steps": [
+        "常驻按钮导入编码/可选R/priority",
+        "统一填写可逐条修改，仅提交前",
+        "逐行校验并对有效行单号拆批、最终值自动提交",
+        "明确拒绝/校验失败走同失败导出，未知待核，不新增提交后priority手改入口"
+      ]
+    },
+    {
+      "id": "ALT-008",
+      "condition": "53分片重复、迟到或关联/声明冲突",
+      "steps": [
+        "可信关联的新失败保存并按来源回传/查看；重复不新增，已导出重复不再生",
+        "关联冲突或分片矛盾保持待核；未知不推定全成功",
+        "后到新失败进入下一次导出，必要去重/关联/交付状态保留"
+      ]
+    }
+  ],
+  "postconditions": [
+    "本地记录可留存且新批次独立",
+    "导入接受不等于呼叫接通",
+    "删除成功只影响精准记录",
+    "结果未知/矛盾：待核实暂停继续重提；明确拒绝/重复通知另记，不算新实际呼叫；外部能力仅合成模拟"
+  ],
+  "acceptance_points": [
+    "AC-001",
+    "AC-005",
+    "AC-006",
+    "AC-007",
+    "AC-008",
+    "AC-009",
+    "AC-010",
+    "AC-011",
+    "AC-012",
+    "AC-013",
+    "AC-014",
+    "AC-015",
+    "AC-016",
+    "AC-017",
+    "AC-028",
+    "AC-029",
+    "AC-030",
+    "AC-031",
+    "AC-032",
+    "AC-035",
+    "AC-036",
+    "AC-037",
+    "AC-038",
+    "AC-039",
+    "AC-040",
+    "AC-041",
+    "AC-042",
+    "AC-043",
+    "AC-044",
+    "AC-045",
+    "AC-046"
+  ],
+  "source_story_ids": [
+    "US-001"
+  ],
+  "source_refs": [
+    "inputs/user-original-20261009.txt#第1条",
+    "inputs/source-index.json#SRC-003",
+    "inputs/source-index.json#SRC-004",
+    "inputs/source-index.json#SRC-005",
+    "inputs/source-index.json#SRC-006",
+    "inputs/source-index.json#SRC-007",
+    "inputs/source-index.json#SRC-008",
+    "inputs/source-index.json#SRC-009",
+    "inputs/source-index.json#SRC-010",
+    "inputs/source-index.json#SRC-011",
+    "inputs/source-index.json#SRC-012",
+    "inputs/source-index.json#SRC-013",
+    "inputs/source-index.json#SRC-014",
+    "inputs/source-index.json#SRC-015",
+    "inputs/source-index.json#SRC-016",
+    "inputs/source-index.json#SRC-017",
+    "inputs/source-index.json#SRC-018",
+    "inputs/source-index.json#SRC-019",
+    "inputs/source-index.json#SRC-002",
+    "inputs/user-original-20261009.txt#场景1追加原文",
+    "inputs/source-index.json#SRC-020",
+    "inputs/source-index.json#SRC-021",
+    "inputs/source-index.json#SRC-022",
+    "inputs/source-index.json#SRC-023",
+    "inputs/source-index.json#SRC-024",
+    "inputs/source-index.json#SRC-025",
+    "inputs/source-index.json#SRC-026",
+    "inputs/source-index.json#SRC-027",
+    "inputs/source-index.json#SRC-028",
+    "inputs/source-index.json#SRC-029",
+    "inputs/source-index.json#SRC-030",
+    "inputs/source-index.json#SRC-031",
+    "inputs/source-index.json#SRC-032",
+    "inputs/source-index.json#SRC-033",
+    "inputs/source-index.json#SRC-034",
+    "inputs/source-index.json#SRC-035",
+    "inputs/source-index.json#SRC-050",
+    "inputs/source-index.json#SRC-051",
+    "inputs/source-index.json#SRC-056",
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-062",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070",
+    "inputs/source-index.json#SRC-071",
+    "inputs/source-index.json#SRC-072",
+    "inputs/source-index.json#SRC-073",
+    "inputs/source-index.json#SRC-074",
+    "inputs/source-index.json#SRC-076",
+    "inputs/source-index.json#SRC-077"
+  ],
+  "business_rule_ids": [
+    "BR-001",
+    "BR-002",
+    "BR-003",
+    "BR-004",
+    "BR-005",
+    "BR-006",
+    "BR-007",
+    "BR-015",
+    "BR-018",
+    "BR-019",
+    "BR-020",
+    "BR-021"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "dcc",
+        "name": "DCC",
+        "kind": "external_system"
+      },
+      {
+        "id": "platform",
+        "name": "云呼叫中心",
+        "kind": "system"
+      },
+      {
+        "id": "vendor",
+        "name": "AliCti供应商",
+        "kind": "external_system"
+      },
+      {
+        "id": "operator",
+        "name": "运营人员",
+        "kind": "actor"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "S",
+        "lane_id": "operator",
+        "type": "start",
+        "order": 10,
+        "label": "已锁定任务来源：处理当前事件"
+      },
+      {
+        "id": "N1",
+        "lane_id": "dcc",
+        "type": "action",
+        "order": 120,
+        "label": "凭证+tenantId申请租户token",
+        "step_ref": 1
+      },
+      {
+        "id": "D1",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 130,
+        "label": "应用及租户身份有效？"
+      },
+      {
+        "id": "N2",
+        "lane_id": "dcc",
+        "type": "action",
+        "order": 140,
+        "label": "传入客户、可选R、priority、taskId",
+        "step_ref": 2
+      },
+      {
+        "id": "D2",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 150,
+        "label": "本行校验有效？"
+      },
+      {
+        "id": "N3",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 160,
+        "label": "新增本地记录及单号批次",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 170,
+        "label": "待提交高优先级先/同级FIFO；不同任务独立",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "vendor",
+        "type": "action",
+        "order": 180,
+        "label": "同步导入数量与结果",
+        "step_ref": 5
+      },
+      {
+        "id": "D3",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 190,
+        "label": "本次同步证据可信类型"
+      },
+      {
+        "id": "N6",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 200,
+        "label": "后续业务事件",
+        "step_ref": 6
+      },
+      {
+        "id": "DAY",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 210,
+        "label": "当天/历史待跟进结果；自然日降1最低1"
+      },
+      {
+        "id": "DEL",
+        "lane_id": "dcc",
+        "type": "action",
+        "order": 210,
+        "label": "指定任务/批次/手机号删除"
+      },
+      {
+        "id": "DD",
+        "lane_id": "vendor",
+        "type": "decision",
+        "order": 220,
+        "label": "删除明确成功？"
+      },
+      {
+        "id": "MARK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 230,
+        "label": "留本地记录；精准删除成功停priority降级"
+      },
+      {
+        "id": "END",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 240,
+        "label": "记录保留等待新事件"
+      },
+      {
+        "id": "E1",
+        "lane_id": "dcc",
+        "type": "end",
+        "order": 150,
+        "label": "拒绝当前身份请求"
+      },
+      {
+        "id": "E2",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 160,
+        "label": "本行失败入导出；其他有效行继续"
+      },
+      {
+        "id": "E3",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 200,
+        "label": "明确导入失败入导出；保留本地记录"
+      },
+      {
+        "id": "E4",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 210,
+        "label": "超时/矛盾：结果待核实，暂停重提"
+      },
+      {
+        "id": "E5",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 230,
+        "label": "失败/未知不标删除；并发策略待核"
+      },
+      {
+        "id": "END-DAY",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 220,
+        "label": "留记录等待下次每日事件"
+      },
+      {
+        "id": "END-DEL",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 240,
+        "label": "本地记录保留；指定号码删除成功"
+      },
+      {
+        "id": "MODE",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 20,
+        "label": "本次导入来源"
+      },
+      {
+        "id": "MAN",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 30,
+        "label": "常驻手工导入：线索/可选R/统一priority"
+      },
+      {
+        "id": "PM",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 40,
+        "label": "预览逐条priority；仅提交前可修改"
+      },
+      {
+        "id": "VM",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 50,
+        "label": "本行线索/priority等必要校验有效？R可选"
+      },
+      {
+        "id": "SAVE-M",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 60,
+        "label": "有效行新增独立客户和单号批次"
+      },
+      {
+        "id": "SUB-M",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 70,
+        "label": "最终priority排序提交；已提交不重排"
+      },
+      {
+        "id": "RES-M",
+        "lane_id": "vendor",
+        "type": "event",
+        "order": 80,
+        "label": "同步数量及成功/失败证据；未知待核"
+      },
+      {
+        "id": "END-M",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 90,
+        "label": "失败同FLOW-002；未知待核；成功留记录"
+      },
+      {
+        "id": "FAIL-M",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 60,
+        "label": "该行失败入下载；有效行继续"
+      },
+      {
+        "id": "IMP53",
+        "lane_id": "vendor",
+        "type": "event",
+        "order": 250,
+        "label": "53失败结果分片（如推送）",
+        "step_ref": 7
+      },
+      {
+        "id": "MAP53",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 260,
+        "label": "企业/任务/fileId/原始号码关联可信？"
+      },
+      {
+        "id": "UPS53",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 270,
+        "label": "合并分片；去重迟到处理；保存新失败"
+      },
+      {
+        "id": "MODE53",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 280,
+        "label": "任务来源？"
+      },
+      {
+        "id": "CALL53",
+        "lane_id": "dcc",
+        "type": "action",
+        "order": 290,
+        "label": "接收导入阶段失败；失败补送不重导"
+      },
+      {
+        "id": "VIEW53",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 290,
+        "label": "手工仅平台查看失败"
+      },
+      {
+        "id": "DONE53",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 300,
+        "label": "快照导出；保留关联去重/交付状态"
+      },
+      {
+        "id": "UNK53",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 310,
+        "label": "冲突待核；不盲配或伪造全成功"
+      },
+      {
+        "id": "TRIGGER",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 15,
+        "label": "当前业务事件入口"
+      }
+    ],
+    "edges": [
+      {
+        "from": "N1",
+        "to": "D1"
+      },
+      {
+        "from": "D1",
+        "to": "N2",
+        "label": "是"
+      },
+      {
+        "from": "D1",
+        "to": "E1",
+        "label": "否",
+        "path_id": "ALT-001",
+        "type": "failure"
+      },
+      {
+        "from": "N2",
+        "to": "D2"
+      },
+      {
+        "from": "D2",
+        "to": "N3",
+        "label": "有效"
+      },
+      {
+        "from": "D2",
+        "to": "E2",
+        "label": "无效",
+        "path_id": "ALT-002",
+        "type": "failure"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "D3",
+        "label": "同步响应处理"
+      },
+      {
+        "from": "D3",
+        "to": "N6",
+        "label": "明确接受"
+      },
+      {
+        "from": "D3",
+        "to": "E3",
+        "label": "明确拒绝",
+        "path_id": "ALT-003",
+        "type": "failure"
+      },
+      {
+        "from": "D3",
+        "to": "E4",
+        "label": "未知/超时",
+        "path_id": "ALT-004",
+        "type": "failure"
+      },
+      {
+        "from": "N6",
+        "to": "DAY",
+        "label": "每日跟进事件"
+      },
+      {
+        "from": "N6",
+        "to": "DEL",
+        "label": "DCC删除事件"
+      },
+      {
+        "from": "N6",
+        "to": "END",
+        "label": "尚无后续事件"
+      },
+      {
+        "from": "DAY",
+        "to": "END-DAY"
+      },
+      {
+        "from": "DEL",
+        "to": "DD"
+      },
+      {
+        "from": "DD",
+        "to": "MARK",
+        "label": "成功"
+      },
+      {
+        "from": "DD",
+        "to": "E5",
+        "label": "失败/未知",
+        "path_id": "ALT-005",
+        "type": "failure"
+      },
+      {
+        "from": "MARK",
+        "to": "END-DEL"
+      },
+      {
+        "from": "MODE",
+        "to": "N1",
+        "label": "DCC接口"
+      },
+      {
+        "from": "MODE",
+        "to": "MAN",
+        "label": "手工导入",
+        "path_id": "ALT-007"
+      },
+      {
+        "from": "MAN",
+        "to": "PM"
+      },
+      {
+        "from": "PM",
+        "to": "VM"
+      },
+      {
+        "from": "VM",
+        "to": "SAVE-M",
+        "label": "有效"
+      },
+      {
+        "from": "VM",
+        "to": "FAIL-M",
+        "label": "无效",
+        "path_id": "ALT-006",
+        "type": "failure"
+      },
+      {
+        "from": "SAVE-M",
+        "to": "SUB-M"
+      },
+      {
+        "from": "SUB-M",
+        "to": "RES-M"
+      },
+      {
+        "from": "RES-M",
+        "to": "END-M",
+        "label": "同步响应处理"
+      },
+      {
+        "from": "IMP53",
+        "to": "MAP53"
+      },
+      {
+        "from": "MAP53",
+        "to": "UPS53",
+        "label": "可信"
+      },
+      {
+        "from": "MAP53",
+        "to": "UNK53",
+        "label": "不明/冲突",
+        "path_id": "ALT-008",
+        "type": "failure"
+      },
+      {
+        "from": "UPS53",
+        "to": "MODE53"
+      },
+      {
+        "from": "MODE53",
+        "to": "CALL53",
+        "label": "接口任务"
+      },
+      {
+        "from": "MODE53",
+        "to": "VIEW53",
+        "label": "手工任务"
+      },
+      {
+        "from": "CALL53",
+        "to": "DONE53"
+      },
+      {
+        "from": "VIEW53",
+        "to": "DONE53"
+      },
+      {
+        "from": "S",
+        "to": "TRIGGER"
+      },
+      {
+        "from": "TRIGGER",
+        "to": "MODE",
+        "label": "新导入请求"
+      },
+      {
+        "from": "TRIGGER",
+        "to": "IMP53",
+        "label": "后续53异步失败推送"
+      }
+    ]
+  },
+  "design_notes": [
+    "任务来源创建提交即锁定，按钮常驻但接口任务手工禁用；后端同时校验，应用仅鉴权追踪；G3未批准。",
+    "53分片只指失败结果推送，非业务批次或全导入终态；异步处理不阻止准确同步成功正常记录。",
+    "导入同步与53异步为不同事件入口；异步事件不是每次导入必须等待的步骤，不伪造零失败推送。"
+  ]
+}

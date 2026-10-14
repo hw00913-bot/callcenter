@@ -1,0 +1,654 @@
+{
+  "at": "2026-10-14T14:23:14.101218+08:00",
+  "change_id": "CH-V110-COMPLETED-COMMUNICATION-BUSINESS-BATCH-20261014",
+  "scope": "SRC123 user supplement business field and option codes",
+  "files": {
+    "inputs/source-index.json": {
+      "sha256": "f0c977ea9ee75c5a5b046c50a192d1203cad4ad9ddc5132dbe12667bd3afe8fe"
+    },
+    "inputs/user-completed-communication-business-batch-20261014.md": {
+      "sha256": "02e1ed7cb6a50a8f1d578bb50ec6cd62728fdee86a2cc5dd27323eb148acc10d"
+    },
+    "memory/normalized-user-stories.json": {
+      "sha256": "f9c4d13d2e587a4656e1c18023ca21b8527e49ef5dd176e6197c7ec0a18836e4"
+    },
+    "memory/project-facts.json": {
+      "sha256": "87e80f59d29a17f693c91f7b65778686b6b1d7704e2cd0716ef13c53b074cfbd"
+    },
+    "scenarios/scenario-index.json": {
+      "sha256": "e7e40c5dff44d2d7ec208e9d8ff6d5437eddfced66d4f85538d26c12c95c2daa"
+    }
+  },
+  "prior_acceptance": {
+    "AC-001": "预外呼范围：不同手机号形成独立批次，各批次带对应线索编码；R可选，提供则保留来源追踪，缺R不失败。",
+    "AC-005": "接口与原手工导入的R均可选来源元数据，无需字典/允许范围校验；未传不导致行失败，提供则保留追踪，priority独立。保留旧R，不新增默认R枚举；通用输入安全/长度等正式规范仍待核。",
+    "AC-006": "预外呼范围：每次有效手工新业务新增recordId和单手机号batchId，不覆盖旧记录，保存phone/leadCode/可选R；外部（DCC/天网）新业务与技术重传按US-010，分别新行映射/原映射回执。平台失败补提另存内部执行与必要单号子批，固定触发root，重复确认/事件不新交；手工界面不新增requestId/isNewBatch或主批控制。",
+    "AC-008": "预外呼范围：运营人员在云呼叫中心下载导入失败记录；未下载记录不设固定到期、持续保留；仅可信成功下载后删除本次成功导出的失败明细和对应文件，不影响成功客户和必要业务状态；失败、中断或未知保留。异步失败按固定快照清理，后到新失败留待下次，已导出重复不再生成；去重、关联、分片、内部尝试及累计已用/未知占用不随明细删除。",
+    "AC-011": "预外呼范围：有效手工客户完成当前校验、本地新增独立记录及单手机号批次后，以该原任务已保存的准确供应商任务ID和最终priority自动提交供应商接口，无需运营再手动提交；不采用统一预设供应商任务、不猜任务映射。",
+    "AC-013": "预外呼范围：本地校验保存成功但供应商明确拒绝接收时，纳入导入失败记录，供运营下载并展示供应商返回失败原因。 同步及53异步明确导入失败均适用，未知不误判；导入失败与呼叫失败分开。",
+    "AC-014": "本地保存原客户称呼、号码、备注和按业务类型的编码，以及leadCode/最终priority/可选R；线索类新导入的单一编码同源写入leadCode与兼容externalDocumentId，其他类型及历史记录不批量改写。外部接口保存requestId/行、验真租户/稳定应用、由应用登记识别的业务来源及外呼方式；人工分配另保存原坐席工号及解析后的身份。预外呼保存原任务、record/batch/root、原时间和实际供应商映射，失败补提固定触发root/priority及共享连续额度；人工不伪造预测映射或预算。原接入来源不因应用改名/删除或后续同组记录改变。所有已鉴权并保存接入应用/source的接口来源准确结果（含DCC、天网）按US-006回调；原手工UI导入且无接入应用者仅平台查看，秒挂不补提交。",
+    "AC-015": "平台取消每日定时查询当天/历史待跟进号码状态及自然日priority衰减，不因未拨、已拨未接通、跨日或原导入日期计算改写存量priority；仅服务衰减的状态查询退出。既有每次可信事件、话单/SIP及无话单失败记录和平台查看继续保留。",
+    "AC-028": "预外呼导入、呼叫结果、失败处理及秒挂判定沿既有任务级记录页和任务区域，常驻导入客户入口及原手工大弹窗保持，不新增顶级运营入口；恢复系统设置应用接入列表/新增/详情/修改/删除与后台租户token，仅超管管理，现有登录/租户/任务权限沿用。",
+    "AC-029": "预外呼“导入客户”入口常驻，本轮对已锁手工来源的任务打开既有手工导入。当前权限、只读或任务状态不可导入时保留禁用入口和原因，后端同时校验当前租户任务归属、来源与既有可导入状态；不通过按钮改变历史任务补导规则。历史接口来源记录保留，不切换为手工，不通过本轮新增名单混入。",
+    "AC-030": "预外呼范围：手工priority统一/逐条填写，仅提交前可改；确认时每个有效行最终priority必填，保存后单手机号独立拆批自动提交。提交后无人工改priority或日龄自动降级；本轮恢复原手工界面体验，统一/逐条调整留在原检查区，原客户信息保留；不新增对外请求或主子控制输入。",
+    "AC-031": "预外呼范围：手工线索类只显示并填写一个必需的“线索编码”，复用原动态编码输入，不额外要求同义“业务编码”。保留原基础信息、称呼、号码、备注、CSV文件上传／粘贴／检查／确认；最终priority必填且提交前可统一或逐行填写，联系备注和R选填后置。R无需字典维护/范围校验，缺R不失败；一手机号一批次，失败沿本次可信成功下载后的快照清理规则。",
+    "AC-032": "不执行每日状态查询、自然日priority衰减或存量priority改写。失败補提交用触发记录保存priority并留原时间审计；秒挂仅判定保存，应用接口来源含DCC/天网均按应用配置回调，无接入应用的手工UI来源平台查看，不提交重呼。",
+    "AC-035": "关联不明、提交超时、状态未知或真正可信证据冲突保留待核，不伪造成功/失败/最终状态；重复及可信SIP晚更新沿同一已保存对象，不算新呼叫、不重新建立失败计划或发起供应商导入。",
+    "AC-036": "预外呼任务创建按既定外部接口或原手工导入选择来源，提交后锁定；服务端校验当前token租户、原任务归属和锁定模式，任务归租户不另绑应用。接口模式接受与该租户有效关联的应用之同schema请求，保存稳定应用及其已登记业务来源，仍按原任务坐席组分配。人工外呼分支按US-011，不借此改预外呼来源或给历史任务混入名单。历史模式/数据保留，身份/归属不足不猜配。",
+    "AC-038": "每次可信结果保存原供应商finishRetryFlag Integer1最后一条/0否，未知或未返回独立表示，与SIP更新分开；不能据该标志宣布任务结束或无在途。每次准确结果和可信晚更新均保存，应用接口来源含DCC/天网交US-006回调，不只保存/回传最后一条；无接入应用的手工UI来源同样保存每次准确原结果及可信晚更新，仅平台查看。",
+    "AC-039": "预外呼范围：同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。",
+    "AC-040": "预外呼范围：接收53导入失败分片，按enterpriseId经核实租户映射、原taskId、实际fileId及原始号码数据精确回查本次记录、保存root和线索编码；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅是失败推送分片，不是业务批次；去重、乱序、迟到保留。收齐只证明已声明该失败推送组，不证明全导入终态；未收到不推定零失败。",
+    "AC-041": "预外呼范围：导入阶段明确失败保存并展示原始原因及准确tenant/原task/record/batch/root/leadCode/phone与实际fileId关联；无准确关联待核。已鉴权保存应用/source的全部接口来源按US-006回调准确导入失败，无接入应用的手工UI来源仅平台查看；导入失败不计实际呼叫、不触发11类呼叫失败补提交，结果交付失败不重新提交供应商。",
+    "AC-042": "预外呼范围：既有失败导出入口生成本次固定失败明细快照并显示已知分片完整性；未收齐或未知显示不完整/待核。可信成功下载仅删除本快照明细与文件，失败、中断或未知保留，后到新失败进入后续下载；保留必要业务关联、去重、分片、计划/内部尝试、累计已用及未知占用，已导出重复不再生，不能清空整批客户。",
+    "AC-043": "合成验收预外呼同步部分成功、53分片乱序/重复/迟到与准确关联、失败快照生命周期；各应用接口来源含DCC/天网及人工外呼均回调，无接入应用的手工UI来源仅查看。缺回调配置则接口导入拒绝且不落客户/分配/批次或供应商提交；回调补送不新导入、分配或呼叫。应用多租户使用明确租户身份，跨租户任务/坐席拒绝；来源声明不能更换应用身份/回调。幂等、登记和历史兼容仍待S4，本轮仅合成。",
+    "AC-046": "预外呼范围：同一任务的待提交号码按优先级高先提交，同优先级按本地导入时间FIFO；不同任务独立。已提交不撤回重排，提交结果未知不为重排重复提交；一手机号一批次及priority透传保持，不承诺实际拨打顺序。",
+    "AC-052": "准确结果保存其实际record、号码及可信callID或稳定事件，leadCode不能替代真实呼叫身份。预外呼另保存原task/batch/root及实际fileId；人工沿真实客户/坐席分配/呼叫关联，不伪造预测字段。接口来源保留原验真app/tenant、requestId/行和与认证应用登记一致的来源，原手工不新增对外协议。去重/审计不因下载或删除丢失；预外呼补提固定触发root。应用接口来源含DCC/天网且关联准确者按US-006回调，无接入应用的手工UI来源仅查看；来源或关联不足待核，不默认DCC。",
+    "AC-059": "预外呼任务列表和任务内“导入客户”入口常驻，按所选任务已锁定来源使用对应既有入口；手工来源保持原大弹窗，接口来源不混入手工名单，不切换来源。无权/只读/状态不允许保持禁用及原因；历史可补导任务仅未启动状态沿原权限/名单策略，保留旧名单批次累计，不借入口扩大启动后的初始导入策略。供应商运行任务接收矩阵仍待核。",
+    "AC-060": "原手工导入的上传/粘贴内容、检查结果和最终行编辑必须绑定同一当前草稿；换文件、改文本、检查失败/空结果使旧预览失效。提交处理中锁定，落账前复核身份、任务、当前输入与优先级；取消不提交旧名单。",
+    "AC-069": "原客户信息完整保留，原编码按实际业务类型命名。线索类使用一个“线索编码”输入，本次新导入以同一值保存leadCode和兼容键externalDocumentId，不批量改写历史记录；售后类／活动类继续对应单据名称及现有独立leadCode，本轮不重定义。原CSV选文件／粘贴与检查确认保持；旧线索类CSV若含两编码列且值相同可兼容，值不一致应提示并保留输入供修正，不静默覆盖或丢弃原信息。",
+    "AC-002": "接收线路侧每次可信话单/call/SIP及原始结果，精确关联保存，运营沿既有任务权限查看；已鉴权保存应用/source的接口来源结果（含DCC、天网）交US-006回调。呼叫过频和任务配置状态仅交AliCti原生重呼，11类失败转异常策略，秒挂仅判定不额外提交；原生覆盖/执行权互斥仍待核。",
+    "AC-019": "预外呼范围：平台异常补提交保留触发记录原任务、来源及保存root，用内部计划/尝试标识，新子批固定原root不随后来新主改变。外部来源保留原已验证应用、requestId/行审计及逐记录交付关系，接口来源含DCC/天网交US-006回调，无接入应用的手工UI来源平台查看；不伪造新的外部业务请求；独立内部执行继续遵守累计共享失败额度与UNKNOWN占用。",
+    "AC-026": "预外呼范围：三天五呼仅适用于任务重呼规则配置状态触发的正常重呼执行流程；呼叫过频只交任务规则，11类失败平台补提交不认作该次数。三天起算、五呼是否含初呼及跨子批延续口径仍待供应商确认，本平台不汇总改写为失败额外次数。",
+    "AC-062": "未可信纯SIP独立保留待核来源证据，不改已确认呼叫结果、不冒充可信非SIP冲突、不阻止随后准确可信call/SIP更新。验收未可信SIP→可信call→可信SIP及可信call→未可信SIP→可信SIP两种顺序：无其他真实可信矛盾时更新同一原call的SIP字段和本地版本，不新增呼叫；真正可信关联或非SIP结果冲突仍待核。",
+    "AC-003": "接收并保存可信准确预测呼叫失败原始原因，应用接口来源含DCC/天网交US-006回调，无接入应用的手工UI来源平台查看。无话单失败不等待客户状态推送或话单；准确稳定事件身份与原因映射仍待核。",
+    "AC-020": "可信准确的11类预测呼叫失败分类保存。禁呼、限呼、restrict tel即外呼黑名单三类从平台收到并确认每次失败起算120秒自动补提交，线路降级依赖供应商外显导航，不先取得解禁/降级成功回执；其余八类仅人工。自动/人工共享首次外最多2次，无话单可信失败直接记录；导航覆盖、配置、执行权和真实事件仍待核。",
+    "AC-033": "预外呼范围：无话单可信失败独立本地保存，允许无通话ID，以准确稳定事件关联原记录；未知/未返回不伪造话单、callId或默认最后一通标识。",
+    "AC-004": "准确判定秒挂后保存真实呼叫、原话单、供应商原结果、本方秒挂/非秒挂/待核三态及证据；应用接口来源含DCC/天网交US-006明确回调，无接入应用的手工UI来源仅平台查看。秒挂不生成平台重导计划，不再提交供应商。",
+    "AC-021": "先准确关联同一真实呼叫；整体归属或可信证据冲突先待核。客户真实接听、客户主动挂断、可信客户有效接通时长0～2秒含真实0及2分别为true/false/unknown：任一可信false即明确非秒挂，即使其余unknown；三项均可信true才为秒挂；无false且至少一项unknown则待核。缺失/异常/负时长或单位未核为unknown，不补0，不以坐席桥接时长替代，生产字段/单位/挂断枚举仍待核。",
+    "AC-022": "秒挂不再提交重呼，不发放秒挂补提交额度、不设置等待间隔或计时器、不生成异常子批；撤销旧额外2次、30分钟和4次规则。仅预外呼的11类失败链共享最多额外2次保持独立，不因人工外呼分配新增该额度。",
+    "AC-023": "每次本地结果保留tenant、保存leadCode/fixedphone及准确真实call或稳定事件关系。预外呼另留原task/record/batch/root及实际fileId；人工只留实际客户/分配/坐席/通话关联，不伪造预测映射。接口均保存原requestId/行及与认证应用登记一致的来源；预测内部失败补提固定触发root，后有新主不改旧root。缺真实callId/稳定事件不按最近同号或近似时间猜配；符合US-006的全部应用接口来源准确结果交付（含DCC、天网），无接入应用的手工UI来源仅平台查看。人工生产结果映射待S4核验。",
+    "AC-027": "仅预外呼三天五呼针对任务重呼配置状态触发的呼叫，预测失败自动/人工共享额外2次不认作该次数。秒挂仅判定保存，全部应用接口来源且精确关联的记录按应用配置回调，绝无平台秒挂重呼计数/额度/计划；人工外呼分配不自动套用预测任务重呼规则。供应商原生覆盖仍待核，不新增再导入或停止其原生重呼。",
+    "AC-034": "能确认已接听、客户挂断且真实接听时长0秒，纳入秒挂；未接通、缺失或异常时长不纳入。",
+    "AC-063": "预外呼范围：除呼叫过频外11类失败：禁呼、限呼、restrict tel三类自动，其余无可用中继/bad tel/真实号码为空/no clid/bad clid/无可用中继信息/wrong obClidGroup/bad timeout range八类人工。过频只任务规则；未知原因、同步导入拒绝、53不进本策略。接口结果交付失败只补送，不能生成新的失败补提交。",
+    "AC-064": "预外呼范围：自动三类和人工八类按同租户＋原任务＋服务端已保存线索编码＋固定手机号累计，共享首次外最多2次失败补提交；另开主批、新子批、新fileId、原因、方式或操作人变化不重置。实际新的业务补提交发起占一次，明确接收或拒绝均计，未知保留占用待核；首次导入不计额外失败次数，正常任务重呼独立，秒挂无补提交。历史四元组或累计账不可恢复先待核，不以业务编码/空值/新root或新生成线索编码默认发2次；既有外部新业务记录亦不重置保存的累计账。",
+    "AC-065": "预外呼范围：自动3类等待2分钟，依赖供应商外显导航降级线路，平台不直接换主叫、不自动修改priority，也不自行解禁。2分钟从平台收到并确认每次准确失败结果起算；导航覆盖/生效和同号再次接收未核时不能宣称生产可执行。人工8类由有权任务处理用户核对资源、数据或配置后明确发起，不要求全部等待2分钟，不静默修改真实phone。",
+    "AC-066": "预外呼范围：同一准确失败事件最多形成一份有效自动计划或待人工对象；重复推送、重复确认、SIP晚更新不重建、不重复消耗额度、不重启计时，自动/人工并发沿同一独占执行守卫。120秒取首次保存本次准确失败确认时间，新的真实补提失败才按新确认时间起下一轮，额度延续；事件身份或提交未知保持同尝试占用待核。",
+    "AC-067": "预外呼范围：同一次后续执行在AliCti任务原生重呼与本方异常补提交之间保持互斥；不能按未查到话单、缺finishRetryFlag或单一最后标志推定无在途重呼。未核执行权时保持待核，不保证安全重提。",
+    "AC-068": "预外呼范围：触发M1的失败迟到且本地已保存M2时，本方补提交单号子批仍关联触发记录保存的M1 root，不改挂最近主；本地新增内部触发事件/尝试映射，不新增第三层业务批次，不按root分别发额度。手工不增加主批选择控制字段，可信历史root不足先待核。",
+    "AC-070": "预外呼范围：既有任务记录显示失败原始原因、三类自动/八类人工方式、四元组跨主批共享额外2次的已用/剩余及未知占用、本次确认时间和仅自动的+120秒到期，以及待人工/待核/执行中/受理/停止和触发root/fileId。八类在准确原记录提供沿任务现有权限的人工重提交入口；秒挂只展示三态和原话单，无额度、计划、倒计时或重提入口。",
+    "AC-072": "仅预外呼任务沿原正常重呼配置，失败三类自动120秒/八类人工共享首次外2次，秒挂仅结果且全部应用接口来源按原应用配置回调，无补提次数/等待参数。预外呼接口/原手工来源提交后锁定，允许与当前租户有效关联的应用按接口模式导入；原应用及登记来源保留，任务不另绑应用且首次按任务坐席组分配。人工分支按US-011分配，预外呼继续跟进转当前坐席人工按US-012，不据此改原预测规则或宣称供应商已停止自动呼叫。",
+    "AC-073": "预外呼范围：自动3类计划到期或人工8类明确发起时，在失败额度可用、关联准确、任务可执行及供应商执行权不冲突的条件下，实际发起一次并占用一次。成功/失败均计数，未知保留占用待核，不自动释放再发。暂停挂起、终止停止尚未执行计划，恢复后重新核查；人工不能绕过停止状态或次数，在途/技术传输恢复仍待核。",
+    "AC-074": "预外呼范围：本方自动或人工失败补提交保留原任务、触发记录保存priority和来源时间，按同任务待提交priority高先/同级本次排队FIFO；不因人工、导航降级或后来新主重取priority，不日衰减，已受理不撤回重排，未知不为排序重发。",
+    "AC-079": "预外呼范围：3类自动补提交的线路降级由供应商外显导航承担，本平台只按策略补提交并记录结果，不承诺一定换线路或换主叫、不增加本方解禁接口。导航配置、生效时点、3类覆盖和排重/原生重呼交互在G2核验前保留partial/missing。",
+    "AC-018": "全部通过应用接口接入的业务来源（含DCC、天网），对精确关联的每次结果及真实处理进度均按所属应用的回调配置交付。原应用身份、tenant、与认证应用登记一致的来源与接收时实际关联分别保存，不由外呼方式判断是否回调：接口人工外呼也回调，手工UI导入且没有接入应用才仅平台查看。预外呼保留真实任务/批次/话单及原finishRetryFlag，人工只携实际客户/分配/通话关联；真实客观通话结果与坐席人工记录分开。回调失败只补送同一结果，不重新导入、分配或拨号；各应用分别配置回调地址；积压结果选址仍待核。",
+    "AC-037": "全部接入业务系统（含天网）都需回调：本方服务使用应用配置的回调地址，不再只对DCC发送。应用未配置回调地址不得进行接口导入，按AC-086明确拒绝，不先收线索后等地址。仅超管沿应用配置维护地址，任务和导入报文不提供任意临时回调URL。手工UI来源无接入应用仍仅平台查看；各应用分别配置自己的回调地址，正式URL/鉴权/ACK及配置变更积压策略待核。 同一应用回调承接多个租户时，本方候选报文保留准确原tenantId、稳定应用及原业务记录/请求标识以区分归属，不按最近一次申请token的租户改路由；具体字段、签名、版本与ACK待S4。",
+    "AC-071": "全部应用接口来源（含DCC、天网）的准确结果和实际平台处理进度按所属应用回调配置交付；接入系统不因此接管平台预测失败补提。预外呼内部尝试继承触发记录原应用/source，不因执行者或后来同root记录改变；人工分配也保留实际客户/分配/通话关联并回调。补送只交同一结果，不重导供应商、不再分配或拨号。未配回调地址不得接口导入；应用地址变更后的接收目标、正式报文/ACK与地址变更积压选址待核。",
+    "AC-075": "全部应用接口来源含DCC/天网均对准确秒挂输出明确本方分类并按应用配置回调；无接入应用的手工UI来源保存同样三态供本地查看。保留原供应商结果及真实call、实际request/行/客户/分配关联，预测字段仅用于真实预外呼对象；坐席人工选择的通话状态不替代秒挂证据或供应商结果。来源由认证应用的稳定业务系统登记识别；报文source若保留仅校验一致性，不改变身份或接收目标。字段/版本/ACK及人工话单映射待核；未知不标秒挂，补送不产生供应商提交、新分配或计时。",
+    "AC-096": "对准确原应用接口来源的完成沟通事件，按保存的原应用、tenant和业务记录路由到该应用配置的对应业务系统，回调本次通话记录、本次已保存的客户业务信息快照及该记录原businessBatchNo。不能以最近应用/租户token/同批其他记录、外呼方式或临时URL改接收端；预外呼和人工接口来源均适用。原有每次结果/进度回调也携带对应记录原业务批次号，字段缺失时明确保留历史缺值、不猜造。话单未齐或部分字段未知时保留真实已知与缺失状态，不为“已完成沟通”伪造接通；动态业务字段标识/类型/选项与配置版本、通话记录具体结构、晚到话单后续交付机制及正式签名/ACK契约仍待S4核验。",
+    "AC-097": "新增完成沟通回调不替代或撤销既有每次通话结果、真实进度、秒挂分类及失败结果回调。建议按准确记录、本次call及保存版本形成稳定事件身份；重复保存/重复通知不重复生成同一完成事件，交付失败仅补送该事件的原业务批次号与已保存快照，不重新导入、分配或拨号。业务批次号可复用，不能用它单独去重回调。补送不偷偷读取当前业务表单或跨通话聚合；后到话单只按正式更新/版本方案补充同一call的客观事实，不覆写原已保存业务快照。稳定事件ID、版本、接收ACK、超时/补送策略、地址变更积压目标及重复或修改保存语义继续待双方契约与工程证据，不将HTTP受理或本地保存当作业务系统已接收成功。",
+    "AC-076": "预外呼范围：其余8类失败仅提供人工重提交，不生成自动2分钟计划。用户明确选择当前失败记录并确认，操作仅补提交该记录，不新增或编辑一份客户名单，不静默更换真实phone。",
+    "AC-077": "预外呼范围：人工补提交沿原任务现有操作权限，在授权tenant/task内有权运营和管理员处理八类已保存失败，逐次核当前权和准确对象；包括接口来源已保存失败，不等于向接入系统开放人工重提接口或应用token授予内部运营权限。保留原来源/request审计和触发root，创建内部尝试/必要子批，不迁来源、不伪造新的外部（DCC/天网）请求或给真实账号新权。 保存并继承触发记录已校验保存的原应用登记来源；全部应用接口来源进度含DCC/天网沿US-006交付，无接入应用的手工UI来源仅平台查看，运营操作者或共享root不改变原来源。",
+    "AC-078": "预外呼范围：人工与自动失败按同租户+原任务+线索编码+固定手机号共享首次外2次，另开主批也不重置。额度用尽、已有占用/未知、任务暂停/终止或当前任务权限不足时按钮不可执行并说明原因。双击/并发/重复反馈不产生额外一次，原因/方式/操作人变化不重置；服务端同步校验，不能仅前端禁用。",
+    "AC-016": "预外呼范围：有该原任务操作权限的运营或管理员选择并明确确认当前指定记录的供应商号码删除；服务端逐次核实当前权限、授权租户/原任务及准确record/batch/已保存实际fileId/phone，不按leadCode、root或同号整组扩大。只有指定供应商目标明确成功才标已删；本地客户记录、原来源审计、主子root、精确供应商/通话映射、去重和累计已用/未知占用继续保留。删除/取消意图已授权且目标准确后阻断该对象尚未执行失败计划，不影响其他批次；不假造已受理或在途呼叫撤回。",
+    "AC-024": "预外呼范围：指定记录删除/取消不抹本地原秒挂话单、准确关联、已保存三态判定及本地版本，不影响其他任务/同号其他批次。秒挂无待执行补提交计划，供应商指定删除只复用US-008当前权限与精确选择范围；不新增秒挂停止API，远端在途能力继续待核。",
+    "AC-025": "预外呼范围：对已授权且准确指定的删除/取消目标，原子停止仅该对象尚未执行失败计划；供应商明确成功后本地标记该目标已从供应商删除，失败或未知保持真实状态。平台分别展示本地计划停止与供应商删除结果，保存原记录/root/预算和证据；不清root整组、不影响其他同号批次、不释放已用或未知占用。在途取消和并发受理仍待核，不假造远端撤回。",
+    "AC-061": "预外呼范围：指定供应商删除切换目标记录或供应商结果样例时清除此前反馈，不把旧成功/失败显示为当前选择已处理。新操作由当前原任务权限的运营/管理员选择准确record/batch/fileId/phone并确认，服务端同时核实租户任务和当前权限；旧对象已保存删除证据继续留在旧记录。tels优先于fileId/fileName，不按AND交集选择；仅实际fileId独占精确单号目标时可采用不同时传tels的taskId+fileId候选，共享fileId多尝试不能精确定位则不外发。result=0可能跳过目标，必须核skippedCallingTels；skipRetry不保证取消原生重呼，正式skip选择及在途能力仍待核，不默认新增远端撤回。",
+    "AC-017": "超管独立管理应用列表、详情、新增、修改和删除。应用与租户多对多：一个应用可关联多个有效租户，一个租户可关联DCC、天网等多个应用，各业务系统使用自己的应用凭据与回调地址。认证识别稳定应用，业务身份明确当前租户且须有有效关联，任务归租户不另绑应用。来源由稳定应用登记识别；报文source若保留仅一致性校验，不能换系统/回调。正式登记/认证及token字段为待核设计，原型仅合成。",
+    "AC-044": "本期应用列表/查看/新增/修改/删除均仅超管可访问执行，非超管含租户管理员和普通运营不能通过菜单、直接页面或管理调用越权，拒绝不改配置。应用身份发放的租户业务权不能代替管理权限；不自动新增启停、重置、收费或管理权限授予操作。",
+    "AC-045": "应用凭据可针对已有效关联的租户取得该租户业务身份，不授应用管理或运营/管理员权。本方建议获取token时显式指定tenantId，核应用与租户关联后签发绑定稳定app和该tenant的token；缺失、无效或未授权租户拒绝，不默认首个/最近租户。导入body、原任务或指定坐席若与token租户不一致拒绝；切换租户需取得对应身份，不通过请求字段切租户。正式字段、时效、关联撤销和旧token处置待S4/工程核验，真实账号权限不改变。",
+    "AC-053": "超管可独立进入应用列表，看到已保存应用的名称和appId及详情、修改、删除入口，并可发起新增；没有应用时显示空列表和新增入口。列表读取不创建、修改或删除应用。无管理权限的身份不能通过菜单、直接页面或模型/服务端调用读取该管理列表。",
+    "AC-054": "超管查看具体应用详情，准确显示名称、appId、密钥、已关联业务租户列表与已保存回调配置；查看不修改配置或密钥。不可用合成密钥保留必要提示，不存在/已删除目标不显示其他应用详情。回调覆盖该应用接口导入的全部业务来源；无接入应用的手工UI来源不因同租户有配置而回调。",
+    "AC-055": "超管新增应用，填写名称、选择其关联的有效业务租户并配置本应用回调地址；支持多个租户，同租户也可关联其他应用。有效保存形成独立appId/密钥及关联，取消/失败不造成功。DCC/天网等分别使用自身应用及回调，未配置回调地址不得接口导入。应用自身无回调配置时是否允许先保存草稿及地址校验细节待S2/S4，不把保存配置等同于生产接入可用。",
+    "AC-056": "超管修改应用名称、已关联租户与本应用回调地址，保存后列表/详情一致，appId/密钥保持。支持多对多，新增/解除关联应核有效对象和权限；已有业务、历史来源和租户归属不随修改静默迁移。取消、冲突、目标不存在或写入失败保持原配置，其他应用不误改。解除关联后的token、在途导入及积压回调处置待S4/工程验证。",
+    "AC-057": "超管可针对具体应用独立发起删除并确认，取消不删除；保存成功后该应用从列表消失且不能再查看/修改或以其旧凭证获取新身份，合成模型使该应用已发身份失效。只作用选定应用，其他应用配置和身份不受影响；保存失败不先撤销身份或显示删除成功。已有业务任务、导入记录和结果/必要来源审计保留，不随删除应用级联删除。",
+    "AC-058": "应用页面简洁表达名称、关联租户、接入密钥与本应用回调地址，去掉日常运营不必要的技术解释及身份交换演示；多租户关联清晰可读，普通修改不重置密钥。来源采用稳定应用登记，具体配置字段待S3/S4，不增不必要管理菜单。管理权与租户业务权分开，原型合成凭据保留必要提示。",
+    "AC-084": "应用新增/修改提供本应用回调地址并持久保存，重开/详情显示相同值；普通保存不重置appId/密钥，取消/失败保持原配置。DCC、天网等各应用分别配置地址，全部接口来源必须先配置才能导入；无接入应用的手工UI来源不发送。URL格式/安全校验、变更后积压结果取值时点与正式ACK仍待核，不编造地址或试发真实请求。",
+    "AC-085": "创建/修改允许应用与租户多对多，核每个关联租户真实有效且关系不重复；同一租户已关联其他应用不是冲突。DCC/天网分别保留自己的appId/凭据/回调配置。历史已有多关联及业务记录保留，不按已取代的一对一方案静默删除、合并或迁移；解除关联后的token/在途请求和历史接收目标处置待S4/工程验证，不默认首个租户。",
+    "AC-007": "一次已鉴权外部调用方（DCC／天网）传入多客户，某条记录业务校验失败仅拒绝该条，其余有效记录继续；预外呼按原单手机号批次处理，人工外呼有效行按US-011保存并分配，不因单行业务失败整请求回滚。请求级身份、来源/外呼方式或技术重传冲突另按AC-080/050/051处理。",
+    "AC-009": "外部调用方（DCC／天网）每条业务导入priority沿原规则必填，未传仅该条失败，不补默认值；本次值独立于R，且不强制继承旧批次。预外呼按保存priority排序并提交原供应商任务；人工外呼保存该字段但不因此进入预测任务队列、不透传预测号码导入或自动拨号。人工列表排序是否使用priority未新增规则。",
+    "AC-010": "预外呼范围：外部调用方（DCC／天网）接口同tenant/原supplierTaskId/leadCode固定phone的真实再次业务导入用新请求级requestId；有效新行创建新记录/单手机号batchId并归同组。isNewBatch=true另开独立主(root=batch)，false/未传有主则新子挂最近已保存同组主，无主自动首主；不要求外部调用方（DCC／天网）提供上一批次，不仅因同组历史相同而拒绝。同ID同归一后完整内容技术重传返原逐行映射，不新建重交。",
+    "AC-012": "仅预外呼导入携带准确的原供应商任务ID taskId；自动提交供应商时直接使用，不做本地任务ID猜测、不采用统一预设任务。人工外呼按US-011分配指定坐席；复用现有人工流程、无需预测taskId为本方设计建议待范围审阅，不伪造预测任务或fileId。",
+    "AC-047": "外部接口每次业务请求携requestId、多行定位及leadCode/phone/priority，外呼方式按AC-080。各系统使用自己的稳定应用身份和明确的当前租户，须有效关联；接收前核该应用回调配置，缺失按AC-086拒绝，人工外呼也不豁免。预外呼沿可选Boolean isNewBatch及新record/单号batch/root，人工不套主子字段。原app/tenant/业务来源及交付关系保存；source若保留只校验与应用登记一致，不以名称/R或报文自行换来源。",
+    "AC-048": "仅预外呼新业务有效行按同tenant/原supplierTaskId/leadCode固定phone归组；true另开独立主root=batch，false/缺省新子挂最近已保存同组主，无主自动首主。最近主按本地主批稳定顺序，不按结果/priority/同号/子批，子不挂子，无需previousBatchId。应用与其登记来源仅用于鉴权审计及原记录回调，不加入预外呼业务组/失败预算键；同组不同应用各保留原接入来源，不按root决定子记录接收端。人工不使用本条主子规则。",
+    "AC-049": "仅预外呼新业务逐行核token租户、原supplierTaskId、leadCode及固定phone；改号、归属冲突或历史主关系不明拒绝/待核，其他有效行继续。isNewBatch必须Boolean，缺省false，不绕校验或重置正常任务轮次/失败额度。先核稳定app与token租户有效关联，按应用登记保存来源；source若保留仅一致性校验，非法/冲突不得改路由或默认DCC。应用/来源不分割既定业务组和额度，历史身份冲突不猜配。人工分支核同租户坐席，不虚构任务组。",
+    "AC-050": "鉴权稳定应用、当前租户及其有效关联，校验外呼方式和分支对象后，按建议tenant+stableApp+operation+requestId作用域核完整归一内容。技术重传返原逐行接收/拒绝/待核结果和实际映射，不新保存、分配、提交或呼叫。预外呼missing isNewBatch归一false，返原record/batch/root，不重选新主；人工只返真实客户/分配。外呼方式、坐席工号与保留的source一致性字段纳入内容比较；不能改source切换命名空间。不同应用或租户各自隔离，正式键与历史回执兼容待S4。",
+    "AC-051": "在已鉴权tenant+stableApp+operation的拟定作用域内，同requestId完整有效内容不同拒整个重复请求，不覆盖原回执或新增记录/分配/批次/供应商提交/呼叫。比较实际方式、预测原taskId或人工工号、行定位及leadCode/phone/priority/R等；保留source时还核与应用登记一致。预测missing isNewBatch与false归一相同，true不同。跨租户/应用不得借ID复用另一主体回执，正式命名空间、完整摘要及历史兼容待S4。",
+    "AC-080": "导入接口明确外呼方式（预外呼或人工外呼）；先核稳定应用与当前明确租户的有效关联及应用回调地址。预外呼按原任务坐席组，人工须指定同租户有效坐席工号按US-011。业务来源由应用登记识别，报文source若保留仅做一致性校验；不能用它换租户/系统或回调地址。全部应用接口来源均按原应用配置回调，人工外呼不等于手工UI来源。字段名/层级与身份传递为本方设计待S4。",
+    "AC-086": "应用未配置回调地址时不得接口导入，覆盖全部应用接入业务系统含DCC/天网和两种外呼方式；本方建议在新业务落账前统一检查，缺失则明确返回未配置原因，不新增客户/分配/预测批次/供应商提交，补配置后方可重新发起。不能先导入再排队等地址，也不回退到旧固定DCC地址或其他应用地址。正式错误结构、历史技术重传只读回执及地址删除并发守卫待S4，不把URL已填写当作已完成真实联调。",
+    "AC-092": "多租户身份验收提案：同一应用可分别申请已关联租户A/B身份并各自导入；缺tenantId、未关联租户、A身份请求B任务/坐席或正文租户时明确拒绝且不新增业务。另一应用在同租户的请求与回调仍归其自身配置，不按报文source切应用。关联撤销、旧token及并发变更的正式响应/有效期需S4和工程补证，不默认首个或最近租户。",
+    "AC-093": "全部应用接口新导入（预外呼和人工外呼）必须提供外部业务批次号，候选名businessBatchNo；先按稳定应用和token明确租户校验归属，再逐记录保存对应原值。同一app+tenant可在多个新业务请求中复用同一个业务批次号，不因重复批次号拒绝新请求；各次新业务仍使用独立requestId并沿原记录、预测任务或人工坐席分支处理。跨app或tenant的同值不得混合归属。请求级字段及逐行继承为本方建议，正式字段名、层级、长度、格式和错误结构待S4；原手工CSV不新增该必填字段。",
+    "AC-094": "业务批次号只是外部业务关联标识，不是技术去重键，也不替代平台batchId/rootBatchId或供应商fileId。按原app+tenant+operation+requestId拟定作用域比较完整内容时须包含businessBatchNo；同requestId同内容返回原逐行结果不重导/重派，同requestId改业务批次号属于冲突且不覆盖原记录。新业务使用新requestId可复用原业务批次号，但不绕过同线索固定手机号、原主子批次/任务规则或重置预测失败首次外共享2次。历史缺少业务批次号保留明确缺值，不从平台批次、fileId、R或最近请求猜造；旧请求兼容及准确错误码待核。",
+    "AC-081": "人工外呼行指定坐席工号，本方建议按租户及已有供应商实例关系查找唯一有效坐席，再解析关联账号/坐席身份；工号按原始字符串保存并保留前导零，不按显示姓名或跨租户同工号猜配。沿现有分配规则核账号及租户成员启用、有效坐席关联、坐席已启用/同步成功并接受新任务。工号缺失、无效、冲突或无可用关联时该行明确失败/待核且不自动改派，其他有效行继续；不要求坐席在线才保存分配，真实拨号前另核登录与当前可用状态。",
+    "AC-082": "人工外呼有效行保存独立客户/导入记录、原应用/租户、source、requestId/行、线索/号码及最终priority后，按已核实坐席分配到既有待联系区域；本方建议无需预测taskId，不生成虚构供应商fileId/预测主子root，也不调用importTaskTel或自动拨号。priority沿原必填保存但不进入预测队列。坐席本人从待联系点击联系客户后才按既有人工工作台拨号；预测三天五呼、3类120秒/8类共享2次和预测任务精准删除不自动套用人工分配。",
+    "AC-083": "同一人工导入在建议tenant+stableApp+operation+requestId作用域技术重传，返原保存与分配结果，不重复客户/派发/拨号；同ID改方式、工号或业务内容报冲突，不能重传换坐席或改source另获次数。不同应用/租户各自隔离。原子保存分配及未知恢复待工程核验，未完成/未知保留原处理如实反馈；分配前复核目标，失败不误写他人客户。保存原app/tenant及已登记来源供本应用回调；人工方式不等于手工UI来源。",
+    "AC-087": "人工外呼客户振铃及预外呼坐席振铃时支持填写客户跟进表单。本方建议从准确通话对象建立后允许草稿编辑并持续暂存，接听/挂断和客户/坐席状态仍可见且可用，接通或结束时保留已填内容，不清空重开；正式保存等通话结束后执行，不在振铃阶段标记处理完成或释放通话占用。人工客户振铃与预外呼坐席振铃分开：后者可能客户已接通，坐席未接不改成客户未接。具体dialing/offered/answering覆盖与草稿恢复为待审设计，不扩呼入。",
+    "AC-088": "明确本次外呼客户未接通且通话已结束时，客服坐席须在原跟进表单选择“通话状态”才能保存；沿用AliCti API-327号码状态识别编码的完整20项描述（16个编码），包含712拒接。715和183同码多描述须同时保存所选编码与描述，不合并丢义；坐席明确选择183“未知”是有效选择，空白未选仍不得保存，不能因客观结果未知自动选为183。人工状态、录入人/时间与处理结果独立保存，不覆盖供应商原结果、客户/坐席客观接通证据、时长、接通统计或秒挂判据。客户接通情况未知或已接通时不猜为未接，预外呼客户已接而坐席未接不套该客户未接必选规则；呼入范围不扩展。已填草稿在未接结束后保留到可保存界面，不自动关窗丢失。正式存储字段与接口契约待S3/S4核验。",
+    "AC-089": "只有处理结果选择继续跟进且保存成功，线索才沿本规则保留待联系。人工客户保留原分配坐席；预外呼接入当前坐席后的继续跟进转该坐席后续人工处理，保留原客户/线索及历次跟进，不另造线索或自动拨号。本方建议兼容历史“需要再次联系”值，并保留原预测task/record/call/app/tenant溯源。人工后续与原任务自动呼叫不得并发；需核供应商停止/排他能力，未取得证据不宣称已停止或已可安全再次拨号。未接通不自动等于继续跟进。",
+    "AC-090": "保存跟进前复核当前坐席/租户/通话/客户归属及记录版本；未选必填处理结果或规定通话状态、业务字段校验失败、权限/对象变化或写入失败时，保留本次草稿和原名单状态，不假报成功、不提前移出待联系或误改他人线索。重复保存不新增重复跟进或重复待联系客户；保存与名单更新的原子/可恢复实现待工程核验。后到真实话单只更新客观证据，不覆写已保存人工通话状态或继续跟进决定。",
+    "AC-091": "未接通保存的通话状态条件按AC-088：明确外呼客户未接且已结束才必选，沿完整号码状态字典保存人工选择的编码与描述；空白未选与明确选择183“未知”区分。其余本方校验提案仍为校验处理结果及当时可获得的基础信息，不强迫填写必须经客户沟通才能获得的业务必填字段，也不虚构沟通内容。各业务表单的其他必填/可选清单及条件校验继续待S3/S6；校验/保存失败保草稿和原名单。未接通不默认继续跟进，只有选该处理结果才适用AC-089。",
+    "AC-095": "仅本次外呼通话已结束、坐席本次处理结果明确为“已完成沟通”，且本次跟进及客户业务信息保存成功后，生成该次完成沟通回调所需的已保存快照。通用处理状态“已完成”不能代替“已完成沟通”；未保存、保存失败、振铃/通话中或其他处理结果不触发此完成事件。快照关联准确原应用/租户/记录及本次call，冻结本次保存的业务信息和处理结果/录入人时间，不取跨通话聚合、后续编辑或其他客户资料。坐席选择该处理结果不证明客户接通，不改客观话单、时长、统计或秒挂；原继续跟进去向不变，手工无接入应用来源不新增外部回调。保存与快照/事件的原子可靠性及正式快照字段为待核提案。"
+  },
+  "prior_review": {
+    "schema_version": "1.0",
+    "state": "S1_passed_S2_completion_callback_business_batch_in_progress",
+    "updated_at": "2026-10-14T14:11:46.409176+08:00",
+    "business_version": "v1.1.0",
+    "current_stage": "S2",
+    "run_status": "active",
+    "gates": {
+      "G1": "pending",
+      "G2": "pending",
+      "G3": "pending"
+    },
+    "counts": {
+      "stories": 12,
+      "acceptance": 97,
+      "scenarios": 7,
+      "business_rules": 22,
+      "flows": 4,
+      "interfaces": 14,
+      "interface_operations": 8,
+      "features": 19,
+      "pages": 5,
+      "actions": 21,
+      "sequences": 8,
+      "messages": 216,
+      "high_open_production": 13,
+      "medium_open_production": 4,
+      "new_design_contract_issues": 5,
+      "state_models": 8
+    },
+    "confirmed_decisions": [
+      "应用租户多对多，各业务系统应用分别配置回调地址",
+      "所有应用接口来源均回调，未配回调地址不允许导入",
+      "人工外呼指定坐席，预外呼初次按任务坐席组",
+      "坐席振铃可填跟进，未接通选择通话状态保存",
+      "继续跟进留待联系；预外呼后续转当前坐席人工跟进",
+      "SRC-122未接通选择AliCti号码状态字典；人工编码和描述独立保存，适用条件及实现核验另记",
+      "SRC123：完成沟通保存成功后回调本次通话与本次已保存业务信息快照，保留原每次结果/进度回调。",
+      "SRC123：新接口导入必传可复用业务批次号，同app+tenant可多请求复用，各次回调携原值；requestId独立去重。"
+    ],
+    "verification": {
+      "S1": "passed_current_SRC122_SRC123_normalization",
+      "S2": "in_progress",
+      "S3": "stale",
+      "S4": "stale",
+      "S5": "stale",
+      "S6": "stale",
+      "S7": "stale",
+      "S8": "stale",
+      "S9": "stale",
+      "production": "not_verified",
+      "independent_S1": "pending_current_revision",
+      "independent_S2": "pending_current_revision"
+    },
+    "pending_review": {
+      "gate": "G1",
+      "status": "S1_S2_revision_before_scope_review",
+      "counts": {
+        "stories": 12,
+        "acceptance": 97,
+        "scenarios": 7
+      },
+      "scope": "此前多对多/各应用回调/双方式导入/外呼跟进范围保留；新增完成沟通回调本次通话和已保存业务信息快照，以及可复用业务批次号。",
+      "review_file": "outputs/G2集中审阅方案.md",
+      "risk_acceptance": false,
+      "G3_approved": false,
+      "pending_business_questions": []
+    },
+    "production_evidence_requirement": {
+      "actual_user_answer": "按此顺序分阶段验收（推荐）",
+      "decision_changed": true,
+      "decision_ref": "runtime/staged-acceptance-user-decision-20261014.json",
+      "design_review_first": true,
+      "implementation_evidence_due": "after_corresponding_development_before_real_release",
+      "still_required_first": [
+        "AliCti关键规则与目标部署适用证据",
+        "DCC双方正式契约",
+        "可信下载完成判据的技术可行性"
+      ],
+      "engineering_design_approved": false,
+      "latest_missing_input_answer": "暂未提供，继续准备验证材料"
+    },
+    "evidence": [
+      "runtime/tianwang-reuse-before-20261013.json",
+      "inputs/user-tianwang-reuse-20261013.md",
+      "runtime/tianwang-interface-reuse-preparation-20261013.json",
+      "runtime/tianwang-s1-check-20261013.json",
+      "runtime/tianwang-s2-check-20261013.json",
+      "runtime/tianwang-g1-user-approval-20261013.json",
+      "runtime/tianwang-s3-check-20261013.json",
+      "runtime/tianwang-s4-check-20261013.json",
+      "runtime/tianwang-g2-user-approval-20261013.json",
+      "runtime/tianwang-s5-check-20261013.json",
+      "runtime/tianwang-s6-check-20261013.json",
+      "runtime/tianwang-s7-check-20261013.json",
+      "runtime/verification-report.json",
+      "runtime/staged-acceptance-user-decision-20261014.json",
+      "runtime/engineering-design-review-20261014.json",
+      "runtime/download-save-user-decision-20261014.json",
+      "runtime/download-save-browser-proof-20261014.json",
+      "runtime/atlas-browser-partial-review-20261014.json",
+      "runtime/atlas-container-repair-20261014.json",
+      "runtime/loop-state.json",
+      "runtime/change-impact.json",
+      "inputs/user-change-20261012.md",
+      "runtime/manual-code-s1-check-20261014.json",
+      "runtime/manual-code-s2-check-20261014.json",
+      "runtime/manual-code-s3-check-20261014.json",
+      "runtime/manual-code-s4-check-20261014.json",
+      "runtime/manual-code-g1-user-approval-20261014.json",
+      "runtime/manual-code-s5-check-20261014.json",
+      "runtime/manual-code-s6-check-20261014.json",
+      "runtime/manual-code-s7-check-20261014.json",
+      "runtime/manual-code-g2-user-approval-20261014.json",
+      "runtime/verification-report.json",
+      "inputs/user-tenant-callmode-callback-20261014.md",
+      "runtime/tenant-callmode-before-20261014.json",
+      "runtime/tenant-callmode-s1-draft-check-20261014.json",
+      "runtime/tenant-callmode-s1-independent-review-20261014.json",
+      "inputs/user-workbench-followup-20261014.md",
+      "inputs/user-all-app-callback-20261014.md",
+      "inputs/user-app-tenants-followup-owner-20261014.md",
+      "runtime/workbench-callback-before-20261014.json",
+      "runtime/workbench-callback-s1-check-20261014.json",
+      "runtime/workbench-callback-s1-independent-20261014.json",
+      "runtime/workbench-callback-s2-check-20261014.json",
+      "runtime/workbench-callback-s2-independent-20261014.json",
+      "inputs/user-workbench-manual-status-20261014.md",
+      "inputs/user-completed-communication-business-batch-20261014.md",
+      "runtime/completion-business-batch-before-20261014.json",
+      "runtime/change-impact.json",
+      "runtime/completion-business-batch-s1-check-20261014.json"
+    ],
+    "previous_status": {
+      "path": "runtime/tianwang-reuse-before-20261013.json",
+      "meaning": "historical_DCC_only_S4_G2_pending"
+    },
+    "scope_limits": [
+      "no real API calls",
+      "unique prototype code unchanged in this requirement iteration; prior scoped synthetic evidence retained",
+      "development package untouched by requirement owner; parent handles requested discussion export",
+      "historical snapshots and old gate evidence unchanged",
+      "no production risk acceptance",
+      "no automatic gate approval"
+    ],
+    "evidence_policy_history": [
+      {
+        "date": "2026-10-14",
+        "before": {
+          "actual_user_answer": "先补齐生产证据",
+          "decision_changed": false,
+          "latest_missing_input_answer": "暂未提供，继续准备验证材料"
+        },
+        "decision_ref": "runtime/staged-acceptance-user-decision-20261014.json"
+      }
+    ],
+    "engineering_candidate_review": {
+      "status": "AI_review_completed_9_refinements",
+      "actual_engineering_approval": false,
+      "evidence": "runtime/engineering-design-review-20261014.json"
+    },
+    "product_download_choice": {
+      "status": "accepted_actual_user_reply",
+      "evidence": "runtime/download-save-user-decision-20261014.json",
+      "frontend_proof": "runtime/download-save-browser-proof-20261014.json",
+      "backend_and_target_deployment": "pending"
+    },
+    "before_source_correction_status": {
+      "state": "S8_engineering_candidate_review_and_frontend_save_verified_production_evidence_pending",
+      "updated_at": "2026-10-14T07:35:41.029501+08:00",
+      "current_stage": "S8",
+      "run_status": "blocked",
+      "gates": {
+        "G1": "approved_actual_reply_Tianwang_scope",
+        "G2": "approved_actual_reply_current_fingerprint",
+        "G3": "pending"
+      },
+      "verification": {
+        "S1": "passed",
+        "S2": "passed",
+        "S3": "passed",
+        "S4": "passed",
+        "S5": "passed",
+        "S6": "passed",
+        "S7": "passed",
+        "S8": "blocked_external_and_design_evidence_pending",
+        "current_global_report_status": "fail",
+        "error_codes": [
+          "blocking_open_item",
+          "unresolved_interface"
+        ],
+        "visual": "partial_actual_browser_review_container_defect_fixed_full_coverage_pending",
+        "production": "not_verified",
+        "synthetic_model": "historical_only_not_production_or_current_scope_proof",
+        "frontend_save": "current_IAB_synthetic_write_close_readback_pass"
+      },
+      "pending_review": {
+        "gate": null,
+        "status": "await_external_prerequisites_and_engineering_design_review_under_approved_timing",
+        "G2_evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+        "interface_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d",
+        "risk_acceptance": false,
+        "G3_approved": false,
+        "acceptance_timing_decision": "runtime/staged-acceptance-user-decision-20261014.json"
+      },
+      "meaning": "historical_only_before_CH-MANUAL-CODE-SOURCE-CORRECTION-20261014; not current stage or approval evidence"
+    },
+    "counts_status": "12 stories /97 AC current S1 passed, 7 existing scenes under S2 check; 8 state models current draft, downstream S3-S8 artifacts stale",
+    "evidence_status": "Official loop invalidated from S1 under current change; previous S1/S2 reports retained as historical, not current proof. New stage checks pending.",
+    "scope_change_history": [
+      {
+        "at": "2026-10-14T11:39:36.821119+08:00",
+        "change_id": "CH-V110-TENANT-CALLMODE-CALLBACK-20261014",
+        "before": {
+          "state": "S8_executed_manual_code_alignment_complete_blocked_production_evidence",
+          "current_stage": "S8",
+          "run_status": "blocked",
+          "gates": {
+            "G1": "approved",
+            "G2": "approved",
+            "G3": "pending"
+          },
+          "counts": {
+            "stories": 10,
+            "acceptance": 79,
+            "scenarios": 6,
+            "business_rules": 22,
+            "flows": 4,
+            "interfaces": 14,
+            "interface_operations": 8,
+            "features": 19,
+            "pages": 5,
+            "actions": 21,
+            "sequences": 8,
+            "messages": 216,
+            "high_open_production": 13,
+            "medium_open_production": 4
+          },
+          "verification": {
+            "S1": "passed",
+            "S2": "passed",
+            "S3": "passed",
+            "S4": "passed",
+            "S5": "passed",
+            "S6": "passed",
+            "S7": "passed",
+            "S8": "blocked",
+            "current_global_report_status": "fail",
+            "error_codes": [
+              "blocking_open_item",
+              "unresolved_interface"
+            ],
+            "visual": "full_new_visual_not_verified_prior_partial_and_authorized_deferral_retained",
+            "production": "not_verified",
+            "synthetic_model": "historical_only_not_production_or_current_scope_proof",
+            "frontend_save": "historical_IAB_synthetic_write_close_readback_pass_not_current_baseline_verification",
+            "S9": "stale",
+            "error_codes_status": "current_actual_S8_run"
+          },
+          "pending_review": {
+            "gate": null,
+            "status": "production_evidence_required_before_S8_pass_and_G3",
+            "historical_G2_evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+            "historical_interface_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d",
+            "risk_acceptance": false,
+            "G3_approved": false,
+            "acceptance_timing_decision": "runtime/staged-acceptance-user-decision-20261014.json",
+            "scope": "No pending G1/G2 request. Supplier/DCC prerequisites and staged engineering proof remain; G3 not ready.",
+            "review_file": "outputs/G2集中审阅方案.md#s8-全局核验结果与下一步",
+            "interface_fingerprint": "fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4",
+            "G1_evidence": "runtime/manual-code-g1-user-approval-20261014.json",
+            "G2_evidence": "runtime/manual-code-g2-user-approval-20261014.json"
+          },
+          "confirmed_decisions": {
+            "sources": [
+              "SRC-115",
+              "SRC-116"
+            ],
+            "DCC": "highest_priority_full_closed_loop",
+            "Tianwang": "shared_ingest_local_view_only",
+            "record_routing": "original_DCC_only;unknown_pending",
+            "failure_budget": "same_four_tuple_extra2_app_excluded",
+            "seconds_hangup": "tri_state_no_reimport"
+          }
+        }
+      },
+      {
+        "at": "2026-10-14T12:06:18.290351+08:00",
+        "change_id": "CH-V110-WORKBENCH-ALL-CALLBACK-20261014",
+        "before": {
+          "state": "S1_draft_checked_callback_empty_policy_pending",
+          "run_status": "needs_confirmation",
+          "gates": {
+            "G1": "pending",
+            "G2": "pending",
+            "G3": "pending"
+          },
+          "counts": {
+            "stories": 11,
+            "acceptance": 85,
+            "scenarios": 6,
+            "business_rules": 22,
+            "flows": 4,
+            "interfaces": 14,
+            "interface_operations": 8,
+            "features": 19,
+            "pages": 5,
+            "actions": 21,
+            "sequences": 8,
+            "messages": 216,
+            "high_open_production": 13,
+            "medium_open_production": 4,
+            "new_design_contract_issues": 3
+          },
+          "confirmed_decisions": [
+            "租户应用1:1",
+            "同租户DCC与天网共享应用按来源字段区分",
+            "人工外呼指定坐席，预外呼沿任务组",
+            "应用保存回调地址"
+          ],
+          "pending_review": {
+            "status": "callback_missing_policy_question_pending_then_scope_review",
+            "question": "无回调地址时DCC导入拒绝或先接收待回传",
+            "scope": "本次变更已登记；技术细化和新门禁尚未批准",
+            "review_file": "outputs/G2集中审阅方案.md",
+            "risk_acceptance": false,
+            "G3_approved": false
+          },
+          "verification": {
+            "S1": "draft_checks_passed_stage_needs_confirmation",
+            "S2": "stale",
+            "S3": "stale",
+            "S4": "stale",
+            "S5": "stale",
+            "S6": "stale",
+            "S7": "stale",
+            "S8": "stale",
+            "S9": "stale",
+            "production": "not_verified"
+          }
+        }
+      },
+      {
+        "at": "2026-10-14T13:11:21.055987+08:00",
+        "change_id": "CH-V110-WORKBENCH-MANUAL-STATUS-20261014",
+        "before": {
+          "state": "S1_S2_passed_workbench_multitenant_callbacks_waiting_G1",
+          "updated_at": "2026-10-14T12:11:23.827466+08:00",
+          "verification": {
+            "S1": "passed",
+            "S2": "passed",
+            "S3": "stale",
+            "S4": "stale",
+            "S5": "stale",
+            "S6": "stale",
+            "S7": "stale",
+            "S8": "stale",
+            "S9": "stale",
+            "production": "not_verified",
+            "independent_S1": "22/22",
+            "independent_S2": "12/12"
+          },
+          "evidence_status": "current S1/S2 checks bind latest SRC119/120/121 scope; earlier S3-S8 and G1/G2 evidence historical",
+          "counts_status": "stories/AC/scenarios current S1/S2; business_rules/interfaces/flows/sequences/features/pages/actions previous stale baseline pending S3-S7",
+          "scope_limits": [
+            "no real API calls",
+            "unique prototype product code unchanged; official shared version-ledger log adds this requirement change",
+            "development pack unchanged; this change not materialized",
+            "historical packages unchanged",
+            "no production risk acceptance",
+            "no GitLab push"
+          ]
+        }
+      },
+      {
+        "at": "2026-10-14T14:07:53.946676+08:00",
+        "change_id": "CH-V110-COMPLETED-COMMUNICATION-BUSINESS-BATCH-20261014",
+        "before": {
+          "state": "S2_recorded_scoped_SRC122_delta_pending_formal_S1_S2_recheck_G1_pending",
+          "counts": {
+            "stories": 12,
+            "acceptance": 92,
+            "scenarios": 7,
+            "business_rules": 22,
+            "flows": 4,
+            "interfaces": 14,
+            "interface_operations": 8,
+            "features": 19,
+            "pages": 5,
+            "actions": 21,
+            "sequences": 8,
+            "messages": 216,
+            "high_open_production": 13,
+            "medium_open_production": 4,
+            "new_design_contract_issues": 5
+          },
+          "verification": {
+            "S1": "prior_snapshot_passed_SRC122_delta_pending_formal_recheck",
+            "S2": "prior_snapshot_passed_SRC122_delta_pending_formal_recheck",
+            "S3": "stale",
+            "S4": "stale",
+            "S5": "stale",
+            "S6": "stale",
+            "S7": "stale",
+            "S8": "stale",
+            "S9": "stale",
+            "production": "not_verified",
+            "independent_S1": "prior_snapshot_only_22/22",
+            "independent_S2": "prior_snapshot_only_12/12"
+          },
+          "pending_review": {
+            "gate": "G1",
+            "status": "scoped_delta_registered_formal_S1_S2_recheck_then_G1_scope_review",
+            "counts": {
+              "stories": 12,
+              "acceptance": 92,
+              "scenarios": 7
+            },
+            "scope": "应用租户多对多、各应用回调、显式租户身份提案、双方式导入与人工工号、工作台振铃跟进/未接通保存/继续跟进，预外呼转当前坐席人工待联系；原预测失败/秒挂/手工/删除规则沿用",
+            "review_file": "outputs/G2集中审阅方案.md",
+            "risk_acceptance": false,
+            "G3_approved": false,
+            "pending_business_questions": []
+          },
+          "current_scope_revision": {
+            "change_id": "CH-V110-WORKBENCH-ALL-CALLBACK-20261014",
+            "sources": [
+              "SRC-118",
+              "SRC-119",
+              "SRC-120",
+              "SRC-121"
+            ],
+            "latest_decision": "SRC121 supersedes SRC118 one-to-one/shared-app relationship",
+            "official_state": "runtime/loop-state.json",
+            "G1_G2_G3": "pending"
+          }
+        }
+      }
+    ],
+    "historical_source_correction": {
+      "change_id": "CH-MANUAL-CODE-SOURCE-CORRECTION-20261014",
+      "official_state": "runtime/loop-state.json",
+      "impact": "runtime/change-impact.json",
+      "changed_ids": [
+        "AC-069"
+      ],
+      "impacted_count": 21,
+      "registered_in": [
+        "inputs/user-change-20261012.md",
+        "../今日确认基线.md"
+      ],
+      "source_fact": "SRC101 proves dynamic codeLabel. Current customer-business.js supplies current type names, not an archived historical configuration. Duplicate fixed business-code input was an overinterpretation.",
+      "structured_sync": "S1-S7 current US/AC/BR/SC/FLOW/API/SEQ/PAGE/ACTION/FUNC synchronized and independently verified; S8 executed, only existing production/interface blockers remain",
+      "scope": "source correction only; no new business rules, counts, gate approval, frozen package, or production evidence closure",
+      "source": "inputs/source-index.json#SRC-117",
+      "checks": [
+        "runtime/manual-code-s1-check-20261014.json",
+        "runtime/manual-code-s2-check-20261014.json",
+        "runtime/manual-code-s3-check-20261014.json",
+        "runtime/manual-code-s4-check-20261014.json",
+        "runtime/manual-code-s5-check-20261014.json",
+        "runtime/manual-code-s6-check-20261014.json",
+        "runtime/manual-code-s7-check-20261014.json"
+      ]
+    },
+    "current_scope_revision": {
+      "change_id": "CH-V110-COMPLETED-COMMUNICATION-BUSINESS-BATCH-20261014",
+      "sources": [
+        "SRC-118",
+        "SRC-119",
+        "SRC-120",
+        "SRC-121",
+        "SRC-122",
+        "SRC-123"
+      ],
+      "latest_decision": "SRC123 extends callbacks and reusable business batch; no old callback or retry scope retired",
+      "official_state": "runtime/loop-state.json",
+      "G1_G2_G3": "pending"
+    },
+    "scoped_delta": {
+      "change_id": "CH-V110-WORKBENCH-MANUAL-STATUS-20261014",
+      "source_ref": "inputs/source-index.json#SRC-122",
+      "recorded_at": "2026-10-14T13:11:21.055987+08:00",
+      "status": "recorded_pending_formal_S1_S2_recheck",
+      "changed_ids": [
+        "US-012",
+        "AC-088",
+        "AC-091",
+        "STATE-007",
+        "SC-007",
+        "ISSUE-046"
+      ],
+      "dictionary": {
+        "id": "API-327",
+        "entries": 20,
+        "distinct_codes": 16,
+        "reader_output_sha256": "2618f34a8c1bf460b4697efd92bbd930641a6afc0107c5f438dff13bda754d17",
+        "interpretation": "manual_selection_code_and_description_not_supplier_receipt"
+      },
+      "required_when": "explicit_outbound_customer_unanswered_and_call_ended",
+      "not_required_by_this_rule": [
+        "customer_answered",
+        "customer_answer_unknown",
+        "predictive_customer_answered_seat_unanswered",
+        "inbound_out_of_scope"
+      ],
+      "prototype_evidence": {
+        "path_from_project_root": "prototype/memory/verification-evidence/workbench-manual-status-20261014.json",
+        "status": "pending_implementation_verification_at_requirement_registration",
+        "meaning": "Read subsequent actual evidence and scope; do not infer full US012 completion or production verification.",
+        "subsequent_local_verification": {
+          "at": "2026-10-14T13:17:31.549537+08:00",
+          "status": "pass_scoped",
+          "sha256": "738665bc9120b6760fbc5ddc172e1e61385c1b4991077f00e9b8527a746cd67c",
+          "vm_groups_passed": 28,
+          "browser": "required/select/minimize/save/reload/detail",
+          "formal_S1_S2_recheck": false
+        }
+      },
+      "official_state_untouched": "runtime/loop-state.json",
+      "old_pass_evidence_applies_to": "prior_SRC119_SRC120_SRC121_snapshot_only",
+      "G1_G2_G3": "pending",
+      "counts_unchanged": {
+        "stories": 12,
+        "acceptance": 92,
+        "scenarios": 7,
+        "high_open_production": 13,
+        "medium_open_production": 4,
+        "new_design_contract_issues": 5
+      },
+      "unresolved_scope": "ISSUE046 remains open; only dictionary subitem converged; other form validation, contract, recovery and exclusivity remain pending."
+    }
+  }
+}

@@ -1,0 +1,861 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-007",
+  "scenario_id": "SC-001",
+  "name": "本地失败快照下载与必要业务状态保护",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "运营人员（沿原任务查看/操作权限）",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "既有任务记录与原导入界面",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（合成）",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "按既有导出对象分别显示本地校验、供应商同步/53导入失败及分片完整性；11类呼叫失败和内部计划单独保存，导入拒绝不套120秒/八人工策略。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 1,
+      "message_id": "SEQ-007-LOCAL-001",
+      "legacy_step": 1
+    },
+    {
+      "from": "operator",
+      "to": "ui",
+      "message": "下载当前选中任务/记录范围内本次失败明细，沿原入口和原导出范围，不增加导出字段或操作。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "step": 2,
+      "message_id": "SEQ-007-LOCAL-002",
+      "legacy_step": 2
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "核当前登录、原导出权限及准确tenant/task/记录，生成本次固定失败快照与已知完整性；后到新失败不混入既生成快照。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "step": 3,
+      "message_id": "SEQ-007-LOCAL-003",
+      "legacy_step": 3
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "返回本次文件/下载状态；生成文件、点击、服务器开始响应都不是可信成功下载证明。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 4,
+      "message_id": "SEQ-007-LOCAL-004",
+      "legacy_step": 4
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "演示可信完成/失败/中断/未知反馈，真实认证与浏览器完成信号待核，不能用普通客户端声称成功授权清理。",
+      "type": "event",
+      "api_id": null,
+      "condition": "本轮独立合成下载结果，不代表真实完成协议已验证",
+      "step": 5,
+      "message_id": "SEQ-007-LOCAL-005",
+      "legacy_step": 5
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "仅本快照可信完成才清对应失败明细/文件；失败/中断/unknown保留、无固定到期清除；不清成功客户、整批记录或其他快照。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "只有本次快照成功已可信核实；其余互斥结果不执行清理",
+      "step": 6,
+      "message_id": "SEQ-007-LOCAL-006",
+      "legacy_step": 6
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "保留必要record/source/保存root/actual fileId与call、原话单/三态、分片/事件去重、内部计划/attempt、累计used/UNKNOWN reserved与停止标记；历史来源审计保留，清理不重置预算或确认时间。 各原应用/路由、原外部request/行及DCC交付版本/ACK同样留存；下载不是DCC确认，不能改变原来源或把天网结果发DCC。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 7,
+      "message_id": "SEQ-007-LOCAL-007",
+      "legacy_step": 7
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "反馈本次可信成功清理，或失败/中断/unknown继续保留；不把点击/文件生成显示成清理成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "step": 8,
+      "message_id": "SEQ-007-LOCAL-008",
+      "legacy_step": 8
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "后到的新准确53失败进入后续快照；已导出同事件重复不再生。已发起异常attempt收到53拒绝保原used/unknown，不释放或生新计划；初始导入拒绝不冒算失败补提用量。",
+      "type": "internal",
+      "api_id": null,
+      "condition": "独立下载后的新/重复/迟到53结果，关联/去重按原对象分别由SEQ-001外部或SEQ-006手工路径承担，同事件不双处理",
+      "step": 9,
+      "message_id": "SEQ-007-LOCAL-009",
+      "legacy_step": 9
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "失败明细清理、本地刷新或精准删除都不能重新导入或重置四元组首次外2次；本地原call/秒挂三态继续保存，秒挂无补提交计划。",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "step": 10,
+      "message_id": "SEQ-007-LOCAL-010",
+      "legacy_step": 10
+    }
+  ],
+  "notes": [
+    "本轮G2已由用户实际批准，证据runtime/manual-code-g2-user-approval-20261014.json，接口事实指纹fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4；按手工线索类单一编码说明继续S5-S7，保留13high/4medium生产缺口，不接受生产风险，不批准G3/真实调用。",
+    "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+    "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+    "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+    "SRC-112的HTTP success/200OK描述供应商向平台回调接收，不证明用户已成功下载文件；本时序独立可信下载完成和快照生命周期工程缺口继续保留。",
+    "SRC-114的53分片重确认仅说明声明分片；收齐不等导入终态，稳定事件/组ID和两种表达归一仍待核，清理不释放已用/UNKNOWN槽，不重置共享2次。",
+    "共同失败快照下载沿已有平台查看/导出权限；原DCC交付状态继续保留，天网/手工只平台查看，不新增源回传。技术下载反馈不能代替DCC业务ACK。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-071",
+    "inputs/source-index.json#SRC-072",
+    "inputs/source-index.json#SRC-073",
+    "inputs/source-index.json#SRC-083",
+    "inputs/source-index.json#SRC-084",
+    "inputs/source-index.json#SRC-085",
+    "inputs/source-index.json#SRC-086",
+    "inputs/source-index.json#SRC-089",
+    "inputs/source-index.json#SRC-091",
+    "inputs/source-index.json#SRC-094",
+    "inputs/source-index.json#SRC-096",
+    "inputs/source-index.json#SRC-099",
+    "inputs/source-index.json#SRC-100",
+    "inputs/source-index.json#SRC-102",
+    "inputs/source-index.json#SRC-103",
+    "inputs/source-index.json#SRC-106",
+    "inputs/source-index.json#SRC-109",
+    "inputs/source-index.json#SRC-110",
+    "inputs/source-index.json#SRC-112",
+    "inputs/source-index.json#SRC-114",
+    "inputs/source-index.json#SRC-116",
+    "inputs/source-index.json#SRC-115"
+  ],
+  "review_history": [
+    {
+      "at": "2026-10-11T09:32:22+08:00",
+      "basis": "失败明细清理不删除新协议必需的请求幂等和父根关联状态",
+      "source_ref": "inputs/source-index.json#SRC-083",
+      "record_type": "draft_semantic_revision_not_approval"
+    },
+    {
+      "date": "2026-10-13",
+      "phase": "S5",
+      "source_refs": [
+        "inputs/source-index.json#SRC-116"
+      ],
+      "G2_evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-007",
+        "scenario_id": "SC-001",
+        "name": "本地失败快照下载与必要业务状态保护",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员（沿原任务查看/操作权限）",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "既有任务记录与原导入界面",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（合成）",
+            "kind": "system"
+          }
+        ],
+        "messages": [
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "按既有导出对象分别显示本地校验、供应商同步/53导入失败及分片完整性；11类呼叫失败和内部计划单独保存，导入拒绝不套120秒/八人工策略。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 1
+          },
+          {
+            "from": "operator",
+            "to": "ui",
+            "message": "下载当前选中任务/记录范围内本次失败明细，沿原入口和原导出范围，不增加导出字段或操作。",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "step": 2
+          },
+          {
+            "from": "ui",
+            "to": "service",
+            "message": "核当前登录、原导出权限及准确tenant/task/记录，生成本次固定失败快照与已知完整性；后到新失败不混入既生成快照。",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "step": 3
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "返回本次文件/下载状态；生成文件、点击、服务器开始响应都不是可信成功下载证明。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 4
+          },
+          {
+            "from": "ui",
+            "to": "service",
+            "message": "演示可信完成/失败/中断/未知反馈，真实认证与浏览器完成信号待核，不能用普通客户端声称成功授权清理。",
+            "type": "event",
+            "api_id": null,
+            "condition": "本轮独立合成下载结果，不代表真实完成协议已验证",
+            "step": 5
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "仅本快照可信完成才清对应失败明细/文件；失败/中断/unknown保留、无固定到期清除；不清成功客户、整批记录或其他快照。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "只有本次快照成功已可信核实；其余互斥结果不执行清理",
+            "step": 6
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "保留必要record/source/保存root/actual fileId与call、原话单/三态、分片/事件去重、内部计划/attempt、累计used/UNKNOWN reserved与停止标记；历史来源审计保留，清理不重置预算或确认时间。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 7
+          },
+          {
+            "from": "service",
+            "to": "ui",
+            "message": "反馈本次可信成功清理，或失败/中断/unknown继续保留；不把点击/文件生成显示成清理成功。",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "step": 8
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "后到的新准确53失败进入后续快照；已导出同事件重复不再生。已发起异常attempt收到53拒绝保原used/unknown，不释放或生新计划；初始导入拒绝不冒算失败补提用量。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "独立下载后的新/重复/迟到53结果，关联/去重由SEQ-006承担",
+            "step": 9
+          },
+          {
+            "from": "service",
+            "to": "service",
+            "message": "失败明细清理、本地刷新或精准删除都不能重新导入或重置四元组首次外2次；本地原call/秒挂三态继续保存，秒挂无补提交计划。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "step": 10
+          }
+        ],
+        "notes": [
+          "本轮实际新G2已批准保留缺口重验S5～S7，证据runtime/g2-user-approval-wiki-20261013.json，当前接口事实指纹463b24041b0ebe18f4164fa3f8646e25be1fd12129b724bef540d96d8ec1d855；本次是合成方案的下游重核，不接受生产风险、不批准G3/真实调用/原型导入或05交付。旧G2仅保留历史。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "DCC接收/回传及应用接入整体延期，旧全文/参与方/消息/API关系保留decision_history或deferred_definition，不参与当前时序图集。",
+          "SRC-112的HTTP success/200OK描述供应商向平台回调接收，不证明用户已成功下载文件；本时序独立可信下载完成和快照生命周期工程缺口继续保留。",
+          "SRC-114的53分片重确认仅说明声明分片；收齐不等导入终态，稳定事件/组ID和两种表达归一仍待核，清理不释放已用/UNKNOWN槽，不重置共享2次。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-099",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-109",
+          "inputs/source-index.json#SRC-110",
+          "inputs/source-index.json#SRC-112",
+          "inputs/source-index.json#SRC-114"
+        ],
+        "business_rule_ids": [
+          "BR-005",
+          "BR-012",
+          "BR-013",
+          "BR-015",
+          "BR-018",
+          "BR-019"
+        ],
+        "status": "analysis_reviewed_WIKI_G2_gaps_retained",
+        "delivery_scope": "current_manual_and_internal_delivery",
+        "g2_analysis_continuation": {
+          "evidence": "runtime/g2-user-approval-wiki-20261013.json",
+          "interface_fingerprint": "463b24041b0ebe18f4164fa3f8646e25be1fd12129b724bef540d96d8ec1d855",
+          "actual_answer": "批准 G2，保留缺口重验 S5～S7",
+          "scope": "仅批准本轮接口事实及边界用于重验S5～S7；生产证据要求不变，13high/2medium保持open。",
+          "production_risk_accepted": false,
+          "production_calls_allowed": false,
+          "G3_approved": false,
+          "prototype_import_allowed": false,
+          "development_delivery_approved": false
+        }
+      },
+      "reason": "当前G2恢复DCC优先+天网共享；保留原手工/下载/指定删除操作，仅对齐来源及当前批准。"
+    },
+    {
+      "date": "2026-10-14",
+      "change_id": "CH-MANUAL-CODE-SOURCE-CORRECTION-20261014",
+      "actual_G2": "runtime/manual-code-g2-user-approval-20261014.json",
+      "before": {
+        "notes": [
+          "本轮G2已由用户实际批准，证据runtime/tianwang-g2-user-approval-20261013.json，接口事实指纹286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d；保留13high/4medium生产缺口，不接受生产风险、不批准G3/真实调用。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "SRC-112的HTTP success/200OK描述供应商向平台回调接收，不证明用户已成功下载文件；本时序独立可信下载完成和快照生命周期工程缺口继续保留。",
+          "SRC-114的53分片重确认仅说明声明分片；收齐不等导入终态，稳定事件/组ID和两种表达归一仍待核，清理不释放已用/UNKNOWN槽，不重置共享2次。",
+          "共同失败快照下载沿已有平台查看/导出权限；原DCC交付状态继续保留，天网/手工只平台查看，不新增源回传。技术下载反馈不能代替DCC业务ACK。"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/tianwang-g2-user-approval-20261013.json",
+          "interface_fingerprint": "286bb840d611315b97bad909a80e8a5b472ed781bef9484603e716b45d68778d",
+          "scope": "same_received_G2_no_fact_change",
+          "risk_accepted": false,
+          "real_calls": false,
+          "G3_approved": false
+        },
+        "status": "S5_current_Tianwang_G2_scope_revalidated_production_gaps_retained"
+      }
+    }
+  ],
+  "decision_history": [
+    {
+      "at": "2026-10-11T10:08:12+08:00",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-007",
+        "scenario_id": "SC-001",
+        "name": "接口及手工失败下载生命周期",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "service",
+            "to": "ui",
+            "message": "分类显示本地/供应商导入失败；失败分片未收齐或完整性未知显示不完整/待核",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "operator",
+            "to": "ui",
+            "message": "下载选中/本次导出失败明细",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "ui",
+            "to": "service",
+            "message": "冻结本次失败导出快照及完整性说明；后到新失败不加入已生成快照",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "ui",
+            "message": "生成模拟导出结果/文件；生成或点击不代表成功下载",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 5,
+            "from": "ui",
+            "to": "service",
+            "message": "合成明确下载成功事件（非真实浏览器成功证明）",
+            "type": "event",
+            "api_id": null,
+            "condition": "独立模拟成功情形"
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "service",
+            "message": "可信成功只清该快照失败明细/文件；接口任务保留原requestId/逐行接收结果及batch/parent/root；两来源都保留已有客户record/batch、供应商fileId映射、去重标记、分片/交付状态和审计时间，手工不因此新增DCC关联要求",
+            "type": "internal",
+            "api_id": null,
+            "condition": "成功信号已可信确认"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "ui",
+            "message": "失败/中断保留，无固定到期；成功显示本次已清理",
+            "type": "response",
+            "api_id": null,
+            "condition": "对应情形"
+          },
+          {
+            "step": 8,
+            "from": "service",
+            "to": "service",
+            "message": "后到新失败保留待再次下载；已导出重复事件不再生明细；回传失败仍可补送",
+            "type": "internal",
+            "api_id": null,
+            "condition": "下载后异步事件到达"
+          }
+        ],
+        "notes": [
+          "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+          "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+          "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-083"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "reason": "用户最新主/子根归组方案替代SRC-083逐行指定父批方案；旧事实只作历史，新G3未批准。",
+      "record_type": "draft_business_revision_not_approval"
+    },
+    {
+      "at": "2026-10-12",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-007",
+        "scenario_id": "SC-001",
+        "name": "接口及手工失败下载生命周期",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "service",
+            "to": "ui",
+            "message": "分类显示本地/供应商导入失败；失败分片未收齐或完整性未知显示不完整/待核",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "operator",
+            "to": "ui",
+            "message": "下载选中/本次导出失败明细",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "ui",
+            "to": "service",
+            "message": "冻结本次失败导出快照及完整性说明；后到新失败不加入已生成快照",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "ui",
+            "message": "生成模拟导出结果/文件；生成或点击不代表成功下载",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 5,
+            "from": "ui",
+            "to": "service",
+            "message": "合成明确下载成功事件（非真实浏览器成功证明）",
+            "type": "event",
+            "api_id": null,
+            "condition": "独立模拟成功情形"
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "service",
+            "message": "可信成功只清该失败快照明细/文件；接口来源保留原requestId/逐行接收结果及record/batch/root、同组主保存创建序列；两来源保留必要已有记录/fileId映射、去重/分片/交付状态和审计时间，手工不新增DCC关联要求",
+            "type": "internal",
+            "api_id": null,
+            "condition": "成功信号已可信确认"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "ui",
+            "message": "失败/中断保留，无固定到期；成功显示本次已清理",
+            "type": "response",
+            "api_id": null,
+            "condition": "对应情形"
+          },
+          {
+            "step": 8,
+            "from": "service",
+            "to": "service",
+            "message": "后到新失败保留待再次下载；已导出重复事件不再生明细；回传失败仍可补送",
+            "type": "internal",
+            "api_id": null,
+            "condition": "下载后异步事件到达"
+          }
+        ],
+        "notes": [
+          "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+          "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+          "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086"
+        ],
+        "review_history": [
+          {
+            "at": "2026-10-11T09:32:22+08:00",
+            "basis": "失败明细清理不删除新协议必需的请求幂等和父根关联状态",
+            "source_ref": "inputs/source-index.json#SRC-083",
+            "record_type": "draft_semantic_revision_not_approval"
+          }
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-089",
+        "inputs/source-index.json#SRC-094",
+        "inputs/source-index.json#SRC-096",
+        "inputs/source-index.json#SRC-102",
+        "inputs/source-index.json#SRC-103",
+        "inputs/source-index.json#SRC-106"
+      ],
+      "reason": "消费本轮SC/BR与G2接口边界：失败3自动120秒/8人工共享额外2次；秒挂仅识别回传。下载和定向删除保留必要追溯、内部尝试及预算，不升级供应商或下载成功协议。",
+      "record_type": "draft_sequence_revision_not_approval"
+    },
+    {
+      "change_id": "CH-DCC-20261012-DEFER-INTEGRATION-MANUAL-INTERNAL-LOOP",
+      "recorded_at": "2026-10-12",
+      "source_refs": [
+        "inputs/source-index.json#SRC-110"
+      ],
+      "reason": "消费SRC-110与本次实际G2：DCC及应用延期；当前手工、供应商本地结果/失败补提交与授权精准记录删除闭环。稳定ID及旧完整定义保留，不扩大业务功能或升级生产接口。",
+      "previous_definition": {
+        "schema_version": "1.0",
+        "id": "SEQ-007",
+        "scenario_id": "SC-001",
+        "name": "接口及手工失败下载生命周期",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "service",
+            "to": "ui",
+            "message": "按既有导出对象分类显示本地校验/供应商导入失败及53失败分片完整性；53导入拒绝与11类预测呼叫失败分别记录，不因导入失败套用呼叫失败120秒或人工重提。",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "operator",
+            "to": "ui",
+            "message": "下载选中记录对应的本次失败明细；沿原下载入口和对象范围，不增加新的导出字段或操作。",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "ui",
+            "to": "service",
+            "message": "按既有权限与准确任务/记录范围生成本次固定失败快照及已有完整性说明；后到新失败不并入这个已生成快照。",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 4,
+            "from": "service",
+            "to": "ui",
+            "message": "返回本次合成文件/下载结果；生成文件、点击链接或服务器开始响应均不作为真实成功下载证明。",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 5,
+            "from": "ui",
+            "to": "service",
+            "message": "合成可信完成/失败/中断/未知情形；真实浏览器成功信号和认证机制仍待落实，不把普通客户端声称成功直接当清理授权。",
+            "type": "event",
+            "api_id": null,
+            "condition": "独立合成情形；无真实下载协议验证"
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "service",
+            "message": "仅清除这个已可信确认成功快照的失败明细和文件；不清整批客户、其他快照、原供应商结果或真实话单。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "本次快照下载完成信号已可信确认"
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "service",
+            "message": "保留两来源必要客户record/batch、保存source/root、实际supplier fileId与call映射、事件去重/分片/DCC交付；保留失败计划、内部attempt、已用次数、未知占用和停止标记。接口还保留原requestId/行回执及固定phone组/主保存顺序；手工不补造DCC协议。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅本次成功快照明细/文件被清理；必要业务状态继续留存"
+          },
+          {
+            "step": 8,
+            "from": "service",
+            "to": "ui",
+            "message": "分别反馈本次成功清理，或失败/中断/未知仍保留明细和文件；没有固定到期自动清除，不将点击或文件生成显示为清理成功。",
+            "type": "response",
+            "api_id": null,
+            "condition": "按该次下载可信状态反馈"
+          },
+          {
+            "step": 9,
+            "from": "service",
+            "to": "service",
+            "message": "后到的新导入失败进入后续可下载明细；已导出同事件重复不再生成明细。已实际发起的异常补提交attempt收到53导入拒绝时保留其失败已用或未知占用，不因快照清理/导入拒绝释放额度或另建补提交；初始导入拒绝不冒算异常用量。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "下载后异步新结果、重复或晚到53事件到达"
+          },
+          {
+            "step": 10,
+            "from": "service",
+            "to": "service",
+            "message": "原DCC结果交付失败仍沿既有可靠交付流程补送同对象/版本；下载或补送不再次调用供应商导入，不重置失败额外2次、120秒首次确认时间或去重。秒挂仅保留原call/明确分类及交付，不存在秒挂补提交计划。",
+            "type": "internal",
+            "api_id": null,
+            "condition": "原结果交付或必要状态仍需保留"
+          }
+        ],
+        "notes": [
+          "保持原失败下载生命周期和原导出范围，不因新增异常处理增加导出字段、清理业务记录或授予新的操作权限。API-009 not_required仅表示无新增外部供应商依赖，真实内部持久化与可信下载完成信号仍待工程落实。",
+          "53的TaskDup/BatchDup/ReqDup/NumFmtErr/BlkNum/CustNumNil属于导入拒绝，与11类预测呼叫失败分开；53不自动进入三类120秒或八类人工呼叫失败补提交。补提交已实际发起后的拒绝仍保留原内部尝试与额度占用。",
+          "可信成功只清本次快照明细/文件；保留原来源/请求/root/业务记录、vendor fileId与call、事件去重、失败计划/attempt、已用和未知占用、停止及结果交付。清理不重导、不重计时；预算按同租户＋原任务＋已保存线索编码＋固定手机号跨主批累计，下载、清理、另开主批不重置，不能因无展示历史默认已用0。",
+          "秒挂依SRC-106仅识别、明确分类回传/查看并保留原话单，不建计划、额外额度或等待参数；下载不能改变这一范围。",
+          "仅表达已确认业务与合成情形，未执行真实下载或接口；partial/missing不提升为verified。阶段渲染、接口使用关系与状态由owner处理。",
+          "API-009是无需新增外部依赖的内部能力证据；纯UI/持久化/快照动作api_id=null，不把not_required画成接口调用。业务边界仍参照S4索引。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-099",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-109"
+        ],
+        "review_history": [
+          {
+            "at": "2026-10-11T09:32:22+08:00",
+            "basis": "失败明细清理不删除新协议必需的请求幂等和父根关联状态",
+            "source_ref": "inputs/source-index.json#SRC-083",
+            "record_type": "draft_semantic_revision_not_approval"
+          }
+        ],
+        "business_rule_ids": [
+          "BR-015",
+          "BR-016",
+          "BR-017",
+          "BR-018",
+          "BR-019"
+        ]
+      }
+    },
+    {
+      "recorded_at": "2026-10-13",
+      "record_type": "S5_revalidation_metadata_and_documentary_boundaries_under_actual_Wiki_G2",
+      "previous_current_metadata": {
+        "status": "analysis_reviewed_SRC110_G2_gaps_retained",
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-083",
+          "inputs/source-index.json#SRC-084",
+          "inputs/source-index.json#SRC-085",
+          "inputs/source-index.json#SRC-086",
+          "inputs/source-index.json#SRC-089",
+          "inputs/source-index.json#SRC-091",
+          "inputs/source-index.json#SRC-094",
+          "inputs/source-index.json#SRC-096",
+          "inputs/source-index.json#SRC-099",
+          "inputs/source-index.json#SRC-100",
+          "inputs/source-index.json#SRC-102",
+          "inputs/source-index.json#SRC-103",
+          "inputs/source-index.json#SRC-106",
+          "inputs/source-index.json#SRC-109",
+          "inputs/source-index.json#SRC-110"
+        ],
+        "notes": [
+          "本次实际G2仅允许保留缺口继续S5～S7，证据runtime/g2-user-approval-SRC110-20261012.json；不是G3冻结、生产联调、真实账号权限变更或供应商能力verified。",
+          "所有供应商及内部命令只消费当前S4已审字段/能力；真实method/route/auth、稳定事件、原子事务和未知核查继续partial/missing。没有实际HTTP、拨号、删除、DCC回调或凭据操作。",
+          "每条消息的condition限定独立触发或互斥结果；多个条件分支不会在同一业务操作中全部执行。用户消息不输入后台技术字段。",
+          "API-009为无需新增外部接口的本地记录/UI/持久化说明，纯内部动作api_id=null；API-011/API-014为已审本方命令提案，不宣称真实路由已实现。",
+          "DCC接收/回传及应用接入整体延期，旧全文/参与方/消息/API关系保留decision_history或deferred_definition，不参与当前时序图集。"
+        ],
+        "g2_analysis_continuation": {
+          "evidence": "runtime/g2-user-approval-SRC110-20261012.json",
+          "interface_fingerprint": "dca9200a363d11c23af0cf75ba04f55f8191626a638790827ef767d59b1df755",
+          "scope": "仅合成方案分析，真实缺口保持"
+        }
+      },
+      "previous_file_sha256": "0a03d7ec73cab2939ab42b502b18825bc6879db3d671e1ab301cd456299c1452",
+      "complete_prior_file_evidence": "runtime/wiki-g2-downstream-revalidation-20261013.json",
+      "reason": "当前6时序消息/参与方目的已逐条与新G2核验，保持124消息正文；仅补来源、取证/字段边界和当前批准绑定。"
+    }
+  ],
+  "business_rule_ids": [
+    "BR-005",
+    "BR-012",
+    "BR-013",
+    "BR-015",
+    "BR-018",
+    "BR-019"
+  ],
+  "status": "S5_manual_code_correction_revalidated_production_gaps_retained",
+  "delivery_scope": "current_DCC_Tianwang_manual_record_origin_policy",
+  "g2_analysis_continuation": {
+    "status": "approved_actual_reply",
+    "date": "2026-10-14",
+    "evidence": "runtime/manual-code-g2-user-approval-20261014.json",
+    "interface_fingerprint": "fbef70234ad9bc9ea8a764614c243d1d97a7aed5cc344aa4188654b512ae6bb4",
+    "production_risk_accepted": false,
+    "real_calls_allowed": false,
+    "G3_approved": false
+  }
+}

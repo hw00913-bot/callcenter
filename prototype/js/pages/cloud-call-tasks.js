@@ -31,6 +31,19 @@
     }));
   }
 
+  function predictiveTaskActions(row) {
+    function button(action,label,method,reason) {
+      var handler=esc('CloudTaskWorkspace.'+method+'('+JSON.stringify(row.taskId)+')');
+      var markup='<button type="button" data-task-action="'+action+'" '+(action==='import'?'data-task-import="'+esc(row.taskId)+'" ':'')+(reason?'disabled aria-disabled="true" ':'')+'title="'+esc(reason||label)+'" onclick="'+handler+'">'+label+'</button>';
+      return reason?'<span class="help-tooltip predictive-action-disabled" tabindex="0" role="button" aria-label="'+esc(label+'不可用：'+reason)+'" data-help="'+esc(reason)+'" title="'+esc(reason)+'">'+markup+'</span>':markup;
+    }
+    if(row.isWizardDraft)return '<div class="table-actions predictive-task-actions" data-predictive-task-actions="'+esc(row.taskId)+'">'+button('continue','继续创建','openTask','')+button('delete-draft','删除草稿','deleteTask','')+'</div>';
+    return '<div class="table-actions predictive-task-actions" data-predictive-task-actions="'+esc(row.taskId)+'">'+
+      button('view','查看任务','openTask',CloudTaskWorkspace.taskViewReason(row))+
+      button('edit','编辑','editTask',CloudTaskWorkspace.taskEditReason(row))+
+      button('import','导入客户','openCustomerImport',CloudTaskWorkspace.customerImportReason(row))+'</div>';
+  }
+
   function taskPage(type) {
     var isPredictive = type === '预外呼';
     var state = filters[filterKey(type)];
@@ -38,7 +51,12 @@
     var pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
     if (state.page > pageCount) state.page = pageCount;
     var pageRows = rows.slice((state.page - 1) * pageSize, state.page * pageSize).map(function (row, index) {
-      return Object.assign({ orderNo: (state.page - 1) * pageSize + index + 1 }, row);
+      var displayRow = Object.assign({ orderNo: (state.page - 1) * pageSize + index + 1 }, row);
+      if (isPredictive && window.DccRuntime?.isManagedTask(row) && AppState.authorizeObject('', row)) {
+        var records = window.DccRuntime.taskRecords(row.taskId);
+        if (records.ok) displayRow.total = records.data.records.length;
+      }
+      return displayRow;
     });
     var helpText = isPredictive
       ? '暂停后可继续同一任务；确认结束后不再发起新呼叫或重呼，也不能重新开启。已经发起的通话正常进行。'
@@ -56,7 +74,7 @@
       '<div class="filter-panel"><label class="field"><span>任务名称</span><input id="cloudTaskKeyword" value="' + esc(state.keyword) + '" placeholder="请输入任务名称"></label><label class="field"><span>任务状态</span><select id="cloudTaskStatus"><option value="">全部</option>' +
       ['草稿', '待分配客户', '待启动', '执行中', '已暂停', '已完成', '已终止', '异常'].map(function (status) { return '<option' + (state.status === status ? ' selected' : '') + '>' + status + '</option>'; }).join('') +
       '</select></label><div class="filter-actions"><button class="btn" onclick="window.Pages[\'cloud-call-tasks\'].resetFilters(\'' + type + '\')">重置</button><button class="btn btn-primary" onclick="window.Pages[\'cloud-call-tasks\'].query(\'' + type + '\')">查询</button></div></div>' +
-      '<div class="cloud-task-list-shell">' + ui.toolbar('<button class="btn btn-primary" onclick="window.Pages[\'cloud-call-tasks\'].openCreate(\'' + type + '\')">+ 新建任务</button>'+'<button class="btn" onclick="window.Pages[\'cloud-call-tasks\'].exportTasks(\'' + type + '\')">导出</button>', '<span>' + ui.help(helpText, '任务说明') + '</span>') +
+      '<div class="cloud-task-list-shell">' + ui.toolbar('<button class="btn btn-primary" onclick="window.Pages[\'cloud-call-tasks\'].openCreate(\'' + type + '\')">+ 新建任务</button>'+(isPredictive?'<button class="btn btn-primary" type="button" id="predictiveImportCustomers" onclick="CloudTaskWorkspace.openCustomerImport()">导入客户</button>':'')+'<button class="btn" onclick="window.Pages[\'cloud-call-tasks\'].exportTasks(\'' + type + '\')">导出</button>', '<span>' + ui.help(helpText, '任务说明') + '</span>') +
       ui.table([
         { key: 'orderNo', label: '序号', width: '64px' },
         { key: 'name', label: '任务名称', render: function (value, row) { return '<button class="table-link" onclick="window.Pages[\'cloud-call-tasks\'].openTask(\'' + esc(row.taskId) + '\')"><strong>' + esc(value) + '</strong><small>' + esc(tenantName(row.tenantId)) + ' · ' + esc(row.scheduleAt || '尚未设置执行时间') + '</small></button>'; } },
@@ -66,7 +84,7 @@
         { key: 'connected', label: '已接通' },
         { key: 'taskId', label: '完成进度', render: function (value, row) { return '<div class="progress-cell"><span><i style="width:' + progress(row) + '%"></i></span><small>' + progress(row) + '%</small></div>'; } },
         { key: 'owner', label: '负责人' },
-        { key: 'taskId', label: '操作', className: 'action-column', render: function (value, row) { return '<div class="table-actions"><button onclick="window.Pages[\'cloud-call-tasks\'].openTask(\'' + esc(value) + '\')">' + (row.isWizardDraft ? '继续创建' : '查看与管理') + '</button>' + (!row.isWizardDraft&&CloudTaskWorkspace.canEditTask(row)?'<button onclick="CloudTaskWorkspace.editTask(\''+esc(value)+'\')">编辑</button>':'') + (CustomerTasks.canImportToTask(row) ? '<button onclick="CustomerTasks.importDialog(\'' + esc(value) + '\')">导入客户</button>' : '') + (!row.isWizardDraft&&isPredictive ? window.RepeatPredictive?.listTaskAction(row)||'' : '') + (row.isWizardDraft ? '<button onclick="CloudTaskWorkspace.deleteTask(\''+esc(value)+'\')">删除</button>' : '') + '</div>'; } }
+        { key: 'taskId', label: '操作', className: 'action-column', render: function (value, row) { if(isPredictive)return predictiveTaskActions(row); return '<div class="table-actions"><button onclick="window.Pages[\'cloud-call-tasks\'].openTask(\'' + esc(value) + '\')">' + (row.isWizardDraft ? '继续创建' : '查看与管理') + '</button>' + (!row.isWizardDraft&&CloudTaskWorkspace.canEditTask(row)?'<button onclick="CloudTaskWorkspace.editTask(\''+esc(value)+'\')">编辑</button>':'') + (isPredictive?CloudTaskWorkspace.customerImportButton(row,{table:true}):'')+(window.DccRuntime?.isManagedTask(row)?'<button onclick="CloudTaskWorkspace.openTask(\''+esc(value)+'\',\'dcc-records\')" data-func-id="FUNC-015">客户与处理记录</button>':'') + (!row.isWizardDraft&&isPredictive ? window.RepeatPredictive?.listTaskAction(row)||'' : '') + (row.isWizardDraft ? '<button onclick="CloudTaskWorkspace.deleteTask(\''+esc(value)+'\')">删除</button>' : '') + '</div>'; } }
       ], pageRows, { emptyText: '未找到符合条件的任务', emptyDetail: '可重置筛选或新建任务。', footer: ui.pagination(rows.length, state.page, pageSize, "window.Pages['cloud-call-tasks'].setPage.bind(null,'" + type + "')") }) +
       '</div></section>';
   }

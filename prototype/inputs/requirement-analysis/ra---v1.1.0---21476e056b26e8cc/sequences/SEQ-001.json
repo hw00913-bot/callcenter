@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-001",
+  "scenario_id": "SC-001",
+  "name": "DCC导入逐行保存、单号拆批与自动提交",
+  "participants": [
+    {
+      "id": "dcc",
+      "name": "DCC（模拟输入）",
+      "kind": "external_system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti（模拟返回/未实接）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "service",
+      "to": "service",
+      "message": "创建任务提交锁定接口/手工一种方式；后端校验taskId来源及tenant归属，不绑定应用",
+      "type": "internal",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "dcc",
+      "to": "service",
+      "message": "应用凭证+tenantId换租户token；真实交换/时效待核",
+      "type": "external_call",
+      "api_id": "API-001",
+      "condition": "合成授权有效"
+    },
+    {
+      "step": 3,
+      "from": "service",
+      "to": "dcc",
+      "message": "返回指定租户模拟身份；不生成可用token",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "dcc",
+      "to": "service",
+      "message": "携租户身份、supplier taskId、线索编码/可选R/priority传入客户",
+      "type": "external_call",
+      "api_id": "API-001",
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "service",
+      "to": "service",
+      "message": "核租户任务归属与线索/priority等必要字段；R可选且无字典校验，技术幂等不推定",
+      "type": "internal",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 6,
+      "from": "service",
+      "to": "service",
+      "message": "无效行失败；有效行单独保存独立记录与单号新批次",
+      "type": "internal",
+      "api_id": null,
+      "condition": "逐行校验；其他有效行继续"
+    },
+    {
+      "step": 7,
+      "from": "service",
+      "to": "vendor",
+      "message": "仅待提交记录高优先级先、同级本地导入时间FIFO；已提交不重排，未知提交不重复；仅同任务，不同任务独立",
+      "type": "external_call",
+      "api_id": "API-002",
+      "condition": "有效行完成保存"
+    },
+    {
+      "step": 8,
+      "from": "vendor",
+      "to": "service",
+      "message": "同步result、fileId、taskId、importTotal、successTotal、invalidTotal；原始证据保留",
+      "type": "response",
+      "api_id": "API-002",
+      "condition": null
+    },
+    {
+      "step": 9,
+      "from": "service",
+      "to": "service",
+      "message": "准确同步成功正常记录；仅汇总不盲指定成功行，result0非逐条全成功；明确失败入明细不计呼叫",
+      "type": "internal",
+      "api_id": null,
+      "condition": "明确结果"
+    },
+    {
+      "step": 10,
+      "from": "service",
+      "to": "service",
+      "message": "结果待核实，暂停该记录继续重提，核实后处理",
+      "type": "internal",
+      "api_id": null,
+      "condition": "超时/矛盾无法确认接收或呼叫"
+    },
+    {
+      "step": 11,
+      "from": "service",
+      "to": "dcc",
+      "message": "逐行反馈本地保存/供应商接收状态，接受不等于实际呼叫",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": null
+    },
+    {
+      "step": 12,
+      "from": "vendor",
+      "to": "service",
+      "message": "53导入失败分片：企业/任务/fileId、总失败数、总片数/片号、failedTelList原始数据及原因",
+      "type": "event",
+      "api_id": "API-003",
+      "condition": "供应商配置失败事件推送；零失败无推送保证"
+    },
+    {
+      "step": 13,
+      "from": "service",
+      "to": "service",
+      "message": "映射租户与本次批次leadCode；分片合并、重复不新增、迟到不丢，冲突待核；片收齐非全导入终态",
+      "type": "internal",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 14,
+      "from": "service",
+      "to": "dcc",
+      "message": "导入阶段失败及原因/关联回传；失败待补送，不重做导入、不计呼叫；手工任务仅平台查看",
+      "type": "external_call",
+      "api_id": "API-010",
+      "condition": "接口来源任务，后台固定地址"
+    }
+  ],
+  "notes": [
+    "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+    "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+    "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。",
+    "待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-062",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070",
+    "inputs/source-index.json#SRC-071",
+    "inputs/source-index.json#SRC-072",
+    "inputs/source-index.json#SRC-073",
+    "inputs/source-index.json#SRC-076",
+    "inputs/source-index.json#SRC-077"
+  ]
+}

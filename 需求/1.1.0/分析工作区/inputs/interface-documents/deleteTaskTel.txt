@@ -1,0 +1,150 @@
+任务号码删除接口
+接口说明
+任务号码删除接口
+号码删除顺序说明：
+注：建议在任务非运行状态下删除号码
+按号码或属性删除（最高优先级）
+支持tels参数
+任务运行中可删除
+按批次删除
+支持fileId或fileName
+任务运行中可删除
+按号码状态删除
+支持status参数
+任务运行中可删除
+删除整个任务号码（最低优先级）
+仅任务初始或结束状态可删除
+API URL
+接口请求地址：
+https://api-{region}.alicti.cn/interface/{version}/task/deleteTaskTel
+地址参数说明：
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+{version}为接口版本，当前{version}=v10
+接口请求方式：
+GET/POST请求
+相关参数
+参数
+类型
+要求
+描述
+备注
+validateType
+Int
+必选
+验证类型
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证
+departmentId
+String
+必选
+部门编号
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001
+enterpriseId
+Int
+必选
+呼叫中心编号
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101
+timestamp
+Long
+必选
+当前时间戳
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟
+sign
+String
+必选
+验证值
+说明：
+validateType=1:
+MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2：
+MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写
+taskId
+Int
+必选
+任务Id
+fileId
+Int
+可选
+批次Id
+fileName
+String
+可选
+批次名称
+按照名称删除会删除最近添加的批次
+status
+Int
+可选
+号码状态
+0:未呼叫 1:已呼叫
+tels
+String
+可选
+电话号码
+支持多个，多个号码用英文逗号","分隔；任务在运行中，号码也会被删除，最多支持10W个号码；支持加密号码删除，加密号码传参时需URL Encode
+skipCalling
+Int
+可选
+是否跳过呼叫中号码
+0或不传：呼叫中号码也删除（默认，兼容原行为）；1：跳过呼叫中号码不删除，其余号码正常删除。部分成功仍返回成功，跳过的号码见返回data.skippedCallingTels。与 skipRetry 互斥，不能同时为1
+skipRetry
+Int
+可选
+是否跳过重呼号码
+0或不传：已呼叫号码同样清缓存并写墓碑（默认）；1：跳过重呼（已呼叫）号码的缓存与墓碑，仅删除数据库；未呼叫号码仍删除数据库、缓存并写墓碑。与 skipCalling 互斥
+接口请求示例
+https://api-{region}.alicti.cn/interface/v10/task/deleteTaskTel?enterpriseId=6000001&validateType=2&timestamp=1490791690&sign=f4e847a068c5ef66c9e5c64a4eaaaa84&taskId=13&tels=185xxxxxxxx&skipCalling=1
+接口返回
+参数
+类型
+说明
+result
+Int
+0 成功, -1 失败
+description
+String
+返回结果描述
+errorCode
+Int
+错误码,当返回result=-1时，返回该参数
+data
+Object
+可选。当skipCalling=1且存在因呼叫中被跳过的号码时返回
+data字段说明：
+参数
+类型
+说明
+skippedCallingTels
+List<String>
+因处于呼叫中而被跳过、未删除的电话号码列表
+description给出成功或失败时的文本描述：
+description
+返回结果说明
+验证失败，参数[{param}]不能为空
+{param}为接口参数中必选字段
+验证失败，参数[{param}]格式不正确
+{param}为接口参数中格式有要求的字段
+验证失败，参数[{param}]取值不正确
+{param}为接口参数中有固定取值的字段
+验证失败，参数[param]取值范围不正确
+{param}为接口参数中有固定范围的字段
+验证失败，超过频次限制
+接口调用超过接口的访问频次限制
+成功，{param}
+{param}为成功描述
+失败，{param}
+{param}为失败描述
+返回示例：
+{
+    "result": "0",
+    "description": "成功"
+}
+skipCalling=1且存在跳过号码时返回示例：
+{
+    "result": "0",
+    "description": "成功",
+    "data": {
+        "skippedCallingTels": ["185xxxxxxxx"]
+    }
+}

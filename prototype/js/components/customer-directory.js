@@ -60,7 +60,7 @@
   function legacyCall(batch, row, snapshot, index) {
     const callId = snapshot.callId || 'LEGACY-' + hash(JSON.stringify([batch.id, row.id, index]));
     return {
-      ...CustomerBusiness.snapshot({ ...row, ...snapshot, tenantId:batch.tenantId, enterpriseId:batch.enterpriseId }), ...snapshot, callId, tenantId: batch.tenantId, enterpriseId: batch.enterpriseId,
+      ...CustomerBusiness.snapshot({ businessType:row.businessType, externalDocumentId:row.externalDocumentId, ...snapshot, tenantId:batch.tenantId, enterpriseId:batch.enterpriseId }), ...snapshot, callId, tenantId: batch.tenantId, enterpriseId: batch.enterpriseId,
       customerTaskItemId: row.id, customerName: row.name, customerPhone: normalizePhone(row.phone),
       caller: snapshot.caller || '—', callee: snapshot.callee || row.phone,
       direction: snapshot.direction || '呼出', callType: snapshot.callType || '历史通话',
