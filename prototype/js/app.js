@@ -194,22 +194,30 @@
     CLOUD_CONTACT_CENTER: { label: '云联络中心', short: '云呼叫', description: '人工外呼接入、预外呼、自动外呼、呼入、坐席与资源运营' }
   };
   const roleLabels = { SUPER_ADMIN: '超级管理员', ADMIN: '租户管理员', OPERATOR: '租户运营' };
-  const stages = new Set(['ACCOUNT', 'TENANT', 'INSTANCE', 'READY']);
+  const loginPlatforms = {
+    ai: { label: 'AI 外呼', description: '智能外呼、场景配置与效果分析' },
+    cloud: { label: '云外呼', description: '人工外呼、预外呼与云联络中心' }
+  };
+  function isLoginPlatform(value) { return typeof value === 'string' && Object.hasOwn(loginPlatforms, value); }
+  const aiOutboundUrl = 'https://hw00913-bot.github.io/prototype-demo/index.html';
+  const stages = new Set(['ACCOUNT', 'PLATFORM', 'TENANT', 'INSTANCE', 'READY']);
   let saved = {};
   try { const value = JSON.parse(sessionStorage.getItem(storageKey) || '{}'); saved = value && typeof value === 'object' && !Array.isArray(value) ? value : {}; } catch (error) { saved = {}; }
 
   const validProfiles = data().demoProfiles || [];
   const savedProfileValid = validProfiles.some(item => item.profileId === saved.profileId);
+  const savedLoginPlatform = saved.authStage === 'READY' ? 'cloud' : (isLoginPlatform(saved.loginPlatform) ? saved.loginPlatform : '');
   const state = {
     accountId: typeof saved.accountId === 'string' ? saved.accountId : (validProfiles.find(item => item.profileId === saved.profileId)?.accountId || ''),
     sessionId: typeof saved.sessionId === 'string' ? saved.sessionId : '',
     profileId: savedProfileValid ? saved.profileId : '',
     pendingProfileId: savedProfileValid ? saved.profileId : '',
     loginMode: 'password',
+    loginPlatform: ['PLATFORM', 'ACCOUNT'].includes(saved.authStage) ? '' : savedLoginPlatform,
     tenantId: typeof saved.tenantId === 'string' ? saved.tenantId : '',
     enterpriseId: typeof saved.enterpriseId === 'string' ? saved.enterpriseId : '',
     activeDomain: saved.authStage === 'READY' ? 'CLOUD_CONTACT_CENTER' : '',
-    authStage: stages.has(saved.authStage) ? saved.authStage : 'ACCOUNT',
+    authStage: ['TENANT', 'INSTANCE'].includes(saved.authStage) && !savedLoginPlatform ? 'PLATFORM' : (stages.has(saved.authStage) ? saved.authStage : 'ACCOUNT'),
     currentPage: typeof saved.currentPage === 'string' && !/^(ai-|scene-|result-|report-billing)/.test(saved.currentPage) ? saved.currentPage : 'home',
     returnContext: saved.returnContext && typeof saved.returnContext === 'object' ? saved.returnContext : null,
     hasUnsavedChanges: false,
@@ -320,6 +328,12 @@
   }
 
   function ensureContext() {
+    if (!isReady()) {
+      state.tenantId = '';
+      state.enterpriseId = '';
+      state.activeDomain = '';
+      return;
+    }
     if (!state.accountId) return;
     if (isSuper()) {
       const options = availableInstances();
@@ -423,6 +437,7 @@
       sessionId: state.sessionId,
       profileId: state.profileId,
       pendingProfileId: state.pendingProfileId,
+      loginPlatform: state.loginPlatform,
       tenantId: state.tenantId,
       enterpriseId: state.enterpriseId,
       activeDomain: state.activeDomain,
@@ -445,7 +460,8 @@
   }
 
   function stageCopy() {
-    return `<div class="auth-progress"><span class="${state.authStage === 'ACCOUNT' ? 'active' : 'done'}">1 认证</span><i></i><span class="${state.authStage === 'TENANT' || state.authStage === 'INSTANCE' ? 'active' : (state.authStage === 'READY' ? 'done' : '')}">2 工作范围</span></div>`;
+    const current = state.authStage === 'ACCOUNT' ? 0 : state.authStage === 'PLATFORM' ? 1 : isReady() ? 3 : 2;
+    return `<div class="auth-progress">${['账号登录', '选择平台', '选择租户'].map((label, index) => `${index ? '<i></i>' : ''}<span class="${index === current ? 'active' : index < current ? 'done' : ''}">${index + 1} ${label}</span>`).join('')}</div>`;
   }
 
   function setLoginMode(mode) {
@@ -494,27 +510,46 @@
     </div>`;
   }
 
-  function renderTenantStep() {
-    const rows = availableTenants();
+  function renderPlatformStep() {
     return `<div class="auth-card auth-choice-card">
       ${stageCopy()}
-      <div class="auth-card-heading"><span>${esc(account().nickname || account().name)}</span><h1>选择本次进入的租户</h1><p>一次会话只激活一个租户及该租户内唯一角色；更换租户需退出后重新登录。</p></div>
+      <div class="auth-card-heading"><span>${esc(account().nickname || account().name)}</span><h1>选择登录平台</h1><p>账号验证通过，请选择 AI 外呼或云外呼，再选择租户。</p></div>
+      <div class="domain-choice-grid">${Object.entries(loginPlatforms).map(([key, item]) => `<button type="button" class="domain-choice-card ${key}" data-login-platform="${key}" onclick="AppState.chooseLoginPlatform('${key}')"><span aria-hidden="true">${key === 'ai' ? 'AI' : '云'}</span><div><strong>${item.label}</strong><small>${item.description}</small></div><em>选择租户 →</em></button>`).join('')}</div>
+      <button class="auth-link" type="button" onclick="AppState.backToLogin()">返回账号登录</button>
+    </div>`;
+  }
+
+  function loginTenantOptions() {
+    if (!isLoginPlatform(state.loginPlatform)) return [];
+    const rows = isSuper() ? managedTenants() : availableTenants();
+    return rows.filter(tenant => (state.loginPlatform !== 'cloud' || tenant.capabilitySet?.includes('CLOUD_CONTACT_CENTER')) &&
+      (data().instances || []).some(item => item.enterpriseId === tenant.enterpriseId && item.status === 'RUNNING'));
+  }
+
+  function renderTenantStep() {
+    const rows = loginTenantOptions();
+    return `<div class="auth-card auth-choice-card">
+      ${stageCopy()}
+      <div class="auth-card-heading"><span>${esc(loginPlatforms[state.loginPlatform]?.label)} · ${esc(account().nickname || account().name)}</span><h1>选择本次进入的租户</h1><p>请选择进入${esc(loginPlatforms[state.loginPlatform]?.label)}的租户，角色按本租户成员关系确定。</p></div>
       <div class="auth-choice-list">${rows.map(row => {
         const member = memberships().find(item => item.tenantId === row.tenantId) || {};
-        return `<button type="button" class="auth-choice-row" onclick="AppState.chooseTenant('${esc(row.tenantId)}')"><span class="auth-choice-icon">${row.organizationScope === 'HEADQUARTERS' ? '总' : '店'}</span><div><strong>${esc(row.name)}</strong><small>${esc(row.organizationLabel)} · ${esc(roleLabels[member.roleCode] || member.roleCode)} · ${(row.capabilitySet || []).map(domain => domainMeta[domain]?.label).filter(Boolean).join(' / ')}</small></div><em>进入选择</em></button>`;
+        return `<button type="button" class="auth-choice-row" onclick="AppState.chooseTenant('${esc(row.tenantId)}')"><span class="auth-choice-icon">${row.organizationScope === 'HEADQUARTERS' ? '总' : '店'}</span><div><strong>${esc(row.name)}</strong><small>${esc(row.organizationLabel)} · ${esc(roleLabels[member.roleCode] || member.roleCode)}</small></div><em>进入平台</em></button>`;
       }).join('')}</div>
+      ${rows.length ? '' : '<p>暂无可用租户，请联系管理员。</p>'}
+      <button class="auth-link" type="button" onclick="AppState.backToPlatform()">重新选择平台</button>
       <button class="auth-link" type="button" onclick="AppState.backToLogin()">返回账号登录</button>
     </div>`;
   }
 
   function renderInstanceStep() {
-    const tenants = managedTenants();
+    const tenants = loginTenantOptions();
     return `<div class="auth-card auth-choice-card">
       ${stageCopy()}
-      <div class="auth-card-heading"><span>超级管理员</span><h1>选择本次管理的租户</h1><p>选择租户后，查看该租户的任务、资源和统计。</p></div>
+      <div class="auth-card-heading"><span>${esc(loginPlatforms[state.loginPlatform]?.label)} · 超级管理员</span><h1>选择本次管理的租户</h1><p>选择租户后，进入${esc(loginPlatforms[state.loginPlatform]?.label)}。</p></div>
       <div class="auth-choice-list">${tenants.map(row => `<button type="button" class="auth-choice-row" onclick="AppState.chooseManagedTenant('${esc(row.tenantId)}')"><span class="auth-choice-icon">${row.organizationScope === 'HEADQUARTERS' ? '总' : '店'}</span><div><strong>${esc(row.name)}</strong><small>${esc(row.organizationLabel || '业务租户')}</small></div><em>进入管理</em></button>`).join('')}</div>
       ${tenants.length ? '' : '<p>暂无可用业务租户，请先完成接入配置及租户关联。</p>'}
-      <button class="btn btn-primary" type="button" onclick="AppState.openSupplierAccounts()">接入配置</button>
+      ${state.loginPlatform === 'cloud' ? '<button class="btn btn-primary" type="button" onclick="AppState.openSupplierAccounts()">接入配置</button>' : ''}
+      <button class="auth-link" type="button" onclick="AppState.backToPlatform()">重新选择平台</button>
       <button class="auth-link" type="button" onclick="AppState.backToLogin()">返回账号登录</button>
     </div>`;
   }
@@ -527,7 +562,7 @@
     gateway.setAttribute('aria-hidden', String(ready));
     document.body.classList.toggle('auth-active', !ready);
     if (ready) { gateway.innerHTML = ''; return; }
-    const body = state.authStage === 'TENANT' ? renderTenantStep() : state.authStage === 'INSTANCE' ? renderInstanceStep() : renderAccountStep();
+    const body = state.authStage === 'PLATFORM' ? renderPlatformStep() : state.authStage === 'TENANT' ? renderTenantStep() : state.authStage === 'INSTANCE' ? renderInstanceStep() : renderAccountStep();
     gateway.classList.add('auth-showcase');
     gateway.innerHTML = `<div class="auth-showcase-shell">
       <header class="auth-showcase-header">
@@ -562,7 +597,7 @@
         </section>
         <div class="auth-form-panel">${body}</div>
       </main>
-      <footer class="auth-showcase-footer"><span>云外呼平台 · 产品原型</span><span>按账号与租户进入工作台</span></footer>
+      <footer class="auth-showcase-footer"><span>云外呼平台 · 产品原型</span><span>账号登录 · 选择平台 · 选择租户</span></footer>
     </div>`;
   }
 
@@ -575,7 +610,9 @@
     const instanceSelect = document.getElementById('instanceSwitcher');
     const scopeLabel = document.getElementById('scopeLabel');
     const userLabel = document.getElementById('currentUserLabel');
+    const platformSwitcher = document.getElementById('platformSwitcher');
     const ready = isReady();
+    if (platformSwitcher) platformSwitcher.hidden = !ready;
     const selectedTenant = managedTenant(), tenantOptions = managedTenants();
     if (tenantLabel) tenantLabel.textContent = ready ? tenantScopeLabel(selectedTenant) : '尚未登录';
     if (tenantWrap) tenantWrap.hidden = ready && isSuper();
@@ -612,6 +649,7 @@
     state.tenantId = '';
     state.enterpriseId = '';
     state.activeDomain = '';
+    state.loginPlatform = '';
     state.authStage = 'ACCOUNT';
     state.currentPage = 'home';
     state.hasUnsavedChanges = false;
@@ -662,7 +700,7 @@
   }
 
   function openSupplierAccounts() {
-    if (!isSuper()) return false;
+    if (!isSuper() || (!isReady() && !(state.authStage === 'INSTANCE' && state.loginPlatform === 'cloud'))) return false;
     if (window.AgentWorkbench && !AgentWorkbench.allowContextChange()) return false;
     state.tenantId = 'TENANT-SUPER-BUILTIN';
     state.activeDomain = 'CLOUD_CONTACT_CENTER';
@@ -695,7 +733,7 @@
   }
 
   function submitLogin() {
-    if (isReady()) return false;
+    if (state.authStage !== 'ACCOUNT') return false;
     const accounts = data().accounts || [];
     let selectedAccount = null;
     if (state.loginMode === 'mobile') {
@@ -726,42 +764,47 @@
     state.tenantId = '';
     state.enterpriseId = '';
     state.activeDomain = '';
-    if (isSuper()) {
-      const restored = selectedAccount.lastEnterpriseId;
-      if (availableInstances().some(item => item.enterpriseId === restored)) state.enterpriseId = restored;
-      state.tenantId = 'TENANT-SUPER-BUILTIN';
-      if (!availableInstances().length) return openSupplierAccounts();
-      if (!state.enterpriseId) { state.authStage = 'INSTANCE'; notify(); return true; }
-      return transitionAfterInstanceOrTenant();
-    }
-    const tenantOptions = availableTenants();
-    if (!tenantOptions.length) {
-      resetContext(true);
-      notify();
-      showToast('该账号没有可用租户成员关系', 'error');
-      return false;
-    }
-    if (tenantOptions.length === 1) {
-      state.tenantId = tenantOptions[0].tenantId;
-      state.enterpriseId = tenantOptions[0].enterpriseId;
-      return transitionAfterInstanceOrTenant();
-    }
-    state.authStage = 'TENANT';
+    state.loginPlatform = '';
+    state.authStage = 'PLATFORM';
     notify();
+    return true;
+  }
+
+  function chooseLoginPlatform(platform) {
+    if (state.authStage !== 'PLATFORM' || account().status !== '启用' || !isLoginPlatform(platform)) return false;
+    state.loginPlatform = platform;
+    state.authStage = isSuper() ? 'INSTANCE' : 'TENANT';
+    notify();
+    return true;
+  }
+
+  function backToPlatform() {
+    if (!['TENANT', 'INSTANCE'].includes(state.authStage) || account().status !== '启用') return false;
+    state.loginPlatform = '';
+    state.authStage = 'PLATFORM';
+    notify();
+    return true;
+  }
+
+  function enterAiOutbound() {
+    if (!allowPlatformSwitch()) return false;
+    window.location.assign(aiOutboundUrl);
     return true;
   }
 
   function chooseTenant(tenantId) {
     if (state.authStage !== 'TENANT' || isSuper()) return false;
-    const tenant = availableTenants().find(item => item.tenantId === tenantId);
+    const tenant = loginTenantOptions().find(item => item.tenantId === tenantId);
     if (!tenant) return false;
+    if (state.loginPlatform === 'ai') return enterAiOutbound();
     state.tenantId = tenantId;
     state.enterpriseId = tenant.enterpriseId;
     return transitionAfterInstanceOrTenant();
   }
 
   function chooseInstance(enterpriseId) {
-    if (!isSuper() || state.authStage !== 'INSTANCE' || !availableInstances().some(item => item.enterpriseId === enterpriseId)) return false;
+    if (!isSuper() || state.authStage !== 'INSTANCE' || !loginTenantOptions().some(item => item.enterpriseId === enterpriseId)) return false;
+    if (state.loginPlatform === 'ai') return enterAiOutbound();
     state.enterpriseId = enterpriseId;
     state.tenantId = 'TENANT-SUPER-BUILTIN';
     rememberInstance(enterpriseId);
@@ -770,7 +813,7 @@
 
   function chooseManagedTenant(tenantId) {
     if (!isSuper() || state.authStage !== 'INSTANCE') return false;
-    const tenant = managedTenants().find(item => item.tenantId === tenantId);
+    const tenant = loginTenantOptions().find(item => item.tenantId === tenantId);
     return !!tenant && chooseInstance(tenant.enterpriseId);
   }
 
@@ -823,6 +866,11 @@
     return true;
   }
 
+  function allowPlatformSwitch() {
+    if (state.hasUnsavedChanges) { showToast('请先保存或关闭当前编辑内容，再切换平台', 'warning'); return false; }
+    return !window.AgentWorkbench || AgentWorkbench.allowContextChange();
+  }
+
   function backToLogin() { return logout(false); }
   function setCurrentPage(page) { state.currentPage = page; persist(); }
   function setDirty(value) { state.hasUnsavedChanges = !!value; persist(); }
@@ -853,8 +901,12 @@
   function clearReturnContext() { state.returnContext = null; persist(); }
   function scoped(rows) { return (rows || []).filter(item => authorizeObject('', item)); }
 
+  if (['TENANT', 'INSTANCE'].includes(state.authStage) && (state.authStage === 'INSTANCE') !== isSuper()) {
+    state.authStage = 'PLATFORM';
+    state.loginPlatform = '';
+  }
   ensureContext();
-  if (state.accountId && account().status !== '启用') resetContext(true);
+  if (state.authStage !== 'ACCOUNT' && account().status !== '启用') resetContext(true);
   else if (state.authStage === 'READY' && !effectiveAccess().valid) {
     if (isSuper()) { state.activeDomain='CLOUD_CONTACT_CENTER'; state.currentPage='alicti-accounts'; state.returnContext=null; }
     else resetContext(true);
@@ -864,9 +916,9 @@
     get: snapshot, profile, account, currentTenant, currentInstance, tenantForEnterprise, tenantHasBusinessData, validateTenantBindings, availableTenants, availableInstances, availableDomains, managedTenants, managedTenant,
     effectiveAccess, isSuper, isReady, isBusinessContext: () => effectiveAccess().valid, isPlatformInternal: () => isSuper(),
     hasCapability, canMenu, canAction, canSensitive, authorizeObject, scoped,
-    selectDemoProfile, setLoginMode, sendSmsCode, refreshCaptcha, submitLogin, chooseTenant, chooseInstance, chooseManagedTenant,
+    selectDemoProfile, setLoginMode, sendSmsCode, refreshCaptcha, submitLogin, chooseLoginPlatform, backToPlatform, chooseTenant, chooseInstance, chooseManagedTenant,
     setProfile, setPerspective: setProfile, setTenant, setInstance, setManagedTenant, setDirty,
-    beginConfiguration, getReturnContext, returnFromConfiguration, clearReturnContext, logout, backToLogin,
+    beginConfiguration, getReturnContext, returnFromConfiguration, clearReturnContext, logout, backToLogin, allowPlatformSwitch,
     setEnvironment: () => false, setCurrentPage,
     subscribe(listener) { if (typeof listener === 'function') listeners.push(listener); },
     renderControls, notify, domainMeta, persistManagementData, supplierLabel, openSupplierAccounts, onSupplierAccountsChanged

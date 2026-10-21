@@ -39,7 +39,7 @@
   function open() {
     if (!enabled()) return;
     ui.openLayer('demo-accounts',
-      '<div class="layer-header"><div><h2>演示账号快捷登录</h2><p>选择账号后，按正常流程选择租户与业务域</p></div><button aria-label="关闭演示账号" onclick="PlatformUI.closeLayer(\'demo-accounts\')">×</button></div>' +
+      '<div class="layer-header"><div><h2>演示账号快捷登录</h2><p>选择账号后，先选择平台，再选择租户</p></div><button aria-label="关闭演示账号" onclick="PlatformUI.closeLayer(\'demo-accounts\')">×</button></div>' +
       '<div class="layer-body"><div class="demo-account-list">' +
       (demoAccounts().map(account => {
         const rows = membershipRows(account), reason = unavailableReason(account, rows);
@@ -73,7 +73,7 @@
       if (!AppState.submitLogin()) return false;
       // submitLogin alone owns tenant/instance/domain transitions. No demo-only
       // role, default tenant, preferred domain or special landing-page override.
-      if (!AppState.isReady()) showToast('账号验证通过，请继续选择工作范围', 'success');
+      if (!AppState.isReady()) showToast('账号验证通过，请选择登录平台', 'success');
       return true;
     } finally { switching = false; }
   }
