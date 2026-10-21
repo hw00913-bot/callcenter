@@ -1,0 +1,763 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.1.1",
+  "id": "SC-011",
+  "name": "超管配置接口可用租户及撤销授权",
+  "summary": "管理接口条目与租户之间的使用范围。",
+  "actors": [
+    "超级管理员",
+    "云外呼平台"
+  ],
+  "trigger": "需要向指定租户开放接口，或取消该接口对某租户的使用授权。",
+  "preconditions": [
+    "当前操作者具有超管维护业务数据接口字典的权限。",
+    "本次配置针对同一个已明确的接口字典条目；超管勾选该条目的可用租户。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员",
+      "action": "发起指定接口条目的可用租户配置。",
+      "system_response": "平台进入该接口的租户授权维护。",
+      "rule_ids": [
+        "BR-023"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云外呼平台",
+      "action": "呈现该条目的已有可用租户配置。",
+      "system_response": "明确本次授权调整所针对的接口与租户范围。",
+      "rule_ids": [
+        "BR-024",
+        "BR-025"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "超级管理员",
+      "action": "调整可用租户勾选并提交本次配置。",
+      "system_response": "一次提交可包含开放及取消某些租户的授权。",
+      "rule_ids": [
+        "BR-024",
+        "BR-025"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云外呼平台",
+      "action": "保存本次接口条目的可用租户配置。",
+      "system_response": "形成明确的授权范围保存结果。",
+      "rule_ids": [
+        "BR-024"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云外呼平台",
+      "action": "若本次包含撤销授权，在撤销生效后停止该接口对对应租户的新查询和新选择；保留历史数据及字段配置，标记对应引用不可用。",
+      "system_response": "仅对应接口与租户：未提交值保留显示但不作有效值；在途结果不新选，选填可清除后保存；其它授权不受影响。",
+      "rule_ids": [
+        "BR-023",
+        "BR-025"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "云外呼平台",
+      "action": "显示本次可用租户配置保存结果。",
+      "system_response": "租户仅可引用已授权条目，成员权限不扩大；重新授权不自动恢复未提交旧值，需在SC-013重查确认。",
+      "rule_ids": [
+        "BR-024",
+        "BR-025",
+        "BR-036"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-SC011-CANCEL",
+      "condition": "操作者在提交前取消本次可用租户配置。",
+      "steps": [
+        "结束本次操作，不提交此次授权范围变更。"
+      ]
+    },
+    {
+      "id": "ALT-SC011-FAIL",
+      "condition": "本次可用租户配置未保存成功。",
+      "steps": [
+        "平台反馈本次配置未完成，不显示授权范围保存成功。",
+        "不据失败提示假定未知超时结果或决定在途请求、未提交值的恢复方式。"
+      ]
+    },
+    {
+      "id": "ALT-SC011-NO-REVOKE",
+      "condition": "本次成功保存的调整不包含撤销授权。",
+      "steps": [
+        "保留本次已保存授权范围，跳过撤销影响处理。",
+        "直接呈现本次配置结果，租户实际使用仍受条目状态约束。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功路径形成该接口条目的已保存可用租户范围。",
+    "若含撤销，生效后停止对应接口与租户的新查询和新选择；历史及配置保留，对应引用标记不可用。",
+    "本次授权调整不全局停用接口，不扩大成员字段配置权限，也不取消其它有效授权。",
+    "取消或保存失败不呈现本次授权成功；撤销已生效时的在途及未提交值按SRC-148处理。"
+  ],
+  "acceptance_points": [
+    "AC-107：超管可以勾选并保存接口条目的可用租户。",
+    "AC-108：租户新增字段引用时仅可选择已向本租户开放的条目，不自动取得字段配置权限。",
+    "AC-122：撤销生效后限制对应接口与租户的新查询和新选择，作用范围不扩散。",
+    "AC-123：历史及原引用配置保留；未提交值显示不可用不有效提交，在途不新选；选填可清除后保存，不禁用整个表单。"
+  ],
+  "source_story_ids": [
+    "US-014"
+  ],
+  "source_acceptance_ids": [
+    "AC-107",
+    "AC-108",
+    "AC-122",
+    "AC-123"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-128",
+    "inputs/user-stories.md#SRC-139",
+    "inputs/user-stories.md#SRC-141",
+    "inputs/user-stories.md#SRC-135",
+    "inputs/user-stories.md#SRC-148",
+    "inputs/user-stories.md#SRC-149",
+    "inputs/user-stories.md#SRC-165",
+    "inputs/user-stories.md#SRC-167",
+    "inputs/source-index.json#SRC-168",
+    "inputs/user-stories.md#SRC-169"
+  ],
+  "open_item_ids": [
+    "ISSUE-11105"
+  ],
+  "notes": [
+    "撤销只影响对应接口与租户，不扩大成员字段权限或取消其它租户授权。",
+    "撤权的在途及未提交值按SRC-148；重新授权后旧值在SC-013重查并人工确认，真实鉴权契约仍待核验。",
+    "当前Mapping车系和其他启用接口字段均受实时启停/租户授权约束；通话配置版隔离不绕过资格，原plannedStoreName文本不依赖外部来源。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "admin",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云外呼平台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "admin",
+        "type": "start",
+        "order": 1,
+        "label": "发起可用租户配置",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-REQUEST",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 2,
+        "label": "选择本次接口条目",
+        "step_ref": 1,
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-PRESENT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "呈现可用租户配置",
+        "step_ref": 2,
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-SELECT",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 4,
+        "label": "调整可用租户勾选",
+        "step_ref": 3,
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-SUBMIT",
+        "lane_id": "admin",
+        "type": "decision",
+        "order": 5,
+        "label": "提交授权配置？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 6,
+        "label": "取消，未提交配置",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "保存可用租户范围",
+        "step_ref": 4,
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "授权配置保存成功？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 8,
+        "label": "反馈配置未完成",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-HAS-REVOKE",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 9,
+        "label": "本次包含撤销？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-REVOKE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 10,
+        "label": "撤销生效后停止新查选",
+        "step_ref": 5,
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-RETAIN",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "保留历史配置与旧值显示；未提交值\n不有效提交，在途不新选",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-RESULT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 12,
+        "label": "显示授权结果；重新授权后旧值须重\n查确认",
+        "step_ref": 6,
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 13,
+        "label": "可用租户配置完成",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-REQUEST"
+      },
+      {
+        "from": "N-REQUEST",
+        "to": "N-PRESENT"
+      },
+      {
+        "from": "N-PRESENT",
+        "to": "N-SELECT"
+      },
+      {
+        "from": "N-SELECT",
+        "to": "N-SUBMIT"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-SAVE",
+        "label": "提交"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-SC011-CANCEL",
+        "type": "alternate"
+      },
+      {
+        "from": "N-SAVE",
+        "to": "N-SAVED"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-HAS-REVOKE",
+        "label": "成功"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-FAIL",
+        "label": "未成功",
+        "path_id": "ALT-SC011-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-HAS-REVOKE",
+        "to": "N-REVOKE",
+        "label": "包含撤销"
+      },
+      {
+        "from": "N-HAS-REVOKE",
+        "to": "N-RESULT",
+        "label": "不含撤销",
+        "path_id": "ALT-SC011-NO-REVOKE",
+        "type": "alternate"
+      },
+      {
+        "from": "N-REVOKE",
+        "to": "N-RETAIN"
+      },
+      {
+        "from": "N-RETAIN",
+        "to": "N-RESULT"
+      },
+      {
+        "from": "N-RESULT",
+        "to": "N-SUCCESS"
+      }
+    ]
+  },
+  "business_rule_ids": [
+    "BR-036"
+  ],
+  "change_history": [
+    {
+      "at": "2026-10-19T14:04:03+08:00",
+      "previous_values": {
+        "notes": [
+          "撤销只影响对应接口与租户，不扩大成员字段权限或取消其它租户授权。",
+          "撤权的在途及未提交值按SRC-148；重新授权后旧值在SC-013重查并人工确认，真实鉴权契约仍待核验。"
+        ]
+      },
+      "reason": "SRC-165澄清通用接口管理继续，本地车系和原门店文本不受外部查选来源约束。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "at": "2026-10-19T17:50:16.879302+08:00",
+      "reason": "SRC167用户将本次意向车系改为Mapping接口单选；门店仍原文本，保留SRC169通话整版配置隔离。只形成SRC155授权模拟产品草稿，G2/G3待确认。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-167",
+        "inputs/source-index.json#SRC-168",
+        "inputs/user-stories.md#SRC-169"
+      ],
+      "previous_values": {
+        "schema_version": "1.0",
+        "project_version": "1.1.1",
+        "id": "SC-011",
+        "name": "超管配置接口可用租户及撤销授权",
+        "summary": "管理接口条目与租户之间的使用范围。",
+        "actors": [
+          "超级管理员",
+          "云外呼平台"
+        ],
+        "trigger": "需要向指定租户开放接口，或取消该接口对某租户的使用授权。",
+        "preconditions": [
+          "当前操作者具有超管维护业务数据接口字典的权限。",
+          "本次配置针对同一个已明确的接口字典条目；超管勾选该条目的可用租户。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "超级管理员",
+            "action": "发起指定接口条目的可用租户配置。",
+            "system_response": "平台进入该接口的租户授权维护。",
+            "rule_ids": [
+              "BR-023"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云外呼平台",
+            "action": "呈现该条目的已有可用租户配置。",
+            "system_response": "明确本次授权调整所针对的接口与租户范围。",
+            "rule_ids": [
+              "BR-024",
+              "BR-025"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "超级管理员",
+            "action": "调整可用租户勾选并提交本次配置。",
+            "system_response": "一次提交可包含开放及取消某些租户的授权。",
+            "rule_ids": [
+              "BR-024",
+              "BR-025"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云外呼平台",
+            "action": "保存本次接口条目的可用租户配置。",
+            "system_response": "形成明确的授权范围保存结果。",
+            "rule_ids": [
+              "BR-024"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "云外呼平台",
+            "action": "若本次包含撤销授权，在撤销生效后停止该接口对对应租户的新查询和新选择；保留历史数据及字段配置，标记对应引用不可用。",
+            "system_response": "仅对应接口与租户：未提交值保留显示但不作有效值；在途结果不新选，选填可清除后保存；其它授权不受影响。",
+            "rule_ids": [
+              "BR-023",
+              "BR-025"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "云外呼平台",
+            "action": "显示本次可用租户配置保存结果。",
+            "system_response": "租户仅可引用已授权条目，成员权限不扩大；重新授权不自动恢复未提交旧值，需在SC-013重查确认。",
+            "rule_ids": [
+              "BR-024",
+              "BR-025",
+              "BR-036"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-SC011-CANCEL",
+            "condition": "操作者在提交前取消本次可用租户配置。",
+            "steps": [
+              "结束本次操作，不提交此次授权范围变更。"
+            ]
+          },
+          {
+            "id": "ALT-SC011-FAIL",
+            "condition": "本次可用租户配置未保存成功。",
+            "steps": [
+              "平台反馈本次配置未完成，不显示授权范围保存成功。",
+              "不据失败提示假定未知超时结果或决定在途请求、未提交值的恢复方式。"
+            ]
+          },
+          {
+            "id": "ALT-SC011-NO-REVOKE",
+            "condition": "本次成功保存的调整不包含撤销授权。",
+            "steps": [
+              "保留本次已保存授权范围，跳过撤销影响处理。",
+              "直接呈现本次配置结果，租户实际使用仍受条目状态约束。"
+            ]
+          }
+        ],
+        "postconditions": [
+          "成功路径形成该接口条目的已保存可用租户范围。",
+          "若含撤销，生效后停止对应接口与租户的新查询和新选择；历史及配置保留，对应引用标记不可用。",
+          "本次授权调整不全局停用接口，不扩大成员字段配置权限，也不取消其它有效授权。",
+          "取消或保存失败不呈现本次授权成功；撤销已生效时的在途及未提交值按SRC-148处理。"
+        ],
+        "acceptance_points": [
+          "AC-107：超管可以勾选并保存接口条目的可用租户。",
+          "AC-108：租户新增字段引用时仅可选择已向本租户开放的条目，不自动取得字段配置权限。",
+          "AC-122：撤销生效后限制对应接口与租户的新查询和新选择，作用范围不扩散。",
+          "AC-123：历史及原引用配置保留；未提交值显示不可用不有效提交，在途不新选；选填可清除后保存，不禁用整个表单。"
+        ],
+        "source_story_ids": [
+          "US-014"
+        ],
+        "source_acceptance_ids": [
+          "AC-107",
+          "AC-108",
+          "AC-122",
+          "AC-123"
+        ],
+        "source_refs": [
+          "inputs/user-stories.md#SRC-128",
+          "inputs/user-stories.md#SRC-139",
+          "inputs/user-stories.md#SRC-141",
+          "inputs/user-stories.md#SRC-135",
+          "inputs/user-stories.md#SRC-148",
+          "inputs/user-stories.md#SRC-149",
+          "inputs/user-stories.md#SRC-165"
+        ],
+        "open_item_ids": [
+          "ISSUE-11105"
+        ],
+        "notes": [
+          "撤销只影响对应接口与租户，不扩大成员字段权限或取消其它租户授权。",
+          "撤权的在途及未提交值按SRC-148；重新授权后旧值在SC-013重查并人工确认，真实鉴权契约仍待核验。",
+          "SRC-165范围边界：上述来源启停/授权与未提交值恢复规则仅作用实际启用的通用接口字段；本期本地车系code/name选项与原plannedStoreName文本不依赖外部车系/门店来源，不受其查询资格阻断。"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "admin",
+              "name": "超级管理员",
+              "kind": "actor"
+            },
+            {
+              "id": "platform",
+              "name": "云外呼平台",
+              "kind": "system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "N-START",
+              "lane_id": "admin",
+              "type": "start",
+              "order": 1,
+              "label": "发起可用租户配置"
+            },
+            {
+              "id": "N-REQUEST",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 2,
+              "label": "选择本次接口条目",
+              "step_ref": 1
+            },
+            {
+              "id": "N-PRESENT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 3,
+              "label": "呈现可用租户配置",
+              "step_ref": 2
+            },
+            {
+              "id": "N-SELECT",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 4,
+              "label": "调整可用租户勾选",
+              "step_ref": 3
+            },
+            {
+              "id": "N-SUBMIT",
+              "lane_id": "admin",
+              "type": "decision",
+              "order": 5,
+              "label": "提交授权配置？"
+            },
+            {
+              "id": "N-CANCEL",
+              "lane_id": "admin",
+              "type": "end",
+              "order": 6,
+              "label": "取消，未提交配置"
+            },
+            {
+              "id": "N-SAVE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 6,
+              "label": "保存可用租户范围",
+              "step_ref": 4
+            },
+            {
+              "id": "N-SAVED",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 7,
+              "label": "授权配置保存成功？"
+            },
+            {
+              "id": "N-FAIL",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 8,
+              "label": "反馈配置未完成"
+            },
+            {
+              "id": "N-HAS-REVOKE",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 9,
+              "label": "本次包含撤销？"
+            },
+            {
+              "id": "N-REVOKE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 10,
+              "label": "撤销生效后停止新查选",
+              "step_ref": 5
+            },
+            {
+              "id": "N-RETAIN",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 11,
+              "label": "保留历史配置与旧值显示；未提交值\n不有效提交，在途不新选"
+            },
+            {
+              "id": "N-RESULT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 12,
+              "label": "显示授权结果；重新授权后旧值须重\n查确认",
+              "step_ref": 6
+            },
+            {
+              "id": "N-SUCCESS",
+              "lane_id": "admin",
+              "type": "end",
+              "order": 13,
+              "label": "可用租户配置完成"
+            }
+          ],
+          "edges": [
+            {
+              "from": "N-START",
+              "to": "N-REQUEST"
+            },
+            {
+              "from": "N-REQUEST",
+              "to": "N-PRESENT"
+            },
+            {
+              "from": "N-PRESENT",
+              "to": "N-SELECT"
+            },
+            {
+              "from": "N-SELECT",
+              "to": "N-SUBMIT"
+            },
+            {
+              "from": "N-SUBMIT",
+              "to": "N-SAVE",
+              "label": "提交"
+            },
+            {
+              "from": "N-SUBMIT",
+              "to": "N-CANCEL",
+              "label": "取消",
+              "path_id": "ALT-SC011-CANCEL",
+              "type": "alternate"
+            },
+            {
+              "from": "N-SAVE",
+              "to": "N-SAVED"
+            },
+            {
+              "from": "N-SAVED",
+              "to": "N-HAS-REVOKE",
+              "label": "成功"
+            },
+            {
+              "from": "N-SAVED",
+              "to": "N-FAIL",
+              "label": "未成功",
+              "path_id": "ALT-SC011-FAIL",
+              "type": "failure"
+            },
+            {
+              "from": "N-HAS-REVOKE",
+              "to": "N-REVOKE",
+              "label": "包含撤销"
+            },
+            {
+              "from": "N-HAS-REVOKE",
+              "to": "N-RESULT",
+              "label": "不含撤销",
+              "path_id": "ALT-SC011-NO-REVOKE",
+              "type": "alternate"
+            },
+            {
+              "from": "N-REVOKE",
+              "to": "N-RETAIN"
+            },
+            {
+              "from": "N-RETAIN",
+              "to": "N-RESULT"
+            },
+            {
+              "from": "N-RESULT",
+              "to": "N-SUCCESS"
+            }
+          ]
+        },
+        "business_rule_ids": [
+          "BR-036"
+        ]
+      }
+    }
+  ]
+}

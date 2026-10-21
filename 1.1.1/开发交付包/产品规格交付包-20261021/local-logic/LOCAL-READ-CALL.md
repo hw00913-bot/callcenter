@@ -1,0 +1,96 @@
+# LOCAL-READ-CALL 按具体通次读取当时业务快照
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [查询单选接口车系并保存本次意向信息 · FUNC\-030](../features/FUNC-030.md)
+- [逻辑删除业务分类 · FUNC\-033](../features/FUNC-033.md)
+
+## 职责与触发
+
+所属工程模块：开发接手后确定
+
+功能：FUNC-030, FUNC-033
+
+触发：从原通话详情入口查看某一有权访问的通次
+
+## 前置条件
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+## 必须遵守的全局规则
+
+- [BR-024](../global-logic.md#BR-024)
+- [BR-037](../global-logic.md#BR-037)
+- [BR-042](../global-logic.md#BR-042)
+
+## 输入与输出
+
+输入：[FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)、[FIELD-SAVED-BUSINESS-SNAPSHOT](../field-specs.md#FIELD-SAVED-BUSINESS-SNAPSHOT)、[FIELD-IMPORTED-INTENTION](../field-specs.md#FIELD-IMPORTED-INTENTION)、[FIELD-CATEGORY-ARCHIVE](../field-specs.md#FIELD-CATEGORY-ARCHIVE)、[FIELD-PLANNED-STORE](../field-specs.md#FIELD-PLANNED-STORE)、[FIELD-OTHER-BUSINESS-VALUES](../field-specs.md#FIELD-OTHER-BUSINESS-VALUES)
+
+输出：
+
+## 处理步骤
+
+### LOCAL-READ-CALL-STEP-1
+
+校验该具体通次归属与原查看权限，不凭归档库存构造记录
+
+读取：FIELD-CALL-CONTEXT；写入：无
+
+规则：BR-024, BR-037, BR-042
+
+### LOCAL-READ-CALL-STEP-2
+
+读取当通已保存快照、原导入和普通文本；必要时使用对应归档定义只读解释
+
+读取：FIELD-SAVED-BUSINESS-SNAPSHOT, FIELD-IMPORTED-INTENTION, FIELD-CATEGORY-ARCHIVE, FIELD-PLANNED-STORE, FIELD-OTHER-BUSINESS-VALUES；写入：无
+
+规则：BR-024, BR-037, BR-042
+
+## 分支与异常
+
+### LOCAL-READ-CALL-BRANCH-1
+
+条件：上游改名/停用或live定义更改
+
+结果：仍展示当时名称/字段结果，不为查看重查接口
+
+涉及字段：FIELD-SAVED-BUSINESS-SNAPSHOT
+
+验证：CHECK-138
+
+### LOCAL-READ-CALL-BRANCH-2
+
+条件：没有该通结果或无权限
+
+结果：明确空态/无权，不从其他通次补值，不开放历史编辑
+
+涉及字段：FIELD-CALL-CONTEXT, FIELD-SAVED-BUSINESS-SNAPSHOT
+
+验证：CHECK-138, CHECK-148
+
+## 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 字段定义
+
+- [FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)
+- [FIELD-CATEGORY-ARCHIVE](../field-specs.md#FIELD-CATEGORY-ARCHIVE)
+- [FIELD-IMPORTED-INTENTION](../field-specs.md#FIELD-IMPORTED-INTENTION)
+- [FIELD-OTHER-BUSINESS-VALUES](../field-specs.md#FIELD-OTHER-BUSINESS-VALUES)
+- [FIELD-PLANNED-STORE](../field-specs.md#FIELD-PLANNED-STORE)
+- [FIELD-SAVED-BUSINESS-SNAPSHOT](../field-specs.md#FIELD-SAVED-BUSINESS-SNAPSHOT)
+
+## 来源与验证
+
+来源条目：documents:outputs~1menu-and-page-planning-reference.md, documents:outputs~1page-structure-atlas.html, documents:planning~1page-index.json, features:FUNC-030, features:FUNC-030/boundary/business_rules/0, features:FUNC-030/boundary/business_rules/1, features:FUNC-030/boundary/business_rules/10, features:FUNC-030/boundary/business_rules/11, features:FUNC-030/boundary/business_rules/2, features:FUNC-030/boundary/business_rules/3, features:FUNC-030/boundary/business_rules/4, features:FUNC-030/boundary/business_rules/5, features:FUNC-030/boundary/business_rules/6, features:FUNC-030/boundary/business_rules/7, features:FUNC-030/boundary/business_rules/8, features:FUNC-030/boundary/business_rules/9, features:FUNC-030/boundary/exception_paths/0, features:FUNC-030/boundary/exception_paths/1, features:FUNC-030/boundary/exception_paths/2, features:FUNC-030/boundary/exception_paths/3, features:FUNC-033, features:FUNC-033/boundary/business_rules/0, features:FUNC-033/boundary/business_rules/1, features:FUNC-033/boundary/business_rules/2, features:FUNC-033/boundary/exception_paths/0, flows:FLOW-006, flows:FLOW-006/steps/0, flows:FLOW-006/steps/1, flows:FLOW-006/steps/2, flows:FLOW-006/steps/3, flows:FLOW-006/steps/4, flows:FLOW-006/steps/5, flows:FLOW-006/steps/6, interfaces:API-018, pages:PAGE-009, pages:PAGE-009/fields/0, pages:PAGE-009/fields/1, pages:PAGE-009/fields/2, pages:PAGE-009/fields/3, rules:BR-024, rules:BR-037, rules:BR-042, stories:US-016, stories:US-016/preconditions/0, stories:US-022, stories:US-022/preconditions/0, stories:US-022/preconditions/1, acceptance:AC-116, acceptance:AC-138, acceptance:AC-148, acceptance:AC-150
+
+验证：CHECK-138, CHECK-148, CHECK-150, CHECK-116
+
+## 实施任务
+
+未声明；请结合范围说明核对。

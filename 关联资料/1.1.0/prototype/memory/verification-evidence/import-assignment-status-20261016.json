@@ -1,0 +1,2794 @@
+{
+  "schema_version": "scoped-import-assignment-repair@1",
+  "date": "2026-10-16T20:11:35.158649+08:00",
+  "result": "pass_scoped_runtime_and_browser",
+  "source_revision": "SRC-126",
+  "scope": "用户已确认的人工接口工号选填、统一导入批次、分配/通话/业务跟进分离及DCC同AliCti外部人工通话本地合成关联；不是正式生产契约或全量重审。",
+  "source_hashes": {
+    "prototype/index.html": "5ae7ced733ddc58ee2c3cdc61d57d3ce45e3c445c3786c8f748c38a4b58e3a5d",
+    "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3",
+    "prototype/js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+    "prototype/js/pages/scenario-demo.js": "fa7a21be0d3e8f2795c5c87ab40a61f198e5fa29190b01a7f64445955ff0bb41",
+    "prototype/js/pages/customer-directory.js": "b4935dc59c2752b63902e48e9336a346c54178d16028b1346afca3385644d3e6",
+    "prototype/js/components/workbench-overview.js": "434af9c482bf6641dbc5b57d2a3bd0fb24a709045af51269d7268e3dbe535deb",
+    "prototype/js/pages/agent-workbench.js": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+    "prototype/js/components/customer-business.js": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+    "prototype/js/components/customer-followup.js": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+    "prototype/js/components/customer-directory.js": "700e88fad6e41cba9dfecb109a5a3f9c95476cec683b848d17df5e643aabafca",
+    "prototype/js/components/alicti-fields.js": "eaaa5fe33c9a628df28944cc09f77b4e6fde3c8aba5875fb808fdaf36fdfdbf8",
+    "prototype/js/components/call-state.js": "93048ccfe263df33cee3262a7bd903ce887aa46829f9123cb1da3a9839c0a0df",
+    "prototype/js/components/platform-ui.js": "5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2",
+    "prototype/js/common.js": "5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1",
+    "prototype/js/nav.js": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+    "prototype/mock/dcc-v1.1.0.js": "c06080417cd05562087bb01dc92a62c20f88b4d472de66f66cff6adefd910d24"
+  },
+  "changes": [
+    {
+      "area": "接口分配",
+      "behavior": "缺省/null/空白工号接受未分配；显式无效工号逐行拒绝；合法同租户工号可分配，原请求幂等、原应用/批次/类型及回调归属保持；不迁改历史回执。"
+    },
+    {
+      "area": "统一批次",
+      "behavior": "预外呼账本只读投影入原列表，按原应用/租户/请求保留各导入；同业务批次号不合并不同请求，不复制账本，不从旧分配入口暗改API人工方式。保原业务类型，冲突待核，历史缺失不猜。"
+    },
+    {
+      "area": "三轴状态",
+      "behavior": "云呼叫分配独立于客观通话和业务跟进；新人工接口跟进初始未同步，不计待联系/完成；无工号不入个人待办；有权本人可明确确认云呼叫联系安排，不推断DCC未联系。"
+    },
+    {
+      "area": "外部通话",
+      "behavior": "准确原应用/租户/记录/callId关联，实际坐席不覆原分配；仅话单不推业务完成，明确有版本处理结果才更新；原生本地完成事件不被外部同步反向伪造。"
+    },
+    {
+      "area": "并发与恢复边界",
+      "behavior": "任一已关联外部在途通话保持占用；错误/重复/歧义/坏账本拒绝并显式待核。平台业务保存记已观察外部版本，缺版本时仍保本地结果并粘性待核对，不假造0或比较两系统时钟。生产双入口排他和正式版本协议仍待。"
+    },
+    {
+      "area": "运营展示",
+      "behavior": "统一已分配/未分配云呼叫与独立跟进筛选；默认全部客户避免已分配列表空白误导；消除重复状态文案；演示入口默认收在原演示工具/详情折叠。看板待联系排除未同步/外部在途/已完成和不可读。"
+    },
+    {
+      "area": "客户档案外部通话",
+      "behavior": "在准确原人工接口记录权限下，只读投影外部通话和详情；原批次、callId和实际工号可查，不写原业务账本、目录缓存、全局通话或原生工作台，不推造通话时长/录音/平台回调。"
+    }
+  ],
+  "regression_suites": [
+    {
+      "id": "optional-assignment",
+      "script": "optional-import-runtime-20261016.cjs",
+      "script_sha256": "418c0c0a45e624499610301aabac360ab542a5715b79c650b604d7d048acab6b",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "scope": "scoped optional-agent/manual-external-call/read-only-unified-batch synthetic isolated VM",
+        "real_calls_enabled": false,
+        "source_hashes": {
+          "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3"
+        },
+        "passed": 28,
+        "failed": 0,
+        "checks": [
+          {
+            "name": "omitted seat imports unassigned without requiring a cloud seat or rewriting old journal",
+            "result": "pass"
+          },
+          {
+            "name": "null empty whitespace and omitted seat share exact idempotency receipt",
+            "result": "pass"
+          },
+          {
+            "name": "changing no seat to a valid seat conflicts instead of reassigning same request",
+            "result": "pass"
+          },
+          {
+            "name": "valid leading-zero work number allocates cloud seat but business followup stays unknown",
+            "result": "pass"
+          },
+          {
+            "name": "numeric invalid foreign disabled whitespace-padded or duplicate seats reject per row",
+            "result": "pass"
+          },
+          {
+            "name": "repeat external business batch under a new request preserves independent import and new record",
+            "result": "pass"
+          },
+          {
+            "name": "legacy persisted receipt replays byte-exact without migration or status insertion",
+            "result": "pass"
+          },
+          {
+            "name": "callback and business type requirements remain mandatory for unassigned manual API",
+            "result": "pass"
+          },
+          {
+            "name": "external answered call updates phone facts only, retains original owner and unknown followup",
+            "result": "pass"
+          },
+          {
+            "name": "external no answer never means business completed",
+            "result": "pass"
+          },
+          {
+            "name": "explicit versioned business continuation then completion independent of cloud allocation",
+            "result": "pass"
+          },
+          {
+            "name": "external exact call and business replay does not duplicate or regress",
+            "result": "pass"
+          },
+          {
+            "name": "exact original record and call identity reject guesses wrong record wrong phone and cross app tenant",
+            "result": "pass"
+          },
+          {
+            "name": "same AliCti call cannot be linked to a second record even sharing phone and app",
+            "result": "pass"
+          },
+          {
+            "name": "business followup requires previously linked call, ended fact and allowed disposition",
+            "result": "pass"
+          },
+          {
+            "name": "read projection cannot cross tenant or unowned operator visibility",
+            "result": "pass"
+          },
+          {
+            "name": "any exact active external call keeps exclusion even after a later call has ended",
+            "result": "pass"
+          },
+          {
+            "name": "explicit supplier instance scope is rejected while its mapping remains unverified",
+            "result": "pass"
+          },
+          {
+            "name": "application revocation blocks external application identity immediately",
+            "result": "pass"
+          },
+          {
+            "name": "corrupt journal or external ledger remains byte exact and never infers completion",
+            "result": "pass"
+          },
+          {
+            "name": "external storage failure preserves unknown status and never changes original journal",
+            "result": "pass"
+          },
+          {
+            "name": "predictive imports project one business batch per original request, no manual mirror writes",
+            "result": "pass"
+          },
+          {
+            "name": "predictive batch metadata preserves saved business code and label; truly missing historical type stays unclassified",
+            "result": "pass"
+          },
+          {
+            "name": "conflicting business code or saved label within one original request refuses projection rather than choosing first row",
+            "result": "pass"
+          },
+          {
+            "name": "predictive projected row filter runs before personal read-only batch exposure",
+            "result": "pass"
+          },
+          {
+            "name": "predictive bad duplicate exact records lock unified index without replacing bytes",
+            "result": "pass"
+          },
+          {
+            "name": "synthetic manual import helper enforces current scope application callback and demo switch",
+            "result": "pass"
+          },
+          {
+            "name": "external demo helpers use exact original application and never new platform callback",
+            "result": "pass"
+          }
+        ]
+      },
+      "report_sha256": "89ed4da2b4804cc83ba16fede74547c1988bc9f7ae5927f47f0ad086df6e9ba3"
+    },
+    {
+      "id": "unified-batches",
+      "script": "unified-import-ui-20261016.cjs",
+      "script_sha256": "ae0a7136bb61c7d4adf9c8275e98af6aa8dc3d5d847b6c54b8b91cec02c64df7",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "date": "2026-10-16",
+        "source_sha256": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+        "passed": 28,
+        "failed": 0,
+        "results": [
+          {
+            "name": "unassigned API import is saved in existing journal and preserves batch/callback/source identity",
+            "status": "pass"
+          },
+          {
+            "name": "valid optional seat assigns platform only; unknown business followup does not enter personal pending contacts",
+            "status": "pass"
+          },
+          {
+            "name": "missing work number with forged owner/identity is refused",
+            "status": "pass"
+          },
+          {
+            "name": "provided invalid, whitespace or non-string work number never silently drops allocation",
+            "status": "pass"
+          },
+          {
+            "name": "seat validity is rechecked at commit and invalid identity cannot commit unassigned row",
+            "status": "pass"
+          },
+          {
+            "name": "request replay preserves subsequent assignment and business history rather than resetting original rows",
+            "status": "pass"
+          },
+          {
+            "name": "same business batch reused in a different request remains a separate import without new customer storage",
+            "status": "pass"
+          },
+          {
+            "name": "unified list includes readonly predictive batches and does not copy them to the customer journal",
+            "status": "pass"
+          },
+          {
+            "name": "readonly task detail has no old assignment or contact mutation entry",
+            "status": "pass"
+          },
+          {
+            "name": "projection repeats actor filtering; foreign-tenant and other actors do not leak into personal batch rows",
+            "status": "pass"
+          },
+          {
+            "name": "following tabs filter business status independently of cloud assignment",
+            "status": "pass"
+          },
+          {
+            "name": "telephone answer alone stays business unsynced and displays actual seat rather than rewriting assigned owner",
+            "status": "pass"
+          },
+          {
+            "name": "business result version alone updates followup; completed never reappears as personal pending",
+            "status": "pass"
+          },
+          {
+            "name": "explicit local saved followup observes external version; newer external result takes precedence without comparing clocks",
+            "status": "pass"
+          },
+          {
+            "name": "confirmation records only platform contact intent and then enters personal pending, keeping immutable apiOrigin",
+            "status": "pass"
+          },
+          {
+            "name": "stale contact confirmation does not overwrite new row history",
+            "status": "pass"
+          },
+          {
+            "name": "external in-progress, completed, or other actor cannot confirm/dial unresolved contact",
+            "status": "pass"
+          },
+          {
+            "name": "existing manual pending and historical completed are not migrated on render",
+            "status": "pass"
+          },
+          {
+            "name": "telephone-only legacy task simulation never marks followup completed",
+            "status": "pass"
+          },
+          {
+            "name": "bad customer storage preserves original bytes and blocks writes/confirmation",
+            "status": "pass"
+          },
+          {
+            "name": "unreadable external ledger is displayed pending verification and never enables confirm or calling",
+            "status": "pass"
+          },
+          {
+            "name": "unreadable predictive projection reports partial availability while preserving native batch access",
+            "status": "pass"
+          },
+          {
+            "name": "manual API batches can only assign a manual seat; predictive and IVR migration are refused in domain function",
+            "status": "pass"
+          },
+          {
+            "name": "manual API allocation dialog exposes only its original manual mode",
+            "status": "pass"
+          },
+          {
+            "name": "real local saved followup records external-version watermark and later external version supersedes it",
+            "status": "pass"
+          },
+          {
+            "name": "malformed completed call with no saved business disposition cannot complete or release current contact",
+            "status": "pass"
+          },
+          {
+            "name": "readonly predictive facts render trustworthy answered boolean without inferring business completion",
+            "status": "pass"
+          },
+          {
+            "name": "unreadable external version during local business save retains result and sticky ordering review after reads recover",
+            "status": "pass"
+          }
+        ]
+      },
+      "report_sha256": "5943bb0cb34b71672cfd93a04b71220ce73fd370f36e1175415b9bc91dcbf6a9"
+    },
+    {
+      "id": "state-axes",
+      "script": "import-assignment-dashboard-20261016.cjs",
+      "script_sha256": "04fc3cf6f4d8870a62a8aa7d81a84a87e1c189ada0decc445db3eec75647915c",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "scope": "current dashboard operational pending counts vs assignment/call/followup axes; synthetic isolated VM",
+        "passed": 8,
+        "failed": 0,
+        "checks": [
+          {
+            "name": "assigned but external business unknown is not counted as waiting manual work",
+            "result": "pass"
+          },
+          {
+            "name": "unassigned API row is not a cloud seat waiting item",
+            "result": "pass"
+          },
+          {
+            "name": "known external answered call without business result remains out of waiting count",
+            "result": "pass"
+          },
+          {
+            "name": "explicit external continue business result is counted for allocated cloud seat",
+            "result": "pass"
+          },
+          {
+            "name": "external complete business result closes waiting view without mutating original import",
+            "result": "pass"
+          },
+          {
+            "name": "any active second external call blocks an otherwise pending continuation",
+            "result": "pass"
+          },
+          {
+            "name": "unreadable external journal cannot present previously confirmed legacy local state as executable",
+            "result": "pass"
+          },
+          {
+            "name": "existing handwritten pending customers retain their current cloud work queue",
+            "result": "pass"
+          }
+        ],
+        "source_hashes": {
+          "prototype/js/components/workbench-overview.js": "434af9c482bf6641dbc5b57d2a3bd0fb24a709045af51269d7268e3dbe535deb",
+          "prototype/js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+          "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3"
+        }
+      },
+      "report_sha256": "4960c5ba15c5c0f622d4b75a37e84b11db1e5b852d304c774d5aea846331dc2f"
+    },
+    {
+      "id": "external-call-bridge",
+      "script": "optional-assignment-ui-cross-review-20261016.cjs",
+      "script_sha256": "d5f7f926987989782c79fb82db29fdf63d901e8094426e83c49e406171030137",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "scope": "independent read-only actual owner-source cross review; assertions include rejected counterexamples",
+        "passed": 10,
+        "failed": 0,
+        "source_hashes": {
+          "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3",
+          "prototype/js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28"
+        },
+        "checks": [
+          {
+            "name": "manual unassigned later allocation keeps immutable original identity callback and assignment unknown followup",
+            "passed": true
+          },
+          {
+            "name": "confirmation intent admits own platform pending contact without fabricating external result or changing origin",
+            "passed": true
+          },
+          {
+            "name": "an unreadable external view blocks confirmation and personal dialing",
+            "passed": true
+          },
+          {
+            "name": "unreadable external view also blocks the direct assignment transaction",
+            "passed": true
+          },
+          {
+            "name": "old external continuation cannot erase a newer explicitly saved local completion; newer external version may update it",
+            "passed": true
+          },
+          {
+            "name": "raw assignment and wizard selection cannot convert manual API row to predictive or IVR",
+            "passed": true
+          },
+          {
+            "name": "forged attachment commit cannot convert manual API row to predictive task",
+            "passed": true
+          },
+          {
+            "name": "external in-progress and explicit complete prevent new contact intents and reassignment",
+            "passed": true
+          },
+          {
+            "name": "repeat predictive direct delegated commit cannot select a manual API row even with empty changes",
+            "passed": true
+          },
+          {
+            "name": "saving native business while external watermark unreadable retains ordering pending after recovery",
+            "passed": true
+          }
+        ]
+      },
+      "report_sha256": "d0c0c5f3822f973eabd400236527b31d8e0f2c3b2c5e07243f3e1874c099f369"
+    },
+    {
+      "id": "independent-scope",
+      "script": "SRC126-independent-scope-review-20261016.cjs",
+      "script_sha256": "7d2d660526fe1ad92e6efe9c472f3d159e6cdeb1abf3bc6d40a55f96e4263a28",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "scope": "SRC126 independent semantic counterexamples for wrong allocation, false completion and in-flight release; isolated synthetic VM",
+        "checks": [
+          {
+            "name": "multiple external calls cannot release an earlier unresolved active call",
+            "result": "pass"
+          },
+          {
+            "name": "corrupt external event journal never permits a new platform dial",
+            "result": "pass"
+          },
+          {
+            "name": "actual external agent does not change the platform allocation or original app callback",
+            "result": "pass"
+          },
+          {
+            "name": "callId linked to a known record cannot be reassigned to another original record with same phone",
+            "result": "pass"
+          },
+          {
+            "name": "answered fact alone produces neither business completion nor reverse completion callback",
+            "result": "pass"
+          },
+          {
+            "name": "manual API source cannot be silently reassigned into a predictive task",
+            "result": "pass"
+          }
+        ],
+        "passed": 6,
+        "failed": 0,
+        "source_hashes": {
+          "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3",
+          "prototype/js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28"
+        },
+        "real_calls_enabled": false
+      },
+      "report_sha256": "5f79ecaf176bc2d558a9deac4877b563368c6fc5acbb311e11049d89282ee51b"
+    },
+    {
+      "id": "native-workbench",
+      "script": "customer-workbench-optional-seat-regression-20261016.cjs",
+      "script_sha256": "b1ea3af32e57dbc80f93afbcca3abf2b51be91fb7a9d0542ccd56a2f2ea1ffb0",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "adaptation": "API imports require explicit platform-contact confirmation; historical report retained",
+        "source_sha256": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+        "passed": 16,
+        "failed": 0,
+        "results": [
+          {
+            "name": "predictive continue appears for current seat without altering original task source",
+            "status": "pass"
+          },
+          {
+            "name": "predictive followup keeps exact origin through late CDR and repeated save",
+            "status": "pass"
+          },
+          {
+            "name": "API manual import goes into existing journal with unsynced followup, keeps source, and exact replay does not duplicate",
+            "status": "pass"
+          },
+          {
+            "name": "API manual import rechecks seat binding and preserves other batch on failure",
+            "status": "pass"
+          },
+          {
+            "name": "API rollback requires unchanged whole origin snapshot with no calls",
+            "status": "pass"
+          },
+          {
+            "name": "manual dial preserves apiOrigin and saved completion queues exact persisted event",
+            "status": "pass"
+          },
+          {
+            "name": "failed completion registration leaves exact saved pending intent for replay",
+            "status": "pass"
+          },
+          {
+            "name": "API manual receipt recovery preserves activity without reassigning",
+            "status": "pass"
+          },
+          {
+            "name": "saved business-code snapshot preserves zeroes, option codes and prior config",
+            "status": "pass"
+          },
+          {
+            "name": "lead detail shows current saved dimensions with their source scope",
+            "status": "pass"
+          },
+          {
+            "name": "damaged old customer journal cannot publish cached rows or overwrite original bytes",
+            "status": "pass"
+          },
+          {
+            "name": "malformed customer rows fail closed instead of crashing or clearing store",
+            "status": "pass"
+          },
+          {
+            "name": "admin read-only status dialing",
+            "status": "pass"
+          },
+          {
+            "name": "admin read-only status ringing",
+            "status": "pass"
+          },
+          {
+            "name": "admin read-only status connected",
+            "status": "pass"
+          },
+          {
+            "name": "mismatched other account cannot supply seat device state",
+            "status": "pass"
+          }
+        ]
+      },
+      "report_sha256": "623f2f945e0864feb024508dfccb7ec1bf5de226493a4af68da2d06fafbae9bc"
+    },
+    {
+      "id": "failure-retry",
+      "script": "task-full-failure-retry-regression.cjs",
+      "script_sha256": "ba8b92b445737ab31b15f0da4188fa62863f35ed694f51ba6f2687389f408f00",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "check_count": 37,
+        "result": "pass_scoped_vm",
+        "checks": [
+          {
+            "name": "Exact operator-ban failure creates a 120-second plan and preserves original root/priority",
+            "result": "pass"
+          },
+          {
+            "name": "Duplicate or late same original supplier-file result does not restart timer or create plan",
+            "result": "pass"
+          },
+          {
+            "name": "Production prerequisites are not assumed ready",
+            "result": "pass"
+          },
+          {
+            "name": "Partial synthetic prerequisites cannot enable execution",
+            "result": "pass"
+          },
+          {
+            "name": "Explicit synthetic confirmation does not imply production readiness",
+            "result": "pass"
+          },
+          {
+            "name": "Before 120 seconds no automatic submission; at boundary one submission",
+            "result": "pass"
+          },
+          {
+            "name": "Accepted retry has an independent new fileId and leaves original source file intact",
+            "result": "pass"
+          },
+          {
+            "name": "Late original-file failure cannot execute a second retry",
+            "result": "pass"
+          },
+          {
+            "name": "Eight reasons require manual confirmation and share same quota with auto",
+            "result": "pass"
+          },
+          {
+            "name": "Third exact attempt failure is blocked after two additional submissions",
+            "result": "pass"
+          },
+          {
+            "name": "New main batch and changed source application do not reset quota",
+            "result": "pass"
+          },
+          {
+            "name": "Supplier retry-file result still appears in the original customer archive with exact source mapping",
+            "result": "pass"
+          },
+          {
+            "name": "Confirmed short hangup explicitly prohibits platform resubmission",
+            "result": "pass"
+          },
+          {
+            "name": "Frequent calling uses native rule and never creates supplemental plan",
+            "result": "pass"
+          },
+          {
+            "name": "Unconfirmed customer answer, bad file selector, and untrusted event cannot generate plan",
+            "result": "pass"
+          },
+          {
+            "name": "Conflicting original event blocks its queued retry instead of overriding result",
+            "result": "pass"
+          },
+          {
+            "name": "SIP update cannot create an extra plan or quota usage",
+            "result": "pass"
+          },
+          {
+            "name": "All three auto and all eight manual exact reasons classify; malformed descriptions do not",
+            "result": "pass"
+          },
+          {
+            "name": "Paused task cannot execute and resumes without resetting timer",
+            "result": "pass"
+          },
+          {
+            "name": "Terminal task cancels queued plan and does not submit",
+            "result": "pass"
+          },
+          {
+            "name": "Pending supplier control, resource pause, stop-new-dialing and inconsistent provider state block",
+            "result": "pass"
+          },
+          {
+            "name": "Current permission revocation and tenant switch deny direct execution",
+            "result": "pass"
+          },
+          {
+            "name": "Unknown submission occupies original attempt and rejects any blind repeat",
+            "result": "pass"
+          },
+          {
+            "name": "Independent file-bound response resolves unknown without submitting again",
+            "result": "pass"
+          },
+          {
+            "name": "Conflicting original fileId response leaves unknown occupied",
+            "result": "pass"
+          },
+          {
+            "name": "Explicit rejection still consumes one additional submission",
+            "result": "pass"
+          },
+          {
+            "name": "Callback result redelivery does not change retry budget or supplier submissions",
+            "result": "pass"
+          },
+          {
+            "name": "Reload restores due time, used count and unknown occupying attempt",
+            "result": "pass"
+          },
+          {
+            "name": "Failed first persistence does not consume budget or add a submission",
+            "result": "pass"
+          },
+          {
+            "name": "Failure saving response preserves dispatching occupation and cannot blind retry",
+            "result": "pass"
+          },
+          {
+            "name": "Two runtime worlds sharing storage cannot use stale count to make third submission",
+            "result": "pass"
+          },
+          {
+            "name": "Byte revision conflict refuses a stale write and preserves competing ledger import",
+            "result": "pass"
+          },
+          {
+            "name": "Wrong task, missing plan and malformed attempts cannot bypass checks",
+            "result": "pass"
+          },
+          {
+            "name": "Read-only history rejects synthetic prerequisite config and retries",
+            "result": "pass"
+          },
+          {
+            "name": "Failure UI shows operator-readable countdown, budget, manual action and separate demo evidence",
+            "result": "pass"
+          },
+          {
+            "name": "Manual creation preparation stays unsent and cannot be stolen by submitPending",
+            "result": "pass"
+          },
+          {
+            "name": "Creation rollback only removes its unsubmitted rows and supports same-ID retry",
+            "result": "pass"
+          }
+        ],
+        "changed_files": [
+          {
+            "path": "js/components/dcc-runtime.js",
+            "sha256": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3"
+          },
+          {
+            "path": "js/components/dcc-records.js",
+            "sha256": "b641fab35db57426fa69ba5e629b9d3c4098ef49f349eb171eb93181106f1712"
+          }
+        ],
+        "production_ready": false,
+        "real_call_allowed": false,
+        "formal_stage_advanced": false,
+        "verified_at": "2026-10-16T12:08:31.218Z"
+      },
+      "report_sha256": "42b0f960c89d52e3348630a1d16c70dc9edc584d41ea22647340f0a13e1e84ac"
+    },
+    {
+      "id": "schedule",
+      "script": "task-full-schedule-audit.cjs",
+      "script_sha256": "14dd13c77ce6f36989a9b7a6296f51dcaa68b83dd8bc472bbd5962548043512a",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "status": "pass",
+        "checks": 30,
+        "observations": [
+          {
+            "name": "before_due_does_not_start",
+            "pass": true
+          },
+          {
+            "name": "due_starts_and_records_once",
+            "pass": true
+          },
+          {
+            "name": "durable_refresh_does_not_repeat_start",
+            "pass": true
+          },
+          {
+            "name": "dcc_accepted_customer_starts_despite_zero_legacy_total",
+            "pass": true
+          },
+          {
+            "name": "dcc_unknown_rejected_review_deleted_do_not_start",
+            "pass": true
+          },
+          {
+            "name": "empty_at_due_then_confirmed_import_starts",
+            "pass": true
+          },
+          {
+            "name": "cross_tenant_and_revoked_permission_do_not_start",
+            "pass": true
+          },
+          {
+            "name": "paused_terminated_deleted_and_actual_supplier_do_not_start",
+            "pass": true
+          },
+          {
+            "name": "readonly_snapshot_does_not_start",
+            "pass": true
+          },
+          {
+            "name": "pending_resource_hold_and_stopped_dialing_do_not_start",
+            "pass": true
+          },
+          {
+            "name": "resource_and_outbound_conflict_guard_is_reused",
+            "pass": true
+          },
+          {
+            "name": "insufficient_seats_wait_and_ready_seats_start",
+            "pass": true
+          },
+          {
+            "name": "storage_failure_leaves_original_and_retry_can_start",
+            "pass": true
+          },
+          {
+            "name": "invalid_schedule_and_past_stop_do_not_start",
+            "pass": true
+          },
+          {
+            "name": "saved_allowed_window_matches_weekday_and_time",
+            "pass": true
+          },
+          {
+            "name": "saved_forbidden_window_prevents_start",
+            "pass": true
+          },
+          {
+            "name": "missing_ambiguous_or_cross_tenant_time_evidence_fails_closed",
+            "pass": true
+          },
+          {
+            "name": "date_range_snapshot_is_evaluated",
+            "pass": true
+          },
+          {
+            "name": "tick_focus_visibility_and_pageshow_are_registered_once",
+            "pass": true
+          },
+          {
+            "name": "runtime_tick_starts_only_eligible_and_keeps_manual_pause",
+            "pass": true
+          },
+          {
+            "name": "normal_dcc_start_uses_confirmed_journal_with_total_zero",
+            "pass": true
+          },
+          {
+            "name": "normal_dcc_resume_uses_confirmed_journal_with_total_zero",
+            "pass": true
+          },
+          {
+            "name": "normal_before_initial_query_preserves_ready_state_for_total_zero",
+            "pass": true
+          },
+          {
+            "name": "normal_start_rejects_empty_or_unknown_dcc_journal",
+            "pass": true
+          },
+          {
+            "name": "same_tick_runs_failure_retries_with_same_observed_clock",
+            "pass": true
+          },
+          {
+            "name": "manual_control_storage_failure_never_publishes_simulated_success",
+            "pass": true
+          },
+          {
+            "name": "clock_observes_busy_seats_pauses_managed_predictive_and_resumes_only_scheduled",
+            "pass": true
+          },
+          {
+            "name": "manual_start_availability_pause_requires_explicit_resume",
+            "pass": true
+          },
+          {
+            "name": "scheduled_end_stops_new_dialing_without_fabricating_supplier_end",
+            "pass": true
+          },
+          {
+            "name": "readonly_snapshot_refuses_normal_controls_and_availability_changes",
+            "pass": true
+          }
+        ],
+        "limits": [
+          "actual clock/control source, persistence/permissions/resource facts use isolated stubs",
+          "no supplier request or background server, scheduled end only local stop-new-dialing safety hold, true end pending supplier evidence"
+        ]
+      },
+      "report_sha256": "3c76b750e56decae432981fd64279df57b1663fe3a3b8eac7bd7b74cbaed889b"
+    },
+    {
+      "id": "api-import-callback",
+      "script": "task-full-integration-audit.cjs",
+      "script_sha256": "b067811a72bc21eb88cbe7372e6a9c536c734c518d7cec2ed0b8d6be5fa4aa36",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "scope": "new whole-task-chain audit integration, isolated synthetic VM",
+        "checks": [
+          {
+            "name": "new API missing callMode or business batch rejects without record",
+            "result": "pass"
+          },
+          {
+            "name": "predictive saves original batch, mode, source app and six strings",
+            "result": "pass"
+          },
+          {
+            "name": "same request changing mode or business batch conflicts",
+            "result": "pass"
+          },
+          {
+            "name": "same business batch reused under distinct requests preserves separate rows",
+            "result": "pass"
+          },
+          {
+            "name": "manual mode requires assigned raw work number and never needs predictive task",
+            "result": "pass"
+          },
+          {
+            "name": "manual exact replay returns original record ids, no duplicate assignment",
+            "result": "pass"
+          },
+          {
+            "name": "manual numeric work number rejects and leading zeros remain exact",
+            "result": "pass"
+          },
+          {
+            "name": "manual requesting another tenant agent does not assign",
+            "result": "pass"
+          },
+          {
+            "name": "manual missing callback rejects before customer or assignment storage",
+            "result": "pass"
+          },
+          {
+            "name": "manual new request reuses business batch and remains independent",
+            "result": "pass"
+          },
+          {
+            "name": "manual imported records immediately share the existing customer archive",
+            "result": "pass"
+          },
+          {
+            "name": "completed communication callback freezes original batch app, exact call, fields and codes",
+            "result": "pass"
+          },
+          {
+            "name": "completed communication exact replay is idempotent",
+            "result": "pass"
+          },
+          {
+            "name": "tampered call origin or unfinished follow-up cannot create callback",
+            "result": "pass"
+          },
+          {
+            "name": "callback address changes hold result pending, never switch receivers",
+            "result": "pass"
+          }
+        ],
+        "passed": 15,
+        "failed": 0
+      },
+      "report_sha256": "685e920c88fc41c8f24bf6486411e3d7eb3a182382f64410f83e2f3218c2c8ac"
+    },
+    {
+      "id": "completion-freeze",
+      "script": "admin-independent-completion-review-20261015.cjs",
+      "script_sha256": "abbb02d7cd58679b196e1f4b4fc09bce0dcc24791924d074e5f094549a54bb0b",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "hashes": {
+          "js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3",
+          "js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+          "js/pages/agent-workbench.js": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+          "js/components/customer-followup.js": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+          "js/components/customer-business.js": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b"
+        },
+        "checks": 8,
+        "passed": 8,
+        "results": [
+          {
+            "name": "pending completion freezes call and business despite late canonical updates",
+            "pass": true
+          },
+          {
+            "name": "pending completion freezes the six original import strings despite later source update",
+            "pass": true
+          },
+          {
+            "name": "changed application callback holds the exact completion without delivery attempt",
+            "pass": true
+          },
+          {
+            "name": "revoked tenant grant holds completion and never routes to another app",
+            "pass": true
+          },
+          {
+            "name": "manual import failure before customer write cannot create assignment or callback",
+            "pass": true
+          },
+          {
+            "name": "manual receipt failure after customer commit replays without duplicate or reset",
+            "pass": true
+          },
+          {
+            "name": "deleted app recreated with same name cannot receive old completion",
+            "pass": true
+          },
+          {
+            "name": "two applications may import same phone and batch without sharing request or callback identity",
+            "pass": true
+          }
+        ]
+      },
+      "report_sha256": "bdb2cf7046728809e61efede197450c694cbb8fdc06047c42326d3f6c3c6c914"
+    },
+    {
+      "id": "customer-archive",
+      "script": "customer-directory-original-48-readonly.cjs",
+      "script_sha256": "e9e733eed1af913158837bd637242a71ddfc8600a08499d4be321ae226fee1a5",
+      "passed": true,
+      "exit_code": 0,
+      "output": "{\"check_count\":48,\"result\":\"pass_read_only_existing_archive_regression\",\"changed_files\":[{\"path\":\"js/components/dcc-runtime.js\",\"sha256\":\"2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3\"},{\"path\":\"js/components/dcc-records.js\",\"sha256\":\"b641fab35db57426fa69ba5e629b9d3c4098ef49f349eb171eb93181106f1712\"},{\"path\":\"js/components/customer-directory.js\",\"sha256\":\"700e88fad6e41cba9dfecb109a5a3f9c95476cec683b848d17df5e643aabafca\"},{\"path\":\"js/pages/customer-directory.js\",\"sha256\":\"b4935dc59c2752b63902e48e9336a346c54178d16028b1346afca3385644d3e6\"},{\"path\":\"index.html\",\"sha256\":\"5ae7ced733ddc58ee2c3cdc61d57d3ce45e3c445c3786c8f748c38a4b58e3a5d\"}]}\n"
+    },
+    {
+      "id": "wizard-selection",
+      "script": "wizard-manual-selection-assignment-regression-20261016.cjs",
+      "script_sha256": "9dc71cc6a34e72ba8f7cd74cb2283ba9c1d6aa029dc808d971b3dac84d0b551d",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "status": "pass_scoped_vm",
+        "checks": 23,
+        "observations": [
+          {
+            "name": "manual_source_renders_real_existing_list_and_api_hides_it",
+            "pass": true
+          },
+          {
+            "name": "legacy_external_code_is_only_visible_suggestion_not_silent_leadCode",
+            "pass": true
+          },
+          {
+            "name": "priority_and_batch_name_remain_explicit_required_inputs",
+            "pass": true
+          },
+          {
+            "name": "saved_draft_never_reserves_or_calls_original_customers",
+            "pass": true
+          },
+          {
+            "name": "selection_creates_new_manual_ledger_record_and_preserves_original_fields_history",
+            "pass": true
+          },
+          {
+            "name": "source_list_displays_imported_target_and_cannot_reassign_reserved_row",
+            "pass": true
+          },
+          {
+            "name": "changed_source_row_stops_before_creating_task",
+            "pass": true
+          },
+          {
+            "name": "active_call_or_assigned_original_cannot_be_selected",
+            "pass": true
+          },
+          {
+            "name": "source_switch_or_scope_switch_invalidates_old_selection",
+            "pass": true
+          },
+          {
+            "name": "storage_failure_in_source_reservation_compensates_new_ledger_and_task",
+            "pass": true
+          },
+          {
+            "name": "storage_failure_while_saving_task_leaves_original_available_and_draft_retryable",
+            "pass": true
+          },
+          {
+            "name": "stale_second_tab_reservation_does_not_occupy_source_twice",
+            "pass": true
+          },
+          {
+            "name": "uncommitted_journal_reload_releases_only_own_origin_reservation_and_ledger",
+            "pass": true
+          },
+          {
+            "name": "permission_or_tenant_change_rejects_selection_reservation",
+            "pass": true
+          },
+          {
+            "name": "non_lead_keeps_original_document_id_with_separate_explicit_leadCode",
+            "pass": true
+          },
+          {
+            "name": "creation_after_later_does_not_attach_old_customers",
+            "pass": true
+          },
+          {
+            "name": "confirmation_counts_manual_selected_rows_instead_of_claiming_after_creation_only",
+            "pass": true
+          },
+          {
+            "name": "true_reload_uncommitted_journal_compensates_all_three_stores",
+            "pass": true
+          },
+          {
+            "name": "true_reload_committed_journal_finishes_dispatch_once_and_keeps_source_reserved",
+            "pass": true
+          },
+          {
+            "name": "rollback_reservation_preserves_later_unrelated_business_edit",
+            "pass": true
+          },
+          {
+            "name": "forged_reservation_cannot_modify_original_phone_or_history",
+            "pass": true
+          },
+          {
+            "name": "already_recovered_creation_recheck_is_idempotent",
+            "pass": true
+          },
+          {
+            "name": "batch_summary_counts_imported_reservation_consistently_with_pending_filter",
+            "pass": true
+          }
+        ],
+        "sourceFiles": [
+          {
+            "file": "js/pages/cloud-task-workspace.js",
+            "sha256": "4e1361c4a82b098039c71a5e3ee4c93fbf852d95d1446b1a5e40c877d55a5488"
+          },
+          {
+            "file": "js/pages/customer-tasks.js",
+            "sha256": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28"
+          },
+          {
+            "file": "js/components/dcc-runtime.js",
+            "sha256": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3"
+          }
+        ],
+        "limits": [
+          "Actual workspace/customer-tasks/dcc-runtime sources executed; DOM/access/AliCti field/resource services mocked with valid synthetic inputs",
+          "No live network or real call made",
+          "Browser verification delegated to parent",
+          "Local optimistic storage checks do not establish production atomic concurrency guarantees"
+        ]
+      },
+      "report_sha256": "4adf358212a3e0fd45bb919ccf6bb5f4c5dbaacfb5d9d3f586ceee11a030e353"
+    },
+    {
+      "id": "external-call-directory",
+      "script": "external-call-directory-20261016.cjs",
+      "script_sha256": "b7c00e7e9672b4980a87935bf06d614ac1d4ac2b10fd0fe12b6f409f6d631938",
+      "passed": true,
+      "exit_code": 0,
+      "report": {
+        "scope": "external API manual call exact-record authorized readonly customer archive",
+        "source_hashes": {
+          "prototype/js/components/customer-directory.js": "700e88fad6e41cba9dfecb109a5a3f9c95476cec683b848d17df5e643aabafca",
+          "prototype/js/pages/customer-directory.js": "b4935dc59c2752b63902e48e9336a346c54178d16028b1346afca3385644d3e6",
+          "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3",
+          "prototype/js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28"
+        },
+        "real_calls_enabled": false,
+        "passed": 8,
+        "failed": 0,
+        "checks": [
+          {
+            "name": "exact external manual call appears in original customer with original batch and actual agent",
+            "passed": true
+          },
+          {
+            "name": "exact call replay and newer same-call factual update count once",
+            "passed": true
+          },
+          {
+            "name": "read projection never copies external calls into old journal unified call cache or native calls",
+            "passed": true
+          },
+          {
+            "name": "business followup in archive changes only from explicit version and leaves owner intact",
+            "passed": true
+          },
+          {
+            "name": "operator cannot gain scope from actual external agent or unassigned record",
+            "passed": true
+          },
+          {
+            "name": "corrupt cross-record event association is omitted and original journal remains unchanged",
+            "passed": true
+          },
+          {
+            "name": "same call identity belonging to another original app or record is not merged as an external call",
+            "passed": true
+          },
+          {
+            "name": "external detail reuses authorized customer drawer and never routes to native record page",
+            "passed": true
+          }
+        ]
+      },
+      "report_sha256": "2a2cc4d7fece0e859785b5b760de41d53448fbc74b52645395f632cb8dfe8ed4"
+    }
+  ],
+  "regression_note": "13套当前定点和兼容回归均实际执行通过，断言有交叠，不累计为104条正式验收；两处旧文案和缺失测试渲染stub已适配，本轮实际行为断言保留。",
+  "static_verification": {
+    "javascript_files": 114,
+    "syntax_errors": [],
+    "core_local_references": 166,
+    "missing_resources": [],
+    "cache_bound_scripts": 112,
+    "cache_binding_errors": [],
+    "protected_frozen_files": 875,
+    "protected_drift": [],
+    "historical_20261015_evidence_files": 12,
+    "historical_evidence_drift": [],
+    "unrelated_preexisting_files_observed": [
+      "README.md",
+      "memory/project-versions.json",
+      "版本清单.js",
+      "版本清单.json",
+      "需求/1.1.1/README.md",
+      "需求/1.1.1/公共业务分类对应待确认表.md",
+      "需求/1.1.1/公共操作权限待确认表.md",
+      "需求/1.1.1/公共黑名单迁入待确认表.md",
+      "需求/1.1.1/核心需求确认摘要.md",
+      "需求/1.1.1/需求草稿.md"
+    ],
+    "unrelated_preexisting_hash_drift": [
+      "需求/1.1.1/README.md"
+    ],
+    "unrelated_note": "本轮没有编辑上述共享台账/1.1.1/根README；如有其他工作并发变化仅记录，不回滚。"
+  },
+  "browser": {
+    "date": "2026-10-16",
+    "url": "http://127.0.0.1:18802/prototype/index.html#customer-tasks",
+    "console_errors": [],
+    "layouts": [
+      {
+        "bodyWidth": 1440,
+        "documentWidth": 1440,
+        "viewport": 1440
+      },
+      {
+        "bodyWidth": 1920,
+        "documentWidth": 1920,
+        "viewport": 1920
+      },
+      {
+        "bodyWidth": 2560,
+        "documentWidth": 2560,
+        "viewport": 2560
+      }
+    ],
+    "observations": [
+      {
+        "action": "manual API import without work number",
+        "observed": "2 saved, unassigned cloud0assigned, pending0, business unsynced2; no personal contact button"
+      },
+      {
+        "action": "explicit invalid work number then corrected 9001",
+        "observed": "invalid rejected without batch; new request accepted2 allocated to李明 but pending0 and unsynced2"
+      },
+      {
+        "action": "external answered event only",
+        "observed": "call changes to已接通; actual work number DCC-DEMO-AGENT; original assigned李明 retained; followup remains跟进状态未同步"
+      },
+      {
+        "action": "external explicit continuation then completion",
+        "observed": "unassigned customer1 followup待继续跟进 then跟进已完成; allocation remains0; other row remainsunsynced"
+      },
+      {
+        "action": "assigned current owner explicitly confirms cloud contact arrangement",
+        "observed": "only selected row becomes待联系1; second remains跟进状态未同步; business call fact separate"
+      },
+      {
+        "action": "unified batch index",
+        "observed": "manual API and predictive API both present; original supplier task link retained"
+      },
+      {
+        "action": "predictive API batch detail",
+        "observed": "businessType线索类 preserved; read-only customer list;查看原任务; no legacy allocation write entry"
+      },
+      {
+        "action": "open exact externally dialed manual call from original customer archive",
+        "observed": "one contact history; exact callId DEMO-EXTERNAL-d47f2350-7cdf-430e-bf37-378f6f3fd72b,原业务批次分配状态回归·指定坐席, actual work number DCC-DEMO-AGENT, cloud assignment李明, followup跟进状态未同步; readonly original call, no native clone"
+      }
+    ],
+    "source_script_urls": [
+      "js/alicti-storage.js?v=20261016-assignment-4f641b823a",
+      "mock/data.js?v=20261016-assignment-22fa116694",
+      "mock/dcc-v1.1.0.js?v=20261016-assignment-c06080417c",
+      "mock/demo-kit.js?v=20261016-assignment-2d8ccb8d32",
+      "mock/demo-resources.js?v=20261016-assignment-ed71493afa",
+      "mock/demo-activity.js?v=20261016-assignment-4a8c630a2f",
+      "mock/report-summaries.js?v=20261016-assignment-30ce6f0344",
+      "mock/report-fixtures.js?v=20261016-assignment-fc3719abe4",
+      "mock/queue-resources.js?v=20261016-assignment-ee0b11f873",
+      "mock/number-pools.js?v=20261016-assignment-45118c56b5",
+      "mock/call-media.js?v=20261016-assignment-4fb2055a45",
+      "mock/demo-media.js?v=20261016-assignment-f99b9a2273",
+      "mock/customer-import.js?v=20261016-assignment-377f10d283",
+      "mock/scenario-demo.js?v=20261016-assignment-1fdf32393b",
+      "mock/ccc-support.js?v=20261016-assignment-d0e0bd3740",
+      "js/common.js?v=20261016-assignment-5d4b14f0d1",
+      "js/components/platform-ui.js?v=20261016-assignment-5cbfaa8eb6",
+      "js/components/alicti-number-status.js?v=20261016-assignment-e364f8b5cf",
+      "js/components/alicti-retry.js?v=20261016-assignment-9ffa65434a",
+      "js/components/alicti-retry-editor.js?v=20261016-assignment-29a75a2035",
+      "js/components/tenant-supervisor-policy.js?v=20261016-assignment-8cb7cd48d8",
+      "js/components/alicti-fields.js?v=20261016-assignment-eaaa5fe33c",
+      "js/components/alicti-ivr.js?v=20261016-assignment-12a03334a1",
+      "js/components/alicti-demo.js?v=20261016-assignment-44eacacad4",
+      "js/components/call-state.js?v=20261016-assignment-93048ccfe2",
+      "js/components/alicti-report-facts.js?v=20261016-assignment-f27aaaa52b",
+      "js/components/report-metrics.js?v=20261016-assignment-4974c6a13b",
+      "mock/demo-compact.js?v=20261016-assignment-b1dcd4163f",
+      "mock/demo-install.js?v=20261016-assignment-63eed57918",
+      "js/components/alicti-accounts.js?v=20261016-assignment-7c69926098",
+      "js/app.js?v=20261016-assignment-3d72f5d0b1",
+      "js/components/dcc-runtime.js?v=20261016-assignment-2e133fb57c",
+      "js/components/dcc-records.js?v=20261016-assignment-b641fab35d",
+      "js/pages/application-access.js?v=20261016-assignment-497cf1c7f4",
+      "js/components/demo-switch.js?v=20261016-assignment-dbbf9c50f6",
+      "js/components/resource-rules.js?v=20261016-assignment-b466775695",
+      "js/components/customer-business.js?v=20261016-assignment-dcdc6d29b9",
+      "js/pages/business-categories.js?v=20261016-assignment-addb6fc388",
+      "mock/customer-followup.js?v=20261016-assignment-1dcb0bcf05",
+      "js/components/customer-followup.js?v=20261016-assignment-c36804a76f",
+      "js/components/customer-directory.js?v=20261016-assignment-700e88fad6",
+      "js/components/alicti-receiving.js?v=20261016-assignment-81a2367068",
+      "js/components/call-data-sync.js?v=20261016-assignment-4c36be5b85",
+      "js/pages/agent-workbench.js?v=20261016-assignment-45177a4ea9",
+      "js/pages/scenario-readiness.js?v=20261016-assignment-339e26e4c5",
+      "js/components/role-charts.js?v=20261016-assignment-d22f69c0b2",
+      "js/components/role-focus.js?v=20261016-assignment-86787b6ddd",
+      "js/pages/home.js?v=20261016-assignment-77e2f34c43",
+      "js/components/workbench-overview.js?v=20261016-assignment-434af9c482",
+      "js/components/account-tenant-forms.js?v=20261016-assignment-aaac281e86",
+      "js/pages/account-tenant.js?v=20261016-assignment-341bf42b8b",
+      "js/pages/alicti-accounts.js?v=20261016-assignment-71c5ae8b9a",
+      "js/components/business-issues.js?v=20261016-assignment-a37de59bd5",
+      "js/pages/agent-center.js?v=20261016-assignment-e13e5d1a57",
+      "js/components/manual-skill-access.js?v=20261016-assignment-a3520428d9",
+      "js/pages/customer-tasks.js?v=20261016-assignment-91cf4312f7",
+      "js/components/repeat-predictive.js?v=20261016-assignment-2f6bd7906b",
+      "js/pages/customer-demo.js?v=20261016-assignment-1616eec112",
+      "js/components/alicti-queue-contracts.js?v=20261016-assignment-a68c84e4fe",
+      "js/components/alicti-number-pools.js?v=20261016-assignment-9559a8eef8",
+      "js/components/alicti-queues.js?v=20261016-assignment-f193197371",
+      "js/components/queue-config.js?v=20261016-assignment-412b78d3f4",
+      "js/components/queue-detail.js?v=20261016-assignment-c27cbb5353",
+      "js/components/outbound-groups.js?v=20261016-assignment-c76252a627",
+      "js/pages/outbound-group-management.js?v=20261016-assignment-0f82459829",
+      "js/pages/queue-management.js?v=20261016-assignment-77ec5107da",
+      "js/pages/number-pool-management.js?v=20261016-assignment-d6cd4b0b99",
+      "js/pages/contact-center-settings.js?v=20261016-assignment-b70d9a9eb6",
+      "mock/number-onboarding.js?v=20261016-assignment-75cce87e55",
+      "js/components/number-import-history.js?v=20261016-assignment-ab88f25625",
+      "js/components/alicti-number-import.js?v=20261016-assignment-a9224f4335",
+      "js/pages/resource-lines.js?v=20261016-assignment-d68a6e1069",
+      "js/pages/inbound-routing.js?v=20261016-assignment-fc1c9bd0bc",
+      "js/pages/operations-monitor.js?v=20261016-assignment-faad3ad2fc",
+      "mock/time-conditions.js?v=20261016-assignment-c842c0faa6",
+      "js/components/alicti-time-conditions.js?v=20261016-assignment-31e6746e6f",
+      "js/pages/time-condition-management.js?v=20261016-assignment-b319d1e521",
+      "js/pages/cloud-task-workspace.js?v=20261016-assignment-4e1361c4a8",
+      "js/pages/cloud-call-tasks.js?v=20261016-assignment-01808700b2",
+      "js/components/call-media.js?v=20261016-assignment-ec61f9eb77",
+      "js/pages/cloud-call-records.js?v=20261016-assignment-1d92bb56bf",
+      "js/pages/customer-directory.js?v=20261016-assignment-b4935dc59c",
+      "js/components/alicti-report-summary.js?v=20261016-assignment-e3a3f85be0",
+      "js/components/lead-report.js?v=20261016-assignment-56b435d045",
+      "js/components/report-data.js?v=20261016-assignment-7619f55670",
+      "js/pages/report-center.js?v=20261016-assignment-7648bb4223",
+      "js/components/call-data-issues.js?v=20261016-assignment-f7824a20b9",
+      "js/pages/system-center.js?v=20261016-assignment-acece8536e",
+      "js/pages/scenario-demo.js?v=20261016-assignment-fa7a21be0d",
+      "js/components/account-seat.js?v=20261016-assignment-75220eadba",
+      "js/components/alicti-adapter.js?v=20261016-assignment-505b5c1239",
+      "mock/seat-operations.js?v=20261016-assignment-30b7cf3be5",
+      "mock/extensions.js?v=20261016-assignment-848e283f19",
+      "js/components/alicti-extensions.js?v=20261016-assignment-f95d14f9ff",
+      "js/pages/extension-management.js?v=20261016-assignment-588d123344",
+      "js/components/seat-phone-config.js?v=20261016-assignment-bda324e0ae",
+      "js/components/seat-event-log.js?v=20261016-assignment-da870a05d0",
+      "js/components/alicti-seat-operations.js?v=20261016-assignment-c4594bd50d",
+      "js/components/seat-operation-ui.js?v=20261016-assignment-0d065f566f",
+      "js/components/tenant-call-monitor.js?v=20261016-assignment-be12fd16c4",
+      "js/components/alicti-task-control.js?v=20261016-assignment-8e0db16ff0",
+      "js/components/task-schedule-runtime.js?v=20261016-assignment-16f0c818df",
+      "js/components/alicti-task-update.js?v=20261016-assignment-8c21c7af88",
+      "js/components/alicti-seat-import.js?v=20261016-assignment-ef3dde0518",
+      "mock/demo-ready.js?v=20261016-assignment-c2b62bdda9",
+      "mock/inbound-routing.js?v=20261016-assignment-a0da233b47",
+      "js/components/alicti-inbound.js?v=20261016-assignment-04c6f14738",
+      "js/nav.js?v=20261016-assignment-995ec5cd8d",
+      "js/version-nav.js?v=20261016-assignment-6a2912e748",
+      "js/delivery-nav.js?v=20261016-assignment-2c52b5dca3",
+      "js/review-view-cache.js?v=20261016-assignment-70d270b31d",
+      "js/components/alicti-contract-panel.js?v=20261016-assignment-dc51877e85"
+    ],
+    "real_calls_enabled": false,
+    "native_dial_executed": false,
+    "viewport_reset": true,
+    "final_metadata_recheck": "Final runtime reload confirms original predictive business type线索类 and original-task read-only entry; manual assignment behavior unchanged."
+  },
+  "screenshots": [
+    {
+      "path": "prototype/memory/verification-evidence/import-assignment-detail-1440-20261016.png",
+      "sha256": "5fbc0cc5f38169d84b22979d115235c2b676e2614384618863853a6c0de15a26",
+      "bytes": 98762
+    },
+    {
+      "path": "prototype/memory/verification-evidence/import-assignment-detail-1920-20261016.png",
+      "sha256": "3cfa3067248804c6640567c7480ba9c73b949019a4f51e13c7df5acafb6cd061",
+      "bytes": 137402
+    },
+    {
+      "path": "prototype/memory/verification-evidence/import-assignment-detail-2560-20261016.png",
+      "sha256": "e838b57f9986b3707fbfd223f1934e758ac7a8dbfd04ce25ffd006776ee2034a",
+      "bytes": 184374
+    },
+    {
+      "path": "prototype/memory/verification-evidence/import-assignment-external-archive-20261016.png",
+      "sha256": "6c296a2efce19e40351d9cadc3c7710322d1f966da2387af7803f947867fba68",
+      "bytes": 56166
+    },
+    {
+      "path": "prototype/memory/verification-evidence/import-assignment-predictive-20261016.png",
+      "sha256": "0296f525d2f6541a164f49ebc82357ee366d9c71df9f4aa683be50b982f1a500",
+      "bytes": 79227
+    },
+    {
+      "path": "prototype/memory/verification-evidence/import-assignment-unassigned-20261016.png",
+      "sha256": "4d377bb6e9db36b561f0ac42ab13b837a94b9cadd9c4dc600c95666fd82c3987",
+      "bytes": 96333
+    },
+    {
+      "path": "prototype/memory/verification-evidence/import-assignment-unified-20261016.png",
+      "sha256": "8bdb101dce07ce5a6297f6395eea191e619bca909e88753f5fd8001f60ba8799",
+      "bytes": 142913
+    }
+  ],
+  "formal_gates_changed": false,
+  "full_acceptance_suite_executed": false,
+  "real_calls_enabled": false,
+  "production_limits": [
+    "仅本地合成，不提供真实HTTP新路由、AliCti在线接入或DCC正式同步协议。",
+    "供应商实例身份映射、外部call与业务来源证明、双方版本冲突及后端并发占用/恢复/签名/ACK仍待核；本地确认不能证明生产双入口互斥。",
+    "保留SRC125104条旧AC作追溯，十条本轮影响项已有覆盖边界，未声称正式S1/G1/G2/G3或整版验收完成。"
+  ],
+  "prior_local_evidence": {
+    "sha256": "5f4944ed9c0a54e2f4b08f0415937541c51064e70b55ccb2d82613b35bb0189e",
+    "scope": "同轮补齐档案前的阶段性12套验证，保留内容以追溯早先日志；不代表最终源码。",
+    "content": {
+      "schema_version": "scoped-import-assignment-repair@1",
+      "date": "2026-10-16T20:00:03.073106+08:00",
+      "result": "pass_scoped_runtime_and_browser",
+      "source_revision": "SRC-126",
+      "scope": "用户已确认的人工接口工号选填、统一导入批次、分配/通话/业务跟进分离及DCC同AliCti外部人工通话本地合成关联；不是正式生产契约或全量重审。",
+      "source_hashes": {
+        "prototype/index.html": "974196030ac2c09c39d68f33207ecfc235b7fd187ddc3b167e83aaddc1a44444",
+        "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3",
+        "prototype/js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+        "prototype/js/pages/scenario-demo.js": "fa7a21be0d3e8f2795c5c87ab40a61f198e5fa29190b01a7f64445955ff0bb41",
+        "prototype/js/components/workbench-overview.js": "434af9c482bf6641dbc5b57d2a3bd0fb24a709045af51269d7268e3dbe535deb",
+        "prototype/js/pages/agent-workbench.js": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+        "prototype/js/components/customer-business.js": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+        "prototype/js/components/customer-followup.js": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+        "prototype/js/components/customer-directory.js": "f9afe74e6637aa983355d0e9bb10d6387bcafca18c2791ac3084e5542cd60707",
+        "prototype/js/components/alicti-fields.js": "eaaa5fe33c9a628df28944cc09f77b4e6fde3c8aba5875fb808fdaf36fdfdbf8",
+        "prototype/js/components/call-state.js": "93048ccfe263df33cee3262a7bd903ce887aa46829f9123cb1da3a9839c0a0df",
+        "prototype/js/components/platform-ui.js": "5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2",
+        "prototype/js/common.js": "5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1",
+        "prototype/js/nav.js": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+        "prototype/mock/dcc-v1.1.0.js": "c06080417cd05562087bb01dc92a62c20f88b4d472de66f66cff6adefd910d24"
+      },
+      "changes": [
+        {
+          "area": "接口分配",
+          "behavior": "缺省/null/空白工号接受未分配；显式无效工号逐行拒绝；合法同租户工号可分配，原请求幂等、原应用/批次/类型及回调归属保持；不迁改历史回执。"
+        },
+        {
+          "area": "统一批次",
+          "behavior": "预外呼账本只读投影入原列表，按原应用/租户/请求保留各导入；同业务批次号不合并不同请求，不复制账本，不从旧分配入口暗改API人工方式。保原业务类型，冲突待核，历史缺失不猜。"
+        },
+        {
+          "area": "三轴状态",
+          "behavior": "云呼叫分配独立于客观通话和业务跟进；新人工接口跟进初始未同步，不计待联系/完成；无工号不入个人待办；有权本人可明确确认云呼叫联系安排，不推断DCC未联系。"
+        },
+        {
+          "area": "外部通话",
+          "behavior": "准确原应用/租户/记录/callId关联，实际坐席不覆原分配；仅话单不推业务完成，明确有版本处理结果才更新；原生本地完成事件不被外部同步反向伪造。"
+        },
+        {
+          "area": "并发与恢复边界",
+          "behavior": "任一已关联外部在途通话保持占用；错误/重复/歧义/坏账本拒绝并显式待核。平台业务保存记已观察外部版本，缺版本时仍保本地结果并粘性待核对，不假造0或比较两系统时钟。生产双入口排他和正式版本协议仍待。"
+        },
+        {
+          "area": "运营展示",
+          "behavior": "统一已分配/未分配云呼叫与独立跟进筛选；默认全部客户避免已分配列表空白误导；消除重复状态文案；演示入口默认收在原演示工具/详情折叠。看板待联系排除未同步/外部在途/已完成和不可读。"
+        }
+      ],
+      "regression_suites": [
+        {
+          "id": "optional-assignment",
+          "script": "optional-import-runtime-20261016.cjs",
+          "script_sha256": "418c0c0a45e624499610301aabac360ab542a5715b79c650b604d7d048acab6b",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "scope": "scoped optional-agent/manual-external-call/read-only-unified-batch synthetic isolated VM",
+            "real_calls_enabled": false,
+            "source_hashes": {
+              "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3"
+            },
+            "passed": 28,
+            "failed": 0,
+            "checks": [
+              {
+                "name": "omitted seat imports unassigned without requiring a cloud seat or rewriting old journal",
+                "result": "pass"
+              },
+              {
+                "name": "null empty whitespace and omitted seat share exact idempotency receipt",
+                "result": "pass"
+              },
+              {
+                "name": "changing no seat to a valid seat conflicts instead of reassigning same request",
+                "result": "pass"
+              },
+              {
+                "name": "valid leading-zero work number allocates cloud seat but business followup stays unknown",
+                "result": "pass"
+              },
+              {
+                "name": "numeric invalid foreign disabled whitespace-padded or duplicate seats reject per row",
+                "result": "pass"
+              },
+              {
+                "name": "repeat external business batch under a new request preserves independent import and new record",
+                "result": "pass"
+              },
+              {
+                "name": "legacy persisted receipt replays byte-exact without migration or status insertion",
+                "result": "pass"
+              },
+              {
+                "name": "callback and business type requirements remain mandatory for unassigned manual API",
+                "result": "pass"
+              },
+              {
+                "name": "external answered call updates phone facts only, retains original owner and unknown followup",
+                "result": "pass"
+              },
+              {
+                "name": "external no answer never means business completed",
+                "result": "pass"
+              },
+              {
+                "name": "explicit versioned business continuation then completion independent of cloud allocation",
+                "result": "pass"
+              },
+              {
+                "name": "external exact call and business replay does not duplicate or regress",
+                "result": "pass"
+              },
+              {
+                "name": "exact original record and call identity reject guesses wrong record wrong phone and cross app tenant",
+                "result": "pass"
+              },
+              {
+                "name": "same AliCti call cannot be linked to a second record even sharing phone and app",
+                "result": "pass"
+              },
+              {
+                "name": "business followup requires previously linked call, ended fact and allowed disposition",
+                "result": "pass"
+              },
+              {
+                "name": "read projection cannot cross tenant or unowned operator visibility",
+                "result": "pass"
+              },
+              {
+                "name": "any exact active external call keeps exclusion even after a later call has ended",
+                "result": "pass"
+              },
+              {
+                "name": "explicit supplier instance scope is rejected while its mapping remains unverified",
+                "result": "pass"
+              },
+              {
+                "name": "application revocation blocks external application identity immediately",
+                "result": "pass"
+              },
+              {
+                "name": "corrupt journal or external ledger remains byte exact and never infers completion",
+                "result": "pass"
+              },
+              {
+                "name": "external storage failure preserves unknown status and never changes original journal",
+                "result": "pass"
+              },
+              {
+                "name": "predictive imports project one business batch per original request, no manual mirror writes",
+                "result": "pass"
+              },
+              {
+                "name": "predictive batch metadata preserves saved business code and label; truly missing historical type stays unclassified",
+                "result": "pass"
+              },
+              {
+                "name": "conflicting business code or saved label within one original request refuses projection rather than choosing first row",
+                "result": "pass"
+              },
+              {
+                "name": "predictive projected row filter runs before personal read-only batch exposure",
+                "result": "pass"
+              },
+              {
+                "name": "predictive bad duplicate exact records lock unified index without replacing bytes",
+                "result": "pass"
+              },
+              {
+                "name": "synthetic manual import helper enforces current scope application callback and demo switch",
+                "result": "pass"
+              },
+              {
+                "name": "external demo helpers use exact original application and never new platform callback",
+                "result": "pass"
+              }
+            ]
+          },
+          "report_sha256": "89ed4da2b4804cc83ba16fede74547c1988bc9f7ae5927f47f0ad086df6e9ba3"
+        },
+        {
+          "id": "unified-batches",
+          "script": "unified-import-ui-20261016.cjs",
+          "script_sha256": "ae0a7136bb61c7d4adf9c8275e98af6aa8dc3d5d847b6c54b8b91cec02c64df7",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "date": "2026-10-16",
+            "source_sha256": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+            "passed": 28,
+            "failed": 0,
+            "results": [
+              {
+                "name": "unassigned API import is saved in existing journal and preserves batch/callback/source identity",
+                "status": "pass"
+              },
+              {
+                "name": "valid optional seat assigns platform only; unknown business followup does not enter personal pending contacts",
+                "status": "pass"
+              },
+              {
+                "name": "missing work number with forged owner/identity is refused",
+                "status": "pass"
+              },
+              {
+                "name": "provided invalid, whitespace or non-string work number never silently drops allocation",
+                "status": "pass"
+              },
+              {
+                "name": "seat validity is rechecked at commit and invalid identity cannot commit unassigned row",
+                "status": "pass"
+              },
+              {
+                "name": "request replay preserves subsequent assignment and business history rather than resetting original rows",
+                "status": "pass"
+              },
+              {
+                "name": "same business batch reused in a different request remains a separate import without new customer storage",
+                "status": "pass"
+              },
+              {
+                "name": "unified list includes readonly predictive batches and does not copy them to the customer journal",
+                "status": "pass"
+              },
+              {
+                "name": "readonly task detail has no old assignment or contact mutation entry",
+                "status": "pass"
+              },
+              {
+                "name": "projection repeats actor filtering; foreign-tenant and other actors do not leak into personal batch rows",
+                "status": "pass"
+              },
+              {
+                "name": "following tabs filter business status independently of cloud assignment",
+                "status": "pass"
+              },
+              {
+                "name": "telephone answer alone stays business unsynced and displays actual seat rather than rewriting assigned owner",
+                "status": "pass"
+              },
+              {
+                "name": "business result version alone updates followup; completed never reappears as personal pending",
+                "status": "pass"
+              },
+              {
+                "name": "explicit local saved followup observes external version; newer external result takes precedence without comparing clocks",
+                "status": "pass"
+              },
+              {
+                "name": "confirmation records only platform contact intent and then enters personal pending, keeping immutable apiOrigin",
+                "status": "pass"
+              },
+              {
+                "name": "stale contact confirmation does not overwrite new row history",
+                "status": "pass"
+              },
+              {
+                "name": "external in-progress, completed, or other actor cannot confirm/dial unresolved contact",
+                "status": "pass"
+              },
+              {
+                "name": "existing manual pending and historical completed are not migrated on render",
+                "status": "pass"
+              },
+              {
+                "name": "telephone-only legacy task simulation never marks followup completed",
+                "status": "pass"
+              },
+              {
+                "name": "bad customer storage preserves original bytes and blocks writes/confirmation",
+                "status": "pass"
+              },
+              {
+                "name": "unreadable external ledger is displayed pending verification and never enables confirm or calling",
+                "status": "pass"
+              },
+              {
+                "name": "unreadable predictive projection reports partial availability while preserving native batch access",
+                "status": "pass"
+              },
+              {
+                "name": "manual API batches can only assign a manual seat; predictive and IVR migration are refused in domain function",
+                "status": "pass"
+              },
+              {
+                "name": "manual API allocation dialog exposes only its original manual mode",
+                "status": "pass"
+              },
+              {
+                "name": "real local saved followup records external-version watermark and later external version supersedes it",
+                "status": "pass"
+              },
+              {
+                "name": "malformed completed call with no saved business disposition cannot complete or release current contact",
+                "status": "pass"
+              },
+              {
+                "name": "readonly predictive facts render trustworthy answered boolean without inferring business completion",
+                "status": "pass"
+              },
+              {
+                "name": "unreadable external version during local business save retains result and sticky ordering review after reads recover",
+                "status": "pass"
+              }
+            ]
+          },
+          "report_sha256": "5943bb0cb34b71672cfd93a04b71220ce73fd370f36e1175415b9bc91dcbf6a9"
+        },
+        {
+          "id": "state-axes",
+          "script": "import-assignment-dashboard-20261016.cjs",
+          "script_sha256": "04fc3cf6f4d8870a62a8aa7d81a84a87e1c189ada0decc445db3eec75647915c",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "scope": "current dashboard operational pending counts vs assignment/call/followup axes; synthetic isolated VM",
+            "passed": 8,
+            "failed": 0,
+            "checks": [
+              {
+                "name": "assigned but external business unknown is not counted as waiting manual work",
+                "result": "pass"
+              },
+              {
+                "name": "unassigned API row is not a cloud seat waiting item",
+                "result": "pass"
+              },
+              {
+                "name": "known external answered call without business result remains out of waiting count",
+                "result": "pass"
+              },
+              {
+                "name": "explicit external continue business result is counted for allocated cloud seat",
+                "result": "pass"
+              },
+              {
+                "name": "external complete business result closes waiting view without mutating original import",
+                "result": "pass"
+              },
+              {
+                "name": "any active second external call blocks an otherwise pending continuation",
+                "result": "pass"
+              },
+              {
+                "name": "unreadable external journal cannot present previously confirmed legacy local state as executable",
+                "result": "pass"
+              },
+              {
+                "name": "existing handwritten pending customers retain their current cloud work queue",
+                "result": "pass"
+              }
+            ],
+            "source_hashes": {
+              "prototype/js/components/workbench-overview.js": "434af9c482bf6641dbc5b57d2a3bd0fb24a709045af51269d7268e3dbe535deb",
+              "prototype/js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+              "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3"
+            }
+          },
+          "report_sha256": "4960c5ba15c5c0f622d4b75a37e84b11db1e5b852d304c774d5aea846331dc2f"
+        },
+        {
+          "id": "external-call-bridge",
+          "script": "optional-assignment-ui-cross-review-20261016.cjs",
+          "script_sha256": "d5f7f926987989782c79fb82db29fdf63d901e8094426e83c49e406171030137",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "scope": "independent read-only actual owner-source cross review; assertions include rejected counterexamples",
+            "passed": 10,
+            "failed": 0,
+            "source_hashes": {
+              "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3",
+              "prototype/js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28"
+            },
+            "checks": [
+              {
+                "name": "manual unassigned later allocation keeps immutable original identity callback and assignment unknown followup",
+                "passed": true
+              },
+              {
+                "name": "confirmation intent admits own platform pending contact without fabricating external result or changing origin",
+                "passed": true
+              },
+              {
+                "name": "an unreadable external view blocks confirmation and personal dialing",
+                "passed": true
+              },
+              {
+                "name": "unreadable external view also blocks the direct assignment transaction",
+                "passed": true
+              },
+              {
+                "name": "old external continuation cannot erase a newer explicitly saved local completion; newer external version may update it",
+                "passed": true
+              },
+              {
+                "name": "raw assignment and wizard selection cannot convert manual API row to predictive or IVR",
+                "passed": true
+              },
+              {
+                "name": "forged attachment commit cannot convert manual API row to predictive task",
+                "passed": true
+              },
+              {
+                "name": "external in-progress and explicit complete prevent new contact intents and reassignment",
+                "passed": true
+              },
+              {
+                "name": "repeat predictive direct delegated commit cannot select a manual API row even with empty changes",
+                "passed": true
+              },
+              {
+                "name": "saving native business while external watermark unreadable retains ordering pending after recovery",
+                "passed": true
+              }
+            ]
+          },
+          "report_sha256": "d0c0c5f3822f973eabd400236527b31d8e0f2c3b2c5e07243f3e1874c099f369"
+        },
+        {
+          "id": "independent-scope",
+          "script": "SRC126-independent-scope-review-20261016.cjs",
+          "script_sha256": "7d2d660526fe1ad92e6efe9c472f3d159e6cdeb1abf3bc6d40a55f96e4263a28",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "scope": "SRC126 independent semantic counterexamples for wrong allocation, false completion and in-flight release; isolated synthetic VM",
+            "checks": [
+              {
+                "name": "multiple external calls cannot release an earlier unresolved active call",
+                "result": "pass"
+              },
+              {
+                "name": "corrupt external event journal never permits a new platform dial",
+                "result": "pass"
+              },
+              {
+                "name": "actual external agent does not change the platform allocation or original app callback",
+                "result": "pass"
+              },
+              {
+                "name": "callId linked to a known record cannot be reassigned to another original record with same phone",
+                "result": "pass"
+              },
+              {
+                "name": "answered fact alone produces neither business completion nor reverse completion callback",
+                "result": "pass"
+              },
+              {
+                "name": "manual API source cannot be silently reassigned into a predictive task",
+                "result": "pass"
+              }
+            ],
+            "passed": 6,
+            "failed": 0,
+            "source_hashes": {
+              "prototype/js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3",
+              "prototype/js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28"
+            },
+            "real_calls_enabled": false
+          },
+          "report_sha256": "5f79ecaf176bc2d558a9deac4877b563368c6fc5acbb311e11049d89282ee51b"
+        },
+        {
+          "id": "native-workbench",
+          "script": "customer-workbench-optional-seat-regression-20261016.cjs",
+          "script_sha256": "b1ea3af32e57dbc80f93afbcca3abf2b51be91fb7a9d0542ccd56a2f2ea1ffb0",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "adaptation": "API imports require explicit platform-contact confirmation; historical report retained",
+            "source_sha256": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+            "passed": 16,
+            "failed": 0,
+            "results": [
+              {
+                "name": "predictive continue appears for current seat without altering original task source",
+                "status": "pass"
+              },
+              {
+                "name": "predictive followup keeps exact origin through late CDR and repeated save",
+                "status": "pass"
+              },
+              {
+                "name": "API manual import goes into existing journal with unsynced followup, keeps source, and exact replay does not duplicate",
+                "status": "pass"
+              },
+              {
+                "name": "API manual import rechecks seat binding and preserves other batch on failure",
+                "status": "pass"
+              },
+              {
+                "name": "API rollback requires unchanged whole origin snapshot with no calls",
+                "status": "pass"
+              },
+              {
+                "name": "manual dial preserves apiOrigin and saved completion queues exact persisted event",
+                "status": "pass"
+              },
+              {
+                "name": "failed completion registration leaves exact saved pending intent for replay",
+                "status": "pass"
+              },
+              {
+                "name": "API manual receipt recovery preserves activity without reassigning",
+                "status": "pass"
+              },
+              {
+                "name": "saved business-code snapshot preserves zeroes, option codes and prior config",
+                "status": "pass"
+              },
+              {
+                "name": "lead detail shows current saved dimensions with their source scope",
+                "status": "pass"
+              },
+              {
+                "name": "damaged old customer journal cannot publish cached rows or overwrite original bytes",
+                "status": "pass"
+              },
+              {
+                "name": "malformed customer rows fail closed instead of crashing or clearing store",
+                "status": "pass"
+              },
+              {
+                "name": "admin read-only status dialing",
+                "status": "pass"
+              },
+              {
+                "name": "admin read-only status ringing",
+                "status": "pass"
+              },
+              {
+                "name": "admin read-only status connected",
+                "status": "pass"
+              },
+              {
+                "name": "mismatched other account cannot supply seat device state",
+                "status": "pass"
+              }
+            ]
+          },
+          "report_sha256": "623f2f945e0864feb024508dfccb7ec1bf5de226493a4af68da2d06fafbae9bc"
+        },
+        {
+          "id": "failure-retry",
+          "script": "task-full-failure-retry-regression.cjs",
+          "script_sha256": "ba8b92b445737ab31b15f0da4188fa62863f35ed694f51ba6f2687389f408f00",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "check_count": 37,
+            "result": "pass_scoped_vm",
+            "checks": [
+              {
+                "name": "Exact operator-ban failure creates a 120-second plan and preserves original root/priority",
+                "result": "pass"
+              },
+              {
+                "name": "Duplicate or late same original supplier-file result does not restart timer or create plan",
+                "result": "pass"
+              },
+              {
+                "name": "Production prerequisites are not assumed ready",
+                "result": "pass"
+              },
+              {
+                "name": "Partial synthetic prerequisites cannot enable execution",
+                "result": "pass"
+              },
+              {
+                "name": "Explicit synthetic confirmation does not imply production readiness",
+                "result": "pass"
+              },
+              {
+                "name": "Before 120 seconds no automatic submission; at boundary one submission",
+                "result": "pass"
+              },
+              {
+                "name": "Accepted retry has an independent new fileId and leaves original source file intact",
+                "result": "pass"
+              },
+              {
+                "name": "Late original-file failure cannot execute a second retry",
+                "result": "pass"
+              },
+              {
+                "name": "Eight reasons require manual confirmation and share same quota with auto",
+                "result": "pass"
+              },
+              {
+                "name": "Third exact attempt failure is blocked after two additional submissions",
+                "result": "pass"
+              },
+              {
+                "name": "New main batch and changed source application do not reset quota",
+                "result": "pass"
+              },
+              {
+                "name": "Supplier retry-file result still appears in the original customer archive with exact source mapping",
+                "result": "pass"
+              },
+              {
+                "name": "Confirmed short hangup explicitly prohibits platform resubmission",
+                "result": "pass"
+              },
+              {
+                "name": "Frequent calling uses native rule and never creates supplemental plan",
+                "result": "pass"
+              },
+              {
+                "name": "Unconfirmed customer answer, bad file selector, and untrusted event cannot generate plan",
+                "result": "pass"
+              },
+              {
+                "name": "Conflicting original event blocks its queued retry instead of overriding result",
+                "result": "pass"
+              },
+              {
+                "name": "SIP update cannot create an extra plan or quota usage",
+                "result": "pass"
+              },
+              {
+                "name": "All three auto and all eight manual exact reasons classify; malformed descriptions do not",
+                "result": "pass"
+              },
+              {
+                "name": "Paused task cannot execute and resumes without resetting timer",
+                "result": "pass"
+              },
+              {
+                "name": "Terminal task cancels queued plan and does not submit",
+                "result": "pass"
+              },
+              {
+                "name": "Pending supplier control, resource pause, stop-new-dialing and inconsistent provider state block",
+                "result": "pass"
+              },
+              {
+                "name": "Current permission revocation and tenant switch deny direct execution",
+                "result": "pass"
+              },
+              {
+                "name": "Unknown submission occupies original attempt and rejects any blind repeat",
+                "result": "pass"
+              },
+              {
+                "name": "Independent file-bound response resolves unknown without submitting again",
+                "result": "pass"
+              },
+              {
+                "name": "Conflicting original fileId response leaves unknown occupied",
+                "result": "pass"
+              },
+              {
+                "name": "Explicit rejection still consumes one additional submission",
+                "result": "pass"
+              },
+              {
+                "name": "Callback result redelivery does not change retry budget or supplier submissions",
+                "result": "pass"
+              },
+              {
+                "name": "Reload restores due time, used count and unknown occupying attempt",
+                "result": "pass"
+              },
+              {
+                "name": "Failed first persistence does not consume budget or add a submission",
+                "result": "pass"
+              },
+              {
+                "name": "Failure saving response preserves dispatching occupation and cannot blind retry",
+                "result": "pass"
+              },
+              {
+                "name": "Two runtime worlds sharing storage cannot use stale count to make third submission",
+                "result": "pass"
+              },
+              {
+                "name": "Byte revision conflict refuses a stale write and preserves competing ledger import",
+                "result": "pass"
+              },
+              {
+                "name": "Wrong task, missing plan and malformed attempts cannot bypass checks",
+                "result": "pass"
+              },
+              {
+                "name": "Read-only history rejects synthetic prerequisite config and retries",
+                "result": "pass"
+              },
+              {
+                "name": "Failure UI shows operator-readable countdown, budget, manual action and separate demo evidence",
+                "result": "pass"
+              },
+              {
+                "name": "Manual creation preparation stays unsent and cannot be stolen by submitPending",
+                "result": "pass"
+              },
+              {
+                "name": "Creation rollback only removes its unsubmitted rows and supports same-ID retry",
+                "result": "pass"
+              }
+            ],
+            "changed_files": [
+              {
+                "path": "js/components/dcc-runtime.js",
+                "sha256": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3"
+              },
+              {
+                "path": "js/components/dcc-records.js",
+                "sha256": "b641fab35db57426fa69ba5e629b9d3c4098ef49f349eb171eb93181106f1712"
+              }
+            ],
+            "production_ready": false,
+            "real_call_allowed": false,
+            "formal_stage_advanced": false,
+            "verified_at": "2026-10-16T11:57:19.417Z"
+          },
+          "report_sha256": "54e7e9ea57663121638eb2bfbd504aacf5d3e35a6f5db9815ad02454a8569db3"
+        },
+        {
+          "id": "schedule",
+          "script": "task-full-schedule-audit.cjs",
+          "script_sha256": "14dd13c77ce6f36989a9b7a6296f51dcaa68b83dd8bc472bbd5962548043512a",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "status": "pass",
+            "checks": 30,
+            "observations": [
+              {
+                "name": "before_due_does_not_start",
+                "pass": true
+              },
+              {
+                "name": "due_starts_and_records_once",
+                "pass": true
+              },
+              {
+                "name": "durable_refresh_does_not_repeat_start",
+                "pass": true
+              },
+              {
+                "name": "dcc_accepted_customer_starts_despite_zero_legacy_total",
+                "pass": true
+              },
+              {
+                "name": "dcc_unknown_rejected_review_deleted_do_not_start",
+                "pass": true
+              },
+              {
+                "name": "empty_at_due_then_confirmed_import_starts",
+                "pass": true
+              },
+              {
+                "name": "cross_tenant_and_revoked_permission_do_not_start",
+                "pass": true
+              },
+              {
+                "name": "paused_terminated_deleted_and_actual_supplier_do_not_start",
+                "pass": true
+              },
+              {
+                "name": "readonly_snapshot_does_not_start",
+                "pass": true
+              },
+              {
+                "name": "pending_resource_hold_and_stopped_dialing_do_not_start",
+                "pass": true
+              },
+              {
+                "name": "resource_and_outbound_conflict_guard_is_reused",
+                "pass": true
+              },
+              {
+                "name": "insufficient_seats_wait_and_ready_seats_start",
+                "pass": true
+              },
+              {
+                "name": "storage_failure_leaves_original_and_retry_can_start",
+                "pass": true
+              },
+              {
+                "name": "invalid_schedule_and_past_stop_do_not_start",
+                "pass": true
+              },
+              {
+                "name": "saved_allowed_window_matches_weekday_and_time",
+                "pass": true
+              },
+              {
+                "name": "saved_forbidden_window_prevents_start",
+                "pass": true
+              },
+              {
+                "name": "missing_ambiguous_or_cross_tenant_time_evidence_fails_closed",
+                "pass": true
+              },
+              {
+                "name": "date_range_snapshot_is_evaluated",
+                "pass": true
+              },
+              {
+                "name": "tick_focus_visibility_and_pageshow_are_registered_once",
+                "pass": true
+              },
+              {
+                "name": "runtime_tick_starts_only_eligible_and_keeps_manual_pause",
+                "pass": true
+              },
+              {
+                "name": "normal_dcc_start_uses_confirmed_journal_with_total_zero",
+                "pass": true
+              },
+              {
+                "name": "normal_dcc_resume_uses_confirmed_journal_with_total_zero",
+                "pass": true
+              },
+              {
+                "name": "normal_before_initial_query_preserves_ready_state_for_total_zero",
+                "pass": true
+              },
+              {
+                "name": "normal_start_rejects_empty_or_unknown_dcc_journal",
+                "pass": true
+              },
+              {
+                "name": "same_tick_runs_failure_retries_with_same_observed_clock",
+                "pass": true
+              },
+              {
+                "name": "manual_control_storage_failure_never_publishes_simulated_success",
+                "pass": true
+              },
+              {
+                "name": "clock_observes_busy_seats_pauses_managed_predictive_and_resumes_only_scheduled",
+                "pass": true
+              },
+              {
+                "name": "manual_start_availability_pause_requires_explicit_resume",
+                "pass": true
+              },
+              {
+                "name": "scheduled_end_stops_new_dialing_without_fabricating_supplier_end",
+                "pass": true
+              },
+              {
+                "name": "readonly_snapshot_refuses_normal_controls_and_availability_changes",
+                "pass": true
+              }
+            ],
+            "limits": [
+              "actual clock/control source, persistence/permissions/resource facts use isolated stubs",
+              "no supplier request or background server, scheduled end only local stop-new-dialing safety hold, true end pending supplier evidence"
+            ]
+          },
+          "report_sha256": "3c76b750e56decae432981fd64279df57b1663fe3a3b8eac7bd7b74cbaed889b"
+        },
+        {
+          "id": "api-import-callback",
+          "script": "task-full-integration-audit.cjs",
+          "script_sha256": "b067811a72bc21eb88cbe7372e6a9c536c734c518d7cec2ed0b8d6be5fa4aa36",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "scope": "new whole-task-chain audit integration, isolated synthetic VM",
+            "checks": [
+              {
+                "name": "new API missing callMode or business batch rejects without record",
+                "result": "pass"
+              },
+              {
+                "name": "predictive saves original batch, mode, source app and six strings",
+                "result": "pass"
+              },
+              {
+                "name": "same request changing mode or business batch conflicts",
+                "result": "pass"
+              },
+              {
+                "name": "same business batch reused under distinct requests preserves separate rows",
+                "result": "pass"
+              },
+              {
+                "name": "manual mode requires assigned raw work number and never needs predictive task",
+                "result": "pass"
+              },
+              {
+                "name": "manual exact replay returns original record ids, no duplicate assignment",
+                "result": "pass"
+              },
+              {
+                "name": "manual numeric work number rejects and leading zeros remain exact",
+                "result": "pass"
+              },
+              {
+                "name": "manual requesting another tenant agent does not assign",
+                "result": "pass"
+              },
+              {
+                "name": "manual missing callback rejects before customer or assignment storage",
+                "result": "pass"
+              },
+              {
+                "name": "manual new request reuses business batch and remains independent",
+                "result": "pass"
+              },
+              {
+                "name": "manual imported records immediately share the existing customer archive",
+                "result": "pass"
+              },
+              {
+                "name": "completed communication callback freezes original batch app, exact call, fields and codes",
+                "result": "pass"
+              },
+              {
+                "name": "completed communication exact replay is idempotent",
+                "result": "pass"
+              },
+              {
+                "name": "tampered call origin or unfinished follow-up cannot create callback",
+                "result": "pass"
+              },
+              {
+                "name": "callback address changes hold result pending, never switch receivers",
+                "result": "pass"
+              }
+            ],
+            "passed": 15,
+            "failed": 0
+          },
+          "report_sha256": "685e920c88fc41c8f24bf6486411e3d7eb3a182382f64410f83e2f3218c2c8ac"
+        },
+        {
+          "id": "completion-freeze",
+          "script": "admin-independent-completion-review-20261015.cjs",
+          "script_sha256": "abbb02d7cd58679b196e1f4b4fc09bce0dcc24791924d074e5f094549a54bb0b",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "hashes": {
+              "js/components/dcc-runtime.js": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3",
+              "js/pages/customer-tasks.js": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+              "js/pages/agent-workbench.js": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+              "js/components/customer-followup.js": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+              "js/components/customer-business.js": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b"
+            },
+            "checks": 8,
+            "passed": 8,
+            "results": [
+              {
+                "name": "pending completion freezes call and business despite late canonical updates",
+                "pass": true
+              },
+              {
+                "name": "pending completion freezes the six original import strings despite later source update",
+                "pass": true
+              },
+              {
+                "name": "changed application callback holds the exact completion without delivery attempt",
+                "pass": true
+              },
+              {
+                "name": "revoked tenant grant holds completion and never routes to another app",
+                "pass": true
+              },
+              {
+                "name": "manual import failure before customer write cannot create assignment or callback",
+                "pass": true
+              },
+              {
+                "name": "manual receipt failure after customer commit replays without duplicate or reset",
+                "pass": true
+              },
+              {
+                "name": "deleted app recreated with same name cannot receive old completion",
+                "pass": true
+              },
+              {
+                "name": "two applications may import same phone and batch without sharing request or callback identity",
+                "pass": true
+              }
+            ]
+          },
+          "report_sha256": "bdb2cf7046728809e61efede197450c694cbb8fdc06047c42326d3f6c3c6c914"
+        },
+        {
+          "id": "customer-archive",
+          "script": "customer-directory-original-48-readonly.cjs",
+          "script_sha256": "e9e733eed1af913158837bd637242a71ddfc8600a08499d4be321ae226fee1a5",
+          "exit_code": 0,
+          "passed": true,
+          "output": "{\"check_count\":48,\"result\":\"pass_read_only_existing_archive_regression\",\"changed_files\":[{\"path\":\"js/components/dcc-runtime.js\",\"sha256\":\"2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3\"},{\"path\":\"js/components/dcc-records.js\",\"sha256\":\"b641fab35db57426fa69ba5e629b9d3c4098ef49f349eb171eb93181106f1712\"},{\"path\":\"js/components/customer-directory.js\",\"sha256\":\"f9afe74e6637aa983355d0e9bb10d6387bcafca18c2791ac3084e5542cd60707\"},{\"path\":\"js/pages/customer-directory.js\",\"sha256\":\"5f1ffb739d4801d49802eb53c884e1d6833cadd11a2d61633e3db7fd35b895c2\"},{\"path\":\"index.html\",\"sha256\":\"974196030ac2c09c39d68f33207ecfc235b7fd187ddc3b167e83aaddc1a44444\"}]}\n"
+        },
+        {
+          "id": "wizard-selection",
+          "script": "wizard-manual-selection-assignment-regression-20261016.cjs",
+          "script_sha256": "9dc71cc6a34e72ba8f7cd74cb2283ba9c1d6aa029dc808d971b3dac84d0b551d",
+          "exit_code": 0,
+          "passed": true,
+          "report": {
+            "status": "pass_scoped_vm",
+            "checks": 23,
+            "observations": [
+              {
+                "name": "manual_source_renders_real_existing_list_and_api_hides_it",
+                "pass": true
+              },
+              {
+                "name": "legacy_external_code_is_only_visible_suggestion_not_silent_leadCode",
+                "pass": true
+              },
+              {
+                "name": "priority_and_batch_name_remain_explicit_required_inputs",
+                "pass": true
+              },
+              {
+                "name": "saved_draft_never_reserves_or_calls_original_customers",
+                "pass": true
+              },
+              {
+                "name": "selection_creates_new_manual_ledger_record_and_preserves_original_fields_history",
+                "pass": true
+              },
+              {
+                "name": "source_list_displays_imported_target_and_cannot_reassign_reserved_row",
+                "pass": true
+              },
+              {
+                "name": "changed_source_row_stops_before_creating_task",
+                "pass": true
+              },
+              {
+                "name": "active_call_or_assigned_original_cannot_be_selected",
+                "pass": true
+              },
+              {
+                "name": "source_switch_or_scope_switch_invalidates_old_selection",
+                "pass": true
+              },
+              {
+                "name": "storage_failure_in_source_reservation_compensates_new_ledger_and_task",
+                "pass": true
+              },
+              {
+                "name": "storage_failure_while_saving_task_leaves_original_available_and_draft_retryable",
+                "pass": true
+              },
+              {
+                "name": "stale_second_tab_reservation_does_not_occupy_source_twice",
+                "pass": true
+              },
+              {
+                "name": "uncommitted_journal_reload_releases_only_own_origin_reservation_and_ledger",
+                "pass": true
+              },
+              {
+                "name": "permission_or_tenant_change_rejects_selection_reservation",
+                "pass": true
+              },
+              {
+                "name": "non_lead_keeps_original_document_id_with_separate_explicit_leadCode",
+                "pass": true
+              },
+              {
+                "name": "creation_after_later_does_not_attach_old_customers",
+                "pass": true
+              },
+              {
+                "name": "confirmation_counts_manual_selected_rows_instead_of_claiming_after_creation_only",
+                "pass": true
+              },
+              {
+                "name": "true_reload_uncommitted_journal_compensates_all_three_stores",
+                "pass": true
+              },
+              {
+                "name": "true_reload_committed_journal_finishes_dispatch_once_and_keeps_source_reserved",
+                "pass": true
+              },
+              {
+                "name": "rollback_reservation_preserves_later_unrelated_business_edit",
+                "pass": true
+              },
+              {
+                "name": "forged_reservation_cannot_modify_original_phone_or_history",
+                "pass": true
+              },
+              {
+                "name": "already_recovered_creation_recheck_is_idempotent",
+                "pass": true
+              },
+              {
+                "name": "batch_summary_counts_imported_reservation_consistently_with_pending_filter",
+                "pass": true
+              }
+            ],
+            "sourceFiles": [
+              {
+                "file": "js/pages/cloud-task-workspace.js",
+                "sha256": "4e1361c4a82b098039c71a5e3ee4c93fbf852d95d1446b1a5e40c877d55a5488"
+              },
+              {
+                "file": "js/pages/customer-tasks.js",
+                "sha256": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28"
+              },
+              {
+                "file": "js/components/dcc-runtime.js",
+                "sha256": "2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3"
+              }
+            ],
+            "limits": [
+              "Actual workspace/customer-tasks/dcc-runtime sources executed; DOM/access/AliCti field/resource services mocked with valid synthetic inputs",
+              "No live network or real call made",
+              "Browser verification delegated to parent",
+              "Local optimistic storage checks do not establish production atomic concurrency guarantees"
+            ]
+          },
+          "report_sha256": "4adf358212a3e0fd45bb919ccf6bb5f4c5dbaacfb5d9d3f586ceee11a030e353"
+        }
+      ],
+      "regression_note": "12套当前定点和兼容回归均实际执行通过，断言有交叠，不累计为104条正式验收；两处旧文案和缺失测试渲染stub已适配，本轮实际行为断言保留。",
+      "static_verification": {
+        "javascript_files": 114,
+        "syntax_errors": [],
+        "core_local_references": 166,
+        "missing_resources": [],
+        "cache_bound_scripts": 112,
+        "cache_binding_errors": [],
+        "protected_frozen_files": 875,
+        "protected_drift": [],
+        "historical_20261015_evidence_files": 12,
+        "historical_evidence_drift": [],
+        "unrelated_preexisting_files_observed": [
+          "README.md",
+          "memory/project-versions.json",
+          "版本清单.js",
+          "版本清单.json",
+          "需求/1.1.1/README.md",
+          "需求/1.1.1/公共业务分类对应待确认表.md",
+          "需求/1.1.1/公共操作权限待确认表.md",
+          "需求/1.1.1/公共黑名单迁入待确认表.md",
+          "需求/1.1.1/核心需求确认摘要.md",
+          "需求/1.1.1/需求草稿.md"
+        ],
+        "unrelated_preexisting_hash_drift": [
+          "需求/1.1.1/README.md"
+        ],
+        "unrelated_note": "本轮没有编辑上述共享台账/1.1.1/根README；如有其他工作并发变化仅记录，不回滚。"
+      },
+      "browser": {
+        "date": "2026-10-16",
+        "url": "http://127.0.0.1:18802/prototype/index.html#customer-tasks",
+        "console_errors": [],
+        "layouts": [
+          {
+            "bodyWidth": 1440,
+            "documentWidth": 1440,
+            "viewport": 1440
+          },
+          {
+            "bodyWidth": 1920,
+            "documentWidth": 1920,
+            "viewport": 1920
+          },
+          {
+            "bodyWidth": 2560,
+            "documentWidth": 2560,
+            "viewport": 2560
+          }
+        ],
+        "observations": [
+          {
+            "action": "manual API import without work number",
+            "observed": "2 saved, unassigned cloud0assigned, pending0, business unsynced2; no personal contact button"
+          },
+          {
+            "action": "explicit invalid work number then corrected 9001",
+            "observed": "invalid rejected without batch; new request accepted2 allocated to李明 but pending0 and unsynced2"
+          },
+          {
+            "action": "external answered event only",
+            "observed": "call changes to已接通; actual work number DCC-DEMO-AGENT; original assigned李明 retained; followup remains跟进状态未同步"
+          },
+          {
+            "action": "external explicit continuation then completion",
+            "observed": "unassigned customer1 followup待继续跟进 then跟进已完成; allocation remains0; other row remainsunsynced"
+          },
+          {
+            "action": "assigned current owner explicitly confirms cloud contact arrangement",
+            "observed": "only selected row becomes待联系1; second remains跟进状态未同步; business call fact separate"
+          },
+          {
+            "action": "unified batch index",
+            "observed": "manual API and predictive API both present; original supplier task link retained"
+          },
+          {
+            "action": "predictive API batch detail",
+            "observed": "businessType线索类 preserved; read-only customer list;查看原任务; no legacy allocation write entry"
+          }
+        ],
+        "source_script_urls": [
+          "js/alicti-storage.js?v=20261016-assignment-4f641b823a",
+          "mock/data.js?v=20261016-assignment-22fa116694",
+          "mock/dcc-v1.1.0.js?v=20261016-assignment-c06080417c",
+          "mock/demo-kit.js?v=20261016-assignment-2d8ccb8d32",
+          "mock/demo-resources.js?v=20261016-assignment-ed71493afa",
+          "mock/demo-activity.js?v=20261016-assignment-4a8c630a2f",
+          "mock/report-summaries.js?v=20261016-assignment-30ce6f0344",
+          "mock/report-fixtures.js?v=20261016-assignment-fc3719abe4",
+          "mock/queue-resources.js?v=20261016-assignment-ee0b11f873",
+          "mock/number-pools.js?v=20261016-assignment-45118c56b5",
+          "mock/call-media.js?v=20261016-assignment-4fb2055a45",
+          "mock/demo-media.js?v=20261016-assignment-f99b9a2273",
+          "mock/customer-import.js?v=20261016-assignment-377f10d283",
+          "mock/scenario-demo.js?v=20261016-assignment-1fdf32393b",
+          "mock/ccc-support.js?v=20261016-assignment-d0e0bd3740",
+          "js/common.js?v=20261016-assignment-5d4b14f0d1",
+          "js/components/platform-ui.js?v=20261016-assignment-5cbfaa8eb6",
+          "js/components/alicti-number-status.js?v=20261016-assignment-e364f8b5cf",
+          "js/components/alicti-retry.js?v=20261016-assignment-9ffa65434a",
+          "js/components/alicti-retry-editor.js?v=20261016-assignment-29a75a2035",
+          "js/components/tenant-supervisor-policy.js?v=20261016-assignment-8cb7cd48d8",
+          "js/components/alicti-fields.js?v=20261016-assignment-eaaa5fe33c",
+          "js/components/alicti-ivr.js?v=20261016-assignment-12a03334a1",
+          "js/components/alicti-demo.js?v=20261016-assignment-44eacacad4",
+          "js/components/call-state.js?v=20261016-assignment-93048ccfe2",
+          "js/components/alicti-report-facts.js?v=20261016-assignment-f27aaaa52b",
+          "js/components/report-metrics.js?v=20261016-assignment-4974c6a13b",
+          "mock/demo-compact.js?v=20261016-assignment-b1dcd4163f",
+          "mock/demo-install.js?v=20261016-assignment-63eed57918",
+          "js/components/alicti-accounts.js?v=20261016-assignment-7c69926098",
+          "js/app.js?v=20261016-assignment-3d72f5d0b1",
+          "js/components/dcc-runtime.js?v=20261016-assignment-2e133fb57c",
+          "js/components/dcc-records.js?v=20261016-assignment-b641fab35d",
+          "js/pages/application-access.js?v=20261016-assignment-497cf1c7f4",
+          "js/components/demo-switch.js?v=20261016-assignment-dbbf9c50f6",
+          "js/components/resource-rules.js?v=20261016-assignment-b466775695",
+          "js/components/customer-business.js?v=20261016-assignment-dcdc6d29b9",
+          "js/pages/business-categories.js?v=20261016-assignment-addb6fc388",
+          "mock/customer-followup.js?v=20261016-assignment-1dcb0bcf05",
+          "js/components/customer-followup.js?v=20261016-assignment-c36804a76f",
+          "js/components/customer-directory.js?v=20261016-assignment-f9afe74e66",
+          "js/components/alicti-receiving.js?v=20261016-assignment-81a2367068",
+          "js/components/call-data-sync.js?v=20261016-assignment-4c36be5b85",
+          "js/pages/agent-workbench.js?v=20261016-assignment-45177a4ea9",
+          "js/pages/scenario-readiness.js?v=20261016-assignment-339e26e4c5",
+          "js/components/role-charts.js?v=20261016-assignment-d22f69c0b2",
+          "js/components/role-focus.js?v=20261016-assignment-86787b6ddd",
+          "js/pages/home.js?v=20261016-assignment-77e2f34c43",
+          "js/components/workbench-overview.js?v=20261016-assignment-434af9c482",
+          "js/components/account-tenant-forms.js?v=20261016-assignment-aaac281e86",
+          "js/pages/account-tenant.js?v=20261016-assignment-341bf42b8b",
+          "js/pages/alicti-accounts.js?v=20261016-assignment-71c5ae8b9a",
+          "js/components/business-issues.js?v=20261016-assignment-a37de59bd5",
+          "js/pages/agent-center.js?v=20261016-assignment-e13e5d1a57",
+          "js/components/manual-skill-access.js?v=20261016-assignment-a3520428d9",
+          "js/pages/customer-tasks.js?v=20261016-assignment-91cf4312f7",
+          "js/components/repeat-predictive.js?v=20261016-assignment-2f6bd7906b",
+          "js/pages/customer-demo.js?v=20261016-assignment-1616eec112",
+          "js/components/alicti-queue-contracts.js?v=20261016-assignment-a68c84e4fe",
+          "js/components/alicti-number-pools.js?v=20261016-assignment-9559a8eef8",
+          "js/components/alicti-queues.js?v=20261016-assignment-f193197371",
+          "js/components/queue-config.js?v=20261016-assignment-412b78d3f4",
+          "js/components/queue-detail.js?v=20261016-assignment-c27cbb5353",
+          "js/components/outbound-groups.js?v=20261016-assignment-c76252a627",
+          "js/pages/outbound-group-management.js?v=20261016-assignment-0f82459829",
+          "js/pages/queue-management.js?v=20261016-assignment-77ec5107da",
+          "js/pages/number-pool-management.js?v=20261016-assignment-d6cd4b0b99",
+          "js/pages/contact-center-settings.js?v=20261016-assignment-b70d9a9eb6",
+          "mock/number-onboarding.js?v=20261016-assignment-75cce87e55",
+          "js/components/number-import-history.js?v=20261016-assignment-ab88f25625",
+          "js/components/alicti-number-import.js?v=20261016-assignment-a9224f4335",
+          "js/pages/resource-lines.js?v=20261016-assignment-d68a6e1069",
+          "js/pages/inbound-routing.js?v=20261016-assignment-fc1c9bd0bc",
+          "js/pages/operations-monitor.js?v=20261016-assignment-faad3ad2fc",
+          "mock/time-conditions.js?v=20261016-assignment-c842c0faa6",
+          "js/components/alicti-time-conditions.js?v=20261016-assignment-31e6746e6f",
+          "js/pages/time-condition-management.js?v=20261016-assignment-b319d1e521",
+          "js/pages/cloud-task-workspace.js?v=20261016-assignment-4e1361c4a8",
+          "js/pages/cloud-call-tasks.js?v=20261016-assignment-01808700b2",
+          "js/components/call-media.js?v=20261016-assignment-ec61f9eb77",
+          "js/pages/cloud-call-records.js?v=20261016-assignment-1d92bb56bf",
+          "js/pages/customer-directory.js?v=20261016-assignment-5f1ffb739d",
+          "js/components/alicti-report-summary.js?v=20261016-assignment-e3a3f85be0",
+          "js/components/lead-report.js?v=20261016-assignment-56b435d045",
+          "js/components/report-data.js?v=20261016-assignment-7619f55670",
+          "js/pages/report-center.js?v=20261016-assignment-7648bb4223",
+          "js/components/call-data-issues.js?v=20261016-assignment-f7824a20b9",
+          "js/pages/system-center.js?v=20261016-assignment-acece8536e",
+          "js/pages/scenario-demo.js?v=20261016-assignment-fa7a21be0d",
+          "js/components/account-seat.js?v=20261016-assignment-75220eadba",
+          "js/components/alicti-adapter.js?v=20261016-assignment-505b5c1239",
+          "mock/seat-operations.js?v=20261016-assignment-30b7cf3be5",
+          "mock/extensions.js?v=20261016-assignment-848e283f19",
+          "js/components/alicti-extensions.js?v=20261016-assignment-f95d14f9ff",
+          "js/pages/extension-management.js?v=20261016-assignment-588d123344",
+          "js/components/seat-phone-config.js?v=20261016-assignment-bda324e0ae",
+          "js/components/seat-event-log.js?v=20261016-assignment-da870a05d0",
+          "js/components/alicti-seat-operations.js?v=20261016-assignment-c4594bd50d",
+          "js/components/seat-operation-ui.js?v=20261016-assignment-0d065f566f",
+          "js/components/tenant-call-monitor.js?v=20261016-assignment-be12fd16c4",
+          "js/components/alicti-task-control.js?v=20261016-assignment-8e0db16ff0",
+          "js/components/task-schedule-runtime.js?v=20261016-assignment-16f0c818df",
+          "js/components/alicti-task-update.js?v=20261016-assignment-8c21c7af88",
+          "js/components/alicti-seat-import.js?v=20261016-assignment-ef3dde0518",
+          "mock/demo-ready.js?v=20261016-assignment-c2b62bdda9",
+          "mock/inbound-routing.js?v=20261016-assignment-a0da233b47",
+          "js/components/alicti-inbound.js?v=20261016-assignment-04c6f14738",
+          "js/nav.js?v=20261016-assignment-995ec5cd8d",
+          "js/version-nav.js?v=20261016-assignment-6a2912e748",
+          "js/delivery-nav.js?v=20261016-assignment-2c52b5dca3",
+          "js/review-view-cache.js?v=20261016-assignment-70d270b31d",
+          "js/components/alicti-contract-panel.js?v=20261016-assignment-dc51877e85"
+        ],
+        "real_calls_enabled": false,
+        "native_dial_executed": false,
+        "viewport_reset": true,
+        "final_metadata_recheck": "Final runtime reload confirms original predictive business type线索类 and original-task read-only entry; manual assignment behavior unchanged."
+      },
+      "screenshots": [
+        {
+          "path": "prototype/memory/verification-evidence/import-assignment-detail-1440-20261016.png",
+          "sha256": "5fbc0cc5f38169d84b22979d115235c2b676e2614384618863853a6c0de15a26",
+          "bytes": 98762
+        },
+        {
+          "path": "prototype/memory/verification-evidence/import-assignment-detail-1920-20261016.png",
+          "sha256": "3cfa3067248804c6640567c7480ba9c73b949019a4f51e13c7df5acafb6cd061",
+          "bytes": 137402
+        },
+        {
+          "path": "prototype/memory/verification-evidence/import-assignment-detail-2560-20261016.png",
+          "sha256": "e838b57f9986b3707fbfd223f1934e758ac7a8dbfd04ce25ffd006776ee2034a",
+          "bytes": 184374
+        },
+        {
+          "path": "prototype/memory/verification-evidence/import-assignment-predictive-20261016.png",
+          "sha256": "0296f525d2f6541a164f49ebc82357ee366d9c71df9f4aa683be50b982f1a500",
+          "bytes": 79227
+        },
+        {
+          "path": "prototype/memory/verification-evidence/import-assignment-unassigned-20261016.png",
+          "sha256": "4d377bb6e9db36b561f0ac42ab13b837a94b9cadd9c4dc600c95666fd82c3987",
+          "bytes": 96333
+        },
+        {
+          "path": "prototype/memory/verification-evidence/import-assignment-unified-20261016.png",
+          "sha256": "8bdb101dce07ce5a6297f6395eea191e619bca909e88753f5fd8001f60ba8799",
+          "bytes": 142913
+        }
+      ],
+      "formal_gates_changed": false,
+      "full_acceptance_suite_executed": false,
+      "real_calls_enabled": false,
+      "production_limits": [
+        "仅本地合成，不提供真实HTTP新路由、AliCti在线接入或DCC正式同步协议。",
+        "供应商实例身份映射、外部call与业务来源证明、双方版本冲突及后端并发占用/恢复/签名/ACK仍待核；本地确认不能证明生产双入口互斥。",
+        "保留SRC125104条旧AC作追溯，十条本轮影响项已有覆盖边界，未声称正式S1/G1/G2/G3或整版验收完成。"
+      ]
+    }
+  }
+}

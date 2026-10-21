@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-014",
+  "scenario_id": "SC-012",
+  "name": "业务分类字段配置接口来源及多车系关联时序草稿",
+  "status": "product_design_draft",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "具备既有分类／字段配置权限的管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "云外呼平台前端",
+      "kind": "system"
+    },
+    {
+      "id": "configuration",
+      "name": "平台内部配置服务",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "在当前租户及既有权限下新增本次意向字段，选择接口取数",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "按当前租户授权与条目启停状态读取可选接口字典",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回可供新增引用的字典名称及稳定内部标识",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "按自定义接口名称展示可用条目；门店提供关联车系字段勾选配置",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "operator",
+      "to": "frontend",
+      "message": "选择字典；门店勾选关联的多个车系字段，并分别设置所属分类车系与门店是否必填",
+      "type": "request",
+      "api_id": null,
+      "condition": "编辑分支；此时尚未保存"
+    },
+    {
+      "step": 6,
+      "from": "operator",
+      "to": "frontend",
+      "message": "取消本次字段配置",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交前选择取消；与后续提交分支互斥"
+    },
+    {
+      "step": 7,
+      "from": "frontend",
+      "to": "operator",
+      "message": "结束本次字段配置，不提交本次变更",
+      "type": "response",
+      "api_id": null,
+      "condition": "提交前取消分支"
+    },
+    {
+      "step": 8,
+      "from": "operator",
+      "to": "frontend",
+      "message": "提交本次接口字段与分类必填配置",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交分支；未选择提交前取消"
+    },
+    {
+      "step": 9,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "提交字典稳定标识引用、多车系字段关联及分别设置的分类必填规则",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交分支"
+    },
+    {
+      "step": 10,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "核对本次新增引用的可用性及字段配置，尝试按稳定标识保存引用与多字段关联",
+      "type": "internal",
+      "api_id": null,
+      "condition": "提交分支"
+    },
+    {
+      "step": 11,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回本次字段与分类配置保存成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "配置核对通过且保存成功"
+    },
+    {
+      "step": 12,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示配置成功；原计划到店字段、原历史数据保留",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次配置保存成功"
+    },
+    {
+      "step": 13,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回配置校验、保存失败或新增引用不可用的原因",
+      "type": "response",
+      "api_id": null,
+      "condition": "校验或保存失败或新增引用不可用；与保存成功互斥"
+    },
+    {
+      "step": 14,
+      "from": "frontend",
+      "to": "operator",
+      "message": "说明失败原因并保留本次编辑；无权或不可用条目不成为新增字段的有效引用",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次配置未成功"
+    }
+  ],
+  "source_story_ids": [
+    "US-015"
+  ],
+  "source_acceptance_ids": [
+    "AC-109",
+    "AC-110",
+    "AC-111",
+    "AC-120",
+    "AC-121",
+    "AC-124"
+  ],
+  "source_refs": [
+    "scenarios/SC-012.json",
+    "inputs/source-index.json#SRC-126",
+    "inputs/source-index.json#SRC-132",
+    "inputs/source-index.json#SRC-134",
+    "inputs/source-index.json#SRC-137",
+    "inputs/source-index.json#SRC-138",
+    "inputs/source-index.json#SRC-140",
+    "inputs/source-index.json#SRC-142",
+    "inputs/source-index.json#SRC-143",
+    "inputs/user-stories.md#SRC-145",
+    "inputs/user-stories.md#SRC-153"
+  ],
+  "notes": [
+    "产品设计草稿；用户仅例外批准继续时序与页面设计。关键接口及生产草稿契约仍开放，当前不构成需求冻结或开发交付。",
+    "参与者按逻辑职责划分；平台内部配置服务不表示已确定部署架构、内部端点或实际请求字段。所有内部请求api_id为null，不引用标记not_required的API-017。",
+    "消息序号是图示排序；带互斥条件的消息仅在对应分支发生，不能解释为全部消息顺序必然执行。取消为提交前分支，与提交后的成功、失败互斥。",
+    "本管理配置场景不查询NEV／ICE业务数据，不通过保存配置自动测试或证明外部接入成功。",
+    "配置时不查车系或门店业务数据。接口地址、鉴权、请求参数与返回映射由研发预置；管理员仅选取字典与关联字段。",
+    "关联多个车系字段不将任何单个车系或门店字段自动改为多选控件，也不统一强制两个字段必填。",
+    "历史引用失去可用性仍保留展示；新增引用有效性在本次保存核对时处理，不因仅展示名称而绕过租户或启停约束。",
+    "本时序不新增发布环节、关系维护表、技术参数编排，也不承诺生产草稿持久化。"
+  ]
+}

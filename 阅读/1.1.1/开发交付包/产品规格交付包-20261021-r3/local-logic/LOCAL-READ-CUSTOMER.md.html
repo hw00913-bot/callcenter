@@ -1,0 +1,95 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>产品规格交付包-20261021-r3/local-logic/LOCAL-READ-CUSTOMER.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../1.1.1/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E4%BA%A7%E5%93%81%E8%A7%84%E6%A0%BC%E4%BA%A4%E4%BB%98%E5%8C%85-20261021-r3/local-logic/LOCAL-READ-CUSTOMER.md">原始 Markdown</a></p><h1>产品规格交付包-20261021-r3/local-logic/LOCAL-READ-CUSTOMER.md</h1><pre># LOCAL-READ-CUSTOMER 沿原规则展示档案业务汇总及来源
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [查询单选接口车系并保存本次意向信息 · FUNC\-030](../features/FUNC-030.md)
+
+## 职责与触发
+
+所属工程模块：开发接手后确定
+
+功能：FUNC-030
+
+触发：有权人员打开客户档案及对应通话详情
+
+## 前置条件
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+## 必须遵守的全局规则
+
+- [BR-024](../global-logic.md#BR-024)
+- [BR-037](../global-logic.md#BR-037)
+- [BR-042](../global-logic.md#BR-042)
+
+## 输入与输出
+
+输入：[FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)、[FIELD-SAVED-BUSINESS-SNAPSHOT](../field-specs.md#FIELD-SAVED-BUSINESS-SNAPSHOT)、[FIELD-PLANNED-STORE](../field-specs.md#FIELD-PLANNED-STORE)、[FIELD-OTHER-BUSINESS-VALUES](../field-specs.md#FIELD-OTHER-BUSINESS-VALUES)、[FIELD-CATEGORY-ARCHIVE](../field-specs.md#FIELD-CATEGORY-ARCHIVE)
+
+输出：
+
+## 处理步骤
+
+### LOCAL-READ-CUSTOMER-STEP-1
+
+沿原档案权限与归并机制定位实际已保存记录
+
+读取：FIELD-CALL-CONTEXT, FIELD-SAVED-BUSINESS-SNAPSHOT；写入：无
+
+规则：BR-024, BR-037, BR-042
+
+### LOCAL-READ-CUSTOMER-STEP-2
+
+显示接口车系当时来源；原门店文本沿普通字段汇总，可进入原通话详情追溯
+
+读取：FIELD-SAVED-BUSINESS-SNAPSHOT, FIELD-PLANNED-STORE, FIELD-OTHER-BUSINESS-VALUES, FIELD-CATEGORY-ARCHIVE；写入：无
+
+规则：BR-024, BR-037, BR-042
+
+## 分支与异常
+
+### LOCAL-READ-CUSTOMER-BRANCH-1
+
+条件：本次文本为空或不同通次含不同字段
+
+结果：不新增空文本清除汇总或跨通配对逻辑，不把新车系和旧门店构造新一组意向
+
+涉及字段：FIELD-SAVED-BUSINESS-SNAPSHOT, FIELD-PLANNED-STORE
+
+验证：CHECK-138, CHECK-HISTORY-ISOLATION
+
+### LOCAL-READ-CUSTOMER-BRANCH-2
+
+条件：只存在归档库存但没有实际记录
+
+结果：不凭库存创建历史候选或扩大查看范围
+
+涉及字段：FIELD-CALL-CONTEXT, FIELD-CATEGORY-ARCHIVE
+
+验证：CHECK-148, CHECK-150
+
+## 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 字段定义
+
+- [FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)
+- [FIELD-CATEGORY-ARCHIVE](../field-specs.md#FIELD-CATEGORY-ARCHIVE)
+- [FIELD-OTHER-BUSINESS-VALUES](../field-specs.md#FIELD-OTHER-BUSINESS-VALUES)
+- [FIELD-PLANNED-STORE](../field-specs.md#FIELD-PLANNED-STORE)
+- [FIELD-SAVED-BUSINESS-SNAPSHOT](../field-specs.md#FIELD-SAVED-BUSINESS-SNAPSHOT)
+
+## 来源与验证
+
+来源条目：acceptance:AC-138, acceptance:AC-148, acceptance:AC-150, documents:outputs~1menu-and-page-planning-reference.md, documents:outputs~1page-structure-atlas.html, documents:planning~1page-index.json, features:FUNC-030, features:FUNC-030/boundary/business_rules/0, features:FUNC-030/boundary/business_rules/1, features:FUNC-030/boundary/business_rules/10, features:FUNC-030/boundary/business_rules/11, features:FUNC-030/boundary/business_rules/2, features:FUNC-030/boundary/business_rules/3, features:FUNC-030/boundary/business_rules/4, features:FUNC-030/boundary/business_rules/5, features:FUNC-030/boundary/business_rules/6, features:FUNC-030/boundary/business_rules/7, features:FUNC-030/boundary/business_rules/8, features:FUNC-030/boundary/business_rules/9, features:FUNC-030/boundary/exception_paths/0, features:FUNC-030/boundary/exception_paths/1, features:FUNC-030/boundary/exception_paths/2, features:FUNC-030/boundary/exception_paths/3, flows:FLOW-006, flows:FLOW-006/steps/0, flows:FLOW-006/steps/1, flows:FLOW-006/steps/2, flows:FLOW-006/steps/3, flows:FLOW-006/steps/4, flows:FLOW-006/steps/5, flows:FLOW-006/steps/6, interfaces:API-018, pages:PAGE-010, pages:PAGE-010/fields/0, pages:PAGE-010/fields/1, pages:PAGE-010/fields/2, rules:BR-024, rules:BR-037, rules:BR-042, stories:US-016, stories:US-016/preconditions/0
+
+验证：CHECK-138, CHECK-148, CHECK-150, CHECK-HISTORY-ISOLATION
+
+## 实施任务
+
+未声明；请结合范围说明核对。
+</pre></body></html>

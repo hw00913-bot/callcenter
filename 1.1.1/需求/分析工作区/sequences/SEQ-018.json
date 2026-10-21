@@ -1,0 +1,341 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-018",
+  "scenario_id": "SC-016",
+  "name": "分类逻辑删除及旧业务归档继续时序草稿",
+  "status": "product_design_draft_G2_pending",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "本租户业务配置管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "云外呼平台前端",
+      "kind": "system"
+    },
+    {
+      "id": "configuration",
+      "name": "平台内部配置与引用核对",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "在业务分类Tab发起分类逻辑删除",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "核对原本租户权限，读取分类/字段/refs并准备归档、已有使用影响",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回已有使用的保留说明，或无权/无法可靠准备归档原因",
+      "type": "response",
+      "api_id": null,
+      "condition": "无权/无法归档时拒绝，或展示已有使用的保留影响；不因旧业务使用禁删"
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "仅无权/归档无法确认时拒绝；旧业务引用展示保留影响但不禁删",
+      "type": "response",
+      "api_id": null,
+      "condition": "无权/无法归档时拒绝，或展示已有使用的保留影响；不因旧业务使用禁删"
+    },
+    {
+      "step": 5,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回可逻辑删除目标及原分类/字段归档影响",
+      "type": "response",
+      "api_id": null,
+      "condition": "权限有效且归档可准备，无论是否已有业务引用"
+    },
+    {
+      "step": 6,
+      "from": "frontend",
+      "to": "operator",
+      "message": "确认退出新业务选择，历史和旧名单任务继续",
+      "type": "response",
+      "api_id": null,
+      "condition": "权限有效且归档可准备，无论是否已有业务引用"
+    },
+    {
+      "step": 7,
+      "from": "operator",
+      "to": "frontend",
+      "message": "取消本次逻辑删除",
+      "type": "request",
+      "api_id": null,
+      "condition": "确认前取消"
+    },
+    {
+      "step": 8,
+      "from": "frontend",
+      "to": "operator",
+      "message": "保留原分类/数据/草稿，不提交",
+      "type": "response",
+      "api_id": null,
+      "condition": "取消分支"
+    },
+    {
+      "step": 9,
+      "from": "operator",
+      "to": "frontend",
+      "message": "明确确认分类逻辑删除并保旧业务",
+      "type": "request",
+      "api_id": null,
+      "condition": "确认且未取消"
+    },
+    {
+      "step": 10,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "重查身份/配置版本并提交归档和deleted标记",
+      "type": "request",
+      "api_id": null,
+      "condition": "确认提交"
+    },
+    {
+      "step": 11,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "原子保存分类名称/字段/refs归档及deleted状态，不清已有业务",
+      "type": "internal",
+      "api_id": null,
+      "condition": "确认及权限/目标版本复核通过"
+    },
+    {
+      "step": 12,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回逻辑删除成功及稳定分类标识",
+      "type": "response",
+      "api_id": null,
+      "condition": "归档和deleted标记原子保存成功"
+    },
+    {
+      "step": 13,
+      "from": "frontend",
+      "to": "operator",
+      "message": "列表/新业务选择移除；旧历史/任务按归档及本通原版继续",
+      "type": "response",
+      "api_id": null,
+      "condition": "归档和deleted标记原子保存成功"
+    },
+    {
+      "step": 14,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回权限/目标版本变化或归档保存失败",
+      "type": "response",
+      "api_id": null,
+      "condition": "未完成逻辑删除：权限/版本/归档读取或保存失败"
+    },
+    {
+      "step": 15,
+      "from": "frontend",
+      "to": "operator",
+      "message": "明确未完成逻辑删除，原分类/数据/草稿保留",
+      "type": "response",
+      "api_id": null,
+      "condition": "未完成逻辑删除：权限/版本/归档读取或保存失败"
+    }
+  ],
+  "source_story_ids": [
+    "US-022"
+  ],
+  "source_acceptance_ids": [
+    "AC-147",
+    "AC-148",
+    "AC-149",
+    "AC-150"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-172",
+    "inputs/user-stories.md#SRC-173",
+    "inputs/user-stories.md#SRC-174",
+    "inputs/user-stories.md#SRC-175",
+    "inputs/user-stories.md#SRC-176",
+    "scenarios/SC-016.json",
+    "inputs/user-stories.md#SRC-177"
+  ],
+  "notes": [
+    "平台内部配置逻辑删除，无新增外部API；所有api_id=null，不编造生产端点/协议。",
+    "归档原分类/fields/refs并移除新业务选择是FUNC033同一删除结果；已有记录/任务继续处理不是新功能或迁移。",
+    "历史/active引用不拦category逻辑删；权限、目标版本和可靠归档/原子保存仍前置，失败保留。",
+    "旧记录保当时分类名/字段结果；旧名单任务继续，本通及话后原版；新建/新导入禁止deleted，field删除与完整业务快照解耦，interface所需来源仍受原规则保护。",
+    "无恢复/清理/迁移UI；G2/G3及真实Mapping/生产草稿缺口保持。"
+  ],
+  "change_history": [
+    {
+      "at": "2026-10-20T16:55:50+08:00",
+      "reason": "SRC177用户接受仅业务分类逻辑删除；新业务不可选，归档分类字段/refs保历史、已有名单任务及本通继续，字段/接口原物理删除保护不变。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-177"
+      ],
+      "previous_values": {
+        "name": "删除未使用业务分类时序草稿",
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "在业务分类的目标Tab选择并发起删除业务分类",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "读取并核对当前权限、目标和实际使用引用",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回引用/本通来源保留位置或无法确认的原因",
+            "type": "response",
+            "api_id": null,
+            "condition": "存在使用或无法确认"
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "拒绝删除并说明位置，原对象/草稿保留",
+            "type": "response",
+            "api_id": null,
+            "condition": "存在使用或无法确认"
+          },
+          {
+            "step": 5,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回可删除目标及确认影响",
+            "type": "response",
+            "api_id": null,
+            "condition": "已确认未使用"
+          },
+          {
+            "step": 6,
+            "from": "frontend",
+            "to": "operator",
+            "message": "显示仅删除目标、不级联的确认",
+            "type": "response",
+            "api_id": null,
+            "condition": "已确认未使用"
+          },
+          {
+            "step": 7,
+            "from": "operator",
+            "to": "frontend",
+            "message": "取消本次删除",
+            "type": "request",
+            "api_id": null,
+            "condition": "确认前取消"
+          },
+          {
+            "step": 8,
+            "from": "frontend",
+            "to": "operator",
+            "message": "保留对象，不提交删除",
+            "type": "response",
+            "api_id": null,
+            "condition": "取消分支"
+          },
+          {
+            "step": 9,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确确认删除目标",
+            "type": "request",
+            "api_id": null,
+            "condition": "确认且未取消"
+          },
+          {
+            "step": 10,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "提交删除并复核身份、权限和当前引用",
+            "type": "request",
+            "api_id": null,
+            "condition": "确认提交"
+          },
+          {
+            "step": 11,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "仅当仍未使用时持久删除目标，不改通话/历史/其他对象",
+            "type": "internal",
+            "api_id": null,
+            "condition": "复核通过"
+          },
+          {
+            "step": 12,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回删除成功及目标标识",
+            "type": "response",
+            "api_id": null,
+            "condition": "删除保存成功"
+          },
+          {
+            "step": 13,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈成功，更新列表并保持刷新不补默认",
+            "type": "response",
+            "api_id": null,
+            "condition": "删除保存成功"
+          },
+          {
+            "step": 14,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回引用变化/权限失效/读取不明/保存失败",
+            "type": "response",
+            "api_id": null,
+            "condition": "未完成删除"
+          },
+          {
+            "step": 15,
+            "from": "frontend",
+            "to": "operator",
+            "message": "明确未删除，原对象和其他草稿保留",
+            "type": "response",
+            "api_id": null,
+            "condition": "未完成删除"
+          }
+        ],
+        "notes": [
+          "仅平台内部逻辑职责，不声明真实内部endpoint、鉴权或新增外部API；全部api_id为null。",
+          "引用核对/确认/复核/失败保留是删除操作明细；三对象分别对应FUNC031/032/033。",
+          "原通话版本和历史快照只读保留，不以整库库存误判实际使用；来源保留延续到话后保存完成。",
+          "用户直接范围已授权；时序/页面只是延续SRC155独立模拟设计草稿，G2/G3未批准。"
+        ]
+      }
+    }
+  ]
+}

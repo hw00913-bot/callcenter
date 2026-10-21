@@ -1,0 +1,19 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>来源快照/outputs/system-sequence-interface-verification-matrix.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../1.1.1/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E6%9D%A5%E6%BA%90%E5%BF%AB%E7%85%A7/outputs/system-sequence-interface-verification-matrix.md">原始 Markdown</a></p><h1>来源快照/outputs/system-sequence-interface-verification-matrix.md</h1><pre># 系统时序接口核验矩阵
+
+&gt; 项目：云外呼平台 v1.1.1 业务数据接口字典与字段取数联动  
+&gt; 生成时间：2026-10-21T10:24:29+08:00  
+&gt; 本文档由结构化事实源自动汇编。
+
+S4 先按业务场景核验接口；S5 再回填实际时序引用。关联时序为空不代表不需要接口。
+
+| ID | 接口/事件 | 提供方 | 来源场景 | 关联时序 | 核验状态 | 认证 | 超时 | 幂等 | 限流 | 来源 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| API-015 | Mapping车系编码查询 | Mapping车系编码映射服务（用户文档v1.1，Wiki partial） | SC-013 | SEQ-015 | partial | 文档声明无需鉴权，operator可选默认nissan且不校验身份；部署访问与租户数据边界未在线核验，operator不能当认证凭证。 | unknown | 只读GET；重试/缓存约定未核验 | unknown | inputs/user-stories.md#SRC-167、inputs/source-index.json#SRC-168、inputs/wiki-context/mapping-car-series-current-20261019.json |
+| API-016 | 外部DCC门店候选查询（本期暂缓，保留候选资料） | DCC业务系统门店信息接口（候选；权威范围和接入待核） | SC-013 | — | not_required | — | — | — | — | inputs/source-index.json#SRC-130、inputs/user-stories.md#SRC-137、inputs/user-stories.md#SRC-138、inputs/user-stories.md#SRC-146、inputs/user-stories.md#SRC-147、inputs/user-stories.md#SRC-148、inputs/user-stories.md#SRC-149、inputs/user-stories.md#SRC-151、inputs/user-stories.md#SRC-156、inputs/user-stories.md#SRC-158、inputs/source-index.json#SRC-163、inputs/source-index.json#SRC-164、inputs/interface-documents/dcc-store-contract-v2.md、inputs/wiki-context/dcc-interface-v2-current-20261019.md、inputs/user-stories.md#SRC-165、inputs/user-stories.md#SRC-167、inputs/source-index.json#SRC-168、inputs/user-stories.md#SRC-169 |
+| API-017 | 平台内部字典、字段与分类配置（无需外部查询） | 云外呼平台内部配置 | SC-008、SC-009、SC-010、SC-011、SC-012 | — | not_required | — | — | — | — | inputs/user-stories.md#SRC-139、inputs/user-stories.md#SRC-142、inputs/user-stories.md#SRC-145、inputs/user-stories.md#SRC-150、inputs/user-stories.md#SRC-158、inputs/user-stories.md#SRC-165、inputs/user-stories.md#SRC-167、inputs/source-index.json#SRC-168、inputs/user-stories.md#SRC-169 |
+| API-018 | 平台内部配置及本次填写保存（复用现有机制） | 平台既有自定义字段、分类与跟进保存机制；新增通用配置由平台研发实现 | SC-008、SC-009、SC-010、SC-011、SC-012、SC-013 | — | not_required | — | — | — | — | inputs/source-index.json#SRC-144、inputs/user-stories.md#SRC-143、inputs/user-stories.md#SRC-140、inputs/user-stories.md#SRC-148、inputs/user-stories.md#SRC-149、inputs/source-index.json#SRC-152、inputs/user-stories.md#SRC-156、inputs/user-stories.md#SRC-157、inputs/user-stories.md#SRC-158、inputs/user-stories.md#SRC-165、inputs/user-stories.md#SRC-166、inputs/user-stories.md#SRC-167、inputs/source-index.json#SRC-168、inputs/user-stories.md#SRC-169 |
+
+## 待处理缺口
+
+- **API-015 · Mapping车系编码查询**：partial；SRC167恢复本期车系接口；原/organization/car-series/list候选移至本条change_history，仅追溯，不混用ID。、当前文档为Mapping模块，不能从页面相关链接认定DCC或其他服务同源；关系映射仅未来门店联动再核。、默认media_id10/car_state1始终过滤，brand_id/is_nev_car_type_flag首期不传；s.is_enable=1且须媒体映射，不代表所有车系或当前租户全部。、状态0保留，0/1/2无业务名称映射；不补在售等枚举。、裸JSON数组无分页包装；不套result/rows或page/perPage，不伪造服务端搜索入参。、文档未保证排序、唯一性或多行合并；相同记录可去重，相同官方ID不同名称/媒体ID先提示冲突。、无环境地址、未实际请求；结构模拟不等于运行验证。
+</pre></body></html>

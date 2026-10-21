@@ -1,0 +1,1756 @@
+{
+  "schema_version": "1.0",
+  "business_rules": [
+    {
+      "id": "BR-001",
+      "name": "租户接入",
+      "statement": "应用凭证+tenantId换取租户token；业务请求由token识别租户，任务归租户；应用只留来源追踪，凭据时效与真实接口未定。 超管可独立建立/维护应用用于该用途，日常应用页只表达密钥获取token；普通修改保留appId/密钥，删除使该应用不再获取新身份，合成已发身份失效，业务任务/记录及来源审计保留。生产密钥算法/存储/管理API/token时效和已发真实token失效机制仍未核验。",
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-005"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-028",
+        "inputs/source-index.json#SRC-029",
+        "inputs/source-index.json#SRC-030",
+        "inputs/source-index.json#SRC-031",
+        "inputs/source-index.json#SRC-032",
+        "inputs/source-index.json#SRC-033",
+        "inputs/source-index.json#SRC-034",
+        "inputs/source-index.json#SRC-035",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-087",
+        "inputs/source-index.json#SRC-088"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": {
+            "statement": "应用凭证+tenantId换取租户token；业务请求由token识别租户，任务归租户；应用只留来源追踪，凭据时效与真实接口未定。",
+            "source_scenario_ids": [
+              "SC-001"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-028",
+            "inputs/source-index.json#SRC-029",
+            "inputs/source-index.json#SRC-030",
+            "inputs/source-index.json#SRC-031",
+            "inputs/source-index.json#SRC-032",
+            "inputs/source-index.json#SRC-033",
+            "inputs/source-index.json#SRC-034",
+            "inputs/source-index.json#SRC-035",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-088",
+          "reason": "SRC-087用户明确应用列表/新增/详情/修改/删除、简化密钥用于token及常驻预外呼导入，并授权修复已发现问题；SRC-088要求回归需求与原型后再进入下一阶段。本轮补可判定事实，保留旧主子/鉴权/供应商缺口；合成原型证据不构成生产接口验证或正式批准。"
+        }
+      ]
+    },
+    {
+      "id": "BR-002",
+      "name": "逐行单号拆批",
+      "statement": "有效新业务逐行新record和单手机号batch，不覆盖旧记录。DCC请求级requestId可多行，真重导用新ID；逐行isNewBatch可选Boolean、missing=false，同组固定phone保存root；true新主，false/缺省有主新子挂最近已保存同组主、无主auto首主，复用主关联仍新业务编号。同ID同归一完整有效内容返原逐行结果不新建重交，异内容拒整个重复请求；新请求失败行不回滚有效行。手工按原字段/提交前最终priority独立拆批，不新增DCCflag/request/归组协议。",
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-002",
+        "inputs/source-index.json#SRC-003",
+        "inputs/source-index.json#SRC-005",
+        "inputs/source-index.json#SRC-015",
+        "inputs/source-index.json#SRC-016",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": {
+            "statement": "有效业务推送逐行新增本地记录及单手机号新批次，不覆盖旧记录；技术重传幂等未定。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-002",
+            "inputs/source-index.json#SRC-003",
+            "inputs/source-index.json#SRC-005",
+            "inputs/source-index.json#SRC-015",
+            "inputs/source-index.json#SRC-016",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "有效业务导入逐行新增本地记录及单手机号新批次，不覆盖旧记录。DCC每次业务导入请求携请求级requestId，可含多行；真实重导使用新requestId，各行分别携可选previousBatchId。相同requestId与完整请求内容的技术重试复用已保存逐行结果和映射，不新增/不重交；同ID异内容明确冲突拒绝重复请求。新请求内逐行校验失败不回滚其他有效行。 DCC请求级幂等和父批次协议不新增给手工；手工按既有逐行校验、本次提交前最终priority独立拆批。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-002",
+            "inputs/source-index.json#SRC-003",
+            "inputs/source-index.json#SRC-005",
+            "inputs/source-index.json#SRC-015",
+            "inputs/source-index.json#SRC-016",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-003",
+      "name": "必填字段与独立优先级",
+      "statement": "接口与手工R可选来源元数据，无字典维护/范围校验；缺R不失败，提供则保留且不删除旧值。priority独立必填，不补默认、不由R推导；taskId为供应商任务。接口按本次DCC提供的有效priority保存与透传，不继承旧priority、不按日期衰减；手工沿提交前逐条最终值。生产类型/长度/数值范围仍由开发核实。 DCC接口每行可选Boolean isNewBatch，未传等同false且归一参与完整有效请求幂等比较，非Boolean不当false；手工不新增该字段。",
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-003",
+        "inputs/source-index.json#SRC-004",
+        "inputs/source-index.json#SRC-011",
+        "inputs/source-index.json#SRC-012",
+        "inputs/source-index.json#SRC-013",
+        "inputs/source-index.json#SRC-018",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-062",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": "线索类R渠道取自维护字典且必填，priority独立必填，不补默认、不由R编号推导；taskId直接为供应商任务。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-003",
+            "inputs/source-index.json#SRC-004",
+            "inputs/source-index.json#SRC-011",
+            "inputs/source-index.json#SRC-012",
+            "inputs/source-index.json#SRC-013",
+            "inputs/source-index.json#SRC-018",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-062"
+        },
+        {
+          "before": {
+            "statement": "接口与手工R可选来源元数据，缺R不失败，无字典维护/范围校验；提供则保留追踪且旧记录值保留。priority独立必填，不补默认，不由R推导；taskId为供应商任务。通用输入安全/长度校验待技术定义。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-003",
+            "inputs/source-index.json#SRC-004",
+            "inputs/source-index.json#SRC-011",
+            "inputs/source-index.json#SRC-012",
+            "inputs/source-index.json#SRC-013",
+            "inputs/source-index.json#SRC-018",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-062"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "接口与手工R可选来源元数据，无字典维护/范围校验；缺R不失败，提供则保留且不删除旧值。priority独立必填，不补默认、不由R推导；taskId为供应商任务。接口按本次DCC提供的有效priority保存与透传，不继承旧priority、不按日期衰减；手工沿提交前逐条最终值。生产类型/长度/数值范围仍由开发核实。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-003",
+            "inputs/source-index.json#SRC-004",
+            "inputs/source-index.json#SRC-011",
+            "inputs/source-index.json#SRC-012",
+            "inputs/source-index.json#SRC-013",
+            "inputs/source-index.json#SRC-018",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-062",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-004",
+      "name": "自动提交与明确拒绝",
+      "statement": "DCC鉴权及租户/原任务归属后，以missing isNewBatch=false归一后的完整有效请求核对requestId；同ID同内容返原逐行record/batch/root，不重拆重交，异内容拒整个重复请求。仅新ID逐行校验固定phone组和主子规则，改号/归属冲突/历史组或主不明不提交，其他有效行继续；旧请求重传不因后有新主重新选root。手工原校验/最终priority保存独立记录批次，不新增DCC接口协议。有效新业务保存后自动提交供应商，明确拒绝失败导出且保留，未知不当拒绝、不自动重交，已提交不撤回重排。",
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-014",
+        "inputs/source-index.json#SRC-017",
+        "inputs/source-index.json#SRC-019",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": {
+            "statement": "保存记录和拆批后自动提交供应商；明确拒绝进入失败导出并保留已保存记录；未知超时不等于拒绝，不自动重试。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-014",
+            "inputs/source-index.json#SRC-017",
+            "inputs/source-index.json#SRC-019",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "DCC接口先完成鉴权及请求级requestId与完整内容的幂等核对；同ID同内容返回已保存逐行结果/映射，不重拆/不重交，同ID异内容拒绝整个重复请求。DCC新业务请求才进入逐行历史父校验，已知组合缺父或父不明的行不提交，其他有效行继续；首次原请求重传不因出现历史误拒。手工导入不要求DCC requestId或父链协议，按既有逐行字段校验和提交前最终priority保存独立记录/单号批次。两种来源的有效新业务均自动提交供应商，明确拒绝入失败导出且本地保留，未知不当拒绝、不自动重交；已提交不撤回重排。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-014",
+            "inputs/source-index.json#SRC-017",
+            "inputs/source-index.json#SRC-019",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-005",
+      "name": "失败导出生命周期",
+      "statement": "接口和手工导入失败均适用：未成功下载不固定到期；成功下载后只删除本次导出明细/文件，失败中断保留，成功业务记录不受影响；真实下载成功信号待核。",
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-006",
+        "inputs/source-index.json#SRC-007",
+        "inputs/source-index.json#SRC-008",
+        "inputs/source-index.json#SRC-009",
+        "inputs/source-index.json#SRC-010",
+        "inputs/source-index.json#SRC-011",
+        "inputs/source-index.json#SRC-056"
+      ],
+      "status": "confirmed_business_requirement"
+    },
+    {
+      "id": "BR-006",
+      "name": "取消平台每日跟进与衰减边界",
+      "statement": "平台取消每日状态查询、自然日priority衰减及派生存量改写，仅服务衰减的获取退出且不改独立人工查询。本次priority不因未拨/未接通/跨日/原导入日/旧批值改变，原时间审计，DCC决定本次导入及priority；同组主子不恢复每日策略。手工保留提交前最终priority和独立拆批，不新增DCCflag/request/归组主子协议。",
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-020",
+        "inputs/source-index.json#SRC-021",
+        "inputs/source-index.json#SRC-022",
+        "inputs/source-index.json#SRC-023",
+        "inputs/source-index.json#SRC-024",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": {
+            "statement": "每日查询当天和历史待跟进批次；未拨及已拨未接通按原导入自然日期每天减1，最低1，供应商已删除除外。自然日按北京时间；每日运行时刻未定。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-020",
+            "inputs/source-index.json#SRC-021",
+            "inputs/source-index.json#SRC-022",
+            "inputs/source-index.json#SRC-023",
+            "inputs/source-index.json#SRC-024",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "name": "自然日降级"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-020",
+            "inputs/source-index.json#SRC-021",
+            "inputs/source-index.json#SRC-022",
+            "inputs/source-index.json#SRC-023",
+            "inputs/source-index.json#SRC-024",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "平台取消全部每日状态查询、自然日priority衰减及由其派生的存量priority改写；仅服务衰减的状态获取一并退出，不改为新增独立人工查询功能。本次priority不因未拨/未接通、跨日、原导入时间或旧批次priority自动改变；原导入时间仅作审计历史，DCC决策本次业务导入及其priority。 手工仅取消每日自动衰减，既有提交前最终priority和独立拆批保持，不新增DCC请求或父链协议。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-020",
+            "inputs/source-index.json#SRC-021",
+            "inputs/source-index.json#SRC-022",
+            "inputs/source-index.json#SRC-023",
+            "inputs/source-index.json#SRC-024",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-007",
+      "name": "定向删除保留本地",
+      "statement": "删除仅指定原任务具体供应商批次号码，明确成功后本地记录、必要幂等/固定phone组/主子root/精确供应商通话映射保留并回传状态；失败未知不标已删。不按leadCode/主批/组整体删除，不作用其他主子或同号记录。无每日衰减/平台重导计划，执行中并发精准删除仍待核。 切换删除目标或结果样例清旧反馈，不抹对应旧对象已保存证据、不把旧反馈当当前结果。",
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-004"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-025",
+        "inputs/source-index.json#SRC-026",
+        "inputs/source-index.json#SRC-027",
+        "inputs/source-index.json#SRC-048",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086",
+        "inputs/source-index.json#SRC-087",
+        "inputs/source-index.json#SRC-088"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": "指定供应商任务/批次/手机号删除，成功后本地标记且保留记录，停降级并取消该记录待执行重呼，不作用其他同号记录。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-025",
+            "inputs/source-index.json#SRC-026",
+            "inputs/source-index.json#SRC-027",
+            "inputs/source-index.json#SRC-048",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-063～070",
+          "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+        },
+        {
+          "before": {
+            "statement": "指定供应商记录删除成功后本地保留并停止priority降级，回传删除状态；平台无待执行重导计划，供应商执行中/并发删除由开发核实，不作用其他同号记录。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-025",
+            "inputs/source-index.json#SRC-026",
+            "inputs/source-index.json#SRC-027",
+            "inputs/source-index.json#SRC-048",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "指定原任务具体供应商批次号码明确删除成功后，本地记录与必要幂等/父根关联保留，回传删除状态；失败或未知不标已删，不作用其他同号记录。平台无每日衰减或待执行重导计划；供应商执行中/并发删除能力仍由开发核实。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-025",
+            "inputs/source-index.json#SRC-026",
+            "inputs/source-index.json#SRC-027",
+            "inputs/source-index.json#SRC-048",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        },
+        {
+          "before": {
+            "statement": "删除仅指定原任务具体供应商批次号码，明确成功后本地记录、必要幂等/固定phone组/主子root/精确供应商通话映射保留并回传状态；失败未知不标已删。不按leadCode/主批/组整体删除，不作用其他主子或同号记录。无每日衰减/平台重导计划，执行中并发精准删除仍待核。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-025",
+            "inputs/source-index.json#SRC-026",
+            "inputs/source-index.json#SRC-027",
+            "inputs/source-index.json#SRC-048",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-083",
+            "inputs/source-index.json#SRC-084",
+            "inputs/source-index.json#SRC-085",
+            "inputs/source-index.json#SRC-086"
+          ],
+          "superseded_by": "SRC-088",
+          "reason": "SRC-087用户明确应用列表/新增/详情/修改/删除、简化密钥用于token及常驻预外呼导入，并授权修复已发现问题；SRC-088要求回归需求与原型后再进入下一阶段。本轮补可判定事实，保留旧主子/鉴权/供应商缺口；合成原型证据不构成生产接口验证或正式批准。"
+        }
+      ]
+    },
+    {
+      "id": "BR-008",
+      "name": "线路侧结果回传",
+      "statement": "关联线路侧风控的每次话单/SIP及结果；接口任务回传DCC，由DCC决定是否再次导入。供应商导航可能自动降级，不承诺绝对换主叫，不叠加平台重导。 未可信纯SIP单独保留待核来源，不改原call业务结果或冒充可信非SIP冲突；无其他真实矛盾时，随后可信精准call/SIP在同一对象正常更新，无新增实际呼叫。",
+      "source_scenario_ids": [
+        "SC-002"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-036",
+        "inputs/source-index.json#SRC-037",
+        "inputs/source-index.json#SRC-038",
+        "inputs/source-index.json#SRC-039",
+        "inputs/source-index.json#SRC-040",
+        "inputs/source-index.json#SRC-041",
+        "inputs/source-index.json#SRC-042",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-087",
+        "inputs/source-index.json#SRC-088"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": "供应商线路风控结果后从平台收到并识别对应结果开始等待30分钟，同线索重提，由供应商另选主叫号；被叫不变，首次不计，额外最多5次。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-036",
+            "inputs/source-index.json#SRC-037",
+            "inputs/source-index.json#SRC-038",
+            "inputs/source-index.json#SRC-039",
+            "inputs/source-index.json#SRC-040",
+            "inputs/source-index.json#SRC-041",
+            "inputs/source-index.json#SRC-042",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-063～070",
+          "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+        },
+        {
+          "before": {
+            "statement": "关联线路侧风控的每次话单/SIP及结果；接口任务回传DCC，由DCC决定是否再次导入。供应商导航可能自动降级，不承诺绝对换主叫，不叠加平台重导。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-036",
+            "inputs/source-index.json#SRC-037",
+            "inputs/source-index.json#SRC-038",
+            "inputs/source-index.json#SRC-039",
+            "inputs/source-index.json#SRC-040",
+            "inputs/source-index.json#SRC-041",
+            "inputs/source-index.json#SRC-042",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070"
+          ],
+          "superseded_by": "SRC-088",
+          "reason": "SRC-087用户明确应用列表/新增/详情/修改/删除、简化密钥用于token及常驻预外呼导入，并授权修复已发现问题；SRC-088要求回归需求与原型后再进入下一阶段。本轮补可判定事实，保留旧主子/鉴权/供应商缺口；合成原型证据不构成生产接口验证或正式批准。"
+        }
+      ]
+    },
+    {
+      "id": "BR-009",
+      "name": "无话单失败回传",
+      "statement": "可信且准确关联的预测呼叫失败事件回传原因，无话单失败不等待客户状态推送/话单；精确事件编号与原因映射待核。；禁呼未解禁、限呼未到期及无可用中继失败回传真实原因，由DCC判断恢复条件与重导，不绕过限制、不在平台设置自动恢复或重导预算。",
+      "source_scenario_ids": [
+        "SC-003"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-043",
+        "inputs/source-index.json#SRC-044",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": "限制解除或满足供应商允许条件后的后续重提仍待核实；当前仅暂停展示原因，无恢复入口。不承诺次数，不继承线路/秒挂参数。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-043",
+            "inputs/source-index.json#SRC-044",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-063～070",
+          "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+        }
+      ]
+    },
+    {
+      "id": "BR-010",
+      "name": "秒挂判定",
+      "statement": "确认客户已接听、客户挂断且真实时长0～2秒（含0/2），纳入秒挂；未接通/缺失/异常不纳。供应商枚举和字段单位待核。",
+      "source_scenario_ids": [
+        "SC-004"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-045",
+        "inputs/source-index.json#SRC-056"
+      ],
+      "status": "confirmed_business_requirement"
+    },
+    {
+      "id": "BR-011",
+      "name": "秒挂识别结果职责",
+      "statement": "秒挂是否/何时重导及次数由DCC决策，原30分钟业务上下文不形成平台计时器；不再发放独立额外4次。",
+      "source_scenario_ids": [
+        "SC-004"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-046",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": "秒挂从平台收到并识别对应结果开始等待30分钟提交，首次不计，单类额外4次；明确拒绝/重复通知不计新实际呼叫；无法确认的结果待核暂停。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-046",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-063～070",
+          "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+        }
+      ]
+    },
+    {
+      "id": "BR-012",
+      "name": "线索归组与主子批次追溯",
+      "statement": "仅DCC接口按tenant/原supplierTaskId/leadCode固定phone归组，首次有效绑定phone，后续仅同phone；跨tenant/原任务隔离，不混组。新业务请求新requestId，可多行，每有效新行新recordId和单手机号batchId；逐行可选Boolean isNewBatch、missing=false，true可同组另开独立主(root=batch)，false/缺省有主新子root=最近已保存同组主batch，无主自动首主(root=batch)。最近主按本地主批创建顺序/稳定顺序，不按最近同号/结果时间/priority/子批，子不挂上一子。DCC不必传previousBatchId/parentBatchId且不虚构parent，root必须保存回执。先鉴权/归一后完整请求幂等，同ID同内容优先原逐行结果/映射不新建重交，异内容拒整重复；后来新主不改旧请求root。改号/归属冲突/历史组或主不明拒绝或待核不提交，多lead同phone未决不放开。本次priority不旧继承，原时间审计；每次结果依精确vendorfileId/实际batch/原始号码/call事件而非leadCode单键。DCC计次不因主子改变，手工不新增此接口协议。",
+      "source_scenario_ids": [
+        "SC-002",
+        "SC-004"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-038",
+        "inputs/source-index.json#SRC-039",
+        "inputs/source-index.json#SRC-040",
+        "inputs/source-index.json#SRC-041",
+        "inputs/source-index.json#SRC-042",
+        "inputs/source-index.json#SRC-047",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": "原任务关联新批次，重呼次数按原始导入链累计不清零，继承原始导入日期与当前priority；新批次有实际创建时间。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-038",
+            "inputs/source-index.json#SRC-039",
+            "inputs/source-index.json#SRC-040",
+            "inputs/source-index.json#SRC-041",
+            "inputs/source-index.json#SRC-042",
+            "inputs/source-index.json#SRC-047",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-063～070",
+          "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+        },
+        {
+          "before": {
+            "statement": "DCC同线索再次推送沿用原任务、生成关联新批次，继承原导入日期和当前priority；平台不自建重呼额度，DCC汇总计数。；每次结果附租户、任务、线索编码、手机号、导入批次与实际通话/事件关联；无供应商leadCode时回查本地映射，同线索新批次不截断追溯。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-038",
+            "inputs/source-index.json#SRC-039",
+            "inputs/source-index.json#SRC-040",
+            "inputs/source-index.json#SRC-041",
+            "inputs/source-index.json#SRC-042",
+            "inputs/source-index.json#SRC-047",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "name": "导入链追溯",
+            "statement": "DCC真实再次业务导入沿用原供应商任务，使用新请求级requestId，各行提供本次priority与对应previousBatchId。先鉴权/请求级幂等，技术重传返回原逐行映射；对新业务请求，已知tenant/原任务/leadCode/phone组合已有历史的行必须提供父，缺父关联待核或拒绝且不提交，不猜最近同号或另建新根。仅无既有链且无其他未决业务歧义的首次组合可无父，parent=null、root=self；明确父由租户/原任务/leadCode/phone精确匹配唯一已确认链，平台创建新batchId、推导parentBatchId/rootBatchId并按requestId+行定位逐行回执。父不存在、多候选、父链未确认或归属/线索/号码冲突不提交；改号/同号多线索等既有歧义仍待核，不新增importType或独立开链能力。本次priority按DCC输入不继承旧值，原时间仅审计；每次结果关联请求/行及当前/根批次与真实通话/事件，DCC汇总计数，平台不建额度。",
+            "notes": null
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-038",
+            "inputs/source-index.json#SRC-039",
+            "inputs/source-index.json#SRC-040",
+            "inputs/source-index.json#SRC-041",
+            "inputs/source-index.json#SRC-042",
+            "inputs/source-index.json#SRC-047",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ],
+      "notes": [
+        "SRC-084～086：仅DCC接口采用同tenant/原supplierTaskId/leadCode固定phone归组及主子规则；逐行isNewBatch可选Boolean、missing=false，DCC不必提供previousBatchId/parentBatchId，平台保存并返回rootBatchId，不虚构parent。请求级归一后幂等先于新业务归组/主子分配。真实认证、技术key命名空间/作用域、行定位类型、完整有效内容规范化、主批创建稳定顺序及并发原子性、持久化/保留期、ACK、供应商同号重导/排重/执行中并行、未知提交核查仍待开发落实，不提升partial/missing为真实verified，不新增先删或等finishRetryFlag策略。手工不新增DCCflag/request/归组接口协议。"
+      ]
+    },
+    {
+      "id": "BR-013",
+      "name": "DCC统一业务计数",
+      "statement": "三天五呼及重导次数由DCC管理，单任务范围，初呼及秒挂同计5次目标，首次导入当日第1天；普通双方接通停止但秒挂例外。平台不重复调度计数。；初呼与秒挂共用单任务5次目标，由DCC按真实尝试汇总；重新导入请求或重复通知不直接计实际呼叫，平台不新增业务额度。 SRC-084～086仅改归组/主子，新主/子编号不直接算实际呼叫或重置DCC计数，多lead同phone计次关系仍待核。",
+      "source_scenario_ids": [
+        "SC-002",
+        "SC-004"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-049",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": "线路风控与秒挂同链额外合计最多5，首次不计；单类线路5/秒挂4；合计到5停止两类，单类到顶只停止该类，系统风控不擅自纳入。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-049",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-063～070",
+          "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+        },
+        {
+          "before": {
+            "statement": "三天五呼及重导次数由DCC管理，单任务范围，初呼及秒挂同计5次目标，首次导入当日第1天；普通双方接通停止但秒挂例外。平台不重复调度计数。；初呼与秒挂共用单任务5次目标，由DCC按真实尝试汇总；重新导入请求或重复通知不直接计实际呼叫，平台不新增业务额度。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-049",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-014",
+      "name": "手工导入提交前优先级",
+      "statement": "手工必需leadCode与priority，R可选无字典维护/范围校验，一号一独立批次；统一/逐条priority仅提交前可改、最终值保存提交。统一导入客户入口在预外呼列表及任务内常驻；按已锁来源分派DCC或手工入口，DCC任务不能使用手工写入口，后端同时校验来源；不可导入状态保留禁用入口及原因；提交后无人工改priority或自然日衰减。手工不新增DCC requestId/isNewBatch/归组主子字段或校验。 常驻通用导入入口按锁来源打开对应界面，接口任务不开放手工混入；手工CSV变化/预览失败使旧草稿不可提交，提交前复核当前有效预览。",
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-053",
+        "inputs/source-index.json#SRC-054",
+        "inputs/source-index.json#SRC-055",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-062",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086",
+        "inputs/source-index.json#SRC-087",
+        "inputs/source-index.json#SRC-088"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": "线索编码、合法R、priority必需；一号一批次；priority统一填写/逐条修改，仅提交前可改；最终逐条值提交，提交后不增加手改入口，按日龄规则降级。手工导入按钮常驻，权限矩阵不另定。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-053",
+            "inputs/source-index.json#SRC-054",
+            "inputs/source-index.json#SRC-055",
+            "inputs/source-index.json#SRC-056"
+          ],
+          "superseded_by": "SRC-062"
+        },
+        {
+          "before": "线索编码、priority必需，R可选且无需字典维护/范围校验；一号一批次；priority统一填写/逐条修改仅提交前可改，最终逐条值提交；手工导入按钮常驻，缺R不失败。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-053",
+            "inputs/source-index.json#SRC-054",
+            "inputs/source-index.json#SRC-055",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-062"
+          ],
+          "superseded_by": "SRC-063～070",
+          "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+        },
+        {
+          "before": {
+            "statement": "线索编码、priority必需，R可选且无需字典维护/范围校验；一号一批次；priority统一填写/逐条修改仅提交前可改，最终逐条值提交；手工导入按钮常驻，缺R不失败。；手工按钮在接口任务禁用，后端校验锁定来源。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-053",
+            "inputs/source-index.json#SRC-054",
+            "inputs/source-index.json#SRC-055",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-062",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "手工导入必需线索编码与priority，R可选且无字典维护/范围校验；一号一批次，统一/逐条priority仅提交前可改，最终值保存并提交。手工按钮常驻但接口任务禁用，后端校验锁定来源；手工提交后不提供人工priority改写或自然日自动降级。 手工不新增DCC requestId/previousBatchId/父根批次接口字段或父链校验要求。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-053",
+            "inputs/source-index.json#SRC-054",
+            "inputs/source-index.json#SRC-055",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-062",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        },
+        {
+          "before": {
+            "statement": "手工必需leadCode与priority，R可选无字典维护/范围校验，一号一独立批次；统一/逐条priority仅提交前可改、最终值保存提交。手工按钮常驻，接口任务禁用且后端校验锁定来源；提交后无人工改priority或自然日衰减。手工不新增DCC requestId/isNewBatch/归组主子字段或校验。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-053",
+            "inputs/source-index.json#SRC-054",
+            "inputs/source-index.json#SRC-055",
+            "inputs/source-index.json#SRC-056",
+            "inputs/source-index.json#SRC-062",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-083",
+            "inputs/source-index.json#SRC-084",
+            "inputs/source-index.json#SRC-085",
+            "inputs/source-index.json#SRC-086"
+          ],
+          "superseded_by": "SRC-088",
+          "reason": "SRC-087用户明确应用列表/新增/详情/修改/删除、简化密钥用于token及常驻预外呼导入，并授权修复已发现问题；SRC-088要求回归需求与原型后再进入下一阶段。本轮补可判定事实，保留旧主子/鉴权/供应商缺口；合成原型证据不构成生产接口验证或正式批准。"
+        }
+      ]
+    },
+    {
+      "id": "BR-015",
+      "name": "待核与可靠回传",
+      "statement": "关联不明/超时/冲突待核，不伪造结果终态，重复/SIP晚更新不算新呼叫。DCC新业务逐行固定phone组校验，改号/归属冲突/历史组或主不明拒绝或待核不提交，其他有效行继续，多lead同phone未决不放开，不盲配最近同号。DCC无需previous，不因遗漏上一批次拒绝。请求级幂等优先于新主子分配：missing flag=false归一后同ID同完整有效内容返原record/batch/root，异内容拒整个重复请求。补送不重导；真实规范化/作用域/原子性和供应商同号重导/排重/执行中并行待核，不新增先删/等finishRetryFlag策略。 未可信SIP来源与真实已确认非SIP矛盾分开；未可信包不污染原call或阻挡随后可信准确更新，真正矛盾继续待核。切换精确删除目标/结果样例清旧反馈且保留原业务证据。",
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-061",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086",
+        "inputs/source-index.json#SRC-087",
+        "inputs/source-index.json#SRC-088"
+      ],
+      "status": "confirmed_business_requirement",
+      "decision_history": [
+        {
+          "before": "供应商超时/矛盾导致无法确认接收或呼叫时标结果待核实，暂停该记录继续重提，核实后处理；明确拒绝和重复通知独立记录，不视为一次新的实际呼叫；未核供应商能力仅标注静态模拟。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-061"
+          ],
+          "superseded_by": "SRC-063～070",
+          "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+        },
+        {
+          "before": {
+            "statement": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-061",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复与SIP晚更新不算新呼叫。DCC接口新业务请求中已知tenant/原任务/leadCode/phone组合的行缺明确previousBatchId，或指定父不存在、多候选、父链未确认、范围/线索/号码不符时，该行拒绝或关联待核且不提交，不能自动新根或猜父，其他有效行继续；既有改号/多号码/多线索未决关系继续待核。DCC请求级幂等优先：已存requestId但完整请求异内容则冲突拒绝整个重复请求，不覆盖原逐行结果。回传失败可观察可补送但不重新导入；真实技术键命名空间/作用域与原子性由开发核实。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-061",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        },
+        {
+          "before": {
+            "statement": "关联不明/超时/冲突待核，不伪造结果终态，重复/SIP晚更新不算新呼叫。DCC新业务逐行固定phone组校验，改号/归属冲突/历史组或主不明拒绝或待核不提交，其他有效行继续，多lead同phone未决不放开，不盲配最近同号。DCC无需previous，不因遗漏上一批次拒绝。请求级幂等优先于新主子分配：missing flag=false归一后同ID同完整有效内容返原record/batch/root，异内容拒整个重复请求。补送不重导；真实规范化/作用域/原子性和供应商同号重导/排重/执行中并行待核，不新增先删/等finishRetryFlag策略。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-061",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-083",
+            "inputs/source-index.json#SRC-084",
+            "inputs/source-index.json#SRC-085",
+            "inputs/source-index.json#SRC-086"
+          ],
+          "superseded_by": "SRC-088",
+          "reason": "SRC-087用户明确应用列表/新增/详情/修改/删除、简化密钥用于token及常驻预外呼导入，并授权修复已发现问题；SRC-088要求回归需求与原型后再进入下一阶段。本轮补可判定事实，保留旧主子/鉴权/供应商缺口；合成原型证据不构成生产接口验证或正式批准。"
+        }
+      ]
+    },
+    {
+      "id": "BR-016",
+      "name": "任务来源锁定",
+      "statement": "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。 预外呼列表/任务内导入入口常驻并按该锁来源打开；不可导入保留禁用原因，既有历史任务仅未启动补导且原名单批次累计、不扩启动后规则。",
+      "source_refs": [
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-087",
+        "inputs/source-index.json#SRC-088"
+      ],
+      "status": "confirmed",
+      "decision_history": [
+        {
+          "before": {
+            "statement": "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070"
+          ],
+          "superseded_by": "SRC-088",
+          "reason": "SRC-087用户明确应用列表/新增/详情/修改/删除、简化密钥用于token及常驻预外呼导入，并授权修复已发现问题；SRC-088要求回归需求与原型后再进入下一阶段。本轮补可判定事实，保留旧主子/鉴权/供应商缺口；合成原型证据不构成生产接口验证或正式批准。"
+        }
+      ]
+    },
+    {
+      "id": "BR-017",
+      "name": "固定回传与最后一通",
+      "statement": "接口任务每次结果向后台配置固定地址回传requestId+行定位、tenant/原supplierTaskId/leadCode/phone、该实际记录batchId/rootBatchId及callID或稳定事件；root从保存映射取、后有新主不改旧归属。leadCode只组归属，供应商fileId/实际批次/call精确匹配保持；手工仅查看不新增DCC协议，无前台/租户接收端设置、不发真实回调。finishRetryFlag严格Integer1/0/未知，独立SIP晚更新，不宣整个任务或DCC计划完成、不新加等待该标记重导策略，每次结果回传非仅最后。",
+      "source_refs": [
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "status": "confirmed",
+      "decision_history": [
+        {
+          "before": {
+            "statement": "接口任务每次结果向后台配置文件固定地址回传DCC；手工任务不回传仅平台查看，不新增前台或租户接收端设置，不设置实际URL或发送真实回调。；finishRetryFlag Integer1最后一条/0否，未知或未返回独立表示；与SIP异步更新分开，不能据其宣布整个任务或DCC计划完成；每次结果回传，不只最终一次。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "接口任务每次结果向后台配置文件固定地址回传DCC，附requestId+行定位、当前batchId、parentBatchId/rootBatchId及tenant/task/leadCode/phone；手工任务仅平台查看，不新增前台或租户接收端设置，不发送真实回调。finishRetryFlag严格Integer1/0与未知分开，独立于SIP晚更新，不能据其宣布整个任务或DCC计划完成；每次结果回传，不只最终一次。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-018",
+      "name": "导入结果证据与失败分片关联",
+      "statement": "同步result=0不等逐条全成功，展示本地校验保存/供应商导入/呼叫阶段及原始importTotal/successTotal/invalidTotal；准确成功证据正常记录，仅汇总不任指行，未知矛盾待核。53分片按enterpriseId经核实tenant/原taskId/精确fileId/原始号码回查实际记录batch及保存组/root，多候选待核，不用leadCode单键/最近同号。totalBatchCount/currentBatchCount仅失败推送分片非业务主子，重复不新增/乱序迟到不丢；收齐仅该声明推送组、不等全导入终态，未收不推定零失败。接口回传原导入失败及requestId+行定位/组/实际batch/root，供应商未给业务字段则精确回查保存映射、不新增供应商协议承诺；手工仅查看。导入失败不计实际呼叫/平台重导，补送不重做供应商导入。",
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "status": "confirmed",
+      "decision_history": [
+        {
+          "before": {
+            "statement": "同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。 接收53失败结果分片，按enterpriseId经核实租户映射、taskId、fileId及原始号码数据回查本次本地批次和leadCode；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅为失败推送分片，不是业务批次；重复不新增、乱序迟到不丢。收齐已声明分片只证明该失败推送组收齐，不证明全导入终态；未收到不推定零失败。 接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-071",
+            "inputs/source-index.json#SRC-072",
+            "inputs/source-index.json#SRC-073"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。 接收53失败结果分片，按enterpriseId经核实租户映射、taskId、fileId及原始号码数据回查本次本地批次和leadCode；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅为失败推送分片，不是业务批次；重复不新增、乱序迟到不丢。收齐已声明分片只证明该失败推送组收齐，不证明全导入终态；未收到不推定零失败。 接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/requestId/当前batchId/parentBatchId/rootBatchId/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-071",
+            "inputs/source-index.json#SRC-072",
+            "inputs/source-index.json#SRC-073",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-019",
+      "name": "失败导出快照与必要状态保留",
+      "statement": "失败快照显示分片完整性/待核，可信成功仅清该快照明细文件，失败中断保留、后到新失败下次下载。两来源客户记录、必要事件去重/分片交付状态保留；接口原逐行requestId幂等结果/固定phone组/主子root/精确vendorfileId和实际batch/call映射不随明细清理/精准删除丢失。手工不新增DCCflag/request/归组协议，已导出重复不再生，不清空整个导入或成功客户。",
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "status": "confirmed",
+      "decision_history": [
+        {
+          "before": {
+            "statement": "在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-071",
+            "inputs/source-index.json#SRC-072",
+            "inputs/source-index.json#SRC-073"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "statement": "既有失败导出入口按本次快照显示分片完整性/待核；可信成功只清该快照明细和文件，失败/中断保留，后到新失败供下次下载。两种来源客户记录、必要事件去重/分片与交付状态保留；接口来源已保存的requestId幂等和父/根谱系映射不随明细清理或精准供应商删除丢失。手工不新增DCC请求或父链约定；已导出重复不再生，不清空整个导入或成功客户。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-071",
+            "inputs/source-index.json#SRC-072",
+            "inputs/source-index.json#SRC-073",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-020",
+      "name": "应用管理超管权限",
+      "statement": "应用接入的列表查询、查看详情、新增、修改、删除是超管可独立发起的五个业务操作；旧配置保存复用修改，不静默重编号。非超管菜单/直达页面/管理调用拒绝且无写，租户业务身份不获管理权，普通运营原导入/下载不移除。新建保存应用名称/可访问业务租户及appId/密钥，普通修改不重置；查看不写、取消/保存失败不假造成功。精确删除只该应用，合成凭证/已发身份失效，其他应用和业务记录/任务/结果保留。日常页简化密钥获取token，移除技术身份交换面板但保留授权验证和不可用合成密钥必要提示。生产凭证/CRUD/token撤权契约仍missing/partial；未要求的收费/启停/密钥重置/权限自动授予不添加。",
+      "status": "confirmed",
+      "source_refs": [
+        "inputs/source-index.json#SRC-074",
+        "inputs/source-index.json#SRC-087",
+        "inputs/source-index.json#SRC-088"
+      ],
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-005"
+      ],
+      "decision_history": [
+        {
+          "before": {
+            "statement": "应用管理模块及本期已有管理操作仅超管可访问和执行，租户管理员不可进入或调用管理接口；菜单隐藏、直接页面访问和服务端鉴权均覆盖。租户管理员直接请求应被拒绝且不修改配置；不凭此新增启停等未纳入操作。 应用凭证加tenantId换租户token的业务鉴权不授予应用管理权限；任务仍归租户不绑定应用。普通运营既有导入/失败下载不因超管管理限制被移除；不创建/重置真实密钥、不修改真实账号权限。",
+            "notes": null,
+            "source_scenario_ids": [
+              "SC-001"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-074"
+          ],
+          "superseded_by": "SRC-088",
+          "reason": "SRC-087用户明确应用列表/新增/详情/修改/删除、简化密钥用于token及常驻预外呼导入，并授权修复已发现问题；SRC-088要求回归需求与原型后再进入下一阶段。本轮补可判定事实，保留旧主子/鉴权/供应商缺口；合成原型证据不构成生产接口验证或正式批准。"
+        }
+      ],
+      "notes": [
+        "本期原型只用合成应用、不可用于真实服务的演示appSecret与不可用租户身份。生产凭证算法/安全存储、应用管理API、token时效及删除/授权变更后真实token失效机制尚missing/partial，不能从本地CRUD实测提升verified；不新增收费、启停、密钥重置或权限授予操作。演示名称60字/唯一性、分页大小等实现选择未被提升为冻结业务规则。"
+      ]
+    },
+    {
+      "id": "BR-021",
+      "name": "待提交记录优先级与FIFO次序",
+      "statement": "同任务待提交按本次有效priority高先、同级本地导入时间FIFO，不同任务独立；DCC本次输入/手工提交前最终值，不按旧批或日期改写。已提交不撤回重排，未知提交不因重排或同requestId重传重复提交；主子选择不改变priority、不承诺拨打顺序。",
+      "source_refs": [
+        "inputs/source-index.json#SRC-075",
+        "inputs/source-index.json#SRC-076",
+        "inputs/source-index.json#SRC-077",
+        "inputs/source-index.json#SRC-078",
+        "inputs/source-index.json#SRC-079",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "status": "confirmed",
+      "notes": [
+        "工作时间边界（SRC-078/079、SRC-083保持）：本次最终priority同任务高先/同级FIFO，不因时段提权，无每日查询/衰减/存量改写；已提交不重排/未知不重交，低priority非禁止呼叫。",
+        "SRC-084～086：DCC主子均每有效新业务新record/batch，技术重试原结果不重交；最近主按本地主批稳定创建顺序，不按priority/结果时间挑选，手工不新增DCC协议。"
+      ],
+      "decision_history": [
+        {
+          "before": {
+            "statement": "同一任务的待提交号码按优先级高先提交，同优先级按本地导入时间FIFO；不同任务独立。已提交不撤回重排，提交结果未知不为重排重复提交；一手机号一批次及priority透传保持，不承诺实际拨打顺序。"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-075",
+            "inputs/source-index.json#SRC-076",
+            "inputs/source-index.json#SRC-077",
+            "inputs/source-index.json#SRC-078",
+            "inputs/source-index.json#SRC-079"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "notes": [
+              "工作时间边界（SRC-078/079）：平台按DCC传入priority保存、同任务排序并提交，不新增工作时间策略、不因工作时间到来自动提权；既有自然日衰减最低1、同级FIFO与已提交不撤回保持。低优先级不是禁止呼叫；无新增功能。"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-078",
+            "inputs/source-index.json#SRC-079"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "取消旧平台自然日衰减；保留接口本次DCC值、手工提交前最终值、同任务FIFO与已提交不重排边界。"
+        },
+        {
+          "before": {
+            "statement": "同一任务待提交号码按本次有效导入priority高先、同级本地导入时间FIFO，不同任务独立。接口priority使用本次DCC输入，手工使用提交前逐条最终值，不按旧批次或日期改写。已提交不撤回重排、未知提交不因重排或DCC接口同requestId技术重试重复提交；一手机号一新业务批次及最终值透传保持，不承诺实际拨打顺序。",
+            "notes": [
+              "工作时间边界（SRC-078/079，SRC-083修订）：接口使用本次DCC传入priority，手工使用提交前逐条最终priority，按同任务高先/同级本地时间FIFO提交；不因工作时间提权，不执行每日状态查询、自然日衰减或存量priority改写。已提交不撤回重排，接口同requestId技术重传不重复提交；低priority不是禁止呼叫。"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-075",
+            "inputs/source-index.json#SRC-076",
+            "inputs/source-index.json#SRC-077",
+            "inputs/source-index.json#SRC-078",
+            "inputs/source-index.json#SRC-079",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "business_flows": [
+    {
+      "id": "FLOW-001",
+      "name": "导入、结果分流与主子批闭环",
+      "scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005"
+      ],
+      "steps": [
+        "SC-005超管在应用接入独立建立或维护应用凭证：列表/详情/新增/修改/删除各可单独发起，普通修改保留密钥，精确删除不删业务记录。有效应用及授权租户范围作为DCC鉴权前置；日常页简化用途，原型只合成，真实凭证与token失效待核。",
+        "任务创建提交锁定接口/手工来源，校验tenant/原supplierTaskId，应用仅鉴权追踪",
+        "手工原输入/提交前统一逐条最终priority校验，有效行独立记录单号批次自动提交，不新增DCCflag/request/归组主子协议，无每日衰减；预外呼入口常驻、不可导入保留禁用原因，手工CSV当前文本/有效预览必须一致，新文本或失败预览不提交旧稿，历史补导不扩已启动规则",
+        "DCC请求级requestId可多行，新业务新ID，各行定位/leadCode/phone/本次priority/可选Boolean isNewBatch，missing=false归一",
+        "DCC鉴权及归属后先核requestId完整有效内容：同ID同内容返原逐行record/batch/root，不重拆交；异内容拒整重复，后来新主不改旧root",
+        "仅新ID逐行固定phone组校验：tenant/原supplierTaskId/leadCode，改号/归属冲突/历史组主不明不提交、多lead同号未决不自动放开，其他有效行继续；不要求DCC previous、不盲配最近同号",
+        "每有效新行新record/batch，true新主root=batch；false/缺省有主新子挂按本地主批稳定创建順序最近已保存同组主、无主自动首主，不挂上一子/不虚构parent。保存回执request/行/组/batch/root，本次priority/FIFO提交，未知不重交",
+        "53分片以核实enterprise→tenant/原task/fileId/原始号码精确回查实际记录与保存root，接口回传手工查看，不计实际呼叫不推定全导入终态",
+        "每次话单事件以实际批次/原始号码/callID或稳定事件精确关联，leadCode仅组不替代匹配；无话单失败独立、秒挂真实条件、重复晚更新不制造新呼叫",
+        "接口每次结果携保存request/行/组/实际batch/root/call事件回传固定DCC地址，后有新主不改旧root；手工仅查看，失败补送不重导；未可信纯SIP独立待核、不污染已确认call或阻挡其后可信精准更新，真实非SIP矛盾仍待核",
+        "DCC决定业务重导/priority/计数，新主子不重置计次；无平台每日查询/衰减/存量改写/重导计划。删除仅实际供应商批次，必要幂等/组/root/映射保留，原时间审计；同号重导排重执行中并行仍partial，不新增先删/等finishRetryFlag；切换精确删除目标/样例清旧反馈，不改旧对象证据"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-002",
+        "inputs/source-index.json#SRC-020",
+        "inputs/source-index.json#SRC-024",
+        "inputs/source-index.json#SRC-036",
+        "inputs/source-index.json#SRC-043",
+        "inputs/source-index.json#SRC-045",
+        "inputs/source-index.json#SRC-046",
+        "inputs/source-index.json#SRC-047",
+        "inputs/source-index.json#SRC-048",
+        "inputs/source-index.json#SRC-049",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-076",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086",
+        "inputs/source-index.json#SRC-087",
+        "inputs/source-index.json#SRC-088"
+      ],
+      "decision_history": [
+        {
+          "before": [
+            "DCC经租户身份或运营手工导入线索；校验线索编码/priority等必要字段，R可选不做字典范围校验，逐行新增单号批次，手工priority仅提交前改，最终值自动提交",
+            "供应商接受与明确拒绝/未知分别记录；失败明细进入下载生命周期",
+            "获取本次结果：线路风控走SC-002；系统风控走SC-003暂停；客户秒挂走SC-004",
+            "线路/秒挂核对两类及共同额度；平台收到并识别结果后等待30分钟，再核对精准删除状态",
+            "可执行时原任务关联新批次、继承原日期和当前priority；后续结果再次触发同链判断，次数不重置",
+            "北京时间自然日跟进当天/历史结果、降1最低1；DCC成功精准删除停降级、取消待执行重呼"
+          ],
+          "source_refs": [
+            "inputs/source-index.json#SRC-002",
+            "inputs/source-index.json#SRC-020",
+            "inputs/source-index.json#SRC-024",
+            "inputs/source-index.json#SRC-036",
+            "inputs/source-index.json#SRC-043",
+            "inputs/source-index.json#SRC-045",
+            "inputs/source-index.json#SRC-046",
+            "inputs/source-index.json#SRC-047",
+            "inputs/source-index.json#SRC-048",
+            "inputs/source-index.json#SRC-049"
+          ],
+          "superseded_by": "SRC-063～070",
+          "reason": "DCC决策所有重导；平台结果回传，任务来源锁定及固定接收地址"
+        },
+        {
+          "before": {
+            "steps": [
+              "创建任务提交时锁定接口/手工方式，校验tenant/task，应用仅鉴权与追踪",
+              "逐行校验并保存单号批次自动提交；同步数量准确记录，result0不等逐条全成功；待提交高优先级先/同级FIFO，已提交不重排，仅同任务，不同任务独立",
+              "53失败推送分片回查企业/任务/供应商fileId/原始号码到本地批次和leadCode，重复不新增迟到不丢；接口任务回传导入阶段失败，手工只查看，不计呼叫不自重导",
+              "供应商每次事件/话单回查任务批次线索手机号；无话单失败独立保存、秒挂按真实条件识别",
+              "接口任务每次结果回传后台固定DCC地址，手工任务仅平台查看；重复/晚更新不制造新呼叫",
+              "DCC决定是否/何时重新导入；平台不创建重导计划或额度",
+              "保留原导入北京时间自然日priority衰减，可信未拨/未接通才降级，精准删除成功停降级"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-002",
+            "inputs/source-index.json#SRC-020",
+            "inputs/source-index.json#SRC-024",
+            "inputs/source-index.json#SRC-036",
+            "inputs/source-index.json#SRC-043",
+            "inputs/source-index.json#SRC-045",
+            "inputs/source-index.json#SRC-046",
+            "inputs/source-index.json#SRC-047",
+            "inputs/source-index.json#SRC-048",
+            "inputs/source-index.json#SRC-049",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-071",
+            "inputs/source-index.json#SRC-072",
+            "inputs/source-index.json#SRC-073",
+            "inputs/source-index.json#SRC-076"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "name": "导入、结果分流与原始链闭环",
+            "steps": [
+              "创建任务提交时锁定接口/手工方式，校验tenant/task，应用仅鉴权与追踪",
+              "手工分支沿既有提交前统一/逐条最终priority逐行校验并独立单手机号拆批自动提交；不经过DCC requestId/previousBatchId接口及父链校验，无平台每日衰减",
+              "DCC每次业务导入请求携requestId，可含多行；真实新业务请求换新ID，各行分别携本次priority及其previousBatchId，原任务与单一来源保持",
+              "DCC接口分支：鉴权后先按requestId核对完整请求：同ID同内容返回原逐行结果/映射，不重拆/不重交；同ID异内容明确冲突拒绝整个重复请求，首次技术重传不受后来出现历史影响",
+              "DCC接口分支：仅新业务请求逐行校验历史父关系：已知tenant/原supplier taskId/leadCode/phone组合缺previousBatchId不自动新根，拒绝或待核不提交；无既有链且无其他未决歧义的首次可无父；明确父精确匹配，不猜最近同号、其他有效行继续",
+              "DCC接口分支：父不存在、多候选、父链未确认或归属/线索/号码不符的行不提交；既有改号/多号码/多线索歧义仍待核。有效新业务逐行保存独立记录与单号批次，回执requestId+行定位及各batchId/parentBatchId/rootBatchId，按本次priority/FIFO自动提交；已提交不重排、未知不重交",
+              "53失败分片按供应商企业/任务/fileId/原始号码精确回查本次记录与父根映射；接口失败回传、手工查看，不计实际呼叫，未知不推定全导入终态",
+              "供应商每次事件/话单精确关联当前批次；无话单失败独立保存、秒挂按真实条件识别；重复/SIP晚更新不制造新呼叫",
+              "接口任务每次结果携当前/父/根批次及既有租户/任务/线索/号码/通话事件关联回传后台固定DCC地址，手工仅平台查看；失败可补送且不重做导入",
+              "DCC决策是否/何时再次业务导入及priority/计数；平台无每日状态查询、自然日衰减、存量priority改写或重导计划。精准删除仅作用指定供应商批次，本地记录及必要谱系保留；原导入时间仅审计"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-002",
+            "inputs/source-index.json#SRC-020",
+            "inputs/source-index.json#SRC-024",
+            "inputs/source-index.json#SRC-036",
+            "inputs/source-index.json#SRC-043",
+            "inputs/source-index.json#SRC-045",
+            "inputs/source-index.json#SRC-046",
+            "inputs/source-index.json#SRC-047",
+            "inputs/source-index.json#SRC-048",
+            "inputs/source-index.json#SRC-049",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-071",
+            "inputs/source-index.json#SRC-072",
+            "inputs/source-index.json#SRC-073",
+            "inputs/source-index.json#SRC-076",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        },
+        {
+          "before": {
+            "steps": [
+              "任务创建提交锁定接口/手工来源，校验tenant/原supplierTaskId，应用仅鉴权追踪",
+              "手工原输入/提交前统一逐条最终priority校验，有效行独立记录单号批次自动提交，不新增DCCflag/request/归组主子协议，无每日衰减",
+              "DCC请求级requestId可多行，新业务新ID，各行定位/leadCode/phone/本次priority/可选Boolean isNewBatch，missing=false归一",
+              "DCC鉴权及归属后先核requestId完整有效内容：同ID同内容返原逐行record/batch/root，不重拆交；异内容拒整重复，后来新主不改旧root",
+              "仅新ID逐行固定phone组校验：tenant/原supplierTaskId/leadCode，改号/归属冲突/历史组主不明不提交、多lead同号未决不自动放开，其他有效行继续；不要求DCC previous、不盲配最近同号",
+              "每有效新行新record/batch，true新主root=batch；false/缺省有主新子挂按本地主批稳定创建順序最近已保存同组主、无主自动首主，不挂上一子/不虚构parent。保存回执request/行/组/batch/root，本次priority/FIFO提交，未知不重交",
+              "53分片以核实enterprise→tenant/原task/fileId/原始号码精确回查实际记录与保存root，接口回传手工查看，不计实际呼叫不推定全导入终态",
+              "每次话单事件以实际批次/原始号码/callID或稳定事件精确关联，leadCode仅组不替代匹配；无话单失败独立、秒挂真实条件、重复晚更新不制造新呼叫",
+              "接口每次结果携保存request/行/组/实际batch/root/call事件回传固定DCC地址，后有新主不改旧root；手工仅查看，失败补送不重导",
+              "DCC决定业务重导/priority/计数，新主子不重置计次；无平台每日查询/衰减/存量改写/重导计划。删除仅实际供应商批次，必要幂等/组/root/映射保留，原时间审计；同号重导排重执行中并行仍partial，不新增先删/等finishRetryFlag"
+            ],
+            "scenario_ids": [
+              "SC-001",
+              "SC-002",
+              "SC-003",
+              "SC-004"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-002",
+            "inputs/source-index.json#SRC-020",
+            "inputs/source-index.json#SRC-024",
+            "inputs/source-index.json#SRC-036",
+            "inputs/source-index.json#SRC-043",
+            "inputs/source-index.json#SRC-045",
+            "inputs/source-index.json#SRC-046",
+            "inputs/source-index.json#SRC-047",
+            "inputs/source-index.json#SRC-048",
+            "inputs/source-index.json#SRC-049",
+            "inputs/source-index.json#SRC-063",
+            "inputs/source-index.json#SRC-064",
+            "inputs/source-index.json#SRC-065",
+            "inputs/source-index.json#SRC-066",
+            "inputs/source-index.json#SRC-067",
+            "inputs/source-index.json#SRC-068",
+            "inputs/source-index.json#SRC-069",
+            "inputs/source-index.json#SRC-070",
+            "inputs/source-index.json#SRC-071",
+            "inputs/source-index.json#SRC-072",
+            "inputs/source-index.json#SRC-073",
+            "inputs/source-index.json#SRC-076",
+            "inputs/source-index.json#SRC-083",
+            "inputs/source-index.json#SRC-084",
+            "inputs/source-index.json#SRC-085",
+            "inputs/source-index.json#SRC-086"
+          ],
+          "superseded_by": "SRC-088",
+          "reason": "SRC-087用户明确应用列表/新增/详情/修改/删除、简化密钥用于token及常驻预外呼导入，并授权修复已发现问题；SRC-088要求回归需求与原型后再进入下一阶段。本轮补可判定事实，保留旧主子/鉴权/供应商缺口；合成原型证据不构成生产接口验证或正式批准。"
+        }
+      ]
+    },
+    {
+      "id": "FLOW-002",
+      "name": "失败导出与业务记录保护",
+      "scenario_ids": [
+        "SC-001"
+      ],
+      "steps": [
+        "本地校验失败、供应商同步/异步导入失败分类进入既有失败下载入口；呼叫失败独立记录",
+        "按已知失败分片展示收齐或不完整/待核，不推定整个导入终态",
+        "生成本次失败快照和导出文件；点击/生成不等成功下载",
+        "可信成功下载只清本次快照明细和文件；中断/失败保留",
+        "两来源保留必要记录/事件去重/分片交付状态；接口另保原逐行requestId幂等结果/固定phone组/主子root/精准供应商通话映射。后到新失败下次下载，已导出重复不再生，手工不新增DCCflag/request/归组协议。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-005",
+        "inputs/source-index.json#SRC-006",
+        "inputs/source-index.json#SRC-009",
+        "inputs/source-index.json#SRC-010",
+        "inputs/source-index.json#SRC-011",
+        "inputs/source-index.json#SRC-019",
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "decision_history": [
+        {
+          "before": {
+            "steps": [
+              "本地校验失败、供应商同步/异步导入失败分类进入既有失败下载入口；呼叫失败独立记录",
+              "按已知失败分片展示收齐或不完整/待核，不推定整个导入终态",
+              "生成本次失败快照和导出文件；点击/生成不等成功下载",
+              "可信成功下载只清本次快照明细和文件；中断/失败保留",
+              "保留必要关联、去重、分片及DCC交付状态；迟到新失败可再次下载，已导出重复不再生成"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-005",
+            "inputs/source-index.json#SRC-006",
+            "inputs/source-index.json#SRC-009",
+            "inputs/source-index.json#SRC-010",
+            "inputs/source-index.json#SRC-011",
+            "inputs/source-index.json#SRC-019",
+            "inputs/source-index.json#SRC-071",
+            "inputs/source-index.json#SRC-072",
+            "inputs/source-index.json#SRC-073"
+          ],
+          "superseded_by": "SRC-083",
+          "reason": "SRC-083：用户确认取消平台全部每日衰减及仅服务衰减的状态查询；DCC决策本次导入priority，平台逐条幂等接收并精确维护父/根批次谱系。"
+        },
+        {
+          "before": {
+            "steps": [
+              "本地校验失败、供应商同步/异步导入失败分类进入既有失败下载入口；呼叫失败独立记录",
+              "按已知失败分片展示收齐或不完整/待核，不推定整个导入终态",
+              "生成本次失败快照和导出文件；点击/生成不等成功下载",
+              "可信成功下载只清本次快照明细和文件；中断/失败保留",
+              "两种来源保留必要本地记录/事件去重/分片与结果状态；仅接口来源还保留其已保存requestId幂等与父/根批次映射。迟到新失败可再次下载，已导出重复不再生成，手工不新增DCC请求字段。"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-005",
+            "inputs/source-index.json#SRC-006",
+            "inputs/source-index.json#SRC-009",
+            "inputs/source-index.json#SRC-010",
+            "inputs/source-index.json#SRC-011",
+            "inputs/source-index.json#SRC-019",
+            "inputs/source-index.json#SRC-071",
+            "inputs/source-index.json#SRC-072",
+            "inputs/source-index.json#SRC-073",
+            "inputs/source-index.json#SRC-083"
+          ],
+          "superseded_by": "SRC-086",
+          "reason": "SRC-084～086取代DCC必传父批次方案：固定phone同组，可选isNewBatch主/子批规则；request级归一后幂等先于新业务分配，保留本次priority及精确供应商/通话映射。没有生成审批或真实验证结论。",
+          "decision_sequence": [
+            {
+              "source_id": "SRC-084",
+              "decision": "仅同一手机号重复业务导入；tenant/原supplierTaskId/leadCode固定phone归组，不再要求DCC提供previousBatchId。"
+            },
+            {
+              "source_id": "SRC-085",
+              "decision": "提出是否作为新批次的兼容字段；false生成关联主批的子级批次号，未传沿已有主批关联；主批选择及首次无主行为在该次尚待澄清。"
+            },
+            {
+              "source_id": "SRC-086",
+              "decision": "最终确认逐行可选Boolean isNewBatch，missing=false；true可同组另开主批，false/缺省新子批挂最近已保存同组主批，无主自动首主；最近主按本地主批创建稳定顺序，技术重传不重新分配。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

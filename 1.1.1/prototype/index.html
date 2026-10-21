@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <script src="js/alicti-storage.js?v=111-clean-config-20261020"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AliCti 云外呼原型 · v1.1.1</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%231677ff' d='M32 4l28 28-28 28L4 32z'/%3E%3Cpath fill='%23fff' d='M32 18l14 14-14 14-14-14z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/global.css?v=20260905-fix1">
+  <link rel="stylesheet" href="assets/css/app.css?v=20261021-ai-inheritance-0bab21998b">
+  <link rel="stylesheet" href="assets/css/version-history.css?v=20261008-version1">
+  <link rel="stylesheet" href="assets/css/agent-workbench.css?v=20260928-record-actions1">
+  <link rel="stylesheet" href="assets/css/repeat-predictive.css?v=20260916-repeat1">
+  <link rel="stylesheet" href="assets/css/seat-detail.css?v=20260911-seat-detail1">
+  <link rel="stylesheet" href="assets/css/report-center.css?v=20260916-reports1">
+  <link rel="stylesheet" href="assets/css/resource-onboarding.css?v=20260915-resource-ux1">
+  <link rel="stylesheet" href="assets/css/number-assignment.css?v=20260922-single-tenant1">
+  <link rel="stylesheet" href="assets/css/alicti-number-import.css?v=20260916-number-import1">
+  <link rel="stylesheet" href="assets/css/alicti-accounts.css?v=20260922-caller-navigation2">
+  <link rel="stylesheet" href="assets/css/queue-config.css?v=20260918-queues2">
+  <link rel="stylesheet" href="assets/css/queue-management.css?v=20260918-queue-multi-skills1">
+  <link rel="stylesheet" href="assets/css/number-pools.css?v=20260923-number-pools1">
+  <link rel="stylesheet" href="assets/css/resource-relations.css?v=20260920-optional-seat-skills1">
+  <link rel="stylesheet" href="assets/css/demo-switch.css?v=20260910-accounts1">
+  <link rel="stylesheet" href="assets/css/account-tenant-forms.css?v=20260930-management-layout1">
+  <link rel="stylesheet" href="annotations/annotation.css?v=1">
+  <link rel="stylesheet" href="assets/css/role-charts.css?v=20260909-charts1">
+  <link rel="stylesheet" href="assets/css/customer-followup.css?v=20260920-business-fields1">
+  <link rel="stylesheet" href="assets/css/business-categories.css?v=20260924-business-direct-fields1">
+  <link rel="stylesheet" href="assets/css/customer-directory.css?v=20260910-call-state1">
+  <link rel="stylesheet" href="assets/css/seat-home.css?v=20260921-seat-grid3">
+  <link rel="stylesheet" href="assets/css/account-seat.css?v=20260921-occam2">
+  <link rel="stylesheet" href="assets/css/call-sync.css?v=20260930-call-sync2">
+  <link rel="stylesheet" href="assets/css/call-media.css?v=20260921-call-chat2">
+  <link rel="stylesheet" href="assets/css/task-retry.css?v=20260914-retry-ivr1">
+<link rel="stylesheet" href="assets/css/alicti-contracts.css?v=20260912-contracts7">
+  <link rel="stylesheet" href="assets/css/task-create.css?v=20261014-task-actions1">
+  <link rel="stylesheet" href="assets/css/secondary-navigation.css?v=20260920-confirm-top1">
+  <link rel="stylesheet" href="assets/css/legacy-drawers.css?v=20260915-drawer1">
+  <link rel="stylesheet" href="assets/css/inbound-routing.css?v=20260915-inbound1">
+  <link rel="stylesheet" href="assets/css/business-issues.css?v=20260915-issue-notice1">
+<link rel="stylesheet" href="assets/css/outbound-group-management.css?v=20260918-1">
+  <link rel="stylesheet" href="assets/css/time-condition-management.css?v=20260921-times-simple1">
+  <link rel="stylesheet" href="assets/css/extension-management.css?v=20260920-extensions-menu1">
+  <link rel="stylesheet" href="assets/css/auth-showcase.css?v=20261021-ai-inheritance-509b32e034">
+  <link rel="stylesheet" href="assets/css/dcc-v1.1.0.css?v=20261014-operations-ui2">
+  <link rel="stylesheet" href="assets/css/business-data.css?v=111-operator-guidance-20261016"><link rel="stylesheet" href="assets/css/business-interface-field.css?v=111-multiple-stores-20261016">
+  <link rel="stylesheet" href="assets/css/customer-followup-tabs.css?v=111-followup-tabs-20261016">
+  <link rel="stylesheet" href="assets/css/business-store-picker.css?v=111-input-compatibility-20261020">
+</head>
+<body data-working-version-id="v1.1.1">
+  <section id="authGateway" class="auth-gateway" aria-live="polite"></section>
+  <header class="top-bar app-topbar">
+    <div class="top-bar-left"><span class="app-name">云外呼平台 · AliCti <small>v1.1.1 · 模拟试做</small></span></div>
+    <div class="breadcrumb" id="breadcrumb"><span class="bc-current">工作台</span></div>
+    <div class="right-area app-context-tools">
+      <a id="platformSwitcher" class="platform-switch-trigger" href="https://hw00913-bot.github.io/prototype-demo/index.html" onclick="return AppState.allowPlatformSwitch()" hidden><span aria-hidden="true">⇄</span>切换 AI 外呼</a>
+      <span class="scope-chip" id="scopeLabel">请先登录</span>
+      <span class="context-readonly" id="tenantContext"><small>当前租户</small><strong id="currentTenantLabel">尚未登录</strong></span>
+      <label class="context-select" id="instanceContext">
+        <span>当前租户</span>
+        <select id="instanceSwitcher" aria-label="当前租户" onchange="AppState.setManagedTenant(this.value)"></select>
+      </label>
+      <span class="role-chip" id="currentRoleLabel">—</span>
+      <details class="material-menu">
+        <summary>项目资料</summary>
+        <div class="material-menu-panel">
+          <a href="#delivery=prototype" data-delivery-open="prototype">产品原型</a>
+          <a href="version-history.html" data-delivery-open="versions" data-delivery-switch="versions">版本与变更</a>
+          <a href="#delivery=business-flow" data-delivery-open="business-flow">业务流程图</a>
+          <a href="#delivery=sequence-flow" data-delivery-open="sequence-flow">时序交互图</a>
+          <a href="#delivery=related-systems" data-delivery-open="related-systems">关联系统蓝图</a>
+        </div>
+      </details>
+      <button class="current-user current-user-action" type="button" onclick="AppState.logout()" title="退出当前租户并重新登录"><span id="currentUserLabel">登录</span><small>退出</small></button>
+    </div>
+  </header>
+
+  <div class="main-layout app-main-layout">
+    <aside class="sidebar app-sidebar">
+      <div class="sidebar-logo">
+        <svg width="22" height="22" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M64 12L116 64L64 116L12 64L64 12Z" stroke="#5b9bff" stroke-width="12"></path>
+          <path d="M64 36L92 64L64 92L36 64L64 36Z" fill="#ff6b6b"></path>
+        </svg>
+        <span class="logo-text">统一外呼</span>
+      </div>
+      <nav id="businessNavigation" aria-label="统一外呼中台主导航"></nav>
+      <aside id="version-review-notice" role="note" style="flex:0 0 auto;margin:10px 14px;padding:10px 12px;background:#3d4c58;border:1px solid #a48a50;border-radius:6px;color:#fff1c2;font-size:12px;line-height:1.6;overflow-wrap:anywhere">
+        <div data-version-nav style="margin:0 0 8px;padding:8px"></div>
+        <strong>v1.1.1 · 模拟试做</strong><br>基于 v1.1.0 底座；接口数据仅为模拟。
+        <a href="version-history.html" data-delivery-switch="versions" style="display:block;margin-top:6px;color:#c4dcff">查看版本与变更</a>
+      </aside>
+      <div class="sidebar-footnote" id="demo-tools-entry"><button class="demo-switch-trigger" type="button" onclick="DemoSwitch.open()">演示工具</button><span class="demo-only-caption">仅原型</span></div>
+    </aside>
+
+    <main class="content-area" id="page-content" aria-live="polite">
+      <div class="page-loading">正在加载统一外呼中台…</div>
+    </main>
+  </div>
+
+  <script src="mock/data.js?v=20261015-audit-22fa116694"></script>
+  <script src="mock/dcc-v1.1.0.js?v=20261015-audit-c06080417c"></script>
+  <script src="mock/demo-kit.js?v=111-clean-config-20261020"></script>
+  <script src="mock/demo-resources.js?v=20261015-audit-ed71493afa"></script>
+  <script src="mock/demo-activity.js?v=20261015-audit-4a8c630a2f"></script>
+  <script src="mock/report-summaries.js?v=20261015-audit-30ce6f0344"></script>
+  <script src="mock/report-fixtures.js?v=20261015-audit-fc3719abe4"></script>
+  <script src="mock/queue-resources.js?v=20261015-audit-ee0b11f873"></script>
+  <script src="mock/number-pools.js?v=20261015-audit-45118c56b5"></script>
+  <script src="mock/call-media.js?v=20261015-audit-4fb2055a45"></script>
+  <script src="mock/demo-media.js?v=20261015-audit-f99b9a2273"></script>
+  <script src="mock/customer-import.js?v=20261015-audit-377f10d283"></script>
+  <script src="mock/scenario-demo.js?v=20261015-audit-1fdf32393b"></script>
+  <script src="mock/ccc-support.js?v=20261015-audit-d0e0bd3740"></script>
+  <script src="js/common.js?v=20261015-audit-5d4b14f0d1"></script>
+  <script src="js/components/platform-ui.js?v=20261021-ai-inheritance-ce16468c26"></script>
+<script src="js/components/alicti-number-status.js?v=20261015-audit-e364f8b5cf"></script>
+<script src="js/components/alicti-retry.js?v=20261015-audit-9ffa65434a"></script>
+<script src="js/components/alicti-retry-editor.js?v=20261015-audit-29a75a2035"></script>
+<script src="js/components/tenant-supervisor-policy.js?v=20261015-audit-8cb7cd48d8"></script>
+<script src="js/components/alicti-fields.js?v=20261015-audit-eaaa5fe33c"></script>
+<script src="js/components/alicti-ivr.js?v=20261015-audit-12a03334a1"></script>
+<script src="js/components/alicti-demo.js?v=20261015-audit-44eacacad4"></script>
+<script src="js/components/call-state.js?v=20261015-audit-93048ccfe2"></script>
+<script src="js/components/alicti-report-facts.js?v=20261015-audit-f27aaaa52b"></script>
+<script src="js/components/report-metrics.js?v=20261015-audit-4974c6a13b"></script>
+  <script src="mock/demo-compact.js?v=20261015-audit-b1dcd4163f"></script>
+  <script src="mock/demo-install.js?v=20261015-audit-63eed57918"></script>
+  <script src="js/components/alicti-accounts.js?v=20261015-audit-7c69926098"></script>
+  <script src="js/app.js?v=20261021-ai-inheritance-b99eeaf2e7"></script>
+  <script src="js/components/dcc-runtime.js?v=20261015-audit-3fc26ebfaf"></script>
+  <script src="js/components/dcc-records.js?v=20261015-audit-b641fab35d"></script>
+  <script src="js/pages/application-access.js?v=20261015-audit-497cf1c7f4"></script>
+  <script src="js/components/demo-switch.js?v=20261021-ai-inheritance-8890f0df16"></script>
+  <script src="js/components/resource-rules.js?v=20261015-audit-b466775695"></script>
+  <script src="mock/dcc-business-data.js?v=111-dcc-v2-20261019"></script>
+  <script src="js/components/dcc-business-adapter.js?v=111-dcc-v2-20261019"></script>
+  <script src="mock/mapping-series-data.js?v=111-mapping-series-20261019"></script>
+  <script src="js/components/mapping-series-adapter.js?v=111-mapping-series-20261019"></script>
+  <script src="js/components/business-configuration-usage.js?v=20261021-field-snapshot-delete"></script>
+  <script src="js/components/business-data.js?v=20261021-dictionary-rules-final-074552dc76"></script>
+  <script src="config/customer-intent-profile.js?v=111-clean-config-20261020"></script>
+  <script src="js/components/customer-business.js?v=20261021-uniform-field-actions"></script>
+  <script src="js/pages/business-categories.js?v=20261021-ai-inheritance-bcb54f01a1"></script>
+  <script src="mock/customer-followup.js?v=20261015-audit-1dcb0bcf05"></script>
+  <script src="js/components/business-store-picker.js?v=111-input-compatibility-20261020"></script>
+  <script src="js/components/business-interface-field.js?v=111-input-compatibility-20261020"></script>
+  <script src="js/components/customer-followup.js?v=111-input-compatibility-20261020"></script>
+  <script src="js/components/customer-directory.js?v=111-clean-config-20261020"></script>
+  <script src="js/components/alicti-receiving.js?v=20261015-audit-81a2367068"></script>
+  <script src="js/components/call-data-sync.js?v=20261015-audit-4c36be5b85"></script>
+  <script src="js/pages/agent-workbench.js?v=111-form-recovery-20261020"></script>
+  <script src="js/pages/scenario-readiness.js?v=20261015-audit-339e26e4c5"></script>
+  <script src="js/components/role-charts.js?v=20261015-audit-d22f69c0b2"></script>
+  <script src="js/components/role-focus.js?v=20261015-audit-86787b6ddd"></script>
+  <script src="js/pages/home.js?v=20261015-audit-77e2f34c43"></script>
+  <script src="js/components/workbench-overview.js?v=20261015-audit-7be8712f23"></script>
+  <script src="js/components/account-tenant-forms.js?v=20261015-audit-aaac281e86"></script>
+  <script src="js/pages/account-tenant.js?v=20261015-audit-341bf42b8b"></script>
+  <script src="js/pages/alicti-accounts.js?v=20261015-audit-71c5ae8b9a"></script>
+  <script src="js/components/business-issues.js?v=20261015-audit-a37de59bd5"></script>
+  <script src="js/pages/agent-center.js?v=20261015-audit-e13e5d1a57"></script>
+    <script src="js/components/manual-skill-access.js?v=20261015-audit-a3520428d9"></script>
+    <script src="js/pages/customer-tasks.js?v=111-category-retirement-final-20261020"></script>
+  <script src="js/components/repeat-predictive.js?v=20261015-audit-2f6bd7906b"></script>
+    <script src="js/pages/customer-demo.js?v=20261015-audit-1616eec112"></script>
+  <script src="js/components/alicti-queue-contracts.js?v=20261015-audit-a68c84e4fe"></script>
+  <script src="js/components/alicti-number-pools.js?v=20261015-audit-9559a8eef8"></script>
+  <script src="js/components/alicti-queues.js?v=20261015-audit-f193197371"></script>
+  <script src="js/components/queue-config.js?v=20261015-audit-412b78d3f4"></script>
+  <script src="js/components/queue-detail.js?v=20261015-audit-c27cbb5353"></script>
+  <script src="js/components/outbound-groups.js?v=20261015-audit-c76252a627"></script>
+  <script src="js/pages/outbound-group-management.js?v=20261015-audit-0f82459829"></script>
+  <script src="js/pages/queue-management.js?v=20261015-audit-77ec5107da"></script>
+  <script src="js/pages/number-pool-management.js?v=20261015-audit-d6cd4b0b99"></script>
+  <script src="js/pages/contact-center-settings.js?v=20261015-audit-b70d9a9eb6"></script>
+  <script src="mock/number-onboarding.js?v=20261015-audit-75cce87e55"></script>
+  <script src="js/components/number-import-history.js?v=20261015-audit-ab88f25625"></script>
+  <script src="js/components/alicti-number-import.js?v=20261015-audit-a9224f4335"></script>
+  <script src="js/pages/resource-lines.js?v=20261015-audit-d68a6e1069"></script>
+  <script src="js/pages/inbound-routing.js?v=20261015-audit-fc1c9bd0bc"></script>
+  <script src="js/pages/operations-monitor.js?v=20261015-audit-faad3ad2fc"></script>
+  <script src="mock/time-conditions.js?v=20261015-audit-c842c0faa6"></script>
+  <script src="js/components/alicti-time-conditions.js?v=20261015-audit-31e6746e6f"></script>
+  <script src="js/pages/time-condition-management.js?v=20261015-audit-b319d1e521"></script>
+  <script src="js/pages/cloud-task-workspace.js?v=20261015-audit-4e1361c4a8"></script>
+  <script src="js/pages/cloud-call-tasks.js?v=20261015-audit-01808700b2"></script>
+  <script src="js/components/call-media.js?v=20261015-audit-ec61f9eb77"></script>
+  <script src="js/pages/cloud-call-records.js?v=20261015-audit-1d92bb56bf"></script>
+  <script src="js/pages/customer-directory.js?v=20261015-audit-5f1ffb739d"></script>
+  <script src="js/components/alicti-report-summary.js?v=20261015-audit-e3a3f85be0"></script>
+  <script src="js/components/lead-report.js?v=111-category-fields-20261020"></script>
+<script src="js/components/report-data.js?v=111-category-retirement-final-20261020"></script>
+  <script src="js/pages/report-center.js?v=20261015-audit-7648bb4223"></script>
+  <script src="js/components/call-data-issues.js?v=20261015-audit-f7824a20b9"></script>
+  <script src="js/pages/system-center.js?v=20261015-audit-acece8536e"></script>
+  <script src="js/pages/scenario-demo.js?v=20261015-audit-b5b666cf10"></script>
+  <script src="js/components/account-seat.js?v=20261015-audit-75220eadba"></script>
+  <script src="js/components/alicti-adapter.js?v=20261015-audit-505b5c1239"></script>
+  <script src="mock/seat-operations.js?v=20261015-audit-30b7cf3be5"></script>
+  <script src="mock/extensions.js?v=20261015-audit-848e283f19"></script>
+  <script src="js/components/alicti-extensions.js?v=20261015-audit-f95d14f9ff"></script>
+  <script src="js/pages/extension-management.js?v=20261015-audit-588d123344"></script>
+  <script src="js/components/seat-phone-config.js?v=20261015-audit-bda324e0ae"></script>
+  <script src="js/components/seat-event-log.js?v=20261015-audit-da870a05d0"></script>
+  <script src="js/components/alicti-seat-operations.js?v=20261015-audit-c4594bd50d"></script>
+  <script src="js/components/seat-operation-ui.js?v=20261015-audit-0d065f566f"></script>
+  <script src="js/components/tenant-call-monitor.js?v=20261015-audit-be12fd16c4"></script>
+<script src="js/components/alicti-task-control.js?v=20261015-audit-8e0db16ff0"></script>
+<script src="js/components/task-schedule-runtime.js?v=20261015-audit-16f0c818df"></script>
+<script src="js/components/alicti-task-update.js?v=20261015-audit-8c21c7af88"></script>
+  <script src="js/components/alicti-seat-import.js?v=20261015-audit-ef3dde0518"></script>
+  <script src="mock/demo-ready.js?v=20261015-audit-c2b62bdda9"></script>
+  <script src="mock/inbound-routing.js?v=20261015-audit-a0da233b47"></script>
+  <script src="js/components/alicti-inbound.js?v=20261015-audit-04c6f14738"></script>
+  <script src="js/pages/business-data-dictionary.js?v=20261021-dictionary-rules-final-fd5c058c68"></script>
+  <script src="js/nav.js?v=111-delete-config-20261020"></script>
+  <script>
+    window.AnnotationConfig = {
+      projectId: 'v1-1-1-7cdb0776',
+      dataVersion: '1',
+      page: function () {
+        return document.body.dataset.routeKey || window.location.hash.slice(1) || 'home';
+      }
+    };
+  </script>
+  <script src="../../memory/public/版本清单.js" data-project-version-index></script>
+  <script src="js/version-nav.js?v=version-layout-55c71c134e3d"></script>
+  <script src="js/delivery-nav.js"></script>
+  <script src="js/review-view-cache.js?v=20261021-field-snapshot-delete"></script>
+<script src="js/components/alicti-contract-panel.js?v=20261015-audit-dc51877e85"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+# LOCAL-DICT-EDIT 编辑名称及未引用能力
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [编辑取数接口条目 · FUNC\-024](../features/FUNC-024.md)
+
+## 职责与触发
+
+所属工程模块：开发接手后确定
+
+功能：FUNC-024
+
+触发：超管编辑已存在的指定条目
+
+## 前置条件
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+## 必须遵守的全局规则
+
+- [BR-023](../global-logic.md#BR-023)
+- [BR-024](../global-logic.md#BR-024)
+- [BR-034](../global-logic.md#BR-034)
+- [BR-039](../global-logic.md#BR-039)
+
+## 输入与输出
+
+输入：[FIELD-DICT-ID](../field-specs.md#FIELD-DICT-ID)、[FIELD-DICT-NAME](../field-specs.md#FIELD-DICT-NAME)、[FIELD-CAPABILITY](../field-specs.md#FIELD-CAPABILITY)
+
+输出：[FIELD-DICT-NAME](../field-specs.md#FIELD-DICT-NAME)、[FIELD-CAPABILITY](../field-specs.md#FIELD-CAPABILITY)
+
+## 处理步骤
+
+### LOCAL-DICT-EDIT-STEP-1
+
+读取目标、当前名称和实际/保留引用；区分能力可改、已引用锁定、无法核对锁定
+
+读取：FIELD-DICT-ID, FIELD-DICT-NAME, FIELD-CAPABILITY；写入：无
+
+规则：BR-023, BR-024, BR-034, BR-039
+
+### LOCAL-DICT-EDIT-STEP-2
+
+用户提交后重查名称规则、权限、目标版本及使用状态
+
+读取：FIELD-DICT-ID, FIELD-DICT-NAME, FIELD-CAPABILITY；写入：无
+
+规则：BR-023, BR-024, BR-034, BR-039
+
+### LOCAL-DICT-EDIT-STEP-3
+
+无引用才替换能力并保持ID，完成存储核对；异常仅撤销本次自有写入
+
+读取：FIELD-DICT-ID, FIELD-CAPABILITY；写入：FIELD-DICT-NAME, FIELD-CAPABILITY
+
+规则：BR-023, BR-024, BR-034, BR-039
+
+## 分支与异常
+
+### LOCAL-DICT-EDIT-BRANCH-1
+
+条件：当前无实际及保留引用
+
+结果：能力允许修改，名称仍按全局规则
+
+涉及字段：FIELD-DICT-ID, FIELD-CAPABILITY
+
+验证：CHECK-128, CHECK-IMPLICIT-REFERENCE
+
+### LOCAL-DICT-EDIT-BRANCH-2
+
+条件：已有引用或无法完整核对
+
+结果：能力固定，名称仍可按原权限编辑；换来源须新建条目再调字段引用
+
+涉及字段：FIELD-CAPABILITY
+
+验证：CHECK-128, CHECK-131
+
+### LOCAL-DICT-EDIT-BRANCH-3
+
+条件：打开后新增引用、身份/版本或存储变化
+
+结果：拒绝过期替换且保留输入与原配置，不覆盖外部新写
+
+涉及字段：FIELD-DICT-ID, FIELD-DICT-NAME, FIELD-CAPABILITY
+
+验证：CHECK-REFERENCE-RACE
+
+## 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 字段定义
+
+- [FIELD-CAPABILITY](../field-specs.md#FIELD-CAPABILITY)
+- [FIELD-DICT-ID](../field-specs.md#FIELD-DICT-ID)
+- [FIELD-DICT-NAME](../field-specs.md#FIELD-DICT-NAME)
+
+## 来源与验证
+
+来源条目：documents:interfaces~1interface-index.json, documents:memory~1business-rules.json, documents:memory~1feature-list.json, documents:memory~1normalized-user-stories.json, documents:memory~1project-facts.json, documents:outputs~1business-scenario-atlas.html, documents:outputs~1business-scenario-list.md, documents:outputs~1feature-list.md, documents:outputs~1interaction-sequence-atlas.html, documents:outputs~1product-structure-and-business-process-baseline.md, documents:outputs~1system-sequence-interface-verification-matrix.md, documents:planning~1existing-surface-evidence.json, documents:project-version.json, documents:runtime~1open-items.json, documents:runtime~1traceability.json, documents:runtime~1verification-report.json, documents:scenarios~1SC-008.json, documents:scenarios~1SC-009.json, documents:scenarios~1SC-010.json, documents:scenarios~1SC-011.json, documents:scenarios~1SC-012.json, documents:scenarios~1SC-013.json, documents:scenarios~1SC-014.json, documents:scenarios~1SC-015.json, documents:scenarios~1SC-016.json, documents:scenarios~1scenario-index.json, documents:sequences~1SEQ-010.json, documents:sequences~1SEQ-011.json, documents:sequences~1SEQ-012.json, documents:sequences~1SEQ-013.json, documents:sequences~1SEQ-014.json, documents:sequences~1SEQ-015.json, documents:sequences~1SEQ-016.json, documents:sequences~1SEQ-017.json, documents:sequences~1SEQ-018.json, documents:sequences~1sequence-index.json, features:FUNC-024, features:FUNC-024/boundary/business_rules/0, features:FUNC-024/boundary/business_rules/1, features:FUNC-024/boundary/business_rules/2, features:FUNC-024/boundary/exception_paths/0, features:FUNC-024/boundary/exception_paths/1, features:FUNC-024/boundary/exception_paths/2, features:FUNC-024/boundary/exception_paths/3, flows:FLOW-005, flows:FLOW-005/steps/0, flows:FLOW-005/steps/1, flows:FLOW-005/steps/2, flows:FLOW-005/steps/3, flows:FLOW-005/steps/4, interfaces:API-017, pages:PAGE-006, pages:PAGE-006/actions/0, pages:PAGE-006/actions/1, pages:PAGE-006/actions/2, pages:PAGE-006/actions/3, pages:PAGE-006/actions/4, pages:PAGE-006/actions/5, pages:PAGE-006/fields/0, pages:PAGE-006/fields/1, pages:PAGE-006/fields/2, pages:PAGE-006/fields/3, rules:BR-023, rules:BR-024, rules:BR-034, rules:BR-039, scenarios:SC-009, scenarios:SC-009/alternate_flows/0, scenarios:SC-009/alternate_flows/0/steps/0, scenarios:SC-009/alternate_flows/1, scenarios:SC-009/alternate_flows/1/steps/0, scenarios:SC-009/alternate_flows/1/steps/1, scenarios:SC-009/main_flow/0, scenarios:SC-009/main_flow/1, scenarios:SC-009/main_flow/2, scenarios:SC-009/main_flow/3, scenarios:SC-009/main_flow/4, scenarios:SC-009/postconditions/0, scenarios:SC-009/postconditions/1, scenarios:SC-009/postconditions/2, scenarios:SC-009/postconditions/3, scenarios:SC-009/preconditions/0, scenarios:SC-009/preconditions/1, sequences:SEQ-011, sequences:SEQ-011/messages/0, sequences:SEQ-011/messages/1, sequences:SEQ-011/messages/10, sequences:SEQ-011/messages/11, sequences:SEQ-011/messages/12, sequences:SEQ-011/messages/2, sequences:SEQ-011/messages/3, sequences:SEQ-011/messages/4, sequences:SEQ-011/messages/5, sequences:SEQ-011/messages/6, sequences:SEQ-011/messages/7, sequences:SEQ-011/messages/8, sequences:SEQ-011/messages/9, stories:US-013, stories:US-013/preconditions/0, stories:US-013/preconditions/1, stories:US-017, stories:US-017/preconditions/0, stories:US-017/preconditions/1, stories:US-020, stories:US-020/preconditions/0, stories:US-020/preconditions/1, stories:US-021, stories:US-021/preconditions/0, stories:US-021/preconditions/1, acceptance:AC-128, acceptance:AC-131
+
+验证：CHECK-128, CHECK-131, CHECK-REFERENCE-RACE, CHECK-IMPLICIT-REFERENCE
+
+## 实施任务
+
+未声明；请结合范围说明核对。

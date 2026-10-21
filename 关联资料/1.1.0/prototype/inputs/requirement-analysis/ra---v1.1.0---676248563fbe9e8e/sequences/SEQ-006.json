@@ -1,0 +1,314 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-006",
+  "scenario_id": "SC-001",
+  "name": "手工线索导入与提交前priority覆盖",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "运营人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "运营界面（合成模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti（模拟返回/未实接）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "service",
+      "to": "service",
+      "message": "创建任务提交锁定接口/手工一种方式；后端校验taskId来源及tenant归属，不绑定应用",
+      "type": "internal",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "operator",
+      "to": "ui",
+      "message": "预外呼任务记录页点击常驻手工导入",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "ui",
+      "to": "operator",
+      "message": "展示线索编码/可选R/统一priority、逐行预览；无操作条件可置灰说明",
+      "type": "response",
+      "api_id": null,
+      "condition": "具体权限沿既有校验且不另定矩阵"
+    },
+    {
+      "step": 4,
+      "from": "operator",
+      "to": "ui",
+      "message": "统一priority后按单条覆盖，仍在提交前",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "ui",
+      "to": "service",
+      "message": "逐行校验最终priority和必填线索编码/phone；R可选不做字典范围校验，不新增DCC flag/request/root输入或关联要求",
+      "type": "internal",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 6,
+      "from": "service",
+      "to": "service",
+      "message": "有效行按既有流程保存独立客户记录和单手机号业务批次及本次审计时间；无效行失败明细，其他有效继续；不新增手工关联入口/协议",
+      "type": "internal",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 7,
+      "from": "service",
+      "to": "vendor",
+      "message": "同一任务待提交按逐条本次最终priority高先、同级本次本地导入时间FIFO，单号批次自动提交；新业务批不复用旧fileId，保留本地业务batchId→每条供应商fileId映射；已提交不重排、未知不重复",
+      "type": "external_call",
+      "api_id": "API-002",
+      "condition": "本地有效保存后"
+    },
+    {
+      "step": 8,
+      "from": "vendor",
+      "to": "service",
+      "message": "合成明确接受/拒绝/未知；未知暂停，拒绝另记",
+      "type": "response",
+      "api_id": "API-002",
+      "condition": null
+    },
+    {
+      "step": 9,
+      "from": "service",
+      "to": "ui",
+      "message": "展示既有逐行结果、本地record/batch及供应商fileId映射和审计时间；提交后无priority手改和平台每日衰减；手工仅平台查看、不回传DCC，不新增DCCflag/request/root输入或关联UI",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+    "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+    "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。",
+    "手工来源同样接收53异步导入失败、分片关联/去重、快照导出；仅平台查看不向DCC回传，复用SEQ-001/007，不重复功能。",
+    "手工保留既有独立record/单号batch、最终priority、provider fileId映射与审计时间；无DCC flag/request/root输入、不回传DCC，平台每日策略仍取消。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-062",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070",
+    "inputs/source-index.json#SRC-071",
+    "inputs/source-index.json#SRC-072",
+    "inputs/source-index.json#SRC-073",
+    "inputs/source-index.json#SRC-076",
+    "inputs/source-index.json#SRC-077",
+    "inputs/source-index.json#SRC-083",
+    "inputs/source-index.json#SRC-084",
+    "inputs/source-index.json#SRC-085",
+    "inputs/source-index.json#SRC-086"
+  ],
+  "review_history": [
+    {
+      "at": "2026-10-10T15:18:55+08:00",
+      "before_message": {
+        "step": 7,
+        "from": "service",
+        "to": "vendor",
+        "message": "逐条最终priority自动提交供应商原任务新批次",
+        "type": "external_call",
+        "api_id": "API-002",
+        "condition": "本地有效保存后"
+      },
+      "basis": "AC-046、SRC-076/077；手工提交同任务既有排序口径，不新增操作"
+    },
+    {
+      "at": "2026-10-11T09:32:22+08:00",
+      "basis": "手工仍提交前统一/逐条priority；删除取消的后续每日策略并保留请求/业务批与供应商映射边界",
+      "source_ref": "inputs/source-index.json#SRC-083",
+      "record_type": "draft_semantic_revision_not_approval"
+    },
+    {
+      "at": "2026-10-11T09:34:33+08:00",
+      "basis": "根确认DCC批次协议不扩展到手工输入；恢复既有手工范围，仅取消每日策略并保留provider映射",
+      "source_ref": "inputs/source-index.json#SRC-083",
+      "record_type": "draft_semantic_scope_correction_not_approval"
+    }
+  ],
+  "decision_history": [
+    {
+      "at": "2026-10-11T10:08:12+08:00",
+      "before": {
+        "schema_version": "1.0",
+        "id": "SEQ-006",
+        "scenario_id": "SC-001",
+        "name": "手工线索导入与提交前priority覆盖",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "运营人员",
+            "kind": "actor"
+          },
+          {
+            "id": "ui",
+            "name": "运营界面（合成模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "service",
+            "name": "云呼叫中心业务服务（模拟）",
+            "kind": "system"
+          },
+          {
+            "id": "vendor",
+            "name": "AliCti（模拟返回/未实接）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "service",
+            "to": "service",
+            "message": "创建任务提交锁定接口/手工一种方式；后端校验taskId来源及tenant归属，不绑定应用",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "operator",
+            "to": "ui",
+            "message": "预外呼任务记录页点击常驻手工导入",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "ui",
+            "to": "operator",
+            "message": "展示线索编码/可选R/统一priority、逐行预览；无操作条件可置灰说明",
+            "type": "response",
+            "api_id": null,
+            "condition": "具体权限沿既有校验且不另定矩阵"
+          },
+          {
+            "step": 4,
+            "from": "operator",
+            "to": "ui",
+            "message": "统一priority后按单条覆盖，仍在提交前",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 5,
+            "from": "ui",
+            "to": "service",
+            "message": "逐行校验最终priority与必填线索编码/phone；R可选不做字典范围校验，不新增DCC requestId/previousBatchId输入或关联要求",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 6,
+            "from": "service",
+            "to": "service",
+            "message": "有效行按既有流程保存独立客户记录和单手机号业务批次及本次审计时间；无效行失败明细，其他有效继续；不新增手工关联入口/协议",
+            "type": "internal",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 7,
+            "from": "service",
+            "to": "vendor",
+            "message": "同一任务待提交按逐条本次最终priority高先、同级本次本地导入时间FIFO，单号批次自动提交；新业务批不复用旧fileId，保留本地业务batchId→每条供应商fileId映射；已提交不重排、未知不重复",
+            "type": "external_call",
+            "api_id": "API-002",
+            "condition": "本地有效保存后"
+          },
+          {
+            "step": 8,
+            "from": "vendor",
+            "to": "service",
+            "message": "合成明确接受/拒绝/未知；未知暂停，拒绝另记",
+            "type": "response",
+            "api_id": "API-002",
+            "condition": null
+          },
+          {
+            "step": 9,
+            "from": "service",
+            "to": "ui",
+            "message": "展示既有逐行结果、本地record/batch及供应商fileId映射和审计时间；提交后无priority手改和平台每日衰减；手工仅平台查看、不回传DCC，不新增DCC父根关联UI",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          }
+        ],
+        "notes": [
+          "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+          "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+          "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。",
+          "手工来源同样接收53异步导入失败、分片关联/去重、快照导出；仅平台查看不向DCC回传，复用SEQ-001/007，不重复功能。",
+          "SRC-083范围复核：请求级requestId/已知历史强制previous仅DCC接口新业务请求；手工不新增DCC请求/父批输入或关联要求，保留既有单号独立批、最终priority、record/fileId映射与审计时间。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-061",
+          "inputs/source-index.json#SRC-062",
+          "inputs/source-index.json#SRC-063",
+          "inputs/source-index.json#SRC-064",
+          "inputs/source-index.json#SRC-065",
+          "inputs/source-index.json#SRC-066",
+          "inputs/source-index.json#SRC-067",
+          "inputs/source-index.json#SRC-068",
+          "inputs/source-index.json#SRC-069",
+          "inputs/source-index.json#SRC-070",
+          "inputs/source-index.json#SRC-071",
+          "inputs/source-index.json#SRC-072",
+          "inputs/source-index.json#SRC-073",
+          "inputs/source-index.json#SRC-076",
+          "inputs/source-index.json#SRC-077",
+          "inputs/source-index.json#SRC-083"
+        ]
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "reason": "用户最新主/子根归组方案替代SRC-083逐行指定父批方案；旧事实只作历史，新G3未批准。",
+      "record_type": "draft_business_revision_not_approval"
+    }
+  ]
+}

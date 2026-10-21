@@ -1,0 +1,1066 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-013",
+  "name": "填写并保存本次车系与门店业务信息",
+  "summary": "按车系编码取得权威门店并取并集，保持体系对应；按当前条件核对旧值，恢复须确认，各字段保存编码和名称。",
+  "status": "analysis_draft",
+  "scope_confirmation": "inputs/user-stories.md#SRC-141",
+  "actors": [
+    "具有既有业务信息填写权限\n的客服／运营",
+    "云外呼平台",
+    "权威车系／门店数据提供方\n（契约待核验）"
+  ],
+  "trigger": "在既有业务操作中需要填写本次客户车系与门店信息。",
+  "preconditions": [
+    "由既有分类规则及当前记录／通话载入字段；准确租户、记录、通话上下文按v1.1.0保留。",
+    "已配置本次意向车系／门店接口字段；原计划到店字段与原导入意向保留。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "云外呼平台",
+      "action": "载入当前业务分类及本次字段，原导入意向只读展示",
+      "system_response": null,
+      "rule_ids": [
+        "BR-028"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "具有既有业务信息填写权限\n的客服／运营",
+      "action": "查找车系候选；来源恢复的未提交旧车系须按当前条件重新查询",
+      "system_response": null,
+      "rule_ids": [
+        "BR-036"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "权威车系／门店数据提供方\n（契约待核验）",
+      "action": "需检索时提供权威车系查询结果或错误（契约待核）",
+      "system_response": null,
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "具有既有业务信息填写权限\n的客服／运营",
+      "action": "选择、保留或清空本次车系；原始匹配带入和来源恢复旧值须明确确认",
+      "system_response": null,
+      "rule_ids": [
+        "BR-028",
+        "BR-036"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云外呼平台",
+      "action": "取得关联车系当前编码；至少一个有效车系才发起门店查询",
+      "system_response": null,
+      "rule_ids": [
+        "BR-030",
+        "BR-035"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "权威车系／门店数据提供方\n（契约待核验）",
+      "action": "按各车系编码提供权威门店，保持NEV／ICE对应（实际契约待核）",
+      "system_response": null,
+      "rule_ids": [
+        "BR-029"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "云外呼平台",
+      "action": "对完整候选取并集并去重",
+      "system_response": null,
+      "rule_ids": [
+        "BR-030"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "云外呼平台",
+      "action": "无旧门店或原有效选择仍匹配：保留相应状态",
+      "system_response": null,
+      "rule_ids": [
+        "BR-031"
+      ]
+    },
+    {
+      "step": 9,
+      "actor": "具有既有业务信息填写权限\n的客服／运营",
+      "action": "选择或确认当前匹配门店；待重选或来源恢复旧值均须客服明确确认",
+      "system_response": null,
+      "rule_ids": [
+        "BR-028",
+        "BR-031",
+        "BR-036"
+      ]
+    },
+    {
+      "step": 10,
+      "actor": "云外呼平台",
+      "action": "按原通话保存条件校验；分类必填及已填值有效性分别判断",
+      "system_response": null,
+      "rule_ids": [
+        "BR-027",
+        "BR-032",
+        "BR-036"
+      ]
+    },
+    {
+      "step": 11,
+      "actor": "云外呼平台",
+      "action": "各本次意向字段分别保存编码及当时名称；原导入值和原计划到店字段保留",
+      "system_response": null,
+      "rule_ids": [
+        "BR-028",
+        "BR-037"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-01301",
+      "condition": "条目不可用或租户授权已撤销",
+      "steps": [
+        "仅对应接口／租户停止新查选；历史配置保留。",
+        "未提交值保留显示但不作有效值提交，在途结果不再提供新选择；选填可手动清除后保存，必填沿原规则。"
+      ]
+    },
+    {
+      "id": "ALT-01302",
+      "condition": "所有关联车系字段均未选择",
+      "steps": [
+        "提示请先选择至少一个车系，不发起门店查询。",
+        "若清空了原有全部车系，原门店保留显示并待重选；不因查询前置条件将字段统一必填，保存仍按原规则。"
+      ]
+    },
+    {
+      "id": "ALT-01303",
+      "condition": "车系查询失败且造成本次需校验的必填无法完成",
+      "steps": [
+        "说明失败并保留已填草稿供后续重试，完成前补齐有效必填。",
+        "本图为单次尝试，重试可在草稿上下文重新进入；不承诺自动重试或特定持久化。"
+      ]
+    },
+    {
+      "id": "ALT-01304",
+      "condition": "门店查询失败／部分失败且造成本次需校验的必填无法完成",
+      "steps": [
+        "保留已填内容，说明失败或查询未完整，查全后才允许新的门店选择。",
+        "失败不当作成功空集合，也不证明旧门店失配；当前有效必填缺失时不能完成保存。"
+      ]
+    },
+    {
+      "id": "ALT-01305",
+      "condition": "查询失败但不造成本次需校验的必填无法完成",
+      "steps": [
+        "不因一次失败一律禁存，仍按当前条件下的有效值与原保存规则判断。",
+        "部分失败时暂停新的门店选择，保留输入供重试，不把旧条件验证结果当成新条件的有效依据。"
+      ]
+    },
+    {
+      "id": "ALT-01306",
+      "condition": "原有效门店不在新的完整并集中",
+      "steps": [
+        "保留显示并标记待重选；不作为有效已选值提交或回传。",
+        "可以选择当前候选恢复有效；是否必填仍由分类和原通话条件决定。"
+      ]
+    },
+    {
+      "id": "ALT-01307",
+      "condition": "旧门店待重选或来源恢复后，按当前条件重新查询并匹配",
+      "steps": [
+        "当前条件查全并匹配时，旧值仍保持待确认，不自动恢复有效。",
+        "客服再次明确确认或选择当前有效候选才恢复；失败、部分失败、不匹配均不能直接恢复。"
+      ]
+    },
+    {
+      "id": "ALT-01308",
+      "condition": "完整查询成功但结果为空",
+      "steps": [
+        "提示暂无匹配门店，不提供自定义门店补齐。",
+        "选填可留空或清除本次无效值后按原规则提交；必填缺失继续阻止完成。",
+        "搜索词无结果或当前分页未出现旧门店不能直接判关系失配。"
+      ]
+    },
+    {
+      "id": "ALT-01309",
+      "condition": "客服暂不提交",
+      "steps": [
+        "保留当前编辑，不产生正式保存结果；不新增独立草稿页。"
+      ]
+    },
+    {
+      "id": "ALT-01310",
+      "condition": "必填缺失、已填值无效或原有保存条件不满足",
+      "steps": [
+        "说明具体问题并保留输入；修正后可再次提交。",
+        "明确已结束外呼客户未接时沿v1.1.0条件必填豁免，已填值仍校验；未知、呼入或仅坐席未接不能直接套用。"
+      ]
+    },
+    {
+      "id": "ALT-01311",
+      "condition": "正式保存失败",
+      "steps": [
+        "保留本次输入和原状态，不虚构成功；可后续重试。"
+      ]
+    },
+    {
+      "id": "ALT-01312",
+      "condition": "本轮无需检索，保留已有有效车系或选填留空",
+      "steps": [
+        "已有有效车系可复用；选填未选时可继续至无车系查询提示及统一保存校验，不强制重新检索。",
+        "不恢复失效值，也不把原始意向未经确认带入。"
+      ]
+    },
+    {
+      "id": "ALT-01313",
+      "condition": "关联车系已有选择但无有效查询编码",
+      "steps": [
+        "不以无效编码查询或推断全部门店；编码有效性由实际接口契约核验。",
+        "保留输入并提示核对，完成保存仍按已填值有效性与分类必填判断。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功路径按每个本次意向字段保存有效编码与当时名称，历史名称保持，不覆盖原导入值。",
+    "失配旧门店保留显示并待重选，不作有效值提交。",
+    "失败分支按适用条件保留输入或草稿；未决分支不伪装为已定策略。"
+  ],
+  "business_rule_ids": [
+    "BR-024",
+    "BR-025",
+    "BR-027",
+    "BR-028",
+    "BR-029",
+    "BR-030",
+    "BR-031",
+    "BR-032",
+    "BR-033",
+    "BR-035",
+    "BR-036",
+    "BR-037"
+  ],
+  "acceptance_points": [
+    "AC-112",
+    "AC-113",
+    "AC-114",
+    "AC-115",
+    "AC-116",
+    "AC-117",
+    "AC-118",
+    "AC-119",
+    "AC-125",
+    "AC-126",
+    "AC-132",
+    "AC-133",
+    "AC-134",
+    "AC-135",
+    "AC-136",
+    "AC-137",
+    "AC-138"
+  ],
+  "source_story_ids": [
+    "US-016"
+  ],
+  "source_acceptance_ids": [
+    "AC-112",
+    "AC-113",
+    "AC-114",
+    "AC-115",
+    "AC-116",
+    "AC-117",
+    "AC-118",
+    "AC-119",
+    "AC-125",
+    "AC-126",
+    "AC-132",
+    "AC-133",
+    "AC-134",
+    "AC-135",
+    "AC-136",
+    "AC-137",
+    "AC-138"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-126",
+    "inputs/source-index.json#SRC-132",
+    "inputs/source-index.json#SRC-134",
+    "inputs/source-index.json#SRC-137",
+    "inputs/source-index.json#SRC-138",
+    "inputs/source-index.json#SRC-140",
+    "inputs/source-index.json#SRC-142",
+    "inputs/source-index.json#SRC-143",
+    "inputs/source-index.json#SRC-144",
+    "inputs/user-stories.md#SRC-146",
+    "inputs/user-stories.md#SRC-147",
+    "inputs/user-stories.md#SRC-148",
+    "inputs/user-stories.md#SRC-149",
+    "inputs/user-stories.md#SRC-151",
+    "inputs/source-index.json#SRC-152"
+  ],
+  "notes": [
+    "按具体车系编码取得权威门店已确认，平台不维护本地关系表；外部端点、鉴权、单次／批量及完整性能力仍待核验。",
+    "单次尝试结束后可以带着保留输入重入本场景；图不限定可重试次数，不承诺自动重试或跨设备恢复。",
+    "原始门店候选仍须匹配当前条件且经客服确认方可带入；不是直接把导入字符串当有效编码。",
+    "v1.1.0条件必填、失败保输入与会话草稿仅为本地设计证据；SRC-152不证明生产存储或跨设备恢复。",
+    "至少一个关联车系才查门店；部分失败查全再新选；待重选需人工确认恢复；停用撤权与清空所有车系按SRC-146～148。",
+    "无结果或查询暂不可用时仍可编辑其它字段；统一保存校验只接受当前有效值，选填可以手动清除。",
+    "搜索词和分页显示范围不能当作车系关联全范围，关系有效性和完整性仍须API-016核验。",
+    "来源恢复旧值重查并由客服确认（SRC-149），实际查询与存储契约仍待ISSUE-11105/11102；不承诺自动重试或额外缓存。",
+    "车系与门店均需恢复时，先确认有效车系，再取得当前门店完整并集并确认门店；不要求新增两个确认弹窗。",
+    "每个意向字段分别保存编码和当时名称；并集仅用于门店查询，不能把多个车系字段合成单一保存值。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "user",
+        "name": "具有既有业务信息填写权限\n的客服／运营",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云外呼平台",
+        "kind": "system"
+      },
+      {
+        "id": "source",
+        "name": "权威车系／门店数据提供方\n（契约待核验）",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "user",
+        "type": "start",
+        "order": 1,
+        "label": "开始本轮查选与保存尝试"
+      },
+      {
+        "id": "LOAD",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 2,
+        "label": "载入当前业务分类及本次字段，原导\n入意向只读展示",
+        "step_ref": 1
+      },
+      {
+        "id": "NEEDSERIES",
+        "lane_id": "user",
+        "type": "decision",
+        "order": 3,
+        "label": "需检索、更换车系或恢复来源旧值？"
+      },
+      {
+        "id": "SEARCH",
+        "lane_id": "user",
+        "type": "action",
+        "order": 4,
+        "label": "查找车系候选；来源恢复的未提交旧\n车系须按当前条件重新查询",
+        "step_ref": 2
+      },
+      {
+        "id": "AVAIL",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 5,
+        "label": "当前车系查询接口对该租户可用？"
+      },
+      {
+        "id": "SERIES",
+        "lane_id": "source",
+        "type": "action",
+        "order": 6,
+        "label": "需检索时提供权威车系查询结果或错\n误（契约待核）",
+        "step_ref": 3
+      },
+      {
+        "id": "UNAVAILABLE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 7,
+        "label": "车系接口不可用：标记本轮新查选不\n可用，其它字段按原规则"
+      },
+      {
+        "id": "REUSESERIES",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 8,
+        "label": "仅保留已有有效车系或留空；来源恢\n复旧值必须重查"
+      },
+      {
+        "id": "SERIESSTATUS",
+        "lane_id": "platform",
+        "type": "event",
+        "order": 9,
+        "label": "汇集当前车系结果；复核来源资格，\n旧值恢复须重查及确认"
+      },
+      {
+        "id": "SERIESOK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 10,
+        "label": "本轮车系结果状态"
+      },
+      {
+        "id": "CHOOSE",
+        "lane_id": "user",
+        "type": "action",
+        "order": 11,
+        "label": "选择、保留或清空本次车系；原始匹\n配带入和来源恢复旧值须明确确认",
+        "step_ref": 4
+      },
+      {
+        "id": "CODES",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 12,
+        "label": "取得所关联多个车系字段的当前编码",
+        "step_ref": 5
+      },
+      {
+        "id": "HASCODES",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 13,
+        "label": "当前关联车系的查询条件状态"
+      },
+      {
+        "id": "STOREAVAIL",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 14,
+        "label": "当前门店查询接口对该租户可用？"
+      },
+      {
+        "id": "STORES",
+        "lane_id": "source",
+        "type": "action",
+        "order": 15,
+        "label": "按各车系编码提供权威门店，保持N\nEV／ICE对应（实际契约待核）",
+        "step_ref": 6
+      },
+      {
+        "id": "UNAVAILABLEEND",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 16,
+        "label": "来源不可用：未提交相关值仅保留显\n示，不作有效值；在途结果不供新选"
+      },
+      {
+        "id": "NOCODES",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 17,
+        "label": "不查询门店，提示先选至少一个车系\n；清空后旧门店保留待重选"
+      },
+      {
+        "id": "SERR",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 18,
+        "label": "车系查询失败：说明原因，不能当作\n成功空集合或确认旧值失配"
+      },
+      {
+        "id": "SREQUIRED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 19,
+        "label": "该失败是否造成当前需校验的必填无\n法完成？"
+      },
+      {
+        "id": "SDRAFT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 20,
+        "label": "保留已填草稿供重试，不允许自建门\n店补齐"
+      },
+      {
+        "id": "SDRAFTEND",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 21,
+        "label": "保留草稿；当前有效必填尚未补齐，\n提交仍按原规则校验"
+      },
+      {
+        "id": "SOTHER",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 22,
+        "label": "保留当前输入；不因查询失败一律禁\n存，未核实当前有效性的值不能提交"
+      },
+      {
+        "id": "STOREUNAVAILABLE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 23,
+        "label": "标记门店接口不可用，停止新查选；\n保留配置和已保存历史"
+      },
+      {
+        "id": "INVALIDCODES",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 24,
+        "label": "存在无法核验的已选编码：保留输入\n；有效性及错误细分待接口核验"
+      },
+      {
+        "id": "STORERESULT",
+        "lane_id": "platform",
+        "type": "event",
+        "order": 25,
+        "label": "汇集本轮结果；核对当前授权与车系\n组合，旧组合不验证当前门店"
+      },
+      {
+        "id": "STORESOK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 26,
+        "label": "本轮门店查询结果状态"
+      },
+      {
+        "id": "UNION",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 27,
+        "label": "对完整候选取并集并去重",
+        "step_ref": 7
+      },
+      {
+        "id": "RECOVERYCHECK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 28,
+        "label": "待重选或来源恢复的旧门店，是否重\n新匹配当前条件？"
+      },
+      {
+        "id": "OLD",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 29,
+        "label": "现有门店是否获得当前车系范围的有\n效匹配依据？"
+      },
+      {
+        "id": "KEEP",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 30,
+        "label": "无旧门店或当前仍有效：保留状态；\n搜索空结果或分页遗漏不证明失配",
+        "step_ref": 8
+      },
+      {
+        "id": "PENDING",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 31,
+        "label": "已确认不匹配：保留显示并待重选，\n不作为有效值"
+      },
+      {
+        "id": "RECOVERY",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 32,
+        "label": "已重查匹配，旧值仍待客服确认；不\n自动恢复有效"
+      },
+      {
+        "id": "HASSTORES",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 33,
+        "label": "当前完整并集中有候选门店？"
+      },
+      {
+        "id": "SELECT",
+        "lane_id": "user",
+        "type": "action",
+        "order": 34,
+        "label": "选择或确认当前匹配门店；待重选或\n来源恢复旧值均须客服明确确认",
+        "step_ref": 9
+      },
+      {
+        "id": "EMPTY",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 35,
+        "label": "成功但无匹配候选：提示无结果，不\n提供自建；按当前值及必填规则保存"
+      },
+      {
+        "id": "TERR",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 36,
+        "label": "门店查询失败或部分失败：查全前不\n新选，不当作空结果、不据此判旧值\n失配"
+      },
+      {
+        "id": "TREQUIRED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 37,
+        "label": "该失败是否造成当前需校验的必填无\n法完成？"
+      },
+      {
+        "id": "TDRAFT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 38,
+        "label": "保留已填草稿供重试，不允许自建门\n店补齐"
+      },
+      {
+        "id": "TDRAFTEND",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 39,
+        "label": "保留草稿；当前有效必填尚未补齐，\n提交仍按原规则校验"
+      },
+      {
+        "id": "TOTHER",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 40,
+        "label": "保留当前输入；旧值仅在当前条件下\n仍有有效依据时可提交"
+      },
+      {
+        "id": "STOREUNAVAILABLEEND",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 41,
+        "label": "来源不可用：未提交门店仅保留显示\n，不作有效值；在途结果不供新选"
+      },
+      {
+        "id": "STALESTORE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 42,
+        "label": "响应不属于当前车系组合：不提供候\n选、不据其验证门店，保留当前编辑"
+      },
+      {
+        "id": "FINALIZE",
+        "lane_id": "user",
+        "type": "action",
+        "order": 43,
+        "label": "保留当前编辑或手动清除选填值；无\n效值不会因继续操作而恢复有效"
+      },
+      {
+        "id": "COMMIT",
+        "lane_id": "user",
+        "type": "decision",
+        "order": 44,
+        "label": "是否提交本次业务信息？"
+      },
+      {
+        "id": "VALIDATE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 45,
+        "label": "按原通话条件、分类必填和当前有效\n性校验；恢复但未确认的旧值不可提\n交",
+        "step_ref": 10
+      },
+      {
+        "id": "VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 46,
+        "label": "本次满足有效值及原有保存条件？"
+      },
+      {
+        "id": "SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 47,
+        "label": "各本次意向字段分别保存编码及当时\n名称；原导入值和原计划到店字段保\n留",
+        "step_ref": 11
+      },
+      {
+        "id": "SAVESUCCESS",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 48,
+        "label": "正式保存成功？"
+      },
+      {
+        "id": "END",
+        "lane_id": "user",
+        "type": "end",
+        "order": 49,
+        "label": "本次业务信息保存完成"
+      },
+      {
+        "id": "EDITING",
+        "lane_id": "user",
+        "type": "end",
+        "order": 50,
+        "label": "暂不提交，保留当前编辑继续填写"
+      },
+      {
+        "id": "INVALID",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 51,
+        "label": "指出无效或缺失项，保留已填信息；\n待重选旧值不作有效值"
+      },
+      {
+        "id": "INVALIDEND",
+        "lane_id": "user",
+        "type": "end",
+        "order": 52,
+        "label": "本次未完成保存，修正后可再次提交"
+      },
+      {
+        "id": "SAVEFAIL",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 53,
+        "label": "保存失败保留本次输入和原状态，不\n显示成功"
+      },
+      {
+        "id": "SAVEFAILEND",
+        "lane_id": "user",
+        "type": "end",
+        "order": 54,
+        "label": "本次未完成，可从保留输入重试"
+      }
+    ],
+    "edges": [
+      {
+        "from": "SERR",
+        "to": "SREQUIRED"
+      },
+      {
+        "from": "SREQUIRED",
+        "to": "SDRAFT",
+        "label": "是",
+        "path_id": "ALT-01303",
+        "type": "alternate"
+      },
+      {
+        "from": "SREQUIRED",
+        "to": "SOTHER",
+        "label": "否",
+        "path_id": "ALT-01305",
+        "type": "alternate"
+      },
+      {
+        "from": "SDRAFT",
+        "to": "SDRAFTEND"
+      },
+      {
+        "from": "TERR",
+        "to": "TREQUIRED"
+      },
+      {
+        "from": "TREQUIRED",
+        "to": "TDRAFT",
+        "label": "是",
+        "path_id": "ALT-01304",
+        "type": "alternate"
+      },
+      {
+        "from": "TREQUIRED",
+        "to": "TOTHER",
+        "label": "否",
+        "path_id": "ALT-01305",
+        "type": "alternate"
+      },
+      {
+        "from": "TDRAFT",
+        "to": "TDRAFTEND"
+      },
+      {
+        "from": "START",
+        "to": "LOAD"
+      },
+      {
+        "from": "SEARCH",
+        "to": "AVAIL"
+      },
+      {
+        "from": "CHOOSE",
+        "to": "CODES"
+      },
+      {
+        "from": "CODES",
+        "to": "HASCODES"
+      },
+      {
+        "from": "KEEP",
+        "to": "HASSTORES"
+      },
+      {
+        "from": "PENDING",
+        "to": "HASSTORES"
+      },
+      {
+        "from": "VALIDATE",
+        "to": "VALID"
+      },
+      {
+        "from": "SAVE",
+        "to": "SAVESUCCESS"
+      },
+      {
+        "from": "INVALID",
+        "to": "INVALIDEND"
+      },
+      {
+        "from": "SAVEFAIL",
+        "to": "SAVEFAILEND"
+      },
+      {
+        "from": "AVAIL",
+        "to": "SERIES",
+        "label": "可用"
+      },
+      {
+        "from": "AVAIL",
+        "to": "UNAVAILABLE",
+        "label": "不可用",
+        "path_id": "ALT-01301",
+        "type": "alternate"
+      },
+      {
+        "from": "SERIESOK",
+        "to": "CHOOSE",
+        "label": "成功／有效旧值／全部未选"
+      },
+      {
+        "from": "SERIESOK",
+        "to": "SERR",
+        "label": "失败或不完整",
+        "path_id": "ALT-01303",
+        "type": "alternate"
+      },
+      {
+        "from": "HASCODES",
+        "to": "NOCODES",
+        "label": "全部关联车系未选",
+        "path_id": "ALT-01302",
+        "type": "alternate"
+      },
+      {
+        "from": "STORESOK",
+        "to": "UNION",
+        "label": "来源可用且条件一致：\n完整成功"
+      },
+      {
+        "from": "STORESOK",
+        "to": "TERR",
+        "label": "来源可用且条件一致：\n失败或不完整",
+        "path_id": "ALT-01304",
+        "type": "alternate"
+      },
+      {
+        "from": "OLD",
+        "to": "KEEP",
+        "label": "无旧门店或原有效值仍匹配"
+      },
+      {
+        "from": "OLD",
+        "to": "PENDING",
+        "label": "权威依据确认不匹配",
+        "path_id": "ALT-01306",
+        "type": "alternate"
+      },
+      {
+        "from": "HASSTORES",
+        "to": "SELECT",
+        "label": "有候选"
+      },
+      {
+        "from": "HASSTORES",
+        "to": "EMPTY",
+        "label": "无候选",
+        "path_id": "ALT-01308",
+        "type": "alternate"
+      },
+      {
+        "from": "COMMIT",
+        "to": "VALIDATE",
+        "label": "提交"
+      },
+      {
+        "from": "COMMIT",
+        "to": "EDITING",
+        "label": "暂不提交",
+        "path_id": "ALT-01309",
+        "type": "alternate"
+      },
+      {
+        "from": "VALID",
+        "to": "SAVE",
+        "label": "满足"
+      },
+      {
+        "from": "VALID",
+        "to": "INVALID",
+        "label": "不满足",
+        "path_id": "ALT-01310",
+        "type": "alternate"
+      },
+      {
+        "from": "SAVESUCCESS",
+        "to": "END",
+        "label": "成功"
+      },
+      {
+        "from": "SAVESUCCESS",
+        "to": "SAVEFAIL",
+        "label": "失败",
+        "path_id": "ALT-01311",
+        "type": "alternate"
+      },
+      {
+        "from": "LOAD",
+        "to": "NEEDSERIES"
+      },
+      {
+        "from": "NEEDSERIES",
+        "to": "SEARCH",
+        "label": "需查询"
+      },
+      {
+        "from": "HASCODES",
+        "to": "STOREAVAIL",
+        "label": "至少一个有效车系编码"
+      },
+      {
+        "from": "STOREAVAIL",
+        "to": "STORES",
+        "label": "可用"
+      },
+      {
+        "from": "STOREAVAIL",
+        "to": "STOREUNAVAILABLE",
+        "label": "不可用",
+        "path_id": "ALT-01301"
+      },
+      {
+        "from": "NEEDSERIES",
+        "to": "REUSESERIES",
+        "label": "本轮无需检索",
+        "path_id": "ALT-01312"
+      },
+      {
+        "from": "REUSESERIES",
+        "to": "SERIESSTATUS"
+      },
+      {
+        "from": "SERIES",
+        "to": "SERIESSTATUS"
+      },
+      {
+        "from": "UNAVAILABLE",
+        "to": "SERIESSTATUS"
+      },
+      {
+        "from": "SERIESSTATUS",
+        "to": "SERIESOK"
+      },
+      {
+        "from": "SERIESOK",
+        "to": "UNAVAILABLEEND",
+        "label": "对应查询接口不可用",
+        "path_id": "ALT-01301"
+      },
+      {
+        "from": "UNION",
+        "to": "RECOVERYCHECK"
+      },
+      {
+        "from": "RECOVERYCHECK",
+        "to": "RECOVERY",
+        "label": "是，仍须客服确认",
+        "path_id": "ALT-01307"
+      },
+      {
+        "from": "RECOVERYCHECK",
+        "to": "OLD",
+        "label": "否，检查现有门店状态"
+      },
+      {
+        "from": "HASCODES",
+        "to": "INVALIDCODES",
+        "label": "已选但无有效查询编码",
+        "path_id": "ALT-01313",
+        "type": "alternate"
+      },
+      {
+        "from": "STORES",
+        "to": "STORERESULT"
+      },
+      {
+        "from": "STOREUNAVAILABLE",
+        "to": "STORERESULT"
+      },
+      {
+        "from": "STORERESULT",
+        "to": "STORESOK"
+      },
+      {
+        "from": "STORESOK",
+        "to": "STOREUNAVAILABLEEND",
+        "label": "当前来源不可用"
+      },
+      {
+        "from": "STORESOK",
+        "to": "STALESTORE",
+        "label": "来源可用但响应属于旧条件"
+      },
+      {
+        "from": "RECOVERY",
+        "to": "HASSTORES"
+      },
+      {
+        "from": "NOCODES",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "INVALIDCODES",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "EMPTY",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "UNAVAILABLEEND",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "STOREUNAVAILABLEEND",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "STALESTORE",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "SOTHER",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "TOTHER",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "SDRAFTEND",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "TDRAFTEND",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "SELECT",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "FINALIZE",
+        "to": "COMMIT"
+      }
+    ]
+  }
+}

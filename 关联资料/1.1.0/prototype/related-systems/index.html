@@ -1,0 +1,62 @@
+<!doctype html>
+<html data-analysis-review-state="G3-frozen" lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>云呼叫中心 v1.1.0 DCC增量原型 - 关联系统展示</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/app.css">
+  <link rel="stylesheet" href="../assets/css/delivery-diagrams.css">
+  <link rel="stylesheet" href="../assets/css/dcc-v1.1.0.css?v=20261011-frozen1">
+  <link rel="icon" href="data:,">
+<meta name="requirement-analysis-baseline" content="ra-云呼叫中心-v1.1.0-原始需求重新分析草稿-676248563fbe9e8e">
+<meta name="requirement-analysis-fingerprint" content="676248563fbe9e8e4daf04b88d37af45b92d8d653b4e1ba524acbcca0e3143d2">
+<meta name="requirement-analysis-manifest" content="6d42db2b593b28e48c174e76218db68283c1076c17397bdb2736c6f5056aa94d">
+</head>
+<body>
+  <div class="diagram-layout" data-related-systems data-related-systems-state="ready">
+    <header class="diagram-header">
+      <div>
+        <p class="diagram-kicker">RELATED SYSTEMS</p>
+        <h1 class="diagram-title">关联系统展示</h1>
+        <p class="diagram-summary">DCC 决定业务重导，平台负责导入与每次结果回传，AliCti 执行实际调度。当前展示仅用于本地静态评审。</p>
+      </div>
+      <div class="diagram-meta"><span class="diagram-meta__label">v1.1.0 · 合成模拟</span></div>
+    </header>
+    <main class="dcc-system-main">
+      <div class="platform-alert info"><div><strong>当前正式冻结需求基线 · 仅合成演示</strong><p>所有接口 real_call_allowed=false。凭证、租户身份、事件与回传均为合成模拟，不产生真实服务请求或联调证据。</p></div></div>
+      <section class="dcc-system-grid" aria-label="系统职责">
+        <article class="dcc-system-card" data-related-system="dcc"><span>BUSINESS OWNER</span><h2>DCC</h2><p>决定新业务导入／重导、各行本次 priority 及真实计次，传入请求级 requestId 和可选逐行 isNewBatch。</p><p>同一租户、原供应商任务和线索固定手机号；true 开独立主批，false／缺省按同组主批的稳定创建顺序关联最近已保存主批，无主时建立首主。DCC 决定恢复条件与精准删除，接收每次接口结果并汇总真实计次。</p></article>
+        <article class="dcc-system-card" data-related-system="cloud-platform"><span>PLATFORM</span><h2>云呼叫中心</h2><p>先鉴权并将缺省 isNewBatch 归一为 false，按完整请求做 requestId 幂等；仅新 ID 逐有效行保存新记录／批次及稳定 root 映射。</p><p>按 fileId／实际批次／通话或稳定事件精确关联并交付结果；手工独立拆批仅平台查看。采用本次 priority，原时间仅审计，无每日查询衰减或旧值强制继承。</p></article>
+        <article class="dcc-system-card" data-related-system="alicti"><span>SUPPLIER</span><h2>AliCti</h2><p>负责供应商任务、号码导入、实际呼叫调度、主叫选择与供应商结果。</p><p>真实调度和事件能力待核。供应商导航可能自动降级，不承诺本期平台绝对换主叫。</p></article>
+      </section>
+      <section class="dcc-system-flow" aria-label="系统交互边界"><h2>本轮交互关系</h2>
+        <div class="dcc-system-flow-row"><strong>DCC → 平台</strong><span>后台按应用凭证与 tenantId 交换合成业务身份；新业务请求带本次 priority 和可选 isNewBatch，同归一内容重传返回原逐行映射。</span><span>应用仅鉴权及来源追踪</span></div>
+        <div class="dcc-system-flow-row"><strong>平台 → AliCti</strong><span>新有效行按同组固定 phone 保存主／子批映射后导入；异内容重传拒绝整次重复，不重拆或重提交。技术重传不重新选择后来新主。</span><span>任务归租户，不绑定应用</span></div>
+        <div class="dcc-system-flow-row"><strong>AliCti → 平台</strong><span>按精确 fileId／实际 batch／call 或稳定事件接收导入失败分片与每次结果；保留已保存 root，未知／冲突待核，重复及 SIP 晚更新不新增呼叫。</span><span>未知或冲突待核</span></div>
+        <div class="dcc-system-flow-row"><strong>平台 → DCC</strong><span>接口任务逐行回执及每次结果保留 request／行／组／batch／root 定位；固定后台端合成交付，补送仅修复交付，不重导或重删。</span><span>后台固定接收地址边界</span></div>
+      </section>
+      <section aria-label="当前接口核验边界"><div class="dcc-section-title"><h2>真实接口核验状态</h2><span>保留当前 partial / missing / not_required 边界</span></div>
+        <div class="table-card dcc-api-matrix"><div class="table-scroll"><table class="platform-table"><thead><tr><th style="width:110px">接口</th><th style="width:290px">范围</th><th style="width:140px">核验状态</th><th>真实能力边界</th></tr></thead><tbody>
+          <tr data-api-id="API-001" data-real-call-allowed="false"><td>API-001</td><td>应用凭证换指定租户token与DCC导入接收</td><td><span class="dcc-api-state missing">missing</span></td><td>真实应用鉴权、租户身份及逐行接收契约待定；应用页仅展示演示密钥，身份交换在后台模拟。</td></tr>
+          <tr data-api-id="API-002" data-real-call-allowed="false"><td>API-002</td><td>供应商单号码批次导入</td><td><span class="dcc-api-state partial">partial</span></td><td>导入同步响应与准确数量需核验；导入成功不代表实际呼叫成功。</td></tr>
+          <tr data-api-id="API-003" data-real-call-allowed="false"><td>API-003</td><td>预测呼叫/导入失败及降级结果事件</td><td><span class="dcc-api-state partial">partial</span></td><td>推送配置不是完整业务回调契约。分片、稳定关联与重复/乱序仍待核；事件1060原始上下文不自动证明本轮线路风控换主叫已支持。</td></tr>
+          <tr data-api-id="API-004" data-real-call-allowed="false"><td>API-004</td><td>预测话单查询及秒挂候选数据</td><td><span class="dcc-api-state partial">partial</span></td><td>真实客户接通、客户挂断及有效时长来源需核验；空话单查询不伪造失败。</td></tr>
+          <tr data-api-id="API-005" data-real-call-allowed="false"><td>API-005</td><td>每日号码状态查询与存量priority修改（已取消，退出当前范围）</td><td><span class="dcc-api-state not-required">not_required</span></td><td>已退出本期；平台采用DCC本次priority，不做每日查询、衰减或存量改写。</td></tr>
+          <tr data-api-id="API-006" data-real-call-allowed="false"><td>API-006</td><td>精准删除供应商任务内号码</td><td><span class="dcc-api-state partial">partial</span></td><td>精准关联与删除确认仍待核；只有可信成功标记指定实际批次已删，本地谱系与关联保留，不作用同号其他批次或整组 root；未保证执行中撤销，不新增先删或等待最后一通策略。</td></tr>
+          <tr data-api-id="API-007" data-real-call-allowed="false"><td>API-007</td><td>平台换主叫接口（退出当前范围）</td><td><span class="dcc-api-state">not_required</span></td><td>已退出当前平台范围；obSipCause / SIP 保留为结果来源字段，不变成平台调度开关或绝对换主叫承诺。</td></tr>
+          <tr data-api-id="API-008" data-real-call-allowed="false"><td>API-008</td><td>系统风控解除/恢复依据（DCC职责，退出平台接口范围）</td><td><span class="dcc-api-state">not_required</span></td><td>已退出当前平台范围，恢复条件与是否重导由 DCC 决定。</td></tr>
+          <tr data-api-id="API-009" data-real-call-allowed="false"><td>API-009</td><td>本地记录、失败下载生命周期与提交前手工编辑</td><td><span class="dcc-api-state">not_required</span></td><td>本地合成能力，真实下载可信成功判据仍需开发确认。</td></tr>
+          <tr data-api-id="API-010" data-real-call-allowed="false"><td>API-010</td><td>平台向DCC每次结果回传</td><td><span class="dcc-api-state missing">missing</span></td><td>真实契约缺失；后台配置文件固定接收地址，前台不配置 URL 或任务应用绑定。</td></tr>
+        </tbody></table></div></div>
+      </section>
+      <section class="dcc-system-boundaries" aria-label="身份和权限边界">
+        <article class="dcc-card"><h3>应用管理权与租户业务身份分开</h3><p>仅超管可以进入应用列表、新增、详情、修改和删除；租户管理员的菜单、直达与直接管理模型调用均拒绝。</p><p>同一租户可授权多个应用。租户业务身份不授予管理权，来源应用不构成任务归属或操作限制；普通运营既有导入和失败下载权限继续保留。</p></article>
+        <article class="dcc-card"><h3>仅使用合成数据</h3><p>供应商鉴权与 DCC 指定租户身份独立，不混用凭证。此原型不提供可用密钥或 token，不把未核端点编造成真实请求。</p><p>供应商行为、精确事件字段、真实回调及下载成功信号的证据限制保留。业务已确认不等于真实 API 已 verified。</p></article>
+      </section>
+      <div class="dcc-boundary-note"><strong>来源：当前正式冻结基线 676248563fbe9e8e · SRC-001</strong><span>17 FUNC / 62 AC / 21 BR / 5 PAGE · SEQ-005 / SEQ-009 · API-001～API-010</span></div>
+    </main>
+  </div>
+  <script src="../js/delivery-nav.js"></script>
+</body>
+</html>

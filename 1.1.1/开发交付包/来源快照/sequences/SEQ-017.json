@@ -1,0 +1,184 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-017",
+  "scenario_id": "SC-015",
+  "name": "删除未使用自定义字段时序草稿",
+  "status": "product_design_draft_G2_pending",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "本租户业务配置管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "云外呼平台前端",
+      "kind": "system"
+    },
+    {
+      "id": "configuration",
+      "name": "平台内部配置与引用核对",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "在业务分类的目标Tab选择并发起删除自定义字段定义",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "读取并核对当前权限、目标和实际使用引用",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回引用/本通来源保留位置或无法确认的原因",
+      "type": "response",
+      "api_id": null,
+      "condition": "存在使用或无法确认"
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "拒绝删除并说明位置，原对象/草稿保留",
+      "type": "response",
+      "api_id": null,
+      "condition": "存在使用或无法确认"
+    },
+    {
+      "step": 5,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回可删除目标及确认影响",
+      "type": "response",
+      "api_id": null,
+      "condition": "已确认未使用"
+    },
+    {
+      "step": 6,
+      "from": "frontend",
+      "to": "operator",
+      "message": "显示仅删除目标、不级联的确认",
+      "type": "response",
+      "api_id": null,
+      "condition": "已确认未使用"
+    },
+    {
+      "step": 7,
+      "from": "operator",
+      "to": "frontend",
+      "message": "取消本次删除",
+      "type": "request",
+      "api_id": null,
+      "condition": "确认前取消"
+    },
+    {
+      "step": 8,
+      "from": "frontend",
+      "to": "operator",
+      "message": "保留对象，不提交删除",
+      "type": "response",
+      "api_id": null,
+      "condition": "取消分支"
+    },
+    {
+      "step": 9,
+      "from": "operator",
+      "to": "frontend",
+      "message": "明确确认删除目标",
+      "type": "request",
+      "api_id": null,
+      "condition": "确认且未取消"
+    },
+    {
+      "step": 10,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "提交删除并复核身份、权限和当前引用",
+      "type": "request",
+      "api_id": null,
+      "condition": "确认提交"
+    },
+    {
+      "step": 11,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "仅当仍未使用时持久删除目标，不改通话/历史/其他对象",
+      "type": "internal",
+      "api_id": null,
+      "condition": "复核通过"
+    },
+    {
+      "step": 12,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回删除成功及目标标识",
+      "type": "response",
+      "api_id": null,
+      "condition": "删除保存成功"
+    },
+    {
+      "step": 13,
+      "from": "frontend",
+      "to": "operator",
+      "message": "反馈成功，更新列表并保持刷新不补默认",
+      "type": "response",
+      "api_id": null,
+      "condition": "删除保存成功"
+    },
+    {
+      "step": 14,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回引用变化/权限失效/读取不明/保存失败",
+      "type": "response",
+      "api_id": null,
+      "condition": "未完成删除"
+    },
+    {
+      "step": 15,
+      "from": "frontend",
+      "to": "operator",
+      "message": "明确未删除，原对象和其他草稿保留",
+      "type": "response",
+      "api_id": null,
+      "condition": "未完成删除"
+    }
+  ],
+  "source_story_ids": [
+    "US-021"
+  ],
+  "source_acceptance_ids": [
+    "AC-143",
+    "AC-144",
+    "AC-145",
+    "AC-146"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-172",
+    "inputs/user-stories.md#SRC-173",
+    "inputs/user-stories.md#SRC-174",
+    "inputs/user-stories.md#SRC-175",
+    "inputs/user-stories.md#SRC-176",
+    "scenarios/SC-015.json"
+  ],
+  "notes": [
+    "仅平台内部逻辑职责，不声明真实内部endpoint、鉴权或新增外部API；全部api_id为null。",
+    "引用核对/确认/复核/失败保留是删除操作明细；三对象分别对应FUNC031/032/033。",
+    "原通话版本和历史快照只读保留，不以整库库存误判实际使用；来源保留延续到话后保存完成。",
+    "用户直接范围已授权；时序/页面只是延续SRC155独立模拟设计草稿，G2/G3未批准。"
+  ]
+}

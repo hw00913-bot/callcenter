@@ -1,0 +1,307 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-010",
+  "scenario_id": "SC-008",
+  "name": "超管新增业务数据接口条目时序草稿",
+  "status": "product_design_draft",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "超级管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "云外呼平台前端",
+      "kind": "system"
+    },
+    {
+      "id": "configuration",
+      "name": "平台内部配置服务",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "发起新增业务数据接口条目",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "读取已预置的取数能力与可配置租户选项",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回预置能力与租户选项",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示接口名称、取数能力、可用租户、启用状态四项配置；内部标识由系统生成",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "operator",
+      "to": "frontend",
+      "message": "取消本次新增",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交前选择取消；与后续提交分支互斥"
+    },
+    {
+      "step": 6,
+      "from": "frontend",
+      "to": "operator",
+      "message": "结束本次新增，不提交本次变更",
+      "type": "response",
+      "api_id": null,
+      "condition": "提交前取消分支"
+    },
+    {
+      "step": 7,
+      "from": "operator",
+      "to": "frontend",
+      "message": "填写名称、选择能力、勾选租户、设置状态并提交",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交分支；未选择提交前取消"
+    },
+    {
+      "step": 8,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "提交本次四项字典配置",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交分支"
+    },
+    {
+      "step": 9,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "校验名称必填/60字/全局不重名；允许同能力不同条目，生成稳定标识并保存四项配置",
+      "type": "internal",
+      "api_id": null,
+      "condition": "提交分支"
+    },
+    {
+      "step": 10,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回新增条目保存成功与系统生成的条目标识",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次新增保存成功"
+    },
+    {
+      "step": 11,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示新增成功；实际使用仍受启停状态与租户授权约束",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次新增保存成功"
+    },
+    {
+      "step": 12,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回本次新增未保存成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次新增保存未成功；与新增成功互斥"
+    },
+    {
+      "step": 13,
+      "from": "frontend",
+      "to": "operator",
+      "message": "明确提示本次新增未完成，不显示新增成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次新增保存未成功"
+    }
+  ],
+  "source_story_ids": [
+    "US-013"
+  ],
+  "source_acceptance_ids": [
+    "AC-105",
+    "AC-106",
+    "AC-127",
+    "AC-131"
+  ],
+  "source_refs": [
+    "scenarios/SC-008.json",
+    "inputs/user-stories.md#SRC-128",
+    "inputs/user-stories.md#SRC-139",
+    "inputs/user-stories.md#SRC-141",
+    "inputs/user-stories.md#SRC-145",
+    "inputs/user-stories.md#SRC-153",
+    "inputs/user-stories.md#SRC-179"
+  ],
+  "notes": [
+    "产品设计草稿；用户仅例外批准继续时序与页面设计。关键接口及生产草稿契约仍开放，当前不构成需求冻结或开发交付。",
+    "参与者按逻辑职责划分；平台内部配置服务不表示已确定部署架构、内部端点或实际请求字段。所有内部请求api_id为null，不引用标记not_required的API-017。",
+    "消息序号是图示排序；带互斥条件的消息仅在对应分支发生，不能解释为全部消息顺序必然执行。取消为提交前分支，与提交后的成功、失败互斥。",
+    "本管理配置场景不查询NEV／ICE业务数据，不通过保存配置自动测试或证明外部接入成功。",
+    "接口名称必填，去掉首尾空格后最多60字，全局不重名且英文不区分大小写；同一预置取数能力允许多个不同名称的条目，各自维护租户授权及启停。当前无字段、归档、业务记录或未完成通话来源引用时允许更换取数能力；已有引用或无法完整核对时固定。保存时重查引用，失败保留输入和原配置。"
+  ],
+  "change_history": [
+    {
+      "at": "2026-10-21T10:17:18.424448+08:00",
+      "reason": "CHANGE-11130-dictionary-registration-rules",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-179",
+        "inputs/user-stories.md#SRC-178"
+      ],
+      "previous_values": {
+        "name": "超管新增业务数据接口条目时序草稿",
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "发起新增业务数据接口条目",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "读取已预置的取数能力与可配置租户选项",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回预置能力与租户选项",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示接口名称、取数能力、可用租户、启用状态四项配置；内部标识由系统生成",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 5,
+            "from": "operator",
+            "to": "frontend",
+            "message": "取消本次新增",
+            "type": "request",
+            "api_id": null,
+            "condition": "提交前选择取消；与后续提交分支互斥"
+          },
+          {
+            "step": 6,
+            "from": "frontend",
+            "to": "operator",
+            "message": "结束本次新增，不提交本次变更",
+            "type": "response",
+            "api_id": null,
+            "condition": "提交前取消分支"
+          },
+          {
+            "step": 7,
+            "from": "operator",
+            "to": "frontend",
+            "message": "填写名称、选择能力、勾选租户、设置状态并提交",
+            "type": "request",
+            "api_id": null,
+            "condition": "提交分支；未选择提交前取消"
+          },
+          {
+            "step": 8,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "提交本次四项字典配置",
+            "type": "request",
+            "api_id": null,
+            "condition": "提交分支"
+          },
+          {
+            "step": 9,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "尝试生成稳定内部标识并保存条目、能力绑定、租户范围与状态",
+            "type": "internal",
+            "api_id": null,
+            "condition": "提交分支"
+          },
+          {
+            "step": 10,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回新增条目保存成功与系统生成的条目标识",
+            "type": "response",
+            "api_id": null,
+            "condition": "本次新增保存成功"
+          },
+          {
+            "step": 11,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示新增成功；实际使用仍受启停状态与租户授权约束",
+            "type": "response",
+            "api_id": null,
+            "condition": "本次新增保存成功"
+          },
+          {
+            "step": 12,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回本次新增未保存成功",
+            "type": "response",
+            "api_id": null,
+            "condition": "本次新增保存未成功；与新增成功互斥"
+          },
+          {
+            "step": 13,
+            "from": "frontend",
+            "to": "operator",
+            "message": "明确提示本次新增未完成，不显示新增成功",
+            "type": "response",
+            "api_id": null,
+            "condition": "本次新增保存未成功"
+          }
+        ],
+        "notes": [
+          "产品设计草稿；用户仅例外批准继续时序与页面设计。关键接口及生产草稿契约仍开放，当前不构成需求冻结或开发交付。",
+          "参与者按逻辑职责划分；平台内部配置服务不表示已确定部署架构、内部端点或实际请求字段。所有内部请求api_id为null，不引用标记not_required的API-017。",
+          "消息序号是图示排序；带互斥条件的消息仅在对应分支发生，不能解释为全部消息顺序必然执行。取消为提交前分支，与提交后的成功、失败互斥。",
+          "本管理配置场景不查询NEV／ICE业务数据，不通过保存配置自动测试或证明外部接入成功。",
+          "名称重名、同能力多条目、未知超时补偿和自动重试均未由本时序补定；新增时的状态与租户初始配置不吞并后续独立启停／授权操作。"
+        ]
+      }
+    }
+  ]
+}

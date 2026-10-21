@@ -1,0 +1,42 @@
+/* Actual current model with explicitly configured generic interface fields. */
+'use strict';
+const assert=require('node:assert/strict');
+const {harness,copy}=require('./fixtures/current-profile.cjs');
+const h=harness({generic:true}),M=h.M,B=h.win.BusinessData,scope=h.scope;
+let passed=0;const check=(value,message)=>{assert.ok(value,message);passed++;};
+const generic=require('./fixtures/current-generic.cjs'),seriesId=generic.seriesFieldId,storeId=generic.storeFieldId;
+const catalog=M.catalog(scope),lead=M.get('lead',scope);
+check(catalog.ok&&catalog.fields.length===15,'current generic fixture explicitly adds two fields to the thirteen current definitions');
+check(lead.fields.length===8&&lead.fields.every(ref=>!ref.required),'generic category retains six dimensions and explicit optional query fields');
+check(M.getField('plannedStoreName',scope).type==='text'&&M.get('activity',scope).fields.length===3,'unrelated current business fields remain unchanged');
+const series={id:'anotherGenericSeries',label:'另一通用车系',type:'interface',dictionaryId:generic.seriesEntryId,useQueryConditions:false,depends:[],businessKey:'',options:[],enabled:true};
+check(M.normalizeField(series).ok,'current independent interface metadata normalizes');
+for(const patch of [{useQueryConditions:undefined},{depends:[series.id]},{useQueryConditions:true,depends:[]},{dictionaryId:'unregistered-source'}])check(!M.saveField({...series,...patch},scope).ok,'incomplete or unavailable interface definitions are not silently inferred');
+check(M.saveField(series,scope).ok,'administrator saves another reusable interface field');
+const duplicate=M.get('lead',scope);duplicate.fields.push({fieldId:series.id,enabled:true,required:false});check(!M.save(duplicate,scope).ok,'a category cannot contain two intention-series interfaces');
+const store={id:'anotherGenericStore',label:'另一通用门店',type:'interface',dictionaryId:generic.storeEntryId,useQueryConditions:true,depends:[series.id],parameterBinding:{parameterName:'seriesCode',sourceValueKey:'code',required:true},businessKey:'',options:[],enabled:true};
+check(M.saveField(store,scope).ok,'an explicit one-source condition can be saved');
+check(!M.saveField({...store,id:'manySources',label:'错误多来源',depends:[seriesId,series.id]},scope).ok,'multiple direct dependencies are rejected rather than sliced');
+check(!M.saveField({...store,id:'textSource',label:'错误文本来源',depends:['plannedStoreName']},scope).ok,'a text field cannot supply an interface record');
+check(!M.deleteField(series.id,scope).ok,'a currently referenced source cannot be deleted');
+check(!M.saveField({...M.getField(seriesId,scope),type:'text',options:[]},scope).ok,'type changes cannot break current dependent fields');
+check(B.setEnabled(generic.seriesEntryId,false).ok,'source can be disabled normally');
+check(M.saveField({...M.getField(seriesId,scope),label:'保留的当前来源字段'},scope).ok,'existing current references remain editable while their source is unavailable');
+check(!M.saveField({...series,id:'stoppedNew',label:'停用来源新字段'},scope).ok,'unavailable sources cannot be newly referenced');
+const category=M.get('lead',scope);category.fields.find(ref=>ref.fieldId===storeId).required=true;check(M.save(category,scope).ok,'category-level business requiredness can be saved');
+check(M.fields('lead',scope).find(field=>field.id===storeId).required&&!Object.hasOwn(M.getField(storeId,scope),'required'),'business requiredness remains separate from reusable query metadata');
+const values={businessType:'lead',[seriesId]:{code:'NEV-A',name:'保存时车系',type:'NEV',entryId:generic.seriesEntryId,state:'valid',sourceVersion:'query-token'},[storeId]:[{code:'001',name:'保存时一店',type:'NEV',entryId:generic.storeEntryId,state:'valid',sourceVersion:'query-token',verifiedScope:'condition-token'},{code:'002',name:'保存时二店',type:'NEV',entryId:generic.storeEntryId,state:'valid'}],plannedStoreName:'独立文本'};
+const before=JSON.stringify(values),snapshot=M.callbackSnapshot(values,scope),field=snapshot.fields.find(row=>row.fieldId===storeId);
+check(field.selectionMode==='multiple'&&field.interfaceKind==='store'&&field.dictionaryId===generic.storeEntryId,'normal manifest explicitly retains interface kind and cardinality');
+check(field.value.length===2&&field.value.map(row=>row.code).join(',')==='001,002','normal array snapshot retains every selected store');
+check(snapshot.values[seriesId].code==='NEV-A'&&!Array.isArray(snapshot.values[seriesId])&&snapshot.values.plannedStoreName==='独立文本','series remains one object and independent text is preserved');
+check(!JSON.stringify(snapshot).includes('query-token')&&!JSON.stringify(snapshot).includes('condition-token'),'normal callback omits runtime validation markers');
+check(JSON.stringify(values)===before,'snapshot creation leaves all current draft values unchanged');
+for(const value of [{code:'001',name:'单对象'},'not-an-array']){
+ let threw=false;try{M.callbackSnapshot({...values,[storeId]:value},scope);}catch(_){threw=true;}check(threw,'a multiple value is rejected rather than converted from a lone object');
+}
+const empty=M.callbackSnapshot({...values,[storeId]:[]},scope);check(Array.isArray(empty.values[storeId])&&empty.values[storeId].length===0,'normal empty collection remains an array');
+const persisted=h.storage.get(M.storageKey);h.storage.set('customer-business-config-v3','OLD-INCOMPATIBLE');
+check(M.catalog(scope).ok&&h.storage.get(M.storageKey)===persisted&&h.storage.get('customer-business-config-v3')==='OLD-INCOMPATIBLE','old preset namespace has no effect on current configuration reads');
+const invalid=JSON.parse(persisted);invalid.version=3;h.storage.set(M.storageKey,JSON.stringify(invalid));check(!M.catalog(scope).ok,'wrong schema in the current key is rejected without an upgrade');
+console.log(JSON.stringify({passed,scope:'current explicit interface schema, condition integrity, strict arrays and normal saved manifests; preset migration assertions retired'}));

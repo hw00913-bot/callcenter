@@ -1,0 +1,295 @@
+{
+  "schema_version": "1.0",
+  "source_id": "SRC-152",
+  "captured_at": "2026-10-15T15:59:56+08:00",
+  "version": "1.1.0",
+  "evidence_level": "local_design_only",
+  "conclusions": [
+    "本地产品与原型明确读取／保存失败保留填写内容供重试，成功后才清理本次填写状态。",
+    "原型用sessionStorage演示当前会话草稿与归属校验，暂存失败提示保留当前页面。"
+  ],
+  "limitations": [
+    "静态原型与本地需求不证明生产服务有相同存储能力或契约。",
+    "不承诺关闭浏览器、跨设备、换账号或无限期恢复；sessionStorage不作为本次生产技术选型。"
+  ],
+  "sources": [
+    {
+      "path": "需求/1.1.0/README.md",
+      "sha256": "7b892dba1a3042cff024739256de1635f75e32ea972c0cf7578741ad82cbce87",
+      "excerpts": [
+        {
+          "line": 7,
+          "text": "类型编码和名称逐记录保存，在客户名单、客户／通话详情展示；接口线索的坐席填单使用原类型表单，无需重复选择。后续改名／停用不回写历史；原表单暂不可用时保留草稿并说明原因，不静默切换。每次结果／进度和已完成沟通回调都带回原业务类型编码。"
+        }
+      ]
+    },
+    {
+      "path": "prototype/js/components/customer-followup.js",
+      "sha256": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+      "excerpts": [
+        {
+          "line": 97,
+          "text": "  function save(call, values, options = {}) {"
+        },
+        {
+          "line": 98,
+          "text": "    if (!canEdit(call, options.wrapping)) return { ok: false, message: '当前通话已不在可处理范围内，请返回后重新选择' };"
+        },
+        {
+          "line": 99,
+          "text": "    let journal;"
+        },
+        {
+          "line": 100,
+          "text": "    try { journal = read(); } catch (_) { return { ok: false, message: '业务信息暂时无法读取，请保留当前填写内容并重试' }; }"
+        },
+        {
+          "line": 101,
+          "text": "    const id = identity(call);"
+        },
+        {
+          "line": 102,
+          "text": "    const canonical = CloudCallData.calls.find(row => identity(row) === id);"
+        },
+        {
+          "line": 103,
+          "text": "    // A first edit can start from a bundled snapshot before a journal entry exists."
+        },
+        {
+          "line": 104,
+          "text": "    // Never use an incoming clone as the current version; persisted values win."
+        },
+        {
+          "line": 105,
+          "text": "    const previous = journal.entries.find(row => row.key === id)?.values || canonical?.customerFollowup || {};"
+        },
+        {
+          "line": 106,
+          "text": "    if (options.expectedVersion !== undefined && options.expectedVersion !== (previous.updatedAt || '')) return { ok: false, message: '这通电话的业务信息已更新，请刷新后再处理' };"
+        },
+        {
+          "line": 107,
+          "text": "    const checked = validate(values, call, previous);"
+        },
+        {
+          "line": 108,
+          "text": "    if (!checked.ok) return checked;"
+        },
+        {
+          "line": 109,
+          "text": "    const snapshot = { ...checked.values, updatedAt: new Date().toISOString(), updatedBy: AppState.get().accountId };"
+        },
+        {
+          "line": 110,
+          "text": "    if(window.CustomerBusiness?.callbackSnapshot)snapshot.businessFieldSnapshot=CustomerBusiness.callbackSnapshot(snapshot,call);"
+        },
+        {
+          "line": 111,
+          "text": "    const next = { key: id, values: snapshot };"
+        },
+        {
+          "line": 112,
+          "text": "    journal.entries = journal.entries.filter(row => row.key !== id).concat(next);"
+        },
+        {
+          "line": 113,
+          "text": "    try { localStorage.setItem(key, JSON.stringify(journal)); } catch (_) { return { ok: false, message: '业务信息未能保存，请保留当前填写内容并重试' }; }"
+        },
+        {
+          "line": 114,
+          "text": "    call.customerFollowup = structuredClone(snapshot);"
+        }
+      ]
+    },
+    {
+      "path": "prototype/js/pages/agent-workbench.js",
+      "sha256": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+      "excerpts": [
+        {
+          "line": 213,
+          "text": "  function persist() {"
+        },
+        {
+          "line": 214,
+          "text": "    if (restorationError) return;"
+        },
+        {
+          "line": 215,
+          "text": "    draftStored = write(sessionKey, { scope, draft, call, phase, disposition, remark, followup, followupVersion, agentCallStatusDraft, lastSavedId, demoResult, suspendedDraft, receivingOrigin }, sessionStorage);"
+        },
+        {
+          "line": 216,
+          "text": "    updateDraftNotice();"
+        },
+        {
+          "line": 217,
+          "text": "  }"
+        },
+        {
+          "line": 235,
+          "text": "    }"
+        },
+        {
+          "line": 236,
+          "text": "    draft = saved.draft || {}; suspendedDraft=saved.suspendedDraft||null;receivingOrigin=!!saved.receivingOrigin;lastSavedId = saved.lastSavedId || '';"
+        },
+        {
+          "line": 237,
+          "text": "    delete draft.skillGroupId; delete draft.numberId;"
+        },
+        {
+          "line": 238,
+          "text": "    if(suspendedDraft) { delete suspendedDraft.skillGroupId; delete suspendedDraft.numberId; }"
+        },
+        {
+          "line": 239,
+          "text": "    demoResult = saved.demoResult || '接通'; disposition = saved.disposition || ''; remark = saved.remark || ''; followup = { ...CustomerFollowup.empty(), ...saved.followup }; followupVersion = saved.followupVersion || '';"
+        },
+        {
+          "line": 240,
+          "text": "    agentCallStatusDraft = saved.agentCallStatusDraft || null;"
+        },
+        {
+          "line": 241,
+          "text": "    if (saved.call && ['offered', 'answering', 'dialing', 'ringing', 'connected', 'wrap'].includes(saved.phase)) {"
+        },
+        {
+          "line": 242,
+          "text": "      let committed;"
+        },
+        {
+          "line": 243,
+          "text": "      try {"
+        },
+        {
+          "line": 244,
+          "text": "        const snapshot = saved.call, context = AppState.get();"
+        },
+        {
+          "line": 245,
+          "text": "        if (snapshot.accountId !== AppState.account().accountId || snapshot.tenantId !== context.tenantId ||"
+        },
+        {
+          "line": 246,
+          "text": "          snapshot.enterpriseId !== context.enterpriseId || snapshot.callSource !== 'NATIVE_WORKBENCH' || !snapshot.callId) throw Error('Session scope mismatch');"
+        },
+        {
+          "line": 247,
+          "text": "        const journal = JSON.parse(localStorage.getItem(recordsKey) || '[]');"
+        },
+        {
+          "line": 248,
+          "text": "        if (!Array.isArray(journal)) throw Error('Invalid native journal');"
+        },
+        {
+          "line": 249,
+          "text": "        committed = journal.find(row => row.callId === snapshot.callId) || data.calls.find(row => row.callId === snapshot.callId);"
+        },
+        {
+          "line": 250,
+          "text": "        if (committed && !sameNativeCall(snapshot, committed)) throw Error('Call identity mismatch');"
+        },
+        {
+          "line": 251,
+          "text": "        // Session storage holds UI drafts, not the authority for completed calls."
+        },
+        {
+          "line": 252,
+          "text": "        call = structuredClone(committed || snapshot);"
+        },
+        {
+          "line": 696,
+          "text": "    delete next.pendingDisposition;"
+        },
+        {
+          "line": 697,
+          "text": "    const businessResult = CustomerFollowup.save(next, followup, { wrapping: true, expectedVersion: followupVersion });"
+        },
+        {
+          "line": 698,
+          "text": "    if (!businessResult.ok) return fail(businessResult.message, businessResult.field ? 'seat-followup-' + businessResult.field : 'seat-save');"
+        },
+        {
+          "line": 699,
+          "text": "    // Business information has its own journal. Keep its saved version when the"
+        },
+        {
+          "line": 714,
+          "text": "      next.communicationCompletion={eventId:'communication:'+next.callId+':'+businessResult.values.updatedAt,state:'pending',savedBusinessVersion:businessResult.values.updatedAt,frozenCallSnapshot,frozenBusinessSnapshot};"
+        },
+        {
+          "line": 715,
+          "text": "    }"
+        },
+        {
+          "line": 716,
+          "text": "    const saved = saveRecord(next, true);"
+        },
+        {
+          "line": 717,
+          "text": "    if (!saved.ok) return fail(saved.message, 'seat-save');"
+        },
+        {
+          "line": 718,
+          "text": "    Object.assign(call, next); lastSavedId = call.callId;"
+        },
+        {
+          "line": 719,
+          "text": "    const completion=queueCommunicationCompletion(call);"
+        },
+        {
+          "line": 720,
+          "text": "    if (disposition === '客户拒绝联系' && !data.nativeWorkbench.blockedNumbers.some(n => n.tenantId === call.tenantId && n.phone === customerPhone(call)))"
+        },
+        {
+          "line": 721,
+          "text": "      data.nativeWorkbench.blockedNumbers.push({ tenantId: call.tenantId, phone: customerPhone(call) });"
+        },
+        {
+          "line": 722,
+          "text": "    CloudCallRuntime.addAudit('保存'+call.callType+'处理结果', call.callId, call.tenantId, '待填写', disposition);"
+        },
+        {
+          "line": 723,
+          "text": "    const a = data.agents.find(r => r.contactCenterIdentityId === call.contactCenterIdentityId);"
+        },
+        {
+          "line": 724,
+          "text": "    call = null; phase = 'idle'; error = '';"
+        },
+        {
+          "line": 725,
+          "text": "    // Keep work resources for the next customer; config() still revalidates grants."
+        },
+        {
+          "line": 726,
+          "text": "    draft = suspendedDraft || {}; suspendedDraft=null;disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = ''; agentCallStatusDraft = null;"
+        },
+        {
+          "line": 848,
+          "text": "      '<button class=\"btn seat-hangup\" onclick=\"AgentWorkbench.end()\">'+(phase==='connected'?'结束通话':'取消呼叫')+'</button>')+'</div><p class=\"seat-call-hint\">'+(muted?'当前已静音':'关闭或返回可收起来电，稍后从通话条继续')+'</p></div>';"
+        },
+        {
+          "line": 849,
+          "text": "  }"
+        },
+        {
+          "line": 850,
+          "text": "  function draftNotice(){return draftStored?'':'暂存未成功，请保留当前页面并稍后重试';}"
+        },
+        {
+          "line": 851,
+          "text": "  function updateDraftNotice(){"
+        },
+        {
+          "line": 852,
+          "text": "    const node=document.getElementById('seat-draft-status');"
+        },
+        {
+          "line": 853,
+          "text": "    if(node){node.textContent=draftNotice();node.hidden=draftStored;}"
+        }
+      ]
+    }
+  ]
+}

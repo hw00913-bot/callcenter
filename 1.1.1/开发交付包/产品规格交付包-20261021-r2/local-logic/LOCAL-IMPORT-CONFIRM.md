@@ -1,0 +1,102 @@
+# LOCAL-IMPORT-CONFIRM 只读导入核对并明确带入车系
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [查询单选接口车系并保存本次意向信息 · FUNC\-030](../features/FUNC-030.md)
+
+## 职责与触发
+
+所属工程模块：开发接手后确定
+
+功能：FUNC-030
+
+触发：客服切导入页签并明确发起车系核对/确认
+
+## 前置条件
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+## 必须遵守的全局规则
+
+- [BR-024](../global-logic.md#BR-024)
+- [BR-028](../global-logic.md#BR-028)
+- [BR-033](../global-logic.md#BR-033)
+
+## 输入与输出
+
+输入：[FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)、[FIELD-CALL-VERSION](../field-specs.md#FIELD-CALL-VERSION)、[FIELD-IMPORTED-INTENTION](../field-specs.md#FIELD-IMPORTED-INTENTION)、[FIELD-SERIES-SELECTION](../field-specs.md#FIELD-SERIES-SELECTION)
+
+输出：[FIELD-SERIES-SELECTION](../field-specs.md#FIELD-SERIES-SELECTION)
+
+## 处理步骤
+
+### LOCAL-IMPORT-CONFIRM-STEP-1
+
+展示原导入只读，页签切换保留本次填写；明确操作后核对导入官方编码
+
+读取：FIELD-CALL-CONTEXT, FIELD-CALL-VERSION, FIELD-IMPORTED-INTENTION；写入：无
+
+规则：BR-024, BR-028, BR-033
+
+### LOCAL-IMPORT-CONFIRM-STEP-2
+
+查询并按官方code精确匹配，反馈进度与结果；提交带入前核对上下文及后续编辑
+
+读取：FIELD-CALL-CONTEXT, FIELD-IMPORTED-INTENTION, FIELD-SERIES-CODE；写入：无
+
+规则：BR-024, BR-028, BR-033
+
+### LOCAL-IMPORT-CONFIRM-STEP-3
+
+只有匹配且明确确认才带入本次选择，并回本次填写供检查
+
+读取：FIELD-IMPORTED-INTENTION, FIELD-SERIES-SELECTION；写入：FIELD-SERIES-SELECTION
+
+规则：BR-024, BR-028, BR-033
+
+## 分支与异常
+
+### LOCAL-IMPORT-CONFIRM-BRANCH-1
+
+条件：未匹配/仅同名或媒体ID/取消
+
+结果：不改本次值，不猜匹配，不回写原导入或门店文本
+
+涉及字段：FIELD-IMPORTED-INTENTION, FIELD-SERIES-SELECTION
+
+验证：CHECK-117
+
+### LOCAL-IMPORT-CONFIRM-BRANCH-2
+
+条件：切换通话/租户或继续编辑后旧结果返回
+
+结果：丢弃过期带入，不覆盖新输入
+
+涉及字段：FIELD-CALL-CONTEXT, FIELD-SERIES-SELECTION
+
+验证：CHECK-115, CHECK-IMPORT-RACE
+
+## 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 字段定义
+
+- [FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)
+- [FIELD-CALL-VERSION](../field-specs.md#FIELD-CALL-VERSION)
+- [FIELD-IMPORTED-INTENTION](../field-specs.md#FIELD-IMPORTED-INTENTION)
+- [FIELD-SERIES-CODE](../field-specs.md#FIELD-SERIES-CODE)
+- [FIELD-SERIES-SELECTION](../field-specs.md#FIELD-SERIES-SELECTION)
+
+## 来源与验证
+
+来源条目：acceptance:AC-116, acceptance:AC-117, features:FUNC-030, features:FUNC-030/boundary/business_rules/0, features:FUNC-030/boundary/business_rules/1, features:FUNC-030/boundary/business_rules/10, features:FUNC-030/boundary/business_rules/11, features:FUNC-030/boundary/business_rules/2, features:FUNC-030/boundary/business_rules/3, features:FUNC-030/boundary/business_rules/4, features:FUNC-030/boundary/business_rules/5, features:FUNC-030/boundary/business_rules/6, features:FUNC-030/boundary/business_rules/7, features:FUNC-030/boundary/business_rules/8, features:FUNC-030/boundary/business_rules/9, features:FUNC-030/boundary/exception_paths/0, features:FUNC-030/boundary/exception_paths/1, features:FUNC-030/boundary/exception_paths/2, features:FUNC-030/boundary/exception_paths/3, flows:FLOW-006, flows:FLOW-006/steps/0, flows:FLOW-006/steps/1, flows:FLOW-006/steps/2, flows:FLOW-006/steps/3, flows:FLOW-006/steps/4, flows:FLOW-006/steps/5, flows:FLOW-006/steps/6, interfaces:API-015, interfaces:API-015/request_fields/2, interfaces:API-015/request_fields/3, interfaces:API-015/response_fields/0, interfaces:API-015/response_fields/1, interfaces:API-015/response_fields/2, interfaces:API-015/response_fields/3, pages:PAGE-008, pages:PAGE-008/actions/0, pages:PAGE-008/fields/0, pages:PAGE-008/fields/1, pages:PAGE-008/fields/2, pages:PAGE-008/fields/3, rules:BR-024, rules:BR-028, rules:BR-033, scenarios:SC-013, scenarios:SC-013/alternate_flows/0, scenarios:SC-013/alternate_flows/0/steps/0, scenarios:SC-013/alternate_flows/0/steps/1, scenarios:SC-013/alternate_flows/1, scenarios:SC-013/alternate_flows/1/steps/0, scenarios:SC-013/alternate_flows/1/steps/1, scenarios:SC-013/alternate_flows/10, scenarios:SC-013/alternate_flows/10/steps/0, scenarios:SC-013/alternate_flows/11, scenarios:SC-013/alternate_flows/11/steps/0, scenarios:SC-013/alternate_flows/11/steps/1, scenarios:SC-013/alternate_flows/12, scenarios:SC-013/alternate_flows/12/steps/0, scenarios:SC-013/alternate_flows/12/steps/1, scenarios:SC-013/alternate_flows/13, scenarios:SC-013/alternate_flows/13/steps/0, scenarios:SC-013/alternate_flows/13/steps/1, scenarios:SC-013/alternate_flows/14, scenarios:SC-013/alternate_flows/14/steps/0, scenarios:SC-013/alternate_flows/14/steps/1, scenarios:SC-013/alternate_flows/2, scenarios:SC-013/alternate_flows/2/steps/0, scenarios:SC-013/alternate_flows/2/steps/1, scenarios:SC-013/alternate_flows/3, scenarios:SC-013/alternate_flows/3/steps/0, scenarios:SC-013/alternate_flows/3/steps/1, scenarios:SC-013/alternate_flows/4, scenarios:SC-013/alternate_flows/4/steps/0, scenarios:SC-013/alternate_flows/4/steps/1, scenarios:SC-013/alternate_flows/5, scenarios:SC-013/alternate_flows/5/steps/0, scenarios:SC-013/alternate_flows/6, scenarios:SC-013/alternate_flows/6/steps/0, scenarios:SC-013/alternate_flows/7, scenarios:SC-013/alternate_flows/7/steps/0, scenarios:SC-013/alternate_flows/7/steps/1, scenarios:SC-013/alternate_flows/8, scenarios:SC-013/alternate_flows/8/steps/0, scenarios:SC-013/alternate_flows/9, scenarios:SC-013/alternate_flows/9/steps/0, scenarios:SC-013/alternate_flows/9/steps/1, scenarios:SC-013/main_flow/0, scenarios:SC-013/main_flow/1, scenarios:SC-013/main_flow/10, scenarios:SC-013/main_flow/2, scenarios:SC-013/main_flow/3, scenarios:SC-013/main_flow/4, scenarios:SC-013/main_flow/5, scenarios:SC-013/main_flow/6, scenarios:SC-013/main_flow/7, scenarios:SC-013/main_flow/8, scenarios:SC-013/main_flow/9, scenarios:SC-013/postconditions/0, scenarios:SC-013/postconditions/1, scenarios:SC-013/postconditions/2, scenarios:SC-013/postconditions/3, scenarios:SC-013/preconditions/0, scenarios:SC-013/preconditions/1, scenarios:SC-013/preconditions/2, sequences:SEQ-015, sequences:SEQ-015/messages/0, sequences:SEQ-015/messages/1, sequences:SEQ-015/messages/10, sequences:SEQ-015/messages/11, sequences:SEQ-015/messages/12, sequences:SEQ-015/messages/13, sequences:SEQ-015/messages/14, sequences:SEQ-015/messages/15, sequences:SEQ-015/messages/16, sequences:SEQ-015/messages/17, sequences:SEQ-015/messages/18, sequences:SEQ-015/messages/19, sequences:SEQ-015/messages/2, sequences:SEQ-015/messages/20, sequences:SEQ-015/messages/21, sequences:SEQ-015/messages/22, sequences:SEQ-015/messages/23, sequences:SEQ-015/messages/24, sequences:SEQ-015/messages/25, sequences:SEQ-015/messages/26, sequences:SEQ-015/messages/27, sequences:SEQ-015/messages/28, sequences:SEQ-015/messages/29, sequences:SEQ-015/messages/3, sequences:SEQ-015/messages/30, sequences:SEQ-015/messages/31, sequences:SEQ-015/messages/32, sequences:SEQ-015/messages/33, sequences:SEQ-015/messages/34, sequences:SEQ-015/messages/35, sequences:SEQ-015/messages/4, sequences:SEQ-015/messages/5, sequences:SEQ-015/messages/6, sequences:SEQ-015/messages/7, sequences:SEQ-015/messages/8, sequences:SEQ-015/messages/9, stories:US-016, stories:US-016/preconditions/0
+
+验证：CHECK-114, CHECK-117, CHECK-115, CHECK-IMPORT-RACE, CHECK-116
+
+## 实施任务
+
+未声明；请结合范围说明核对。

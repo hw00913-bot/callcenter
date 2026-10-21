@@ -1,0 +1,113 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>产品规格交付包-20261021/local-logic/LOCAL-FIELD-DELETE.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../1.1.1/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E4%BA%A7%E5%93%81%E8%A7%84%E6%A0%BC%E4%BA%A4%E4%BB%98%E5%8C%85-20261021/local-logic/LOCAL-FIELD-DELETE.md">原始 Markdown</a></p><h1>产品规格交付包-20261021/local-logic/LOCAL-FIELD-DELETE.md</h1><pre># LOCAL-FIELD-DELETE 删除本租户未使用字段
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [删除未使用自定义字段 · FUNC\-032](../features/FUNC-032.md)
+
+## 职责与触发
+
+所属工程模块：开发接手后确定
+
+功能：FUNC-032
+
+触发：有本租户业务配置权限的人员删除字段定义
+
+## 前置条件
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+## 必须遵守的全局规则
+
+- [BR-039](../global-logic.md#BR-039)
+- [BR-040](../global-logic.md#BR-040)
+- [BR-041](../global-logic.md#BR-041)
+
+## 输入与输出
+
+输入：[FIELD-DEFINITION-ID](../field-specs.md#FIELD-DEFINITION-ID)、[FIELD-DEFINITION](../field-specs.md#FIELD-DEFINITION)、[FIELD-CLASS-FIELD-REFS](../field-specs.md#FIELD-CLASS-FIELD-REFS)、[FIELD-CATEGORY-ARCHIVE](../field-specs.md#FIELD-CATEGORY-ARCHIVE)、[FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)
+
+输出：[FIELD-DEFINITION](../field-specs.md#FIELD-DEFINITION)
+
+## 处理步骤
+
+### LOCAL-FIELD-DELETE-STEP-1
+
+读取真实分类/依赖/归档/业务值及当前草稿引用，不按预置身份或整版库存一刀切
+
+读取：FIELD-DEFINITION-ID, FIELD-DEFINITION, FIELD-CLASS-FIELD-REFS, FIELD-CATEGORY-ARCHIVE, FIELD-CALL-CONTEXT；写入：无
+
+规则：BR-039, BR-040, BR-041
+
+### LOCAL-FIELD-DELETE-STEP-2
+
+确认时重查对象、权限及引用，未用时仅删本字段
+
+读取：FIELD-DEFINITION-ID, FIELD-DEFINITION；写入：FIELD-DEFINITION
+
+规则：BR-039, BR-040, BR-041
+
+### LOCAL-FIELD-DELETE-STEP-3
+
+保留其他字段/分类/接口和旧通话定义，刷新不补默认
+
+读取：FIELD-DEFINITION；写入：无
+
+规则：BR-039, BR-040, BR-041
+
+## 分支与异常
+
+### LOCAL-FIELD-DELETE-BRANCH-1
+
+条件：实际使用或无法核对
+
+结果：说明位置并阻止物理删除
+
+涉及字段：FIELD-DEFINITION-ID, FIELD-CLASS-FIELD-REFS, FIELD-CATEGORY-ARCHIVE, FIELD-CALL-CONTEXT
+
+验证：CHECK-144
+
+### LOCAL-FIELD-DELETE-BRANCH-2
+
+条件：未使用的统计或Mapping预置字段
+
+结果：同样可删，仍存预置定义继续原类型选项保护
+
+涉及字段：FIELD-DEFINITION-ID, FIELD-DEFINITION
+
+验证：CHECK-143, CHECK-146
+
+### LOCAL-FIELD-DELETE-BRANCH-3
+
+条件：取消/并发/权限/读写异常
+
+结果：原字段与草稿保留，不升级当前通话
+
+涉及字段：FIELD-DEFINITION-ID, FIELD-DEFINITION
+
+验证：CHECK-145
+
+## 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 字段定义
+
+- [FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)
+- [FIELD-CATEGORY-ARCHIVE](../field-specs.md#FIELD-CATEGORY-ARCHIVE)
+- [FIELD-CLASS-FIELD-REFS](../field-specs.md#FIELD-CLASS-FIELD-REFS)
+- [FIELD-DEFINITION](../field-specs.md#FIELD-DEFINITION)
+- [FIELD-DEFINITION-ID](../field-specs.md#FIELD-DEFINITION-ID)
+
+## 来源与验证
+
+来源条目：features:FUNC-032, features:FUNC-032/boundary/business_rules/0, features:FUNC-032/boundary/business_rules/1, features:FUNC-032/boundary/business_rules/2, features:FUNC-032/boundary/exception_paths/0, flows:FLOW-007, flows:FLOW-007/steps/0, flows:FLOW-007/steps/1, flows:FLOW-007/steps/2, flows:FLOW-007/steps/3, flows:FLOW-007/steps/4, pages:PAGE-007, pages:PAGE-007/actions/0, pages:PAGE-007/actions/1, pages:PAGE-007/actions/2, pages:PAGE-007/fields/0, pages:PAGE-007/fields/1, pages:PAGE-007/fields/10, pages:PAGE-007/fields/11, pages:PAGE-007/fields/2, pages:PAGE-007/fields/3, pages:PAGE-007/fields/4, pages:PAGE-007/fields/5, pages:PAGE-007/fields/6, pages:PAGE-007/fields/7, pages:PAGE-007/fields/8, pages:PAGE-007/fields/9, rules:BR-039, rules:BR-040, rules:BR-041, scenarios:SC-015, scenarios:SC-015/alternate_flows/0, scenarios:SC-015/alternate_flows/0/steps/0, scenarios:SC-015/alternate_flows/1, scenarios:SC-015/alternate_flows/1/steps/0, scenarios:SC-015/alternate_flows/2, scenarios:SC-015/alternate_flows/2/steps/0, scenarios:SC-015/main_flow/0, scenarios:SC-015/main_flow/1, scenarios:SC-015/main_flow/2, scenarios:SC-015/main_flow/3, scenarios:SC-015/main_flow/4, scenarios:SC-015/postconditions/0, scenarios:SC-015/postconditions/1, scenarios:SC-015/preconditions/0, scenarios:SC-015/preconditions/1, sequences:SEQ-017, sequences:SEQ-017/messages/0, sequences:SEQ-017/messages/1, sequences:SEQ-017/messages/10, sequences:SEQ-017/messages/11, sequences:SEQ-017/messages/12, sequences:SEQ-017/messages/13, sequences:SEQ-017/messages/14, sequences:SEQ-017/messages/2, sequences:SEQ-017/messages/3, sequences:SEQ-017/messages/4, sequences:SEQ-017/messages/5, sequences:SEQ-017/messages/6, sequences:SEQ-017/messages/7, sequences:SEQ-017/messages/8, sequences:SEQ-017/messages/9, stories:US-021, stories:US-021/preconditions/0, stories:US-021/preconditions/1, acceptance:AC-143, acceptance:AC-144, acceptance:AC-145, acceptance:AC-146
+
+验证：CHECK-143, CHECK-144, CHECK-145, CHECK-146
+
+## 实施任务
+
+未声明；请结合范围说明核对。
+</pre></body></html>

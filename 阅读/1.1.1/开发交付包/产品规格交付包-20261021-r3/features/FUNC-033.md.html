@@ -1,0 +1,163 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>产品规格交付包-20261021-r3/features/FUNC-033.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../1.1.1/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E4%BA%A7%E5%93%81%E8%A7%84%E6%A0%BC%E4%BA%A4%E4%BB%98%E5%8C%85-20261021-r3/features/FUNC-033.md">原始 Markdown</a></p><h1>产品规格交付包-20261021-r3/features/FUNC-033.md</h1><pre># 逻辑删除业务分类 · FUNC\-033
+
+**READY\_FOR\_ENGINEERING\_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+具备本租户业务配置权限的管理员可确认逻辑删除业务分类，不因历史通话、进行中/话后通话或已有业务引用而禁止。目标从当前配置列表和新业务可选项移除，持久标记已删除，不级联删除字段、接口或业务数据。 删除时归档该分类当时名称、编码、实际全部refs及其依赖闭包所需字段定义/选项，不复制整租户无关字段库存。历史记录仍按当时分类名称、字段和结果展示；删除前已有已导入名单/任务保留原业务分类并继续处理，不清空、迁移或降为未分类。新建/新导入不得再选择或提交已删除分类，不能凭任意已删除ID冒充已有业务上下文。
+
+来源业务域：未提供；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md) — 共用页面，另有 2 个功能
+
+- [坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md) — 共用页面，另有 1 个功能
+
+- [通话详情（本次客户业务信息） · UI\-PAGE\-009](../ui-pages/UI-PAGE-009.md) — 共用页面，另有 1 个功能
+
+- [客户档案（业务信息汇总） · UI\-PAGE\-010](../ui-pages/UI-PAGE-010.md) — 共用页面，另有 1 个功能
+
+## 局部逻辑
+
+- [逻辑删除分类并保留旧业务 · LOCAL\-CATEGORY\-RETIRE](../local-logic/LOCAL-CATEGORY-RETIRE.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：本租户有权管理员确认业务分类删除
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+### 处理步骤
+
+1. **LOCAL\-CATEGORY\-RETIRE\-STEP\-1**：读取目标分类及实际全部refs、必要依赖defs，已有业务只作为影响说明
+
+2. **LOCAL\-CATEGORY\-RETIRE\-STEP\-2**：确认提交时核对权限、目标配置及归档可完整读取保存
+
+3. **LOCAL\-CATEGORY\-RETIRE\-STEP\-3**：同次归档并标记退出新业务选择，不删字段/接口/记录，旧通话/名单任务继续
+
+### 分支与异常
+
+- **LOCAL\-CATEGORY\-RETIRE\-BRANCH\-1**：当存在历史、当前/话后通话或旧名单任务，仍允许逻辑删除，保留合法原业务继续处理，不降为未分类。
+
+- **LOCAL\-CATEGORY\-RETIRE\-BRANCH\-2**：当无法可靠归档或权限/目标版本/保存变化，保留原分类和全部原业务/草稿，不报成功。
+
+- **LOCAL\-CATEGORY\-RETIRE\-BRANCH\-3**：当新业务/新导入请求已删分类，或伪造旧ID上下文，拒绝；归档只供真实原业务，不能save或启用同ID复活。
+
+- **LOCAL\-CATEGORY\-RETIRE\-BRANCH\-4**：当归档仍引用字段/接口，归档独立定义继续旧业务；不阻挡当前字段库删除，取数接口来源保留仍按原规则，不新增恢复/清理/迁移UI。。
+
+### 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [通话及业务对象上下文 · FIELD\-CALL\-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)；依据：[逻辑删除分类并保留旧业务 · LOCAL\-CATEGORY\-RETIRE](../local-logic/LOCAL-CATEGORY-RETIRE.md)
+
+- [已删除分类保留定义 · FIELD\-CATEGORY\-ARCHIVE](../field-specs.md#FIELD-CATEGORY-ARCHIVE)；依据：[逻辑删除分类并保留旧业务 · LOCAL\-CATEGORY\-RETIRE](../local-logic/LOCAL-CATEGORY-RETIRE.md)
+
+- [业务分类识别与配置 · FIELD\-CATEGORY\-DEFINITION](../field-specs.md#FIELD-CATEGORY-DEFINITION)；依据：[逻辑删除分类并保留旧业务 · LOCAL\-CATEGORY\-RETIRE](../local-logic/LOCAL-CATEGORY-RETIRE.md)
+
+- [分类字段引用集合 · FIELD\-CLASS\-FIELD\-REFS](../field-specs.md#FIELD-CLASS-FIELD-REFS)；依据：[逻辑删除分类并保留旧业务 · LOCAL\-CATEGORY\-RETIRE](../local-logic/LOCAL-CATEGORY-RETIRE.md)
+
+- [字段定义整体 · FIELD\-DEFINITION](../field-specs.md#FIELD-DEFINITION)；依据：[逻辑删除分类并保留旧业务 · LOCAL\-CATEGORY\-RETIRE](../local-logic/LOCAL-CATEGORY-RETIRE.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [分类字段顺序 · FIELD\-CLASS\-ORDER](../field-specs.md#FIELD-CLASS-ORDER)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)
+
+- [分类字段是否必填 · FIELD\-CLASS\-REQUIRED](../field-specs.md#FIELD-CLASS-REQUIRED)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)
+
+- [分类字段是否显示 · FIELD\-CLASS\-VISIBLE](../field-specs.md#FIELD-CLASS-VISIBLE)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)
+
+- [自定义字段稳定标识 · FIELD\-DEFINITION\-ID](../field-specs.md#FIELD-DEFINITION-ID)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)
+
+- [字段名称 · FIELD\-DEFINITION\-LABEL](../field-specs.md#FIELD-DEFINITION-LABEL)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)
+
+- [填写方式 · FIELD\-DEFINITION\-TYPE](../field-specs.md#FIELD-DEFINITION-TYPE)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)
+
+- [上游依赖展示 · FIELD\-DEPENDENCY\-SUMMARY](../field-specs.md#FIELD-DEPENDENCY-SUMMARY)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)
+
+- [字段取数接口引用 · FIELD\-DICTIONARY\-REF](../field-specs.md#FIELD-DICTIONARY-REF)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)、[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [下游入参字段名 · FIELD\-DOWNSTREAM\-PARAM](../field-specs.md#FIELD-DOWNSTREAM-PARAM)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)、[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [查询条件是否必需 · FIELD\-QUERY\-REQUIRED](../field-specs.md#FIELD-QUERY-REQUIRED)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)、[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [上游字段 · FIELD\-UPSTREAM\-ID](../field-specs.md#FIELD-UPSTREAM-ID)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)、[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [上游取值属性 · FIELD\-UPSTREAM\-PROPERTY](../field-specs.md#FIELD-UPSTREAM-PROPERTY)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)、[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [是否使用其他字段作为条件 · FIELD\-USE\-UPSTREAM](../field-specs.md#FIELD-USE-UPSTREAM)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)、[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [字段库启用状态 · FIELD\-DEFINITION\-ENABLED](../field-specs.md#FIELD-DEFINITION-ENABLED)；依据：[业务分类与字段配置 · UI\-PAGE\-007](../ui-pages/UI-PAGE-007.md)
+
+- [本通整版业务表单 · FIELD\-CALL\-VERSION](../field-specs.md#FIELD-CALL-VERSION)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [原导入意向信息 · FIELD\-IMPORTED\-INTENTION](../field-specs.md#FIELD-IMPORTED-INTENTION)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)、[通话详情（本次客户业务信息） · UI\-PAGE\-009](../ui-pages/UI-PAGE-009.md)
+
+- [Mapping预置媒体范围 · FIELD\-MAPPING\-MEDIA\-FILTER](../field-specs.md#FIELD-MAPPING-MEDIA-FILTER)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [Mapping预置状态范围 · FIELD\-MAPPING\-STATE\-FILTER](../field-specs.md#FIELD-MAPPING-STATE-FILTER)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [官方车系ID · FIELD\-OFFICIAL\-SERIES\-ID](../field-specs.md#FIELD-OFFICIAL-SERIES-ID)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [其他既有业务字段值 · FIELD\-OTHER\-BUSINESS\-VALUES](../field-specs.md#FIELD-OTHER-BUSINESS-VALUES)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)、[通话详情（本次客户业务信息） · UI\-PAGE\-009](../ui-pages/UI-PAGE-009.md)、[客户档案（业务信息汇总） · UI\-PAGE\-010](../ui-pages/UI-PAGE-010.md)
+
+- [计划到店门店原文本 · FIELD\-PLANNED\-STORE](../field-specs.md#FIELD-PLANNED-STORE)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)、[通话详情（本次客户业务信息） · UI\-PAGE\-009](../ui-pages/UI-PAGE-009.md)、[客户档案（业务信息汇总） · UI\-PAGE\-010](../ui-pages/UI-PAGE-010.md)
+
+- [同通业务字段与来源快照 · FIELD\-SAVED\-BUSINESS\-SNAPSHOT](../field-specs.md#FIELD-SAVED-BUSINESS-SNAPSHOT)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)、[通话详情（本次客户业务信息） · UI\-PAGE\-009](../ui-pages/UI-PAGE-009.md)、[客户档案（业务信息汇总） · UI\-PAGE\-010](../ui-pages/UI-PAGE-010.md)
+
+- [本次车系编码 · FIELD\-SERIES\-CODE](../field-specs.md#FIELD-SERIES-CODE)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [媒体车系ID来源快照 · FIELD\-SERIES\-MEDIA\-ID](../field-specs.md#FIELD-SERIES-MEDIA-ID)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [车系当时名称 · FIELD\-SERIES\-NAME](../field-specs.md#FIELD-SERIES-NAME)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [本次接口车系单选 · FIELD\-SERIES\-SELECTION](../field-specs.md#FIELD-SERIES-SELECTION)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+- [车系状态原值快照 · FIELD\-SERIES\-SOURCE\-STATE](../field-specs.md#FIELD-SERIES-SOURCE-STATE)；依据：[坐席工作台通话与话后处理 · UI\-PAGE\-008](../ui-pages/UI-PAGE-008.md)
+
+## 本功能验收
+
+- **AC\-147**：具备本租户业务配置权限的管理员可确认逻辑删除业务分类，不因历史通话、进行中/话后通话或已有业务引用而禁止。目标从当前配置列表和新业务可选项移除，持久标记已删除，不级联删除字段、接口或业务数据。
+
+- **AC\-148**：删除时归档该分类当时名称、编码、实际全部refs及其依赖闭包所需字段定义/选项，不复制整租户无关字段库存。历史记录仍按当时分类名称、字段和结果展示；删除前已有已导入名单/任务保留原业务分类并继续处理，不清空、迁移或降为未分类。新建/新导入不得再选择或提交已删除分类，不能凭任意已删除ID冒充已有业务上下文。
+
+- **AC\-149**：确认提交前校验本租户权限、目标配置版本及归档可可靠读取/保存。取消、权限或配置版本变化、无法可靠归档/写入失败保留原分类、数据与草稿，不宣称成功；已有业务引用本身仅说明保留影响，不是不可删除条件。
+
+- **AC\-150**：正在通话及话后仍按开始时整版配置完成；分类归档不改写原业务/通话/历史，新业务不再选已删分类。归档中的字段定义及refs独立供旧业务使用，不再阻止删除当前字段库定义；所需取数接口来源保留及实时授权仍按原规则。本期无恢复/归档清理/迁移UI。
+
+## 实施任务
+
+本产品阶段阅读版不展示实施任务。开发接手后需核对工程方案与任务拆分，具体见[开发补充清单](../developer-supplement.md)。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-033。产品：云外呼平台 v1\.1\.1 业务数据接口字典与字段取数联动 / 1\.1\.1。
+
+来源类型：analysis；来源指纹：06ff20c0417423ef883d38c2ea13ade0cef280e7d0d2cc08c26587440970627a。
+
+- memory/feature\-list\.json\#FUNC\-033
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>

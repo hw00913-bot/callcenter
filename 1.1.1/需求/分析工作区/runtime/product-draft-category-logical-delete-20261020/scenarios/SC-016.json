@@ -1,0 +1,579 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.1.1",
+  "id": "SC-016",
+  "name": "逻辑删除业务分类",
+  "summary": "具备本租户业务配置权限的管理员可确认逻辑删除业务分类，不因历史通话、进行中/话后通话或已有业务引用而禁止。目标从当前配置列表和新业务可选项移除，持久标记已删除，不级联删除字段、接口或业务数据。",
+  "actors": [
+    "本租户业务配置管理员",
+    "云外呼平台"
+  ],
+  "trigger": "管理员需要停止某分类的新业务选用，同时保留既有业务继续处理。",
+  "preconditions": [
+    "在本租户具有原分类维护权限。",
+    "原分类/字段/refs可可靠读取归档；已有关联历史/通话不是禁删条件。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "本租户业务配置管理员",
+      "action": "在业务分类Tab选择目标并发起逻辑删除。",
+      "system_response": "按原本租户权限展示退出新业务选择及旧业务保留说明，不自动提交。",
+      "rule_ids": [
+        "BR-041"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云外呼平台",
+      "action": "核对权限与当前分类/字段/refs归档数据，说明已有使用的保留影响。",
+      "system_response": "历史/active/已有名单任务不拦删除；只有无权或无法可靠准备归档时拒绝。",
+      "rule_ids": [
+        "BR-040",
+        "BR-042"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "本租户业务配置管理员",
+      "action": "明确确认从新业务可选中移除并保留旧业务归档。",
+      "system_response": "取消不提交；确认才进入最终校验。",
+      "rule_ids": [
+        "BR-040"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云外呼平台",
+      "action": "重查权限/配置版本，原子保存原分类及fields/refs归档并标记deleted。",
+      "system_response": "保存失败保原对象/草稿；不清历史和已有名单任务，不级联字段/接口。",
+      "rule_ids": [
+        "BR-040",
+        "BR-042"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云外呼平台",
+      "action": "反馈逻辑删除成功，从当前配置/新业务选择移除。",
+      "system_response": "新建/新导入不能再选；历史与既有任务按归档继续，当前通话保持原版。",
+      "rule_ids": [
+        "BR-042"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-016-USED",
+      "condition": "权限无效，或当前分类/字段信息无法可靠读取归档。",
+      "steps": [
+        "拒绝本次逻辑删除并说明具体权限或归档问题；历史和通话引用本身不作为拒绝条件。"
+      ]
+    },
+    {
+      "id": "ALT-016-CANCEL",
+      "condition": "用户在确认前取消。",
+      "steps": [
+        "保留原分类和数据/草稿，不提交逻辑删除。"
+      ]
+    },
+    {
+      "id": "ALT-016-FAIL",
+      "condition": "权限/目标配置版本变化，或归档和deleted标记未能原子保存。",
+      "steps": [
+        "明确逻辑删除未完成，保持原配置/业务/草稿；不得只移除新业务入口却丢失归档。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "分类已deleted并退出当前配置及新建/新导入可选，刷新不复活。",
+    "原分类名/字段/结果/refs归档保留，历史和已有名单任务继续，当前通话/话后仍原版。",
+    "字段/接口不级联且原物理引用保护保留，无恢复/清理/迁移UI。"
+  ],
+  "acceptance_points": [
+    "AC-147：具备本租户业务配置权限的管理员可确认逻辑删除业务分类，不因历史通话、进行中/话后通话或已有业务引用而禁止。目标从当前配置列表和新业务可选项移除，持久标记已删除，不级联删除字段、接口或业务数据。",
+    "AC-148：删除时归档该分类当时名称、编码、实际全部refs及其依赖闭包所需字段定义/选项，不复制整租户无关字段库存。历史记录仍按当时分类名称、字段和结果展示；删除前已有已导入名单/任务保留原业务分类并继续处理，不清空、迁移或降为未分类。新建/新导入不得再选择或提交已删除分类，不能凭任意已删除ID冒充已有业务上下文。",
+    "AC-149：确认提交前校验本租户权限、目标配置版本及归档可可靠读取/保存。取消、权限或配置版本变化、无法可靠归档/写入失败保留原分类、数据与草稿，不宣称成功；已有业务引用本身仅说明保留影响，不是不可删除条件。",
+    "AC-150：正在通话及话后处理仍按开始时整版配置完成，归档不改写原业务/通话/历史快照，刷新不让已删除分类重新成为新业务可选。归档中的原字段及refs继续供保留业务使用，并纳入字段/接口物理删除的原引用保护；本期不提供恢复、归档清理或迁移UI。"
+  ],
+  "source_story_ids": [
+    "US-022"
+  ],
+  "source_acceptance_ids": [
+    "AC-147",
+    "AC-148",
+    "AC-149",
+    "AC-150"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-172",
+    "inputs/user-stories.md#SRC-173",
+    "inputs/user-stories.md#SRC-174",
+    "inputs/user-stories.md#SRC-175",
+    "inputs/user-stories.md#SRC-176",
+    "inputs/user-stories.md#SRC-177"
+  ],
+  "open_item_ids": [],
+  "notes": [
+    "本场景只有分类逻辑删除，不调用外部接口、不引入新业务操作/ID。",
+    "已有业务使用可说明影响，但不作为删除准入；权限/配置版本及归档原子保存仍校验。",
+    "旧名单任务继续按原分类，当前通话同版；新业务不允许任意deleted ID冒充旧业务上下文。",
+    "field/interface仍是未用物理删除并保护归档引用；G2/G3及真实接口缺口不提升。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "本租户业务配置管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云外呼平台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "operator",
+        "type": "start",
+        "order": 1,
+        "label": "选择待逻辑删除分类"
+      },
+      {
+        "id": "REQUEST",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 2,
+        "label": "在目标Tab发起删除",
+        "step_ref": 1
+      },
+      {
+        "id": "CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "核对权限、归档与保留影响",
+        "step_ref": 2
+      },
+      {
+        "id": "UNUSED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 4,
+        "label": "权限与归档准备可确认？"
+      },
+      {
+        "id": "BLOCK",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 5,
+        "label": "说明权限/归档问题并保留"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "operator",
+        "type": "decision",
+        "order": 5,
+        "label": "确认退出新业务选择？",
+        "step_ref": 3
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 6,
+        "label": "取消，不删除"
+      },
+      {
+        "id": "DELETE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "归档原分类/字段并标记deleted",
+        "step_ref": 4
+      },
+      {
+        "id": "SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "归档与标记保存成功？"
+      },
+      {
+        "id": "FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 8,
+        "label": "失败保留原分类与业务"
+      },
+      {
+        "id": "RESULT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 9,
+        "label": "新业务移除，旧业务继续",
+        "step_ref": 5
+      },
+      {
+        "id": "DONE",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 10,
+        "label": "逻辑删除完成"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "REQUEST"
+      },
+      {
+        "from": "REQUEST",
+        "to": "CHECK"
+      },
+      {
+        "from": "CHECK",
+        "to": "UNUSED"
+      },
+      {
+        "from": "UNUSED",
+        "to": "BLOCK",
+        "label": "无权或无法可靠归档",
+        "path_id": "ALT-016-USED",
+        "type": "alternate"
+      },
+      {
+        "from": "UNUSED",
+        "to": "CONFIRM",
+        "label": "允许且归档可准备"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-016-CANCEL",
+        "type": "alternate"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "DELETE",
+        "label": "确认"
+      },
+      {
+        "from": "DELETE",
+        "to": "SAVED"
+      },
+      {
+        "from": "SAVED",
+        "to": "FAIL",
+        "label": "未保存/配置或权限变化",
+        "path_id": "ALT-016-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "SAVED",
+        "to": "RESULT",
+        "label": "成功"
+      },
+      {
+        "from": "RESULT",
+        "to": "DONE"
+      }
+    ]
+  },
+  "business_rule_ids": [
+    "BR-039",
+    "BR-040",
+    "BR-041",
+    "BR-042"
+  ],
+  "change_history": [
+    {
+      "at": "2026-10-20T16:55:50+08:00",
+      "reason": "SRC177用户接受仅业务分类逻辑删除；新业务不可选，归档分类字段/refs保历史、已有名单任务及本通继续，字段/接口原物理删除保护不变。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-177"
+      ],
+      "previous_values": {
+        "name": "删除未使用业务分类",
+        "summary": "具备本租户业务配置权限的管理员可发起并确认删除未使用业务分类；删除仅作用于该租户目标分类，不级联删除字段库或接口字典。",
+        "trigger": "有权人员需要清理未使用的业务分类",
+        "preconditions": [
+          "当前角色及企业/租户范围有效；删除不扩大权限。",
+          "只能在未使用且最终确认无引用时删除。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "本租户业务配置管理员",
+            "action": "进入“客户管理→业务分类→业务分类Tab”，选择目标并发起删除。",
+            "system_response": "核对当前对象、角色及租户范围；不自动提交删除。",
+            "rule_ids": [
+              "BR-041"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云外呼平台",
+            "action": "核对目标的实际配置、依赖、业务数据及当前通话引用/来源保留。",
+            "system_response": "存在引用或无法确认时给出阻挡位置并结束；无使用时呈现明确删除确认。",
+            "rule_ids": [
+              "BR-039"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "本租户业务配置管理员",
+            "action": "核对影响并明确确认删除。",
+            "system_response": "取消不提交；确认才进入最终校验。",
+            "rule_ids": [
+              "BR-040"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云外呼平台",
+            "action": "重查权限及使用引用，尝试仅删除目标配置。",
+            "system_response": "并发变化或保存失败保留原对象；不级联、不改草稿/历史/通话版本。",
+            "rule_ids": [
+              "BR-039",
+              "BR-040"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "云外呼平台",
+            "action": "反馈目标删除成功，刷新当前列表。",
+            "system_response": "重新进入/刷新保持删除，其他配置和业务记录不变。",
+            "rule_ids": [
+              "BR-040"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-016-USED",
+            "condition": "存在使用引用、来源保留或引用状态无法可靠确认。",
+            "steps": [
+              "拒绝删除并列出可理解的位置/原因，不把预置身份当统一禁令，不清理其他对象。"
+            ]
+          },
+          {
+            "id": "ALT-016-CANCEL",
+            "condition": "用户在确认前取消。",
+            "steps": [
+              "保留原对象与草稿，不提交删除。"
+            ]
+          },
+          {
+            "id": "ALT-016-FAIL",
+            "condition": "最终复核发现新引用/权限变化，或删除未能保存。",
+            "steps": [
+              "明确本次未删除，保持原对象/草稿，不自动重试或绕过引用。"
+            ]
+          }
+        ],
+        "postconditions": [
+          "成功仅目标持久删除，不级联、不补默认。",
+          "失败/取消/引用存在时保持原对象；通话、历史、其他租户/草稿不变。"
+        ],
+        "acceptance_points": [
+          "AC-147：具备本租户业务配置权限的管理员可发起并确认删除未使用业务分类；删除仅作用于该租户目标分类，不级联删除字段库或接口字典。",
+          "AC-148：当前通话已确定的实际业务分类、非空草稿、已导入客户/名单/任务、实际业务记录或已保存快照引用该分类时，拒绝删除并说明位置；包括进入正式演示业务数据源的记录。整版快照中尚未使用的可选类别库存不单独作为分类引用。",
+          "AC-149：确认提交时重查租户权限和引用；取消、并发新增引用、无法可靠读取或保存失败均保留原分类/数据/草稿，不把客户降为未分类，不清理正在通话或话后记录。",
+          "AC-150：成功删除后刷新/重新进入不恢复该分类或默认引用，字段与接口仍留原库；已有独立历史快照与有效通话版本不被删除/升级。接口来源另按本通可选类别的数据来源保留规则保护，不增加临时授权或隐式兼容通道。"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "operator",
+              "name": "本租户业务配置管理员",
+              "kind": "actor"
+            },
+            {
+              "id": "platform",
+              "name": "云外呼平台",
+              "kind": "system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "START",
+              "lane_id": "operator",
+              "type": "start",
+              "order": 1,
+              "label": "选择待删除对象"
+            },
+            {
+              "id": "REQUEST",
+              "lane_id": "operator",
+              "type": "action",
+              "order": 2,
+              "label": "在目标Tab发起删除",
+              "step_ref": 1
+            },
+            {
+              "id": "CHECK",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 3,
+              "label": "核对实际引用及通话来源保留",
+              "step_ref": 2
+            },
+            {
+              "id": "UNUSED",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 4,
+              "label": "能确认未使用？"
+            },
+            {
+              "id": "BLOCK",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 5,
+              "label": "保留并说明引用/无法确认位置"
+            },
+            {
+              "id": "CONFIRM",
+              "lane_id": "operator",
+              "type": "decision",
+              "order": 5,
+              "label": "确认删除目标？",
+              "step_ref": 3
+            },
+            {
+              "id": "CANCEL",
+              "lane_id": "operator",
+              "type": "end",
+              "order": 6,
+              "label": "取消，不删除"
+            },
+            {
+              "id": "DELETE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 6,
+              "label": "重查权限/引用，仅删除目标",
+              "step_ref": 4
+            },
+            {
+              "id": "SAVED",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 7,
+              "label": "删除保存成功？"
+            },
+            {
+              "id": "FAIL",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 8,
+              "label": "失败保留原对象与草稿"
+            },
+            {
+              "id": "RESULT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 9,
+              "label": "反馈成功，刷新不补默认",
+              "step_ref": 5
+            },
+            {
+              "id": "DONE",
+              "lane_id": "operator",
+              "type": "end",
+              "order": 10,
+              "label": "目标删除完成"
+            }
+          ],
+          "edges": [
+            {
+              "from": "START",
+              "to": "REQUEST"
+            },
+            {
+              "from": "REQUEST",
+              "to": "CHECK"
+            },
+            {
+              "from": "CHECK",
+              "to": "UNUSED"
+            },
+            {
+              "from": "UNUSED",
+              "to": "BLOCK",
+              "label": "有引用或无法确认",
+              "path_id": "ALT-016-USED",
+              "type": "alternate"
+            },
+            {
+              "from": "UNUSED",
+              "to": "CONFIRM",
+              "label": "确认无使用"
+            },
+            {
+              "from": "CONFIRM",
+              "to": "CANCEL",
+              "label": "取消",
+              "path_id": "ALT-016-CANCEL",
+              "type": "alternate"
+            },
+            {
+              "from": "CONFIRM",
+              "to": "DELETE",
+              "label": "确认"
+            },
+            {
+              "from": "DELETE",
+              "to": "SAVED"
+            },
+            {
+              "from": "SAVED",
+              "to": "FAIL",
+              "label": "未保存/状态变化",
+              "path_id": "ALT-016-FAIL",
+              "type": "failure"
+            },
+            {
+              "from": "SAVED",
+              "to": "RESULT",
+              "label": "成功"
+            },
+            {
+              "from": "RESULT",
+              "to": "DONE"
+            }
+          ]
+        },
+        "business_rule_ids": [
+          "BR-039",
+          "BR-040",
+          "BR-041"
+        ],
+        "notes": [
+          "本场景仅平台内部配置删除，不调用外部系统或新增外部API。",
+          "字典来源保留截止本通结果保存完成，线路挂断但话后待填仍受保护。",
+          "当前用户直接范围授权，设计草稿；G2/G3及真实Mapping/生产草稿缺口保持。"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-20T16:58:23+08:00",
+      "reason": "明确归档只含目标分类全部refs及必要依赖闭包，避免无关字段假锁；仍同SRC177范围。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-177"
+      ],
+      "previous_values": {
+        "acceptance_points": [
+          "AC-147：具备本租户业务配置权限的管理员可确认逻辑删除业务分类，不因历史通话、进行中/话后通话或已有业务引用而禁止。目标从当前配置列表和新业务可选项移除，持久标记已删除，不级联删除字段、接口或业务数据。",
+          "AC-148：删除时保留该分类当时名称、编码、字段定义/选项、引用与必要依赖的归档。历史记录仍按当时分类名称、字段和结果展示；删除前已有已导入名单/任务保留原业务分类并继续处理，不清空、迁移或降为未分类。新建/新导入不得再选择或提交已删除分类，不能凭任意已删除ID冒充已有业务上下文。",
+          "AC-149：确认提交前校验本租户权限、目标配置版本及归档可可靠读取/保存。取消、权限或配置版本变化、无法可靠归档/写入失败保留原分类、数据与草稿，不宣称成功；已有业务引用本身仅说明保留影响，不是不可删除条件。",
+          "AC-150：正在通话及话后处理仍按开始时整版配置完成，归档不改写原业务/通话/历史快照，刷新不让已删除分类重新成为新业务可选。归档中的原字段及refs继续供保留业务使用，并纳入字段/接口物理删除的原引用保护；本期不提供恢复、归档清理或迁移UI。"
+        ]
+      }
+    }
+  ]
+}

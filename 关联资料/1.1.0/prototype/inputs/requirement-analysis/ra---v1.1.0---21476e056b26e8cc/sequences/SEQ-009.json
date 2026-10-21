@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-009",
+  "scenario_id": "SC-001",
+  "name": "DCC精准删除成功与本地留存",
+  "participants": [
+    {
+      "id": "ui",
+      "name": "运营界面（合成模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "dcc",
+      "name": "DCC（模拟输入）",
+      "kind": "external_system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务（模拟）",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti（模拟返回/未实接）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "dcc",
+      "to": "service",
+      "message": "租户身份及具体供应商任务/批次/手机号删除请求",
+      "type": "external_call",
+      "api_id": "API-001",
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "service",
+      "to": "vendor",
+      "message": "合成精准删除，实际字段范围/并发契约待核",
+      "type": "external_call",
+      "api_id": "API-006",
+      "condition": "目标归属该租户"
+    },
+    {
+      "step": 3,
+      "from": "vendor",
+      "to": "service",
+      "message": "合成明确成功/失败/未知结果",
+      "type": "response",
+      "api_id": "API-006",
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "service",
+      "to": "service",
+      "message": "精准删除成功保留本地与关联记录、停止对应priority降级；平台无待执行重导，供应商执行中删除契约待核",
+      "type": "internal",
+      "api_id": null,
+      "condition": "成功精准记录"
+    },
+    {
+      "step": 5,
+      "from": "service",
+      "to": "ui",
+      "message": "精准删除成功保留本地与关联记录、停止对应priority降级；平台无待执行重导，供应商执行中删除契约待核",
+      "type": "response",
+      "api_id": null,
+      "condition": "成功"
+    },
+    {
+      "step": 6,
+      "from": "service",
+      "to": "ui",
+      "message": "失败不标删除；超时/矛盾待核暂停，不承诺撤销已执行呼叫",
+      "type": "response",
+      "api_id": null,
+      "condition": "失败/未知"
+    },
+    {
+      "step": 7,
+      "from": "service",
+      "to": "dcc",
+      "message": "向删除请求方DCC反馈精准目标的成功/失败/未知状态；成功保留本地并停止对应priority降级，失败不标已删除、未知待核，不覆盖同号其他批次",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "对应DCC删除请求；准确关联本次tenant/task/批次/手机号"
+    }
+  ],
+  "notes": [
+    "严格限定为用户接受的静态合成模拟，不发真实请求；partial/missing能力不提升为verified。",
+    "API引用用于责任/核验追溯，缺少端点/字段时不编造请求。",
+    "未知/矛盾结果待核暂停；明确拒绝/重复通知另记，不算新的实际呼叫。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-061",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-064",
+    "inputs/source-index.json#SRC-065",
+    "inputs/source-index.json#SRC-066",
+    "inputs/source-index.json#SRC-067",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-069",
+    "inputs/source-index.json#SRC-070"
+  ],
+  "review_history": [
+    {
+      "at": "2026-10-10T15:18:55+08:00",
+      "basis": "补齐AC-025及FUNC-009已确认删除状态反馈，不新增端点或供应商能力"
+    }
+  ]
+}

@@ -1,0 +1,307 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-012",
+  "name": "配置分类字段的接口来源及关联字段",
+  "summary": "按名称选择字典、按内部标识保存引用；门店关联多个车系字段，分别按分类设置必填；研发预置技术参数。",
+  "status": "analysis_draft",
+  "scope_confirmation": "inputs/user-stories.md#SRC-141",
+  "actors": [
+    "具备既有分类／字段配置权\n限的管理员",
+    "云外呼平台"
+  ],
+  "trigger": "创建或调整需要从权威业务数据取值的分类字段。",
+  "preconditions": [
+    "沿用v1.1.0既有分类／字段库管理权限与租户上下文。",
+    "待引用接口由超管维护并向当前租户开放。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "具备既有分类／字段配置权\n限的管理员",
+      "action": "新增本次意向字段，选择接口取数",
+      "system_response": null,
+      "rule_ids": [
+        "BR-026"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云外呼平台",
+      "action": "按租户授权及条目状态提供可选字典，展示接口名称。",
+      "system_response": null,
+      "rule_ids": [
+        "BR-024",
+        "BR-034"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "具备既有分类／字段配置权\n限的管理员",
+      "action": "选择字典；门店勾选多个关联车系字段",
+      "system_response": null,
+      "rule_ids": [
+        "BR-026",
+        "BR-034"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "具备既有分类／字段配置权\n限的管理员",
+      "action": "在所属分类分别设置车系、门店是否必填",
+      "system_response": null,
+      "rule_ids": [
+        "BR-027",
+        "BR-034"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云外呼平台",
+      "action": "核对引用与配置并尝试保存",
+      "system_response": null,
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "云外呼平台",
+      "action": "按内部标识保存字典引用及多字段关联，技术参数由研发预置。",
+      "system_response": null,
+      "rule_ids": [
+        "BR-026",
+        "BR-034"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-01201",
+      "condition": "取消本次编辑",
+      "steps": [
+        "结束本次操作；已保存的配置不变。"
+      ]
+    },
+    {
+      "id": "ALT-01202",
+      "condition": "配置校验、保存失败或新增引用不可用",
+      "steps": [
+        "说明失败原因，保留本次编辑。",
+        "无权或不可用条目不能成为新增字段的有效引用；历史引用的不可用展示仍保留。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功配置新增的本次意向字段，原计划到店字段及历史数据保留。",
+    "取消或失败不形成成功配置结果。"
+  ],
+  "business_rule_ids": [
+    "BR-024",
+    "BR-026",
+    "BR-027",
+    "BR-034"
+  ],
+  "acceptance_points": [
+    "AC-109",
+    "AC-110",
+    "AC-111",
+    "AC-120",
+    "AC-121",
+    "AC-124"
+  ],
+  "source_story_ids": [
+    "US-015"
+  ],
+  "source_acceptance_ids": [
+    "AC-109",
+    "AC-110",
+    "AC-111",
+    "AC-120",
+    "AC-121",
+    "AC-124"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-126",
+    "inputs/source-index.json#SRC-132",
+    "inputs/source-index.json#SRC-134",
+    "inputs/source-index.json#SRC-137",
+    "inputs/source-index.json#SRC-138",
+    "inputs/source-index.json#SRC-140",
+    "inputs/source-index.json#SRC-142",
+    "inputs/source-index.json#SRC-143",
+    "inputs/user-stories.md#SRC-145"
+  ],
+  "notes": [
+    "按自定义接口名称选择，按系统内部标识保存字典引用，改名不使引用失效。",
+    "地址、鉴权、参数和返回映射由研发预置；实际接口及本次值的编码快照结构仍待核验。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "user",
+        "name": "具备既有分类／字段配置权\n限的管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云外呼平台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "user",
+        "type": "start",
+        "order": 1,
+        "label": "配置分类接口字段"
+      },
+      {
+        "id": "MODE",
+        "lane_id": "user",
+        "type": "action",
+        "order": 2,
+        "label": "新增本次意向字段，选择接口取数",
+        "step_ref": 1
+      },
+      {
+        "id": "AVAILABLE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "按租户与状态提供可选字典，展示名\n称",
+        "step_ref": 2
+      },
+      {
+        "id": "BIND",
+        "lane_id": "user",
+        "type": "action",
+        "order": 4,
+        "label": "选择字典；门店勾选多个关联车系字\n段",
+        "step_ref": 3
+      },
+      {
+        "id": "REQUIRED",
+        "lane_id": "user",
+        "type": "action",
+        "order": 5,
+        "label": "在所属分类分别设置车系、门店是否\n必填",
+        "step_ref": 4
+      },
+      {
+        "id": "SUBMIT",
+        "lane_id": "user",
+        "type": "decision",
+        "order": 6,
+        "label": "是否提交本次配置？"
+      },
+      {
+        "id": "CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 7,
+        "label": "核对引用与配置并尝试保存",
+        "step_ref": 5
+      },
+      {
+        "id": "RESULT",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 8,
+        "label": "本次配置保存成功？"
+      },
+      {
+        "id": "SAVED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 9,
+        "label": "按内部标识保存引用及关联；技术参\n数预置",
+        "step_ref": 6
+      },
+      {
+        "id": "END",
+        "lane_id": "user",
+        "type": "end",
+        "order": 10,
+        "label": "配置保存完成；原计划到店字段保留"
+      },
+      {
+        "id": "FAIL",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "说明校验、接口不可用或保存失败原\n因，保留本次编辑"
+      },
+      {
+        "id": "FAILEND",
+        "lane_id": "user",
+        "type": "end",
+        "order": 12,
+        "label": "本次配置未保存，可修正后再提交"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "user",
+        "type": "end",
+        "order": 13,
+        "label": "取消本次配置，不改变已保存配置"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "MODE"
+      },
+      {
+        "from": "MODE",
+        "to": "AVAILABLE"
+      },
+      {
+        "from": "AVAILABLE",
+        "to": "BIND"
+      },
+      {
+        "from": "BIND",
+        "to": "REQUIRED"
+      },
+      {
+        "from": "REQUIRED",
+        "to": "SUBMIT"
+      },
+      {
+        "from": "CHECK",
+        "to": "RESULT"
+      },
+      {
+        "from": "SAVED",
+        "to": "END"
+      },
+      {
+        "from": "FAIL",
+        "to": "FAILEND"
+      },
+      {
+        "from": "SUBMIT",
+        "to": "CHECK",
+        "label": "提交"
+      },
+      {
+        "from": "SUBMIT",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-01201",
+        "type": "alternate"
+      },
+      {
+        "from": "RESULT",
+        "to": "SAVED",
+        "label": "成功"
+      },
+      {
+        "from": "RESULT",
+        "to": "FAIL",
+        "label": "失败或引用不可用",
+        "path_id": "ALT-01202",
+        "type": "alternate"
+      }
+    ]
+  }
+}

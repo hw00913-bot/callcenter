@@ -1,0 +1,2668 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-015",
+  "scenario_id": "SC-013",
+  "name": "Mapping单选车系、原门店文本与通话同版保存时序草稿",
+  "status": "product_design_draft",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "有业务填写权限的客服／运营",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "既有业务信息填写界面",
+      "kind": "system"
+    },
+    {
+      "id": "platform",
+      "name": "平台业务校验与保存（逻辑职责）",
+      "kind": "system"
+    },
+    {
+      "id": "mapping",
+      "name": "Mapping车系接口（partial，未真实调用）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "进入既有通话/话后业务信息填写",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "platform",
+      "message": "按通话开始固定整版配置载入分类/字段/必填/依赖/接口绑定及只读导入",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 3,
+      "from": "platform",
+      "to": "frontend",
+      "message": "返回本通配置版及填写值；默认填写页签，切换保值",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示Mapping接口车系单选下拉和原plannedStoreName文本；门店不查接口",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 5,
+      "from": "operator",
+      "to": "frontend",
+      "message": "打开车系下拉，按名称或官方ID查找并单选；不自由创建",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 6,
+      "from": "frontend",
+      "to": "platform",
+      "message": "请求本通Mapping车系候选，核对实时接口状态及当前租户授权",
+      "type": "request",
+      "api_id": null,
+      "condition": "打开车系下拉或显式带入确认"
+    },
+    {
+      "step": 7,
+      "from": "platform",
+      "to": "mapping",
+      "message": "GET /mapping/api/open/mapping-car-series/code；默认media_id10/car_state1，不传品牌/能源过滤",
+      "type": "request",
+      "api_id": "API-015",
+      "condition": "来源与租户授权可用；仅文档结构模拟"
+    },
+    {
+      "step": 8,
+      "from": "mapping",
+      "to": "platform",
+      "message": "返回裸数组name/relation_id/car_state/media_car_series_id，或空集/异常；真实协议待核",
+      "type": "response",
+      "api_id": "API-015",
+      "condition": "模拟完整成功/空集/异常分支"
+    },
+    {
+      "step": 9,
+      "from": "platform",
+      "to": "frontend",
+      "message": "官方ID转字符串code/name展示，媒体和状态保留；相同记录去重，官方ID冲突提示；核对请求版本和实时来源",
+      "type": "response",
+      "api_id": null,
+      "condition": "未过期且来源/权限仍可用"
+    },
+    {
+      "step": 10,
+      "from": "frontend",
+      "to": "operator",
+      "message": "成功才提供当前候选；加载/空集/异常分别提示，保输入重试，不按同名猜测",
+      "type": "response",
+      "api_id": null,
+      "condition": "当前请求有效"
+    },
+    {
+      "step": 11,
+      "from": "frontend",
+      "to": "frontend",
+      "message": "记录选择及编辑版本，保留relation_id/name/媒体ID/状态；车系变化不改门店文本",
+      "type": "internal",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 12,
+      "from": "operator",
+      "to": "frontend",
+      "message": "明确确认按导入官方车系编码匹配接口项",
+      "type": "request",
+      "api_id": null,
+      "condition": "选择导入带入；未确认不自动执行",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 13,
+      "from": "frontend",
+      "to": "platform",
+      "message": "核对导入code、完整候选与账号/租户/记录/通话/编辑版本；不按媒体ID或同名猜测",
+      "type": "request",
+      "api_id": null,
+      "condition": "已明确确认",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 14,
+      "from": "platform",
+      "to": "frontend",
+      "message": "返回按官方ID字符串code精确匹配结果，未匹配保值，不改原导入",
+      "type": "response",
+      "api_id": null,
+      "condition": "已执行本地匹配",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "frontend",
+      "to": "frontend",
+      "message": "仅上下文仍有效时带入code/name及来源快照，回到填写供核对",
+      "type": "internal",
+      "api_id": null,
+      "condition": "匹配成功且所有owner/editor guards仍满足",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 16,
+      "from": "frontend",
+      "to": "operator",
+      "message": "提示未匹配、取消或上下文过期，保留当前填写与导入原值",
+      "type": "response",
+      "api_id": null,
+      "condition": "未匹配/取消/过期，与有效带入互斥",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 17,
+      "from": "operator",
+      "to": "frontend",
+      "message": "自行填写原plannedStoreName文本；导入门店不自动带入",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 18,
+      "from": "frontend",
+      "to": "platform",
+      "message": "处理其他实际启用通用接口字段；Mapping车系默认无上游，门店文本跳过",
+      "type": "request",
+      "api_id": null,
+      "condition": "另有实际启用通用接口字段；不含API-015/016",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 19,
+      "from": "platform",
+      "to": "platform",
+      "message": "依既有能力声明核对来源、单上游属性/入参及必需/可选；必需缺值或映射无效明确反馈",
+      "type": "internal",
+      "api_id": null,
+      "condition": "仅其他启用通用字段的逻辑职责；未知外部协议不在本图虚构调用",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 20,
+      "from": "platform",
+      "to": "platform",
+      "message": "按既有预置能力处理当前条件，检查完整性、依赖/来源/会话版本；旧请求不验证当前值",
+      "type": "internal",
+      "api_id": null,
+      "condition": "仅实际已接入通用能力；本图不提供未知端点或生产保证",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 21,
+      "from": "platform",
+      "to": "frontend",
+      "message": "反馈可用候选或具体配置/查询问题；完整结果才能新选，失败不当空、不证明失配",
+      "type": "response",
+      "api_id": null,
+      "condition": "已进入其他通用接口字段路径",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 22,
+      "from": "frontend",
+      "to": "operator",
+      "message": "仅对其他实际启用字段提供当前有效候选；取消保值，恢复旧项须明确确认",
+      "type": "response",
+      "api_id": null,
+      "condition": "实际通用字段当前完整结果有效；本期无门店多选",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 23,
+      "from": "operator",
+      "to": "frontend",
+      "message": "选择/确认其他启用字段候选，或取消不写",
+      "type": "request",
+      "api_id": null,
+      "condition": "实际通用字段候选路径",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 24,
+      "from": "frontend",
+      "to": "frontend",
+      "message": "上游或来源变化作废旧条件确认，完整新结果重判，保留待处理值；不波及无依赖原门店文本",
+      "type": "internal",
+      "api_id": null,
+      "condition": "仅其他接口字段依赖变化/恢复",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 25,
+      "from": "operator",
+      "to": "frontend",
+      "message": "点击原保存入口提交本次业务信息",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 26,
+      "from": "frontend",
+      "to": "platform",
+      "message": "沿原保存提交车系code/name、relation_id/media_car_series_id/car_state来源快照、原门店文本和本通归属",
+      "type": "request",
+      "api_id": null,
+      "condition": "正式保存分支；API-018为平台内部保存职责，沿既有模块实现字段映射",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 27,
+      "from": "platform",
+      "to": "platform",
+      "message": "复核权限/租户/通话，使用开始时同版字段/必填/依赖/绑定；实时核对接口启停及授权",
+      "type": "internal",
+      "api_id": null,
+      "condition": "保存分支；未接通豁免沿v1.1.0准确条件",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 28,
+      "from": "platform",
+      "to": "frontend",
+      "message": "反馈字段或保存条件未满足，不产生正式成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "必填缺失/值无效/owner或阶段不符",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 29,
+      "from": "frontend",
+      "to": "operator",
+      "message": "业务字段问题先回本次填写再定位，保留所有输入供修正",
+      "type": "response",
+      "api_id": null,
+      "condition": "业务字段校验未通过",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 30,
+      "from": "platform",
+      "to": "platform",
+      "message": "原保存机制保存当通官方code/name与来源快照，门店文本每通/详情/汇总沿原规则，原导入只读",
+      "type": "internal",
+      "api_id": null,
+      "condition": "原权限、阶段及分类校验通过；本期无初始存量兼容，不新增车系保存服务",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 31,
+      "from": "platform",
+      "to": "frontend",
+      "message": "返回原保存机制的成功结果及该次记录；按既有成功判据处理",
+      "type": "response",
+      "api_id": null,
+      "condition": "保存成功分支",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 32,
+      "from": "frontend",
+      "to": "operator",
+      "message": "反馈保存成功；本通详情读取车系当时名称及原门店文本，档案普通字段汇总沿原规则",
+      "type": "response",
+      "api_id": null,
+      "condition": "收到有效保存成功结果",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 33,
+      "from": "platform",
+      "to": "frontend",
+      "message": "反馈正式保存未成功，保留原状态；不虚构成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "保存异常，与成功互斥",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 34,
+      "from": "frontend",
+      "to": "operator",
+      "message": "保留本次填写供重试；生产草稿持久化/恢复范围仍待核",
+      "type": "response",
+      "api_id": null,
+      "condition": "正式保存未成功",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 35,
+      "from": "operator",
+      "to": "frontend",
+      "message": "暂不提交或切换本次填写/导入信息页签",
+      "type": "request",
+      "api_id": null,
+      "condition": "与本次正式保存互斥，或仍处于编辑",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 36,
+      "from": "frontend",
+      "to": "frontend",
+      "message": "同通页签保值；下一通采用最新配置，不串身份/记录；新分类配置不得反写当前通话",
+      "type": "internal",
+      "api_id": null,
+      "condition": "未提交/页签切换",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    }
+  ],
+  "source_story_ids": [
+    "US-016"
+  ],
+  "source_acceptance_ids": [
+    "AC-112",
+    "AC-113",
+    "AC-114",
+    "AC-115",
+    "AC-116",
+    "AC-117",
+    "AC-118",
+    "AC-119",
+    "AC-125",
+    "AC-126",
+    "AC-132",
+    "AC-133",
+    "AC-134",
+    "AC-135",
+    "AC-136",
+    "AC-137",
+    "AC-138"
+  ],
+  "source_refs": [
+    "scenarios/SC-013.json",
+    "interfaces/interface-index.json",
+    "inputs/user-stories.md#SRC-149",
+    "inputs/user-stories.md#SRC-151",
+    "inputs/user-stories.md#SRC-153",
+    "inputs/user-stories.md#SRC-157",
+    "inputs/user-stories.md#SRC-158",
+    "inputs/user-stories.md#SRC-160",
+    "inputs/user-stories.md#SRC-165",
+    "inputs/user-stories.md#SRC-166",
+    "inputs/user-stories.md#SRC-167",
+    "inputs/source-index.json#SRC-168",
+    "inputs/user-stories.md#SRC-169"
+  ],
+  "notes": [
+    "SRC167本次意向车系改为Mapping接口取数且唯一单选，门店仍原plannedStoreName文本；code暂按官方relation_id字符串、name展示，媒体ID与状态独立快照；默认media_id10/car_state1，不传品牌/能源附加过滤。编码/范围为本轮实施假定待正式核对。无主机及真实调用，只做SRC155授权结构模拟；G2/G3待确认，无初始存量迁移。通话与话后处理固定开始时整版配置，新配置下一通生效；权限/接口授权实时校验。",
+    "编码、默认过滤与冲突策略为本轮实施假定，正式核对ISSUE11113；本图只为授权模拟产品设计，不批准G2/G3。"
+  ],
+  "change_history": [
+    {
+      "at": "2026-10-16T13:51:31+08:00",
+      "previous_values": {
+        "name": "本次意向查选、联动及保存交互草稿"
+      },
+      "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-157"
+      ]
+    },
+    {
+      "at": "2026-10-16T13:53:06+08:00",
+      "previous_values": {
+        "notes": [
+          "产品设计草稿，按SRC-153例外继续；API-015/016仍missing，API-018仍partial，外部消息只表达所需能力。",
+          "按消息条件阅读分支，带条件的成功、失败、取消并非必然依次全部发生；图示顺序不预设外部调用并发或一次批量。",
+          "平台参与者表示逻辑责任，不指定部署架构、接口端点、请求格式、超时秒数或鉴权方案。",
+          "门店关系以当前唯一有效车系编码的完整权威返回为准；搜索词或当前分页未出现旧门店不证明失配。完整性与关联核验方式需正式接口支撑。",
+          "来源恢复的旧车系先重查确认，再按当前有效车系查门店；已待重选或来源恢复的旧门店经明确确认后才恢复。无需新增独立确认页面。",
+          "本次分别保存唯一所选车系和门店编码与当时名称，历史名称和旧字段快照不随上游改名或本次交互变更而改写。",
+          "API-018表示既有保存与回传兼容所需契约，不新增独立回调、上游回写或保存后额外查询。",
+          "草稿指失败时保留当前输入供重试，不承诺关闭浏览器、跨设备恢复；生产存储契约仍待核。",
+          "SRC-156现行：唯一意向车系字段且单选，门店只按其一个编码查询；旧多字段并集由本次确认替代。既有失配、恢复确认及历史快照规则沿用。",
+          "SRC-157：唯一意向车系单选，当前车系门店多选；确认整组带回、取消不写，逐家校验与同通整组快照。旧单门店兼容一项，历史不改，未新增限选上限。"
+        ]
+      },
+      "reason": "SRC-157多选门店的必要整组快照适配",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-157"
+      ]
+    },
+    {
+      "at": "2026-10-16T15:06:27+08:00",
+      "previous_values": {
+        "name": "单车系、多门店查选与整组保存交互草稿",
+        "notes": [
+          "产品设计草稿，按SRC-153例外继续；API-015/016仍missing，API-018仍partial，外部消息只表达所需能力。",
+          "按消息条件阅读分支，带条件的成功、失败、取消并非必然依次全部发生；图示顺序不预设外部调用并发或一次批量。",
+          "平台参与者表示逻辑责任，不指定部署架构、接口端点、请求格式、超时秒数或鉴权方案。",
+          "门店关系以当前唯一有效车系编码的完整权威返回为准；搜索词或当前分页未出现旧门店不证明失配。完整性与关联核验方式需正式接口支撑。",
+          "来源恢复的旧车系先重查确认，再按当前有效车系查门店；已待重选或来源恢复的旧门店经明确确认后才恢复。无需新增独立确认页面。",
+          "本次保存唯一车系及整组去重门店数组的编码与当时名称，历史名称和旧字段快照不随上游改名或本次交互变更而改写。",
+          "API-018表示既有保存与回传兼容所需契约，不新增独立回调、上游回写或保存后额外查询。",
+          "草稿指失败时保留当前输入供重试，不承诺关闭浏览器、跨设备恢复；生产存储契约仍待核。",
+          "SRC-156现行：唯一意向车系字段且单选，门店只按其一个编码查询；旧多字段并集由本次确认替代。既有失配、恢复确认及历史快照规则沿用。",
+          "SRC-157：唯一意向车系单选，当前车系门店多选；确认整组带回、取消不写，逐家校验与同通整组快照。旧单门店兼容一项，历史不改，未新增限选上限。"
+        ]
+      },
+      "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-158"
+      ]
+    },
+    {
+      "at": "2026-10-16T15:09:33+08:00",
+      "previous_values": {
+        "notes": [
+          "本次车系唯一单选、门店多选，关闭条件时独立查当前租户全部可用门店；关联车系时一个编码查询并保持NEV/ICE关系。",
+          "通用字段支持单上游A→B→C；变更传递作废旧条件请求和旧确认，保留值显示；完整新结果匹配的原有效项可保留，失配/清空/来源恢复须明确确认。",
+          "选取能力声明返回属性作为值，以配置的下游入参名传参；缺属性、不支持参数或条件未满足须明确提示，不能降级为全部。",
+          "查询失败或搜索/分页遗漏不证明失配，未完整前不允许新选择；不一律禁存原本仍有当前有效依据的值。",
+          "门店多选暂存、确认整组带回、取消不写；同通快照、旧单值兼容及过期异步带入保护不变。",
+          "真实全部门店、属性/参数、保存/回传及生产草稿契约仍待核验，SRC-155仅独立模拟试做。"
+        ]
+      },
+      "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-158"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:10:24+08:00",
+      "previous_values": {
+        "name": "独立或通用关联查询、多门店与整组保存交互草稿",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "有业务填写权限的客服／运营",
+            "kind": "actor"
+          },
+          {
+            "id": "frontend",
+            "name": "既有业务信息填写界面",
+            "kind": "system"
+          },
+          {
+            "id": "platform",
+            "name": "平台业务校验与保存（逻辑职责）",
+            "kind": "system"
+          },
+          {
+            "id": "provider",
+            "name": "权威车系／门店数据提供方（待核）",
+            "kind": "external_system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "进入既有通话／话后业务信息填写",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "platform",
+            "message": "载入当前分类、权限、本次填写与原导入意向",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回当前可用配置与值；原导入值和原计划到店字段分别保留；新通话默认本次填写，导入信息只读页签，切换保留输入",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "change_history": [
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "message": "返回当前可用配置与值；原导入值和原计划到店字段分别保留"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-160"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-160"
+            ]
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示本次意向字段及原始信息；历史读取不触发恢复或外部重查",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 5,
+            "from": "operator",
+            "to": "frontend",
+            "message": "查找车系，或发起来源恢复旧车系的重新核验",
+            "type": "request",
+            "api_id": null,
+            "condition": "需要查找、更换或恢复旧车系"
+          },
+          {
+            "step": 6,
+            "from": "frontend",
+            "to": "platform",
+            "message": "按当前租户及所引用来源发起车系查询",
+            "type": "request",
+            "api_id": null,
+            "condition": "本轮需查询车系"
+          },
+          {
+            "step": 7,
+            "from": "platform",
+            "to": "platform",
+            "message": "检查条目启用且租户获授权；普通仍有效值可保留，无需每次重查",
+            "type": "internal",
+            "api_id": null,
+            "condition": "本轮需查询车系"
+          },
+          {
+            "step": 8,
+            "from": "platform",
+            "to": "provider",
+            "message": "查找权威车系候选及编码、展示信息和体系依据；契约待核",
+            "type": "external_call",
+            "api_id": "API-015",
+            "condition": "本轮需查询且来源可用"
+          },
+          {
+            "step": 9,
+            "from": "provider",
+            "to": "platform",
+            "message": "返回候选查询结果或明确失败；真实返回与完整性契约待核",
+            "type": "response",
+            "api_id": "API-015",
+            "condition": "已发起本轮车系查询"
+          },
+          {
+            "step": 10,
+            "from": "platform",
+            "to": "frontend",
+            "message": "提供当前有效候选供选择；原始值带入及来源恢复旧值须客服确认",
+            "type": "response",
+            "api_id": null,
+            "condition": "来源仍可用，响应属于当前条件且车系候选完整成功"
+          },
+          {
+            "step": 11,
+            "from": "platform",
+            "to": "frontend",
+            "message": "保留输入并提示失败或来源不可用；旧在途结果不新选，不自动恢复旧值",
+            "type": "response",
+            "api_id": null,
+            "condition": "车系查询失败、不完整或来源已不可用；与有效候选分支互斥"
+          },
+          {
+            "step": 12,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择、明确确认或清空唯一的本次意向车系；该字段为单选",
+            "type": "request",
+            "api_id": null,
+            "condition": "按当前可用候选填写；普通有效旧值可保留"
+          },
+          {
+            "step": 13,
+            "from": "frontend",
+            "to": "platform",
+            "message": "读取条件开关及必需/可选；有效上游按属性映射入参，可选上游缺失/未在分类/隐藏时不传参，绑定当前范围快照",
+            "type": "request",
+            "api_id": null,
+            "condition": "准备查门店或关联车系发生变化",
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "按当前唯一意向车系字段取得有效编码，更新本轮查询条件"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "message": "读取条件开关：无关联用空上游条件；有关联按上游所选项的取值属性构建指定入参，绑定依赖链快照"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 14,
+            "from": "platform",
+            "to": "frontend",
+            "message": "必需上游缺失/待确认则提示补齐并暂停下游；必需上游清空保留待重选，可选缺值按无参范围查询",
+            "type": "response",
+            "api_id": null,
+            "condition": "条件必需且上游未加入显示或未有效填写；可选缺值不进入此分支",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "提示请先选择意向车系，不查询门店；清空全部后旧门店保留待重选"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "提示先选择意向车系，不查询门店；清空车系后整组门店保留待重选"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "condition": "本次意向车系未选择"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "message": "已启用条件但上游未填则提示先填对应字段；清空使传递下游保留值待重选",
+                  "condition": "已开启条件且所配上游未选择或未有效确认；独立字段不进入此分支"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157",
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 15,
+            "from": "platform",
+            "to": "frontend",
+            "message": "上游已填无效、属性缺失或参数/类型不支持则明确提示并停本次查询，必需或可选均不能当空扩大范围",
+            "type": "response",
+            "api_id": null,
+            "condition": "开启条件且属性/参数映射不可用",
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "保留输入并说明需核对编码，不以无效值查询或扩大门店范围"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "condition": "关联车系已选但不能取得有效编码"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "message": "取值属性缺失或入参不支持则提示配置问题，停止查询；不能静默删参查全部"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 16,
+            "from": "platform",
+            "to": "platform",
+            "message": "核对当前来源授权及依赖链快照；上游变化使所有传递下游旧请求/旧条件确认失效，保留填写",
+            "type": "internal",
+            "api_id": null,
+            "condition": "无关联或可选上游真实缺失，或有效上游且参数/类型被支持；来源可用",
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "检查当前门店来源对租户可用，并绑定本轮有效车系条件"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "condition": "唯一有效意向车系"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "condition": "无关联，或关联上游当前有效且参数映射被适配器支持；当前来源可用"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 17,
+            "from": "platform",
+            "to": "provider",
+            "message": "按当前独立或关联条件查询权威门店；无关联查租户全部可用门店，关联车系按有效编码及NEV/ICE关系；真实契约待核",
+            "type": "external_call",
+            "api_id": "API-016",
+            "condition": "无关联或可选上游真实缺失，或有效上游且参数/类型被支持；来源可用",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "按各当前车系编码取得权威门店及完整性／关系有效性依据；调用方式待核"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "按当前唯一车系编码取得权威门店及完整性／关系有效性依据；契约待核"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "condition": "唯一有效意向车系且门店来源可用"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "condition": "无关联，或关联上游当前有效且参数映射被适配器支持；当前来源可用"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157",
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 18,
+            "from": "provider",
+            "to": "platform",
+            "message": "返回当前范围候选、空结果或明确查询/参数错误；完整性契约待核",
+            "type": "response",
+            "api_id": "API-016",
+            "condition": "已按当前独立或关联条件发起查询",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "返回各条件查询结果、空结果或失败；不预设一次批量能力"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "返回该车系候选、空结果或失败；真实完整性契约待核"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "condition": "已发起本轮门店查询"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157",
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 19,
+            "from": "platform",
+            "to": "frontend",
+            "message": "仅保留显示来源不可用旧值，暂停有效提交；旧在途结果不再用于新选择",
+            "type": "response",
+            "api_id": null,
+            "condition": "门店来源不可用或已被撤权"
+          },
+          {
+            "step": 20,
+            "from": "platform",
+            "to": "frontend",
+            "message": "舍弃不属于当前依赖条件快照的旧响应，不供新选或验证旧值",
+            "type": "response",
+            "api_id": null,
+            "condition": "来源可用但响应已不属于当前车系条件",
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "舍弃旧车系组合响应，不据此提供候选或验证当前门店"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 21,
+            "from": "platform",
+            "to": "frontend",
+            "message": "保留输入并提示重试；查全前不允许新的门店选择，不据失败判旧值失配",
+            "type": "response",
+            "api_id": null,
+            "condition": "来源与条件仍有效，但有失败或不完整结果"
+          },
+          {
+            "step": 22,
+            "from": "platform",
+            "to": "platform",
+            "message": "取得当前独立或关联范围完整权威结果并去重，关联车系时维持NEV/ICE关系",
+            "type": "internal",
+            "api_id": null,
+            "condition": "当前全部有效条件均有完整成功依据",
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "取得当前唯一车系编码的完整权威门店结果并去重，保持NEV／ICE对应"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 23,
+            "from": "platform",
+            "to": "frontend",
+            "message": "逐家核对完整新结果；仍匹配的原有效项可保留，分页/搜索遗漏不证明失配",
+            "type": "response",
+            "api_id": null,
+            "condition": "原有效值仍有当前条件匹配依据",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "原有效门店仍匹配当前关联范围时保留；不以搜索／分页遗漏判失配"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "逐家核对：匹配的原有效门店保留；搜索／分页遗漏不证明失配"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157",
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 24,
+            "from": "platform",
+            "to": "frontend",
+            "message": "完整新依据确认失配则保留显示待重选；无依赖字段不因无关车系变化失效",
+            "type": "response",
+            "api_id": null,
+            "condition": "完整权威依据确认原门店不匹配当前条件",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "原门店失配则保留显示并待重选；仍不作为有效已选值"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "逐家将失配门店保留显示并待重选；不默删或作为有效项提交"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157",
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 25,
+            "from": "platform",
+            "to": "frontend",
+            "message": "提示当前匹配但仍待确认；经客服再次确认／选择后才恢复有效",
+            "type": "response",
+            "api_id": null,
+            "condition": "旧门店待重选或来源恢复，且当前重查已匹配"
+          },
+          {
+            "step": 26,
+            "from": "platform",
+            "to": "frontend",
+            "message": "展示暂无匹配门店，不提供自定义门店；继续按分类必填及当前值校验",
+            "type": "response",
+            "api_id": null,
+            "condition": "当前完整查询成功但无候选"
+          },
+          {
+            "step": 27,
+            "from": "frontend",
+            "to": "operator",
+            "message": "打开独立门店弹窗，展示可勾选候选及各旧项状态",
+            "type": "response",
+            "api_id": null,
+            "condition": "来源及条件有效并取得完整门店结果",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "展示当前可选择的权威门店及旧值状态"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157"
+            ]
+          },
+          {
+            "step": 28,
+            "from": "operator",
+            "to": "frontend",
+            "message": "勾选多家当前有效门店；仅暂存于弹窗，未确认不写主表单",
+            "type": "request",
+            "api_id": null,
+            "condition": "选择／确认仅在当前来源可用且门店结果查全匹配时；清除选填旧值可独立进行",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "选择或明确确认当前有效门店；也可清除选填无效值"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157"
+            ]
+          },
+          {
+            "from": "frontend",
+            "to": "frontend",
+            "message": "筛选或重查保留仍有效暂选，旧条件响应及不可用来源不提供新选择",
+            "type": "internal",
+            "api_id": null,
+            "condition": "弹窗保持打开并调整筛选或重查",
+            "step": 29
+          },
+          {
+            "from": "operator",
+            "to": "frontend",
+            "message": "点击确认，将当前多选门店整组带回",
+            "type": "request",
+            "api_id": null,
+            "condition": "当前来源可用且完整候选有效，客服明确确认",
+            "step": 30
+          },
+          {
+            "from": "frontend",
+            "to": "platform",
+            "message": "复核当前完整依赖条件或独立范围、来源与每个暂选身份，去重后整组写回",
+            "type": "request",
+            "api_id": null,
+            "condition": "确认分支；取消不执行",
+            "step": 31,
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "复核当前车系、来源与每个暂选身份，去重后更新本次门店字段"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "from": "operator",
+            "to": "frontend",
+            "message": "取消或关闭门店选择弹窗",
+            "type": "request",
+            "api_id": null,
+            "condition": "取消分支，与确认互斥",
+            "step": 32
+          },
+          {
+            "from": "frontend",
+            "to": "operator",
+            "message": "丢弃暂选并保留原表单值；过期响应不得重新打开或写回",
+            "type": "response",
+            "api_id": null,
+            "condition": "取消分支",
+            "step": 33
+          },
+          {
+            "step": 34,
+            "from": "operator",
+            "to": "frontend",
+            "message": "暂不提交，继续当前填写，不产生正式保存结果",
+            "type": "request",
+            "api_id": null,
+            "condition": "选择继续编辑；与提交分支互斥"
+          },
+          {
+            "step": 35,
+            "from": "operator",
+            "to": "frontend",
+            "message": "提交本次业务信息",
+            "type": "request",
+            "api_id": null,
+            "condition": "选择正式保存；未选择继续编辑"
+          },
+          {
+            "step": 36,
+            "from": "frontend",
+            "to": "platform",
+            "message": "提交唯一车系及整组门店选择与确认状态；原导入信息独立保留",
+            "type": "request",
+            "api_id": "API-018",
+            "condition": "正式保存分支；实际字段结构待核",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "提交各字段当前选择与确认状态；保留原导入信息独立承载"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157"
+            ]
+          },
+          {
+            "step": 37,
+            "from": "platform",
+            "to": "platform",
+            "message": "按原通话及分类必填校验，每个已填值核对来源与当前独立/关联条件，无效项不静默剔除",
+            "type": "internal",
+            "api_id": null,
+            "condition": "收到正式保存请求",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "按原通话条件、分类必填及已填有效性校验；复核来源与当前组合，未确认恢复值无效"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "按原通话及分类规则校验：必填至少一家，已填门店逐家核对来源和当前车系，无效项不静默剔除"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157",
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 38,
+            "from": "platform",
+            "to": "frontend",
+            "message": "指出缺失或无效项并保留输入；有效必填未补齐时不完成保存；业务字段错误先切回填写面板再定位",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "保存校验未通过；未接通准确条件和已填校验沿原规则",
+            "change_history": [
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "message": "指出缺失或无效项并保留输入；有效必填未补齐时不完成保存"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-160"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-160"
+            ]
+          },
+          {
+            "step": 39,
+            "from": "platform",
+            "to": "platform",
+            "message": "保存唯一车系及去重门店数组的编码、当时名称；保留原始字段与历史；旧单门店按一项读取",
+            "type": "internal",
+            "api_id": null,
+            "condition": "当前值有效且原保存条件满足；实际保存契约待核",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "各本次字段分别保存编码和当时名称；保留原始信息及原计划到店字段"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157"
+            ]
+          },
+          {
+            "step": 40,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回保存成功；本次快照可用于既有历史展示",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "正式保存成功；与保存失败互斥"
+          },
+          {
+            "step": 41,
+            "from": "frontend",
+            "to": "operator",
+            "message": "显示保存完成；详情及档案读取同通车系＋整组门店快照，空门店不回退旧店",
+            "type": "response",
+            "api_id": null,
+            "condition": "正式保存成功",
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "message": "显示本次保存完成；历史展示当时名称，上游后续改名不覆盖"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157"
+            ]
+          },
+          {
+            "step": 42,
+            "from": "platform",
+            "to": "frontend",
+            "message": "明确返回未完成保存，保留当前输入及原状态供重试",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "正式保存失败；与保存成功互斥"
+          },
+          {
+            "step": 43,
+            "from": "frontend",
+            "to": "operator",
+            "message": "显示失败原因并保留填写；来源／必填问题补齐后重试，不用自建门店替代",
+            "type": "response",
+            "api_id": null,
+            "condition": "查询或保存失败后需要继续处理"
+          }
+        ],
+        "notes": [
+          "本次车系唯一单选、门店多选，关闭条件时独立查当前租户全部可用门店；关联车系时一个编码查询并保持NEV/ICE关系。",
+          "通用单上游链变化作废旧条件依据并保留显示；完整新结果匹配原有效项可保留，失配/必需上游清空/来源恢复按重选规则；可选上游清空按无参范围重判。",
+          "条件必需时有效上游非空才查；可选上游未加入分类/隐藏/未填可无参查询，有有效值才传，已填无效、属性缺失、不支持入参或类型不符须提示，不能当空。",
+          "查询失败或搜索/分页遗漏不证明失配，未完整前不允许新选择；不一律禁存原本仍有当前有效依据的值。",
+          "门店多选暂存、确认整组带回、取消不写；同通快照、旧单值兼容及过期异步带入保护不变。",
+          "真实全部门店、属性/参数、保存/回传及生产草稿契约仍待核验，SRC-155仅独立模拟试做。",
+          "本次填写/导入信息并排页签只切换显示；带入进度和结果可见，成功回填写，失败或取消保留内容；不改变请求时序、权限与过期响应保护。"
+        ]
+      },
+      "reason": "SRC-165当前本地单选车系与原plannedStoreName文本同步设计草稿；G2补证/G3冻结仍待确认，不把草稿渲染当作阶段正式通过。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:44:50+08:00",
+      "previous_values": {
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "进入既有通话/话后业务信息填写",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "platform",
+            "message": "载入当前分类、本地车系code/name选项、原门店文本及导入只读信息",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 3,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回本地配置与当前同通值；默认本次填写，导入页签只读，切换保留输入",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示唯一车系本地单选和原plannedStoreName文本；不提供外部车系/门店查选",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 5,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择、保留或清空一个本地车系，不能自由创建编码选项",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 6,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "记录当前选择与编辑版本；车系变更不清空或限制门店文本",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 7,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确确认按导入车系编码匹配本地选项",
+            "type": "request",
+            "api_id": null,
+            "condition": "选择导入带入；未确认不自动执行",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 8,
+            "from": "frontend",
+            "to": "platform",
+            "message": "核对原导入code及当前本地选项，并绑定账号/租户/记录/通话/表单版本",
+            "type": "request",
+            "api_id": null,
+            "condition": "已明确确认",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 9,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回按code精确匹配结果；不用同名猜测，不改导入原值",
+            "type": "response",
+            "api_id": null,
+            "condition": "已执行本地匹配",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 10,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "仅上下文与后续编辑版本仍一致时带入单选code/name，成功返回本次填写",
+            "type": "internal",
+            "api_id": null,
+            "condition": "匹配成功且所有owner/editor guards仍满足",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 11,
+            "from": "frontend",
+            "to": "operator",
+            "message": "提示未匹配、取消或上下文过期，保留当前填写与导入原值",
+            "type": "response",
+            "api_id": null,
+            "condition": "未匹配/取消/过期，与有效带入互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 12,
+            "from": "operator",
+            "to": "frontend",
+            "message": "自行填写原plannedStoreName文本；导入门店不自动带入",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 13,
+            "from": "frontend",
+            "to": "platform",
+            "message": "仅处理分类中另有的实际启用通用接口字段；默认本地车系和门店文本跳过",
+            "type": "request",
+            "api_id": null,
+            "condition": "另有实际启用通用接口字段；不含API-015/016",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 14,
+            "from": "platform",
+            "to": "platform",
+            "message": "依既有能力声明核对来源、单上游属性/入参及必需/可选；必需缺值或映射无效明确反馈",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅其他启用通用字段的逻辑职责；未知外部协议不在本图虚构调用",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 15,
+            "from": "platform",
+            "to": "platform",
+            "message": "按既有预置能力处理当前条件，检查完整性、依赖/来源/会话版本；旧请求不验证当前值",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅实际已接入通用能力；本图不提供未知端点或生产保证",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 16,
+            "from": "platform",
+            "to": "frontend",
+            "message": "反馈可用候选或具体配置/查询问题；完整结果才能新选，失败不当空、不证明失配",
+            "type": "response",
+            "api_id": null,
+            "condition": "已进入其他通用接口字段路径",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 17,
+            "from": "frontend",
+            "to": "operator",
+            "message": "仅对其他实际启用字段提供当前有效候选；取消保值，恢复旧项须明确确认",
+            "type": "response",
+            "api_id": null,
+            "condition": "实际通用字段当前完整结果有效；本期无门店多选",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 18,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择/确认其他启用字段候选，或取消不写",
+            "type": "request",
+            "api_id": null,
+            "condition": "实际通用字段候选路径",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 19,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "上游或来源变化作废旧条件确认，完整新结果重判，保留待处理值；不波及无依赖原门店文本",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅其他接口字段依赖变化/恢复",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 20,
+            "from": "operator",
+            "to": "frontend",
+            "message": "点击原保存入口提交本次业务信息",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 21,
+            "from": "frontend",
+            "to": "platform",
+            "message": "提交当前分类本地单车系code/name快照、plannedStoreName文本和同通业务信息",
+            "type": "request",
+            "api_id": "API-018",
+            "condition": "正式保存分支；真实契约partial待核",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 22,
+            "from": "platform",
+            "to": "platform",
+            "message": "复核本人通话、账号、租户、企业、记录和原保存阶段权限；按分类校验本地有效单选、原文本和其他已启用字段",
+            "type": "internal",
+            "api_id": null,
+            "condition": "保存分支；未接通豁免沿v1.1.0准确条件",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 23,
+            "from": "platform",
+            "to": "frontend",
+            "message": "反馈字段或保存条件未满足，不产生正式成功",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "必填缺失/值无效/owner或阶段不符",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 24,
+            "from": "frontend",
+            "to": "operator",
+            "message": "业务字段问题先回本次填写再定位，保留所有输入供修正",
+            "type": "response",
+            "api_id": null,
+            "condition": "业务字段校验未通过",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 25,
+            "from": "platform",
+            "to": "platform",
+            "message": "执行既有保存及原回传兼容职责；单车系名称快照和原门店文本同通，空值不继承旧店，原导入及旧接口历史保留",
+            "type": "internal",
+            "api_id": null,
+            "condition": "校验通过；真实后台/接收兼容仍待核",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 26,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回正式保存成功判据及该次结果；实际结构待后端补证",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "保存成功分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 27,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈保存成功，按同通快照展示车系名称和原计划门店文本",
+            "type": "response",
+            "api_id": null,
+            "condition": "收到有效保存成功结果",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 28,
+            "from": "platform",
+            "to": "frontend",
+            "message": "反馈正式保存未成功，保留原状态；不虚构成功",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "保存异常，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 29,
+            "from": "frontend",
+            "to": "operator",
+            "message": "保留本次填写供重试；生产草稿持久化/恢复范围仍待核",
+            "type": "response",
+            "api_id": null,
+            "condition": "正式保存未成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 30,
+            "from": "operator",
+            "to": "frontend",
+            "message": "暂不提交或切换本次填写/导入信息页签",
+            "type": "request",
+            "api_id": null,
+            "condition": "与本次正式保存互斥，或仍处于编辑",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 31,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "同上下文仅切换显示并保留编辑；新通话默认填写，不串用身份/记录，不新增保存入口",
+            "type": "internal",
+            "api_id": null,
+            "condition": "未提交/页签切换",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          }
+        ],
+        "notes": [
+          "SRC-165当前默认填写使用管理员维护的本地车系code/name单选及原plannedStoreName文本，不调用API-015/016。",
+          "导入信息只读；车系仅显式确认后按code精确匹配，带入核对账号/租户/通话/表单及后续编辑版本，取消/未匹配/过期保值，导入门店不自动写入原文本。",
+          "仅另有实际启用通用接口字段时执行其条件、来源及完整性逻辑；图中内部职责不等于补造未知接口端点或保证任意能力生产可用。",
+          "本地车系与门店文本按分类分别必填，原未接通条件和保存入口保持；已填写其他接口字段仍校验。",
+          "API-018仍partial，正式配置/保存/既有回传兼容与生产草稿ISSUE-11102/11105未关闭；成功和异常分支是目标设计，不是生产验证结论。",
+          "旧接口车系和单/多门店快照按原历史只读展示，不迁移改写成当前值；本次同通快照、空文本不继承旧店。",
+          "沿SRC-153/155继续产品设计和模拟例外，本图为草稿，当前整体G2待补证、G3未冻结。"
+        ]
+      },
+      "reason": "SRC-166复用现有自定义字段和表单保存、无初始存量；API-018仅平台内部逻辑职责，旧格式兼容和外部车系保存补证移出本期，原门店普通文本汇总不变；保留设计草稿与未G2/G3状态。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-166"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:48:14.170428+08:00",
+      "reason": "SRC166内部既有保存逻辑职责不作为not_required外部API调用；请求/响应动作仍保留，物理接口由工程映射。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-166"
+      ],
+      "previous_values": {
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "进入既有通话/话后业务信息填写",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "platform",
+            "message": "载入当前分类、本地车系code/name选项、原门店文本及导入只读信息",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 3,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回当前配置及本通填写值；默认本次填写，导入页签只读，切换保留输入",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示唯一车系本地单选和原plannedStoreName文本；不提供外部车系/门店查选",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 5,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择、保留或清空一个本地车系，不能自由创建编码选项",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 6,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "记录当前选择与编辑版本；车系变更不清空或限制门店文本",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 7,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确确认按导入车系编码匹配本地选项",
+            "type": "request",
+            "api_id": null,
+            "condition": "选择导入带入；未确认不自动执行",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 8,
+            "from": "frontend",
+            "to": "platform",
+            "message": "核对原导入code及当前本地选项，并绑定账号/租户/记录/通话/表单版本",
+            "type": "request",
+            "api_id": null,
+            "condition": "已明确确认",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 9,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回按code精确匹配结果；不用同名猜测，不改导入原值",
+            "type": "response",
+            "api_id": null,
+            "condition": "已执行本地匹配",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 10,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "仅上下文与后续编辑版本仍一致时带入单选code/name，成功返回本次填写",
+            "type": "internal",
+            "api_id": null,
+            "condition": "匹配成功且所有owner/editor guards仍满足",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 11,
+            "from": "frontend",
+            "to": "operator",
+            "message": "提示未匹配、取消或上下文过期，保留当前填写与导入原值",
+            "type": "response",
+            "api_id": null,
+            "condition": "未匹配/取消/过期，与有效带入互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 12,
+            "from": "operator",
+            "to": "frontend",
+            "message": "自行填写原plannedStoreName文本；导入门店不自动带入",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 13,
+            "from": "frontend",
+            "to": "platform",
+            "message": "仅处理分类中另有的实际启用通用接口字段；默认本地车系和门店文本跳过",
+            "type": "request",
+            "api_id": null,
+            "condition": "另有实际启用通用接口字段；不含API-015/016",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 14,
+            "from": "platform",
+            "to": "platform",
+            "message": "依既有能力声明核对来源、单上游属性/入参及必需/可选；必需缺值或映射无效明确反馈",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅其他启用通用字段的逻辑职责；未知外部协议不在本图虚构调用",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 15,
+            "from": "platform",
+            "to": "platform",
+            "message": "按既有预置能力处理当前条件，检查完整性、依赖/来源/会话版本；旧请求不验证当前值",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅实际已接入通用能力；本图不提供未知端点或生产保证",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 16,
+            "from": "platform",
+            "to": "frontend",
+            "message": "反馈可用候选或具体配置/查询问题；完整结果才能新选，失败不当空、不证明失配",
+            "type": "response",
+            "api_id": null,
+            "condition": "已进入其他通用接口字段路径",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 17,
+            "from": "frontend",
+            "to": "operator",
+            "message": "仅对其他实际启用字段提供当前有效候选；取消保值，恢复旧项须明确确认",
+            "type": "response",
+            "api_id": null,
+            "condition": "实际通用字段当前完整结果有效；本期无门店多选",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 18,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择/确认其他启用字段候选，或取消不写",
+            "type": "request",
+            "api_id": null,
+            "condition": "实际通用字段候选路径",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 19,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "上游或来源变化作废旧条件确认，完整新结果重判，保留待处理值；不波及无依赖原门店文本",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅其他接口字段依赖变化/恢复",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 20,
+            "from": "operator",
+            "to": "frontend",
+            "message": "点击原保存入口提交本次业务信息",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 21,
+            "from": "frontend",
+            "to": "platform",
+            "message": "沿原表单保存入口提交本次单车系code/name快照、plannedStoreName文本及原业务信息",
+            "type": "request",
+            "api_id": "API-018",
+            "condition": "正式保存分支；API-018为平台内部保存职责，沿既有模块实现字段映射",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 22,
+            "from": "platform",
+            "to": "platform",
+            "message": "复核本人通话、账号、租户、企业、记录和原保存阶段权限；按分类校验本地有效单选、原文本和其他已启用字段",
+            "type": "internal",
+            "api_id": null,
+            "condition": "保存分支；未接通豁免沿v1.1.0准确条件",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 23,
+            "from": "platform",
+            "to": "frontend",
+            "message": "反馈字段或保存条件未满足，不产生正式成功",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "必填缺失/值无效/owner或阶段不符",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 24,
+            "from": "frontend",
+            "to": "operator",
+            "message": "业务字段问题先回本次填写再定位，保留所有输入供修正",
+            "type": "response",
+            "api_id": null,
+            "condition": "业务字段校验未通过",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 25,
+            "from": "platform",
+            "to": "platform",
+            "message": "执行既有表单保存：车系保留当时code/name快照，原门店文本每通保存、详情和档案汇总沿原普通字段规则；原导入只读",
+            "type": "internal",
+            "api_id": null,
+            "condition": "原权限、阶段及分类校验通过；本期无初始存量兼容，不新增车系保存服务",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 26,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回原保存机制的成功结果及该次记录；按既有成功判据处理",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "保存成功分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 27,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈保存成功；本通详情读取车系当时名称及原门店文本，档案普通字段汇总沿原规则",
+            "type": "response",
+            "api_id": null,
+            "condition": "收到有效保存成功结果",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 28,
+            "from": "platform",
+            "to": "frontend",
+            "message": "反馈正式保存未成功，保留原状态；不虚构成功",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "保存异常，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 29,
+            "from": "frontend",
+            "to": "operator",
+            "message": "保留本次填写供重试；生产草稿持久化/恢复范围仍待核",
+            "type": "response",
+            "api_id": null,
+            "condition": "正式保存未成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 30,
+            "from": "operator",
+            "to": "frontend",
+            "message": "暂不提交或切换本次填写/导入信息页签",
+            "type": "request",
+            "api_id": null,
+            "condition": "与本次正式保存互斥，或仍处于编辑",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 31,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "同上下文仅切换显示并保留编辑；新通话默认填写，不串用身份/记录，不新增保存入口",
+            "type": "internal",
+            "api_id": null,
+            "condition": "未提交/页签切换",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at": "2026-10-19T17:52:00.595919+08:00",
+      "reason": "SRC167用户将本次意向车系改为Mapping接口单选；门店仍原文本，保留SRC169通话整版配置隔离。只形成SRC155授权模拟产品草稿，G2/G3待确认。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-167",
+        "inputs/source-index.json#SRC-168",
+        "inputs/user-stories.md#SRC-169"
+      ],
+      "previous_values": {
+        "schema_version": "1.0",
+        "id": "SEQ-015",
+        "scenario_id": "SC-013",
+        "name": "本地车系单选、原门店文本及同通保存时序草稿",
+        "status": "product_design_draft",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "有业务填写权限的客服／运营",
+            "kind": "actor"
+          },
+          {
+            "id": "frontend",
+            "name": "既有业务信息填写界面",
+            "kind": "system"
+          },
+          {
+            "id": "platform",
+            "name": "平台业务校验与保存（逻辑职责）",
+            "kind": "system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "进入既有通话/话后业务信息填写",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "platform",
+            "message": "载入当前分类、本地车系code/name选项、原门店文本及导入只读信息",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 3,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回当前配置及本通填写值；默认本次填写，导入页签只读，切换保留输入",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示唯一车系本地单选和原plannedStoreName文本；不提供外部车系/门店查选",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 5,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择、保留或清空一个本地车系，不能自由创建编码选项",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 6,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "记录当前选择与编辑版本；车系变更不清空或限制门店文本",
+            "type": "internal",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 7,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确确认按导入车系编码匹配本地选项",
+            "type": "request",
+            "api_id": null,
+            "condition": "选择导入带入；未确认不自动执行",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 8,
+            "from": "frontend",
+            "to": "platform",
+            "message": "核对原导入code及当前本地选项，并绑定账号/租户/记录/通话/表单版本",
+            "type": "request",
+            "api_id": null,
+            "condition": "已明确确认",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 9,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回按code精确匹配结果；不用同名猜测，不改导入原值",
+            "type": "response",
+            "api_id": null,
+            "condition": "已执行本地匹配",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 10,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "仅上下文与后续编辑版本仍一致时带入单选code/name，成功返回本次填写",
+            "type": "internal",
+            "api_id": null,
+            "condition": "匹配成功且所有owner/editor guards仍满足",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 11,
+            "from": "frontend",
+            "to": "operator",
+            "message": "提示未匹配、取消或上下文过期，保留当前填写与导入原值",
+            "type": "response",
+            "api_id": null,
+            "condition": "未匹配/取消/过期，与有效带入互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 12,
+            "from": "operator",
+            "to": "frontend",
+            "message": "自行填写原plannedStoreName文本；导入门店不自动带入",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 13,
+            "from": "frontend",
+            "to": "platform",
+            "message": "仅处理分类中另有的实际启用通用接口字段；默认本地车系和门店文本跳过",
+            "type": "request",
+            "api_id": null,
+            "condition": "另有实际启用通用接口字段；不含API-015/016",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 14,
+            "from": "platform",
+            "to": "platform",
+            "message": "依既有能力声明核对来源、单上游属性/入参及必需/可选；必需缺值或映射无效明确反馈",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅其他启用通用字段的逻辑职责；未知外部协议不在本图虚构调用",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 15,
+            "from": "platform",
+            "to": "platform",
+            "message": "按既有预置能力处理当前条件，检查完整性、依赖/来源/会话版本；旧请求不验证当前值",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅实际已接入通用能力；本图不提供未知端点或生产保证",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 16,
+            "from": "platform",
+            "to": "frontend",
+            "message": "反馈可用候选或具体配置/查询问题；完整结果才能新选，失败不当空、不证明失配",
+            "type": "response",
+            "api_id": null,
+            "condition": "已进入其他通用接口字段路径",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 17,
+            "from": "frontend",
+            "to": "operator",
+            "message": "仅对其他实际启用字段提供当前有效候选；取消保值，恢复旧项须明确确认",
+            "type": "response",
+            "api_id": null,
+            "condition": "实际通用字段当前完整结果有效；本期无门店多选",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 18,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择/确认其他启用字段候选，或取消不写",
+            "type": "request",
+            "api_id": null,
+            "condition": "实际通用字段候选路径",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 19,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "上游或来源变化作废旧条件确认，完整新结果重判，保留待处理值；不波及无依赖原门店文本",
+            "type": "internal",
+            "api_id": null,
+            "condition": "仅其他接口字段依赖变化/恢复",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 20,
+            "from": "operator",
+            "to": "frontend",
+            "message": "点击原保存入口提交本次业务信息",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 21,
+            "from": "frontend",
+            "to": "platform",
+            "message": "沿原表单保存入口提交本次单车系code/name快照、plannedStoreName文本及原业务信息",
+            "type": "request",
+            "api_id": null,
+            "condition": "正式保存分支；API-018为平台内部保存职责，沿既有模块实现字段映射",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 22,
+            "from": "platform",
+            "to": "platform",
+            "message": "复核本人通话、账号、租户、企业、记录和原保存阶段权限；按分类校验本地有效单选、原文本和其他已启用字段",
+            "type": "internal",
+            "api_id": null,
+            "condition": "保存分支；未接通豁免沿v1.1.0准确条件",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 23,
+            "from": "platform",
+            "to": "frontend",
+            "message": "反馈字段或保存条件未满足，不产生正式成功",
+            "type": "response",
+            "api_id": null,
+            "condition": "必填缺失/值无效/owner或阶段不符",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 24,
+            "from": "frontend",
+            "to": "operator",
+            "message": "业务字段问题先回本次填写再定位，保留所有输入供修正",
+            "type": "response",
+            "api_id": null,
+            "condition": "业务字段校验未通过",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 25,
+            "from": "platform",
+            "to": "platform",
+            "message": "执行既有表单保存：车系保留当时code/name快照，原门店文本每通保存、详情和档案汇总沿原普通字段规则；原导入只读",
+            "type": "internal",
+            "api_id": null,
+            "condition": "原权限、阶段及分类校验通过；本期无初始存量兼容，不新增车系保存服务",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 26,
+            "from": "platform",
+            "to": "frontend",
+            "message": "返回原保存机制的成功结果及该次记录；按既有成功判据处理",
+            "type": "response",
+            "api_id": null,
+            "condition": "保存成功分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 27,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈保存成功；本通详情读取车系当时名称及原门店文本，档案普通字段汇总沿原规则",
+            "type": "response",
+            "api_id": null,
+            "condition": "收到有效保存成功结果",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 28,
+            "from": "platform",
+            "to": "frontend",
+            "message": "反馈正式保存未成功，保留原状态；不虚构成功",
+            "type": "response",
+            "api_id": null,
+            "condition": "保存异常，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 29,
+            "from": "frontend",
+            "to": "operator",
+            "message": "保留本次填写供重试；生产草稿持久化/恢复范围仍待核",
+            "type": "response",
+            "api_id": null,
+            "condition": "正式保存未成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 30,
+            "from": "operator",
+            "to": "frontend",
+            "message": "暂不提交或切换本次填写/导入信息页签",
+            "type": "request",
+            "api_id": null,
+            "condition": "与本次正式保存互斥，或仍处于编辑",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 31,
+            "from": "frontend",
+            "to": "frontend",
+            "message": "同上下文仅切换显示并保留编辑；新通话默认填写，不串用身份/记录，不新增保存入口",
+            "type": "internal",
+            "api_id": null,
+            "condition": "未提交/页签切换",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          }
+        ],
+        "source_story_ids": [
+          "US-016"
+        ],
+        "source_acceptance_ids": [
+          "AC-112",
+          "AC-113",
+          "AC-114",
+          "AC-115",
+          "AC-116",
+          "AC-117",
+          "AC-118",
+          "AC-119",
+          "AC-125",
+          "AC-126",
+          "AC-132",
+          "AC-133",
+          "AC-134",
+          "AC-135",
+          "AC-136",
+          "AC-137",
+          "AC-138"
+        ],
+        "source_refs": [
+          "scenarios/SC-013.json",
+          "interfaces/interface-index.json",
+          "inputs/user-stories.md#SRC-149",
+          "inputs/user-stories.md#SRC-151",
+          "inputs/user-stories.md#SRC-153",
+          "inputs/user-stories.md#SRC-157",
+          "inputs/user-stories.md#SRC-158",
+          "inputs/user-stories.md#SRC-160",
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-166"
+        ],
+        "notes": [
+          "SRC-166当前车系code/name配置及填写保存均复用现有自定义字段和表单机制；原plannedStoreName文本保留，不调用API-015/016，不新增独立车系模块。",
+          "导入信息只读；车系仅显式确认后按code精确匹配，带入核对账号/租户/通话/表单及后续编辑版本，取消/未匹配/过期保值，导入门店不自动写入原文本。",
+          "仅另有实际启用通用接口字段时执行其条件、来源及完整性逻辑；内部职责不补造未知端点或保证任意能力生产可用。",
+          "本地车系与门店文本按分类分别必填，原未接通条件和保存入口保持；已填写其他接口字段仍校验。",
+          "API-018仅标记平台内部复用配置/保存职责，无需外部供方保存协议；ISSUE-11102按SRC-166范围澄清解决，不等于生产实现verified。ISSUE-11105生产草稿仍medium/open，失败保输入不扩为跨设备恢复。",
+          "本期无初始存量，不要求旧接口车系/单门店/多门店格式转换、迁移、回填或历史兼容。上线后车系当时编码名称快照继续；plannedStoreName每通保存、详情及档案汇总沿原普通字段规则，不新增跨通配对或空文本清空汇总。项目旧证据及原型记录保留。",
+          "沿SRC-153/155继续产品设计和模拟例外，本图为草稿，当前整体G2待确认、G3未冻结，不宣称生产实现或正式交付完成。"
+        ]
+      }
+    }
+  ]
+}

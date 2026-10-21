@@ -1,0 +1,142 @@
+# LOCAL-SERIES-QUERY 查询并单选本次Mapping车系
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [查询单选接口车系并保存本次意向信息 · FUNC\-030](../features/FUNC-030.md)
+
+## 职责与触发
+
+所属工程模块：开发接手后确定
+
+功能：FUNC-030
+
+触发：客服打开本次意向车系下拉、搜索或重试
+
+## 前置条件
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+## 必须遵守的全局规则
+
+- [BR-024](../global-logic.md#BR-024)
+- [BR-025](../global-logic.md#BR-025)
+- [BR-028](../global-logic.md#BR-028)
+- [BR-029](../global-logic.md#BR-029)
+- [BR-033](../global-logic.md#BR-033)
+- [BR-036](../global-logic.md#BR-036)
+- [BR-038](../global-logic.md#BR-038)
+
+## 输入与输出
+
+输入：[FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)、[FIELD-CALL-VERSION](../field-specs.md#FIELD-CALL-VERSION)、[FIELD-DICTIONARY-REF](../field-specs.md#FIELD-DICTIONARY-REF)、[FIELD-MAPPING-MEDIA-FILTER](../field-specs.md#FIELD-MAPPING-MEDIA-FILTER)、[FIELD-MAPPING-STATE-FILTER](../field-specs.md#FIELD-MAPPING-STATE-FILTER)
+
+输出：[FIELD-OFFICIAL-SERIES-ID](../field-specs.md#FIELD-OFFICIAL-SERIES-ID)、[FIELD-SERIES-CODE](../field-specs.md#FIELD-SERIES-CODE)、[FIELD-SERIES-NAME](../field-specs.md#FIELD-SERIES-NAME)、[FIELD-SERIES-MEDIA-ID](../field-specs.md#FIELD-SERIES-MEDIA-ID)、[FIELD-SERIES-SOURCE-STATE](../field-specs.md#FIELD-SERIES-SOURCE-STATE)、[FIELD-SERIES-SELECTION](../field-specs.md#FIELD-SERIES-SELECTION)
+
+## 处理步骤
+
+### LOCAL-SERIES-QUERY-STEP-1
+
+核对本人通话、固定字段绑定及当前接口启停/授权，再发起预置Mapping查询
+
+读取：FIELD-CALL-CONTEXT, FIELD-CALL-VERSION, FIELD-DICTIONARY-REF, FIELD-MAPPING-MEDIA-FILTER, FIELD-MAPPING-STATE-FILTER；写入：无
+
+规则：BR-024, BR-025, BR-028, BR-029, BR-033, BR-036, BR-038
+
+### LOCAL-SERIES-QUERY-STEP-2
+
+识别加载、完整成功、空集、异常，校验候选与请求上下文；完全同记录可去重，同官方ID冲突不任取
+
+读取：FIELD-CALL-CONTEXT, FIELD-OFFICIAL-SERIES-ID, FIELD-SERIES-NAME, FIELD-SERIES-MEDIA-ID, FIELD-SERIES-SOURCE-STATE；写入：FIELD-OFFICIAL-SERIES-ID, FIELD-SERIES-CODE, FIELD-SERIES-NAME, FIELD-SERIES-MEDIA-ID, FIELD-SERIES-SOURCE-STATE
+
+规则：BR-024, BR-025, BR-028, BR-029, BR-033, BR-036, BR-038
+
+### LOCAL-SERIES-QUERY-STEP-3
+
+在完整有效候选内搜索并唯一选择，保留编码、当时名称和来源快照
+
+读取：FIELD-SERIES-CODE, FIELD-SERIES-NAME, FIELD-OFFICIAL-SERIES-ID, FIELD-SERIES-MEDIA-ID, FIELD-SERIES-SOURCE-STATE；写入：FIELD-SERIES-SELECTION
+
+规则：BR-024, BR-025, BR-028, BR-029, BR-033, BR-036, BR-038
+
+## 分支与异常
+
+### LOCAL-SERIES-QUERY-BRANCH-1
+
+条件：来源停用/撤权或响应上下文过期
+
+结果：停止新查选，丢弃旧响应写入；保留原输入和历史
+
+涉及字段：FIELD-CALL-CONTEXT, FIELD-DICTIONARY-REF, FIELD-SERIES-SELECTION
+
+验证：CHECK-115, CHECK-123, CHECK-130
+
+### LOCAL-SERIES-QUERY-BRANCH-2
+
+条件：成功空集
+
+结果：明确无候选，不显示查询异常，不自由创建
+
+涉及字段：FIELD-SERIES-SELECTION
+
+验证：CHECK-112, CHECK-115
+
+### LOCAL-SERIES-QUERY-BRANCH-3
+
+条件：异常/不完整/同官方ID冲突
+
+结果：保留输入重试，完整结果前不新选，不因异常判旧值失配
+
+涉及字段：FIELD-SERIES-SELECTION
+
+验证：CHECK-115, CHECK-135
+
+### LOCAL-SERIES-QUERY-BRANCH-4
+
+条件：已有当前有效依据
+
+结果：保存前无需重复强制查询；来源与权限仍实时核对
+
+涉及字段：FIELD-SERIES-SELECTION
+
+验证：CHECK-133, CHECK-135
+
+### LOCAL-SERIES-QUERY-BRANCH-5
+
+条件：来源恢复
+
+结果：重查匹配后客服确认才恢复旧未提交值
+
+涉及字段：FIELD-SERIES-SELECTION
+
+验证：CHECK-137
+
+## 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 字段定义
+
+- [FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)
+- [FIELD-CALL-VERSION](../field-specs.md#FIELD-CALL-VERSION)
+- [FIELD-DICTIONARY-REF](../field-specs.md#FIELD-DICTIONARY-REF)
+- [FIELD-MAPPING-MEDIA-FILTER](../field-specs.md#FIELD-MAPPING-MEDIA-FILTER)
+- [FIELD-MAPPING-STATE-FILTER](../field-specs.md#FIELD-MAPPING-STATE-FILTER)
+- [FIELD-OFFICIAL-SERIES-ID](../field-specs.md#FIELD-OFFICIAL-SERIES-ID)
+- [FIELD-SERIES-CODE](../field-specs.md#FIELD-SERIES-CODE)
+- [FIELD-SERIES-MEDIA-ID](../field-specs.md#FIELD-SERIES-MEDIA-ID)
+- [FIELD-SERIES-NAME](../field-specs.md#FIELD-SERIES-NAME)
+- [FIELD-SERIES-SELECTION](../field-specs.md#FIELD-SERIES-SELECTION)
+- [FIELD-SERIES-SOURCE-STATE](../field-specs.md#FIELD-SERIES-SOURCE-STATE)
+
+## 来源与验证
+
+来源条目：documents:interfaces~1interface-index.json, documents:memory~1business-rules.json, documents:memory~1feature-list.json, documents:memory~1normalized-user-stories.json, documents:memory~1project-facts.json, documents:outputs~1business-scenario-atlas.html, documents:outputs~1business-scenario-list.md, documents:outputs~1feature-list.md, documents:outputs~1interaction-sequence-atlas.html, documents:outputs~1product-structure-and-business-process-baseline.md, documents:outputs~1system-sequence-interface-verification-matrix.md, documents:planning~1existing-surface-evidence.json, documents:project-version.json, documents:runtime~1open-items.json, documents:runtime~1traceability.json, documents:runtime~1verification-report.json, documents:scenarios~1SC-008.json, documents:scenarios~1SC-009.json, documents:scenarios~1SC-010.json, documents:scenarios~1SC-011.json, documents:scenarios~1SC-012.json, documents:scenarios~1SC-013.json, documents:scenarios~1SC-014.json, documents:scenarios~1SC-015.json, documents:scenarios~1SC-016.json, documents:scenarios~1scenario-index.json, documents:sequences~1SEQ-010.json, documents:sequences~1SEQ-011.json, documents:sequences~1SEQ-012.json, documents:sequences~1SEQ-013.json, documents:sequences~1SEQ-014.json, documents:sequences~1SEQ-015.json, documents:sequences~1SEQ-016.json, documents:sequences~1SEQ-017.json, documents:sequences~1SEQ-018.json, documents:sequences~1sequence-index.json, features:FUNC-030, features:FUNC-030/boundary/business_rules/0, features:FUNC-030/boundary/business_rules/1, features:FUNC-030/boundary/business_rules/10, features:FUNC-030/boundary/business_rules/11, features:FUNC-030/boundary/business_rules/2, features:FUNC-030/boundary/business_rules/3, features:FUNC-030/boundary/business_rules/4, features:FUNC-030/boundary/business_rules/5, features:FUNC-030/boundary/business_rules/6, features:FUNC-030/boundary/business_rules/7, features:FUNC-030/boundary/business_rules/8, features:FUNC-030/boundary/business_rules/9, features:FUNC-030/boundary/exception_paths/0, features:FUNC-030/boundary/exception_paths/1, features:FUNC-030/boundary/exception_paths/2, features:FUNC-030/boundary/exception_paths/3, flows:FLOW-006, flows:FLOW-006/steps/0, flows:FLOW-006/steps/1, flows:FLOW-006/steps/2, flows:FLOW-006/steps/3, flows:FLOW-006/steps/4, flows:FLOW-006/steps/5, flows:FLOW-006/steps/6, interfaces:API-015, interfaces:API-015/request_fields/2, interfaces:API-015/request_fields/3, interfaces:API-015/response_fields/0, interfaces:API-015/response_fields/1, interfaces:API-015/response_fields/2, interfaces:API-015/response_fields/3, pages:PAGE-008, pages:PAGE-008/actions/0, pages:PAGE-008/fields/0, pages:PAGE-008/fields/1, pages:PAGE-008/fields/2, pages:PAGE-008/fields/3, project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-024, rules:BR-025, rules:BR-028, rules:BR-029, rules:BR-033, rules:BR-036, rules:BR-038, scenarios:SC-013, scenarios:SC-013/alternate_flows/0, scenarios:SC-013/alternate_flows/0/steps/0, scenarios:SC-013/alternate_flows/0/steps/1, scenarios:SC-013/alternate_flows/1, scenarios:SC-013/alternate_flows/1/steps/0, scenarios:SC-013/alternate_flows/1/steps/1, scenarios:SC-013/alternate_flows/10, scenarios:SC-013/alternate_flows/10/steps/0, scenarios:SC-013/alternate_flows/11, scenarios:SC-013/alternate_flows/11/steps/0, scenarios:SC-013/alternate_flows/11/steps/1, scenarios:SC-013/alternate_flows/12, scenarios:SC-013/alternate_flows/12/steps/0, scenarios:SC-013/alternate_flows/12/steps/1, scenarios:SC-013/alternate_flows/13, scenarios:SC-013/alternate_flows/13/steps/0, scenarios:SC-013/alternate_flows/13/steps/1, scenarios:SC-013/alternate_flows/14, scenarios:SC-013/alternate_flows/14/steps/0, scenarios:SC-013/alternate_flows/14/steps/1, scenarios:SC-013/alternate_flows/2, scenarios:SC-013/alternate_flows/2/steps/0, scenarios:SC-013/alternate_flows/2/steps/1, scenarios:SC-013/alternate_flows/3, scenarios:SC-013/alternate_flows/3/steps/0, scenarios:SC-013/alternate_flows/3/steps/1, scenarios:SC-013/alternate_flows/4, scenarios:SC-013/alternate_flows/4/steps/0, scenarios:SC-013/alternate_flows/4/steps/1, scenarios:SC-013/alternate_flows/5, scenarios:SC-013/alternate_flows/5/steps/0, scenarios:SC-013/alternate_flows/6, scenarios:SC-013/alternate_flows/6/steps/0, scenarios:SC-013/alternate_flows/7, scenarios:SC-013/alternate_flows/7/steps/0, scenarios:SC-013/alternate_flows/7/steps/1, scenarios:SC-013/alternate_flows/8, scenarios:SC-013/alternate_flows/8/steps/0, scenarios:SC-013/alternate_flows/9, scenarios:SC-013/alternate_flows/9/steps/0, scenarios:SC-013/alternate_flows/9/steps/1, scenarios:SC-013/main_flow/0, scenarios:SC-013/main_flow/1, scenarios:SC-013/main_flow/10, scenarios:SC-013/main_flow/2, scenarios:SC-013/main_flow/3, scenarios:SC-013/main_flow/4, scenarios:SC-013/main_flow/5, scenarios:SC-013/main_flow/6, scenarios:SC-013/main_flow/7, scenarios:SC-013/main_flow/8, scenarios:SC-013/main_flow/9, scenarios:SC-013/postconditions/0, scenarios:SC-013/postconditions/1, scenarios:SC-013/postconditions/2, scenarios:SC-013/postconditions/3, scenarios:SC-013/preconditions/0, scenarios:SC-013/preconditions/1, scenarios:SC-013/preconditions/2, sequences:SEQ-015, sequences:SEQ-015/messages/0, sequences:SEQ-015/messages/1, sequences:SEQ-015/messages/10, sequences:SEQ-015/messages/11, sequences:SEQ-015/messages/12, sequences:SEQ-015/messages/13, sequences:SEQ-015/messages/14, sequences:SEQ-015/messages/15, sequences:SEQ-015/messages/16, sequences:SEQ-015/messages/17, sequences:SEQ-015/messages/18, sequences:SEQ-015/messages/19, sequences:SEQ-015/messages/2, sequences:SEQ-015/messages/20, sequences:SEQ-015/messages/21, sequences:SEQ-015/messages/22, sequences:SEQ-015/messages/23, sequences:SEQ-015/messages/24, sequences:SEQ-015/messages/25, sequences:SEQ-015/messages/26, sequences:SEQ-015/messages/27, sequences:SEQ-015/messages/28, sequences:SEQ-015/messages/29, sequences:SEQ-015/messages/3, sequences:SEQ-015/messages/30, sequences:SEQ-015/messages/31, sequences:SEQ-015/messages/32, sequences:SEQ-015/messages/33, sequences:SEQ-015/messages/34, sequences:SEQ-015/messages/35, sequences:SEQ-015/messages/4, sequences:SEQ-015/messages/5, sequences:SEQ-015/messages/6, sequences:SEQ-015/messages/7, sequences:SEQ-015/messages/8, sequences:SEQ-015/messages/9, stories:US-016, stories:US-016/preconditions/0, acceptance:AC-112, acceptance:AC-113, acceptance:AC-115, acceptance:AC-123, acceptance:AC-132, acceptance:AC-135, acceptance:AC-137
+
+验证：CHECK-112, CHECK-113, CHECK-115, CHECK-132, CHECK-135, CHECK-137, CHECK-138, CHECK-123
+
+## 实施任务
+
+未声明；请结合范围说明核对。

@@ -1,0 +1,197 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-012",
+  "scenario_id": "SC-010",
+  "name": "超管独立启用或停用接口条目时序草稿",
+  "status": "product_design_draft",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "超级管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "云外呼平台前端",
+      "kind": "system"
+    },
+    {
+      "id": "configuration",
+      "name": "平台内部配置服务",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "打开指定条目的启停状态调整",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "读取指定条目的当前启停状态",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回条目与当前启停状态",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示当前状态，要求明确选择本次目标为启用或停用",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "operator",
+      "to": "frontend",
+      "message": "取消本次启停调整",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交前选择取消；与后续提交分支互斥"
+    },
+    {
+      "step": 6,
+      "from": "frontend",
+      "to": "operator",
+      "message": "结束本次启停调整，不提交本次变更",
+      "type": "response",
+      "api_id": null,
+      "condition": "提交前取消分支"
+    },
+    {
+      "step": 7,
+      "from": "operator",
+      "to": "frontend",
+      "message": "选择启用并提交明确启用目标",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交分支且本次目标为启用；与停用目标互斥"
+    },
+    {
+      "step": 8,
+      "from": "operator",
+      "to": "frontend",
+      "message": "选择停用并提交明确停用目标",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交分支且本次目标为停用；与启用目标互斥"
+    },
+    {
+      "step": 9,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "提交指定条目与明确的本次目标状态",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交分支；仅提交所选目标，不盲目反转"
+    },
+    {
+      "step": 10,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "尝试保存指定启用或停用状态，保留条目、引用配置与历史数据",
+      "type": "internal",
+      "api_id": null,
+      "condition": "提交分支"
+    },
+    {
+      "step": 11,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回启用成功；可用租户范围继续约束使用",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次目标为启用且保存成功"
+    },
+    {
+      "step": 12,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示启用成功；未提交旧值仍须在填写场景按当前条件重查并经客服确认",
+      "type": "response",
+      "api_id": null,
+      "condition": "启用成功分支"
+    },
+    {
+      "step": 13,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回停用成功；对应来源资格变为不可用，引用和历史保留",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次目标为停用且保存成功"
+    },
+    {
+      "step": 14,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示停用成功；对应未提交值不作有效值，在途结果不得用于新选择",
+      "type": "response",
+      "api_id": null,
+      "condition": "停用成功分支"
+    },
+    {
+      "step": 15,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回本次指定状态未保存成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "状态保存未成功；与启用成功、停用成功互斥"
+    },
+    {
+      "step": 16,
+      "from": "frontend",
+      "to": "operator",
+      "message": "提示本次状态调整未完成，不显示启用或停用成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "状态保存未成功"
+    }
+  ],
+  "source_story_ids": [
+    "US-018",
+    "US-019"
+  ],
+  "source_acceptance_ids": [
+    "AC-129",
+    "AC-130",
+    "AC-131"
+  ],
+  "source_refs": [
+    "scenarios/SC-010.json",
+    "inputs/user-stories.md#SRC-128",
+    "inputs/user-stories.md#SRC-139",
+    "inputs/user-stories.md#SRC-141",
+    "inputs/user-stories.md#SRC-148",
+    "inputs/user-stories.md#SRC-149",
+    "inputs/user-stories.md#SRC-153"
+  ],
+  "notes": [
+    "产品设计草稿；用户仅例外批准继续时序与页面设计。关键接口及生产草稿契约仍开放，当前不构成需求冻结或开发交付。",
+    "参与者按逻辑职责划分；平台内部配置服务不表示已确定部署架构、内部端点或实际请求字段。所有内部请求api_id为null，不引用标记not_required的API-017。",
+    "消息序号是图示排序；带互斥条件的消息仅在对应分支发生，不能解释为全部消息顺序必然执行。取消为提交前分支，与提交后的成功、失败互斥。",
+    "本管理配置场景不查询NEV／ICE业务数据，不通过保存配置自动测试或证明外部接入成功。",
+    "启用仅恢复来源资格，不自动外查、不自动恢复未提交旧值；实际旧值恢复发生在SC-013。",
+    "停用影响针对该来源，不删除引用或历史、不禁用整个填写表单；选填项可清除后保存，必填项沿原有规则。此图未规定向已打开页面推送状态的技术机制。",
+    "同目标重复提交、未知超时结果、自动补偿及自动重试的实现契约没有由本草稿补定。"
+  ]
+}

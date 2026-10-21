@@ -1,0 +1,287 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.1.1",
+  "id": "SC-015",
+  "name": "删除未使用自定义字段",
+  "summary": "具备本租户业务配置权限的管理员可发起并确认删除未使用字段；六个统计预置字段及Mapping预置字段也适用，不按预置身份一刀切禁止。仍存在的定义继续保持既有类型/选项和接口单选等约束。",
+  "actors": [
+    "本租户业务配置管理员",
+    "云外呼平台"
+  ],
+  "trigger": "有权人员需要清理未使用的自定义字段定义",
+  "preconditions": [
+    "当前角色及企业/租户范围有效；删除不扩大权限。",
+    "只能在未使用且最终确认无引用时删除。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "本租户业务配置管理员",
+      "action": "进入“客户管理→业务分类→自定义字段Tab”，选择目标并发起删除。",
+      "system_response": "核对当前对象、角色及租户范围；不自动提交删除。",
+      "rule_ids": [
+        "BR-041"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云外呼平台",
+      "action": "核对目标的实际配置、依赖、业务数据及当前通话引用/来源保留。",
+      "system_response": "存在引用或无法确认时给出阻挡位置并结束；无使用时呈现明确删除确认。",
+      "rule_ids": [
+        "BR-039"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "本租户业务配置管理员",
+      "action": "核对影响并明确确认删除。",
+      "system_response": "取消不提交；确认才进入最终校验。",
+      "rule_ids": [
+        "BR-040"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云外呼平台",
+      "action": "重查权限及使用引用，尝试仅删除目标配置。",
+      "system_response": "并发变化或保存失败保留原对象；不级联、不改草稿/历史/通话版本。",
+      "rule_ids": [
+        "BR-039",
+        "BR-040"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云外呼平台",
+      "action": "反馈目标删除成功，刷新当前列表。",
+      "system_response": "重新进入/刷新保持删除，其他配置和业务记录不变。",
+      "rule_ids": [
+        "BR-040"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-015-USED",
+      "condition": "存在使用引用、来源保留或引用状态无法可靠确认。",
+      "steps": [
+        "拒绝删除并列出可理解的位置/原因，不把预置身份当统一禁令，不清理其他对象。"
+      ]
+    },
+    {
+      "id": "ALT-015-CANCEL",
+      "condition": "用户在确认前取消。",
+      "steps": [
+        "保留原对象与草稿，不提交删除。"
+      ]
+    },
+    {
+      "id": "ALT-015-FAIL",
+      "condition": "最终复核发现新引用/权限变化，或删除未能保存。",
+      "steps": [
+        "明确本次未删除，保持原对象/草稿，不自动重试或绕过引用。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功仅目标持久删除，不级联、不补默认。",
+    "失败/取消/引用存在时保持原对象；通话、历史、其他租户/草稿不变。"
+  ],
+  "acceptance_points": [
+    "AC-143：具备本租户业务配置权限的管理员可发起并确认删除未使用字段；六个统计预置字段及Mapping预置字段也适用，不按预置身份一刀切禁止。仍存在的定义继续保持既有类型/选项和接口单选等约束。",
+    "AC-144：本租户任一分类引用（含隐藏/停用引用）、其他接口字段依赖，或实际业务数据/当前通话实际使用及非空草稿引用该字段时，拒绝删除并列出位置。整版通话快照中未被实际类别使用的字段库存不单独算字段使用；真实演示业务记录也算使用，并明确标识演示记录。",
+    "AC-145：删除提交前再次核对租户、成员权限和引用；取消、并发新增引用、引用读取无法确认或保存失败时保持原定义/其他草稿，不删除业务数据、不改写通话版本和历史快照。",
+    "AC-146：成功只删除该未使用字段定义，不连删分类或接口；持久空字段库或缺少预置ID均不得触发默认补回，重新进入/刷新仍保持删除结果，其他租户和已有通话继续按原版本处理。"
+  ],
+  "source_story_ids": [
+    "US-021"
+  ],
+  "source_acceptance_ids": [
+    "AC-143",
+    "AC-144",
+    "AC-145",
+    "AC-146"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-172",
+    "inputs/user-stories.md#SRC-173",
+    "inputs/user-stories.md#SRC-174",
+    "inputs/user-stories.md#SRC-175",
+    "inputs/user-stories.md#SRC-176"
+  ],
+  "open_item_ids": [],
+  "notes": [
+    "本场景仅平台内部配置删除，不调用外部系统或新增外部API。",
+    "字典来源保留截止本通结果保存完成，线路挂断但话后待填仍受保护。",
+    "当前用户直接范围授权，设计草稿；G2/G3及真实Mapping/生产草稿缺口保持。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "本租户业务配置管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云外呼平台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "operator",
+        "type": "start",
+        "order": 1,
+        "label": "选择待删除对象"
+      },
+      {
+        "id": "REQUEST",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 2,
+        "label": "在目标Tab发起删除",
+        "step_ref": 1
+      },
+      {
+        "id": "CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "核对实际引用及通话来源保留",
+        "step_ref": 2
+      },
+      {
+        "id": "UNUSED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 4,
+        "label": "能确认未使用？"
+      },
+      {
+        "id": "BLOCK",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 5,
+        "label": "保留并说明引用/无法确认位置"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "operator",
+        "type": "decision",
+        "order": 5,
+        "label": "确认删除目标？",
+        "step_ref": 3
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 6,
+        "label": "取消，不删除"
+      },
+      {
+        "id": "DELETE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "重查权限/引用，仅删除目标",
+        "step_ref": 4
+      },
+      {
+        "id": "SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "删除保存成功？"
+      },
+      {
+        "id": "FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 8,
+        "label": "失败保留原对象与草稿"
+      },
+      {
+        "id": "RESULT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 9,
+        "label": "反馈成功，刷新不补默认",
+        "step_ref": 5
+      },
+      {
+        "id": "DONE",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 10,
+        "label": "目标删除完成"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "REQUEST"
+      },
+      {
+        "from": "REQUEST",
+        "to": "CHECK"
+      },
+      {
+        "from": "CHECK",
+        "to": "UNUSED"
+      },
+      {
+        "from": "UNUSED",
+        "to": "BLOCK",
+        "label": "有引用或无法确认",
+        "path_id": "ALT-015-USED",
+        "type": "alternate"
+      },
+      {
+        "from": "UNUSED",
+        "to": "CONFIRM",
+        "label": "确认无使用"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-015-CANCEL",
+        "type": "alternate"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "DELETE",
+        "label": "确认"
+      },
+      {
+        "from": "DELETE",
+        "to": "SAVED"
+      },
+      {
+        "from": "SAVED",
+        "to": "FAIL",
+        "label": "未保存/状态变化",
+        "path_id": "ALT-015-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "SAVED",
+        "to": "RESULT",
+        "label": "成功"
+      },
+      {
+        "from": "RESULT",
+        "to": "DONE"
+      }
+    ]
+  },
+  "business_rule_ids": [
+    "BR-039",
+    "BR-040",
+    "BR-041"
+  ]
+}

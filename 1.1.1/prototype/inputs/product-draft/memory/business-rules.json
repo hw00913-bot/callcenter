@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.1.1",
+  "updated_at": "2026-10-15T16:00:36+08:00",
+  "business_rules": [
+    {
+      "id": "BR-023",
+      "name": "超管维护及引用保留",
+      "statement": "超管新增、编辑、启用、停用接口字典条目；已被引用条目、配置与已保存历史保留。",
+      "source_scenario_ids": [
+        "SC-008",
+        "SC-009",
+        "SC-010",
+        "SC-011"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-128",
+        "inputs/source-index.json#SRC-139"
+      ],
+      "status": "user_confirmed_direction"
+    },
+    {
+      "id": "BR-024",
+      "name": "状态与租户授权共同约束可用性",
+      "statement": "新增字段引用及新查询／选择受条目启停状态和当前租户授权共同约束；不扩大既有成员配置权限。",
+      "source_scenario_ids": [
+        "SC-010",
+        "SC-011",
+        "SC-012",
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-128",
+        "inputs/source-index.json#SRC-135",
+        "inputs/source-index.json#SRC-139"
+      ],
+      "status": "user_confirmed_direction"
+    },
+    {
+      "id": "BR-025",
+      "name": "撤销授权的租户范围",
+      "statement": "停用或撤销授权生效后，仅对应接口及租户停止新查询和新选择；历史及配置保留。未提交选择保留显示并提示来源不可用，不作有效值提交，在途返回不提供新选择；选填可手动清除后保存，必填沿原规则。来源恢复后的旧值按BR-036重查并人工确认。",
+      "source_scenario_ids": [
+        "SC-010",
+        "SC-011",
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-135",
+        "inputs/user-stories.md#SRC-148",
+        "inputs/user-stories.md#SRC-149"
+      ],
+      "status": "user_confirmed_direction",
+      "change_history": [
+        {
+          "at": "2026-10-15T15:12:42+08:00",
+          "previous_statement": "撤销只停止当前租户对当前接口的新查询和新选择，保留历史及配置并标记引用不可用；在途和已选未提交值仍待确认。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-148"
+          ]
+        },
+        {
+          "at": "2026-10-15T15:42:50+08:00",
+          "previous_statement": "停用或撤销授权生效后，仅对应接口及租户停止新查询和新选择；历史及配置保留。未提交选择保留显示并提示来源不可用，不作有效值提交，在途返回不提供新选择；选填可手动清除后保存，必填沿原规则。重新开放后的恢复方式仍待确认。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-149"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-026",
+      "name": "简化接口字段配置及字段承载",
+      "statement": "选择接口取数及字典条目，门店勾选多个关联车系字段；接口地址、鉴权及技术参数后台预置。新增本次意向车系／门店字段，保留原计划到店字段。",
+      "source_scenario_ids": [
+        "SC-012",
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-142",
+        "inputs/source-index.json#SRC-143"
+      ],
+      "status": "user_confirmed_direction"
+    },
+    {
+      "id": "BR-027",
+      "name": "分类独立必填",
+      "statement": "车系与门店分别沿业务分类设置是否必填；不因接口来源或联动统一强制必填。",
+      "source_scenario_ids": [
+        "SC-012",
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-134"
+      ],
+      "status": "user_confirmed_direction"
+    },
+    {
+      "id": "BR-028",
+      "name": "原始信息保留及确认带入",
+      "statement": "原导入意向保持原值；客服明确确认匹配信息后方可带入本次新增意向字段，不自动覆盖来源。",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-132",
+        "inputs/source-index.json#SRC-143"
+      ],
+      "status": "user_confirmed_direction"
+    },
+    {
+      "id": "BR-029",
+      "name": "单条件同体系门店",
+      "statement": "单个车系按其编码查询权威接口，以返回门店作为候选范围，NEV车系对应NEV门店、ICE对应ICE门店；平台不自行扩大为全部同体系门店，也不另建车系—门店关系表。真实按编码筛选与体系依据仍须接口核验。",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-126",
+        "inputs/user-stories.md#SRC-151"
+      ],
+      "status": "user_confirmed_direction",
+      "change_history": [
+        {
+          "at": "2026-10-15T16:00:36+08:00",
+          "previous_statement": "对单个NEV车系只展示NEV门店，单个ICE车系只展示ICE门店；权威单车系候选集合及准确关联能力待接口核验。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-151"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-030",
+      "name": "多字段门店结果并集",
+      "statement": "从多个关联车系字段取得编码，各编码查询权威接口返回的门店结果按并集合并并去重；不要求门店同时匹配全部车系。实际一次多编码或逐条件查询、去重与完整性契约仍待核验。",
+      "source_scenario_ids": [
+        "SC-012",
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-136",
+        "inputs/source-index.json#SRC-137",
+        "inputs/source-index.json#SRC-138",
+        "inputs/user-stories.md#SRC-151"
+      ],
+      "status": "user_confirmed_direction",
+      "change_history": [
+        {
+          "at": "2026-10-15T16:00:36+08:00",
+          "previous_statement": "从关联的多个车系字段取编码，各车系候选门店结果取并集并去重，不要求同一门店同时匹配全部车系；不自动引入字段多选。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-151"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-031",
+      "name": "按新并集检查旧门店",
+      "statement": "旧有效门店仍匹配当前车系条件的完整关联范围时保留；不匹配则保留显示并待重选，不作有效值提交。待重选值重新匹配后须客服再次明确确认或选择才恢复有效；清空全部关联车系时旧门店也保留待重选。",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-133",
+        "inputs/source-index.json#SRC-137",
+        "inputs/source-index.json#SRC-138",
+        "inputs/user-stories.md#SRC-147",
+        "inputs/user-stories.md#SRC-148"
+      ],
+      "status": "user_confirmed_direction",
+      "change_history": [
+        {
+          "at": "2026-10-15T15:12:42+08:00",
+          "previous_statement": "旧有效门店仍匹配新的完整并集时保留；不匹配则保留显示并待重选，不作为有效值提交／回传。重新选择有效候选可恢复有效；已待重选后条件变化的自动恢复仍待确认。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-147"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-032",
+      "name": "查询失败草稿及原有保存规则",
+      "statement": "查询失败导致当前需要校验的必填无法完成时保留已填草稿供重试，完成保存前补齐有效必填。未接通沿v1.1.0准确条件，已填值仍校验；任意查询失败不一律阻止完成。",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-140",
+        "inputs/source-index.json#SRC-144",
+        "inputs/source-index.json#SRC-152"
+      ],
+      "status": "user_confirmed_direction"
+    },
+    {
+      "id": "BR-033",
+      "name": "失败与空结果分开",
+      "statement": "成功空结果与查询失败／部分失败分别处理；部分失败时保留输入，提示重试，查全后才允许新的门店选择，不据部分失败断言旧门店失配。旧值提交仍需在当前车系条件下有效，不以旧条件验证结果替代。",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-130",
+        "inputs/source-index.json#SRC-137",
+        "inputs/source-index.json#SRC-140",
+        "inputs/user-stories.md#SRC-147"
+      ],
+      "status": "user_confirmed_direction",
+      "change_history": [
+        {
+          "at": "2026-10-15T15:12:42+08:00",
+          "previous_statement": "完整成功的空结果与查询失败／部分失败为不同状态；没有完整权威候选时不能据此判定完整并集或断言旧门店已失配。未定细则保留待核验。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-147"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-034",
+      "name": "字典四项配置与稳定引用",
+      "statement": "超管仅配置自定义名称、预置取数能力、可用租户、启用状态；条目内部标识由系统自动生成，字段按标识引用，改名不使已有引用失效。研发预置地址、请求方式、鉴权、参数和返回映射；新增尚未接入的能力需先完成研发接入。 已被业务字段引用的条目固定绑定取数能力；需要换能力时新增条目，再调整字段引用，原条目及历史保留。名称、启停和租户范围仍可按各自操作调整。",
+      "source_scenario_ids": [
+        "SC-008",
+        "SC-009",
+        "SC-012"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-145",
+        "inputs/user-stories.md#SRC-150"
+      ],
+      "status": "user_confirmed_direction",
+      "change_history": [
+        {
+          "at": "2026-10-15T15:42:50+08:00",
+          "previous_statement": "超管仅配置自定义名称、预置取数能力、可用租户、启用状态；条目内部标识由系统自动生成，字段按标识引用，改名不使已有引用失效。研发预置地址、请求方式、鉴权、参数和返回映射；新增尚未接入的能力需先完成研发接入。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-150"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BR-035",
+      "name": "门店查询至少一个关联车系",
+      "statement": "关联车系全部未选时提示先选择至少一个车系，不发起门店查询；至少有一个有效关联车系后才按条件查询。此查询前置条件不改变分类独立必填及原保存规则。",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-146"
+      ],
+      "status": "user_confirmed_direction"
+    },
+    {
+      "id": "BR-036",
+      "name": "来源恢复后的未提交值重查确认",
+      "statement": "接口重新启用或租户重新授权仅恢复查询资格，未提交旧值仍须按当前条件重查，匹配并经客服明确确认或选择才恢复有效。失败、部分失败或不匹配均不直接恢复；车系与门店各自满足来源和有效性，先确认有效车系再按当前条件查询门店。已保存历史不受影响。",
+      "source_scenario_ids": [
+        "SC-010",
+        "SC-011",
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-149"
+      ],
+      "status": "user_confirmed_direction"
+    },
+    {
+      "id": "BR-037",
+      "name": "各字段编码与当时名称留存",
+      "statement": "正式保存本次意向车系／门店时，各字段分别保存所选对象编码及当时展示的名称，历史使用该次保存名称，不随上游改名改变。多车系只在查门店时合并条件，保存保持字段对应；原导入信息与原计划到店字段保留。",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-149"
+      ],
+      "status": "user_confirmed_direction"
+    }
+  ],
+  "business_flows": [
+    {
+      "id": "FLOW-005",
+      "name": "可用数据来源与分类字段配置",
+      "scenario_ids": [
+        "SC-008",
+        "SC-009",
+        "SC-010",
+        "SC-011",
+        "SC-012"
+      ],
+      "steps": [
+        "超管按需新增字典，配置名称、预置能力、租户与状态，系统生成标识。\n改名保留引用；已引用能力固定，换能力新增条目再调整字段引用（SC\n-008/009/012）。",
+        "超管按需独立设置条目目标启停状态与可用租户（SC-010/011\n）；使用前必须满足状态与租户授权。",
+        "有既有字段配置权限的管理员新增本次意向字段，选择接口取数及字典条\n目（SC-012），技术参数后台预置。",
+        "门店字段关联多个车系字段，分类内分别设置必填并保存（SC-012\n）；原计划到店字段保留。",
+        "后续条目编辑、停用或授权撤销仍独立触发，保留已有引用及历史；不要\n求重新执行完整配置链。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-128",
+        "inputs/user-stories.md#SRC-135",
+        "inputs/user-stories.md#SRC-139",
+        "inputs/user-stories.md#SRC-142",
+        "inputs/user-stories.md#SRC-143",
+        "inputs/user-stories.md#SRC-145",
+        "inputs/user-stories.md#SRC-150"
+      ]
+    },
+    {
+      "id": "FLOW-006",
+      "name": "本次意向查选、并集联动与保存",
+      "scenario_ids": [
+        "SC-012",
+        "SC-013"
+      ],
+      "steps": [
+        "复用已保存分类字段配置（SC-012），在既有记录及通话上下文载\n入本次意向字段；导入原值只读保留。",
+        "客服查找权威车系并选择；原始匹配信息带入须确认。来源恢复后的旧车\n系按当前条件重查，匹配并明确确认后才有效（SC-013）。",
+        "取得多个关联车系字段编码，至少一个有效车系才查询；各编码交给权威\n接口取得符合NEV/ICE规则的门店，完整结果并集去重。部分失败\n保留输入，查全再新选。",
+        "按当前车系条件核对旧门店；失配或清空全部车系保留待重选。待重选或\n来源恢复后的旧门店，重新匹配并经客服确认才有效。",
+        "本来需要必填校验的完成保存须补齐有效必填；明确已结束外呼客户未接\n沿v1.1.0规则，已填值仍校验。",
+        "查询失败或部分失败保留输入供重试，查全再允许新选；必填缺失不能完\n成保存。来源不可用旧值不有效提交，在途不新选；选填可清除后按原规\n则保存。",
+        "正式保存时每个本次意向字段分别保留编码和当时名称，历史名称不随上\n游改名变化；原导入意向及原计划到店字段保留，保存失败保留输入。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-132",
+        "inputs/user-stories.md#SRC-133",
+        "inputs/user-stories.md#SRC-137",
+        "inputs/user-stories.md#SRC-140",
+        "inputs/user-stories.md#SRC-143",
+        "inputs/user-stories.md#SRC-146",
+        "inputs/user-stories.md#SRC-147",
+        "inputs/user-stories.md#SRC-148",
+        "inputs/user-stories.md#SRC-149",
+        "inputs/user-stories.md#SRC-151",
+        "inputs/source-index.json#SRC-152"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,266 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.1.1",
+  "id": "SC-008",
+  "name": "超管新增业务数据接口条目",
+  "summary": "超管配置名称、预置取数能力、可用租户及状态，系统生成稳定标识。",
+  "actors": [
+    "超级管理员",
+    "云外呼平台"
+  ],
+  "trigger": "需要为租户字段提供一个新的业务数据查询入口。",
+  "preconditions": [
+    "当前操作者具有超管维护业务数据接口字典的权限。",
+    "目标取数能力已由研发接入并预置为可选择项；字典新增不承担技术对接。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员",
+      "action": "发起本次新增操作。",
+      "system_response": "平台进入相应维护内容。",
+      "rule_ids": [
+        "BR-023"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云外呼平台",
+      "action": "呈现名称、预置取数能力、可用租户、启用状态四项配置。",
+      "system_response": "展示可选择的预置能力，技术参数由研发维护；内部标识无需填写。",
+      "rule_ids": [
+        "BR-023",
+        "BR-034"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "超级管理员",
+      "action": "填写名称、选择预置能力、勾选租户、设置状态后提交。",
+      "system_response": "本次输入仅在选择提交后进入保存处理。",
+      "rule_ids": [
+        "BR-023",
+        "BR-034"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云外呼平台",
+      "action": "生成条目内部标识并保存四项配置。",
+      "system_response": "保存条目与预置能力的绑定，以及租户范围和状态；形成可判断的保存结果。",
+      "rule_ids": [
+        "BR-023",
+        "BR-034"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云外呼平台",
+      "action": "显示新增条目保存成功，纳入统一字典维护。",
+      "system_response": "成功仅说明本次条目配置保存，不证明外部接口已完成对接。",
+      "rule_ids": [
+        "BR-023",
+        "BR-024"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-SC008-CANCEL",
+      "condition": "操作者在提交前取消本次新增。",
+      "steps": [
+        "结束本次操作，不提交此次新增保存。"
+      ]
+    },
+    {
+      "id": "ALT-SC008-FAIL",
+      "condition": "本次新增保存未成功。",
+      "steps": [
+        "平台明确反馈本次操作未完成，不显示新增成功。",
+        "本场景不规定未知超时结果的补偿、重试或恢复策略。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功路径形成新接口字典条目；条目的实际使用仍受启停状态及可用租户约束。",
+    "登记结果不表示已经完成NEV／ICE接口实现、认证或联调。",
+    "取消及保存失败分支不呈现新增成功。"
+  ],
+  "acceptance_points": [
+    "AC-105／AC-106：超管仅填名称、选预置能力、勾租户、设状态；系统生成内部标识。",
+    "AC-127：新增保存成功形成独立条目结果，使用仍受条目状态及租户授权约束。",
+    "AC-131：本操作不删除既有条目、引用配置或历史数据。"
+  ],
+  "source_story_ids": [
+    "US-013"
+  ],
+  "source_acceptance_ids": [
+    "AC-105",
+    "AC-106",
+    "AC-127",
+    "AC-131"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-128",
+    "inputs/user-stories.md#SRC-139",
+    "inputs/user-stories.md#SRC-141",
+    "inputs/user-stories.md#SRC-145"
+  ],
+  "open_item_ids": [],
+  "notes": [
+    "四项登记属性与系统生成内部标识已由SRC-145确认；真实接入能力仍待核验。",
+    "能力缺失时需研发先接入；不向超管开放技术参数或接口测试。",
+    "名称重名及同能力多条目规则尚未确认，不由本图推断。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "admin",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云外呼平台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "admin",
+        "type": "start",
+        "order": 1,
+        "label": "发起本次新增"
+      },
+      {
+        "id": "N-REQUEST",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 2,
+        "label": "进入新增操作",
+        "step_ref": 1
+      },
+      {
+        "id": "N-PRESENT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "呈现四项配置与预置能力",
+        "step_ref": 2
+      },
+      {
+        "id": "N-INPUT",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 4,
+        "label": "填名称、选能力、勾租户、设状态",
+        "step_ref": 3
+      },
+      {
+        "id": "N-SUBMIT",
+        "lane_id": "admin",
+        "type": "decision",
+        "order": 5,
+        "label": "提交本次操作？"
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 6,
+        "label": "取消，未提交保存"
+      },
+      {
+        "id": "N-SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "生成内部标识并保存配置",
+        "step_ref": 4
+      },
+      {
+        "id": "N-SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "保存成功？"
+      },
+      {
+        "id": "N-FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 8,
+        "label": "反馈未完成保存"
+      },
+      {
+        "id": "N-DONE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 9,
+        "label": "明确新增成功",
+        "step_ref": 5
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 10,
+        "label": "新增完成"
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-REQUEST"
+      },
+      {
+        "from": "N-REQUEST",
+        "to": "N-PRESENT"
+      },
+      {
+        "from": "N-PRESENT",
+        "to": "N-INPUT"
+      },
+      {
+        "from": "N-INPUT",
+        "to": "N-SUBMIT"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-SAVE",
+        "label": "提交"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-SC008-CANCEL",
+        "type": "alternate"
+      },
+      {
+        "from": "N-SAVE",
+        "to": "N-SAVED"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-DONE",
+        "label": "成功"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-FAIL",
+        "label": "未成功",
+        "path_id": "ALT-SC008-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-DONE",
+        "to": "N-SUCCESS"
+      }
+    ]
+  },
+  "business_rule_ids": [
+    "BR-034"
+  ]
+}

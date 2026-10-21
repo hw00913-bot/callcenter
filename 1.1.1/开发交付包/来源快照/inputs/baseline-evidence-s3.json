@@ -1,0 +1,414 @@
+{
+  "schema_version": "1.0",
+  "captured_at": "2026-10-15T14:07:03+08:00",
+  "version": "1.1.0",
+  "evidence_level": "local_design_only",
+  "limitations": [
+    "只证明v1.1.0本地需求／原型行为，不证明生产接口。",
+    "sessionStorage等原型介质不等于生产草稿恢复承诺。"
+  ],
+  "sources": [
+    {
+      "path": "prototype/js/components/customer-business.js",
+      "sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+      "excerpts": [
+        {
+          "line": 5,
+          "text": "  const fieldTypes = ['text','textarea','number','select','multiselect','date','datetime'];"
+        },
+        {
+          "line": 6,
+          "text": "  const importedFields = Object.freeze(["
+        },
+        {
+          "line": 7,
+          "text": "    ['intentionStoreCode','意向门店编码'],['intentionStoreName','意向门店名称'],"
+        },
+        {
+          "line": 8,
+          "text": "    ['intentionSeriesCode','意向车系编码'],['intentionSeries','意向车系'],['smartCode','Smartcode'],['leadCreatedAt','留资时间']"
+        },
+        {
+          "line": 9,
+          "text": "  ].map(([key,label]) => Object.freeze({key,label})));"
+        },
+        {
+          "line": 22,
+          "text": "  const canManage = () => ready() && ['ADMIN','SUPER_ADMIN'].includes(access().roleCode);"
+        },
+        {
+          "line": 23,
+          "text": "  const scopeOf = (source = {}) => ({enterpriseId:text(source?.enterpriseId || state().enterpriseId),tenantId:text(source?.tenantId || state().tenantId)});"
+        },
+        {
+          "line": 24,
+          "text": "  const sameScope = (a,b) => a.enterpriseId === b.enterpriseId && a.tenantId === b.tenantId;"
+        },
+        {
+          "line": 25,
+          "text": "  const fail = message => ({ok:false,message});"
+        },
+        {
+          "line": 26,
+          "text": ""
+        },
+        {
+          "line": 27,
+          "text": "  function tenants() {"
+        },
+        {
+          "line": 28,
+          "text": "    if (!ready()) return [];"
+        },
+        {
+          "line": 29,
+          "text": "    return (root.CloudCallData?.tenants || []).filter(row => !row.builtIn && text(row.enterpriseId) === text(state().enterpriseId) && row.status === '启用' && (row.capabilitySet || []).includes('CLOUD_CONTACT_CENTER') && (superUser() || text(row.tenantId) === text(state().tenantId)) && root.AppState.authorizeObject('',row)).map(clone);"
+        },
+        {
+          "line": 30,
+          "text": "  }"
+        },
+        {
+          "line": 31,
+          "text": "  function allowed(source) { const scope = scopeOf(source); return tenants().some(row => sameScope(scopeOf(row),scope)); }"
+        },
+        {
+          "line": 40,
+          "text": "      field('visitIntention','到店意向','select',choices.visitIntention || ['有意向','暂不确定','无意向']),"
+        },
+        {
+          "line": 41,
+          "text": "      field('testDriveIntention','试驾意向','select',choices.testDriveIntention || ['有意向','暂不确定','无意向']),"
+        },
+        {
+          "line": 42,
+          "text": "      field('plannedVisitAt','计划到店时间','datetime'),"
+        },
+        {
+          "line": 43,
+          "text": "      field('plannedStoreName','计划到店门店','text'),"
+        },
+        {
+          "line": 44,
+          "text": "      field('serviceConcern','服务反馈','textarea'),"
+        },
+        {
+          "line": 59,
+          "text": "  const leadPresetIds = ['leadLevel','intentionLevel','visitIntention','testDriveIntention','plannedVisitAt','plannedStoreName'];"
+        },
+        {
+          "line": 60,
+          "text": "  function presetField(typeOrId, id) {"
+        },
+        {
+          "line": 61,
+          "text": "    const fieldId = id === undefined ? typeOrId : typeOrId === 'lead' ? id : '';"
+        },
+        {
+          "line": 62,
+          "text": "    return leadPresetIds.includes(fieldId) ? defaults().fields.find(row => row.id === fieldId) || null : null;"
+        },
+        {
+          "line": 83,
+          "text": "      }"
+        },
+        {
+          "line": 84,
+          "text": "    } else if (Array.isArray(input.options) && input.options.length) return fail('非选项字段不能配置选项');"
+        },
+        {
+          "line": 85,
+          "text": "    const preset = presetField(input.id);"
+        },
+        {
+          "line": 86,
+          "text": "    if (preset && (preset.type !== input.type || JSON.stringify(options.map(row => [row.id,row.label])) !== JSON.stringify(preset.options.map(row => [row.id,row.label])))) return fail('预置线索统计字段的填写方式和选项不可修改');"
+        },
+        {
+          "line": 87,
+          "text": "    if (preset && input.enabled === false) return fail('预置线索统计字段不能在字段库停用，可在业务分类中关闭显示');"
+        },
+        {
+          "line": 88,
+          "text": "    return {ok:true,row:{id:input.id,label,type:input.type,businessKey:key,options,enabled:input.enabled !== false}};"
+        },
+        {
+          "line": 172,
+          "text": "  function fields(type, source = {}) {"
+        },
+        {
+          "line": 173,
+          "text": "    const data = catalog(source), category = data.rows.find(row => row.id === type);"
+        },
+        {
+          "line": 174,
+          "text": "    if (!data.ok || !category) return [];"
+        },
+        {
+          "line": 175,
+          "text": "    const byId = new Map(data.fields.map(row => [row.id,row]));"
+        },
+        {
+          "line": 176,
+          "text": "    return category.fields.filter(ref => ref.enabled).map(ref => {"
+        },
+        {
+          "line": 177,
+          "text": "      const definition = byId.get(ref.fieldId);"
+        },
+        {
+          "line": 178,
+          "text": "      return definition?.enabled ? {...definition,required:ref.required,enabled:true} : null;"
+        },
+        {
+          "line": 179,
+          "text": "    }).filter(Boolean);"
+        },
+        {
+          "line": 187,
+          "text": "  function importSnapshot(source = {}) {"
+        },
+        {
+          "line": 188,
+          "text": "    return Object.fromEntries(importedFields.filter(field => Object.hasOwn(source,field.key) && typeof source[field.key] === 'string').map(field => [field.key,source[field.key]]));"
+        },
+        {
+          "line": 189,
+          "text": "  }"
+        },
+        {
+          "line": 190,
+          "text": "  function importedDetail(source = {}) {"
+        },
+        {
+          "line": 191,
+          "text": "    const esc = root.PlatformUI.escape;"
+        },
+        {
+          "line": 192,
+          "text": "    return '<dl class=\"customer-followup-details\" data-imported-customer-info>' + importedFields.map(field => {"
+        },
+        {
+          "line": 193,
+          "text": "      const value = typeof source[field.key] === 'string' && source[field.key].trim() ? source[field.key] : '';"
+        },
+        {
+          "line": 194,
+          "text": "      return '<div><dt>' + esc(field.label) + '</dt><dd' + (!value ? ' class=\"is-empty\"' : '') + ' data-imported-field=\"' + field.key + '\">' + esc(value || '未提供') + '</dd></div>';"
+        },
+        {
+          "line": 195,
+          "text": "    }).join('') + '</dl>';"
+        },
+        {
+          "line": 196,
+          "text": "  }"
+        },
+        {
+          "line": 197,
+          "text": "  function callbackSnapshot(values, source = {}) {"
+        },
+        {
+          "line": 198,
+          "text": "    const saved=clone(values||{});delete saved.businessFieldSnapshot;"
+        },
+        {
+          "line": 199,
+          "text": "    const type=typeof source.businessType==='string'&&source.businessType?source.businessType:text(saved.businessType);"
+        },
+        {
+          "line": 200,
+          "text": "    return {businessType:type,values:saved,fields:fields(type,source).map(field=>({fieldId:field.id,businessFieldCode:field.businessKey||'',fieldName:field.label,type:field.type,value:clone(saved[field.id]??(field.type==='multiselect'?[]:'')),selectedOptions:['select','multiselect'].includes(field.type)?(Array.isArray(saved[field.id])?saved[field.id]:[saved[field.id]]).filter(value=>value!==undefined&&value!==null&&value!=='').map(value=>{const option=field.options.find(o=>o.id===String(value));return {optionId:String(value),businessOptionCode:option?.businessKey||'',optionName:option?.label||String(value)};}):[]})),savedBusinessVersion:saved.updatedAt||''};"
+        }
+      ]
+    },
+    {
+      "path": "prototype/js/components/customer-followup.js",
+      "sha256": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+      "excerpts": [
+        {
+          "line": 8,
+          "text": "  const typeOf = (call, values = {}) => String(call?.businessType || values.businessType || '');"
+        },
+        {
+          "line": 9,
+          "text": "  const unavailableOriginalType = '该业务类型的表单暂不可用，请保留当前内容并联系管理员';"
+        },
+        {
+          "line": 10,
+          "text": "  const definitions = (call, values = {}) => CustomerBusiness.fields(typeOf(call, values), call || {});"
+        },
+        {
+          "line": 11,
+          "text": "  function isUnansweredOutbound(call) {"
+        },
+        {
+          "line": 12,
+          "text": "    return !!call && !!call.endedAt && call.endedAt !== '—' && call.direction === '呼出' &&"
+        },
+        {
+          "line": 13,
+          "text": "      ['人工外呼', '预外呼'].includes(call.callType) && window.CallState?.view(call).answered === false;"
+        },
+        {
+          "line": 14,
+          "text": "  }"
+        },
+        {
+          "line": 74,
+          "text": "    const type = typeOf(call, values), result = { businessType:type, plannedStoreId:'' };"
+        },
+        {
+          "line": 75,
+          "text": "    const optionalBusinessFields = isUnansweredOutbound(call);"
+        },
+        {
+          "line": 76,
+          "text": "    if (!type) return { ok:true, values:result };"
+        },
+        {
+          "line": 77,
+          "text": "    if (!CustomerBusiness.get(type, call)) return { ok:false, field:'businessType', message:call?.businessType ? unavailableOriginalType : '业务分类已不可用，请重新选择' };"
+        },
+        {
+          "line": 78,
+          "text": "    for (const field of definitions(call, values)) {"
+        },
+        {
+          "line": 79,
+          "text": "      const raw = values?.[field.id], value = field.type === 'multiselect' ? (Array.isArray(raw) ? [...new Set(raw.map(String))] : []) : String(raw ?? '').trim();"
+        },
+        {
+          "line": 80,
+          "text": "      if (field.required && !optionalBusinessFields && !nonempty(value)) return {ok:false,field:field.id,message:'请填写' + field.label};"
+        },
+        {
+          "line": 81,
+          "text": "      if (nonempty(value)) {"
+        },
+        {
+          "line": 82,
+          "text": "        if (['select','multiselect'].includes(field.type) && (Array.isArray(value) ? value : [value]).some(item => !field.options.some(option => optionId(option) === item))) return {ok:false,field:field.id,message:'请重新选择' + field.label};"
+        },
+        {
+          "line": 135,
+          "text": "  function form(values, call, prefix, handler) {"
+        },
+        {
+          "line": 136,
+          "text": "    const current = { ...empty(call), ...values }, type = typeOf(call, current), meta = CustomerBusiness.get(type,call), fields = definitions(call,current);"
+        },
+        {
+          "line": 137,
+          "text": "    const originalTypeUnavailable = !!call?.businessType && !meta;"
+        },
+        {
+          "line": 138,
+          "text": "    const optionalBusinessFields = isUnansweredOutbound(call);"
+        },
+        {
+          "line": 139,
+          "text": "    const selector = call?.businessType ? '<p class=\"customer-followup-type\">业务类型：<strong>' + esc(call?.businessTypeLabel || meta?.label || type) + '</strong></p>' : '<label class=\"field customer-followup-type\"><span>业务类型</span><select id=\"' + esc(prefix+'-businessType') + '\" onchange=\"' + esc(handler + \"('businessType',this.value)\") + '\"><option value=\"\">请选择业务类型</option>' + CustomerBusiness.list(call).map(item => '<option value=\"' + esc(item.id) + '\"' + (item.id === type ? ' selected' : '') + '>' + esc(item.label) + '</option>').join('') + '</select></label>';"
+        },
+        {
+          "line": 140,
+          "text": "    const fieldsHtml = fields.map(field => '<div class=\"field\"><label for=\"' + esc(prefix+'-'+field.id) + '\">' + (field.required ? '<em data-followup-required-marker' + (optionalBusinessFields ? ' hidden' : '') + '>*</em> ' : '') + esc(field.label) + (field.required ? ' <small data-followup-optional-marker' + (optionalBusinessFields ? '' : ' hidden') + '>（选填）</small>' : ' <small>（选填）</small>') + '</label>' + fieldControl(field,current[field.id],prefix,handler,optionalBusinessFields) + '</div>').join('');"
+        },
+        {
+          "line": 141,
+          "text": "    return '<section class=\"customer-followup-form\"><div class=\"customer-followup-heading\"><h3>客户业务信息</h3><span data-followup-requirement>' + (originalTypeUnavailable ? '表单暂不可用' : requirementHint(call,fields)) + '</span></div>' + selector + (originalTypeUnavailable ? '<p class=\"customer-followup-hint\" role=\"status\">' + unavailableOriginalType + '</p>' : type ? (fields.length ? '<div class=\"customer-followup-grid\">' + fieldsHtml + '</div>' : '<p class=\"customer-followup-hint\">此业务分类暂未配置补充字段。</p>') : '<p class=\"customer-followup-hint\">选择本次业务类型后，填写对应的客户信息。</p>') + '<div class=\"customer-followup-source\"><h4>导入时的客户信息</h4>' + CustomerBusiness.importedDetail(call || {}) + '</div>' + '</section>';"
+        }
+      ]
+    },
+    {
+      "path": "prototype/js/pages/agent-workbench.js",
+      "sha256": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+      "excerpts": [
+        {
+          "line": 689,
+          "text": "  function saveDisposition() {"
+        },
+        {
+          "line": 690,
+          "text": "    if (phase !== 'wrap' || !call || call.accountId !== AppState.account().accountId || call.tenantId !== AppState.get().tenantId) return;"
+        },
+        {
+          "line": 691,
+          "text": "    if (!data.nativeWorkbench.outcomes.includes(disposition)) return fail('请选择本次联系的处理结果', 'seat-disposition');"
+        },
+        {
+          "line": 692,
+          "text": "    const needsCallStatus = CustomerFollowup.isUnansweredOutbound(call);"
+        },
+        {
+          "line": 693,
+          "text": "    const selectedStatus = normalizeAgentCallStatus(agentCallStatusDraft);"
+        },
+        {
+          "line": 694,
+          "text": "    if (needsCallStatus && !selectedStatus) return fail('请选择本次通话状态', 'seat-agent-call-status');"
+        },
+        {
+          "line": 695,
+          "text": "    const next = structuredClone(call);"
+        },
+        {
+          "line": 696,
+          "text": "    delete next.pendingDisposition;"
+        },
+        {
+          "line": 697,
+          "text": "    const businessResult = CustomerFollowup.save(next, followup, { wrapping: true, expectedVersion: followupVersion });"
+        },
+        {
+          "line": 698,
+          "text": "    if (!businessResult.ok) return fail(businessResult.message, businessResult.field ? 'seat-followup-' + businessResult.field : 'seat-save');"
+        },
+        {
+          "line": 716,
+          "text": "    const saved = saveRecord(next, true);"
+        },
+        {
+          "line": 717,
+          "text": "    if (!saved.ok) return fail(saved.message, 'seat-save');"
+        },
+        {
+          "line": 718,
+          "text": "    Object.assign(call, next); lastSavedId = call.callId;"
+        },
+        {
+          "line": 719,
+          "text": "    const completion=queueCommunicationCompletion(call);"
+        },
+        {
+          "line": 720,
+          "text": "    if (disposition === '客户拒绝联系' && !data.nativeWorkbench.blockedNumbers.some(n => n.tenantId === call.tenantId && n.phone === customerPhone(call)))"
+        },
+        {
+          "line": 721,
+          "text": "      data.nativeWorkbench.blockedNumbers.push({ tenantId: call.tenantId, phone: customerPhone(call) });"
+        },
+        {
+          "line": 722,
+          "text": "    CloudCallRuntime.addAudit('保存'+call.callType+'处理结果', call.callId, call.tenantId, '待填写', disposition);"
+        },
+        {
+          "line": 723,
+          "text": "    const a = data.agents.find(r => r.contactCenterIdentityId === call.contactCenterIdentityId);"
+        },
+        {
+          "line": 724,
+          "text": "    call = null; phase = 'idle'; error = '';"
+        },
+        {
+          "line": 725,
+          "text": "    // Keep work resources for the next customer; config() still revalidates grants."
+        },
+        {
+          "line": 726,
+          "text": "    draft = suspendedDraft || {}; suspendedDraft=null;disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = ''; agentCallStatusDraft = null;"
+        }
+      ]
+    }
+  ]
+}

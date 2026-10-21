@@ -1,0 +1,124 @@
+# LOCAL-CATEGORY-RETIRE 逻辑删除分类并保留旧业务
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [逻辑删除业务分类 · FUNC\-033](../features/FUNC-033.md)
+
+## 职责与触发
+
+所属工程模块：开发接手后确定
+
+功能：FUNC-033
+
+触发：本租户有权管理员确认业务分类删除
+
+## 前置条件
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+## 必须遵守的全局规则
+
+- [BR-032](../global-logic.md#BR-032)
+- [BR-039](../global-logic.md#BR-039)
+- [BR-040](../global-logic.md#BR-040)
+- [BR-041](../global-logic.md#BR-041)
+- [BR-042](../global-logic.md#BR-042)
+
+## 输入与输出
+
+输入：[FIELD-CATEGORY-DEFINITION](../field-specs.md#FIELD-CATEGORY-DEFINITION)、[FIELD-CLASS-FIELD-REFS](../field-specs.md#FIELD-CLASS-FIELD-REFS)、[FIELD-DEFINITION](../field-specs.md#FIELD-DEFINITION)、[FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)
+
+输出：[FIELD-CATEGORY-DEFINITION](../field-specs.md#FIELD-CATEGORY-DEFINITION)、[FIELD-CATEGORY-ARCHIVE](../field-specs.md#FIELD-CATEGORY-ARCHIVE)
+
+## 处理步骤
+
+### LOCAL-CATEGORY-RETIRE-STEP-1
+
+读取目标分类及实际全部refs、必要依赖defs，已有业务只作为影响说明
+
+读取：FIELD-CATEGORY-DEFINITION, FIELD-CLASS-FIELD-REFS, FIELD-DEFINITION, FIELD-CALL-CONTEXT；写入：无
+
+规则：BR-032, BR-039, BR-040, BR-041, BR-042
+
+### LOCAL-CATEGORY-RETIRE-STEP-2
+
+确认提交时核对权限、目标配置及归档可完整读取保存
+
+读取：FIELD-CATEGORY-DEFINITION, FIELD-CLASS-FIELD-REFS, FIELD-DEFINITION；写入：无
+
+规则：BR-032, BR-039, BR-040, BR-041, BR-042
+
+### LOCAL-CATEGORY-RETIRE-STEP-3
+
+同次归档并标记退出新业务选择，不删字段/接口/记录，旧通话/名单任务继续
+
+读取：FIELD-CATEGORY-DEFINITION, FIELD-CLASS-FIELD-REFS, FIELD-DEFINITION；写入：FIELD-CATEGORY-DEFINITION, FIELD-CATEGORY-ARCHIVE
+
+规则：BR-032, BR-039, BR-040, BR-041, BR-042
+
+## 分支与异常
+
+### LOCAL-CATEGORY-RETIRE-BRANCH-1
+
+条件：存在历史、当前/话后通话或旧名单任务
+
+结果：仍允许逻辑删除，保留合法原业务继续处理，不降为未分类
+
+涉及字段：FIELD-CATEGORY-DEFINITION, FIELD-CATEGORY-ARCHIVE
+
+验证：CHECK-147, CHECK-148, CHECK-150
+
+### LOCAL-CATEGORY-RETIRE-BRANCH-2
+
+条件：无法可靠归档或权限/目标版本/保存变化
+
+结果：保留原分类和全部原业务/草稿，不报成功
+
+涉及字段：FIELD-CATEGORY-DEFINITION, FIELD-DEFINITION
+
+验证：CHECK-149
+
+### LOCAL-CATEGORY-RETIRE-BRANCH-3
+
+条件：新业务/新导入请求已删分类，或伪造旧ID上下文
+
+结果：拒绝；归档只供真实原业务，不能save或启用同ID复活
+
+涉及字段：FIELD-CATEGORY-DEFINITION, FIELD-CALL-CONTEXT, FIELD-CATEGORY-ARCHIVE
+
+验证：CHECK-148
+
+### LOCAL-CATEGORY-RETIRE-BRANCH-4
+
+条件：归档仍引用字段/接口
+
+结果：归档独立定义继续旧业务；不阻挡当前字段库删除，取数接口来源保留仍按原规则，不新增恢复/清理/迁移UI。
+
+涉及字段：FIELD-CATEGORY-ARCHIVE, FIELD-DEFINITION
+
+验证：CHECK-150, CHECK-ARCHIVE-CLOSURE
+
+## 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 字段定义
+
+- [FIELD-CALL-CONTEXT](../field-specs.md#FIELD-CALL-CONTEXT)
+- [FIELD-CATEGORY-ARCHIVE](../field-specs.md#FIELD-CATEGORY-ARCHIVE)
+- [FIELD-CATEGORY-DEFINITION](../field-specs.md#FIELD-CATEGORY-DEFINITION)
+- [FIELD-CLASS-FIELD-REFS](../field-specs.md#FIELD-CLASS-FIELD-REFS)
+- [FIELD-DEFINITION](../field-specs.md#FIELD-DEFINITION)
+
+## 来源与验证
+
+来源条目：acceptance:AC-147, acceptance:AC-148, acceptance:AC-149, acceptance:AC-150, documents:interfaces~1interface-index.json, documents:memory~1business-rules.json, documents:memory~1feature-list.json, documents:memory~1normalized-user-stories.json, documents:memory~1project-facts.json, documents:outputs~1business-scenario-atlas.html, documents:outputs~1business-scenario-list.md, documents:outputs~1feature-list.md, documents:outputs~1interaction-sequence-atlas.html, documents:outputs~1product-structure-and-business-process-baseline.md, documents:outputs~1system-sequence-interface-verification-matrix.md, documents:planning~1existing-surface-evidence.json, documents:project-version.json, documents:runtime~1open-items.json, documents:runtime~1traceability.json, documents:runtime~1verification-report.json, documents:scenarios~1SC-008.json, documents:scenarios~1SC-009.json, documents:scenarios~1SC-010.json, documents:scenarios~1SC-011.json, documents:scenarios~1SC-012.json, documents:scenarios~1SC-013.json, documents:scenarios~1SC-014.json, documents:scenarios~1SC-015.json, documents:scenarios~1SC-016.json, documents:scenarios~1scenario-index.json, documents:sequences~1SEQ-010.json, documents:sequences~1SEQ-011.json, documents:sequences~1SEQ-012.json, documents:sequences~1SEQ-013.json, documents:sequences~1SEQ-014.json, documents:sequences~1SEQ-015.json, documents:sequences~1SEQ-016.json, documents:sequences~1SEQ-017.json, documents:sequences~1SEQ-018.json, documents:sequences~1sequence-index.json, features:FUNC-033, features:FUNC-033/boundary/business_rules/0, features:FUNC-033/boundary/business_rules/1, features:FUNC-033/boundary/business_rules/2, features:FUNC-033/boundary/exception_paths/0, flows:FLOW-007, flows:FLOW-007/steps/0, flows:FLOW-007/steps/1, flows:FLOW-007/steps/2, flows:FLOW-007/steps/3, flows:FLOW-007/steps/4, pages:PAGE-007, pages:PAGE-007/actions/0, pages:PAGE-007/actions/1, pages:PAGE-007/actions/2, pages:PAGE-007/fields/0, pages:PAGE-007/fields/1, pages:PAGE-007/fields/10, pages:PAGE-007/fields/11, pages:PAGE-007/fields/2, pages:PAGE-007/fields/3, pages:PAGE-007/fields/4, pages:PAGE-007/fields/5, pages:PAGE-007/fields/6, pages:PAGE-007/fields/7, pages:PAGE-007/fields/8, pages:PAGE-007/fields/9, project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-032, rules:BR-039, rules:BR-040, rules:BR-041, rules:BR-042, scenarios:SC-016, scenarios:SC-016/alternate_flows/0, scenarios:SC-016/alternate_flows/0/steps/0, scenarios:SC-016/alternate_flows/1, scenarios:SC-016/alternate_flows/1/steps/0, scenarios:SC-016/alternate_flows/2, scenarios:SC-016/alternate_flows/2/steps/0, scenarios:SC-016/main_flow/0, scenarios:SC-016/main_flow/1, scenarios:SC-016/main_flow/2, scenarios:SC-016/main_flow/3, scenarios:SC-016/main_flow/4, scenarios:SC-016/postconditions/0, scenarios:SC-016/postconditions/1, scenarios:SC-016/postconditions/2, scenarios:SC-016/preconditions/0, scenarios:SC-016/preconditions/1, sequences:SEQ-018, sequences:SEQ-018/messages/0, sequences:SEQ-018/messages/1, sequences:SEQ-018/messages/10, sequences:SEQ-018/messages/11, sequences:SEQ-018/messages/12, sequences:SEQ-018/messages/13, sequences:SEQ-018/messages/14, sequences:SEQ-018/messages/2, sequences:SEQ-018/messages/3, sequences:SEQ-018/messages/4, sequences:SEQ-018/messages/5, sequences:SEQ-018/messages/6, sequences:SEQ-018/messages/7, sequences:SEQ-018/messages/8, sequences:SEQ-018/messages/9, stories:US-022, stories:US-022/preconditions/0, stories:US-022/preconditions/1
+
+验证：CHECK-147, CHECK-148, CHECK-149, CHECK-150, CHECK-ARCHIVE-CLOSURE
+
+## 实施任务
+
+未声明；请结合范围说明核对。

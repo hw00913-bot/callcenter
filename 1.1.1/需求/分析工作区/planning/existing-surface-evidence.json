@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0",
+  "captured_at": "2026-10-15T16:12:39+08:00",
+  "level": "local_prototype_entry_and_permission_only",
+  "limitations": [
+    "仅核对现有路由、组件使用及界面权限，不表示生产接口或授权契约已核验。",
+    "后两处只读页是既有保存结果的展示投影，不新建菜单或详情编辑入口。"
+  ],
+  "sources": [
+    {
+      "path": "prototype/js/nav.js",
+      "line": 8,
+      "text": "    { key: 'seat-workbench', page: 'seat-workbench', label: '坐席工作台', icon: '席', permission: 'cloud.tasks', domain: 'CLOUD_CONTACT_CENTER', requiresSeat: true },",
+      "sha256": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+      "design_observation": "坐席工作台route=seat-workbench，cloud.tasks，requiresSeat=true。"
+    },
+    {
+      "path": "prototype/js/nav.js",
+      "line": 12,
+      "text": "      { key: 'business-categories', page: 'business-categories', label: '业务分类', permission: 'settings.business' }",
+      "sha256": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+      "design_observation": "业务分类route=business-categories，既有settings.business权限。"
+    },
+    {
+      "path": "prototype/js/nav.js",
+      "line": 20,
+      "text": "      { key: 'cloud-call-records', page: 'cloud-call-records', label: '通话记录', permission: 'records.cloud', view: 'records', domain: 'CLOUD_CONTACT_CENTER' },",
+      "sha256": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+      "design_observation": "通话记录route=cloud-call-records，既有records.cloud权限。"
+    },
+    {
+      "path": "prototype/js/nav.js",
+      "line": 67,
+      "text": "  routes['business-fields'] = { key: 'business-fields', page: 'business-categories', permission: 'settings.business', domain: 'CLOUD_CONTACT_CENTER', internal: true, redirect: 'business-categories' };",
+      "sha256": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+      "design_observation": "business-fields只是business-categories内部重定向，字段管理保留同模块页签。"
+    },
+    {
+      "path": "prototype/js/components/customer-business.js",
+      "line": 22,
+      "text": "  const canManage = () => ready() && ['ADMIN','SUPER_ADMIN'].includes(access().roleCode);",
+      "sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+      "design_observation": "分类/字段管理只允许有效云联络中心ADMIN或SUPER_ADMIN；不可把获接口授权等同于成员管理权限。"
+    },
+    {
+      "path": "prototype/js/components/customer-business.js",
+      "line": 29,
+      "text": "    return (root.CloudCallData?.tenants || []).filter(row => !row.builtIn && text(row.enterpriseId) === text(state().enterpriseId) && row.status === '启用' && (row.capabilitySet || []).includes('CLOUD_CONTACT_CENTER') && (superUser() || text(row.tenantId) === text(state().tenantId)) && root.AppState.authorizeObject('',row)).map(clone);",
+      "sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+      "design_observation": "超管/当前租户配置范围还受enterprise、租户启用、云能力及authorizeObject约束。"
+    },
+    {
+      "path": "prototype/js/pages/business-categories.js",
+      "line": 42,
+      "text": "    return `<div class=\"business-config-links\" role=\"tablist\" aria-label=\"业务分类配置\">${Object.keys(kindNames).map(key=>`<button type=\"button\" class=\"btn ${kind===key?'btn-primary':''}\" role=\"tab\" aria-selected=\"${kind===key}\" onclick=\"BusinessConfiguration.selectKind('${key}')\">${kindNames[key]}</button>`).join('')}</div>`;",
+      "sha256": "addb6fc38834d414609d9a21a874ea59f96bd82203d039c2b1c0823deaf2e463",
+      "design_observation": "业务分类、自定义字段为同模块双页签。"
+    },
+    {
+      "path": "prototype/js/pages/business-categories.js",
+      "line": 152,
+      "text": "    return `<div class=\"business-category-basics\"><label class=\"field\"><span>业务名称 <b class=\"business-required\">*</b></span><input maxlength=\"40\" value=\"${esc(value.label)}\" placeholder=\"例如：新车咨询\" oninput=\"BusinessConfiguration.setBasic('label',this.value)\"></label><label class=\"field\"><span>导入时的业务编码名称 <b class=\"business-required\">*</b></span><input maxlength=\"40\" value=\"${esc(value.codeLabel)}\" placeholder=\"例如：线索编码\" oninput=\"BusinessConfiguration.setBasic('codeLabel',this.value)\"></label></div><div class=\"business-fields-heading\"><h3>客服填写字段</h3><span>直接设置顺序、显示和必填</span></div>${value.id==='lead'?'<p class=\"business-preset-note\">线索统计的六个预置字段须保留；不需要填写时可关闭显示。</p>':''}<div id=\"business-category-cards\">${categoryCards(data)}</div><div class=\"business-category-picker\"><select id=\"business-category-field-picker\" ${choices.length?'':'disabled'}><option value=\"\">请选择已有字段</option>${choices.map(field=>`<option value=\"${esc(field.id)}\">${esc(field.label)}</option>`).join('')}</select><button class=\"btn\" ${choices.length?'':'disabled'} onclick=\"BusinessConfiguration.addCategoryField()\">添加字段</button><button type=\"button\" class=\"btn\" onclick=\"BusinessConfiguration.openRelated('field')\">＋ 新建字段</button></div><small>字段可以用于多个业务分类，每个分类独立设置显示顺序和必填。</small>`;",
+      "sha256": "addb6fc38834d414609d9a21a874ea59f96bd82203d039c2b1c0823deaf2e463",
+      "design_observation": "分类层已维护显示顺序和各字段独立必填，并可从已有字段加入或新建字段。"
+    },
+    {
+      "path": "prototype/js/pages/business-categories.js",
+      "line": 167,
+      "text": "    return `<div class=\"business-category-basics\"><label class=\"field\"><span>字段名称 <b class=\"business-required\">*</b></span><input maxlength=\"40\" value=\"${esc(value.label)}\" placeholder=\"例如：意向车型\" oninput=\"BusinessConfiguration.setBasic('label',this.value)\"></label><label class=\"field\"><span>填写方式 <b class=\"business-required\">*</b></span><select ${protectedField?'disabled':''} onchange=\"BusinessConfiguration.setBasic('type',this.value)\">${Object.entries(typeNames).map(([key,label])=>`<option value=\"${key}\" ${value.type===key?'selected':''}>${label}</option>`).join('')}</select></label></div><label class=\"field\"><span>业务主键（字段编码，选填）</span><input maxlength=\"80\" value=\"${esc(value.businessKey||'')}\" placeholder=\"例如：lead_level\" oninput=\"BusinessConfiguration.setBasic('businessKey',this.value)\"><small>仅作本地业务映射；不作为字段的系统 ID。</small></label>${choice?`<div class=\"business-fields-heading\"><h3>选项配置</h3><span>显示名称必填，业务主键选填</span></div><div id=\"business-field-options\">${optionsEditor()}</div><button class=\"btn business-add-field\" ${protectedField||value.options.length>=50?'disabled':''} onclick=\"BusinessConfiguration.addOption()\">＋ 添加选项</button>`:''}${protectedField?'<p class=\"business-preset-note\">线索统计预置字段的填写方式和选项不可修改，业务编码可维护。</p>':''}`;",
+      "sha256": "addb6fc38834d414609d9a21a874ea59f96bd82203d039c2b1c0823deaf2e463",
+      "design_observation": "既有字段编辑有名称、填写方式和选项区；新增接口取数时此处扩展，技术映射不向配置人员开放。"
+    },
+    {
+      "path": "prototype/js/pages/agent-workbench.js",
+      "line": 740,
+      "text": "  function canEditRecord() {",
+      "sha256": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+      "design_observation": "业务填写受当前通话阶段、本人account、tenant、enterprise约束。"
+    },
+    {
+      "path": "prototype/js/pages/agent-workbench.js",
+      "line": 891,
+      "text": "      '<details class=\"phone-record-more\" open><summary>客户业务信息</summary>'+CustomerFollowup.form(followup,call,'seat-followup','AgentWorkbench.setFollowup')+'</details>'+fieldError()+'</div></section>';",
+      "sha256": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+      "design_observation": "工作台实际调用CustomerFollowup.form来填写客户业务信息。"
+    },
+    {
+      "path": "prototype/js/pages/agent-workbench.js",
+      "line": 689,
+      "text": "  function saveDisposition() {",
+      "sha256": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+      "design_observation": "保存并完成受wrap阶段和本人当前租户限制，再调用CustomerFollowup.save。"
+    },
+    {
+      "path": "prototype/js/pages/agent-workbench.js",
+      "line": 215,
+      "text": "    draftStored = write(sessionKey, { scope, draft, call, phase, disposition, remark, followup, followupVersion, agentCallStatusDraft, lastSavedId, demoResult, suspendedDraft, receivingOrigin }, sessionStorage);",
+      "sha256": "45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3",
+      "design_observation": "既有原型sessionStorage草稿只是本地演示，不证明生产恢复契约。"
+    },
+    {
+      "path": "prototype/js/components/customer-followup.js",
+      "line": 11,
+      "text": "  function isUnansweredOutbound(call) {",
+      "sha256": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+      "design_observation": "未接通条件仅明确已结束外呼、人工/预外呼、客户answered=false。"
+    },
+    {
+      "path": "prototype/js/components/customer-followup.js",
+      "line": 67,
+      "text": "  function canEdit(call, wrapping = false) {",
+      "sha256": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+      "design_observation": "共享保存仍核验完整通话/客户identity、业务域、对象权限和完成状态；工作台待填写仅wrapping且本人。"
+    },
+    {
+      "path": "prototype/js/components/customer-followup.js",
+      "line": 135,
+      "text": "  function form(values, call, prefix, handler) {",
+      "sha256": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+      "design_observation": "共享form同时展示当次字段和导入时客户信息。"
+    },
+    {
+      "path": "prototype/js/components/customer-followup.js",
+      "line": 168,
+      "text": "  function openEditor(id) {",
+      "sha256": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+      "design_observation": "存在openEditor函数，但全量rg仅见定义/内部调用，现行页面没有打开该编辑器的可达入口；不得据此声称通话详情原有修改入口。"
+    },
+    {
+      "path": "prototype/js/pages/cloud-call-records.js",
+      "line": 222,
+      "text": "  function openCall(id) {",
+      "sha256": "1d92bb56bfd0e3263d287ec12ae78053dc15a0588ff1c4709b4dacbf27104cce",
+      "design_observation": "通话详情openCall按实际call和authorizeObject开启drawer。"
+    },
+    {
+      "path": "prototype/js/pages/cloud-call-records.js",
+      "line": 284,
+      "text": "      ui.detailSection('本次客户业务信息',CustomerFollowup.detail(call.customerFollowup,call))+",
+      "sha256": "1d92bb56bfd0e3263d287ec12ae78053dc15a0588ff1c4709b4dacbf27104cce",
+      "design_observation": "通话详情以CustomerFollowup.detail只读展示本次客户业务信息，无编辑按钮。"
+    },
+    {
+      "path": "prototype/js/pages/customer-directory.js",
+      "line": 93,
+      "text": "  function openDetail(id, preserve) {",
+      "sha256": "5f1ffb739d4801d49802eb53c884e1d6833cadd11a2d61633e3db7fd35b895c2",
+      "design_observation": "客户档案仅对directory.find找到的可查看对象开启。"
+    },
+    {
+      "path": "prototype/js/pages/customer-directory.js",
+      "line": 103,
+      "text": "      '<section class=\"customer-directory-section\"><div class=\"customer-directory-section-head\"><h3>客户业务信息</h3>' + (window.RepeatPredictive?.customerActions(customer) || '') + '</div>' + CustomerFollowup.detail(customer.followup) + '</section>' +",
+      "sha256": "5f1ffb739d4801d49802eb53c884e1d6833cadd11a2d61633e3db7fd35b895c2",
+      "design_observation": "客户档案当前以CustomerFollowup.detail展示客户业务信息。"
+    },
+    {
+      "path": "prototype/js/components/customer-followup.js",
+      "line": 45,
+      "text": "  function aggregate(calls) {",
+      "sha256": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+      "design_observation": "现有客户汇总按已有归属分组/时间聚合，具体通次历史仍应到通话详情，不新造跨通次编辑。"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "content_scope": "current-only",
+  "generated_at": "2026-10-19T17:48:37.835117+08:00",
+  "wiki_ref": "lib-车系编码映射接口",
+  "raw_ref": "raw/car-series-code-mapping-api@v1",
+  "wiki_updated": "2026-10-19",
+  "wiki_page_sha256": "ebd6cddce4985549d207cb55a551b1b083b95542e0595db57f26d25f5a8d9dfc",
+  "source_status": "partial",
+  "raw_version": "v1",
+  "document_revision": "v1.1",
+  "coverage": [
+    "GET相对路径、4个可选query参数、默认media_id10和car_state1、有效0值、固定启用及指定媒体映射条件、裸数组4返回字段",
+    "文档称operator可选默认nissan，仅读取不校验身份，不是认证凭证；未在线核验",
+    "状态枚举、主机、真实鉴权/权限、异常、排序/唯一性和线上响应未核验；示例不是主数据"
+  ],
+  "interface": {
+    "method": "GET",
+    "path": "/mapping/api/open/mapping-car-series/code",
+    "request_fields": [
+      {
+        "name": "brand_id",
+        "type": "integer",
+        "required": false
+      },
+      {
+        "name": "is_nev_car_type_flag",
+        "type": "integer",
+        "required": false,
+        "document_values": [
+          0,
+          1
+        ]
+      },
+      {
+        "name": "media_id",
+        "type": "integer",
+        "required": false,
+        "default": 10,
+        "empty_string_uses_default": true
+      },
+      {
+        "name": "car_state",
+        "type": "integer",
+        "required": false,
+        "default": 1,
+        "empty_string_uses_default": true,
+        "zero_preserved": true
+      }
+    ],
+    "response_type": "bare_array",
+    "response_fields": [
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "relation_id",
+        "type": "integer"
+      },
+      {
+        "name": "car_state",
+        "type": "integer"
+      },
+      {
+        "name": "media_car_series_id",
+        "type": "string"
+      }
+    ],
+    "fixed_scope": "s.is_enable=1且存在指定media_id映射；不是全部官方车系",
+    "optional_header": {
+      "name": "operator",
+      "default": "nissan",
+      "authentication_credential": false
+    },
+    "runtime_called": false
+  },
+  "source_boundary": "仅选中页当前结论的净化派生；不读取raw/incoming、不执行命令或SQL、不向Wiki回写。"
+}

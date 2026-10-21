@@ -1,0 +1,2128 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-014",
+  "scenario_id": "SC-012",
+  "name": "Mapping车系及通用接口字段配置时序草稿",
+  "status": "product_design_draft",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "具备既有分类／字段配置权限的管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "云外呼平台前端",
+      "kind": "system"
+    },
+    {
+      "id": "configuration",
+      "name": "平台内部配置服务",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "在现有权限及租户下将本次车系选接口取数，其他字段沿通用方式",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "读取字段定义和当前租户授权条目，包含Mapping车系预置能力",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 3,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回字段、接口与参数/属性声明，配置动作不查询真实上游",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示连续配置步骤；本次车系选Mapping且无上游，门店原文本保留",
+      "type": "response",
+      "api_id": null,
+      "condition": null,
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 5,
+      "from": "operator",
+      "to": "frontend",
+      "message": "为本次车系绑定Mapping接口；不手工维护其候选选项",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次Mapping车系接口配置",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 6,
+      "from": "operator",
+      "to": "frontend",
+      "message": "选择取数接口及条件开关，按需配置一个上游/声明属性/下游入参和必需或可选",
+      "type": "request",
+      "api_id": null,
+      "condition": "仅通用接口取数分支",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "读取能力声明属性及适配支持参数的元数据，不在线测试外部接口",
+      "type": "request",
+      "api_id": null,
+      "condition": "通用接口分支且条件开启",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 8,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "提供声明属性/支持参数和预置默认；未知能力不假设已接入",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件开启",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 9,
+      "from": "frontend",
+      "to": "operator",
+      "message": "条件关闭隐藏映射；Mapping车系默认独立查询，其他接口按需配置",
+      "type": "response",
+      "api_id": null,
+      "condition": "接口条件关闭（本次Mapping车系默认）",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 10,
+      "from": "operator",
+      "to": "frontend",
+      "message": "取消本次字段编辑",
+      "type": "request",
+      "api_id": null,
+      "condition": "入库前取消，与提交分支互斥",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "frontend",
+      "to": "operator",
+      "message": "不提交本次字段变更，已保存字段保持",
+      "type": "response",
+      "api_id": null,
+      "condition": "入库前取消",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 12,
+      "from": "operator",
+      "to": "frontend",
+      "message": "明确提交字段定义与稳定接口引用到字段库",
+      "type": "request",
+      "api_id": null,
+      "condition": "未选择取消",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 13,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "沿现有字段机制保存接口定义、当前租户和稳定标识",
+      "type": "request",
+      "api_id": null,
+      "condition": "字段入库分支；API-018为平台内部保存逻辑职责，具体工程映射沿既有模块落实",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 14,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "校验来源、属性/入参、无环及类型；普通字段沿原规则",
+      "type": "internal",
+      "api_id": null,
+      "condition": "字段入库分支",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回字段已入库；不等同分类已生效",
+      "type": "response",
+      "api_id": null,
+      "condition": "原配置机制校验及保存成功；不新增外部车系保存协议",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 16,
+      "from": "frontend",
+      "to": "operator",
+      "message": "反馈已入库与下一步；嵌套新建可加入分类草稿，取消分类不删除字段",
+      "type": "response",
+      "api_id": null,
+      "condition": "入库成功",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 17,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "反馈字段定义校验或保存问题，不虚构成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "入库失败，与成功互斥",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 18,
+      "from": "frontend",
+      "to": "operator",
+      "message": "定位具体控件并保留编辑、焦点和滚动，修正后重试",
+      "type": "response",
+      "api_id": null,
+      "condition": "入库未成功",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 19,
+      "from": "operator",
+      "to": "frontend",
+      "message": "将字段加入分类草稿，分别设置车系和原门店文本显示及必填",
+      "type": "request",
+      "api_id": null,
+      "condition": "继续分类配置",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 20,
+      "from": "frontend",
+      "to": "operator",
+      "message": "持续展示规则摘要、未完成项及下一步；仅接口必需依赖缺项时提示补齐",
+      "type": "response",
+      "api_id": null,
+      "condition": "分类尚未保存",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 21,
+      "from": "operator",
+      "to": "frontend",
+      "message": "明确点击补齐必需来源",
+      "type": "request",
+      "api_id": null,
+      "condition": "仅通用接口必需上游缺失且选择补齐，不自动触发",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 22,
+      "from": "frontend",
+      "to": "operator",
+      "message": "只改分类草稿，保留原必填及父子编辑，不自动提交",
+      "type": "response",
+      "api_id": null,
+      "condition": "已明确点击补齐",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 23,
+      "from": "operator",
+      "to": "frontend",
+      "message": "另行保存分类；或取消分类仅放弃草稿",
+      "type": "request",
+      "api_id": null,
+      "condition": "分类提交与取消互斥",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 24,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "沿既有分类保存接口绑定/显示/必填；原门店文本不依赖车系",
+      "type": "request",
+      "api_id": null,
+      "condition": "明确保存分类",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 25,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "仅通用接口必需边检查上游加入显示，可选边不强制；复核现有权限/租户",
+      "type": "internal",
+      "api_id": null,
+      "condition": "分类保存",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 26,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回既有分类保存结果；使用原成功判据反馈生效",
+      "type": "response",
+      "api_id": null,
+      "condition": "分类校验及保存成功",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 27,
+      "from": "frontend",
+      "to": "operator",
+      "message": "反馈分类已保存；新配置从下一通生效，当前通话及话后处理整版不变",
+      "type": "response",
+      "api_id": null,
+      "condition": "分类保存成功",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 28,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回分类校验或保存问题，保留已入库字段",
+      "type": "response",
+      "api_id": null,
+      "condition": "分类保存失败，与成功互斥",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 29,
+      "from": "frontend",
+      "to": "operator",
+      "message": "保留分类草稿并定位修正，未保存不显示生效",
+      "type": "response",
+      "api_id": null,
+      "condition": "分类未保存",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    }
+  ],
+  "source_story_ids": [
+    "US-015"
+  ],
+  "source_acceptance_ids": [
+    "AC-109",
+    "AC-110",
+    "AC-111",
+    "AC-120",
+    "AC-121",
+    "AC-124"
+  ],
+  "source_refs": [
+    "scenarios/SC-012.json",
+    "inputs/source-index.json#SRC-126",
+    "inputs/source-index.json#SRC-132",
+    "inputs/source-index.json#SRC-134",
+    "inputs/source-index.json#SRC-137",
+    "inputs/source-index.json#SRC-138",
+    "inputs/source-index.json#SRC-140",
+    "inputs/source-index.json#SRC-142",
+    "inputs/source-index.json#SRC-143",
+    "inputs/user-stories.md#SRC-145",
+    "inputs/user-stories.md#SRC-153",
+    "inputs/user-stories.md#SRC-156",
+    "inputs/user-stories.md#SRC-158",
+    "inputs/user-stories.md#SRC-159",
+    "inputs/user-stories.md#SRC-165",
+    "inputs/user-stories.md#SRC-166",
+    "inputs/user-stories.md#SRC-167",
+    "inputs/source-index.json#SRC-168",
+    "inputs/user-stories.md#SRC-169"
+  ],
+  "notes": [
+    "SRC167本次意向车系改为Mapping接口取数且唯一单选，门店仍原plannedStoreName文本；code暂按官方relation_id字符串、name展示，媒体ID与状态独立快照；默认media_id10/car_state1，不传品牌/能源附加过滤。编码/范围为本轮实施假定待正式核对。无主机及真实调用，只做SRC155授权结构模拟；G2/G3待确认，无初始存量迁移。通话与话后处理固定开始时整版配置，新配置下一通生效；权限/接口授权实时校验。",
+    "本图为SRC155授权产品草稿；G2待确认，不冻结。",
+    "本次变更作用于明确标识为本次意向车系语义的既有字段定义（实现定位localIntentRole），保留稳定字段标识；所有引用该语义字段的分类统一切换为Mapping接口来源，保持各分类原顺序、显示和必填。只改明确语义字段，不批量转换其他普通字段或刻意配置的通用接口；有重复语义/绑定冲突明确提示，不静默删除。已开始通话仍沿原整版配置，后续通话使用新配置；这不是初始存量数据迁移要求。"
+  ],
+  "change_history": [
+    {
+      "at": "2026-10-16T11:18:32+08:00",
+      "previous_values": {
+        "name": "业务分类字段配置接口来源及多车系关联时序草稿"
+      },
+      "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-156"
+      ]
+    },
+    {
+      "at": "2026-10-16T15:06:27+08:00",
+      "previous_values": {
+        "name": "业务分类字段配置接口来源及单车系关联时序草稿",
+        "notes": [
+          "产品设计草稿；用户仅例外批准继续时序与页面设计。关键接口及生产草稿契约仍开放，当前不构成需求冻结或开发交付。",
+          "参与者按逻辑职责划分；平台内部配置服务不表示已确定部署架构、内部端点或实际请求字段。所有内部请求api_id为null，不引用标记not_required的API-017。",
+          "消息序号是图示排序；带互斥条件的消息仅在对应分支发生，不能解释为全部消息顺序必然执行。取消为提交前分支，与提交后的成功、失败互斥。",
+          "本管理配置场景不查询NEV／ICE业务数据，不通过保存配置自动测试或证明外部接入成功。",
+          "配置时不查车系或门店业务数据。接口地址、鉴权、请求参数与返回映射由研发预置；管理员仅选取字典与关联字段。",
+          "本次只提供一个意向车系字段且单选，不提供备选车系；门店只关联该字段，两个字段仍按分类分别设置必填。",
+          "历史引用失去可用性仍保留展示；新增引用有效性在本次保存核对时处理，不因仅展示名称而绕过租户或启停约束。",
+          "本时序不新增发布环节、关系维护表、技术参数编排，也不承诺生产草稿持久化。",
+          "SRC-156现行：唯一意向车系字段且单选，门店只按其一个编码查询；旧多字段并集由本次确认替代。既有失配、恢复确认及历史快照规则沿用。"
+        ]
+      },
+      "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-158"
+      ]
+    },
+    {
+      "at": "2026-10-16T15:09:33+08:00",
+      "previous_values": {
+        "notes": [
+          "真实全部门店、属性/参数、保存/回传及生产草稿契约仍待核验，SRC-155仅独立模拟试做。",
+          "每字段一个上游，可形成无环链；配置保存与真实接口接入验证分开。"
+        ]
+      },
+      "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-158"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:10:24+08:00",
+      "previous_values": {
+        "name": "取数接口与可选通用上游条件配置草稿",
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "在当前租户及既有权限下新增本次意向字段，选择接口取数",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "按当前租户授权与条目启停状态读取可选接口字典",
+            "type": "request",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 3,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回可供新增引用的字典名称及稳定内部标识",
+            "type": "response",
+            "api_id": null,
+            "condition": null
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示取数接口及条件开关，列表上游依赖列显示无／必需·字段名／可选·字段名",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "按自定义接口名称展示可用条目；门店提供关联车系字段勾选配置"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:07:19+08:00",
+                "previous_values": {
+                  "message": "按名称展示取数接口及是否使用其他字段的配置，新字段默认否"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "message": "按名称展示取数接口及是否使用其他字段的配置，新字段默认否；字段列表上游依赖列展示无/有及字段名"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 5,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择单上游、返回取值属性、下游入参名及条件必需/可选；默认按能力声明，旧门店保留必需",
+            "type": "request",
+            "api_id": null,
+            "condition": "编辑分支；此时尚未保存",
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "选择字典；门店只关联唯一意向车系字段，并分别设置所属分类车系与门店是否必填"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "message": "选择取数接口和条件开关；是则选上游字段、返回取值属性并填写下游入参名，否无需映射"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 6,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "读取上游能力声明的返回属性和当前下游适配器支持参数，提供预置默认映射",
+            "type": "request",
+            "api_id": null,
+            "condition": "选择使用其他字段；仅内部元数据，不触发真实接口测试"
+          },
+          {
+            "step": 7,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "提供上游取值属性可选项及下游入参名默认，可修改；真实契约待核验",
+            "type": "response",
+            "api_id": null,
+            "condition": "条件开启"
+          },
+          {
+            "step": 8,
+            "from": "frontend",
+            "to": "operator",
+            "message": "关闭条件时隐藏且无需填写映射；门店独立查询当前租户全部可用门店",
+            "type": "response",
+            "api_id": null,
+            "condition": "条件关闭"
+          },
+          {
+            "step": 9,
+            "from": "operator",
+            "to": "frontend",
+            "message": "取消本次字段配置",
+            "type": "request",
+            "api_id": null,
+            "condition": "提交前选择取消；与后续提交分支互斥"
+          },
+          {
+            "step": 10,
+            "from": "frontend",
+            "to": "operator",
+            "message": "结束本次字段配置，不提交本次变更",
+            "type": "response",
+            "api_id": null,
+            "condition": "提交前取消分支"
+          },
+          {
+            "step": 11,
+            "from": "operator",
+            "to": "frontend",
+            "message": "提交本次接口字段定义到字段库",
+            "type": "request",
+            "api_id": null,
+            "condition": "字段提交分支；未选择入库前取消",
+            "change_history": [
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "message": "提交本次接口字段与分类必填配置",
+                  "condition": "提交分支；未选择提交前取消"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-159"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 12,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "提交稳定接口ID和可选依赖映射，不提交分类草稿",
+            "type": "request",
+            "api_id": null,
+            "condition": "字段入库提交分支",
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "提交字典稳定标识引用、单车系字段关联及分别设置的分类必填规则"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "message": "提交稳定接口ID、可选依赖映射及分类分别必填配置",
+                  "condition": "提交分支"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-159"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158",
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 13,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "校验来源映射、定义/类型及非自身无环，保存字段定义",
+            "type": "internal",
+            "api_id": null,
+            "condition": "字段入库提交分支",
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "核对本次新增引用的可用性及字段配置，尝试按稳定标识保存引用与单车系字段关联"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:07:19+08:00",
+                "previous_values": {
+                  "message": "校验来源、映射完整、上游在分类可用、非自身且无环；兼容保留旧依赖及普通旧字段"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "message": "校验来源、映射完整、上游在分类可用、非自身且无环；兼容保留旧依赖及普通旧字段；分类使用下游时全部传递上游须加入且显示，缺项提示先补齐，不自动添加或改必填"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "message": "核对来源映射、源定义/类型与非自身无环；分类仅沿必需边补齐加入显示上游，遇可选边不强制，不自动加字段或改必填",
+                  "condition": "提交分支"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-159"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158",
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 14,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回字段库保存成功；不表示分类已保存",
+            "type": "response",
+            "api_id": null,
+            "condition": "字段核对通过且入库成功",
+            "change_history": [
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "message": "返回本次字段与分类配置保存成功",
+                  "condition": "配置核对通过且保存成功"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-159"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 15,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈字段已入库；嵌套新建可加入分类草稿，取消分类不删除此字段",
+            "type": "response",
+            "api_id": null,
+            "condition": "字段入库成功",
+            "change_history": [
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "message": "展示配置成功；原计划到店字段、原历史数据保留",
+                  "condition": "本次配置保存成功"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-159"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 16,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回字段入库校验、保存失败或新增引用不可用的原因",
+            "type": "response",
+            "api_id": null,
+            "condition": "字段入库失败，与字段入库成功互斥",
+            "change_history": [
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "message": "返回配置校验、保存失败或新增引用不可用的原因",
+                  "condition": "校验或保存失败或新增引用不可用；与保存成功互斥"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-159"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 17,
+            "from": "frontend",
+            "to": "operator",
+            "message": "定位字段问题并保留编辑，不将无效映射当独立取数",
+            "type": "response",
+            "api_id": null,
+            "condition": "字段入库未成功",
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "message": "说明失败原因并保留本次编辑；无权或不可用条目不成为新增字段的有效引用"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "message": "提示具体配置或保存问题并保留编辑，不将无效关联当作独立取数",
+                  "condition": "本次配置未成功"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-159"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158",
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 18,
+            "from": "operator",
+            "to": "frontend",
+            "message": "将已入库字段加入分类草稿，分别设置显示及必填",
+            "type": "request",
+            "api_id": null,
+            "condition": "继续配置分类；字段已存在或刚入库",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 19,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示规则摘要及缺必需来源；可选依赖不强制，等待明确选择",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类草稿尚未保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 20,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确点击补齐必需来源到分类草稿",
+            "type": "request",
+            "api_id": null,
+            "condition": "缺必需来源且用户选择补齐；不自动触发",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 21,
+            "from": "frontend",
+            "to": "operator",
+            "message": "仅更新分类草稿，保留原必填与编辑内容，不提交分类",
+            "type": "response",
+            "api_id": null,
+            "condition": "用户已明确选择补齐",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 22,
+            "from": "operator",
+            "to": "frontend",
+            "message": "另行点击保存分类",
+            "type": "request",
+            "api_id": null,
+            "condition": "分类保存分支；取消时仅放弃分类草稿",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 23,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "提交分类字段绑定、显示及分别必填配置",
+            "type": "request",
+            "api_id": null,
+            "condition": "明确保存分类；字段库已保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 24,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "只沿必需边检查来源加入且显示，遇可选边不强制；通过才保存分类",
+            "type": "internal",
+            "api_id": null,
+            "condition": "分类保存分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 25,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回分类保存成功，绑定正式生效",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类校验通过且保存成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 26,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈分类已保存；原计划到店字段与历史保留",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类保存成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 27,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回分类校验或保存失败原因，已入库字段保持",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类保存失败，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          },
+          {
+            "step": 28,
+            "from": "frontend",
+            "to": "operator",
+            "message": "保留分类草稿并定位问题，修正后另存分类",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类保存失败",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-159"
+            ]
+          }
+        ],
+        "notes": [
+          "查询条件的“必需／可选”独立于业务分类字段是否必填。必需条件要求上游加入分类并显示且有效非空；可选条件允许上游不在该分类、隐藏或未填写时不传该参数而独立查询，有有效值才传，已填写但无效的值不能视为空来扩大查询。仍校验自身、循环、源字段定义存在、取值属性和参数类型兼容。新关联按能力元数据给出默认（门店条件可选），旧门店既有绑定兼容为必需。列表上游依赖显示无／必需·字段名／可选·字段名；分类只对必需依赖边逐级校验加入且显示，经过可选边不强制补齐，不自动加字段或改必填。真实接口允许空参及具体类型仍待核验。",
+          "配置保存与真实接口接入验证分开。",
+          "字段库与分类分别提交、生效；新增分类内新建字段取消分类不撤销入库。补齐必须明确点击，仅修改草稿；不新增外部API。"
+        ]
+      },
+      "reason": "SRC-165当前本地单选车系与原plannedStoreName文本同步设计草稿；G2补证/G3冻结仍待确认，不把草稿渲染当作阶段正式通过。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:44:50+08:00",
+      "previous_values": {
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "在现有权限及租户下配置本地单选车系或通用接口字段",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "读取已有本地单选code/name选项与字段定义；仅接口分支另读可用条目",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 3,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回当前配置；本地车系无需外部车系/门店查询",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示填写方式分支与连续步骤；本期车系本地单选，原门店文本保留",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 5,
+            "from": "operator",
+            "to": "frontend",
+            "message": "维护车系编码code及名称name；不创建门店选项库",
+            "type": "request",
+            "api_id": null,
+            "condition": "本地单选分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 6,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择取数接口及条件开关，按需配置一个上游/声明属性/下游入参和必需或可选",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅通用接口取数分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 7,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "读取能力声明属性及适配支持参数的元数据，不在线测试外部接口",
+            "type": "request",
+            "api_id": null,
+            "condition": "通用接口分支且条件开启",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 8,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "提供声明属性/支持参数和预置默认；未知能力不假设已接入",
+            "type": "response",
+            "api_id": null,
+            "condition": "条件开启",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 9,
+            "from": "frontend",
+            "to": "operator",
+            "message": "条件关闭隐藏映射；本地分支只维护选项，不要求接口来源或上游字段",
+            "type": "response",
+            "api_id": null,
+            "condition": "本地单选或接口条件关闭",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 10,
+            "from": "operator",
+            "to": "frontend",
+            "message": "取消本次字段编辑",
+            "type": "request",
+            "api_id": null,
+            "condition": "入库前取消，与提交分支互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 11,
+            "from": "frontend",
+            "to": "operator",
+            "message": "不提交本次字段变更，已保存字段保持",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库前取消",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 12,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确提交字段定义/本地选项到字段库",
+            "type": "request",
+            "api_id": null,
+            "condition": "未选择取消",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 13,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "保存本地code/name选项或通用接口定义，含稳定字段标识和当前租户",
+            "type": "request",
+            "api_id": "API-018",
+            "condition": "字段入库分支；真实持久化契约partial待核",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 14,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "本地按已有选项规则校验；接口按来源/映射/自身/无环/类型校验",
+            "type": "internal",
+            "api_id": null,
+            "condition": "字段入库分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 15,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回字段已入库；不等同分类已生效",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "校验及保存成功；真实响应待后台确认",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 16,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈已入库与下一步；嵌套新建可加入分类草稿，取消分类不删除字段",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 17,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "反馈选项或接口定义校验/保存问题，不虚构成功",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "入库失败，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 18,
+            "from": "frontend",
+            "to": "operator",
+            "message": "定位具体控件并保留编辑、焦点和滚动，修正后重试",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库未成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 19,
+            "from": "operator",
+            "to": "frontend",
+            "message": "将已入库字段加入分类草稿，分别设置本地车系及原门店文本显示与必填",
+            "type": "request",
+            "api_id": null,
+            "condition": "继续分类配置",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 20,
+            "from": "frontend",
+            "to": "operator",
+            "message": "持续展示规则摘要、未完成项及下一步；仅接口必需依赖缺项时提示补齐",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类尚未保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 21,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确点击补齐必需来源",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅通用接口必需上游缺失且选择补齐，不自动触发",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 22,
+            "from": "frontend",
+            "to": "operator",
+            "message": "只改分类草稿，保留原必填及父子编辑，不自动提交",
+            "type": "response",
+            "api_id": null,
+            "condition": "已明确点击补齐",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 23,
+            "from": "operator",
+            "to": "frontend",
+            "message": "另行保存分类；或取消分类仅放弃草稿",
+            "type": "request",
+            "api_id": null,
+            "condition": "分类提交与取消互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 24,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "提交分类字段绑定、显示及分别必填；本地车系与原门店文本无上下游关系",
+            "type": "request",
+            "api_id": "API-018",
+            "condition": "明确保存分类",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 25,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "仅通用接口必需边检查上游加入显示，可选边不强制；复核现有权限/租户",
+            "type": "internal",
+            "api_id": null,
+            "condition": "分类保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 26,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回分类生效结果；真实结构和成功判据仍待核",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "分类校验及保存成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 27,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈分类已保存；本期本地车系单选与原文本填写可用",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类保存成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 28,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回分类校验或保存问题，保留已入库字段",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "分类保存失败，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 29,
+            "from": "frontend",
+            "to": "operator",
+            "message": "保留分类草稿并定位修正，未保存不显示生效",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类未保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          }
+        ],
+        "notes": [
+          "SRC-165当前车系复用既有单选选项维护code/name；原plannedStoreName文本不绑定车系或门店接口。",
+          "通用接口字典及单上游条件映射保留；只沿必需依赖边检查分类加入和显示，不自动补齐或改变字段必填。",
+          "按顺序提示字段入库→分类草稿→另存分类生效，取消分类不撤销已入库字段。",
+          "API-018表示当前配置保存需要核实的逻辑契约，仍partial；图中成功/异常是产品目标分支，不证明后台已支持。",
+          "沿SRC-153/155保留缺口继续设计和模拟试做；当前整体G2待补证、G3未冻结，本时序为工作草稿。"
+        ]
+      },
+      "reason": "SRC-166复用现有自定义字段和表单保存、无初始存量；API-018仅平台内部逻辑职责，旧格式兼容和外部车系保存补证移出本期，原门店普通文本汇总不变；保留设计草稿与未G2/G3状态。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-166"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:48:14.170428+08:00",
+      "reason": "SRC166内部既有保存逻辑职责不作为not_required外部API调用；请求/响应动作仍保留，物理接口由工程映射。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-166"
+      ],
+      "previous_values": {
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "在现有权限及租户下配置本地单选车系或通用接口字段",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "读取现有自定义单选字段code/name选项与字段定义；仅接口分支另读可用条目",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 3,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回当前配置；本地车系无需外部车系/门店查询",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示填写方式分支与连续步骤；本期车系本地单选，原门店文本保留",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 5,
+            "from": "operator",
+            "to": "frontend",
+            "message": "维护车系编码code及名称name；不创建门店选项库",
+            "type": "request",
+            "api_id": null,
+            "condition": "本地单选分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 6,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择取数接口及条件开关，按需配置一个上游/声明属性/下游入参和必需或可选",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅通用接口取数分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 7,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "读取能力声明属性及适配支持参数的元数据，不在线测试外部接口",
+            "type": "request",
+            "api_id": null,
+            "condition": "通用接口分支且条件开启",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 8,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "提供声明属性/支持参数和预置默认；未知能力不假设已接入",
+            "type": "response",
+            "api_id": null,
+            "condition": "条件开启",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 9,
+            "from": "frontend",
+            "to": "operator",
+            "message": "条件关闭隐藏映射；本地分支只维护选项，不要求接口来源或上游字段",
+            "type": "response",
+            "api_id": null,
+            "condition": "本地单选或接口条件关闭",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 10,
+            "from": "operator",
+            "to": "frontend",
+            "message": "取消本次字段编辑",
+            "type": "request",
+            "api_id": null,
+            "condition": "入库前取消，与提交分支互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 11,
+            "from": "frontend",
+            "to": "operator",
+            "message": "不提交本次字段变更，已保存字段保持",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库前取消",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 12,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确提交字段定义/本地选项到字段库",
+            "type": "request",
+            "api_id": null,
+            "condition": "未选择取消",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 13,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "沿现有字段配置机制保存code/name选项或通用接口定义，含稳定字段标识与当前租户",
+            "type": "request",
+            "api_id": "API-018",
+            "condition": "字段入库分支；API-018为平台内部保存逻辑职责，具体工程映射沿既有模块落实",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 14,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "本地按已有选项规则校验；接口按来源/映射/自身/无环/类型校验",
+            "type": "internal",
+            "api_id": null,
+            "condition": "字段入库分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 15,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回字段已入库；不等同分类已生效",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "原配置机制校验及保存成功；不新增外部车系保存协议",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 16,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈已入库与下一步；嵌套新建可加入分类草稿，取消分类不删除字段",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 17,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "反馈选项或接口定义校验/保存问题，不虚构成功",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "入库失败，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 18,
+            "from": "frontend",
+            "to": "operator",
+            "message": "定位具体控件并保留编辑、焦点和滚动，修正后重试",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库未成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 19,
+            "from": "operator",
+            "to": "frontend",
+            "message": "将已入库字段加入分类草稿，分别设置本地车系及原门店文本显示与必填",
+            "type": "request",
+            "api_id": null,
+            "condition": "继续分类配置",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 20,
+            "from": "frontend",
+            "to": "operator",
+            "message": "持续展示规则摘要、未完成项及下一步；仅接口必需依赖缺项时提示补齐",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类尚未保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 21,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确点击补齐必需来源",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅通用接口必需上游缺失且选择补齐，不自动触发",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 22,
+            "from": "frontend",
+            "to": "operator",
+            "message": "只改分类草稿，保留原必填及父子编辑，不自动提交",
+            "type": "response",
+            "api_id": null,
+            "condition": "已明确点击补齐",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 23,
+            "from": "operator",
+            "to": "frontend",
+            "message": "另行保存分类；或取消分类仅放弃草稿",
+            "type": "request",
+            "api_id": null,
+            "condition": "分类提交与取消互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 24,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "沿既有分类保存机制提交字段绑定、显示及分别必填；本地车系与原门店文本无上下游关系",
+            "type": "request",
+            "api_id": "API-018",
+            "condition": "明确保存分类",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 25,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "仅通用接口必需边检查上游加入显示，可选边不强制；复核现有权限/租户",
+            "type": "internal",
+            "api_id": null,
+            "condition": "分类保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 26,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回既有分类保存结果；使用原成功判据反馈生效",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "分类校验及保存成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 27,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈分类已保存；本期本地车系单选与原文本填写可用",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类保存成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 28,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回分类校验或保存问题，保留已入库字段",
+            "type": "response",
+            "api_id": "API-018",
+            "condition": "分类保存失败，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 29,
+            "from": "frontend",
+            "to": "operator",
+            "message": "保留分类草稿并定位修正，未保存不显示生效",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类未保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "at": "2026-10-19T17:52:00.595919+08:00",
+      "reason": "SRC167用户将本次意向车系改为Mapping接口单选；门店仍原文本，保留SRC169通话整版配置隔离。只形成SRC155授权模拟产品草稿，G2/G3待确认。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-167",
+        "inputs/source-index.json#SRC-168",
+        "inputs/user-stories.md#SRC-169"
+      ],
+      "previous_values": {
+        "schema_version": "1.0",
+        "id": "SEQ-014",
+        "scenario_id": "SC-012",
+        "name": "本地车系选项与通用接口字段配置时序草稿",
+        "status": "product_design_draft",
+        "participants": [
+          {
+            "id": "operator",
+            "name": "具备既有分类／字段配置权限的管理员",
+            "kind": "actor"
+          },
+          {
+            "id": "frontend",
+            "name": "云外呼平台前端",
+            "kind": "system"
+          },
+          {
+            "id": "configuration",
+            "name": "平台内部配置服务",
+            "kind": "system"
+          }
+        ],
+        "messages": [
+          {
+            "step": 1,
+            "from": "operator",
+            "to": "frontend",
+            "message": "在现有权限及租户下配置本地单选车系或通用接口字段",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 2,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "读取现有自定义单选字段code/name选项与字段定义；仅接口分支另读可用条目",
+            "type": "request",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 3,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回当前配置；本地车系无需外部车系/门店查询",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 4,
+            "from": "frontend",
+            "to": "operator",
+            "message": "展示填写方式分支与连续步骤；本期车系本地单选，原门店文本保留",
+            "type": "response",
+            "api_id": null,
+            "condition": null,
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 5,
+            "from": "operator",
+            "to": "frontend",
+            "message": "维护车系编码code及名称name；不创建门店选项库",
+            "type": "request",
+            "api_id": null,
+            "condition": "本地单选分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 6,
+            "from": "operator",
+            "to": "frontend",
+            "message": "选择取数接口及条件开关，按需配置一个上游/声明属性/下游入参和必需或可选",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅通用接口取数分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 7,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "读取能力声明属性及适配支持参数的元数据，不在线测试外部接口",
+            "type": "request",
+            "api_id": null,
+            "condition": "通用接口分支且条件开启",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 8,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "提供声明属性/支持参数和预置默认；未知能力不假设已接入",
+            "type": "response",
+            "api_id": null,
+            "condition": "条件开启",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 9,
+            "from": "frontend",
+            "to": "operator",
+            "message": "条件关闭隐藏映射；本地分支只维护选项，不要求接口来源或上游字段",
+            "type": "response",
+            "api_id": null,
+            "condition": "本地单选或接口条件关闭",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 10,
+            "from": "operator",
+            "to": "frontend",
+            "message": "取消本次字段编辑",
+            "type": "request",
+            "api_id": null,
+            "condition": "入库前取消，与提交分支互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 11,
+            "from": "frontend",
+            "to": "operator",
+            "message": "不提交本次字段变更，已保存字段保持",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库前取消",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 12,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确提交字段定义/本地选项到字段库",
+            "type": "request",
+            "api_id": null,
+            "condition": "未选择取消",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 13,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "沿现有字段配置机制保存code/name选项或通用接口定义，含稳定字段标识与当前租户",
+            "type": "request",
+            "api_id": null,
+            "condition": "字段入库分支；API-018为平台内部保存逻辑职责，具体工程映射沿既有模块落实",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 14,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "本地按已有选项规则校验；接口按来源/映射/自身/无环/类型校验",
+            "type": "internal",
+            "api_id": null,
+            "condition": "字段入库分支",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 15,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回字段已入库；不等同分类已生效",
+            "type": "response",
+            "api_id": null,
+            "condition": "原配置机制校验及保存成功；不新增外部车系保存协议",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 16,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈已入库与下一步；嵌套新建可加入分类草稿，取消分类不删除字段",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 17,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "反馈选项或接口定义校验/保存问题，不虚构成功",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库失败，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 18,
+            "from": "frontend",
+            "to": "operator",
+            "message": "定位具体控件并保留编辑、焦点和滚动，修正后重试",
+            "type": "response",
+            "api_id": null,
+            "condition": "入库未成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 19,
+            "from": "operator",
+            "to": "frontend",
+            "message": "将已入库字段加入分类草稿，分别设置本地车系及原门店文本显示与必填",
+            "type": "request",
+            "api_id": null,
+            "condition": "继续分类配置",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 20,
+            "from": "frontend",
+            "to": "operator",
+            "message": "持续展示规则摘要、未完成项及下一步；仅接口必需依赖缺项时提示补齐",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类尚未保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 21,
+            "from": "operator",
+            "to": "frontend",
+            "message": "明确点击补齐必需来源",
+            "type": "request",
+            "api_id": null,
+            "condition": "仅通用接口必需上游缺失且选择补齐，不自动触发",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 22,
+            "from": "frontend",
+            "to": "operator",
+            "message": "只改分类草稿，保留原必填及父子编辑，不自动提交",
+            "type": "response",
+            "api_id": null,
+            "condition": "已明确点击补齐",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 23,
+            "from": "operator",
+            "to": "frontend",
+            "message": "另行保存分类；或取消分类仅放弃草稿",
+            "type": "request",
+            "api_id": null,
+            "condition": "分类提交与取消互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 24,
+            "from": "frontend",
+            "to": "configuration",
+            "message": "沿既有分类保存机制提交字段绑定、显示及分别必填；本地车系与原门店文本无上下游关系",
+            "type": "request",
+            "api_id": null,
+            "condition": "明确保存分类",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 25,
+            "from": "configuration",
+            "to": "configuration",
+            "message": "仅通用接口必需边检查上游加入显示，可选边不强制；复核现有权限/租户",
+            "type": "internal",
+            "api_id": null,
+            "condition": "分类保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 26,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回既有分类保存结果；使用原成功判据反馈生效",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类校验及保存成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 27,
+            "from": "frontend",
+            "to": "operator",
+            "message": "反馈分类已保存；本期本地车系单选与原文本填写可用",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类保存成功",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 28,
+            "from": "configuration",
+            "to": "frontend",
+            "message": "返回分类校验或保存问题，保留已入库字段",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类保存失败，与成功互斥",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 29,
+            "from": "frontend",
+            "to": "operator",
+            "message": "保留分类草稿并定位修正，未保存不显示生效",
+            "type": "response",
+            "api_id": null,
+            "condition": "分类未保存",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          }
+        ],
+        "source_story_ids": [
+          "US-015"
+        ],
+        "source_acceptance_ids": [
+          "AC-109",
+          "AC-110",
+          "AC-111",
+          "AC-120",
+          "AC-121",
+          "AC-124"
+        ],
+        "source_refs": [
+          "scenarios/SC-012.json",
+          "inputs/source-index.json#SRC-126",
+          "inputs/source-index.json#SRC-132",
+          "inputs/source-index.json#SRC-134",
+          "inputs/source-index.json#SRC-137",
+          "inputs/source-index.json#SRC-138",
+          "inputs/source-index.json#SRC-140",
+          "inputs/source-index.json#SRC-142",
+          "inputs/source-index.json#SRC-143",
+          "inputs/user-stories.md#SRC-145",
+          "inputs/user-stories.md#SRC-153",
+          "inputs/user-stories.md#SRC-156",
+          "inputs/user-stories.md#SRC-158",
+          "inputs/user-stories.md#SRC-159",
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-166"
+        ],
+        "notes": [
+          "SRC-166当前车系复用现有自定义单选字段的code/name选项、配置保存及分类引用，不新增独立车系服务或维护模块；原plannedStoreName文本不绑定车系或门店接口。",
+          "通用接口字典及单上游条件映射继续；只沿必需依赖边检查分类加入和显示，不自动补齐或改变字段必填。新增通用配置的工程保存结构及校验由研发沿原配置层扩展。",
+          "按顺序提示字段入库→分类草稿→另存分类生效，取消分类不撤销已入库字段；后续编辑和接口启停不擦除已保存配置与数据。",
+          "API-018保留为平台内部配置/保存逻辑职责；not_required仅表示无需外部供方接口核验，不表示生产实现verified。本期无初始存量，不要求旧配置迁移、回填或旧接口单/多门店兼容。",
+          "沿SRC-153/155保留草稿设计/模拟例外；生产草稿ISSUE-11105仍待核，当前整体G2待确认、G3未冻结，本时序不构成正式交付或生产验证。"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-013",
+  "scenario_id": "SC-011",
+  "name": "超管授权租户及撤销接口授权时序草稿",
+  "status": "product_design_draft",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "超级管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "云外呼平台前端",
+      "kind": "system"
+    },
+    {
+      "id": "configuration",
+      "name": "平台内部配置服务",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "打开指定接口条目的可用租户配置",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "读取该接口条目的已保存可用租户范围",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回该接口与当前可用租户配置",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示该接口的租户勾选配置与本次维护对象",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "operator",
+      "to": "frontend",
+      "message": "取消本次可用租户配置",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交前选择取消；与后续提交分支互斥"
+    },
+    {
+      "step": 6,
+      "from": "frontend",
+      "to": "operator",
+      "message": "结束本次可用租户配置，不提交本次变更",
+      "type": "response",
+      "api_id": null,
+      "condition": "提交前取消分支"
+    },
+    {
+      "step": 7,
+      "from": "operator",
+      "to": "frontend",
+      "message": "调整租户勾选并提交本次接口的可用租户配置",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交分支；一次提交可包含开放与撤销"
+    },
+    {
+      "step": 8,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "提交指定接口条目的本次租户授权范围",
+      "type": "request",
+      "api_id": null,
+      "condition": "提交分支"
+    },
+    {
+      "step": 9,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "尝试保存本次可用租户范围",
+      "type": "internal",
+      "api_id": null,
+      "condition": "提交分支"
+    },
+    {
+      "step": 10,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "撤销生效后停止对应接口与租户的新查询和新选择；保留其历史与字段配置",
+      "type": "internal",
+      "api_id": null,
+      "condition": "授权配置保存成功且包含撤销授权；不含撤销时跳过此步"
+    },
+    {
+      "step": 11,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回本次已保存的租户授权范围及其中的开放／撤销结果",
+      "type": "response",
+      "api_id": null,
+      "condition": "授权配置保存成功"
+    },
+    {
+      "step": 12,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示授权范围保存成功；重新授权仍受启停状态约束，未提交旧值须在填写场景重查确认",
+      "type": "response",
+      "api_id": null,
+      "condition": "授权配置保存成功"
+    },
+    {
+      "step": 13,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回本次租户授权配置未保存成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "授权配置保存未成功；与成功分支互斥"
+    },
+    {
+      "step": 14,
+      "from": "frontend",
+      "to": "operator",
+      "message": "提示本次授权配置未完成，不显示授权成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "授权配置保存未成功"
+    }
+  ],
+  "source_story_ids": [
+    "US-014"
+  ],
+  "source_acceptance_ids": [
+    "AC-107",
+    "AC-108",
+    "AC-122",
+    "AC-123"
+  ],
+  "source_refs": [
+    "scenarios/SC-011.json",
+    "inputs/user-stories.md#SRC-128",
+    "inputs/user-stories.md#SRC-139",
+    "inputs/user-stories.md#SRC-141",
+    "inputs/user-stories.md#SRC-135",
+    "inputs/user-stories.md#SRC-148",
+    "inputs/user-stories.md#SRC-149",
+    "inputs/user-stories.md#SRC-153"
+  ],
+  "notes": [
+    "产品设计草稿；用户仅例外批准继续时序与页面设计。关键接口及生产草稿契约仍开放，当前不构成需求冻结或开发交付。",
+    "参与者按逻辑职责划分；平台内部配置服务不表示已确定部署架构、内部端点或实际请求字段。所有内部请求api_id为null，不引用标记not_required的API-017。",
+    "消息序号是图示排序；带互斥条件的消息仅在对应分支发生，不能解释为全部消息顺序必然执行。取消为提交前分支，与提交后的成功、失败互斥。",
+    "本管理配置场景不查询NEV／ICE业务数据，不通过保存配置自动测试或证明外部接入成功。",
+    "本次含撤销与不含撤销是成功分支中的条件区别；撤销只影响对应接口与租户，不全局停用接口、不取消其它有效授权、不扩大成员权限。",
+    "撤销生效后，相应未提交选择保留显示但来源不可用、不能有效提交；旧在途结果不能新选。选填项可清除后保存，必填沿原规则，具体页面处理见SC-013。",
+    "重新授权仅恢复来源资格，不由本配置操作查询NEV／ICE或恢复旧值；实际查询与人工确认见SC-013。生产状态传播与草稿恢复契约仍待核验。"
+  ]
+}

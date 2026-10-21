@@ -1,0 +1,71 @@
+{
+  "profile": "user-authorized-product-draft",
+  "change_id": "CHANGE-11123-analysis-no-legacy-config",
+  "source_refs": [
+    "inputs/user-stories.md#SRC-167",
+    "inputs/source-index.json#SRC-168",
+    "inputs/user-stories.md#SRC-169",
+    "inputs/user-stories.md#SRC-171"
+  ],
+  "created_at": "2026-10-19T17:46:41.970797+08:00",
+  "G2": "pending",
+  "G3": "pending",
+  "formal_import": false,
+  "field": {
+    "name": "本次意向车系",
+    "mode": "接口取数",
+    "selection": "single",
+    "capability": "Mapping车系编码查询",
+    "uses_upstream": false,
+    "display": "name",
+    "code": "String(relation_id)",
+    "extra_fields": [
+      "relation_id",
+      "media_car_series_id",
+      "car_state"
+    ]
+  },
+  "query": {
+    "method": "GET",
+    "relative_path": "/mapping/api/open/mapping-car-series/code",
+    "fixed_defaults": {
+      "media_id": 10,
+      "car_state": 1
+    },
+    "omitted_optional_filters": [
+      "brand_id",
+      "is_nev_car_type_flag"
+    ],
+    "response": "bare_array",
+    "pagination": false
+  },
+  "adaptation_assumptions": [
+    "relation_id作为内部code字符串，name展示；媒体ID独立保留，不与DCC编码等同；该编码选择是本次实施假定，正式导入/回传口径待核。",
+    "首期沿文档默认media_id=10/car_state=1，不传品牌/能源附加过滤；业务覆盖范围及0/1/2状态含义待正式核对，不补枚举。",
+    "文档示例仅为模拟结构；未提供主机/真实响应，原型用合成数据，不调用生产。",
+    "完全相同重复记录可合并；相同官方ID存在不同名称/媒体ID时明确提示数据冲突，不按返回顺序任取，避免丢映射。"
+  ],
+  "store": "原plannedStoreName普通文本，车系变化不改写，不启用门店接口或联动",
+  "call_isolation": "进行中通话及话后处理沿开始时整版字段/分类/必填/选项/依赖/接口绑定配置；新配置下一通生效。权限和接口授权仍实时校验。",
+  "import": "只读保留；显式确认后仅按官方ID精确匹配，不按同名或媒体ID猜测；未匹配不写入",
+  "persistence": "保存官方ID字符串code及当时name，media_car_series_id/car_state作为来源快照；复用原填写保存，门店文本每通/详情/汇总沿原规则；无初始存量迁移",
+  "query_protection": "加载/失败/空集区分；旧响应不覆盖新选择；失败保输入重试；来源禁用/撤权仍实时校验；选填可清除，必填按通话配置版本。",
+  "change_scope": "本期直接初始化当前Mapping接口车系单选与原计划到店门店文本，不读取、转换或合并旧原型预置配置，不做历史配置或业务数据迁移，不保留旧预置关联的兼容告警与自动修补路径。当版新建字段标识在后续维护中保持稳定，各分类对当前字段的正常引用沿各自顺序、显示、必填及权限规则保存；普通自定义字段、有效通用上下游依赖和当前通话整版配置保护继续保留。旧资料仅作历史追溯，不作为本版运行输入。",
+  "updated_at": "2026-10-20T09:08:02.311259+08:00",
+  "change_history": [
+    {
+      "at": "2026-10-20T09:08:02.311259+08:00",
+      "change_id": "CHANGE-11123-analysis-no-legacy-config",
+      "reason": "SRC171直接确认去除旧预置兼容迁移；以直接当前初始化替代旧转换policy，正常配置/依赖/当版记录及通话保护保持，API事实和G2/G3缺口不变。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-171"
+      ],
+      "previous_values": [
+        {
+          "path": "/change_scope",
+          "value": "本次变更作用于明确标识为本次意向车系语义的既有字段定义（实现定位localIntentRole），保留稳定字段标识；所有引用该语义字段的分类统一切换为Mapping接口来源，保持各分类原顺序、显示和必填。只改明确语义字段，不批量转换其他普通字段或刻意配置的通用接口；有重复语义/绑定冲突明确提示，不静默删除。已开始通话仍沿原整版配置，后续通话使用新配置；这不是初始存量数据迁移要求。"
+        }
+      ]
+    }
+  ]
+}

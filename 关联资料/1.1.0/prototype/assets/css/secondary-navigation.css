@@ -1,0 +1,62 @@
+/* One location for returning from details and closing secondary dialogs. */
+.secondary-dialog-header { position:relative; gap:18px; padding-right:66px!important; }
+.secondary-dialog-header > .secondary-back { flex:0 0 auto; margin:0; }
+.secondary-back,
+.layer-header .secondary-back { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:34px; padding:6px 12px; border:1px solid #dce2eb; border-radius:6px; background:#fff; color:#344054; font-family:inherit; font-weight:500; font-size:14px; line-height:20px; white-space:nowrap; cursor:pointer; }
+.secondary-back:hover { color:#1677ff; border-color:#91caff; background:#f5f9ff; }
+.secondary-back:focus-visible,.secondary-close:focus-visible { outline:2px solid #1677ff; outline-offset:2px; }
+.secondary-dialog-header > :not(.secondary-back):not(.secondary-close) { min-width:0; }
+.secondary-dialog-header > h2,.secondary-dialog-header > h3,.secondary-dialog-header > .title { flex:1; }
+.secondary-dialog-header > div:first-of-type { flex:1; }
+.secondary-dialog-header .secondary-close,
+.layer-header .secondary-close { position:absolute; right:20px; top:16px; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; margin:0; padding:0; border:0; border-radius:6px; background:transparent; color:#667085; font-size:26px; line-height:1; cursor:pointer; }
+.secondary-dialog-header .secondary-close:hover { background:#f2f4f7; color:#1d2939; }
+.layer-panel.secondary-route-panel { width:min(1280px,calc(100vw - 240px)); max-width:none; overflow:hidden; }
+.secondary-route-panel > .layer-header { min-height:68px; padding:12px 24px; background:#fff; }
+.secondary-route-panel > .layer-header h2 { flex:1; font-size:17px; }
+.secondary-route-content { min-height:0; flex:1; padding:24px; overflow:auto; overscroll-behavior:contain; background:#f5f7fa; }
+.secondary-route-content .wizard-back { display:none; }
+.secondary-route-content .page-actions [data-secondary-return] { display:none; }
+.secondary-route-content > .page-back-row { display:none; }
+.secondary-parent-preview { height:100%; width:100%; overflow:hidden; pointer-events:none; }
+.page-back-row { margin-bottom:14px; }
+.secondary-route-content .wizard-footer { position:sticky; bottom:-24px; margin-bottom:-24px; z-index:3; }
+@media (max-width:900px) {
+ .layer-panel.secondary-route-panel { width:calc(100vw - 24px); }
+ .secondary-route-content { padding:16px; }
+ .secondary-dialog-header { gap:10px; padding-left:16px!important; }
+ .secondary-dialog-header .secondary-close { right:12px; }
+}
+
+.layer-panel[tabindex="-1"]:focus { outline:none; }
+
+/* Secondary pages slide from the right; decision confirmations remain compact. */
+.platform-layer:not([data-dialog-kind="confirmation"]) > .layer-panel {
+ top:0!important; right:0!important; bottom:0!important; left:auto!important;
+ height:100dvh!important; max-height:100dvh!important;
+ border-radius:0!important; transform:none!important;
+ box-shadow:-8px 0 32px rgba(16,24,40,.16);
+}
+.platform-layer.drawer-entering > .layer-panel { animation:secondary-drawer-enter .26s cubic-bezier(.2,.8,.2,1); }
+@keyframes secondary-drawer-enter { from { translate:100% 0; } to { translate:0 0; } }
+@media (min-width:901px) and (max-width:1150px) {
+ .layer-panel.secondary-route-panel { width:calc(100vw - 64px); }
+}
+@media (prefers-reduced-motion:reduce) {
+ .platform-layer.drawer-entering > .layer-panel { animation:none; }
+ .platform-layer { transition:none; }
+}
+
+/* Decision dialogs stay above their parent and within the visible viewport. */
+[data-dialog-kind="confirmation"] {position:fixed!important;inset:0!important;overflow:hidden}
+[data-dialog-kind="confirmation"] > .layer-panel,
+[data-dialog-kind="confirmation"] [data-confirmation-panel] {
+ position:fixed!important;top:calc(var(--delivery-nav-height, 0px) + 24px)!important;
+ left:50%!important;right:auto!important;bottom:auto!important;
+ transform:translateX(-50%)!important;translate:none!important;margin:0!important;
+ width:min(520px,calc(100vw - 32px))!important;height:auto!important;
+ max-height:calc(100dvh - var(--delivery-nav-height, 0px) - 48px)!important;
+ display:flex;flex-direction:column;overflow:hidden;border-radius:10px!important;
+}
+[data-dialog-kind="confirmation"] :is(.layer-header,.layer-footer) {flex-shrink:0}
+[data-dialog-kind="confirmation"] .layer-body {min-height:0;overflow:auto;overscroll-behavior:contain}

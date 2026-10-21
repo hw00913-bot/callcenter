@@ -1,0 +1,60 @@
+/* Normal current saved manifests drive history; no old preset or journal conversion. */
+'use strict';
+const assert=require('node:assert/strict');
+const {harness,copy}=require('./fixtures/current-profile.cjs');
+let passed=0;const check=(value,message)=>{assert.ok(value,message);passed++;};
+async function record(h,id,{code='',storeText='',extra={},type='lead',documentId='CURRENT-DOC',seriesId,storeCodes=[]}={}){
+ h.mount({callId:id,businessType:type,externalDocumentId:documentId},{plannedStoreName:storeText,...extra});
+ const F=h.win.BusinessInterfaceField;
+ if(code){const field=seriesId || h.field().id,q=await F.query('seat-followup',field);check(q.ok&&q.complete,'current record producer queries complete interface results');const row=q.items.find(item=>item.code===code);check(row&&F.choose('seat-followup',field,JSON.stringify([row.type || '',row.code])),'current record producer uses actual single-select confirmation');}
+ if(storeCodes.length){const q=await F.query('seat-followup','genericStore');check(q.ok&&F.chooseMany('seat-followup','genericStore',storeCodes.map(code=>JSON.stringify(['NEV',code]))),'current record producer confirms a real store array');}
+ const saved=h.C.save(h.call,h.values,{wrapping:true,expectedVersion:''});check(saved.ok,'normal current followup is saved before aggregation');
+ const call=copy(h.call);call.customerFollowup.updatedAt='2026-10-20T'+String(record.sequence++).padStart(2,'0')+':00:00.000Z';return call;
+}record.sequence=1;
+(async()=>{
+ const h=harness(),id=h.field().id;
+ const first=await record(h,'aggregate-first',{code:'910001',storeText:'原门店文本',extra:{leadLevel:'A级'}}),second=await record(h,'aggregate-second',{code:'910002'}),bytes=JSON.stringify([first,second]);
+ let projection=h.C.aggregate([second,first]),group=projection.groups[0];
+ check(group.values[id].code==='910002'&&projection[id].code==='910002','later Mapping selection replaces the older intention in top and grouped views');
+ check(group.values.plannedStoreName==='原门店文本'&&group.values.leadLevel==='A级','ordinary fields retain their existing latest-nonempty merge rule');
+ check(h.C.detail(group.values,group).includes('910002')&&!h.C.detail(group.values,group).includes('910001'),'group detail displays the current saved intention');
+ check(JSON.stringify([first,second])===bytes,'normal history projections do not change saved records');
+ check(!JSON.stringify(group.values.businessFieldSnapshot).includes('sourceVersion')&&!JSON.stringify(group.values.businessFieldSnapshot).includes('verifiedScope'),'group field snapshots use saved canonical values rather than runtime query objects');
+ const cleared=await record(h,'aggregate-cleared',{});projection=h.C.aggregate([first,cleared]);group=projection.groups[0];
+ check(group.values[id]===''&&projection[id]==='','an explicitly empty Mapping snapshot clears the previous intention');
+ check(group.values.plannedStoreName==='原门店文本','clearing the intention does not clear independent text-store data');
+ const another=await record(h,'aggregate-other-document',{code:'910003',documentId:'ANOTHER-DOC'});projection=h.C.aggregate([first,another]);
+ check(projection.groups.length===2&&projection.groups.find(row=>row.externalDocumentId==='CURRENT-DOC').values[id].code==='910001','document groups remain distinct');
+ const foreign=copy(first);foreign.tenantId='ANOTHER-TENANT';const enterprise=copy(first);enterprise.enterpriseId='ANOTHER-ENTERPRISE';
+ check(h.C.aggregate([first,foreign,enterprise]).groups.length===3,'tenant and enterprise remain part of grouping identity');
+ const service=await record(h,'aggregate-service',{type:'aftersales',extra:{serviceConcern:'普通售后文本'}});projection=h.C.aggregate([first,service]);
+ check(projection.groups.length===2&&projection.groups.find(row=>row.businessType==='aftersales').values.serviceConcern==='普通售后文本','business categories preserve their own normal record fields');
+ const changed=h.M.getField(id,h.scope);changed.label='当前字段新名称';check(h.M.saveField(changed,h.scope).ok,'administrator can change a current field display name');
+ const category=h.M.get('lead',h.scope);category.label='当前分类新名称';check(h.M.save(category,h.scope).ok,'administrator can change a current category name');
+ projection=h.C.aggregate([first]);group=projection.groups[0];
+ check(group.businessTypeLabel==='线索类'&&!h.C.detail(projection).includes('当前分类新名称'),'history preserves the category name from its normal saved manifest');
+ check(h.C.detail(group.values,group).includes('本次意向车系')&&!h.C.detail(group.values,group).includes('当前字段新名称'),'history also preserves the normal saved field name');
+ const missing=copy(first);delete missing.customerFollowup.businessFieldSnapshot;
+ check(h.C.aggregate([missing]).groups.length===0,'missing manifests are not reconstructed from current definitions or guessed interface values');
+ const extra=copy(first);extra.customerFollowup.unregistered={code:'INJECTED',name:'不在字段快照'};
+ check(!h.C.detail(extra.customerFollowup,extra).includes('INJECTED')&&!h.C.aggregate([extra]).unregistered,'unregistered raw properties cannot become saved field history');
+ check(!h.C.detail(first.customerFollowup,first).includes('历史接口信息'),'normal history has no compatibility-only section');
+ const ordinary=harness({normalChoice:true}),choice=ordinary.field().id;
+ const contribution=await record(ordinary,'choice-contribution',{extra:{[choice]:'choice-a'}}),empty=await record(ordinary,'choice-empty',{});
+ projection=ordinary.C.aggregate([contribution,empty]);group=projection.groups[0];
+ check(group.values[choice]==='choice-a'&&ordinary.C.detail(group.values,group).includes('原名称甲 · CHOICE-001'),'ordinary choice history retains the contributing name and opaque code');
+ const removed=ordinary.M.get('lead',ordinary.scope);removed.fields=removed.fields.filter(ref=>ref.fieldId!==choice);check(ordinary.M.save(removed,ordinary.scope).ok,'administrator removes an ordinary field for later calls');
+ const later=await record(ordinary,'choice-omitted',{});projection=ordinary.C.aggregate([contribution,later]);group=projection.groups[0];
+ check(group.values[choice]==='choice-a'&&group.values.businessFieldSnapshot.fields.find(row=>row.fieldId===choice).selectedOptions[0].businessOptionCode==='CHOICE-001','later omissions do not discard previously contributing ordinary snapshot metadata');
+ const generic=harness({generic:true});
+ const multi=await record(generic,'generic-multiple',{code:'NEV-A',seriesId:'genericSeries',storeCodes:['N01','N02'],storeText:'独立计划门店'}),noStores=await record(generic,'generic-empty-array',{code:'ICE-A',seriesId:'genericSeries'});
+ projection=generic.C.aggregate([multi,noStores]);group=projection.groups[0];
+ check(group.values.genericSeries.code==='ICE-A'&&Array.isArray(group.values.genericStore)&&group.values.genericStore.length===0,'a normal empty multi-select array clears the earlier whole store collection');
+ check(group.values.plannedStoreName==='独立计划门店','normal generic intentions do not rewrite independent store text');
+ const savedField=multi.customerFollowup.businessFieldSnapshot.fields.find(row=>row.fieldId==='genericStore');
+ check(savedField.selectionMode==='multiple'&&savedField.interfaceKind==='store'&&savedField.value.length===2,'normal multi-select history carries explicit shape and both store snapshots');
+ check(generic.C.detail(multi.customerFollowup,multi).includes('N01')&&generic.C.detail(multi.customerFollowup,multi).includes('N02'),'normal array history displays every original name/code pair');
+ const malformed=copy(multi);malformed.customerFollowup.genericStore=malformed.customerFollowup.genericStore[0];
+ check(generic.C.detail(malformed.customerFollowup,malformed).includes('资料格式异常'),'invalid lone-object multi data is not silently displayed as a converted collection');
+ console.log(JSON.stringify({passed,scope:'normal current Mapping/generic saved manifests, group isolation, ordinary contributions and exact history metadata'}));
+})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,0 +1,304 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.1.1",
+  "id": "SC-010",
+  "name": "超管调整接口启停状态",
+  "summary": "同一可用性调整意图下保留启用、停用两个分支及各自结果。",
+  "actors": [
+    "超级管理员",
+    "云外呼平台"
+  ],
+  "trigger": "需要明确将已有条目设为启用或停用。",
+  "preconditions": [
+    "当前操作者具有超管维护业务数据接口字典的权限。",
+    "本次调整所针对的已有条目已明确；本次操作指定启用或停用目标。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员",
+      "action": "发起对已有条目的启停状态调整。",
+      "system_response": "平台呈现当前条目的启停信息。",
+      "rule_ids": [
+        "BR-023"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云外呼平台",
+      "action": "呈现本次条目状态与维护对象。",
+      "system_response": "供操作者明确本次目标，不预设盲目反转。",
+      "rule_ids": [
+        "BR-024"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "超级管理员",
+      "action": "明确选择本次目标状态为启用或停用，并提交该目标。",
+      "system_response": "本次提交携带明确的启用或停用意图。",
+      "rule_ids": [
+        "BR-023",
+        "BR-024"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云外呼平台",
+      "action": "保存本次指定的启用或停用状态。",
+      "system_response": "判断本次状态保存是否成功。",
+      "rule_ids": [
+        "BR-024"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云外呼平台",
+      "action": "按成功保存的目标分别显示启用或停用结果，保留已引用条目和配置。",
+      "system_response": "启用不扩大租户范围、不自动恢复未提交旧值；旧值在SC-013重查确认。停用保留引用与历史，未提交值不可有效提交，在途不新选。",
+      "rule_ids": [
+        "BR-023",
+        "BR-024",
+        "BR-036"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-SC010-CANCEL",
+      "condition": "操作者在提交前取消启停调整。",
+      "steps": [
+        "结束本次操作，不提交本次启停状态变更。"
+      ]
+    },
+    {
+      "id": "ALT-SC010-FAIL",
+      "condition": "本次指定状态未保存成功。",
+      "steps": [
+        "平台反馈本次状态调整未完成，不显示本次启用或停用成功。",
+        "未知超时结果、在途及未提交数据的处理不由本场景补定。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "启用成功分支形成明确的启用状态；可用租户配置继续约束使用。",
+    "停用成功分支形成明确的停用状态；已引用条目和字段配置保留。",
+    "取消或保存失败路径不呈现本次启停成功；不增加删除或自动恢复未提交数据的行为。"
+  ],
+  "acceptance_points": [
+    "AC-129：启用为独立目标操作，启用后不扩大租户授权。",
+    "AC-130：停用保留引用和历史；未提交值显示来源不可用且不有效提交，在途结果不新选，选填可清除后保存。",
+    "AC-131：启停不自动删除既有引用配置或历史已保存数据。"
+  ],
+  "source_story_ids": [
+    "US-018",
+    "US-019"
+  ],
+  "source_acceptance_ids": [
+    "AC-129",
+    "AC-130",
+    "AC-131"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-128",
+    "inputs/user-stories.md#SRC-139",
+    "inputs/user-stories.md#SRC-141",
+    "inputs/user-stories.md#SRC-148",
+    "inputs/user-stories.md#SRC-149"
+  ],
+  "open_item_ids": [
+    "ISSUE-11105"
+  ],
+  "notes": [
+    "启用和停用保留独立状态结果；不盲目反转目标状态。",
+    "停用后未提交值显示来源不可用并暂停有效提交，在途结果不新选；选填可清除后保存。",
+    "重新启用仅恢复来源资格；未提交旧值在SC-013按当前条件重查并经客服确认，实际外部契约仍待核验。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "admin",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云外呼平台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "admin",
+        "type": "start",
+        "order": 1,
+        "label": "发起启停状态调整"
+      },
+      {
+        "id": "N-REQUEST",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 2,
+        "label": "选择本次条目",
+        "step_ref": 1
+      },
+      {
+        "id": "N-PRESENT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "呈现当前启停信息",
+        "step_ref": 2
+      },
+      {
+        "id": "N-TARGET",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 4,
+        "label": "明确启用或停用目标",
+        "step_ref": 3
+      },
+      {
+        "id": "N-SUBMIT",
+        "lane_id": "admin",
+        "type": "decision",
+        "order": 5,
+        "label": "提交目标状态？"
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 6,
+        "label": "取消，未提交调整"
+      },
+      {
+        "id": "N-SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "保存指定目标状态",
+        "step_ref": 4
+      },
+      {
+        "id": "N-SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "状态保存成功？"
+      },
+      {
+        "id": "N-FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 8,
+        "label": "反馈状态调整未完成"
+      },
+      {
+        "id": "N-TARGET-RESULT",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 9,
+        "label": "本次保存的目标？"
+      },
+      {
+        "id": "N-ENABLED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 10,
+        "label": "启用不扩大授权；旧值仍须重查确认",
+        "step_ref": 5
+      },
+      {
+        "id": "N-END-ENABLED",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 11,
+        "label": "本次启用完成"
+      },
+      {
+        "id": "N-DISABLED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 12,
+        "label": "停用：保留引用与旧值显示，未提交\n值不作有效值，在途不新选",
+        "step_ref": 5
+      },
+      {
+        "id": "N-END-DISABLED",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 13,
+        "label": "本次停用完成"
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-REQUEST"
+      },
+      {
+        "from": "N-REQUEST",
+        "to": "N-PRESENT"
+      },
+      {
+        "from": "N-PRESENT",
+        "to": "N-TARGET"
+      },
+      {
+        "from": "N-TARGET",
+        "to": "N-SUBMIT"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-SAVE",
+        "label": "提交"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-SC010-CANCEL",
+        "type": "alternate"
+      },
+      {
+        "from": "N-SAVE",
+        "to": "N-SAVED"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-TARGET-RESULT",
+        "label": "成功"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-FAIL",
+        "label": "未成功",
+        "path_id": "ALT-SC010-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-TARGET-RESULT",
+        "to": "N-ENABLED",
+        "label": "启用"
+      },
+      {
+        "from": "N-TARGET-RESULT",
+        "to": "N-DISABLED",
+        "label": "停用"
+      },
+      {
+        "from": "N-ENABLED",
+        "to": "N-END-ENABLED"
+      },
+      {
+        "from": "N-DISABLED",
+        "to": "N-END-DISABLED"
+      }
+    ]
+  },
+  "business_rule_ids": [
+    "BR-036"
+  ]
+}

@@ -1,0 +1,386 @@
+{
+  "schema_version": "1.0",
+  "pages": [
+    {
+      "id": "PAGE-001",
+      "name": "应用接入管理",
+      "menu_path": [
+        "系统设置",
+        "应用接入管理"
+      ],
+      "roles": [
+        "超管（应用管理）；租户管理员禁止访问管理模块"
+      ],
+      "function_ids": [
+        "FUNC-001",
+        "FUNC-002"
+      ],
+      "scenario_ids": [
+        "SC-001"
+      ],
+      "sequence_ids": [
+        "SEQ-005"
+      ],
+      "states": [
+        "未配置",
+        "模拟已保存",
+        "模拟授权有效",
+        "模拟身份拒绝",
+        "接口契约待核",
+        "超管可管理",
+        "租户管理员菜单/页面/管理接口拒绝"
+      ],
+      "fields": [
+        "虚构应用标识",
+        "凭证占位（不可用）",
+        "授权tenantId",
+        "来源追踪",
+        "无真实token/密钥"
+      ],
+      "actions": [
+        {
+          "id": "ACTION-001",
+          "name": "保存模拟应用接入配置",
+          "source_function_ids": [
+            "FUNC-001"
+          ],
+          "source_scenario_ids": [
+            "SC-001"
+          ],
+          "permission": "仅超管；租户管理员页面和管理接口均拒绝",
+          "notes": "维护应用凭证与授权关系；不生成可用凭证；不执行真实密钥生成/重置",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-002",
+          "name": "演示指定租户身份交换",
+          "source_function_ids": [
+            "FUNC-002"
+          ],
+          "source_scenario_ids": [
+            "SC-001"
+          ],
+          "permission": "沿既有角色与对象范围校验；未确认的新权限契约保持待核",
+          "notes": "模拟应用凭证+tenantId；不发鉴权请求；此处为超管管理页内演示，真实业务token交换不等应用管理授权",
+          "demonstration_only": true
+        }
+      ],
+      "acceptance_points": [
+        "AC-017",
+        "AC-028",
+        "AC-044",
+        "AC-045"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-052",
+        "inputs/source-index.json#SRC-074"
+      ],
+      "design_status": "analysis_reviewed_pending_G3",
+      "layout": "系统设置内新增菜单；页内配置与身份演示区，无独立顶级运营入口；仅超管可见可进入，租户管理员直接访问拒绝"
+    },
+    {
+      "id": "PAGE-002",
+      "name": "预外呼任务记录页",
+      "menu_path": [
+        "云呼叫",
+        "预外呼",
+        "任务",
+        "记录页"
+      ],
+      "roles": [
+        "可查看当前任务的既有角色；操作仍校验既有对象范围/权限"
+      ],
+      "function_ids": [
+        "FUNC-004",
+        "FUNC-005",
+        "FUNC-006",
+        "FUNC-007",
+        "FUNC-008",
+        "FUNC-009",
+        "FUNC-010",
+        "FUNC-011",
+        "FUNC-012",
+        "FUNC-013",
+        "FUNC-015",
+        "FUNC-016",
+        "FUNC-017"
+      ],
+      "scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004"
+      ],
+      "sequence_ids": [
+        "SEQ-001",
+        "SEQ-002",
+        "SEQ-003",
+        "SEQ-004",
+        "SEQ-006",
+        "SEQ-007",
+        "SEQ-008",
+        "SEQ-009"
+      ],
+      "states": [
+        "导入记录",
+        "每次结果及SIP更新",
+        "关联/结果待核",
+        "回传待发送/成功/失败",
+        "手工仅平台查看",
+        "成功删除本地保留",
+        "失败待下载/成功后清理",
+        "本地校验失败",
+        "供应商导入失败（同步/53）",
+        "呼叫失败",
+        "失败分片未收齐/完整性待核",
+        "后到新失败待下载",
+        "接口来源任务：手工导入常驻禁用并解释；手工来源任务：可按既有权限导入",
+        "创建弹窗/向导待确认：来源可选；创建成功后：来源锁定、记录页只读"
+      ],
+      "fields": [
+        "已锁定任务来源（创建向导确认创建前可选；记录页只读）",
+        "供应商taskId/租户归属",
+        "线索编码/手机号/批次/真实callID或稳定事件关联",
+        "原导入日期/新批次时间/当前priority/可选R",
+        "風控失败原因/客户与坐席实际接听/秒挂识别",
+        "话单status/SIP字段及来源/finishRetryFlag1或0或未知",
+        "每次回传状态/晚更新/待核原因/下载与删除状态",
+        "同步importTotal/successTotal/invalidTotal及来源",
+        "供应商fileId/失败结果分片总片数与片号/收齐状态",
+        "failedReason原始码及解释/本次导出快照范围",
+        "导出后必要去重/关联/回传状态保留",
+        "待提交顺序：高priority优先/同级本地时间FIFO；仅同任务，不同任务独立"
+      ],
+      "actions": [
+        {
+          "id": "ACTION-004",
+          "name": "常驻手工导入",
+          "source_function_ids": [
+            "FUNC-004",
+            "FUNC-005"
+          ],
+          "source_scenario_ids": [
+            "SC-001"
+          ],
+          "permission": "手工来源任务按既有角色及tenant/task归属校验；接口来源任务按钮常驻禁用并说明仅接口导入，服务端拒绝混入",
+          "notes": "常驻按钮，接口任务禁用且说明仅接口导入；手工任务可编辑统一/逐条priority，仅提交前；后端校验来源与tenant/task。",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-005",
+          "name": "演示DCC接口导入",
+          "source_function_ids": [
+            "FUNC-004",
+            "FUNC-005"
+          ],
+          "source_scenario_ids": [
+            "SC-001"
+          ],
+          "permission": "仅接口来源任务合成输入，校验既有角色及tenant/task归属；手工来源任务拒绝接口混入",
+          "notes": "只允许接口任务合成输入；后端来源校验，手工任务拒绝接口混入。",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-006",
+          "name": "展示模拟供应商导入结果",
+          "source_function_ids": [
+            "FUNC-005",
+            "FUNC-013",
+            "FUNC-017"
+          ],
+          "source_scenario_ids": [
+            "SC-001"
+          ],
+          "permission": "沿既有角色与对象范围校验；未确认的新权限契约保持待核",
+          "notes": "同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。；异步53复用FUNC-017",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-007",
+          "name": "下载导入失败记录",
+          "source_function_ids": [
+            "FUNC-006"
+          ],
+          "source_scenario_ids": [
+            "SC-001"
+          ],
+          "permission": "沿既有角色与对象范围校验；未确认的新权限契约保持待核",
+          "notes": "在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-008",
+          "name": "演示每日结果跟进",
+          "source_function_ids": [
+            "FUNC-007",
+            "FUNC-008"
+          ],
+          "source_scenario_ids": [
+            "SC-001"
+          ],
+          "permission": "沿既有角色与对象范围校验；未确认的新权限契约保持待核",
+          "notes": "后台日查询与降级的合成结果，不新增实际调度时刻",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-009",
+          "name": "演示DCC精准删除结果",
+          "source_function_ids": [
+            "FUNC-009"
+          ],
+          "source_scenario_ids": [
+            "SC-001",
+            "SC-002",
+            "SC-004"
+          ],
+          "permission": "沿既有角色与对象范围校验；未确认的新权限契约保持待核",
+          "notes": "精准删除成功本地保留且停priority降级；平台无重导队列。",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-010",
+          "name": "演示线路风控结果",
+          "source_function_ids": [
+            "FUNC-010",
+            "FUNC-013"
+          ],
+          "source_scenario_ids": [
+            "SC-002"
+          ],
+          "permission": "沿既有角色与对象范围校验；未确认的新权限契约保持待核",
+          "notes": "展示每次线路话单/SIP/最后一通原值及回传状态；不展示重导倒计时或业务额度。",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-011",
+          "name": "演示客户秒挂结果",
+          "source_function_ids": [
+            "FUNC-011",
+            "FUNC-013"
+          ],
+          "source_scenario_ids": [
+            "SC-004"
+          ],
+          "permission": "沿既有角色与对象范围校验；未确认的新权限契约保持待核",
+          "notes": "识别真实客户接通主动挂断0～2秒，回传DCC或手工查看；不启动平台重导。",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-012",
+          "name": "查看无话单失败原因",
+          "source_function_ids": [
+            "FUNC-012"
+          ],
+          "source_scenario_ids": [
+            "SC-003"
+          ],
+          "permission": "沿既有角色与对象范围校验；未确认的新权限契约保持待核",
+          "notes": "查看无话单失败原因/稳定关联及回传状态，不等待话单，不自动解除。",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-014",
+          "name": "查看任务记录",
+          "source_function_ids": [
+            "FUNC-015"
+          ],
+          "source_scenario_ids": [
+            "SC-001",
+            "SC-002",
+            "SC-003",
+            "SC-004"
+          ],
+          "permission": "沿既有角色与对象范围校验；未确认的新权限契约保持待核",
+          "notes": "按任务看导入/每次结果/失败与回传，不新增全局入口。 区分三类失败及未知、同步证据和失败分片完整性。",
+          "demonstration_only": true
+        },
+        {
+          "id": "ACTION-015",
+          "name": "既有任务新建向导确认创建并锁定来源",
+          "source_function_ids": [
+            "FUNC-016"
+          ],
+          "source_scenario_ids": [
+            "SC-001"
+          ],
+          "permission": "沿既有角色与tenant/task归属校验",
+          "notes": "来源选择在既有任务列表新建弹窗/向导，确认创建前可选；创建提交后不可切换或混用，记录页仅查看已锁定来源；旧任务迁移不擅定，无前台DCC地址配置。",
+          "demonstration_only": true
+        }
+      ],
+      "acceptance_points": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "AC-008",
+        "AC-009",
+        "AC-010",
+        "AC-011",
+        "AC-012",
+        "AC-013",
+        "AC-014",
+        "AC-015",
+        "AC-016",
+        "AC-018",
+        "AC-019",
+        "AC-020",
+        "AC-021",
+        "AC-022",
+        "AC-023",
+        "AC-024",
+        "AC-025",
+        "AC-026",
+        "AC-027",
+        "AC-028",
+        "AC-029",
+        "AC-030",
+        "AC-031",
+        "AC-032",
+        "AC-033",
+        "AC-034",
+        "AC-035",
+        "AC-036",
+        "AC-037",
+        "AC-038",
+        "AC-039",
+        "AC-040",
+        "AC-041",
+        "AC-042",
+        "AC-043",
+        "AC-046"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-052",
+        "inputs/source-index.json#SRC-053",
+        "inputs/source-index.json#SRC-056",
+        "inputs/source-index.json#SRC-061",
+        "inputs/source-index.json#SRC-062",
+        "inputs/source-index.json#SRC-063",
+        "inputs/source-index.json#SRC-064",
+        "inputs/source-index.json#SRC-065",
+        "inputs/source-index.json#SRC-066",
+        "inputs/source-index.json#SRC-067",
+        "inputs/source-index.json#SRC-068",
+        "inputs/source-index.json#SRC-069",
+        "inputs/source-index.json#SRC-070",
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-076"
+      ],
+      "design_status": "analysis_reviewed_pending_G3",
+      "layout": "既有任务列表新建弹窗/向导在确认创建前选择接口或手工来源，确认创建后锁定；任务内记录页查看已锁定来源与业务记录，常驻手工导入在接口任务禁用并说明仅接口导入；结果/失败/回传状态页内展示，不提供重导倒计时/额度设置/DCC地址配置。",
+      "review_history": [
+        {
+          "at": "2026-10-10T15:19:32+08:00",
+          "before_layout": "任务内单独记录页及任务创建来源选择；页内常驻手工导入在接口任务禁用；结果/失败/回传状态为页内展示，不提供重导倒计时/额度设置/DCC地址配置。",
+          "basis": "按FUNC-016/AC-036既有任务创建来源锁定及来源守卫补足页面表达，不新增页面/功能/菜单"
+        }
+      ]
+    }
+  ]
+}

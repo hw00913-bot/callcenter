@@ -1,0 +1,3955 @@
+{
+  "schema_version": "1.0",
+  "granularity_version": "business-operation@2",
+  "features": [
+    {
+      "id": "FUNC-001",
+      "version": "1.1.0",
+      "module_l1": "系统设置",
+      "module_l2": "应用接入",
+      "module_l3": null,
+      "name": "修改应用",
+      "description": "超管对已有应用修改应用名称与可访问租户，保存后以同一appId返回更新详情；保留创建时的演示appSecret，不因修改、查看或返回而重置密钥。租户管理员页面及管理接口拒绝且不修改应用，应用授权仍不绑定业务任务。 撤销某租户授权后，合成模型拒绝该应用旧身份继续访问被撤销租户，仍授权租户及其他应用不受误改；取消或保存失败不先撤销身份。",
+      "notes": "SRC-087将原保存应用接入配置明确为修改既有应用；新增、列表、详情、删除分别使用FUNC-019/018/020/021。仅合成演示，真实密钥/token与撤销时效仍待开发设计。",
+      "change_type": "iteration",
+      "boundary": {
+        "business_object": "既有应用及其租户授权配置",
+        "primary_action": "修改应用",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "超管",
+        "trigger": "从应用列表或详情进入修改并提交时",
+        "primary_outcome": "既有应用名称和可访问租户更新，appId及创建时演示密钥保持",
+        "completion_result": "仅更新所选已有应用并返回更新后的详情；修改失败或无权时不写入。appId及演示appSecret不自动重置。",
+        "included_scope": [
+          "加载所选已有应用名称与可访问租户，在独立修改视图填写、校验并保存；必填名称及授权租户关系属于修改明细",
+          "保存同一应用标识，保留创建时间与创建时演示密钥；取消不修改数据，失败给出明确反馈",
+          "仅超管可见/可进入/可调用管理接口，租户管理员直接访问或调用拒绝且应用不变化",
+          "一租户可授权多个应用；业务任务归租户不绑定应用，应用只用于接入与来源追踪",
+          "日常页面只保留完成修改必要说明，密钥用途仅获取token；不展示身份交换技术测试面板",
+          "AC-056：授权保存成功后仅撤销被移除租户的合成业务访问能力；该应用仍授权租户和其他应用身份保留；失败不先使原授权身份失效。"
+        ],
+        "excluded_scope": [
+          "创建、列表查询、详情查看、删除应用的独立结果（分别FUNC-019/018/020/021）",
+          "应用启停、密钥轮换/重置、生产密钥/token实现",
+          "将演示代码的60字或重名限制冻结为已确认业务规则"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-020"
+        ],
+        "exception_paths": [
+          "无权访问或直接管理接口调用拒绝，不修改数据",
+          "必填或授权租户不满足时明确反馈，取消及失败不写入",
+          "所选应用已删除或不可访问时明确反馈，不更新其他应用"
+        ],
+        "dependencies": [
+          "SEQ-005"
+        ],
+        "assumptions": [
+          "真实密钥存储、token时效/撤销与应用管理接口工程契约待设计；合成演示不证明真实认证已实现",
+          "名称长度、重名策略等尚无用户业务确认，不从demo实现上升为业务事实"
+        ],
+        "split_rationale": "原FUNC-001保存收窄为修改已存在应用并保留稳定ID；查询列表FUNC-018、创建FUNC-019、详情FUNC-020、删除FUNC-021有不同触发和独立结果，按用户明确要求分列。填写、校验、取消、保存反馈和保持密钥属于修改明细；后台指定租户token交换复用FUNC-002。"
+      },
+      "change_detail": {
+        "before": "形成虚构应用与授权租户可见配置；应用/凭证占位及授权tenantId；一租户多应用、来源追踪，任务不绑应用；仅超管可管理，租户管理员页面/接口均拒绝，不新增管理动作",
+        "after": "超管对已有应用修改应用名称与可访问租户，保存后以同一appId返回更新详情；保留创建时的演示appSecret，不因修改、查看或返回而重置密钥。租户管理员页面及管理接口拒绝且不修改应用，应用授权仍不绑定业务任务。 撤销某租户授权后，合成模型拒绝该应用旧身份继续访问被撤销租户，仍授权租户及其他应用不受误改；取消或保存失败不先撤销身份。",
+        "impact": [
+          "SRC-087明确应用业务操作拆分：FUNC-001保留修改；列表/创建/详情/删除分别新增018/019/020/021，旧版本原对象保存在review_history。",
+          "PAGE-005承载修改，可共用既有application-access route的edit view，不要求新HTML文件。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-017",
+        "AC-028",
+        "AC-044",
+        "AC-045",
+        "AC-056",
+        "AC-058"
+      ],
+      "source_scenario_ids": [
+        "SC-005"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-074",
+        "inputs/source-index.json#SRC-087"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "应用授权配置",
+            "primary_action": "保存应用接入配置",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "超管",
+            "trigger": "超管维护应用时",
+            "primary_outcome": "形成虚构应用与授权租户可见配置",
+            "completion_result": "形成虚构应用与授权租户可见配置；未知或不满足条件不伪造成功。",
+            "included_scope": [
+              "应用/凭证占位及授权tenantId",
+              "一租户多应用、来源追踪，任务不绑应用",
+              "应用管理模块及本期已有管理操作仅超管可访问和执行，租户管理员不可进入或调用管理接口；菜单隐藏、直接页面访问和服务端鉴权均覆盖。租户管理员直接请求应被拒绝且不修改配置；不凭此新增启停等未纳入操作。"
+            ],
+            "excluded_scope": [
+              "生成真实密钥、token、撤销/刷新生产契约"
+            ],
+            "business_rules": [
+              "BR-001",
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-005",
+              "BR-006",
+              "BR-007",
+              "BR-014",
+              "BR-015",
+              "BR-020"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫",
+              "租户管理员直达页面/直接管理接口请求均拒绝，配置不变化"
+            ],
+            "dependencies": [
+              "SEQ-005",
+              "API-001"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "应用接入",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        },
+        {
+          "at": "2026-10-11T12:58:07+08:00",
+          "before_current": {
+            "id": "FUNC-001",
+            "version": "1.1.0",
+            "module_l1": "系统设置",
+            "module_l2": "应用接入",
+            "module_l3": null,
+            "name": "保存应用接入配置",
+            "description": "形成虚构应用与授权租户可见配置；应用/凭证占位及授权tenantId；一租户多应用、来源追踪，任务不绑应用；仅超管可管理，租户管理员页面/接口均拒绝，不新增管理动作",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "应用授权配置",
+              "primary_action": "保存应用接入配置",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "超管",
+              "trigger": "超管维护应用时",
+              "primary_outcome": "形成虚构应用与授权租户可见配置",
+              "completion_result": "形成虚构应用与授权租户可见配置；未知或不满足条件不伪造成功。",
+              "included_scope": [
+                "应用/凭证占位及授权tenantId",
+                "一租户多应用、来源追踪，任务不绑应用",
+                "应用管理模块及本期已有管理操作仅超管可访问和执行，租户管理员不可进入或调用管理接口；菜单隐藏、直接页面访问和服务端鉴权均覆盖。租户管理员直接请求应被拒绝且不修改配置；不凭此新增启停等未纳入操作。"
+              ],
+              "excluded_scope": [
+                "生成真实密钥、token、撤销/刷新生产契约"
+              ],
+              "business_rules": [
+                "BR-001",
+                "BR-002",
+                "BR-003",
+                "BR-004",
+                "BR-005",
+                "BR-006",
+                "BR-007",
+                "BR-014",
+                "BR-015",
+                "BR-020"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫",
+                "租户管理员直达页面/直接管理接口请求均拒绝，配置不变化"
+              ],
+              "dependencies": [
+                "SEQ-005",
+                "API-001"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "对应用授权配置执行保存，结果为可见配置及授权租户关系；应用标识、凭证占位、租户授权校验和超管权限是保存明细。身份交换由FUNC-002承担，不合并为管理生命周期，也不补新增、删除、启停等操作。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "形成虚构应用与授权租户可见配置；应用/凭证占位及授权tenantId；一租户多应用、来源追踪，任务不绑应用；仅超管可管理，租户管理员页面/接口均拒绝，不新增管理动作",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+              ]
+            },
+            "source_story_ids": [
+              "US-001"
+            ],
+            "source_acceptance_ids": [
+              "AC-017",
+              "AC-028",
+              "AC-044",
+              "AC-045"
+            ],
+            "source_scenario_ids": [
+              "SC-001"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-074"
+            ]
+          },
+          "basis": "SRC-087/D-009用户明确应用列表、新增、详情、修改、删除与简化密钥流程、常驻导入及已发现缺陷修复；SRC-088授权完整回归对齐。事实修订待重新核验/G3，不改历史冻结包。"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-002",
+      "version": "1.1.0",
+      "module_l1": "系统设置",
+      "module_l2": "租户身份",
+      "module_l3": null,
+      "name": "交换指定租户身份",
+      "description": "后台以应用凭据加tenantId交换指定租户身份，校验应用仍有效且有权访问该租户；业务接口按租户token识别归属，业务身份不授予应用管理权限。能力及拒绝/失效校验保留，日常应用管理页不显示身份交换技术演示。",
+      "notes": "FUNC-002为无日常UI的后台接入能力，可用离线技术测试验证；创建演示密钥属于FUNC-019，详情显示/复制属于FUNC-020，不计入身份交换。真实认证服务仍missing，生产失效时效待设计。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "应用租户身份",
+        "primary_action": "交换指定租户身份",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "DCC/业务接入系统",
+        "trigger": "DCC使用应用凭据与指定tenantId请求租户身份时",
+        "primary_outcome": "后台形成指定租户合成身份或明确拒绝",
+        "completion_result": "在后台返回指定租户合成身份或明确拒绝；删除应用的合成凭据/已发身份不可继续使用，不授予管理权限。",
+        "included_scope": [
+          "校验有效应用凭据、应用可访问租户和指定tenantId并返回合成身份或明确拒绝",
+          "业务接口按该租户身份校验归属；应用不绑定任务，业务身份不授予应用管理权限",
+          "删除应用后其演示凭据不能再换token，已发合成业务身份失效；真实撤销时效/方式仍待设计",
+          "保留后台能力与离线身份交换边界测试，不在日常应用页面提供模拟换token入口",
+          "应用成功撤销某租户授权后，合成业务接口拒绝该应用该租户旧身份；其他应用和仍授权租户不受影响，保存失败不提前失效。"
+        ],
+        "excluded_scope": [
+          "真实认证服务与可用token"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-005",
+          "BR-006",
+          "BR-007",
+          "BR-014",
+          "BR-015"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "SEQ-001",
+          "SEQ-005",
+          "API-001"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "指定租户身份交换有独立后台接入触发和身份结果，保留FUNC-002但无日常页面。创建凭据归FUNC-019，显示/隐藏/复制密钥归FUNC-020详情明细，删除失效归FUNC-021及本能力使用前校验，不按测试按钮增加功能。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "后台以应用凭据加tenantId交换指定租户身份，校验应用仍有效且有权访问该租户；业务接口按租户token识别归属，业务身份不授予应用管理权限。能力及拒绝/失效校验保留，日常应用管理页不显示身份交换技术演示。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+          "SRC-087退出日常ACTION-002，后台租户身份校验能力和原AC保留。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-017",
+        "AC-045",
+        "AC-058",
+        "AC-056",
+        "AC-057"
+      ],
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-005"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-074",
+        "inputs/source-index.json#SRC-087"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "应用租户身份",
+            "primary_action": "交换指定租户身份",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "DCC提交应用凭据及tenantId时",
+            "primary_outcome": "返回指定租户模拟身份或明确拒绝",
+            "completion_result": "返回指定租户模拟身份或明确拒绝；未知或不满足条件不伪造成功。",
+            "included_scope": [
+              "应用租户授权校验",
+              "业务接口按租户身份确定归属",
+              "业务凭证换租户身份不授予应用管理权限；复用AC-045"
+            ],
+            "excluded_scope": [
+              "真实认证服务与可用token"
+            ],
+            "business_rules": [
+              "BR-001",
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-005",
+              "BR-006",
+              "BR-007",
+              "BR-014",
+              "BR-015"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-005",
+              "API-001"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "租户身份",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        },
+        {
+          "at": "2026-10-11T12:58:07+08:00",
+          "before_current": {
+            "id": "FUNC-002",
+            "version": "1.1.0",
+            "module_l1": "系统设置",
+            "module_l2": "租户身份",
+            "module_l3": null,
+            "name": "交换指定租户身份",
+            "description": "返回指定租户模拟身份或明确拒绝；应用租户授权校验；业务接口按租户身份确定归属",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "应用租户身份",
+              "primary_action": "交换指定租户身份",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "DCC提交应用凭据及tenantId时",
+              "primary_outcome": "返回指定租户模拟身份或明确拒绝",
+              "completion_result": "返回指定租户模拟身份或明确拒绝；未知或不满足条件不伪造成功。",
+              "included_scope": [
+                "应用租户授权校验",
+                "业务接口按租户身份确定归属",
+                "业务凭证换租户身份不授予应用管理权限；复用AC-045"
+              ],
+              "excluded_scope": [
+                "真实认证服务与可用token"
+              ],
+              "business_rules": [
+                "BR-001",
+                "BR-002",
+                "BR-003",
+                "BR-004",
+                "BR-005",
+                "BR-006",
+                "BR-007",
+                "BR-014",
+                "BR-015"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫"
+              ],
+              "dependencies": [
+                "SEQ-001",
+                "SEQ-005",
+                "API-001"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "对应用凭据与指定租户执行身份交换，结果为指定租户模拟身份或明确拒绝；授权、tenantId和归属校验为同次交换明细。复用FUNC-001的已保存配置，不产生应用管理权限或重复计应用配置保存。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "返回指定租户模拟身份或明确拒绝",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+              ]
+            },
+            "source_story_ids": [
+              "US-001"
+            ],
+            "source_acceptance_ids": [
+              "AC-017",
+              "AC-045"
+            ],
+            "source_scenario_ids": [
+              "SC-001"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-074"
+            ]
+          },
+          "basis": "SRC-087/D-009用户明确应用列表、新增、详情、修改、删除与简化密钥流程、常驻导入及已发现缺陷修复；SRC-088授权完整回归对齐。事实修订待重新核验/G3，不改历史冻结包。"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-004",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "线索导入",
+      "module_l3": null,
+      "name": "接收预外呼线索",
+      "description": "逐行接收有效线索并拆成单手机号独立记录和批次，无效行不阻断其他有效行。DCC一次请求级requestId可含多行；各行isNewBatch为可选Boolean，缺省false。先鉴权及来源校验，再按isNewBatch缺省false归一的有效完整请求内容处理幂等；同ID同内容返回原已保存逐行recordId/batchId/rootBatchId，不新建、不重交，也不因后来新主出现而改旧root；同ID不同内容拒绝。仅新业务请求在同tenant/原供应商taskId/leadCode且同phone归组范围内逐行分配，每个有效行均总新建record和batch：true创建独立主批，rootBatchId=batchId；false或缺省有主时新建子批挂最近已保存主，rootBatchId取该主；无主自动创建首个主批，root=self。子批只挂主批，不挂上一子批，DCC无需指定上一个批次。priority按本次逐行输入保存，不继承旧值、不每日衰减；时间仅审计。手工保留原提交前priority、独立记录和单号批次，无DCC标识或归组输入；R可选且无字典范围校验。 导入客户入口常驻任务工具栏，按已锁定来源打开DCC接口样例或手工导入；手工来源才开放手工操作。已有预外呼仅未启动任务可补导并保留原名单/批次累计，已开始等不可导入状态仍显示禁用入口及原因，不扩大任务运行规则。手工CSV文本变化立即使旧预览失效；新预览为空或解析失败不允许提交旧草稿，提交仅使用当前文本成功预览对应的最终逐行priority。",
+      "notes": "SRC-084/085/086确认本方按线索主子批归组、isNewBatch缺省false与幂等保留旧root；仍仅v1.1.0合成评审。真实DCC/供应商接口保持partial/missing待核，平台归组不保证供应商会再次拨打。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "本次业务导入线索、独立单号批次及主子归组关系",
+        "primary_action": "接收预外呼线索",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "DCC接口推送或手工线索提交时",
+        "primary_outcome": "每个有效新业务行保存独立record和batch；DCC行按isNewBatch和已保存主批分配root，同请求重传返回原映射，无效行明确反馈",
+        "completion_result": "DCC鉴权后同requestId同归一有效完整内容返回原逐行recordId/batchId/rootBatchId，不新建或重交；新请求有效行总创建独立记录和批次，true独立主、false/缺省有主新子无主首主；手工仍原逐行独立记录/单号批次，冲突或未核歧义明确反馈。",
+        "included_scope": [
+          "必填线索编码、phone、独立priority、供应商taskId及租户/任务来源校验；接口与手工R可选，无字典维护/范围拒绝，提供则保留追踪",
+          "DCC一次业务请求携requestId，可含多行。逐行isNewBatch仅可选Boolean，缺省false；鉴权后按缺省归一的有效完整内容核对请求幂等，同ID同内容返回原逐行结果及record/batch/root映射，缺省与显式false在该字段归一后等价",
+          "仅有效新业务请求行分配主子批，固定同tenant/原供应商taskId/leadCode并只纳同phone关系；每行不论true/false/缺省均新建独立recordId和batchId，不覆盖旧行",
+          "isNewBatch=true时独立创建主批rootBatchId=batchId，同一归组范围允许多次true形成多个独立主批；false/缺省有主时创建新子批，rootBatchId取最近已保存主批；无主自动创建首个主批root=self。子批只挂主，不挂上一子批，不要求DCC指定上一个批次",
+          "逐行回执携同一requestId、行定位、recordId/batchId/rootBatchId及tenant/task/leadCode/phone；原已保存root永久随该业务行留存，后续出现新主不重算旧行或旧请求重传的root；拒绝且未保存行明确无有效批次",
+          "priority直接按本次DCC输入保存/排序/提交，不继承旧priority、不每日衰减；原及本次时间仅审计。手工最终priority仅提交前可改，保留原独立记录/单号批次，不增加DCC isNewBatch/requestId或主批选择输入",
+          "任务来源创建提交后锁定，由后端校验；应用不绑定任务；真正业务再次导入用新requestId，同一请求重传不重新分配或提交",
+          "AC-059：统一常驻导入客户入口按锁定来源分派DCC或手工；来源、权限及任务状态服务端再校验。历史预外呼仅未启动可补导，保留原名单及批次累计，不扩展开始/暂停/结束任务导入规则。",
+          "AC-060：手工CSV当前文本与有效预览对应后才提交；文本变化/空预览/失败解析清理旧可提交草稿及旧反馈，重新成功预览后才能提交。",
+          "AC-059：预外呼任务列表与任务内导入客户入口均常驻；任务列表对具体已选/当前任务按其锁定来源分派，不创造无目标导入或新页面。"
+        ],
+        "excluded_scope": [
+          "把既有通用人工客户导入全量功能计为本版新增",
+          "平台决策是否/何时再次导入或业务次数",
+          "平台每日状态查询、priority衰减及供应商存量priority改写",
+          "提交后手改priority",
+          "按最近同号或上一子批盲配归组、只按leadCode混并通话/事件结果",
+          "要求DCC指定旧批次或主批ID、增设手工DCC归组入口",
+          "R字典维护、R必填或字典范围拒绝、新增默认R枚举",
+          "把主批root当供应商fileId、强制供应商追加旧fileId或改变其排重参数"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-005",
+          "BR-006",
+          "BR-007",
+          "BR-014",
+          "BR-015",
+          "BR-012"
+        ],
+        "exception_paths": [
+          "逐行字段或Boolean类型无效时该行失败，不阻断其他有效行；固定tenant/原task/leadCode范围的phone不一致明确拒绝或待核且不提交，既有多号/同号多线索未决关系不自动归组或放开。",
+          "同requestId同归一有效完整请求内容返回原已保存逐行结果及映射；同ID不同内容冲突拒绝整个重复请求，不覆盖旧结果、不新增批次或提交",
+          "已保存主批选择/归组事实无法可信确定时保留待核，不按最近同号、旧子批或新的主批重算原请求映射",
+          "历史时间或业务关联缺口不补猜，真实并发、重复行、供应商排重及提交未知能力待开发核实",
+          "任务不可导入、无权或忙碌时保留常驻入口并给出禁用原因，服务端拒绝越界提交",
+          "CSV文本变化或新预览失败/为空时禁止旧草稿提交，明确要求重新预览"
+        ],
+        "dependencies": [
+          "SEQ-001",
+          "SEQ-006",
+          "API-001"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现",
+          "通用输入安全、类型、长度校验仍需技术定义；取消字典不是取消全部输入校验",
+          "具体请求键作用域、行定位、默认false归一后完整内容规范化、多个新业务行保存顺序/并发主选择、原子持久化和供应商排重由开发核实；不作为新增页面参数。"
+        ],
+        "split_rationale": "接收FUNC-004形成有效独立本地记录和单号批次；请求级幂等、isNewBatch默认归一、主/子分配及root回执共同完成同次接收，均为必要明细，不另拆归组或批次功能。供应商提交复用FUNC-005、结果交付复用FUNC-010、按lead和主子批查看复用FUNC-015；退役每日查询/衰减功能不恢复。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "逐行接收有效线索并拆成单手机号独立记录和批次，无效行不阻断其他有效行。DCC一次请求级requestId可含多行；各行isNewBatch为可选Boolean，缺省false。先鉴权及来源校验，再按isNewBatch缺省false归一的有效完整请求内容处理幂等；同ID同内容返回原已保存逐行recordId/batchId/rootBatchId，不新建、不重交，也不因后来新主出现而改旧root；同ID不同内容拒绝。仅新业务请求在同tenant/原供应商taskId/leadCode且同phone归组范围内逐行分配，每个有效行均总新建record和batch：true创建独立主批，rootBatchId=batchId；false或缺省有主时新建子批挂最近已保存主，rootBatchId取该主；无主自动创建首个主批，root=self。子批只挂主批，不挂上一子批，DCC无需指定上一个批次。priority按本次逐行输入保存，不继承旧值、不每日衰减；时间仅审计。手工保留原提交前priority、独立记录和单号批次，无DCC标识或归组输入；R可选且无字典范围校验。 导入客户入口常驻任务工具栏，按已锁定来源打开DCC接口样例或手工导入；手工来源才开放手工操作。已有预外呼仅未启动任务可补导并保留原名单/批次累计，已开始等不可导入状态仍显示禁用入口及原因，不扩大任务运行规则。手工CSV文本变化立即使旧预览失效；新预览为空或解析失败不允许提交旧草稿，提交仅使用当前文本成功预览对应的最终逐行priority。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+          "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。",
+          "SRC-087常驻两来源统一入口与CSV新预览守卫归FUNC-004必要明细，不新增功能。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001",
+        "US-002"
+      ],
+      "source_acceptance_ids": [
+        "AC-001",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "AC-009",
+        "AC-010",
+        "AC-012",
+        "AC-014",
+        "AC-029",
+        "AC-030",
+        "AC-031",
+        "AC-036",
+        "AC-019",
+        "AC-015",
+        "AC-032",
+        "AC-047",
+        "AC-048",
+        "AC-049",
+        "AC-050",
+        "AC-051",
+        "AC-052",
+        "AC-059",
+        "AC-060"
+      ],
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-002"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "本版导入业务记录",
+            "primary_action": "接收预外呼线索",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "DCC接口推送或手工线索提交时",
+            "primary_outcome": "有效行独立保存、一号一批，失败行不阻断其他有效行",
+            "completion_result": "有效行独立保存、一号一批，失败行不阻断其他有效行；未知或不满足条件不伪造成功。",
+            "included_scope": [
+              "线索编码/独立priority/供应商taskId等必要校验；接口与手工R可选且无字典范围校验，提供则保留追踪",
+              "手工统一priority提交前逐条覆盖",
+              "每有效业务推送新记录/新批次；保留原导入时间",
+              "R可选，缺R不失败；提供则保留来源追踪，保留旧记录R值",
+              "taskId对应已锁定导入方式，由后端校验；应用不绑定任务"
+            ],
+            "excluded_scope": [
+              "把既有通用人工客户导入全量功能计为本版新增",
+              "提交后手改priority",
+              "技术重传幂等推断",
+              "R字典维护、R必填或字典范围拒绝、新增默认R枚举"
+            ],
+            "business_rules": [
+              "BR-001",
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-005",
+              "BR-006",
+              "BR-007",
+              "BR-014",
+              "BR-015"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-006",
+              "API-001"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现",
+              "通用输入安全、类型、长度校验仍需技术定义；取消字典不是取消全部输入校验"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "线索导入",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        },
+        {
+          "at": "2026-10-11T09:26:21+08:00",
+          "before_description": "有效行独立保存、一号一批，失败行不阻断其他有效行；线索编码/独立priority/供应商taskId等必要校验；接口与手工R可选且无字典范围校验，提供则保留追踪；手工统一priority提交前逐条覆盖；每有效业务推送新记录/新批次；保留原导入时间",
+          "before_notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+          "before_boundary": {
+            "business_object": "本版导入业务记录",
+            "primary_action": "接收预外呼线索",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "DCC接口推送或手工线索提交时",
+            "primary_outcome": "有效行独立保存、一号一批，失败行不阻断其他有效行",
+            "completion_result": "有效行独立保存、一号一批，失败行不阻断其他有效行；未知或不满足条件不伪造成功。",
+            "included_scope": [
+              "线索编码/独立priority/供应商taskId等必要校验；接口与手工R可选且无字典范围校验，提供则保留追踪",
+              "手工统一priority提交前逐条覆盖",
+              "每有效业务推送新记录/新批次；保留原导入时间",
+              "R可选，缺R不失败；提供则保留来源追踪，保留旧记录R值",
+              "taskId对应已锁定导入方式，由后端校验；应用不绑定任务"
+            ],
+            "excluded_scope": [
+              "把既有通用人工客户导入全量功能计为本版新增",
+              "提交后手改priority",
+              "技术重传幂等推断",
+              "R字典维护、R必填或字典范围拒绝、新增默认R枚举"
+            ],
+            "business_rules": [
+              "BR-001",
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-005",
+              "BR-006",
+              "BR-007",
+              "BR-014",
+              "BR-015"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-006",
+              "API-001"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现",
+              "通用输入安全、类型、长度校验仍需技术定义；取消字典不是取消全部输入校验"
+            ],
+            "split_rationale": "对本次导入线索执行接收，结果为有效行独立本地记录及单号新批次、无效行明确失败；接口与手工入口复用同一操作。必填校验、可选R、提交前priority覆盖、新批次及原链关联为接收明细；供应商提交由FUNC-005承担。"
+          },
+          "before_acceptance_ids": [
+            "AC-001",
+            "AC-005",
+            "AC-006",
+            "AC-007",
+            "AC-009",
+            "AC-010",
+            "AC-012",
+            "AC-014",
+            "AC-029",
+            "AC-030",
+            "AC-031",
+            "AC-036",
+            "AC-019"
+          ],
+          "basis": "SRC-083用户确认取消平台每日查询/priority衰减，并明确DCC业务请求与父根批次协议；保留本期功能ID，不增加独立功能。"
+        },
+        {
+          "at": "2026-10-11T10:06:23+08:00",
+          "before_current": {
+            "id": "FUNC-004",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "线索导入",
+            "module_l3": null,
+            "name": "接收预外呼线索",
+            "description": "逐行接收有效线索并拆成单手机号独立批次，无效行不阻断其他有效行。DCC为一次业务导入请求提供requestId，一次请求可包含多行，每行携本次priority及可选previousBatchId。鉴权后先处理整请求幂等：同范围同requestId同内容重传返回原已保存逐行结果和批次映射，不新增、不重交；同ID不同请求内容拒绝。DCC接口新业务请求逐行校验，同tenant/task/leadCode/phone已有历史时必须明确previousBatchId，缺失或无效拒绝/待核，不另起根、不猜最近父；仅无历史链的首次行无父，平台生成batchId、parentBatchId=null、rootBatchId=batchId。真正再次导入使用新requestId，准确父批次校验后生成关联新批次。priority按本次逐行传值保存，不继承旧值、不每日衰减；原导入时间仅作审计。手工入口保留提交前统一/逐条priority，无DCC请求或关联入口；R可选且无字典范围校验。",
+            "notes": "v1.1.0本轮合成评审边界；SRC-083确认本方DCC接收契约和批次谱系规则。真实DCC/供应商接口仍按partial/missing保留待核；不把本方字段约定写成供应商已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "本次业务导入线索及单号批次",
+              "primary_action": "接收预外呼线索",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "DCC接口推送或手工线索提交时",
+              "primary_outcome": "有效新业务请求生成单号独立记录、批次及准确父根谱系；同请求重传返回原记录及批次，无效行明确反馈",
+              "completion_result": "鉴权后同requestId同内容先返回原已保存逐行接收结果及批次映射，不新增、不重交；DCC接口新业务请求的有效首次无历史行或显式父关联行才创建记录及独立批次。缺父、冲突或关联不明的行不创建有效新批次、不提交供应商、不猜链或另起根。",
+              "included_scope": [
+                "线索编码、phone、独立必填priority、供应商taskId及租户/任务来源校验；接口与手工R可选，无字典维护或范围拒绝，提供则保留来源追踪",
+                "DCC一次业务导入请求携requestId，可包含多号码行；每个有效新业务行拆成单手机号独立batchId。真正再次导入使用新requestId。鉴权后先查同requestId及整个请求内容，相同内容直接返回原已保存逐行结果/映射，不因原首次行已形成历史而误拒绝",
+                "DCC接口新业务请求逐行判定同tenant/task/leadCode/phone是否已有历史：无历史链的首次行不提供previousBatchId，parentBatchId=null、rootBatchId=batchId；已有历史必须逐行明确previousBatchId，再精确校验父批次同tenant/task/leadCode/phone后保存parentBatchId并从父批次推导rootBatchId，缺父不另起根、不查最近同号猜链",
+                "同请求范围同requestId同整个请求内容重传返回原已保存逐行接收结果、record及批次映射，不新增记录或批次；同requestId不同请求内容冲突拒绝且不覆盖原结果",
+                "逐行回执携同一请求requestId、行定位、各行batchId/parentBatchId/rootBatchId及tenant/task/leadCode/phone；被拒绝且未保存的行明确无有效批次",
+                "priority直接使用本次DCC传值，不被上一批次priority覆盖、不每日衰减；原导入时间与各批次创建时间仅用于审计；手工最终priority仅提交前可改，不提供DCC requestId/previousBatchId输入或重导关联入口",
+                "taskId对应已锁定导入方式，由后端校验；应用不绑定任务"
+              ],
+              "excluded_scope": [
+                "把既有通用人工客户导入全量功能计为本版新增",
+                "平台决定重复导入、重导时机或业务次数",
+                "平台每日状态查询/priority衰减及供应商存量priority改写",
+                "提交后手改priority",
+                "按最近同手机号自动选择父批次",
+                "手工入口填写DCC请求标识或发起关联重导",
+                "R字典维护、R必填或字典范围拒绝、新增默认R枚举"
+              ],
+              "business_rules": [
+                "BR-001",
+                "BR-002",
+                "BR-003",
+                "BR-004",
+                "BR-005",
+                "BR-006",
+                "BR-007",
+                "BR-014",
+                "BR-015",
+                "BR-012"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，无效行不阻断其他有效行",
+                "DCC接口新业务请求的行在同tenant/task/leadCode/phone已有历史时缺previousBatchId，或父批次不存在、不唯一或归属不符，明确拒绝或暂停待核且不提交供应商、不另起根；同内容原请求重传先命中幂等返回旧映射，不进入该新业务行校验",
+                "同requestId同整个请求内容返回原已保存逐行结果及映射；同requestId不同请求内容明确冲突拒绝，不覆盖旧结果或新增批次",
+                "历史关联缺口不补猜父链或原导入时间，保留待核"
+              ],
+              "dependencies": [
+                "SEQ-001",
+                "SEQ-006",
+                "API-001"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现",
+                "通用输入安全、类型、长度校验仍需技术定义；取消字典不是取消全部输入校验",
+                "requestId具体作用域、行定位编码、完整请求比较与并发原子性由开发定义；本方业务语义已确认，真实接口实现尚未验证。"
+              ],
+              "split_rationale": "接收FUNC-004形成有效本地记录及单号批次。请求级requestId、整请求同内容重传、父批次校验、父根谱系生成、逐行回执和priority透传共同完成同次接收，均为必要明细，不新增幂等/批次关联功能。供应商提交独立复用FUNC-005，结果交付复用FUNC-010，记录查看复用FUNC-015；FUNC-007/008退出本期。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "逐行接收有效线索并拆成单手机号独立批次，无效行不阻断其他有效行。DCC为一次业务导入请求提供requestId，一次请求可包含多行，每行携本次priority及可选previousBatchId。鉴权后先处理整请求幂等：同范围同requestId同内容重传返回原已保存逐行结果和批次映射，不新增、不重交；同ID不同请求内容拒绝。DCC接口新业务请求逐行校验，同tenant/task/leadCode/phone已有历史时必须明确previousBatchId，缺失或无效拒绝/待核，不另起根、不猜最近父；仅无历史链的首次行无父，平台生成batchId、parentBatchId=null、rootBatchId=batchId。真正再次导入使用新requestId，准确父批次校验后生成关联新批次。priority按本次逐行传值保存，不继承旧值、不每日衰减；原导入时间仅作审计。手工入口保留提交前统一/逐条priority，无DCC请求或关联入口；R可选且无字典范围校验。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+                "SRC-083修订：取消平台每日查询/衰减及旧priority强制继承；DCC请求幂等、显式父根批次与追溯按该操作边界实施，不改变既有1.0范围。"
+              ]
+            },
+            "source_story_ids": [
+              "US-001",
+              "US-002"
+            ],
+            "source_acceptance_ids": [
+              "AC-001",
+              "AC-005",
+              "AC-006",
+              "AC-007",
+              "AC-009",
+              "AC-010",
+              "AC-012",
+              "AC-014",
+              "AC-029",
+              "AC-030",
+              "AC-031",
+              "AC-036",
+              "AC-019",
+              "AC-015",
+              "AC-032",
+              "AC-047",
+              "AC-048",
+              "AC-049",
+              "AC-050",
+              "AC-051",
+              "AC-052"
+            ],
+            "source_scenario_ids": [
+              "SC-001",
+              "SC-002"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-083"
+            ]
+          },
+          "basis": "SRC-084/085/086用户确认改为isNewBatch默认false的平台主子批归组；本方只保存root，不要求DCC指定旧批次，保持功能稳定ID及已退役历史。"
+        },
+        {
+          "at": "2026-10-11T12:58:07+08:00",
+          "before_current": {
+            "id": "FUNC-004",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "线索导入",
+            "module_l3": null,
+            "name": "接收预外呼线索",
+            "description": "逐行接收有效线索并拆成单手机号独立记录和批次，无效行不阻断其他有效行。DCC一次请求级requestId可含多行；各行isNewBatch为可选Boolean，缺省false。先鉴权及来源校验，再按isNewBatch缺省false归一的有效完整请求内容处理幂等；同ID同内容返回原已保存逐行recordId/batchId/rootBatchId，不新建、不重交，也不因后来新主出现而改旧root；同ID不同内容拒绝。仅新业务请求在同tenant/原供应商taskId/leadCode且同phone归组范围内逐行分配，每个有效行均总新建record和batch：true创建独立主批，rootBatchId=batchId；false或缺省有主时新建子批挂最近已保存主，rootBatchId取该主；无主自动创建首个主批，root=self。子批只挂主批，不挂上一子批，DCC无需指定上一个批次。priority按本次逐行输入保存，不继承旧值、不每日衰减；时间仅审计。手工保留原提交前priority、独立记录和单号批次，无DCC标识或归组输入；R可选且无字典范围校验。",
+            "notes": "SRC-084/085/086确认本方按线索主子批归组、isNewBatch缺省false与幂等保留旧root；仍仅v1.1.0合成评审。真实DCC/供应商接口保持partial/missing待核，平台归组不保证供应商会再次拨打。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "本次业务导入线索、独立单号批次及主子归组关系",
+              "primary_action": "接收预外呼线索",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "DCC接口推送或手工线索提交时",
+              "primary_outcome": "每个有效新业务行保存独立record和batch；DCC行按isNewBatch和已保存主批分配root，同请求重传返回原映射，无效行明确反馈",
+              "completion_result": "DCC鉴权后同requestId同归一有效完整内容返回原逐行recordId/batchId/rootBatchId，不新建或重交；新请求有效行总创建独立记录和批次，true独立主、false/缺省有主新子无主首主；手工仍原逐行独立记录/单号批次，冲突或未核歧义明确反馈。",
+              "included_scope": [
+                "必填线索编码、phone、独立priority、供应商taskId及租户/任务来源校验；接口与手工R可选，无字典维护/范围拒绝，提供则保留追踪",
+                "DCC一次业务请求携requestId，可含多行。逐行isNewBatch仅可选Boolean，缺省false；鉴权后按缺省归一的有效完整内容核对请求幂等，同ID同内容返回原逐行结果及record/batch/root映射，缺省与显式false在该字段归一后等价",
+                "仅有效新业务请求行分配主子批，固定同tenant/原供应商taskId/leadCode并只纳同phone关系；每行不论true/false/缺省均新建独立recordId和batchId，不覆盖旧行",
+                "isNewBatch=true时独立创建主批rootBatchId=batchId，同一归组范围允许多次true形成多个独立主批；false/缺省有主时创建新子批，rootBatchId取最近已保存主批；无主自动创建首个主批root=self。子批只挂主，不挂上一子批，不要求DCC指定上一个批次",
+                "逐行回执携同一requestId、行定位、recordId/batchId/rootBatchId及tenant/task/leadCode/phone；原已保存root永久随该业务行留存，后续出现新主不重算旧行或旧请求重传的root；拒绝且未保存行明确无有效批次",
+                "priority直接按本次DCC输入保存/排序/提交，不继承旧priority、不每日衰减；原及本次时间仅审计。手工最终priority仅提交前可改，保留原独立记录/单号批次，不增加DCC isNewBatch/requestId或主批选择输入",
+                "任务来源创建提交后锁定，由后端校验；应用不绑定任务；真正业务再次导入用新requestId，同一请求重传不重新分配或提交"
+              ],
+              "excluded_scope": [
+                "把既有通用人工客户导入全量功能计为本版新增",
+                "平台决策是否/何时再次导入或业务次数",
+                "平台每日状态查询、priority衰减及供应商存量priority改写",
+                "提交后手改priority",
+                "按最近同号或上一子批盲配归组、只按leadCode混并通话/事件结果",
+                "要求DCC指定旧批次或主批ID、增设手工DCC归组入口",
+                "R字典维护、R必填或字典范围拒绝、新增默认R枚举",
+                "把主批root当供应商fileId、强制供应商追加旧fileId或改变其排重参数"
+              ],
+              "business_rules": [
+                "BR-001",
+                "BR-002",
+                "BR-003",
+                "BR-004",
+                "BR-005",
+                "BR-006",
+                "BR-007",
+                "BR-014",
+                "BR-015",
+                "BR-012"
+              ],
+              "exception_paths": [
+                "逐行字段或Boolean类型无效时该行失败，不阻断其他有效行；固定tenant/原task/leadCode范围的phone不一致明确拒绝或待核且不提交，既有多号/同号多线索未决关系不自动归组或放开。",
+                "同requestId同归一有效完整请求内容返回原已保存逐行结果及映射；同ID不同内容冲突拒绝整个重复请求，不覆盖旧结果、不新增批次或提交",
+                "已保存主批选择/归组事实无法可信确定时保留待核，不按最近同号、旧子批或新的主批重算原请求映射",
+                "历史时间或业务关联缺口不补猜，真实并发、重复行、供应商排重及提交未知能力待开发核实"
+              ],
+              "dependencies": [
+                "SEQ-001",
+                "SEQ-006",
+                "API-001"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现",
+                "通用输入安全、类型、长度校验仍需技术定义；取消字典不是取消全部输入校验",
+                "具体请求键作用域、行定位、默认false归一后完整内容规范化、多个新业务行保存顺序/并发主选择、原子持久化和供应商排重由开发核实；不作为新增页面参数。"
+              ],
+              "split_rationale": "接收FUNC-004形成有效独立本地记录和单号批次；请求级幂等、isNewBatch默认归一、主/子分配及root回执共同完成同次接收，均为必要明细，不另拆归组或批次功能。供应商提交复用FUNC-005、结果交付复用FUNC-010、按lead和主子批查看复用FUNC-015；退役每日查询/衰减功能不恢复。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "逐行接收有效线索并拆成单手机号独立记录和批次，无效行不阻断其他有效行。DCC一次请求级requestId可含多行；各行isNewBatch为可选Boolean，缺省false。先鉴权及来源校验，再按isNewBatch缺省false归一的有效完整请求内容处理幂等；同ID同内容返回原已保存逐行recordId/batchId/rootBatchId，不新建、不重交，也不因后来新主出现而改旧root；同ID不同内容拒绝。仅新业务请求在同tenant/原供应商taskId/leadCode且同phone归组范围内逐行分配，每个有效行均总新建record和batch：true创建独立主批，rootBatchId=batchId；false或缺省有主时新建子批挂最近已保存主，rootBatchId取该主；无主自动创建首个主批，root=self。子批只挂主批，不挂上一子批，DCC无需指定上一个批次。priority按本次逐行输入保存，不继承旧值、不每日衰减；时间仅审计。手工保留原提交前priority、独立记录和单号批次，无DCC标识或归组输入；R可选且无字典范围校验。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+                "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。"
+              ]
+            },
+            "source_story_ids": [
+              "US-001",
+              "US-002"
+            ],
+            "source_acceptance_ids": [
+              "AC-001",
+              "AC-005",
+              "AC-006",
+              "AC-007",
+              "AC-009",
+              "AC-010",
+              "AC-012",
+              "AC-014",
+              "AC-029",
+              "AC-030",
+              "AC-031",
+              "AC-036",
+              "AC-019",
+              "AC-015",
+              "AC-032",
+              "AC-047",
+              "AC-048",
+              "AC-049",
+              "AC-050",
+              "AC-051",
+              "AC-052"
+            ],
+            "source_scenario_ids": [
+              "SC-001",
+              "SC-002"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-083",
+              "inputs/source-index.json#SRC-084",
+              "inputs/source-index.json#SRC-085",
+              "inputs/source-index.json#SRC-086"
+            ]
+          },
+          "basis": "SRC-087/D-009用户明确应用列表、新增、详情、修改、删除与简化密钥流程、常驻导入及已发现缺陷修复；SRC-088授权完整回归对齐。事实修订待重新核验/G3，不改历史冻结包。"
+        }
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086",
+        "inputs/source-index.json#SRC-087"
+      ]
+    },
+    {
+      "id": "FUNC-005",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "供应商提交",
+      "module_l3": null,
+      "name": "自动提交导入批次",
+      "description": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫；原供应商任务逐条按本次最终priority提交；明确拒绝入失败记录且保留已保存本地客户；复用未知结果守卫FUNC-013；同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。；待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。 接收已确认的新业务批次才进入供应商提交；同requestId同isNewBatch缺省归一后的有效完整请求内容重传复用原逐行record/batch/root映射，不重复交供应商；归组未核或同ID异内容不提交。 每个有效新业务行不论主批或子批都按新batch的独立供应商导入处理；false不是跳过保存或提交。业务root和供应商fileId独立，不强制复用旧fileId或新增供应商排重策略，不保证再次拨打。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。平台按DCC本次传入priority保存、同任务排序并提交，取消平台每日查询/衰减及供应商存量priority改写，不自动继承旧priority；不新增工作时间策略或自动提权。手工仍使用提交前最终值。同级FIFO、已提交不撤回保持，低优先级不代表禁止呼叫。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "供应商导入尝试",
+        "primary_action": "自动提交导入批次",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "FUNC-004确认新的有效本地业务批次保存完成时；技术重传复用原保存结果而不再次触发供应商提交",
+        "primary_outcome": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫",
+        "completion_result": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫；未知或不满足条件不伪造成功。",
+        "included_scope": [
+          "原供应商任务逐条按本次最终priority提交",
+          "明确拒绝入失败记录且保留已保存本地客户",
+          "复用未知结果守卫FUNC-013",
+          "同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。",
+          "待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。",
+          "DCC同requestId同isNewBatch缺省归一后的有效完整请求内容重传不重复交供应商；同ID不同内容冲突拒绝，原已保存root不因后来新主出现改变。仅有效新业务行总新record/batch，主批和子批都进入正常提交；归组未核行不提交，提交未知保留待核不自动重交。",
+          "每个实际新业务batch保存自身精准供应商fileId映射；rootBatchId仅为本方主子归组标识，不代替fileId或53分片号，不强制供应商追加旧批或改排重参数。"
+        ],
+        "excluded_scope": [
+          "人工二次点击提交",
+          "真实拨号承诺",
+          "供应商契约伪造",
+          "平台每日priority衰减、自动继承旧priority及供应商存量priority改写",
+          "因DCC同请求网络重传再次执行供应商导入"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-005",
+          "BR-006",
+          "BR-007",
+          "BR-014",
+          "BR-015",
+          "BR-018",
+          "BR-019",
+          "BR-021"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫",
+          "已保存相同requestId且isNewBatch缺省归一后的有效完整内容相同的重传不创建新提交；不同内容拒绝，提交状态未知保留待核，不据重传伪造成功或重交。"
+        ],
+        "dependencies": [
+          "SEQ-001",
+          "SEQ-006",
+          "API-002"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "对已保存有效新业务行的独立批次执行供应商提交，主/子分配复用FUNC-004；false/缺省形成新子仍是新业务批次，与请求重传复用原批次不同。原任务、本次priority/FIFO、fileId映射和幂等不重交为提交明细；后到失败复用FUNC-017，不把供应商再次拨打或追加旧fileId视为已核能力。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫；原供应商任务逐条按本次最终priority提交；明确拒绝入失败记录且保留已保存本地客户；复用未知结果守卫FUNC-013；同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。；待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。 接收已确认的新业务批次才进入供应商提交；同requestId同isNewBatch缺省归一后的有效完整请求内容重传复用原逐行record/batch/root映射，不重复交供应商；归组未核或同ID异内容不提交。 每个有效新业务行不论主批或子批都按新batch的独立供应商导入处理；false不是跳过保存或提交。业务root和供应商fileId独立，不强制复用旧fileId或新增供应商排重策略，不保证再次拨打。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+          "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001",
+        "US-002"
+      ],
+      "source_acceptance_ids": [
+        "AC-011",
+        "AC-012",
+        "AC-013",
+        "AC-035",
+        "AC-039",
+        "AC-040",
+        "AC-041",
+        "AC-042",
+        "AC-043",
+        "AC-046",
+        "AC-014",
+        "AC-015",
+        "AC-019",
+        "AC-032",
+        "AC-049",
+        "AC-050",
+        "AC-051"
+      ],
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-076",
+        "inputs/source-index.json#SRC-077",
+        "inputs/source-index.json#SRC-078",
+        "inputs/source-index.json#SRC-079",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "供应商导入尝试",
+            "primary_action": "自动提交导入批次",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "本地有效保存完成时",
+            "primary_outcome": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫",
+            "completion_result": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫；未知或不满足条件不伪造成功。",
+            "included_scope": [
+              "原供应商任务逐条最终priority提交",
+              "明确拒绝入失败记录且保留已保存本地客户",
+              "复用未知结果守卫FUNC-013",
+              "同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。",
+              "待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。"
+            ],
+            "excluded_scope": [
+              "人工二次点击提交",
+              "真实拨号承诺",
+              "供应商契约伪造"
+            ],
+            "business_rules": [
+              "BR-001",
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-005",
+              "BR-006",
+              "BR-007",
+              "BR-014",
+              "BR-015",
+              "BR-018",
+              "BR-019",
+              "BR-021"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-006",
+              "API-002"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。；提交前排序为自动提交主操作明细，不是独立业务重导调度，不另拆功能。"
+          },
+          "before_module_l2": "供应商提交",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        },
+        {
+          "at": "2026-10-11T09:26:21+08:00",
+          "before_description": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫；原供应商任务逐条最终priority提交；明确拒绝入失败记录且保留已保存本地客户；复用未知结果守卫FUNC-013；同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。；待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。",
+          "before_notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。 工作时间边界（SRC-078/079）：平台按DCC传入priority保存、同任务排序并提交，不新增工作时间策略、不因工作时间到来自动提权；既有自然日衰减最低1、同级FIFO与已提交不撤回保持。低优先级不是禁止呼叫；无新增功能。",
+          "before_boundary": {
+            "business_object": "供应商导入尝试",
+            "primary_action": "自动提交导入批次",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "本地有效保存完成时",
+            "primary_outcome": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫",
+            "completion_result": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫；未知或不满足条件不伪造成功。",
+            "included_scope": [
+              "原供应商任务逐条最终priority提交",
+              "明确拒绝入失败记录且保留已保存本地客户",
+              "复用未知结果守卫FUNC-013",
+              "同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。",
+              "待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。"
+            ],
+            "excluded_scope": [
+              "人工二次点击提交",
+              "真实拨号承诺",
+              "供应商契约伪造"
+            ],
+            "business_rules": [
+              "BR-001",
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-005",
+              "BR-006",
+              "BR-007",
+              "BR-014",
+              "BR-015",
+              "BR-018",
+              "BR-019",
+              "BR-021"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-006",
+              "API-002"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "对本地有效批次执行供应商提交，结果为有证据的接受、拒绝或待核；与FUNC-004的本地接收结果及FUNC-017的后到失败触发分开。同任务高priority/同级FIFO、最终值透传、同步数量证据和必要异常为提交明细；不另计排序或重导调度。"
+          },
+          "before_acceptance_ids": [
+            "AC-011",
+            "AC-012",
+            "AC-013",
+            "AC-035",
+            "AC-039",
+            "AC-040",
+            "AC-041",
+            "AC-042",
+            "AC-043",
+            "AC-046"
+          ],
+          "basis": "SRC-083用户确认取消平台每日查询/priority衰减，并明确DCC业务请求与父根批次协议；保留本期功能ID，不增加独立功能。"
+        },
+        {
+          "at": "2026-10-11T10:06:23+08:00",
+          "before_current": {
+            "id": "FUNC-005",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "供应商提交",
+            "module_l3": null,
+            "name": "自动提交导入批次",
+            "description": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫；原供应商任务逐条按本次最终priority提交；明确拒绝入失败记录且保留已保存本地客户；复用未知结果守卫FUNC-013；同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。；待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。 接收已确认的新业务批次才进入供应商提交；同requestId同整个请求内容重传复用原已保存逐行结果、记录及批次映射，不重复交供应商；关联非法或同ID异内容不提交。",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。平台按DCC本次传入priority保存、同任务排序并提交，取消平台每日查询/衰减及供应商存量priority改写，不自动继承旧priority；不新增工作时间策略或自动提权。手工仍使用提交前最终值。同级FIFO、已提交不撤回保持，低优先级不代表禁止呼叫。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "供应商导入尝试",
+              "primary_action": "自动提交导入批次",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "FUNC-004确认新的有效本地业务批次保存完成时；技术重传复用原保存结果而不再次触发供应商提交",
+              "primary_outcome": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫",
+              "completion_result": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫；未知或不满足条件不伪造成功。",
+              "included_scope": [
+                "原供应商任务逐条按本次最终priority提交",
+                "明确拒绝入失败记录且保留已保存本地客户",
+                "复用未知结果守卫FUNC-013",
+                "同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。",
+                "待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。",
+                "同requestId同整个请求内容重传不重复交供应商；非法父批次行不提交，同ID不同请求内容冲突拒绝且不新增提交；已有提交结果未知时保留待核，不以DCC网络重传再次提交。"
+              ],
+              "excluded_scope": [
+                "人工二次点击提交",
+                "真实拨号承诺",
+                "供应商契约伪造",
+                "平台每日priority衰减、自动继承旧priority及供应商存量priority改写",
+                "因DCC同请求网络重传再次执行供应商导入"
+              ],
+              "business_rules": [
+                "BR-001",
+                "BR-002",
+                "BR-003",
+                "BR-004",
+                "BR-005",
+                "BR-006",
+                "BR-007",
+                "BR-014",
+                "BR-015",
+                "BR-018",
+                "BR-019",
+                "BR-021"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫",
+                "已保存相同requestId且整个请求内容相同的重传不创建新提交；不同内容拒绝，提交状态未知保留待核，不据重传伪造成功或重交。"
+              ],
+              "dependencies": [
+                "SEQ-001",
+                "SEQ-006",
+                "API-002"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "对已保存的有效新业务批次执行供应商提交，形成接受、拒绝或待核结果，与FUNC-004本地接收及FUNC-017后到失败分开。同任务高priority/同级FIFO、本次值透传、同步数量证据、同请求不重交及必要异常为提交明细，不另计排序、幂等或重导调度。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "自动提交并记录明确接受/拒绝/待核，接受不等于呼叫；原供应商任务逐条按本次最终priority提交；明确拒绝入失败记录且保留已保存本地客户；复用未知结果守卫FUNC-013；同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。；待提交供应商的记录按优先级高先提交，同优先级按本地导入时间FIFO先进先交；已提交不撤回重排，提交结果未知不为重排重复提交。只约束提交次序，不承诺供应商实际拨打顺序；范围仅同一任务待提交号码，不同任务独立。 接收已确认的新业务批次才进入供应商提交；同requestId同整个请求内容重传复用原已保存逐行结果、记录及批次映射，不重复交供应商；关联非法或同ID异内容不提交。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+                "SRC-083修订：取消平台每日查询/衰减及旧priority强制继承；DCC请求幂等、显式父根批次与追溯按该操作边界实施，不改变既有1.0范围。"
+              ]
+            },
+            "source_story_ids": [
+              "US-001",
+              "US-002"
+            ],
+            "source_acceptance_ids": [
+              "AC-011",
+              "AC-012",
+              "AC-013",
+              "AC-035",
+              "AC-039",
+              "AC-040",
+              "AC-041",
+              "AC-042",
+              "AC-043",
+              "AC-046",
+              "AC-014",
+              "AC-015",
+              "AC-019",
+              "AC-032",
+              "AC-049",
+              "AC-050",
+              "AC-051"
+            ],
+            "source_scenario_ids": [
+              "SC-001"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-071",
+              "inputs/source-index.json#SRC-072",
+              "inputs/source-index.json#SRC-073",
+              "inputs/source-index.json#SRC-076",
+              "inputs/source-index.json#SRC-077",
+              "inputs/source-index.json#SRC-078",
+              "inputs/source-index.json#SRC-079",
+              "inputs/source-index.json#SRC-083"
+            ]
+          },
+          "basis": "SRC-084/085/086用户确认改为isNewBatch默认false的平台主子批归组；本方只保存root，不要求DCC指定旧批次，保持功能稳定ID及已退役历史。"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-006",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "失败下载",
+      "module_l3": null,
+      "name": "下载导入失败记录",
+      "description": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除；未下载/失败/中断无固定到期保留；可信成功仅清本次导出明细/文件；成功客户和已保存业务记录不受影响；在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "导入失败明细",
+        "primary_action": "下载导入失败记录",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "运营下载对应失败明细时",
+        "primary_outcome": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除",
+        "completion_result": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除；未知或不满足条件不伪造成功。",
+        "included_scope": [
+          "未下载/失败/中断无固定到期保留",
+          "可信成功仅清本次导出明细/文件",
+          "成功客户和已保存业务记录不受影响",
+          "在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。",
+          "接口来源已保存requestId/逐行接收结果及recordId/batchId/rootBatchId主子归组和精准供应商fileId映射不随失败明细/文件清理丢失；手工只保留其既有本地业务关联，不新增DCC协议。"
+        ],
+        "excluded_scope": [
+          "点击或生成文件就当真实下载成功",
+          "独立删除全部历史失败记录"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-005",
+          "BR-006",
+          "BR-007",
+          "BR-014",
+          "BR-015",
+          "BR-018",
+          "BR-019"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "SEQ-007"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "对本次导入失败明细执行下载，结果为失败快照交付及可信成功后的本次清理；快照生成、完整性说明、失败保留和必要去重状态保留共同完成同次下载，不再拆。失败事实复用FUNC-005/017，查询复用FUNC-015，补送复用FUNC-010。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除；未下载/失败/中断无固定到期保留；可信成功仅清本次导出明细/文件；成功客户和已保存业务记录不受影响；在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+          "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-008",
+        "AC-013",
+        "AC-029",
+        "AC-031",
+        "AC-039",
+        "AC-040",
+        "AC-041",
+        "AC-042",
+        "AC-043",
+        "AC-052"
+      ],
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "导入失败明细",
+            "primary_action": "下载导入失败记录",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "运营下载对应失败明细时",
+            "primary_outcome": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除",
+            "completion_result": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除；未知或不满足条件不伪造成功。",
+            "included_scope": [
+              "未下载/失败/中断无固定到期保留",
+              "可信成功仅清本次导出明细/文件",
+              "成功客户和已保存业务记录不受影响",
+              "在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。"
+            ],
+            "excluded_scope": [
+              "点击或生成文件就当真实下载成功",
+              "独立删除全部历史失败记录"
+            ],
+            "business_rules": [
+              "BR-001",
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-005",
+              "BR-006",
+              "BR-007",
+              "BR-014",
+              "BR-015",
+              "BR-018",
+              "BR-019"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-007"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "失败下载",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        },
+        {
+          "at": "2026-10-11T10:06:23+08:00",
+          "before_current": {
+            "id": "FUNC-006",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "失败下载",
+            "module_l3": null,
+            "name": "下载导入失败记录",
+            "description": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除；未下载/失败/中断无固定到期保留；可信成功仅清本次导出明细/文件；成功客户和已保存业务记录不受影响；在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "导入失败明细",
+              "primary_action": "下载导入失败记录",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "运营下载对应失败明细时",
+              "primary_outcome": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除",
+              "completion_result": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除；未知或不满足条件不伪造成功。",
+              "included_scope": [
+                "未下载/失败/中断无固定到期保留",
+                "可信成功仅清本次导出明细/文件",
+                "成功客户和已保存业务记录不受影响",
+                "在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。"
+              ],
+              "excluded_scope": [
+                "点击或生成文件就当真实下载成功",
+                "独立删除全部历史失败记录"
+              ],
+              "business_rules": [
+                "BR-001",
+                "BR-002",
+                "BR-003",
+                "BR-004",
+                "BR-005",
+                "BR-006",
+                "BR-007",
+                "BR-014",
+                "BR-015",
+                "BR-018",
+                "BR-019"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫"
+              ],
+              "dependencies": [
+                "SEQ-007"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "对本次导入失败明细执行下载，结果为失败快照交付及可信成功后的本次清理；快照生成、完整性说明、失败保留和必要去重状态保留共同完成同次下载，不再拆。失败事实复用FUNC-005/017，查询复用FUNC-015，补送复用FUNC-010。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "接口/手工失败输出同生命周期，成功信号后本次明细和文件清除；未下载/失败/中断无固定到期保留；可信成功仅清本次导出明细/文件；成功客户和已保存业务记录不受影响；在既有失败导出入口生成本次失败明细快照并显示已知分片完整性；未收齐或完整性未知显示不完整/待核。可信下载成功仅删除该快照的明细和文件，失败/中断保留；后到的新失败进入后续下载。保留必要业务关联、去重标记、分片及DCC交付状态，已导出事件重复不再生成失败明细；不得清空整个导入或成功客户。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+              ]
+            },
+            "source_story_ids": [
+              "US-001"
+            ],
+            "source_acceptance_ids": [
+              "AC-008",
+              "AC-013",
+              "AC-029",
+              "AC-031",
+              "AC-039",
+              "AC-040",
+              "AC-041",
+              "AC-042",
+              "AC-043"
+            ],
+            "source_scenario_ids": [
+              "SC-001"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-071",
+              "inputs/source-index.json#SRC-072",
+              "inputs/source-index.json#SRC-073"
+            ]
+          },
+          "basis": "SRC-084/085/086用户确认改为isNewBatch默认false的平台主子批归组；本方只保存root，不要求DCC指定旧批次，保持功能稳定ID及已退役历史。"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-009",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "号码删除",
+      "module_l3": null,
+      "name": "删除指定供应商号码",
+      "description": "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。 切换精确删除记录/批次或供应商响应样例时清空旧操作反馈，新的反馈只属于当前目标与样例，未执行不能显示上一目标删除成功。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "精准任务批次手机号记录",
+        "primary_action": "删除指定供应商号码",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "DCC指定租户任务/批次/手机号删除时",
+        "primary_outcome": "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。",
+        "completion_result": "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。",
+        "included_scope": [
+          "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。",
+          "AC-061：切换精确删除对象或结果样例清旧反馈，当前执行结果始终绑定当前tenant/task/record/batch/fileId/phone，不把旧成功状态展示为新目标结果。"
+        ],
+        "excluded_scope": [
+          "平台自动重导、业务额度、真实未验证供应商能力"
+        ],
+        "business_rules": [
+          "BR-015",
+          "BR-017"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫",
+          "目标或样例变化后旧反馈失效；当前结果未确认时不显示删除成功，也不删其他批次"
+        ],
+        "dependencies": [
+          "SEQ-009",
+          "API-006"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "精准删除只针对指定当前业务batch及其供应商映射形成明确状态；本地记录和必要主子归组保留为同次删除明细。不把root等同删除目标，不扩散到同线索或同手机号其他批次；查看复用FUNC-015。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。 切换精确删除记录/批次或供应商响应样例时清空旧操作反馈，新的反馈只属于当前目标与样例，未执行不能显示上一目标删除成功。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+          "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。",
+          "SRC-087删除反馈随精确目标/样例失效属于原删除操作必要明细。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001",
+        "US-002",
+        "US-004"
+      ],
+      "source_acceptance_ids": [
+        "AC-016",
+        "AC-024",
+        "AC-025",
+        "AC-052",
+        "AC-061"
+      ],
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-004"
+      ],
+      "decision_history": [
+        {
+          "before": "供应商明确成功后本地留存标记、停降级、取消尚未执行重呼；仅作用精准记录，其他同号不受影响；删除失败不伪标成功，未知待核暂停；保留客户及历史关联",
+          "superseded_by": "SRC-063～070"
+        }
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "精准任务批次手机号记录",
+            "primary_action": "删除指定供应商号码",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "DCC指定租户任务/批次/手机号删除时",
+            "primary_outcome": "指定供应商记录删除成功后本地保留并停止priority降级，回传删除状态；平台无待执行重导计划，供应商执行中/并发删除由开发核实，不作用其他同号记录。",
+            "completion_result": "指定供应商记录删除成功后本地保留并停止priority降级，回传删除状态；平台无待执行重导计划，供应商执行中/并发删除由开发核实，不作用其他同号记录。",
+            "included_scope": [
+              "指定供应商记录删除成功后本地保留并停止priority降级，回传删除状态；平台无待执行重导计划，供应商执行中/并发删除由开发核实，不作用其他同号记录。"
+            ],
+            "excluded_scope": [
+              "平台自动重导、业务额度、真实未验证供应商能力"
+            ],
+            "business_rules": [
+              "BR-015",
+              "BR-017"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-009",
+              "API-006"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "号码删除",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        },
+        {
+          "at": "2026-10-11T09:26:21+08:00",
+          "before_description": "指定供应商记录删除成功后本地保留并停止priority降级，回传删除状态；平台无待执行重导计划，供应商执行中/并发删除由开发核实，不作用其他同号记录。",
+          "before_notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+          "before_boundary": {
+            "business_object": "精准任务批次手机号记录",
+            "primary_action": "删除指定供应商号码",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "DCC指定租户任务/批次/手机号删除时",
+            "primary_outcome": "指定供应商记录删除成功后本地保留并停止priority降级，回传删除状态；平台无待执行重导计划，供应商执行中/并发删除由开发核实，不作用其他同号记录。",
+            "completion_result": "指定供应商记录删除成功后本地保留并停止priority降级，回传删除状态；平台无待执行重导计划，供应商执行中/并发删除由开发核实，不作用其他同号记录。",
+            "included_scope": [
+              "指定供应商记录删除成功后本地保留并停止priority降级，回传删除状态；平台无待执行重导计划，供应商执行中/并发删除由开发核实，不作用其他同号记录。"
+            ],
+            "excluded_scope": [
+              "平台自动重导、业务额度、真实未验证供应商能力"
+            ],
+            "business_rules": [
+              "BR-015",
+              "BR-017"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-009",
+              "API-006"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "对DCC指定的任务、批次及手机号执行精准删除，结果为有证据的删除状态；成功后本地保留、停止对应降级及结果反馈属于同次删除。不同任务/批次同号不扩散，查询复用FUNC-015，不创建取消平台重导队列操作。"
+          },
+          "before_acceptance_ids": [
+            "AC-016",
+            "AC-024",
+            "AC-025"
+          ],
+          "basis": "SRC-083用户确认取消平台每日查询/priority衰减，并明确DCC业务请求与父根批次协议；保留本期功能ID，不增加独立功能。"
+        },
+        {
+          "at": "2026-10-11T10:06:23+08:00",
+          "before_current": {
+            "id": "FUNC-009",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "号码删除",
+            "module_l3": null,
+            "name": "删除指定供应商号码",
+            "description": "指定供应商记录删除成功后本地保留记录、原批次和父根关联并回传删除状态；不作用其他同号记录。平台无待执行重导计划或priority衰减，供应商执行中/并发删除仍由开发核实。",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "精准任务批次手机号记录",
+              "primary_action": "删除指定供应商号码",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "DCC指定租户任务/批次/手机号删除时",
+              "primary_outcome": "指定供应商记录删除成功后本地保留记录、原批次和父根关联并回传删除状态；不作用其他同号记录。平台无待执行重导计划或priority衰减，供应商执行中/并发删除仍由开发核实。",
+              "completion_result": "指定供应商记录删除成功后本地保留记录、原批次和父根关联并回传删除状态；不作用其他同号记录。平台无待执行重导计划或priority衰减，供应商执行中/并发删除仍由开发核实。",
+              "included_scope": [
+                "指定供应商记录删除成功后本地保留记录、原批次和父根关联并回传删除状态；不作用其他同号记录。平台无待执行重导计划或priority衰减，供应商执行中/并发删除仍由开发核实。"
+              ],
+              "excluded_scope": [
+                "平台自动重导、业务额度、真实未验证供应商能力"
+              ],
+              "business_rules": [
+                "BR-015",
+                "BR-017"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫"
+              ],
+              "dependencies": [
+                "SEQ-009",
+                "API-006"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "对DCC指定的任务、批次及手机号执行精准删除，形成有证据的删除状态；成功后的本地记录及谱系保留、结果反馈属于同次删除。不同任务/批次同号不扩散，查看复用FUNC-015；取消平台衰减不产生新的删除操作。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "指定供应商记录删除成功后本地保留记录、原批次和父根关联并回传删除状态；不作用其他同号记录。平台无待执行重导计划或priority衰减，供应商执行中/并发删除仍由开发核实。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+                "SRC-083修订：取消平台每日查询/衰减及旧priority强制继承；DCC请求幂等、显式父根批次与追溯按该操作边界实施，不改变既有1.0范围。"
+              ]
+            },
+            "source_story_ids": [
+              "US-001",
+              "US-002",
+              "US-004"
+            ],
+            "source_acceptance_ids": [
+              "AC-016",
+              "AC-024",
+              "AC-025",
+              "AC-052"
+            ],
+            "source_scenario_ids": [
+              "SC-001",
+              "SC-002",
+              "SC-004"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-083"
+            ]
+          },
+          "basis": "SRC-084/085/086用户确认改为isNewBatch默认false的平台主子批归组；本方只保存root，不要求DCC指定旧批次，保持功能稳定ID及已退役历史。"
+        },
+        {
+          "at": "2026-10-11T12:58:07+08:00",
+          "before_current": {
+            "id": "FUNC-009",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "号码删除",
+            "module_l3": null,
+            "name": "删除指定供应商号码",
+            "description": "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "精准任务批次手机号记录",
+              "primary_action": "删除指定供应商号码",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "DCC指定租户任务/批次/手机号删除时",
+              "primary_outcome": "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。",
+              "completion_result": "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。",
+              "included_scope": [
+                "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。"
+              ],
+              "excluded_scope": [
+                "平台自动重导、业务额度、真实未验证供应商能力"
+              ],
+              "business_rules": [
+                "BR-015",
+                "BR-017"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫"
+              ],
+              "dependencies": [
+                "SEQ-009",
+                "API-006"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "精准删除只针对指定当前业务batch及其供应商映射形成明确状态；本地记录和必要主子归组保留为同次删除明细。不把root等同删除目标，不扩散到同线索或同手机号其他批次；查看复用FUNC-015。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "指定租户、原任务和当前独立batch的供应商号码明确删除成功后，本地保留record/batch及接口来源requestId/rootBatchId主子关联并回传删除状态；不按root删除整组、不作用其他同号或同lead批次。平台无重导计划或priority衰减，供应商执行中/并发删除仍待开发核实。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+                "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。"
+              ]
+            },
+            "source_story_ids": [
+              "US-001",
+              "US-002",
+              "US-004"
+            ],
+            "source_acceptance_ids": [
+              "AC-016",
+              "AC-024",
+              "AC-025",
+              "AC-052"
+            ],
+            "source_scenario_ids": [
+              "SC-001",
+              "SC-002",
+              "SC-004"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-083",
+              "inputs/source-index.json#SRC-084",
+              "inputs/source-index.json#SRC-085",
+              "inputs/source-index.json#SRC-086"
+            ]
+          },
+          "basis": "SRC-087/D-009用户明确应用列表、新增、详情、修改、删除与简化密钥流程、常驻导入及已发现缺陷修复；SRC-088授权完整回归对齐。事实修订待重新核验/G3，不改历史冻结包。"
+        }
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086",
+        "inputs/source-index.json#SRC-087"
+      ]
+    },
+    {
+      "id": "FUNC-010",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "结果回传",
+      "module_l3": null,
+      "name": "回传接口任务每次结果",
+      "description": "保存接口来源任务的每次准确关联结果并向后台固定DCC地址回传导入失败原因、风控、秒挂、话单/SIP及finishRetryFlag；未知和未返回独立表示，回传失败可观察可补送。每次结果携所属requestId/行定位、recordId、当前batchId、rootBatchId及tenant/原任务/leadCode/phone，按该实际业务批次的供应商fileId和真实callID或稳定事件精确关联；root仅表达主子归组，不能只按leadCode混并结果。手工任务仅平台查看。重复、晚更新或补送不新增导入/实际呼叫、不触发平台重导。 未可信纯SIP更新独立保留待核证据，不覆盖可信呼叫、不占用其稳定关联或污染后续去重；随后可信且精确关联的SIP更新可按原呼叫处理，不因之前未可信样例而被拒绝。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "接口任务每次关联业务结果及交付状态",
+        "primary_action": "回传接口任务每次结果",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "接口任务可信且可关联的导入或呼叫结果、秒挂识别、无话单失败或后续更新到达时；未知或关联冲突保留待核",
+        "primary_outcome": "保存接口来源任务的每次准确关联结果并向后台固定DCC地址回传导入失败原因、风控、秒挂、话单/SIP及finishRetryFlag；未知和未返回独立表示，回传失败可观察可补送。每次结果携所属requestId/行定位、recordId、当前batchId、rootBatchId及tenant/原任务/leadCode/phone，按该实际业务批次的供应商fileId和真实callID或稳定事件精确关联；root仅表达主子归组，不能只按leadCode混并结果。手工任务仅平台查看。重复、晚更新或补送不新增导入/实际呼叫、不触发平台重导。",
+        "completion_result": "保存接口来源任务的每次准确关联结果并向后台固定DCC地址回传导入失败原因、风控、秒挂、话单/SIP及finishRetryFlag；未知和未返回独立表示，回传失败可观察可补送。每次结果携所属requestId/行定位、recordId、当前batchId、rootBatchId及tenant/原任务/leadCode/phone，按该实际业务批次的供应商fileId和真实callID或稳定事件精确关联；root仅表达主子归组，不能只按leadCode混并结果。手工任务仅平台查看。重复、晚更新或补送不新增导入/实际呼叫、不触发平台重导。",
+        "included_scope": [
+          "接口来源每次可信导入/呼叫结果及SIP晚更新按后台固定DCC地址交付；风控失败、秒挂、话单/SIP和finishRetryFlag严格1/0/未知区分，不把最后一通等于整个任务完成",
+          "已保存结果携原requestId+行定位、recordId、当前batchId/rootBatchId及tenant/原任务/leadCode/phone；实际业务batch独立精准映射供应商fileId/真实callID或稳定事件，不把同leadCode下主子组代替实际结果定位",
+          "导入失败不计呼叫，手工仅平台查看；回传失败可观察可补送，重复/晚更新不制造新呼叫，不重做供应商导入",
+          "原root随已保存业务行不再重算，后来true创建新主不改变旧结果所属主组；53失败分片号不是本方batch/root",
+          "AC-062：未可信纯SIP更新独立保留待核证据，不覆盖可信呼叫、不占用其稳定关联或污染后续去重；随后可信且精确关联的SIP更新可按原呼叫处理，不因之前未可信样例而被拒绝。",
+          "AC-062：覆盖未可信SIP→可信call→可信SIP及可信call→未可信SIP→可信SIP，准确可信更新同一原call与交付版本、不新增呼叫；真正可信的关联或非SIP冲突仍待核。"
+        ],
+        "excluded_scope": [
+          "平台自动重导、业务额度、真实未验证供应商能力"
+        ],
+        "business_rules": [
+          "BR-015",
+          "BR-017",
+          "BR-018",
+          "BR-019",
+          "BR-012"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫",
+          "未可信SIP关联/来源不足时独立待核，不污染已确认对象及后续可信准确更新；真实可信关联规则仍待核"
+        ],
+        "dependencies": [
+          "SEQ-001",
+          "SEQ-002",
+          "SEQ-003",
+          "SEQ-004",
+          "API-010"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "FUNC-010对接口任务每次准确关联业务结果执行固定地址交付，结果为待发送/成功/失败/待核；request/实际batch/root组及call/event精确关联、晚更新和可靠补送为交付明细，root不替代实际呼叫定位。接收回执归FUNC-004，事实处理复用005/011/012/017；不另建按lead计数或重导调度。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "保存接口来源任务的每次准确关联结果并向后台固定DCC地址回传导入失败原因、风控、秒挂、话单/SIP及finishRetryFlag；未知和未返回独立表示，回传失败可观察可补送。每次结果携所属requestId/行定位、recordId、当前batchId、rootBatchId及tenant/原任务/leadCode/phone，按该实际业务批次的供应商fileId和真实callID或稳定事件精确关联；root仅表达主子归组，不能只按leadCode混并结果。手工任务仅平台查看。重复、晚更新或补送不新增导入/实际呼叫、不触发平台重导。 未可信纯SIP更新独立保留待核证据，不覆盖可信呼叫、不占用其稳定关联或污染后续去重；随后可信且精确关联的SIP更新可按原呼叫处理，不因之前未可信样例而被拒绝。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+          "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。",
+          "SRC-087未可信SIP隔离是既有结果守卫/交付明细，不新增业务功能或供应商保证。"
+        ]
+      },
+      "source_story_ids": [
+        "US-002",
+        "US-003",
+        "US-004",
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-002",
+        "AC-018",
+        "AC-026",
+        "AC-027",
+        "AC-037",
+        "AC-038",
+        "AC-039",
+        "AC-040",
+        "AC-041",
+        "AC-042",
+        "AC-043",
+        "AC-052",
+        "AC-062"
+      ],
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004"
+      ],
+      "decision_history": [
+        {
+          "before": "建立原链30分钟等待与本类/共同额度守卫；本类额外5、共同5，首次不计；原任务与来源关联，继承原日期/当前priority；原主叫避让由供应商目标，不由平台排序线路",
+          "superseded_by": "SRC-063～070"
+        }
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086",
+        "inputs/source-index.json#SRC-087"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "线路风控待重呼记录",
+            "primary_action": "回传接口任务每次结果",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "收到并识别可信线路风控结果时",
+            "primary_outcome": "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。",
+            "completion_result": "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。",
+            "included_scope": [
+              "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。",
+              "接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。"
+            ],
+            "excluded_scope": [
+              "平台自动重导、业务额度、真实未验证供应商能力"
+            ],
+            "business_rules": [
+              "BR-015",
+              "BR-017",
+              "BR-018",
+              "BR-019"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-002",
+              "SEQ-003",
+              "SEQ-004",
+              "API-010"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "线路风控",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        },
+        {
+          "at": "2026-10-11T09:26:21+08:00",
+          "before_description": "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。；接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。",
+          "before_notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+          "before_boundary": {
+            "business_object": "接口任务每次关联业务结果及交付状态",
+            "primary_action": "回传接口任务每次结果",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "接口任务可信且可关联的导入或呼叫结果、秒挂识别、无话单失败或后续更新到达时；未知或关联冲突保留待核",
+            "primary_outcome": "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。；接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。",
+            "completion_result": "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。；接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。",
+            "included_scope": [
+              "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。",
+              "接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。"
+            ],
+            "excluded_scope": [
+              "平台自动重导、业务额度、真实未验证供应商能力"
+            ],
+            "business_rules": [
+              "BR-015",
+              "BR-017",
+              "BR-018",
+              "BR-019"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-002",
+              "SEQ-003",
+              "SEQ-004",
+              "API-010"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "对接口任务每次关联业务结果执行DCC交付，结果为可观察的待发送、成功、失败或待核状态；导入失败、通话结果、秒挂、无话单失败及晚更新复用同一回传操作。结果事实由FUNC-005/011/012/017提供，固定地址、去重和可靠补送为交付明细，不重做导入或增加呼叫。"
+          },
+          "before_acceptance_ids": [
+            "AC-002",
+            "AC-018",
+            "AC-026",
+            "AC-027",
+            "AC-037",
+            "AC-038",
+            "AC-039",
+            "AC-040",
+            "AC-041",
+            "AC-042",
+            "AC-043"
+          ],
+          "basis": "SRC-083用户确认取消平台每日查询/priority衰减，并明确DCC业务请求与父根批次协议；保留本期功能ID，不增加独立功能。"
+        },
+        {
+          "at": "2026-10-11T10:06:23+08:00",
+          "before_current": {
+            "id": "FUNC-010",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "结果回传",
+            "module_l3": null,
+            "name": "回传接口任务每次结果",
+            "description": "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。；接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。 已保存记录的逐次结果携所属请求requestId、行定位、batchId、parentBatchId、rootBatchId及tenant/task/leadCode/phone，话单或稳定事件关联准确保留；DCC据此跨批次汇总，不将供应商失败分片号当业务批次号。",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "接口任务每次关联业务结果及交付状态",
+              "primary_action": "回传接口任务每次结果",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "接口任务可信且可关联的导入或呼叫结果、秒挂识别、无话单失败或后续更新到达时；未知或关联冲突保留待核",
+              "primary_outcome": "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。；接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。",
+              "completion_result": "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。；接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。 结果交付携当前批次和父根谱系，不丢失DCC精确追溯关系。",
+              "included_scope": [
+                "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。",
+                "接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。",
+                "已保存记录的逐次结果携所属请求requestId、行定位、batchId、parentBatchId、rootBatchId及tenant/task/leadCode/phone，话单或稳定事件关联准确保留；DCC据此跨批次汇总，不将供应商失败分片号当业务批次号。"
+              ],
+              "excluded_scope": [
+                "平台自动重导、业务额度、真实未验证供应商能力"
+              ],
+              "business_rules": [
+                "BR-015",
+                "BR-017",
+                "BR-018",
+                "BR-019",
+                "BR-012"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫"
+              ],
+              "dependencies": [
+                "SEQ-001",
+                "SEQ-002",
+                "SEQ-003",
+                "SEQ-004",
+                "API-010"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "对接口任务每次关联业务结果执行DCC交付，形成可观察的待发送、成功、失败或待核状态；导入失败、通话结果、秒挂、无话单失败及晚更新复用同一交付操作。requestId及当前/父/根批次关联、固定地址、去重和可靠补送为交付明细；接收回执归FUNC-004，不重做导入或增加呼叫。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "保存每次关联结果并向后台固定DCC地址回传风控失败原因、秒挂、话单/SIP和finishRetryFlag，未知/未返回独立表示，失败可观察可补送；仅接口任务回传，不建立业务重呼计数。；接口来源任务向后台固定DCC接收地址回传导入阶段失败、原始原因和tenant/task/本地批次/leadCode/手机号关联；手工任务只在平台查看。导入失败不计实际呼叫、不触发平台重导；回传失败保持可观察待补送，补送不重做供应商导入。 已保存记录的逐次结果携所属请求requestId、行定位、batchId、parentBatchId、rootBatchId及tenant/task/leadCode/phone，话单或稳定事件关联准确保留；DCC据此跨批次汇总，不将供应商失败分片号当业务批次号。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+                "SRC-083修订：取消平台每日查询/衰减及旧priority强制继承；DCC请求幂等、显式父根批次与追溯按该操作边界实施，不改变既有1.0范围。"
+              ]
+            },
+            "source_story_ids": [
+              "US-002",
+              "US-003",
+              "US-004",
+              "US-001"
+            ],
+            "source_acceptance_ids": [
+              "AC-002",
+              "AC-018",
+              "AC-026",
+              "AC-027",
+              "AC-037",
+              "AC-038",
+              "AC-039",
+              "AC-040",
+              "AC-041",
+              "AC-042",
+              "AC-043",
+              "AC-052"
+            ],
+            "source_scenario_ids": [
+              "SC-001",
+              "SC-002",
+              "SC-003",
+              "SC-004"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-071",
+              "inputs/source-index.json#SRC-072",
+              "inputs/source-index.json#SRC-073",
+              "inputs/source-index.json#SRC-083"
+            ]
+          },
+          "basis": "SRC-084/085/086用户确认改为isNewBatch默认false的平台主子批归组；本方只保存root，不要求DCC指定旧批次，保持功能稳定ID及已退役历史。"
+        },
+        {
+          "at": "2026-10-11T12:58:07+08:00",
+          "before_current": {
+            "id": "FUNC-010",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "结果回传",
+            "module_l3": null,
+            "name": "回传接口任务每次结果",
+            "description": "保存接口来源任务的每次准确关联结果并向后台固定DCC地址回传导入失败原因、风控、秒挂、话单/SIP及finishRetryFlag；未知和未返回独立表示，回传失败可观察可补送。每次结果携所属requestId/行定位、recordId、当前batchId、rootBatchId及tenant/原任务/leadCode/phone，按该实际业务批次的供应商fileId和真实callID或稳定事件精确关联；root仅表达主子归组，不能只按leadCode混并结果。手工任务仅平台查看。重复、晚更新或补送不新增导入/实际呼叫、不触发平台重导。",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "接口任务每次关联业务结果及交付状态",
+              "primary_action": "回传接口任务每次结果",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "接口任务可信且可关联的导入或呼叫结果、秒挂识别、无话单失败或后续更新到达时；未知或关联冲突保留待核",
+              "primary_outcome": "保存接口来源任务的每次准确关联结果并向后台固定DCC地址回传导入失败原因、风控、秒挂、话单/SIP及finishRetryFlag；未知和未返回独立表示，回传失败可观察可补送。每次结果携所属requestId/行定位、recordId、当前batchId、rootBatchId及tenant/原任务/leadCode/phone，按该实际业务批次的供应商fileId和真实callID或稳定事件精确关联；root仅表达主子归组，不能只按leadCode混并结果。手工任务仅平台查看。重复、晚更新或补送不新增导入/实际呼叫、不触发平台重导。",
+              "completion_result": "保存接口来源任务的每次准确关联结果并向后台固定DCC地址回传导入失败原因、风控、秒挂、话单/SIP及finishRetryFlag；未知和未返回独立表示，回传失败可观察可补送。每次结果携所属requestId/行定位、recordId、当前batchId、rootBatchId及tenant/原任务/leadCode/phone，按该实际业务批次的供应商fileId和真实callID或稳定事件精确关联；root仅表达主子归组，不能只按leadCode混并结果。手工任务仅平台查看。重复、晚更新或补送不新增导入/实际呼叫、不触发平台重导。",
+              "included_scope": [
+                "接口来源每次可信导入/呼叫结果及SIP晚更新按后台固定DCC地址交付；风控失败、秒挂、话单/SIP和finishRetryFlag严格1/0/未知区分，不把最后一通等于整个任务完成",
+                "已保存结果携原requestId+行定位、recordId、当前batchId/rootBatchId及tenant/原任务/leadCode/phone；实际业务batch独立精准映射供应商fileId/真实callID或稳定事件，不把同leadCode下主子组代替实际结果定位",
+                "导入失败不计呼叫，手工仅平台查看；回传失败可观察可补送，重复/晚更新不制造新呼叫，不重做供应商导入",
+                "原root随已保存业务行不再重算，后来true创建新主不改变旧结果所属主组；53失败分片号不是本方batch/root"
+              ],
+              "excluded_scope": [
+                "平台自动重导、业务额度、真实未验证供应商能力"
+              ],
+              "business_rules": [
+                "BR-015",
+                "BR-017",
+                "BR-018",
+                "BR-019",
+                "BR-012"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫"
+              ],
+              "dependencies": [
+                "SEQ-001",
+                "SEQ-002",
+                "SEQ-003",
+                "SEQ-004",
+                "API-010"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "FUNC-010对接口任务每次准确关联业务结果执行固定地址交付，结果为待发送/成功/失败/待核；request/实际batch/root组及call/event精确关联、晚更新和可靠补送为交付明细，root不替代实际呼叫定位。接收回执归FUNC-004，事实处理复用005/011/012/017；不另建按lead计数或重导调度。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "保存接口来源任务的每次准确关联结果并向后台固定DCC地址回传导入失败原因、风控、秒挂、话单/SIP及finishRetryFlag；未知和未返回独立表示，回传失败可观察可补送。每次结果携所属requestId/行定位、recordId、当前batchId、rootBatchId及tenant/原任务/leadCode/phone，按该实际业务批次的供应商fileId和真实callID或稳定事件精确关联；root仅表达主子归组，不能只按leadCode混并结果。手工任务仅平台查看。重复、晚更新或补送不新增导入/实际呼叫、不触发平台重导。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+                "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。"
+              ]
+            },
+            "source_story_ids": [
+              "US-002",
+              "US-003",
+              "US-004",
+              "US-001"
+            ],
+            "source_acceptance_ids": [
+              "AC-002",
+              "AC-018",
+              "AC-026",
+              "AC-027",
+              "AC-037",
+              "AC-038",
+              "AC-039",
+              "AC-040",
+              "AC-041",
+              "AC-042",
+              "AC-043",
+              "AC-052"
+            ],
+            "source_scenario_ids": [
+              "SC-001",
+              "SC-002",
+              "SC-003",
+              "SC-004"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-071",
+              "inputs/source-index.json#SRC-072",
+              "inputs/source-index.json#SRC-073",
+              "inputs/source-index.json#SRC-083",
+              "inputs/source-index.json#SRC-084",
+              "inputs/source-index.json#SRC-085",
+              "inputs/source-index.json#SRC-086"
+            ]
+          },
+          "basis": "SRC-087/D-009用户明确应用列表、新增、详情、修改、删除与简化密钥流程、常驻导入及已发现缺陷修复；SRC-088授权完整回归对齐。事实修订待重新核验/G3，不改历史冻结包。"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-011",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "秒挂识别",
+      "module_l3": null,
+      "name": "识别客户秒挂结果",
+      "description": "真实客户接通且客户主动挂断，客户有效时长0～2秒含真实0/2，排除null/未接通；保存识别并进入结果回传或手工平台查看，不自动重导。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "客户秒挂识别结果",
+        "primary_action": "识别客户秒挂结果",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "收到并识别可信客户接听及挂断结果时",
+        "primary_outcome": "真实客户接通且客户主动挂断，客户有效时长0～2秒含真实0/2，排除null/未接通；保存识别并进入结果回传或手工平台查看，不自动重导。",
+        "completion_result": "真实客户接通且客户主动挂断，客户有效时长0～2秒含真实0/2，排除null/未接通；保存识别并进入结果回传或手工平台查看，不自动重导。",
+        "included_scope": [
+          "真实客户接通且客户主动挂断，客户有效时长0～2秒含真实0/2，排除null/未接通；保存识别并进入结果回传或手工平台查看，不自动重导。"
+        ],
+        "excluded_scope": [
+          "平台自动重导、业务额度、真实未验证供应商能力"
+        ],
+        "business_rules": [
+          "BR-015",
+          "BR-017"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "SEQ-004",
+          "API-004"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "对客户通话结果执行秒挂识别，结果为有证据的秒挂判定；真实接通、客户主动挂断、有效时长0～2秒及缺失/异常排除为判定明细。识别结果交FUNC-010回传或FUNC-015查看，不包含平台计时器、额度或重导。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "真实客户接通且客户主动挂断，客户有效时长0～2秒含真实0/2，排除null/未接通；保存识别并进入结果回传或手工平台查看，不自动重导。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+        ]
+      },
+      "source_story_ids": [
+        "US-004"
+      ],
+      "source_acceptance_ids": [
+        "AC-004",
+        "AC-021",
+        "AC-022",
+        "AC-023",
+        "AC-024",
+        "AC-034"
+      ],
+      "source_scenario_ids": [
+        "SC-004"
+      ],
+      "decision_history": [
+        {
+          "before": "真实接听+客户挂断0～2秒进入30分钟等待，本类4/共同5守卫；可信真实接听0/2秒均纳入；未接通/缺失/异常不纳；原任务关联新批次继承原日期priority",
+          "superseded_by": "SRC-063～070"
+        }
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "秒挂待重呼记录",
+            "primary_action": "识别客户秒挂结果",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "收到并识别可信客户接听及挂断结果时",
+            "primary_outcome": "真实客户接通且客户主动挂断，客户有效时长0～2秒含真实0/2，排除null/未接通；保存识别并进入结果回传或手工平台查看，不自动重导。",
+            "completion_result": "真实客户接通且客户主动挂断，客户有效时长0～2秒含真实0/2，排除null/未接通；保存识别并进入结果回传或手工平台查看，不自动重导。",
+            "included_scope": [
+              "真实客户接通且客户主动挂断，客户有效时长0～2秒含真实0/2，排除null/未接通；保存识别并进入结果回传或手工平台查看，不自动重导。"
+            ],
+            "excluded_scope": [
+              "平台自动重导、业务额度、真实未验证供应商能力"
+            ],
+            "business_rules": [
+              "BR-015",
+              "BR-017"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-004",
+              "API-004"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "秒挂重呼",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-012",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "无话单失败",
+      "module_l3": null,
+      "name": "记录无话单失败原因",
+      "description": "可信预测失败事件准确关联本地任务批次线索，独立记录无话单原因，接口任务回传DCC；恢复重导由DCC决定，不轮询等待话单。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "无话单预测呼叫失败记录",
+        "primary_action": "记录无话单失败原因",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "可信且可关联的无话单预测呼叫失败事件到达时，包括已确认的黑名单、超频或无可用中继原因",
+        "primary_outcome": "可信预测失败事件准确关联本地任务批次线索，独立记录无话单原因，接口任务回传DCC；恢复重导由DCC决定，不轮询等待话单。",
+        "completion_result": "可信预测失败事件准确关联本地任务批次线索，独立记录无话单原因，接口任务回传DCC；恢复重导由DCC决定，不轮询等待话单。",
+        "included_scope": [
+          "可信预测失败事件准确关联本地任务批次线索，独立记录无话单原因，接口任务回传DCC；恢复重导由DCC决定，不轮询等待话单。"
+        ],
+        "excluded_scope": [
+          "平台自动重导、业务额度、真实未验证供应商能力"
+        ],
+        "business_rules": [
+          "BR-015",
+          "BR-017"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "SEQ-003",
+          "API-003"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "对可信且可关联的无话单预测呼叫失败执行原因记录，结果为独立失败事实及稳定业务关联；黑名单、超频、无可用中继等已确认原因属于此操作。无需等待话单，回传复用FUNC-010、查看复用FUNC-015；解除、恢复及重导由DCC决定。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "可信预测失败事件准确关联本地任务批次线索，独立记录无话单原因，接口任务回传DCC；恢复重导由DCC决定，不轮询等待话单。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+        ]
+      },
+      "source_story_ids": [
+        "US-003"
+      ],
+      "source_acceptance_ids": [
+        "AC-003",
+        "AC-020",
+        "AC-033"
+      ],
+      "source_scenario_ids": [
+        "SC-003"
+      ],
+      "decision_history": [
+        {
+          "before": "保存原因并暂停重提，无可信解除依据不开放恢复；展示黑名单/超频原因及待核解除依据；解除后业务目标单列说明，不承诺执行",
+          "superseded_by": "SRC-063～070"
+        }
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "系统限制记录",
+            "primary_action": "记录无话单失败原因",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "黑名单或超频限制结果出现时",
+            "primary_outcome": "可信预测失败事件准确关联本地任务批次线索，独立记录无话单原因，接口任务回传DCC；恢复重导由DCC决定，不轮询等待话单。",
+            "completion_result": "可信预测失败事件准确关联本地任务批次线索，独立记录无话单原因，接口任务回传DCC；恢复重导由DCC决定，不轮询等待话单。",
+            "included_scope": [
+              "可信预测失败事件准确关联本地任务批次线索，独立记录无话单原因，接口任务回传DCC；恢复重导由DCC决定，不轮询等待话单。"
+            ],
+            "excluded_scope": [
+              "平台自动重导、业务额度、真实未验证供应商能力"
+            ],
+            "business_rules": [
+              "BR-015",
+              "BR-017"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-003",
+              "API-008"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "系统风控",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-013",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "结果守卫",
+      "module_l3": null,
+      "name": "处理待核或重复结果",
+      "description": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。；导入失败分片重复/乱序迟到处理复用FUNC-017，关联或证据矛盾待核；不因明细清理丢失必要去重与交付状态。 未可信纯SIP更新独立保留待核证据，不覆盖可信呼叫、不占用其稳定关联或污染后续去重；随后可信且精确关联的SIP更新可按原呼叫处理，不因之前未可信样例而被拒绝。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "供应商结果事件",
+        "primary_action": "处理待核或重复结果",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "超时/矛盾、明确拒绝或重复通知出现时",
+        "primary_outcome": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。",
+        "completion_result": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。",
+        "included_scope": [
+          "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。",
+          "导入失败分片重复/乱序迟到处理复用FUNC-017，关联或证据矛盾待核；不因明细清理丢失必要去重与交付状态。",
+          "AC-062：未可信纯SIP更新独立保留待核证据，不覆盖可信呼叫、不占用其稳定关联或污染后续去重；随后可信且精确关联的SIP更新可按原呼叫处理，不因之前未可信样例而被拒绝。",
+          "AC-062：覆盖未可信SIP→可信call→可信SIP及可信call→未可信SIP→可信SIP，准确可信更新同一原call与交付版本、不新增呼叫；真正可信的关联或非SIP冲突仍待核。"
+        ],
+        "excluded_scope": [
+          "平台自动重导、业务额度、真实未验证供应商能力"
+        ],
+        "business_rules": [
+          "BR-015",
+          "BR-017",
+          "BR-018",
+          "BR-019"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫",
+          "未可信SIP关联/来源不足时独立待核，不污染已确认对象及后续可信准确更新；真实可信关联规则仍待核"
+        ],
+        "dependencies": [
+          "SEQ-001",
+          "SEQ-002",
+          "SEQ-003",
+          "SEQ-004"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "对未知、冲突、重复或晚更新结果执行一致性处理，结果为保留待核事实或对既有对象更新且不制造新呼叫；作为多个结果入口复用的共同守卫，不重复计各入口异常分支。53分片处理归FUNC-017、实际补送归FUNC-010，不新增人工核实、恢复或补偿管理入口。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。；导入失败分片重复/乱序迟到处理复用FUNC-017，关联或证据矛盾待核；不因明细清理丢失必要去重与交付状态。 未可信纯SIP更新独立保留待核证据，不覆盖可信呼叫、不占用其稳定关联或污染后续去重；随后可信且精确关联的SIP更新可按原呼叫处理，不因之前未可信样例而被拒绝。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+          "SRC-087未可信SIP隔离是既有结果守卫/交付明细，不新增业务功能或供应商保证。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001",
+        "US-002"
+      ],
+      "source_acceptance_ids": [
+        "AC-035",
+        "AC-039",
+        "AC-040",
+        "AC-041",
+        "AC-042",
+        "AC-043",
+        "AC-062"
+      ],
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004"
+      ],
+      "decision_history": [
+        {
+          "before": "未知待核暂停重提，拒绝/重复独立记录不计新实际呼叫；待核原因保留且不再次自动提交；核实后处理是业务原则，具体核实实施交开发；拒绝/重复不得增加实际呼叫计数",
+          "superseded_by": "SRC-063～070"
+        }
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-087"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "供应商结果事件",
+            "primary_action": "处理待核或重复结果",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "超时/矛盾、明确拒绝或重复通知出现时",
+            "primary_outcome": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。",
+            "completion_result": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。",
+            "included_scope": [
+              "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。",
+              "导入失败分片重复/乱序迟到处理复用FUNC-017，关联或证据矛盾待核；不因明细清理丢失必要去重与交付状态。"
+            ],
+            "excluded_scope": [
+              "平台自动重导、业务额度、真实未验证供应商能力"
+            ],
+            "business_rules": [
+              "BR-015",
+              "BR-017",
+              "BR-018",
+              "BR-019"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-002",
+              "SEQ-003",
+              "SEQ-004"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "结果守卫",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        },
+        {
+          "at": "2026-10-11T12:58:07+08:00",
+          "before_current": {
+            "id": "FUNC-013",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "结果守卫",
+            "module_l3": null,
+            "name": "处理待核或重复结果",
+            "description": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。；导入失败分片重复/乱序迟到处理复用FUNC-017，关联或证据矛盾待核；不因明细清理丢失必要去重与交付状态。",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "供应商结果事件",
+              "primary_action": "处理待核或重复结果",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "超时/矛盾、明确拒绝或重复通知出现时",
+              "primary_outcome": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。",
+              "completion_result": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。",
+              "included_scope": [
+                "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。",
+                "导入失败分片重复/乱序迟到处理复用FUNC-017，关联或证据矛盾待核；不因明细清理丢失必要去重与交付状态。"
+              ],
+              "excluded_scope": [
+                "平台自动重导、业务额度、真实未验证供应商能力"
+              ],
+              "business_rules": [
+                "BR-015",
+                "BR-017",
+                "BR-018",
+                "BR-019"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫"
+              ],
+              "dependencies": [
+                "SEQ-001",
+                "SEQ-002",
+                "SEQ-003",
+                "SEQ-004"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "对未知、冲突、重复或晚更新结果执行一致性处理，结果为保留待核事实或对既有对象更新且不制造新呼叫；作为多个结果入口复用的共同守卫，不重复计各入口异常分支。53分片处理归FUNC-017、实际补送归FUNC-010，不新增人工核实、恢复或补偿管理入口。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "关联不明、超时或冲突结果保留待核，不伪造成功/失败/最终状态；重复及SIP晚更新不算新呼叫。回传失败可观察且补送，技术契约由开发核实。；导入失败分片重复/乱序迟到处理复用FUNC-017，关联或证据矛盾待核；不因明细清理丢失必要去重与交付状态。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+              ]
+            },
+            "source_story_ids": [
+              "US-001"
+            ],
+            "source_acceptance_ids": [
+              "AC-035",
+              "AC-039",
+              "AC-040",
+              "AC-041",
+              "AC-042",
+              "AC-043"
+            ],
+            "source_scenario_ids": [
+              "SC-001",
+              "SC-002",
+              "SC-003",
+              "SC-004"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-071",
+              "inputs/source-index.json#SRC-072",
+              "inputs/source-index.json#SRC-073"
+            ]
+          },
+          "basis": "SRC-087/D-009用户明确应用列表、新增、详情、修改、删除与简化密钥流程、常驻导入及已发现缺陷修复；SRC-088授权完整回归对齐。事实修订待重新核验/G3，不改历史冻结包。"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-015",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "任务记录",
+      "module_l3": null,
+      "name": "查询任务业务记录",
+      "description": "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "当前任务导入/重呼/失败记录",
+        "primary_action": "查询任务业务记录",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "进入用户指定的任务级记录页时",
+        "primary_outcome": "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+        "completion_result": "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+        "included_scope": [
+          "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+          "同ID同归一有效内容重传的原逐行结果、sameID异内容冲突及归组未核可追溯；已保存接口request/root主子关系不随失败导出或精准供应商删除清理，不重算旧root；手工仍原本地关联，不增加DCC标识输入。",
+          "任务级查询中导入客户工具栏跨页签常驻，按锁定来源和既有权限/可导入状态展示可用或明确禁用原因；导入执行复用FUNC-004/005。",
+          "AC-059：预外呼任务列表与任务内导入客户入口均常驻；任务列表对具体已选/当前任务按其锁定来源分派，不创造无目标导入或新页面。"
+        ],
+        "excluded_scope": [
+          "平台自动重导、业务额度、真实未验证供应商能力"
+        ],
+        "business_rules": [
+          "BR-015",
+          "BR-017",
+          "BR-018",
+          "BR-019",
+          "BR-012"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "SEQ-001",
+          "SEQ-002",
+          "SEQ-003",
+          "SEQ-004",
+          "SEQ-007"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "FUNC-015查询当前任务业务记录，按lead和主/子批展示属于同次任务查询的必要分类/筛选明细，不新增页面、全局查询或独立归组功能。真实事件定位仍复用各后台处理和独立batch/file/call关联，下载复用FUNC-006。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+          "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。",
+          "SRC-087统一导入入口为既有任务页承载明细，查询与导入仍复用各自FUNC。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001",
+        "US-002"
+      ],
+      "source_acceptance_ids": [
+        "AC-028",
+        "AC-029",
+        "AC-037",
+        "AC-038",
+        "AC-039",
+        "AC-040",
+        "AC-041",
+        "AC-042",
+        "AC-043",
+        "AC-014",
+        "AC-015",
+        "AC-019",
+        "AC-032",
+        "AC-047",
+        "AC-048",
+        "AC-049",
+        "AC-050",
+        "AC-051",
+        "AC-052",
+        "AC-059"
+      ],
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004"
+      ],
+      "decision_history": [
+        {
+          "before": "显示该任务记录分类及原链/状态/失败原因，可追溯同号独立批次；任务级单独记录页，手工导入常驻；导入/重呼/失败作为同一次任务记录查询的分类；可见原日期/priority/批次/结果/原因/次数",
+          "superseded_by": "SRC-063～070"
+        }
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073",
+        "inputs/source-index.json#SRC-083",
+        "inputs/source-index.json#SRC-084",
+        "inputs/source-index.json#SRC-085",
+        "inputs/source-index.json#SRC-086",
+        "inputs/source-index.json#SRC-087"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "当前任务导入/重呼/失败记录",
+            "primary_action": "查询任务业务记录",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "进入用户指定的任务级记录页时",
+            "primary_outcome": "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态和关联；不展示平台重导倒计时/额度。",
+            "completion_result": "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态和关联；不展示平台重导倒计时/额度。",
+            "included_scope": [
+              "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态和关联；不展示平台重导倒计时/额度。",
+              "任务记录区分本地校验失败、供应商导入失败、呼叫失败及未知，展示同步数量证据、失败分片完整性和回传状态。"
+            ],
+            "excluded_scope": [
+              "平台自动重导、业务额度、真实未验证供应商能力"
+            ],
+            "business_rules": [
+              "BR-015",
+              "BR-017",
+              "BR-018",
+              "BR-019"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-002",
+              "SEQ-003",
+              "SEQ-004",
+              "SEQ-007"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "任务记录",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        },
+        {
+          "at": "2026-10-11T09:26:21+08:00",
+          "before_description": "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态和关联；不展示平台重导倒计时/额度。；任务记录区分本地校验失败、供应商导入失败、呼叫失败及未知，展示同步数量证据、失败分片完整性和回传状态。",
+          "before_notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+          "before_boundary": {
+            "business_object": "当前任务导入/重呼/失败记录",
+            "primary_action": "查询任务业务记录",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "进入用户指定的任务级记录页时",
+            "primary_outcome": "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态和关联；不展示平台重导倒计时/额度。",
+            "completion_result": "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态和关联；不展示平台重导倒计时/额度。",
+            "included_scope": [
+              "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态和关联；不展示平台重导倒计时/额度。",
+              "任务记录区分本地校验失败、供应商导入失败、呼叫失败及未知，展示同步数量证据、失败分片完整性和回传状态。"
+            ],
+            "excluded_scope": [
+              "平台自动重导、业务额度、真实未验证供应商能力"
+            ],
+            "business_rules": [
+              "BR-015",
+              "BR-017",
+              "BR-018",
+              "BR-019"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-002",
+              "SEQ-003",
+              "SEQ-004",
+              "SEQ-007"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "对当前任务业务记录执行查询，结果为同一次查询的导入、结果、失败、关联及交付状态视图；页签、筛选和状态分类是查询明细。事实处理复用各后台FUNC，下载单列FUNC-006，不新增全局记录查询或独立详情操作。"
+          },
+          "before_acceptance_ids": [
+            "AC-028",
+            "AC-029",
+            "AC-037",
+            "AC-038",
+            "AC-039",
+            "AC-040",
+            "AC-041",
+            "AC-042",
+            "AC-043"
+          ],
+          "basis": "SRC-083用户确认取消平台每日查询/priority衰减，并明确DCC业务请求与父根批次协议；保留本期功能ID，不增加独立功能。"
+        },
+        {
+          "at": "2026-10-11T10:06:23+08:00",
+          "before_current": {
+            "id": "FUNC-015",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "任务记录",
+            "module_l3": null,
+            "name": "查询任务业务记录",
+            "description": "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态。接口任务展示请求级requestId及行定位、逐行明确previousBatchId和平台batchId/parentBatchId/rootBatchId谱系，可追溯上批及最初批次；本次priority和原导入/各批次时间按来源展示，时间仅作审计。区分本地校验失败、供应商导入失败、呼叫失败及未知，展示同步数量证据、失败分片完整性和回传状态，不展示平台每日衰减或重导倒计时/额度。",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "当前任务导入/重呼/失败记录",
+              "primary_action": "查询任务业务记录",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "进入用户指定的任务级记录页时",
+              "primary_outcome": "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态。接口任务展示请求级requestId及行定位、逐行明确previousBatchId和平台batchId/parentBatchId/rootBatchId谱系，可追溯上批及最初批次；本次priority和原导入/各批次时间按来源展示，时间仅作审计。区分本地校验失败、供应商导入失败、呼叫失败及未知，展示同步数量证据、失败分片完整性和回传状态，不展示平台每日衰减或重导倒计时/额度。",
+              "completion_result": "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态。接口任务展示请求级requestId及行定位、逐行明确previousBatchId和平台batchId/parentBatchId/rootBatchId谱系，可追溯上批及最初批次；本次priority和原导入/各批次时间按来源展示，时间仅作审计。区分本地校验失败、供应商导入失败、呼叫失败及未知，展示同步数量证据、失败分片完整性和回传状态，不展示平台每日衰减或重导倒计时/额度。",
+              "included_scope": [
+                "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态。接口任务展示请求级requestId及行定位、逐行明确previousBatchId和平台batchId/parentBatchId/rootBatchId谱系，可追溯上批及最初批次；本次priority和原导入/各批次时间按来源展示，时间仅作审计。区分本地校验失败、供应商导入失败、呼叫失败及未知，展示同步数量证据、失败分片完整性和回传状态，不展示平台每日衰减或重导倒计时/额度。",
+                "整请求同内容重传、同ID不同请求内容冲突及已有历史却缺previousBatchId的拒绝/待核结果可追溯；历史批次和谱系不随失败导出或精准删除清理。手工任务不提供DCC请求/关联重导输入或回传入口。"
+              ],
+              "excluded_scope": [
+                "平台自动重导、业务额度、真实未验证供应商能力"
+              ],
+              "business_rules": [
+                "BR-015",
+                "BR-017",
+                "BR-018",
+                "BR-019",
+                "BR-012"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫"
+              ],
+              "dependencies": [
+                "SEQ-001",
+                "SEQ-002",
+                "SEQ-003",
+                "SEQ-004",
+                "SEQ-007"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "查询当前任务业务记录形成导入、结果、失败、谱系及交付状态视图，页签、筛选、当前/父/根批次关系和同请求反馈是同次查询明细。事实处理复用FUNC-004/005/010/017等后台功能，下载单列FUNC-006，不新增全局入口、关联重导操作或独立每日状态查询。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "按任务来源查看导入、每次通话/失败、秒挂、SIP、最后一通及回传状态。接口任务展示请求级requestId及行定位、逐行明确previousBatchId和平台batchId/parentBatchId/rootBatchId谱系，可追溯上批及最初批次；本次priority和原导入/各批次时间按来源展示，时间仅作审计。区分本地校验失败、供应商导入失败、呼叫失败及未知，展示同步数量证据、失败分片完整性和回传状态，不展示平台每日衰减或重导倒计时/额度。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+                "SRC-083修订：取消平台每日查询/衰减及旧priority强制继承；DCC请求幂等、显式父根批次与追溯按该操作边界实施，不改变既有1.0范围。"
+              ]
+            },
+            "source_story_ids": [
+              "US-001",
+              "US-002"
+            ],
+            "source_acceptance_ids": [
+              "AC-028",
+              "AC-029",
+              "AC-037",
+              "AC-038",
+              "AC-039",
+              "AC-040",
+              "AC-041",
+              "AC-042",
+              "AC-043",
+              "AC-014",
+              "AC-015",
+              "AC-019",
+              "AC-032",
+              "AC-047",
+              "AC-048",
+              "AC-049",
+              "AC-050",
+              "AC-051",
+              "AC-052"
+            ],
+            "source_scenario_ids": [
+              "SC-001",
+              "SC-002",
+              "SC-003",
+              "SC-004"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-071",
+              "inputs/source-index.json#SRC-072",
+              "inputs/source-index.json#SRC-073",
+              "inputs/source-index.json#SRC-083"
+            ]
+          },
+          "basis": "SRC-084/085/086用户确认改为isNewBatch默认false的平台主子批归组；本方只保存root，不要求DCC指定旧批次，保持功能稳定ID及已退役历史。"
+        },
+        {
+          "at": "2026-10-11T12:58:07+08:00",
+          "before_current": {
+            "id": "FUNC-015",
+            "version": "1.1.0",
+            "module_l1": "预外呼",
+            "module_l2": "任务记录",
+            "module_l3": null,
+            "name": "查询任务业务记录",
+            "description": "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+            "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+            "change_type": "new",
+            "boundary": {
+              "business_object": "当前任务导入/重呼/失败记录",
+              "primary_action": "查询任务业务记录",
+              "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+              "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+              "trigger": "进入用户指定的任务级记录页时",
+              "primary_outcome": "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+              "completion_result": "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+              "included_scope": [
+                "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+                "同ID同归一有效内容重传的原逐行结果、sameID异内容冲突及归组未核可追溯；已保存接口request/root主子关系不随失败导出或精准供应商删除清理，不重算旧root；手工仍原本地关联，不增加DCC标识输入。"
+              ],
+              "excluded_scope": [
+                "平台自动重导、业务额度、真实未验证供应商能力"
+              ],
+              "business_rules": [
+                "BR-015",
+                "BR-017",
+                "BR-018",
+                "BR-019",
+                "BR-012"
+              ],
+              "exception_paths": [
+                "按逐行/当前对象处理失败，未知待核暂停",
+                "明确拒绝/重复通知记录且不计新的实际呼叫"
+              ],
+              "dependencies": [
+                "SEQ-001",
+                "SEQ-002",
+                "SEQ-003",
+                "SEQ-004",
+                "SEQ-007"
+              ],
+              "assumptions": [
+                "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+                "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+              ],
+              "split_rationale": "FUNC-015查询当前任务业务记录，按lead和主/子批展示属于同次任务查询的必要分类/筛选明细，不新增页面、全局查询或独立归组功能。真实事件定位仍复用各后台处理和独立batch/file/call关联，下载复用FUNC-006。"
+            },
+            "change_detail": {
+              "before": null,
+              "after": "在既有任务记录页按任务来源查看导入、逐次结果/失败、秒挂、SIP、最后一通和交付状态。接口任务在固定tenant/原task范围内按leadCode查看独立主批及各自子批，显示每行isNewBatch、本次recordId/batchId和保存时分配的rootBatchId；true可形成多个独立主，false/缺省有主为新子、无主自动首主，旧记录/重传的root不随新主改变。每次结果仍按实际batch及fileId/call/event定位，不按leadCode混并；本次priority与时间按来源显示，时间仅审计。区分本地校验、供应商导入、呼叫失败及未知，保留数量/分片/回传证据。手工沿既有记录/单号批次查看，无DCC标识或归组输入，不显示平台衰减、重导倒计时或额度。",
+              "impact": [
+                "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变",
+                "SRC-084/085/086修订：DCC主子批分配与root追溯、默认false归一后请求幂等属于原操作必要明细；取消显式上批关联契约，不增加功能/页面；平台每日查询/衰减仍退出。"
+              ]
+            },
+            "source_story_ids": [
+              "US-001",
+              "US-002"
+            ],
+            "source_acceptance_ids": [
+              "AC-028",
+              "AC-029",
+              "AC-037",
+              "AC-038",
+              "AC-039",
+              "AC-040",
+              "AC-041",
+              "AC-042",
+              "AC-043",
+              "AC-014",
+              "AC-015",
+              "AC-019",
+              "AC-032",
+              "AC-047",
+              "AC-048",
+              "AC-049",
+              "AC-050",
+              "AC-051",
+              "AC-052"
+            ],
+            "source_scenario_ids": [
+              "SC-001",
+              "SC-002",
+              "SC-003",
+              "SC-004"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-071",
+              "inputs/source-index.json#SRC-072",
+              "inputs/source-index.json#SRC-073",
+              "inputs/source-index.json#SRC-083",
+              "inputs/source-index.json#SRC-084",
+              "inputs/source-index.json#SRC-085",
+              "inputs/source-index.json#SRC-086"
+            ]
+          },
+          "basis": "SRC-087/D-009用户明确应用列表、新增、详情、修改、删除与简化密钥流程、常驻导入及已发现缺陷修复；SRC-088授权完整回归对齐。事实修订待重新核验/G3，不改历史冻结包。"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-016",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "任务来源",
+      "module_l3": null,
+      "name": "创建任务并锁定导入方式",
+      "description": "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "预外呼任务来源",
+        "primary_action": "创建任务并锁定导入方式",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "创建任务提交时",
+        "primary_outcome": "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。",
+        "completion_result": "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。",
+        "included_scope": [
+          "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。"
+        ],
+        "excluded_scope": [
+          "旧任务批量迁移、前台回传地址配置、任务绑定应用"
+        ],
+        "business_rules": [
+          "BR-016"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "SEQ-001",
+          "SEQ-006",
+          "API-001"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现",
+          "通用输入安全、类型、长度校验仍需技术定义；取消字典不是取消全部输入校验"
+        ],
+        "split_rationale": "对预外呼任务执行创建并固定导入来源，结果为归属租户且来源已锁定的任务；提交前选择、确认后不可切换以及tenant/task校验共同组成创建结果，不把锁定字段另拆。后续导入复用FUNC-004/005，不包含旧任务迁移、绑定应用或前台回传地址设置。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-036",
+        "AC-029"
+      ],
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "预外呼任务来源",
+            "primary_action": "创建任务并锁定导入方式",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "创建任务提交时",
+            "primary_outcome": "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。",
+            "completion_result": "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。",
+            "included_scope": [
+              "创建任务提交后锁定DCC接口导入或手工导入一种来源，不可切换或混用；后端同时校验taskId与方式，任务归租户不绑定应用。"
+            ],
+            "excluded_scope": [
+              "旧任务批量迁移、前台回传地址配置、任务绑定应用"
+            ],
+            "business_rules": [
+              "BR-016"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-001",
+              "SEQ-006",
+              "API-001"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现",
+              "通用输入安全、类型、长度校验仍需技术定义；取消字典不是取消全部输入校验"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "任务来源",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-017",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "供应商提交",
+      "module_l3": null,
+      "name": "接收并关联异步导入失败",
+      "description": "接收53失败结果分片，按enterpriseId经核实租户映射、taskId、fileId及原始号码数据回查本次本地批次和leadCode；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅为失败推送分片，不是业务批次；重复不新增、乱序迟到不丢。收齐已声明分片只证明该失败推送组收齐，不证明全导入终态；未收到不推定零失败。",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "供应商异步导入失败结果",
+        "primary_action": "接收并关联异步导入失败",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "供应商53失败分片异步到达",
+        "primary_outcome": "新失败关联本地批次/leadCode，重复不新增、迟到不丢、冲突待核",
+        "completion_result": "保存可信失败事实及分片状态，供FUNC-010回传、FUNC-006快照导出和FUNC-015查看",
+        "included_scope": [
+          "接收53失败结果分片，按enterpriseId经核实租户映射、taskId、fileId及原始号码数据回查本次本地批次和leadCode；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅为失败推送分片，不是业务批次；重复不新增、乱序迟到不丢。收齐已声明分片只证明该失败推送组收齐，不证明全导入终态；未收到不推定零失败。",
+          "必要去重标记与分片/关联状态独立保留，已导出重复不再生"
+        ],
+        "excluded_scope": [
+          "供应商实际呼叫",
+          "平台自动重导",
+          "捏造零失败推送或全导入终态协议"
+        ],
+        "business_rules": [
+          "BR-018",
+          "BR-019"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "API-003",
+          "SEQ-001",
+          "SEQ-007"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "对供应商后到的53失败分片执行接收与关联，结果为可信失败事实、本地批次/leadCode关联及分片状态；与FUNC-005的同步提交触发和结果不同，保留独立项。关联、乱序、迟到、去重及冲突待核为同次接收明细；回传、下载、查看分别复用FUNC-010/006/015。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "接收53失败结果分片，按enterpriseId经核实租户映射、taskId、fileId及原始号码数据回查本次本地批次和leadCode；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅为失败推送分片，不是业务批次；重复不新增、乱序迟到不丢。收齐已声明分片只证明该失败推送组收齐，不证明全导入终态；未收到不推定零失败。",
+        "impact": [
+          "授权补齐现有场景一异步失败生命周期，新增稳定FUNC-017，其余ID不变"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-039",
+        "AC-040",
+        "AC-041",
+        "AC-042",
+        "AC-043"
+      ],
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "decision_history": [
+        {
+          "before": "保存原因并暂停重提，无可信解除依据不开放恢复；展示黑名单/超频原因及待核解除依据；解除后业务目标单列说明，不承诺执行",
+          "superseded_by": "SRC-063～070"
+        }
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-071",
+        "inputs/source-index.json#SRC-072",
+        "inputs/source-index.json#SRC-073"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "供应商异步导入失败结果",
+            "primary_action": "接收并关联异步导入失败",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "供应商53失败分片异步到达",
+            "primary_outcome": "新失败关联本地批次/leadCode，重复不新增、迟到不丢、冲突待核",
+            "completion_result": "保存可信失败事实及分片状态，供FUNC-010回传、FUNC-006快照导出和FUNC-015查看",
+            "included_scope": [
+              "接收53失败结果分片，按enterpriseId经核实租户映射、taskId、fileId及原始号码数据回查本次本地批次和leadCode；多候选待核，不按最近同号盲配。totalBatchCount/currentBatchCount仅为失败推送分片，不是业务批次；重复不新增、乱序迟到不丢。收齐已声明分片只证明该失败推送组收齐，不证明全导入终态；未收到不推定零失败。",
+              "必要去重标记与分片/关联状态独立保留，已导出重复不再生"
+            ],
+            "excluded_scope": [
+              "供应商实际呼叫",
+              "平台自动重导",
+              "捏造零失败推送或全导入终态协议"
+            ],
+            "business_rules": [
+              "BR-018",
+              "BR-019"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "API-003",
+              "SEQ-001",
+              "SEQ-007"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "提交FUNC-005与异步失败接收FUNC-017触发和完成结果不同，单列后台操作；分片/关联/去重为该操作必要明细不另拆。导出FUNC-006、回传FUNC-010、查询FUNC-015复用，不新增模块或页面。"
+          },
+          "before_module_l2": "供应商提交",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        }
+      ]
+    },
+    {
+      "id": "FUNC-018",
+      "version": "1.1.0",
+      "module_l1": "系统设置",
+      "module_l2": "应用接入",
+      "module_l3": null,
+      "name": "查询应用列表",
+      "description": "超管进入系统设置的应用接入列表，按应用名称或appId查询已保存应用，展示名称、appId、创建时间及详情/修改/删除入口；筛选、重置、刷新、分页和空结果是同次列表查询明细。",
+      "notes": "SRC-087用户明确要求的独立应用操作；仅合成演示。字段显示、填写、校验、确认、复制不独立计FUNC。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "应用及其租户授权配置",
+        "primary_action": "查询应用列表",
+        "system_boundary": "本平台应用接入管理及明确标注合成模拟；真实密钥、认证服务与内部安全实现仍待开发核实。",
+        "initiator": "超管",
+        "trigger": "进入应用接入菜单或查询/刷新列表时",
+        "primary_outcome": "返回授权范围内应用列表或明确空结果，不泄露其他权限数据",
+        "completion_result": "返回授权范围内应用列表或明确空结果，不泄露其他权限数据；无权或未满足条件不伪造成功。",
+        "included_scope": [
+          "名称或appId查询、结果列表与总数、分页、刷新/重置和无数据/无匹配反馈",
+          "列表仅展示必要业务字段和详情/修改/删除入口，密钥用途说明仅获取token；不设置技术测试区",
+          "应用管理菜单、页面和服务端管理接口均仅超管；租户管理员拒绝且不修改数据。"
+        ],
+        "excluded_scope": [
+          "应用启停、密钥轮换/重置及未确认的扩展管理操作",
+          "生成生产密钥或宣称真实token/撤销工程已完成",
+          "将demo60字和重名限制自动写入真实业务规则"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-020"
+        ],
+        "exception_paths": [
+          "无权页面/直接管理接口调用拒绝，不改变应用",
+          "目标不存在或已变化时明确反馈，不操作其他应用",
+          "校验失败、取消或操作失败不伪造成功"
+        ],
+        "dependencies": [
+          "SEQ-005"
+        ],
+        "assumptions": [
+          "真实应用管理接口、密钥安全存储和认证/撤销时效待工程设计；demo不证明生产能力",
+          "名称长度、重名等未确认约束不从代码推定为冻结需求"
+        ],
+        "split_rationale": "查询应用列表有用户明确要求的独立触发与可验收结果；应用列表FUNC-018、创建FUNC-019、详情FUNC-020、修改FUNC-001、删除FUNC-021分别登记。必要字段、筛选/分页、填写、校验、确认、显示/复制和错误反馈归对应主操作明细，后台token交换复用FUNC-002。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "超管进入系统设置的应用接入列表，按应用名称或appId查询已保存应用，展示名称、appId、创建时间及详情/修改/删除入口；筛选、重置、刷新、分页和空结果是同次列表查询明细。",
+        "impact": [
+          "SRC-087相对上一13FUNC候选新增该已明确业务操作；与原FUNC-001修改区分，使用稳定新ID。",
+          "列表/新增/详情/修改为逻辑页面/视图，可共用同一route和HTML，不新增原型文件夹。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-028",
+        "AC-044",
+        "AC-045",
+        "AC-053",
+        "AC-058"
+      ],
+      "source_scenario_ids": [
+        "SC-005"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-074",
+        "inputs/source-index.json#SRC-087"
+      ]
+    },
+    {
+      "id": "FUNC-019",
+      "version": "1.1.0",
+      "module_l1": "系统设置",
+      "module_l2": "应用接入",
+      "module_l3": null,
+      "name": "创建应用",
+      "description": "超管在新增视图填写应用名称与可访问租户，提交成功创建独立应用及演示appId/appSecret并进入该应用详情；取消/无权/校验失败不创建，创建后密钥用于获取token。",
+      "notes": "SRC-087用户明确要求的独立应用操作；仅合成演示。字段显示、填写、校验、确认、复制不独立计FUNC。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "应用及其租户授权配置",
+        "primary_action": "创建应用",
+        "system_boundary": "本平台应用接入管理及明确标注合成模拟；真实密钥、认证服务与内部安全实现仍待开发核实。",
+        "initiator": "超管",
+        "trigger": "从应用列表进入新增并提交时",
+        "primary_outcome": "保存独立应用及可访问租户，创建演示appId/appSecret并返回详情",
+        "completion_result": "保存独立应用及可访问租户，创建演示appId/appSecret并返回详情；无权或未满足条件不伪造成功。",
+        "included_scope": [
+          "填写应用名称及可访问租户，名称与租户关系必填校验为创建明细",
+          "创建时生成唯一应用标识与演示密钥，成功进入新应用详情；取消或失败不创建",
+          "密钥用途仅申请token；一租户可授权多个应用，应用不绑定任务",
+          "应用管理菜单、页面和服务端管理接口均仅超管；租户管理员拒绝且不修改数据。"
+        ],
+        "excluded_scope": [
+          "应用启停、密钥轮换/重置及未确认的扩展管理操作",
+          "生成生产密钥或宣称真实token/撤销工程已完成",
+          "将demo60字和重名限制自动写入真实业务规则"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-020"
+        ],
+        "exception_paths": [
+          "无权创建或直接管理接口调用拒绝，不创建应用",
+          "名称/可访问租户必填或授权关系无效时明确反馈",
+          "取消或保存失败不生成已保存应用或虚假的可用凭据"
+        ],
+        "dependencies": [
+          "SEQ-005"
+        ],
+        "assumptions": [
+          "真实应用管理接口、密钥安全存储和认证/撤销时效待工程设计；demo不证明生产能力",
+          "名称长度、重名等未确认约束不从代码推定为冻结需求"
+        ],
+        "split_rationale": "创建应用有用户明确要求的独立触发与可验收结果；应用列表FUNC-018、创建FUNC-019、详情FUNC-020、修改FUNC-001、删除FUNC-021分别登记。必要字段、筛选/分页、填写、校验、确认、显示/复制和错误反馈归对应主操作明细，后台token交换复用FUNC-002。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "超管在新增视图填写应用名称与可访问租户，提交成功创建独立应用及演示appId/appSecret并进入该应用详情；取消/无权/校验失败不创建，创建后密钥用于获取token。",
+        "impact": [
+          "SRC-087相对上一13FUNC候选新增该已明确业务操作；与原FUNC-001修改区分，使用稳定新ID。",
+          "列表/新增/详情/修改为逻辑页面/视图，可共用同一route和HTML，不新增原型文件夹。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-017",
+        "AC-044",
+        "AC-045",
+        "AC-055",
+        "AC-058"
+      ],
+      "source_scenario_ids": [
+        "SC-005"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-074",
+        "inputs/source-index.json#SRC-087"
+      ]
+    },
+    {
+      "id": "FUNC-020",
+      "version": "1.1.0",
+      "module_l1": "系统设置",
+      "module_l2": "应用接入",
+      "module_l3": null,
+      "name": "查看应用详情",
+      "description": "超管查看指定应用名称、appId、可访问租户、创建时间与演示appSecret；密钥默认掩码，可显示/隐藏或复制，复制失败明确反馈；这些只读明细不重置密钥，详情可进入修改或发起该应用删除。",
+      "notes": "SRC-087用户明确要求的独立应用操作；仅合成演示。字段显示、填写、校验、确认、复制不独立计FUNC。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "应用及其租户授权配置",
+        "primary_action": "查看应用详情",
+        "system_boundary": "本平台应用接入管理及明确标注合成模拟；真实密钥、认证服务与内部安全实现仍待开发核实。",
+        "initiator": "超管",
+        "trigger": "从列表或创建/修改成功后进入指定应用详情时",
+        "primary_outcome": "返回指定已保存应用详情及必要密钥查看反馈，不修改或重置应用",
+        "completion_result": "返回指定已保存应用详情及必要密钥查看反馈，不修改或重置应用；无权或未满足条件不伪造成功。",
+        "included_scope": [
+          "展示所选应用名称、appId、授权租户、创建时间与演示密钥，默认掩码",
+          "显示/隐藏appSecret及复制appId/appSecret为详情读取明细，复制失败明确反馈；进入/返回/复制不重置凭据",
+          "详情提供返回列表及复用FUNC-001修改、FUNC-021删除入口；不包含身份交换技术面板",
+          "应用管理菜单、页面和服务端管理接口均仅超管；租户管理员拒绝且不修改数据。"
+        ],
+        "excluded_scope": [
+          "应用启停、密钥轮换/重置及未确认的扩展管理操作",
+          "生成生产密钥或宣称真实token/撤销工程已完成",
+          "将demo60字和重名限制自动写入真实业务规则"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-020"
+        ],
+        "exception_paths": [
+          "无权页面/直接管理接口调用拒绝，不改变应用",
+          "目标不存在或已变化时明确反馈，不操作其他应用",
+          "校验失败、取消或操作失败不伪造成功"
+        ],
+        "dependencies": [
+          "SEQ-005"
+        ],
+        "assumptions": [
+          "真实应用管理接口、密钥安全存储和认证/撤销时效待工程设计；demo不证明生产能力",
+          "名称长度、重名等未确认约束不从代码推定为冻结需求"
+        ],
+        "split_rationale": "查看应用详情有用户明确要求的独立触发与可验收结果；应用列表FUNC-018、创建FUNC-019、详情FUNC-020、修改FUNC-001、删除FUNC-021分别登记。必要字段、筛选/分页、填写、校验、确认、显示/复制和错误反馈归对应主操作明细，后台token交换复用FUNC-002。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "超管查看指定应用名称、appId、可访问租户、创建时间与演示appSecret；密钥默认掩码，可显示/隐藏或复制，复制失败明确反馈；这些只读明细不重置密钥，详情可进入修改或发起该应用删除。",
+        "impact": [
+          "SRC-087相对上一13FUNC候选新增该已明确业务操作；与原FUNC-001修改区分，使用稳定新ID。",
+          "列表/新增/详情/修改为逻辑页面/视图，可共用同一route和HTML，不新增原型文件夹。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-017",
+        "AC-044",
+        "AC-045",
+        "AC-054",
+        "AC-058"
+      ],
+      "source_scenario_ids": [
+        "SC-005"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-074",
+        "inputs/source-index.json#SRC-087"
+      ]
+    },
+    {
+      "id": "FUNC-021",
+      "version": "1.1.0",
+      "module_l1": "系统设置",
+      "module_l2": "应用接入",
+      "module_l3": null,
+      "name": "删除应用",
+      "description": "超管从列表或详情精确选择应用，经确认删除该应用；取消不改变数据，失败不显示成功。删除后其演示凭据不能继续获取token，已发合成身份失效；其他应用、租户业务任务及历史来源追踪保留。",
+      "notes": "SRC-087用户明确要求的独立应用操作；仅合成演示。字段显示、填写、校验、确认、复制不独立计FUNC。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "应用及其租户授权配置",
+        "primary_action": "删除应用",
+        "system_boundary": "本平台应用接入管理及明确标注合成模拟；真实密钥、认证服务与内部安全实现仍待开发核实。",
+        "initiator": "超管",
+        "trigger": "从列表或详情选择具体应用并确认删除时",
+        "primary_outcome": "精确应用被删除，演示凭据及已发合成业务身份不可继续使用，其他对象保持",
+        "completion_result": "精确应用被删除，演示凭据及已发合成业务身份不可继续使用，其他对象保持；无权或未满足条件不伪造成功。",
+        "included_scope": [
+          "明确具体应用和影响并确认；取消不删除，失败保留并反馈",
+          "成功仅删除所选应用，返回刷新后的列表；不批量删除同租户其他应用或业务任务",
+          "应用删除使演示凭据及已发合成业务身份失效；历史来源关联保留，生产撤销时效/方式待设计",
+          "应用管理菜单、页面和服务端管理接口均仅超管；租户管理员拒绝且不修改数据。"
+        ],
+        "excluded_scope": [
+          "应用启停、密钥轮换/重置及未确认的扩展管理操作",
+          "生成生产密钥或宣称真实token/撤销工程已完成",
+          "将demo60字和重名限制自动写入真实业务规则"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-020"
+        ],
+        "exception_paths": [
+          "无权页面/直接管理接口调用拒绝，不改变应用",
+          "目标不存在或已变化时明确反馈，不操作其他应用",
+          "校验失败、取消或操作失败不伪造成功"
+        ],
+        "dependencies": [
+          "SEQ-005"
+        ],
+        "assumptions": [
+          "真实应用管理接口、密钥安全存储和认证/撤销时效待工程设计；demo不证明生产能力",
+          "名称长度、重名等未确认约束不从代码推定为冻结需求"
+        ],
+        "split_rationale": "删除应用有用户明确要求的独立触发与可验收结果；应用列表FUNC-018、创建FUNC-019、详情FUNC-020、修改FUNC-001、删除FUNC-021分别登记。必要字段、筛选/分页、填写、校验、确认、显示/复制和错误反馈归对应主操作明细，后台token交换复用FUNC-002。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "超管从列表或详情精确选择应用，经确认删除该应用；取消不改变数据，失败不显示成功。删除后其演示凭据不能继续获取token，已发合成身份失效；其他应用、租户业务任务及历史来源追踪保留。",
+        "impact": [
+          "SRC-087相对上一13FUNC候选新增该已明确业务操作；与原FUNC-001修改区分，使用稳定新ID。",
+          "列表/新增/详情/修改为逻辑页面/视图，可共用同一route和HTML，不新增原型文件夹。"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-044",
+        "AC-045",
+        "AC-057",
+        "AC-058"
+      ],
+      "source_scenario_ids": [
+        "SC-005"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-074",
+        "inputs/source-index.json#SRC-087"
+      ]
+    }
+  ],
+  "retired_features": [
+    {
+      "id": "FUNC-003",
+      "name": "保存R来源字典",
+      "status": "retired",
+      "superseded_by": "SRC-062",
+      "original_feature": {
+        "id": "FUNC-003",
+        "version": "1.1.0",
+        "module_l1": "预外呼",
+        "module_l2": "线索导入",
+        "module_l3": null,
+        "name": "保存R来源字典",
+        "description": "导入使用合法允许值集合，无R排序映射；字典允许值供校验；仅线索类客户R必填且非法逐行拒绝；不扩展非线索客户",
+        "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+        "change_type": "new",
+        "boundary": {
+          "business_object": "线索R字典",
+          "primary_action": "保存R来源字典",
+          "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+          "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+          "trigger": "维护来源允许值时",
+          "primary_outcome": "导入使用合法允许值集合，无R排序映射",
+          "completion_result": "导入使用合法允许值集合，无R排序映射；未知或不满足条件不伪造成功。",
+          "included_scope": [
+            "字典允许值供校验",
+            "仅线索类客户R必填且非法逐行拒绝；不扩展非线索客户"
+          ],
+          "excluded_scope": [
+            "按R编号决定priority",
+            "未确认的字典归属/权限矩阵"
+          ],
+          "business_rules": [
+            "BR-001",
+            "BR-002",
+            "BR-003",
+            "BR-004",
+            "BR-005",
+            "BR-006",
+            "BR-007",
+            "BR-014",
+            "BR-015"
+          ],
+          "exception_paths": [
+            "按逐行/当前对象处理失败，未知待核暂停",
+            "明确拒绝/重复通知记录且不计新的实际呼叫"
+          ],
+          "dependencies": [
+            "SEQ-006"
+          ],
+          "assumptions": [
+            "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+            "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+          ],
+          "split_rationale": "保存R来源字典针对线索R字典形成独立结果；必要字段/校验/反馈作为明细。应用配置与身份交换分FUNC-001/002；接收与自动提交分004/005；日查询与降级分007/008；结果排队与到期执行分010/011/014；共同结果守卫复用013；失败下载及成功清理同事务归006；记录页分类不重复计FUNC-015。"
+        },
+        "change_detail": {
+          "before": null,
+          "after": "导入使用合法允许值集合，无R排序映射",
+          "impact": [
+            "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+          ]
+        },
+        "source_story_ids": [
+          "US-001"
+        ],
+        "source_acceptance_ids": [
+          "AC-005"
+        ],
+        "source_scenario_ids": [
+          "SC-001"
+        ]
+      },
+      "reason": "用户确认R可选且无需字典维护；不复用/重编号此ID"
+    },
+    {
+      "id": "FUNC-014",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "重呼执行",
+      "module_l3": null,
+      "name": "执行到期待重呼提交",
+      "description": "原任务关联新批次模拟提交，继承原日期/priority，守住单类及合计额度；精准成功删除取消未执行重呼；额度到顶停止相应类型；关联批次按原始链累计不清零；拒绝/重复不算新实际呼叫，未知暂停",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "原始链关联重呼批次",
+        "primary_action": "执行到期待重呼提交",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "线路/秒挂识别后30分钟到期且状态可判断时",
+        "primary_outcome": "原任务关联新批次模拟提交，继承原日期/priority，守住单类及合计额度",
+        "completion_result": "原任务关联新批次模拟提交，继承原日期/priority，守住单类及合计额度；未知或不满足条件不伪造成功。",
+        "included_scope": [
+          "精准成功删除取消未执行重呼",
+          "额度到顶停止相应类型",
+          "关联批次按原始链累计不清零",
+          "拒绝/重复不算新实际呼叫，未知暂停"
+        ],
+        "excluded_scope": [
+          "现场实呼",
+          "以供应商接收代替实际呼叫次数",
+          "系统风控自动恢复"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-005",
+          "BR-006",
+          "BR-007",
+          "BR-008",
+          "BR-010",
+          "BR-011",
+          "BR-012",
+          "BR-013",
+          "BR-014",
+          "BR-015"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "SEQ-002",
+          "SEQ-004",
+          "API-002",
+          "API-007"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "执行到期待重呼提交针对原始链关联重呼批次形成独立结果；必要字段/校验/反馈作为明细。应用配置与身份交换分FUNC-001/002；接收与自动提交分004/005；日查询与降级分007/008；结果排队与到期执行分010/011/014；共同结果守卫复用013；失败下载及成功清理同事务归006；记录页分类不重复计FUNC-015。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "原任务关联新批次模拟提交，继承原日期/priority，守住单类及合计额度",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+        ]
+      },
+      "source_story_ids": [
+        "US-001",
+        "US-002",
+        "US-004"
+      ],
+      "source_acceptance_ids": [
+        "AC-018",
+        "AC-019",
+        "AC-022",
+        "AC-023",
+        "AC-026",
+        "AC-027",
+        "AC-032",
+        "AC-035"
+      ],
+      "source_scenario_ids": [
+        "SC-001",
+        "SC-002",
+        "SC-004"
+      ],
+      "retired_by": "SRC-063",
+      "retired_reason": "重导由DCC决策，平台取消到期自动提交"
+    },
+    {
+      "id": "FUNC-007",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "状态跟进",
+      "module_l3": null,
+      "name": "获取待跟进号码状态",
+      "description": "获得可信状态或待核原因，已供应商删除排除；当天及历史仍需跟进；话单不足时不把无话单认定未拨",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "待跟进批次状态",
+        "primary_action": "获取待跟进号码状态",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "每日定时查询当天和历史待跟进记录时",
+        "primary_outcome": "获得可信状态或待核原因，已供应商删除排除",
+        "completion_result": "获得可信状态或待核原因，已供应商删除排除；未知或不满足条件不伪造成功。",
+        "included_scope": [
+          "当天及历史仍需跟进",
+          "话单不足时不把无话单认定未拨"
+        ],
+        "excluded_scope": [
+          "擅设具体执行钟点或结果枚举"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-005",
+          "BR-006",
+          "BR-007",
+          "BR-014",
+          "BR-015"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "SEQ-008",
+          "API-004",
+          "API-005"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "对当天及历史待跟进批次执行状态获取，结果为可信状态或待核原因；与实际修改priority的FUNC-008分开。已删除排除、话单补查及不以无话单判未拨为查询明细，不把供应商状态算法计为平台功能。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "获得可信状态或待核原因，已供应商删除排除",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-015",
+        "AC-032"
+      ],
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "待跟进批次状态",
+            "primary_action": "获取待跟进号码状态",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "每日定时查询当天和历史待跟进记录时",
+            "primary_outcome": "获得可信状态或待核原因，已供应商删除排除",
+            "completion_result": "获得可信状态或待核原因，已供应商删除排除；未知或不满足条件不伪造成功。",
+            "included_scope": [
+              "当天及历史仍需跟进",
+              "话单不足时不把无话单认定未拨"
+            ],
+            "excluded_scope": [
+              "擅设具体执行钟点或结果枚举"
+            ],
+            "business_rules": [
+              "BR-001",
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-005",
+              "BR-006",
+              "BR-007",
+              "BR-014",
+              "BR-015"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-008",
+              "API-004",
+              "API-005"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "状态跟进",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        }
+      ],
+      "retired_by": "SRC-083",
+      "retired_reason": "平台取消每日priority衰减；仅为该衰减服务的每日待跟进状态查询随之退出本期范围。DCC决定是否、何时及以何priority重新导入；保留原稳定ID和完整旧对象供历史追溯。"
+    },
+    {
+      "id": "FUNC-008",
+      "version": "1.1.0",
+      "module_l1": "预外呼",
+      "module_l2": "优先级跟进",
+      "module_l3": null,
+      "name": "降级号码当前优先级",
+      "description": "按原导入日期每天减1最低1，并保留关联批次继承值；按原日期自然日差，最低1；同日重复跟进不重复下降为派生防重约束；与供应商存量更新能力分开标待核",
+      "notes": "仅v1.1.0本轮静态评审操作边界；复用既有工程，不把真实API/安全契约视为已支持。",
+      "change_type": "new",
+      "boundary": {
+        "business_object": "号码priority",
+        "primary_action": "降级号码当前优先级",
+        "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+        "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+        "trigger": "北京时间自然日增且可信未拨/已拨未接通时",
+        "primary_outcome": "按原导入日期每天减1最低1，并保留关联批次继承值",
+        "completion_result": "按原导入日期每天减1最低1，并保留关联批次继承值；未知或不满足条件不伪造成功。",
+        "included_scope": [
+          "按原日期自然日差，最低1",
+          "同日重复跟进不重复下降为派生防重约束",
+          "与供应商存量更新能力分开标待核"
+        ],
+        "excluded_scope": [
+          "按新批次日期重置",
+          "R排序",
+          "提交后人工改值入口"
+        ],
+        "business_rules": [
+          "BR-001",
+          "BR-002",
+          "BR-003",
+          "BR-004",
+          "BR-005",
+          "BR-006",
+          "BR-007",
+          "BR-014",
+          "BR-015"
+        ],
+        "exception_paths": [
+          "按逐行/当前对象处理失败，未知待核暂停",
+          "明确拒绝/重复通知记录且不计新的实际呼叫"
+        ],
+        "dependencies": [
+          "SEQ-008",
+          "API-005"
+        ],
+        "assumptions": [
+          "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+          "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+        ],
+        "split_rationale": "对符合条件号码执行当前priority降级，结果为按原导入北京时间自然日计算的目标值及修改状态；复用FUNC-007的可信状态。最低1、同日防重复、原日期和新批次继承为该次降级明细，不新增手改入口或重导操作。"
+      },
+      "change_detail": {
+        "before": null,
+        "after": "按原导入日期每天减1最低1，并保留关联批次继承值",
+        "impact": [
+          "新增本版DCC/手工线索增量所需的该操作及明确模拟反馈；既有1.0通用页面/功能与冻结资料不改变"
+        ]
+      },
+      "source_story_ids": [
+        "US-001"
+      ],
+      "source_acceptance_ids": [
+        "AC-014",
+        "AC-015",
+        "AC-032"
+      ],
+      "source_scenario_ids": [
+        "SC-001"
+      ],
+      "review_history": [
+        {
+          "at": "2026-10-10T15:20:26+08:00",
+          "before_boundary": {
+            "business_object": "号码priority",
+            "primary_action": "降级号码当前优先级",
+            "system_boundary": "本平台业务规则及明确标注合成模拟；DCC/供应商真实服务与内部调度不在本轮实现范围。",
+            "initiator": "已有权限范围的运营/DCC或已确认业务事件（见触发）",
+            "trigger": "北京时间自然日增且可信未拨/已拨未接通时",
+            "primary_outcome": "按原导入日期每天减1最低1，并保留关联批次继承值",
+            "completion_result": "按原导入日期每天减1最低1，并保留关联批次继承值；未知或不满足条件不伪造成功。",
+            "included_scope": [
+              "按原日期自然日差，最低1",
+              "同日重复跟进不重复下降为派生防重约束",
+              "与供应商存量更新能力分开标待核"
+            ],
+            "excluded_scope": [
+              "按新批次日期重置",
+              "R排序",
+              "提交后人工改值入口"
+            ],
+            "business_rules": [
+              "BR-001",
+              "BR-002",
+              "BR-003",
+              "BR-004",
+              "BR-005",
+              "BR-006",
+              "BR-007",
+              "BR-014",
+              "BR-015"
+            ],
+            "exception_paths": [
+              "按逐行/当前对象处理失败，未知待核暂停",
+              "明确拒绝/重复通知记录且不计新的实际呼叫"
+            ],
+            "dependencies": [
+              "SEQ-008",
+              "API-005"
+            ],
+            "assumptions": [
+              "partial/missing接口仅合成模拟，真实字段、并发、幂等、下载成功判据由开发核实",
+              "新权限矩阵与具体执行时刻尚未确认，不擅自提供生产实现"
+            ],
+            "split_rationale": "按独立业务操作划分；任务来源锁定FUNC-016、结果回传FUNC-010，识别与失败事实分别FUNC-011/012；不重复创建平台重导调度。"
+          },
+          "before_module_l2": "优先级跟进",
+          "basis": "S7语义复核，仅细化现有AC和职责的操作归属，不新增范围或改变功能ID"
+        }
+      ],
+      "retired_by": "SRC-083",
+      "retired_reason": "平台取消每日priority衰减；仅为该衰减服务的每日待跟进状态查询随之退出本期范围。DCC决定是否、何时及以何priority重新导入；保留原稳定ID和完整旧对象供历史追溯。"
+    }
+  ]
+}

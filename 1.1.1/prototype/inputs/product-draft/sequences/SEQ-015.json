@@ -1,0 +1,412 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-015",
+  "scenario_id": "SC-013",
+  "name": "本次意向查选、联动及保存交互草稿",
+  "status": "product_design_draft",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "有业务填写权限的客服／运营",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "既有业务信息填写界面",
+      "kind": "system"
+    },
+    {
+      "id": "platform",
+      "name": "平台业务校验与保存（逻辑职责）",
+      "kind": "system"
+    },
+    {
+      "id": "provider",
+      "name": "权威车系／门店数据提供方（待核）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "进入既有通话／话后业务信息填写",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "platform",
+      "message": "载入当前分类、权限、本次填写与原导入意向",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "platform",
+      "to": "frontend",
+      "message": "返回当前可用配置与值；原导入值和原计划到店字段分别保留",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示本次意向字段及原始信息；历史读取不触发恢复或外部重查",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "operator",
+      "to": "frontend",
+      "message": "查找车系，或发起来源恢复旧车系的重新核验",
+      "type": "request",
+      "api_id": null,
+      "condition": "需要查找、更换或恢复旧车系"
+    },
+    {
+      "step": 6,
+      "from": "frontend",
+      "to": "platform",
+      "message": "按当前租户及所引用来源发起车系查询",
+      "type": "request",
+      "api_id": null,
+      "condition": "本轮需查询车系"
+    },
+    {
+      "step": 7,
+      "from": "platform",
+      "to": "platform",
+      "message": "检查条目启用且租户获授权；普通仍有效值可保留，无需每次重查",
+      "type": "internal",
+      "api_id": null,
+      "condition": "本轮需查询车系"
+    },
+    {
+      "step": 8,
+      "from": "platform",
+      "to": "provider",
+      "message": "查找权威车系候选及编码、展示信息和体系依据；契约待核",
+      "type": "external_call",
+      "api_id": "API-015",
+      "condition": "本轮需查询且来源可用"
+    },
+    {
+      "step": 9,
+      "from": "provider",
+      "to": "platform",
+      "message": "返回候选查询结果或明确失败；真实返回与完整性契约待核",
+      "type": "response",
+      "api_id": "API-015",
+      "condition": "已发起本轮车系查询"
+    },
+    {
+      "step": 10,
+      "from": "platform",
+      "to": "frontend",
+      "message": "提供当前有效候选供选择；原始值带入及来源恢复旧值须客服确认",
+      "type": "response",
+      "api_id": null,
+      "condition": "来源仍可用，响应属于当前条件且车系候选完整成功"
+    },
+    {
+      "step": 11,
+      "from": "platform",
+      "to": "frontend",
+      "message": "保留输入并提示失败或来源不可用；旧在途结果不新选，不自动恢复旧值",
+      "type": "response",
+      "api_id": null,
+      "condition": "车系查询失败、不完整或来源已不可用；与有效候选分支互斥"
+    },
+    {
+      "step": 12,
+      "from": "operator",
+      "to": "frontend",
+      "message": "选择、明确确认或清空本次车系；各车系字段分别保留选择",
+      "type": "request",
+      "api_id": null,
+      "condition": "按当前可用候选填写；普通有效旧值可保留"
+    },
+    {
+      "step": 13,
+      "from": "frontend",
+      "to": "platform",
+      "message": "按当前多个关联车系字段取得有效编码，更新本轮查询条件",
+      "type": "request",
+      "api_id": null,
+      "condition": "准备查门店或关联车系发生变化"
+    },
+    {
+      "step": 14,
+      "from": "platform",
+      "to": "frontend",
+      "message": "提示请先选择至少一个车系，不查询门店；清空全部后旧门店保留待重选",
+      "type": "response",
+      "api_id": null,
+      "condition": "所有关联车系均未选"
+    },
+    {
+      "step": 15,
+      "from": "platform",
+      "to": "frontend",
+      "message": "保留输入并说明需核对编码，不以无效值查询或扩大门店范围",
+      "type": "response",
+      "api_id": null,
+      "condition": "关联车系已选但不能取得有效编码"
+    },
+    {
+      "step": 16,
+      "from": "platform",
+      "to": "platform",
+      "message": "检查当前门店来源对租户可用，并绑定本轮有效车系条件",
+      "type": "internal",
+      "api_id": null,
+      "condition": "至少一个有效关联车系"
+    },
+    {
+      "step": 17,
+      "from": "platform",
+      "to": "provider",
+      "message": "按各当前车系编码取得权威门店及完整性／关系有效性依据；调用方式待核",
+      "type": "external_call",
+      "api_id": "API-016",
+      "condition": "至少一个有效车系且门店来源可用"
+    },
+    {
+      "step": 18,
+      "from": "provider",
+      "to": "platform",
+      "message": "返回各条件查询结果、空结果或失败；不预设一次批量能力",
+      "type": "response",
+      "api_id": "API-016",
+      "condition": "已发起本轮门店查询"
+    },
+    {
+      "step": 19,
+      "from": "platform",
+      "to": "frontend",
+      "message": "仅保留显示来源不可用旧值，暂停有效提交；旧在途结果不再用于新选择",
+      "type": "response",
+      "api_id": null,
+      "condition": "门店来源不可用或已被撤权"
+    },
+    {
+      "step": 20,
+      "from": "platform",
+      "to": "frontend",
+      "message": "舍弃旧车系组合响应，不据此提供候选或验证当前门店",
+      "type": "response",
+      "api_id": null,
+      "condition": "来源可用但响应已不属于当前车系条件"
+    },
+    {
+      "step": 21,
+      "from": "platform",
+      "to": "frontend",
+      "message": "保留输入并提示重试；查全前不允许新的门店选择，不据失败判旧值失配",
+      "type": "response",
+      "api_id": null,
+      "condition": "来源与条件仍有效，但有失败或不完整结果"
+    },
+    {
+      "step": 22,
+      "from": "platform",
+      "to": "platform",
+      "message": "对当前各车系编码的完整权威结果取并集去重，保持单条件NEV／ICE对应",
+      "type": "internal",
+      "api_id": null,
+      "condition": "当前全部有效条件均有完整成功依据"
+    },
+    {
+      "step": 23,
+      "from": "platform",
+      "to": "frontend",
+      "message": "原有效门店仍匹配当前关联范围时保留；不以搜索／分页遗漏判失配",
+      "type": "response",
+      "api_id": null,
+      "condition": "原有效值仍有当前条件匹配依据"
+    },
+    {
+      "step": 24,
+      "from": "platform",
+      "to": "frontend",
+      "message": "原门店失配则保留显示并待重选；仍不作为有效已选值",
+      "type": "response",
+      "api_id": null,
+      "condition": "完整权威依据确认原门店不匹配当前条件"
+    },
+    {
+      "step": 25,
+      "from": "platform",
+      "to": "frontend",
+      "message": "提示当前匹配但仍待确认；经客服再次确认／选择后才恢复有效",
+      "type": "response",
+      "api_id": null,
+      "condition": "旧门店待重选或来源恢复，且当前重查已匹配"
+    },
+    {
+      "step": 26,
+      "from": "platform",
+      "to": "frontend",
+      "message": "展示暂无匹配门店，不提供自定义门店；继续按分类必填及当前值校验",
+      "type": "response",
+      "api_id": null,
+      "condition": "当前完整查询成功但无候选"
+    },
+    {
+      "step": 27,
+      "from": "frontend",
+      "to": "operator",
+      "message": "展示当前可选择的权威门店及旧值状态",
+      "type": "response",
+      "api_id": null,
+      "condition": "来源及条件有效并取得完整门店结果"
+    },
+    {
+      "step": 28,
+      "from": "operator",
+      "to": "frontend",
+      "message": "选择或明确确认当前有效门店；也可清除选填无效值",
+      "type": "request",
+      "api_id": null,
+      "condition": "选择／确认仅在当前来源可用且门店结果查全匹配时；清除选填旧值可独立进行"
+    },
+    {
+      "step": 29,
+      "from": "operator",
+      "to": "frontend",
+      "message": "暂不提交，继续当前填写，不产生正式保存结果",
+      "type": "request",
+      "api_id": null,
+      "condition": "选择继续编辑；与提交分支互斥"
+    },
+    {
+      "step": 30,
+      "from": "operator",
+      "to": "frontend",
+      "message": "提交本次业务信息",
+      "type": "request",
+      "api_id": null,
+      "condition": "选择正式保存；未选择继续编辑"
+    },
+    {
+      "step": 31,
+      "from": "frontend",
+      "to": "platform",
+      "message": "提交各字段当前选择与确认状态；保留原导入信息独立承载",
+      "type": "request",
+      "api_id": "API-018",
+      "condition": "正式保存分支；实际字段结构待核"
+    },
+    {
+      "step": 32,
+      "from": "platform",
+      "to": "platform",
+      "message": "按原通话条件、分类必填及已填有效性校验；复核来源与当前组合，未确认恢复值无效",
+      "type": "internal",
+      "api_id": null,
+      "condition": "收到正式保存请求"
+    },
+    {
+      "step": 33,
+      "from": "platform",
+      "to": "frontend",
+      "message": "指出缺失或无效项并保留输入；有效必填未补齐时不完成保存",
+      "type": "response",
+      "api_id": "API-018",
+      "condition": "保存校验未通过；未接通准确条件和已填校验沿原规则"
+    },
+    {
+      "step": 34,
+      "from": "platform",
+      "to": "platform",
+      "message": "各本次字段分别保存编码和当时名称；保留原始信息及原计划到店字段",
+      "type": "internal",
+      "api_id": null,
+      "condition": "当前值有效且原保存条件满足；实际保存契约待核"
+    },
+    {
+      "step": 35,
+      "from": "platform",
+      "to": "frontend",
+      "message": "返回保存成功；本次快照可用于既有历史展示",
+      "type": "response",
+      "api_id": "API-018",
+      "condition": "正式保存成功；与保存失败互斥"
+    },
+    {
+      "step": 36,
+      "from": "frontend",
+      "to": "operator",
+      "message": "显示本次保存完成；历史展示当时名称，上游后续改名不覆盖",
+      "type": "response",
+      "api_id": null,
+      "condition": "正式保存成功"
+    },
+    {
+      "step": 37,
+      "from": "platform",
+      "to": "frontend",
+      "message": "明确返回未完成保存，保留当前输入及原状态供重试",
+      "type": "response",
+      "api_id": "API-018",
+      "condition": "正式保存失败；与保存成功互斥"
+    },
+    {
+      "step": 38,
+      "from": "frontend",
+      "to": "operator",
+      "message": "显示失败原因并保留填写；来源／必填问题补齐后重试，不用自建门店替代",
+      "type": "response",
+      "api_id": null,
+      "condition": "查询或保存失败后需要继续处理"
+    }
+  ],
+  "source_story_ids": [
+    "US-016"
+  ],
+  "source_acceptance_ids": [
+    "AC-112",
+    "AC-113",
+    "AC-114",
+    "AC-115",
+    "AC-116",
+    "AC-117",
+    "AC-118",
+    "AC-119",
+    "AC-125",
+    "AC-126",
+    "AC-132",
+    "AC-133",
+    "AC-134",
+    "AC-135",
+    "AC-136",
+    "AC-137",
+    "AC-138"
+  ],
+  "source_refs": [
+    "scenarios/SC-013.json",
+    "interfaces/interface-index.json",
+    "inputs/user-stories.md#SRC-149",
+    "inputs/user-stories.md#SRC-151",
+    "inputs/user-stories.md#SRC-153"
+  ],
+  "notes": [
+    "产品设计草稿，按SRC-153例外继续；API-015/016仍missing，API-018仍partial，外部消息只表达所需能力。",
+    "按消息条件阅读分支，带条件的成功、失败、取消并非必然依次全部发生；图示顺序不预设外部调用并发或一次批量。",
+    "平台参与者表示逻辑责任，不指定部署架构、接口端点、请求格式、超时秒数或鉴权方案。",
+    "门店关系以当前全部有效车系编码的权威返回为准；搜索词或当前分页未出现旧门店不证明关系失配。完整性与关联核验方式需正式接口支撑。",
+    "来源恢复的旧车系先重查确认，再按当前有效车系查门店；已待重选或来源恢复的旧门店经明确确认后才恢复。无需新增独立确认页面。",
+    "多车系字段只在查门店时合并条件，保存仍逐字段记录编码和当时名称，历史名称不随上游改名。",
+    "API-018表示既有保存与回传兼容所需契约，不新增独立回调、上游回写或保存后额外查询。",
+    "草稿指失败时保留当前输入供重试，不承诺关闭浏览器、跨设备恢复；生产存储契约仍待核。"
+  ]
+}

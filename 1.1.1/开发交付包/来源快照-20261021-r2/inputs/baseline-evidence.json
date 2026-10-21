@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "captured_at": "2026-10-15T11:20:05+08:00",
+  "version": "1.1.0",
+  "evidence_level": "local_prototype_and_requirement_reference",
+  "limitations": [
+    "原型与文档只证明已有本地设计；不能证明NEV真实接口已实现或联调。",
+    "原导入意向门店/车系与plannedStoreName为不同字段；本次新增值的承载与历史兼容规则待确认。"
+  ],
+  "sources": [
+    {
+      "path": "prototype/js/components/customer-business.js",
+      "sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+      "excerpts": [
+        {
+          "line": 7,
+          "text": "    ['intentionStoreCode','意向门店编码'],['intentionStoreName','意向门店名称'],"
+        },
+        {
+          "line": 8,
+          "text": "    ['intentionSeriesCode','意向车系编码'],['intentionSeries','意向车系'],['smartCode','Smartcode'],['leadCreatedAt','留资时间']"
+        },
+        {
+          "line": 22,
+          "text": "  const canManage = () => ready() && ['ADMIN','SUPER_ADMIN'].includes(access().roleCode);"
+        },
+        {
+          "line": 43,
+          "text": "      field('plannedStoreName','计划到店门店','text'),"
+        },
+        {
+          "line": 86,
+          "text": "    if (preset && (preset.type !== input.type || JSON.stringify(options.map(row => [row.id,row.label])) !== JSON.stringify(preset.options.map(row => [row.id,row.label])))) return fail('预置线索统计字段的填写方式和选项不可修改');"
+        }
+      ]
+    },
+    {
+      "path": "prototype/js/components/customer-followup.js",
+      "sha256": "c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9",
+      "excerpts": [
+        {
+          "line": 141,
+          "text": "    return '<section class=\"customer-followup-form\"><div class=\"customer-followup-heading\"><h3>客户业务信息</h3><span data-followup-requirement>' + (originalTypeUnavailable ? '表单暂不可用' : requirementHint(call,fields)) + '</span></div>' + selector + (originalTypeUnavailable ? '<p class=\"customer-followup-hint\" role=\"status\">' + unavailableOriginalType + '</p>' : type ? (fields.length ? '<div class=\"customer-followup-grid\">' + fieldsHtml + '</div>' : '<p class=\"customer-followup-hint\">此业务分类暂未配置补充字段。</p>') : '<p class=\"customer-followup-hint\">选择本次业务类型后，填写对应的客户信息。</p>') + '<div class=\"customer-followup-source\"><h4>导入时的客户信息</h4>' + CustomerBusiness.importedDetail(call || {}) + '</div>' + '</section>';"
+        }
+      ]
+    },
+    {
+      "path": "需求/1.1.0/README.md",
+      "sha256": "7b892dba1a3042cff024739256de1635f75e32ea972c0cf7578741ad82cbce87",
+      "excerpts": [
+        {
+          "line": 22,
+          "text": "六项在业务系统客户导入接口逐行接收，拟选填字符串 `intentionStoreCode`、`intentionStoreName`、`intentionSeriesCode`、`intentionSeries`、`smartCode`、`leadCreatedAt`。保留原字符串、前导零与大小写；线索编码、手机号、priority必填不变。留资时间保留原业务来源时间，不等平台导入/保存或呼叫时间，也不默认当前时间；正式格式、时区与长度约束待契约。"
+        }
+      ]
+    }
+  ]
+}

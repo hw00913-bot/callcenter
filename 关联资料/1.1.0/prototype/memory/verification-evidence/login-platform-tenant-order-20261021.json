@@ -1,0 +1,411 @@
+{
+  "verifiedAt": "2026-10-21T10:30:44+08:00",
+  "scope": "User-corrected v1.1.0 flow: account authentication, then AI/cloud platform choice, then explicit tenant choice. Scoped maintenance, no formal stage advancement.",
+  "supersedes": "memory/verification-evidence/platform-switch-20261021.json: its pre-authentication platform entry is superseded by the user correction; prior evidence remains historical.",
+  "sourceSha256": {
+    "index.html": "b0a3b204040c5bed4298a778ea0a77c1fe6dd3d248823c0620ffc22648083543",
+    "js/app.js": "42e5a571a8ba746194eda584d640b4d8e116f5dcc72f20eefcaa1456ccfc92ce",
+    "js/components/demo-switch.js": "8890f0df16474fabed613806ff3a3d2d2f1781f81fa5c03423c2765c5f847d26",
+    "assets/css/auth-showcase.css": "509b32e034a31bc654264333c1f6d85a4561ffcfdedd20cf520ef08d46353260"
+  },
+  "browser": {
+    "checks": [
+      "Account form shows credentials only, with three-step progress",
+      "Invalid password cannot reach platform or tenant selection",
+      "Super-admin password login stops at AI/cloud platform selection without restoring last tenant",
+      "Cloud selection reaches tenant picker and reload keeps picker without auto-selecting remembered tenant",
+      "Cloud workspace becomes ready only after explicit tenant selection",
+      "Authenticated top switch still navigates to exact supplied URL",
+      "Mobile authentication also stops at platform selection",
+      "AI selection remains local until tenant click; tenant click navigates to exact supplied URL",
+      "Return from AI and choose-platform-back stay unauthenticated to cloud workspace",
+      "Tenant administrator also follows account-platform-tenant sequence (2 tenant options)"
+    ],
+    "layouts": [
+      {
+        "width": 1440,
+        "documentWidth": 1440,
+        "visibleOptions": 2
+      },
+      {
+        "width": 1920,
+        "documentWidth": 1920,
+        "visibleOptions": 2
+      },
+      {
+        "width": 2560,
+        "documentWidth": 2560,
+        "visibleOptions": 2
+      }
+    ],
+    "destination": {
+      "url": "https://hw00913-bot.github.io/prototype-demo/index.html",
+      "title": "智能外呼统一中台"
+    },
+    "cloud": {
+      "stage": "READY",
+      "platform": "cloud",
+      "tenantId": "TENANT-SUPER-BUILTIN",
+      "enterpriseId": "7522240",
+      "activeDomain": "CLOUD_CONTACT_CENTER",
+      "ready": true,
+      "accessValid": true
+    },
+    "admin": {
+      "stage": "READY",
+      "platform": "cloud",
+      "tenantId": "TEN-NISSAN-HQ",
+      "enterpriseId": "7522240",
+      "activeDomain": "CLOUD_CONTACT_CENTER",
+      "ready": true,
+      "accessValid": true
+    },
+    "errors": [],
+    "failedResources": []
+  },
+  "browserDemoAndSingleTenant": {
+    "checks": [
+      "Actual demo shortcut authenticates then stops at platform choice",
+      "One-tenant operator still sees tenant picker before and after reload",
+      "Explicit tenant click enters authorized operator workspace"
+    ],
+    "tenantCount": 1,
+    "appSrc": "js/app.js?v=20261021-login-order-42e5a571a8",
+    "demoSrc": "js/components/demo-switch.js?v=20261021-login-order-8890f0df16"
+  },
+  "browserProofs": {
+    "browserCode": "async page => {\n  const local = \"http://127.0.0.1:18823/Demo_Protype_2/1.1.0/prototype/index.html\";\n  const target = \"https://hw00913-bot.github.io/prototype-demo/index.html\";\n  const checks = [], layouts = [], errors = [], failedResources = [];\n  const onError = e => { if (page.url().startsWith(local)) errors.push(e.message); };\n  const onResponse = r => { if (r.url().startsWith(\"http://127.0.0.1:18823/\") && r.status()>=400) failedResources.push({url:r.url(),status:r.status()}); };\n  page.on(\"pageerror\",onError); page.on(\"response\",onResponse);\n  const snapshot = () => page.evaluate(() => {const s=AppState.get();return {stage:s.authStage,platform:s.loginPlatform,tenantId:s.tenantId,enterpriseId:s.enterpriseId,activeDomain:s.activeDomain,ready:AppState.isReady(),accessValid:AppState.effectiveAccess().valid};});\n  const assertStage = async (stage, platform = \"\") => {\n    const s = await snapshot();\n    if (s.stage!==stage || s.platform!==platform || (stage!==\"READY\" && (s.ready||s.tenantId||s.enterpriseId||s.activeDomain||s.accessValid))) throw new Error(\"Unexpected context: \"+JSON.stringify(s));\n    return s;\n  };\n  try {\n    await page.reload({waitUntil:\"domcontentloaded\"}); await page.setViewportSize({width:1440,height:900});\n    await page.locator(\".current-user-action\").click();\n    await page.locator(\"#authUsername\").waitFor({state:\"visible\"});\n    if (await page.locator(\".auth-platform-switch, [data-login-platform]\").count()) throw new Error(\"Platform entries still visible before credentials\");\n    await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/01-account.png\"});\n    checks.push(\"Account form shows credentials only, with three-step progress\");\n    await page.locator(\"#authPassword\").fill(\"wrong\");\n    await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n    await assertStage(\"ACCOUNT\");\n    checks.push(\"Invalid password cannot reach platform or tenant selection\");\n    await page.locator(\"#authPassword\").fill(\"123456Aa@\");\n    await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n    await page.getByRole(\"heading\",{name:\"选择登录平台\",exact:true}).waitFor();\n    await assertStage(\"PLATFORM\");\n    if(await page.locator(\"[data-login-platform]\").count()!==2)throw new Error(\"Expected both platform options\");\n    checks.push(\"Super-admin password login stops at AI/cloud platform selection without restoring last tenant\");\n    for(const width of [1440,1920,2560]){\n      await page.setViewportSize({width,height:900});\n      const layout=await page.evaluate(()=>({width:innerWidth,documentWidth:document.documentElement.scrollWidth,visibleOptions:[...document.querySelectorAll(\"[data-login-platform]\")].filter(x=>{const r=x.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth;}).length}));\n      if(layout.documentWidth>width||layout.visibleOptions!==2)throw new Error(\"Platform layout failed: \"+JSON.stringify(layout));\n      layouts.push(layout);\n      await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/02-platform-\"+width+\".png\"});\n    }\n    await page.setViewportSize({width:1440,height:900});\n    await page.locator(\"[data-login-platform=cloud]\").click();\n    await assertStage(\"INSTANCE\",\"cloud\");\n    await page.getByRole(\"heading\",{name:\"选择本次管理的租户\"}).waitFor();\n    await page.reload({waitUntil:\"domcontentloaded\"});\n    await assertStage(\"INSTANCE\",\"cloud\");\n    await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/03-cloud-tenant.png\"});\n    checks.push(\"Cloud selection reaches tenant picker and reload keeps picker without auto-selecting remembered tenant\");\n    await page.locator(\".auth-choice-row\").first().click();\n    await page.locator(\"#platformSwitcher\").waitFor({state:\"visible\"});\n    const cloud=await assertStage(\"READY\",\"cloud\");\n    if(!cloud.tenantId||!cloud.enterpriseId||!cloud.accessValid)throw new Error(\"Cloud workspace lacks selected authorized tenant\");\n    await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/04-cloud-workspace.png\"});\n    checks.push(\"Cloud workspace becomes ready only after explicit tenant selection\");\n    await page.locator(\"#platformSwitcher\").click();\n    await page.waitForURL(target,{timeout:20000,waitUntil:\"domcontentloaded\"});\n    checks.push(\"Authenticated top switch still navigates to exact supplied URL\");\n    await page.goBack({waitUntil:\"domcontentloaded\"});\n    await page.locator(\".current-user-action\").click();\n    await page.getByRole(\"tab\",{name:\"手机号登录\"}).click();\n    await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n    await page.getByRole(\"heading\",{name:\"选择登录平台\",exact:true}).waitFor();\n    await assertStage(\"PLATFORM\");\n    checks.push(\"Mobile authentication also stops at platform selection\");\n    await page.locator(\"[data-login-platform=ai]\").click();\n    await assertStage(\"INSTANCE\",\"ai\");\n    if(await page.getByRole(\"button\",{name:\"接入配置\",exact:true}).count())throw new Error(\"AI tenant picker exposes cloud setup bypass\");\n    await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/05-ai-tenant.png\"});\n    await page.locator(\".auth-choice-row\").first().click();\n    await page.waitForURL(target,{timeout:20000,waitUntil:\"domcontentloaded\"});\n    const destination={url:page.url(),title:await page.title()};\n    checks.push(\"AI selection remains local until tenant click; tenant click navigates to exact supplied URL\");\n    await page.goBack({waitUntil:\"domcontentloaded\"});\n    await assertStage(\"INSTANCE\",\"ai\");\n    await page.getByRole(\"button\",{name:\"重新选择平台\",exact:true}).click();\n    await assertStage(\"PLATFORM\");\n    checks.push(\"Return from AI and choose-platform-back stay unauthenticated to cloud workspace\");\n    await page.getByRole(\"button\",{name:\"返回账号登录\",exact:true}).click();\n    await page.locator(\"#authUsername\").fill(\"nissan-admin\");\n    await page.locator(\"#authPassword\").fill(\"Abc@123456\");\n    await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n    await assertStage(\"PLATFORM\");\n    await page.locator(\"[data-login-platform=cloud]\").click();\n    await assertStage(\"TENANT\",\"cloud\");\n    const adminTenantCount=await page.locator(\".auth-choice-row\").count();\n    await page.locator(\".auth-choice-row\").first().click();\n    const admin=await assertStage(\"READY\",\"cloud\");\n    if(!admin.accessValid)throw new Error(\"Admin tenant entry invalid\");\n    checks.push(\"Tenant administrator also follows account-platform-tenant sequence (\"+adminTenantCount+\" tenant options)\");\n    if(errors.length||failedResources.length)throw new Error(JSON.stringify({errors,failedResources}));\n    return {checks,layouts,destination,cloud,admin,errors,failedResources};\n  }finally{page.off(\"pageerror\",onError);page.off(\"response\",onResponse);}\n}",
+    "browserOutput": "### Result\n{\"checks\":[\"Account form shows credentials only, with three-step progress\",\"Invalid password cannot reach platform or tenant selection\",\"Super-admin password login stops at AI/cloud platform selection without restoring last tenant\",\"Cloud selection reaches tenant picker and reload keeps picker without auto-selecting remembered tenant\",\"Cloud workspace becomes ready only after explicit tenant selection\",\"Authenticated top switch still navigates to exact supplied URL\",\"Mobile authentication also stops at platform selection\",\"AI selection remains local until tenant click; tenant click navigates to exact supplied URL\",\"Return from AI and choose-platform-back stay unauthenticated to cloud workspace\",\"Tenant administrator also follows account-platform-tenant sequence (2 tenant options)\"],\"layouts\":[{\"width\":1440,\"documentWidth\":1440,\"visibleOptions\":2},{\"width\":1920,\"documentWidth\":1920,\"visibleOptions\":2},{\"width\":2560,\"documentWidth\":2560,\"visibleOptions\":2}],\"destination\":{\"url\":\"https://hw00913-bot.github.io/prototype-demo/index.html\",\"title\":\"智能外呼统一中台\"},\"cloud\":{\"stage\":\"READY\",\"platform\":\"cloud\",\"tenantId\":\"TENANT-SUPER-BUILTIN\",\"enterpriseId\":\"7522240\",\"activeDomain\":\"CLOUD_CONTACT_CENTER\",\"ready\":true,\"accessValid\":true},\"admin\":{\"stage\":\"READY\",\"platform\":\"cloud\",\"tenantId\":\"TEN-NISSAN-HQ\",\"enterpriseId\":\"7522240\",\"activeDomain\":\"CLOUD_CONTACT_CENTER\",\"ready\":true,\"accessValid\":true},\"errors\":[],\"failedResources\":[]}\n### Ran Playwright code\n```js\nawait (async page => {\n  const local = \"http://127.0.0.1:18823/Demo_Protype_2/1.1.0/prototype/index.html\";\n  const target = \"https://hw00913-bot.github.io/prototype-demo/index.html\";\n  const checks = [], layouts = [], errors = [], failedResources = [];\n  const onError = e => { if (page.url().startsWith(local)) errors.push(e.message); };\n  const onResponse = r => { if (r.url().startsWith(\"http://127.0.0.1:18823/\") && r.status()>=400) failedResources.push({url:r.url(),status:r.status()}); };\n  page.on(\"pageerror\",onError); page.on(\"response\",onResponse);\n  const snapshot = () => page.evaluate(() => {const s=AppState.get();return {stage:s.authStage,platform:s.loginPlatform,tenantId:s.tenantId,enterpriseId:s.enterpriseId,activeDomain:s.activeDomain,ready:AppState.isReady(),accessValid:AppState.effectiveAccess().valid};});\n  const assertStage = async (stage, platform = \"\") => {\n    const s = await snapshot();\n    if (s.stage!==stage || s.platform!==platform || (stage!==\"READY\" && (s.ready||s.tenantId||s.enterpriseId||s.activeDomain||s.accessValid))) throw new Error(\"Unexpected context: \"+JSON.stringify(s));\n    return s;\n  };\n  try {\n    await page.reload({waitUntil:\"domcontentloaded\"}); await page.setViewportSize({width:1440,height:900});\n    await page.locator(\".current-user-action\").click();\n    await page.locator(\"#authUsername\").waitFor({state:\"visible\"});\n    if (await page.locator(\".auth-platform-switch, [data-login-platform]\").count()) throw new Error(\"Platform entries still visible before credentials\");\n    await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/01-account.png\"});\n    checks.push(\"Account form shows credentials only, with three-step progress\");\n    await page.locator(\"#authPassword\").fill(\"wrong\");\n    await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n    await assertStage(\"ACCOUNT\");\n    checks.push(\"Invalid password cannot reach platform or tenant selection\");\n    await page.locator(\"#authPassword\").fill(\"123456Aa@\");\n    await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n    await page.getByRole(\"heading\",{name:\"选择登录平台\",exact:true}).waitFor();\n    await assertStage(\"PLATFORM\");\n    if(await page.locator(\"[data-login-platform]\").count()!==2)throw new Error(\"Expected both platform options\");\n    checks.push(\"Super-admin password login stops at AI/cloud platform selection without restoring last tenant\");\n    for(const width of [1440,1920,2560]){\n      await page.setViewportSize({width,height:900});\n      const layout=await page.evaluate(()=>({width:innerWidth,documentWidth:document.documentElement.scrollWidth,visibleOptions:[...document.querySelectorAll(\"[data-login-platform]\")].filter(x=>{const r=x.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth;}).length}));\n      if(layout.documentWidth>width||layout.visibleOptions!==2)throw new Error(\"Platform layout failed: \"+JSON.stringify(layout));\n      layouts.push(layout);\n      await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/02-platform-\"+width+\".png\"});\n    }\n    await page.setViewportSize({width:1440,height:900});\n    await page.locator(\"[data-login-platform=cloud]\").click();\n    await assertStage(\"INSTANCE\",\"cloud\");\n    await page.getByRole(\"heading\",{name:\"选择本次管理的租户\"}).waitFor();\n    await page.reload({waitUntil:\"domcontentloaded\"});\n    await assertStage(\"INSTANCE\",\"cloud\");\n    await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/03-cloud-tenant.png\"});\n    checks.push(\"Cloud selection reaches tenant picker and reload keeps picker without auto-selecting remembered tenant\");\n    await page.locator(\".auth-choice-row\").first().click();\n    await page.locator(\"#platformSwitcher\").waitFor({state:\"visible\"});\n    const cloud=await assertStage(\"READY\",\"cloud\");\n    if(!cloud.tenantId||!cloud.enterpriseId||!cloud.accessValid)throw new Error(\"Cloud workspace lacks selected authorized tenant\");\n    await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/04-cloud-workspace.png\"});\n    checks.push(\"Cloud workspace becomes ready only after explicit tenant selection\");\n    await page.locator(\"#platformSwitcher\").click();\n    await page.waitForURL(target,{timeout:20000,waitUntil:\"domcontentloaded\"});\n    checks.push(\"Authenticated top switch still navigates to exact supplied URL\");\n    await page.goBack({waitUntil:\"domcontentloaded\"});\n    await page.locator(\".current-user-action\").click();\n    await page.getByRole(\"tab\",{name:\"手机号登录\"}).click();\n    await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n    await page.getByRole(\"heading\",{name:\"选择登录平台\",exact:true}).waitFor();\n    await assertStage(\"PLATFORM\");\n    checks.push(\"Mobile authentication also stops at platform selection\");\n    await page.locator(\"[data-login-platform=ai]\").click();\n    await assertStage(\"INSTANCE\",\"ai\");\n    if(await page.getByRole(\"button\",{name:\"接入配置\",exact:true}).count())throw new Error(\"AI tenant picker exposes cloud setup bypass\");\n    await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/05-ai-tenant.png\"});\n    await page.locator(\".auth-choice-row\").first().click();\n    await page.waitForURL(target,{timeout:20000,waitUntil:\"domcontentloaded\"});\n    const destination={url:page.url(),title:await page.title()};\n    checks.push(\"AI selection remains local until tenant click; tenant click navigates to exact supplied URL\");\n    await page.goBack({waitUntil:\"domcontentloaded\"});\n    await assertStage(\"INSTANCE\",\"ai\");\n    await page.getByRole(\"button\",{name:\"重新选择平台\",exact:true}).click();\n    await assertStage(\"PLATFORM\");\n    checks.push(\"Return from AI and choose-platform-back stay unauthenticated to cloud workspace\");\n    await page.getByRole(\"button\",{name:\"返回账号登录\",exact:true}).click();\n    await page.locator(\"#authUsername\").fill(\"nissan-admin\");\n    await page.locator(\"#authPassword\").fill(\"Abc@123456\");\n    await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n    await assertStage(\"PLATFORM\");\n    await page.locator(\"[data-login-platform=cloud]\").click();\n    await assertStage(\"TENANT\",\"cloud\");\n    const adminTenantCount=await page.locator(\".auth-choice-row\").count();\n    await page.locator(\".auth-choice-row\").first().click();\n    const admin=await assertStage(\"READY\",\"cloud\");\n    if(!admin.accessValid)throw new Error(\"Admin tenant entry invalid\");\n    checks.push(\"Tenant administrator also follows account-platform-tenant sequence (\"+adminTenantCount+\" tenant options)\");\n    if(errors.length||failedResources.length)throw new Error(JSON.stringify({errors,failedResources}));\n    return {checks,layouts,destination,cloud,admin,errors,failedResources};\n  }finally{page.off(\"pageerror\",onError);page.off(\"response\",onResponse);}\n})(page);\n```\n### Events\n- New console entries: ../cloud-switch-20261021/.playwright-cli/console-2026-10-21T02-26-15-826Z.log#L9-L16\n",
+    "shortcutCode": "async page => {\n  const checks = [];\n  await page.getByRole(\"button\",{name:\"演示工具\",exact:true}).click();\n  await page.getByRole(\"button\",{name:\"快捷登录 store-operator\",exact:true}).click();\n  await page.getByRole(\"heading\",{name:\"选择登录平台\",exact:true}).waitFor();\n  let s=await page.evaluate(()=>AppState.get());\n  if(s.authStage!==\"PLATFORM\"||s.tenantId||s.enterpriseId)throw new Error(\"Demo shortcut skips platform choice\");\n  checks.push(\"Actual demo shortcut authenticates then stops at platform choice\");\n  await page.locator(\"[data-login-platform=cloud]\").click();\n  s=await page.evaluate(()=>AppState.get());\n  const tenantCount=await page.locator(\".auth-choice-row\").count();\n  if(s.authStage!==\"TENANT\"||tenantCount!==1||s.tenantId)throw new Error(\"Single tenant auto-selected\");\n  await page.reload({waitUntil:\"domcontentloaded\"});\n  s=await page.evaluate(()=>AppState.get());\n  if(s.authStage!==\"TENANT\"||s.loginPlatform!==\"cloud\"||s.tenantId)throw new Error(\"Single tenant reload skipped choice\");\n  checks.push(\"One-tenant operator still sees tenant picker before and after reload\");\n  await page.locator(\".auth-choice-row\").first().click();\n  if(!(await page.evaluate(()=>AppState.isReady()&&AppState.effectiveAccess().valid)))throw new Error(\"Single-tenant operator could not enter workspace\");\n  checks.push(\"Explicit tenant click enters authorized operator workspace\");\n  await page.locator(\".current-user-action\").click();\n  await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n  await page.getByRole(\"heading\",{name:\"选择登录平台\",exact:true}).waitFor();\n  await page.waitForFunction(()=>!document.getElementById(\"toast-tip\")||document.getElementById(\"toast-tip\").style.opacity===\"0\");\n  await page.locator(\".auth-form-panel\").screenshot({path:\"/private/tmp/cloud-login-order-20261021/platform-choice-card.png\"});\n  await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/02-platform-final.png\"});\n  return {checks,tenantCount,appSrc:await page.locator(\"script[src^=\\\"js/app.js\\\"]\").getAttribute(\"src\"),demoSrc:await page.locator(\"script[src^=\\\"js/components/demo-switch.js\\\"]\").getAttribute(\"src\")};\n}",
+    "shortcutOutput": "### Result\n{\"checks\":[\"Actual demo shortcut authenticates then stops at platform choice\",\"One-tenant operator still sees tenant picker before and after reload\",\"Explicit tenant click enters authorized operator workspace\"],\"tenantCount\":1,\"appSrc\":\"js/app.js?v=20261021-login-order-42e5a571a8\",\"demoSrc\":\"js/components/demo-switch.js?v=20261021-login-order-8890f0df16\"}\n### Ran Playwright code\n```js\nawait (async page => {\n  const checks = [];\n  await page.getByRole(\"button\",{name:\"演示工具\",exact:true}).click();\n  await page.getByRole(\"button\",{name:\"快捷登录 store-operator\",exact:true}).click();\n  await page.getByRole(\"heading\",{name:\"选择登录平台\",exact:true}).waitFor();\n  let s=await page.evaluate(()=>AppState.get());\n  if(s.authStage!==\"PLATFORM\"||s.tenantId||s.enterpriseId)throw new Error(\"Demo shortcut skips platform choice\");\n  checks.push(\"Actual demo shortcut authenticates then stops at platform choice\");\n  await page.locator(\"[data-login-platform=cloud]\").click();\n  s=await page.evaluate(()=>AppState.get());\n  const tenantCount=await page.locator(\".auth-choice-row\").count();\n  if(s.authStage!==\"TENANT\"||tenantCount!==1||s.tenantId)throw new Error(\"Single tenant auto-selected\");\n  await page.reload({waitUntil:\"domcontentloaded\"});\n  s=await page.evaluate(()=>AppState.get());\n  if(s.authStage!==\"TENANT\"||s.loginPlatform!==\"cloud\"||s.tenantId)throw new Error(\"Single tenant reload skipped choice\");\n  checks.push(\"One-tenant operator still sees tenant picker before and after reload\");\n  await page.locator(\".auth-choice-row\").first().click();\n  if(!(await page.evaluate(()=>AppState.isReady()&&AppState.effectiveAccess().valid)))throw new Error(\"Single-tenant operator could not enter workspace\");\n  checks.push(\"Explicit tenant click enters authorized operator workspace\");\n  await page.locator(\".current-user-action\").click();\n  await page.getByRole(\"button\",{name:\"登录\",exact:true}).click();\n  await page.getByRole(\"heading\",{name:\"选择登录平台\",exact:true}).waitFor();\n  await page.waitForFunction(()=>!document.getElementById(\"toast-tip\")||document.getElementById(\"toast-tip\").style.opacity===\"0\");\n  await page.locator(\".auth-form-panel\").screenshot({path:\"/private/tmp/cloud-login-order-20261021/platform-choice-card.png\"});\n  await page.screenshot({path:\"/private/tmp/cloud-login-order-20261021/02-platform-final.png\"});\n  return {checks,tenantCount,appSrc:await page.locator(\"script[src^=\\\"js/app.js\\\"]\").getAttribute(\"src\"),demoSrc:await page.locator(\"script[src^=\\\"js/components/demo-switch.js\\\"]\").getAttribute(\"src\")};\n})(page);\n```\n### Page\n- Page URL: http://127.0.0.1:18823/Demo_Protype_2/1.1.0/prototype/index.html\n- Page Title: AliCti 云外呼原型\n- Console: 0 errors, 1 warnings\n### Events\n- New console entries: ../cloud-switch-20261021/.playwright-cli/console-2026-10-21T02-26-15-826Z.log#L17\n"
+  },
+  "independentReview": {
+    "reviewedAt": "2026-10-21T02:29:21.796Z",
+    "command": "/opt/homebrew/bin/node /private/tmp/cloud-login-order-20261021/review-login-order.cjs",
+    "appPath": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/app.js",
+    "appSha256": "42e5a571a8ba746194eda584d640b4d8e116f5dcc72f20eefcaa1456ccfc92ce",
+    "method": "Complete current app.js evaluated in isolated Node VM; real DemoSwitch.enter and actual existing seat guard exercised with browser/phone dependencies stubbed.",
+    "priorFailureSummary": {
+      "reviewedAt": "2026-10-21T02:27:52.231Z",
+      "appSha256": "2cbca237a07278b2a673ef65139e1d254e0b8d8006a3bd61745cac1167fad27e",
+      "status": "FAIL",
+      "total": 50,
+      "passed": 46,
+      "failed": 4,
+      "failures": [
+        {
+          "name": "Restored role-mismatched INSTANCE snapshot falls back safely",
+          "status": "FAIL",
+          "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'INSTANCE'\n- 'PLATFORM'\n"
+        },
+        {
+          "name": "Restored role-mismatched TENANT snapshot falls back safely",
+          "status": "FAIL",
+          "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'TENANT'\n- 'PLATFORM'\n"
+        },
+        {
+          "name": "Restored PLATFORM with stale cloud value cannot bypass tenant selection through supplier configuration",
+          "status": "FAIL",
+          "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+        },
+        {
+          "name": "Malformed saved loginPlatform type does not prevent app initialization",
+          "status": "FAIL",
+          "error": "Cannot convert object to primitive value"
+        }
+      ]
+    },
+    "status": "PASS",
+    "total": 62,
+    "passed": 62,
+    "failed": 0,
+    "results": [
+      {
+        "name": "Account screen has no AI/cloud selectors or platform links",
+        "status": "PASS"
+      },
+      {
+        "name": "S password authentication stops at PLATFORM without scope",
+        "status": "PASS"
+      },
+      {
+        "name": "S mobile authentication stops at PLATFORM without scope",
+        "status": "PASS"
+      },
+      {
+        "name": "U password authentication stops at PLATFORM without scope",
+        "status": "PASS"
+      },
+      {
+        "name": "U mobile authentication stops at PLATFORM without scope",
+        "status": "PASS"
+      },
+      {
+        "name": "M password authentication stops at PLATFORM without scope",
+        "status": "PASS"
+      },
+      {
+        "name": "M mobile authentication stops at PLATFORM without scope",
+        "status": "PASS"
+      },
+      {
+        "name": "S actual DemoSwitch.enter stops at PLATFORM without scope",
+        "status": "PASS"
+      },
+      {
+        "name": "U actual DemoSwitch.enter stops at PLATFORM without scope",
+        "status": "PASS"
+      },
+      {
+        "name": "M actual DemoSwitch.enter stops at PLATFORM without scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Super lastEnterpriseId does not skip platform or tenant choice",
+        "status": "PASS"
+      },
+      {
+        "name": "Single tenant does not skip TENANT and enters cloud after explicit choice",
+        "status": "PASS"
+      },
+      {
+        "name": "Membership role follows explicitly selected tenant",
+        "status": "PASS"
+      },
+      {
+        "name": "S AI selection requires tenant then redirects without READY or preference mutations",
+        "status": "PASS"
+      },
+      {
+        "name": "U AI selection requires tenant then redirects without READY or preference mutations",
+        "status": "PASS"
+      },
+      {
+        "name": "M AI selection requires tenant then redirects without READY or preference mutations",
+        "status": "PASS"
+      },
+      {
+        "name": "AI super instance view hides and rejects supplier configuration",
+        "status": "PASS"
+      },
+      {
+        "name": "S backToPlatform clears selected platform and preserves account authentication",
+        "status": "PASS"
+      },
+      {
+        "name": "U backToPlatform clears selected platform and preserves account authentication",
+        "status": "PASS"
+      },
+      {
+        "name": "Refresh S PLATFORM/none restores choice stage and clears stale scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Refresh S INSTANCE/cloud restores choice stage and clears stale scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Refresh S INSTANCE/ai restores choice stage and clears stale scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Refresh U PLATFORM/none restores choice stage and clears stale scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Refresh U TENANT/cloud restores choice stage and clears stale scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Refresh U TENANT/ai restores choice stage and clears stale scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Persist/reload S cloud stage retains platform and no scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Persist/reload S ai stage retains platform and no scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Persist/reload U cloud stage retains platform and no scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Persist/reload U ai stage retains platform and no scope",
+        "status": "PASS"
+      },
+      {
+        "name": "Legacy INSTANCE snapshot without platform falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Legacy TENANT snapshot without platform falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Invalid loginPlatform string on partial snapshot falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Legacy READY S session restores cloud even when saved platform says ai",
+        "status": "PASS"
+      },
+      {
+        "name": "Legacy READY U session restores cloud even when saved platform says ai",
+        "status": "PASS"
+      },
+      {
+        "name": "Invalid snapshot missing account returns account screen",
+        "status": "PASS"
+      },
+      {
+        "name": "Invalid snapshot unknown account returns account screen",
+        "status": "PASS"
+      },
+      {
+        "name": "Invalid snapshot malformed stage returns account screen",
+        "status": "PASS"
+      },
+      {
+        "name": "Invalid snapshot array saved returns account screen",
+        "status": "PASS"
+      },
+      {
+        "name": "Invalid snapshot malformed JSON returns account screen",
+        "status": "PASS"
+      },
+      {
+        "name": "Unauthenticated and PLATFORM-stage direct calls cannot skip selection",
+        "status": "PASS"
+      },
+      {
+        "name": "Unauthorized, unknown, stopped supplier and role-mismatched tenant calls fail",
+        "status": "PASS"
+      },
+      {
+        "name": "Top guard rejects dirty state before actual seat cleanup",
+        "status": "PASS"
+      },
+      {
+        "name": "Top actual seat guard rejects busy",
+        "status": "PASS"
+      },
+      {
+        "name": "Top actual seat guard rejects pending",
+        "status": "PASS"
+      },
+      {
+        "name": "Top actual seat guard rejects blocked",
+        "status": "PASS"
+      },
+      {
+        "name": "Top actual seat guard allows idle switch and preserves AppState/session",
+        "status": "PASS"
+      },
+      {
+        "name": "Restored role-mismatched INSTANCE snapshot falls back safely",
+        "status": "PASS"
+      },
+      {
+        "name": "Restored role-mismatched TENANT snapshot falls back safely",
+        "status": "PASS"
+      },
+      {
+        "name": "Restored PLATFORM with stale cloud value cannot bypass tenant selection through supplier configuration",
+        "status": "PASS"
+      },
+      {
+        "name": "Malformed saved loginPlatform type does not prevent app initialization",
+        "status": "PASS"
+      },
+      {
+        "name": "Saved partial loginPlatform null safely falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Saved partial loginPlatform number safely falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Saved partial loginPlatform boolean safely falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Saved partial loginPlatform array safely falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Saved partial loginPlatform object safely falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Saved partial loginPlatform object with null toString safely falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Saved partial loginPlatform object with array toString safely falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Saved partial loginPlatform unknown string safely falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Saved partial loginPlatform prototype key safely falls back to PLATFORM",
+        "status": "PASS"
+      },
+      {
+        "name": "Direct chooseLoginPlatform rejects nonstring/object/prototype arguments without changing state",
+        "status": "PASS"
+      },
+      {
+        "name": "Direct tenant and instance choice rejects object arguments without changing state",
+        "status": "PASS"
+      },
+      {
+        "name": "ACCOUNT and PLATFORM snapshots discard stale selected platform and reject supplier bypass",
+        "status": "PASS"
+      }
+    ],
+    "output": "{\n  \"status\": \"PASS\",\n  \"total\": 62,\n  \"passed\": 62,\n  \"failed\": 0,\n  \"results\": [\n    {\n      \"name\": \"Account screen has no AI/cloud selectors or platform links\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"S password authentication stops at PLATFORM without scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"S mobile authentication stops at PLATFORM without scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"U password authentication stops at PLATFORM without scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"U mobile authentication stops at PLATFORM without scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"M password authentication stops at PLATFORM without scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"M mobile authentication stops at PLATFORM without scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"S actual DemoSwitch.enter stops at PLATFORM without scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"U actual DemoSwitch.enter stops at PLATFORM without scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"M actual DemoSwitch.enter stops at PLATFORM without scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Super lastEnterpriseId does not skip platform or tenant choice\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Single tenant does not skip TENANT and enters cloud after explicit choice\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Membership role follows explicitly selected tenant\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"S AI selection requires tenant then redirects without READY or preference mutations\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"U AI selection requires tenant then redirects without READY or preference mutations\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"M AI selection requires tenant then redirects without READY or preference mutations\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"AI super instance view hides and rejects supplier configuration\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"S backToPlatform clears selected platform and preserves account authentication\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"U backToPlatform clears selected platform and preserves account authentication\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Refresh S PLATFORM/none restores choice stage and clears stale scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Refresh S INSTANCE/cloud restores choice stage and clears stale scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Refresh S INSTANCE/ai restores choice stage and clears stale scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Refresh U PLATFORM/none restores choice stage and clears stale scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Refresh U TENANT/cloud restores choice stage and clears stale scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Refresh U TENANT/ai restores choice stage and clears stale scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Persist/reload S cloud stage retains platform and no scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Persist/reload S ai stage retains platform and no scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Persist/reload U cloud stage retains platform and no scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Persist/reload U ai stage retains platform and no scope\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Legacy INSTANCE snapshot without platform falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Legacy TENANT snapshot without platform falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Invalid loginPlatform string on partial snapshot falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Legacy READY S session restores cloud even when saved platform says ai\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Legacy READY U session restores cloud even when saved platform says ai\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Invalid snapshot missing account returns account screen\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Invalid snapshot unknown account returns account screen\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Invalid snapshot malformed stage returns account screen\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Invalid snapshot array saved returns account screen\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Invalid snapshot malformed JSON returns account screen\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Unauthenticated and PLATFORM-stage direct calls cannot skip selection\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Unauthorized, unknown, stopped supplier and role-mismatched tenant calls fail\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Top guard rejects dirty state before actual seat cleanup\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Top actual seat guard rejects busy\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Top actual seat guard rejects pending\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Top actual seat guard rejects blocked\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Top actual seat guard allows idle switch and preserves AppState/session\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Restored role-mismatched INSTANCE snapshot falls back safely\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Restored role-mismatched TENANT snapshot falls back safely\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Restored PLATFORM with stale cloud value cannot bypass tenant selection through supplier configuration\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Malformed saved loginPlatform type does not prevent app initialization\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Saved partial loginPlatform null safely falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Saved partial loginPlatform number safely falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Saved partial loginPlatform boolean safely falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Saved partial loginPlatform array safely falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Saved partial loginPlatform object safely falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Saved partial loginPlatform object with null toString safely falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Saved partial loginPlatform object with array toString safely falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Saved partial loginPlatform unknown string safely falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Saved partial loginPlatform prototype key safely falls back to PLATFORM\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Direct chooseLoginPlatform rejects nonstring/object/prototype arguments without changing state\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"Direct tenant and instance choice rejects object arguments without changing state\",\n      \"status\": \"PASS\"\n    },\n    {\n      \"name\": \"ACCOUNT and PLATFORM snapshots discard stale selected platform and reject supplier bypass\",\n      \"status\": \"PASS\"\n    }\n  ]\n}\n"
+  },
+  "static": {
+    "modifiedJavaScriptSyntaxChecks": 2,
+    "localScriptAndStylesheetReferences": 151,
+    "missingLocalReferences": [],
+    "modifiedScriptHashCacheBindingsMatch": true
+  },
+  "visualReview": {
+    "inspected": [
+      "01-account.png",
+      "02-platform-1440.png",
+      "03-cloud-tenant.png",
+      "platform-choice-card.png"
+    ],
+    "observed": "No platform entry in account form; platform choice is a separate step after authentication; tenant choice follows platform with three-step progress."
+  },
+  "screenshots": [
+    "/private/tmp/cloud-login-order-20261021/01-account.png",
+    "/private/tmp/cloud-login-order-20261021/02-platform-1440.png",
+    "/private/tmp/cloud-login-order-20261021/02-platform-1920.png",
+    "/private/tmp/cloud-login-order-20261021/02-platform-2560.png",
+    "/private/tmp/cloud-login-order-20261021/02-platform-final.png",
+    "/private/tmp/cloud-login-order-20261021/03-cloud-tenant.png",
+    "/private/tmp/cloud-login-order-20261021/04-cloud-workspace.png",
+    "/private/tmp/cloud-login-order-20261021/05-ai-tenant.png",
+    "/private/tmp/cloud-login-order-20261021/platform-choice-card.png"
+  ],
+  "behavior": {
+    "singleTenantStillRequiresChoice": true,
+    "superAdminRememberedTenantDoesNotSkipChoice": true,
+    "preTenantScopeEmpty": true,
+    "aiTenantSelectionNavigatesToExactRequestedUrl": true,
+    "aiDoesNotActivateLocalCloudWorkspace": true,
+    "authenticatedTopExternalSwitchPreserved": true,
+    "noCredentialsSentToExternalTarget": true
+  },
+  "boundary": "AI path opens the specified existing external page after local tenant selection; no cross-site SSO or remote tenancy handoff is implemented or claimed. No formal approval/frozen requirements or other versions changed.",
+  "result": "pass_scoped_ui_and_browser"
+}

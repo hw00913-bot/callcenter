@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-005",
+  "scenario_id": "SC-005",
+  "name": "应用列表、新增、详情、修改、删除与后台租户身份",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "超级管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "应用管理界面",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "云呼叫中心业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "dcc",
+      "name": "DCC",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "查询应用列表；空列表/无筛选结果仍可新增",
+      "type": "request",
+      "api_id": null,
+      "condition": "仅超管管理"
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "service",
+      "message": "按当前管理权限读取应用列表",
+      "type": "internal",
+      "api_id": null,
+      "condition": "无权限/当前身份变化拒绝，不读写配置"
+    },
+    {
+      "step": 3,
+      "from": "service",
+      "to": "ui",
+      "message": "返回名称/appId/创建时间和对象操作入口",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "operator",
+      "to": "ui",
+      "message": "新增：提交应用名称和可访问租户",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次明确新建意图"
+    },
+    {
+      "step": 5,
+      "from": "ui",
+      "to": "service",
+      "message": "校验并保存新应用；生成/提供接入凭证",
+      "type": "internal",
+      "api_id": null,
+      "condition": "原型仅不可用合成appId/secret，生产算法/存储待核"
+    },
+    {
+      "step": 6,
+      "from": "service",
+      "to": "ui",
+      "message": "成功进入详情；失败明确提示且不伪造凭证",
+      "type": "response",
+      "api_id": null,
+      "condition": "保存结果对应当前操作"
+    },
+    {
+      "step": 7,
+      "from": "operator",
+      "to": "ui",
+      "message": "查看详情，按需显示/复制密钥",
+      "type": "request",
+      "api_id": null,
+      "condition": "详情操作明细，不显示技术身份交换参数"
+    },
+    {
+      "step": 8,
+      "from": "operator",
+      "to": "ui",
+      "message": "修改：提交指定应用名称/授权变更",
+      "type": "request",
+      "api_id": null,
+      "condition": "独立已有对象操作"
+    },
+    {
+      "step": 9,
+      "from": "ui",
+      "to": "service",
+      "message": "保存指定应用变更，appId和密钥保持；合成已发身份按当前租户授权校验",
+      "type": "internal",
+      "api_id": null,
+      "condition": "逐次权限/对象校验；失败保留旧配置"
+    },
+    {
+      "step": 10,
+      "from": "service",
+      "to": "ui",
+      "message": "返回当前修改结果，身份/对象变化清旧反馈",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 11,
+      "from": "operator",
+      "to": "ui",
+      "message": "确认删除指定应用；取消保持配置",
+      "type": "request",
+      "api_id": null,
+      "condition": "独立删除意图"
+    },
+    {
+      "step": 12,
+      "from": "ui",
+      "to": "service",
+      "message": "精确删除指定应用，权限/对象变化拒绝",
+      "type": "internal",
+      "api_id": null,
+      "condition": "不扩为启停或重置密钥"
+    },
+    {
+      "step": 13,
+      "from": "service",
+      "to": "ui",
+      "message": "删除成功后合成凭证及已发合成身份失效，该凭证不能申请新token；失败不显示成功，真实既有token撤销/时效机制仍待核",
+      "type": "response",
+      "api_id": null,
+      "condition": "既有token真实撤销/时效机制仍待核"
+    },
+    {
+      "step": 14,
+      "from": "dcc",
+      "to": "service",
+      "message": "后台appId/凭证+tenantId申请业务身份",
+      "type": "external_call",
+      "api_id": "API-001",
+      "condition": "不在日常应用UI演示技术交换"
+    },
+    {
+      "step": 15,
+      "from": "service",
+      "to": "dcc",
+      "message": "有效且租户授权返回租户业务身份；已删除/无效凭证或越界租户拒绝",
+      "type": "response",
+      "api_id": "API-001",
+      "condition": "不授应用管理权，任务仍归租户；真实契约missing"
+    }
+  ],
+  "notes": [
+    "来源SRC-087/SRC-088直接要求的应用操作/简化，不按原型按钮临时反推未经授权功能。",
+    "新增/修改/删除/查询/查看分别验收，显示和复制作为查看明细；无新增密钥重置、启停、计费或自动权限。",
+    "原型只合成数据，真实凭据算法、存储、CRUD端点、token时效/撤销机制仍待核；API-001 missing保持。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-087",
+    "inputs/source-index.json#SRC-088",
+    "inputs/source-index.json#SRC-074"
+  ]
+}

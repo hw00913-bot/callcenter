@@ -1,0 +1,93 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>产品规格交付包-20261021-r2/local-logic/LOCAL-DICT-ENABLE.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../1.1.1/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E4%BA%A7%E5%93%81%E8%A7%84%E6%A0%BC%E4%BA%A4%E4%BB%98%E5%8C%85-20261021-r2/local-logic/LOCAL-DICT-ENABLE.md">原始 Markdown</a></p><h1>产品规格交付包-20261021-r2/local-logic/LOCAL-DICT-ENABLE.md</h1><pre># LOCAL-DICT-ENABLE 启用接口条目
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [启用业务数据接口条目 · FUNC\-025](../features/FUNC-025.md)
+
+## 职责与触发
+
+所属工程模块：开发接手后确定
+
+功能：FUNC-025
+
+触发：超管明确将停用条目启用
+
+## 前置条件
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+## 必须遵守的全局规则
+
+- [BR-023](../global-logic.md#BR-023)
+- [BR-024](../global-logic.md#BR-024)
+- [BR-036](../global-logic.md#BR-036)
+
+## 输入与输出
+
+输入：[FIELD-DICT-ID](../field-specs.md#FIELD-DICT-ID)、[FIELD-DICT-ENABLED](../field-specs.md#FIELD-DICT-ENABLED)、[FIELD-TENANT-GRANTS](../field-specs.md#FIELD-TENANT-GRANTS)
+
+输出：[FIELD-DICT-ENABLED](../field-specs.md#FIELD-DICT-ENABLED)
+
+## 处理步骤
+
+### LOCAL-DICT-ENABLE-STEP-1
+
+核对目标及权限，保存明确启用目标
+
+读取：FIELD-DICT-ID, FIELD-DICT-ENABLED；写入：FIELD-DICT-ENABLED
+
+规则：BR-023, BR-024, BR-036
+
+### LOCAL-DICT-ENABLE-STEP-2
+
+新使用仍核对租户授权，既有不可用值按恢复规则处理
+
+读取：FIELD-DICT-ID, FIELD-TENANT-GRANTS；写入：无
+
+规则：BR-023, BR-024, BR-036
+
+## 分支与异常
+
+### LOCAL-DICT-ENABLE-BRANCH-1
+
+条件：未授权租户尝试新查询
+
+结果：仍拒绝，不因启用变成全租户可用
+
+涉及字段：FIELD-TENANT-GRANTS
+
+验证：CHECK-129
+
+### LOCAL-DICT-ENABLE-BRANCH-2
+
+条件：已有不可用旧值
+
+结果：保留待核对，不自动有效
+
+涉及字段：FIELD-DICT-ENABLED
+
+验证：CHECK-137
+
+## 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 字段定义
+
+- [FIELD-DICT-ENABLED](../field-specs.md#FIELD-DICT-ENABLED)
+- [FIELD-DICT-ID](../field-specs.md#FIELD-DICT-ID)
+- [FIELD-TENANT-GRANTS](../field-specs.md#FIELD-TENANT-GRANTS)
+
+## 来源与验证
+
+来源条目：acceptance:AC-129, acceptance:AC-131, acceptance:AC-137, features:FUNC-025, features:FUNC-025/boundary/business_rules/0, features:FUNC-025/boundary/business_rules/1, features:FUNC-025/boundary/business_rules/2, features:FUNC-025/boundary/exception_paths/0, flows:FLOW-005, flows:FLOW-005/steps/0, flows:FLOW-005/steps/1, flows:FLOW-005/steps/2, flows:FLOW-005/steps/3, flows:FLOW-005/steps/4, interfaces:API-017, pages:PAGE-006, pages:PAGE-006/actions/0, pages:PAGE-006/actions/1, pages:PAGE-006/actions/2, pages:PAGE-006/actions/3, pages:PAGE-006/actions/4, pages:PAGE-006/actions/5, pages:PAGE-006/fields/0, pages:PAGE-006/fields/1, pages:PAGE-006/fields/2, pages:PAGE-006/fields/3, rules:BR-023, rules:BR-024, rules:BR-036, scenarios:SC-010, scenarios:SC-010/alternate_flows/0, scenarios:SC-010/alternate_flows/0/steps/0, scenarios:SC-010/alternate_flows/1, scenarios:SC-010/alternate_flows/1/steps/0, scenarios:SC-010/alternate_flows/1/steps/1, scenarios:SC-010/main_flow/0, scenarios:SC-010/main_flow/1, scenarios:SC-010/main_flow/2, scenarios:SC-010/main_flow/3, scenarios:SC-010/main_flow/4, scenarios:SC-010/postconditions/0, scenarios:SC-010/postconditions/1, scenarios:SC-010/postconditions/2, scenarios:SC-010/preconditions/0, scenarios:SC-010/preconditions/1, sequences:SEQ-012, sequences:SEQ-012/messages/0, sequences:SEQ-012/messages/1, sequences:SEQ-012/messages/10, sequences:SEQ-012/messages/11, sequences:SEQ-012/messages/12, sequences:SEQ-012/messages/13, sequences:SEQ-012/messages/14, sequences:SEQ-012/messages/15, sequences:SEQ-012/messages/2, sequences:SEQ-012/messages/3, sequences:SEQ-012/messages/4, sequences:SEQ-012/messages/5, sequences:SEQ-012/messages/6, sequences:SEQ-012/messages/7, sequences:SEQ-012/messages/8, sequences:SEQ-012/messages/9, stories:US-013, stories:US-013/preconditions/0, stories:US-013/preconditions/1, stories:US-016, stories:US-016/preconditions/0, stories:US-018, stories:US-018/preconditions/0, stories:US-018/preconditions/1
+
+验证：CHECK-129, CHECK-131, CHECK-137
+
+## 实施任务
+
+未声明；请结合范围说明核对。
+</pre></body></html>

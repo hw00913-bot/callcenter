@@ -1,0 +1,148 @@
+{
+  "date": "2026-10-14",
+  "recorded_at": "2026-10-14T17:03:01.669610+08:00",
+  "checkpoint": "application-callback-ui-20261014",
+  "scope": "用户要求的应用回调地址字段遗漏修复；唯一原型中的本地合成实现",
+  "result": "pass_scoped_source_checks_and_targeted_browser",
+  "formal_gates_changed": false,
+  "real_calls_enabled": false,
+  "changed_files": [
+    {
+      "path": "js/components/dcc-runtime.js",
+      "before_sha256": "b7798a16272fdee49abe69bb81e3dbe1586e49457bcce340944e656aa641c314",
+      "sha256": "98fa9ec2cfb1ea46003bad6cf2d612382c1452e070f5e1a62842fd172cdd2cb8",
+      "added_lines": 13,
+      "removed_lines": 3
+    },
+    {
+      "path": "js/pages/application-access.js",
+      "before_sha256": "f36933d24f5b9c8ecf6033ae726c4162dc251738d6d4222bcdf3684223477f77",
+      "sha256": "c28978c32cd56ca2bfb3c7a2925c343c7ee37dfe8188aadacc2a570393f3a3d8",
+      "added_lines": 4,
+      "removed_lines": 1
+    },
+    {
+      "path": "index.html",
+      "before_sha256": "5a81b5065539164bec4ad8f5428d4e04f8b7d28c5cac3d1a0adf03212acb8541",
+      "sha256": "ce02344366bef53afb3aea268a3649fc004962b5c490602204ccb339cf4c4e69",
+      "added_lines": 2,
+      "removed_lines": 2
+    }
+  ],
+  "implementation": [
+    "新增／编辑应用保存 callbackUrl；应用详情展示同一保存值，列表展示配置状态",
+    "允许暂时空配置创建应用；旧应用缺值显示未配置，不增加虚构地址",
+    "有效 HTTP(S) URL可保存并在重载后恢复；无效地址拒绝，失败／取消保留原配置和密钥",
+    "合成接口接收通过已验证的 sourceApplicationId 精确定位原应用，缺失／无效地址拒绝，不依赖同租户其他应用；手工导入保持原权限与流程"
+  ],
+  "verification": {
+    "source_vm": {
+      "date": "2026-10-14",
+      "scope": "Local synthetic application callback form/storage/import guard source VM checks; no network",
+      "passed": 8,
+      "failed": 0,
+      "results": [
+        {
+          "name": "新增和编辑页面提供回调字段，允许空配置创建但展示接口导入前须配置",
+          "status": "pass"
+        },
+        {
+          "name": "新增有效HTTP(S)回调、修改和重载持久化同一值，appId/密钥保持",
+          "status": "pass"
+        },
+        {
+          "name": "无效协议/主机/凭据/控制字符/非字符串地址拒绝且不改变原配置",
+          "status": "pass"
+        },
+        {
+          "name": "保存失败和取消编辑保留原回调地址，页面保存错误可读",
+          "status": "pass"
+        },
+        {
+          "name": "既有预置/历史无地址保持未配置，不伪造回调目标；异常原地址只转义展示",
+          "status": "pass"
+        },
+        {
+          "name": "可靠原应用身份缺回调时接口导入拒绝，无写入；配置后可导入；清空后再拒绝",
+          "status": "pass"
+        },
+        {
+          "name": "同租户其他应用已配地址不能替代缺地址的原应用；手工导入不受回调配置限制",
+          "status": "pass"
+        },
+        {
+          "name": "无管理权限/历史只读禁止更改回调；地址未配置身份交换不授额外管理权",
+          "status": "pass"
+        }
+      ],
+      "sources": [
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/mock/dcc-v1.1.0.js",
+          "sha256": "15073651a4c62acb1d1a5b8e06b6e3c2d1aa558fd69cb1cf3c84eee0532c5de6"
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/components/dcc-runtime.js",
+          "sha256": "98fa9ec2cfb1ea46003bad6cf2d612382c1452e070f5e1a62842fd172cdd2cb8"
+        },
+        {
+          "path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/application-access.js",
+          "sha256": "c28978c32cd56ca2bfb3c7a2925c343c7ee37dfe8188aadacc2a570393f3a3d8"
+        }
+      ],
+      "limitations": [
+        "实际浏览器核验由root独立执行",
+        "正式接入回调HTTP契约与供应商调用未实现、未验证",
+        "合成接收守卫仅用于已可靠定位原应用的当前模型，不构成全后端或多租户工程实现"
+      ]
+    },
+    "browser_status": "pass_create_edit_reopen_actual_browser",
+    "regression_after_callback_precondition": {
+      "paths": [
+        "/tmp/intent-fields-prototype-check.json",
+        "/tmp/intent-fields-workbench-check.json"
+      ],
+      "passed_groups": 21,
+      "failed_groups": 0,
+      "fixture_note": "六字段API合成样例先配置不可调用的https://synthetic.invalid/callback，以满足新增配置前置，原21组断言含义保持。"
+    },
+    "test_scripts": [
+      {
+        "path": "/tmp/application-callback-ui-check.cjs",
+        "sha256": "f1483c711a4742b8202e596a98e9360ecbbd6f455bff861b47a3150b1b89ec5b"
+      }
+    ],
+    "browser": {
+      "date": "2026-10-14",
+      "tool": "mcp__cua_repl",
+      "url": "http://127.0.0.1:18802/prototype/index.html#application-access",
+      "observed": [
+        "新增应用表单存在回调地址及配置后允许接口导入的简短提示。",
+        "以合成地址创建应用后，详情显示保存值；修改路径后保存，应用ID不变，密钥保持隐藏。",
+        "回到应用列表再打开详情、修改页，保存后的地址一致。",
+        "本轮页面error日志为空。"
+      ],
+      "synthetic_application_name": "回调地址验证（合成）",
+      "target_is_non_resolvable_demo_url": true,
+      "real_network_test_performed": false,
+      "screenshots": [
+        {
+          "path": "prototype/memory/verification-evidence/application-callback-detail-20261014.png",
+          "sha256": "6a53ddbbc911c748e33c150a61c66a9b301c48a8b1be8f9aafc0b5f141eace50"
+        },
+        {
+          "path": "prototype/memory/verification-evidence/application-callback-form-20261014.png",
+          "sha256": "0da125c22fa08d24467835be4dda6d59b0922715d0e12a494a521ab333377341"
+        }
+      ],
+      "limits": [
+        "本次默认桌面窗口定点验收，未重跑三种宽度。",
+        "无效地址、权限、存储失败及未配置阻断导入由8项源码VM测试覆盖，本次浏览器未逐项重演。"
+      ]
+    }
+  },
+  "limitations": [
+    "仅本地合成应用持久化/表单/导入守卫；真实回调传输与完整供应商联调尚未实现",
+    "当前已可靠映射原应用身份的合成接收守卫不代表全后端多租户工程",
+    "正式Loop、冻结基线和真实调用均未改变，未推送GitLab"
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "云呼叫中心",
+    "version": "1.1.0",
+    "objective": "DCC决策重导，平台单一任务来源导入与每次结果回传；保留自然日priority跟进；异步导入失败分片关联/回传及快照导出，超管管理应用、同任务待提交优先级FIFO"
+  },
+  "actors": [
+    {
+      "name": "超管",
+      "description": "应用管理仅超管；租户管理员菜单/页面/管理接口拒绝，不实际改变账号权限"
+    },
+    {
+      "name": "运营人员",
+      "description": "按既有权限导入、查看及下载失败明细；不授予应用管理权"
+    }
+  ],
+  "systems": [
+    {
+      "name": "DCC",
+      "description": "主动传入客户与精准删除请求"
+    },
+    {
+      "name": "云呼叫中心",
+      "description": "本地留存、优先级、状态守卫与关联批次"
+    },
+    {
+      "name": "AliCti供应商",
+      "description": "供应商任务、号码导入、实际调度/主叫选择与结果；真实能力待核"
+    }
+  ],
+  "scope": {
+    "in": [
+      "SC-001",
+      "SC-002",
+      "SC-003",
+      "SC-004"
+    ],
+    "out": [
+      "真实凭据/token/呼叫/供应商删除",
+      "自动解除未证实风控",
+      "旧R排序/3秒/5分钟/1次默认",
+      "05开发包/发布/039"
+    ]
+  },
+  "product_structure": [
+    {
+      "name": "系统设置/应用接入管理",
+      "description": "用户明确新增系统设置菜单；凭证占位，无可用密钥/token；仅超管可访问/操作，服务端拒绝租户管理员"
+    },
+    {
+      "name": "预外呼任务/记录页",
+      "description": "用户明确任务级单独记录页，手工导入按钮常驻；导入/重呼/失败页签是分析方案，未冒充用户实测"
+    }
+  ],
+  "state_models": [
+    {
+      "id": "STATE-001",
+      "name": "导入业务记录",
+      "states": [
+        "本地校验失败",
+        "本地保存",
+        "供应商导入待提交",
+        "供应商同步数量与准确成功证据",
+        "供应商导入失败（同步/53）",
+        "供应商结果未知/待核",
+        "供应商已删除（本地保留）"
+      ],
+      "transitions": [
+        "有效行本地保存 → 同任务待提交priority高先/同级FIFO → 自动提交；已提交不重排",
+        "同步准确证据正常记录；只汇总不盲指定成功行，未知待核",
+        "53异步失败 → 分片关联合并 → 失败导出及按任务来源回传/查看，不计实际呼叫",
+        "可信下载成功仅清本次快照明细/文件；保留关联、去重、分片、交付状态，后到新失败待再次下载",
+        "精准删除明确成功 → 供应商已删除（本地保留）"
+      ]
+    },
+    {
+      "id": "STATE-002",
+      "name": "每次结果与回传记录",
+      "states": [
+        "结果已关联",
+        "结果待核",
+        "接口回传待发送",
+        "回传成功",
+        "回传失败待补送",
+        "手工仅平台查看"
+      ],
+      "transitions": [
+        "每次结果/晚更新 → 同对象准确关联 → 接口回传或手工查看",
+        "重复不新增呼叫；回传失败记录并补送，不改变业务结果"
+      ]
+    }
+  ],
+  "assumptions": [
+    "P1仅分析排序，不是实施先后",
+    "北京时间原导入自然日priority衰减保留；真实状态/存量修改能力与每日时刻交开发核实",
+    "DCC管理重导与计数，平台不建预算/计时器；供应商内部尝试完整性及SIP晚更新交开发核实",
+    "工作时间边界（SRC-078/079）：平台按DCC传入priority保存、同任务排序并提交，不新增工作时间策略、不因工作时间到来自动提权；既有自然日衰减最低1、同级FIFO与已提交不撤回保持。低优先级不是禁止呼叫；无新增功能。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-002",
+    "inputs/source-index.json#SRC-050",
+    "inputs/source-index.json#SRC-051",
+    "inputs/source-index.json#SRC-052",
+    "inputs/source-index.json#SRC-056",
+    "inputs/source-index.json#SRC-062",
+    "inputs/source-index.json#SRC-063",
+    "inputs/source-index.json#SRC-068",
+    "inputs/source-index.json#SRC-071",
+    "inputs/source-index.json#SRC-072",
+    "inputs/source-index.json#SRC-073",
+    "inputs/source-index.json#SRC-074",
+    "inputs/source-index.json#SRC-076",
+    "inputs/source-index.json#SRC-077",
+    "inputs/source-index.json#SRC-078",
+    "inputs/source-index.json#SRC-079"
+  ],
+  "current_dcc_responsibility": {
+    "source_refs": [
+      "inputs/source-index.json#SRC-063",
+      "inputs/source-index.json#SRC-064",
+      "inputs/source-index.json#SRC-065",
+      "inputs/source-index.json#SRC-066",
+      "inputs/source-index.json#SRC-067",
+      "inputs/source-index.json#SRC-068",
+      "inputs/source-index.json#SRC-069",
+      "inputs/source-index.json#SRC-070"
+    ],
+    "statement": "DCC决策所有重导及业务计数；平台执行导入和每次结果回传；固定后台接收地址，任务创建提交锁定来源。"
+  }
+}

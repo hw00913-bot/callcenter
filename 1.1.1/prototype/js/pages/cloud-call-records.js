@@ -1,0 +1,383 @@
+/** 云呼叫四类记录、录音适用性与本平台结果归档。 */
+(function () {
+  'use strict';
+  const ui = PlatformUI;
+  const esc = ui.escape;
+  const returnKey = 'cloud-call-record-task-context-v1';
+  let view = 'records';
+  let activeType = '全部';
+  let recordKeyword = '';
+  let recordResult = '';
+  let recordingFilter = '';
+  let syncFilter = '';
+  let recordPage = 1;
+  let recordSource = '';
+  let dateStart='',dateEnd='',queryPlan=null;
+  let nativeAgentId = '';
+  const pageSize = 10;
+  let taskContext = loadTaskContext();
+  let detailCallId = '';
+  const syncLabels = {live:'通话中',pending:'同步中',synced:'已同步',error:'同步异常',unknown:'待核对'};
+
+
+  function syncContext(options,tab){
+    const opts=options||{};
+    if (!opts.preserveContext) { dateStart='';dateEnd='';queryPlan=null; nativeAgentId = opts.nativeAgentId || ''; recordSource = ''; }
+    if(opts.taskId){saveTaskContext({taskId:opts.taskId,tab:opts.returnTab||tab});activeType=taskById(opts.taskId)?.callType||'全部';recordPage=1;recordKeyword='';recordResult='';recordingFilter='';syncFilter='';}
+    else if(!opts.preserveContext){saveTaskContext(null);activeType=opts.type||opts.filter||'全部';recordPage=1;recordKeyword='';recordResult='';recordingFilter='';syncFilter='';}
+    if(opts.type||opts.filter)activeType=opts.type||opts.filter;
+  }
+  function scoped(rows) { return AppState.scoped(rows || []); }
+  function loadTaskContext() { try { return JSON.parse(sessionStorage.getItem(returnKey) || 'null'); } catch (error) { return null; } }
+  function saveTaskContext(value) { taskContext = value; if (value) sessionStorage.setItem(returnKey, JSON.stringify(value)); else sessionStorage.removeItem(returnKey); }
+  const textValue = value => typeof value === 'string' && value.trim() ? value : '';
+  const secondsValue = value => (typeof value === 'number' || typeof value === 'string' && /^\d+$/.test(value)) && Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : null;
+  const localTime = value => { const at = typeof value === 'number' ? value : Date.parse(value || ''); return Number.isFinite(at) && at > 0 ? at : null; };
+  function formatDuration(seconds) { const value=secondsValue(seconds); return value===null?'未记录':`${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`; }
+  function taskById(id) { return (CloudCallData.tasks || []).find(item => item.taskId === id && AppState.authorizeObject('',item)); }
+  const stateTime = at => localTime(at) ? new Date(localTime(at)).toLocaleString('sv-SE') : '—';
+  function display(call) {
+    const facts=AliCtiReportFacts.read(call), state={...CallState.view(call)}, raw=facts.usable?facts.raw:{};
+    const inbound=call.callType==='呼入',automatic=call.callType==='IVR 外呼';
+    const trustedLocal=!facts.present;
+    const startAt=facts.present?facts.startAtMs:localTime(call.ringingAt||call.recordedAt);
+    const endAt=facts.present?facts.endAtMs:localTime(state.endedAt||call.endedAt);
+    const customerAt=facts.present?facts.customerAnsweredAtMs:localTime(state.customerEstablishedAt);
+    const agentAt=facts.present?facts.agentAnsweredAtMs:localTime(state.agentEstablishedAt);
+    if(facts.present&&!facts.usable)Object.assign(state,{answerResult:'UNKNOWN',answerLabel:'待确认',answered:null,known:false,agentAnswered:null,stage:null,stageLabel:'未记录',ended:false,numberStatus:{label:'—',help:'未取得可关联到本通电话的号码状态'}});
+    else if(endAt)Object.assign(state,{stage:'RELEASED',stageLabel:'已结束',ended:true});
+    else if(facts.present)Object.assign(state,{stage:null,stageLabel:'未记录',ended:false});
+    Object.assign(state,{customerEstablishedAt:customerAt,agentEstablishedAt:agentAt,endedAt:endAt});
+    const savedAgentName=call.callSource==='NATIVE_WORKBENCH'&&facts.usable&&textValue(call.cno)&&facts.primaryAgentCno===call.cno?textValue(call.agentName):'';
+    const agentName=facts.present?textValue(raw[inbound?'firstCallCname':'clientName'])||savedAgentName:textValue(call.agentName);
+    const agentCno=facts.present?facts.primaryAgentCno:textValue(call.cno);
+    const caller=(inbound?facts.customerNumber:textValue(raw[facts.kind==='manual'?'leftClid':'clid']))||(!facts.present||facts.usable?textValue(call.caller):'');
+    const callee=(inbound?textValue(raw.hotline):facts.customerNumber)||(!facts.present||facts.usable?textValue(call.callee):'');
+    return {
+      state,facts,inbound,automatic,startAt,endAt,customerAt,agentAt,
+      customerNumber:facts.customerNumber||(inbound?caller:callee),caller,callee,
+      durationSeconds:facts.present?(automatic?facts.customerSeconds:facts.bridgeSeconds):secondsValue(call.durationSeconds),
+      customerSeconds:facts.customerSeconds,totalSeconds:secondsValue(raw.totalDuration),
+      agentName,agentCno,agentText:[agentName,agentCno].filter(Boolean).join(' · ')||'未记录',
+      queueNo:facts.primaryQueueNo,queueName:inbound?textValue(raw.firstCallQname):'',
+      ivrName:textValue(raw.ivrName),ivrId:textValue(raw.ivrId)||(Number.isSafeInteger(raw.ivrId)&&raw.ivrId>0?raw.ivrId:null),
+      retryRound:facts.telRetryRound,finishRetryFlag:[0,1,'0','1'].includes(raw.finishRetryFlag)?Number(raw.finishRetryFlag):null,
+      providerCallId:facts.callId||facts.mainUniqueId||facts.uniqueId||(trustedLocal?textValue(call.providerCallId||call.alictiCallId||call.providerMainUniqueId):''),
+      resultLabel:inbound&&['人工接听','人工未接听','系统应答','系统未应答'].includes(raw.status)?raw.status:state.known?state.answerLabel:'结果未知'
+    };
+  }
+  function relatedTask(call) {
+    const facts=AliCtiReportFacts.read(call);
+    if(facts.present&&!facts.usable)return null;
+    const enterprise=String(call.providerEnterpriseId??call.enterpriseId??'');
+    if(!enterprise||!call.tenantId)return null;
+    const matches=(CloudCallData.tasks||[]).filter(task=>String(task.enterpriseId??'')===enterprise&&task.tenantId===call.tenantId&&task.callType===call.callType&&AppState.authorizeObject('',task));
+    const providerId=task=>task.providerTaskId??task.demoProviderTaskId??task.alictiMockTaskProperty?.id;
+    if(call.taskId){
+      const task=matches.find(item=>item.taskId===call.taskId);
+      return task&&(!facts.taskId||providerId(task)!=null&&String(providerId(task))===facts.taskId)?task:null;
+    }
+    const byProvider=facts.taskId?matches.filter(task=>providerId(task)!=null&&String(providerId(task))===facts.taskId):[];
+    return byProvider.length===1?byProvider[0]:null;
+  }
+  const stateOf = call => display(call).state;
+  function answerMarkup(call) {
+    return ui.status(display(call).resultLabel);
+  }
+  function numberStatusMarkup(call) {
+    const number = stateOf(call).numberStatus;
+    return '<span title="' + esc(number.help) + '">' + esc(number.label) + '</span>';
+  }
+  function syncState(call) {
+    return window.CloudCallSync?.read(call) || {status:'unknown',label:'未记录',updatedAt:'',note:'未记录资料同步状态',mediaPending:false,canDemo:false};
+  }
+  function syncBadge(call) {
+    const sync=syncState(call),status=Object.hasOwn(syncLabels,sync.status)?sync.status:'unknown';
+    return '<span class="call-sync-badge '+status+'">'+esc(sync.label||syncLabels[status])+'</span>';
+  }
+  function syncCell(call) {
+    const sync=syncState(call);
+    return '<div class="call-sync-list-cell" data-call-sync-id="'+esc(call.callId)+'">'+syncBadge(call)+'<span class="call-sync-time" title="最近同步时间">'+esc(sync.updatedAt||'尚无同步时间')+'</span></div>';
+  }
+  function syncRefreshDisabled(call) {
+    const sync=syncState(call);
+    return sync.status==='live'||sync.canRefresh===false;
+  }
+  function syncPanel(call) {
+    const sync=syncState(call),state=display(call).state,saved=!!call.customerFollowup?.updatedAt||!!call.dispositionAt||call.processingStatus==='已完成';
+    const callArg=esc(JSON.stringify(call.callId));
+    return '<section class="call-sync-panel" aria-label="通话资料同步"><div class="call-sync-panel-head"><strong>通话资料</strong><button class="btn-link" type="button" data-call-sync-action="refresh" onclick="CloudCallRecords.refreshSync('+callArg+')"'+(syncRefreshDisabled(call)?' disabled':'')+'>刷新资料</button></div><div class="call-sync-summary"><span>通话：'+esc(state.ended?'已结束':state.stageLabel||'未记录')+'</span><span>跟进：'+(saved?'已保存':call.callSource==='NATIVE_WORKBENCH'?'未保存':'未记录保存状态')+'</span><span>资料：'+syncBadge(call)+'</span></div><p class="call-sync-note">'+esc(sync.note||'话单与录音、文本会分别更新。')+'</p><span class="call-sync-time">最近同步：'+esc(sync.updatedAt||'未记录')+'</span>'+
+      (sync.mediaPending?'<p class="call-sync-media-note">录音样例生成中，通话文本独立展示；已保存的跟进不受影响。</p>':'')+
+      (sync.canDemo?'<details class="call-sync-demo"><summary>演示资料同步</summary><p>仅模拟当前本地演示记录的资料到达过程，不拨号，不调用真实接口。</p><div class="call-sync-demo-actions"><button class="btn" type="button" data-call-sync-action="delayed" onclick="CloudCallRecords.demoSync('+callArg+',\'delayed\')">话单延迟到达</button><button class="btn" type="button" data-call-sync-action="media" onclick="CloudCallRecords.demoSync('+callArg+',\'media\')">录音后到</button><button class="btn" type="button" data-call-sync-action="error" onclick="CloudCallRecords.demoSync('+callArg+',\'error\')">同步异常恢复</button></div></details>':'')+'</section>';
+  }
+  function journeyMarkup(stage) {
+    const task = taskContext?.taskId ? taskById(taskContext.taskId) : null;
+    const type = task?.callType || activeType;
+    const scenarioTypes = { '人工外呼': 'MANUAL_OUTBOUND', '预外呼': 'PREDICTIVE', 'IVR 外呼': 'IVR_OUTBOUND', '呼入': 'INBOUND' };
+    const scenarioType = scenarioTypes[type];
+    const noTask = ['人工外呼', '呼入'].includes(type);
+    const actions = {
+      records: `CloudCallRecords.switchView('records')`,
+      results: `CloudCallRecords.switchView('records')`
+    };
+    if (scenarioType) actions.prepare = `ScenarioReadiness.open('${scenarioType}')`;
+    if (type === '预外呼') actions.create = `RouteRuntime.openSecondary('predictive-tasks')`;
+    if (type === 'IVR 外呼') actions.create = `RouteRuntime.openSecondary('ivr-tasks')`;
+    if (task) actions.monitor = `CloudCallRecords.returnTask()`;
+    const skipped = noTask || type === '全部' ? ['create', 'monitor'] : [];
+    return ui.journey({ current: stage, context: task ? `${task.name} · ${type}` : `${type === '全部' ? '全部云呼叫' : type} · ${stage === 'records' ? '通话记录' : '结果回查'}`, branch: task ? '当前任务范围' : noTask ? '无需中台任务' : '当前查询范围', actions, skipped, notes: noTask ? { create: '无需创建任务', monitor: type === '人工外呼' ? '坐席工作台执行' : '客户来电触发' } : {} });
+  }
+
+  function recordRows() {
+    window.CustomerDirectory?.sync();
+    let rows = scoped(CloudCallData.calls);
+    if(dateStart&&dateEnd)rows=rows.filter(row=>{const time=display(row).startAt;return time!==null&&time>=Date.parse(dateStart)&&time<=Date.parse(dateEnd);});
+    if (taskContext?.taskId) rows = rows.filter(item => relatedTask(item)?.taskId === taskContext.taskId);
+    if (nativeAgentId) rows = rows.filter(item => (item.agentIdentityId || item.contactCenterIdentityId) === nativeAgentId && item.callSource === 'NATIVE_WORKBENCH');
+    if (recordSource) rows = rows.filter(item => recordSource === 'NATIVE_WORKBENCH' ? item.callSource === recordSource : item.callSource === 'LOCAL_TASK_SIMULATION' || !!item.taskId);
+    if (activeType !== '全部') rows = rows.filter(item => item.callType === activeType);
+    if (recordKeyword) rows = rows.filter(item => {const data=display(item);return [item.callId,data.providerCallId,data.caller,data.callee,data.agentText,item.customerName].join(' ').toLowerCase().includes(recordKeyword.toLowerCase());});
+    if (recordResult) rows = rows.filter(item => stateOf(item).answerLabel === recordResult);
+    if (syncFilter) rows = rows.filter(item => syncState(item).status === syncFilter);
+    if (recordingFilter) rows = rows.filter(item => {
+      const media = CloudCallMedia.resolve(item);
+      if (recordingFilter === '可播放') return !!media.url;
+      if (recordingFilter === '不适用') return media.status === '纯 IVR 不适用';
+      if (recordingFilter === '待判定') return media.status === '录音待判定';
+      return media.status === recordingFilter;
+    });
+    return ui.sortByUpdated?.(rows,call=>{const data=display(call);return [data.endAt,data.startAt];})||rows;
+  }
+
+  function setType(type) { activeType = type; recordPage = 1; queryPlan=null; navigateTo('cloud-call-records', { type, preserveContext:true }); }
+
+  function renderRecords(options) {
+    syncContext(options,'calls');
+    const rows = recordRows();
+    const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
+    if (recordPage > pageCount) recordPage = pageCount;
+    const pageRows = rows.slice((recordPage - 1) * pageSize, recordPage * pageSize);
+    const tabs = ['全部', '人工外呼', '预外呼', 'IVR 外呼', '呼入'];
+    return `<section class="platform-page call-record-page">
+      ${nativeAgentId ? '<div class="seat-saved"><span>我的坐席 · 中台直接外呼记录</span><div><button class="btn-link" onclick="navigateTo(\'cloud-call-records\')">查看全部通话</button></div></div>' : ''}
+      ${ui.pageHeader('通话记录', '查看人工外呼、预外呼、自动外呼和呼入的通话结果。')}
+      ${journeyMarkup('records')}
+      <div class="record-type-tabs">${tabs.map(type => `<button class="${type === activeType ? 'active' : ''}" onclick="window.Pages['cloud-call-records'].setType('${type}')">${esc(ui.callTypeLabel(type))}</button>`).join('')}</div>
+      <div class="filter-panel"><label class="field"><span>通话编号 / 客户号码</span><input id="recordKeyword" value="${esc(recordKeyword)}" placeholder="请输入通话编号或号码"></label><label class="field"><span>客户接通</span><select id="recordResult"><option value="">全部</option>${['已接通','未接通','待确认'].map(value=>`<option value="${value}"${recordResult===value?' selected':''}>${value==='待确认'?'结果未知':value}</option>`).join('')}</select></label><label class="field"><span>呼叫来源</span><select id="recordSource"><option value="">全部</option><option value="NATIVE_WORKBENCH"${recordSource==='NATIVE_WORKBENCH'?' selected':''}>中台控制台</option><option value="LOCAL_TASK_SIMULATION"${recordSource==='LOCAL_TASK_SIMULATION'?' selected':''}>平台任务</option></select></label><label class="field"><span>录音状态</span><select id="recordingFilter"><option value="">全部</option>${['可播放','演示音频','录音生成中','录音生成失败','录音链接已过期','未提供录音','演示无录音','不适用','待判定'].map(value=>`<option${recordingFilter===value?' selected':''}>${value}</option>`).join('')}</select></label><label class="field"><span>资料同步</span><select id="recordSyncFilter"><option value="">全部</option>${Object.entries(syncLabels).map(([value,label])=>`<option value="${value}"${syncFilter===value?' selected':''}>${value==='synced'?'已有资料 / 已同步':label}</option>`).join('')}</select></label><label class="field"><span>开始时间</span><input id="recordStart" type="datetime-local" value="${esc(dateStart)}"></label><label class="field"><span>结束时间</span><input id="recordEnd" type="datetime-local" value="${esc(dateEnd)}"></label><div class="filter-actions"><button class="btn" onclick="window.Pages['cloud-call-records'].resetFilters()">重置</button><button class="btn btn-primary" onclick="window.Pages['cloud-call-records'].query()">查询</button></div></div>
+      <div class="cloud-record-list-shell">${ui.toolbar('<button class="btn" onclick="CloudCallRecords.exportRecords()">导出</button>')}
+      ${ui.table([
+        { key: 'callId', label: '通话编号', render: value => `<button class="table-link" onclick="window.Pages['cloud-call-records'].openCall('${value}')"><strong>${esc(value)}</strong></button>` },
+        { key: 'callType', label: '呼叫类型 / 来源', render: (value, row) => `<span class="call-type type-${value === '呼入' ? 'in' : value === 'IVR 外呼' ? 'ivr' : 'out'}">${esc(ui.callTypeLabel(value))}</span><div class="table-sub">${row.callSource==='NATIVE_WORKBENCH'?'中台控制台':row.taskId?'平台任务':row.callType==='呼入'?'客户来电':'平台记录'}</div>` },
+        { key: 'result', label: '号码状态', help: '人工与预测外呼直接采用 AliCti 识别编码及名称，同码多义或缺少编码保留待确认。呼入使用软电话时，未提供号码识别显示 —，接听情况看接听状态。', render: (_, row) => numberStatusMarkup(row) },
+        { key: 'result', label: '接听结果', help: '外呼显示客户接通结果，呼入显示接口接听状态。缺少结果不算未接通。', render: (_, row) => answerMarkup(row) },
+        { key: 'caller', label: '主叫号码',render:(_,row)=>esc(display(row).caller||'未记录') }, { key: 'callee', label: '被叫号码',render:(_,row)=>esc(display(row).callee||'未记录') },
+        { key: 'agentName', label: '坐席 / 工号', help:'呼入显示首呼坐席；流转工号在详情查看。',render:(_,row)=>esc(display(row).agentText) }, { key: 'answeredAt', label: '接听时间', help: '外呼为客户接通时间，呼入为首次坐席接听时间。', render: (_, row) => {const data=display(row);return stateTime(data.inbound?data.agentAt:data.customerAt);} },
+        { key: 'durationSeconds', label: '通话时长', help: '自动外呼为客户接听时长；其他外呼为双方通话时长；呼入为话单通话时长。缺失不补零。', render: (_,row) => formatDuration(display(row).durationSeconds) },
+        { key: 'syncStatus', label: '资料同步', help: '通话已结束、跟进已保存与资料已同步分别显示；录音和文本可稍后到达。', className:'call-sync-column', render: (_, row) => syncCell(row) },
+        { key: 'recordingStatus', label: '录音', help: '演示音频为独立合成样例；可播放仅表示已有有效音频地址。纯 IVR、现场模拟和历史缺失记录不补造录音。', render: (_, row) => ui.status(CloudCallMedia.resolve(row).status) },
+        { key: 'callId', label: '操作', className: 'action-column', render: (value, row) => `<div class="table-actions"><button onclick="window.Pages['cloud-call-records'].openCall('${value}')">${CloudCallMedia.resolve(row).url ? '录音 / 文本' : '查看'}</button><button data-call-sync-action="refresh" data-call-sync-id="${esc(value)}" onclick="CloudCallRecords.refreshSync(${esc(JSON.stringify(value))})"${syncRefreshDisabled(row)?' disabled':''}>刷新资料</button></div>` }
+      ], pageRows, { rowOffset:(recordPage-1)*pageSize, emptyText: taskContext?.taskId ? '当前任务尚未产生该类型通话' : '未找到符合条件的通话记录', emptyDetail: '可重置筛选后重新查询。', footer: ui.pagination(rows.length, recordPage, pageSize, "window.Pages['cloud-call-records'].setPage") })}
+      </div><p id="call-record-sync-live" class="call-sync-sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+    </section>`;
+  }
+
+  function exportRecords() {
+    if(!AppState.canAction('report.export')||AppState.get().activeDomain!=='CLOUD_CONTACT_CENTER')return showToast('当前账号无权导出通话记录','warning');
+    const rows=recordRows();if(!rows.length)return showToast('当前筛选没有可导出的通话记录','info');
+    const mapped=rows.map(call=>{const value=display(call),sync=syncState(call);return {callId:call.callId,callType:ui.callTypeLabel(call.callType),caller:value.caller||'未记录',callee:value.callee||'未记录',result:value.resultLabel,numberStatus:value.state.numberStatus?.label||'—',agent:value.agentText,startAt:stateTime(value.startAt),answeredAt:stateTime(value.inbound?value.agentAt:value.customerAt),endedAt:stateTime(value.endAt),duration:formatDuration(value.durationSeconds),sync:sync.label};});
+    const columns=[['callId','通话编号'],['callType','呼叫类型'],['caller','主叫号码'],['callee','被叫号码'],['result','接听结果'],['numberStatus','号码状态'],['agent','坐席 / 工号'],['startAt','开始时间'],['answeredAt','接听时间'],['endedAt','结束时间'],['duration','通话时长'],['sync','资料同步']].map(([key,label])=>({key,label}));
+    if(window.downloadCsv?.('通话记录-'+new Date().toLocaleDateString('sv-SE')+'.csv',columns,mapped))showToast('已生成当前筛选的 '+rows.length+' 条通话记录','success');
+  }
+  function query() {
+    const start=document.getElementById('recordStart')?.value||'',end=document.getElementById('recordEnd')?.value||'';
+    if(start||end){const kinds=activeType==='全部'?['manual','predictive','automatic','inbound']:[({'人工外呼':'manual','预外呼':'predictive','IVR 外呼':'automatic','呼入':'inbound'})[activeType]];const plans=kinds.map(kind=>AliCtiFields.cdrQuery(kind,start,end));const errors=plans.flatMap(p=>p.pending);if(errors.length)return showToast(errors.join('；'),'warning');queryPlan={mock:true,requests:plans.flatMap(p=>p.requests)};}else queryPlan=null;
+    dateStart=start;dateEnd=end;
+    recordSource = document.getElementById('recordSource')?.value || '';
+    recordKeyword = (document.getElementById('recordKeyword')?.value || '').trim();
+    recordResult = document.getElementById('recordResult')?.value || '';
+    recordingFilter = document.getElementById('recordingFilter')?.value || '';
+    syncFilter = document.getElementById('recordSyncFilter')?.value || '';
+    recordPage = 1;
+    navigateTo('cloud-call-records', { type: activeType, preserveContext:true });
+  }
+
+  function resetFilters() {
+    dateStart='';dateEnd='';queryPlan=null;
+    recordSource = '';
+    recordKeyword = '';
+    recordResult = '';
+    recordingFilter = '';
+    syncFilter = '';
+    recordPage = 1;
+    navigateTo('cloud-call-records', { type: activeType, preserveContext:true });
+  }
+
+  function setPage(page) {
+    recordPage = Math.max(1, Number(page) || 1);
+    navigateTo('cloud-call-records', { type: activeType, preserveContext:true });
+  }
+
+  function render(options) { view = 'records'; return renderRecords(options); }
+
+  function openCall(id) {
+    window.CustomerDirectory?.sync();
+    const call=CloudCallRuntime.call(id);
+    if(!call||!AppState.authorizeObject('',call))return;
+    CloudCallMedia.destroy();
+    detailCallId=id;
+    ui.openLayer('cloud-call-detail',detailMarkup(call),'wide');
+    const layer=document.getElementById('cloud-call-detail');
+    if(layer?.dataset)layer.dataset.callId=id;
+    CloudCallMedia.mount(layer,call);
+  }
+
+  function detailMarkup(call, withMedia = true) {
+    const data=display(call),{state,facts,inbound,automatic}=data,raw=facts.usable?facts.raw:{},task=relatedTask(call);
+    const dt=(label,value)=>'<dt>'+esc(label)+'</dt><dd>'+esc(value??'未记录')+'</dd>';
+    const grid=rows=>'<dl class="detail-grid">'+rows.map(([label,value])=>dt(label,value)).join('')+'</dl>';
+    const contactLabel=window.RepeatPredictive?.contactLabel(call)||'';
+    const sourceTask=task?.name||textValue(raw.taskName)||(inbound?'客户呼入':call.callType==='人工外呼'?'坐席主动外呼':'未记录');
+    const agentLabel=inbound?'首呼坐席':'坐席';
+    const resultRows=[['通话进度',state.stageLabel],['客户是否接通',state.known?state.answerLabel:'结果未知'],
+      ...(inbound?[['呼入接听状态',data.resultLabel]]:[]),
+      ['坐席接听',state.agentAnswered===true?'已接听':state.agentAnswered===false?'未接听':'未记录'],
+      [automatic?'客户接听时长':inbound?'通话时长':'双方通话时长',formatDuration(data.durationSeconds)]];
+    const times=[['开始呼叫',stateTime(data.startAt)],
+      [inbound?'系统应答时间':'客户接通时间',stateTime(data.customerAt)],
+      ...(!automatic?[[inbound?'首次坐席接听时间':'坐席接听时间',stateTime(data.agentAt)]]:[]),
+      ['结束时间',stateTime(data.endAt)],
+      [automatic?'客户接听时长':inbound?'通话时长':'双方通话时长',formatDuration(data.durationSeconds)],
+      ...(facts.kind==='predictive'?[['客户接听时长',formatDuration(data.customerSeconds)]]:[]),
+      ['呼叫总时长',formatDuration(data.totalSeconds)],
+      ...(inbound?[
+        ['首次进入队列时间',stateTime(facts.firstJoinQueueAtMs)],['首次离开队列时间',stateTime(facts.firstLeaveQueueAtMs)],['首次排队时长',formatDuration(facts.queueSeconds)]
+      ]:[])];
+    const participants=[[agentLabel,data.agentName||'未记录'],[agentLabel+'工号',data.agentCno||'未记录'],
+      ...(facts.kind==='predictive'||inbound?[[inbound?'首呼队列编号':'队列编号',data.queueNo||'未记录']]:[]),
+      ...(data.queueName?[['首呼队列名称',data.queueName]]:[]),
+      ...(inbound&&Array.isArray(raw.cnoFlow)&&raw.cnoFlow.length?[['坐席流转工号',raw.cnoFlow.filter(textValue).join('、')||'未记录']]:[]),
+      ...(inbound&&Array.isArray(raw.qnoFlow)&&raw.qnoFlow.length?[['队列流转编号',raw.qnoFlow.filter(textValue).join('、')||'未记录']]:[]),
+      ...(automatic||data.ivrName||data.ivrId?[['本通语音流程',data.ivrName||'未记录'],...(data.ivrId!=null?[['语音流程编号',data.ivrId]]:[])]:[])];
+    const taskRows=[['来源任务',sourceTask],...(task?[['平台任务编号',task.taskId]]:[]),
+      ...(facts.taskId?[['AliCti 任务编号',facts.taskId]]:[]),
+      ...(data.retryRound!==null?[[facts.kind==='automatic'?'重呼次数':'重试轮次',data.retryRound]]:[]),
+      ...(data.finishRetryFlag!==null?[['是否最终一次呼叫',data.finishRetryFlag===1?'是':'否']]:[])];
+    const agentCallStatus = call.agentCallStatus;
+    const agentStatusSection = agentCallStatus?.description ? ui.detailSection('坐席记录',
+      '<div data-agent-call-status>' + grid([['通话状态',agentCallStatus.description],
+        ['录入人',agentCallStatus.recordedBy === call.accountId ? call.agentName || agentCallStatus.recordedBy : agentCallStatus.recordedBy || '未记录'],
+        ['录入时间',stateTime(agentCallStatus.recordedAt)]]) + '<p class="table-sub">坐席填写的联系情况，线路结果保持原记录。</p></div>') : '';
+    const completion=call.apiOrigin&&call.communicationCompletion?window.DccRuntime?.communicationCompletionView?.(call):null;
+    const deliveries=completion?.ok?completion.data.deliveries||[]:[],delivery=deliveries[deliveries.length-1];
+    const callbackLabels={succeeded:'已送达（演示）',failed:'发送未成功，待处理',pending:'待发送',incomplete:'资料待完善'};
+    const callbackSection=completion?ui.detailSection('业务系统回传',grid([
+      ['业务批次号',call.apiOrigin.businessBatchNo||'未记录'],
+      ['完成沟通回传',completion.ok?delivery?(callbackLabels[delivery.state]||'待核对'):'待登记':'资料待核对'],
+      ...(delivery?.error?[['待处理事项',delivery.error]]:!completion.ok?[['待处理事项',completion.reason||'暂时无法读取回传进度']]:[])
+    ])+'<p class="table-sub">回传本次已保存的通话和客户业务信息。当前为本地演示。</p>'):'';
+    return '<div class="layer-header"><div><h2>通话详情 <small>'+esc(call.callId)+'</small></h2><p data-call-sync-part="header">'+esc(ui.callTypeLabel(call.callType))+' · '+esc(state.stageLabel+' · '+data.resultLabel)+'</p></div><button aria-label="关闭通话详情" onclick="PlatformUI.closeLayer(\'cloud-call-detail\')">×</button></div>'+
+      '<div class="layer-body call-review-body"><div class="call-review-left">'+(withMedia?CloudCallMedia.render(call):'')+'</div><div class="call-review-right"><div data-call-sync-part="summary">'+syncPanel(call)+'</div><p id="call-detail-sync-live" class="call-sync-sr-only" role="status" aria-live="polite" aria-atomic="true"></p><div class="call-review-tabs" role="tablist" aria-label="通话详情内容"><button role="tab" id="call-review-result-tab" aria-controls="call-review-result" aria-selected="true" onclick="CloudCallRecords.reviewTab(\'result\')">通话结果</button><button role="tab" id="call-review-info-tab" aria-controls="call-review-info" aria-selected="false" onclick="CloudCallRecords.reviewTab(\'info\')">详细信息</button></div><div class="call-review-pane" id="call-review-result" role="tabpanel" aria-labelledby="call-review-result-tab"><div data-call-sync-part="facts">'+
+      ui.detailSection('接听结果',grid(resultRows)+'<dl class="detail-grid"><dt>号码状态识别</dt><dd>'+numberStatusMarkup(call)+'</dd></dl>')+
+      ui.detailSection('本通坐席与语音',grid(participants))+'</div>'+
+      agentStatusSection+
+      ui.detailSection('业务信息',grid([['来源任务',sourceTask],...(contactLabel?[['联系轮次',contactLabel]]:[]),['坐席处理结果',CustomerDirectory.dispositionLabel(call)||'未填写']])+(window.RepeatPredictive?.contactOrigin(call)||'')+(task?window.RepeatPredictive?.callAction(call)||'':''))+
+      ui.detailSection('本次客户业务信息',CustomerFollowup.detail(call.customerFollowup,call))+
+      callbackSection+
+      (call.customerNote||call.dispositionRemark?ui.detailSection('联系备注',grid([['客户称呼',call.customerName||'未记录'],['联系备注',call.customerNote||'—'],['处理备注',call.dispositionRemark||'—']])):'')+
+      '</div><div class="call-review-pane" id="call-review-info" role="tabpanel" aria-labelledby="call-review-info-tab" hidden><div data-call-sync-part="info">'+
+      ui.detailSection('基本信息',grid([['通话类型',ui.callTypeLabel(call.callType)],['所属租户',CloudCallRuntime.tenant(call.tenantId)?.name||'未记录'],['客户号码',data.customerNumber||'未记录'],['主叫号码',data.caller||'未记录'],['被叫号码',data.callee||'未记录'],['业务类型',CustomerBusiness.typeLabel(call)],[CustomerBusiness.codeLabel(call),call.externalDocumentId||'—']]))+
+      ui.detailSection('通话时间与时长',grid(times))+
+      (['预外呼','IVR 外呼'].includes(call.callType)?ui.detailSection('关联任务',grid(taskRows)+(task&&window.CloudTaskWorkspace?.renderTaskSettings?'<details class="technical-details"><summary>关联任务设置</summary>'+CloudTaskWorkspace.renderTaskSettings(task)+'</details>':'')):'')+
+      '<details class="technical-details"><summary>通话标识</summary>'+grid([['平台通话编号',call.callId],['厂商通话编号',data.providerCallId||'未记录'],...(facts.mainUniqueId?[['主通话标识',facts.mainUniqueId]]:[]),...(facts.uniqueId?[['通话唯一标识',facts.uniqueId]]:[]),...(facts.requestUniqueId?[['请求标识',facts.requestUniqueId]]:[])])+
+      '</details>'+
+      '</div></div></div></div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer(\'cloud-call-detail\')">关闭</button></div>';
+  }
+
+  function filtersDirty() {
+    const values={recordKeyword,recordResult,recordingFilter,recordSource,recordStart:dateStart,recordEnd:dateEnd,recordSyncFilter:syncFilter};
+    return Object.entries(values).some(([id,value])=>document.getElementById(id)?.value!==String(value||''));
+  }
+  function updateVisibleRecords(call) {
+    const shell=document.querySelector('.call-record-page .cloud-record-list-shell');
+    if(!shell)return;
+    // Keep unfinished filter entries untouched while a background result arrives.
+    if(filtersDirty()) {
+      shell.querySelectorAll('.call-sync-list-cell').forEach(node=>{if(node.dataset.callSyncId===call.callId)node.outerHTML=syncCell(call);});
+      return;
+    }
+    const scroll=shell.querySelector('.table-scroll'),scrollLeft=scroll?.scrollLeft||0;
+    const focused=shell.contains(document.activeElement)?document.activeElement:null;
+    const focusedId=focused?.dataset.callSyncId,focusedAction=focused?.dataset.callSyncAction;
+    const template=document.createElement('template');
+    template.innerHTML=renderRecords({type:activeType,preserveContext:true});
+    const next=template.content.querySelector('.cloud-record-list-shell');
+    if(!next)return;
+    shell.innerHTML=next.innerHTML;
+    const newScroll=shell.querySelector('.table-scroll');if(newScroll)newScroll.scrollLeft=scrollLeft;
+    if(focusedId&&focusedAction)Array.from(shell.querySelectorAll('[data-call-sync-action]')).find(node=>node.dataset.callSyncId===focusedId&&node.dataset.callSyncAction===focusedAction)?.focus({preventScroll:true});
+  }
+  function updateOpenDetail(call) {
+    const layer=document.getElementById('cloud-call-detail');
+    if(!layer||layer.dataset.callId!==call.callId||detailCallId!==call.callId)return;
+    const template=document.createElement('template');template.innerHTML=detailMarkup(call,false);
+    const focusAction=layer.contains(document.activeElement)?document.activeElement?.dataset.callSyncAction:null;
+    ['header','summary','facts','info'].forEach(part=>{
+      const selector='[data-call-sync-part="'+part+'"]',node=layer.querySelector(selector),next=template.content.querySelector(selector);
+      if(!node||!next)return;
+      const expanded=Array.from(node.querySelectorAll('details')).map(item=>item.open),pane=node.closest('.call-review-pane'),top=pane?.scrollTop||0;
+      node.innerHTML=next.innerHTML;
+      node.querySelectorAll('details').forEach((item,index)=>{if(expanded[index])item.open=true;});
+      if(pane)pane.scrollTop=top;
+    });
+    if(focusAction)Array.from(layer.querySelectorAll('[data-call-sync-action]')).find(node=>node.dataset.callSyncAction===focusAction)?.focus({preventScroll:true});
+  }
+  function announceSync(call) {
+    const sync=syncState(call),text='通话 '+call.callId+'：'+sync.label+(sync.mediaPending?'，录音样例仍在准备':'');
+    const detail=document.getElementById('cloud-call-detail');
+    const live=detail?.dataset.callId===call.callId?document.getElementById('call-detail-sync-live'):document.getElementById('call-record-sync-live');
+    if(live)live.textContent=text;
+  }
+  async function refreshSync(id) {
+    const call=CloudCallRuntime.call(id);
+    if(!call||!AppState.authorizeObject('',call)||!window.CloudCallSync)return;
+    try { return await CloudCallSync.refresh(id); }
+    catch (_) { showToast('资料刷新暂未完成，已保存的跟进保持不变','warning'); return false; }
+  }
+  function demoSync(id,mode) {
+    const call=CloudCallRuntime.call(id);
+    if(!call||!AppState.authorizeObject('',call)||!syncState(call).canDemo)return;
+    window.CloudCallSync?.demo(id,mode);
+  }
+  window.addEventListener?.('call-data-sync',event=>{
+    const detail=event.detail||{},call=CloudCallRuntime.call(detail.callId);
+    if(!call||!AppState.authorizeObject('',call)||call.tenantId!==detail.tenantId||String(call.providerEnterpriseId??call.enterpriseId??'')!==String(detail.enterpriseId??''))return;
+    updateVisibleRecords(call);
+    updateOpenDetail(call);
+    announceSync(call);
+  });
+
+  function openFromTask(taskId, tab, target) {
+    RouteRuntime.openSecondary('cloud-call-records', { taskId, returnTab: tab || 'calls', view: 'records' });
+  }
+  function switchView(target) { navigateTo('cloud-call-records', { view: 'records', type: activeType, preserveContext:true }); }
+  function returnTask() { return RouteRuntime.back({ fallback: 'cloud-task-center' }); }
+  window.CloudCallRecords = { display, relatedTask, exportRecords, formatDuration, stateTime, openFromTask, switchView, returnTask, refreshSync, demoSync,
+    reviewTab(key) {
+      if (!['result', 'info'].includes(key)) return;
+      ['result', 'info'].forEach(name => {
+        const pane = document.getElementById('call-review-' + name), tab = document.getElementById('call-review-' + name + '-tab');
+        if (pane) pane.hidden = name !== key;
+        tab?.setAttribute('aria-selected', String(name === key));
+      });
+    },
+    confirmDemo(id, outcome) {
+      const call = CloudCallRuntime.call(id);
+      const updated = call?.callSource === 'LOCAL_TASK_SIMULATION' ? window.ScenarioDemo?.confirmResult(call.taskId, id, outcome) : window.AgentWorkbench?.confirmDemoResult(id, outcome);
+      if (updated) openCall(id);
+    } };
+  window.Pages = window.Pages || {};
+  window.Pages['cloud-call-records'] = {
+    captureNavigationState(){return {view,activeType,recordKeyword,recordResult,recordingFilter,syncFilter,recordPage,recordSource,dateStart,dateEnd,queryPlan,nativeAgentId,taskContext:taskContext?{...taskContext}:null};},
+    restoreNavigationState(state){if(!state)return;({view,activeType,recordKeyword,recordResult,recordingFilter,recordPage,recordSource,dateStart,dateEnd,queryPlan,nativeAgentId}=state);syncFilter=state.syncFilter||'';saveTaskContext(state.taskContext);},
+    render, init(options) { if (options?.callId) openCall(options.callId); }, setType, query, resetFilters, setPage, openCall };
+})();

@@ -1,0 +1,195 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-017",
+  "scenario_id": "SC-015",
+  "name": "字段库删除及独立通话快照保留时序",
+  "status": "product_design_draft_G2_pending",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "本租户业务配置管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "frontend",
+      "name": "云外呼平台前端",
+      "kind": "system"
+    },
+    {
+      "id": "configuration",
+      "name": "平台内部配置与引用核对",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "frontend",
+      "message": "在业务分类的目标Tab选择并发起删除自定义字段定义",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "核对权限/目标及当前分类、其他字段直接引用；区分快照影响",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回当前配置阻挡位置或核对失败；完整快照仅作保留说明",
+      "type": "response",
+      "api_id": null,
+      "condition": "当前配置引用未解除或核对失败；历史/完整快照本身不构成阻挡"
+    },
+    {
+      "step": 4,
+      "from": "frontend",
+      "to": "operator",
+      "message": "仅当前配置引用/核对失败时阻挡，历史有值不阻挡",
+      "type": "response",
+      "api_id": null,
+      "condition": "当前配置引用未解除或核对失败；历史/完整快照本身不构成阻挡"
+    },
+    {
+      "step": 5,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回可删除字段及历史/本通快照保留说明",
+      "type": "response",
+      "api_id": null,
+      "condition": "权限/目标有效且当前配置引用已解除，允许已有历史/本通快照"
+    },
+    {
+      "step": 6,
+      "from": "frontend",
+      "to": "operator",
+      "message": "确认移除字段库定义，历史/本通/归档快照继续",
+      "type": "response",
+      "api_id": null,
+      "condition": "权限/目标有效且当前配置引用已解除，允许已有历史/本通快照"
+    },
+    {
+      "step": 7,
+      "from": "operator",
+      "to": "frontend",
+      "message": "取消本次删除",
+      "type": "request",
+      "api_id": null,
+      "condition": "确认前取消"
+    },
+    {
+      "step": 8,
+      "from": "frontend",
+      "to": "operator",
+      "message": "保留对象，不提交删除",
+      "type": "response",
+      "api_id": null,
+      "condition": "取消分支"
+    },
+    {
+      "step": 9,
+      "from": "operator",
+      "to": "frontend",
+      "message": "明确确认删除目标",
+      "type": "request",
+      "api_id": null,
+      "condition": "确认且未取消"
+    },
+    {
+      "step": 10,
+      "from": "frontend",
+      "to": "configuration",
+      "message": "复核身份、目标版本及当前配置引用后提交删除",
+      "type": "request",
+      "api_id": null,
+      "condition": "确认提交"
+    },
+    {
+      "step": 11,
+      "from": "configuration",
+      "to": "configuration",
+      "message": "仅移除字段库定义；快照新增或变化不改删除资格，不清历史或本通",
+      "type": "internal",
+      "api_id": null,
+      "condition": "权限/目标有效且当前配置引用已解除，允许已有历史/本通快照"
+    },
+    {
+      "step": 12,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回删除成功及目标标识",
+      "type": "response",
+      "api_id": null,
+      "condition": "删除保存成功"
+    },
+    {
+      "step": 13,
+      "from": "frontend",
+      "to": "operator",
+      "message": "反馈字段库已删除；历史详情及本通保存仍用独立快照",
+      "type": "response",
+      "api_id": null,
+      "condition": "删除保存成功"
+    },
+    {
+      "step": 14,
+      "from": "configuration",
+      "to": "frontend",
+      "message": "返回引用变化/权限失效/读取不明/保存失败",
+      "type": "response",
+      "api_id": null,
+      "condition": "未完成删除"
+    },
+    {
+      "step": 15,
+      "from": "frontend",
+      "to": "operator",
+      "message": "明确未删除，原对象和其他草稿保留",
+      "type": "response",
+      "api_id": null,
+      "condition": "未完成删除"
+    }
+  ],
+  "source_story_ids": [
+    "US-021"
+  ],
+  "source_acceptance_ids": [
+    "AC-143",
+    "AC-144",
+    "AC-145",
+    "AC-146"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-172",
+    "inputs/user-stories.md#SRC-173",
+    "inputs/user-stories.md#SRC-174",
+    "inputs/user-stories.md#SRC-175",
+    "inputs/user-stories.md#SRC-176",
+    "scenarios/SC-015.json",
+    "inputs/user-stories.md#SRC-180"
+  ],
+  "notes": [
+    "自定义字段删除只核对当前业务分类引用（含隐藏/停用）及其他当前字段的直接依赖；历史已保存字段值、独立归档定义和完整本通/话后字段快照只作保留影响，不阻止删除字段库定义。删除不改写快照、业务数据或草稿；本通继续按开始版保存，后续通话按新配置。权限/目标版本、当前引用或必要快照无法可靠核对、提交失败仍保留原对象，不自动补默认。取数接口的实时资格与来源保留规则不变。",
+    "本次仅内部字段库删除，无新外部接口。"
+  ],
+  "change_history": [
+    {
+      "at": "2026-10-21T14:08:04.225728+08:00",
+      "reason": "SRC180用户明确通话按快照保存，字段删除不应被已保存字段值或历史快照限制；当前配置引用与快照保留分开。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-180"
+      ],
+      "previous_values": {
+        "name": "删除未使用自定义字段时序草稿"
+      }
+    }
+  ]
+}

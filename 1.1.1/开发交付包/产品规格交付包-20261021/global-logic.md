@@ -1,0 +1,338 @@
+# 全局逻辑说明
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](README.md) · [按功能阅读](features/README.md)
+
+全局规则只在此定义，局部说明和任务通过编号引用；调整全局规则后需重新检查所有引用与测试。
+
+## 系统目标与边界
+
+超管维护四项字典配置，租户配置字段/分类，客服沿本通固定版查选接口车系并保存；门店沿原文本，分类逻辑删除保旧业务，字段/接口仅未用可物理删。
+
+平台负责配置与租户/对象权限、预置能力调用边界、字段条件/候选有效性、整版通话配置、保存和归档；Mapping提供车系原数据。真实访问/鉴权/编码范围及生产存储由研发联调和工程设计落实，不向运营开放URL/鉴权技术配置。
+
+## 参与角色
+
+- 超级管理员
+- 租户业务配置管理员
+- 客服或有权查看人员
+- 平台
+- Mapping来源系统
+
+## 全局不变规则
+
+<a id="BR-023"></a>
+
+### BR-023
+
+超管新增、编辑、启用、停用接口字典条目；已被引用条目、配置与已保存历史保留。
+
+来源条目：rules:BR-023
+
+验证：CHECK-105, CHECK-106, CHECK-107, CHECK-122, CHECK-123, CHECK-127, CHECK-128, CHECK-129, CHECK-130, CHECK-131, CHECK-AUTH, CHECK-REFERENCE-RACE, CHECK-IMPLICIT-REFERENCE
+
+<a id="BR-024"></a>
+
+### BR-024
+
+接口字段引用及新查询/选择受启停和当前租户授权实时约束，包括本次Mapping车系；通话配置版本隔离不绕过账号/接口授权。原门店文本不依赖接口授权。
+
+来源条目：documents:interfaces~1interface-index.json, documents:memory~1business-rules.json, documents:memory~1feature-list.json, documents:memory~1normalized-user-stories.json, documents:memory~1project-facts.json, documents:outputs~1business-scenario-atlas.html, documents:outputs~1business-scenario-list.md, documents:outputs~1feature-list.md, documents:outputs~1product-structure-and-business-process-baseline.md, documents:planning~1existing-surface-evidence.json, documents:project-version.json, documents:runtime~1open-items.json, documents:runtime~1traceability.json, documents:runtime~1verification-report.json, documents:scenarios~1SC-008.json, documents:scenarios~1SC-009.json, documents:scenarios~1SC-010.json, documents:scenarios~1SC-011.json, documents:scenarios~1SC-012.json, documents:scenarios~1SC-013.json, documents:scenarios~1SC-014.json, documents:scenarios~1SC-015.json, documents:scenarios~1SC-016.json, documents:scenarios~1scenario-index.json, project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-024
+
+验证：CHECK-105, CHECK-106, CHECK-107, CHECK-108, CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-125, CHECK-126, CHECK-127, CHECK-129, CHECK-130, CHECK-131, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-AUTH, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-025"></a>
+
+### BR-025
+
+停用/撤权停止对应来源新查询选择，保留未提交显示但不作有效值；选填可清除、必填按本通固定配置，来源恢复重查人工确认。原门店文本不受车系来源变化影响。
+
+来源条目：rules:BR-025
+
+验证：CHECK-107, CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-122, CHECK-123, CHECK-125, CHECK-126, CHECK-130, CHECK-131, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-026"></a>
+
+### BR-026
+
+本次意向车系改为“接口取数”，引用超管配置并授权的Mapping车系编码查询条目，唯一单选且无上游条件；管理员不再手工维护该字段车系候选。通用接口条件映射继续，原计划到店门店仍普通文本，本期不启用接口门店选择。接口URL/鉴权/底层映射由研发预置；超管仍四项，不新增维护车系候选的入口。 本期直接初始化当前Mapping接口车系单选与原计划到店门店文本，不读取、转换或合并旧原型预置配置，不做历史配置或业务数据迁移，不保留旧预置关联的兼容告警与自动修补路径。当版新建字段标识在后续维护中保持稳定，各分类对当前字段的正常引用沿各自顺序、显示、必填及权限规则保存；普通自定义字段、有效通用上下游依赖和当前通话整版配置保护继续保留。旧资料仅作历史追溯，不作为本版运行输入。
+
+来源条目：documents:interfaces~1interface-index.json, documents:memory~1business-rules.json, documents:memory~1feature-list.json, documents:memory~1normalized-user-stories.json, documents:memory~1project-facts.json, documents:outputs~1business-scenario-atlas.html, documents:outputs~1business-scenario-list.md, documents:outputs~1feature-list.md, documents:outputs~1product-structure-and-business-process-baseline.md, documents:planning~1existing-surface-evidence.json, documents:project-version.json, documents:runtime~1open-items.json, documents:runtime~1traceability.json, documents:runtime~1verification-report.json, documents:scenarios~1SC-008.json, documents:scenarios~1SC-009.json, documents:scenarios~1SC-010.json, documents:scenarios~1SC-011.json, documents:scenarios~1SC-012.json, documents:scenarios~1SC-013.json, documents:scenarios~1SC-014.json, documents:scenarios~1SC-015.json, documents:scenarios~1SC-016.json, documents:scenarios~1scenario-index.json, project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-026
+
+验证：CHECK-109, CHECK-110, CHECK-111, CHECK-120, CHECK-121, CHECK-124, CHECK-OPTIONAL-CHAIN
+
+<a id="BR-027"></a>
+
+### BR-027
+
+本次接口车系与原门店文本分别沿通话开始固定的业务分类配置是否必填；车系必填需一个有效接口项，门店按原文本规则。未接通仍沿v1.1.0准确条件，不统一强制门店接口选择。
+
+来源条目：project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-027
+
+验证：CHECK-109, CHECK-110, CHECK-111, CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-120, CHECK-121, CHECK-124, CHECK-125, CHECK-126, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-028"></a>
+
+### BR-028
+
+原导入只读；客服明确确认后，按导入车系编码与当前接口官方ID的字符串code精确匹配并带入。未匹配/过期/取消不改当前值；不以同名或媒体ID猜测。导入编码实际口径待正式核对，导入门店不自动写入原文本。
+
+来源条目：project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-028
+
+验证：CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-125, CHECK-126, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-029"></a>
+
+### BR-029
+
+当前候选接口为GET /mapping/api/open/mapping-car-series/code，裸数组name、relation_id、car_state、media_car_series_id；code暂采用String(relation_id)、name展示，媒体ID与状态单独保留，不与DCC编码混用。默认media_id=10/car_state=1，不传brand_id/is_nev_car_type_flag；编码选择和范围为本轮实施假定，正式接入前核对，不补状态枚举。本期仅车系恢复接口，门店原文本不联动；外部DCC编码对应关系仅未来门店联动时再核。
+
+来源条目：interfaces:API-015, interfaces:API-015/request_fields/2, interfaces:API-015/request_fields/3, interfaces:API-015/response_fields/0, interfaces:API-015/response_fields/1, interfaces:API-015/response_fields/2, interfaces:API-015/response_fields/3, project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-029
+
+验证：CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-125, CHECK-126, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-030"></a>
+
+### BR-030
+
+通用接口按所选上游属性及下游入参映射；可选未加入/隐藏/未填时不传，必需缺值停止，已填无效/属性类型/参数异常不当空放宽。Mapping车系默认独立查询文档默认媒体/状态范围；原门店文本不调用外部链，不要求DCC编码映射。
+
+来源条目：rules:BR-030
+
+验证：CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-125, CHECK-126, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-031"></a>
+
+### BR-031
+
+实际启用通用接口链的上游变化立即作废传递下游旧请求和旧条件确认，保留显示；完整新结果逐项重判，原有效且仍匹配可保留，失配待重选，待重选或来源恢复须确认，无效项不静默过滤。原plannedStoreName无车系依赖，不因车系选择/清空而失效。
+
+来源条目：rules:BR-031
+
+验证：CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-125, CHECK-126, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-032"></a>
+
+### BR-032
+
+进行中通话及话后处理固定开始时整版分类、字段、必填、选项、依赖与接口绑定配置，保存使用同一版，新配置从下一通生效，不因新增必填/隐藏/删字段/改类型/选项/依赖而丢值或卡住收尾。账号权限及接口启停/租户授权实时校验。保存按原通话条件、本版有效单选车系、原门店文本及其他字段校验；无初始存量兼容，生产草稿承诺不扩大。
+
+来源条目：documents:interfaces~1interface-index.json, documents:memory~1business-rules.json, documents:memory~1feature-list.json, documents:memory~1normalized-user-stories.json, documents:memory~1project-facts.json, documents:outputs~1business-scenario-atlas.html, documents:outputs~1business-scenario-list.md, documents:outputs~1feature-list.md, documents:outputs~1product-structure-and-business-process-baseline.md, documents:planning~1existing-surface-evidence.json, documents:project-version.json, documents:runtime~1open-items.json, documents:runtime~1traceability.json, documents:runtime~1verification-report.json, documents:scenarios~1SC-008.json, documents:scenarios~1SC-009.json, documents:scenarios~1SC-010.json, documents:scenarios~1SC-011.json, documents:scenarios~1SC-012.json, documents:scenarios~1SC-013.json, documents:scenarios~1SC-014.json, documents:scenarios~1SC-015.json, documents:scenarios~1SC-016.json, documents:scenarios~1scenario-index.json, interfaces:API-018, project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-032
+
+验证：CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-125, CHECK-126, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-033"></a>
+
+### BR-033
+
+车系接口尚无环境主机及真实响应，原型按净化契约使用合成数据展示加载/成功/空集/异常；不冒称线上接通。查询异常保留输入重试，成功空结果与异常分开，旧响应不得覆盖当前通话/租户/配置/编辑版本。门店接口继续暂缓，不作为本期车系接入阻断。完整有效候选才新选，不将异常/不完整当空，不无声删参扩大范围。
+
+来源条目：interfaces:API-015, interfaces:API-015/request_fields/2, interfaces:API-015/request_fields/3, interfaces:API-015/response_fields/0, interfaces:API-015/response_fields/1, interfaces:API-015/response_fields/2, interfaces:API-015/response_fields/3, rules:BR-033
+
+验证：CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-125, CHECK-126, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-034"></a>
+
+### BR-034
+
+超管仅配置自定义名称、预置取数能力、可用租户、启用状态；条目内部标识由系统自动生成，字段按标识引用，改名不使已有引用失效。研发预置地址、请求方式、鉴权、参数和返回映射；新增尚未接入的能力需先完成研发接入。 已被业务字段引用的条目固定绑定取数能力；需要换能力时新增条目，再调整字段引用，原条目及历史保留。名称、启停和租户范围仍可按各自操作调整。 接口名称必填，去掉首尾空格后最多60字，全局不重名且英文不区分大小写；同一预置取数能力允许多个不同名称的条目，各自维护租户授权及启停。当前无字段、归档、业务记录或未完成通话来源引用时允许更换取数能力；已有引用或无法完整核对时固定。保存时重查引用，失败保留输入和原配置。
+
+来源条目：documents:interfaces~1interface-index.json, documents:memory~1business-rules.json, documents:memory~1feature-list.json, documents:memory~1normalized-user-stories.json, documents:memory~1project-facts.json, documents:outputs~1business-scenario-atlas.html, documents:outputs~1business-scenario-list.md, documents:outputs~1feature-list.md, documents:outputs~1product-structure-and-business-process-baseline.md, documents:planning~1existing-surface-evidence.json, documents:project-version.json, documents:runtime~1open-items.json, documents:runtime~1traceability.json, documents:runtime~1verification-report.json, documents:scenarios~1SC-008.json, documents:scenarios~1SC-009.json, documents:scenarios~1SC-010.json, documents:scenarios~1SC-011.json, documents:scenarios~1SC-012.json, documents:scenarios~1SC-013.json, documents:scenarios~1SC-014.json, documents:scenarios~1SC-015.json, documents:scenarios~1SC-016.json, documents:scenarios~1scenario-index.json, interfaces:API-017, project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-034
+
+验证：CHECK-105, CHECK-106, CHECK-109, CHECK-110, CHECK-111, CHECK-120, CHECK-121, CHECK-124, CHECK-127, CHECK-128, CHECK-131, CHECK-AUTH, CHECK-REFERENCE-RACE, CHECK-IMPLICIT-REFERENCE, CHECK-OPTIONAL-CHAIN
+
+<a id="BR-035"></a>
+
+### BR-035
+
+通用接口字段最多一个直接上游，支持无环A→B→C；校验自身/循环/定义存在/属性类型，仅必需边要求分类加入且显示，可选不强制，不能自动补字段或改必填。本次Mapping车系无上游，原门店文本不配车系依赖；无初始存量迁移。
+
+来源条目：rules:BR-035
+
+验证：CHECK-109, CHECK-110, CHECK-111, CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-120, CHECK-121, CHECK-124, CHECK-125, CHECK-126, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-036"></a>
+
+### BR-036
+
+所有启用接口包括Mapping车系在来源恢复后，旧未提交项重查匹配并由客服确认；失败/不完整不恢复，历史不受影响。
+
+来源条目：rules:BR-036
+
+验证：CHECK-107, CHECK-108, CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-125, CHECK-126, CHECK-129, CHECK-131, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-AUTH, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-037"></a>
+
+### BR-037
+
+每次保存唯一车系官方ID字符串code和当时name，同时保留relation_id、media_car_series_id、car_state来源快照；详情读当时值，后续改名不回写。plannedStoreName每通/详情/档案汇总沿原普通字段规则，不新增跨通配对或空文本清空汇总。原导入只读；无初始存量迁移/回填/旧格式兼容。
+
+来源条目：interfaces:API-018, rules:BR-037
+
+验证：CHECK-112, CHECK-113, CHECK-114, CHECK-117, CHECK-118, CHECK-115, CHECK-138, CHECK-119, CHECK-125, CHECK-126, CHECK-132, CHECK-133, CHECK-135, CHECK-136, CHECK-137, CHECK-CALL-VERSION, CHECK-OPTIONAL-CHAIN, CHECK-QUERY-RACE, CHECK-IMPORT-RACE, CHECK-HISTORY-ISOLATION, CHECK-DRAFT-RESULT, CHECK-UNCONNECTED
+
+<a id="BR-038"></a>
+
+### BR-038
+
+文档未保证唯一性。完全相同的返回记录可合并；同一官方relation_id出现不同name或media_car_series_id时提示数据冲突，保留输入且不按返回顺序任取；正式供方去重/唯一性规则待核。
+
+来源条目：interfaces:API-015, interfaces:API-015/request_fields/2, interfaces:API-015/request_fields/3, interfaces:API-015/response_fields/0, interfaces:API-015/response_fields/1, interfaces:API-015/response_fields/2, interfaces:API-015/response_fields/3, rules:BR-038
+
+验证：CHECK-AUTH
+
+<a id="BR-039"></a>
+
+### BR-039
+
+接口物理删除仍核对当前factory/全部持久scope、保留归档字段refs、实际业务及未完通话来源保留；字段物理删除仍核对本租户分类refs/依赖/保留归档/实际值和草稿。分类采用逻辑删除，已有历史、active和已导入业务引用只说明影响，不阻分类退出新业务可选；归档保原定义供这些业务继续。未定类型来源保留仍是可选类别visible refs及全部依赖闭包到结果保存完，不将全库存误作字段使用；DCC只实际记录/显式类型，不凭模板猜引用。
+
+来源条目：rules:BR-039
+
+验证：CHECK-139, CHECK-140, CHECK-141, CHECK-142, CHECK-143, CHECK-144, CHECK-145, CHECK-146, CHECK-147, CHECK-148, CHECK-149, CHECK-150, CHECK-AUTH, CHECK-CALL-VERSION, CHECK-REFERENCE-RACE, CHECK-IMPLICIT-REFERENCE, CHECK-EMPTY-CATALOG, CHECK-HISTORY-ISOLATION, CHECK-ARCHIVE-CLOSURE
+
+<a id="BR-040"></a>
+
+### BR-040
+
+field/interface仅确认未使用才物理删除，未用预置字段同规则且仍存定义type/options保护。category可在已有业务引用时逻辑删除：可靠保存原分类、字段及refs归档，标记deleted并从新配置/新业务选择移除，旧任务/记录继续。两类提交均校验权限/目标版本及保存，失败保留；不级联、不清业务/草稿、不升级有效通话版本、不自动补默认。fresh默认Mapping仍仅BD可读且显式entry已删时省略；停用/撤权/读坏不当删除，existing scope不重投影。
+
+来源条目：rules:BR-040
+
+验证：CHECK-139, CHECK-140, CHECK-141, CHECK-142, CHECK-143, CHECK-144, CHECK-145, CHECK-146, CHECK-147, CHECK-148, CHECK-149, CHECK-150, CHECK-AUTH, CHECK-CALL-VERSION, CHECK-REFERENCE-RACE, CHECK-IMPLICIT-REFERENCE, CHECK-EMPTY-CATALOG, CHECK-HISTORY-ISOLATION, CHECK-ARCHIVE-CLOSURE
+
+<a id="BR-041"></a>
+
+### BR-041
+
+业务分类菜单包含业务分类、自定义字段、取数接口字典三个Tab，第三Tab仅超管可维护全局字典与租户授权；租户管理员维持本租户分类/字段权限及授权接口选用，不开放字典维护或跨租户数据。删除三对象各有独立触发/结果；菜单搬家和引用检查/确认属于既有承载与操作明细，不另计功能。
+
+来源条目：rules:BR-041
+
+验证：CHECK-139, CHECK-140, CHECK-141, CHECK-142, CHECK-143, CHECK-144, CHECK-145, CHECK-146, CHECK-147, CHECK-148, CHECK-149, CHECK-150, CHECK-AUTH, CHECK-CALL-VERSION, CHECK-REFERENCE-RACE, CHECK-IMPLICIT-REFERENCE, CHECK-EMPTY-CATALOG, CHECK-HISTORY-ISOLATION, CHECK-ARCHIVE-CLOSURE
+
+<a id="BR-042"></a>
+
+### BR-042
+
+分类删除只停止新配置/新业务选用，不抹去旧引用。归档保当时分类名称/编码、fields定义/选项与refs及必要依赖；历史按当时结果展示，删除前已有名单/任务沿原分类继续处理，当前通话及话后固定原版。新建/新导入禁止deleted分类，不凭任意旧ID获得归档处理资格。归档引用继续保护字段/接口物理删除。本期没有恢复、清理或迁移UI。 归档只复制目标分类实际全部refs及其依赖闭包所需defs，不将整租户无关字段库存纳为永久引用。
+
+来源条目：documents:interfaces~1interface-index.json, documents:memory~1business-rules.json, documents:memory~1feature-list.json, documents:memory~1normalized-user-stories.json, documents:memory~1project-facts.json, documents:outputs~1business-scenario-atlas.html, documents:outputs~1business-scenario-list.md, documents:outputs~1feature-list.md, documents:outputs~1product-structure-and-business-process-baseline.md, documents:planning~1existing-surface-evidence.json, documents:project-version.json, documents:runtime~1open-items.json, documents:runtime~1traceability.json, documents:runtime~1verification-report.json, documents:scenarios~1SC-008.json, documents:scenarios~1SC-009.json, documents:scenarios~1SC-010.json, documents:scenarios~1SC-011.json, documents:scenarios~1SC-012.json, documents:scenarios~1SC-013.json, documents:scenarios~1SC-014.json, documents:scenarios~1SC-015.json, documents:scenarios~1SC-016.json, documents:scenarios~1scenario-index.json, project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-042
+
+验证：CHECK-AUTH
+
+## 端到端流程
+
+<a id="PLAN-FLOW-CONFIG"></a>
+
+### PLAN-FLOW-CONFIG 取数来源与字段配置维护：各管理动作按需独立触发
+
+| 步骤 | 执行方 | 动作 | 局部说明 | 失败处理 |
+| --- | --- | --- | --- | --- |
+
+| PLAN-FLOW-CONFIG-STEP-1 | 超级管理员 | 按对应触发条件执行“新增取数接口条目”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-DICT-CREATE](local-logic/LOCAL-DICT-CREATE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-CONFIG-STEP-2 | 超级管理员 | 按对应触发条件执行“编辑名称及未引用能力”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-DICT-EDIT](local-logic/LOCAL-DICT-EDIT.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-CONFIG-STEP-3 | 超级管理员 | 按对应触发条件执行“启用接口条目”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-DICT-ENABLE](local-logic/LOCAL-DICT-ENABLE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-CONFIG-STEP-4 | 超级管理员 | 按对应触发条件执行“停用接口条目”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-DICT-DISABLE](local-logic/LOCAL-DICT-DISABLE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-CONFIG-STEP-5 | 超级管理员 | 按对应触发条件执行“开放租户使用范围”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-TENANT-GRANT](local-logic/LOCAL-TENANT-GRANT.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-CONFIG-STEP-6 | 超级管理员 | 按对应触发条件执行“撤销租户使用授权”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-TENANT-REVOKE](local-logic/LOCAL-TENANT-REVOKE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-CONFIG-STEP-7 | 租户业务配置管理员 | 按对应触发条件执行“独立保存字段及通用条件”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-FIELD-SAVE](local-logic/LOCAL-FIELD-SAVE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-CONFIG-STEP-8 | 租户业务配置管理员 | 按对应触发条件执行“保存分类引用、显示顺序与必填”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-CLASS-FIELDS-SAVE](local-logic/LOCAL-CLASS-FIELDS-SAVE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+来源条目：flows:FLOW-005, flows:FLOW-005/steps/0, flows:FLOW-005/steps/1, flows:FLOW-005/steps/2, flows:FLOW-005/steps/3, flows:FLOW-005/steps/4
+
+验证：CHECK-105, CHECK-106, CHECK-127, CHECK-131, CHECK-128, CHECK-REFERENCE-RACE, CHECK-IMPLICIT-REFERENCE, CHECK-129, CHECK-137, CHECK-130, CHECK-123, CHECK-107, CHECK-108, CHECK-122, CHECK-109, CHECK-110, CHECK-124, CHECK-125, CHECK-133, CHECK-111, CHECK-120, CHECK-121, CHECK-146
+
+<a id="PLAN-FLOW-FOLLOWUP"></a>
+
+### PLAN-FLOW-FOLLOWUP 本通配置、查选、导入核对、保存与读取
+
+| 步骤 | 执行方 | 动作 | 局部说明 | 失败处理 |
+| --- | --- | --- | --- | --- |
+
+| PLAN-FLOW-FOLLOWUP-STEP-1 | 平台 | 按本通阶段执行“固定本通表单和合法原业务上下文”；查询/导入按需，读取不表示再保存。 | [LOCAL-CALL-FORM](local-logic/LOCAL-CALL-FORM.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-FOLLOWUP-STEP-2 | 客服或有权查看人员 | 按本通阶段执行“查询并单选本次Mapping车系”；查询/导入按需，读取不表示再保存。 | [LOCAL-SERIES-QUERY](local-logic/LOCAL-SERIES-QUERY.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-FOLLOWUP-STEP-3 | 客服或有权查看人员 | 按本通阶段执行“执行普通接口的通用单上游查询”；查询/导入按需，读取不表示再保存。 | [LOCAL-GENERIC-QUERY](local-logic/LOCAL-GENERIC-QUERY.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-FOLLOWUP-STEP-4 | 客服或有权查看人员 | 按本通阶段执行“只读导入核对并明确带入车系”；查询/导入按需，读取不表示再保存。 | [LOCAL-IMPORT-CONFIRM](local-logic/LOCAL-IMPORT-CONFIRM.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-FOLLOWUP-STEP-5 | 客服或有权查看人员 | 按本通阶段执行“按本通整版校验并保存结果”；查询/导入按需，读取不表示再保存。 | [LOCAL-FOLLOWUP-SAVE](local-logic/LOCAL-FOLLOWUP-SAVE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-FOLLOWUP-STEP-6 | 客服或有权查看人员 | 按本通阶段执行“按具体通次读取当时业务快照”；查询/导入按需，读取不表示再保存。 | [LOCAL-READ-CALL](local-logic/LOCAL-READ-CALL.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-FOLLOWUP-STEP-7 | 客服或有权查看人员 | 按本通阶段执行“沿原规则展示档案业务汇总及来源”；查询/导入按需，读取不表示再保存。 | [LOCAL-READ-CUSTOMER](local-logic/LOCAL-READ-CUSTOMER.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+来源条目：flows:FLOW-006, flows:FLOW-006/steps/0, flows:FLOW-006/steps/1, flows:FLOW-006/steps/2, flows:FLOW-006/steps/3, flows:FLOW-006/steps/4, flows:FLOW-006/steps/5, flows:FLOW-006/steps/6
+
+验证：CHECK-133, CHECK-148, CHECK-150, CHECK-CALL-VERSION, CHECK-112, CHECK-113, CHECK-115, CHECK-132, CHECK-135, CHECK-137, CHECK-138, CHECK-118, CHECK-119, CHECK-124, CHECK-125, CHECK-126, CHECK-136, CHECK-OPTIONAL-CHAIN, CHECK-114, CHECK-117, CHECK-IMPORT-RACE, CHECK-120, CHECK-121, CHECK-DRAFT-RESULT, CHECK-HISTORY-ISOLATION
+
+<a id="PLAN-FLOW-DELETE"></a>
+
+### PLAN-FLOW-DELETE 三种删除入口分别完成各自结果，不要求串行执行
+
+| 步骤 | 执行方 | 动作 | 局部说明 | 失败处理 |
+| --- | --- | --- | --- | --- |
+
+| PLAN-FLOW-DELETE-STEP-1 | 超级管理员 | 按对应触发条件执行“确认删除未使用接口条目”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-DICT-DELETE](local-logic/LOCAL-DICT-DELETE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-DELETE-STEP-2 | 租户业务配置管理员 | 按对应触发条件执行“删除本租户未使用字段”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-FIELD-DELETE](local-logic/LOCAL-FIELD-DELETE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+| PLAN-FLOW-DELETE-STEP-3 | 租户业务配置管理员 | 按对应触发条件执行“逻辑删除分类并保留旧业务”；未触发的管理动作直接跳过，不要求新增后依次编辑/启停/授权。 | [LOCAL-CATEGORY-RETIRE](local-logic/LOCAL-CATEGORY-RETIRE.md) | 返回该局部声明的具体异常分支，保留原对象及输入；不得继续宣称本动作成功。 |
+
+来源条目：flows:FLOW-007, flows:FLOW-007/steps/0, flows:FLOW-007/steps/1, flows:FLOW-007/steps/2, flows:FLOW-007/steps/3, flows:FLOW-007/steps/4
+
+验证：CHECK-139, CHECK-140, CHECK-141, CHECK-142, CHECK-143, CHECK-144, CHECK-145, CHECK-146, CHECK-147, CHECK-148, CHECK-149, CHECK-150, CHECK-ARCHIVE-CLOSURE
+
+## 共享状态规则
+
+- 各管理操作独立触发、独立成功结果，不要求新增后依次编辑、启停和授权；仅同次保存内部的核对/提交为一个动作。
+- 通话开始整版固定到话后完成，后台新配置从下一通生效；账号、对象与接口启停/授权实时校验。
+- 查询完整成功/成功空集/异常/来源不可用不同；旧响应按通话/租户/绑定/条件/编辑版本隔离，异常不等于失配。
+- 重复提交不得产生重复业务结果或重复归档；目标/引用版本变化需重新核对，不覆盖外部新写。
+- 分类逻辑删除与字段/接口物理删除不同：保留旧业务及依赖闭包，原有引用不能被逻辑删分类悄悄释放。
+
+## 数据归属
+
+- 接口字典全局由超管维护，租户范围不代替成员/对象权限；字段和分类归本租户。
+- 原导入归既有导入流程，只读保留；本次填写经明确选择/确认产生新值，正式保存形成当通快照。
+- 车系官方/媒体/状态由Mapping来源解释；当前编码与过滤仅已接受实施假定，研发联调核实，技术元数据不另让客服维护。
+- 当前健康通话使用固定定义；历史使用当时快照或合法原业务归档，live改名/删分类不改原记录。
+
+## 跨模块协作
+
+工程模块划分与物理接口由开发补充；业务衔接以本页流程和局部说明为准。
+
+## 局部说明索引
+
+- [LOCAL-DICT-CREATE](local-logic/LOCAL-DICT-CREATE.md) 新增取数接口条目
+- [LOCAL-DICT-EDIT](local-logic/LOCAL-DICT-EDIT.md) 编辑名称及未引用能力
+- [LOCAL-DICT-ENABLE](local-logic/LOCAL-DICT-ENABLE.md) 启用接口条目
+- [LOCAL-DICT-DISABLE](local-logic/LOCAL-DICT-DISABLE.md) 停用接口条目
+- [LOCAL-TENANT-GRANT](local-logic/LOCAL-TENANT-GRANT.md) 开放租户使用范围
+- [LOCAL-TENANT-REVOKE](local-logic/LOCAL-TENANT-REVOKE.md) 撤销租户使用授权
+- [LOCAL-FIELD-SAVE](local-logic/LOCAL-FIELD-SAVE.md) 独立保存字段及通用条件
+- [LOCAL-CLASS-FIELDS-SAVE](local-logic/LOCAL-CLASS-FIELDS-SAVE.md) 保存分类引用、显示顺序与必填
+- [LOCAL-CALL-FORM](local-logic/LOCAL-CALL-FORM.md) 固定本通表单和合法原业务上下文
+- [LOCAL-SERIES-QUERY](local-logic/LOCAL-SERIES-QUERY.md) 查询并单选本次Mapping车系
+- [LOCAL-GENERIC-QUERY](local-logic/LOCAL-GENERIC-QUERY.md) 执行普通接口的通用单上游查询
+- [LOCAL-IMPORT-CONFIRM](local-logic/LOCAL-IMPORT-CONFIRM.md) 只读导入核对并明确带入车系
+- [LOCAL-FOLLOWUP-SAVE](local-logic/LOCAL-FOLLOWUP-SAVE.md) 按本通整版校验并保存结果
+- [LOCAL-READ-CALL](local-logic/LOCAL-READ-CALL.md) 按具体通次读取当时业务快照
+- [LOCAL-READ-CUSTOMER](local-logic/LOCAL-READ-CUSTOMER.md) 沿原规则展示档案业务汇总及来源
+- [LOCAL-DICT-DELETE](local-logic/LOCAL-DICT-DELETE.md) 确认删除未使用接口条目
+- [LOCAL-FIELD-DELETE](local-logic/LOCAL-FIELD-DELETE.md) 删除本租户未使用字段
+- [LOCAL-CATEGORY-RETIRE](local-logic/LOCAL-CATEGORY-RETIRE.md) 逻辑删除分类并保留旧业务
+
+## 字段与完整性
+
+[字段定义](field-specs.md) · [逐项覆盖核对](completeness-matrix.md)

@@ -1,0 +1,544 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.1.1",
+  "id": "SC-009",
+  "name": "超管编辑已有接口条目",
+  "summary": "修改名称保留引用；已引用能力固定，换能力新增条目再调整字段引用。",
+  "actors": [
+    "超级管理员",
+    "云外呼平台"
+  ],
+  "trigger": "需要调整已有接口条目的可编辑配置。",
+  "preconditions": [
+    "当前操作者具有超管维护业务数据接口字典的权限。",
+    "本次编辑所针对的已有接口字典条目已明确。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员",
+      "action": "发起本次编辑操作。",
+      "system_response": "平台进入相应维护内容。",
+      "rule_ids": [
+        "BR-023"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "云外呼平台",
+      "action": "呈现已有条目的接口名称及当前配置。",
+      "system_response": "名称可修改；已引用的取数能力固定，技术参数研发预置。",
+      "rule_ids": [
+        "BR-023",
+        "BR-034"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "超级管理员",
+      "action": "修改接口名称并选择提交。",
+      "system_response": "本次输入仅在选择提交后进入保存处理。",
+      "rule_ids": [
+        "BR-023",
+        "BR-034"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "云外呼平台",
+      "action": "校验已引用条目未换绑取数能力，沿用内部标识保存本次名称变更。",
+      "system_response": "保持已有字段的条目引用，形成可判断的保存结果。",
+      "rule_ids": [
+        "BR-023",
+        "BR-034"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云外呼平台",
+      "action": "显示本次编辑保存成功，条目及原引用关系保留。",
+      "system_response": "成功仅说明本次条目配置保存，不证明外部接口已完成对接。",
+      "rule_ids": [
+        "BR-023",
+        "BR-024"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-SC009-CANCEL",
+      "condition": "操作者在提交前取消本次编辑。",
+      "steps": [
+        "结束本次操作，不提交此次编辑保存。"
+      ]
+    },
+    {
+      "id": "ALT-SC009-FAIL",
+      "condition": "本次编辑保存未成功。",
+      "steps": [
+        "平台明确反馈本次操作未完成，不显示编辑成功。",
+        "本场景不规定未知超时结果的补偿、重试或恢复策略。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功路径形成同一条目本次编辑的已保存结果；既有条目和引用配置保留。",
+    "启停及租户授权由相应独立操作承接，不因本次编辑自动改变。",
+    "取消及保存失败分支不呈现编辑成功。",
+    "已引用条目不能通过本次编辑换绑取数能力。"
+  ],
+  "acceptance_points": [
+    "AC-128：名称可改且引用保留；已引用能力固定，换能力新增条目再调整字段引用。",
+    "AC-131：条目及历史信息保留；取消或失败不呈现编辑成功。"
+  ],
+  "source_story_ids": [
+    "US-017"
+  ],
+  "source_acceptance_ids": [
+    "AC-128",
+    "AC-131"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-128",
+    "inputs/user-stories.md#SRC-139",
+    "inputs/user-stories.md#SRC-141",
+    "inputs/user-stories.md#SRC-145",
+    "inputs/user-stories.md#SRC-150",
+    "inputs/user-stories.md#SRC-167",
+    "inputs/source-index.json#SRC-168",
+    "inputs/user-stories.md#SRC-169"
+  ],
+  "open_item_ids": [],
+  "notes": [
+    "接口名称可改且改名不破坏已有引用已确认。",
+    "启停与租户授权分别沿SC-010/011，不以编辑场景吞并其业务结果。",
+    "已引用条目固定取数能力；替换来源通过SC-008新增条目，再由SC-012调整字段引用，保留原条目和历史。未引用条目的能力编辑细则留待规格。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "admin",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云外呼平台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "admin",
+        "type": "start",
+        "order": 1,
+        "label": "发起本次编辑"
+      },
+      {
+        "id": "N-REQUEST",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 2,
+        "label": "进入编辑操作",
+        "step_ref": 1
+      },
+      {
+        "id": "N-PRESENT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "呈现条目信息；已引用能力固定",
+        "step_ref": 2
+      },
+      {
+        "id": "N-INPUT",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 4,
+        "label": "修改接口名称",
+        "step_ref": 3
+      },
+      {
+        "id": "N-SUBMIT",
+        "lane_id": "admin",
+        "type": "decision",
+        "order": 5,
+        "label": "提交本次操作？"
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 6,
+        "label": "取消，未提交保存"
+      },
+      {
+        "id": "N-SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "校验已引用能力未变，沿用内部标识\n保存改名",
+        "step_ref": 4
+      },
+      {
+        "id": "N-SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "保存成功？"
+      },
+      {
+        "id": "N-FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 8,
+        "label": "反馈未完成保存"
+      },
+      {
+        "id": "N-DONE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 9,
+        "label": "改名成功，已有引用保留",
+        "step_ref": 5
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 10,
+        "label": "编辑完成"
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-REQUEST"
+      },
+      {
+        "from": "N-REQUEST",
+        "to": "N-PRESENT"
+      },
+      {
+        "from": "N-PRESENT",
+        "to": "N-INPUT"
+      },
+      {
+        "from": "N-INPUT",
+        "to": "N-SUBMIT"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-SAVE",
+        "label": "提交"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-SC009-CANCEL",
+        "type": "alternate"
+      },
+      {
+        "from": "N-SAVE",
+        "to": "N-SAVED"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-DONE",
+        "label": "成功"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-FAIL",
+        "label": "未成功",
+        "path_id": "ALT-SC009-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-DONE",
+        "to": "N-SUCCESS"
+      }
+    ]
+  },
+  "business_rule_ids": [
+    "BR-034"
+  ],
+  "change_history": [
+    {
+      "at": "2026-10-19T17:50:16.879302+08:00",
+      "reason": "SRC167用户将本次意向车系改为Mapping接口单选；门店仍原文本，保留SRC169通话整版配置隔离。只形成SRC155授权模拟产品草稿，G2/G3待确认。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-167",
+        "inputs/source-index.json#SRC-168",
+        "inputs/user-stories.md#SRC-169"
+      ],
+      "previous_values": {
+        "schema_version": "1.0",
+        "project_version": "1.1.1",
+        "id": "SC-009",
+        "name": "超管编辑已有接口条目",
+        "summary": "修改名称保留引用；已引用能力固定，换能力新增条目再调整字段引用。",
+        "actors": [
+          "超级管理员",
+          "云外呼平台"
+        ],
+        "trigger": "需要调整已有接口条目的可编辑配置。",
+        "preconditions": [
+          "当前操作者具有超管维护业务数据接口字典的权限。",
+          "本次编辑所针对的已有接口字典条目已明确。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "超级管理员",
+            "action": "发起本次编辑操作。",
+            "system_response": "平台进入相应维护内容。",
+            "rule_ids": [
+              "BR-023"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云外呼平台",
+            "action": "呈现已有条目的接口名称及当前配置。",
+            "system_response": "名称可修改；已引用的取数能力固定，技术参数研发预置。",
+            "rule_ids": [
+              "BR-023",
+              "BR-034"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "超级管理员",
+            "action": "修改接口名称并选择提交。",
+            "system_response": "本次输入仅在选择提交后进入保存处理。",
+            "rule_ids": [
+              "BR-023",
+              "BR-034"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "云外呼平台",
+            "action": "校验已引用条目未换绑取数能力，沿用内部标识保存本次名称变更。",
+            "system_response": "保持已有字段的条目引用，形成可判断的保存结果。",
+            "rule_ids": [
+              "BR-023",
+              "BR-034"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "云外呼平台",
+            "action": "显示本次编辑保存成功，条目及原引用关系保留。",
+            "system_response": "成功仅说明本次条目配置保存，不证明外部接口已完成对接。",
+            "rule_ids": [
+              "BR-023",
+              "BR-024"
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-SC009-CANCEL",
+            "condition": "操作者在提交前取消本次编辑。",
+            "steps": [
+              "结束本次操作，不提交此次编辑保存。"
+            ]
+          },
+          {
+            "id": "ALT-SC009-FAIL",
+            "condition": "本次编辑保存未成功。",
+            "steps": [
+              "平台明确反馈本次操作未完成，不显示编辑成功。",
+              "本场景不规定未知超时结果的补偿、重试或恢复策略。"
+            ]
+          }
+        ],
+        "postconditions": [
+          "成功路径形成同一条目本次编辑的已保存结果；既有条目和引用配置保留。",
+          "启停及租户授权由相应独立操作承接，不因本次编辑自动改变。",
+          "取消及保存失败分支不呈现编辑成功。",
+          "已引用条目不能通过本次编辑换绑取数能力。"
+        ],
+        "acceptance_points": [
+          "AC-128：名称可改且引用保留；已引用能力固定，换能力新增条目再调整字段引用。",
+          "AC-131：条目及历史信息保留；取消或失败不呈现编辑成功。"
+        ],
+        "source_story_ids": [
+          "US-017"
+        ],
+        "source_acceptance_ids": [
+          "AC-128",
+          "AC-131"
+        ],
+        "source_refs": [
+          "inputs/user-stories.md#SRC-128",
+          "inputs/user-stories.md#SRC-139",
+          "inputs/user-stories.md#SRC-141",
+          "inputs/user-stories.md#SRC-145",
+          "inputs/user-stories.md#SRC-150"
+        ],
+        "open_item_ids": [],
+        "notes": [
+          "接口名称可改且改名不破坏已有引用已确认。",
+          "启停与租户授权分别沿SC-010/011，不以编辑场景吞并其业务结果。",
+          "已引用条目固定取数能力；替换来源通过SC-008新增条目，再由SC-012调整字段引用，保留原条目和历史。未引用条目的能力编辑细则留待规格。"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "admin",
+              "name": "超级管理员",
+              "kind": "actor"
+            },
+            {
+              "id": "platform",
+              "name": "云外呼平台",
+              "kind": "system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "N-START",
+              "lane_id": "admin",
+              "type": "start",
+              "order": 1,
+              "label": "发起本次编辑"
+            },
+            {
+              "id": "N-REQUEST",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 2,
+              "label": "进入编辑操作",
+              "step_ref": 1
+            },
+            {
+              "id": "N-PRESENT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 3,
+              "label": "呈现条目信息；已引用能力固定",
+              "step_ref": 2
+            },
+            {
+              "id": "N-INPUT",
+              "lane_id": "admin",
+              "type": "action",
+              "order": 4,
+              "label": "修改接口名称",
+              "step_ref": 3
+            },
+            {
+              "id": "N-SUBMIT",
+              "lane_id": "admin",
+              "type": "decision",
+              "order": 5,
+              "label": "提交本次操作？"
+            },
+            {
+              "id": "N-CANCEL",
+              "lane_id": "admin",
+              "type": "end",
+              "order": 6,
+              "label": "取消，未提交保存"
+            },
+            {
+              "id": "N-SAVE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 6,
+              "label": "校验已引用能力未变，沿用内部标识\n保存改名",
+              "step_ref": 4
+            },
+            {
+              "id": "N-SAVED",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 7,
+              "label": "保存成功？"
+            },
+            {
+              "id": "N-FAIL",
+              "lane_id": "platform",
+              "type": "end",
+              "order": 8,
+              "label": "反馈未完成保存"
+            },
+            {
+              "id": "N-DONE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 9,
+              "label": "改名成功，已有引用保留",
+              "step_ref": 5
+            },
+            {
+              "id": "N-SUCCESS",
+              "lane_id": "admin",
+              "type": "end",
+              "order": 10,
+              "label": "编辑完成"
+            }
+          ],
+          "edges": [
+            {
+              "from": "N-START",
+              "to": "N-REQUEST"
+            },
+            {
+              "from": "N-REQUEST",
+              "to": "N-PRESENT"
+            },
+            {
+              "from": "N-PRESENT",
+              "to": "N-INPUT"
+            },
+            {
+              "from": "N-INPUT",
+              "to": "N-SUBMIT"
+            },
+            {
+              "from": "N-SUBMIT",
+              "to": "N-SAVE",
+              "label": "提交"
+            },
+            {
+              "from": "N-SUBMIT",
+              "to": "N-CANCEL",
+              "label": "取消",
+              "path_id": "ALT-SC009-CANCEL",
+              "type": "alternate"
+            },
+            {
+              "from": "N-SAVE",
+              "to": "N-SAVED"
+            },
+            {
+              "from": "N-SAVED",
+              "to": "N-DONE",
+              "label": "成功"
+            },
+            {
+              "from": "N-SAVED",
+              "to": "N-FAIL",
+              "label": "未成功",
+              "path_id": "ALT-SC009-FAIL",
+              "type": "failure"
+            },
+            {
+              "from": "N-DONE",
+              "to": "N-SUCCESS"
+            }
+          ]
+        },
+        "business_rule_ids": [
+          "BR-034"
+        ]
+      }
+    }
+  ]
+}

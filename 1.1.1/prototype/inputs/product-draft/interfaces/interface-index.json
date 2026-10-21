@@ -1,0 +1,212 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.1.1",
+  "checked_at": "2026-10-15T16:01:24+08:00",
+  "scope": "S4能力缺口核验；接口标识为需求分析ID，不是已接通端点。",
+  "interfaces": [
+    {
+      "id": "API-015",
+      "name": "权威车系候选查询（所需能力）",
+      "provider": "NEV／ICE权威数据提供方，具体归属待核",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "used_by_sequence_ids": [
+        "SEQ-015"
+      ],
+      "verification_status": "missing",
+      "source_refs": [
+        "inputs/source-index.json#SRC-130",
+        "inputs/user-stories.md#SRC-126",
+        "inputs/user-stories.md#SRC-149"
+      ],
+      "endpoint": null,
+      "method_or_event": null,
+      "request_fields": [],
+      "response_fields": [],
+      "field_contract_status": "missing",
+      "auth": null,
+      "timeout": null,
+      "idempotency": null,
+      "rate_limit": null,
+      "errors": [],
+      "verification_items": {
+        "endpoint_or_event": "missing",
+        "authentication": "missing",
+        "request_fields": "missing",
+        "response_fields": "missing",
+        "status_and_errors": "missing",
+        "pagination_completeness": "missing",
+        "timeout_and_rate_limit": "missing"
+      },
+      "required_business_capabilities": [
+        "查找权威车系候选；可返回供本次填写使用的可识别车系编码及展示信息。",
+        "明确NEV／ICE的权威归属依据、编码命名空间及候选可用状态。",
+        "核实搜索、完整性／分页、鉴权、错误、超时和限流；不承诺具体调用方式。"
+      ],
+      "notes": [
+        "未收到原始接口文档；此处描述需求，不是已存在接口清单。",
+        "需核实NEV和ICE是否共用服务、编码及体系标识如何提供；不推断ICE数据来自NEV系统。",
+        "车系候选查找及原始意向辅助匹配复用本查询，不由此新增自动匹配引擎。",
+        "来源恢复的未提交旧车系须按当前条件重查并由客服确认；复用本查询能力，具体契约仍missing（SRC-149）。"
+      ]
+    },
+    {
+      "id": "API-016",
+      "name": "按车系条件取得权威专营店候选（所需能力）",
+      "provider": "权威专营店及车系关联数据提供方，具体服务待核",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "used_by_sequence_ids": [
+        "SEQ-015"
+      ],
+      "verification_status": "missing",
+      "source_refs": [
+        "inputs/source-index.json#SRC-130",
+        "inputs/user-stories.md#SRC-137",
+        "inputs/user-stories.md#SRC-138",
+        "inputs/user-stories.md#SRC-146",
+        "inputs/user-stories.md#SRC-147",
+        "inputs/user-stories.md#SRC-148",
+        "inputs/user-stories.md#SRC-149",
+        "inputs/user-stories.md#SRC-151"
+      ],
+      "endpoint": null,
+      "method_or_event": null,
+      "request_fields": [],
+      "response_fields": [],
+      "field_contract_status": "missing",
+      "auth": null,
+      "timeout": null,
+      "idempotency": null,
+      "rate_limit": null,
+      "errors": [],
+      "verification_items": {
+        "endpoint_or_event": "missing",
+        "authentication": "missing",
+        "request_fields": "missing",
+        "response_fields": "missing",
+        "status_and_errors": "missing",
+        "pagination_completeness": "missing",
+        "timeout_and_rate_limit": "missing"
+      },
+      "required_business_capabilities": [
+        "按具体车系编码取得权威专营店候选及可识别编码和展示信息，并保持该车系NEV／ICE体系对应；平台不自行扩展为同体系全量或维护本地关系表。",
+        "多个字段提供当前车系编码，各条件候选的完整结果可取并集并去重。",
+        "能区分成功空集合、查询失败、部分结果与完整结果，为旧门店重判提供依据。"
+      ],
+      "notes": [
+        "多个车系字段的结果并集去重属于已确认产品规则，不能据此宣称上游支持批量参数或并集接口。",
+        "核实支持一次多编码查询还是逐条件查询后由本方合并，并核实何时可判定结果完整。",
+        "单车系业务口径已由SRC-151确认：按车系编码查询，返回门店为准，保持NEV/ICE对应。权威接口如何承载该关系仍无资料，不推断其已存在或已支持。",
+        "未验证编码跨体系是否唯一；去重键须以正式编码及来源命名空间确定。",
+        "SRC-146明确至少选择一个关联车系才查询；SRC-147确认部分失败查全后再新选、待重选恢复须人工确认；SRC-148明确清空全部车系的旧值状态。",
+        "关系核验须区别搜索过滤／当前分页与当前车系完整关联范围；当前列表没有某门店不能直接认定失配。",
+        "上述是本方产品规则，查询完整性与有效性依据尚无上游文档；用户说明暂无资料，继续需求讨论，状态保持missing。",
+        "来源恢复旧门店按当前有效车系重新查询，查全匹配并经客服确认后才恢复有效；重查复用本能力，不新增后台同步（SRC-149）。",
+        "若上游仅提供体系全量且无法落实已确认的按车系编码门店范围，登记能力缺口及影响后再确认调整；不静默用全体系门店替代。",
+        "完整性核验须覆盖当前所有有效车系条件；搜索或分页显示不等于全部关系范围。具体分页／校验机制留待契约，不预设全量拉取或新增校验端点。"
+      ]
+    },
+    {
+      "id": "API-017",
+      "name": "接口字典与分类字段配置：本期无需外部调用",
+      "provider": "云外呼平台内部配置",
+      "source_scenario_ids": [
+        "SC-008",
+        "SC-009",
+        "SC-010",
+        "SC-011",
+        "SC-012"
+      ],
+      "used_by_sequence_ids": [],
+      "verification_status": "not_required",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-139",
+        "inputs/user-stories.md#SRC-142",
+        "inputs/user-stories.md#SRC-145",
+        "inputs/user-stories.md#SRC-150"
+      ],
+      "endpoint": null,
+      "method_or_event": null,
+      "request_fields": [],
+      "response_fields": [],
+      "field_contract_status": "not_applicable",
+      "auth": null,
+      "timeout": null,
+      "idempotency": null,
+      "rate_limit": null,
+      "errors": [],
+      "verification_items": {
+        "endpoint_or_event": "not_required",
+        "authentication": "not_required",
+        "request_fields": "not_required",
+        "response_fields": "not_required",
+        "status_and_errors": "not_required",
+        "pagination_completeness": "not_required",
+        "timeout_and_rate_limit": "not_required"
+      },
+      "required_business_capabilities": [],
+      "notes": [
+        "这五个场景本身是平台内部维护与配置，未确认需要即时调用外部系统；故外部接口核验为not_required。",
+        "not_required只指这些场景无需外部调用，不表示内部新增、编辑、启停、授权、配置保存不需要实现。",
+        "后台预置地址、鉴权与参数不等于在新增条目时自动调用或测试上游；接口测试不在首期范围。",
+        "SRC-145确认超管仅维护名称、预置取数能力、租户及状态，系统生成稳定标识；研发维护地址、请求方式、鉴权、参数和返回映射。新增尚未接入能力需先研发接入，本次配置确认不证明已完成接入。",
+        "已引用条目固定取数能力；换能力新增条目再调整字段引用（SRC-150）。这是内部配置限制，外部调用仍not_required。"
+      ]
+    },
+    {
+      "id": "API-018",
+      "name": "本次意向字段的保存与既有回传契约兼容核验",
+      "provider": "平台既有保存能力／业务系统既有接收方",
+      "source_scenario_ids": [
+        "SC-013"
+      ],
+      "used_by_sequence_ids": [
+        "SEQ-015"
+      ],
+      "verification_status": "partial",
+      "source_refs": [
+        "inputs/source-index.json#SRC-144",
+        "inputs/user-stories.md#SRC-143",
+        "inputs/user-stories.md#SRC-140",
+        "inputs/user-stories.md#SRC-148",
+        "inputs/user-stories.md#SRC-149",
+        "inputs/source-index.json#SRC-152"
+      ],
+      "endpoint": null,
+      "method_or_event": null,
+      "request_fields": [],
+      "response_fields": [],
+      "field_contract_status": "missing",
+      "auth": null,
+      "timeout": null,
+      "idempotency": null,
+      "rate_limit": null,
+      "errors": [],
+      "verification_items": {
+        "endpoint_or_event": "missing",
+        "authentication": "missing",
+        "request_fields": "missing",
+        "response_fields": "missing",
+        "status_and_errors": "missing",
+        "pagination_completeness": "missing",
+        "timeout_and_rate_limit": "missing"
+      },
+      "required_business_capabilities": [
+        "保存当前分类下的本次有效信息，保留原导入意向及原计划到店字段。",
+        "无效待重选门店不作有效值提交／回传；准确未接通条件与已填值校验沿原规则。",
+        "每个本次意向字段分别保存所选编码和当时展示的名称；历史展示该次保存名称，外部后续改名不覆盖，多车系字段保存仍分别对应。"
+      ],
+      "notes": [
+        "SRC-144/152仅证明v1.1.0本地意向信息分离、条件必填、失败保输入及会话草稿演示；原型的localStorage/sessionStorage不是生产接口或草稿持久化证据。",
+        "编码和当时名称快照的业务语义已确认（SRC-149）；字段标识、外部编码命名空间、字典来源与既有接收结构仍须正式契约核对。字典内部ID不能当作车系／门店编码。",
+        "不新增独立回传流程或新回调机制，不改变v1.1.0既有保存与回传范围；若兼容需要改变行为须登记差异确认。",
+        "请求／响应数组为空表示契约未知，不表示无字段；errors为空也不表示不会失败。",
+        "SRC-148明确来源不可用未提交值不作有效值；SRC-149明确来源恢复重查且由客服确认后才有效，并保存各字段编码和当时名称。实际草稿存储与保存／回传结构仍待核验，保持partial。",
+        "生产草稿保存与恢复契约由ISSUE-11105核验；继承失败保留当前输入供重试的体验，不据静态原型承诺关闭浏览器或跨设备恢复。"
+      ]
+    }
+  ]
+}

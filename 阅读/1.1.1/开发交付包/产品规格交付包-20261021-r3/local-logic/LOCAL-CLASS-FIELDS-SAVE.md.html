@@ -1,0 +1,115 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>产品规格交付包-20261021-r3/local-logic/LOCAL-CLASS-FIELDS-SAVE.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../1.1.1/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E4%BA%A7%E5%93%81%E8%A7%84%E6%A0%BC%E4%BA%A4%E4%BB%98%E5%8C%85-20261021-r3/local-logic/LOCAL-CLASS-FIELDS-SAVE.md">原始 Markdown</a></p><h1>产品规格交付包-20261021-r3/local-logic/LOCAL-CLASS-FIELDS-SAVE.md</h1><pre># LOCAL-CLASS-FIELDS-SAVE 保存分类引用、显示顺序与必填
+
+**READY_FOR_ENGINEERING_DESIGN — 产品可交接，工程设计需补齐**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [保存接口车系及通用取数字段配置 · FUNC\-029](../features/FUNC-029.md)
+
+## 职责与触发
+
+所属工程模块：开发接手后确定
+
+功能：FUNC-029
+
+触发：管理员在业务分类配置添加/移除、排序和保存字段引用
+
+## 前置条件
+
+- 当前账号、企业/租户/对象和处理阶段有对应权限；输入来自本局部声明的当前对象。
+- 沿当前已确认范围执行；不借原型或历史ID扩张权限。
+
+## 必须遵守的全局规则
+
+- [BR-026](../global-logic.md#BR-026)
+- [BR-027](../global-logic.md#BR-027)
+- [BR-032](../global-logic.md#BR-032)
+- [BR-035](../global-logic.md#BR-035)
+
+## 输入与输出
+
+输入：[FIELD-CATEGORY-DEFINITION](../field-specs.md#FIELD-CATEGORY-DEFINITION)、[FIELD-DEFINITION](../field-specs.md#FIELD-DEFINITION)、[FIELD-CLASS-FIELD-REFS](../field-specs.md#FIELD-CLASS-FIELD-REFS)、[FIELD-CLASS-REQUIRED](../field-specs.md#FIELD-CLASS-REQUIRED)、[FIELD-CLASS-VISIBLE](../field-specs.md#FIELD-CLASS-VISIBLE)、[FIELD-CLASS-ORDER](../field-specs.md#FIELD-CLASS-ORDER)
+
+输出：[FIELD-CATEGORY-DEFINITION](../field-specs.md#FIELD-CATEGORY-DEFINITION)、[FIELD-CLASS-FIELD-REFS](../field-specs.md#FIELD-CLASS-FIELD-REFS)
+
+## 处理步骤
+
+### LOCAL-CLASS-FIELDS-SAVE-STEP-1
+
+引用已存字段，分别设置顺序、显示和必填，可移除预置引用
+
+读取：FIELD-DEFINITION, FIELD-CLASS-FIELD-REFS, FIELD-CLASS-REQUIRED, FIELD-CLASS-VISIBLE, FIELD-CLASS-ORDER；写入：无
+
+规则：BR-026, BR-027, BR-032, BR-035
+
+### LOCAL-CLASS-FIELDS-SAVE-STEP-2
+
+检查必需依赖可在分类提供；可选缺失仅说明而不强补
+
+读取：FIELD-DEFINITION, FIELD-CLASS-FIELD-REFS, FIELD-CLASS-REQUIRED, FIELD-CLASS-VISIBLE；写入：无
+
+规则：BR-026, BR-027, BR-032, BR-035
+
+### LOCAL-CLASS-FIELDS-SAVE-STEP-3
+
+保存分类新配置供后续通话使用，不改健康本通整版
+
+读取：FIELD-CATEGORY-DEFINITION, FIELD-CLASS-FIELD-REFS；写入：FIELD-CATEGORY-DEFINITION, FIELD-CLASS-FIELD-REFS
+
+规则：BR-026, BR-027, BR-032, BR-035
+
+## 分支与异常
+
+### LOCAL-CLASS-FIELDS-SAVE-BRANCH-1
+
+条件：必需上游未加入/不显示
+
+结果：明确定位所需来源，用户调整后再保存，不自动改其他必填
+
+涉及字段：FIELD-CLASS-FIELD-REFS, FIELD-CLASS-REQUIRED, FIELD-CLASS-VISIBLE
+
+验证：CHECK-111, CHECK-124, CHECK-134
+
+### LOCAL-CLASS-FIELDS-SAVE-BRANCH-2
+
+条件：可选上游未加入/隐藏
+
+结果：可保存；后续按条件无值规则省参
+
+涉及字段：FIELD-CLASS-FIELD-REFS
+
+验证：CHECK-111, CHECK-125, CHECK-124, CHECK-134
+
+### LOCAL-CLASS-FIELDS-SAVE-BRANCH-3
+
+条件：明确空引用集合
+
+结果：允许沿原规则保存且刷新不补；当前有效通话照旧版
+
+涉及字段：FIELD-CLASS-FIELD-REFS
+
+验证：CHECK-146, CHECK-EMPTY-CATALOG
+
+## 完成后的状态
+
+- 仅本次动作的合法结果生效；取消或核对/保存异常保留原对象与输入，不宣称成功。
+
+## 字段定义
+
+- [FIELD-CATEGORY-DEFINITION](../field-specs.md#FIELD-CATEGORY-DEFINITION)
+- [FIELD-CLASS-FIELD-REFS](../field-specs.md#FIELD-CLASS-FIELD-REFS)
+- [FIELD-CLASS-ORDER](../field-specs.md#FIELD-CLASS-ORDER)
+- [FIELD-CLASS-REQUIRED](../field-specs.md#FIELD-CLASS-REQUIRED)
+- [FIELD-CLASS-VISIBLE](../field-specs.md#FIELD-CLASS-VISIBLE)
+- [FIELD-DEFINITION](../field-specs.md#FIELD-DEFINITION)
+
+## 来源与验证
+
+来源条目：acceptance:AC-109, acceptance:AC-111, acceptance:AC-120, acceptance:AC-121, acceptance:AC-124, acceptance:AC-133, acceptance:AC-134, acceptance:AC-146, documents:interfaces~1interface-index.json, documents:memory~1business-rules.json, documents:memory~1feature-list.json, documents:memory~1normalized-user-stories.json, documents:memory~1project-facts.json, documents:outputs~1business-scenario-atlas.html, documents:outputs~1business-scenario-list.md, documents:outputs~1feature-list.md, documents:outputs~1menu-and-page-planning-reference.md, documents:outputs~1page-structure-atlas.html, documents:outputs~1product-structure-and-business-process-baseline.md, documents:planning~1existing-surface-evidence.json, documents:planning~1page-index.json, documents:project-version.json, documents:runtime~1open-items.json, documents:runtime~1traceability.json, documents:runtime~1verification-report.json, documents:scenarios~1SC-008.json, documents:scenarios~1SC-009.json, documents:scenarios~1SC-010.json, documents:scenarios~1SC-011.json, documents:scenarios~1SC-012.json, documents:scenarios~1SC-013.json, documents:scenarios~1SC-014.json, documents:scenarios~1SC-015.json, documents:scenarios~1SC-016.json, documents:scenarios~1scenario-index.json, features:FUNC-029, features:FUNC-029/boundary/business_rules/0, features:FUNC-029/boundary/business_rules/1, features:FUNC-029/boundary/business_rules/2, features:FUNC-029/boundary/business_rules/3, features:FUNC-029/boundary/exception_paths/0, features:FUNC-029/boundary/exception_paths/1, flows:FLOW-005, flows:FLOW-005/steps/0, flows:FLOW-005/steps/1, flows:FLOW-005/steps/2, flows:FLOW-005/steps/3, flows:FLOW-005/steps/4, interfaces:API-017, interfaces:API-018, pages:PAGE-007, pages:PAGE-007/actions/0, pages:PAGE-007/actions/1, pages:PAGE-007/actions/2, pages:PAGE-007/fields/0, pages:PAGE-007/fields/1, pages:PAGE-007/fields/10, pages:PAGE-007/fields/11, pages:PAGE-007/fields/2, pages:PAGE-007/fields/3, pages:PAGE-007/fields/4, pages:PAGE-007/fields/5, pages:PAGE-007/fields/6, pages:PAGE-007/fields/7, pages:PAGE-007/fields/8, pages:PAGE-007/fields/9, project_facts:0, project_facts:0/state_models/0/transitions/0, project_facts:0/state_models/0/transitions/1, project_facts:0/state_models/1/transitions/0, project_facts:0/state_models/1/transitions/1, project_facts:0/state_models/2/transitions/0, project_facts:0/state_models/2/transitions/1, project_facts:0/state_models/2/transitions/2, project_facts:0/state_models/2/transitions/3, project_facts:0/state_models/3/transitions/0, project_facts:0/state_models/3/transitions/1, project_facts:0/state_models/3/transitions/2, project_facts:0/state_models/3/transitions/3, rules:BR-026, rules:BR-027, rules:BR-032, rules:BR-035, scenarios:SC-012, scenarios:SC-012/alternate_flows/0, scenarios:SC-012/alternate_flows/0/steps/0, scenarios:SC-012/alternate_flows/1, scenarios:SC-012/alternate_flows/1/steps/0, scenarios:SC-012/alternate_flows/1/steps/1, scenarios:SC-012/alternate_flows/1/steps/2, scenarios:SC-012/alternate_flows/2, scenarios:SC-012/alternate_flows/2/steps/0, scenarios:SC-012/alternate_flows/2/steps/1, scenarios:SC-012/main_flow/0, scenarios:SC-012/main_flow/1, scenarios:SC-012/main_flow/2, scenarios:SC-012/main_flow/3, scenarios:SC-012/main_flow/4, scenarios:SC-012/main_flow/5, scenarios:SC-012/postconditions/0, scenarios:SC-012/postconditions/1, scenarios:SC-012/postconditions/2, scenarios:SC-012/preconditions/0, scenarios:SC-012/preconditions/1, sequences:SEQ-014, sequences:SEQ-014/messages/0, sequences:SEQ-014/messages/1, sequences:SEQ-014/messages/10, sequences:SEQ-014/messages/11, sequences:SEQ-014/messages/12, sequences:SEQ-014/messages/13, sequences:SEQ-014/messages/14, sequences:SEQ-014/messages/15, sequences:SEQ-014/messages/16, sequences:SEQ-014/messages/17, sequences:SEQ-014/messages/18, sequences:SEQ-014/messages/19, sequences:SEQ-014/messages/2, sequences:SEQ-014/messages/20, sequences:SEQ-014/messages/21, sequences:SEQ-014/messages/22, sequences:SEQ-014/messages/23, sequences:SEQ-014/messages/24, sequences:SEQ-014/messages/25, sequences:SEQ-014/messages/26, sequences:SEQ-014/messages/27, sequences:SEQ-014/messages/28, sequences:SEQ-014/messages/3, sequences:SEQ-014/messages/4, sequences:SEQ-014/messages/5, sequences:SEQ-014/messages/6, sequences:SEQ-014/messages/7, sequences:SEQ-014/messages/8, sequences:SEQ-014/messages/9, stories:US-015, stories:US-015/preconditions/0, stories:US-016, stories:US-016/preconditions/0, stories:US-021, stories:US-021/preconditions/0, stories:US-021/preconditions/1
+
+验证：CHECK-109, CHECK-111, CHECK-120, CHECK-121, CHECK-133, CHECK-146, CHECK-124, CHECK-134
+
+## 实施任务
+
+未声明；请结合范围说明核对。
+</pre></body></html>

@@ -1,0 +1,5346 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-013",
+  "name": "接口单选车系并保存原门店文本",
+  "summary": "下拉查询Mapping车系，精确编码确认带入，门店文本继续。当前仅结构模拟，真实接入待核。",
+  "status": "analysis_draft",
+  "scope_confirmation": "inputs/user-stories.md#SRC-141",
+  "actors": [
+    "具有既有业务信息填写权限\n的客服／运营",
+    "云外呼平台",
+    "Mapping车系接口／其他实际启用接口数据源"
+  ],
+  "trigger": "客服在既有沟通记录中填写本次意向车系和计划到店门店信息。",
+  "preconditions": [
+    "具备本人当前租户/记录/通话业务填写权限，载入通话开始时固定配置版本。",
+    "Mapping车系接口绑定且向租户授权；原plannedStoreName仍文本；真实主机/响应待核，本轮结构模拟。",
+    "其他通用接口字段按本通配置处理，门店不调用API016。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "云外呼平台",
+      "action": "按本通固定整版配置载入表单及只读导入；默认填写页签，切换保值",
+      "system_response": null,
+      "rule_ids": [
+        "BR-028"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "Mapping车系接口／其他实际启用接口数据源",
+      "action": "平台核对实时来源资格后，Mapping接口按默认媒体10/状态1返回车系裸数组；API016门店不调用",
+      "system_response": null,
+      "rule_ids": [
+        "BR-026",
+        "BR-029"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "具有既有业务信息填写权限\n的客服／运营",
+      "action": "从完整成功车系候选单选、保留或清空，不自由创建；失败/空集分别提示并保留编辑",
+      "system_response": null,
+      "rule_ids": [
+        "BR-027"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "具有既有业务信息填写权限\n的客服／运营",
+      "action": "如需导入车系，客服明确确认按官方ID编码精确匹配",
+      "system_response": null,
+      "rule_ids": [
+        "BR-028"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "云外呼平台",
+      "action": "核对账号/租户/通话/编辑版本，精确匹配官方ID字符串并带入name及来源快照；不按媒体ID或同名猜测",
+      "system_response": null,
+      "rule_ids": [
+        "BR-028"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "具有既有业务信息填写权限\n的客服／运营",
+      "action": "自行填写原plannedStoreName文本；更换车系不改文本，导入门店不自动带入",
+      "system_response": null,
+      "rule_ids": [
+        "BR-029"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "Mapping车系接口／其他实际启用接口数据源",
+      "action": "仅另有实际启用的通用字段时，由对应数据源按其独立/单上游条件提供结果",
+      "system_response": null,
+      "rule_ids": [
+        "BR-024",
+        "BR-030",
+        "BR-035"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "云外呼平台",
+      "action": "核对来源、条件、请求版本和完整性；异常不当空，旧响应不写回，恢复须确认",
+      "system_response": null,
+      "rule_ids": [
+        "BR-025",
+        "BR-031",
+        "BR-033",
+        "BR-036"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 9,
+      "actor": "具有既有业务信息填写权限\n的客服／运营",
+      "action": "按字段控件选择或确认有效候选，取消保值；车系保持单选且不启用门店多选",
+      "system_response": null,
+      "rule_ids": [
+        "BR-031",
+        "BR-036"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 10,
+      "actor": "云外呼平台",
+      "action": "按本通固定整版配置和原通话条件校验；账号/接口授权实时校验，错误回填写定位并保留输入",
+      "system_response": null,
+      "rule_ids": [
+        "BR-027",
+        "BR-032"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "step": 11,
+      "actor": "云外呼平台",
+      "action": "复用原保存：车系code/name与官方/媒体/状态快照；plannedStoreName每通/详情/汇总沿原规则，不新增跨通配对或空文本清空汇总",
+      "system_response": null,
+      "rule_ids": [
+        "BR-028",
+        "BR-037"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165",
+        "inputs/user-stories.md#SRC-166"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:40:48+08:00",
+          "previous_values": {
+            "action": "保存唯一车系编码和当时名称、原plannedStoreName文本及同通信息；详情/档案不跨通拼接，导入原值和旧接口历史不改写"
+          },
+          "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-166"
+          ]
+        }
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-01301",
+      "condition": "Mapping车系或其他实际接口来源停用/当前租户无授权",
+      "steps": [
+        "停止对应来源新查选，在途返回不供候选；未提交值保留显示但不作有效值。",
+        "原门店文本可继续填写；接口选填可清除，本通必填按原保存规则处理。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "条目不可用或租户授权已撤销",
+            "steps": [
+              "仅对应接口／租户停止新查选；历史配置保留。",
+              "未提交值保留显示但不作有效值提交，在途结果不再提供新选择；选填可手动清除后保存，必填沿原规则。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01302",
+      "condition": "启用通用接口字段的必需上游缺失或未有效确认",
+      "steps": [
+        "不查询该下游，保留旧值待重选并提示补齐。",
+        "接口车系和原门店文本不因这条依赖自动失效；保存仍独立校验所有实际启用字段。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-16T11:18:32+08:00",
+          "previous_values": {
+            "condition": "所有关联车系字段均未选择"
+          },
+          "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-156"
+          ]
+        },
+        {
+          "at": "2026-10-16T15:06:27+08:00",
+          "previous_values": {
+            "condition": "本次意向车系未选择",
+            "steps": [
+              "提示请先选择意向车系，不发起门店查询。",
+              "若清空了本次意向车系，原门店保留显示并待重选；不因查询前置条件将字段统一必填，保存仍按原规则。"
+            ]
+          },
+          "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-158"
+          ]
+        },
+        {
+          "at": "2026-10-16T15:09:33+08:00",
+          "previous_values": {
+            "condition": "已启用依赖且所配上游未选择或未有效确认",
+            "steps": [
+              "提示先填写所配置的上游字段，不查下游；清空使所有传递下游保留显示待重选。",
+              "独立门店不需要车系，不受无关字段清空影响；必填仍按分类。"
+            ]
+          },
+          "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-158"
+          ]
+        },
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "必需条件的上游未加入显示、未选择或未有效确认",
+            "steps": [
+              "提示补齐对应必需上游，不发起下游查询；必需上游清空使旧值保留待重选。",
+              "可选上游缺失不进入此分支，按不传参数的完整范围查询；已填无效不能视为空。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-156",
+        "inputs/user-stories.md#SRC-158",
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01303",
+      "condition": "车系查询成功空集或异常/不完整/来源不可用",
+      "steps": [
+        "空集与查询异常分别提示，不自由创建车系候选、不用旧响应补齐；异常保留输入供重试。",
+        "原门店文本仍可填写；当前是否可完成按本通固定配置必填与接口有效性校验。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "车系查询失败且造成本次需校验的必填无法完成",
+            "steps": [
+              "说明失败并保留已填草稿供后续重试，完成前补齐有效必填。",
+              "本图为单次尝试，重试可在草稿上下文重新进入；不承诺自动重试或特定持久化。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01304",
+      "condition": "车系或其他启用接口查询异常或不完整",
+      "steps": [
+        "保留输入并提示重试，查全前不允许新选，不把异常当成功空集合或旧值失配。",
+        "造成当前需校验必填无法完成时不能正式保存，草稿规则不增加生产持久化承诺。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "门店查询失败／部分失败且造成本次需校验的必填无法完成",
+            "steps": [
+              "保留已填内容，说明失败或查询未完整，查全后才允许新的门店选择。",
+              "失败不当作成功空集合，也不证明旧门店失配；当前有效必填缺失时不能完成保存。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01305",
+      "condition": "其他接口查询异常但本次必填及已填值仍有当前有效依据",
+      "steps": [
+        "不因任意一次查询失败一律禁存；按当前分类及有效值判断。",
+        "没有当前有效依据的值不能凭旧条件提交。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "查询失败但不造成本次需校验的必填无法完成",
+            "steps": [
+              "不因一次失败一律禁存，仍按当前条件下的有效值与原保存规则判断。",
+              "部分失败时暂停新的门店选择，保留输入供重试，不把旧条件验证结果当成新条件的有效依据。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01306",
+      "condition": "其他启用接口字段旧项在当前完整结果中确认不匹配",
+      "steps": [
+        "逐项保留待重选，不默删；已填无效项须处理或清除，不能静默过滤保存。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-16T11:18:32+08:00",
+          "previous_values": {
+            "condition": "原有效门店不在新的完整并集中"
+          },
+          "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-156"
+          ]
+        },
+        {
+          "at": "2026-10-16T13:51:31+08:00",
+          "previous_values": {
+            "condition": "原有效门店不在新车系的完整权威门店结果中",
+            "steps": [
+              "保留显示并标记待重选；不作为有效已选值提交或回传。",
+              "可以选择当前候选恢复有效；是否必填仍由分类和原通话条件决定。"
+            ]
+          },
+          "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-157"
+          ]
+        },
+        {
+          "at": "2026-10-16T15:06:27+08:00",
+          "previous_values": {
+            "condition": "整组门店中有门店不在新车系完整权威结果中",
+            "steps": [
+              "逐家判断，仍匹配的原有效项保留，失配项保留显示并待重选，不默删。",
+              "存在待重选或无效项须客服重新确认、选择或手动移除；有其他有效门店也不能绕过校验。"
+            ]
+          },
+          "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-158"
+          ]
+        },
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "旧选项在当前独立或关联完整权威结果中确认失配",
+            "steps": [
+              "逐项判断，仍匹配的原有效项可保留，失配项保留待重选。",
+              "存在无效项须处理或移除，不能因其他有效项绕过或静默过滤。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-156",
+        "inputs/user-stories.md#SRC-157",
+        "inputs/user-stories.md#SRC-158",
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01307",
+      "condition": "其他启用接口字段待重选或来源恢复项已重查匹配",
+      "steps": [
+        "仍须客服明确确认或重新选择才恢复，失败/不完整/不匹配不恢复。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "旧门店待重选或来源恢复后，按当前条件重新查询并匹配",
+            "steps": [
+              "当前条件查全并匹配时，旧值仍保持待确认，不自动恢复有效。",
+              "客服再次明确确认或选择当前有效候选才恢复；失败、部分失败、不匹配均不能直接恢复。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01308",
+      "condition": "其他启用接口字段完整查询成功但候选为空",
+      "steps": [
+        "提示无匹配结果，按字段原候选规则，不允许临时自由选项绕过来源。",
+        "选填可清除后保存，必填缺失阻止完成；搜索词/分页遗漏不直接证明旧值失配。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "完整查询成功但结果为空",
+            "steps": [
+              "提示暂无匹配门店，不提供自定义门店补齐。",
+              "选填可留空或清除本次无效值后按原规则提交；必填缺失继续阻止完成。",
+              "搜索词无结果或当前分页未出现旧门店不能直接判关系失配。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01309",
+      "condition": "客服暂不提交",
+      "steps": [
+        "保留当前编辑，不产生正式保存结果；不新增独立草稿页。"
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01310",
+      "condition": "分类必填缺失、接口车系不在有效选项、其他已填值无效或原保存条件不满足",
+      "steps": [
+        "先显示本次填写再定位问题，保留车系和原门店文本等全部输入。",
+        "未接通豁免仍沿v1.1.0准确条件，不把未知、呼入或仅坐席未接套入。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-16T18:56:32+08:00",
+          "previous_values": {
+            "steps": [
+              "说明具体问题并保留输入；修正后可再次提交。",
+              "明确已结束外呼客户未接时沿v1.1.0条件必填豁免，已填值仍校验；未知、呼入或仅坐席未接不能直接套用。"
+            ]
+          },
+          "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-160"
+          ]
+        },
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "必填缺失、已填值无效或原有保存条件不满足",
+            "steps": [
+              "说明具体问题并保留输入；修正后可再次提交。 业务字段错误先显示本次填写面板再定位，切换不清空输入。",
+              "明确已结束外呼客户未接时沿v1.1.0条件必填豁免，已填值仍校验；未知、呼入或仅坐席未接不能直接套用。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-160",
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01311",
+      "condition": "正式保存失败",
+      "steps": [
+        "保留本次输入和原状态，不显示成功；可在保留输入上重试。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "steps": [
+              "保留本次输入和原状态，不虚构成功；可后续重试。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01312",
+      "condition": "保留本地有效选项或选填留空，不使用导入带入",
+      "steps": [
+        "不强制外部查询；本地选择和门店文本可直接进入分类校验。",
+        "导入原值保持只读，未经明确确认不自动写入。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "本轮无需检索，保留已有有效车系或选填留空",
+            "steps": [
+              "已有有效车系可复用；选填未选时可继续至无车系查询提示及统一保存校验，不强制重新检索。",
+              "不恢复失效值，也不把原始意向未经确认带入。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01313",
+      "condition": "其他启用接口字段已填上游无效、缺属性或映射/类型不兼容",
+      "steps": [
+        "提示具体配置或值问题，保留编辑；必需与可选已填无效均不当空。",
+        "不删参扩大查询；仅条件关闭或可选上游确实缺失时按无参范围处理。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-16T15:06:27+08:00",
+          "previous_values": {
+            "condition": "关联车系已有选择但无有效查询编码",
+            "steps": [
+              "不以无效编码查询或推断全部门店；编码有效性由实际接口契约核验。",
+              "保留输入并提示核对，完成保存仍按已填值有效性与分类必填判断。"
+            ]
+          },
+          "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-158"
+          ]
+        },
+        {
+          "at": "2026-10-16T15:09:33+08:00",
+          "previous_values": {
+            "condition": "已启用依赖但上游取值缺失或参数映射不被适配器支持",
+            "steps": [
+              "明确提示缺失属性、参数名或适配支持问题，停止本次下游查询并保留填写。",
+              "不能静默删掉参数再查全部；仅明确关闭关联才允许独立查询。"
+            ]
+          },
+          "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-158"
+          ]
+        },
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "已填写上游无效、所配取值属性缺失或参数/类型不被适配器支持",
+            "steps": [
+              "明确提示具体配置或值问题并保留输入；必需与可选已填无效都不当空。",
+              "不得删参扩大查询；只有条件关闭或可选条件上游真实缺失才无参查询。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-158",
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01314",
+      "condition": "取消或关闭其他实际启用接口字段的候选选择",
+      "steps": [
+        "丢弃暂选，不写当前表单，原值保持；过期结果不写回。",
+        "此路径不重新开放本期暂停的门店多选。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "取消或关闭门店多选弹窗",
+            "steps": [
+              "丢弃本次弹窗暂选，不写入原表单；原已选值保持。",
+              "弹窗内筛选或重查仍保留有效暂选，旧请求或失效来源不能重新提供选择或写回。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "id": "ALT-01315",
+      "condition": "其他启用接口字段条件关闭，或可选上游未加入/隐藏/未填",
+      "steps": [
+        "不传该上游参数，按预置能力支持范围查询；仍核对来源、完整性及当前候选。",
+        "已填无效不适用此路径，不扩大到未知数据范围；接口车系与原门店文本不走此查询。"
+      ],
+      "change_history": [
+        {
+          "at": "2026-10-16T15:09:33+08:00",
+          "previous_values": {
+            "condition": "条件选择不使用其他字段",
+            "steps": [
+              "不要求上游值或条件映射；门店独立查当前租户全部可用门店。",
+              "来源/权限、完整性、每项有效性及多选确认仍须满足；无关车系变化不影响当前独立查询。"
+            ]
+          },
+          "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-158"
+          ]
+        },
+        {
+          "at": "2026-10-19T14:03:46+08:00",
+          "previous_values": {
+            "condition": "条件关闭，或可选条件的上游未加入分类/隐藏/未填写",
+            "steps": [
+              "不传上游参数；门店查询当前租户全部可用门店，真实空参能力待核验。",
+              "仍检查来源权限、完整性和每项当前范围有效性；可选上游清空后按完整无参新范围重判旧值，不沿用旧查询。"
+            ]
+          },
+          "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+          "source_refs": [
+            "inputs/user-stories.md#SRC-165"
+          ]
+        }
+      ],
+      "source_refs": [
+        "inputs/user-stories.md#SRC-158",
+        "inputs/user-stories.md#SRC-165"
+      ]
+    }
+  ],
+  "postconditions": [
+    "每次保存唯一车系官方ID字符串code和当时name，同时保留relation_id、media_car_series_id、car_state来源快照；详情读当时值，后续改名不回写。plannedStoreName每通/详情/档案汇总沿原普通字段规则，不新增跨通配对或空文本清空汇总。原导入只读；无初始存量迁移/回填/旧格式兼容。",
+    "原导入只读，明确确认按官方ID精确匹配；未匹配保值，不猜同名/媒体ID。",
+    "未提交或保存未成功保留输入及原状态；生产草稿恢复待核。",
+    "新配置从下一通生效，当前通话沿同版保存；接口车系及其他接口实时来源资格仍校验。"
+  ],
+  "business_rule_ids": [
+    "BR-024",
+    "BR-025",
+    "BR-027",
+    "BR-028",
+    "BR-029",
+    "BR-030",
+    "BR-031",
+    "BR-032",
+    "BR-033",
+    "BR-035",
+    "BR-036",
+    "BR-037"
+  ],
+  "acceptance_points": [
+    "本次意向车系只有一个且单选，候选来自Mapping车系接口完整成功响应；点击下拉加载并按名称或编码查找、选一个，不增加查询卡片或自由创建入口。门店仍原plannedStoreName文本，不启用接口门店多选。",
+    "当前候选接口为GET /mapping/api/open/mapping-car-series/code，裸数组name、relation_id、car_state、media_car_series_id；code暂采用String(relation_id)、name展示，媒体ID与状态单独保留，不与DCC编码混用。默认media_id=10/car_state=1，不传brand_id/is_nev_car_type_flag；编码选择和范围为本轮实施假定，正式接入前核对，不补状态枚举。",
+    "门店使用原plannedStoreName文本；更换或清空接口车系不查询门店，不限制文本为NEV/ICE门店，不自动清空或改写门店文本。",
+    "车系接口尚无环境主机及真实响应，原型按净化契约使用合成数据展示加载/成功/空集/异常；不冒称线上接通。查询异常保留输入重试，成功空结果与异常分开，旧响应不得覆盖当前通话/租户/配置/编辑版本。门店接口继续暂缓，不作为本期车系接入阻断。",
+    "保留本次记录的原始意向车系和门店信息；本次填写不覆盖原导入值。",
+    "原导入只读；客服明确确认后，按导入车系编码与当前接口官方ID的字符串code精确匹配并带入。未匹配/过期/取消不改当前值；不以同名或媒体ID猜测。导入编码实际口径待正式核对，导入门店不自动写入原文本。",
+    "所配置上游值或查询映射变化后，传递使各下游旧条件请求及旧确认立即失效并保留已填显示；在完整新结果下逐项重判，仍匹配的原有效项可保留，失配项保留待重选，不默删或提交。无依赖字段不受无关车系变化影响。",
+    "待重选项不作为当前条件有效值提交或回传；重新匹配后须客服明确确认或选择才恢复。多选中有无效项须处理或移除，不静默过滤；此规则适用于依赖下游字段，不另加必填要求。",
+    "通用接口按所选上游属性及下游入参映射；可选未加入/隐藏/未填时不传，必需缺值停止，已填无效/属性类型/参数异常不当空放宽。Mapping车系默认独立查询文档默认媒体/状态范围；原门店文本不调用外部链，不要求DCC编码映射。",
+    "通用接口依赖链任一上游变化，作废传递下游的旧查询和旧条件确认并保留显示；完整新结果逐项判断，仍匹配原有效项可保留，失配待重选，待重选重匹配或来源恢复须确认。本期原计划到店门店文本无车系依赖，不因车系变更而失效。",
+    "包括本次车系在内实际启用接口查询异常导致本通配置必填无法完成时，保留全部当前输入供重试，不用自由选项绕过来源；原门店文本可继续填写。未接通原规则保持，生产草稿持久化/跨设备恢复契约未由模拟验证。",
+    "进行中通话及话后处理固定开始时整版分类、字段、必填、选项、依赖与接口绑定配置，保存使用同一版，新配置从下一通生效，不因新增必填/隐藏/删字段/改类型/选项/依赖而丢值或卡住收尾。账号权限及接口启停/租户授权实时校验。保存按原通话条件、本版有效单选车系、原门店文本及其他字段校验；无初始存量兼容，生产草稿承诺不扩大。",
+    "通用接口查询条件必需时，上游须加入分类并显示且有效非空；未满足提示补齐，不查下游。可选条件上游未加入/隐藏/未填写时不传参数独立查询，有效值才传，已填无效不能作为空值放宽。关闭条件无需映射。条件必需性与分类字段必填分开，本期原计划到店门店文本不应用接口条件。",
+    "当前独立或关联条件的查询失败或不完整时保留输入并提示重试，查全后才允许新选择；不以此判旧值失配。已填值按当前条件依据和原保存规则校验，参数配置不匹配须明确报配置问题，不能回退为全部。",
+    "通用接口清空必需上游停止下游并保留待重选，可选清空切无该参数完整重判；待重选重匹配须确认，普通仍匹配有效项可保留。Mapping车系无上游；清空该车系不改原门店文本。",
+    "接口重新启用或租户重新获得授权后，尚未提交的来源不可用旧值须按当前条件重新查询，确认仍匹配并由客服明确确认或选择后才恢复有效；失败、部分失败或不匹配不能直接恢复。已保存历史不受影响。",
+    "每次保存唯一车系官方ID字符串code和当时name，同时保留relation_id、media_car_series_id、car_state来源快照；详情读当时值，后续改名不回写。plannedStoreName每通/详情/档案汇总沿原普通字段规则，不新增跨通配对或空文本清空汇总。原导入只读；无初始存量迁移/回填/旧格式兼容。"
+  ],
+  "source_story_ids": [
+    "US-016"
+  ],
+  "source_acceptance_ids": [
+    "AC-112",
+    "AC-113",
+    "AC-114",
+    "AC-115",
+    "AC-116",
+    "AC-117",
+    "AC-118",
+    "AC-119",
+    "AC-125",
+    "AC-126",
+    "AC-132",
+    "AC-133",
+    "AC-134",
+    "AC-135",
+    "AC-136",
+    "AC-137",
+    "AC-138"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-126",
+    "inputs/source-index.json#SRC-132",
+    "inputs/source-index.json#SRC-134",
+    "inputs/source-index.json#SRC-137",
+    "inputs/source-index.json#SRC-138",
+    "inputs/source-index.json#SRC-140",
+    "inputs/source-index.json#SRC-142",
+    "inputs/source-index.json#SRC-143",
+    "inputs/source-index.json#SRC-144",
+    "inputs/user-stories.md#SRC-146",
+    "inputs/user-stories.md#SRC-147",
+    "inputs/user-stories.md#SRC-148",
+    "inputs/user-stories.md#SRC-149",
+    "inputs/user-stories.md#SRC-151",
+    "inputs/source-index.json#SRC-152",
+    "inputs/user-stories.md#SRC-156",
+    "inputs/user-stories.md#SRC-157",
+    "inputs/user-stories.md#SRC-158",
+    "inputs/user-stories.md#SRC-160",
+    "inputs/source-index.json#SRC-163",
+    "inputs/user-stories.md#SRC-164",
+    "inputs/user-stories.md#SRC-165",
+    "inputs/user-stories.md#SRC-166",
+    "inputs/user-stories.md#SRC-167",
+    "inputs/source-index.json#SRC-168",
+    "inputs/user-stories.md#SRC-169"
+  ],
+  "notes": [
+    "SRC167本次意向车系改为Mapping接口取数且唯一单选，门店仍原plannedStoreName文本；code暂按官方relation_id字符串、name展示，媒体ID与状态独立快照；默认media_id10/car_state1，不传品牌/能源附加过滤。编码/范围为本轮实施假定待正式核对。无主机及真实调用，只做SRC155授权结构模拟；G2/G3待确认，无初始存量迁移。通话与话后处理固定开始时整版配置，新配置下一通生效；权限/接口授权实时校验。",
+    "拓扑保持稳定以复用既有确认场景；本轮更新各责任动作和实际取数源，不新增门店能力。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "user",
+        "name": "具有既有业务信息填写权限\n的客服／运营",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "云外呼平台",
+        "kind": "system"
+      },
+      {
+        "id": "source",
+        "name": "Mapping车系接口／其他实际启用接口数据源",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "user",
+        "type": "start",
+        "order": 1,
+        "label": "开始本次填写与保存",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "LOAD",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 2,
+        "label": "固定本通整版配置；填写与只读导入页签保值",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 1
+      },
+      {
+        "id": "LOCALOPTIONS",
+        "lane_id": "source",
+        "type": "action",
+        "order": 3,
+        "label": "Mapping按默认10/1查询车系裸数组；门店不调用",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-166",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 2,
+        "change_history": [
+          {
+            "at": "2026-10-19T14:40:48+08:00",
+            "previous_values": {
+              "label": "加载管理员维护的车系code/name；不调用API-015/016"
+            },
+            "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-166"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "LOCALREADY",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 4,
+        "label": "当前车系查询完整成功且有有效候选？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "LOCALPICK",
+        "lane_id": "user",
+        "type": "action",
+        "order": 5,
+        "label": "下拉单选接口车系；不自由创建",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 3
+      },
+      {
+        "id": "LOCALMISSING",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "空集/异常/来源不可用分别提示；保留输入供重试",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "IMPORTASK",
+        "lane_id": "user",
+        "type": "decision",
+        "order": 7,
+        "label": "是否明确确认按导入车系编码带入？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 4
+      },
+      {
+        "id": "MATCHLOCAL",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 8,
+        "label": "按官方ID字符串精确匹配；核对通话/身份/编辑版本",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 5
+      },
+      {
+        "id": "MATCHOK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 9,
+        "label": "编码匹配且当前上下文未过期？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "IMPORTAPPLY",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 10,
+        "label": "带入官方code/name及媒体ID、状态快照",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "IMPORTUNMATCHED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "未匹配或过期保值；不按同名或媒体ID猜测",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "TEXTSTORE",
+        "lane_id": "user",
+        "type": "action",
+        "order": 12,
+        "label": "填写原plannedStoreName文本；导入门店不自动带入，车系变化不改文本",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 6
+      },
+      {
+        "id": "HASGENERIC",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 13,
+        "label": "本分类另有实际启用的通用接口字段？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "CODES",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 14,
+        "label": "仅其他接口字段：读取单上游及必需/可选，生成配置入参",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "HASCODES",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 15,
+        "label": "条件关闭/可选缺值，或上游及映射有效？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "NOCODES",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 16,
+        "label": "必需上游缺失：停止该下游，旧值保留待重选",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "INVALIDCODES",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 17,
+        "label": "已填上游无效或属性/参数/类型不符：定位问题，不删参放宽",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "STOREAVAIL",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 18,
+        "label": "该通用接口对当前租户启用且授权？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "STOREUNAVAILABLE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 19,
+        "label": "来源不可用：停止新选，保留旧值和配置，不作有效值",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "STORES",
+        "lane_id": "source",
+        "type": "action",
+        "order": 20,
+        "label": "仅查询其他已配置通用接口；门店不调用",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 7
+      },
+      {
+        "id": "STORERESULT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 21,
+        "label": "核对来源、依赖条件及请求版本；旧响应不采用",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "STORESOK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 22,
+        "label": "当前查询结果状态？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "STALESTORE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 23,
+        "label": "响应已过期：不供候选，不验证旧值，保留输入",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "UNION",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 24,
+        "label": "完整成功后才提供去重候选",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 8
+      },
+      {
+        "id": "RECOVERYCHECK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 25,
+        "label": "是否待重选/恢复项重查匹配？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "RECOVERY",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 26,
+        "label": "匹配仍待客服确认，不自动恢复",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "OLD",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 27,
+        "label": "完整新结果中已填原有效项仍匹配？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "KEEP",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 28,
+        "label": "仍匹配原有效项保留；显示筛选遗漏不代表失配",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "PENDING",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 29,
+        "label": "失配项保留待重选，不默删或有效提交",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "HASSTORES",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 30,
+        "label": "当前完整结果有候选？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "SELECT",
+        "lane_id": "user",
+        "type": "action",
+        "order": 31,
+        "label": "按该实际通用字段控件选择候选；本期无门店多选",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 9
+      },
+      {
+        "id": "PICKCONFIRM",
+        "lane_id": "user",
+        "type": "decision",
+        "order": 32,
+        "label": "确认本次通用字段选择？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "PICKCOMMIT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 33,
+        "label": "复核当前来源/条件后写入，恢复项须明确确认",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "PICKCANCEL",
+        "lane_id": "user",
+        "type": "action",
+        "order": 34,
+        "label": "取消丢弃暂选，原表单值保留",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "EMPTY",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 35,
+        "label": "成功空结果：提示无匹配，选填可清除，必填按规则",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "TERR",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 36,
+        "label": "查询异常/不完整：保留输入，查全才新选，不判旧值失配",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "TREQUIRED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 37,
+        "label": "是否造成当前需校验的必填无法完成？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "TDRAFT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 38,
+        "label": "保留草稿供重试，当前缺项不可完成；生产草稿待核",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "TOTHER",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 39,
+        "label": "不因一次异常一律禁存；仅有当前有效依据值可提交",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "FINALIZE",
+        "lane_id": "user",
+        "type": "action",
+        "order": 40,
+        "label": "核对本通固定配置下的车系、原门店文本及其他字段",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "COMMIT",
+        "lane_id": "user",
+        "type": "decision",
+        "order": 41,
+        "label": "是否提交本次业务信息？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "VALIDATE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 42,
+        "label": "沿本通配置版校验；账号与接口授权仍实时",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 10
+      },
+      {
+        "id": "VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 43,
+        "label": "满足当前有效值及原保存条件？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 44,
+        "label": "复用原保存：官方code/name及来源快照；门店文本原规则",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-166",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "step_ref": 11,
+        "change_history": [
+          {
+            "at": "2026-10-19T14:40:48+08:00",
+            "previous_values": {
+              "label": "保存本地车系code/name快照及plannedStoreName；同通留存，不改历史"
+            },
+            "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-166"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "SAVESUCCESS",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 45,
+        "label": "正式保存成功？",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "END",
+        "lane_id": "user",
+        "type": "end",
+        "order": 46,
+        "label": "本次保存完成；车系读快照，门店文本汇总沿原规则",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-166",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ],
+        "change_history": [
+          {
+            "at": "2026-10-19T14:40:48+08:00",
+            "previous_values": {
+              "label": "本次保存完成，按同通快照展示"
+            },
+            "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+            "source_refs": [
+              "inputs/user-stories.md#SRC-166"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "EDITING",
+        "lane_id": "user",
+        "type": "end",
+        "order": 47,
+        "label": "暂不提交，保留当前编辑",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "INVALID",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 48,
+        "label": "先回本次填写再定位问题，保留全部输入",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "INVALIDEND",
+        "lane_id": "user",
+        "type": "end",
+        "order": 49,
+        "label": "未完成保存，修正后可再次提交",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "SAVEFAIL",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 50,
+        "label": "保存未成功：保留输入和原状态，不显示成功",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      },
+      {
+        "id": "SAVEFAILEND",
+        "lane_id": "user",
+        "type": "end",
+        "order": 51,
+        "label": "本次未完成，可从保留输入重试",
+        "source_refs": [
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-167",
+          "inputs/source-index.json#SRC-168",
+          "inputs/user-stories.md#SRC-169"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "LOAD"
+      },
+      {
+        "from": "LOAD",
+        "to": "LOCALOPTIONS"
+      },
+      {
+        "from": "LOCALOPTIONS",
+        "to": "LOCALREADY"
+      },
+      {
+        "from": "LOCALREADY",
+        "to": "LOCALPICK",
+        "label": "完整成功且有候选"
+      },
+      {
+        "from": "LOCALREADY",
+        "to": "LOCALMISSING",
+        "label": "空集／异常／不可用",
+        "path_id": "ALT-01303",
+        "type": "alternate"
+      },
+      {
+        "from": "LOCALMISSING",
+        "to": "TEXTSTORE"
+      },
+      {
+        "from": "LOCALPICK",
+        "to": "IMPORTASK"
+      },
+      {
+        "from": "IMPORTASK",
+        "to": "MATCHLOCAL",
+        "label": "明确确认"
+      },
+      {
+        "from": "IMPORTASK",
+        "to": "TEXTSTORE",
+        "label": "不带入，保留当前选择/留空",
+        "path_id": "ALT-01312",
+        "type": "alternate"
+      },
+      {
+        "from": "MATCHLOCAL",
+        "to": "MATCHOK"
+      },
+      {
+        "from": "MATCHOK",
+        "to": "IMPORTAPPLY",
+        "label": "匹配且当前有效"
+      },
+      {
+        "from": "MATCHOK",
+        "to": "IMPORTUNMATCHED",
+        "label": "未匹配/已过期"
+      },
+      {
+        "from": "IMPORTAPPLY",
+        "to": "TEXTSTORE"
+      },
+      {
+        "from": "IMPORTUNMATCHED",
+        "to": "TEXTSTORE"
+      },
+      {
+        "from": "TEXTSTORE",
+        "to": "HASGENERIC"
+      },
+      {
+        "from": "HASGENERIC",
+        "to": "FINALIZE",
+        "label": "无；本地填写直接校验"
+      },
+      {
+        "from": "HASGENERIC",
+        "to": "CODES",
+        "label": "有；仅处理这些通用字段"
+      },
+      {
+        "from": "CODES",
+        "to": "HASCODES"
+      },
+      {
+        "from": "HASCODES",
+        "to": "STOREAVAIL",
+        "label": "有效，或条件关闭/可选缺值",
+        "path_id": "ALT-01315",
+        "type": "alternate"
+      },
+      {
+        "from": "HASCODES",
+        "to": "NOCODES",
+        "label": "必需上游缺失",
+        "path_id": "ALT-01302",
+        "type": "alternate"
+      },
+      {
+        "from": "HASCODES",
+        "to": "INVALIDCODES",
+        "label": "已填无效/配置不符",
+        "path_id": "ALT-01313",
+        "type": "alternate"
+      },
+      {
+        "from": "NOCODES",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "INVALIDCODES",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "STOREAVAIL",
+        "to": "STORES",
+        "label": "可用"
+      },
+      {
+        "from": "STOREAVAIL",
+        "to": "STOREUNAVAILABLE",
+        "label": "不可用",
+        "path_id": "ALT-01301",
+        "type": "alternate"
+      },
+      {
+        "from": "STOREUNAVAILABLE",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "STORES",
+        "to": "STORERESULT"
+      },
+      {
+        "from": "STORERESULT",
+        "to": "STORESOK"
+      },
+      {
+        "from": "STORESOK",
+        "to": "STALESTORE",
+        "label": "来源/条件/版本已变"
+      },
+      {
+        "from": "STORESOK",
+        "to": "TERR",
+        "label": "异常或不完整",
+        "path_id": "ALT-01304",
+        "type": "alternate"
+      },
+      {
+        "from": "STORESOK",
+        "to": "UNION",
+        "label": "当前完整成功"
+      },
+      {
+        "from": "STALESTORE",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "UNION",
+        "to": "RECOVERYCHECK"
+      },
+      {
+        "from": "RECOVERYCHECK",
+        "to": "RECOVERY",
+        "label": "匹配且需确认",
+        "path_id": "ALT-01307",
+        "type": "alternate"
+      },
+      {
+        "from": "RECOVERYCHECK",
+        "to": "OLD",
+        "label": "否，核对普通已填项"
+      },
+      {
+        "from": "RECOVERY",
+        "to": "HASSTORES"
+      },
+      {
+        "from": "OLD",
+        "to": "KEEP",
+        "label": "无旧项或仍匹配"
+      },
+      {
+        "from": "OLD",
+        "to": "PENDING",
+        "label": "确实失配",
+        "path_id": "ALT-01306",
+        "type": "alternate"
+      },
+      {
+        "from": "KEEP",
+        "to": "HASSTORES"
+      },
+      {
+        "from": "PENDING",
+        "to": "HASSTORES"
+      },
+      {
+        "from": "HASSTORES",
+        "to": "SELECT",
+        "label": "有"
+      },
+      {
+        "from": "HASSTORES",
+        "to": "EMPTY",
+        "label": "完整空集合",
+        "path_id": "ALT-01308",
+        "type": "alternate"
+      },
+      {
+        "from": "EMPTY",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "SELECT",
+        "to": "PICKCONFIRM"
+      },
+      {
+        "from": "PICKCONFIRM",
+        "to": "PICKCOMMIT",
+        "label": "确认且当前依据有效"
+      },
+      {
+        "from": "PICKCONFIRM",
+        "to": "PICKCANCEL",
+        "label": "取消/关闭",
+        "path_id": "ALT-01314",
+        "type": "alternate"
+      },
+      {
+        "from": "PICKCOMMIT",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "PICKCANCEL",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "TERR",
+        "to": "TREQUIRED"
+      },
+      {
+        "from": "TREQUIRED",
+        "to": "TDRAFT",
+        "label": "是",
+        "path_id": "ALT-01304",
+        "type": "alternate"
+      },
+      {
+        "from": "TREQUIRED",
+        "to": "TOTHER",
+        "label": "否",
+        "path_id": "ALT-01305",
+        "type": "alternate"
+      },
+      {
+        "from": "TDRAFT",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "TOTHER",
+        "to": "FINALIZE"
+      },
+      {
+        "from": "FINALIZE",
+        "to": "COMMIT"
+      },
+      {
+        "from": "COMMIT",
+        "to": "VALIDATE",
+        "label": "提交"
+      },
+      {
+        "from": "COMMIT",
+        "to": "EDITING",
+        "label": "暂不提交",
+        "path_id": "ALT-01309",
+        "type": "alternate"
+      },
+      {
+        "from": "VALIDATE",
+        "to": "VALID"
+      },
+      {
+        "from": "VALID",
+        "to": "SAVE",
+        "label": "满足"
+      },
+      {
+        "from": "VALID",
+        "to": "INVALID",
+        "label": "不满足",
+        "path_id": "ALT-01310",
+        "type": "alternate"
+      },
+      {
+        "from": "INVALID",
+        "to": "INVALIDEND"
+      },
+      {
+        "from": "SAVE",
+        "to": "SAVESUCCESS"
+      },
+      {
+        "from": "SAVESUCCESS",
+        "to": "END",
+        "label": "成功"
+      },
+      {
+        "from": "SAVESUCCESS",
+        "to": "SAVEFAIL",
+        "label": "失败",
+        "path_id": "ALT-01311",
+        "type": "alternate"
+      },
+      {
+        "from": "SAVEFAIL",
+        "to": "SAVEFAILEND"
+      }
+    ]
+  },
+  "change_history": [
+    {
+      "at": "2026-10-16T11:18:32+08:00",
+      "previous_values": {
+        "summary": "按车系编码取得权威门店并取并集，保持体系对应；按当前条件核对旧值，恢复须确认，各字段保存编码和名称。"
+      },
+      "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-156"
+      ]
+    },
+    {
+      "at": "2026-10-16T13:51:31+08:00",
+      "previous_values": {
+        "summary": "按唯一所选车系编码取得完整权威门店，保持体系对应；核对旧值，恢复须确认，分别保存车系和门店编码与名称。"
+      },
+      "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-157"
+      ]
+    },
+    {
+      "at": "2026-10-16T13:53:06+08:00",
+      "previous_values": {
+        "notes": [
+          "按具体车系编码取得权威门店已确认，平台不维护本地关系表；外部端点、鉴权、单次／批量及完整性能力仍待核验。",
+          "单次尝试结束后可以带着保留输入重入本场景；图不限定可重试次数，不承诺自动重试或跨设备恢复。",
+          "原始门店候选仍须匹配当前条件且经客服确认方可带入；不是直接把导入字符串当有效编码。",
+          "v1.1.0条件必填、失败保输入与会话草稿仅为本地设计证据；SRC-152不证明生产存储或跨设备恢复。",
+          "选定唯一意向车系后才查门店；部分失败查全再新选；待重选需人工确认恢复；停用撤权与清空本次意向车系按SRC-146～148。",
+          "无结果或查询暂不可用时仍可编辑其它字段；统一保存校验只接受当前有效值，选填可以手动清除。",
+          "搜索词和分页显示范围不能当作车系关联全范围，关系有效性和完整性仍须API-016核验。",
+          "来源恢复旧值重查并由客服确认（SRC-149），实际查询与存储契约仍待ISSUE-11105/11102；不承诺自动重试或额外缓存。",
+          "车系与门店均需恢复时，先确认有效车系，再取得当前唯一车系的完整门店结果并确认门店；不要求新增两个确认弹窗。",
+          "仅保存唯一所选车系和门店的编码与当时名称；历史已有字段快照只读保留，不因本次变更改写。",
+          "SRC-156现行：唯一意向车系字段且单选，门店只按其一个编码查询；旧多字段并集由本次确认替代。既有失配、恢复确认及历史快照规则沿用。",
+          "SRC-157现行：车系唯一单选，门店多选；不设置未确认的选店数量上限，不扩大至其他车系。旧单门店按一项读取，同通车系＋整组门店快照、已修复配置依赖／迁移／过期带入护栏继续。"
+        ]
+      },
+      "reason": "SRC-157多选门店的必要整组快照适配",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-157"
+      ]
+    },
+    {
+      "at": "2026-10-16T15:06:27+08:00",
+      "previous_values": {
+        "summary": "唯一意向车系单选，按一个编码取得完整权威门店；独立弹窗多选确认带回，逐家校验、整组编码名称快照，旧单值兼容。",
+        "notes": [
+          "按具体车系编码取得权威门店已确认，平台不维护本地关系表；外部端点、鉴权、单次／批量及完整性能力仍待核验。",
+          "单次尝试结束后可以带着保留输入重入本场景；图不限定可重试次数，不承诺自动重试或跨设备恢复。",
+          "原始门店候选仍须匹配当前条件且经客服确认方可带入；不是直接把导入字符串当有效编码。",
+          "v1.1.0条件必填、失败保输入与会话草稿仅为本地设计证据；SRC-152不证明生产存储或跨设备恢复。",
+          "选定唯一意向车系后才查门店；部分失败查全再新选；待重选需人工确认恢复；停用撤权与清空本次意向车系按SRC-146～148。",
+          "无结果或查询暂不可用时仍可编辑其它字段；统一保存校验只接受当前有效值，选填可以手动清除。",
+          "搜索词和分页显示范围不能当作车系关联全范围，关系有效性和完整性仍须API-016核验。",
+          "来源恢复旧值重查并由客服确认（SRC-149），实际查询与存储契约仍待ISSUE-11105/11102；不承诺自动重试或额外缓存。",
+          "车系与门店均需恢复时，先确认有效车系，再取得当前唯一车系的完整门店结果并确认门店；不要求新增两个确认弹窗。",
+          "保存唯一车系及整组去重门店数组的编码与当时名称；历史已有字段快照只读保留，不因本次变更改写。",
+          "SRC-156现行：唯一意向车系字段且单选，门店只按其一个编码查询；旧多字段并集由本次确认替代。既有失配、恢复确认及历史快照规则沿用。",
+          "SRC-157现行：车系唯一单选，门店多选；不设置未确认的选店数量上限，不扩大至其他车系。旧单门店按一项读取，同通车系＋整组门店快照、已修复配置依赖／迁移／过期带入护栏继续。"
+        ]
+      },
+      "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-158"
+      ]
+    },
+    {
+      "at": "2026-10-16T15:09:33+08:00",
+      "previous_values": {
+        "notes": [
+          "本次车系唯一单选、门店多选，关闭条件时独立查当前租户全部可用门店；关联车系时一个编码查询并保持NEV/ICE关系。",
+          "通用字段支持单上游A→B→C；变更传递作废旧条件请求和旧确认，保留值显示；完整新结果匹配的原有效项可保留，失配/清空/来源恢复须明确确认。",
+          "选取能力声明返回属性作为值，以配置的下游入参名传参；缺属性、不支持参数或条件未满足须明确提示，不能降级为全部。",
+          "查询失败或搜索/分页遗漏不证明失配，未完整前不允许新选择；不一律禁存原本仍有当前有效依据的值。",
+          "门店多选暂存、确认整组带回、取消不写；同通快照、旧单值兼容及过期异步带入保护不变。",
+          "真实全部门店、属性/参数、保存/回传及生产草稿契约仍待核验，SRC-155仅独立模拟试做。"
+        ]
+      },
+      "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-158"
+      ]
+    },
+    {
+      "at": "2026-10-19T10:28:31+08:00",
+      "previous_values": {
+        "notes": [
+          "本次车系唯一单选、门店多选，关闭条件时独立查当前租户全部可用门店；关联车系时一个编码查询并保持NEV/ICE关系。",
+          "通用单上游链变化作废旧条件依据并保留显示；完整新结果匹配原有效项可保留，失配/必需上游清空/来源恢复按重选规则；可选上游清空按无参范围重判。",
+          "条件必需时有效上游非空才查；可选上游未加入分类/隐藏/未填可无参查询，有有效值才传，已填无效、属性缺失、不支持入参或类型不符须提示，不能当空。",
+          "查询失败或搜索/分页遗漏不证明失配，未完整前不允许新选择；不一律禁存原本仍有当前有效依据的值。",
+          "门店多选暂存、确认整组带回、取消不写；同通快照、旧单值兼容及过期异步带入保护不变。",
+          "真实全部门店、属性/参数、保存/回传及生产草稿契约仍待核验，SRC-155仅独立模拟试做。",
+          "本次填写/导入信息仅调整显示，导入只读、确认带入生命周期保护及必填/有效性规则保持；不增加草稿持久化承诺。"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-126",
+          "inputs/source-index.json#SRC-132",
+          "inputs/source-index.json#SRC-134",
+          "inputs/source-index.json#SRC-137",
+          "inputs/source-index.json#SRC-138",
+          "inputs/source-index.json#SRC-140",
+          "inputs/source-index.json#SRC-142",
+          "inputs/source-index.json#SRC-143",
+          "inputs/source-index.json#SRC-144",
+          "inputs/user-stories.md#SRC-146",
+          "inputs/user-stories.md#SRC-147",
+          "inputs/user-stories.md#SRC-148",
+          "inputs/user-stories.md#SRC-149",
+          "inputs/user-stories.md#SRC-151",
+          "inputs/source-index.json#SRC-152",
+          "inputs/user-stories.md#SRC-156",
+          "inputs/user-stories.md#SRC-157",
+          "inputs/user-stories.md#SRC-158",
+          "inputs/user-stories.md#SRC-160"
+        ]
+      },
+      "reason": "SRC-163/164当前DCC v2证据及用户直接确认：NEV维持已认可源范围和具体车系权威关联；ICE按sourceType查询源内全部可用门店，不要求具体ICE车系精确关联；通用条件及保存护栏不变。",
+      "source_refs": [
+        "inputs/source-index.json#SRC-163",
+        "inputs/user-stories.md#SRC-164"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:00:52+08:00",
+      "previous_values": {
+        "name": "填写并保存本次车系与门店业务信息",
+        "summary": "按字段独立/关联配置查询权威候选；车系唯一单选、门店多选。支持单上游链式失效、逐项重判及整组快照；真实契约待核。",
+        "trigger": "在既有业务操作中需要填写本次客户车系与门店信息。"
+      },
+      "reason": "SRC-165本期改用管理员维护的本地车系单选与原计划到店门店文本；通用接口字典、授权及上游配置保留，六场景范围与P1优先级不变。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:03:46+08:00",
+      "previous_values": {
+        "actors": [
+          "具有既有业务信息填写权限\n的客服／运营",
+          "云外呼平台",
+          "权威车系／门店数据提供方\n（契约待核验）"
+        ],
+        "preconditions": [
+          "由既有分类规则及当前记录／通话载入字段；准确租户、记录、通话上下文按v1.1.0保留。",
+          "已配置本次意向车系／门店接口字段；原计划到店字段与原导入意向保留。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "云外呼平台",
+            "action": "载入当前分类与字段，新通话默认本次填写；导入信息在并排页签只读展示，同上下文切换保留输入",
+            "system_response": null,
+            "rule_ids": [
+              "BR-028"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "action": "载入当前业务分类及本次字段，原导入意向只读展示"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-160"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-160"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "具有既有业务信息填写权限\n的客服／运营",
+            "action": "查找车系候选；来源恢复的未提交旧车系须按当前条件重新查询",
+            "system_response": null,
+            "rule_ids": [
+              "BR-036"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "权威车系／门店数据提供方\n（契约待核验）",
+            "action": "需检索时提供权威车系查询结果或错误（契约待核）",
+            "system_response": null,
+            "rule_ids": []
+          },
+          {
+            "step": 4,
+            "actor": "具有既有业务信息填写权限\n的客服／运营",
+            "action": "选择、保留或清空本次车系；原始匹配带入和来源恢复旧值须明确确认；带入显示进度及结果，成功返回本次填写，失败或取消保留内容",
+            "system_response": null,
+            "rule_ids": [
+              "BR-028",
+              "BR-036"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "action": "选择、保留或清空本次车系；原始匹配带入和来源恢复旧值须明确确认"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-160"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-160"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "云外呼平台",
+            "action": "读取通用条件开关；否时无上游条件，是时按一个上游字段的取值属性构建指定下游入参；绑定当前依赖链快照",
+            "system_response": null,
+            "rule_ids": [
+              "BR-030",
+              "BR-035"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "action": "取得关联车系当前编码；唯一有效意向车系才发起门店查询"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "权威车系／门店数据提供方\n（契约待核验）",
+            "action": "按当前独立或关联范围提供权威门店；独立查询要求当前租户全部可用门店，NEV保持已认可的ARIYA源范围及具体车系权威关联，ICE按sourceType查其源内全部可用门店（真实租户范围、完整性及参数契约待核）",
+            "system_response": null,
+            "rule_ids": [
+              "BR-029"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "action": "按唯一所选车系的一个编码提供权威门店，保持NEV／ICE对应（实际契约待核）"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-19T10:28:31+08:00",
+                "previous_values": {
+                  "action": "按当前独立或关联范围提供权威门店；独立为当前租户全部可用门店，关联车系维持NEV/ICE对应（契约待核）",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                },
+                "reason": "SRC-163/164当前DCC v2证据及用户直接确认：NEV维持已认可源范围和具体车系权威关联；ICE按sourceType查询源内全部可用门店，不要求具体ICE车系精确关联；通用条件及保存护栏不变。",
+                "source_refs": [
+                  "inputs/source-index.json#SRC-163",
+                  "inputs/user-stories.md#SRC-164"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158",
+              "inputs/source-index.json#SRC-163",
+              "inputs/user-stories.md#SRC-164"
+            ]
+          },
+          {
+            "step": 7,
+            "actor": "云外呼平台",
+            "action": "确认来源可用、当前条件一致、结果完整并去重；配置异常不静默扩大范围",
+            "system_response": null,
+            "rule_ids": [
+              "BR-030"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "action": "确认当前单车系候选完整并去重"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 8,
+            "actor": "云外呼平台",
+            "action": "上游变化逐层作废旧请求与旧条件确认；完整新结果逐家重判，匹配原有效项保留，失配、清空和恢复项按重选规则",
+            "system_response": null,
+            "rule_ids": [
+              "BR-031"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "action": "无旧门店或原有效选择仍匹配：保留相应状态"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "action": "逐家核对整组门店；匹配的原有效项保留，失配项保留待重选，不默删"
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157",
+              "inputs/user-stories.md#SRC-158"
+            ]
+          },
+          {
+            "step": 9,
+            "actor": "具有既有业务信息填写权限\n的客服／运营",
+            "action": "弹窗勾选多家当前匹配门店并确认整组带回；取消不写，待重选／来源恢复项须明确确认",
+            "system_response": null,
+            "rule_ids": [
+              "BR-028",
+              "BR-031",
+              "BR-036"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "action": "选择或确认当前匹配门店；待重选或来源恢复旧值均须客服明确确认"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157"
+            ]
+          },
+          {
+            "step": 10,
+            "actor": "云外呼平台",
+            "action": "按原通话条件及分类必填校验；门店必填至少一家，整组已填项逐家校验；业务字段错误先切回本次填写再定位",
+            "system_response": null,
+            "rule_ids": [
+              "BR-027",
+              "BR-032",
+              "BR-036"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "action": "按原通话保存条件校验；分类必填及已填值有效性分别判断"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              },
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "action": "按原通话条件及分类必填校验；门店必填至少一家，整组已填项逐家校验"
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-160"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157",
+              "inputs/user-stories.md#SRC-160"
+            ]
+          },
+          {
+            "step": 11,
+            "actor": "云外呼平台",
+            "action": "保存唯一车系及去重门店数组的编码和当时名称；历史与原始字段保留，档案按同通整组快照展示",
+            "system_response": null,
+            "rule_ids": [
+              "BR-028",
+              "BR-037"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "action": "各本次意向字段分别保存编码及当时名称；原导入值和原计划到店字段保留"
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-157"
+            ]
+          }
+        ],
+        "postconditions": [
+          "正式保存唯一所选车系的编码及当时名称，门店保存去重后的整组编码与当时名称数组。逐家校验来源及当前独立或关联查询范围；旧单门店值兼容读取为一项，历史已保存内容不改写。通话详情展示该次快照，客户档案使用同一通次的车系与整组门店快照，不跨通拼接；当次门店为空也不继承旧店。原导入信息和原计划到店字段分别保留。",
+          "整组门店逐家有效性判断，失配项保留待重选；无效项须处理，不能静默过滤保存。",
+          "查询或保存失败保留当前输入供重试；取消门店弹窗不写入暂选值。"
+        ],
+        "notes": [
+          "本次车系唯一单选、门店多选，关闭条件时独立查当前租户全部可用门店的业务要求保留；NEV保持非黑名单且授权含ARIYA源范围及具体NEV车系权威关联，ICE按sourceType查询其源内全部可用门店，不要求具体ICE车系精确关联。",
+          "通用单上游链变化作废旧条件依据并保留显示；完整新结果匹配原有效项可保留，失配/必需上游清空/来源恢复按重选规则；可选上游清空按无参范围重判。",
+          "条件必需时有效上游非空才查；可选上游未加入分类/隐藏/未填可无参查询，有有效值才传，已填无效、属性缺失、不支持入参或类型不符须提示，不能当空。",
+          "查询失败或搜索/分页遗漏不证明失配，未完整前不允许新选择；不一律禁存原本仍有当前有效依据的值。",
+          "门店多选暂存、确认整组带回、取消不写；同通快照、旧单值兼容及过期异步带入保护不变。",
+          "真实租户范围与完整性、属性/参数、保存/回传及生产草稿契约仍待核验；NEV具体车系关联能力仍须补证，SRC-155仅独立模拟试做。",
+          "本次填写/导入信息仅调整显示，导入只读、确认带入生命周期保护及必填/有效性规则保持；不增加草稿持久化承诺。",
+          "SRC-163/164现行：ICE公司名称、口语化地址及授权车系、试驾车系相关字段为null可接受，不补造值。源内全部可用门店不等于已证明当前租户全部可用门店；用户业务确认不证明真实接口已经接通。"
+        ]
+      },
+      "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:03:46+08:00",
+      "previous_values": {
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "user",
+              "name": "具有既有业务信息填写权限\n的客服／运营",
+              "kind": "actor"
+            },
+            {
+              "id": "platform",
+              "name": "云外呼平台",
+              "kind": "system"
+            },
+            {
+              "id": "source",
+              "name": "权威车系／门店数据提供方\n（契约待核验）",
+              "kind": "external_system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "START",
+              "lane_id": "user",
+              "type": "start",
+              "order": 1,
+              "label": "开始本轮查选与保存尝试"
+            },
+            {
+              "id": "LOAD",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 2,
+              "label": "默认本次填写；导入只读页签，切换保留输入",
+              "step_ref": 1,
+              "change_history": [
+                {
+                  "at": "2026-10-16T18:56:32+08:00",
+                  "previous_values": {
+                    "label": "载入当前业务分类及本次字段，原导\n入意向只读展示"
+                  },
+                  "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-160"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-160"
+              ]
+            },
+            {
+              "id": "NEEDSERIES",
+              "lane_id": "user",
+              "type": "decision",
+              "order": 3,
+              "label": "需检索、更换车系或恢复来源旧值？"
+            },
+            {
+              "id": "SEARCH",
+              "lane_id": "user",
+              "type": "action",
+              "order": 4,
+              "label": "查找车系候选；来源恢复的未提交旧\n车系须按当前条件重新查询",
+              "step_ref": 2
+            },
+            {
+              "id": "AVAIL",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 5,
+              "label": "当前车系查询接口对该租户可用？"
+            },
+            {
+              "id": "SERIES",
+              "lane_id": "source",
+              "type": "action",
+              "order": 6,
+              "label": "需检索时提供权威车系查询结果或错\n误（契约待核）",
+              "step_ref": 3
+            },
+            {
+              "id": "UNAVAILABLE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 7,
+              "label": "车系接口不可用：标记本轮新查选不\n可用，其它字段按原规则"
+            },
+            {
+              "id": "REUSESERIES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 8,
+              "label": "仅保留已有有效车系或留空；来源恢\n复旧值必须重查"
+            },
+            {
+              "id": "SERIESSTATUS",
+              "lane_id": "platform",
+              "type": "event",
+              "order": 9,
+              "label": "汇集当前车系结果；复核来源资格，\n旧值恢复须重查及确认"
+            },
+            {
+              "id": "SERIESOK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 10,
+              "label": "本轮车系结果状态"
+            },
+            {
+              "id": "CHOOSE",
+              "lane_id": "user",
+              "type": "action",
+              "order": 11,
+              "label": "选择、保留或清空本次车系；原始匹\n配带入和来源恢复旧值须明确确认",
+              "step_ref": 4
+            },
+            {
+              "id": "CODES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 12,
+              "label": "读取条件开关及必需/可选；取有效上游属性生成入参，可选缺值不传参",
+              "step_ref": 5,
+              "change_history": [
+                {
+                  "at": "2026-10-16T11:18:32+08:00",
+                  "previous_values": {
+                    "label": "取得所关联多个车系字段的当前编码"
+                  },
+                  "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-156"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "取得所关联唯一意向车系字段的当前编码"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:09:33+08:00",
+                  "previous_values": {
+                    "label": "读取通用条件开关；是按上游取值属性构建下游入参，否为空条件"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-156",
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "id": "HASCODES",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 13,
+              "label": "当前条件可独立查询，或有效关联？",
+              "change_history": [
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "当前关联车系的查询条件状态"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:09:33+08:00",
+                  "previous_values": {
+                    "label": "当前独立或关联查询条件状态"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "id": "STOREAVAIL",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 14,
+              "label": "当前门店查询接口对该租户可用？"
+            },
+            {
+              "id": "STORES",
+              "lane_id": "source",
+              "type": "action",
+              "order": 15,
+              "label": "按当前范围查询权威门店：NEV具体车系关联；\nICE按sourceType查源内全部可用门店（契约待核）",
+              "step_ref": 6,
+              "change_history": [
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "按唯一所选车系编码提供权威门店，保持NEV／ICE对应（实际契约待核）"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                },
+                {
+                  "at": "2026-10-19T10:28:31+08:00",
+                  "previous_values": {
+                    "label": "按当前独立/关联范围查询权威门店；全部门店和参数契约待核",
+                    "source_refs": [
+                      "inputs/user-stories.md#SRC-158"
+                    ]
+                  },
+                  "reason": "SRC-163/164当前DCC v2证据及用户直接确认：NEV维持已认可源范围和具体车系权威关联；ICE按sourceType查询源内全部可用门店，不要求具体ICE车系精确关联；通用条件及保存护栏不变。",
+                  "source_refs": [
+                    "inputs/source-index.json#SRC-163",
+                    "inputs/user-stories.md#SRC-164"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-158",
+                "inputs/source-index.json#SRC-163",
+                "inputs/user-stories.md#SRC-164"
+              ]
+            },
+            {
+              "id": "UNAVAILABLEEND",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 16,
+              "label": "来源不可用：未提交相关值仅保留显\n示，不作有效值；在途结果不供新选"
+            },
+            {
+              "id": "NOCODES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 17,
+              "label": "必需上游缺失：暂停下游查询，保留旧值待重选；可选缺值不阻止",
+              "change_history": [
+                {
+                  "at": "2026-10-16T11:18:32+08:00",
+                  "previous_values": {
+                    "label": "不查询门店，提示先选至少一个车系\n；清空后旧门店保留待重选"
+                  },
+                  "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-156"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T13:51:31+08:00",
+                  "previous_values": {
+                    "label": "不查询门店，提示先选择意向车系\n；清空后旧门店保留待重选"
+                  },
+                  "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-157"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "不查门店；清空车系后整组门店保留待重选"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:09:33+08:00",
+                  "previous_values": {
+                    "label": "已启用条件但上游未填：不查下游；清空逐层保留旧值待重选"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-156",
+                "inputs/user-stories.md#SRC-157",
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "id": "SERR",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 18,
+              "label": "车系查询失败：说明原因，不能当作\n成功空集合或确认旧值失配"
+            },
+            {
+              "id": "SREQUIRED",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 19,
+              "label": "该失败是否造成当前需校验的必填无\n法完成？"
+            },
+            {
+              "id": "SDRAFT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 20,
+              "label": "保留已填草稿供重试，不允许自建门\n店补齐"
+            },
+            {
+              "id": "SDRAFTEND",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 21,
+              "label": "保留草稿；当前有效必填尚未补齐，\n提交仍按原规则校验"
+            },
+            {
+              "id": "SOTHER",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 22,
+              "label": "保留当前输入；不因查询失败一律禁\n存，未核实当前有效性的值不能提交"
+            },
+            {
+              "id": "STOREUNAVAILABLE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 23,
+              "label": "标记门店接口不可用，停止新查选；\n保留配置和已保存历史"
+            },
+            {
+              "id": "INVALIDCODES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 24,
+              "label": "已填上游无效、属性/参数/类型不兼容：提示问题，不当空扩大查询",
+              "change_history": [
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "存在无法核验的已选编码：保留输入\n；有效性及错误细分待接口核验"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:09:33+08:00",
+                  "previous_values": {
+                    "label": "取值属性缺失或入参不支持：提示配置问题；不可静默查全部"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "id": "STORERESULT",
+              "lane_id": "platform",
+              "type": "event",
+              "order": 25,
+              "label": "汇集结果；核对当前来源及整个依赖条件，旧条件响应不采用",
+              "change_history": [
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "汇集本轮结果；核对当前授权与车系\n组合，旧组合不验证当前门店"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "id": "STORESOK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 26,
+              "label": "本轮门店查询结果状态"
+            },
+            {
+              "id": "UNION",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 27,
+              "label": "确认当前独立/关联结果完整并去重",
+              "step_ref": 7,
+              "change_history": [
+                {
+                  "at": "2026-10-16T11:18:32+08:00",
+                  "previous_values": {
+                    "label": "对完整候选取并集并去重"
+                  },
+                  "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-156"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "确认当前单车系候选完整并去重"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-156",
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "id": "RECOVERYCHECK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 28,
+              "label": "待重选或来源恢复项是否重查匹配？",
+              "change_history": [
+                {
+                  "at": "2026-10-16T13:51:31+08:00",
+                  "previous_values": {
+                    "label": "待重选或来源恢复的旧门店，是否重\n新匹配当前条件？"
+                  },
+                  "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-157"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157"
+              ]
+            },
+            {
+              "id": "OLD",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 29,
+              "label": "完整新结果逐项核对；上游变化已传递作废旧条件依据",
+              "change_history": [
+                {
+                  "at": "2026-10-16T13:51:31+08:00",
+                  "previous_values": {
+                    "label": "现有门店是否获得当前车系范围的有\n效匹配依据？"
+                  },
+                  "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-157"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "整组门店逐家核对当前车系匹配依据"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157",
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "id": "KEEP",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 30,
+              "label": "仍匹配的原有效门店保留；筛选遗漏不证明失配",
+              "step_ref": 8,
+              "change_history": [
+                {
+                  "at": "2026-10-16T13:51:31+08:00",
+                  "previous_values": {
+                    "label": "无旧门店或当前仍有效：保留状态；\n搜索空结果或分页遗漏不证明失配"
+                  },
+                  "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-157"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157"
+              ]
+            },
+            {
+              "id": "PENDING",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 31,
+              "label": "失配门店逐家保留待重选，不默删，不作有效值",
+              "change_history": [
+                {
+                  "at": "2026-10-16T13:51:31+08:00",
+                  "previous_values": {
+                    "label": "已确认不匹配：保留显示并待重选，\n不作为有效值"
+                  },
+                  "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-157"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157"
+              ]
+            },
+            {
+              "id": "RECOVERY",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 32,
+              "label": "匹配旧项仍待客服确认，不自动恢复",
+              "change_history": [
+                {
+                  "at": "2026-10-16T13:51:31+08:00",
+                  "previous_values": {
+                    "label": "已重查匹配，旧值仍待客服确认；不\n自动恢复有效"
+                  },
+                  "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-157"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157"
+              ]
+            },
+            {
+              "id": "HASSTORES",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 33,
+              "label": "当前独立/关联完整结果有候选？",
+              "change_history": [
+                {
+                  "at": "2026-10-16T11:18:32+08:00",
+                  "previous_values": {
+                    "label": "当前完整并集中有候选门店？"
+                  },
+                  "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-156"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "当前车系完整结果中有候选门店？"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-156",
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "id": "SELECT",
+              "lane_id": "user",
+              "type": "action",
+              "order": 34,
+              "label": "勾选多家匹配门店；筛选／重查保留有效暂选",
+              "step_ref": 9,
+              "change_history": [
+                {
+                  "at": "2026-10-16T13:51:31+08:00",
+                  "previous_values": {
+                    "label": "选择或确认当前匹配门店；待重选或\n来源恢复旧值均须客服明确确认"
+                  },
+                  "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-157"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157"
+              ]
+            },
+            {
+              "id": "EMPTY",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 37,
+              "label": "成功但无匹配候选：提示无结果，不\n提供自建；按当前值及必填规则保存"
+            },
+            {
+              "id": "TERR",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 38,
+              "label": "门店查询失败或部分失败：查全前不\n新选，不当作空结果、不据此判旧值\n失配"
+            },
+            {
+              "id": "TREQUIRED",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 39,
+              "label": "该失败是否造成当前需校验的必填无\n法完成？"
+            },
+            {
+              "id": "TDRAFT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 40,
+              "label": "保留已填草稿供重试，不允许自建门\n店补齐"
+            },
+            {
+              "id": "TDRAFTEND",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 41,
+              "label": "保留草稿；当前有效必填尚未补齐，\n提交仍按原规则校验"
+            },
+            {
+              "id": "TOTHER",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 42,
+              "label": "保留当前输入；旧值仅在当前条件下\n仍有有效依据时可提交"
+            },
+            {
+              "id": "STOREUNAVAILABLEEND",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 43,
+              "label": "来源不可用：未提交门店仅保留显示\n，不作有效值；在途结果不供新选"
+            },
+            {
+              "id": "STALESTORE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 44,
+              "label": "响应属于旧依赖条件：不提供候选、不验证旧值，保留编辑",
+              "change_history": [
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "响应不属于当前唯一车系条件：不提供候\n选、不据其验证门店，保留当前编辑"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "id": "FINALIZE",
+              "lane_id": "user",
+              "type": "action",
+              "order": 45,
+              "label": "保留当前编辑或手动清除选填值；无\n效值不会因继续操作而恢复有效"
+            },
+            {
+              "id": "COMMIT",
+              "lane_id": "user",
+              "type": "decision",
+              "order": 46,
+              "label": "是否提交本次业务信息？"
+            },
+            {
+              "id": "VALIDATE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 47,
+              "label": "分类必填至少一家；整组已填逐家校验，无效项不可提交",
+              "step_ref": 10,
+              "change_history": [
+                {
+                  "at": "2026-10-16T13:51:31+08:00",
+                  "previous_values": {
+                    "label": "按原通话条件、分类必填和当前有效\n性校验；恢复但未确认的旧值不可提\n交"
+                  },
+                  "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-157"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157"
+              ]
+            },
+            {
+              "id": "VALID",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 48,
+              "label": "本次满足有效值及原有保存条件？"
+            },
+            {
+              "id": "SAVE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 49,
+              "label": "保存单车系及整组门店编码名称数组；同通快照，不改历史",
+              "step_ref": 11,
+              "change_history": [
+                {
+                  "at": "2026-10-16T13:51:31+08:00",
+                  "previous_values": {
+                    "label": "各本次意向字段分别保存编码及当时\n名称；原导入值和原计划到店字段保\n留"
+                  },
+                  "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-157"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157"
+              ]
+            },
+            {
+              "id": "SAVESUCCESS",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 50,
+              "label": "正式保存成功？"
+            },
+            {
+              "id": "END",
+              "lane_id": "user",
+              "type": "end",
+              "order": 51,
+              "label": "本次业务信息保存完成"
+            },
+            {
+              "id": "EDITING",
+              "lane_id": "user",
+              "type": "end",
+              "order": 52,
+              "label": "暂不提交，保留当前编辑继续填写"
+            },
+            {
+              "id": "INVALID",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 53,
+              "label": "业务错误先回本次填写再定位，保留全部输入",
+              "change_history": [
+                {
+                  "at": "2026-10-16T18:56:32+08:00",
+                  "previous_values": {
+                    "label": "指出无效或缺失项，保留已填信息；\n待重选旧值不作有效值"
+                  },
+                  "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-160"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-160"
+              ]
+            },
+            {
+              "id": "INVALIDEND",
+              "lane_id": "user",
+              "type": "end",
+              "order": 54,
+              "label": "本次未完成保存，修正后可再次提交"
+            },
+            {
+              "id": "SAVEFAIL",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 55,
+              "label": "保存失败保留本次输入和原状态，不\n显示成功"
+            },
+            {
+              "id": "SAVEFAILEND",
+              "lane_id": "user",
+              "type": "end",
+              "order": 56,
+              "label": "本次未完成，可从保留输入重试"
+            },
+            {
+              "id": "PICKCONFIRM",
+              "lane_id": "user",
+              "type": "decision",
+              "order": 35,
+              "label": "确认本次多选门店？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157"
+              ]
+            },
+            {
+              "id": "PICKCOMMIT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 36,
+              "label": "复核当前完整条件与来源，去重整组带回；恢复项明确确认",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157",
+                "inputs/user-stories.md#SRC-158"
+              ],
+              "change_history": [
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "复核来源及当前车系，去重整组带回；恢复项明确确认"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "PICKCANCEL",
+              "lane_id": "user",
+              "type": "action",
+              "order": 36,
+              "label": "取消／关闭选店，丢弃暂选，原值保留",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-157"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "SERR",
+              "to": "SREQUIRED"
+            },
+            {
+              "from": "SREQUIRED",
+              "to": "SDRAFT",
+              "label": "是",
+              "path_id": "ALT-01303",
+              "type": "alternate"
+            },
+            {
+              "from": "SREQUIRED",
+              "to": "SOTHER",
+              "label": "否",
+              "path_id": "ALT-01305",
+              "type": "alternate"
+            },
+            {
+              "from": "SDRAFT",
+              "to": "SDRAFTEND"
+            },
+            {
+              "from": "TERR",
+              "to": "TREQUIRED"
+            },
+            {
+              "from": "TREQUIRED",
+              "to": "TDRAFT",
+              "label": "是",
+              "path_id": "ALT-01304",
+              "type": "alternate"
+            },
+            {
+              "from": "TREQUIRED",
+              "to": "TOTHER",
+              "label": "否",
+              "path_id": "ALT-01305",
+              "type": "alternate"
+            },
+            {
+              "from": "TDRAFT",
+              "to": "TDRAFTEND"
+            },
+            {
+              "from": "START",
+              "to": "LOAD"
+            },
+            {
+              "from": "SEARCH",
+              "to": "AVAIL"
+            },
+            {
+              "from": "CHOOSE",
+              "to": "CODES"
+            },
+            {
+              "from": "CODES",
+              "to": "HASCODES"
+            },
+            {
+              "from": "KEEP",
+              "to": "HASSTORES"
+            },
+            {
+              "from": "PENDING",
+              "to": "HASSTORES"
+            },
+            {
+              "from": "VALIDATE",
+              "to": "VALID"
+            },
+            {
+              "from": "SAVE",
+              "to": "SAVESUCCESS"
+            },
+            {
+              "from": "INVALID",
+              "to": "INVALIDEND"
+            },
+            {
+              "from": "SAVEFAIL",
+              "to": "SAVEFAILEND"
+            },
+            {
+              "from": "AVAIL",
+              "to": "SERIES",
+              "label": "可用"
+            },
+            {
+              "from": "AVAIL",
+              "to": "UNAVAILABLE",
+              "label": "不可用",
+              "path_id": "ALT-01301",
+              "type": "alternate"
+            },
+            {
+              "from": "SERIESOK",
+              "to": "CHOOSE",
+              "label": "成功／有效旧值／全部未选"
+            },
+            {
+              "from": "SERIESOK",
+              "to": "SERR",
+              "label": "失败或不完整",
+              "path_id": "ALT-01303",
+              "type": "alternate"
+            },
+            {
+              "from": "HASCODES",
+              "to": "NOCODES",
+              "label": "必需上游缺失/未有效确认",
+              "path_id": "ALT-01302",
+              "type": "alternate",
+              "change_history": [
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "本次意向车系未选择"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:09:33+08:00",
+                  "previous_values": {
+                    "label": "已关联但上游未填/待确认"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "from": "STORESOK",
+              "to": "UNION",
+              "label": "来源可用且条件一致：\n完整成功"
+            },
+            {
+              "from": "STORESOK",
+              "to": "TERR",
+              "label": "来源可用且条件一致：\n失败或不完整",
+              "path_id": "ALT-01304",
+              "type": "alternate"
+            },
+            {
+              "from": "OLD",
+              "to": "KEEP",
+              "label": "无旧门店或原有效值仍匹配"
+            },
+            {
+              "from": "OLD",
+              "to": "PENDING",
+              "label": "权威依据确认不匹配",
+              "path_id": "ALT-01306",
+              "type": "alternate"
+            },
+            {
+              "from": "HASSTORES",
+              "to": "SELECT",
+              "label": "有候选"
+            },
+            {
+              "from": "HASSTORES",
+              "to": "EMPTY",
+              "label": "无候选",
+              "path_id": "ALT-01308",
+              "type": "alternate"
+            },
+            {
+              "from": "COMMIT",
+              "to": "VALIDATE",
+              "label": "提交"
+            },
+            {
+              "from": "COMMIT",
+              "to": "EDITING",
+              "label": "暂不提交",
+              "path_id": "ALT-01309",
+              "type": "alternate"
+            },
+            {
+              "from": "VALID",
+              "to": "SAVE",
+              "label": "满足"
+            },
+            {
+              "from": "VALID",
+              "to": "INVALID",
+              "label": "不满足",
+              "path_id": "ALT-01310",
+              "type": "alternate"
+            },
+            {
+              "from": "SAVESUCCESS",
+              "to": "END",
+              "label": "成功"
+            },
+            {
+              "from": "SAVESUCCESS",
+              "to": "SAVEFAIL",
+              "label": "失败",
+              "path_id": "ALT-01311",
+              "type": "alternate"
+            },
+            {
+              "from": "LOAD",
+              "to": "NEEDSERIES"
+            },
+            {
+              "from": "NEEDSERIES",
+              "to": "SEARCH",
+              "label": "需查询"
+            },
+            {
+              "from": "HASCODES",
+              "to": "STOREAVAIL",
+              "label": "无关联/可选缺值，或有效参数",
+              "change_history": [
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "一个有效意向车系编码"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                },
+                {
+                  "at": "2026-10-16T15:09:33+08:00",
+                  "previous_values": {
+                    "label": "无关联，或已取得有效映射条件",
+                    "path_id": null
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-158"
+              ],
+              "path_id": "ALT-01315"
+            },
+            {
+              "from": "STOREAVAIL",
+              "to": "STORES",
+              "label": "可用"
+            },
+            {
+              "from": "STOREAVAIL",
+              "to": "STOREUNAVAILABLE",
+              "label": "不可用",
+              "path_id": "ALT-01301"
+            },
+            {
+              "from": "NEEDSERIES",
+              "to": "REUSESERIES",
+              "label": "本轮无需检索",
+              "path_id": "ALT-01312"
+            },
+            {
+              "from": "REUSESERIES",
+              "to": "SERIESSTATUS"
+            },
+            {
+              "from": "SERIES",
+              "to": "SERIESSTATUS"
+            },
+            {
+              "from": "UNAVAILABLE",
+              "to": "SERIESSTATUS"
+            },
+            {
+              "from": "SERIESSTATUS",
+              "to": "SERIESOK"
+            },
+            {
+              "from": "SERIESOK",
+              "to": "UNAVAILABLEEND",
+              "label": "对应查询接口不可用",
+              "path_id": "ALT-01301"
+            },
+            {
+              "from": "UNION",
+              "to": "RECOVERYCHECK"
+            },
+            {
+              "from": "RECOVERYCHECK",
+              "to": "RECOVERY",
+              "label": "是，仍须客服确认",
+              "path_id": "ALT-01307"
+            },
+            {
+              "from": "RECOVERYCHECK",
+              "to": "OLD",
+              "label": "否，检查现有门店状态"
+            },
+            {
+              "from": "HASCODES",
+              "to": "INVALIDCODES",
+              "label": "取值缺失或参数映射无效",
+              "path_id": "ALT-01313",
+              "type": "alternate",
+              "change_history": [
+                {
+                  "at": "2026-10-16T15:06:27+08:00",
+                  "previous_values": {
+                    "label": "已选但无有效查询编码"
+                  },
+                  "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-158"
+                  ]
+                }
+              ],
+              "source_refs": [
+                "inputs/user-stories.md#SRC-158"
+              ]
+            },
+            {
+              "from": "STORES",
+              "to": "STORERESULT"
+            },
+            {
+              "from": "STOREUNAVAILABLE",
+              "to": "STORERESULT"
+            },
+            {
+              "from": "STORERESULT",
+              "to": "STORESOK"
+            },
+            {
+              "from": "STORESOK",
+              "to": "STOREUNAVAILABLEEND",
+              "label": "当前来源不可用"
+            },
+            {
+              "from": "STORESOK",
+              "to": "STALESTORE",
+              "label": "来源可用但响应属于旧条件"
+            },
+            {
+              "from": "RECOVERY",
+              "to": "HASSTORES"
+            },
+            {
+              "from": "NOCODES",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "INVALIDCODES",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "EMPTY",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "UNAVAILABLEEND",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "STOREUNAVAILABLEEND",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "STALESTORE",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "SOTHER",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "TOTHER",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "SDRAFTEND",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "TDRAFTEND",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "FINALIZE",
+              "to": "COMMIT"
+            },
+            {
+              "from": "SELECT",
+              "to": "PICKCONFIRM"
+            },
+            {
+              "from": "PICKCONFIRM",
+              "to": "PICKCOMMIT",
+              "label": "确认，当前完整候选及来源有效"
+            },
+            {
+              "from": "PICKCONFIRM",
+              "to": "PICKCANCEL",
+              "label": "取消或关闭",
+              "path_id": "ALT-01314"
+            },
+            {
+              "from": "PICKCOMMIT",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "PICKCANCEL",
+              "to": "FINALIZE",
+              "path_id": "ALT-01314"
+            }
+          ]
+        }
+      },
+      "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-165"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:40:48+08:00",
+      "previous_values": {
+        "summary": "客服单选管理员维护的本地车系，门店沿原计划到店文本；显式确认后按导入车系编码匹配本地选项，导入门店不自动带入文本。填写/导入页签、同通记录与历史快照保留，外部查选本期暂停。"
+      },
+      "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-166"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:40:48+08:00",
+      "previous_values": {
+        "preconditions": [
+          "具有既有业务填写权限，在当前租户、记录和通话上下文载入当前分类。",
+          "管理员使用已有单选选项维护本地车系code/name；原plannedStoreName沿文本和分类配置；本期不启用外部车系/接口门店查询。",
+          "仅分类另有实际启用的其他通用接口字段时，按其已配置能力与条件处理，不把API-015/016设为本地填写前提。"
+        ]
+      },
+      "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-166"
+      ]
+    },
+    {
+      "at": "2026-10-19T14:40:48+08:00",
+      "previous_values": {
+        "postconditions": [
+          "保存当前唯一车系本地编码及当时名称，plannedStoreName按原文本字段保存；同通详情/档案不跨通拼接，空文本不继承旧店。",
+          "原导入信息只读保留，导入门店不自动改文本；已有接口车系和单/多门店快照按旧记录保留，不转换成本地当前值。",
+          "未提交或保存失败保留编辑，不虚构正式成功；真实保存/回传及生产草稿持久化契约仍待核。",
+          "本期本地车系和门店文本不受外部查询可用性阻断，其他实际启用的通用接口字段仍满足其来源与有效性校验。"
+        ],
+        "notes": [
+          "当前主路径：本地车系单选→原计划到店门店文本→原保存校验；不调用外部车系/门店，不做NEV/ICE限制或接口门店多选。",
+          "导入车系仅显式确认后按code精确匹配本地选项；未匹配、取消、上下文过期或后续编辑不覆盖当前值；导入门店不自动带入plannedStoreName。",
+          "本次填写/导入信息页签保留，切换不清空输入；缺项先回填写定位，未接通沿原准确条件。",
+          "条件路径仅表示另有实际启用通用接口字段的配置/查询规则，不证明新的接口能力已接入；本地车系与门店不进入来源停用/撤权/恢复状态机。",
+          "旧接口专用分支原图完整保留于change_history作审计；SRC-163/164资料为暂停接入的历史依据，恢复前重新核验。",
+          "真实保存/回传和生产草稿契约仍待核；独立模拟原型验证不充作生产能力证据，未批准G2/G3。"
+        ]
+      },
+      "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-166"
+      ]
+    },
+    {
+      "at": "2026-10-19T17:50:16.879302+08:00",
+      "reason": "SRC167用户将本次意向车系改为Mapping接口单选；门店仍原文本，保留SRC169通话整版配置隔离。只形成SRC155授权模拟产品草稿，G2/G3待确认。",
+      "source_refs": [
+        "inputs/user-stories.md#SRC-167",
+        "inputs/source-index.json#SRC-168",
+        "inputs/user-stories.md#SRC-169"
+      ],
+      "previous_values": {
+        "schema_version": "1.0",
+        "id": "SC-013",
+        "name": "选择本地车系并填写保存计划到店门店文本",
+        "summary": "客服从现有自定义字段选项单选管理员维护的车系，配置和填写保存复用既有机制；门店沿原计划到店文本。显式确认按导入车系编码匹配，导入原值只读，门店不自动带入。上线后保留车系当时名称快照，原门店文本每通保存及汇总沿原规则；本期无初始存量兼容，外部查选暂停。",
+        "status": "analysis_draft",
+        "scope_confirmation": "inputs/user-stories.md#SRC-141",
+        "actors": [
+          "具有既有业务信息填写权限\n的客服／运营",
+          "云外呼平台",
+          "实际启用通用接口的数据提供方\n（不含本期暂停车系/门店查选）"
+        ],
+        "trigger": "客服在既有沟通记录中填写本次意向车系和计划到店门店信息。",
+        "preconditions": [
+          "具有既有业务填写权限，在当前租户、记录和通话上下文载入当前分类。",
+          "管理员使用现有自定义单选字段维护车系code/name，配置与填写保存沿既有机制；原plannedStoreName沿原文本、分类和汇总规则；本期不启用外部车系/接口门店查询，不新增独立车系服务。",
+          "仅分类另有实际启用的其他通用接口字段时，按其已配置能力与条件处理，不把API-015/016设为本地填写前提。"
+        ],
+        "main_flow": [
+          {
+            "step": 1,
+            "actor": "云外呼平台",
+            "action": "载入当前分类，本次填写默认展示；导入信息只读页签，同一上下文切换保留输入",
+            "system_response": null,
+            "rule_ids": [
+              "BR-028"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 2,
+            "actor": "云外呼平台",
+            "action": "加载管理员统一维护的本地车系编码和名称选项，不调用API-015/016；原计划到店门店保持文本",
+            "system_response": null,
+            "rule_ids": [
+              "BR-026",
+              "BR-029"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 3,
+            "actor": "具有既有业务信息填写权限\n的客服／运营",
+            "action": "从本地选项选择、保留或清空唯一车系，不能自由创建选项；必填按分类",
+            "system_response": null,
+            "rule_ids": [
+              "BR-027"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 4,
+            "actor": "具有既有业务信息填写权限\n的客服／运营",
+            "action": "如需带入导入车系，明确确认按编码匹配；取消/未确认不改变本次填写",
+            "system_response": null,
+            "rule_ids": [
+              "BR-028"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 5,
+            "actor": "云外呼平台",
+            "action": "按导入车系编码精确匹配本地选项，并核对当前通话/身份/编辑版本；成功带入编码和当前名称，未匹配或过期保留原值并提示",
+            "system_response": null,
+            "rule_ids": [
+              "BR-028"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 6,
+            "actor": "具有既有业务信息填写权限\n的客服／运营",
+            "action": "在原plannedStoreName文本自行填写计划门店；导入门店不自动带入，车系更换不改文本",
+            "system_response": null,
+            "rule_ids": [
+              "BR-029"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 7,
+            "actor": "实际启用通用接口的数据提供方\n（不含本期暂停车系/门店查选）",
+            "action": "仅分类另有实际启用的通用接口字段时，才按该字段独立/依赖条件提供预置能力数据；本地车系/门店文本绕过此路径",
+            "system_response": null,
+            "rule_ids": [
+              "BR-024",
+              "BR-030",
+              "BR-035"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 8,
+            "actor": "云外呼平台",
+            "action": "对其他启用接口字段核对来源、条件、完整性及旧值有效性；失败不当空，旧请求不写回，来源恢复须确认",
+            "system_response": null,
+            "rule_ids": [
+              "BR-025",
+              "BR-031",
+              "BR-033",
+              "BR-036"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 9,
+            "actor": "具有既有业务信息填写权限\n的客服／运营",
+            "action": "按实际通用字段控件选择或确认有效候选，取消保留原值；不恢复本期接口门店多选",
+            "system_response": null,
+            "rule_ids": [
+              "BR-031",
+              "BR-036"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 10,
+            "actor": "云外呼平台",
+            "action": "按原通话条件及分类必填校验本地车系有效选项、原门店文本和其他启用字段；错误先回本次填写定位，保留编辑",
+            "system_response": null,
+            "rule_ids": [
+              "BR-027",
+              "BR-032"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "step": 11,
+            "actor": "云外呼平台",
+            "action": "复用原表单保存唯一车系编码及当时名称快照；原plannedStoreName每通保存，详情和档案汇总沿原普通字段规则，不新增跨通配对或空文本清空汇总。导入原值只读，本期不做旧接口存量迁移兼容",
+            "system_response": null,
+            "rule_ids": [
+              "BR-028",
+              "BR-037"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165",
+              "inputs/user-stories.md#SRC-166"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:40:48+08:00",
+                "previous_values": {
+                  "action": "保存唯一车系编码和当时名称、原plannedStoreName文本及同通信息；详情/档案不跨通拼接，导入原值和旧接口历史不改写"
+                },
+                "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-166"
+                ]
+              }
+            ]
+          }
+        ],
+        "alternate_flows": [
+          {
+            "id": "ALT-01301",
+            "condition": "另有启用通用接口字段的来源停用或当前租户无授权",
+            "steps": [
+              "停止该字段新查选，在途返回不供新选；未提交值保留显示但不作有效值。",
+              "本地车系及plannedStoreName继续可填写；其他字段沿分类与原保存规则处理。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "条目不可用或租户授权已撤销",
+                  "steps": [
+                    "仅对应接口／租户停止新查选；历史配置保留。",
+                    "未提交值保留显示但不作有效值提交，在途结果不再提供新选择；选填可手动清除后保存，必填沿原规则。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01302",
+            "condition": "启用通用接口字段的必需上游缺失或未有效确认",
+            "steps": [
+              "不查询该下游，保留旧值待重选并提示补齐。",
+              "本地车系和原门店文本不因这条依赖自动失效；保存仍独立校验所有实际启用字段。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T11:18:32+08:00",
+                "previous_values": {
+                  "condition": "所有关联车系字段均未选择"
+                },
+                "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-156"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "condition": "本次意向车系未选择",
+                  "steps": [
+                    "提示请先选择意向车系，不发起门店查询。",
+                    "若清空了本次意向车系，原门店保留显示并待重选；不因查询前置条件将字段统一必填，保存仍按原规则。"
+                  ]
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "condition": "已启用依赖且所配上游未选择或未有效确认",
+                  "steps": [
+                    "提示先填写所配置的上游字段，不查下游；清空使所有传递下游保留显示待重选。",
+                    "独立门店不需要车系，不受无关字段清空影响；必填仍按分类。"
+                  ]
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "必需条件的上游未加入显示、未选择或未有效确认",
+                  "steps": [
+                    "提示补齐对应必需上游，不发起下游查询；必需上游清空使旧值保留待重选。",
+                    "可选上游缺失不进入此分支，按不传参数的完整范围查询；已填无效不能视为空。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-156",
+              "inputs/user-stories.md#SRC-158",
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01303",
+            "condition": "本地车系选项尚未配置或当前无可选项",
+            "steps": [
+              "提示联系有权管理员维护本地车系编码和名称，不以外部接口或客服自由创建补齐。",
+              "保留当前编辑，原门店文本仍可填写；是否可完成保存按分类必填判断。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "车系查询失败且造成本次需校验的必填无法完成",
+                  "steps": [
+                    "说明失败并保留已填草稿供后续重试，完成前补齐有效必填。",
+                    "本图为单次尝试，重试可在草稿上下文重新进入；不承诺自动重试或特定持久化。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01304",
+            "condition": "其他启用接口字段查询失败或结果不完整",
+            "steps": [
+              "保留输入并提示重试，查全前不允许新选，不把异常当成功空集合或旧值失配。",
+              "造成当前需校验必填无法完成时不能正式保存，草稿规则不增加生产持久化承诺。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "门店查询失败／部分失败且造成本次需校验的必填无法完成",
+                  "steps": [
+                    "保留已填内容，说明失败或查询未完整，查全后才允许新的门店选择。",
+                    "失败不当作成功空集合，也不证明旧门店失配；当前有效必填缺失时不能完成保存。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01305",
+            "condition": "其他接口查询异常但本次必填及已填值仍有当前有效依据",
+            "steps": [
+              "不因任意一次查询失败一律禁存；按当前分类及有效值判断。",
+              "没有当前有效依据的值不能凭旧条件提交。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "查询失败但不造成本次需校验的必填无法完成",
+                  "steps": [
+                    "不因一次失败一律禁存，仍按当前条件下的有效值与原保存规则判断。",
+                    "部分失败时暂停新的门店选择，保留输入供重试，不把旧条件验证结果当成新条件的有效依据。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01306",
+            "condition": "其他启用接口字段旧项在当前完整结果中确认不匹配",
+            "steps": [
+              "逐项保留待重选，不默删；已填无效项须处理或清除，不能静默过滤保存。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T11:18:32+08:00",
+                "previous_values": {
+                  "condition": "原有效门店不在新的完整并集中"
+                },
+                "reason": "用户转述黄专并明确授权本次意向车系只有一个且单选，取消多字段并集要求；保留单车系门店有效性和历史留存规则。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-156"
+                ]
+              },
+              {
+                "at": "2026-10-16T13:51:31+08:00",
+                "previous_values": {
+                  "condition": "原有效门店不在新车系的完整权威门店结果中",
+                  "steps": [
+                    "保留显示并标记待重选；不作为有效已选值提交或回传。",
+                    "可以选择当前候选恢复有效；是否必填仍由分类和原通话条件决定。"
+                  ]
+                },
+                "reason": "SRC-157用户明确意向门店多选；车系仍唯一单选且按一个编码查询，仅改变门店选择基数及必要保存回显校验，不新增跨车系或限选上限。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-157"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "condition": "整组门店中有门店不在新车系完整权威结果中",
+                  "steps": [
+                    "逐家判断，仍匹配的原有效项保留，失配项保留显示并待重选，不默删。",
+                    "存在待重选或无效项须客服重新确认、选择或手动移除；有其他有效门店也不能绕过校验。"
+                  ]
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "旧选项在当前独立或关联完整权威结果中确认失配",
+                  "steps": [
+                    "逐项判断，仍匹配的原有效项可保留，失配项保留待重选。",
+                    "存在无效项须处理或移除，不能因其他有效项绕过或静默过滤。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-156",
+              "inputs/user-stories.md#SRC-157",
+              "inputs/user-stories.md#SRC-158",
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01307",
+            "condition": "其他启用接口字段待重选或来源恢复项已重查匹配",
+            "steps": [
+              "仍须客服明确确认或重新选择才恢复，失败/不完整/不匹配不恢复。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "旧门店待重选或来源恢复后，按当前条件重新查询并匹配",
+                  "steps": [
+                    "当前条件查全并匹配时，旧值仍保持待确认，不自动恢复有效。",
+                    "客服再次明确确认或选择当前有效候选才恢复；失败、部分失败、不匹配均不能直接恢复。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01308",
+            "condition": "其他启用接口字段完整查询成功但候选为空",
+            "steps": [
+              "提示无匹配结果，按字段原候选规则，不允许临时自由选项绕过来源。",
+              "选填可清除后保存，必填缺失阻止完成；搜索词/分页遗漏不直接证明旧值失配。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "完整查询成功但结果为空",
+                  "steps": [
+                    "提示暂无匹配门店，不提供自定义门店补齐。",
+                    "选填可留空或清除本次无效值后按原规则提交；必填缺失继续阻止完成。",
+                    "搜索词无结果或当前分页未出现旧门店不能直接判关系失配。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01309",
+            "condition": "客服暂不提交",
+            "steps": [
+              "保留当前编辑，不产生正式保存结果；不新增独立草稿页。"
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01310",
+            "condition": "分类必填缺失、本地车系不在有效选项、其他已填值无效或原保存条件不满足",
+            "steps": [
+              "先显示本次填写再定位问题，保留车系和原门店文本等全部输入。",
+              "未接通豁免仍沿v1.1.0准确条件，不把未知、呼入或仅坐席未接套入。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T18:56:32+08:00",
+                "previous_values": {
+                  "steps": [
+                    "说明具体问题并保留输入；修正后可再次提交。",
+                    "明确已结束外呼客户未接时沿v1.1.0条件必填豁免，已填值仍校验；未知、呼入或仅坐席未接不能直接套用。"
+                  ]
+                },
+                "reason": "回填已授权独立模拟原型的交互说明，不改变AC和功能范围。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-160"
+                ]
+              },
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "必填缺失、已填值无效或原有保存条件不满足",
+                  "steps": [
+                    "说明具体问题并保留输入；修正后可再次提交。 业务字段错误先显示本次填写面板再定位，切换不清空输入。",
+                    "明确已结束外呼客户未接时沿v1.1.0条件必填豁免，已填值仍校验；未知、呼入或仅坐席未接不能直接套用。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-160",
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01311",
+            "condition": "正式保存失败",
+            "steps": [
+              "保留本次输入和原状态，不显示成功；可在保留输入上重试。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "steps": [
+                    "保留本次输入和原状态，不虚构成功；可后续重试。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01312",
+            "condition": "保留本地有效选项或选填留空，不使用导入带入",
+            "steps": [
+              "不强制外部查询；本地选择和门店文本可直接进入分类校验。",
+              "导入原值保持只读，未经明确确认不自动写入。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "本轮无需检索，保留已有有效车系或选填留空",
+                  "steps": [
+                    "已有有效车系可复用；选填未选时可继续至无车系查询提示及统一保存校验，不强制重新检索。",
+                    "不恢复失效值，也不把原始意向未经确认带入。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01313",
+            "condition": "其他启用接口字段已填上游无效、缺属性或映射/类型不兼容",
+            "steps": [
+              "提示具体配置或值问题，保留编辑；必需与可选已填无效均不当空。",
+              "不删参扩大查询；仅条件关闭或可选上游确实缺失时按无参范围处理。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T15:06:27+08:00",
+                "previous_values": {
+                  "condition": "关联车系已有选择但无有效查询编码",
+                  "steps": [
+                    "不以无效编码查询或推断全部门店；编码有效性由实际接口契约核验。",
+                    "保留输入并提示核对，完成保存仍按已填值有效性与分类必填判断。"
+                  ]
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "condition": "已启用依赖但上游取值缺失或参数映射不被适配器支持",
+                  "steps": [
+                    "明确提示缺失属性、参数名或适配支持问题，停止本次下游查询并保留填写。",
+                    "不能静默删掉参数再查全部；仅明确关闭关联才允许独立查询。"
+                  ]
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "已填写上游无效、所配取值属性缺失或参数/类型不被适配器支持",
+                  "steps": [
+                    "明确提示具体配置或值问题并保留输入；必需与可选已填无效都不当空。",
+                    "不得删参扩大查询；只有条件关闭或可选条件上游真实缺失才无参查询。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158",
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01314",
+            "condition": "取消或关闭其他实际启用接口字段的候选选择",
+            "steps": [
+              "丢弃暂选，不写当前表单，原值保持；过期结果不写回。",
+              "此路径不重新开放本期暂停的门店多选。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "取消或关闭门店多选弹窗",
+                  "steps": [
+                    "丢弃本次弹窗暂选，不写入原表单；原已选值保持。",
+                    "弹窗内筛选或重查仍保留有效暂选，旧请求或失效来源不能重新提供选择或写回。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-165"
+            ]
+          },
+          {
+            "id": "ALT-01315",
+            "condition": "其他启用接口字段条件关闭，或可选上游未加入/隐藏/未填",
+            "steps": [
+              "不传该上游参数，按预置能力支持范围查询；仍核对来源、完整性及当前候选。",
+              "已填无效不适用此路径，不扩大到未知数据范围；本地车系与原门店文本不走此查询。"
+            ],
+            "change_history": [
+              {
+                "at": "2026-10-16T15:09:33+08:00",
+                "previous_values": {
+                  "condition": "条件选择不使用其他字段",
+                  "steps": [
+                    "不要求上游值或条件映射；门店独立查当前租户全部可用门店。",
+                    "来源/权限、完整性、每项有效性及多选确认仍须满足；无关车系变化不影响当前独立查询。"
+                  ]
+                },
+                "reason": "SRC-158用户确认通用可选上游条件和取值字段→下游入参名映射；门店关闭关联可独立查询当前租户全部可用门店。继续独立模拟试做，真实参数契约未核验，未G3冻结。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-158"
+                ]
+              },
+              {
+                "at": "2026-10-19T14:03:46+08:00",
+                "previous_values": {
+                  "condition": "条件关闭，或可选条件的上游未加入分类/隐藏/未填写",
+                  "steps": [
+                    "不传上游参数；门店查询当前租户全部可用门店，真实空参能力待核验。",
+                    "仍检查来源权限、完整性和每项当前范围有效性；可选上游清空后按完整无参新范围重判旧值，不沿用旧查询。"
+                  ]
+                },
+                "reason": "SRC-165本期本地车系编码名称单选与原plannedStoreName文本成为主路径，通用接口字段仅在另有实际启用时走条件分支。",
+                "source_refs": [
+                  "inputs/user-stories.md#SRC-165"
+                ]
+              }
+            ],
+            "source_refs": [
+              "inputs/user-stories.md#SRC-158",
+              "inputs/user-stories.md#SRC-165"
+            ]
+          }
+        ],
+        "postconditions": [
+          "上线后每通保存唯一车系本地编码及当时名称快照，车系沿已确认的通次快照规则展示；plannedStoreName每通保存、详情及客户档案汇总沿原普通文本字段规则，不新增跨通配对或空文本清空汇总。",
+          "原导入信息只读保留，导入门店不自动改文本；本期无初始存量，不要求旧接口车系/单门店/多门店格式转换、迁移、回填或历史兼容；项目旧资料及原型记录保留。",
+          "未提交或保存失败保留编辑，不虚构正式成功；填写保存复用原机制，工程字段映射由研发落实，生产实现及生产草稿持久化未由本次确认验证。",
+          "本期本地车系和门店文本不受外部查询可用性阻断，其他实际启用的通用接口字段仍满足其来源与有效性校验。"
+        ],
+        "business_rule_ids": [
+          "BR-024",
+          "BR-025",
+          "BR-027",
+          "BR-028",
+          "BR-029",
+          "BR-030",
+          "BR-031",
+          "BR-032",
+          "BR-033",
+          "BR-035",
+          "BR-036",
+          "BR-037"
+        ],
+        "acceptance_points": [
+          "AC-112",
+          "AC-113",
+          "AC-114",
+          "AC-115",
+          "AC-116",
+          "AC-117",
+          "AC-118",
+          "AC-119",
+          "AC-125",
+          "AC-126",
+          "AC-132",
+          "AC-133",
+          "AC-134",
+          "AC-135",
+          "AC-136",
+          "AC-137",
+          "AC-138"
+        ],
+        "source_story_ids": [
+          "US-016"
+        ],
+        "source_acceptance_ids": [
+          "AC-112",
+          "AC-113",
+          "AC-114",
+          "AC-115",
+          "AC-116",
+          "AC-117",
+          "AC-118",
+          "AC-119",
+          "AC-125",
+          "AC-126",
+          "AC-132",
+          "AC-133",
+          "AC-134",
+          "AC-135",
+          "AC-136",
+          "AC-137",
+          "AC-138"
+        ],
+        "source_refs": [
+          "inputs/source-index.json#SRC-126",
+          "inputs/source-index.json#SRC-132",
+          "inputs/source-index.json#SRC-134",
+          "inputs/source-index.json#SRC-137",
+          "inputs/source-index.json#SRC-138",
+          "inputs/source-index.json#SRC-140",
+          "inputs/source-index.json#SRC-142",
+          "inputs/source-index.json#SRC-143",
+          "inputs/source-index.json#SRC-144",
+          "inputs/user-stories.md#SRC-146",
+          "inputs/user-stories.md#SRC-147",
+          "inputs/user-stories.md#SRC-148",
+          "inputs/user-stories.md#SRC-149",
+          "inputs/user-stories.md#SRC-151",
+          "inputs/source-index.json#SRC-152",
+          "inputs/user-stories.md#SRC-156",
+          "inputs/user-stories.md#SRC-157",
+          "inputs/user-stories.md#SRC-158",
+          "inputs/user-stories.md#SRC-160",
+          "inputs/source-index.json#SRC-163",
+          "inputs/user-stories.md#SRC-164",
+          "inputs/user-stories.md#SRC-165",
+          "inputs/user-stories.md#SRC-166"
+        ],
+        "notes": [
+          "当前主路径：复用现有自定义字段维护/保存车系→客服单选→原计划到店门店文本→原保存校验；不新增车系模块，不调用外部车系/门店，不做NEV/ICE限制或接口门店多选。",
+          "导入车系仅显式确认后按code精确匹配本地选项；未匹配、取消、上下文过期或后续编辑不覆盖当前值；导入门店不自动带入plannedStoreName。",
+          "本次填写/导入信息页签保留，切换不清空输入；缺项先回填写定位，未接通沿原准确条件。",
+          "条件路径仅表示另有实际启用通用接口字段的配置/查询规则，不证明新的接口能力已接入；本地车系与门店不进入来源停用/撤权/恢复状态机。",
+          "旧接口专用分支原图完整保留于change_history作审计；SRC-163/164资料为暂停接入的历史依据，恢复前重新核验。本期无初始存量，不要求旧单/多门店兼容迁移，不删除项目历史证据或实际旧文件。",
+          "车系当时编码名称快照沿已确认通次规则；原plannedStoreName每通保存、详情及档案汇总沿原规则，不套用接口门店集合的跨通配对或空值清空汇总。生产实现与生产草稿契约仍不由模拟验证补证，未批准G2/G3。"
+        ],
+        "flow_diagram": {
+          "lanes": [
+            {
+              "id": "user",
+              "name": "具有既有业务信息填写权限\n的客服／运营",
+              "kind": "actor"
+            },
+            {
+              "id": "platform",
+              "name": "云外呼平台",
+              "kind": "system"
+            },
+            {
+              "id": "source",
+              "name": "实际启用通用接口的数据提供方\n（不含本期暂停车系/门店查选）",
+              "kind": "external_system"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "START",
+              "lane_id": "user",
+              "type": "start",
+              "order": 1,
+              "label": "开始本次填写与保存",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "LOAD",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 2,
+              "label": "默认本次填写；导入只读页签，切换保留输入",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ],
+              "step_ref": 1
+            },
+            {
+              "id": "LOCALOPTIONS",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 3,
+              "label": "加载现有自定义字段的车系code/name选项；不调用API-015/016",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165",
+                "inputs/user-stories.md#SRC-166"
+              ],
+              "step_ref": 2,
+              "change_history": [
+                {
+                  "at": "2026-10-19T14:40:48+08:00",
+                  "previous_values": {
+                    "label": "加载管理员维护的车系code/name；不调用API-015/016"
+                  },
+                  "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-166"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "LOCALREADY",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 4,
+              "label": "本地车系有可供选择的选项？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "LOCALPICK",
+              "lane_id": "user",
+              "type": "action",
+              "order": 5,
+              "label": "单选、保留或清空一个本地车系；不能自由创建",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ],
+              "step_ref": 3
+            },
+            {
+              "id": "LOCALMISSING",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 6,
+              "label": "暂无本地选项：提示管理员维护；保留编辑",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "IMPORTASK",
+              "lane_id": "user",
+              "type": "decision",
+              "order": 7,
+              "label": "是否明确确认按导入车系编码带入？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ],
+              "step_ref": 4
+            },
+            {
+              "id": "MATCHLOCAL",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 8,
+              "label": "按code精确匹配本地选项，并核对通话/身份/编辑版本",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ],
+              "step_ref": 5
+            },
+            {
+              "id": "MATCHOK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 9,
+              "label": "编码匹配且当前上下文未过期？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "IMPORTAPPLY",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 10,
+              "label": "带入本次单选编码和名称；返回填写供核对",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "IMPORTUNMATCHED",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 11,
+              "label": "未匹配/过期：保留导入与当前值并提示，不按同名猜测",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "TEXTSTORE",
+              "lane_id": "user",
+              "type": "action",
+              "order": 12,
+              "label": "填写原plannedStoreName文本；导入门店不自动带入，车系变化不改文本",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ],
+              "step_ref": 6
+            },
+            {
+              "id": "HASGENERIC",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 13,
+              "label": "本分类另有实际启用的通用接口字段？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "CODES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 14,
+              "label": "仅其他接口字段：读取单上游及必需/可选，生成配置入参",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "HASCODES",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 15,
+              "label": "条件关闭/可选缺值，或上游及映射有效？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "NOCODES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 16,
+              "label": "必需上游缺失：停止该下游，旧值保留待重选",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "INVALIDCODES",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 17,
+              "label": "已填上游无效或属性/参数/类型不符：定位问题，不删参放宽",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "STOREAVAIL",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 18,
+              "label": "该通用接口对当前租户启用且授权？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "STOREUNAVAILABLE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 19,
+              "label": "来源不可用：停止新选，保留旧值和配置，不作有效值",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "STORES",
+              "lane_id": "source",
+              "type": "action",
+              "order": 20,
+              "label": "仅按预置通用能力及当前条件查询；不查本期车系/门店",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ],
+              "step_ref": 7
+            },
+            {
+              "id": "STORERESULT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 21,
+              "label": "核对来源、依赖条件及请求版本；旧响应不采用",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "STORESOK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 22,
+              "label": "当前查询结果状态？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "STALESTORE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 23,
+              "label": "响应已过期：不供候选，不验证旧值，保留输入",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "UNION",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 24,
+              "label": "完整成功后才提供去重候选",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ],
+              "step_ref": 8
+            },
+            {
+              "id": "RECOVERYCHECK",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 25,
+              "label": "是否待重选/恢复项重查匹配？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "RECOVERY",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 26,
+              "label": "匹配仍待客服确认，不自动恢复",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "OLD",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 27,
+              "label": "完整新结果中已填原有效项仍匹配？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "KEEP",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 28,
+              "label": "仍匹配原有效项保留；显示筛选遗漏不代表失配",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "PENDING",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 29,
+              "label": "失配项保留待重选，不默删或有效提交",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "HASSTORES",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 30,
+              "label": "当前完整结果有候选？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "SELECT",
+              "lane_id": "user",
+              "type": "action",
+              "order": 31,
+              "label": "按该实际通用字段控件选择候选；本期无门店多选",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ],
+              "step_ref": 9
+            },
+            {
+              "id": "PICKCONFIRM",
+              "lane_id": "user",
+              "type": "decision",
+              "order": 32,
+              "label": "确认本次通用字段选择？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "PICKCOMMIT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 33,
+              "label": "复核当前来源/条件后写入，恢复项须明确确认",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "PICKCANCEL",
+              "lane_id": "user",
+              "type": "action",
+              "order": 34,
+              "label": "取消丢弃暂选，原表单值保留",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "EMPTY",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 35,
+              "label": "成功空结果：提示无匹配，选填可清除，必填按规则",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "TERR",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 36,
+              "label": "查询异常/不完整：保留输入，查全才新选，不判旧值失配",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "TREQUIRED",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 37,
+              "label": "是否造成当前需校验的必填无法完成？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "TDRAFT",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 38,
+              "label": "保留草稿供重试，当前缺项不可完成；生产草稿待核",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "TOTHER",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 39,
+              "label": "不因一次异常一律禁存；仅有当前有效依据值可提交",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "FINALIZE",
+              "lane_id": "user",
+              "type": "action",
+              "order": 40,
+              "label": "检查本地车系、原门店文本及其他字段，保留编辑或清除选填",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "COMMIT",
+              "lane_id": "user",
+              "type": "decision",
+              "order": 41,
+              "label": "是否提交本次业务信息？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "VALIDATE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 42,
+              "label": "按分类及原通话条件校验：本地有效单选、原文本、其他启用字段",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ],
+              "step_ref": 10
+            },
+            {
+              "id": "VALID",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 43,
+              "label": "满足当前有效值及原保存条件？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "SAVE",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 44,
+              "label": "复用原保存：车系code/name当时快照；原门店文本每通保存",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165",
+                "inputs/user-stories.md#SRC-166"
+              ],
+              "step_ref": 11,
+              "change_history": [
+                {
+                  "at": "2026-10-19T14:40:48+08:00",
+                  "previous_values": {
+                    "label": "保存本地车系code/name快照及plannedStoreName；同通留存，不改历史"
+                  },
+                  "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-166"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "SAVESUCCESS",
+              "lane_id": "platform",
+              "type": "decision",
+              "order": 45,
+              "label": "正式保存成功？",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "END",
+              "lane_id": "user",
+              "type": "end",
+              "order": 46,
+              "label": "本次保存完成；车系读快照，门店文本汇总沿原规则",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165",
+                "inputs/user-stories.md#SRC-166"
+              ],
+              "change_history": [
+                {
+                  "at": "2026-10-19T14:40:48+08:00",
+                  "previous_values": {
+                    "label": "本次保存完成，按同通快照展示"
+                  },
+                  "reason": "SRC-166确认复用现有自定义字段code/name配置及表单保存，本期无初始存量，不新增独立车系能力或旧单/多门店迁移兼容；plannedStoreName沿原普通字段每通保存、详情及汇总规则，不套用接口门店集合语义。",
+                  "source_refs": [
+                    "inputs/user-stories.md#SRC-166"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "EDITING",
+              "lane_id": "user",
+              "type": "end",
+              "order": 47,
+              "label": "暂不提交，保留当前编辑",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "INVALID",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 48,
+              "label": "先回本次填写再定位问题，保留全部输入",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "INVALIDEND",
+              "lane_id": "user",
+              "type": "end",
+              "order": 49,
+              "label": "未完成保存，修正后可再次提交",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "SAVEFAIL",
+              "lane_id": "platform",
+              "type": "action",
+              "order": 50,
+              "label": "保存未成功：保留输入和原状态，不显示成功",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            },
+            {
+              "id": "SAVEFAILEND",
+              "lane_id": "user",
+              "type": "end",
+              "order": 51,
+              "label": "本次未完成，可从保留输入重试",
+              "source_refs": [
+                "inputs/user-stories.md#SRC-165"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "START",
+              "to": "LOAD"
+            },
+            {
+              "from": "LOAD",
+              "to": "LOCALOPTIONS"
+            },
+            {
+              "from": "LOCALOPTIONS",
+              "to": "LOCALREADY"
+            },
+            {
+              "from": "LOCALREADY",
+              "to": "LOCALPICK",
+              "label": "有选项"
+            },
+            {
+              "from": "LOCALREADY",
+              "to": "LOCALMISSING",
+              "label": "暂无选项",
+              "path_id": "ALT-01303",
+              "type": "alternate"
+            },
+            {
+              "from": "LOCALMISSING",
+              "to": "TEXTSTORE"
+            },
+            {
+              "from": "LOCALPICK",
+              "to": "IMPORTASK"
+            },
+            {
+              "from": "IMPORTASK",
+              "to": "MATCHLOCAL",
+              "label": "明确确认"
+            },
+            {
+              "from": "IMPORTASK",
+              "to": "TEXTSTORE",
+              "label": "不带入，保留当前选择/留空",
+              "path_id": "ALT-01312",
+              "type": "alternate"
+            },
+            {
+              "from": "MATCHLOCAL",
+              "to": "MATCHOK"
+            },
+            {
+              "from": "MATCHOK",
+              "to": "IMPORTAPPLY",
+              "label": "匹配且当前有效"
+            },
+            {
+              "from": "MATCHOK",
+              "to": "IMPORTUNMATCHED",
+              "label": "未匹配/已过期"
+            },
+            {
+              "from": "IMPORTAPPLY",
+              "to": "TEXTSTORE"
+            },
+            {
+              "from": "IMPORTUNMATCHED",
+              "to": "TEXTSTORE"
+            },
+            {
+              "from": "TEXTSTORE",
+              "to": "HASGENERIC"
+            },
+            {
+              "from": "HASGENERIC",
+              "to": "FINALIZE",
+              "label": "无；本地填写直接校验"
+            },
+            {
+              "from": "HASGENERIC",
+              "to": "CODES",
+              "label": "有；仅处理这些通用字段"
+            },
+            {
+              "from": "CODES",
+              "to": "HASCODES"
+            },
+            {
+              "from": "HASCODES",
+              "to": "STOREAVAIL",
+              "label": "有效，或条件关闭/可选缺值",
+              "path_id": "ALT-01315",
+              "type": "alternate"
+            },
+            {
+              "from": "HASCODES",
+              "to": "NOCODES",
+              "label": "必需上游缺失",
+              "path_id": "ALT-01302",
+              "type": "alternate"
+            },
+            {
+              "from": "HASCODES",
+              "to": "INVALIDCODES",
+              "label": "已填无效/配置不符",
+              "path_id": "ALT-01313",
+              "type": "alternate"
+            },
+            {
+              "from": "NOCODES",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "INVALIDCODES",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "STOREAVAIL",
+              "to": "STORES",
+              "label": "可用"
+            },
+            {
+              "from": "STOREAVAIL",
+              "to": "STOREUNAVAILABLE",
+              "label": "不可用",
+              "path_id": "ALT-01301",
+              "type": "alternate"
+            },
+            {
+              "from": "STOREUNAVAILABLE",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "STORES",
+              "to": "STORERESULT"
+            },
+            {
+              "from": "STORERESULT",
+              "to": "STORESOK"
+            },
+            {
+              "from": "STORESOK",
+              "to": "STALESTORE",
+              "label": "来源/条件/版本已变"
+            },
+            {
+              "from": "STORESOK",
+              "to": "TERR",
+              "label": "异常或不完整",
+              "path_id": "ALT-01304",
+              "type": "alternate"
+            },
+            {
+              "from": "STORESOK",
+              "to": "UNION",
+              "label": "当前完整成功"
+            },
+            {
+              "from": "STALESTORE",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "UNION",
+              "to": "RECOVERYCHECK"
+            },
+            {
+              "from": "RECOVERYCHECK",
+              "to": "RECOVERY",
+              "label": "匹配且需确认",
+              "path_id": "ALT-01307",
+              "type": "alternate"
+            },
+            {
+              "from": "RECOVERYCHECK",
+              "to": "OLD",
+              "label": "否，核对普通已填项"
+            },
+            {
+              "from": "RECOVERY",
+              "to": "HASSTORES"
+            },
+            {
+              "from": "OLD",
+              "to": "KEEP",
+              "label": "无旧项或仍匹配"
+            },
+            {
+              "from": "OLD",
+              "to": "PENDING",
+              "label": "确实失配",
+              "path_id": "ALT-01306",
+              "type": "alternate"
+            },
+            {
+              "from": "KEEP",
+              "to": "HASSTORES"
+            },
+            {
+              "from": "PENDING",
+              "to": "HASSTORES"
+            },
+            {
+              "from": "HASSTORES",
+              "to": "SELECT",
+              "label": "有"
+            },
+            {
+              "from": "HASSTORES",
+              "to": "EMPTY",
+              "label": "完整空集合",
+              "path_id": "ALT-01308",
+              "type": "alternate"
+            },
+            {
+              "from": "EMPTY",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "SELECT",
+              "to": "PICKCONFIRM"
+            },
+            {
+              "from": "PICKCONFIRM",
+              "to": "PICKCOMMIT",
+              "label": "确认且当前依据有效"
+            },
+            {
+              "from": "PICKCONFIRM",
+              "to": "PICKCANCEL",
+              "label": "取消/关闭",
+              "path_id": "ALT-01314",
+              "type": "alternate"
+            },
+            {
+              "from": "PICKCOMMIT",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "PICKCANCEL",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "TERR",
+              "to": "TREQUIRED"
+            },
+            {
+              "from": "TREQUIRED",
+              "to": "TDRAFT",
+              "label": "是",
+              "path_id": "ALT-01304",
+              "type": "alternate"
+            },
+            {
+              "from": "TREQUIRED",
+              "to": "TOTHER",
+              "label": "否",
+              "path_id": "ALT-01305",
+              "type": "alternate"
+            },
+            {
+              "from": "TDRAFT",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "TOTHER",
+              "to": "FINALIZE"
+            },
+            {
+              "from": "FINALIZE",
+              "to": "COMMIT"
+            },
+            {
+              "from": "COMMIT",
+              "to": "VALIDATE",
+              "label": "提交"
+            },
+            {
+              "from": "COMMIT",
+              "to": "EDITING",
+              "label": "暂不提交",
+              "path_id": "ALT-01309",
+              "type": "alternate"
+            },
+            {
+              "from": "VALIDATE",
+              "to": "VALID"
+            },
+            {
+              "from": "VALID",
+              "to": "SAVE",
+              "label": "满足"
+            },
+            {
+              "from": "VALID",
+              "to": "INVALID",
+              "label": "不满足",
+              "path_id": "ALT-01310",
+              "type": "alternate"
+            },
+            {
+              "from": "INVALID",
+              "to": "INVALIDEND"
+            },
+            {
+              "from": "SAVE",
+              "to": "SAVESUCCESS"
+            },
+            {
+              "from": "SAVESUCCESS",
+              "to": "END",
+              "label": "成功"
+            },
+            {
+              "from": "SAVESUCCESS",
+              "to": "SAVEFAIL",
+              "label": "失败",
+              "path_id": "ALT-01311",
+              "type": "alternate"
+            },
+            {
+              "from": "SAVEFAIL",
+              "to": "SAVEFAILEND"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
