@@ -1,0 +1,250 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-104",
+  "scenario_id": "SC-104",
+  "name": "回查原生外呼结果并纳入既有统计时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "完成原生外呼后需要核对结果或业务统计",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "u",
+      "to": "ui",
+      "message": "从通话记录、客户档案、批次结果或工作台打开同一通话详情",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 7,
+      "from": "svc",
+      "to": "svc",
+      "message": "当前身份可查看该通话？；校验租户、供应商账号、角色及数据范围；拒绝越权，不以媒体缺失阻断有权限的基本记录查看",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 8,
+      "from": "svc",
+      "to": "svc",
+      "message": "读取原通话持久化状态、客户/坐席接通证据及来源快照；接通结果、过程、原因、校准状态和业务跟进分开；保留原业务类型与单据编码",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 9,
+      "from": "u",
+      "to": "ui",
+      "message": "核对历史结果或进入云域报表",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 10,
+      "from": "svc",
+      "to": "svc",
+      "message": "如有最终话单校准，读取原记录及同口径统计的更新结果；待确认不算未接通、不进入已确认接通率分母；不覆盖另一通话或当前跟进状态，不生成外部投递",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "svc",
+      "message": "本次媒体访问授权和页面上下文仍有效？；每次播放、定位或下载操作重新校验；上下文过期或失权则停止播放、释放资源并拒绝旧操作",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 12,
+      "from": "svc",
+      "to": "vendor",
+      "message": "权限校验后按recordFile获取录音地址",
+      "type": "request",
+      "api_id": "API-320",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 13,
+      "from": "vendor",
+      "to": "svc",
+      "message": "返回限时URL或不可用状态",
+      "type": "response",
+      "api_id": "API-320",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 14,
+      "from": "u",
+      "to": "ui",
+      "message": "使用录音播放工具条",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 15,
+      "from": "svc",
+      "to": "vendor",
+      "message": "按mainUniqueId/callType获取完整转写",
+      "type": "request",
+      "api_id": "API-321",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 16,
+      "from": "vendor",
+      "to": "svc",
+      "message": "返回按角色区分文本或处理中；对齐能力待确认",
+      "type": "response",
+      "api_id": "API-321",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 17,
+      "from": "u",
+      "to": "ui",
+      "message": "阅读和搜索分角色文本，按可用时间戳定位",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 18,
+      "from": "svc",
+      "to": "svc",
+      "message": "结束本次查看并清理播放资源；停止播放并释放资源；原通话时长及业务数据不由样例音频长度改写",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 19,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权访问；不加载该通话的录音或文本",
+      "type": "error",
+      "api_id": null,
+      "condition": "当前身份可查看该通话？：不满足"
+    },
+    {
+      "step": 20,
+      "from": "svc",
+      "to": "ui",
+      "message": "停止播放、释放资源并拒绝旧媒体操作；不得沿用旧租户或角色的访问资格",
+      "type": "error",
+      "api_id": null,
+      "condition": "媒体访问失权或原页面上下文已失效"
+    },
+    {
+      "step": 21,
+      "from": "svc",
+      "to": "ui",
+      "message": "分别显示音频状态并禁用不可用操作；纯 IVR 不提供虚构人工录音，IVR 转人工只展示有人参与阶段",
+      "type": "error",
+      "api_id": null,
+      "condition": "音频不适用、缺失、过期或加载失败"
+    },
+    {
+      "step": 22,
+      "from": "svc",
+      "to": "ui",
+      "message": "明确显示文本状态，不用备注、处理结果或 IVR 节点生成替代转写；不影响已可用的音频",
+      "type": "error",
+      "api_id": null,
+      "condition": "文本缺失、过期或加载失败"
+    },
+    {
+      "step": 23,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

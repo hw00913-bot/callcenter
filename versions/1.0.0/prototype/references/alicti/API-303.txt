@@ -1,0 +1,371 @@
+快速入门
+
+使用cti-link.js方式,只需要在你的HTML中<head>里面增加一行。
+
+<script type="text/javascript" src="//agent-gateway-{region}.alicti.cn/js/agent/{version}/cti-link.js"></script>
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+如果使用软电话，要使用https服务你的应用，因为从Google Chrome浏览器47版本后只有https协议可以使用浏览器的摄像头和麦克风资源。
+
+浏览器支持
+
+IE8/IE9/IE10/IE11/Edge, Google Chrome, Firefox, Safari
+
+其中Google Chrome和Firefox浏览器支持软电话方式登录
+
+1 设置
+
+cti-link.js加载完成后，就可以使用CTILink对象进行setup操作。
+
+CTILink.setup(params, callback);
+
+params 参数对象
+
+{webrtc:true, debug:false}
+
+参数 | 
+类型 | 
+可选 | 
+描述 | 
+
+webrtc | 
+Bool | 
+可选 | 
+使用webrtc软电话。默认为false | 
+
+webrtcStats | 
+Bool | 
+可选 | 
+启用webrtc软电话通话状态事件，详见事件说明<软电话状态事件>。默认为false | 
+
+debug | 
+Bool | 
+可选 | 
+debug日志打印在控制台。默认为false | 
+
+callback 回调函数
+
+function(res) {}
+
+2 事件注册
+
+在CTILink.setup的回调函数中进行事件注册，多次注册同一事件，只保留最后一次注册的回调函数。
+
+注册方式如：
+
+CTILink.event("status", handleState);
+
+注意：请不要在回调函数中执行阻塞操作（如alert），阻塞操作会对事件处理产生影响。
+
+所有可以注册的事件及事件包含的属性详见:事件
+
+3 CTILink对象说明
+
+CTILink对象中包含4个对象，分别是：
+
+CTILink.Agent，封装了座席登录，退出，置忙，置闲，外呼等操作。详见:座席操作
+
+CTILink.Monitor，封装了班长席监控用到的方法，如监听，三方等，只有班长席可以调用。详见:班长席监控
+
+CTILink.Session，封装了座席在通话状态下可以进行的操作，如拒接，挂断，咨询，转移等。详见:座席通话操作
+
+CTILink.Session对象包含了当前通话状态的三个属性，分别是：客户号码customerNumber，通话类型callType和通话标识uniqueId。
+
+CTILink.SipSession，封装了软电话在通话状态下可以进行的操作，如接听，挂断，DTMF等。详见:软电话通话操作
+
+4 方法调用说明
+
+CTILink中4个对象的封装的方法都有2个参数，参数对象params和回调函数callback。
+
+参数对象params和回调函数callback可以都传入，如：
+
+var params = {};
+params.pauseDescription = '休息';  
+CTILink.Agent.pause(params, function(result){
+    //result.msg
+});
+
+参数对象params和回调函数callback可以都不传入，如：
+
+CTILink.Agent.unpause();
+
+可以只传入参数对象params，如：
+
+var params = {};
+params.pauseDescription = '休息';  
+CTILink.Agent.pause(params);
+
+可以只传入回掉函数callback，如：
+
+CTILink.Agent.unpause({}, function(result) {
+    //result.msg
+});
+
+5 最佳实践说明
+
+1) 登录时序控制
+
+SDK在执行CTILink.setup()时需动态加载资源，若在资源加载完成前执行座席登录等操作，将引发错误。
+
+请确保在执行SDK的座席登录等操作前CTILink.setup()函数已经成功回调。
+
+✅ 推荐调用方式
+
+CTILink.setup({ 
+  webrtc: true 
+}, function() {  
+  // 资源加载完成回调触发后
+  ...
+  //调用座席登录权限验证接口获取sessionKey, qids和webSocketUrl等参数，详见6 示例代码
+  ...
+  CTILink.Agent.login({ ... }); // 安全执行登录
+});
+
+❌ 错误调用方式
+
+CTILink.setup({ webrtc: true }); 
+Agent.login({ ... }); // 可能早于资源加载完成
+
+2) 浏览器页签关闭前控制
+
+SDK中监听了浏览器的window.onbeforeunload事件来实现座席关闭浏览器自动下线功能。如果您的代码也监听了该事件，将会覆盖SDK的处理逻辑，导致座席无法自动下线。
+
+✅ 推荐调用方式
+
+window.addEventListener('beforeunload', function(e) {
+  // (可选) 浏览器弹窗确认逻辑，如提示“确定要离开当前页面吗？”
+  if (hasUnsavedWork) {
+    e.returnValue = '确定要离开当前页面吗？';
+  }
+
+  // 关键保障动作
+  CTILink.Agent.logout();
+});
+
+❌ 错误调用方式
+
+window.onbeforeunload = function() {
+  // 仅处理业务逻辑，未调用SDK登出
+  submitPendingData();
+}；
+
+浏览器兼容情况
+
+现代浏览器（Chrome、Firefox、Safari、Edge）：完全支持addEventListener('beforeunload')，且可以通过e.returnValue或return语句触发弹窗提示。
+
+IE浏览器：不支持addEventListener，需使用attachEvent('onbeforeunload')，且事件对象需通过window.event获取。
+
+移动端浏览器：部分浏览器可能限制beforeunload事件的触发，需结合visibilitychange事件处理。
+
+兼容IE浏览器示例代码
+
+function handleBeforeUnload(e) {
+  e = e || window.event; // 兼容IE获取事件对象
+  var message = '确定要离开此页面吗？';
+
+  // 设置提示信息（IE支持自定义消息）
+  if (e) {
+    e.returnValue = message;
+  }
+
+  // 关键保障动作
+  CTILink.Agent.logout();
+
+  // 返回消息（兼容性要求）
+  return message;
+}
+
+// 绑定事件
+if (window.attachEvent) {
+  // IE8及以下版本
+  window.attachEvent('onbeforeunload', handleBeforeUnload);
+} else if (window.addEventListener) {
+  // 现代浏览器
+  window.addEventListener('beforeunload', handleBeforeUnload);
+}
+
+6 示例
+
+执行例子中的代码需要先引入jQuery
+
+$( document ).ready(function() {
+    CTILink.setup({webrtc:false, debug:false}, function() {
+        //CTILink加载完成
+
+        //注册事件处理方法
+        /** 状态事件 */
+        CTILink.event("status", handleState);  //当前座席状态
+        CTILink.event("previewOutcallRinging", handleState);  //外呼座席响铃
+        CTILink.event("previewOutcallBridge", handleState);  //外呼接通
+        CTILink.event("consultStart", handleState);  //咨询开始
+        CTILink.event("consultLink", handleState);  //咨询接听
+        CTILink.event("consultError", handleState);  //咨询失败
+        CTILink.event("unconsult", handleState);  //咨询挂断/接回/取消
+        CTILink.event("consultThreeway", handleState);  //咨询三方
+        CTILink.event("consultThreewayUnlink", handleState);  //咨询三方挂断
+        CTILink.event("consultTransfer", handleState);  //咨询转移
+
+        /** 其他事件 */
+        CTILink.event("ringing", handleRinging); //弹屏
+        CTILink.event("kickout", handleKickout);  //被踢下线
+
+        //自动登录
+        doLogin();
+    });
+});
+
+//登录  
+function doLogin() {
+    //调用座席登录权限验证接口获取sessionKey, qids和webSocketUrl等参数  
+    var url = 'http://api-1.alicti.cn/interface/v10/agentLogin/authenticateJsonp';
+    url += '?validateType=1&departmentId=BM0000001&crmId=TS2000&timestamp=1481103840&sign=ff4b727e8ccf0a2e4a423676d20ccf52'   
+    $.ajax({
+        type: 'GET',
+        dataType:'jsonp',
+        jsonp:'callback',
+        url: url,
+        success: function(r) {
+            var data = eval("("+r+")");
+            if (data != undefined && data.result == "0") {
+                var params = {};
+                params.sessionKey = data.sessionKey;
+                params.enterpriseId = data.enterpriseId;  //
+                params.cno = data.cno;
+                params.bindTel = '01087120766';
+                params.bindType = 1;
+                params.loginStatus = 1;
+                params.webSocketUrl = data.agentGateWayUrl;
+                params.qids = data.qids;    //班长席时返回
+
+                CTILink.Agent.login(params, function(result) {
+                    if (result.code == 0) {
+                        //座席登录成功
+                    } else {
+                        //座席登录失败，失败原因： + result.msg
+                    }
+                });
+            }
+        },
+        error: function(r) {
+            //登录失败，接口请求错误
+        }
+    }); 
+}
+//退出
+function doLogout() {
+    var params = {};
+    params.logoutMode = 1;
+    params.removeBinding = 0;
+    CTILink.Agent.logout(params, function(result) {
+        if (result.code == 0) {
+            //退出成功
+        }
+    });
+}
+//置忙
+function doPause() {
+    var params = {};
+    params.pauseType = 1;
+    params.pauseDescription = "置忙";
+    CTILink.Agent.pause(params);
+}
+//置闲
+function doUnpause() {
+    CTILink.Agent.unpause();
+}
+//预览外呼
+function doPreviewOutcall(tel) {
+    var params = {};
+    params.tel = tel;
+    CTILink.Agent.previewOutcall(params);
+}
+/** 通话状态下的操作 */
+//挂断
+function doUnlink() {
+    if (CTILink.Session.isSessionAlive()) {
+        CTILink.Session.unlink();
+    }
+}
+//咨询
+function doConsult(tel) {
+    if (CTILink.Session.isSessionAlive()) {
+        var params = {};
+        params.objectType = 0;
+        params.consultObject = tel;
+        CTILink.Session.consult(params);
+    }
+}
+
+/** 事件处理 */
+//处理状态事件  
+function handleState(event) {
+    //座席状态描述 : 离线，失效，空闲，置忙，整理，呼叫中，响铃，通话
+    var stateShow = event.state;
+    switch (event.state) {
+        case '离线':
+            break;
+        case '失效':
+            //软电话状态, 退出
+            doLogout();
+            break;
+        case '空闲':
+            break;
+        case '置忙':
+            break;
+        case '呼叫中':
+            break;
+        case '响铃':
+            switch(event.stateAction) {
+                case 'ringingIb' : //呼入座席响铃
+                    break;
+                case 'ringingAgentOb' : //外呼座席响铃
+                    break;
+                case 'ringingCustomerOb': //外呼客户响铃
+                    break;
+            }
+            break;
+        case '通话':
+            switch(event.stateAction) {
+                case 'busyIb' : //呼入座席接听
+                    break;
+                case 'busyOb' : //外呼客户接听 客户和座席通话
+                    break;
+                case 'hold' : //保持开始
+                    stateShow = '保持';
+                    break;
+                case 'unhold' : //保持结束
+                    break;
+                case 'consultStart' : //咨询开始
+                    break;
+                case 'consultLink' : //咨询成功
+                    stateShow = '咨询';
+                    break;
+                case 'busyConsult' : //被咨询转接或转移的通话
+                case 'busyTransfer' :
+                    break;
+                case 'consultThreeway':
+                    stateShow = '咨询三方';
+                default:
+            }
+            break;
+        case '整理':  //整理开始（座席挂断）
+            break;     
+    }
+}
+
+//弹屏
+function handleRinging(event) {
+
+}
+
+//被踢下线
+function handleKickout(event) {
+    if (event.code == 0) {
+        //被踢下线
+    }
+}

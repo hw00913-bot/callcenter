@@ -1,0 +1,357 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-103",
+  "name": "在坐席工作台完成人工外呼与话后处理",
+  "summary": "选择本人待联络客户或临时拨号，校验有效技能组与授权号码，在弹窗完成通话与结果保存。",
+  "actors": [
+    "关联坐席的运营",
+    "统一外呼中台",
+    "AliCti"
+  ],
+  "trigger": "需要直接联系一位客户",
+  "preconditions": [
+    "账号关联坐席，当前租户与业务域有效",
+    "本坐席有效技能组和租户授权号码可用"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "关联坐席的运营",
+      "action": "点击本人待联络客户或临时拨号",
+      "system_response": "呼叫弹窗与明确下一步",
+      "input": "分配客户；或手工客户信息",
+      "rule_ids": [
+        "BR-103"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "关联坐席的运营",
+      "action": "选择有效技能组及外显号码",
+      "system_response": "拨号准备；单项默认多项手选",
+      "input": "本人已生效技能、租户用号权",
+      "rule_ids": [
+        "BR-103"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "客户、本人电话会话、禁呼及资源复检通过？",
+      "system_response": "业务就绪与媒体可用均须满足",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-103"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "以本人坐席发起预览外呼",
+      "system_response": "previewOutcall带requestUniqueId，回调成功不等于客户接通",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-103"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "关联坐席的运营",
+      "action": "按实际状态静音或挂断，并填写话后结果",
+      "system_response": "mute为切换操作，失败不盲重试；客户/坐席状态独立",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-103"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "处理结果已保存成功？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-103"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "统一外呼中台",
+      "action": "保存原通话及关联客户结果并保留来源快照",
+      "system_response": "最终话单可补历史，未知保持待确认且不重复拨号",
+      "input": "同次尝试、处理结果；可选批次客户关联",
+      "rule_ids": [
+        "BR-103"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "统一外呼中台",
+      "action": "业务结果保存后才允许继续接收新任务",
+      "system_response": "结合置忙/整理/置闲处理；厂商整理到期行为需POC",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-103"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-103-3",
+      "condition": "客户、会话、禁呼及资源复检通过？：不满足",
+      "steps": [
+        "拒绝拨号并指出原因；不得由管理员绕过"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-103-6",
+      "condition": "处理结果已保存成功？：不满足",
+      "steps": [
+        "保留输入及话后门禁，不能继续下一客户"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-103-CANCEL",
+      "condition": "执行变更前取消确认",
+      "steps": [
+        "取消拨号：尚未发起通话，不产生通话结果"
+      ]
+    }
+  ],
+  "postconditions": [
+    "选择本人待联络客户或临时拨号，校验有效技能组与授权号码，在弹窗完成通话与结果保存。"
+  ],
+  "acceptance_points": [
+    "客户信息、授权外显号码、呼叫状态、挂断和处理结果保存形成闭环；仅使用中台自有坐席工作台。",
+    "未接通、取消、资源失效和禁止联系均有结果或阻断反馈；防止重复呼叫和重复保存；纯原型模拟不能证明真实拨号或录音。"
+  ],
+  "source_story_ids": [
+    "US-103"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-103.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "关联坐席的运营",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "AliCti",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "需要直接联系一位客户"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "点击本人待联络客户或临时拨号\n输入：分配客户；或手工客户信息\n输出：呼叫弹窗与明确下一步",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "u",
+        "type": "action",
+        "order": 3,
+        "label": "选择有效技能组及外显号码\n输入：本人已生效技能、租户用号权\n输出：拨号准备；单项默认多项手选",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 4,
+        "label": "客户、本人电话会话、禁呼及资源复检通过？",
+        "step_ref": 3
+      },
+      {
+        "id": "FAIL3",
+        "lane_id": "u",
+        "type": "end",
+        "order": 5,
+        "label": "拒绝拨号并指出原因；不得由管理员绕过"
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "action",
+        "order": 8,
+        "label": "以本人坐席发起预览外呼\npreviewOutcall带requestUniqueId，回调成功不等于客户接通",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "u",
+        "type": "action",
+        "order": 10,
+        "label": "按实际状态静音或挂断，并填写话后结果\nmute为切换操作，失败不盲重试；客户/坐席状态独立",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 11,
+        "label": "处理结果已保存成功？",
+        "step_ref": 6
+      },
+      {
+        "id": "FAIL6",
+        "lane_id": "u",
+        "type": "end",
+        "order": 12,
+        "label": "保留输入及话后门禁，不能继续下一客户"
+      },
+      {
+        "id": "N7",
+        "lane_id": "p",
+        "type": "action",
+        "order": 13,
+        "label": "保存原通话及关联客户结果并保留来源快照\n输出：最终话单可补历史，未知保持待确认且不重复拨号",
+        "step_ref": 7
+      },
+      {
+        "id": "N8",
+        "lane_id": "p",
+        "type": "action",
+        "order": 14,
+        "label": "业务结果保存后才允许继续接收新任务\n结合置忙/整理/置闲处理；厂商整理到期行为需POC",
+        "step_ref": 8
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 16,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 6,
+        "label": "确认提交本次操作？"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 7,
+        "label": "取消拨号：尚未发起通话，不产生通话结果"
+      },
+      {
+        "id": "N4-AliCti",
+        "lane_id": "c",
+        "type": "action",
+        "order": 9,
+        "label": "处理已授权呼叫并建立通道\n输出：受理结果和客户/坐席通道事件；受理不等于客户接通"
+      },
+      {
+        "id": "N8-AliCti",
+        "lane_id": "c",
+        "type": "action",
+        "order": 15,
+        "label": "处理就绪请求并反馈实际服务状态\n输出：确认 READY 后才允许下一通；失败保持待恢复"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "FAIL3",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-103-3"
+      },
+      {
+        "from": "N3",
+        "to": "CONFIRM",
+        "label": "满足"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "FAIL6",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-103-6"
+      },
+      {
+        "from": "N6",
+        "to": "N7",
+        "label": "满足"
+      },
+      {
+        "from": "N7",
+        "to": "N8"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "N4",
+        "label": "确认"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-103-CANCEL"
+      },
+      {
+        "from": "N4",
+        "to": "N4-AliCti"
+      },
+      {
+        "from": "N4-AliCti",
+        "to": "N5"
+      },
+      {
+        "from": "N8",
+        "to": "N8-AliCti"
+      },
+      {
+        "from": "N8-AliCti",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

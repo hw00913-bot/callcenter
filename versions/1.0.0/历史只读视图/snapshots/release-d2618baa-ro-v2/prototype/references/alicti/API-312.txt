@@ -1,0 +1,324 @@
+任务号码导入接口
+
+接口说明
+
+按批次导入号码，一次导入一个批次
+
+限制：一个批次最多10w个号码，一个任务最多100w个号码，一个企业最多1000w个号码
+
+服务限制说明
+
+为确保平台服务稳定性，本API设定以下使用限制：
+
+单个任务内限制
+
+可创建批次数：≤ 10 万个
+
+可导入号码数：≤100 万个
+
+单批次可导入号码数：≤ 10 万个
+
+超额处理
+
+当触发上述任一限制时，本次请求失败。
+
+最佳实践建议
+
+平台提供「删除任务内号码」接口：业务平台可根据实际情况定期自动删除任务内已完成的批次或号码
+
+说明：删除任务内号码后，平台已呼叫过的通话记录明细、录音文件会继续保留
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/task/importTaskTel
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+接口请求方式：
+
+POST请求
+
+请求参数为Json数据格式
+
+相关参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证 | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1:
+MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2：
+MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+name | 
+String | 
+必选 | 
+批次名称 | 
+ | 
+
+taskId | 
+Int | 
+必选 | 
+任务Id | 
+ | 
+
+fileId | 
+Int | 
+可选 | 
+批次Id | 
+传此值表示在批次中增加号码 | 
+
+priority | 
+Int | 
+可选 | 
+优先级 | 
+默认0，值越大越优先，最大999999 | 
+
+isRepeat | 
+Int | 
+可选 | 
+是否排重 | 
+0.不排重 1.任务内排重 2.导入号码排重 3.批次内排重，默认为1。
+注：任务内排重与批次内排重不能同时支持，如果中途切换，则从本次切换开始进行排重。 | 
+
+bridgeVoicePath | 
+String | 
+可选 | 
+座席接听时自动在双侧播放开场白语音，指定语音变量值 | 
+企业语音库里的语音变量值 | 
+
+bridgeVoiceType | 
+Int | 
+可选 | 
+座席接听时自动在双侧播放开场白语音类型 | 
+1. 公共语音库；2. 企业语音库，静态话术； 3. 企业语音库，动态话术（座席号），传bridgeVoicePath后生效，默认为3 | 
+
+taskTelList | 
+List<TaskTel> | 
+必选 | 
+任务号码列表 | 
+CtiLinkTaskTel中只有Tel是必选字段，长度大小不超过8MB 
+ 注：获取导入失败明细，需配置事件推送 | 
+
+importTelAutoStart | 
+Int | 
+可选 | 
+是否自动启动任务 | 
+0:不自动启动 1:自动启动，默认为0 | 
+
+TaskTel 参数定义：
+
+字段 | 
+类型 | 
+要求 | 
+描述 | 
+
+tel | 
+String | 
+必选 | 
+电话号 | 
+
+backupTels | 
+String | 
+可选 | 
+备选号码，tel呼叫不通时，呼叫备选号码
+最多支持8个，号码之间用英文逗号","分隔 | 
+
+property | 
+String | 
+可选 | 
+属性，json格式 | 
+
+priority | 
+Int | 
+可选 | 
+优先级，默认为0，值越大优先级越高，最大999999 | 
+
+answerRateLevel | 
+Decimal | 
+可选 | 
+数据源接听率等级，支持小数 | 
+
+clid | 
+String | 
+可选 | 
+电话号对应的外显号码 | 
+
+clidGroup | 
+String | 
+可选 | 
+使用clidGroup需要账号支持按标识路由，使用此参数是clid参数无效 | 
+
+接口请求示例
+
+https://api-{region}.alicti.cn/interface/v10/task/importTaskTel?validateType=2&enterpriseId=6000001&timestamp=1490791690&sign=f4e847a068c5ef66c9e5c64a4eaaaa84
+
+RequestBody：
+{
+	"taskId":"16",
+	"name":"test",
+	"priority":0,
+	"isRepeat":1,
+	"fileId":63,
+	"importTelAutoStart":0,
+	"taskTelList":[
+		{
+				"tel":"12312311231",
+				"priority":2,
+				"answerRateLevel":3.5,
+				"property": "{ \"name\" : \"var1\" }"
+		},
+		{
+				"tel":"15512311231",
+				"priority":1,
+				"property": "{ \"name\" : \"var2\" }"
+		}
+	]
+
+}
+
+接口返回
+
+JSON格式数据：
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+Int | 
+0 成功, -1 失败 | 
+
+description | 
+String | 
+返回结果描述 | 
+
+errorCode | 
+Int | 
+错误码,当返回result=-1时，返回该参数 | 
+
+data | 
+JSON | 
+返回数据JSON格式 | 
+
+description给出成功或失败时的文本描述：
+
+description | 
+返回结果说明 | 
+
+验证失败，参数[{param}]不能为空 | 
+{param}为接口参数中必选字段 | 
+
+验证失败，参数[{param}]格式不正确 | 
+{param}为接口参数中格式有要求的字段 | 
+
+验证失败，参数[{param}]取值不正确 | 
+{param}为接口参数中有固定取值的字段 | 
+
+验证失败，参数[param]取值范围不正确 | 
+{param}为接口参数中有固定范围的字段 | 
+
+验证失败，超过频次限制 | 
+接口调用超过接口的访问频次限制 | 
+
+成功，{param} | 
+{param}为成功描述 | 
+
+失败，{param} | 
+{param}为失败描述 | 
+
+失败具体描述 | 
+备注 | 
+
+失败，号码超出最大导入条数限制 | 
+导入超过10万条时报错 | 
+
+失败，导入后超过任务最大号码条数限制 | 
+一个任务最多存100万条数据 | 
+
+失败，超出单批次导入条数限制 | 
+单批次最多导入10万条数据 | 
+
+失败，超出任务最大导入批次限制 | 
+一个任务最多10W个批次，或一个任务最多100W个号码，批次或号码均不能超过限制值 | 
+
+data定义：
+
+字段 | 
+类型 | 
+描述 | 
+
+fileId | 
+Integer | 
+批次Id | 
+
+taskId | 
+Integer | 
+任务Id | 
+
+importTotal | 
+Integer | 
+请求号码总数 | 
+
+successTotal | 
+Integer | 
+成功导入号码数 | 
+
+invalidTotal | 
+Integer | 
+非法号码数 | 
+
+返回示例：
+
+{
+    "result": "0",
+    "description": "成功 | 请求号码总数：1条 | 成功导入：1条 | 非法号码数：0条 ",
+    "data": {
+        "fileId": "4505",
+        "taskId": "899",
+        "importTotal": "1",
+        "successTotal": "1",
+        "invalidTotal": "0"
+    }
+}

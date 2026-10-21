@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'none'; manifest-src 'none'">
+<script data-history-readonly="true">
+(() => {
+  'use strict';
+  const config={"rootHref": "./", "snapshotId": "release-d2618baa-ro-v2", "returnHref": "../../../../../prototype/index.html#home", "includeInteractionDoc": true};
+  const root=new URL(config.rootHref,location.href);
+  const returning=config.returnHref ? new URL(config.returnHref,location.href) : null;
+  const message='历史快照只读：请返回工作版进行业务修改。';
+  function stop(event) {
+    if(event){event.preventDefault();event.stopImmediatePropagation();}
+    if(typeof window.showToast==='function')window.showToast(message,'info');
+    else {const node=document.getElementById('snapshot-readonly-message');if(node)node.textContent=message;}
+    return false;
+  }
+  function memoryStorage(){
+    const data=new Map();
+    const api={getItem:key=>data.has(String(key))?data.get(String(key)):null,
+      setItem:(key,value)=>data.set(String(key),String(value)),removeItem:key=>data.delete(String(key)),
+      clear:()=>data.clear(),key:index=>Array.from(data.keys())[Number(index)]??null};
+    Object.defineProperty(api,'length',{get:()=>data.size,configurable:true});
+    return new Proxy(api,{get:(object,key)=>key in object?object[key]:api.getItem(key),
+      set:(_object,key,value)=>{api.setItem(key,value);return true;},
+      deleteProperty:(_object,key)=>{api.removeItem(key);return true;},
+      ownKeys:()=>Array.from(data.keys()),getOwnPropertyDescriptor:()=>({enumerable:true,configurable:true})});
+  }
+  // Never read the native stores; even baseline initializers only see new maps.
+  for(const name of ['localStorage','sessionStorage']){
+    Object.defineProperty(window,name,{value:memoryStorage(),writable:false,configurable:false});
+  }
+  window.addEventListener?.('storage',event=>event.stopImmediatePropagation(),true);
+  try{Object.defineProperty(navigator,'locks',{value:{request:(name,...args)=>{
+    const callback=args.find(value=>typeof value==='function');
+    return callback?Promise.resolve().then(()=>callback({name,mode:'exclusive'})):Promise.reject(new Error('Callback required'));
+  }},configurable:false});}catch(_){}
+  try{Object.defineProperty(document,'cookie',{get:()=>'',set:()=>{},configurable:false});}catch(_){/* CSP and omitted credentials still apply. */}
+  try{window.opener=null;}catch(_){}
+  function inside(input){
+    try{const value=new URL(String(input),location.href);return value.origin===root.origin &&
+      value.protocol===root.protocol && value.pathname.startsWith(root.pathname) && !value.username && !value.password;}
+    catch(_){return false;}
+  }
+  const originalFetch=window.fetch?.bind(window);
+  Object.defineProperty(window,'fetch',{configurable:false,writable:false,value:(input,options={})=>{
+    const url=input?.url??input;const method=String(options.method??input?.method??'GET').toUpperCase();
+    if(!inside(url)||!['GET','HEAD'].includes(method)||options.body!=null)return Promise.reject(new Error(message));
+    if(!originalFetch)return Promise.reject(new Error('Local static fetch unavailable'));
+    return originalFetch(input,{...options,method,credentials:'omit',redirect:'error',cache:'no-store'});
+  }});
+  const forbidden=()=>{throw new Error(message);};
+  for(const name of ['XMLHttpRequest','WebSocket','EventSource','Worker','SharedWorker','BroadcastChannel','RTCPeerConnection','WebTransport']){
+    Object.defineProperty(window,name,{value:forbidden,writable:false,configurable:false});
+  }
+  try{Object.defineProperty(navigator,'sendBeacon',{value:()=>false,configurable:false});}catch(_){}
+  try{Object.defineProperty(navigator,'serviceWorker',{value:undefined,configurable:false});}catch(_){}
+  try{Object.defineProperty(window,'indexedDB',{value:undefined,configurable:false});}catch(_){}
+  try{Object.defineProperty(window,'caches',{value:undefined,configurable:false});}catch(_){}
+  // Applied before original scripts/resources. All external origins and current
+  // project API/resource paths are excluded from the narrower runtime policy.
+  if(['http:','https:'].includes(root.protocol)){
+    const source=root.href.split(/[?#]/)[0];
+    const policy=document.createElement('meta');policy.httpEquiv='Content-Security-Policy';
+    policy.content="default-src 'none'; script-src 'unsafe-inline' "+source+"; style-src 'unsafe-inline' "+source+
+      "; img-src data: blob: "+source+"; font-src "+source+"; media-src blob: "+source+"; connect-src "+source+
+      "; frame-src "+source+"; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'none'; manifest-src 'none'";
+    document.head.appendChild(policy);
+  }
+  const originalOpen=window.open?.bind(window);
+  Object.defineProperty(window,'open',{configurable:false,writable:false,value:(url,target)=>{
+    if(!inside(url))return null;
+    return originalOpen ? originalOpen(url,target||'_blank','noopener,noreferrer') : null;
+  }});
+  if(window.HTMLFormElement){
+    window.HTMLFormElement.prototype.submit=()=>stop();
+    window.HTMLFormElement.prototype.requestSubmit=()=>stop();
+  }
+  const mutating=/(?:保存|提交|删除|新增|新建|添加|导入|上传|发布|启用|停用|拨打|发起呼叫|开始呼叫|挂断|转接|\b(?:save|submit|delete|remove|create|commit|import|upload|publish|send|setStatus|startTask|pauseTask|resumeTask|placeCall|answerCall)\w*)/i;
+  const loginAction=/(?:AppState\.(?:submitLogin|sendSmsCode|refreshCaptcha|selectDemoProfile|chooseTenant|chooseInstance|chooseManagedTenant|logout)|DemoSwitch\.(?:open|close|select|choose)|(?:^|\s)(?:登录|退出登录)(?:\s|$))/;
+  // Explicit operations audited in the archived release and working prototype.
+  // A display label, valid business context, or supplier's own pending response
+  // must never decide whether a historical view can execute a business write.
+  const apiMutations={
+    AppState:['persistManagementData','returnFromConfiguration','onSupplierAccountsChanged'],
+    AgentWorkbench:['signIn','signOut','receiveOffer','receiveStatus','answerIncoming','syncReceivingProgress','dial','end','saveDisposition','toggleMute','setDisposition','setRemark','setFollowup','setDemoResult','bindAccount','confirmDemoResult','updateField','chooseContact','selectAssigned','openTemporary'],
+    AliCtiAdapter:['connect','disconnect','previewOutcall','queryRasr','controlTask','reconcileAvailability'],
+    'AliCtiAdapter.agentGroup':['create','update','delete','assignAgent','unassignAgent'],
+    AliCtiSeatOperations:['demoConnection','connectionCallbacks','relogin','saveProfile','login','logout','pause','unpause','changeBindTel','changeWorkingMode','prolongWrapup','enterWrapup','completeWrapup','invalidate','manageSeat','refreshState'],
+    AliCtiReceiving:['answer','refuse'],
+    CloudTaskWorkspace:['addCallerPool','updateCallerPool','removeCallerPool','deleteTask','start','startRepeatPredictive','update','updatePriority','setTimeMode','toggleTimeCondition','changeRetryCount','adjustRetryCount','changeRetryInterval','setRetryLayout','resetRetry','setRetryMode','setRetryTimeType','toggleRetryCode','addRetryRound','removeRetryRound','updateRetryRound','setTenant','selectPlan','setResource','toggleAgent','toggleAllAgents','saveDraft','submit','controlTask','startTask','pauseTask','resumeTask','simulateAvailability','copyTask','pauseForNumber','syncAssignedCustomers','commitDirectImport','recoverDirectImport','saveDemoTask','setCallerNavigation','setCustomerMode','toggleCustomer','clearCustomers','selectFilteredCustomers','refreshIvrList'],
+    DccPriorityModel:['ensureDemo','saveRules','push','recordResult','prepareRetry','release','submit'],
+    CustomerTasks:['confirmImport','assign','assignSelected','claim','syncCall','releaseUnstartedTask','attachToNewTask','confirmAssignment','acceptTaskDemoResult','commitTaskAttachment','rollbackTaskAttachment','commitImportBatch','rollbackImportBatch','recoverMissingTask'],
+    RepeatPredictive:['commitAttachment','rollbackAttachment','releaseTask'],
+    CallState:['start','ingest','finish','reconcile'],
+    CloudCallRuntime:['sequence','addAudit','touch'],
+    CloudCallSync:['begin','refresh','demo'],
+    CloudCallRecords:['refreshSync','demoSync','confirmDemo'],
+    ScenarioDemo:['runNext','inbound','saveTask','confirmResult','triggerReceiving','receivingEvent','prepare'],
+    ScenarioReadiness:['completeTest','markConfigurationCompleted'],
+    AccountSeat:['bind','create','persistAgent','finishPendingDisable','submit'],
+    OutboundGroups:['create','update','deleteGroup','setMembers','assignAgent','unassignAgent'],
+    AliCtiAccounts:['save','setStatus'],
+    AliCtiExtensions:['create','update','remove','assign','importCandidates','importExisting'],
+    AliCtiNumberPools:['create','update','remove'],
+    AliCtiTimeConditions:['create','update','remove'],
+    AliCtiQueues:['updateByNumber','saveBinding','saveQueueGroups','createForGroup','createForGroups','updateQueue','verify'],
+    AliCtiInbound:['save','setActive','remove','verifyPending'],
+    AliCtiSeatImport:['submit','verifyPending'],
+    QueueConfig:['save','verify','unbind'],
+    CustomerBusiness:['save','saveField','deleteField','setEnabled'],
+    CustomerFollowup:['save','saveEditor'],
+    SeatEventLog:['record','observeSnapshot'],
+    SeatOperationUI:['demoConnection','submit','set','relogin','resume','reconcile','finishWrapup','afterRecordSaved','changeMode'],
+    WorkbenchOverview:['stopNew'],
+    BusinessConfiguration:['save','toggle','remove'],
+    BusinessCategories:['save','toggle','remove'],
+    BusinessIssues:['record','handle'],
+    CallDataIssues:['recheck'],
+    'Pages.agent-center':['createSingle','savePhoneConfig','disable','restore','remove','saveSkill','submitPendingSkills','changeLevel','saveSkillRepair','unassign','retry'],
+    'Pages.resource-lines':['isolate','restore','setLocalEnabled'],
+    'Pages.inbound-routing':['save','changeActive','remove'],
+    'Pages.contact-center-settings':['saveMapping'],
+    SeatPhoneConfig:['save'],
+    OutboundGroupManagement:['save','remove'],
+    AccountTenantForms:['saveAccount','saveTenant'],
+    'Pages.account-tenant':['saveMemberEdit','toggleMember','confirmToggleMember','confirmToggleTenant','saveTenant'],
+    CustomerDemo:['prepare'],
+    AliCtiContractPanel:['savePhone','savePush','applyEvent','receive'],
+    AliCtiDemo:['savePreferences','setTranscriptionConditions','saveSeatAsr','seatActive','saveSkills','skillResource','taskCreated','imported'],
+    AliCtiNumberImport:['submit'],
+    QueueDetail:['save'],
+    QueueManagement:['saveAssociation','verify','verifyCurrent','askUnlink'],
+    ExtensionManagement:['save'],
+    TimeConditionManagement:['save'],
+    TenantCallMonitor:['stop','submitManage'],
+    CloudResourceRules:['changed'],
+    AliCtiTaskUpdate:['submit'],
+    NumberPoolManagement:['save'],
+    'Pages.alicti-accounts':['changeStatus','confirmStatus','save'],
+    'Pages.number-pool-management':['save'],
+    'Pages.queue-management':['askUnlink','saveAssociation','verify','verifyCurrent']
+  };
+  // These create/submit names are pure helpers or page-local authentication.
+  // Do not blanket-deny open/set/read methods or application initialization.
+  const safeAPIs={AppState:['submitLogin','sendSmsCode','refreshCaptcha','selectDemoProfile','chooseTenant','chooseInstance','chooseManagedTenant','logout'],
+    DemoSwitch:['open','enter','loginShortcut'],AliCtiRetry:['create']};
+  function mutationMethod(path,key){
+    if(safeAPIs[path]?.includes(key))return false;
+    if(apiMutations[path]?.includes(key))return true;
+    if(['AppState','DemoSwitch','HistorySnapshot'].includes(path))return false;
+    return /^(?:save|submit|delete|remove|commit|create|import|upload|publish|placeCall|setStatus)/i.test(key);
+  }
+  function explicitAction(action){
+    const call=/\b((?:window\.)?[A-Za-z_$][\w$]*(?:(?:\.[A-Za-z_$][\w$]*)|(?:\[['"][^'"]+['"]\]))*)\.([A-Za-z_$][\w$]*)\s*\(/g;
+    for(const match of action.matchAll(call)){
+      const path=match[1].replace(/^window\./,'').replace(/\[['"]([^'"]+)['"]\]/g,'.$1');
+      if(!apiMutations[path]?.includes(match[2]))continue;
+      if(path==='AppState'&&match[2]==='returnFromConfiguration'&&!/^\s*true\s*[,)]/.test(action.slice(match.index+match[0].length)))continue;
+      return true;
+    }
+    return false;
+  }
+  // This audited button uses a lexical onclick closure, so replacing the
+  // exported CallDataIssues.recheck method alone cannot intercept its write.
+  const mutationControlIds=new Set(['call-data-recheck']);
+  function viewAction(button){
+    const handler=(button.getAttribute('onclick')||'').trim();
+    // These exact actions come from the prototype navigation contract. Neither
+    // an arbitrary open/set method nor a mixed navigation+mutation is allowed.
+    if(/^(?:(?:RouteRuntime\.openPrimary|toggleNavigationGroup|navigateTo)\(\s*(?:'[^']*'|"[^"]*")\s*\)|RouteRuntime\.back\(\s*\))\s*;?$/.test(handler))return true;
+    return !handler&&(button.hasAttribute('data-route')||button.hasAttribute('data-group'));
+  }
+  document.addEventListener('click',event=>{
+    const anchor=event.target.closest?.('a[href]');
+    if(anchor){
+      const raw=anchor.getAttribute('href')||'';
+      const url=new URL(raw,location.href);
+      const isReturn=anchor.hasAttribute('data-snapshot-return') && returning && url.href===returning.href;
+      if(!isReturn&&!inside(raw)){stop(event);return;}
+      if(anchor.hasAttribute('download')){stop(event);return;}
+      anchor.setAttribute('rel','noopener noreferrer');
+    }
+    const button=event.target.closest?.('button,input[type="submit"],input[type="button"],[role="button"]')||anchor;
+    if(!button||button.hasAttribute('data-snapshot-return'))return;
+    if(viewAction(button))return;
+    const action=[button.textContent,button.getAttribute('onclick'),button.getAttribute('data-action'),button.id,button.value].join(' ');
+    if(mutationControlIds.has(button.id)||explicitAction(action)||(mutating.test(action)&&!loginAction.test(action)))stop(event);
+  },true);
+  document.addEventListener('submit',event=>stop(event),true);
+  for(const type of ['input','change'])document.addEventListener(type,event=>{
+    const action=event.target.getAttribute?.('on'+type)||event.target.getAttribute?.('data-action')||'';
+    if(explicitAction(action)||(mutating.test(action)&&!loginAction.test(action)))stop(event);
+  },true);
+  document.addEventListener('keydown',event=>{
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s')stop(event);
+  },true);
+  // Exported business APIs receive an extra guard, including frozen API objects
+  // whose window binding can be replaced with a read-only view of their methods.
+  function guardAPIs(){
+    function guardObject(api,path){
+      if(!api||typeof api!=='object')return api;
+      const descriptors=Object.getOwnPropertyDescriptors(api),changes={};
+      for(const [key,descriptor] of Object.entries(descriptors)){
+        // Preserve getters and data descriptors without invoking getters while
+        // discovering APIs. Only explicit nested namespaces are traversed.
+        if(!Object.prototype.hasOwnProperty.call(descriptor,'value'))continue;
+        const value=descriptor.value,operation=path+'.'+key;
+        if(typeof value==='function'&&mutationMethod(path,key)){
+          changes[key]=function(...args){
+            if(operation==='AppState.returnFromConfiguration'&&args[0]!==true)return Reflect.apply(value,this,args);
+            return {ok:false,read_only:true,message,operation};
+          };
+        }else if(value&&typeof value==='object'&&(path==='Pages'||Object.keys(apiMutations).some(name=>name===operation||name.startsWith(operation+'.')))){
+          const guarded=guardObject(value,operation);if(guarded!==value)changes[key]=guarded;
+        }
+      }
+      if(!Object.keys(changes).length)return api;
+      if(Object.keys(changes).every(key=>descriptors[key].writable)){
+        for(const [key,value] of Object.entries(changes))api[key]=value;
+        return api;
+      }
+      for(const [key,value] of Object.entries(changes))descriptors[key]={...descriptors[key],value};
+      const guarded=Object.create(Object.getPrototypeOf(api),descriptors);
+      return Object.isFrozen(api)?Object.freeze(guarded):guarded;
+    }
+    for(const name of Object.keys(window)){
+      if(!/^[A-Z]/.test(name))continue;
+      try{
+        const api=window[name],guarded=guardObject(api,name);if(guarded!==api)window[name]=guarded;
+      }catch(_){}
+    }
+  }
+  function banner(){
+    guardAPIs();if(document.getElementById('snapshot-readonly-banner'))return;
+    const bar=document.createElement('aside');bar.id='snapshot-readonly-banner';bar.setAttribute('role','status');
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483647;padding:10px 18px;background:#fff4d7;color:#4f3d15;border-top:1px solid #d7bb6f;display:flex;gap:16px;align-items:center;font:14px system-ui';
+    const label=document.createElement('span');label.id='snapshot-readonly-message';label.textContent='历史快照只读 · 登录、导航与查看仅在本页内存中演示';bar.appendChild(label);
+    if(returning){const link=document.createElement('a');link.href=returning.href;link.textContent='返回工作版';link.setAttribute('data-snapshot-return','');bar.appendChild(link);}
+    document.body.appendChild(bar);
+  }
+  Object.defineProperty(window,'HistorySnapshot',{value:Object.freeze({read_only:true,storage:'memory-only',mutation_policy:'explicit-business-actions@1',snapshot_id:config.snapshotId,include_interaction_doc:config.includeInteractionDoc===true}),configurable:false});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',banner,{once:true});else banner();
+})();
+</script>
+
+  <script src="js/alicti-storage.js?v=20260921-same-task1"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AliCti 云外呼原型</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%231677ff' d='M32 4l28 28-28 28L4 32z'/%3E%3Cpath fill='%23fff' d='M32 18l14 14-14 14-14-14z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/global.css?v=20260905-fix1">
+  <link rel="stylesheet" href="assets/css/app.css?v=20260930-tenant-scope1">
+  <link rel="stylesheet" href="assets/css/agent-workbench.css?v=20260928-record-actions1">
+  <link rel="stylesheet" href="assets/css/repeat-predictive.css?v=20260916-repeat1">
+  <link rel="stylesheet" href="assets/css/seat-detail.css?v=20260911-seat-detail1">
+  <link rel="stylesheet" href="assets/css/report-center.css?v=20260916-reports1">
+  <link rel="stylesheet" href="assets/css/resource-onboarding.css?v=20260915-resource-ux1">
+  <link rel="stylesheet" href="assets/css/number-assignment.css?v=20260922-single-tenant1">
+  <link rel="stylesheet" href="assets/css/alicti-number-import.css?v=20260916-number-import1">
+  <link rel="stylesheet" href="assets/css/alicti-accounts.css?v=20260922-caller-navigation2">
+  <link rel="stylesheet" href="assets/css/queue-config.css?v=20260918-queues2">
+  <link rel="stylesheet" href="assets/css/queue-management.css?v=20260918-queue-multi-skills1">
+  <link rel="stylesheet" href="assets/css/number-pools.css?v=20260923-number-pools1">
+  <link rel="stylesheet" href="assets/css/resource-relations.css?v=20260920-optional-seat-skills1">
+  <link rel="stylesheet" href="assets/css/demo-switch.css?v=20260910-accounts1">
+  <link rel="stylesheet" href="assets/css/account-tenant-forms.css?v=20260930-management-layout1">
+  <link rel="stylesheet" href="annotations/annotation.css?v=1">
+  <link rel="stylesheet" href="assets/css/role-charts.css?v=20260909-charts1">
+  <link rel="stylesheet" href="assets/css/customer-followup.css?v=20260920-business-fields1">
+  <link rel="stylesheet" href="assets/css/business-categories.css?v=20260924-business-direct-fields1">
+  <link rel="stylesheet" href="assets/css/customer-directory.css?v=20260910-call-state1">
+  <link rel="stylesheet" href="assets/css/seat-home.css?v=20260921-seat-grid3">
+  <link rel="stylesheet" href="assets/css/account-seat.css?v=20260921-occam2">
+  <link rel="stylesheet" href="assets/css/call-sync.css?v=20260930-call-sync2">
+  <link rel="stylesheet" href="assets/css/call-media.css?v=20260921-call-chat2">
+  <link rel="stylesheet" href="assets/css/task-retry.css?v=20260914-retry-ivr1">
+<link rel="stylesheet" href="assets/css/alicti-contracts.css?v=20260912-contracts7">
+  <link rel="stylesheet" href="assets/css/task-create.css?v=20260923-task-settings1">
+  <link rel="stylesheet" href="assets/css/secondary-navigation.css?v=20260920-confirm-top1">
+  <link rel="stylesheet" href="assets/css/legacy-drawers.css?v=20260915-drawer1">
+  <link rel="stylesheet" href="assets/css/inbound-routing.css?v=20260915-inbound1">
+  <link rel="stylesheet" href="assets/css/business-issues.css?v=20260915-issue-notice1">
+<link rel="stylesheet" href="assets/css/outbound-group-management.css?v=20260918-1">
+  <link rel="stylesheet" href="assets/css/time-condition-management.css?v=20260921-times-simple1">
+  <link rel="stylesheet" href="assets/css/extension-management.css?v=20260920-extensions-menu1">
+  <link rel="stylesheet" href="assets/css/auth-showcase.css?v=20260923-product-entry1">
+</head>
+<body>
+  <section id="authGateway" class="auth-gateway" aria-live="polite"></section>
+  <header class="top-bar app-topbar">
+    <div class="top-bar-left"><span class="app-name">云外呼平台 · AliCti <small>演示</small></span></div>
+    <div class="breadcrumb" id="breadcrumb"><span class="bc-current">工作台</span></div>
+    <div class="right-area app-context-tools">
+      <span class="scope-chip" id="scopeLabel">请先登录</span>
+      <span class="context-readonly" id="tenantContext"><small>当前租户</small><strong id="currentTenantLabel">尚未登录</strong></span>
+      <label class="context-select" id="instanceContext">
+        <span>当前租户</span>
+        <select id="instanceSwitcher" aria-label="当前租户" onchange="AppState.setManagedTenant(this.value)"></select>
+      </label>
+      <span class="role-chip" id="currentRoleLabel">—</span>
+      <details class="material-menu">
+        <summary>项目资料</summary>
+        <div class="material-menu-panel">
+          <a href="#delivery=prototype" data-delivery-open="prototype">产品原型</a>
+          <a href="#delivery=business-flow" data-delivery-open="business-flow">业务流程图</a>
+          <a href="#delivery=sequence-flow" data-delivery-open="sequence-flow">时序交互图</a>
+          <a href="flowcharts/page-structure.html" target="_blank">页面结构图</a>
+          <a href="#delivery=related-systems" data-delivery-open="related-systems">关联系统蓝图</a>
+        </div>
+      </details>
+      <button class="current-user current-user-action" type="button" onclick="AppState.logout()" title="退出当前租户并重新登录"><span id="currentUserLabel">登录</span><small>退出</small></button>
+    </div>
+  </header>
+
+  <div class="main-layout app-main-layout">
+    <aside class="sidebar app-sidebar">
+      <div class="sidebar-logo">
+        <svg width="22" height="22" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M64 12L116 64L64 116L12 64L64 12Z" stroke="#5b9bff" stroke-width="12"></path>
+          <path d="M64 36L92 64L64 92L36 64L64 36Z" fill="#ff6b6b"></path>
+        </svg>
+        <span class="logo-text">统一外呼</span>
+      </div>
+      <nav id="businessNavigation" aria-label="统一外呼中台主导航"></nav>
+      <div class="sidebar-footnote" id="demo-tools-entry"><button class="demo-switch-trigger" type="button" onclick="DemoSwitch.open()">演示工具</button><span class="demo-only-caption">仅原型</span></div>
+    </aside>
+
+    <main class="content-area" id="page-content" aria-live="polite">
+      <div class="page-loading">正在加载统一外呼中台…</div>
+    </main>
+  </div>
+
+  <script src="mock/data.js?v=20260929-multiple-navigation1"></script>
+  <script src="mock/demo-kit.js?v=20260924-business-direct-fields1"></script>
+  <script src="mock/demo-resources.js?v=20260922-single-tenant1"></script>
+  <script src="mock/demo-activity.js?v=20260921-demo-small5"></script>
+  <script src="mock/report-summaries.js?v=20260921-demo-small5"></script>
+  <script src="mock/report-fixtures.js?v=20260922-single-tenant1"></script>
+  <script src="mock/queue-resources.js?v=20260922-single-tenant1"></script>
+  <script src="mock/number-pools.js?v=20260923-number-pools1"></script>
+  <script src="mock/call-media.js?v=20260922-single-tenant1"></script>
+  <script src="mock/demo-media.js?v=20260915-showcase1"></script>
+  <script src="mock/customer-import.js?v=20260910-types1"></script>
+  <script src="mock/scenario-demo.js?v=20260920-cf08-cf11-1"></script>
+  <script src="mock/ccc-support.js?v=20260924-cloud-only2"></script>
+  <script src="js/common.js?v=20260920-confirm-top1"></script>
+  <script src="js/components/platform-ui.js?v=20260923-modal-discard1"></script>
+<script src="js/components/alicti-number-status.js?v=20260920-inbound-status1"></script>
+<script src="js/components/alicti-retry.js?v=20260915-drawer1"></script>
+<script src="js/components/alicti-retry-editor.js?v=20260915-drawer1"></script>
+<script src="js/components/tenant-supervisor-policy.js?v=20260918-tenant-monitor1"></script>
+<script src="js/components/alicti-fields.js?v=20260929-multiple-navigation1"></script>
+<script src="js/components/alicti-ivr.js?v=20260922-single-tenant1"></script>
+<script src="js/components/alicti-demo.js?v=20260922-caller-navigation1"></script>
+<script src="js/components/call-state.js?v=20260920-inbound-status1"></script>
+<script src="js/components/alicti-report-facts.js?v=20260916-reports1"></script>
+<script src="js/components/report-metrics.js?v=20260916-reports1"></script>
+  <script src="mock/demo-compact.js?v=20260924-cloud-only1"></script>
+  <script src="mock/demo-install.js?v=20260921-demo-small5"></script>
+  <script src="js/components/alicti-accounts.js?v=20260930-local-logic-fixes1"></script>
+  <script src="js/app.js?v=20260930-customer-import-admin1"></script>
+  <script src="js/components/demo-switch.js?v=20260930-tenant-scope1"></script>
+  <script src="js/components/resource-rules.js?v=20260922-caller-navigation1"></script>
+  <script src="js/components/customer-business.js?v=20260924-business-direct-fields1"></script>
+  <script src="js/pages/business-categories.js?v=20260924-business-direct-fields1"></script>
+  <script src="mock/customer-followup.js?v=20260915-business-info1"></script>
+  <script src="js/components/customer-followup.js?v=20260923-business-templates1"></script>
+  <script src="js/components/customer-directory.js?v=20260930-call-sync2"></script>
+  <script src="js/components/alicti-receiving.js?20260920-incoming-actions1"></script>
+  <script src="js/components/call-data-sync.js?v=20260930-call-sync2"></script>
+  <script src="js/pages/agent-workbench.js?v=20260930-call-sync2"></script>
+  <script src="js/pages/scenario-readiness.js?v=20260929-multiple-navigation1"></script>
+  <script src="js/components/role-charts.js?v=20260915-drawer1"></script>
+  <script src="js/components/role-focus.js?v=20260918-number-management1"></script>
+  <script src="js/pages/home.js?v=20260924-cloud-only1"></script>
+  <script src="js/components/workbench-overview.js?v=20260930-tenant-scope1"></script>
+  <script src="js/components/account-tenant-forms.js?v=20260924-cloud-only1"></script>
+  <script src="js/pages/account-tenant.js?v=20260924-cloud-only1"></script>
+  <script src="js/pages/alicti-accounts.js?v=20260929-multiple-navigation1"></script>
+  <script src="js/components/business-issues.js?v=20260921-list-order2"></script>
+  <script src="js/pages/agent-center.js?v=20260922-single-tenant1"></script>
+    <script src="js/components/manual-skill-access.js?v=20260915-drawer1"></script>
+    <script src="js/pages/customer-tasks.js?v=20260930-customer-import-admin1"></script>
+  <script src="js/components/repeat-predictive.js?v=20260921-list-order2"></script>
+    <script src="js/pages/customer-demo.js?v=20260920-number-seat2"></script>
+  <script src="js/components/alicti-queue-contracts.js?v=20260918-queues2"></script>
+  <script src="js/components/alicti-number-pools.js?v=20260930-local-logic-fixes1"></script>
+  <script src="js/components/alicti-queues.js?v=20260921-list-order2"></script>
+  <script src="js/components/queue-config.js?v=20260920-confirm-top1"></script>
+  <script src="js/components/queue-detail.js?v=20260920-confirm-top1"></script>
+  <script src="js/components/outbound-groups.js?v=20260921-list-order2"></script>
+  <script src="js/pages/outbound-group-management.js?v=20260922-single-tenant1"></script>
+  <script src="js/pages/queue-management.js?v=20260922-single-tenant1"></script>
+  <script src="js/pages/number-pool-management.js?v=20260923-number-pools1"></script>
+  <script src="js/pages/contact-center-settings.js?v=20260922-single-tenant1"></script>
+  <script src="mock/number-onboarding.js?v=20260922-single-tenant1"></script>
+  <script src="js/components/number-import-history.js?v=20260922-single-tenant1"></script>
+  <script src="js/components/alicti-number-import.js?v=20260922-single-tenant1"></script>
+  <script src="js/pages/resource-lines.js?v=20260922-single-tenant1"></script>
+  <script src="js/pages/inbound-routing.js?v=20260921-list-order2"></script>
+  <script src="js/pages/operations-monitor.js?v=20260921-list-order2"></script>
+  <script src="mock/time-conditions.js?v=20260922-single-tenant1"></script>
+  <script src="js/components/alicti-time-conditions.js?v=20260930-local-logic-fixes1"></script>
+  <script src="js/pages/time-condition-management.js?v=20260922-single-tenant1"></script>
+  <script src="js/pages/cloud-task-workspace.js?v=20260930-customer-import-admin1"></script>
+  <script src="js/pages/cloud-call-tasks.js?v=20260923-task-edit1"></script>
+  <script src="js/components/call-media.js?v=20260930-call-sync2"></script>
+  <script src="js/pages/cloud-call-records.js?v=20260930-call-sync2"></script>
+  <script src="js/pages/customer-directory.js?v=20260921-list-order2"></script>
+  <script src="js/components/alicti-report-summary.js?v=20260920-supplier-clarifications1"></script>
+  <script src="js/components/lead-report.js?v=20260923-business-templates1"></script>
+<script src="js/components/report-data.js?v=20260923-business-templates1"></script>
+  <script src="js/pages/report-center.js?v=20260922-single-tenant1"></script>
+  <script src="js/components/call-data-issues.js?v=20260921-list-order2"></script>
+  <script src="js/pages/system-center.js?v=20260921-list-order2"></script>
+  <script src="js/pages/scenario-demo.js?v=20260922-caller-navigation1"></script>
+  <script src="js/components/account-seat.js?v=20260922-single-tenant1"></script>
+  <script src="js/components/alicti-adapter.js?v=20260923-task-caller-contract1"></script>
+  <script src="mock/seat-operations.js?v=20260923-seat-event-history1"></script>
+  <script src="mock/extensions.js?v=20260922-single-tenant1"></script>
+  <script src="js/components/alicti-extensions.js?v=20260922-single-tenant1"></script>
+  <script src="js/pages/extension-management.js?v=20260922-single-tenant1"></script>
+  <script src="js/components/seat-phone-config.js?v=20260922-single-tenant1"></script>
+  <script src="js/components/seat-event-log.js?v=20260923-seat-event-history1"></script>
+  <script src="js/components/alicti-seat-operations.js?v=20260923-supervisor-readonly1"></script>
+  <script src="js/components/seat-operation-ui.js?v=20260923-supervisor-readonly1"></script>
+  <script src="js/components/tenant-call-monitor.js?v=20260923-seat-event-history1"></script>
+<script src="js/components/alicti-task-control.js?v=20260923-availability1"></script>
+<script src="js/components/alicti-task-update.js?v=20260923-task-edit1"></script>
+  <script src="js/components/alicti-seat-import.js?v=20260921-list-order2"></script>
+  <script src="mock/demo-ready.js?v=20260921-demo-small5"></script>
+  <script src="mock/inbound-routing.js?v=20260922-single-tenant1"></script>
+  <script src="js/components/alicti-inbound.js?v=20260920-times1"></script>
+  <script src="js/nav.js?v=20260924-cloud-only3"></script>
+  <script>
+    window.AnnotationConfig = {
+      projectId: 'prototype-f200ca62',
+      dataVersion: '1',
+      page: function () {
+        return document.body.dataset.routeKey || window.location.hash.slice(1) || 'home';
+      }
+    };
+  </script>
+  <script src="js/delivery-nav.js?v=20260919-navigation2"></script>
+<script src="js/components/alicti-contract-panel.js?20260920-phone-actions1"></script>
+</body>
+</html>

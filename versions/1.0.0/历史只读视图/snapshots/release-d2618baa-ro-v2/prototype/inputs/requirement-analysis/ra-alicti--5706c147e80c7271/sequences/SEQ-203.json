@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-203",
+  "scenario_id": "SC-203",
+  "name": "按业务类型导入客户并关联号码档案时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "获得一批需联系客户",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "u",
+      "to": "ui",
+      "message": "选择批次业务类型，填写批次名称并上传 CSV 或粘贴客户名单；可使用对应类型演示数据",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 7,
+      "from": "svc",
+      "to": "svc",
+      "message": "识别客户称呼、手机号、联系备注和对应业务编码，逐行校验并按本批手机号取首条有效记录；线索编码、售后单号或活动编码复用 externalDocumentId，按最多 100 字文本保留前导零；旧通用表头可识别，但新类型编码仍必填。错误行不占用后续有效同号记录，不按业务编码合并客户。",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 8,
+      "from": "svc",
+      "to": "svc",
+      "message": "排除错误和本批重复行后，仍有有效行且当前管理范围合法？；通过才显示可导入的有效行与排除原因；全部无效或范围不合法时，不建立空批次。",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 9,
+      "from": "u",
+      "to": "ui",
+      "message": "预览有效行后确认导入？",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 10,
+      "from": "svc",
+      "to": "svc",
+      "message": "提交时复检权限、租户与供应商账号、业务类型及名单，且预览仍有效？；类型、名单或操作范围发生变化后旧预览失效，要求重新预览；提交复检通过才进入保存。",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "svc",
+      "message": "原子保存批次和独立客户行，并按租户 + 供应商账号 + 规范手机号建立或关联联系档案；分别保留批次客户 ID 与档案 ID；业务类型和编码属于批次及客户行来源，跨批同号仅共用档案，不覆盖各批分配、跟进或历史尝试。",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 12,
+      "from": "u",
+      "to": "ui",
+      "message": "查看本批有效客户并进入待分配列表",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 13,
+      "from": "svc",
+      "to": "ui",
+      "message": "显示错误行或范围错误，不建立空批次、不自动拨号；修正后需重新预览。",
+      "type": "error",
+      "api_id": null,
+      "condition": "没有可导入有效行，或当前管理范围不合法"
+    },
+    {
+      "step": 14,
+      "from": "svc",
+      "to": "ui",
+      "message": "结束本次导入，不保存批次、客户行或档案变更。",
+      "type": "error",
+      "api_id": null,
+      "condition": "预览后取消导入或关闭窗口"
+    },
+    {
+      "step": 15,
+      "from": "svc",
+      "to": "ui",
+      "message": "阻止保存并提示失效或校验原因；重新选择范围、修正名单并重新预览后再发起导入。",
+      "type": "error",
+      "api_id": null,
+      "condition": "类型、名单或操作范围改变导致预览失效，或提交复检未通过"
+    },
+    {
+      "step": 16,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

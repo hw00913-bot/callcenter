@@ -1,0 +1,258 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-011",
+  "name": "配置共享呼入号码、IVR 分流和租户人工路由",
+  "summary": "把供应商账号共享号码、入口 IVR 和各租户独立呼入方案组合为可执行入口，并在人工路由前锁定唯一目标租户。",
+  "actors": [
+    "超级管理员/租户管理员",
+    "统一外呼中台",
+    "AliCti"
+  ],
+  "trigger": "供应商账号需要开通共享号码呼入，或调整 IVR 分支与租户路由",
+  "preconditions": [
+    "号码已绑定当前供应商账号并授权目标租户；AliCti侧已有可同步的已发布 IVR；各目标租户物理技能组可用"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员/租户管理员",
+      "action": "选择共享呼入号码与已发布入口IVR",
+      "system_response": "呼入路由草稿",
+      "input": "供应商账号号码、分支、默认租户",
+      "rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "超级管理员/租户管理员",
+      "action": "配置本租户承接、服务时间及超时兜底",
+      "system_response": "租户呼入规则",
+      "input": "本租户技能组、营业时间、提示音",
+      "rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "各分支租户均获用号权且组归属正确？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "AliCti",
+      "action": "按文档导入IVR定义文件",
+      "system_response": "发布与号码入口绑定待确认，导入不代表生效",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "发布、号码入口与租户分支映射均已验证？",
+      "system_response": "文件导入成功不等于路由已生效",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-011"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "保存路由映射、版本和兜底",
+      "system_response": "呼入先锁定唯一租户再分配坐席",
+      "input": "有效路由结果",
+      "rule_ids": [
+        "BR-011"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-011-3",
+      "condition": "各分支租户均获用号权且组归属正确？：不满足",
+      "steps": [
+        "列出无权/失效分支并拒绝发布，保留原有效路由"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-011-5",
+      "condition": "实际发布流程与中台分支映射一致？：不满足",
+      "steps": [
+        "保持待核对；不得仅存本地分支就宣称厂商已生效"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    }
+  ],
+  "postconditions": [
+    "把供应商账号共享号码、入口 IVR 和各租户独立呼入方案组合为可执行入口，并在人工路由前锁定唯一目标租户。"
+  ],
+  "acceptance_points": [
+    "把供应商账号共享号码、入口 IVR 和各租户独立呼入规则组合为可执行入口，并在人工路由前锁定唯一目标租户。",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-011"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-011.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "超级管理员/租户管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "AliCti",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "供应商账号需要开通共享号码呼入，或调整 IVR 分支与租户路由"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "选择共享呼入号码与已发布入口IVR\n输入：供应商账号号码、分支、默认租户\n输出：呼入路由草稿",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "u",
+        "type": "action",
+        "order": 3,
+        "label": "配置本租户承接、服务时间及超时兜底\n输入：本租户技能组、营业时间、提示音\n输出：租户呼入规则",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 4,
+        "label": "各分支租户均获用号权且组归属正确？",
+        "step_ref": 3
+      },
+      {
+        "id": "FAIL3",
+        "lane_id": "u",
+        "type": "end",
+        "order": 5,
+        "label": "列出无权/失效分支并拒绝发布，保留原有效路由"
+      },
+      {
+        "id": "N4",
+        "lane_id": "c",
+        "type": "action",
+        "order": 6,
+        "label": "按文档导入IVR定义文件\n发布与号码入口绑定待确认，导入不代表生效",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 7,
+        "label": "发布、号码入口与租户分支映射均已验证？",
+        "step_ref": 5
+      },
+      {
+        "id": "FAIL5",
+        "lane_id": "u",
+        "type": "end",
+        "order": 8,
+        "label": "保持待核对；不得仅存本地分支就宣称厂商已生效"
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "action",
+        "order": 9,
+        "label": "保存路由映射、版本和兜底\n输入：有效路由结果\n输出：呼入先锁定唯一租户再分配坐席",
+        "step_ref": 6
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 10,
+        "label": "本次操作结束：结果已展示并可追溯"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "FAIL3",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-011-3"
+      },
+      {
+        "from": "N3",
+        "to": "N4",
+        "label": "满足"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "FAIL5",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-011-5"
+      },
+      {
+        "from": "N5",
+        "to": "N6",
+        "label": "满足"
+      },
+      {
+        "from": "N6",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

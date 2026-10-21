@@ -1,0 +1,418 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-014",
+  "name": "创建、配置与启动预外呼任务",
+  "summary": "任务可先建后分配，或创建时选已有待分配客户；提交不自动拨号；启动前复检并冻结执行快照",
+  "actors": [
+    "租户管理员/运营",
+    "统一外呼中台",
+    "AliCti",
+    "中台坐席工作台"
+  ],
+  "trigger": "需要批量呼叫并由本租户空闲坐席承接",
+  "preconditions": [
+    "已有或待导入的中台客户批次；任务使用自身配置，启动前须有有效坐席与非空名单"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "租户管理员/运营",
+      "action": "新建预外呼并填写本次配置",
+      "system_response": "任务草稿",
+      "input": "任务名称、租户、已有资源、时间和重呼参数",
+      "rule_ids": [
+        "BR-014"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "按当前角色处理可选客户",
+      "system_response": "草稿预选不占用；运营由管理员后续分配",
+      "input": "管理员可选择待分配客户；运营仅提交空名单",
+      "rule_ids": [
+        "BR-014"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "资源、参数、分配权限及所选客户复检通过？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-014"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "确认提交配置及可选客户关联，保持未启动",
+      "system_response": "禁止定时/导入自动启动，草稿不占用名单",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-014"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "租户管理员/运营",
+      "action": "名单就绪后单独请求启动",
+      "system_response": "启动申请；不将运营创建权限当作分配权限",
+      "input": "已分配名单；无名单先由管理员分配",
+      "rule_ids": [
+        "BR-014"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "名单、授权及坐席/外呼组任务互斥均满足？",
+      "system_response": "核对最小可用坐席、并发、额度、流程及重呼开通条件",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-014"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "统一外呼中台",
+      "action": "冻结来源快照并核对名单实际导入结果",
+      "system_response": "跨批同号不因任务默认排重丢失；部分失败保留明细",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-014"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "AliCti",
+      "action": "任务启动能力待确认",
+      "system_response": "不发送无依据的启动调用；既有通话结果可独立查询",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-014"
+      ]
+    },
+    {
+      "step": 9,
+      "actor": "统一外呼中台",
+      "action": "执行已确认受理且可持续取得结果？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-014"
+      ]
+    },
+    {
+      "step": 10,
+      "actor": "统一外呼中台",
+      "action": "按预测事件与话单校准原通话和批次",
+      "system_response": "客户接听、双方接听、重呼轮次与最终尝试分别记录",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-014"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-014-3",
+      "condition": "资源、参数、分配权限及所选客户复检通过？：不满足",
+      "steps": [
+        "保留草稿；运营携带客户选择则拒绝，不虚构名单数量"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-014-6",
+      "condition": "有名单且用号/流程/技能等执行条件有效？：不满足",
+      "steps": [
+        "禁止空名单或失效资源启动；草稿不可启动"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-014-9",
+      "condition": "执行已确认受理且可持续取得结果？：不满足",
+      "steps": [
+        "保留失败或待核对，先查询状态，不盲目重复投放"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-014-CANCEL",
+      "condition": "执行变更前取消确认",
+      "steps": [
+        "取消本次提交：既有草稿保留，预选客户不占用"
+      ]
+    }
+  ],
+  "postconditions": [
+    "任务可先建后分配，或创建时选已有待分配客户；提交不自动拨号；启动前复检并冻结执行快照"
+  ],
+  "acceptance_points": [
+    "任务可先建后分配，或创建时选已有待分配客户；提交不自动拨号；启动前复检并冻结执行快照",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-014"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-014.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "租户管理员/运营",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "AliCti",
+        "kind": "external_system"
+      },
+      {
+        "id": "b",
+        "name": "中台坐席工作台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "需要批量呼叫并由本租户空闲坐席承接"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "新建预外呼并填写本次配置\n输入：任务名称、租户、已有资源、时间和重呼参数\n输出：任务草稿",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "action",
+        "order": 3,
+        "label": "按当前角色处理可选客户\n输入：管理员可选择待分配客户；运营仅提交空名单\n输出：草稿预选不占用；运营由管理员后续分配",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 4,
+        "label": "资源、参数、分配权限及所选客户复检通过？",
+        "step_ref": 3
+      },
+      {
+        "id": "FAIL3",
+        "lane_id": "u",
+        "type": "end",
+        "order": 5,
+        "label": "保留草稿；运营携带客户选择则拒绝，不虚构名单数量"
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "action",
+        "order": 8,
+        "label": "确认提交配置及可选客户关联，保持未启动\n禁止定时/导入自动启动，草稿不占用名单",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "u",
+        "type": "action",
+        "order": 9,
+        "label": "名单就绪后单独请求启动\n输入：已分配名单；无名单先由管理员分配\n输出：启动申请；不将运营创建权限当作分配权限",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 10,
+        "label": "名单、授权及坐席/外呼组任务互斥均满足？",
+        "step_ref": 6
+      },
+      {
+        "id": "FAIL6",
+        "lane_id": "u",
+        "type": "end",
+        "order": 11,
+        "label": "禁止空名单或失效资源启动；草稿不可启动"
+      },
+      {
+        "id": "N7",
+        "lane_id": "p",
+        "type": "action",
+        "order": 12,
+        "label": "冻结来源快照并核对名单实际导入结果\n跨批同号不因任务默认排重丢失；部分失败保留明细",
+        "step_ref": 7
+      },
+      {
+        "id": "N8",
+        "lane_id": "c",
+        "type": "action",
+        "order": 13,
+        "label": "任务启动能力待确认\n不发送无依据的启动调用；既有通话结果可独立查询",
+        "step_ref": 8
+      },
+      {
+        "id": "N9",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 15,
+        "label": "执行已确认受理且可持续取得结果？",
+        "step_ref": 9
+      },
+      {
+        "id": "FAIL9",
+        "lane_id": "u",
+        "type": "end",
+        "order": 16,
+        "label": "保留失败或待核对，先查询状态，不盲目重复投放"
+      },
+      {
+        "id": "N10",
+        "lane_id": "p",
+        "type": "action",
+        "order": 17,
+        "label": "按预测事件与话单校准原通话和批次\n客户接听、双方接听、重呼轮次与最终尝试分别记录",
+        "step_ref": 10
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 18,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 6,
+        "label": "确认提交本次操作？"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 7,
+        "label": "取消本次提交：既有草稿保留，预选客户不占用"
+      },
+      {
+        "id": "N8-SDK",
+        "lane_id": "b",
+        "type": "action",
+        "order": 14,
+        "label": "既有预测通话的坐席接听结果\n仅对来源与状态已确认的通话归档"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "FAIL3",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-014-3"
+      },
+      {
+        "from": "N3",
+        "to": "CONFIRM",
+        "label": "满足"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "FAIL6",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-014-6"
+      },
+      {
+        "from": "N6",
+        "to": "N7",
+        "label": "满足"
+      },
+      {
+        "from": "N7",
+        "to": "N8"
+      },
+      {
+        "from": "N9",
+        "to": "FAIL9",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-014-9"
+      },
+      {
+        "from": "N9",
+        "to": "N10",
+        "label": "满足"
+      },
+      {
+        "from": "N10",
+        "to": "END"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "N4",
+        "label": "确认"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-014-CANCEL"
+      },
+      {
+        "from": "N8",
+        "to": "N8-SDK"
+      },
+      {
+        "from": "N8-SDK",
+        "to": "N9"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

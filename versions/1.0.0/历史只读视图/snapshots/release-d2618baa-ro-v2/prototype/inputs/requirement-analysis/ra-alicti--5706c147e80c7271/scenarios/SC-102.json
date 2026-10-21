@@ -1,0 +1,326 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-102",
+  "name": "开启或结束本人 WebRTC 电话服务",
+  "summary": "在坐席工作台使用本人身份开启电话服务，并在无在途或未保存话后结果时安全下线。",
+  "actors": [
+    "关联坐席的中台用户",
+    "统一外呼中台",
+    "AliCti"
+  ],
+  "trigger": "开始或结束当前租户的人工外呼工作",
+  "preconditions": [
+    "认证通过并选定租户与云联络中心业务域",
+    "已建立有效账号坐席关联"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "关联坐席的中台用户",
+      "action": "进入当前租户坐席工作台或呼叫弹窗",
+      "system_response": "本人电话服务入口",
+      "input": "登录租户与业务域",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "校验本人坐席、技能、号码及 HTTPS/麦克风许可",
+      "system_response": "有效身份、授权资源与设备条件",
+      "input": "有效关联、同步结果、授权",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "本人身份、麦克风与会话占用检查均通过？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "初始化电话组件、注册事件并取得本人短期登录材料",
+      "system_response": "setup回调后注册事件；后端校验绑定后申请sessionKey",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "关联坐席的中台用户",
+      "action": "电话就绪后处理业务；无在途和未保存结果时申请下线",
+      "system_response": "拨号/接听/挂断沿用原操作权限",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "通话结束且结果已保存，并允许完全退出？",
+      "system_response": "不满足则保留会话与输入",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "统一外呼中台",
+      "action": "确认完全下线成功后释放本地会话与锁",
+      "system_response": "logoutMode=1；退出失败不伪造离线",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-102"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-102-3",
+      "condition": "本人资格有效且未被其他会话占用？：不满足",
+      "steps": [
+        "提示缺项或拒绝第二入口，不强制抢占"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-102-6",
+      "condition": "当前确实允许退出且厂商状态已确认？：不满足",
+      "steps": [
+        "保留会话和结果输入；核对状态，不提前释放"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-102-REGISTER",
+      "condition": "初始化、短期令牌、坐席登录或软电话就绪失败/未确认",
+      "steps": [
+        "保持不可呼叫，提示修复身份、设备、占用或网络问题；未知状态先核对"
+      ],
+      "continuation": "先核对登录状态，过期令牌重新申请；不自动重复拨号。"
+    }
+  ],
+  "postconditions": [
+    "在坐席工作台使用本人身份开启电话服务，并在无在途或未保存话后结果时安全下线。"
+  ],
+  "acceptance_points": [
+    "已关联坐席运营从工作台待联络客户或临时拨号进入呼叫弹窗，检查身份与资源后开启服务，不恢复我的坐席独立区。",
+    "呼叫或话后未保存期间禁止退出和切换上下文；坐席占用不能由另一入口抢占。真实跨设备会话能力保留为接口联调项。"
+  ],
+  "source_story_ids": [
+    "US-102"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-102.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "关联坐席的中台用户",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "AliCti",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "开始或结束当前租户的人工外呼工作"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "进入当前租户坐席工作台或呼叫弹窗\n输出：本人电话服务入口",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "action",
+        "order": 3,
+        "label": "校验本人坐席、技能、号码及 HTTPS/麦克风许可\n输出：有效身份、授权资源与设备条件",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 4,
+        "label": "本人身份、麦克风与会话占用检查均通过？",
+        "step_ref": 3
+      },
+      {
+        "id": "FAIL3",
+        "lane_id": "u",
+        "type": "end",
+        "order": 5,
+        "label": "提示缺项或拒绝第二入口，不强制抢占"
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "action",
+        "order": 6,
+        "label": "初始化电话组件、注册事件并取得本人短期登录材料\nsetup回调后注册事件；后端校验绑定后申请sessionKey",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "u",
+        "type": "action",
+        "order": 10,
+        "label": "电话就绪后处理业务；无在途和未保存结果时申请下线\n拨号/接听/挂断沿用原操作权限",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 11,
+        "label": "通话结束且结果已保存，并允许完全退出？",
+        "step_ref": 6
+      },
+      {
+        "id": "FAIL6",
+        "lane_id": "u",
+        "type": "end",
+        "order": 12,
+        "label": "保留会话和结果输入；核对状态，不提前释放"
+      },
+      {
+        "id": "N7",
+        "lane_id": "p",
+        "type": "action",
+        "order": 13,
+        "label": "确认完全下线成功后释放本地会话与锁\nlogoutMode=1；退出失败不伪造离线",
+        "step_ref": 7
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 14,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "READY-CHECK",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 8,
+        "label": "登录与软电话就绪均已确认？"
+      },
+      {
+        "id": "REGISTER-FAIL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 9,
+        "label": "保留不可呼叫状态；提示鉴权/麦克风/占用/网络问题，不伪报上线"
+      },
+      {
+        "id": "N4-AliCti",
+        "lane_id": "c",
+        "type": "action",
+        "order": 7,
+        "label": "处理本人坐席登录及软电话媒体连接\n返回登录结果和实际状态"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "FAIL3",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-102-3"
+      },
+      {
+        "from": "N3",
+        "to": "N4",
+        "label": "满足"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "FAIL6",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-102-6"
+      },
+      {
+        "from": "N6",
+        "to": "N7",
+        "label": "满足"
+      },
+      {
+        "from": "N7",
+        "to": "END"
+      },
+      {
+        "from": "READY-CHECK",
+        "to": "N5",
+        "label": "已就绪"
+      },
+      {
+        "from": "READY-CHECK",
+        "to": "REGISTER-FAIL",
+        "label": "失败或待确认",
+        "type": "failure",
+        "path_id": "ALT-102-REGISTER"
+      },
+      {
+        "from": "N4",
+        "to": "N4-AliCti"
+      },
+      {
+        "from": "N4-AliCti",
+        "to": "READY-CHECK"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "date": "2026-09-23",
+  "version": "2026-09-23-supervisor-event-history-1",
+  "result": "pass",
+  "scope": "D-084 班长坐席事件预览、全部事件二级页及相关原型和说明文档的本地回归；不代表 AliCti 真实接入或供应商联调",
+  "verifiedBehavior": [
+    "事件按平台接收或观察的记录时间倒序；页签预览最近 5 条，全部事件二级页每页 10 条。",
+    "列表只展示记录时间、坐席和原工号、事件、来源；无统一接口依据的前态和说明列已移除。",
+    "初始没有预置假事件；本地模拟操作、连接回调或状态快照观察后才生成记录，超过 15 条仍保留，重复同状态观察不增加记录。",
+    "本租户管理员可离线只读查看授权范围内已有事件；普通坐席、跨租户及未授权工号不能借二级页越权。"
+  ],
+  "verification": {
+    "offline": {
+      "command": "python3 qa/run-offline-checks.py",
+      "suites": 64,
+      "failed": 0,
+      "result": "pass"
+    },
+    "focused": {
+      "result": "pass",
+      "checks": 75,
+      "suites": [
+        {"name": "tenant-call-monitor", "checks": 24},
+        {"name": "supervisor-management", "checks": 34},
+        {"name": "supervisor-workbench", "checks": 17}
+      ],
+      "coverage": "排序、分页、历史保留、重复观察去重、租户与普通坐席权限，以及来源文案"
+    },
+    "browser": {
+      "result": "pass",
+      "environment": "本地 HTTP 静态原型",
+      "checks": [
+        "租户管理员进入班长监控，未上线时可查看事件页签初始空态。",
+        "查看全部事件进入独立二级页，返回后仍可继续查看班长监控。",
+        "模拟坐席登录后生成一条“上线 / 本人操作（模拟）”记录，页签与全部事件页同步显示。"
+      ],
+      "consoleErrors": 0,
+      "nonBlockingWarnings": ["既有 allow/allowfullscreen 浏览器提示"],
+      "resourceRequests": 161,
+      "resourceFailures404Or500": 0,
+      "note": "普通坐席越权由专项离线测试覆盖，未额外进行浏览器账号切换；回归专用浏览器已关闭。"
+    },
+    "documentation": {
+      "command": "python3 documentation/verify_documentation.py",
+      "result": "pass",
+      "checks": 661,
+      "linksChecked": 3733,
+      "officialSourcesChecked": 101
+    }
+  },
+  "limits": [
+    "AliCti 现有资料提供企业事件订阅与当前坐席状态查询，但未提供可直接查询历史事件的接口；当前原型只保存当前浏览器的演示记录。",
+    "生产全量事件需服务端鉴权采集、租户过滤、去重、持久化及分页接口；本次未连接真实供应商事件推送。"
+  ]
+}

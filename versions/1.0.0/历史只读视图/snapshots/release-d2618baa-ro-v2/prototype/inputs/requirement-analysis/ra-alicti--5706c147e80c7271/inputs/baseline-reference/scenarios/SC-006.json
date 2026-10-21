@@ -1,0 +1,262 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-006",
+  "name": "创建逻辑技能模板与租户物理技能组",
+  "summary": "复用售前、售后等业务分类，同时用租户独占的阿里物理技能组保证原生路由不跨租户。",
+  "actors": [
+    "超级管理员",
+    "统一外呼中台",
+    "阿里云CCC"
+  ],
+  "trigger": "某实例需要新增可复用技能分类，或某租户需要启用既有技能分类",
+  "preconditions": [
+    "超级管理员已选定实例；目标租户绑定该实例并启用联络中心能力"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员",
+      "action": "选择实例技能分类与目标租户",
+      "system_response": "逻辑模板及物理组创建申请",
+      "input": "售前/售后等逻辑分类、租户",
+      "rule_ids": [
+        "BR-006"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "同一实例且映射不冲突？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-006"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "准备租户独占物理组",
+      "system_response": "厂商创建参数",
+      "input": "逻辑模板、租户归属",
+      "rule_ids": [
+        "BR-006"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "阿里云CCC",
+      "action": "创建或查询目标技能组",
+      "system_response": "物理技能组ID",
+      "input": "实例及技能组资料",
+      "rule_ids": [
+        "BR-006"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "物理组已确认创建且归属正确？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-006"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "保存模板到租户物理组映射",
+      "system_response": "实例分类可复用；组内ACD不跨租户",
+      "input": "厂商技能组ID",
+      "rule_ids": [
+        "BR-006"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-006-2",
+      "condition": "同一实例且映射不冲突？：不满足",
+      "steps": [
+        "禁止跨实例或多个租户共用同一物理组"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-006-5",
+      "condition": "物理组已确认创建且归属正确？：不满足",
+      "steps": [
+        "保留同步失败或结果未知，先查询核对再重试"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    }
+  ],
+  "postconditions": [
+    "复用售前、售后等业务分类，同时用租户独占的阿里物理技能组保证原生路由不跨租户。"
+  ],
+  "acceptance_points": [
+    "复用售前、售后等业务分类，同时用租户独占的阿里物理技能组保证原生路由不跨租户。",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-006"
+  ],
+  "source_refs": [
+    "inputs/legacy-business-flows.json#BF-05",
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-204",
+    "inputs/source-index.json#SRC-055"
+  ],
+  "legacy_refs": [
+    "BF-05"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "阿里云CCC",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "某实例需要新增可复用技能分类，或某租户需要启用既有技能分类"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "选择实例技能分类与目标租户\n输入：售前/售后等逻辑分类、租户\n输出：逻辑模板及物理组创建申请",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "同一实例且映射不冲突？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "禁止跨实例或多个租户共用同一物理组"
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "action",
+        "order": 5,
+        "label": "准备租户独占物理组\n输入：逻辑模板、租户归属\n输出：厂商创建参数",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "c",
+        "type": "action",
+        "order": 6,
+        "label": "创建或查询目标技能组\n输入：实例及技能组资料\n输出：物理技能组ID",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 7,
+        "label": "物理组已确认创建且归属正确？",
+        "step_ref": 5
+      },
+      {
+        "id": "FAIL5",
+        "lane_id": "u",
+        "type": "end",
+        "order": 8,
+        "label": "保留同步失败或结果未知，先查询核对再重试"
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "action",
+        "order": 9,
+        "label": "保存模板到租户物理组映射\n输入：厂商技能组ID\n输出：实例分类可复用；组内ACD不跨租户",
+        "step_ref": 6
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 10,
+        "label": "本次操作结束：结果已展示并可追溯"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-006-2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "满足"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "FAIL5",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-006-5"
+      },
+      {
+        "from": "N5",
+        "to": "N6",
+        "label": "满足"
+      },
+      {
+        "from": "N6",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。"
+  ]
+}

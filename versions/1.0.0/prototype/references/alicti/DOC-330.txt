@@ -1,0 +1,180 @@
+查询技能列表
+
+接口说明：
+
+API URL
+
+接口请求地址： https://api-{region}.alicti.cn/interface/{version}/skill/list 
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10 
+
+接口请求方式：GET/POST
+
+相关参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+name | 
+String | 
+可选 | 
+技能名称 | 
+ | 
+
+comment | 
+String | 
+可选 | 
+描述 | 
+ | 
+
+limit | 
+String | 
+可选 | 
+条数 | 
+正整数，默认值是10，最大值是500 | 
+
+offset | 
+String | 
+可选 | 
+从第几条开始 | 
+正整数，默认值是0 | 
+
+order | 
+Int | 
+可选 | 
+排序方式,按照创建时间排序 | 
+0正序 1倒序 | 
+
+接口请求示例：
+
+https://api-{region}.alicti.cn/interface/v10/skill/list?validateType=1&departmentId=BM3000003&timestamp=1491372644
+&sign=8209fc5ac75b6377c7db4ac9c35932e7
+
+接口返回
+
+data定义：
+
+字段           | 
+类型     | 
+描述         | 
+
+id | 
+Int | 
+技能id | 
+
+enterpriseId | 
+Int | 
+企业编号 | 
+
+name | 
+String | 
+技能名称 | 
+
+comment | 
+String | 
+描述 | 
+
+createTime | 
+String | 
+创建时间,精确到秒 | 
+
+返回示例：
+
+{
+    "result": "0",
+    "description": "成功",
+    "data": {
+        "pageNum": "1",
+        "pageSize": "10",
+        "size": "4",
+        "orderBy": null,
+        "startRow": "1",
+        "endRow": "4",
+        "total": "4",
+        "pages": "1",
+        "list": [
+            {
+                "id": "52593",
+                "enterpriseId": "7122600",
+                "name": "2902JnD更新技能",
+                "comment": "7067sjz技能描述",
+                "createTime": "2026-03-30 06:12:41"
+            },
+            {
+                "id": "48735",
+                "enterpriseId": "7122600",
+                "name": "技能3（勿动）",
+                "comment": "",
+                "createTime": "2025-09-05 09:43:10"
+            },
+            {
+                "id": "48734",
+                "enterpriseId": "7122600",
+                "name": "技能2（勿动）",
+                "comment": "",
+                "createTime": "2025-09-05 09:42:55"
+            },
+            {
+                "id": "48733",
+                "enterpriseId": "7122600",
+                "name": "技能1（勿动）",
+                "comment": "",
+                "createTime": "2025-09-05 09:42:43"
+            }
+        ],
+        "firstPage": "1",
+        "prePage": "0",
+        "nextPage": "0",
+        "lastPage": "1",
+        "isFirstPage": true,
+        "isLastPage": true,
+        "hasPreviousPage": false,
+        "hasNextPage": false,
+        "navigatePages": "8",
+        "navigatepageNums": [
+            "1"
+        ]
+    }
+}

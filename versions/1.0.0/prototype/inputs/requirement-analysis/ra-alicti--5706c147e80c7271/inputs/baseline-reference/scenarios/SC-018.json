@@ -1,0 +1,283 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-018",
+  "name": "呼入排队、拒接及非服务时间处理",
+  "summary": "非营业、无人、拒接及排队超时由已发布流程在本租户兜底；平台只记录可核实的来电、客户与坐席状态。",
+  "actors": [
+    "来电客户",
+    "统一外呼中台",
+    "阿里云 CCC",
+    "本租户承接坐席"
+  ],
+  "trigger": "呼入未能直接进入正常唯一客户接听路径",
+  "preconditions": [
+    "客户已拨入实例共享号码，并已由 IVR 分支或默认兜底锁定目标租户"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "阿里云 CCC",
+      "action": "进入目标租户的已发布服务时段和队列规则",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-018"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "在服务时间且允许继续排队？",
+      "system_response": "通过才继续；不通过结束本次操作",
+      "rule_ids": [
+        "BR-018"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "阿里云 CCC",
+      "action": "无空闲坐席时在本租户等待；坐席拒接按既定规则再分配",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-018"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "在时限内成功分配且坐席接听？",
+      "system_response": "通过才继续；不通过结束本次操作",
+      "rule_ids": [
+        "BR-018"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "自有界面显示当前来电；以本租户手机号查询平台联系档案",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-018"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "本租户承接坐席",
+      "action": "有档案则查看，未知号码保留来电号码，不强建线索或工单",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-018"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "统一外呼中台",
+      "action": "最终话单分别归档客户接通、人工接听和结束原因",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-018"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-018-2",
+      "condition": "在服务时间且允许继续排队？：不通过",
+      "steps": [
+        "按已发布非营业或超时提示结束；保留未承接记录"
+      ]
+    },
+    {
+      "id": "ALT-018-4",
+      "condition": "在时限内成功分配且坐席接听？：不通过",
+      "steps": [
+        "队列超时或放弃则结束；不将坐席拒接等同客户整通未接通"
+      ]
+    }
+  ],
+  "postconditions": [
+    "非营业、无人、拒接及排队超时由已发布流程在本租户兜底；平台只记录可核实的来电、客户与坐席状态。"
+  ],
+  "acceptance_points": [
+    "超时/非营业/拒接处理限定当前租户，不自动跨租户路由。",
+    "当前范围不包含外部客户查询、外部新建单据或单据回传。"
+  ],
+  "source_story_ids": [
+    "US-018"
+  ],
+  "source_refs": [
+    "inputs/legacy-business-flows.json#BF-17",
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-204",
+    "inputs/source-index.json#SRC-054",
+    "inputs/source-index.json#SRC-055"
+  ],
+  "legacy_refs": [
+    "BF-17"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "来电客户",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "阿里云 CCC",
+        "kind": "external_system"
+      },
+      {
+        "id": "z",
+        "name": "本租户承接坐席",
+        "kind": "actor"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "呼入未能直接进入正常唯一客户接听路径"
+      },
+      {
+        "id": "N1",
+        "lane_id": "c",
+        "type": "action",
+        "order": 2,
+        "label": "进入目标租户的已发布服务时段和队列规则",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "在服务时间且允许继续排队？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "按已发布非营业或超时提示结束；保留未承接记录"
+      },
+      {
+        "id": "N3",
+        "lane_id": "c",
+        "type": "action",
+        "order": 5,
+        "label": "无空闲坐席时在本租户等待；坐席拒接按既定规则再分配",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 6,
+        "label": "在时限内成功分配且坐席接听？",
+        "step_ref": 4
+      },
+      {
+        "id": "FAIL4",
+        "lane_id": "u",
+        "type": "end",
+        "order": 7,
+        "label": "队列超时或放弃则结束；不将坐席拒接等同客户整通未接通"
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "action",
+        "order": 8,
+        "label": "自有界面显示当前来电；以本租户手机号查询平台联系档案",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "z",
+        "type": "action",
+        "order": 9,
+        "label": "有档案则查看，未知号码保留来电号码，不强建线索或工单",
+        "step_ref": 6
+      },
+      {
+        "id": "N7",
+        "lane_id": "p",
+        "type": "action",
+        "order": 10,
+        "label": "最终话单分别归档客户接通、人工接听和结束原因",
+        "step_ref": 7
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 11,
+        "label": "本次结果已展示；保留来源与操作记录"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不通过",
+        "type": "failure",
+        "path_id": "ALT-018-2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "通过"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "FAIL4",
+        "label": "不通过",
+        "type": "failure",
+        "path_id": "ALT-018-4"
+      },
+      {
+        "from": "N4",
+        "to": "N5",
+        "label": "通过"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "N7"
+      },
+      {
+        "from": "N7",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-054（2026-09-10）：过程 stage、客户 answerResult 与 failureReason 分开；客户通道 Established 才是客户接通证据，坐席通道先建立不计客户接通；单通道 Released 不结束整通。迟到证据可校准历史，不重新开启已结束通话。未知不是未接通；校准只更新原通话/原任务，不重拨。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。"
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-009",
+  "scenario_id": "SC-009",
+  "name": "隔离号码业务并处理关联业务时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "号码被投诉、线路异常、资质变化或需要临时停止服务",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "u",
+      "to": "ui",
+      "message": "选择号码业务隔离或恢复",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 7,
+      "from": "svc",
+      "to": "svc",
+      "message": "隔离保存快照并冻结新外呼；恢复先核对快照；影响清单与待执行调整",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 8,
+      "from": "svc",
+      "to": "ui",
+      "message": "号码隔离/恢复及呼入入口变更接口未明确；显示待确认，本地冻结仅限制本平台新外呼",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 9,
+      "from": "svc",
+      "to": "svc",
+      "message": "用途、入口兜底及执行结果均已核实？；仅本地冻结不等于供应商线路已停用",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 10,
+      "from": "svc",
+      "to": "svc",
+      "message": "保存业务隔离/恢复结果并通知受影响方；历史和当前通话保留；只影响引用该号码的任务",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 11,
+      "from": "u",
+      "to": "ui",
+      "message": "恢复号码后逐任务复检",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 12,
+      "from": "svc",
+      "to": "ui",
+      "message": "标记处理中/失败并保持阻断，核对后重试；不得先显示恢复正常",
+      "type": "error",
+      "api_id": null,
+      "condition": "调整结果已核实且资源一致？：不满足"
+    },
+    {
+      "step": 13,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-003",
+  "name": "在中台独立开通 CCC 坐席",
+  "summary": "管理员在中台独立创建 CCC 坐席；既有 RAM 用户导入保留为规划能力，当前无公开入口。按厂商真实结果保存唯一租户归属。",
+  "actors": [
+    "租户管理员/超级管理员",
+    "统一外呼中台",
+    "阿里云 CCC"
+  ],
+  "trigger": "租户管理员需要新增一个或多个联络中心坐席",
+  "preconditions": [
+    "当前租户已启用云联络中心并绑定实例",
+    "操作人有坐席维护权限"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "租户管理员/超级管理员",
+      "action": "当前租户新建坐席；既有 RAM 导入为规划路径，当前无公开入口",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-003"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "管理员权限、实例和坐席归属合法？",
+      "system_response": "通过才继续；不通过结束本次操作",
+      "rule_ids": [
+        "BR-003"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "收集所选方式所需资料；账号、坐席分别管理",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-003"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "阿里云 CCC",
+      "action": "按新建或导入路径处理用户，返回结果或执行标识",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-003"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "查询并逐项核对真实 UserId；导入执行 ID 不能当坐席 ID",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-003"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "厂商坐席及唯一租户映射已确认？",
+      "system_response": "通过才继续；不通过结束本次操作",
+      "rule_ids": [
+        "BR-003"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "统一外呼中台",
+      "action": "保存租户独占坐席；关联账号从账号管理完成，技能另行分配",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-003"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "租户管理员/超级管理员",
+      "action": "查看开通结果及待补充资源",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-003"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-003-2",
+      "condition": "管理员权限、实例和坐席归属合法？：不通过",
+      "steps": [
+        "拒绝越权或重复归属，不新建任何云资源"
+      ]
+    },
+    {
+      "id": "ALT-003-6",
+      "condition": "厂商坐席及唯一租户映射已确认？：不通过",
+      "steps": [
+        "失败项保留，未知先查询核对；只对确认失败项重试"
+      ]
+    }
+  ],
+  "postconditions": [
+    "管理员在中台独立创建 CCC 坐席；既有 RAM 用户导入保留为规划能力，当前无公开入口。按厂商真实结果保存唯一租户归属。"
+  ],
+  "acceptance_points": [
+    "不从外部人员目录选人；新建坐席与导入已有 RAM 坐席分支互斥。",
+    "云端确认成功后才能显示已开通；失败/未知项保留，不重复创建。"
+  ],
+  "source_story_ids": [
+    "US-003"
+  ],
+  "source_refs": [
+    "inputs/legacy-business-flows.json#BF-03",
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-204",
+    "inputs/source-index.json#SRC-055"
+  ],
+  "legacy_refs": [
+    "BF-03"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "租户管理员/超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "阿里云 CCC",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "租户管理员需要新增一个或多个联络中心坐席"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "当前租户新建坐席；既有 RAM 导入为规划路径，当前无公开入口",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "管理员权限、实例和坐席归属合法？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "拒绝越权或重复归属，不新建任何云资源"
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "action",
+        "order": 5,
+        "label": "收集所选方式所需资料；账号、坐席分别管理",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "c",
+        "type": "action",
+        "order": 6,
+        "label": "按新建或导入路径处理用户，返回结果或执行标识",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "action",
+        "order": 7,
+        "label": "查询并逐项核对真实 UserId；导入执行 ID 不能当坐席 ID",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 8,
+        "label": "厂商坐席及唯一租户映射已确认？",
+        "step_ref": 6
+      },
+      {
+        "id": "FAIL6",
+        "lane_id": "u",
+        "type": "end",
+        "order": 9,
+        "label": "失败项保留，未知先查询核对；只对确认失败项重试"
+      },
+      {
+        "id": "N7",
+        "lane_id": "p",
+        "type": "action",
+        "order": 10,
+        "label": "保存租户独占坐席；关联账号从账号管理完成，技能另行分配",
+        "step_ref": 7
+      },
+      {
+        "id": "N8",
+        "lane_id": "u",
+        "type": "action",
+        "order": 11,
+        "label": "查看开通结果及待补充资源",
+        "step_ref": 8
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 12,
+        "label": "本次结果已展示；保留来源与操作记录"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不通过",
+        "type": "failure",
+        "path_id": "ALT-003-2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "通过"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "FAIL6",
+        "label": "不通过",
+        "type": "failure",
+        "path_id": "ALT-003-6"
+      },
+      {
+        "from": "N6",
+        "to": "N7",
+        "label": "通过"
+      },
+      {
+        "from": "N7",
+        "to": "N8"
+      },
+      {
+        "from": "N8",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。"
+  ]
+}

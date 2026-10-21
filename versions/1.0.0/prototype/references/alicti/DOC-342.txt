@@ -1,0 +1,628 @@
+座席详细信息列表获取
+
+接口说明
+
+查询座席列表
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/agent/query
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+接口请求方式：
+
+GET/POST
+
+相关参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+qno | 
+String | 
+可选 | 
+队列号 | 
+当qno不为空时，查询指定队列的所有座席记录 | 
+
+cnos | 
+String | 
+可选 | 
+座席号 | 
+多个座席号以英文逗号分隔 最多支持500个座席 | 
+
+start | 
+Int | 
+可选 | 
+从第几条开始 | 
+正整数，大于等于0，默认0 | 
+
+limit | 
+Int | 
+可选 | 
+查询条数 | 
+正整数，大于0，最大不能超过1000，默认10 | 
+
+active | 
+Int | 
+可选 | 
+是否启用 | 
+正整数，只能是0或者1，0是停用，1是启用 | 
+
+status | 
+Int | 
+可选 | 
+是否在线 | 
+正整数，只能是0或者1，0是离线，1是在线 | 
+
+order | 
+Int | 
+可选 | 
+排序方式,按照创建时间排序 | 
+0正序 1倒序 | 
+
+webrtcUrlType | 
+Int | 
+可选 | 
+webrtc软电话返回地址 | 
+取值说明：0：企业默认 1：公网域名 2：专线域名 3：公网IP 4：专线IP | 
+
+startTime | 
+String | 
+可选 | 
+创建时间起始时间点 | 
+取值说明："2019-10-11 00:00:00" | 
+
+endTime | 
+String | 
+可选 | 
+创建时间终止时间点 | 
+取值说明："2019-10-11 23:59:59" | 
+
+returnQueue | 
+Int | 
+可选 | 
+是否返回绑定座席的队列信息 | 
+0:不返回  1:需要返回  默认值:1 | 
+
+name | 
+String | 
+可选 | 
+通过座席名称检索 | 
+取值说明：前后缀模糊匹配 | 
+
+comment | 
+String | 
+可选 | 
+通过座席备注信息检索 | 
+取值说明：前缀模糊匹配 | 
+
+接口请求示例
+
+https://api-{region}.alicti.cn/interface/v10/agent/query?validateType=1&departmentId=BM3000003&timestamp=1491371625&sign=8c7b7d94c0f1cde09333bb0583e2f3d5
+&limit=3&order=0&webrtcUrlType=0
+
+接口返回
+
+JSON格式数据：
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+Int | 
+0 成功, -1 失败 | 
+
+description | 
+String | 
+返回结果描述 | 
+
+data | 
+JSON | 
+返回数据JSON格式 | 
+
+errorCode | 
+Int | 
+错误码,当返回result=-1时，返回该参数 | 
+
+description给出成功或失败时的文本描述：
+
+description | 
+返回结果说明 | 
+
+验证失败，参数[{param}]不能为空 | 
+{param}为接口参数中必选字段 | 
+
+验证失败，参数[{param}]格式不正确 | 
+{param}为接口参数中格式有要求的字段 | 
+
+验证失败，参数[{param}]取值不正确 | 
+{param}为接口参数中有固定取值的字段 | 
+
+验证失败，参数[param]取值范围不正确 | 
+{param}为接口参数中有固定范围的字段 | 
+
+验证失败，超过频次限制 | 
+接口调用超过接口的访问频次限制 | 
+
+成功，{param} | 
+{param}为成功描述 | 
+
+失败，{param} | 
+{param}为失败描述 | 
+
+data定义：
+
+字段 | 
+类型 | 
+描述 | 
+
+agents | 
+Agent | 
+座席列表数组 | 
+
+errorCode说明：
+
+代码 | 
+说明 | 
+
+10001 | 
+系统异常 | 
+
+10002 | 
+超出请求频度限制 | 
+
+10003 | 
+权限验证失败 | 
+
+10004 | 
+企业状态异常 | 
+
+20000 | 
+参数不正确 | 
+
+返回示例：
+
+{
+    "result": "0",
+    "description": "成功",
+    "data": {
+        "total": "7",
+        "agents": [
+            {
+                "agent": {
+                    "id": "556620",
+                    "enterpriseId": "7122600",
+                    "cno": "0197",
+                    "active": "1",
+                    "wrapup": "3",
+                    "areaCode": "010",
+                    "name": "丁琳",
+                    "power": "0",
+                    "callPower": "0",
+                    "agentType": "2",
+                    "isOb": "1",
+                    "obClid": "",
+                    "obClidType": "1",
+                    "obClidProperty": "",
+                    "ibRecord": "1",
+                    "obRecord": "1",
+                    "status": "0",
+                    "bindTel": "",
+                    "bindTelType": "1",
+                    "isAsr": "0",
+                    "isAxbCall": "1",
+                    "asrCallType": null,
+                    "webrtcUrlType": "0",
+                    "comment": "",
+                    "permitObPreviewTime": "",
+                    "property": "{\"unLink\":1,\"prohibitDuration\":\"0\"}",
+                    "hiddenTelNumber": "0",
+                    "updateTime": "1773154131734",
+                    "createTime": "2026-03-10 22:48:51",
+                    "loginTime": "1773154131734",
+                    "stopTime": null,
+                    "isObRemember": "1",
+                    "isQualityCheck": "1"
+                },
+                "queueList": null,
+                "agentGroup": null
+            },
+            {
+                "agent": {
+                    "id": "563880",
+                    "enterpriseId": "7122600",
+                    "cno": "388169456",
+                    "active": "1",
+                    "wrapup": "3",
+                    "areaCode": "010",
+                    "name": "吕瑜",
+                    "power": "0",
+                    "callPower": "0",
+                    "agentType": "2",
+                    "isOb": "1",
+                    "obClid": "",
+                    "obClidType": "1",
+                    "obClidProperty": "",
+                    "ibRecord": "1",
+                    "obRecord": "1",
+                    "status": "0",
+                    "bindTel": "",
+                    "bindTelType": "1",
+                    "isAsr": "0",
+                    "isAxbCall": "1",
+                    "asrCallType": null,
+                    "webrtcUrlType": "0",
+                    "comment": "",
+                    "permitObPreviewTime": "",
+                    "property": null,
+                    "hiddenTelNumber": "0",
+                    "updateTime": "1774821743490",
+                    "createTime": "2026-03-30 06:02:23",
+                    "loginTime": "1774821743490",
+                    "stopTime": null,
+                    "isObRemember": "1",
+                    "isQualityCheck": "1"
+                },
+                "queueList": [
+                    {
+                        "id": "48175",
+                        "enterpriseId": "7122600",
+                        "qno": "6666",
+                        "description": "6666",
+                        "musicClass": "default",
+                        "queueTimeout": "600",
+                        "sayAgentno": false,
+                        "memberTimeout": "25",
+                        "retry": "1",
+                        "wrapupTime": "15",
+                        "maxLen": "5",
+                        "strategy": "rrmemory",
+                        "serviceLevel": "10",
+                        "weight": "1",
+                        "vipSupport": "0",
+                        "joinEmpty": "0",
+                        "announceSound": "0",
+                        "announceSoundFrequency": "0",
+                        "announceSoundFile": "",
+                        "announcePosition": "0",
+                        "announcePositionYouarenext": "0",
+                        "announcePositionFrequency": "0",
+                        "announcePositionParam": "0",
+                        "createTime": "2025-09-06 15:50:18",
+                        "sayCallee": null,
+                        "sayCalleeFile": null
+                    }
+                ],
+                "agentGroup": null
+            },
+            {
+                "agent": {
+                    "id": "556635",
+                    "enterpriseId": "7122600",
+                    "cno": "520",
+                    "active": "1",
+                    "wrapup": "3",
+                    "areaCode": "010",
+                    "name": "孟凤英",
+                    "power": "0",
+                    "callPower": "0",
+                    "agentType": "2",
+                    "isOb": "1",
+                    "obClid": "",
+                    "obClidType": "1",
+                    "obClidProperty": "",
+                    "ibRecord": "1",
+                    "obRecord": "1",
+                    "status": "0",
+                    "bindTel": "",
+                    "bindTelType": "1",
+                    "isAsr": "0",
+                    "isAxbCall": "1",
+                    "asrCallType": null,
+                    "webrtcUrlType": "0",
+                    "comment": "",
+                    "permitObPreviewTime": "",
+                    "property": "{\"unLink\":1,\"prohibitDuration\":\"0\"}",
+                    "hiddenTelNumber": "0",
+                    "updateTime": "1773154142108",
+                    "createTime": "2026-03-10 22:49:02",
+                    "loginTime": "1773154142108",
+                    "stopTime": null,
+                    "isObRemember": "1",
+                    "isQualityCheck": "1"
+                },
+                "queueList": null,
+                "agentGroup": null
+            },
+            {
+                "agent": {
+                    "id": "556504",
+                    "enterpriseId": "7122600",
+                    "cno": "6740",
+                    "active": "1",
+                    "wrapup": "3",
+                    "areaCode": "010",
+                    "name": "魏坤",
+                    "power": "0",
+                    "callPower": "0",
+                    "agentType": "2",
+                    "isOb": "1",
+                    "obClid": "",
+                    "obClidType": "1",
+                    "obClidProperty": "",
+                    "ibRecord": "1",
+                    "obRecord": "1",
+                    "status": "0",
+                    "bindTel": "",
+                    "bindTelType": "1",
+                    "isAsr": "0",
+                    "isAxbCall": "1",
+                    "asrCallType": null,
+                    "webrtcUrlType": "0",
+                    "comment": "",
+                    "permitObPreviewTime": "",
+                    "property": null,
+                    "hiddenTelNumber": "0",
+                    "updateTime": "1773094369133",
+                    "createTime": "2026-03-10 06:12:49",
+                    "loginTime": "1773094369133",
+                    "stopTime": null,
+                    "isObRemember": "1",
+                    "isQualityCheck": "1"
+                },
+                "queueList": [
+                    {
+                        "id": "48175",
+                        "enterpriseId": "7122600",
+                        "qno": "6666",
+                        "description": "6666",
+                        "musicClass": "default",
+                        "queueTimeout": "600",
+                        "sayAgentno": false,
+                        "memberTimeout": "25",
+                        "retry": "1",
+                        "wrapupTime": "15",
+                        "maxLen": "5",
+                        "strategy": "rrmemory",
+                        "serviceLevel": "10",
+                        "weight": "1",
+                        "vipSupport": "0",
+                        "joinEmpty": "0",
+                        "announceSound": "0",
+                        "announceSoundFrequency": "0",
+                        "announceSoundFile": "",
+                        "announcePosition": "0",
+                        "announcePositionYouarenext": "0",
+                        "announcePositionFrequency": "0",
+                        "announcePositionParam": "0",
+                        "createTime": "2025-09-06 15:50:18",
+                        "sayCallee": null,
+                        "sayCalleeFile": null
+                    }
+                ],
+                "agentGroup": null
+            },
+            {
+                "agent": {
+                    "id": "563866",
+                    "enterpriseId": "7122600",
+                    "cno": "8504",
+                    "active": "1",
+                    "wrapup": "3",
+                    "areaCode": "010",
+                    "name": "俞鹏",
+                    "power": "0",
+                    "callPower": "0",
+                    "agentType": "2",
+                    "isOb": "1",
+                    "obClid": "",
+                    "obClidType": "1",
+                    "obClidProperty": "",
+                    "ibRecord": "1",
+                    "obRecord": "1",
+                    "status": "1",
+                    "bindTel": "01041009504",
+                    "bindTelType": "1",
+                    "isAsr": "0",
+                    "isAxbCall": "1",
+                    "asrCallType": null,
+                    "webrtcUrlType": "0",
+                    "comment": "",
+                    "permitObPreviewTime": "",
+                    "property": null,
+                    "hiddenTelNumber": "0",
+                    "updateTime": "1774821734852",
+                    "createTime": "2026-03-30 06:02:14",
+                    "loginTime": "1774821735412",
+                    "stopTime": null,
+                    "isObRemember": "1",
+                    "isQualityCheck": "1"
+                },
+                "queueList": [
+                    {
+                        "id": "48175",
+                        "enterpriseId": "7122600",
+                        "qno": "6666",
+                        "description": "6666",
+                        "musicClass": "default",
+                        "queueTimeout": "600",
+                        "sayAgentno": false,
+                        "memberTimeout": "25",
+                        "retry": "1",
+                        "wrapupTime": "15",
+                        "maxLen": "5",
+                        "strategy": "rrmemory",
+                        "serviceLevel": "10",
+                        "weight": "1",
+                        "vipSupport": "0",
+                        "joinEmpty": "0",
+                        "announceSound": "0",
+                        "announceSoundFrequency": "0",
+                        "announceSoundFile": "",
+                        "announcePosition": "0",
+                        "announcePositionYouarenext": "0",
+                        "announcePositionFrequency": "0",
+                        "announcePositionParam": "0",
+                        "createTime": "2025-09-06 15:50:18",
+                        "sayCallee": null,
+                        "sayCalleeFile": null
+                    }
+                ],
+                "agentGroup": null
+            },
+            {
+                "agent": {
+                    "id": "556633",
+                    "enterpriseId": "7122600",
+                    "cno": "9267957",
+                    "active": "1",
+                    "wrapup": "10",
+                    "areaCode": "010",
+                    "name": "李帅",
+                    "power": "1",
+                    "callPower": "0",
+                    "agentType": "2",
+                    "isOb": "1",
+                    "obClid": "",
+                    "obClidType": "1",
+                    "obClidProperty": "",
+                    "ibRecord": "1",
+                    "obRecord": "1",
+                    "status": "0",
+                    "bindTel": "",
+                    "bindTelType": "1",
+                    "isAsr": "0",
+                    "isAxbCall": "1",
+                    "asrCallType": null,
+                    "webrtcUrlType": "0",
+                    "comment": "",
+                    "permitObPreviewTime": "",
+                    "property": "{\"unLink\":1,\"prohibitDuration\":\"0\"}",
+                    "hiddenTelNumber": "0",
+                    "updateTime": "1773154141333",
+                    "createTime": "2026-03-10 22:49:01",
+                    "loginTime": "1773154141333",
+                    "stopTime": null,
+                    "isObRemember": "1",
+                    "isQualityCheck": "1"
+                },
+                "queueList": null,
+                "agentGroup": null
+            },
+            {
+                "agent": {
+                    "id": "562652",
+                    "enterpriseId": "7122600",
+                    "cno": "9940",
+                    "active": "1",
+                    "wrapup": "3",
+                    "areaCode": "010",
+                    "name": "孙勇",
+                    "power": "0",
+                    "callPower": "0",
+                    "agentType": "2",
+                    "isOb": "1",
+                    "obClid": "",
+                    "obClidType": "1",
+                    "obClidProperty": "",
+                    "ibRecord": "1",
+                    "obRecord": "1",
+                    "status": "0",
+                    "bindTel": "01041001792",
+                    "bindTelType": "1",
+                    "isAsr": "0",
+                    "isAxbCall": "1",
+                    "asrCallType": null,
+                    "webrtcUrlType": "0",
+                    "comment": "",
+                    "permitObPreviewTime": "",
+                    "property": null,
+                    "hiddenTelNumber": "0",
+                    "updateTime": "1774371248114",
+                    "createTime": "2026-03-25 00:54:08",
+                    "loginTime": "1774371248549",
+                    "stopTime": null,
+                    "isObRemember": "1",
+                    "isQualityCheck": "1"
+                },
+                "queueList": [
+                    {
+                        "id": "48175",
+                        "enterpriseId": "7122600",
+                        "qno": "6666",
+                        "description": "6666",
+                        "musicClass": "default",
+                        "queueTimeout": "600",
+                        "sayAgentno": false,
+                        "memberTimeout": "25",
+                        "retry": "1",
+                        "wrapupTime": "15",
+                        "maxLen": "5",
+                        "strategy": "rrmemory",
+                        "serviceLevel": "10",
+                        "weight": "1",
+                        "vipSupport": "0",
+                        "joinEmpty": "0",
+                        "announceSound": "0",
+                        "announceSoundFrequency": "0",
+                        "announceSoundFile": "",
+                        "announcePosition": "0",
+                        "announcePositionYouarenext": "0",
+                        "announcePositionFrequency": "0",
+                        "announcePositionParam": "0",
+                        "createTime": "2025-09-06 15:50:18",
+                        "sayCallee": null,
+                        "sayCalleeFile": null
+                    }
+                ],
+                "agentGroup": null
+            }
+        ]
+    }
+}

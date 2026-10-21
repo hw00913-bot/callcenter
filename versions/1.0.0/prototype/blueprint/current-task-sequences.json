@@ -1,0 +1,1350 @@
+{
+  "decisionId": "D-047",
+  "sequences": [
+    {
+      "schema_version": "1.0",
+      "id": "SEQ-014",
+      "scenario_id": "SC-014",
+      "name": "预测外呼创建、坐席分配与启动时序",
+      "participants": [
+        {
+          "id": "u",
+          "name": "当前有权操作人",
+          "kind": "actor"
+        },
+        {
+          "id": "ui",
+          "name": "中台页面",
+          "kind": "system"
+        },
+        {
+          "id": "svc",
+          "name": "中台业务服务",
+          "kind": "system"
+        },
+        {
+          "id": "db",
+          "name": "中台数据存储",
+          "kind": "system"
+        },
+        {
+          "id": "vendor",
+          "name": "AliCti",
+          "kind": "external_system"
+        }
+      ],
+      "messages": [
+        {
+          "step": 1,
+          "from": "u",
+          "to": "ui",
+          "message": "需要批量呼叫并由本租户空闲坐席承接",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 2,
+          "from": "ui",
+          "to": "svc",
+          "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 3,
+          "from": "svc",
+          "to": "db",
+          "message": "校验当前用户、租户、enterpriseId和目标业务对象权限；号码唯一业务租户归属与接听团队分别校验",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 4,
+          "from": "db",
+          "to": "svc",
+          "message": "返回授权上下文及有效业务数据",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 5,
+          "from": "svc",
+          "to": "ui",
+          "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+          "type": "error",
+          "condition": "校验失败；本路径结束",
+          "api_id": null
+        },
+        {
+          "step": 6,
+          "from": "u",
+          "to": "ui",
+          "message": "新建预测任务；按需展开坐席分配方式，新任务默认4；启用重呼须完整状态及条件",
+          "type": "request",
+          "condition": "前置业务条件成立",
+          "api_id": null
+        },
+        {
+          "step": 7,
+          "from": "svc",
+          "to": "svc",
+          "message": "按当前角色处理可选客户；草稿预选不占用；运营由管理员后续分配",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 8,
+          "from": "svc",
+          "to": "svc",
+          "message": "复核技能cnos或外呼组agentGroup、名单与重呼；String callStrategy须合法，队列策略不覆盖任务",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 9,
+          "from": "svc",
+          "to": "svc",
+          "message": "复核本租户可呼叫/禁呼条件：autoTaskType=1时允许条件必选；autoTriggerTimeStrategy/timeStrategy分别逗号连接，不得互相重叠。按结束安排提交autoStop/autoStopDay/autoStopTime；结束时间晚于预约开始。核对本任务显式选择的导航仍属于当前enterpriseId；未选择或标识已移除时阻断，号码池可多选。",
+          "type": "request",
+          "condition": "配置时间条件；创建与启动/继续前均复检",
+          "api_id": "DOC-356"
+        },
+        {
+          "step": 10,
+          "from": "svc",
+          "to": "vendor",
+          "message": "创建type=1预测任务；autoStart按手工/定时生成0/1；minAvailableAgentCount默认10、范围1–10，低于阈值自动暂停。仅autoStart=1且因此暂停时，座席人数恢复达阈值后自动启动（用户转述，CF-18待联调）。 从当前enterpriseId已登记导航中显式选择一个，提交customerClidsCategory=5、单个customerClidsGroup；号码池可多选，提交customerTimeout；无任务级指定号码字段。按原任务保存配置，受理后查询真实状态。",
+          "type": "request",
+          "condition": "本地校验通过；重呼关闭，或状态条件完整且号码状态识别已开通",
+          "api_id": "API-311"
+        },
+        {
+          "step": 11,
+          "from": "vendor",
+          "to": "svc",
+          "message": "保存taskId及明确创建结果，不标运行",
+          "type": "response",
+          "condition": "创建请求已提交且返回结果可独立核对；失败或未知保留待核对，不标运行",
+          "api_id": "API-311"
+        },
+        {
+          "step": 12,
+          "from": "u",
+          "to": "ui",
+          "message": "名单就绪后单独请求启动",
+          "type": "request",
+          "condition": "前置业务条件成立",
+          "api_id": null
+        },
+        {
+          "step": 13,
+          "from": "svc",
+          "to": "svc",
+          "message": "名单、授权及所选坐席或外呼组配置有效？；核对最小可用坐席、并发、额度、流程及重呼开通条件",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 14,
+          "from": "svc",
+          "to": "vendor",
+          "message": "按已确认名单发送JSON及本次property；显式importTelAutoStart=0。任务默认导航不生成逐客户clid；名单行仅在逐客户显式提供完整clid时按API-312处理。",
+          "type": "request",
+          "condition": "对应操作/呼叫类型，且其前置路径成立",
+          "api_id": "API-312"
+        },
+        {
+          "step": 15,
+          "from": "vendor",
+          "to": "svc",
+          "message": "接收成功/无效计数；默认任务排重与跨批同号冲突保持待确认",
+          "type": "response",
+          "condition": "对应操作/呼叫类型，且其前置路径成立",
+          "api_id": "API-312"
+        },
+        {
+          "step": 16,
+          "from": "svc",
+          "to": "ui",
+          "message": "task/start启动；继续先get确认暂停再start并get查证，原型不实际呼叫",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 17,
+          "from": "svc",
+          "to": "svc",
+          "message": "执行已确认受理且可持续取得结果？；满足条件沿通过分支继续，否则按异常分支结束本次操作",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 18,
+          "from": "svc",
+          "to": "vendor",
+          "message": "对已存在通话按时间窗查询预测话单，分页或scroll",
+          "type": "request",
+          "condition": "对应操作/呼叫类型，且其前置路径成立",
+          "api_id": "API-318"
+        },
+        {
+          "step": 19,
+          "from": "vendor",
+          "to": "svc",
+          "message": "客户upTime、坐席bridgeTime、40/41/42/43、重呼轮次及终轮标记",
+          "type": "response",
+          "condition": "对应操作/呼叫类型，且其前置路径成立",
+          "api_id": "API-318"
+        },
+        {
+          "step": 20,
+          "from": "svc",
+          "to": "ui",
+          "message": "保留草稿；运营携带客户选择则拒绝，不虚构名单数量",
+          "type": "error",
+          "condition": "资源、参数、分配权限及所选客户复检通过？：不满足",
+          "api_id": null
+        },
+        {
+          "step": 21,
+          "from": "svc",
+          "to": "ui",
+          "message": "禁止空名单或失效资源启动；草稿不可启动",
+          "type": "error",
+          "condition": "有名单且用号/流程/技能等执行条件有效？：不满足",
+          "api_id": null
+        },
+        {
+          "step": 22,
+          "from": "svc",
+          "to": "ui",
+          "message": "保留失败或待核对，先查询状态，不盲目重复投放",
+          "type": "error",
+          "condition": "执行已确认受理且可持续取得结果？：不满足",
+          "api_id": null
+        },
+        {
+          "step": 23,
+          "from": "svc",
+          "to": "ui",
+          "message": "取消本次提交：既有草稿保留，预选客户不占用",
+          "type": "error",
+          "condition": "执行变更前取消确认",
+          "api_id": null
+        },
+        {
+          "step": 24,
+          "from": "svc",
+          "to": "ui",
+          "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 25,
+          "from": "u",
+          "to": "ui",
+          "message": "从任务中心打开编辑，回填原任务当前设置",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 26,
+          "from": "ui",
+          "to": "svc",
+          "message": "以原任务ID和本次变更字段提交编辑",
+          "type": "request",
+          "condition": "任务身份与状态守卫通过",
+          "api_id": null
+        },
+        {
+          "step": 27,
+          "from": "svc",
+          "to": "vendor",
+          "message": "调用task/update，taskId保持原值，仅提交可编辑且实际修改字段",
+          "type": "request",
+          "condition": null,
+          "api_id": "API-404"
+        },
+        {
+          "step": 28,
+          "from": "vendor",
+          "to": "svc",
+          "message": "返回更新受理结果",
+          "type": "response",
+          "condition": null,
+          "api_id": "API-404"
+        },
+        {
+          "step": 29,
+          "from": "svc",
+          "to": "vendor",
+          "message": "按原taskId调用task/get回查",
+          "type": "request",
+          "condition": "更新成功且结果可核对",
+          "api_id": "DOC-334"
+        },
+        {
+          "step": 30,
+          "from": "vendor",
+          "to": "svc",
+          "message": "返回原任务及可回读字段",
+          "type": "response",
+          "condition": null,
+          "api_id": "DOC-334"
+        },
+        {
+          "step": 31,
+          "from": "svc",
+          "to": "ui",
+          "message": "核对成功更新当前配置与planSnapshot，并留编辑前设置副本于taskSettingHistory；失败/未知保留原配置及编辑输入",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        }
+      ],
+      "notes": [
+        "D-047 / SRC-077（2026-09-20，user_relayed_supplier_feedback）：用户转述供应商确认，任务暂停或结束只控制任务调度，未发起的呼叫不再发起，已发起的拨号、振铃和通话正常进行，正常生成话单。暂停后可按既有规则继续；结束后未执行的首次呼叫和重呼不再执行，原任务不重开。正常话单回补原任务、客户、线索与统计，不强改通话结果；本次答复不等于官网更新或真实联调验收。",
+        "D-046 / SRC-076（2026-09-20）：本轮按当前原型同步号码仅租户授权、号码与技能/坐席解耦及管理员维护软电话分机。原决定仅保留未被本轮替代的行为，不能将新规则归因于历史决定。",
+        "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+        "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。",
+        "D-020：用户转述阿里反馈，预测外呼同样支持按号码状态重呼；两类任务统一生成一组多码sipCause策略，至少一个官方状态及次数、间隔、计时依据完整必填。",
+        "关闭重呼时保留本地配置，省略重呼字段及templateName，按不启用重呼处理；不增加无文档依据的默认重呼假设，实际效果列常规联调验收。",
+        "D-060：业务再次预外呼保持原 taskId，按 SC-215 / SEQ-215 向原任务追加批次；同任务来源、次数和防重独立，不修改供应商自动重呼轮次。",
+        "D-041 / SRC-073：预测任务 callStrategy 只接受官方 1～4，并以字符串传递：1 随机分配；2 按顺序分配；3 距离上次通话结束最久；4 当前空闲时间最长。",
+        "新建预测任务默认 4；任务或草稿缺字段时提示重新选择并阻断提交，不自动回填。合法数字响应可转成字符串；非法值阻止提交。",
+        "接听团队配置中的坐席分配方式默认收起；表单、草稿、模板、复制、确认、任务详情及启动快照保持同一值；原任务再次预外呼直接沿用。自动 IVR 不展示且不提交 callStrategy。",
+        "callStrategy 是预测任务内坐席选择策略，独立于队列 strategy 和 weight，不自动互相映射。不改变现有 cnos 成员范围、重呼条件或启动判断，队列未关联不阻断预测任务。",
+        "原型仅演示配置和字段生成，真实分配由供应商按请求执行；创建受理不是运行或接通证据。",
+        "当前预测外呼可从任务列表直接导入客户；自动外呼仍通过导入与分配添加。文件解析、字段映射、预检确认与来源关联属于本地流程，task/import 仍遵循官方名单契约。",
+        "接听范围两选一：指定坐席使用当前有效工号形成 callGroupType=1/cnos；独立外呼组按 callGroupType=2/agentGroup。外呼组与技能组、接听队列是不同对象，组号不能互相替代。",
+        "D-044：新建callStrategy默认4；模板、复制缺少分配方式须重新选择，不能静默回退1；原任务再次联系不重选配置。",
+        "外显号码按同账号、租户授权、服务状态、使用方向和对应外显用途独立选择；不要求号码绑定技能组或坐席。预测接听团队/外呼组及有效成员仍按原任务规则独立校验。",
+        "D-048 / SRC-078：任务选号码和新外呼前独立检查本地使用开关、供应商status、用途与授权；任一停用则不再使用该号码发起新外呼。已发起通话正常继续，恢复号码不自动恢复任务。",
+        "时间条件维护与权限、引用保护见 SC-226 / SEQ-226；呼入使用分号关联，任务使用逗号。原型只模拟，不另建本地时间调度。",
+        "任务向导的重呼配置未填完整时，仍可保存草稿、关闭或返回，保留已填和空值；下一步及确认创建时再严格校验必选呼叫状态、次数、间隔与计时依据，不因草稿未填全而阻断退出。",
+        "原任务仅待启动、执行中、已暂停可追加；供应商 status=3、状态未知或有待核对控制操作均阻止。已结束任务不能重开。新建预测任务 autoComplete=0，名单耗尽暂停；自动外呼仍为1。",
+        "API-312 importTaskTel 使用原供应商 taskId、isRepeat=0、importTelAutoStart=0，仅追加本次新批次；后续同步继续保持该批次 isRepeat=0，不重传旧批次、不重置已呼叫行。",
+        "D-064 / SRC-094：预外呼和自动外呼列表不显示内部执行配置名称、版本、方案编号或后续重呼列。retryStrategy只说明已配置规则，finishRetryFlag和telRetryRound只描述本条话单，不能推断任务仍有后续重呼；原任务待再次联系入口与重呼配置保留。",
+        "D-065 / D-073：创建确认与当前任务设置按相同三组信息展示；首次启动形成当前planSnapshot，任务更新经API-404提交并以DOC-334回查成功后刷新当前planSnapshot，将编辑前设置副本写入taskSettingHistory。仅处理当前原型任务，不兼容旧数据或旧功能；通话详情关联摘要只读，复制为新草稿不继承客户及原预约日期。",
+        "预测任务设置显示指定坐席姓名与原字符串工号，或外呼组名/组号；并显示来电号码、可用坐席最低人数、坐席忙时语音流程、callStrategy。自动外呼只显示所选官方语音流程和号码，不混入预测坐席字段。两类均展示去重方式、开始/结束、允许/禁呼时间条件及重呼开关、号码状态、次数和每次间隔。",
+        "D-066 / SRC-096：通话列表、查看详情和任务内通话记录共用CloudCallRecords.display与AliCtiReportFacts事实解析，按API-317人工、API-318预测、API-319呼入、API-362自动类型及账号和显式供应商通话标识校验。接口来源对象存在时，raw或字段缺失、不合法或身份冲突不得用旧agentAnswerResult、contactId、时长或结束标签补事实；真实0秒保留，缺时长显示未记录。没有接口来源对象的纯本地演示仍可使用本地时间、工号和时长，不作为供应商事实。",
+        "关联任务须同时匹配账号、租户、通话类型及明确的本地/供应商taskId；缺少本地ID时仅允许唯一供应商ID匹配。来源冲突不改绑其他任务，也不开放再次联系；合法原任务设置在详细信息中折叠只读，复用同一任务摘要。业务联系轮次与话单telRetryRound及finishRetryFlag分别说明，不能推断后续安排。",
+        "号码池名称来自当前租户关联enterpriseId的AliCti hybridGroup/list；租户管理员可通过hybridGroup/create、delete、update维护本租户号码池，不把本地号码列表当成池。任务从本租户列表选池名，priority手动选填整数且数值越小越优先，留空省略。空池、同优先级选号和运行任务变更生效时点仍待CF-15确认，不承诺失败自动切池。",
+        "本地停用仅能约束本地直接选号，不能保证AliCti外显导航号码池排除该号码；全局阻断须经供应商停用或排除机制核验。既有通话正常继续；此边界不增加异常入口。",
+        "用户提供的AliCti任务设置截图仅证界面入口；请求按API-311/DOC-338：描述与业务标签、forceEndFlag/autoComplete、retryStrategyOnlyToday、callPriorityStrategy及concurrency分别保存。预测另配置callRouteStrategy、agentTimeout、wrapup、maxWaitTime、quotiety、predictAdjust和answerRate/warmUpDuration/isRewarm；截图3.00和15秒不是接口默认。创建确认与当前任务设置共用本任务值；通话详情摘要只读；原型不宣称已联调。",
+        "D-073 / API-404：有原供应商taskId、权限有效、未结束且无待核对结果时，任务中心可编辑本期已采用且更新接口列明的字段；只提交实际改动，DOC-334 task/get回查成功才更新当前配置与planSnapshot，并将编辑前设置副本写入taskSettingHistory。仅处理当前原型任务数据，不兼容旧数据或旧功能；失败或未知保留原配置和输入。type、callGroupType、名单/排重、固定外显号及本期自动外呼IVR不可改。已发生通话与客户记录不回写；运行中生效时点和省略字段语义待真实联调；通话详情摘要仍只读，复制新草稿仍可用。",
+        "D-075 / SRC-105：预外呼和自动外呼创建、确认、查看管理及编辑共用本任务已保存的名称、描述、供应商业务标签与通用设置；实际改动才按API-404差量更新原taskId，DOC-334回查成功后更新当前设置和planSnapshot。自动任务级语音流程名称优先本任务冻结快照，既有customerTimeout缺失显示未记录，不按新建默认30秒补历史。",
+        "D-078 / SRC-108：任务创建与编辑仅配置外显导航；API-312逐客户clid只在名单行显式提供时可选，绝不由任务或批次自动带入。历史D-069/D-070中的任务固定号码分支已取消。",
+        "D-086 / SRC-114：同一enterpriseId可登记多个AliCti线下提供的外显导航；创建任务时显式选择一个，且可选多个号码池。task/create提交customerClidsCategory=5、单个customerClidsGroup和可选clidPoolList。API-311/API-404仅证明单次任务字段，导航查询、标识有效性与池选号见CF-15联调。",
+        "D-083 / SRC-111：预测任务minAvailableAgentCount默认10、范围1–10，任务内可用座席数低于阈值自动暂停，API-311/API-404明文支持。只有autoStart=1且确因座席不足自动暂停，人数恢复达阈值时才自动启动；手工暂停、号码停用保护暂停和结束不恢复。自动恢复为用户转述供应商业务口径，触发与状态回查见CF-18；自动外呼不配置此字段。",
+        "D-086：已建任务保留所选导航和号码池快照；若导航从账号目录移除，启动或继续前须在原任务编辑并经task/update、task/get核对同一taskId。编辑期间目录变化拒绝过期提交。",
+        "D-083任务中心折叠“演示座席人数变化”仅对本地演示中运行/暂停的预外呼任务显示；输入观察到的可用人数仅调用本地reconcileAvailability模拟阈值暂停和定时任务恢复，不读取实时座席人数或执行真实供应商任务操作。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-302",
+        "inputs/user-instructions.md#本轮差异处理确认",
+        "API-404"
+      ],
+      "projectionDecisionId": "D-020",
+      "projectionSource": "D-020用户转述供应商反馈及本期关闭重呼处理；官方原始快照保留",
+      "decisionId": "D-083",
+      "fieldIds": [
+        "FA-169",
+        "FA-191",
+        "FA-196",
+        "FA-197",
+        "FA-198",
+        "FA-199",
+        "FA-200",
+        "FA-201",
+        "FA-202",
+        "FA-203",
+        "FA-204",
+        "FA-205",
+        "FA-206",
+        "FA-207",
+        "FA-208",
+        "FA-209",
+        "FA-210",
+        "FA-211",
+        "FA-212",
+        "FA-213",
+        "FA-217"
+      ],
+      "ruleIds": [
+        "C-59",
+        "C-60",
+        "C-61",
+        "C-62",
+        "C-65",
+        "C-82",
+        "C-83",
+        "C-85",
+        "C-73",
+        "C-86"
+      ],
+      "relatedDecisionIds": [
+        "D-041",
+        "D-046",
+        "D-048",
+        "D-056",
+        "D-060",
+        "D-064",
+        "D-065",
+        "D-066",
+        "D-069",
+        "D-070",
+        "D-073",
+        "D-075",
+        "D-078",
+        "D-083"
+      ],
+      "sourceRefs": [
+        "SRC-076",
+        "SRC-077",
+        "SRC-078",
+        "SRC-086",
+        "SRC-090",
+        "SRC-094",
+        "SRC-095",
+        "SRC-096",
+        "SRC-099",
+        "SRC-100",
+        "SRC-103",
+        "SRC-105",
+        "SRC-108",
+        "SRC-111"
+      ],
+      "sourceType": "user_relayed_supplier_feedback",
+      "sourceIds": [
+        "API-404",
+        "API-311",
+        "DOC-334",
+        "DOC-338"
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "id": "SEQ-015",
+      "scenario_id": "SC-015",
+      "name": "创建、配置与启动IVR外呼任务时序",
+      "participants": [
+        {
+          "id": "u",
+          "name": "当前有权操作人",
+          "kind": "actor"
+        },
+        {
+          "id": "ui",
+          "name": "中台页面",
+          "kind": "system"
+        },
+        {
+          "id": "svc",
+          "name": "中台业务服务",
+          "kind": "system"
+        },
+        {
+          "id": "db",
+          "name": "中台数据存储",
+          "kind": "system"
+        },
+        {
+          "id": "vendor",
+          "name": "AliCti",
+          "kind": "external_system"
+        }
+      ],
+      "messages": [
+        {
+          "step": 1,
+          "from": "u",
+          "to": "ui",
+          "message": "需要自动语音通知或交互",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 2,
+          "from": "ui",
+          "to": "svc",
+          "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 3,
+          "from": "svc",
+          "to": "db",
+          "message": "校验当前用户、租户、enterpriseId和目标业务对象权限；号码唯一业务租户归属与接听团队分别校验",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 4,
+          "from": "db",
+          "to": "svc",
+          "message": "返回授权上下文及有效业务数据",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 5,
+          "from": "svc",
+          "to": "ui",
+          "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+          "type": "error",
+          "condition": "校验失败；本路径结束",
+          "api_id": null
+        },
+        {
+          "step": 6,
+          "from": "u",
+          "to": "ui",
+          "message": "新建自动外呼；启用重呼后必选呼叫状态，完整填写次数、间隔和计时依据",
+          "type": "request",
+          "condition": "前置业务条件成立",
+          "api_id": null
+        },
+        {
+          "step": 7,
+          "from": "svc",
+          "to": "svc",
+          "message": "按当前角色处理可选客户；草稿预选不占用；运营由管理员后续分配",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 8,
+          "from": "svc",
+          "to": "svc",
+          "message": "复检资源、名单与重呼必填项；启用时把所选状态映射一组sipCause条件，次数与间隔完整，由阿里执行",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 9,
+          "from": "svc",
+          "to": "svc",
+          "message": "复核本租户可呼叫/禁呼条件：autoTaskType=1时允许条件必选；autoTriggerTimeStrategy/timeStrategy分别逗号连接，不得互相重叠。按结束安排提交autoStop/autoStopDay/autoStopTime；结束时间晚于预约开始。核对本任务显式选择的导航仍属于当前enterpriseId；未选择或标识已移除时阻断，号码池可多选。",
+          "type": "request",
+          "condition": "配置时间条件；创建与启动/继续前均复检",
+          "api_id": "DOC-356"
+        },
+        {
+          "step": 10,
+          "from": "svc",
+          "to": "vendor",
+          "message": "创建type=2自动外呼任务；autoStart按手工/定时生成0/1，不提交minAvailableAgentCount。 从当前enterpriseId已登记导航中显式选择一个，提交customerClidsCategory=5、单个customerClidsGroup；号码池可多选，提交customerTimeout；无任务级指定号码字段。按原任务保存配置，受理后查询真实状态。",
+          "type": "request",
+          "condition": "本地校验通过；重呼关闭，或状态条件完整且号码状态识别已开通",
+          "api_id": "API-311"
+        },
+        {
+          "step": 11,
+          "from": "vendor",
+          "to": "svc",
+          "message": "保存taskId及创建结果，不标运行",
+          "type": "response",
+          "condition": "创建请求已提交且返回结果可独立核对；失败或未知保留待核对，不标运行",
+          "api_id": "API-311"
+        },
+        {
+          "step": 12,
+          "from": "u",
+          "to": "ui",
+          "message": "名单就绪后单独请求启动",
+          "type": "request",
+          "condition": "前置业务条件成立",
+          "api_id": null
+        },
+        {
+          "step": 13,
+          "from": "svc",
+          "to": "svc",
+          "message": "名单、用号权及已验证的语音导航执行条件有效？；纯IVR零坐席、转人工资源及节点输出是POC前提",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 14,
+          "from": "svc",
+          "to": "vendor",
+          "message": "按已确认名单发送JSON及本次property；显式importTelAutoStart=0。任务默认导航不生成逐客户clid；名单行仅在逐客户显式提供完整clid时按API-312处理。",
+          "type": "request",
+          "condition": "对应操作/呼叫类型，且其前置路径成立",
+          "api_id": "API-312"
+        },
+        {
+          "step": 15,
+          "from": "vendor",
+          "to": "svc",
+          "message": "记录有效/失败计数；来源映射未证实的行不假定已贯通",
+          "type": "response",
+          "condition": "对应操作/呼叫类型，且其前置路径成立",
+          "api_id": "API-312"
+        },
+        {
+          "step": 16,
+          "from": "svc",
+          "to": "ui",
+          "message": "task/start启动；继续先get确认暂停再start并get查证，原型不实际呼叫",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 17,
+          "from": "svc",
+          "to": "svc",
+          "message": "执行已确认受理且可持续取得结果？；满足条件沿通过分支继续，否则按异常分支结束本次操作",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 18,
+          "from": "svc",
+          "to": "svc",
+          "message": "按API-362归集自动外呼原话单及客户接听时长，更新精确原客户行；本通流程只读ivrName/ivrId，不生成流程版本或执行节点",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": "API-362"
+        },
+        {
+          "step": 19,
+          "from": "svc",
+          "to": "ui",
+          "message": "保留草稿；运营携带客户选择则拒绝，不虚构名单数量",
+          "type": "error",
+          "condition": "资源、参数、分配权限及所选客户复检通过？：不满足",
+          "api_id": null
+        },
+        {
+          "step": 20,
+          "from": "svc",
+          "to": "ui",
+          "message": "禁止空名单或失效资源启动；草稿不可启动",
+          "type": "error",
+          "condition": "有名单且用号/流程/技能等执行条件有效？：不满足",
+          "api_id": null
+        },
+        {
+          "step": 21,
+          "from": "svc",
+          "to": "ui",
+          "message": "保留失败或待核对，先查询状态，不盲目重复投放",
+          "type": "error",
+          "condition": "执行已确认受理且可持续取得结果？：不满足",
+          "api_id": null
+        },
+        {
+          "step": 22,
+          "from": "svc",
+          "to": "ui",
+          "message": "取消本次提交：既有草稿保留，预选客户不占用",
+          "type": "error",
+          "condition": "执行变更前取消确认",
+          "api_id": null
+        },
+        {
+          "step": 23,
+          "from": "svc",
+          "to": "ui",
+          "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 24,
+          "from": "u",
+          "to": "ui",
+          "message": "从查看与管理打开自动任务编辑，回填名称、描述、业务标签与通用设置；语音流程只读",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 25,
+          "from": "ui",
+          "to": "svc",
+          "message": "以原任务ID提交名称、描述、业务标签等实际改动的通用字段；拒绝预测专用字段与IVR更改",
+          "type": "request",
+          "condition": "任务身份与状态守卫通过",
+          "api_id": null
+        },
+        {
+          "step": 26,
+          "from": "svc",
+          "to": "vendor",
+          "message": "调用task/update，taskId保持原值，仅提交可编辑且实际修改字段",
+          "type": "request",
+          "condition": null,
+          "api_id": "API-404"
+        },
+        {
+          "step": 27,
+          "from": "vendor",
+          "to": "svc",
+          "message": "返回更新受理结果",
+          "type": "response",
+          "condition": null,
+          "api_id": "API-404"
+        },
+        {
+          "step": 28,
+          "from": "svc",
+          "to": "vendor",
+          "message": "按原taskId调用task/get回查",
+          "type": "request",
+          "condition": "更新成功且结果可核对",
+          "api_id": "DOC-334"
+        },
+        {
+          "step": 29,
+          "from": "vendor",
+          "to": "svc",
+          "message": "返回原任务及可回读字段",
+          "type": "response",
+          "condition": null,
+          "api_id": "DOC-334"
+        },
+        {
+          "step": 30,
+          "from": "svc",
+          "to": "ui",
+          "message": "核对成功更新当前配置与planSnapshot，并留编辑前设置副本于taskSettingHistory；失败/未知保留原配置及编辑输入",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        }
+      ],
+      "notes": [
+        "D-047 / SRC-077（2026-09-20，user_relayed_supplier_feedback）：用户转述供应商确认，任务暂停或结束只控制任务调度，未发起的呼叫不再发起，已发起的拨号、振铃和通话正常进行，正常生成话单。暂停后可按既有规则继续；结束后未执行的首次呼叫和重呼不再执行，原任务不重开。正常话单回补原任务、客户、线索与统计，不强改通话结果；本次答复不等于官网更新或真实联调验收。",
+        "D-046 / SRC-076（2026-09-20）：本轮按当前原型同步号码仅租户授权、号码与技能/坐席解耦及管理员维护软电话分机。原决定仅保留未被本轮替代的行为，不能将新规则归因于历史决定。",
+        "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+        "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。",
+        "D-020：用户转述阿里反馈，预测外呼同样支持按号码状态重呼；两类任务统一生成一组多码sipCause策略，至少一个官方状态及次数、间隔、计时依据完整必填。",
+        "关闭重呼时保留本地配置，省略重呼字段及templateName，按不启用重呼处理；不增加无文档依据的默认重呼假设，实际效果列常规联调验收。",
+        "D-060：业务再次预外呼保持原 taskId，按 SC-215 / SEQ-215 向原任务追加批次；同任务来源、次数和防重独立，不修改供应商自动重呼轮次。",
+        "D-041 / SRC-073 / FA-169：自动 IVR 不显示、不提交预测专用 callStrategy；queue.strategy 和 weight 不作为自动任务请求参数。",
+        "外显号码按同账号、租户授权、服务状态、使用方向和对应外显用途独立选择；不要求号码绑定技能组或坐席。预测接听团队/外呼组及有效成员仍按原任务规则独立校验。",
+        "D-048 / SRC-078：任务选号码和新外呼前独立检查本地使用开关、供应商status、用途与授权；任一停用则不再使用该号码发起新外呼。已发起通话正常继续，恢复号码不自动恢复任务。",
+        "时间条件维护与权限、引用保护见 SC-226 / SEQ-226；呼入使用分号关联，任务使用逗号。原型只模拟，不另建本地时间调度。",
+        "任务向导的重呼配置未填完整时，仍可保存草稿、关闭或返回，保留已填和空值；下一步及确认创建时再严格校验必选呼叫状态、次数、间隔与计时依据，不因草稿未填全而阻断退出。",
+        "D-060仅调整预测任务：新自动外呼仍autoComplete=1，名单耗尽结束，不提供自动外呼业务再次联系。",
+        "D-064 / SRC-094：预外呼和自动外呼列表不显示内部执行配置名称、版本、方案编号或后续重呼列。retryStrategy只说明已配置规则，finishRetryFlag和telRetryRound只描述本条话单，不能推断任务仍有后续重呼；原任务待再次联系入口与重呼配置保留。",
+        "D-065 / D-073：创建确认与当前任务设置按相同三组信息展示；首次启动形成当前planSnapshot，任务更新经API-404提交并以DOC-334回查成功后刷新当前planSnapshot，将编辑前设置副本写入taskSettingHistory。仅处理当前原型任务，不兼容旧数据或旧功能；通话详情关联摘要只读，复制为新草稿不继承客户及原预约日期。",
+        "预测任务设置显示指定坐席姓名与原字符串工号，或外呼组名/组号；并显示来电号码、可用坐席最低人数、坐席忙时语音流程、callStrategy。自动外呼只显示所选官方语音流程和号码，不混入预测坐席字段。两类均展示去重方式、开始/结束、允许/禁呼时间条件及重呼开关、号码状态、次数和每次间隔。",
+        "D-066 / SRC-096：通话列表、查看详情和任务内通话记录共用CloudCallRecords.display与AliCtiReportFacts事实解析，按API-317人工、API-318预测、API-319呼入、API-362自动类型及账号和显式供应商通话标识校验。接口来源对象存在时，raw或字段缺失、不合法或身份冲突不得用旧agentAnswerResult、contactId、时长或结束标签补事实；真实0秒保留，缺时长显示未记录。没有接口来源对象的纯本地演示仍可使用本地时间、工号和时长，不作为供应商事实。",
+        "关联任务须同时匹配账号、租户、通话类型及明确的本地/供应商taskId；缺少本地ID时仅允许唯一供应商ID匹配。来源冲突不改绑其他任务，也不开放再次联系；合法原任务设置在详细信息中折叠只读，复用同一任务摘要。业务联系轮次与话单telRetryRound及finishRetryFlag分别说明，不能推断后续安排。",
+        "API-362自动外呼使用客户接听时长；API-318预测分别展示双方通话时长与客户接听时长。API-319呼入区分系统应答、首次人工接听和首次进出队列，status四种中文值按原返回展示。秒时间只转换一次，日期筛选用实际话单开始时间；自动外呼可独立查询，全部查询覆盖四类。",
+        "工号按String保留前导零；实际队列取qno或firstCallQno，呼入cnoFlow/qnoFlow保留原值，不能用当前技能或服务团队冒充实际队列。语音流程取本通ivrName/ivrId，不从任务配置反推，不显示虚构流程版本、节点或本地补齐话单控件。",
+        "号码池名称来自当前租户关联enterpriseId的AliCti hybridGroup/list；租户管理员可通过hybridGroup/create、delete、update维护本租户号码池，不把本地号码列表当成池。任务从本租户列表选池名，priority手动选填整数且数值越小越优先，留空省略。空池、同优先级选号和运行任务变更生效时点仍待CF-15确认，不承诺失败自动切池。",
+        "本地停用仅能约束本地直接选号，不能保证AliCti外显导航号码池排除该号码；全局阻断须经供应商停用或排除机制核验。既有通话正常继续；此边界不增加异常入口。",
+        "用户提供的AliCti任务设置截图仅证界面入口；请求按API-311/DOC-338：描述与业务标签、forceEndFlag/autoComplete、retryStrategyOnlyToday、callPriorityStrategy及concurrency分别保存。自动外呼不提交预测专用流转、座席数值和预热参数。创建确认与当前任务设置共用本任务值；通话详情摘要只读；原型不宣称已联调。",
+        "D-073 / API-404：有原供应商taskId、权限有效、未结束且无待核对结果时，任务中心可编辑本期已采用且更新接口列明的字段；只提交实际改动，DOC-334 task/get回查成功才更新当前配置与planSnapshot，并将编辑前设置副本写入taskSettingHistory。仅处理当前原型任务数据，不兼容旧数据或旧功能；失败或未知保留原配置和输入。type、callGroupType、名单/排重、固定外显号及本期自动外呼IVR不可改。已发生通话与客户记录不回写；运行中生效时点和省略字段语义待真实联调；通话详情摘要仍只读，复制新草稿仍可用。",
+        "D-075 / SRC-105：预外呼和自动外呼创建、确认、查看管理及编辑共用本任务已保存的名称、描述、供应商业务标签与通用设置；实际改动才按API-404差量更新原taskId，DOC-334回查成功后更新当前设置和planSnapshot。自动任务级语音流程名称优先本任务冻结快照，既有customerTimeout缺失显示未记录，不按新建默认30秒补历史。",
+        "API-404虽列ivrId/ivrName并描述自动外呼用途，却将它们置于“预测外呼任务参数只在type=1中生效”章节；已建type=2语音流程修改保持只读，CF-17待供应商确认，不宣称已支持或不支持。自动任务编辑不混入预测专用坐席、流转及预热参数。",
+        "D-078 / SRC-108：任务创建与编辑仅配置外显导航；API-312逐客户clid只在名单行显式提供时可选，绝不由任务或批次自动带入。历史D-069/D-070中的任务固定号码分支已取消。",
+        "D-086 / SRC-114：同一enterpriseId可登记多个AliCti线下提供的外显导航；创建任务时显式选择一个，且可选多个号码池。task/create提交customerClidsCategory=5、单个customerClidsGroup和可选clidPoolList。API-311/API-404仅证明单次任务字段，导航查询、标识有效性与池选号见CF-15联调。",
+        "D-086：已建任务保留所选导航和号码池快照；若导航从账号目录移除，启动或继续前须在原任务编辑并经task/update、task/get核对同一taskId。编辑期间目录变化拒绝过期提交。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-302",
+        "inputs/user-instructions.md#本轮差异处理确认",
+        "API-404"
+      ],
+      "projectionDecisionId": "D-020",
+      "projectionSource": "D-020用户转述供应商反馈及本期关闭重呼处理；官方原始快照保留",
+      "decisionId": "D-083",
+      "relatedDecisionIds": [
+        "D-020",
+        "D-046",
+        "D-048",
+        "D-056",
+        "D-060",
+        "D-064",
+        "D-065",
+        "D-066",
+        "D-069",
+        "D-070",
+        "D-073",
+        "D-075",
+        "D-078",
+        "D-083"
+      ],
+      "sourceRefs": [
+        "SRC-076",
+        "SRC-077",
+        "SRC-078",
+        "SRC-086",
+        "SRC-090",
+        "SRC-094",
+        "SRC-095",
+        "SRC-096",
+        "SRC-099",
+        "SRC-100",
+        "SRC-103",
+        "SRC-105",
+        "SRC-108",
+        "SRC-111"
+      ],
+      "sourceType": "user_relayed_supplier_feedback",
+      "fieldIds": [
+        "FA-191",
+        "FA-196",
+        "FA-197",
+        "FA-198",
+        "FA-199",
+        "FA-200",
+        "FA-201",
+        "FA-202",
+        "FA-203",
+        "FA-204",
+        "FA-205",
+        "FA-206",
+        "FA-207",
+        "FA-208",
+        "FA-209",
+        "FA-210",
+        "FA-211",
+        "FA-212",
+        "FA-213",
+        "FA-216"
+      ],
+      "ruleIds": [
+        "C-65",
+        "C-82",
+        "C-83",
+        "C-85",
+        "C-73"
+      ],
+      "sourceIds": [
+        "API-404",
+        "API-311",
+        "DOC-334",
+        "DOC-338"
+      ]
+    },
+    {
+      "schema_version": "1.0",
+      "id": "SEQ-105",
+      "scenario_id": "SC-105",
+      "name": "工作台身份入口与任务控制时序",
+      "participants": [
+        {
+          "id": "u",
+          "name": "当前有权操作人",
+          "kind": "actor"
+        },
+        {
+          "id": "ui",
+          "name": "中台页面",
+          "kind": "system"
+        },
+        {
+          "id": "svc",
+          "name": "中台业务服务",
+          "kind": "system"
+        },
+        {
+          "id": "db",
+          "name": "中台数据存储",
+          "kind": "system"
+        },
+        {
+          "id": "vendor",
+          "name": "AliCti",
+          "kind": "external_system"
+        }
+      ],
+      "messages": [
+        {
+          "step": 1,
+          "from": "u",
+          "to": "ui",
+          "message": "当前角色登录后查看工作台并按权限下钻处理",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 2,
+          "from": "ui",
+          "to": "svc",
+          "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 3,
+          "from": "svc",
+          "to": "db",
+          "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+          "type": "request",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 4,
+          "from": "db",
+          "to": "svc",
+          "message": "返回授权上下文及有效业务数据",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        },
+        {
+          "step": 5,
+          "from": "svc",
+          "to": "ui",
+          "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+          "type": "error",
+          "condition": "校验失败；本路径结束",
+          "api_id": null
+        },
+        {
+          "step": 6,
+          "from": "u",
+          "to": "ui",
+          "message": "云联络中心租户运营：本人非删除坐席关联存在仅进坐席工作台，否则仅进运营工作台",
+          "type": "request",
+          "condition": "前置业务条件成立",
+          "api_id": null
+        },
+        {
+          "step": 7,
+          "from": "svc",
+          "to": "svc",
+          "message": "按当前租户与 enterpriseId 校验关联；离线或临时停用仍保留坐席入口；管理员沿原规则",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 8,
+          "from": "u",
+          "to": "ui",
+          "message": "统一登录、业务域切换、旧首页书签与返回入口；下钻仍校验对象权限",
+          "type": "request",
+          "condition": "前置业务条件成立",
+          "api_id": null
+        },
+        {
+          "step": 9,
+          "from": "svc",
+          "to": "svc",
+          "message": "所选对象和操作在既有权限内？；满足条件沿通过分支继续，否则按异常分支结束本次操作",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 10,
+          "from": "u",
+          "to": "ui",
+          "message": "在既有任务详情选择暂停、继续或终止；坐席分支复用原停用确认",
+          "type": "request",
+          "condition": "前置业务条件成立",
+          "api_id": null
+        },
+        {
+          "step": 11,
+          "from": "svc",
+          "to": "svc",
+          "message": "核验任务状态及资源；已结束不继续，暂停状态以 task/get 为准；启动/继续前核对任务导航标识与当前默认值，不同则先编辑并回查",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 12,
+          "from": "svc",
+          "to": "vendor",
+          "message": "task/pause仅提交鉴权与taskId；始终省略pauseDuration",
+          "type": "request",
+          "condition": "选择暂停且当前状态与权限资源允许",
+          "api_id": "API-313"
+        },
+        {
+          "step": 13,
+          "from": "vendor",
+          "to": "svc",
+          "message": "返回暂停受理或失败；随后task/get查证，确认暂停后不发起未呼叫号码，已发起通话正常进行",
+          "type": "response",
+          "condition": "本次已发出暂停请求",
+          "api_id": "API-313"
+        },
+        {
+          "step": 14,
+          "from": "svc",
+          "to": "vendor",
+          "message": "仅结束操作提交taskId",
+          "type": "request",
+          "condition": "选择结束且当前状态与权限资源允许",
+          "api_id": "API-314"
+        },
+        {
+          "step": 15,
+          "from": "vendor",
+          "to": "svc",
+          "message": "结束受理后task/get查证；确认结束不再发起后续首次呼叫或重呼，已结束不重新开启",
+          "type": "response",
+          "condition": "本次已发出结束请求",
+          "api_id": "API-314"
+        },
+        {
+          "step": 16,
+          "from": "svc",
+          "to": "vendor",
+          "message": "task/get查询当前原任务",
+          "type": "request",
+          "condition": "选择继续且本地权限、归属与资源校验通过",
+          "api_id": "DOC-334"
+        },
+        {
+          "step": 17,
+          "from": "vendor",
+          "to": "svc",
+          "message": "核对data.taskProperty.id与请求taskId一致，并读取status",
+          "type": "response",
+          "condition": "已发送继续前查询",
+          "api_id": "DOC-334"
+        },
+        {
+          "step": 18,
+          "from": "svc",
+          "to": "ui",
+          "message": "不发送start；保留历史和核对原因，已结束不重新开启",
+          "type": "error",
+          "condition": "查询失败/未知、任务ID不符，或status不是2",
+          "api_id": null
+        },
+        {
+          "step": 19,
+          "from": "svc",
+          "to": "vendor",
+          "message": "/interface/v10/task/start，复用同一taskId",
+          "type": "request",
+          "condition": "前置查询成功、原taskId匹配且status=2",
+          "api_id": "DOC-333"
+        },
+        {
+          "step": 20,
+          "from": "vendor",
+          "to": "svc",
+          "message": "返回受理、失败或未知；受理不代表已运行",
+          "type": "response",
+          "condition": "本次已发送继续请求",
+          "api_id": "DOC-333"
+        },
+        {
+          "step": 21,
+          "from": "svc",
+          "to": "vendor",
+          "message": "task/get再次查询原任务实际状态；状态确认运行才接续未执行呼叫",
+          "type": "request",
+          "condition": "继续请求已发送，独立查证结果，不自动重放写请求",
+          "api_id": "DOC-334"
+        },
+        {
+          "step": 22,
+          "from": "vendor",
+          "to": "svc",
+          "message": "返回当前状态；status=1才显示运行，status=2仍暂停，3已结束",
+          "type": "response",
+          "condition": "后置查询成功且原任务ID匹配",
+          "api_id": "DOC-334"
+        },
+        {
+          "step": 23,
+          "from": "svc",
+          "to": "ui",
+          "message": "查询失败或证据矛盾显示待核对；保留历史，不展示继续成功、不重放",
+          "type": "error",
+          "condition": "start失败/未知或后置查询失败未知，或任务ID不符",
+          "api_id": null
+        },
+        {
+          "step": 24,
+          "from": "svc",
+          "to": "svc",
+          "message": "核实任务控制结果；已发起拨号、振铃或通话正常进行，不强改通话终态",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 25,
+          "from": "svc",
+          "to": "svc",
+          "message": "保存已核实任务状态；暂停可继续，结束不再执行剩余首次呼叫或重呼；保留已发起通话及客户关联",
+          "type": "request",
+          "condition": "前置条件成立；待确认路径不得继续标记生效",
+          "api_id": null
+        },
+        {
+          "step": 26,
+          "from": "vendor",
+          "to": "svc",
+          "message": "已发起通话按正常流程继续并形成正常话单；通过既有话单链路获取结果",
+          "type": "event",
+          "condition": "任务已暂停或结束，且通话在控制生效前已发起",
+          "api_id": null
+        },
+        {
+          "step": 27,
+          "from": "svc",
+          "to": "db",
+          "message": "按原通话与任务关联归集正常话单，回补客户、线索和统计；不重开任务，不虚构特殊终态",
+          "type": "request",
+          "condition": "收到可核实的原通话结果；重复结果按既有规则去重",
+          "api_id": null
+        },
+        {
+          "step": 28,
+          "from": "svc",
+          "to": "ui",
+          "message": "拒绝越权；人员和资源维护仍限管理员",
+          "type": "error",
+          "condition": "所选对象和操作在既有权限内？：不满足",
+          "api_id": null
+        },
+        {
+          "step": 29,
+          "from": "svc",
+          "to": "ui",
+          "message": "拒绝无效状态或未恢复资源；号码隔离恢复限管理员",
+          "type": "error",
+          "condition": "当前状态及继续执行的资源检查通过？：不满足",
+          "api_id": null
+        },
+        {
+          "step": 30,
+          "from": "svc",
+          "to": "ui",
+          "message": "标记待核对/失败，不把受理当最终生效",
+          "type": "error",
+          "condition": "厂商结果可确认与业务要求一致？：不满足",
+          "api_id": null
+        },
+        {
+          "step": 31,
+          "from": "svc",
+          "to": "ui",
+          "message": "取消提交：不执行本次变更，保留已有有效数据",
+          "type": "error",
+          "condition": "执行变更前取消确认",
+          "api_id": null
+        },
+        {
+          "step": 32,
+          "from": "svc",
+          "to": "ui",
+          "message": "阻止远端控制，保留待核对及历史；不伪造已结束，不释放客户",
+          "type": "error",
+          "condition": "缺少可靠供应商任务ID且请求远端控制",
+          "api_id": null
+        },
+        {
+          "step": 33,
+          "from": "svc",
+          "to": "ui",
+          "message": "转SC-014/015首次启动：校验权限资源，get确认原任务status=0后start并get复查；不是暂停后继续",
+          "type": "error",
+          "condition": "资源已恢复且任务从未启动",
+          "api_id": null
+        },
+        {
+          "step": 34,
+          "from": "svc",
+          "to": "ui",
+          "message": "拒绝操作，保持原状态",
+          "type": "error",
+          "condition": "缺少可靠任务依据或不满足首次启动条件",
+          "api_id": null
+        },
+        {
+          "step": 35,
+          "from": "svc",
+          "to": "ui",
+          "message": "复核坐席归属后展示当前状态、当前通话和分页历史；缺失实时详情保持待更新；历史记录进入SC-104",
+          "type": "error",
+          "condition": "选择坐席对象下钻",
+          "api_id": null
+        },
+        {
+          "step": 36,
+          "from": "svc",
+          "to": "ui",
+          "message": "转SC-005复用现有确认、取消、权限与执行结果核验；当前通话允许完成",
+          "type": "error",
+          "condition": "管理员在坐席详情选择停用",
+          "api_id": null
+        },
+        {
+          "step": 37,
+          "from": "svc",
+          "to": "ui",
+          "message": "按当前权限进入既有资源模块，不触发任务控制",
+          "type": "error",
+          "condition": "选择号码/账号等资源对象",
+          "api_id": null
+        },
+        {
+          "step": 38,
+          "from": "svc",
+          "to": "ui",
+          "message": "返回已核实结果；人工通话与记录见 SEQ-103，来电通话与记录见 SEQ-214，再次预外呼见 SEQ-215；范围不明保留待核对",
+          "type": "response",
+          "condition": null,
+          "api_id": null
+        }
+      ],
+      "notes": [
+        "D-047 / SRC-077（2026-09-20，user_relayed_supplier_feedback）：用户转述供应商确认，任务暂停或结束只控制任务调度，未发起的呼叫不再发起，已发起的拨号、振铃和通话正常进行，正常生成话单。暂停后可按既有规则继续；结束后未执行的首次呼叫和重呼不再执行，原任务不重开。正常话单回补原任务、客户、线索与统计，不强改通话结果；本次答复不等于官网更新或真实联调验收。",
+        "D-031：仅云联络中心租户运营按当前租户、当前 enterpriseId 下本人非删除坐席关联决定入口：有关联仅坐席工作台，无关联仅运营工作台。",
+        "离线或临时停用不改变工作台身份。登录、业务域切换、旧首页书签和返回工作台均使用同一入口规则；管理员及 AI 业务域保留既有规则。",
+        "D-021 任务继续仍先 get 确认原任务 status=2，再 start 并 get 查证；结束后不再执行后续首次呼叫或重呼，不重新开启。",
+        "接听和业务再次联系分别见 SC-214 / SEQ-214、SC-215 / SEQ-215；无本地自动分配或自动重呼。",
+        "D-038：人工外呼拨号起可记录；呼入/预外呼人工接通后可记录。通话中逐项暂存，结束后确认保存，分别见 SC-103 / SEQ-103 和 SC-214 / SEQ-214。",
+        "D-038 / SRC-070：通话中记录与保存门禁见 G-36、G-40；不改变原任务控制请求或供应商状态。",
+        "D-042：本人上线/暂停恢复/完全退出见 SC/SEQ-220，设置与整理见 SC/SEQ-221；工作台 phase 与电话 presence 分开，业务保存后完成整理自动请求 unpause，确认成功才 ready；电话失败不回滚已存跟进。",
+        "记录正式保存成功且业务 phase=idle 后自动 unpause；匹配成功才 ready。明确失败保留记录可重试；未知先核对状态，不重放请求；恢复确认还要求无未完成通话或连接异常。",
+        "D-064 / SRC-094：预外呼和自动外呼列表不显示内部执行配置名称、版本、方案编号或后续重呼列。retryStrategy只说明已配置规则，finishRetryFlag和telRetryRound只描述本条话单，不能推断任务仍有后续重呼；原任务待再次联系入口与重呼配置保留。",
+        "D-065 / SRC-095：创建确认与详情的任务设置复用同一摘要，按相同的三组信息和顺序展示。读取本任务保存值或首次启动冻结值；旧快照缺项仅从本任务保存字段补充，显式空值不被覆盖，不读当前共享模板、不按当前技能成员重算坐席。缺失只读字段显示未记录，复制需补齐必要配置且不继承客户及原预约日期。",
+        "预测任务设置显示指定坐席姓名与原字符串工号，或外呼组名/组号；并显示来电号码、可用坐席最低人数、坐席忙时语音流程、callStrategy。自动外呼只显示所选官方语音流程和号码，不混入预测坐席字段。两类均展示去重方式、开始/结束、允许/禁呼时间条件及重呼开关、号码状态、次数和每次间隔。",
+        "D-066 / SRC-096：通话列表、查看详情和任务内通话记录共用CloudCallRecords.display与AliCtiReportFacts事实解析，按API-317人工、API-318预测、API-319呼入、API-362自动类型及账号和显式供应商通话标识校验。接口来源对象存在时，raw或字段缺失、不合法或身份冲突不得用旧agentAnswerResult、contactId、时长或结束标签补事实；真实0秒保留，缺时长显示未记录。没有接口来源对象的纯本地演示仍可使用本地时间、工号和时长，不作为供应商事实。",
+        "关联任务须同时匹配账号、租户、通话类型及明确的本地/供应商taskId；缺少本地ID时仅允许唯一供应商ID匹配。来源冲突不改绑其他任务，也不开放再次联系；合法原任务设置在详细信息中折叠只读，复用同一任务摘要。业务联系轮次与话单telRetryRound及finishRetryFlag分别说明，不能推断后续安排。",
+        "D-086：已建任务保留所选导航和号码池快照；若导航从账号目录移除，启动或继续前须在原任务编辑并经task/update、task/get核对同一taskId。编辑期间目录变化拒绝过期提交。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-302",
+        "inputs/user-instructions.md#本轮差异处理确认"
+      ],
+      "projectionDecisionId": "D-047",
+      "projectionSource": "SRC-077用户转述供应商答复，补齐已发起通话正常进行及正常话单规则；D-017继续调用方式和D-021结束不重开规则保持。",
+      "decisionId": "D-047",
+      "fieldIds": [
+        "FA-143",
+        "FA-135",
+        "FA-178",
+        "FA-197"
+      ],
+      "ruleIds": [
+        "F-23",
+        "G-36",
+        "G-40",
+        "C-73"
+      ],
+      "sourceRefs": [
+        "SRC-070",
+        "SRC-074",
+        "SRC-077",
+        "SRC-090",
+        "SRC-094",
+        "SRC-095",
+        "SRC-096",
+        "SRC-111"
+      ],
+      "relatedDecisionIds": [
+        "D-031",
+        "D-060",
+        "D-064",
+        "D-065",
+        "D-066",
+        "D-083"
+      ],
+      "sourceType": "user_relayed_supplier_feedback"
+    }
+  ],
+  "decisionIds": [
+    "D-017",
+    "D-018",
+    "D-020",
+    "D-021",
+    "D-030",
+    "D-031",
+    "D-032",
+    "D-038",
+    "D-041",
+    "D-042",
+    "D-046",
+    "D-047",
+    "D-048",
+    "D-056",
+    "D-058",
+    "D-060",
+    "D-061",
+    "D-062",
+    "D-063",
+    "D-064",
+    "D-065",
+    "D-066",
+    "D-069",
+    "D-070",
+    "D-071",
+    "D-072",
+    "D-073",
+    "D-075",
+    "D-078",
+    "D-083"
+  ],
+  "version": "2026-09-29-multiple-caller-navigation-1",
+  "relatedCurrentDiagrams": "blueprint/current-business-diagrams.json",
+  "sourceRefs": [
+    "SRC-070",
+    "SRC-073",
+    "SRC-074",
+    "SRC-076",
+    "SRC-077",
+    "SRC-078",
+    "SRC-086",
+    "SRC-088",
+    "SRC-090",
+    "SRC-091",
+    "SRC-092",
+    "SRC-093",
+    "SRC-094",
+    "SRC-095",
+    "SRC-096",
+    "SRC-099",
+    "SRC-100",
+    "SRC-101",
+    "SRC-102",
+    "SRC-103",
+    "SRC-105",
+    "SRC-108",
+    "SRC-111"
+  ],
+  "scopeNotes": [
+    "D-054呼入接听按API-319 status，号码识别仅补充、不判断来电客户号码或阻断接听统计；详见current-business-diagrams中的SC-017/SEQ-017。此澄清不改变本文件的任务创建、重呼或暂停结束参数。",
+    "D-053的sipCauseAsyncUpdateFlag仅用于预测话单，不推广为呼入或自动外呼任务字段。",
+    "D-063～D-066仅统一现行页面和记录事实，不新增业务实体；原任务再次联系、手动时间优先级及轻量文档规则继续适用。",
+    "D-075：两类任务通用字段贯通创建、确认、详情和编辑；已建自动任务IVR修改列CF-17待确认，任务级流程名称优先冻结快照，缺失等待时间不补新建默认。",
+    "D-086：任务从当前enterpriseId目录显式选择一个外显导航，可选择多个号码池；预测任务阈值不足自动暂停有API-311/API-404依据，定时开始任务座席恢复自动启动来自用户转述供应商业务口径，CF-18待真实联调。"
+  ],
+  "date": "2026-09-29"
+}

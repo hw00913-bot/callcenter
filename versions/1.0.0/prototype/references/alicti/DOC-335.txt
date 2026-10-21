@@ -1,0 +1,136 @@
+查询技能与队列或者座席的关系
+
+接口说明：
+
+API URL
+
+接口请求地址： https://api-{region}.alicti.cn/interface/{version}/skill/listSkillRelation 
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10 
+
+接口请求方式：GET/POST
+
+相关参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+relationType | 
+String | 
+必选 | 
+关系类型 | 
+队列关系:qno 座席关系:cno | 
+
+name | 
+String | 
+可选 | 
+技能名称（name和id二选一） | 
+name和id二者都传值时,按照id查询 | 
+
+id | 
+String | 
+可选 | 
+技能id（name和id二选一） | 
+name和id二者都传值时,按照id查询 | 
+
+limit | 
+int | 
+可选 | 
+每页条数 | 
+默认10 | 
+
+offset | 
+int | 
+可选 | 
+初始位置 | 
+默认0 | 
+
+接口请求示例：
+
+https://api-{region}.alicti.cn/interface/v10/skill/listSkillRelation?validateType=1&departmentId=BM3000003&timestamp=1491372644
+&sign=8209fc5ac75b6377c7db4ac9c35932e7&id=1
+
+接口返回
+
+data定义：
+
+字段           | 
+类型     | 
+描述         | 
+
+offset | 
+Int | 
+初始位置 | 
+
+limit | 
+Int | 
+每页条数 | 
+
+total | 
+Int | 
+总数 | 
+
+qnos | 
+List | 
+当relationType选择qno时展示的队列列表 | 
+
+cnos | 
+List | 
+当relationType选择cno时展示的座席列表 | 
+
+返回示例：
+
+{
+    "result": "0",
+    "description": "成功",
+    "data": {
+        "total": "1",
+        "offset": "0",
+        "qnos": [
+            "6666"
+        ],
+        "limit": "10"
+    }
+}

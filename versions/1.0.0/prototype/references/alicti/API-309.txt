@@ -1,0 +1,236 @@
+批量更新座席技能列表信息
+
+接口说明
+
+批量更新座席技能列表信息，座席绑定的技能信息为全量更新，即传入的技能列表为座席最终的技能列表
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/agent/batchUpdateAgentSkill
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+接口请求方式：
+
+POST
+
+相关参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+请求体（Request Body）
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+skillInfos | 
+JSONArray | 
+必选 | 
+请求体内容，座席技能信息，最多支持100个座席的批量更新 | 
+ | 
+
+skillInfos定义：
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+cno | 
+String | 
+必选 | 
+座席工号 | 
+需要更新座席技能信息的座席工号，正整数，取值3-10位数字 | 
+
+skillIds | 
+String | 
+必选 | 
+所选的技能id列表 | 
+可选择多个，多个之间使用英文标点逗号间隔.例如:"1,2,3"；skillIds为"0"时代表清空座席所有技能，不为"0"时需要同时传入skillLevels | 
+
+skillLevels | 
+String | 
+可选 | 
+所选的技能的等级列表 | 
+值越小技能越高，多个间用英文标点逗号间隔。(与技能id相对应) 例如:"5,1,1"表示技能id为1的等级是5; 技能id为2的等级是1; 技能id为3的等级是1 | 
+
+接口请求URL示例
+
+https://api-{region}.alicti.cn/interface/v10/agent/batchUpdateAgentSkill?validateType=1&departmentId=BM3000003&timestamp=1491369811&sign=36f19f740bb3e1f0087e79552cf02cb0
+
+接口请求体示例 JSON格式
+
+[
+    {
+        "cno": "100001",
+        "skillIds": "1,2,3",
+        "skillLevels": "3,2,1"
+    },
+    {
+        "cno": "100002",
+        "skillIds": "2,3,4,5",
+        "skillLevels": "3,2,1,5"
+    },
+    {
+        "cno": "100003",
+        "skillIds": "2,3,4,6,8",
+        "skillLevels": "1,2,1,2,1"
+    }
+]
+
+接口返回
+
+JSON格式数据：
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+Int | 
+0 成功, -1 失败 | 
+
+description | 
+String | 
+返回结果描述 | 
+
+data | 
+JSON | 
+返回数据JSON格式 | 
+
+errorCode | 
+Int | 
+错误码,当返回result=-1时，返回该参数 | 
+
+description给出成功或失败时的文本描述：
+
+description | 
+返回结果说明 | 
+
+验证失败，参数[{param}]不能为空 | 
+{param}为接口参数中必选字段 | 
+
+验证失败，参数[{param}]格式不正确 | 
+{param}为接口参数中格式有要求的字段 | 
+
+验证失败，参数[{param}]取值不正确 | 
+{param}为接口参数中有固定取值的字段 | 
+
+验证失败，参数[param]取值范围不正确 | 
+{param}为接口参数中有固定范围的字段 | 
+
+参数[skillInfos]验证失败，单批次最多允许录入100个座席的技能信息 | 
+request body 解析后超过100个座席信息 | 
+
+参数[skillIds]和[skillLevels]的配置个数不匹配 | 
+当[skillIds]不为"0"时，[skillIds]个数要与[skillLevels]个数一一对应 | 
+
+参数[skillIds]数据格式不正确，skillId: xxx | 
+[skillIds]字段解析出非法的座席技能ID格式 | 
+
+参数[skillLevels]数据格式不正确，skillLevel: xxx | 
+[skillLevels]字段解析出非法的座席技能等级格式 | 
+
+验证失败，超过频次限制 | 
+接口调用超过接口的访问频次限制 | 
+
+成功，{param} | 
+{param}为成功描述 | 
+
+失败，{param} | 
+{param}为失败描述 | 
+
+data定义：
+
+字段 | 
+类型 | 
+描述 | 
+
+failCno | 
+String | 
+座席技能信息修改失败的座席工号列表 | 
+
+errorCode说明：
+
+代码 | 
+说明 | 
+
+10001 | 
+系统异常 | 
+
+10002 | 
+超出请求频度限制 | 
+
+10003 | 
+权限验证失败 | 
+
+10004 | 
+企业状态异常 | 
+
+20000 | 
+参数不正确 | 
+
+20013 | 
+座席不在任何队列 | 
+
+20023 | 
+座席状态在线 | 
+
+返回示例 JSON格式
+
+{
+    "result": "0",
+    "description": "成功",
+    "data": {
+        "failCno": "[0002, 100003]"
+    }
+}

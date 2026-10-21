@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-102",
+  "name": "开启或结束本人电话服务",
+  "summary": "校验资格并上线，在无进行中通话和未处理结果时下线或退出",
+  "actors": [
+    "关联坐席的中台用户",
+    "统一外呼中台",
+    "阿里云CCC"
+  ],
+  "trigger": "开始或结束当前租户的人工外呼工作",
+  "preconditions": [
+    "认证通过并选定租户与云联络中心业务域",
+    "已建立有效账号坐席关联"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "关联坐席的中台用户",
+      "action": "进入当前租户坐席工作台或呼叫弹窗",
+      "system_response": "本人电话服务入口",
+      "input": "登录租户与业务域",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "校验本人坐席、技能、号码及 HTTPS/麦克风许可",
+      "system_response": "有效身份、授权资源与设备条件",
+      "input": "有效关联、同步结果、授权",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "本人身份、麦克风与会话占用检查均通过？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "自有界面初始化 Core SDK 并发起首次注册签入",
+      "system_response": "onInit 后 register(deviceType:0, currentSkillGroups, mode:normal)；等待厂商状态经 SDK 回调返回",
+      "input": "本人身份、设备与状态配置",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "关联坐席的中台用户",
+      "action": "实际就绪后处理电话；无通话和待保存结果时申请下线",
+      "system_response": "SDK call/answer/hangUp 按既有入口权限执行",
+      "input": "下线或退出请求",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "通话已结束、结果已保存且签出状态已确认？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-102"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "统一外呼中台",
+      "action": "logOut 确认后释放会话；离开页面 unloadWorkbench",
+      "system_response": "再上线使用 logIn；必要时回场内与 ready，异常保留待核对",
+      "input": "确认已结束服务",
+      "rule_ids": [
+        "BR-102"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-102-3",
+      "condition": "本人资格有效且未被其他会话占用？：不满足",
+      "steps": [
+        "提示缺项或拒绝第二入口，不强制抢占"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-102-6",
+      "condition": "当前确实允许退出且厂商状态已确认？：不满足",
+      "steps": [
+        "保留会话和结果输入；核对状态，不提前释放"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-102-REGISTER",
+      "condition": "注册、签入或 READY 失败/未确认",
+      "steps": [
+        "保持不可呼叫，提示修复身份、设备、占用或网络问题；未知状态先核对"
+      ],
+      "continuation": "修复后按实际注册状态由用户重新上线，不自动重复拨号。"
+    }
+  ],
+  "postconditions": [
+    "校验资格并上线，在无进行中通话和未处理结果时下线或退出"
+  ],
+  "acceptance_points": [
+    "已关联坐席运营从工作台待联络客户或临时拨号进入呼叫弹窗，检查身份与资源后开启服务，不恢复我的坐席独立区。",
+    "呼叫或话后未保存期间禁止退出和切换上下文；坐席占用不能由另一入口抢占。真实跨设备会话能力保留为接口联调项。"
+  ],
+  "source_story_ids": [
+    "US-102"
+  ],
+  "source_refs": [
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-204",
+    "inputs/source-index.json#SRC-054",
+    "inputs/source-index.json#SRC-055"
+  ],
+  "legacy_refs": [
+    "BF-11",
+    "SD-11"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "关联坐席的中台用户",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "阿里云CCC",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "开始或结束当前租户的人工外呼工作"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "进入当前租户坐席工作台或呼叫弹窗\n输出：本人电话服务入口",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "action",
+        "order": 3,
+        "label": "校验本人坐席、技能、号码及 HTTPS/麦克风许可\n输出：有效身份、授权资源与设备条件",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 4,
+        "label": "本人身份、麦克风与会话占用检查均通过？",
+        "step_ref": 3
+      },
+      {
+        "id": "FAIL3",
+        "lane_id": "u",
+        "type": "end",
+        "order": 5,
+        "label": "提示缺项或拒绝第二入口，不强制抢占"
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "action",
+        "order": 6,
+        "label": "自有界面初始化 Core SDK 并发起首次注册签入\n输出：onInit 后 register(deviceType:0, currentSkillGroups, mode:normal)；等待厂商状态经 SDK 回调返回",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "u",
+        "type": "action",
+        "order": 10,
+        "label": "实际就绪后处理电话；无通话和待保存结果时申请下线\n输出：SDK call/answer/hangUp 按既有入口权限执行",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 11,
+        "label": "通话已结束、结果已保存且签出状态已确认？",
+        "step_ref": 6
+      },
+      {
+        "id": "FAIL6",
+        "lane_id": "u",
+        "type": "end",
+        "order": 12,
+        "label": "保留会话和结果输入；核对状态，不提前释放"
+      },
+      {
+        "id": "N7",
+        "lane_id": "p",
+        "type": "action",
+        "order": 13,
+        "label": "logOut 确认后释放会话；离开页面 unloadWorkbench\n输出：再上线使用 logIn；必要时回场内与 ready，异常保留待核对",
+        "step_ref": 7
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 14,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "READY-CHECK",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 8,
+        "label": "注册、签入及 READY 已确认？"
+      },
+      {
+        "id": "REGISTER-FAIL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 9,
+        "label": "保留不可呼叫状态；提示鉴权/麦克风/占用/网络问题，不伪报上线"
+      },
+      {
+        "id": "N4-CCC",
+        "lane_id": "c",
+        "type": "action",
+        "order": 7,
+        "label": "处理软电话注册与坐席签入\n输出：返回实际注册、签入和坐席状态或失败；由 SDK 回调反馈前端"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "FAIL3",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-102-3"
+      },
+      {
+        "from": "N3",
+        "to": "N4",
+        "label": "满足"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "FAIL6",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-102-6"
+      },
+      {
+        "from": "N6",
+        "to": "N7",
+        "label": "满足"
+      },
+      {
+        "from": "N7",
+        "to": "END"
+      },
+      {
+        "from": "READY-CHECK",
+        "to": "N5",
+        "label": "已就绪"
+      },
+      {
+        "from": "READY-CHECK",
+        "to": "REGISTER-FAIL",
+        "label": "失败或待确认",
+        "type": "failure",
+        "path_id": "ALT-102-REGISTER"
+      },
+      {
+        "from": "N4",
+        "to": "N4-CCC"
+      },
+      {
+        "from": "N4-CCC",
+        "to": "READY-CHECK"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-054（2026-09-10）：过程 stage、客户 answerResult 与 failureReason 分开；客户通道 Established 才是客户接通证据，坐席通道先建立不计客户接通；单通道 Released 不结束整通。迟到证据可校准历史，不重新开启已结束通话。未知不是未接通；校准只更新原通话/原任务，不重拨。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。"
+  ]
+}

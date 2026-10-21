@@ -1,0 +1,245 @@
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'none'; manifest-src 'none'">
+<script data-history-readonly="true">
+(() => {
+  'use strict';
+  const config={"rootHref": "../", "snapshotId": "release-d2618baa-ro-v2", "returnHref": "../../../../../../prototype/index.html#home", "includeInteractionDoc": true};
+  const root=new URL(config.rootHref,location.href);
+  const returning=config.returnHref ? new URL(config.returnHref,location.href) : null;
+  const message='历史快照只读：请返回工作版进行业务修改。';
+  function stop(event) {
+    if(event){event.preventDefault();event.stopImmediatePropagation();}
+    if(typeof window.showToast==='function')window.showToast(message,'info');
+    else {const node=document.getElementById('snapshot-readonly-message');if(node)node.textContent=message;}
+    return false;
+  }
+  function memoryStorage(){
+    const data=new Map();
+    const api={getItem:key=>data.has(String(key))?data.get(String(key)):null,
+      setItem:(key,value)=>data.set(String(key),String(value)),removeItem:key=>data.delete(String(key)),
+      clear:()=>data.clear(),key:index=>Array.from(data.keys())[Number(index)]??null};
+    Object.defineProperty(api,'length',{get:()=>data.size,configurable:true});
+    return new Proxy(api,{get:(object,key)=>key in object?object[key]:api.getItem(key),
+      set:(_object,key,value)=>{api.setItem(key,value);return true;},
+      deleteProperty:(_object,key)=>{api.removeItem(key);return true;},
+      ownKeys:()=>Array.from(data.keys()),getOwnPropertyDescriptor:()=>({enumerable:true,configurable:true})});
+  }
+  // Never read the native stores; even baseline initializers only see new maps.
+  for(const name of ['localStorage','sessionStorage']){
+    Object.defineProperty(window,name,{value:memoryStorage(),writable:false,configurable:false});
+  }
+  window.addEventListener?.('storage',event=>event.stopImmediatePropagation(),true);
+  try{Object.defineProperty(navigator,'locks',{value:{request:(name,...args)=>{
+    const callback=args.find(value=>typeof value==='function');
+    return callback?Promise.resolve().then(()=>callback({name,mode:'exclusive'})):Promise.reject(new Error('Callback required'));
+  }},configurable:false});}catch(_){}
+  try{Object.defineProperty(document,'cookie',{get:()=>'',set:()=>{},configurable:false});}catch(_){/* CSP and omitted credentials still apply. */}
+  try{window.opener=null;}catch(_){}
+  function inside(input){
+    try{const value=new URL(String(input),location.href);return value.origin===root.origin &&
+      value.protocol===root.protocol && value.pathname.startsWith(root.pathname) && !value.username && !value.password;}
+    catch(_){return false;}
+  }
+  const originalFetch=window.fetch?.bind(window);
+  Object.defineProperty(window,'fetch',{configurable:false,writable:false,value:(input,options={})=>{
+    const url=input?.url??input;const method=String(options.method??input?.method??'GET').toUpperCase();
+    if(!inside(url)||!['GET','HEAD'].includes(method)||options.body!=null)return Promise.reject(new Error(message));
+    if(!originalFetch)return Promise.reject(new Error('Local static fetch unavailable'));
+    return originalFetch(input,{...options,method,credentials:'omit',redirect:'error',cache:'no-store'});
+  }});
+  const forbidden=()=>{throw new Error(message);};
+  for(const name of ['XMLHttpRequest','WebSocket','EventSource','Worker','SharedWorker','BroadcastChannel','RTCPeerConnection','WebTransport']){
+    Object.defineProperty(window,name,{value:forbidden,writable:false,configurable:false});
+  }
+  try{Object.defineProperty(navigator,'sendBeacon',{value:()=>false,configurable:false});}catch(_){}
+  try{Object.defineProperty(navigator,'serviceWorker',{value:undefined,configurable:false});}catch(_){}
+  try{Object.defineProperty(window,'indexedDB',{value:undefined,configurable:false});}catch(_){}
+  try{Object.defineProperty(window,'caches',{value:undefined,configurable:false});}catch(_){}
+  // Applied before original scripts/resources. All external origins and current
+  // project API/resource paths are excluded from the narrower runtime policy.
+  if(['http:','https:'].includes(root.protocol)){
+    const source=root.href.split(/[?#]/)[0];
+    const policy=document.createElement('meta');policy.httpEquiv='Content-Security-Policy';
+    policy.content="default-src 'none'; script-src 'unsafe-inline' "+source+"; style-src 'unsafe-inline' "+source+
+      "; img-src data: blob: "+source+"; font-src "+source+"; media-src blob: "+source+"; connect-src "+source+
+      "; frame-src "+source+"; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'none'; manifest-src 'none'";
+    document.head.appendChild(policy);
+  }
+  const originalOpen=window.open?.bind(window);
+  Object.defineProperty(window,'open',{configurable:false,writable:false,value:(url,target)=>{
+    if(!inside(url))return null;
+    return originalOpen ? originalOpen(url,target||'_blank','noopener,noreferrer') : null;
+  }});
+  if(window.HTMLFormElement){
+    window.HTMLFormElement.prototype.submit=()=>stop();
+    window.HTMLFormElement.prototype.requestSubmit=()=>stop();
+  }
+  const mutating=/(?:保存|提交|删除|新增|新建|添加|导入|上传|发布|启用|停用|拨打|发起呼叫|开始呼叫|挂断|转接|\b(?:save|submit|delete|remove|create|commit|import|upload|publish|send|setStatus|startTask|pauseTask|resumeTask|placeCall|answerCall)\w*)/i;
+  const loginAction=/(?:AppState\.(?:submitLogin|sendSmsCode|refreshCaptcha|selectDemoProfile|chooseTenant|chooseInstance|chooseManagedTenant|logout)|DemoSwitch\.(?:open|close|select|choose)|(?:^|\s)(?:登录|退出登录)(?:\s|$))/;
+  // Explicit operations audited in the archived release and working prototype.
+  // A display label, valid business context, or supplier's own pending response
+  // must never decide whether a historical view can execute a business write.
+  const apiMutations={
+    AppState:['persistManagementData','returnFromConfiguration','onSupplierAccountsChanged'],
+    AgentWorkbench:['signIn','signOut','receiveOffer','receiveStatus','answerIncoming','syncReceivingProgress','dial','end','saveDisposition','toggleMute','setDisposition','setRemark','setFollowup','setDemoResult','bindAccount','confirmDemoResult','updateField','chooseContact','selectAssigned','openTemporary'],
+    AliCtiAdapter:['connect','disconnect','previewOutcall','queryRasr','controlTask','reconcileAvailability'],
+    'AliCtiAdapter.agentGroup':['create','update','delete','assignAgent','unassignAgent'],
+    AliCtiSeatOperations:['demoConnection','connectionCallbacks','relogin','saveProfile','login','logout','pause','unpause','changeBindTel','changeWorkingMode','prolongWrapup','enterWrapup','completeWrapup','invalidate','manageSeat','refreshState'],
+    AliCtiReceiving:['answer','refuse'],
+    CloudTaskWorkspace:['addCallerPool','updateCallerPool','removeCallerPool','deleteTask','start','startRepeatPredictive','update','updatePriority','setTimeMode','toggleTimeCondition','changeRetryCount','adjustRetryCount','changeRetryInterval','setRetryLayout','resetRetry','setRetryMode','setRetryTimeType','toggleRetryCode','addRetryRound','removeRetryRound','updateRetryRound','setTenant','selectPlan','setResource','toggleAgent','toggleAllAgents','saveDraft','submit','controlTask','startTask','pauseTask','resumeTask','simulateAvailability','copyTask','pauseForNumber','syncAssignedCustomers','commitDirectImport','recoverDirectImport','saveDemoTask','setCallerNavigation','setCustomerMode','toggleCustomer','clearCustomers','selectFilteredCustomers','refreshIvrList'],
+    DccPriorityModel:['ensureDemo','saveRules','push','recordResult','prepareRetry','release','submit'],
+    CustomerTasks:['confirmImport','assign','assignSelected','claim','syncCall','releaseUnstartedTask','attachToNewTask','confirmAssignment','acceptTaskDemoResult','commitTaskAttachment','rollbackTaskAttachment','commitImportBatch','rollbackImportBatch','recoverMissingTask'],
+    RepeatPredictive:['commitAttachment','rollbackAttachment','releaseTask'],
+    CallState:['start','ingest','finish','reconcile'],
+    CloudCallRuntime:['sequence','addAudit','touch'],
+    CloudCallSync:['begin','refresh','demo'],
+    CloudCallRecords:['refreshSync','demoSync','confirmDemo'],
+    ScenarioDemo:['runNext','inbound','saveTask','confirmResult','triggerReceiving','receivingEvent','prepare'],
+    ScenarioReadiness:['completeTest','markConfigurationCompleted'],
+    AccountSeat:['bind','create','persistAgent','finishPendingDisable','submit'],
+    OutboundGroups:['create','update','deleteGroup','setMembers','assignAgent','unassignAgent'],
+    AliCtiAccounts:['save','setStatus'],
+    AliCtiExtensions:['create','update','remove','assign','importCandidates','importExisting'],
+    AliCtiNumberPools:['create','update','remove'],
+    AliCtiTimeConditions:['create','update','remove'],
+    AliCtiQueues:['updateByNumber','saveBinding','saveQueueGroups','createForGroup','createForGroups','updateQueue','verify'],
+    AliCtiInbound:['save','setActive','remove','verifyPending'],
+    AliCtiSeatImport:['submit','verifyPending'],
+    QueueConfig:['save','verify','unbind'],
+    CustomerBusiness:['save','saveField','deleteField','setEnabled'],
+    CustomerFollowup:['save','saveEditor'],
+    SeatEventLog:['record','observeSnapshot'],
+    SeatOperationUI:['demoConnection','submit','set','relogin','resume','reconcile','finishWrapup','afterRecordSaved','changeMode'],
+    WorkbenchOverview:['stopNew'],
+    BusinessConfiguration:['save','toggle','remove'],
+    BusinessCategories:['save','toggle','remove'],
+    BusinessIssues:['record','handle'],
+    CallDataIssues:['recheck'],
+    'Pages.agent-center':['createSingle','savePhoneConfig','disable','restore','remove','saveSkill','submitPendingSkills','changeLevel','saveSkillRepair','unassign','retry'],
+    'Pages.resource-lines':['isolate','restore','setLocalEnabled'],
+    'Pages.inbound-routing':['save','changeActive','remove'],
+    'Pages.contact-center-settings':['saveMapping'],
+    SeatPhoneConfig:['save'],
+    OutboundGroupManagement:['save','remove'],
+    AccountTenantForms:['saveAccount','saveTenant'],
+    'Pages.account-tenant':['saveMemberEdit','toggleMember','confirmToggleMember','confirmToggleTenant','saveTenant'],
+    CustomerDemo:['prepare'],
+    AliCtiContractPanel:['savePhone','savePush','applyEvent','receive'],
+    AliCtiDemo:['savePreferences','setTranscriptionConditions','saveSeatAsr','seatActive','saveSkills','skillResource','taskCreated','imported'],
+    AliCtiNumberImport:['submit'],
+    QueueDetail:['save'],
+    QueueManagement:['saveAssociation','verify','verifyCurrent','askUnlink'],
+    ExtensionManagement:['save'],
+    TimeConditionManagement:['save'],
+    TenantCallMonitor:['stop','submitManage'],
+    CloudResourceRules:['changed'],
+    AliCtiTaskUpdate:['submit'],
+    NumberPoolManagement:['save'],
+    'Pages.alicti-accounts':['changeStatus','confirmStatus','save'],
+    'Pages.number-pool-management':['save'],
+    'Pages.queue-management':['askUnlink','saveAssociation','verify','verifyCurrent']
+  };
+  // These create/submit names are pure helpers or page-local authentication.
+  // Do not blanket-deny open/set/read methods or application initialization.
+  const safeAPIs={AppState:['submitLogin','sendSmsCode','refreshCaptcha','selectDemoProfile','chooseTenant','chooseInstance','chooseManagedTenant','logout'],
+    DemoSwitch:['open','enter','loginShortcut'],AliCtiRetry:['create']};
+  function mutationMethod(path,key){
+    if(safeAPIs[path]?.includes(key))return false;
+    if(apiMutations[path]?.includes(key))return true;
+    if(['AppState','DemoSwitch','HistorySnapshot'].includes(path))return false;
+    return /^(?:save|submit|delete|remove|commit|create|import|upload|publish|placeCall|setStatus)/i.test(key);
+  }
+  function explicitAction(action){
+    const call=/\b((?:window\.)?[A-Za-z_$][\w$]*(?:(?:\.[A-Za-z_$][\w$]*)|(?:\[['"][^'"]+['"]\]))*)\.([A-Za-z_$][\w$]*)\s*\(/g;
+    for(const match of action.matchAll(call)){
+      const path=match[1].replace(/^window\./,'').replace(/\[['"]([^'"]+)['"]\]/g,'.$1');
+      if(!apiMutations[path]?.includes(match[2]))continue;
+      if(path==='AppState'&&match[2]==='returnFromConfiguration'&&!/^\s*true\s*[,)]/.test(action.slice(match.index+match[0].length)))continue;
+      return true;
+    }
+    return false;
+  }
+  // This audited button uses a lexical onclick closure, so replacing the
+  // exported CallDataIssues.recheck method alone cannot intercept its write.
+  const mutationControlIds=new Set(['call-data-recheck']);
+  function viewAction(button){
+    const handler=(button.getAttribute('onclick')||'').trim();
+    // These exact actions come from the prototype navigation contract. Neither
+    // an arbitrary open/set method nor a mixed navigation+mutation is allowed.
+    if(/^(?:(?:RouteRuntime\.openPrimary|toggleNavigationGroup|navigateTo)\(\s*(?:'[^']*'|"[^"]*")\s*\)|RouteRuntime\.back\(\s*\))\s*;?$/.test(handler))return true;
+    return !handler&&(button.hasAttribute('data-route')||button.hasAttribute('data-group'));
+  }
+  document.addEventListener('click',event=>{
+    const anchor=event.target.closest?.('a[href]');
+    if(anchor){
+      const raw=anchor.getAttribute('href')||'';
+      const url=new URL(raw,location.href);
+      const isReturn=anchor.hasAttribute('data-snapshot-return') && returning && url.href===returning.href;
+      if(!isReturn&&!inside(raw)){stop(event);return;}
+      if(anchor.hasAttribute('download')){stop(event);return;}
+      anchor.setAttribute('rel','noopener noreferrer');
+    }
+    const button=event.target.closest?.('button,input[type="submit"],input[type="button"],[role="button"]')||anchor;
+    if(!button||button.hasAttribute('data-snapshot-return'))return;
+    if(viewAction(button))return;
+    const action=[button.textContent,button.getAttribute('onclick'),button.getAttribute('data-action'),button.id,button.value].join(' ');
+    if(mutationControlIds.has(button.id)||explicitAction(action)||(mutating.test(action)&&!loginAction.test(action)))stop(event);
+  },true);
+  document.addEventListener('submit',event=>stop(event),true);
+  for(const type of ['input','change'])document.addEventListener(type,event=>{
+    const action=event.target.getAttribute?.('on'+type)||event.target.getAttribute?.('data-action')||'';
+    if(explicitAction(action)||(mutating.test(action)&&!loginAction.test(action)))stop(event);
+  },true);
+  document.addEventListener('keydown',event=>{
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s')stop(event);
+  },true);
+  // Exported business APIs receive an extra guard, including frozen API objects
+  // whose window binding can be replaced with a read-only view of their methods.
+  function guardAPIs(){
+    function guardObject(api,path){
+      if(!api||typeof api!=='object')return api;
+      const descriptors=Object.getOwnPropertyDescriptors(api),changes={};
+      for(const [key,descriptor] of Object.entries(descriptors)){
+        // Preserve getters and data descriptors without invoking getters while
+        // discovering APIs. Only explicit nested namespaces are traversed.
+        if(!Object.prototype.hasOwnProperty.call(descriptor,'value'))continue;
+        const value=descriptor.value,operation=path+'.'+key;
+        if(typeof value==='function'&&mutationMethod(path,key)){
+          changes[key]=function(...args){
+            if(operation==='AppState.returnFromConfiguration'&&args[0]!==true)return Reflect.apply(value,this,args);
+            return {ok:false,read_only:true,message,operation};
+          };
+        }else if(value&&typeof value==='object'&&(path==='Pages'||Object.keys(apiMutations).some(name=>name===operation||name.startsWith(operation+'.')))){
+          const guarded=guardObject(value,operation);if(guarded!==value)changes[key]=guarded;
+        }
+      }
+      if(!Object.keys(changes).length)return api;
+      if(Object.keys(changes).every(key=>descriptors[key].writable)){
+        for(const [key,value] of Object.entries(changes))api[key]=value;
+        return api;
+      }
+      for(const [key,value] of Object.entries(changes))descriptors[key]={...descriptors[key],value};
+      const guarded=Object.create(Object.getPrototypeOf(api),descriptors);
+      return Object.isFrozen(api)?Object.freeze(guarded):guarded;
+    }
+    for(const name of Object.keys(window)){
+      if(!/^[A-Z]/.test(name))continue;
+      try{
+        const api=window[name],guarded=guardObject(api,name);if(guarded!==api)window[name]=guarded;
+      }catch(_){}
+    }
+  }
+  function banner(){
+    guardAPIs();if(document.getElementById('snapshot-readonly-banner'))return;
+    const bar=document.createElement('aside');bar.id='snapshot-readonly-banner';bar.setAttribute('role','status');
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483647;padding:10px 18px;background:#fff4d7;color:#4f3d15;border-top:1px solid #d7bb6f;display:flex;gap:16px;align-items:center;font:14px system-ui';
+    const label=document.createElement('span');label.id='snapshot-readonly-message';label.textContent='历史快照只读 · 登录、导航与查看仅在本页内存中演示';bar.appendChild(label);
+    if(returning){const link=document.createElement('a');link.href=returning.href;link.textContent='返回工作版';link.setAttribute('data-snapshot-return','');bar.appendChild(link);}
+    document.body.appendChild(bar);
+  }
+  Object.defineProperty(window,'HistorySnapshot',{value:Object.freeze({read_only:true,storage:'memory-only',mutation_policy:'explicit-business-actions@1',snapshot_id:config.snapshotId,include_interaction_doc:config.includeInteractionDoc===true}),configurable:false});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',banner,{once:true});else banner();
+})();
+</script>
+<meta charset="UTF-8"><title>版本与变更记录</title><link rel="canonical" href="change-log.html"><script>location.replace("change-log.html"+location.search+location.hash);</script></head><body><a href="change-log.html">版本与变更记录</a></body></html>

@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-204",
+  "scenario_id": "SC-204",
+  "name": "按外呼方式分配或改派客户时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "需要安排已导入客户的呼叫方式",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "u",
+      "to": "ui",
+      "message": "筛选待分配客户，逐条勾选或全选当前筛选可分配项",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 7,
+      "from": "u",
+      "to": "ui",
+      "message": "点击分配，弹窗选择人工外呼、预外呼或 IVR",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 8,
+      "from": "svc",
+      "to": "svc",
+      "message": "人工返回有效且关联账号的本租户坐席；自动方式返回同类型未启动任务；按本步骤完成结果继续",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 9,
+      "from": "svc",
+      "to": "svc",
+      "message": "所选客户与目标仍同租户同供应商账号，且满足分配/改派条件？；通过才继续；不通过结束本次操作",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 10,
+      "from": "u",
+      "to": "ui",
+      "message": "确认客户数量和目标；取消保持原分配关系",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "svc",
+      "message": "事务保存 ownerId 或 taskId；不混用人员和任务，不改写历史通话；按本步骤完成结果继续",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 12,
+      "from": "u",
+      "to": "ui",
+      "message": "已分配客户移出默认待分配；人工进入本人坐席工作台，自动进入对应任务",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 13,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝已占用、通话/话后锁定、已完成或自动任务已启动的冲突项",
+      "type": "error",
+      "api_id": null,
+      "condition": "所选客户与目标仍同租户同供应商账号，且满足分配/改派条件？：不通过"
+    },
+    {
+      "step": 14,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

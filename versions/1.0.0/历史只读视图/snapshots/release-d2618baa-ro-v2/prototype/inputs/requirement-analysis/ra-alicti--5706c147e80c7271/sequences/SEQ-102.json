@@ -1,0 +1,255 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-102",
+  "scenario_id": "SC-102",
+  "name": "开启或结束本人 WebRTC 电话服务时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    },
+    {
+      "id": "cti",
+      "name": "CTILink / WebRTC",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "开始或结束当前租户的人工外呼工作",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "ui",
+      "to": "cti",
+      "message": "执行setup；回调完成后注册电话及媒体事件",
+      "type": "request",
+      "api_id": "API-303",
+      "condition": null
+    },
+    {
+      "step": 7,
+      "from": "cti",
+      "to": "ui",
+      "message": "初始化完成",
+      "type": "event",
+      "api_id": "API-303",
+      "condition": null
+    },
+    {
+      "step": 8,
+      "from": "ui",
+      "to": "svc",
+      "message": "申请本人电话登录材料；不得指定任意cno",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 9,
+      "from": "svc",
+      "to": "vendor",
+      "message": "按已授权enterpriseId/cno请求authenticateJsonp",
+      "type": "request",
+      "api_id": "API-302",
+      "condition": null
+    },
+    {
+      "step": 10,
+      "from": "vendor",
+      "to": "svc",
+      "message": "返回sessionKey（30秒）及agentGateWayUrl；按JSONP/字符串JSON契约解析",
+      "type": "response",
+      "api_id": "API-302",
+      "condition": null
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回本次短期登录材料，长期token不下发",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 12,
+      "from": "ui",
+      "to": "cti",
+      "message": "Agent.login，bindType=3；loginStatus明确选择",
+      "type": "request",
+      "api_id": "API-303",
+      "condition": null
+    },
+    {
+      "step": 13,
+      "from": "cti",
+      "to": "vendor",
+      "message": "建立电话会话及软电话连接",
+      "type": "request",
+      "api_id": "API-303",
+      "condition": null
+    },
+    {
+      "step": 14,
+      "from": "vendor",
+      "to": "cti",
+      "message": "返回实际登录与媒体连接结果",
+      "type": "event",
+      "api_id": "API-303",
+      "condition": null
+    },
+    {
+      "step": 15,
+      "from": "cti",
+      "to": "ui",
+      "message": "只有实际登录和媒体就绪均满足才开放呼叫",
+      "type": "event",
+      "api_id": "API-303",
+      "condition": null
+    },
+    {
+      "step": 16,
+      "from": "cti",
+      "to": "ui",
+      "message": "显示失败/待恢复，禁止重复拨号；过期重新申请材料",
+      "type": "error",
+      "api_id": "API-303",
+      "condition": "初始化、登录、媒体失败或超时"
+    },
+    {
+      "step": 17,
+      "from": "u",
+      "to": "ui",
+      "message": "请求结束电话服务",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 18,
+      "from": "ui",
+      "to": "svc",
+      "message": "检查无进行中通话、无未保存话后结果",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 19,
+      "from": "svc",
+      "to": "ui",
+      "message": "允许完全退出；不满足则保留会话",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 20,
+      "from": "ui",
+      "to": "cti",
+      "message": "退出时logoutMode=1",
+      "type": "request",
+      "api_id": "API-304",
+      "condition": "允许退出"
+    },
+    {
+      "step": 21,
+      "from": "cti",
+      "to": "ui",
+      "message": "实际退出结果；失败不伪造离线",
+      "type": "event",
+      "api_id": "API-304",
+      "condition": null
+    },
+    {
+      "step": 22,
+      "from": "ui",
+      "to": "svc",
+      "message": "完全退出确认后释放本地会话",
+      "type": "request",
+      "api_id": null,
+      "condition": "已确认退出"
+    },
+    {
+      "step": 23,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

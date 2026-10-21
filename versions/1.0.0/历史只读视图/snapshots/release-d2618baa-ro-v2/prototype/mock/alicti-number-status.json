@@ -1,0 +1,67 @@
+{
+  "id": "API-327",
+  "name": "号码状态识别编码",
+  "verifiedAt": "2026-09-11",
+  "sourceUrl": "https://wiki.alicti.cn/html/wiki/API/字段定义/接口部分/号码状态识别编码.html",
+  "rows": [
+    [710, "占线"],
+    [711, "暂时无人接听"],
+    [712, "拒接"],
+    [713, "空号"],
+    [714, "关机"],
+    [715, "用户线故障"],
+    [715, "暂时无法接通"],
+    [715, "秘书台"],
+    [716, "停机"],
+    [717, "呼叫受限"],
+    [718, "无人接听"],
+    [719, "正在通话中"],
+    [720, "暂停服务"],
+    [721, "来电提醒"],
+    [722, "不再使用"],
+    [723, "来电助手"],
+    [724, "号码格式不正确"],
+    [183, "嘟嘟"],
+    [183, "静音"],
+    [183, "未知"]
+  ],
+  "contracts": {
+    "manual": {
+      "endpoint": "/cc/list_cdr_ob",
+      "sourceUrl": "https://wiki.alicti.cn/html/wiki/API/通话记录/外呼/外呼记录接口.html",
+      "codeField": "sipCauseCode",
+      "descriptionField": "obSipCauseRaw",
+      "codeMeaning": "SIP状态码",
+      "descriptionMeaning": "被叫状态",
+      "filterField": "sipCauseRaw"
+    },
+    "predictive": {
+      "endpoint": "/cc/list_cdr_predictive_call",
+      "sourceUrl": "https://wiki.alicti.cn/html/wiki/API/通话记录/预测式外呼/预测外呼通话记录接口.html",
+      "codeField": "sipCause",
+      "descriptionField": "obSipCause",
+      "codeMeaning": "呼叫情况编码",
+      "descriptionMeaning": "呼叫结果",
+      "asyncField": "sipCauseAsyncUpdateFlag",
+      "asyncFlagMeanings": {
+        "0": "synchronous",
+        "1": "asynchronously_written_back_to_sipCause"
+      },
+      "asyncFlagEvidence": "SRC-083 / D-053，用户转述供应商反馈，2026-09-20；不是官方网页改版声明",
+      "approximateCompensationDelayMinutes": [1, 2],
+      "delayIsSla": false,
+      "recognitionCanRemainUnknown": true
+    }
+  },
+  "notes": [
+    "715与183各对应三条描述，保留全部原文，不自定义子状态码。",
+    "仅凭183不能判断识别为嘟嘟、静音还是未知；人工话单的183也可能只是SIP进度响应。",
+    "719不作为本次电话客户已接听的证据。",
+    "原始描述无法与该编码表核对时保留原值；不由描述反推缺失编码。",
+    "预测话单sipCauseAsyncUpdateFlag为0表示同步，1表示识别结果已异步写回本通sipCause；不是等待状态、通话状态或识别成功保证。",
+    "识别依据电话提示音，可能无法识别；彩铃等场景可能补偿识别，约延迟1–2分钟，仅是经验范围，不是固定完成时限。",
+    "后到结果只补充同账号、同通话的号码识别；不新增通话，不由本地触发重呼，保留原始响应与标识。",
+    "供应商补充：呼入也有号码识别，一般针对坐席绑定手机号；软电话可能识别不到。本项目固定软电话，呼入接听以API-319的status为准，号码识别缺失不构成异常或接听待确认条件。",
+    "呼入号码识别作为补充，未明确准确响应字段时保留原始响应，不虚构字段映射、不将statusResult文本反推编码，不套用预测异步标识。自动外呼的准确识别字段及编码对应仍见CF-13。"
+  ]
+}

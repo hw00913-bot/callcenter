@@ -1,0 +1,285 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-008",
+  "name": "接入AliCti或外部线路号码并授权租户",
+  "summary": "区分AliCti号码同步/关联与外部企业号码导入，不把导入成功当线路开通；号码供应商账号独占、同供应商账号多租户授权",
+  "actors": [
+    "超级管理员",
+    "统一外呼中台",
+    "线路供应商/AliCti开通服务",
+    "AliCti"
+  ],
+  "trigger": "线路资源需要进入当前供应商账号并开放使用",
+  "preconditions": [
+    "已确定目标 AliCti 供应商账号和外部线路供应商"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员",
+      "action": "选择供应商已有号码同步或外部号码接入路径",
+      "system_response": "两种来源分别管理",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-008"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "线路供应商/AliCti开通服务",
+      "action": "线路开通能力待确认",
+      "system_response": "已有号码可查询；新增接入未确认不标开通",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-008"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "超级管理员",
+      "action": "查询已开通号码；外部来源仅在接入确认后登记",
+      "system_response": "未核验接入不展示厂商成功",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-008"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "AliCti",
+      "action": "返回企业号码、用途、状态与中继组信息",
+      "system_response": "按enterpriseId查询可用资源；不由查询推断开通能力",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-008"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "号码归属、线路可用及供应商账号关联已确认？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-008"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "关联当前供应商账号并保存来源映射",
+      "system_response": "号码唯一供应商账号归属",
+      "input": "号码与线路标识",
+      "rule_ids": [
+        "BR-008"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "超级管理员",
+      "action": "授权同供应商账号一个或多个租户及用途",
+      "system_response": "租户用号授权",
+      "input": "已关联号码、租户、呼入/呼出",
+      "rule_ids": [
+        "BR-008"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "统一外呼中台",
+      "action": "保存授权并保留校验边界",
+      "system_response": "未授权租户不能用号；共享不等于数据共享",
+      "input": "供应商账号号码与租户范围",
+      "rule_ids": [
+        "BR-008"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-008-5",
+      "condition": "号码归属、线路可用及供应商账号关联已确认？：不满足",
+      "steps": [
+        "显示待开通/失败/待核对；导入成功不当作可呼叫"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    }
+  ],
+  "postconditions": [
+    "区分AliCti号码同步/关联与外部企业号码导入，不把导入成功当线路开通；号码供应商账号独占、同供应商账号多租户授权"
+  ],
+  "acceptance_points": [
+    "区分AliCti号码同步/关联与外部企业号码导入，不把导入成功当线路开通；号码供应商账号独占、同供应商账号多租户授权",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-008"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-008.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "b",
+        "name": "线路供应商/AliCti开通服务",
+        "kind": "external_system"
+      },
+      {
+        "id": "c",
+        "name": "AliCti",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "线路资源需要进入当前供应商账号并开放使用"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "选择供应商已有号码同步或外部号码接入路径\n两种来源分别管理",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "b",
+        "type": "action",
+        "order": 3,
+        "label": "线路开通能力待确认\n已有号码可查询；新增接入未确认不标开通",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "u",
+        "type": "action",
+        "order": 4,
+        "label": "查询已开通号码；外部来源仅在接入确认后登记\n未核验接入不展示厂商成功",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "c",
+        "type": "action",
+        "order": 5,
+        "label": "返回企业号码、用途、状态与中继组信息\n按enterpriseId查询可用资源；不由查询推断开通能力",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 6,
+        "label": "号码归属、线路可用及供应商账号关联已确认？",
+        "step_ref": 5
+      },
+      {
+        "id": "FAIL5",
+        "lane_id": "u",
+        "type": "end",
+        "order": 7,
+        "label": "显示待开通/失败/待核对；导入成功不当作可呼叫"
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "action",
+        "order": 8,
+        "label": "关联当前供应商账号并保存来源映射\n输入：号码与线路标识\n输出：号码唯一供应商账号归属",
+        "step_ref": 6
+      },
+      {
+        "id": "N7",
+        "lane_id": "u",
+        "type": "action",
+        "order": 9,
+        "label": "授权同供应商账号一个或多个租户及用途\n输入：已关联号码、租户、呼入/呼出\n输出：租户用号授权",
+        "step_ref": 7
+      },
+      {
+        "id": "N8",
+        "lane_id": "p",
+        "type": "action",
+        "order": 10,
+        "label": "保存授权并保留校验边界\n输入：供应商账号号码与租户范围\n输出：未授权租户不能用号；共享不等于数据共享",
+        "step_ref": 8
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 11,
+        "label": "本次操作结束：结果已展示并可追溯"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "FAIL5",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-008-5"
+      },
+      {
+        "from": "N5",
+        "to": "N6",
+        "label": "满足"
+      },
+      {
+        "from": "N6",
+        "to": "N7"
+      },
+      {
+        "from": "N7",
+        "to": "N8"
+      },
+      {
+        "from": "N8",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

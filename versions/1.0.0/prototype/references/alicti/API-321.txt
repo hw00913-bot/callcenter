@@ -1,0 +1,227 @@
+ASR查询任务结果接口
+
+接口说明
+
+ASR查询任务结果接口
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/asr/get
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+接口请求方式：
+
+GET/POST请求
+
+请求参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证 | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=1000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+callType | 
+Int | 
+必选 | 
+通话类型 | 
+1:呼入,2:webcall,4:预览外呼,5:预测外呼,6:主叫外呼,9:内部呼叫 | 
+
+mainUniqueId | 
+String | 
+必选 | 
+主通道的唯一标识 | 
+ | 
+
+all | 
+Boolean | 
+可选 | 
+当all=true时按照beignTime的顺序返回两侧对话文本 | 
+ | 
+
+接口请求示例
+
+https://api-{region}.alicti.cn/interface/v10/asr/get?validateType=1&departmentId=BM0000001&enterpriseId=&timestamp=1480736832
+&sign=7200afb3676f010313b60c9a94518a1c&callType=4&mainUniqueId=sip-2-1490862368.123
+
+接口返回
+
+JSON格式数据：
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+int | 
+0 成功，-1 失败 ,-2 任务正在转写中 | 
+
+description | 
+String | 
+返回结果描述 | 
+
+data | 
+JSON | 
+返回数据，JSON格式 | 
+
+description给出成功或失败时的文本描述：
+
+description | 
+返回结果说明 | 
+
+验证失败，参数[{param}]不能为空 | 
+{param}为接口参数中必选字段 | 
+
+验证失败，参数[{param}]格式不正确 | 
+{param}为接口参数中格式有要求的字段 | 
+
+验证失败，参数[{param}]取值不正确 | 
+{param}为接口参数中有固定取值的字段 | 
+
+验证失败，参数[{param}]取值范围不正确 | 
+{param}为接口参数中有固定范围的字段 | 
+
+验证失败，超过频次限制 | 
+接口调用超过接口的访问频次限制 | 
+
+成功 | 
+接口调用成功 | 
+
+失败，{param} | 
+{param}为失败描述 | 
+
+data定义：
+
+字段 | 
+可选 | 
+描述 | 
+
+enterpriseId | 
+必选 | 
+企业编号 | 
+
+recordFileCount | 
+必选 | 
+转写文件个数 | 
+
+monitorType | 
+必选 | 
+转写类型 1：混音 2：分轨 | 
+
+recordFileText | 
+必选 | 
+转写文本结果 | 
+
+返回示例：
+
+ {
+ 	"result": "0",
+ 	"description": "成功",
+ 	"data": {
+ 		"enterpriseId": "7000002",
+ 		"recordFileCount": "1",
+ 		"monitorType": "2",
+ 		"recordFileText1In": {
+ 			"bizDuration": "33340",
+ 			"result": [{
+ 				"emotionValue": "6.0",
+ 				"speechRate": "108",
+ 				"silenceDuration": "1",
+ 				"beginTime": "30140",
+ 				"endTime": "31805",
+ 				"text": "您好，很高兴为您服务",
+ 				"channelId": "0"
+ 			}],
+ 			"errorMessage": null,
+ 			"id": "8f2ff56a7cfe458c942595b2f271d715",
+ 			"statusCode": "0",
+ 			"status": "SUCCEED"
+ 		},
+ 		"recordFileText1Out": {
+ 			"bizDuration": "33340",
+ 			"result": [{
+ 				"emotionValue": "6.0",
+ 				"speechRate": "186",
+ 				"silenceDuration": "0",
+ 				"beginTime": "30550",
+ 				"endTime": "31515",
+ 				"text": "你好，我想咨询一些问题",
+ 				"channelId": "0"
+ 			}],
+ 			"errorMessage": null,
+ 			"id": "145a13227e3249258cd3b5232a56d634",
+ 			"statusCode": "0",
+ 			"status": "SUCCEED"
+ 		}
+ 	}
+ }
+ // all = true时
+ {
+ 	"result": "0",
+ 	"description": "成功",
+ 	"data": {
+ 		"enterpriseId": "6000001",
+ 		"recordFileCount": "1",
+ 		"result": [{
+ 			"speechRate": "255",
+ 			"emotionValue": "7.0",
+ 			"silenceDuration": "0",
+ 			"endTime": "10445",
+ 			"beginTime": "4350",
+ 			"text": "您好，很高兴为您服务",
+ 			"channelId": "0",
+ 			"side": "out"
+ 		}, {
+ 			"speechRate": "325",
+ 			"emotionValue": "6.0",
+ 			"silenceDuration": "0",
+ 			"endTime": "9785",
+ 			"beginTime": "8680",
+ 			"text": "你好，我想咨询一些问题",
+ 			"channelId": "0",
+ 			"side": "in"
+ 		}]
+ 	}
+ }

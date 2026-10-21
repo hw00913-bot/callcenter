@@ -1,0 +1,268 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-019",
+  "scenario_id": "SC-019",
+  "name": "通话结果归集与最终话单校准时序",
+  "participants": [
+    {
+      "id": "u",
+      "name": "当前有权操作人",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "中台页面",
+      "kind": "system"
+    },
+    {
+      "id": "svc",
+      "name": "中台业务服务",
+      "kind": "system"
+    },
+    {
+      "id": "db",
+      "name": "中台数据存储",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "AliCti",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "u",
+      "to": "ui",
+      "message": "接收到话务事件、终态或业务处理结果",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "svc",
+      "message": "提交当前登录态、租户及业务操作；供应商账号由授权映射确定",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 3,
+      "from": "svc",
+      "to": "db",
+      "message": "校验当前用户、租户、enterpriseId和目标业务对象权限",
+      "type": "request",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 4,
+      "from": "db",
+      "to": "svc",
+      "message": "返回授权上下文及有效业务数据",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    },
+    {
+      "step": 5,
+      "from": "svc",
+      "to": "ui",
+      "message": "拒绝越权/失效操作，保留输入且不调用供应商",
+      "type": "error",
+      "api_id": null,
+      "condition": "校验失败；本路径结束"
+    },
+    {
+      "step": 6,
+      "from": "vendor",
+      "to": "svc",
+      "message": "按已配置HTTP推送接收话务/话单/录音/ASR事件",
+      "type": "event",
+      "api_id": "API-315",
+      "condition": null
+    },
+    {
+      "step": 7,
+      "from": "vendor",
+      "to": "svc",
+      "message": "企业WebSocket事件；默认全席，需服务端按租户拆分",
+      "type": "event",
+      "api_id": "API-316",
+      "condition": null
+    },
+    {
+      "step": 8,
+      "from": "svc",
+      "to": "svc",
+      "message": "以供应商账号和通话关联去重并持久化证据；企业全量事件须在后端校验租户与坐席归属",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 9,
+      "from": "svc",
+      "to": "svc",
+      "message": "可确认原通话、租户和通道归属？；可唯一确定归属才继续；不能确定则保留异常，不按手机号猜测或跨租户合并",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 10,
+      "from": "svc",
+      "to": "svc",
+      "message": "分别记录通话过程、客户接通、坐席接听与业务跟进；展示已保存状态；客户侧有效接通证据才确认客户接通；未知不按未接通处理",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 11,
+      "from": "svc",
+      "to": "vendor",
+      "message": "人工外呼查询：时间窗<=1月，普通分页最多10万或scroll",
+      "type": "request",
+      "api_id": "API-317",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 12,
+      "from": "vendor",
+      "to": "svc",
+      "message": "人工upTime坐席、bridgeTime客户，按1/2/3/4解释",
+      "type": "response",
+      "api_id": "API-317",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 13,
+      "from": "svc",
+      "to": "vendor",
+      "message": "预测外呼查询：仅对该类型执行",
+      "type": "request",
+      "api_id": "API-318",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 14,
+      "from": "vendor",
+      "to": "svc",
+      "message": "预测upTime客户、bridgeTime坐席；40/41/42/43",
+      "type": "response",
+      "api_id": "API-318",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 15,
+      "from": "svc",
+      "to": "vendor",
+      "message": "来电查询：仅对呼入执行",
+      "type": "request",
+      "api_id": "API-319",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 16,
+      "from": "vendor",
+      "to": "svc",
+      "message": "系统接听不当人工成功",
+      "type": "response",
+      "api_id": "API-319",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 17,
+      "from": "svc",
+      "to": "svc",
+      "message": "仅校准原通话；证据不足保持待确认，迟到证据不重新开启已结束电话；不覆盖另一通话或当前业务跟进；未知不进入已确认接通率分母，不自动重拨",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 18,
+      "from": "svc",
+      "to": "svc",
+      "message": "同步原任务、原批次客户和手机号档案，保留原业务类型与单据来源快照；以同一 callId 贯穿本平台记录与统计；不按外部单据编码合并客户，不向外部业务系统投递",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置条件成立；待确认路径不得继续标记生效"
+    },
+    {
+      "step": 19,
+      "from": "svc",
+      "to": "vendor",
+      "message": "在recordFile已就绪时请求录音URL",
+      "type": "request",
+      "api_id": "API-320",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 20,
+      "from": "vendor",
+      "to": "svc",
+      "message": "默认有效120分钟；到期重新获取",
+      "type": "response",
+      "api_id": "API-320",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 21,
+      "from": "svc",
+      "to": "vendor",
+      "message": "以mainUniqueId/callType获取ASR，all=true",
+      "type": "request",
+      "api_id": "API-321",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 22,
+      "from": "vendor",
+      "to": "svc",
+      "message": "-2为处理中；side及beginTime/endTime保留，单位与对齐待确认",
+      "type": "response",
+      "api_id": "API-321",
+      "condition": "对应操作/呼叫类型，且其前置路径成立"
+    },
+    {
+      "step": 23,
+      "from": "u",
+      "to": "ui",
+      "message": "在同次通话详情或数据异常核对结果与媒体状态；超时只补查，不重拨",
+      "type": "request",
+      "api_id": null,
+      "condition": "前置业务条件成立"
+    },
+    {
+      "step": 24,
+      "from": "svc",
+      "to": "ui",
+      "message": "保留数据异常与原事件；不按手机号猜测或跨租户合并",
+      "type": "error",
+      "api_id": null,
+      "condition": "可确认原通话、租户和通道归属？：不通过"
+    },
+    {
+      "step": 25,
+      "from": "svc",
+      "to": "ui",
+      "message": "返回已证实结果；未知能力显示待确认，保留数据并可再次核对",
+      "type": "response",
+      "api_id": null,
+      "condition": null
+    }
+  ],
+  "notes": [
+    "接口能力以AliCti文档为最终事实；未明确支持显示待确认，不生成虚构远端成功。",
+    "中台权限、数据归属和业务结果保存是本平台职责。演示数据不代表真实联调。"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-302",
+    "inputs/user-instructions.md#本轮差异处理确认"
+  ]
+}

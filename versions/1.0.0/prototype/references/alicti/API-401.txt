@@ -1,0 +1,158 @@
+更新时间条件设置接口
+接口说明
+通过本接口，第三方平台可以更新时间条件设置配置
+更新时如果没传可选字段，则该字段保持原有的值，不被更新
+API URL
+接口请求地址：
+https://api-{region}.alicti.cn/interface/{version}/enterpriseTime/update
+地址参数说明：
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+{version}为接口版本，当前{version}=v10
+接口请求方式：
+GET/POST
+请求参数
+参数 |
+类型 |
+要求 |
+描述 |
+备注 |
+validateType |
+Int |
+必选 |
+验证类型 |
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； |
+departmentId |
+String |
+必选 |
+部门编号 |
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+enterpriseId |
+Int |
+必选 |
+呼叫中心编号 |
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+timestamp |
+Long |
+必选 |
+当前时间戳 |
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+sign |
+String |
+必选 |
+验证值 |
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 |
+id |
+Int |
+可选 |
+时间条件id　 |
+id和name二选一，不可同时为空。 |
+name |
+String |
+可选 |
+时间条件名称　 |
+同一呼叫中心下不能重复；id和name二选一，不可同时为空。 |
+priority |
+Int |
+可选 |
+时间条件优先级　 |
+同一呼叫中心下不能重复，值从1开始，值越小优先级越高 |
+type |
+Int |
+可选 |
+条件类型 |
+时间类型  1:按照星期配置  2:按照固定时间配置 |
+timeType |
+Int |
+必选 |
+时间类型 |
+时间类型  1.连续  2.间隔 |
+fromDay |
+String |
+可选 |
+起始日期 |
+当type=2 时必选，格式为：yyyy-MM-dd　、type=1时为空串 fromDay不能大于toDay　　 |
+toDay |
+String |
+可选 |
+终止日期 |
+当type=2 时必选，格式为：yyyy-MM-dd 、type=1时为空串　fromDay不能大于toDay　　 |
+dayOfWeek |
+String |
+可选 |
+星期　 |
+当type=1 时必选,周一：2、周二：3、周三：4、周四：5、周五：6、周六：7、周日：1。
+星期值以,分隔 例如： 2,3,4代表周一周二周三、type=2时为空串 |
+startTime |
+String |
+可选 |
+开始时间　 |
+格式为 HH:mm  例如、 06:00 startTime不能大于endTime |
+endTime |
+String |
+可选 |
+结束时间　 |
+格式为 HH:mm  例如、 19:00 startTime不能大于endTime |
+接口请求示例
+https://api-{region}.alicti.cn/interface/v10/enterpriseTime/update?validateType=1&departmentId=BM3000003&sign=5af5e46cc99b16aa10a1ce8a488b134c&timestamp=1504493675&name=demo02&priority=10&type=1&dayOfWeek=2,3,4&startTime=06:00&endTime=18:00&id=233
+接口返回
+JSON格式数据：
+参数 |
+类型 |
+说明 |
+result |
+Int |
+0 成功, -1 失败 |
+description |
+String |
+返回结果描述 |
+data |
+JSON |
+返回数据JSON格式 |
+description给出成功或失败时的文本描述：
+description |
+返回结果说明 |
+验证失败，参数[{param}]不能为空 |
+{param}为接口参数中必选字段 |
+验证失败，参数[{param}]格式不正确 |
+{param}为接口参数中格式有要求的字段 |
+验证失败，参数[{param}]取值不正确 |
+{param}为接口参数中有固定取值的字段 |
+验证失败，参数[{param}]取值范围不正确 |
+{param}为接口参数中有固定范围的字段 |
+验证失败，超过频次限制 |
+接口调用超过接口的访问频次限制 |
+成功，{param} |
+{param}为成功描述 |
+失败，{param} |
+{param}为失败描述 |
+data定义：
+字段 |
+类型 |
+描述 |
+data |
+EnterpriseTime |
+时间条件设置 |
+返回示例：
+{
+"result": "0",
+"description": "成功",
+"data": {
+"id": "17345",
+"enterpriseId": "7122600",
+"name": "按星期",
+"type": "1",
+"fromDay": "",
+"toDay": "",
+"dayOfWeek": "1,2,3,4,5,6,7",
+"startTime": "00:00",
+"endTime": "23:59",
+"timeType": "1",
+"priority": "4",
+"createTime": "2026-03-30 06:12:44"
+}
+}

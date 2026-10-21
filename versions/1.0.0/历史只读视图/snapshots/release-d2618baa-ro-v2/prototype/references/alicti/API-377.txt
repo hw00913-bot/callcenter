@@ -1,0 +1,278 @@
+ 
+ 新增队列 
+ 接口说明： 
+ API URL 
+接口请求地址： https://api-{region}.alicti.cn/interface/{version}/queue/create 
+地址参数说明： 
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区 
+{version}为接口版本，当前{version}=v10 
+接口请求方式：POST 
+ 相关参数 
+ 字段 
+ 类型 
+ 要求 
+ 描述 
+ 备注 
+ validateType 
+ Int 
+ 必选 
+ 验证类型 
+ 说明： validateType=1：使用部门编号(departmentId)进行验证； validateType=2：使用呼叫中心编号(enterpriseId)进行验证； 
+ departmentId 
+ String 
+ 必选 
+ 部门编号 
+ 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 
+ enterpriseId 
+ Int 
+ 必选 
+ 呼叫中心编号 
+ 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 
+ timestamp 
+ Long 
+ 必选 
+ 当前时间戳 
+ 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 
+ sign 
+ String 
+ 必选 
+ 验证值 
+ 说明： validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})； validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})； 格式要求：32位全小写 
+ queue 
+ Queue 
+ 必选 
+ 队列信息 
+ queueSkills 
+ List< QueueSkill > 
+ 必选 
+ 队列技能 
+ queue参数定义 
+ 字段 
+ 类型 
+ 要求 
+ 描述 
+ 备注 
+ qno 
+ String 
+ 必选 
+ 队列号 
+ description 
+ String 
+ 必选 
+ 队列名 
+ musicClass 
+ String 
+ 必选 
+ 等待语音class 
+ queueTimeout 
+ Int 
+ 必选 
+ 队列超时时间，取值范围20-600秒，默认600秒 
+ sayAgentno 
+ Boolean 
+ 必选 
+ 语音报号，true:播报，false:不播报 
+ memberTimeout 
+ Int 
+ 必选 
+ 座席超时时间，取值范围20-60秒，默认25秒 
+ retry 
+ Int 
+ 必选 
+ 座席超时无应答,呼叫下一座席的延迟秒数 
+ maxPauseAgentFlag 
+ Int 
+ 可选 
+ 最大并发置忙座席数开关，0:关闭，1:开启 
+ 默认值为 0 
+ maxPauseAgentType 
+ Int 
+ 可选 
+ 最大并发置忙座席数配置类型，0:百分比，1:数值 
+ 默认值为 0；maxPauseAgentFlag=1 时生效 
+ maxPauseAgentValue 
+ Int 
+ 可选 
+ 最大并发置忙座席数配置值 
+ 默认值为 0；配置类型为百分比时取值范围 1-100 
+ wrapupTime 
+ Int 
+ 必选 
+ 整理时间，取值范围3-3600秒 
+ maxLen 
+ Int 
+ 必选 
+ 最大等待数，设置范围0-999，0表示不做任何限制 
+ strategy 
+ String 
+ 必选 
+ 呼叫策略： rrordered:技能优先 rrmemory:轮选 fewestcalls:平均 random:随机 linear:顺序 leastrecent:最长空闲时间 
+ serviceLevel 
+ Int 
+ 必选 
+ 服务水平秒数，低于此时间内接听的认为是高服务水平 
+ weight 
+ Int 
+ 必选 
+ 队列优先级，取值范围1-10，数值越高，优先级越高 
+ vipSupport 
+ Int 
+ 必选 
+ 是否支持vip，1:支持，0:不支持 
+ joinEmpty 
+ Int 
+ 必选 
+ 队列中为空时是否可以join，取值：1：置忙 2：通话中 4：振铃 8：无效 16：整理 如选多种状态则传对应数值的和，如选置忙和通话中，值为3 
+ announceSound 
+ Int 
+ 必选 
+ 播报固定语音 0关闭 1打开 
+ announceSoundFrequency 
+ Int 
+ 可选 
+ 播放固定语音周期，秒数(announceSound=1时为必选参数) 
+ announceSoundFile 
+ String 
+ 可选 
+ 固定语音文件(announceSound=1时为必选参数) 
+ announcePosition 
+ Int 
+ 必选 
+ 位置播报 0关闭 1大于announce_position_param时播放 2小于等于announce_position_param时播放 
+ announcePositionFrequency 
+ Int 
+ 必选 
+ 位置播报周期，秒数 
+ announcePositionYouarenext 
+ Int 
+ 可选 
+ 是否播报'您是下一位',0关闭，1开启 
+ announcePositionParam 
+ Int 
+ 可选 
+ 多余少余n个时播报，必须大于等于2 
+ createTime 
+ String 
+ 可选 
+ 创建时间，格式: yyyy-MM-dd HH:mm:ss 
+ queueSkills参数定义 
+ 字段 
+ 类型 
+ 要求 
+ 描述 
+ skillId 
+ Int 
+ 必选 
+ skill的id 
+ skillLevel 
+ Int 
+ 必选 
+ 技能值 
+ 接口请求示例： 
+ https://api-{region}.alicti.cn/interface/v10/queue/create?validateType=2&departmentId=BM3000000&timestamp=1484649817
+&enterpriseId=7000001&sign=7052c0c538344f2e018ebf2baec3d090 
+ 请求方式：Application/json 
+ 请求数据：RequestBody 
+ {
+ "queue": {
+ "qno": "3003",
+ "enterpriseId": "7000001",
+ "description": "队列名",
+ "maxLen": "0",
+ "memberTimeout": "25",
+ "queueTimeout": "600",
+ "strategy": "rrordered",
+ "musicClass": "default",
+ "sayAgentno": "false",
+ "wrapupTime": "30",
+ "retry": "5",
+ "maxPauseAgentFlag": 0,
+ "maxPauseAgentType": 0,
+ "maxPauseAgentValue": 0,
+ "weight": "1",
+ "serviceLevel": "10",
+ "vipSupport": "1",
+ "joinEmpty": "1",
+ "announceSound": "0",
+ "announcePosition": "0"
+ },
+ "queueSkills": [
+ {
+ "skillId": "1",
+ "skillLevel": "5"
+ },
+ {
+ "skillId": "2",
+ "skillLevel": "5"
+ }
+ ]
+}
+ 接口返回 
+ data定义： 
+ 字段 
+ 类型 
+ 描述 
+ queue 
+ Queue 
+ 队列配置信息 
+ queueSkills 
+ QueueSkill 
+ 队列所需技能数组 
+ 返回示例： 
+ {
+ "result": "0",
+ "description": "成功",
+ "data": {
+ "queue": {
+ "id": "51937",
+ "enterpriseId": "7122600",
+ "qno": "2632",
+ "description": "5902GOi队列",
+ "musicClass": "default",
+ "queueTimeout": "600",
+ "sayAgentno": false,
+ "memberTimeout": "25",
+ "retry": "5",
+ "maxPauseAgentFlag": 0,
+ "maxPauseAgentType": 0,
+ "maxPauseAgentValue": 0,
+ "wrapupTime": "3",
+ "maxLen": "0",
+ "strategy": "rrordered",
+ "serviceLevel": "10",
+ "weight": "1",
+ "vipSupport": "1",
+ "joinEmpty": "1",
+ "announceSound": "0",
+ "announceSoundFrequency": "0",
+ "announceSoundFile": "",
+ "announcePosition": "0",
+ "announcePositionYouarenext": "0",
+ "announcePositionFrequency": "0",
+ "announcePositionParam": "0",
+ "createTime": "2026-03-30 06:12:33",
+ "sayCallee": null,
+ "sayCalleeFile": null
+ },
+ "queueSkills": [
+ {
+ "id": "54473",
+ "enterpriseId": "7122600",
+ "queueId": "51937",
+ "qno": "2632",
+ "skillId": "48733",
+ "skillLevel": "5",
+ "createTime": "2026-03-30 06:12:33"
+ },
+ {
+ "id": "54474",
+ "enterpriseId": "7122600",
+ "queueId": "51937",
+ "qno": "2632",
+ "skillId": "48734",
+ "skillLevel": "5",
+ "createTime": "2026-03-30 06:12:33"
+ }
+ ]
+ }
+} 

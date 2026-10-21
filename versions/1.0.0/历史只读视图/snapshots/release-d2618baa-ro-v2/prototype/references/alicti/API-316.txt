@@ -1,0 +1,335 @@
+目录
+
+1.权限验证
+
+2.建立WebSocket连接
+
+3.示例
+
+1. 权限验证
+
+建立WebSokcet连接之前，需要先进行权限验证，获取建立连接需要的sessionKey和WebSocket服务器地址等信息。
+
+1.1 权限验证接口说明
+
+接口说明
+
+企业WebSocket登录权限验证
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/enterpriseLogin/authenticate
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+接口请求方式：
+
+GET/POST
+
+请求参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：
+使用部门编号(departmentId)进行验证；
+validateType=2：
+使用呼叫中心编号(enterpriseId)进行验证 | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1:
+MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2：
+MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+接口请求示例
+
+https://api-2.alicti.cn/interface/v10/enterpriseLogin/authenticate?validateType=1&departmentId=BM0000001&enterpriseId=&timestamp=1480736832&sign=7200afb3676f010313b60c9a94518a1c
+
+接口返回
+
+JSON格式数据：
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+Int | 
+0 成功, -1 失败 | 
+
+description | 
+String | 
+返回结果描述 | 
+
+sessionKey | 
+String | 
+建立WebSocket连接所需的sessionKey，30秒过期 | 
+
+agentGateWayUrl | 
+String | 
+WebSocket服务器域名 | 
+
+description给出成功或失败时的文本描述：
+
+description | 
+返回结果说明 | 
+
+验证失败，参数[{param}]不能为空 | 
+{param}为接口参数中必选字段 | 
+
+验证失败，参数[{param}]格式不正确 | 
+{param}为接口参数中格式有要求的字段 | 
+
+验证失败，参数[{param}]取值不正确 | 
+{param}为接口参数中有固定取值的字段 | 
+
+验证失败，参数[param]取值范围不正确 | 
+{param}为接口参数中有固定范围的字段 | 
+
+验证失败，超过频次限制 | 
+接口调用超过接口的访问频次限制 | 
+
+查询成功，{param} | 
+{param}为成功描述 | 
+
+查询失败，{param} | 
+{param}为失败描述 | 
+
+返回示例
+
+{  "result": 0, "description":"成功", "agentGateWayUrl": "agent-gateway-2.alicti.cn", "sessionKey": "548cbc82-4304-4499-ad5a-3e604245bcd1" }
+
+2. 建立WebSocket连接
+
+权限验证通过后，使用接口返回的WebSocket服务器域名和sessionKey来建立连接。
+
+2.1 连接数限制
+
+每个企业最多同时建立10个WebSocket连接，超出连接数限制将提示连接超限。
+
+2.2 STOMP Over WebSocket
+
+我们使用STOMP子协议进行消息传输。  详见STOMP Over WebSocket
+
+2.3 事件订阅
+
+WebSocket连接建立成功后，需要订阅自己关注的座席事件。订阅的Destination固定为/user/agent，默认接收所有座席的事件。也可以在订阅操作的头部信息中设置接收的座席列表，实现只接收指定座席的事件。
+
+详见3示例。
+
+2.4 Ping
+
+WebSocket连接建立成功后，需要进行ping操作来保活TCP连接。ping操作的时间间隔在30秒~120秒之间。ping操作的Destination为/app/agent/handle/ping，需传入sessionKey参数。
+
+3 示例
+
+依赖的jar包
+
+    <dependency>
+        <groupId>org.eclipse.jetty.websocket</groupId>
+        <artifactId>websocket-client</artifactId>
+        <version>9.4.0.v20161208</version>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-websocket</artifactId>
+        <version>8.0.0.RC0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-websocket</artifactId>
+        <version>4.3.2.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-messaging</artifactId>
+        <version>4.3.0.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.7.4</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.7.4</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.5.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20160212</version>
+    </dependency>
+
+示例代码
+
+    import org.apache.http.client.config.RequestConfig;
+    import org.apache.http.client.methods.CloseableHttpResponse;
+    import org.apache.http.client.methods.HttpGet;
+    import org.apache.http.impl.client.CloseableHttpClient;
+    import org.apache.http.impl.client.HttpClients;
+    import org.apache.http.util.EntityUtils;
+    import org.json.JSONObject;
+    import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+    import org.springframework.messaging.simp.stomp.StompSessionHandler;
+    import org.springframework.web.socket.client.jetty.JettyWebSocketClient;
+    import org.springframework.web.socket.messaging.WebSocketStompClient;
+    import org.springframework.web.socket.sockjs.client.RestTemplateXhrTransport;
+    import org.springframework.web.socket.sockjs.client.SockJsClient;
+    import org.springframework.web.socket.sockjs.client.Transport;
+    import org.springframework.web.socket.sockjs.client.WebSocketTransport;
+    import org.springframework.web.socket.sockjs.frame.Jackson2SockJsMessageCodec;
+    import java.util.ArrayList;
+    import java.util.List;
+
+    public class StompClient {
+
+        public static void main(String[] args) {
+            //1. 权限验证
+            String apiUrl = "http://api-2.alicti.cn/interface/v10/enterpriseLogin/authenticate?validateType=1&departmentId=BM0000001&enterpriseId=&timestamp=1480736832&sign=7200afb3676f010313b60c9a94518a1c";
+            String sessionKey = "";
+            String agentGateWayUrl = "";
+            CloseableHttpClient httpClient = HttpClients.custom().build();
+            HttpGet httpGet = new HttpGet(apiUrl);
+            RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(5000)
+                    .setConnectTimeout(2000).build();
+            httpGet.setConfig(requestConfig);
+            try {
+                CloseableHttpResponse response = httpClient.execute(httpGet);
+                String result = EntityUtils.toString(response.getEntity());
+                if (result != null && result.length() > 0) {
+                    JSONObject jsonObject = new JSONObject(result);
+                    if (jsonObject.getInt("result") == 0) {  //返回成功
+                        sessionKey = jsonObject.getString("sessionKey");
+                        agentGateWayUrl = jsonObject.getString("agentGateWayUrl");
+                    }
+                }
+            } catch (Exception e) {
+                //error happen
+            }
+
+            //2. 权限验证成功, 建立连接
+            List<Transport> transports = new ArrayList<Transport>();  //设置协议
+            transports.add(new WebSocketTransport(new StandardWebSocketClient()));
+
+            SockJsClient webSocketClient = new SockJsClient(transports);
+            webSocketClient.setMessageCodec(new Jackson2SockJsMessageCodec());
+            WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
+            stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
+            String webSocketUrl = "ws://" + agentGateWayUrl + "/agent?sessionKey=" + sessionKey;
+            StompSessionHandler sessionHandler = new WebSocketSessionHandler(sessionKey);  //定义session handler
+            stompClient.connect(webSocketUrl, sessionHandler);  //建立连接
+        }
+    }
+
+    //事件处理handler
+    import org.springframework.messaging.simp.stomp.*;
+    import java.lang.reflect.Type;
+    import java.util.*;
+
+    public class WebSocketSessionHandler implements StompSessionHandler {
+        private StompSession stompSession;
+
+        private String sessionKey;
+
+        public WebSocketSessionHandler(String sessionKey) {
+            this.sessionKey = sessionKey;
+        }
+
+        public void afterConnected(StompSession stompSession, StompHeaders stompHeaders) {
+            System.out.println("连接建立成功");
+            this.stompSession = stompSession;
+            StompHeaders subscribeHeaders = new StompHeaders();
+            subscribeHeaders.setDestination("/user/agent");
+            List<String> agentList = new LinkedList<String>();
+            agentList.add("2000");  //座席工号
+            agentList.add("2001");
+            agentList.add("2002");
+            subscribeHeaders.put("agentList", agentList); //设置需要接收哪些座席的事件, 不设置接收所有座席的事件
+            //订阅
+            stompSession.subscribe(subscribeHeaders, new StompFrameHandler() {
+                public Type getPayloadType(StompHeaders stompHeaders) {
+                    return Map.class;
+                }
+
+                public void handleFrame(StompHeaders stompHeaders, Object o) {
+                    System.out.println("收到消息: " + o.toString());
+                }
+            });
+
+            //每60秒进行一次ping操作
+            final Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    ping();
+                }
+            }, 0, 30000);
+
+        }
+
+        public void ping() {
+            //发送ping消息
+            Map<String, String> map = new HashMap<String, String>();
+            //传入sessionKey
+            map.put("sessionKey", sessionKey);
+            stompSession.send("/app/agent/handle/ping", map);
+        }
+
+        public void handleException(StompSession stompSession, StompCommand stompCommand, StompHeaders stompHeaders, byte[] bytes, Throwable throwable) {
+        }
+
+        public void handleTransportError(StompSession stompSession, Throwable throwable) {
+        }
+
+        public Type getPayloadType(StompHeaders stompHeaders) {
+            return null;
+        }
+
+        public void handleFrame(StompHeaders stompHeaders, Object o) {
+        }
+    }

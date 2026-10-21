@@ -1,0 +1,214 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-016",
+  "name": "复用现有智能外呼中台执行 AI 外呼",
+  "summary": "保留现有 AI 外呼租户、账号、机器人和第三方厂商链路，不被联络中心改造替换。",
+  "actors": [
+    "智能外呼管理员/运营",
+    "统一外呼中台",
+    "既有AI外呼供应商"
+  ],
+  "trigger": "租户运营需要创建 AI 外呼任务",
+  "preconditions": [
+    "租户已启用智能外呼能力并具备现有第三方厂商账号、机器人和话术"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "智能外呼管理员/运营",
+      "action": "在智能外呼域管理任务及名单",
+      "system_response": "AI任务及名单",
+      "input": "既有业务场景、话术、租户厂商账号",
+      "rule_ids": [
+        "BR-016"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "既有账号租户权限与AI配置有效？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-016"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "既有AI外呼供应商",
+      "action": "按原链路执行AI外呼",
+      "system_response": "通话与意向/标签等结果",
+      "input": "原任务、机器人、话术、名单",
+      "rule_ids": [
+        "BR-016"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "沿用原智能外呼结果和统计",
+      "system_response": "通话记录、线索记录、通话/计费/线索统计",
+      "input": "厂商结果及原关联",
+      "rule_ids": [
+        "BR-016"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "智能外呼管理员/运营",
+      "action": "查看原有列表、详情和全部报表",
+      "system_response": "既有能力完整保留，不引入AI转人工",
+      "input": "当前租户AI数据",
+      "rule_ids": [
+        "BR-016"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-016-2",
+      "condition": "既有账号租户权限与AI配置有效？：不满足",
+      "steps": [
+        "沿用原智能外呼校验与错误处理，不使用AliCti替代"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    }
+  ],
+  "postconditions": [
+    "保留现有 AI 外呼租户、账号、机器人和第三方厂商链路，不被联络中心改造替换。"
+  ],
+  "acceptance_points": [
+    "保留现有 AI 外呼租户、账号、机器人和第三方厂商链路，不被联络中心改造替换。",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-016",
+    "US-207"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-016.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "智能外呼管理员/运营",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "b",
+        "name": "既有AI外呼供应商",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "租户运营需要创建 AI 外呼任务"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "在智能外呼域管理任务及名单\n输入：既有业务场景、话术、租户厂商账号\n输出：AI任务及名单",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "既有账号租户权限与AI配置有效？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "沿用原智能外呼校验与错误处理，不使用AliCti替代"
+      },
+      {
+        "id": "N3",
+        "lane_id": "b",
+        "type": "action",
+        "order": 5,
+        "label": "按原链路执行AI外呼\n输入：原任务、机器人、话术、名单\n输出：通话与意向/标签等结果",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "action",
+        "order": 6,
+        "label": "沿用原智能外呼结果和统计\n输入：厂商结果及原关联\n输出：通话记录、线索记录、通话/计费/线索统计",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "u",
+        "type": "action",
+        "order": 7,
+        "label": "查看原有列表、详情和全部报表\n输入：当前租户AI数据\n输出：既有能力完整保留，不引入AI转人工",
+        "step_ref": 5
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 8,
+        "label": "本次操作结束：结果已展示并可追溯"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-016-2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "满足"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

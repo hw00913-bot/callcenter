@@ -1,0 +1,213 @@
+获取任务信息接口
+
+接口说明
+
+  获取外呼任务信息，根据任务Id，获取单个任务的配置信息。
+
+API URL
+
+接口请求地址：
+
+https://api-{region}.alicti.cn/interface/{version}/task/get
+
+地址参数说明：
+
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+
+{version}为接口版本，当前{version}=v10
+
+接口请求方式：
+
+GET/POST请求
+
+相关参数
+
+参数 | 
+类型 | 
+要求 | 
+描述 | 
+备注 | 
+
+validateType | 
+Int | 
+必选 | 
+验证类型 | 
+说明：
+validateType=1：使用部门编号(departmentId)进行验证；
+validateType=2：使用呼叫中心编号(enterpriseId)进行验证； | 
+
+departmentId | 
+String | 
+必选 | 
+部门编号 | 
+说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 | 
+
+enterpriseId | 
+Int | 
+必选 | 
+呼叫中心编号 | 
+说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 | 
+
+timestamp | 
+Long | 
+必选 | 
+当前时间戳 | 
+说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 | 
+
+sign | 
+String | 
+必选 | 
+验证值 | 
+说明：
+validateType=1时，MD5({departmentId}+{timestamp}+{部门token值})；
+validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值})；
+格式要求：32位全小写 | 
+
+taskId | 
+Int | 
+必选 | 
+外呼任务Id | 
+ | 
+
+接口请求示例
+
+https://api-{region}.alicti.cn/interface/v10/task/get?enterpriseId=6000001&validateType=2&timestamp=1490750269
+&sign=f44bbbc495d2f98cc872c1a8da721a53&taskId=13
+
+接口返回
+
+JSON格式数据：
+
+参数 | 
+类型 | 
+说明 | 
+
+result | 
+Int | 
+0 成功, -1 失败 | 
+
+description | 
+String | 
+返回结果描述 | 
+
+errorCode | 
+Int | 
+错误码,当返回result=-1时，返回该参数 | 
+
+data | 
+JSON | 
+返回数据JSON格式 | 
+
+description给出成功或失败时的文本描述：
+
+description | 
+返回结果说明 | 
+
+验证失败，参数[{param}]不能为空 | 
+{param}为接口参数中必选字段 | 
+
+验证失败，参数[{param}]格式不正确 | 
+{param}为接口参数中格式有要求的字段 | 
+
+验证失败，参数[{param}]取值不正确 | 
+{param}为接口参数中有固定取值的字段 | 
+
+验证失败，参数[param]取值范围不正确 | 
+{param}为接口参数中有固定范围的字段 | 
+
+验证失败，超过频次限制 | 
+接口调用超过接口的访问频次限制 | 
+
+成功，{param} | 
+{param}为成功描述 | 
+
+失败，{param} | 
+{param}为失败描述 | 
+
+data定义：
+
+字段 | 
+类型 | 
+描述 | 
+
+taskProperty | 
+TaskProperty | 
+任务配置信息 | 
+
+返回示例：
+
+{
+    "result": "0",
+    "description": "成功",
+    "data": {
+        "taskProperty": {
+            "id": "11059",
+            "enterpriseId": "xxxxxxx",
+            "name": "测试",
+            "description": "",
+            "status": "2",
+            "statusDescription": "可用座席数小于1",
+            "type": "1",
+            "startTime": "2024-05-10 14:11:15",
+            "overTime": null,
+            "customerTimeout": "30",
+            "agentTimeout": "10",
+            "cnos": "",
+            "ivrId": null,
+            "autoStart": "0",
+            "autoStartDay": null,
+            "autoStartTime": null,
+            "autoStop": "1",
+            "autoStopDay": "",
+            "autoStopTime": "23:30:00",
+            "autoTriggerTimeStrategy": "",
+            "autoTaskType": "0",
+            "concurrency": "0",
+            "quotiety": "3.0",
+            "wrapup": "30",
+            "isRandom": "0",
+            "isRewarm": "1",
+            "warmUpDuration": "300",
+            "customerClids": null,
+            "customerClidsCategory": "1",
+            "customerClidType": "2",
+            "clidProperty": "",
+            "maxWaitTime": "10",
+            "answerRate": "100",
+            "predictAdjust": "100",
+            "adjustStep": "5",
+            "agentUtilization": "0",
+            "callbackUrl": "http://test.com/precallback",
+            "curlRetryTimes": "3",
+            "autoComplete": "0",
+            "callLimitStrategy": "",
+            "retryStrategy": "{}",
+            "retryStrategyOnlyToday": "0",
+            "timeStrategy": "",
+            "callStrategy": "1",
+            "createTime": "2024-05-10 14:07:22",
+            "minAvailableAgentCount": "1",
+            "overCallLimitCnos": null,
+            "customerMoh": "no",
+            "customerVoice": "",
+            "pauseTime": "2024-08-14 16:51:11",
+            "pauseDuration": "0",
+            "forceEndFlag": "0",
+            "customerClidWeightFlag": "0",
+            "customerClidWeight": "",
+            "callVariables": "",
+            "userFields": "",
+            "standbyCnos": "",
+            "clidGroup": "",
+            "taskFields": "",
+            "statusTriggerType": "0",
+            "callGroupType": "1",
+            "agentGroup": null,
+            "callRouteStrategy": "1",
+            "retryStrategyTimeType": "1",
+            "callPriorityStrategy": "{\"strategy\":[{\"sort\":\"1\",\"type\":\"retryCall\",\"desc\":\"0\"},{\"sort\":\"2\",\"type\":\"firstCall\",\"orderType\":\"0\"}]}",
+            "businessTagIds": null,
+            "clidPoolList": null
+        }
+    }
+}

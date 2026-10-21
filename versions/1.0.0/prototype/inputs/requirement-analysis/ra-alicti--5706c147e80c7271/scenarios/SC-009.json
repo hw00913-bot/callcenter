@@ -1,0 +1,235 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-009",
+  "name": "隔离号码业务并处理关联业务",
+  "summary": "在保留号码配置和可恢复关系的前提下，阻止新外呼和正常业务呼入，并及时处置全部跨租户影响。",
+  "actors": [
+    "超级管理员",
+    "统一外呼中台",
+    "AliCti"
+  ],
+  "trigger": "号码被投诉、线路异常、资质变化或需要临时停止服务",
+  "preconditions": [
+    "号码已绑定唯一供应商账号，并可能被该供应商账号下多个租户的任务配置或呼入规则引用"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超级管理员",
+      "action": "选择号码业务隔离或恢复",
+      "system_response": "确认操作",
+      "input": "本供应商账号号码及影响范围",
+      "rule_ids": [
+        "BR-009"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "隔离保存快照并冻结新外呼；恢复先核对快照",
+      "system_response": "影响清单与待执行调整",
+      "input": "用途、联系流、租户授权、任务引用",
+      "rule_ids": [
+        "BR-009"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "AliCti",
+      "action": "号码隔离或恢复能力待确认",
+      "system_response": "本地冻结仅限制本平台新外呼，不标供应商呼入已阻断",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-009"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "用途、入口兜底及执行结果均已核实？",
+      "system_response": "仅本地冻结不等于供应商线路已停用",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-009"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "保存业务隔离/恢复结果并通知受影响方",
+      "system_response": "历史和当前通话保留；只影响引用该号码的任务",
+      "input": "厂商结果及引用清单",
+      "rule_ids": [
+        "BR-009"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "超级管理员",
+      "action": "恢复号码后逐任务复检",
+      "system_response": "已有活动单独继续；从未启动转SC-014/015首次启动，不自动重启",
+      "input": "全部引用号码已恢复；是否已有厂商活动",
+      "rule_ids": [
+        "BR-009"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-009-4",
+      "condition": "调整结果已核实且资源一致？：不满足",
+      "steps": [
+        "标记处理中/失败并保持阻断，核对后重试；不得先显示恢复正常"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    }
+  ],
+  "postconditions": [
+    "在保留号码配置和可恢复关系的前提下，阻止新外呼和正常业务呼入，并及时处置全部跨租户影响。"
+  ],
+  "acceptance_points": [
+    "在保留号码配置和可恢复关系的前提下，阻止新外呼和正常业务呼入，并及时处置全部跨租户影响。",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-009"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-009.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "AliCti",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "号码被投诉、线路异常、资质变化或需要临时停止服务"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "选择号码业务隔离或恢复\n输入：本供应商账号号码及影响范围\n输出：确认操作",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "action",
+        "order": 3,
+        "label": "隔离保存快照并冻结新外呼；恢复先核对快照\n输入：用途、联系流、租户授权、任务引用\n输出：影响清单与待执行调整",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "c",
+        "type": "action",
+        "order": 4,
+        "label": "号码隔离或恢复能力待确认\n本地冻结仅限制本平台新外呼，不标供应商呼入已阻断",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 5,
+        "label": "用途、入口兜底及执行结果均已核实？",
+        "step_ref": 4
+      },
+      {
+        "id": "FAIL4",
+        "lane_id": "u",
+        "type": "end",
+        "order": 6,
+        "label": "标记处理中/失败并保持阻断，核对后重试；不得先显示恢复正常"
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "action",
+        "order": 7,
+        "label": "保存业务隔离/恢复结果并通知受影响方\n输入：厂商结果及引用清单\n输出：历史和当前通话保留；只影响引用该号码的任务",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "u",
+        "type": "action",
+        "order": 8,
+        "label": "恢复号码后逐任务复检\n输入：全部引用号码已恢复；是否已有厂商活动\n输出：已有活动单独继续；从未启动转SC-014/015首次启动，不自动重启",
+        "step_ref": 6
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 9,
+        "label": "本次操作结束：结果已展示并可追溯"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "FAIL4",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-009-4"
+      },
+      {
+        "from": "N4",
+        "to": "N5",
+        "label": "满足"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

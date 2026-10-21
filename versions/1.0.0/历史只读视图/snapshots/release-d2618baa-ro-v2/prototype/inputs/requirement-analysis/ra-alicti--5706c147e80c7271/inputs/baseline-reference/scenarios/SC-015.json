@@ -1,0 +1,405 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-015",
+  "name": "创建、配置与启动IVR外呼任务",
+  "summary": "任务选择已发布IVR流程，客户可提前导入后部分关联；无客户拒绝启动；纯IVR保存结构化结果而非等待录音",
+  "actors": [
+    "租户管理员/运营",
+    "统一外呼中台",
+    "阿里云CCC"
+  ],
+  "trigger": "需要自动语音通知或交互",
+  "preconditions": [
+    "阿里已有已发布 IVR 联系流与本租户授权号码；规则在任务内配置，启动前必须有有效名单"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "租户管理员/运营",
+      "action": "新建IVR外呼并填写本次配置",
+      "system_response": "任务草稿",
+      "input": "任务名称、租户、已有资源、时间和重呼参数",
+      "rule_ids": [
+        "BR-015"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "按当前角色处理可选客户",
+      "system_response": "草稿预选不占用；运营由管理员后续分配",
+      "input": "管理员可选择待分配客户；运营仅提交空名单",
+      "rule_ids": [
+        "BR-015"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "资源、参数、分配权限及所选客户复检通过？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-015"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "确认提交配置及可选客户关联",
+      "system_response": "无客户→待分配客户；有客户→待启动；不自动拨号",
+      "input": "本次任务配置、已确认选中客户",
+      "rule_ids": [
+        "BR-015"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "租户管理员/运营",
+      "action": "名单就绪后单独请求启动",
+      "system_response": "启动申请；不将运营创建权限当作分配权限",
+      "input": "已分配名单；无名单先由管理员分配",
+      "rule_ids": [
+        "BR-015"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "有名单且用号/流程/技能等执行条件有效？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-015"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "统一外呼中台",
+      "action": "冻结本次执行快照并生成投放关系",
+      "system_response": "待确认执行批次；不覆盖历史",
+      "input": "任务ID、批次客户ID、资源与策略",
+      "rule_ids": [
+        "BR-015"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "阿里云CCC",
+      "action": "按已发布IVR流程执行，纯IVR或按配置转人工",
+      "system_response": "异步执行及每次尝试结果",
+      "input": "名单与IVR执行配置；纯IVR模式待POC",
+      "rule_ids": [
+        "BR-015"
+      ]
+    },
+    {
+      "step": 9,
+      "actor": "统一外呼中台",
+      "action": "执行已确认受理且可持续取得结果？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-015"
+      ]
+    },
+    {
+      "step": 10,
+      "actor": "统一外呼中台",
+      "action": "回收尝试并更新任务与原批次",
+      "system_response": "多次尝试保留；控制见SC-105，删除见SC-206",
+      "input": "厂商结果和中台关联",
+      "rule_ids": [
+        "BR-015"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-015-3",
+      "condition": "资源、参数、分配权限及所选客户复检通过？：不满足",
+      "steps": [
+        "保留草稿；运营携带客户选择则拒绝，不虚构名单数量"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-015-6",
+      "condition": "有名单且用号/流程/技能等执行条件有效？：不满足",
+      "steps": [
+        "禁止空名单或失效资源启动；草稿不可启动"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-015-9",
+      "condition": "执行已确认受理且可持续取得结果？：不满足",
+      "steps": [
+        "保留失败或待核对，先查询状态，不盲目重复投放"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-015-CANCEL",
+      "condition": "执行变更前取消确认",
+      "steps": [
+        "取消本次提交：既有草稿保留，预选客户不占用"
+      ]
+    }
+  ],
+  "postconditions": [
+    "任务选择已发布IVR流程，客户可提前导入后部分关联；无客户拒绝启动；纯IVR保存结构化结果而非等待录音"
+  ],
+  "acceptance_points": [
+    "任务选择已发布IVR流程，客户可提前导入后部分关联；无客户拒绝启动；纯IVR保存结构化结果而非等待录音",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-015"
+  ],
+  "source_refs": [
+    "inputs/legacy-business-flows.json#BF-14",
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-204",
+    "inputs/source-index.json#SRC-055"
+  ],
+  "legacy_refs": [
+    "BF-14"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "租户管理员/运营",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "阿里云CCC",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "需要自动语音通知或交互"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "新建IVR外呼并填写本次配置\n输入：任务名称、租户、已有资源、时间和重呼参数\n输出：任务草稿",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "action",
+        "order": 3,
+        "label": "按当前角色处理可选客户\n输入：管理员可选择待分配客户；运营仅提交空名单\n输出：草稿预选不占用；运营由管理员后续分配",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 4,
+        "label": "资源、参数、分配权限及所选客户复检通过？",
+        "step_ref": 3
+      },
+      {
+        "id": "FAIL3",
+        "lane_id": "u",
+        "type": "end",
+        "order": 5,
+        "label": "保留草稿；运营携带客户选择则拒绝，不虚构名单数量"
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "action",
+        "order": 8,
+        "label": "确认提交配置及可选客户关联\n输入：本次任务配置、已确认选中客户\n输出：无客户→待分配客户；有客户→待启动；不自动拨号",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "u",
+        "type": "action",
+        "order": 9,
+        "label": "名单就绪后单独请求启动\n输入：已分配名单；无名单先由管理员分配\n输出：启动申请；不将运营创建权限当作分配权限",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 10,
+        "label": "有名单且用号/流程/技能等执行条件有效？",
+        "step_ref": 6
+      },
+      {
+        "id": "FAIL6",
+        "lane_id": "u",
+        "type": "end",
+        "order": 11,
+        "label": "禁止空名单或失效资源启动；草稿不可启动"
+      },
+      {
+        "id": "N7",
+        "lane_id": "p",
+        "type": "action",
+        "order": 12,
+        "label": "冻结本次执行快照并生成投放关系\n输入：任务ID、批次客户ID、资源与策略\n输出：待确认执行批次；不覆盖历史",
+        "step_ref": 7
+      },
+      {
+        "id": "N8",
+        "lane_id": "c",
+        "type": "action",
+        "order": 13,
+        "label": "按已发布IVR流程执行，纯IVR或按配置转人工\n输入：名单与IVR执行配置；纯IVR模式待POC\n输出：异步执行及每次尝试结果",
+        "step_ref": 8
+      },
+      {
+        "id": "N9",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 14,
+        "label": "执行已确认受理且可持续取得结果？",
+        "step_ref": 9
+      },
+      {
+        "id": "FAIL9",
+        "lane_id": "u",
+        "type": "end",
+        "order": 15,
+        "label": "保留失败或待核对，先查询状态，不盲目重复投放"
+      },
+      {
+        "id": "N10",
+        "lane_id": "p",
+        "type": "action",
+        "order": 16,
+        "label": "回收尝试并更新任务与原批次\n输入：厂商结果和中台关联\n输出：多次尝试保留；控制见SC-105，删除见SC-206",
+        "step_ref": 10
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 17,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 6,
+        "label": "确认提交本次操作？"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 7,
+        "label": "取消本次提交：既有草稿保留，预选客户不占用"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "FAIL3",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-015-3"
+      },
+      {
+        "from": "N3",
+        "to": "CONFIRM",
+        "label": "满足"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "FAIL6",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-015-6"
+      },
+      {
+        "from": "N6",
+        "to": "N7",
+        "label": "满足"
+      },
+      {
+        "from": "N7",
+        "to": "N8"
+      },
+      {
+        "from": "N8",
+        "to": "N9"
+      },
+      {
+        "from": "N9",
+        "to": "FAIL9",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-015-9"
+      },
+      {
+        "from": "N9",
+        "to": "N10",
+        "label": "满足"
+      },
+      {
+        "from": "N10",
+        "to": "END"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "N4",
+        "label": "确认"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-015-CANCEL"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。"
+  ]
+}

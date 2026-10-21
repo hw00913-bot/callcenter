@@ -1,0 +1,266 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-002",
+  "name": "创建或复用中台登录账号并加入租户",
+  "summary": "按手机号复用或显式创建平台级登录账号，再为目标租户配置唯一且不叠加的后台角色权限。",
+  "actors": [
+    "租户管理员/超级管理员",
+    "统一外呼中台"
+  ],
+  "trigger": "租户管理员或超级管理员需要新增管理员/运营成员",
+  "preconditions": [
+    "操作者具有账号创建和租户成员管理权限；租户管理员固定操作当前租户，超级管理员已选择目标租户"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "租户管理员/超级管理员",
+      "action": "选定目标租户并检查手机号",
+      "system_response": "账号存在性",
+      "input": "当前租户或超管选定租户；手机号",
+      "rule_ids": [
+        "BR-002"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "目标租户在管理范围内？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-002"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "租户管理员/超级管理员",
+      "action": "已有账号复用；不存在则显式创建",
+      "system_response": "确认账号及管理员/运营单一角色",
+      "input": "账号、昵称、手机号、默认密码等原表单",
+      "rule_ids": [
+        "BR-002"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "统一外呼中台",
+      "action": "账号唯一性与表单校验通过？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-002"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "保存账号及租户成员关系",
+      "system_response": "新增或复用同一账号；不自动开通电话身份",
+      "input": "平台账号与租户角色",
+      "rule_ids": [
+        "BR-002"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-002-2",
+      "condition": "目标租户在管理范围内？：不满足",
+      "steps": [
+        "拒绝跨租户创建或加入"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-002-4",
+      "condition": "账号唯一性与表单校验通过？：不满足",
+      "steps": [
+        "不重复注册；保留输入并提示冲突"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-002-CANCEL",
+      "condition": "执行变更前取消确认",
+      "steps": [
+        "取消提交：不执行本次变更，保留已有有效数据"
+      ]
+    }
+  ],
+  "postconditions": [
+    "按手机号复用或显式创建平台级登录账号，再为目标租户配置唯一且不叠加的后台角色权限。"
+  ],
+  "acceptance_points": [
+    "按手机号复用或显式创建平台级登录账号，再为目标租户配置唯一且不叠加的后台角色权限。",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-002"
+  ],
+  "source_refs": [
+    "inputs/legacy-business-flows.json#BF-02",
+    "inputs/user-stories.md#SRC-202",
+    "inputs/source-index.json#SRC-204",
+    "inputs/source-index.json#SRC-055"
+  ],
+  "legacy_refs": [
+    "BF-02"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "租户管理员/超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "租户管理员或超级管理员需要新增管理员/运营成员"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "选定目标租户并检查手机号\n输入：当前租户或超管选定租户；手机号\n输出：账号存在性",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "目标租户在管理范围内？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "拒绝跨租户创建或加入"
+      },
+      {
+        "id": "N3",
+        "lane_id": "u",
+        "type": "action",
+        "order": 5,
+        "label": "已有账号复用；不存在则显式创建\n输入：账号、昵称、手机号、默认密码等原表单\n输出：确认账号及管理员/运营单一角色",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 6,
+        "label": "账号唯一性与表单校验通过？",
+        "step_ref": 4
+      },
+      {
+        "id": "FAIL4",
+        "lane_id": "u",
+        "type": "end",
+        "order": 7,
+        "label": "不重复注册；保留输入并提示冲突"
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "action",
+        "order": 10,
+        "label": "保存账号及租户成员关系\n输入：平台账号与租户角色\n输出：新增或复用同一账号；不自动开通电话身份",
+        "step_ref": 5
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 11,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 8,
+        "label": "确认提交本次操作？"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 9,
+        "label": "取消提交：不执行本次变更，保留已有有效数据"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-002-2"
+      },
+      {
+        "from": "N2",
+        "to": "N3",
+        "label": "满足"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "FAIL4",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-002-4"
+      },
+      {
+        "from": "N4",
+        "to": "CONFIRM",
+        "label": "满足"
+      },
+      {
+        "from": "N5",
+        "to": "END"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "N5",
+        "label": "确认"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-002-CANCEL"
+      }
+    ]
+  },
+  "notes": [
+    "本图表示业务责任、输入输出与一次操作分支，不作为真实接口联调通过证明。",
+    "重试是独立重新发起并重新校验的操作，不隐式重复拨号或创建。",
+    "SRC-055：2026-09-10 当前工作基线，未冻结。图中云调用为目标对接设计；静态原型只做本地模拟，不代表真实鉴权、媒体、话务和供应商组合能力已验证。"
+  ]
+}

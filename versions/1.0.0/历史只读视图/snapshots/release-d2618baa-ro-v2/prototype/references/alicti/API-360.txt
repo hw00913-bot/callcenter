@@ -1,0 +1,332 @@
+查询客户来电记录详情接口
+接口说明
+本接口用于查询客户来电记录详情，能获取客户呼入时的关键数据，其中涵盖IVR路由数据，可清晰知晓客户在语音导航中的路径选择，有助于分析客户需求与业务流程匹配度。同时还能查询到客户的满意度记录，以便企业深入了解服务质量，为优化服务策略、提升客户体验提供有力的数据支撑。
+API URL
+接口请求地址：
+https://api-{region}.alicti.cn/cc/detail_cdr_ib
+地址参数说明：
+{region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区
+接口请求方式：
+GET
+请求参数
+参数
+类型
+要求
+描述
+示例
+mainUniqueId
+String
+必选
+通话记录唯一标识
+medias_1-162046xxxx.12
+hiddenType
+Integer
+可选
+是否隐藏号码。0: 不隐藏，1: 中间四位，2: 最后八位，3: 全部号码，4: 最后四位。默认值为 0
+0
+接口请求示例
+https://api-{region}.alicti.cn/cc/detail_cdr_ib?mainUniqueId=medias_1-162046xxxx.12&<公共请求参数>
+接口返回
+JSON格式数据
+参数
+类型
+说明
+requestId
+String
+请求ID
+cdrIbDetail
+Object
+客户来电记录详情
+cdrIbDetail 客户来电记录详情字段定义：
+字段
+类型
+描述
+customerNumber
+String
+客户号码
+customerNumberEncrypt
+String
+客户号码加密串
+customerProvince
+String
+客户号码省份
+customerCity
+String
+客户号码城市
+customerAreaCode
+String
+客户号码区号
+firstCallNumber
+String
+首呼座席电话
+firstCallCno
+String
+首呼座席工号
+firstCallCname
+String
+首呼座席姓名
+firstCallQno
+String
+首呼队列号
+firstCallQname
+String
+首呼队列名称
+cnoFlow
+String[]
+座席工号流转；无数据时为 null（不强制空数组）
+qnoFlow
+String[]
+队列编号流转；无数据时为 null（不强制空数组）
+ivrName
+String
+IVR名称
+hotline
+String
+热线号码
+hotlineName
+String
+热线别名
+hotlineAreaCode
+String
+热线号码区号
+customerName
+String
+客户名称
+xnumber
+String
+虚拟号码
+status
+String
+接听状态
+statusResult
+String
+呼叫结果
+statusRobot
+String
+机器人接听状态
+mainUniqueId
+String
+通话ID
+tagNames
+String[]
+通话标签
+callId
+String
+CallID
+webrtcCallId
+String
+WebRTCCallID
+recordFile
+String
+录音文件
+onHookSource
+String
+挂断方
+investigationKeys
+Integer
+满意度评价
+agentAnswerInTime
+String
+首次及时应答
+evaluation
+String
+是否邀评
+evaluationSolveResult
+Integer
+会话评估问题是否解决
+userField
+String
+自定义字段
+customerMos
+Integer
+客户侧通话质量
+agentMos
+Integer
+座席侧通话质量
+startTime
+Long
+开始时间
+answerTime
+Long
+系统应答时间
+endTime
+Long
+结束时间
+bridgeTime
+Long
+首次接听时间
+bridgeDuration
+Integer
+通话时长
+totalDuration
+Integer
+总时长
+firstJoinQueueTime
+Long
+首次进入队列时间
+firstLeaveQueueTime
+Long
+首次离开队列时间
+firstQueueDuration
+Long
+首呼队列排队时长
+sayVoiceDuration
+Integer
+语音播报时长
+markData
+String
+备注
+rtcUid
+String
+rtcUid
+bindType
+Integer
+接听设备
+ivrFlows
+Object[]
+路由和IVR
+investigation
+Object
+满意度记录
+ivrFlows 路由和IVR字段定义：
+字段
+类型
+描述
+pathName
+String
+节点名称
+path
+String
+节点id
+routerStartTime
+Long
+路由开始时间
+routerEndTime
+Long
+路由结束时间
+routerName
+String
+路由名称
+name
+String
+ivr名称
+action
+String
+执行动作
+pressKey
+String
+按键值
+pressTime
+Long
+按键时间
+startTime
+Long
+开始时间
+endTime
+Long
+结束时间
+investigation 满意度记录字段定义：
+字段
+类型
+描述
+cno
+String
+座席号
+clientName
+String
+座席名称
+keys
+Integer
+按键值
+multiKeys
+String
+多按键值
+investigationName
+String
+满意度导航
+startTime
+Long
+开始时间
+endTime
+Long
+结束时间
+返回示例：
+{
+    "requestId": "ac108b17-ac8c-41f0-b2b1-4007e3b3cb81",
+    "cdrIbDetail": {
+        "customerNumber": "138xxxx8888",
+        "customerNumberEncrypt": "xxxx",
+        "customerProvince": "北京",
+        "customerCity": "北京",
+        "firstCallNumber": "xxxx",
+        "bindType": 1,
+        "firstCallCno": "xxxx",
+        "firstCallCname": "xxxx",
+        "firstCallQno": "xxxx",
+        "firstCallQname": "xxxx",
+        "cnoFlow": ["8001", "8002"],
+        "qnoFlow": ["1001", "1002"],
+        "ivrName": "IVR名称",
+        "hotline": "xxxx",
+        "hotlineName": "热线别名",
+        "xnumber": "",
+        "status": "人工未接听",
+        "statusResult": "客户速挂",
+        "statusRobot": "",
+        "mainUniqueId": "medias_1-162046xxxx.12",
+        "tagNames": [
+            "标签"
+        ],
+        "callId": "",
+        "webrtcCallId": "",
+        "recordFile": "",
+        "onHookSource": "客户挂断",
+        "investigationKeys": null,
+        "agentAnswerInTime": "",
+        "evaluation": null,
+        "userField": "",
+        "startTime": 1713848570,
+        "answerTime": 1713848572,
+        "endTime": 1713848599,
+        "bridgeTime": null,
+        "bridgeDuration": 0,
+        "totalDuration": 29,
+        "firstJoinQueueTime": 1713848594,
+        "firstLeaveQueueTime": 1713848595,
+        "firstQueueDuration": 1,
+        "sayVoiceDuration": 0,
+        "ivrFlows": [
+            {
+                "pathName": "节点",
+                "routerStartTime": 1731483814,
+                "path": "xxxxxx",
+                "routerEndTime": 1731483897,
+                "routerName": "路由名称",
+                "name": "IVR名称",
+                "action": "执行动作",
+                "startTime": 1731483897,
+                "endTime": 1731483927
+            },
+            {
+                "pathName": "节点2",
+                "routerStartTime": 1731483814,
+                "path": "xxxxxx",
+                "routerEndTime": 1731483927,
+                "routerName": "路由名称",
+                "name": "IVR名称",
+                "action": "队列",
+                "startTime": 1731483927,
+                "endTime": 1731483974
+            }
+        ],
+        "investigation": {
+            "startTime": 1731483974,
+            "endTime": 1731483979,
+            "cno": "座席号",
+            "clientName": "座席名称",
+            "keys": 1,
+            "multiKeys": "1",
+            "investigationName": "满意度导航"
+        }
+    }
+}

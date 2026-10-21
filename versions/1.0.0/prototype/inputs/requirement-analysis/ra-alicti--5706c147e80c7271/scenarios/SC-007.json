@@ -1,0 +1,290 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-007",
+  "name": "为坐席分配多个技能组和技能等级",
+  "summary": "维护技能与路由优先级，按skillLevels越小优先；合法值域待确认。",
+  "actors": [
+    "租户管理员",
+    "统一外呼中台",
+    "AliCti"
+  ],
+  "trigger": "新坐席需要分配业务能力，或现有坐席职责变化",
+  "preconditions": [
+    "本租户已有可用物理技能组；坐席已启用且归属当前租户"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "租户管理员",
+      "action": "选择坐席及多个本租户技能组",
+      "system_response": "成员关系调整申请",
+      "input": "坐席、技能组、技能等级",
+      "rule_ids": [
+        "BR-007"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "统一外呼中台",
+      "action": "坐席和组同租户同供应商账号且有效？",
+      "system_response": "满足条件沿通过分支继续，否则按异常分支结束本次操作",
+      "input": "前一步操作与当前上下文",
+      "rule_ids": [
+        "BR-007"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "读取既有技能并形成完整目标技能列表",
+      "system_response": "保留未修改技能；数值越小优先；合法值域待确认",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-007"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "AliCti",
+      "action": "全量更新坐席技能并返回逐项结果",
+      "system_response": "skillIds/skillLevels；小值优先，逐个核对failCno",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-007"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "目标坐席均已确认成功且技能列表一致？",
+      "system_response": "部分失败不当全量成功，在线限制明确提示",
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文",
+      "rule_ids": [
+        "BR-007"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "统一外呼中台",
+      "action": "显示生效成员及等级",
+      "system_response": "人工配置承接范围，厂商在组内按路由分配",
+      "input": "厂商结果",
+      "rule_ids": [
+        "BR-007"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-007-2",
+      "condition": "坐席和组同租户同供应商账号且有效？：不满足",
+      "steps": [
+        "拦截跨租户、失效组及无权变更"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-007-5",
+      "condition": "变更已确认生效？：不满足",
+      "steps": [
+        "保留失败项；管理员按项重试；不假装已具备技能"
+      ],
+      "continuation": "本次操作结束；修正后由用户重新发起，不自动重试不可重复动作。"
+    },
+    {
+      "id": "ALT-007-CANCEL",
+      "condition": "执行变更前取消确认",
+      "steps": [
+        "取消提交：不执行本次变更，保留已有有效数据"
+      ]
+    }
+  ],
+  "postconditions": [
+    "维护技能与路由优先级，按skillLevels越小优先；合法值域待确认。"
+  ],
+  "acceptance_points": [
+    "由租户管理员人工决定坐席可承接的业务，并让AliCti按skillLevels数值越小优先级越高执行分配，合法值域待确认。",
+    "权限或资源条件不满足时明确拦截，不跨租户执行，不伪造成功；具体失败/超时与补偿边界见本场景图及关联接口核验。"
+  ],
+  "source_story_ids": [
+    "US-007"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-007.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "租户管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "AliCti",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "新坐席需要分配业务能力，或现有坐席职责变化"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "选择坐席及多个本租户技能组\n输入：坐席、技能组、技能等级\n输出：成员关系调整申请",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 3,
+        "label": "坐席和组同租户同供应商账号且有效？",
+        "step_ref": 2
+      },
+      {
+        "id": "FAIL2",
+        "lane_id": "u",
+        "type": "end",
+        "order": 4,
+        "label": "拦截跨租户、失效组及无权变更"
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "action",
+        "order": 7,
+        "label": "读取既有技能并形成完整目标技能列表\n保留未修改技能；数值越小优先；合法值域待确认",
+        "step_ref": 3
+      },
+      {
+        "id": "N4",
+        "lane_id": "c",
+        "type": "action",
+        "order": 8,
+        "label": "全量更新坐席技能并返回逐项结果\nskillIds/skillLevels；小值优先，逐个核对failCno",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 9,
+        "label": "目标坐席均已确认成功且技能列表一致？",
+        "step_ref": 5
+      },
+      {
+        "id": "FAIL5",
+        "lane_id": "u",
+        "type": "end",
+        "order": 10,
+        "label": "保留失败项；管理员按项重试；不假装已具备技能"
+      },
+      {
+        "id": "N6",
+        "lane_id": "p",
+        "type": "action",
+        "order": 11,
+        "label": "显示生效成员及等级\n输入：厂商结果\n输出：人工配置承接范围，厂商在组内按路由分配",
+        "step_ref": 6
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 12,
+        "label": "本次操作结束：结果已展示并可追溯"
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "u",
+        "type": "decision",
+        "order": 5,
+        "label": "确认提交本次操作？"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "u",
+        "type": "end",
+        "order": 6,
+        "label": "取消提交：不执行本次变更，保留已有有效数据"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "FAIL2",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-007-2"
+      },
+      {
+        "from": "N2",
+        "to": "CONFIRM",
+        "label": "满足"
+      },
+      {
+        "from": "N3",
+        "to": "N4"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "FAIL5",
+        "label": "不满足",
+        "type": "failure",
+        "path_id": "ALT-007-5"
+      },
+      {
+        "from": "N5",
+        "to": "N6",
+        "label": "满足"
+      },
+      {
+        "from": "N6",
+        "to": "END"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "N3",
+        "label": "确认"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-007-CANCEL"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}

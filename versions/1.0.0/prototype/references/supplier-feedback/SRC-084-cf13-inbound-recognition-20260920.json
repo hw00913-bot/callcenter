@@ -1,0 +1,40 @@
+{
+  "version": "2026-09-20-inbound-status-1",
+  "decisionId": "D-054",
+  "sourceRef": "SRC-084",
+  "sourceType": "user_relayed_supplier_feedback",
+  "date": "2026-09-20",
+  "status": "partially_clarified",
+  "supplierReply": "呼入也会有号码状态识别，但是一般针对座席绑定手机号的。对于座席绑定软电话，大概率是识别不到的。其实看status接听状态就行了。",
+  "resolution": "供应商明确呼入也有号码状态识别，一般针对坐席绑定手机号；绑定软电话时大概率识别不到，并非绝对不支持。按本项目固定软电话方案，呼入接听采用API-319的status原枚举，不依赖号码识别结果；识别缺失正常留空，不标为识别待确认、未接听或异常，不补造识别编码。识别通常涉及被呼叫的坐席绑定手机号，不能据此给来电客户标空号、停机等号码状态；若返回识别值则原样保存，不用作来电客户号码或接听结果判定。呼入准确识别字段当前不作为开发阻断；CF-13仅保留自动外呼识别字段与号码字典的对应。",
+  "scope": "inbound_call_cdr",
+  "supplierCapability": {
+    "numberRecognitionExists": true,
+    "usualTarget": "seat_bound_mobile_number",
+    "softphoneRecognition": "unlikely_but_not_impossible"
+  },
+  "projectPolicy": {
+    "seatBindType": 3,
+    "answerField": "status",
+    "sourceId": "API-319",
+    "statusType": "String",
+    "statusValues": [
+      "人工接听",
+      "人工未接听",
+      "系统应答",
+      "系统未应答"
+    ],
+    "numberRecognitionRequired": false,
+    "missingRecognition": "leave_unknown_without_issue_or_answer_inference",
+    "preserveRawRecognitionIfReturned": true,
+    "inboundRecognitionFieldBlocksDelivery": false,
+    "usedForInboundCustomerNumberDecision": false
+  },
+  "remainingConfirmationIds": [
+    "CF-13"
+  ],
+  "remainingQuestions": "自动任务话单obSipCause/obSipCauseRaw如何对应710–724/183号码识别编码，准确识别编码字段是什么？",
+  "officialSnapshotUpdated": false,
+  "productionVerificationClaimed": false,
+  "evidencePath": "documentation/input/supplier-feedback/SRC-084-cf13-inbound-recognition-20260920.json"
+}

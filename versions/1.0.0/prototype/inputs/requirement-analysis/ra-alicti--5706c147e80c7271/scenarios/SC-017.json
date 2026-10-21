@@ -1,0 +1,279 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-017",
+  "name": "客户呼入、IVR 导航与人工接听",
+  "summary": "客户通过供应商账号共享号码进入 IVR，由分支或默认兜底锁定租户，再路由到该租户合适坐席完成服务。",
+  "actors": [
+    "来电客户",
+    "统一外呼中台",
+    "AliCti",
+    "本租户承接坐席"
+  ],
+  "trigger": "客户拨打已启用的供应商账号共享呼入号码",
+  "preconditions": [
+    "共享号码、供应商账号级 IVR、分支—租户映射、默认租户及各租户呼入规则已启用"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "来电客户",
+      "action": "客户拨打已开通的供应商账号呼入号码",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-017"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "AliCti",
+      "action": "在已验证的号码入口与语音导航中锁定唯一租户",
+      "system_response": "不明确归属进入异常，不路由到任意租户",
+      "rule_ids": [
+        "BR-017"
+      ],
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文"
+    },
+    {
+      "step": 3,
+      "actor": "统一外呼中台",
+      "action": "目标租户、授权号码及承接技能有效？",
+      "system_response": "通过才继续；不通过结束本次操作",
+      "rule_ids": [
+        "BR-017"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "AliCti",
+      "action": "将通话路由给本租户已上线空闲坐席",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-017"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "统一外呼中台",
+      "action": "自有界面收到来电并通过软电话接听",
+      "system_response": "CTILink.SipSession接听；音频状态与业务接通分开",
+      "rule_ids": [
+        "BR-017"
+      ],
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文"
+    },
+    {
+      "step": 6,
+      "actor": "本租户承接坐席",
+      "action": "处理客户问题并填写本平台跟进结果",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-017"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "统一外呼中台",
+      "action": "按锁定租户及规范化手机号展示平台档案；各批次记录分别保留",
+      "system_response": "按本步骤完成结果继续",
+      "rule_ids": [
+        "BR-017"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "统一外呼中台",
+      "action": "结束后归集来电话单与媒体并保存话后",
+      "system_response": "系统应答不计人工接听；保存前保护就绪状态",
+      "rule_ids": [
+        "BR-017"
+      ],
+      "input": "当前租户及enterpriseId范围内经授权的业务上下文"
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-017-3",
+      "condition": "目标租户、授权号码及承接技能有效？：不通过",
+      "steps": [
+        "执行本号码已发布兜底流程，不跨租户寻找坐席"
+      ]
+    }
+  ],
+  "postconditions": [
+    "客户通过供应商账号共享号码进入 IVR，由分支或默认兜底锁定租户，再路由到该租户合适坐席完成服务。"
+  ],
+  "acceptance_points": [
+    "来电入 IVR 与坐席接听分开记录；不等待异步轨迹到达后才路由。",
+    "沿用已确认呼入场景；自有界面的实时媒体及模式联调未通过前不能宣称已上线。"
+  ],
+  "source_story_ids": [
+    "US-017"
+  ],
+  "source_refs": [
+    "inputs/baseline-reference/scenarios/SC-017.json",
+    "inputs/source-index.json#SRC-302",
+    "inputs/source-index.json#SRC-303"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "u",
+        "name": "来电客户",
+        "kind": "actor"
+      },
+      {
+        "id": "p",
+        "name": "统一外呼中台",
+        "kind": "system"
+      },
+      {
+        "id": "c",
+        "name": "AliCti",
+        "kind": "external_system"
+      },
+      {
+        "id": "z",
+        "name": "本租户承接坐席",
+        "kind": "actor"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "u",
+        "type": "start",
+        "order": 1,
+        "label": "客户拨打已启用的供应商账号共享呼入号码"
+      },
+      {
+        "id": "N1",
+        "lane_id": "u",
+        "type": "action",
+        "order": 2,
+        "label": "客户拨打已开通的供应商账号呼入号码",
+        "step_ref": 1
+      },
+      {
+        "id": "N2",
+        "lane_id": "c",
+        "type": "action",
+        "order": 3,
+        "label": "在已验证的号码入口与语音导航中锁定唯一租户\n不明确归属进入异常，不路由到任意租户",
+        "step_ref": 2
+      },
+      {
+        "id": "N3",
+        "lane_id": "p",
+        "type": "decision",
+        "order": 4,
+        "label": "目标租户、授权号码及承接技能有效？",
+        "step_ref": 3
+      },
+      {
+        "id": "FAIL3",
+        "lane_id": "u",
+        "type": "end",
+        "order": 5,
+        "label": "执行本号码已发布兜底流程，不跨租户寻找坐席"
+      },
+      {
+        "id": "N4",
+        "lane_id": "c",
+        "type": "action",
+        "order": 6,
+        "label": "将通话路由给本租户已上线空闲坐席",
+        "step_ref": 4
+      },
+      {
+        "id": "N5",
+        "lane_id": "p",
+        "type": "action",
+        "order": 7,
+        "label": "自有界面收到来电并通过软电话接听\nCTILink.SipSession接听；音频状态与业务接通分开",
+        "step_ref": 5
+      },
+      {
+        "id": "N6",
+        "lane_id": "z",
+        "type": "action",
+        "order": 8,
+        "label": "处理客户问题并填写本平台跟进结果",
+        "step_ref": 6
+      },
+      {
+        "id": "N7",
+        "lane_id": "p",
+        "type": "action",
+        "order": 9,
+        "label": "按锁定租户及规范化手机号展示平台档案；各批次记录分别保留",
+        "step_ref": 7
+      },
+      {
+        "id": "N8",
+        "lane_id": "p",
+        "type": "action",
+        "order": 10,
+        "label": "结束后归集来电话单与媒体并保存话后\n系统应答不计人工接听；保存前保护就绪状态",
+        "step_ref": 8
+      },
+      {
+        "id": "END",
+        "lane_id": "u",
+        "type": "end",
+        "order": 11,
+        "label": "本次结果已展示；保留来源与操作记录"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "N1"
+      },
+      {
+        "from": "N1",
+        "to": "N2"
+      },
+      {
+        "from": "N2",
+        "to": "N3"
+      },
+      {
+        "from": "N3",
+        "to": "FAIL3",
+        "label": "不通过",
+        "type": "failure",
+        "path_id": "ALT-017-3"
+      },
+      {
+        "from": "N3",
+        "to": "N4",
+        "label": "通过"
+      },
+      {
+        "from": "N4",
+        "to": "N5"
+      },
+      {
+        "from": "N5",
+        "to": "N6"
+      },
+      {
+        "from": "N6",
+        "to": "N7"
+      },
+      {
+        "from": "N7",
+        "to": "N8"
+      },
+      {
+        "from": "N8",
+        "to": "END"
+      }
+    ]
+  },
+  "notes": [
+    "AliCti独立分析：保留业务分支及原SC编号；原型仅模拟，图形不是生产联调证据。",
+    "enterpriseId是供应商账号ID，UUID不用于接口；平台租户与人员账号独立。",
+    "供应商动作以AliCti文档为最终事实；未明确支持的动作显示待确认，不模拟远端成功。"
+  ]
+}
