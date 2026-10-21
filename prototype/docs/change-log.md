@@ -51,7 +51,7 @@
 版本说明和变更记录继续合并在本页。D-085业务分类直接引用独立字段库为现行规则；D-074/D-077的三层关系只保留为历史。D-076普通坐席退出保留电话绑定和D-075任务字段对齐继续适用。D-073原任务ID编辑与回查规则经D-075补齐自动任务通用字段入口。D-072坐席登录和D-071在线切换继续适用。D-078取代D-069/D-070中任务级固定号码分支；D-070的多导航方向经D-086确认；D-083固定默认导航自动带入已被D-086取代，客户等待时间继续适用；号码池来源与管理由D-081更新。D-068替代D-036/D-040的同账号多业务租户、D-046的号码租户分配及相关共享资源口径；未变更的权限和历史规则继续适用。D-032曾采用新建任务再次联系，现由D-060原任务追加名单取代。历史条目保留当时背景，批量坐席查证以D-051、两类断线处理以D-052、预测异步识别以D-053、呼入接听与识别适用范围以D-054为准；D-049队列计数、D-050重建及其他仍有效决定继续适用。
 
 
-本页保留已编号变更的原始历史：D-001、D-003～D-090。原始资料未分配 D-002 编号；D-001 后的“冻结需求分析基线”保持原始未编号标题，不补造决策号。早期条目沿用[项目决策原文](decisions.md)；逐次修复与发布经过另见[原始实施流水](../memory/change-log.md)。旧决定与本版冲突时，以最新条目说明的现行范围为准。
+本页保留已编号变更的原始历史：D-001、D-003～D-090。原始资料未分配 D-002 编号；D-001 后的“冻结需求分析基线”保持原始未编号标题，不补造决策号。早期条目沿用[项目决策原文](decisions.md)；逐次修复与发布经过另见原始实施流水（原引用资料未随本次更新发布）。旧决定与本版冲突时，以最新条目说明的现行范围为准。
 
 ## 文档维护范围
 
@@ -122,7 +122,7 @@ D-085取代D-074/D-077的分类→模板→字段三层关系；字段定义及�
 | 内容 | 入口 |
 |---|---|
 | 功能说明 | [完整功能说明](functional-spec.html) |
-| 规则与字段 | [附表](interaction.html) / [字段级对齐](field-alignment.html) |
+| 规则与字段 | 附表（原引用资料未随本次更新发布） / [字段级对齐](field-alignment.html) |
 | 流程与架构 | [业务流程](../flowcharts/business-process.html) / [时序图](../flowcharts/sequence-interaction.html) / [系统蓝图](../related-systems/index.html) |
 | 待确认 | [待确认与接入准备](remaining-confirmations.html) |
 | 开发阅读 | [开发阅读指引](development.html) / [原始参考资料](../references/README.md) |
@@ -143,7 +143,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 ## 检查与发布状态
 
-本版补充D-085业务分类直接关联独立字段库并移除业务模板，D-074/D-077三层关系仅作历史。[本轮业务分类原型与文档回归](../qa/business-category-direct-fields-regression-20260924.json)记录离线原型64套零失败、业务分类专项11/11、浏览器可见检查零失败，以及文档661项与3743个链接通过。上一版D-084坐席事件预览、全部事件分页与接口边界及D-083预测任务座席阈值与固定默认外显导航、D-082班长监控离线只读能力、D-081号码池四接口、D-080事件来源及D-078任务外显字段边界继续适用。[上一轮坐席事件原型回归](../qa/supervisor-event-history-regression-20260923.json)记录离线64套零失败、事件专项75项通过、浏览器空态与操作后事件展示，以及文档661项与3733个链接通过；普通坐席越权由专项离线检查覆盖。本地验证不作为真实供应商联调证据。[上一版原型与文档回归](../qa/prototype-document-regression-20260923.json)、D-076坐席普通退出、D-075任务字段对齐与CF-17边界及更早报告保留为各自历史证据。
+本版补充D-085业务分类直接关联独立字段库并移除业务模板，D-074/D-077三层关系仅作历史。本轮业务分类原型与文档回归（原引用资料未随本次更新发布）记录离线原型64套零失败、业务分类专项11/11、浏览器可见检查零失败，以及文档661项与3743个链接通过。上一版D-084坐席事件预览、全部事件分页与接口边界及D-083预测任务座席阈值与固定默认外显导航、D-082班长监控离线只读能力、D-081号码池四接口、D-080事件来源及D-078任务外显字段边界继续适用。上一轮坐席事件原型回归（原引用资料未随本次更新发布）记录离线64套零失败、事件专项75项通过、浏览器空态与操作后事件展示，以及文档661项与3733个链接通过；普通坐席越权由专项离线检查覆盖。本地验证不作为真实供应商联调证据。上一版原型与文档回归（原引用资料未随本次更新发布）、D-076坐席普通退出、D-075任务字段对齐与CF-17边界及更早报告保留为各自历史证据。
 本版发布目标为[feat-test / Demo](http://gitlab.chebaba.com/ai-call-center/ai-pipeline-factory-docs/-/tree/feat-test/Demo)，实际发布状态以[GitLab提交历史](http://gitlab.chebaba.com/ai-call-center/ai-pipeline-factory-docs/-/commits/feat-test)为准。
 
 ## 修改清单
@@ -172,7 +172,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 核对重点：新建/编辑分类不再出现模板名称、模板选择或模板启停；同分类重复fieldId及跨租户引用拒绝保存，线索分类六项预置字段保留稳定ID、类型与统计语义；草稿可缺必填，正式保存按当前分类配置校验；不同分类共用字段时显示与必填相互独立，AliCti请求不含本地业务编码。
 
-本轮回归：[业务分类原型与文档核验记录](../qa/business-category-direct-fields-regression-20260924.json)显示离线原型64套零失败、业务分类专项11/11通过；浏览器核对分类直接关联、字段新建、顺序、显隐、必填和遮罩保护均通过，文档661项与3743个链接通过。本地演示验证不代表供应商联调。
+本轮回归：业务分类原型与文档核验记录（原引用资料未随本次更新发布）显示离线原型64套零失败、业务分类专项11/11通过；浏览器核对分类直接关联、字段新建、顺序、显隐、必填和遮罩保护均通过，文档661项与3743个链接通过。本地演示验证不代表供应商联调。
 
 ## D-084 班长坐席事件预览与全部事件查询
 
@@ -184,9 +184,9 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 核对重点：页签最近5条和全部事件页的排序口径一致；二级页每页10条，不因刷新或重复状态生成假事件；列表无前态/说明虚构列，时间明确是平台接收/观察时间；普通坐席、跨租户和未授权工号无访问权。供应商推送载荷、时间和去重语义仍待真实联调。
 
-说明与接口：[FS-12](functional-spec.html#FS-12)、[G-64](interaction.html#G-64)、[FA-218](field-alignment.html#FA-218)；API-316、API-315、DOC-344、API-304。
+说明与接口：[FS-12](functional-spec.html#FS-12)、G-64（原引用资料未随本次更新发布）、[FA-218](field-alignment.html#FA-218)；API-316、API-315、DOC-344、API-304。
 
-本轮回归：[原型与文档核验记录](../qa/supervisor-event-history-regression-20260923.json)。离线64套与事件专项75项均通过；本地HTTP浏览器核对空态、全部事件二级页及返回、模拟登录产生事件后两处同步展示。控制台无错误，普通坐席越权由专项离线测试覆盖；本轮不证明真实AliCti推送、历史接口或跨设备汇总已接入。
+本轮回归：原型与文档核验记录（原引用资料未随本次更新发布）。离线64套与事件专项75项均通过；本地HTTP浏览器核对空态、全部事件二级页及返回、模拟登录产生事件后两处同步展示。控制台无错误，普通坐席越权由专项离线测试覆盖；本轮不证明真实AliCti推送、历史接口或跨设备汇总已接入。
 
 ## D-083 预测任务座席阈值与默认外显导航
 
@@ -198,7 +198,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 核对重点：同账号两类任务自动带入同一默认标识，切换账号不混用；界面没有多导航维护或选择器，缺标识阻断新建。旧任务导航快照不回填，默认值变化后先更新原任务、回查同一任务成功才启动；编辑期间默认值再变则阻断。预测阈值默认10、1和10可保存、越界拒绝；低于阈值暂停，只有设置定时开始且暂停原因是座席不足才在恢复达阈值时自动启动，其他暂停和结束不恢复。自动外呼没有该字段，号码池仍可选。任务中心折叠的“演示座席人数变化”只在本地演示预外呼运行/暂停任务中展示，输入观察人数仅模拟状态变化，不读取实时人数或执行供应商任务操作。
 
-说明与来源：[FS-08](functional-spec.html#FS-08)、[FA-197](field-alignment.html#FA-197)、[FA-217](field-alignment.html#FA-217)、[C-86](interaction.html#C-86)；API-311、API-404、DOC-334、DOC-338；SRC-111为用户转述供应商技术答复。
+说明与来源：[FS-08](functional-spec.html#FS-08)、[FA-197](field-alignment.html#FA-197)、[FA-217](field-alignment.html#FA-217)、C-86（原引用资料未随本次更新发布）；API-311、API-404、DOC-334、DOC-338；SRC-111为用户转述供应商技术答复。
 
 ## D-082 班长监控离线只读能力与二级事件日志
 
@@ -210,7 +210,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 核对重点：未关联本人坐席或未上线的本租户ADMIN可看到统计、授权坐席只读状态和已有日志，并提示先关联班长坐席才能使用队列实况与管理。关联有效坐席、本人上线且班长授权确认后才开放队列与管理；普通坐席、跨租户、伪造工号均不可借只读入口越权。二级页签切换保留本人通话草稿，日志重复刷新不增加同状态事件。
 
-说明与来源：[FS-12](functional-spec.html#FS-12)、[G-12](interaction.html#G-12)、[FA-177](field-alignment.html#FA-177)；DOC-344、API-304、DOC-395。D-080及此前历史变更保持原条目。
+说明与来源：[FS-12](functional-spec.html#FS-12)、G-12（原引用资料未随本次更新发布）、[FA-177](field-alignment.html#FA-177)；DOC-344、API-304、DOC-395。D-080及此前历史变更保持原条目。
 
 ## D-081 租户号码池管理与任务引用
 
@@ -222,7 +222,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 核对重点：租户管理员可完成查询、新增、更新、删除的完整演示；两个任务类型只见本租户池，切换租户、池改名或删除后的候选及时变化；接口失败保留原值，默认池限制明确，历史任务和通话记录不被改写。D-069/D-070旧的“不新增号码池管理”语句保留作历史，不再作为现行约束；D-001、D-003～D-080全文继续保留。
 
-说明与来源：[FS-06](functional-spec.html#FS-06)、[FS-08](functional-spec.html#FS-08)、[FA-198](field-alignment.html#FA-198)、[规则附表C-74](interaction.html#C-74)；[获取号码池列表](https://wiki.alicti.cn/html/wiki/API/号码池管理/获取号码池列表接口.html)、[新增号码池](https://wiki.alicti.cn/html/wiki/API/号码池管理/新增号码池接口.html)、[删除号码池](https://wiki.alicti.cn/html/wiki/API/号码池管理/删除号码池接口.html)、[更新号码池](https://wiki.alicti.cn/html/wiki/API/号码池管理/更新号码池接口.html)。
+说明与来源：[FS-06](functional-spec.html#FS-06)、[FS-08](functional-spec.html#FS-08)、[FA-198](field-alignment.html#FA-198)、规则附表C-74（原引用资料未随本次更新发布）；[获取号码池列表](https://wiki.alicti.cn/html/wiki/API/号码池管理/获取号码池列表接口.html)、[新增号码池](https://wiki.alicti.cn/html/wiki/API/号码池管理/新增号码池接口.html)、[删除号码池](https://wiki.alicti.cn/html/wiki/API/号码池管理/删除号码池接口.html)、[更新号码池](https://wiki.alicti.cn/html/wiki/API/号码池管理/更新号码池接口.html)。
 
 ## D-080 班长坐席事件日志
 
@@ -354,7 +354,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 接口依据：API-304
 
-运行文件：[js/components/alicti-seat-operations.js](../js/components/alicti-seat-operations.js)、[js/components/seat-operation-ui.js](../js/components/seat-operation-ui.js)、[mock/seat-operations.js](../mock/seat-operations.js)、[assets/css/agent-workbench.css](../assets/css/agent-workbench.css)、[qa/verify-working-mode.cjs](../qa/verify-working-mode.cjs)
+运行文件：[js/components/alicti-seat-operations.js](../js/components/alicti-seat-operations.js)、[js/components/seat-operation-ui.js](../js/components/seat-operation-ui.js)、[mock/seat-operations.js](../mock/seat-operations.js)、[assets/css/agent-workbench.css](../assets/css/agent-workbench.css)、qa/verify-working-mode.cjs（原引用资料未随本次更新发布）
 
 ## D-070 账号多外显导航目录与任务显式单选
 
@@ -424,7 +424,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 接口依据：API-317、API-318、API-319、API-362
 
-运行文件：[js/pages/cloud-call-records.js](../js/pages/cloud-call-records.js)、[js/pages/cloud-task-workspace.js](../js/pages/cloud-task-workspace.js)、[js/components/alicti-report-facts.js](../js/components/alicti-report-facts.js)、[qa/verify-call-detail-alignment.cjs](../qa/verify-call-detail-alignment.cjs)
+运行文件：[js/pages/cloud-call-records.js](../js/pages/cloud-call-records.js)、[js/pages/cloud-task-workspace.js](../js/pages/cloud-task-workspace.js)、[js/components/alicti-report-facts.js](../js/components/alicti-report-facts.js)、qa/verify-call-detail-alignment.cjs（原引用资料未随本次更新发布）
 
 ## D-065 创建确认与任务设置一致
 
@@ -480,7 +480,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 接口依据：用户确认的本方业务规则，不新增AliCti参数。
 
-运行文件：[documentation/build_development_guide.py](../documentation/build_development_guide.py)、[references/README.md](../references/README.md)、[js/alicti-storage.js](../js/alicti-storage.js)
+运行文件：documentation/build_development_guide.py（原引用资料未随本次更新发布）、[references/README.md](../references/README.md)、[js/alicti-storage.js](../js/alicti-storage.js)
 
 ## D-061 时间条件手动维护优先级与精简展示
 
@@ -1044,7 +1044,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 
 ## 早期历史原文与来源
 
-以下逐条保留 D-001、D-003～D-021 的原始决策内容；原始实施与发布流水继续保存在[项目记忆变更记录](../memory/change-log.md)，不因合并版本说明而删除。
+以下逐条保留 D-001、D-003～D-021 的原始决策内容；原始实施与发布流水继续保存在项目记忆变更记录（原引用资料未随本次更新发布），不因合并版本说明而删除。
 
 ## D-021 · 暂停继续及结束后的执行范围（2026-09-15）
 
@@ -1266,7 +1266,7 @@ references 保留供应商回复原件与既有101份官方快照；本版另增
 ## D-088 本地任务持久化、租户改绑与导入保存修复
 
 日期：2026-09-30
-依据：用户要求修复迭代前回归发现的3项本地逻辑问题；初始证据见[回归报告](../reviews/iteration-baseline-20260930.html)。属于本地实现修复，不新增供应商能力或接口字段。
+依据：用户要求修复迭代前回归发现的3项本地逻辑问题；初始证据见回归报告（原引用资料未随本次更新发布）。属于本地实现修复，不新增供应商能力或接口字段。
 
 修改前：已保存任务存于标签会话，持久客户在新会话中残留旧任务关联；租户已有数据检查遗漏分类、独立字段和号码池；直接导入先关闭弹窗，任务写入失败后客户与任务状态不一致且没有提示。
 
@@ -1308,4 +1308,4 @@ SUPER仍可在当前授权范围查看、分配和改派已有客户，任务创
 
 核对重点：SUPER没有客户导入入口且旧调用不能新增批次或客户，查看、分配和改派继续可用；ADMIN可在本租户导入，跨租户拒绝；OPERATOR仍不能导入。任务创建与配置、业务分类维护及既有导入失败补偿均按原边界工作。以上为验收目标，不预写浏览器或供应商联调通过。
 
-实现与说明：[客户导入与分配](../js/pages/customer-tasks.js)、[任务工作区](../js/pages/cloud-task-workspace.js)、[客户管理FS-07](functional-spec.html#FS-07)、[任务创建FS-08](functional-spec.html#FS-08)、[任务管理FS-10](functional-spec.html#FS-10)、[权限附表F-13](interaction.html#F)、[任务直接导入C-63](interaction.html#C)。D-089及此前历史决定、供应商原文、冻结输入和Loop状态保留。
+实现与说明：[客户导入与分配](../js/pages/customer-tasks.js)、[任务工作区](../js/pages/cloud-task-workspace.js)、[客户管理FS-07](functional-spec.html#FS-07)、[任务创建FS-08](functional-spec.html#FS-08)、[任务管理FS-10](functional-spec.html#FS-10)、权限附表F-13（原引用资料未随本次更新发布）、任务直接导入C-63（原引用资料未随本次更新发布）。D-089及此前历史决定、供应商原文、冻结输入和Loop状态保留。

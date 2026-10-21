@@ -2,7 +2,7 @@
 
 版本 2026-09-16-reports-delivery-1 · 核对日期 2026-09-16
 
-[下载异常定义表 Excel](通话数据异常与操作审计定义表.xlsx)
+[下载异常定义表 Excel](%E9%80%9A%E8%AF%9D%E6%95%B0%E6%8D%AE%E5%BC%82%E5%B8%B8%E4%B8%8E%E6%93%8D%E4%BD%9C%E5%AE%A1%E8%AE%A1%E5%AE%9A%E4%B9%89%E8%A1%A8.xlsx)
 
 ## 定义口径
 
@@ -85,7 +85,7 @@ CD-01、CD-02 是当前页面已有的完整异常类型。CD-03 至 CD-11 是�
 
 ## 核验依据
 
-下列定位供开发核查。功能说明见 [FS-18 通话数据异常](functional-spec.html#FS-18)、[FS-19 操作审计](functional-spec.html#FS-19)；规则见 [附表 B / K / L / M](interaction.html)。
+下列定位供开发核查。功能说明见 [FS-18 通话数据异常](functional-spec.html#FS-18)、[FS-19 操作审计](functional-spec.html#FS-19)；规则见 附表 B / K / L / M（原引用资料未随本次更新发布）。
 
 | 编号 | 材料 | 定位 |
 |---|---|---|
@@ -100,6 +100,6 @@ CD-01、CD-02 是当前页面已有的完整异常类型。CD-03 至 CD-11 是�
 | S09 | [批量坐席新增与导入结果](../js/components/alicti-seat-import.js) | 第 64 行起 |
 | S10 | [原配置异常处理与审计关联](../js/components/business-issues.js) | 第 12 行起 |
 | S11 | [号码状态识别编码展示](../js/components/alicti-number-status.js) | 第 16 行起 |
-| S12 | [异常与审计的功能规则](../docs/functional-spec.md) | 第 1497 行起 |
+| S12 | [异常与审计的功能规则](functional-spec.md) | 第 1497 行起 |
 | S13 | [旧工作台异常样例](../mock/workbench-fixtures.js) | 第 42 行起 |
-| S14 | [审计与异常处理附表](../docs/rules-appendix.md) | 第 1 行起 |
+| S14 | [审计与异常处理附表](rules-appendix.md) | 第 1 行起 |

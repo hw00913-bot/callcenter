@@ -6,7 +6,7 @@
 
 v1.1.0 采用2026-10-09用户确认的业务规则；9月30日DCC增量已撤出有效链。当前原型待按新需求重建，G1/G2/G3尚未批准。参见[今日需求与待确认事项](v1.1.0-current-requirements.html)。
 
-从[功能说明](functional-spec.html)找到相关 FS 章节，结合[规则附表](interaction.html)确认状态、权限和业务边界。界面交互参考[当前原型](../index.html)；接口字段参考[字段对齐清单](field-alignment.html)及其引用的供应商原文，采用决定见[版本与变更记录](change-log.html)。
+从[功能说明](functional-spec.html)找到相关 FS 章节，结合规则附表（原引用资料未随本次更新发布）确认状态、权限和业务边界。界面交互参考[当前原型](../index.html)；接口字段参考[字段对齐清单](field-alignment.html)及其引用的供应商原文，采用决定见[版本与变更记录](change-log.html)。
 
 当前交付仅包含 AliCti 云联络中心；`documentation/input/functions.json` 和 `pages.json` 已按现行范围筛选。`memory/`、`inputs/`、旧回归报告及证据目录只用于追溯，不作为生成新页面或功能的需求来源。AliCti 自动外呼（IVR）和预测任务的 `callRouteStrategy=2`（接口称“AI转人工”）属于现行接口能力，不能与历史上已移除的独立产品模块混同。
 

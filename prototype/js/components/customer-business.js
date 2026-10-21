@@ -194,6 +194,11 @@
       return '<div><dt>' + esc(field.label) + '</dt><dd' + (!value ? ' class="is-empty"' : '') + ' data-imported-field="' + field.key + '">' + esc(value || '未提供') + '</dd></div>';
     }).join('') + '</dl>';
   }
+  function callbackSnapshot(values, source = {}) {
+    const saved=clone(values||{});delete saved.businessFieldSnapshot;
+    const type=typeof source.businessType==='string'&&source.businessType?source.businessType:text(saved.businessType);
+    return {businessType:type,values:saved,fields:fields(type,source).map(field=>({fieldId:field.id,businessFieldCode:field.businessKey||'',fieldName:field.label,type:field.type,value:clone(saved[field.id]??(field.type==='multiselect'?[]:'')),selectedOptions:['select','multiselect'].includes(field.type)?(Array.isArray(saved[field.id])?saved[field.id]:[saved[field.id]]).filter(value=>value!==undefined&&value!==null&&value!=='').map(value=>{const option=field.options.find(o=>o.id===String(value));return {optionId:String(value),businessOptionCode:option?.businessKey||'',optionName:option?.label||String(value)};}):[]})),savedBusinessVersion:saved.updatedAt||''};
+  }
   function snapshot(source) { const value = source || {}; return {businessType:safeId(value.businessType) ? value.businessType : '',...(typeof value.businessTypeLabel === 'string' ? {businessTypeLabel:value.businessTypeLabel} : {}),externalDocumentId:text(value.externalDocumentId),...importSnapshot(value)}; }
   function typeLabel(source) { return source?.businessTypeLabel || get(source?.businessType,source)?.label || ''; }
   function codeLabel(source) { return get(source?.businessType,source)?.codeLabel || '外部单据标识'; }
@@ -253,5 +258,5 @@
     const row = get(id,source);
     return row ? save({...row,enabled:!!enabled},source,options) : fail('当前租户内没有此业务分类');
   }
-  root.CustomerBusiness = Object.freeze({storageKey,fieldTypes:Object.freeze(fieldTypes),context,scopeOf,canManage,tenants,catalog,resolveImportType,fieldCatalog,list,get,getField,fields,optionLabel,importedFields,importSnapshot,importedDetail,snapshot,typeLabel,codeLabel,newId,presetField,normalize,normalizeField,save,saveField,deleteField,setEnabled});
+  root.CustomerBusiness = Object.freeze({storageKey,fieldTypes:Object.freeze(fieldTypes),context,scopeOf,canManage,tenants,catalog,resolveImportType,fieldCatalog,list,get,getField,fields,optionLabel,importedFields,importSnapshot,importedDetail,callbackSnapshot,snapshot,typeLabel,codeLabel,newId,presetField,normalize,normalizeField,save,saveField,deleteField,setEnabled});
 })(window);

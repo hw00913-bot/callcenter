@@ -43,7 +43,7 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 | 时序交互图 | [查看时序](../flowcharts/sequence-interaction.html) |
 | 关联系统架构蓝图 | [查看架构](../related-systems/index.html) |
 | 当前任务创建和重呼流程 | [查看 FS-08](functional-spec.html#FS-08) 与 [FS-09](functional-spec.html#FS-09) |
-| 当前状态与权限 | [规则附表](interaction.html) |
+| 当前状态与权限 | 规则附表（原引用资料未随本次更新发布） |
 
 供应商写操作按权限与归属检查、字段校验、发出请求、核对返回或查询、更新原对象与审计处理。AliCti账号目录等平台配置只在本地保存，不发供应商创建或验证请求；先持久化后公布成功。创建、导入、拨号受理与实际完成分别表达，不靠本地保存显示远端成功。
 
@@ -73,8 +73,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-301](interaction.html#API-301)；[API-302](interaction.html#API-302)；[API-311](interaction.html#API-311)；[API-312](interaction.html#API-312)；[DOC-338](interaction.html#DOC-338)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 A](interaction.html#A)、[附表 D](interaction.html#D)、[附表 E](interaction.html#E)、[附表 F](interaction.html#F)、[附表 I](interaction.html#I)。
+API-301（原引用资料未随本次更新发布）；API-302（原引用资料未随本次更新发布）；API-311（原引用资料未随本次更新发布）；API-312（原引用资料未随本次更新发布）；DOC-338（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 A（原引用资料未随本次更新发布）、附表 D（原引用资料未随本次更新发布）、附表 E（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 I（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 平台账号ID、tenantId、供应商enterpriseId、坐席cno及本地configId分别保存。总部enterpriseId=7522240、同品牌门店enterpriseId=7522241；新增enterpriseId以不含前导零的正整数字符串维护，并限制在接口适配可精确表示的整数范围，供应商请求再转换为Int。
@@ -178,7 +178,7 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 **3）数据来源**
 
 平台账号、租户、业务记录及当前已授权数据；无 AliCti 等价字段要求。
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 A](interaction.html#A)、[附表 E](interaction.html#E)、[附表 F](interaction.html#F)、[附表 I](interaction.html#I)。
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 A（原引用资料未随本次更新发布）、附表 E（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 I（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 每个enterpriseId只关联0或1个总部/门店业务租户，内置超级租户不计入；每个业务租户仍只关联一个AliCti账号。tenantId与enterpriseId分别保留，平台登录账号仍可按成员授权加入多个租户。总部7522240与门店7522241属于同一品牌，但资源和业务数据按各自账号及租户隔离。
@@ -240,8 +240,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-307](interaction.html#API-307)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 D](interaction.html#D)、[附表 F](interaction.html#F)、[附表 G](interaction.html#G)、[附表 I](interaction.html#I)。
+API-307（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 D（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 G（原引用资料未随本次更新发布）、附表 I（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 同一账号在同一租户只有一个有效角色，其他租户的关系独立。
@@ -300,8 +300,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-307](interaction.html#API-307)；[API-308](interaction.html#API-308)；[API-304](interaction.html#API-304)；[DOC-331](interaction.html#DOC-331)；[DOC-332](interaction.html#DOC-332)；[DOC-336](interaction.html#DOC-336)；[DOC-341](interaction.html#DOC-341)；[DOC-342](interaction.html#DOC-342)；[DOC-343](interaction.html#DOC-343)；[DOC-344](interaction.html#DOC-344)；[DOC-355](interaction.html#DOC-355)；[API-396](interaction.html#API-396)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 G](interaction.html#G)、[附表 F](interaction.html#F)、[附表 M](interaction.html#M)。
+API-307（原引用资料未随本次更新发布）；API-308（原引用资料未随本次更新发布）；API-304（原引用资料未随本次更新发布）；DOC-331（原引用资料未随本次更新发布）；DOC-332（原引用资料未随本次更新发布）；DOC-336（原引用资料未随本次更新发布）；DOC-341（原引用资料未随本次更新发布）；DOC-342（原引用资料未随本次更新发布）；DOC-343（原引用资料未随本次更新发布）；DOC-344（原引用资料未随本次更新发布）；DOC-355（原引用资料未随本次更新发布）；API-396（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 G（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 M（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - D-055在D-046基础上将软电话分机改为资源目录受控选择，分机管理是独立菜单；账号、租户、坐席完整身份及原字符串工号共同隔离。
@@ -413,8 +413,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-309](interaction.html#API-309)；[DOC-328](interaction.html#DOC-328)；[DOC-329](interaction.html#DOC-329)；[DOC-330](interaction.html#DOC-330)；[DOC-331](interaction.html#DOC-331)；[DOC-335](interaction.html#DOC-335)；[API-377](interaction.html#API-377)；[API-378](interaction.html#API-378)；[API-379](interaction.html#API-379)；[API-380](interaction.html#API-380)；[API-382](interaction.html#API-382)；[DOC-342](interaction.html#DOC-342)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 H](interaction.html#H)、[附表 F](interaction.html#F)、[附表 G](interaction.html#G)。
+API-309（原引用资料未随本次更新发布）；DOC-328（原引用资料未随本次更新发布）；DOC-329（原引用资料未随本次更新发布）；DOC-330（原引用资料未随本次更新发布）；DOC-331（原引用资料未随本次更新发布）；DOC-335（原引用资料未随本次更新发布）；API-377（原引用资料未随本次更新发布）；API-378（原引用资料未随本次更新发布）；API-379（原引用资料未随本次更新发布）；API-380（原引用资料未随本次更新发布）；API-382（原引用资料未随本次更新发布）；DOC-342（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 H（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 G（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - skillIds 与 skillLevels 均为逗号字符串且顺序一一对应；数值越小技能等级越高，实际分配由对应呼叫场景与策略决定，不能据此保证所有来电都优先分配给该坐席。
@@ -514,8 +514,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-310](interaction.html#API-310)；[DOC-345](interaction.html#DOC-345)；[API-304](interaction.html#API-304)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 J](interaction.html#J)、[附表 H](interaction.html#H)、[附表 I](interaction.html#I)、[附表 F](interaction.html#F)、[附表 M](interaction.html#M)。
+API-310（原引用资料未随本次更新发布）；DOC-345（原引用资料未随本次更新发布）；API-304（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 J（原引用资料未随本次更新发布）、附表 H（原引用资料未随本次更新发布）、附表 I（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 M（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - API-310 enterpriseHotline/listPage仅查询当前enterpriseId已有资源，number为精确查询条件，hotline为完整值，offset/limit分页且limit不超过1000；页面每页8条。
@@ -609,8 +609,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-312](interaction.html#API-312)；[API-305](interaction.html#API-305)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 K](interaction.html#K)、[附表 I](interaction.html#I)、[附表 F](interaction.html#F)。
+API-312（原引用资料未随本次更新发布）；API-305（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 K（原引用资料未随本次更新发布）、附表 I（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 客户档案按 tenantId、enterpriseId、规范手机号归集；批次客户行不因同号被覆盖。
@@ -723,8 +723,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-311](interaction.html#API-311)；[API-312](interaction.html#API-312)；[DOC-338](interaction.html#DOC-338)；[DOC-348](interaction.html#DOC-348)；[DOC-349](interaction.html#DOC-349)；[API-404](interaction.html#API-404)；[DOC-334](interaction.html#DOC-334)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 C](interaction.html#C)、[附表 F](interaction.html#F)、[附表 H](interaction.html#H)、[附表 K](interaction.html#K)。
+API-311（原引用资料未随本次更新发布）；API-312（原引用资料未随本次更新发布）；DOC-338（原引用资料未随本次更新发布）；DOC-348（原引用资料未随本次更新发布）；DOC-349（原引用资料未随本次更新发布）；API-404（原引用资料未随本次更新发布）；DOC-334（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 C（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 H（原引用资料未随本次更新发布）、附表 K（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 预外呼 type=1，自动外呼 type=2；创建后类型不可变。IVR 是可复用语音流程，不是任务类型本身。任务名少于 50 字。
@@ -880,8 +880,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-311](interaction.html#API-311)；[API-327](interaction.html#API-327)；[DOC-338](interaction.html#DOC-338)；[API-312](interaction.html#API-312)；[API-404](interaction.html#API-404)；[DOC-334](interaction.html#DOC-334)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 B](interaction.html#B)、[附表 C](interaction.html#C)。
+API-311（原引用资料未随本次更新发布）；API-327（原引用资料未随本次更新发布）；DOC-338（原引用资料未随本次更新发布）；API-312（原引用资料未随本次更新发布）；API-404（原引用资料未随本次更新发布）；DOC-334（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 B（原引用资料未随本次更新发布）、附表 C（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - retry 不含首次。最多重呼 N 次表示最多拨打 N+1 次，实际执行受状态、任务及号码规则影响。
@@ -991,8 +991,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-311](interaction.html#API-311)；[API-312](interaction.html#API-312)；[API-313](interaction.html#API-313)；[API-314](interaction.html#API-314)；[API-404](interaction.html#API-404)；[DOC-333](interaction.html#DOC-333)；[DOC-334](interaction.html#DOC-334)；[DOC-338](interaction.html#DOC-338)；[DOC-340](interaction.html#DOC-340)；[API-365](interaction.html#API-365)；[DOC-373](interaction.html#DOC-373)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 C](interaction.html#C)、[附表 K](interaction.html#K)、[附表 F](interaction.html#F)。
+API-311（原引用资料未随本次更新发布）；API-312（原引用资料未随本次更新发布）；API-313（原引用资料未随本次更新发布）；API-314（原引用资料未随本次更新发布）；API-404（原引用资料未随本次更新发布）；DOC-333（原引用资料未随本次更新发布）；DOC-334（原引用资料未随本次更新发布）；DOC-338（原引用资料未随本次更新发布）；DOC-340（原引用资料未随本次更新发布）；API-365（原引用资料未随本次更新发布）；DOC-373（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 C（原引用资料未随本次更新发布）、附表 K（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 供应商 status 为 0 初始、1 运行中、2 暂停、3 结束；status=3 不能单独证明平台是完成还是人为终止。
@@ -1132,8 +1132,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-303](interaction.html#API-303)；[API-304](interaction.html#API-304)；[API-305](interaction.html#API-305)；[API-306](interaction.html#API-306)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 G](interaction.html#G)、[附表 K](interaction.html#K)、[附表 B](interaction.html#B)、[附表 F](interaction.html#F)。
+API-303（原引用资料未随本次更新发布）；API-304（原引用资料未随本次更新发布）；API-305（原引用资料未随本次更新发布）；API-306（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 G（原引用资料未随本次更新发布）、附表 K（原引用资料未随本次更新发布）、附表 B（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - D-046：工作台展示管理员已保存的软电话分机号，分机未配置或读取异常时禁止上线并提示联系管理员。接听上线不依赖主动外呼号码选择；外呼号码仅使用本租户获授权且用途有效的资源，不从技能推导。
@@ -1240,8 +1240,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-302](interaction.html#API-302)；[API-303](interaction.html#API-303)；[API-304](interaction.html#API-304)；[API-305](interaction.html#API-305)；[API-306](interaction.html#API-306)；[API-307](interaction.html#API-307)；[DOC-344](interaction.html#DOC-344)；[API-315](interaction.html#API-315)；[API-316](interaction.html#API-316)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 G](interaction.html#G)、[附表 F](interaction.html#F)、[附表 H](interaction.html#H)、[附表 B](interaction.html#B)、[附表 A](interaction.html#A)。
+API-302（原引用资料未随本次更新发布）；API-303（原引用资料未随本次更新发布）；API-304（原引用资料未随本次更新发布）；API-305（原引用资料未随本次更新发布）；API-306（原引用资料未随本次更新发布）；API-307（原引用资料未随本次更新发布）；DOC-344（原引用资料未随本次更新发布）；API-315（原引用资料未随本次更新发布）；API-316（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 G（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 H（原引用资料未随本次更新发布）、附表 B（原引用资料未随本次更新发布）、附表 A（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 本项目登录固定bindType=3；每次普通登录都在同一面板当次显式选择workingMode 0/4/5并直接随login提交，不依赖先保存偏好，也不采用供应商省略参数的默认行为。登录状态默认loginStatus=1置闲，可改2置忙；pauseDescription选填。取消无请求，失败保留本次表单值，不自动沿用旧模式或直接登录。断线重登是独立恢复流程，保留当前会话模式和暂停状态；普通下线固定removeBinding=0保留坐席与接听电话绑定，不提供解绑选项，也不清空本地坐席分机配置。表单默认pauseType=1、延长整理60秒，提交仍显式带值；服务方法不对缺失类型或秒数隐式回填。bindType=3由平台统一提供，bindTel由独立软电话分机配置服务按enterpriseId/tenantId/contactCenterIdentityId/cno读取，数字字符串原值传入且不从工号拼接；明确清空不回退旧演示值。历史偏好不能替代本次模式选择，也不持久化在线状态。D-071继续约束在线切换与模式互斥；D-072取代D-071先保存设置后登录的交互。冻结规划的82项FUNC与47项PAGE继续保留，不等于已覆盖本轮全部功能；CAP-SEAT-01～CAP-SEAT-09依次对应FA-170～FA-178；D-045另以FA-179记录班长管理，并单独进入开发追溯。
@@ -1358,8 +1358,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-350](interaction.html#API-350)；[API-351](interaction.html#API-351)；[API-352](interaction.html#API-352)；[API-353](interaction.html#API-353)；[API-354](interaction.html#API-354)；[DOC-348](interaction.html#DOC-348)；[DOC-355](interaction.html#DOC-355)；[DOC-356](interaction.html#DOC-356)；[DOC-357](interaction.html#DOC-357)；[DOC-358](interaction.html#DOC-358)；[DOC-359](interaction.html#DOC-359)；[API-323](interaction.html#API-323)；[API-319](interaction.html#API-319)；[API-306](interaction.html#API-306)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 I](interaction.html#I)、[附表 J](interaction.html#J)、[附表 B](interaction.html#B)、[附表 M](interaction.html#M)。
+API-350（原引用资料未随本次更新发布）；API-351（原引用资料未随本次更新发布）；API-352（原引用资料未随本次更新发布）；API-353（原引用资料未随本次更新发布）；API-354（原引用资料未随本次更新发布）；DOC-348（原引用资料未随本次更新发布）；DOC-355（原引用资料未随本次更新发布）；DOC-356（原引用资料未随本次更新发布）；DOC-357（原引用资料未随本次更新发布）；DOC-358（原引用资料未随本次更新发布）；DOC-359（原引用资料未随本次更新发布）；API-323（原引用资料未随本次更新发布）；API-319（原引用资料未随本次更新发布）；API-306（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 I（原引用资料未随本次更新发布）、附表 J（原引用资料未随本次更新发布）、附表 B（原引用资料未随本次更新发布）、附表 M（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 使用 /interface/v10/ivrRouter/create、update、list、get、delete；原型使用相同字段结构的独立本地模拟，不存在额外“发布版本”步骤。
@@ -1437,8 +1437,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-315](interaction.html#API-315)；[API-316](interaction.html#API-316)；[API-317](interaction.html#API-317)；[API-318](interaction.html#API-318)；[API-319](interaction.html#API-319)；[API-327](interaction.html#API-327)；[API-362](interaction.html#API-362)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 B](interaction.html#B)、[附表 K](interaction.html#K)、[附表 L](interaction.html#L)。
+API-315（原引用资料未随本次更新发布）；API-316（原引用资料未随本次更新发布）；API-317（原引用资料未随本次更新发布）；API-318（原引用资料未随本次更新发布）；API-319（原引用资料未随本次更新发布）；API-327（原引用资料未随本次更新发布）；API-362（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 B（原引用资料未随本次更新发布）、附表 K（原引用资料未随本次更新发布）、附表 L（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 人工 sipCauseCode/obSipCauseRaw，预测 sipCause/obSipCause；官方 16 编码、20 描述完整保留。
@@ -1547,8 +1547,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-320](interaction.html#API-320)；[DOC-346](interaction.html#DOC-346)；[DOC-347](interaction.html#DOC-347)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 L](interaction.html#L)、[附表 B](interaction.html#B)、[附表 F](interaction.html#F)。
+API-320（原引用资料未随本次更新发布）；DOC-346（原引用资料未随本次更新发布）；DOC-347（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 L（原引用资料未随本次更新发布）、附表 B（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - record/getUrl 的 URL 为 data 字符串；120 分钟是可配置默认有效期，不伪造实际 expiresAt。
@@ -1611,8 +1611,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-317](interaction.html#API-317)；[API-318](interaction.html#API-318)；[API-319](interaction.html#API-319)；[API-362](interaction.html#API-362)；[API-365](interaction.html#API-365)；[API-366](interaction.html#API-366)；[API-367](interaction.html#API-367)；[API-368](interaction.html#API-368)；[DOC-369](interaction.html#DOC-369)；[DOC-370](interaction.html#DOC-370)；[DOC-371](interaction.html#DOC-371)；[DOC-372](interaction.html#DOC-372)；[DOC-373](interaction.html#DOC-373)；[DOC-374](interaction.html#DOC-374)；[DOC-375](interaction.html#DOC-375)；[DOC-376](interaction.html#DOC-376)；[API-361](interaction.html#API-361)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 K](interaction.html#K)、[附表 B](interaction.html#B)、[附表 F](interaction.html#F)、[附表 I](interaction.html#I)。
+API-317（原引用资料未随本次更新发布）；API-318（原引用资料未随本次更新发布）；API-319（原引用资料未随本次更新发布）；API-362（原引用资料未随本次更新发布）；API-365（原引用资料未随本次更新发布）；API-366（原引用资料未随本次更新发布）；API-367（原引用资料未随本次更新发布）；API-368（原引用资料未随本次更新发布）；DOC-369（原引用资料未随本次更新发布）；DOC-370（原引用资料未随本次更新发布）；DOC-371（原引用资料未随本次更新发布）；DOC-372（原引用资料未随本次更新发布）；DOC-373（原引用资料未随本次更新发布）；DOC-374（原引用资料未随本次更新发布）；DOC-375（原引用资料未随本次更新发布）；DOC-376（原引用资料未随本次更新发布）；API-361（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 K（原引用资料未随本次更新发布）、附表 B（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 I（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - D-028：通话总览及坐席/服务技能等周期成效只统计已结束且具有有效开始时间的已加载话单，按官方 startTime 进入周期，endTime 用于确认结束。存在接口来源对象但raw缺失/不可用或接口字段缺失时，不以本地展示字段补齐接口事实；没有接口来源对象的纯本地演示按明确本地来源展示，未知接通与缺失时长各自保留。
@@ -1716,7 +1716,7 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 **3）数据来源**
 
 平台账号、租户、业务记录及当前已授权数据；无 AliCti 等价字段要求。
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 F](interaction.html#F)、[附表 I](interaction.html#I)、[附表 K](interaction.html#K)。
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 F（原引用资料未随本次更新发布）、附表 I（原引用资料未随本次更新发布）、附表 K（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 运营工作台与坐席工作台职责分开；概览不能提升管理权限。
@@ -1763,8 +1763,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-315](interaction.html#API-315)；[API-316](interaction.html#API-316)；[API-317](interaction.html#API-317)；[API-318](interaction.html#API-318)；[API-319](interaction.html#API-319)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 L](interaction.html#L)、[附表 K](interaction.html#K)、[附表 M](interaction.html#M)、[附表 F](interaction.html#F)。
+API-315（原引用资料未随本次更新发布）；API-316（原引用资料未随本次更新发布）；API-317（原引用资料未随本次更新发布）；API-318（原引用资料未随本次更新发布）；API-319（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 L（原引用资料未随本次更新发布）、附表 K（原引用资料未随本次更新发布）、附表 M（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 已自动忽略的重复事件不另算人工待办；补查不创建新通话，不触发重拨。
@@ -1818,7 +1818,7 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 **3）数据来源**
 
 平台账号、租户、业务记录及当前已授权数据；无 AliCti 等价字段要求。
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 K](interaction.html#K)、[附表 F](interaction.html#F)、[附表 I](interaction.html#I)。
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 K（原引用资料未随本次更新发布）、附表 F（原引用资料未随本次更新发布）、附表 I（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 账号、租户、供应商账号、对象、动作、前后状态、结果和时间组成审计记录。
@@ -1872,8 +1872,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-386](interaction.html#API-386)；[API-387](interaction.html#API-387)；[API-388](interaction.html#API-388)；[API-389](interaction.html#API-389)；[API-390](interaction.html#API-390)；[API-391](interaction.html#API-391)；[API-392](interaction.html#API-392)；[API-393](interaction.html#API-393)；[API-394](interaction.html#API-394)；[API-311](interaction.html#API-311)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 F](interaction.html#F)、[附表 H](interaction.html#H)、[附表 C](interaction.html#C)。
+API-386（原引用资料未随本次更新发布）；API-387（原引用资料未随本次更新发布）；API-388（原引用资料未随本次更新发布）；API-389（原引用资料未随本次更新发布）；API-390（原引用资料未随本次更新发布）；API-391（原引用资料未随本次更新发布）；API-392（原引用资料未随本次更新发布）；API-393（原引用资料未随本次更新发布）；API-394（原引用资料未随本次更新发布）；API-311（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 F（原引用资料未随本次更新发布）、附表 H（原引用资料未随本次更新发布）、附表 C（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - gno为2–20位、字母开头、仅含字母数字且至少含1位数字，同enterpriseId唯一，创建后固定；groupName最多50字，comment最多100字。outboundGroupId仅本地身份。每个企业最多1000个外呼组，每组及每次分配最多1000个坐席。
@@ -1927,8 +1927,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-396](interaction.html#API-396)；[API-397](interaction.html#API-397)；[API-398](interaction.html#API-398)；[API-399](interaction.html#API-399)；[API-403](interaction.html#API-403)；[DOC-355](interaction.html#DOC-355)；[API-304](interaction.html#API-304)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 F](interaction.html#F)、[附表 G](interaction.html#G)。
+API-396（原引用资料未随本次更新发布）；API-397（原引用资料未随本次更新发布）；API-398（原引用资料未随本次更新发布）；API-399（原引用资料未随本次更新发布）；API-403（原引用资料未随本次更新发布）；DOC-355（原引用资料未随本次更新发布）；API-304（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 F（原引用资料未随本次更新发布）、附表 G（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 资源以enterpriseId+原exten隔离，exten官方3–11位String，本地限定数字；资源type=2、登录bindType=3、Agent返回bindTelType=4不可混用。
@@ -1977,8 +1977,8 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 **3）数据来源**
 
-[API-400](interaction.html#API-400)；[API-401](interaction.html#API-401)；[API-402](interaction.html#API-402)；[DOC-356](interaction.html#DOC-356)；[DOC-359](interaction.html#DOC-359)；[API-311](interaction.html#API-311)
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 F](interaction.html#F)、[附表 C](interaction.html#C)、[附表 J](interaction.html#J)。
+API-400（原引用资料未随本次更新发布）；API-401（原引用资料未随本次更新发布）；API-402（原引用资料未随本次更新发布）；DOC-356（原引用资料未随本次更新发布）；DOC-359（原引用资料未随本次更新发布）；API-311（原引用资料未随本次更新发布）
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 F（原引用资料未随本次更新发布）、附表 C（原引用资料未随本次更新发布）、附表 J（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - 星期1为周日、7为周六；日期YYYY-MM-DD，时间HH:mm，起止不得倒置。name及priority在同enterpriseId内唯一（按账号范围）。priority必填、正整数，用户手填，不自动分配；部分更新未传priority时保留原值。
@@ -2023,7 +2023,7 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 **3）数据来源**
 
 平台账号、租户、业务记录及当前已授权数据；无 AliCti 等价字段要求。
-来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：[附表 F](interaction.html#F)、[附表 I](interaction.html#I)、[附表 K](interaction.html#K)。
+来源记录：既有字段核验和采纳决定见 SRC-042–053；当前来源、平台产品决定及历次变更见[版本与变更记录](change-log.html)。官方呼入路由及资源采用依据列于本节来源；客户业务信息与配置记录为平台规则，不虚构供应商接口。相关规则：附表 F（原引用资料未随本次更新发布）、附表 I（原引用资料未随本次更新发布）、附表 K（原引用资料未随本次更新发布）。
 **4）逻辑说明**
 
 - D-085取代D-074/D-077的分类→模板→字段三层关系；分类及独立字段库仍按enterpriseId+tenantId隔离。分类保存有序fields数组，每项包含fieldId、enabled、required，数组位置决定顺序；字段定义维护稳定内部ID、名称、类型和选项。不同分类可共用字段定义，但各自维护引用规则；分类允许零字段，线索分类须包含六项预置统计字段。不再创建、选择或启停业务模板。
@@ -2068,7 +2068,7 @@ AliCti 云联络中心 · 2026-09-29-multiple-caller-navigation-1 · 2026-09-29
 
 ## 五 其他说明
 
-- [规则附表 A–M](interaction.html) 保留稳定编号，完整列出状态、权限、总部门店及媒体等规则。
+- 规则附表 A–M（原引用资料未随本次更新发布） 保留稳定编号，完整列出状态、权限、总部门店及媒体等规则。
 - [字段级对齐清单](field-alignment.html) 覆盖 217 项采用映射；完整文档字段摘录仅作为参考，不表示全部纳入本期。
 - [本轮待确认清单](remaining-confirmations.html) 保留 1 项字段及 9 个供应商主题。资源和服务开通为 3 类接入准备。
 - [版本与变更记录](change-log.html) 记录本轮统一交付及此前原型增量，可从左侧文档目录进入。

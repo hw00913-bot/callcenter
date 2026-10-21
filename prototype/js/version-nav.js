@@ -90,13 +90,14 @@
   }
 
   // The dedicated classic script is the only runtime data source. Its fixed
-  // relative URL determines the public project root for file and web hosting.
+  // relative URL may use the central public directory or a portable export root.
+  // Public document hrefs remain relative to the project, not the data directory.
   function readProjection(document, window) {
     var tags = document.querySelectorAll('script[data-project-version-index]');
     if (tags.length !== 1) throw new Error('VERSION_SCRIPT_TAG_UNAVAILABLE');
     var tag = tags[0];
     var raw = tag.getAttribute('src');
-    if (!/^(?:\.\/|\.\.\/)版本清单\.js$/.test(raw || '')) throw new Error('INVALID_VERSION_SCRIPT_URL');
+    if (!/^(?:\.\/|(?:\.\.\/)+)(?:memory\/public\/)?版本清单\.js$/.test(raw || '')) throw new Error('INVALID_VERSION_SCRIPT_URL');
     var page = new URL(window.location.href);
     var source = new URL(raw, page);
     if (!/^(?:file|https?):$/.test(source.protocol) || source.protocol !== page.protocol || source.host !== page.host ||
@@ -104,13 +105,37 @@
       throw new Error('INVALID_VERSION_SCRIPT_URL');
     }
     if (!tag.src || new URL(tag.src, page).href !== source.href) throw new Error('INVALID_VERSION_SCRIPT_URL');
-    var projectRoot = new URL('./', source);
+    var centralized = /(?:^|\/)memory\/public\/版本清单\.js$/.test(raw);
+    var projectRoot = new URL(centralized ? '../../' : './', source);
+    var indexUrl = new URL('版本清单.json', source).href;
+    var linkBaseUrl = new URL('版本清单.json', projectRoot).href;
     var envelope = window.ProjectVersionIndex;
     if (!isObject(envelope) || envelope.schema !== 'project-version-script@1' || !isObject(envelope.data) ||
         envelope.data.schema !== SCHEMA || !isObject(envelope.data.project) || !text(envelope.data.project.id) ||
         !/^[a-f0-9]{64}$/.test(envelope.content_id || '') || envelope.content_id !== envelope.data.content_id ||
         envelope.projectRoot !== projectRoot.href) throw new Error('INVALID_VERSION_PROJECTION');
-    return { data: envelope.data, indexUrl: new URL('版本清单.json', projectRoot).href };
+    // A deeper ancestor is allowed only when its own projection explicitly
+    // registers this working directory. Neither the page name nor query data
+    // can select an arbitrary root. Legacy same/parent-directory mounts retain
+    // their original contract.
+    if (raw.indexOf('../../') === 0) {
+      var pageDirectory = new URL('./', page).href;
+      var localVersion = workingVersionId(document);
+      var registered = Array.isArray(envelope.data.versions) && envelope.data.versions.some(function (version) {
+        if (!version || (localVersion && version.version_id !== localVersion)) return false;
+        var href = typeof version.working_href === 'string' ? version.working_href :
+          isObject(version.public_view) ? version.public_view.working_href : null;
+        var target = safeHref(href, linkBaseUrl);
+        return target && new URL('./', target).href === pageDirectory;
+      });
+      if (!registered) throw new Error('UNREGISTERED_VERSION_PROJECT_ROOT');
+    }
+    return { data: envelope.data, indexUrl: indexUrl, linkBaseUrl: linkBaseUrl };
+  }
+
+  function workingVersionId(document) {
+    return document.body && typeof document.body.getAttribute === 'function'
+      ? text(document.body.getAttribute('data-working-version-id')) : '';
   }
 
   function stageStatus(stage) {
@@ -173,10 +198,11 @@
       generated_at: text(data.generated_at), content_id: text(data.content_id), current_version_id: text(data.current_version_id), versions: versions, warnings: warnings };
   }
 
-  function selection(index, hash) {
+  function selection(index, hash, localVersionId) {
     var params = new URLSearchParams((hash || '').replace(/^#/, ''));
     var requested = params.get('version');
     var version = index.versions.find(function (item) { return item.version_id === requested; }) ||
+      index.versions.find(function (item) { return item.version_id === localVersionId; }) ||
       index.versions.find(function (item) { return item.version_id === index.current_version_id; }) || index.versions[0];
     var change = version && version.changes.find(function (item) { return item.change_id === params.get('change'); });
     return { version: version, change_id: change ? change.change_id : '' };
@@ -299,7 +325,7 @@
       render();
     }
     function render() {
-      var selected = selection(index, window.location.hash);
+      var selected = selection(index, window.location.hash, workingVersionId(document));
       list.replaceChildren();
       index.versions.forEach(function (version) {
         var button = append(list, element(document, 'button', 'version-option' + (selected.version === version ? ' is-selected' : '')));
@@ -351,10 +377,11 @@
       entry.classList.add('version-entry');
       var readOnly = new URLSearchParams(window.location.search).get('read_only') === '1' || Boolean(document.querySelector('meta[name="prototype-read-only"][content="true"]'));
       append(entry, element(document, 'strong', '', readOnly ? '历史快照 · 只读浏览' : '版本与变更'));
-      var requestedVersion = readOnly && new URLSearchParams(window.location.search).get('version_id');
+      var localVersion = workingVersionId(document);
+      var requestedVersion = readOnly ? new URLSearchParams(window.location.search).get('version_id') : localVersion;
       var version = index && index.versions.find(function (item) { return item.version_id === (requestedVersion || index.current_version_id); });
-      append(entry, element(document, 'span', '', version ? (readOnly ? '历史版本 ' : '当前版本 ') + version.label + ' · ' + version.changes.length + ' 项变更' : '版本清单未就绪 · 批准状态未知'));
-      if (readOnly && version) historyUrl.hash = new URLSearchParams({ version: version.version_id }).toString();
+      append(entry, element(document, 'span', '', version ? (readOnly ? '历史版本 ' : localVersion ? '本工作版 ' : '当前版本 ') + version.label + ' · ' + version.changes.length + ' 项变更' : localVersion && index ? '本工作版未登记 · 批准状态未知' : '版本清单未就绪 · 批准状态未知'));
+      if ((readOnly || localVersion) && version) historyUrl.hash = new URLSearchParams({ version: version.version_id }).toString();
       var view = append(entry, link(document, '查看版本与变更', historyUrl.href));
       view.removeAttribute('target');
       view.setAttribute('data-delivery-switch', 'versions');
@@ -365,7 +392,7 @@
     }
     try {
       var projection = readProjection(document, window);
-      var index = parseIndex(projection.data, projection.indexUrl);
+      var index = parseIndex(projection.data, projection.linkBaseUrl || projection.indexUrl);
       if (historyHost) renderHistory(document, window, historyHost, index);
       if (entry) renderEntry(index);
       return Promise.resolve(index);

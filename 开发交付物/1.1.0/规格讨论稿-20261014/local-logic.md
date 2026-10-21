@@ -336,6 +336,22 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
 #### DLOCAL-002 交换明确租户身份
 
 **标识**：DLOCAL-002
@@ -629,6 +645,18 @@
 **basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
 
 **meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
 
 #### DLOCAL-004-EXTERNAL 按应用租户与外呼方式接收接口线索
 
@@ -1020,7 +1048,7 @@
 
 **标识**：DLOCAL-004-EXTERNAL-S3
 
-**action**：逐行校验：预外呼按准确原供应商taskId、任务坐席组与单号主子保存，交DLOCAL-005首次自动提交；人工按agentWorkNo交DLOCAL-MANUAL-ASSIGN入本人待联系，不伪造预测ID；行失败不阻其他有效行。 有效新行保存原业务批次号，后续回传从原记录取；不以此合并客户/平台主子或重置额度。 每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
+**action**：逐行校验：预外呼按准确原供应商taskId、任务坐席组与单号主子保存，交DLOCAL-005首次自动提交；人工按可选agentWorkNo交DLOCAL-MANUAL-ASSIGN保存，缺省不分配，有值才校验分配，业务跟进初始未同步，不伪造预测ID；行失败不阻其他有效行。 有效新行保存原业务批次号，后续回传从原记录取；不以此合并客户/平台主子或重置额度。 每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。
 
 **reads**
 
@@ -1616,9 +1644,9 @@
 
 **范围**
 
-1. 接口导入明确外呼方式；预外呼必填原供应商taskId并核租户、权限及有效性，人工必填同租户有效agentWorkNo
+1. 接口导入明确外呼方式；预外呼必填原供应商taskId并核租户、权限及有效性，人工agentWorkNo按SRC126选填，提供时校验同租户有效坐席
 
-2. 稳定应用/租户身份、缺回调拒绝、逐行处理与原请求去重，预测沿任务组、人工进入指定坐席待联系
+2. 稳定应用/租户身份、缺回调拒绝、逐行处理与原请求去重，预测沿任务组、人工按选填工号分配且业务跟进初始未同步
 
 **basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
 
@@ -1663,6 +1691,112 @@
 1. prototype/memory/verification-evidence/api-business-type-20261014.json
 
 **范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**客户档案局部证据**
+
+**标识**：UI-LOCAL-CUSTOMER-ARCHIVE-20261014
+
+**change_kind**：existing_archive_integration_defect_repair_not_new_product_scope
+
+**actual_user_request**：修复客户档案的问题
+
+**说明**：现有客户档案接入新版预外呼任务API及手工导入账本：同企业、同租户、同归一号码归一档案，保留每次已授权导入和准确实际通话的独立明细。
+
+**证据**
+
+1. prototype/memory/verification-evidence/customer-directory-ledger-repair-20261014.json
+
+**来源文件**：prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js, prototype/index.html, prototype/memory/verification-evidence/customer-directory-ledger-list-20261014.png, prototype/memory/verification-evidence/customer-directory-ledger-detail-20261014.png
+
+**实现状态**：local_synthetic_read_only_projection_scoped_verified_real_backend_not_implemented_or_verified
+
+**档案归组范围**
+
+1. enterpriseId
+
+2. tenantId
+
+3. normalizedPhone
+
+**只读归集**：True
+
+**是否改写原账本**：False
+
+**business_records_and_calls_merged_by_phone**：False
+
+**原回调归属保留**：True
+
+**原业务记录身份**：导入明细保持原recordId、应用/来源、企业/租户、requestId、task、leadCode、businessType和已保存的平台/根批次以及六项来源资料；原业务批次号如已保存也保留，不因归一客户档案重算或替换。当前接口业务批次号完整实现仍待，不能据此视作补齐。
+
+**已实现**
+
+1. 已有效保存的新版任务API及手工记录即使尚未拨号也进入已有客户档案；旧手工名单与新来源同号码在同企业/租户范围内归一，其他企业及租户仍分开。
+
+2. 档案只读取原账本形成临时投影，不将新导入/结果复制到旧名单或全局通话存储；原record/来源应用/线索/任务/批次/类型及本次六项资料独立保留，不以同号码最新资料覆盖。
+
+3. 仅已存在且可精确关联的客观call进入联系历史；受理、导入数及无话单失败不合造成呼叫。重复稳定call不重复统计，未知接通/时长保留未知，接收时间不充当实际联系时间。
+
+4. 主管/管理员沿现有企业/租户授权读取；坐席只可查看明确本人分配记录或实际已确认本人通话，任务可见或相同手机号不自动扩大其客户及其他坐席通话权限。
+
+5. 现有客户档案导入明细打开准确原record详情，联系历史打开准确task/result详情，并逐次复核身份、租户、任务与原记录；从任务客户详情可进入同一档案。归集上下文下详情保持只读，不绕过任务管理权限。
+
+6. 跨页刷新读取已保存账本；损坏/歧义记录保留原数据并提示，拒绝猜测归属，不清空或修复写回原账本。
+
+7. 历史有效的新账本记录缺少单存企业字段时，仅在原tenant/task/supplier标识精确匹配已授权可信任务上下文后只读解析；缺少或冲突不归集，不按号码或最近任务猜配，不迁移写回旧记录。首次进入与跨页任务目录读取不依赖先打开任务页。
+
+8. 已删除任务优先读取独立保存的删除状态，不因兼容索引或旧页面目录复活；结果有显式supplierTaskId时须与准确原任务一致，冲突拒绝。
+
+**verification**
+
+**source_checks_passed**：48
+
+**source_checks_failed**：0
+
+**source_result**：pass_scoped_vm_and_targeted_browser
+
+**independent_permission_checks_passed**：22
+
+**independent_permission_review_status**：pass_scoped_no_new_blocking_findings
+
+**browser_status**：pass_targeted_browser
+
+**browser_scope**：1280x720现有手工任务的档案进入/同号两次导入零通话/准确导入和call详情/返回同档案及时间显示；最终源码刷新仍20客户、无warning/errors。API导入及权限反例由VM覆盖，浏览器未构造外部API或攻击请求。
+
+**observation_history**：证据保留首次仅9客户的失败、只读旧数据兼容修正、2项最后守卫复核及各浏览器观察source hash；详细VM/独立反例与截图指纹以证据正文为准。
+
+**验证边界**
+
+1. 此为既有前端客户档案的局部合成整合修复，不新增AC/FUNC/PAGE/规则或调整主子批、幂等、失败额度、调用和回调路由。
+
+2. 真实后端客户实体/授权查询/数据库索引及一致性归集仍待工程实现与验证；本次不证明生产分库或后端已部署。
+
+3. 完整人工外呼导入接口、业务批次号协议、已完成沟通可靠快照及真实回调仍未因本修复完成。
+
+4. 整版104条验收与02全局/三宽度验证未执行；正式门禁、风险未决与真实调用关闭保持。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
 
 #### DLOCAL-004-MANUAL 原弹窗手工接收
 
@@ -2450,6 +2584,96 @@
 
 1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
 
+**客户档案局部证据**
+
+**标识**：UI-LOCAL-CUSTOMER-ARCHIVE-20261014
+
+**change_kind**：existing_archive_integration_defect_repair_not_new_product_scope
+
+**actual_user_request**：修复客户档案的问题
+
+**说明**：现有客户档案接入新版预外呼任务API及手工导入账本：同企业、同租户、同归一号码归一档案，保留每次已授权导入和准确实际通话的独立明细。
+
+**证据**
+
+1. prototype/memory/verification-evidence/customer-directory-ledger-repair-20261014.json
+
+**来源文件**：prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js, prototype/index.html, prototype/memory/verification-evidence/customer-directory-ledger-list-20261014.png, prototype/memory/verification-evidence/customer-directory-ledger-detail-20261014.png
+
+**实现状态**：local_synthetic_read_only_projection_scoped_verified_real_backend_not_implemented_or_verified
+
+**档案归组范围**
+
+1. enterpriseId
+
+2. tenantId
+
+3. normalizedPhone
+
+**只读归集**：True
+
+**是否改写原账本**：False
+
+**business_records_and_calls_merged_by_phone**：False
+
+**原回调归属保留**：True
+
+**原业务记录身份**：导入明细保持原recordId、应用/来源、企业/租户、requestId、task、leadCode、businessType和已保存的平台/根批次以及六项来源资料；原业务批次号如已保存也保留，不因归一客户档案重算或替换。当前接口业务批次号完整实现仍待，不能据此视作补齐。
+
+**已实现**
+
+1. 已有效保存的新版任务API及手工记录即使尚未拨号也进入已有客户档案；旧手工名单与新来源同号码在同企业/租户范围内归一，其他企业及租户仍分开。
+
+2. 档案只读取原账本形成临时投影，不将新导入/结果复制到旧名单或全局通话存储；原record/来源应用/线索/任务/批次/类型及本次六项资料独立保留，不以同号码最新资料覆盖。
+
+3. 仅已存在且可精确关联的客观call进入联系历史；受理、导入数及无话单失败不合造成呼叫。重复稳定call不重复统计，未知接通/时长保留未知，接收时间不充当实际联系时间。
+
+4. 主管/管理员沿现有企业/租户授权读取；坐席只可查看明确本人分配记录或实际已确认本人通话，任务可见或相同手机号不自动扩大其客户及其他坐席通话权限。
+
+5. 现有客户档案导入明细打开准确原record详情，联系历史打开准确task/result详情，并逐次复核身份、租户、任务与原记录；从任务客户详情可进入同一档案。归集上下文下详情保持只读，不绕过任务管理权限。
+
+6. 跨页刷新读取已保存账本；损坏/歧义记录保留原数据并提示，拒绝猜测归属，不清空或修复写回原账本。
+
+7. 历史有效的新账本记录缺少单存企业字段时，仅在原tenant/task/supplier标识精确匹配已授权可信任务上下文后只读解析；缺少或冲突不归集，不按号码或最近任务猜配，不迁移写回旧记录。首次进入与跨页任务目录读取不依赖先打开任务页。
+
+8. 已删除任务优先读取独立保存的删除状态，不因兼容索引或旧页面目录复活；结果有显式supplierTaskId时须与准确原任务一致，冲突拒绝。
+
+**verification**
+
+**source_checks_passed**：48
+
+**source_checks_failed**：0
+
+**source_result**：pass_scoped_vm_and_targeted_browser
+
+**independent_permission_checks_passed**：22
+
+**independent_permission_review_status**：pass_scoped_no_new_blocking_findings
+
+**browser_status**：pass_targeted_browser
+
+**browser_scope**：1280x720现有手工任务的档案进入/同号两次导入零通话/准确导入和call详情/返回同档案及时间显示；最终源码刷新仍20客户、无warning/errors。API导入及权限反例由VM覆盖，浏览器未构造外部API或攻击请求。
+
+**observation_history**：证据保留首次仅9客户的失败、只读旧数据兼容修正、2项最后守卫复核及各浏览器观察source hash；详细VM/独立反例与截图指纹以证据正文为准。
+
+**验证边界**
+
+1. 此为既有前端客户档案的局部合成整合修复，不新增AC/FUNC/PAGE/规则或调整主子批、幂等、失败额度、调用和回调路由。
+
+2. 真实后端客户实体/授权查询/数据库索引及一致性归集仍待工程实现与验证；本次不证明生产分库或后端已部署。
+
+3. 完整人工外呼导入接口、业务批次号协议、已完成沟通可靠快照及真实回调仍未因本修复完成。
+
+4. 整版104条验收与02全局/三宽度验证未执行；正式门禁、风险未决与真实调用关闭保持。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
 #### DLOCAL-005 预外呼自动提交导入批次
 
 **标识**：DLOCAL-005
@@ -3065,6 +3289,18 @@
 **meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
 
 **outside_scope**：本局部未列出的其他职责保留既有范围和排序，不由依赖自动扩成新的P0主目标。
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
 
 #### DLOCAL-006 下载导入失败记录
 
@@ -4646,6 +4882,22 @@
 
 **范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
 #### DLOCAL-011 识别客户秒挂结果
 
 **标识**：DLOCAL-011
@@ -5172,6 +5424,88 @@
 
 1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
 
+**四处断点局部证据**
+
+**标识**：UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**change_kind**：user_reported_defect_repair_and_manual_list_capability_restoration
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**证据**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**来源文件**：prototype/index.html, prototype/js/components/alicti-task-control.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js
+
+**实现状态**：local_synthetic_scoped_verified_production_not_verified
+
+**已核对行为**
+
+#### ARCHIVE
+
+**标识**：ARCHIVE
+
+**状态**：existing_repair_reverified
+
+**行为**：API和手工任务的已保存客户在统一客户档案按当前权限查询，未拨号也可见；原业务记录和准确通话独立保留。
+
+#### SCHEDULE
+
+**标识**：SCHEDULE
+
+**状态**：implemented_local_synthetic
+
+**行为**：页面运行或恢复时检查已保存定时任务，到点后重新核名单、权限、时间条件和坐席资源，仅记录一次首启；暂停、终止、未受理名单和保存失败不越过。
+
+**生产验证边界**：供应商autoStart字段已存在；本次只补静态演示首启，不承诺浏览器关闭时执行，不新增生产平台调度器。
+
+#### WIZARD
+
+**标识**：WIZARD
+
+**状态**：restored_manual_source_with_explicit_field_confirmation
+
+**行为**：手工来源在创建向导选择原未分配名单，明确确认线索编码、优先级、业务类型和本次批次名；转换为本版导入记录并保留原行来源。接口来源仍由业务系统导入，不能混入手工名单。
+
+**范围说明**：按本次用户报告恢复既有选择能力；这与先前仅来源选择的实现不同，不改历史冻结源或自动补盖G1/G2/G3。
+
+#### FAILURE-RETRY
+
+**标识**：FAILURE-RETRY
+
+**状态**：implemented_local_synthetic
+
+**行为**：运营商禁呼、运营商限呼、外呼黑名单三类从确认失败起120秒自动补提交；其余八类人工。按租户＋原任务＋线索＋固定号码共享首次外最多2次，不随主批、原因或重新导入重置。
+
+**未知尝试规则**：实际发起后结果未知保留原尝试和占用，停止盲发；待执行计划不等于已提交。
+
+**秒挂规则**：准确秒挂显式禁止平台补提交，不创建等待计划或消耗次数。
+
+**结果补送边界**：业务系统结果补送只重新交付原结果，不提交AliCti，不消耗失败补提交次数。
+
+**生产验证边界**：供应商导航降级、原生重呼互斥、实际返回关联和生产并发可靠性仍待核实；合成确认不能替代真实联调。
+
+**验证边界**
+
+1. 只在现有唯一prototype中修复本地合成行为，不是生产后端实现或全部104条验收通过。
+
+2. 定时启动按浏览器本地时间；页面关闭不执行，重开再核条件。不将本地首启当作AliCti真实启动确认。
+
+3. 供应商导航降级、原生重呼互斥、真实fileId及回调契约、生产并发/崩溃恢复仍待真实工程与联调证据。
+
+4. 现行需求和历史冻结源未改写；手工名单能力按本次用户报告恢复，不自动推进正式G1/G2/G3。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**production_remaining**：真实供应商接口、导航降级/原生重呼互斥、正式内部尝试及子批实体映射、后端原子并发与崩溃恢复仍须工程和联调；手工名单本地创建恢复不等生产事务通过。
+
 #### DLOCAL-012 接收并分类预测呼叫失败
 
 **标识**：DLOCAL-012
@@ -5633,6 +5967,88 @@
 **unverified**
 
 1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**四处断点局部证据**
+
+**标识**：UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**change_kind**：user_reported_defect_repair_and_manual_list_capability_restoration
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**证据**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**来源文件**：prototype/index.html, prototype/js/components/alicti-task-control.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js
+
+**实现状态**：local_synthetic_scoped_verified_production_not_verified
+
+**已核对行为**
+
+#### ARCHIVE
+
+**标识**：ARCHIVE
+
+**状态**：existing_repair_reverified
+
+**行为**：API和手工任务的已保存客户在统一客户档案按当前权限查询，未拨号也可见；原业务记录和准确通话独立保留。
+
+#### SCHEDULE
+
+**标识**：SCHEDULE
+
+**状态**：implemented_local_synthetic
+
+**行为**：页面运行或恢复时检查已保存定时任务，到点后重新核名单、权限、时间条件和坐席资源，仅记录一次首启；暂停、终止、未受理名单和保存失败不越过。
+
+**生产验证边界**：供应商autoStart字段已存在；本次只补静态演示首启，不承诺浏览器关闭时执行，不新增生产平台调度器。
+
+#### WIZARD
+
+**标识**：WIZARD
+
+**状态**：restored_manual_source_with_explicit_field_confirmation
+
+**行为**：手工来源在创建向导选择原未分配名单，明确确认线索编码、优先级、业务类型和本次批次名；转换为本版导入记录并保留原行来源。接口来源仍由业务系统导入，不能混入手工名单。
+
+**范围说明**：按本次用户报告恢复既有选择能力；这与先前仅来源选择的实现不同，不改历史冻结源或自动补盖G1/G2/G3。
+
+#### FAILURE-RETRY
+
+**标识**：FAILURE-RETRY
+
+**状态**：implemented_local_synthetic
+
+**行为**：运营商禁呼、运营商限呼、外呼黑名单三类从确认失败起120秒自动补提交；其余八类人工。按租户＋原任务＋线索＋固定号码共享首次外最多2次，不随主批、原因或重新导入重置。
+
+**未知尝试规则**：实际发起后结果未知保留原尝试和占用，停止盲发；待执行计划不等于已提交。
+
+**秒挂规则**：准确秒挂显式禁止平台补提交，不创建等待计划或消耗次数。
+
+**结果补送边界**：业务系统结果补送只重新交付原结果，不提交AliCti，不消耗失败补提交次数。
+
+**生产验证边界**：供应商导航降级、原生重呼互斥、实际返回关联和生产并发可靠性仍待核实；合成确认不能替代真实联调。
+
+**验证边界**
+
+1. 只在现有唯一prototype中修复本地合成行为，不是生产后端实现或全部104条验收通过。
+
+2. 定时启动按浏览器本地时间；页面关闭不执行，重开再核条件。不将本地首启当作AliCti真实启动确认。
+
+3. 供应商导航降级、原生重呼互斥、真实fileId及回调契约、生产并发/崩溃恢复仍待真实工程与联调证据。
+
+4. 现行需求和历史冻结源未改写；手工名单能力按本次用户报告恢复，不自动推进正式G1/G2/G3。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**production_remaining**：真实供应商接口、导航降级/原生重呼互斥、正式内部尝试及子批实体映射、后端原子并发与崩溃恢复仍须工程和联调；手工名单本地创建恢复不等生产事务通过。
 
 #### DLOCAL-013 接收关联并归一客观呼叫结果
 
@@ -7100,6 +7516,88 @@
 
 1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
 
+**四处断点局部证据**
+
+**标识**：UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**change_kind**：user_reported_defect_repair_and_manual_list_capability_restoration
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**证据**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**来源文件**：prototype/index.html, prototype/js/components/alicti-task-control.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js
+
+**实现状态**：local_synthetic_scoped_verified_production_not_verified
+
+**已核对行为**
+
+#### ARCHIVE
+
+**标识**：ARCHIVE
+
+**状态**：existing_repair_reverified
+
+**行为**：API和手工任务的已保存客户在统一客户档案按当前权限查询，未拨号也可见；原业务记录和准确通话独立保留。
+
+#### SCHEDULE
+
+**标识**：SCHEDULE
+
+**状态**：implemented_local_synthetic
+
+**行为**：页面运行或恢复时检查已保存定时任务，到点后重新核名单、权限、时间条件和坐席资源，仅记录一次首启；暂停、终止、未受理名单和保存失败不越过。
+
+**生产验证边界**：供应商autoStart字段已存在；本次只补静态演示首启，不承诺浏览器关闭时执行，不新增生产平台调度器。
+
+#### WIZARD
+
+**标识**：WIZARD
+
+**状态**：restored_manual_source_with_explicit_field_confirmation
+
+**行为**：手工来源在创建向导选择原未分配名单，明确确认线索编码、优先级、业务类型和本次批次名；转换为本版导入记录并保留原行来源。接口来源仍由业务系统导入，不能混入手工名单。
+
+**范围说明**：按本次用户报告恢复既有选择能力；这与先前仅来源选择的实现不同，不改历史冻结源或自动补盖G1/G2/G3。
+
+#### FAILURE-RETRY
+
+**标识**：FAILURE-RETRY
+
+**状态**：implemented_local_synthetic
+
+**行为**：运营商禁呼、运营商限呼、外呼黑名单三类从确认失败起120秒自动补提交；其余八类人工。按租户＋原任务＋线索＋固定号码共享首次外最多2次，不随主批、原因或重新导入重置。
+
+**未知尝试规则**：实际发起后结果未知保留原尝试和占用，停止盲发；待执行计划不等于已提交。
+
+**秒挂规则**：准确秒挂显式禁止平台补提交，不创建等待计划或消耗次数。
+
+**结果补送边界**：业务系统结果补送只重新交付原结果，不提交AliCti，不消耗失败补提交次数。
+
+**生产验证边界**：供应商导航降级、原生重呼互斥、实际返回关联和生产并发可靠性仍待核实；合成确认不能替代真实联调。
+
+**验证边界**
+
+1. 只在现有唯一prototype中修复本地合成行为，不是生产后端实现或全部104条验收通过。
+
+2. 定时启动按浏览器本地时间；页面关闭不执行，重开再核条件。不将本地首启当作AliCti真实启动确认。
+
+3. 供应商导航降级、原生重呼互斥、真实fileId及回调契约、生产并发/崩溃恢复仍待真实工程与联调证据。
+
+4. 现行需求和历史冻结源未改写；手工名单能力按本次用户报告恢复，不自动推进正式G1/G2/G3。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**production_remaining**：真实供应商接口、导航降级/原生重呼互斥、正式内部尝试及子批实体映射、后端原子并发与崩溃恢复仍须工程和联调；手工名单本地创建恢复不等生产事务通过。
+
 #### DLOCAL-015 查询任务业务记录
 
 **标识**：DLOCAL-015
@@ -7988,6 +8486,100 @@
 
 **范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**客户档案局部证据**
+
+**标识**：UI-LOCAL-CUSTOMER-ARCHIVE-20261014
+
+**change_kind**：existing_archive_integration_defect_repair_not_new_product_scope
+
+**actual_user_request**：修复客户档案的问题
+
+**说明**：现有客户档案接入新版预外呼任务API及手工导入账本：同企业、同租户、同归一号码归一档案，保留每次已授权导入和准确实际通话的独立明细。
+
+**证据**
+
+1. prototype/memory/verification-evidence/customer-directory-ledger-repair-20261014.json
+
+**来源文件**：prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js, prototype/index.html, prototype/memory/verification-evidence/customer-directory-ledger-list-20261014.png, prototype/memory/verification-evidence/customer-directory-ledger-detail-20261014.png
+
+**实现状态**：local_synthetic_read_only_projection_scoped_verified_real_backend_not_implemented_or_verified
+
+**档案归组范围**
+
+1. enterpriseId
+
+2. tenantId
+
+3. normalizedPhone
+
+**只读归集**：True
+
+**是否改写原账本**：False
+
+**business_records_and_calls_merged_by_phone**：False
+
+**原回调归属保留**：True
+
+**原业务记录身份**：导入明细保持原recordId、应用/来源、企业/租户、requestId、task、leadCode、businessType和已保存的平台/根批次以及六项来源资料；原业务批次号如已保存也保留，不因归一客户档案重算或替换。当前接口业务批次号完整实现仍待，不能据此视作补齐。
+
+**已实现**
+
+1. 已有效保存的新版任务API及手工记录即使尚未拨号也进入已有客户档案；旧手工名单与新来源同号码在同企业/租户范围内归一，其他企业及租户仍分开。
+
+2. 档案只读取原账本形成临时投影，不将新导入/结果复制到旧名单或全局通话存储；原record/来源应用/线索/任务/批次/类型及本次六项资料独立保留，不以同号码最新资料覆盖。
+
+3. 仅已存在且可精确关联的客观call进入联系历史；受理、导入数及无话单失败不合造成呼叫。重复稳定call不重复统计，未知接通/时长保留未知，接收时间不充当实际联系时间。
+
+4. 主管/管理员沿现有企业/租户授权读取；坐席只可查看明确本人分配记录或实际已确认本人通话，任务可见或相同手机号不自动扩大其客户及其他坐席通话权限。
+
+5. 现有客户档案导入明细打开准确原record详情，联系历史打开准确task/result详情，并逐次复核身份、租户、任务与原记录；从任务客户详情可进入同一档案。归集上下文下详情保持只读，不绕过任务管理权限。
+
+6. 跨页刷新读取已保存账本；损坏/歧义记录保留原数据并提示，拒绝猜测归属，不清空或修复写回原账本。
+
+7. 历史有效的新账本记录缺少单存企业字段时，仅在原tenant/task/supplier标识精确匹配已授权可信任务上下文后只读解析；缺少或冲突不归集，不按号码或最近任务猜配，不迁移写回旧记录。首次进入与跨页任务目录读取不依赖先打开任务页。
+
+8. 已删除任务优先读取独立保存的删除状态，不因兼容索引或旧页面目录复活；结果有显式supplierTaskId时须与准确原任务一致，冲突拒绝。
+
+**verification**
+
+**source_checks_passed**：48
+
+**source_checks_failed**：0
+
+**source_result**：pass_scoped_vm_and_targeted_browser
+
+**independent_permission_checks_passed**：22
+
+**independent_permission_review_status**：pass_scoped_no_new_blocking_findings
+
+**browser_status**：pass_targeted_browser
+
+**browser_scope**：1280x720现有手工任务的档案进入/同号两次导入零通话/准确导入和call详情/返回同档案及时间显示；最终源码刷新仍20客户、无warning/errors。API导入及权限反例由VM覆盖，浏览器未构造外部API或攻击请求。
+
+**observation_history**：证据保留首次仅9客户的失败、只读旧数据兼容修正、2项最后守卫复核及各浏览器观察source hash；详细VM/独立反例与截图指纹以证据正文为准。
+
+**验证边界**
+
+1. 此为既有前端客户档案的局部合成整合修复，不新增AC/FUNC/PAGE/规则或调整主子批、幂等、失败额度、调用和回调路由。
+
+2. 真实后端客户实体/授权查询/数据库索引及一致性归集仍待工程实现与验证；本次不证明生产分库或后端已部署。
+
+3. 完整人工外呼导入接口、业务批次号协议、已完成沟通可靠快照及真实回调仍未因本修复完成。
+
+4. 整版104条验收与02全局/三宽度验证未执行；正式门禁、风险未决与真实调用关闭保持。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
 #### DLOCAL-016 创建预外呼任务并锁定初始来源
 
 **标识**：DLOCAL-016
@@ -8303,6 +8895,88 @@
 **unverified**
 
 1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
+
+**四处断点局部证据**
+
+**标识**：UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**change_kind**：user_reported_defect_repair_and_manual_list_capability_restoration
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**证据**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**来源文件**：prototype/index.html, prototype/js/components/alicti-task-control.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js
+
+**实现状态**：local_synthetic_scoped_verified_production_not_verified
+
+**已核对行为**
+
+#### ARCHIVE
+
+**标识**：ARCHIVE
+
+**状态**：existing_repair_reverified
+
+**行为**：API和手工任务的已保存客户在统一客户档案按当前权限查询，未拨号也可见；原业务记录和准确通话独立保留。
+
+#### SCHEDULE
+
+**标识**：SCHEDULE
+
+**状态**：implemented_local_synthetic
+
+**行为**：页面运行或恢复时检查已保存定时任务，到点后重新核名单、权限、时间条件和坐席资源，仅记录一次首启；暂停、终止、未受理名单和保存失败不越过。
+
+**生产验证边界**：供应商autoStart字段已存在；本次只补静态演示首启，不承诺浏览器关闭时执行，不新增生产平台调度器。
+
+#### WIZARD
+
+**标识**：WIZARD
+
+**状态**：restored_manual_source_with_explicit_field_confirmation
+
+**行为**：手工来源在创建向导选择原未分配名单，明确确认线索编码、优先级、业务类型和本次批次名；转换为本版导入记录并保留原行来源。接口来源仍由业务系统导入，不能混入手工名单。
+
+**范围说明**：按本次用户报告恢复既有选择能力；这与先前仅来源选择的实现不同，不改历史冻结源或自动补盖G1/G2/G3。
+
+#### FAILURE-RETRY
+
+**标识**：FAILURE-RETRY
+
+**状态**：implemented_local_synthetic
+
+**行为**：运营商禁呼、运营商限呼、外呼黑名单三类从确认失败起120秒自动补提交；其余八类人工。按租户＋原任务＋线索＋固定号码共享首次外最多2次，不随主批、原因或重新导入重置。
+
+**未知尝试规则**：实际发起后结果未知保留原尝试和占用，停止盲发；待执行计划不等于已提交。
+
+**秒挂规则**：准确秒挂显式禁止平台补提交，不创建等待计划或消耗次数。
+
+**结果补送边界**：业务系统结果补送只重新交付原结果，不提交AliCti，不消耗失败补提交次数。
+
+**生产验证边界**：供应商导航降级、原生重呼互斥、实际返回关联和生产并发可靠性仍待核实；合成确认不能替代真实联调。
+
+**验证边界**
+
+1. 只在现有唯一prototype中修复本地合成行为，不是生产后端实现或全部104条验收通过。
+
+2. 定时启动按浏览器本地时间；页面关闭不执行，重开再核条件。不将本地首启当作AliCti真实启动确认。
+
+3. 供应商导航降级、原生重呼互斥、真实fileId及回调契约、生产并发/崩溃恢复仍待真实工程与联调证据。
+
+4. 现行需求和历史冻结源未改写；手工名单能力按本次用户报告恢复，不自动推进正式G1/G2/G3。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**production_remaining**：真实供应商接口、导航降级/原生重呼互斥、正式内部尝试及子批实体映射、后端原子并发与崩溃恢复仍须工程和联调；手工名单本地创建恢复不等生产事务通过。
 
 #### DLOCAL-017 接收并关联预测异步导入失败
 
@@ -9342,6 +10016,10 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### DLOCAL-020 查看应用详情
 
 **标识**：DLOCAL-020
@@ -9632,6 +10310,22 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
 #### DLOCAL-021 删除应用
 
 **标识**：DLOCAL-021
@@ -9837,6 +10531,18 @@
 **basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
 
 **meaning**：开发规划最优先排序；不表示正式门禁通过、工程就绪或已实现。
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
 
 #### DLOCAL-022 人工补提交八类失败客户
 
@@ -10658,11 +11364,93 @@
 
 1. 当前上游S3～S8及正式接口/工程映射待重验，文内提案不等业务门禁批准。
 
-#### DLOCAL-MANUAL-ASSIGN 接口人工外呼分配至指定坐席
+**四处断点局部证据**
+
+**标识**：UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**change_kind**：user_reported_defect_repair_and_manual_list_capability_restoration
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**证据**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**来源文件**：prototype/index.html, prototype/js/components/alicti-task-control.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js
+
+**实现状态**：local_synthetic_scoped_verified_production_not_verified
+
+**已核对行为**
+
+#### ARCHIVE
+
+**标识**：ARCHIVE
+
+**状态**：existing_repair_reverified
+
+**行为**：API和手工任务的已保存客户在统一客户档案按当前权限查询，未拨号也可见；原业务记录和准确通话独立保留。
+
+#### SCHEDULE
+
+**标识**：SCHEDULE
+
+**状态**：implemented_local_synthetic
+
+**行为**：页面运行或恢复时检查已保存定时任务，到点后重新核名单、权限、时间条件和坐席资源，仅记录一次首启；暂停、终止、未受理名单和保存失败不越过。
+
+**生产验证边界**：供应商autoStart字段已存在；本次只补静态演示首启，不承诺浏览器关闭时执行，不新增生产平台调度器。
+
+#### WIZARD
+
+**标识**：WIZARD
+
+**状态**：restored_manual_source_with_explicit_field_confirmation
+
+**行为**：手工来源在创建向导选择原未分配名单，明确确认线索编码、优先级、业务类型和本次批次名；转换为本版导入记录并保留原行来源。接口来源仍由业务系统导入，不能混入手工名单。
+
+**范围说明**：按本次用户报告恢复既有选择能力；这与先前仅来源选择的实现不同，不改历史冻结源或自动补盖G1/G2/G3。
+
+#### FAILURE-RETRY
+
+**标识**：FAILURE-RETRY
+
+**状态**：implemented_local_synthetic
+
+**行为**：运营商禁呼、运营商限呼、外呼黑名单三类从确认失败起120秒自动补提交；其余八类人工。按租户＋原任务＋线索＋固定号码共享首次外最多2次，不随主批、原因或重新导入重置。
+
+**未知尝试规则**：实际发起后结果未知保留原尝试和占用，停止盲发；待执行计划不等于已提交。
+
+**秒挂规则**：准确秒挂显式禁止平台补提交，不创建等待计划或消耗次数。
+
+**结果补送边界**：业务系统结果补送只重新交付原结果，不提交AliCti，不消耗失败补提交次数。
+
+**生产验证边界**：供应商导航降级、原生重呼互斥、实际返回关联和生产并发可靠性仍待核实；合成确认不能替代真实联调。
+
+**验证边界**
+
+1. 只在现有唯一prototype中修复本地合成行为，不是生产后端实现或全部104条验收通过。
+
+2. 定时启动按浏览器本地时间；页面关闭不执行，重开再核条件。不将本地首启当作AliCti真实启动确认。
+
+3. 供应商导航降级、原生重呼互斥、真实fileId及回调契约、生产并发/崩溃恢复仍待真实工程与联调证据。
+
+4. 现行需求和历史冻结源未改写；手工名单能力按本次用户报告恢复，不自动推进正式G1/G2/G3。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**production_remaining**：真实供应商接口、导航降级/原生重呼互斥、正式内部尝试及子批实体映射、后端原子并发与崩溃恢复仍须工程和联调；手工名单本地创建恢复不等生产事务通过。
+
+#### DLOCAL-MANUAL-ASSIGN 接口人工外呼接收并可选分配坐席
 
 **标识**：DLOCAL-MANUAL-ASSIGN
 
-**主题**：接口人工外呼分配至指定坐席
+**主题**：接口人工外呼接收并可选分配坐席
 
 **功能**
 
@@ -10868,7 +11656,7 @@
 
 **标识**：DLOCAL-MANUAL-ASSIGN-S1
 
-**action**：接收流程已验证app/tenant/回调/人工方式及请求幂等，逐行解析同租户原始工号
+**action**：鉴权app/tenant/回调/业务类型/人工方式及请求幂等后逐行保存；agentWorkNo缺省不分配，有明确值才进入坐席解析。
 
 **reads**
 
@@ -10922,7 +11710,7 @@
 
 **标识**：DLOCAL-MANUAL-ASSIGN-S2
 
-**action**：核账号/成员/坐席关联启用、同步成功、接受任务；不要求在线即可保存分配
+**action**：仅显式工号核账号/成员/坐席启用及唯一有效映射；无效行拒绝，其他有效行继续；缺省不查当前登录人或默认坐席。
 
 **reads**
 
@@ -10976,7 +11764,7 @@
 
 **标识**：DLOCAL-MANUAL-ASSIGN-S3
 
-**action**：真实客户及分配一体可恢复保存，进入本人待联系；由本人点击联系后按既有拨号守卫才拨打 同时保留接口记录原businessBatchNo供后续回调；不是预测批次。
+**action**：原客户及可选分配一体可恢复保存；无工号不入个人列表，有效工号仅确定平台分配，业务跟进未同步。平台有权坐席显式联系再按既有拨号守卫拨打 同时保留接口记录原businessBatchNo供后续回调；不是预测批次。
 
 **reads**
 
@@ -11110,9 +11898,9 @@
 
 **标识**：DLOCAL-MANUAL-ASSIGN-B1
 
-**条件**：无效/缺失/跨租户/冲突工号本行失败，不自动改派
+**条件**：显式无效/跨租户/冲突工号本行失败，不自动改派；缺省工号不失败，保存为未分配
 
-**结果**：无效/缺失/跨租户/冲突工号本行失败，不自动改派
+**结果**：显式无效/跨租户/冲突工号本行失败，不自动改派；缺省工号不失败，保存为未分配
 
 **字段引用**
 
@@ -11326,6 +12114,12 @@
 
 4. 每条成功接收记录固化本次原businessType稳定码及当时显示名称，准确关联原app/tenant/request/row/record与本call；历史缺失不批量补值，不按最近同号、来源或外呼方式猜类型。后续名称/启停配置变化不改原类型码或来源快照。 客户名单和详情显示本次保存的业务类型名称，详情保留其编码；坐席跟进按本条原类型自动使用对应业务表单，来源类型只读，不按其他同手机号记录或应用来源重选。历史无值显示未提供并保持原处理边界；已停用/无法解析的表单保留原值并明确待处理，不偷偷换成其他业务类型。原手工弹窗仍使用既有业务类型选择，不增加逐行CSV必填列。
 
+5. 所有新接口来源的业务跟进初始为“未同步”，与是否已分配、是否拨打/接通分开。无工号不认定未联系；有有效工号表示已分配云呼叫坐席，不凭分配就认定业务待联系。平台本人保存的明确处理结果或经过准确关联的外部业务处理结果方可更新跟进；仅AliCti话单、挂断、接通和时长不能推断业务已完成。平台明确继续跟进/需要再次联系保留当前有权坐席待办；结束性处理结果已保存可标跟进已完成，但独立“完成沟通回调”仍只由精确结果已完成沟通触发。
+
+6. 在既有“导入与分配”批次清单只读展示人工和预外呼接口导入；按当前权限保留原app/tenant/request与原客户记录、预测task和实际映射。相同businessBatchNo可多请求复用但不合并不同请求；不复制/迁移原账本，不重新分配或重复导入。预外呼显示任务去向，人工无工号显示未分配云呼叫坐席。
+
+7. DCC拨号入口与平台共用同一AliCti；线索负责人/平台分配坐席与本通实际坐席分别保存展示。外部人工通话按稳定app、已鉴权tenant、供应商实例、原记录与callId精确关联；实际坐席取该通真实话单工号，不反写线索分配。不能仅按手机号、同名业务批次或工号关联，错误/歧义/冲突保持待核。外部通话的业务结果为独立显式同步，不能用话单接通代替。
+
 **global_rule_ids**
 
 1. DGR-MANUAL-ASSIGN
@@ -11336,7 +12130,7 @@
 
 4. DGR-IMPORT-BUSINESS-TYPE
 
-**来源映射**：memory/normalized-user-stories.json#AC-081, memory/normalized-user-stories.json#AC-082, memory/normalized-user-stories.json#AC-083, memory/project-facts.json, memory/normalized-user-stories.json#AC-093, memory/normalized-user-stories.json#AC-094, inputs/source-index.json#SRC-123, memory/normalized-user-stories.json#AC-099, inputs/source-index.json#SRC-124, inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103
+**来源映射**：memory/normalized-user-stories.json#AC-081, memory/normalized-user-stories.json#AC-082, memory/normalized-user-stories.json#AC-083, memory/project-facts.json, memory/normalized-user-stories.json#AC-093, memory/normalized-user-stories.json#AC-094, inputs/source-index.json#SRC-123, memory/normalized-user-stories.json#AC-099, inputs/source-index.json#SRC-124, inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, 需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
 
 **验证引用**
 
@@ -11372,7 +12166,7 @@
 
 **范围**
 
-1. 人工方式按agentWorkNo解析当前租户唯一有效坐席，保存分配并进入该坐席待联系；不自动拨号或伪造预测taskId/fileId
+1. 人工方式agentWorkNo选填；有值才解析同租户唯一有效坐席并分配，缺省不分配；业务跟进未同步；不自动拨号或伪造预测taskId/fileId
 
 **basis_ref**：开发交付物/1.1.0/规划工作区/draft-20261014.json#priority_policy.user_request
 
@@ -11417,6 +12211,24 @@
 1. prototype/memory/verification-evidence/api-business-type-20261014.json
 
 **范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
+**current_revision_note**：人工外呼agentWorkNo选填；缺省接收且不分配云呼叫坐席、不进入个人待联系；显式提供时精确校验当前租户唯一有效坐席，错误拒绝该行，不回退成未分配或改派。预外呼仍必须传准确taskId并沿任务坐席组，工号不覆盖组分配。 所有新接口来源的业务跟进初始为“未同步”，与是否已分配、是否拨打/接通分开。无工号不认定未联系；有有效工号表示已分配云呼叫坐席，不凭分配就认定业务待联系。平台本人保存的明确处理结果或经过准确关联的外部业务处理结果方可更新跟进；仅AliCti话单、挂断、接通和时长不能推断业务已完成。平台明确继续跟进/需要再次联系保留当前有权坐席待办；结束性处理结果已保存可标跟进已完成，但独立“完成沟通回调”仍只由精确结果已完成沟通触发。
 
 #### DLOCAL-FOLLOWUP 振铃填写并保存跟进及待联系去向
 
@@ -12388,6 +13200,10 @@
 
 **time_boundary**：此前局部运行证据及当时门禁状况；当前SRC123需求已重验S1/S2，新回调仍未实现。
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 **交付优先级**
 
 **级别**：P0
@@ -12471,6 +13287,22 @@
 1. prototype/memory/verification-evidence/api-business-type-20261014.json
 
 **范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
 
 #### DLOCAL-COMPLETION-CALLBACK 完成沟通后回调本次通话与客户业务信息
 
@@ -13154,7 +13986,7 @@
 
 2. 现有customer-business.js允许field/option.businessKey为空；CustomerFollowup仅存内部字段ID和值，未保存业务码映射。补全配置与已保存快照/新事件版本如何关联需工程细化，不能静默用当前配置重写旧快照。
 
-**实现状态**：requirements_and_design_only_not_implemented
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **交付优先级**
 
@@ -13209,3 +14041,19 @@
 1. prototype/memory/verification-evidence/api-business-type-20261014.json
 
 **范围**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
+**local_implementation_boundary**：本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。

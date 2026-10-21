@@ -6,7 +6,7 @@ AliCti 云呼叫原型｜附表版 v1.55（2026-09-29-multiple-caller-navigation
 
 2026-09-30 本地权限增量 D-090：客户导入仅本租户ADMIN；SUPER保留客户查看、分配与改派管理，OPERATOR仍不能导入。F-13拆分导入与管理权限，C-63明确任务直接导入角色；任务创建、配置、业务分类维护以及号码/坐席/分机等资源导入按各自既有权限。供应商事实及其他附表编号沿用上方基线。
 
-[查看网页版](interaction.html) · [完整功能说明](functional-spec.html) · [开发阅读指引](development.html)
+查看网页版（原引用资料未随本次更新发布） · [完整功能说明](functional-spec.html) · [开发阅读指引](development.html)
 
 [查看字段级对齐清单](field-alignment.html) · [下载字段清单 Markdown](field-alignment.md)
 

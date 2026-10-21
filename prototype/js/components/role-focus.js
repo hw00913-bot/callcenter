@@ -22,8 +22,14 @@
   }
   function business(){
     if(!valid())return ui.empty('请先选择有效工作范围');
-    const calls=scoped(CloudCallData.calls),final=calls.filter(c=>c.endedAt&&c.result!=='待核对'),connected=final.filter(c=>c.answeredAt&&c.answeredAt!=='—'),done=connected.filter(c=>String(c.agentDisposition||'').trim());
-    return RoleCharts.business()+'<details class="role-chart-details"><summary>查看业务汇总</summary><article class="panel-card"><div class="panel-header"><h2>业务成效</h2>'+ui.help('当前租户已加载记录，非全量或今日报表。接通率=有接通时间的已结束记录/已结束且非待核对记录；处理结果只统计已填写，不从文字推断客户意向。趋势与筛选请查看统计报表。')+'</div><div class="kpi-grid">'+ui.kpi('已结束通话',final.length,'当前已加载记录')+ui.kpi('已接通',connected.length,'含人工及自动语音')+ui.kpi('接通率',final.length?(connected.length/final.length*100).toFixed(1)+'%':'—','排除待核对记录')+ui.kpi('已填写处理结果',done.length,'已接通且有处理结果')+'</div><div class="panel-body">'+link('通话与处理结果','cloud-call-records')+' '+link('业务趋势与报表','cloud-overview-report')+' '+link('任务效果','cloud-outbound-report')+'</div></article></details>';
+    const seen=new Set(),calls=scoped(CloudCallData.calls).filter(call=>{
+      if(!call?.callId)return false;
+      const key=JSON.stringify([call.tenantId,call.enterpriseId,call.callId]);
+      if(seen.has(key))return false;seen.add(key);return true;
+    });
+    const facts=call=>window.CloudReportMetrics?.state(call)||window.CallState?.view(call)||{ended:false,known:false,answered:null};
+    const final=calls.filter(call=>{const state=facts(call);return state.ended&&state.known;}),connected=final.filter(call=>facts(call).answered===true),done=connected.filter(c=>String(c.agentDisposition||'').trim());
+    return RoleCharts.business()+'<details class="role-chart-details"><summary>查看业务汇总</summary><article class="panel-card"><div class="panel-header"><h2>业务成效</h2>'+ui.help('当前租户已加载记录，非全量或今日报表。接通率=已接通记录/结果明确的已结束记录；处理结果只统计已填写，不从文字推断客户意向。趋势与筛选请查看统计报表。')+'</div><div class="kpi-grid">'+ui.kpi('已结束通话',final.length,'结果明确的已结束记录')+ui.kpi('已接通',connected.length,'含人工及自动语音')+ui.kpi('接通率',final.length?(connected.length/final.length*100).toFixed(1)+'%':'—','排除结果待确认的记录')+ui.kpi('已填写处理结果',done.length,'已接通且有处理结果')+'</div><div class="panel-body">'+link('通话与处理结果','cloud-call-records')+' '+link('业务趋势与报表','cloud-overview-report')+' '+link('任务效果','cloud-outbound-report')+'</div></article></details>';
   }
   function home(){return '<section class="platform-page home-focus">'+ui.pageHeader(role()==='SUPER_ADMIN'?'平台健康工作台':'业务成效工作台','')+(role()==='SUPER_ADMIN'?health():business())+'</section>';}
   window.RoleFocus={health,load,business,home};

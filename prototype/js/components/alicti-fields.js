@@ -276,8 +276,10 @@
           const eligible=(data.agents||[]).filter(a=>ids.has(a.contactCenterIdentityId)&&a.tenantId===draft.tenantId&&a.enterpriseId===draft.enterpriseId&&a.lifecycleStatus==='已启用'&&a.acceptNewTasks!==false);
           cnoList = eligible.map(a=>a.cno);
         }
-        const validList = [...new Set(cnoList.filter(validExistingCno))];
+        const scoped=cno=>(data.agents||[]).filter(agent=>agent.cno===cno&&agent.tenantId===draft.tenantId&&agent.enterpriseId===draft.enterpriseId&&agent.lifecycleStatus==='已启用'&&agent.syncStatus==='同步成功'&&agent.callEnabled!==false&&agent.acceptNewTasks!==false);
+        const validList = [...new Set(cnoList.filter(cno=>validExistingCno(cno)&&scoped(cno).length===1))];
         fields.cnos = validList.join(',');
+        if(new Set(cnoList).size!==cnoList.length||cnoList.some(cno=>scoped(cno).length!==1)){const message='所选坐席已失效或不属于当前组织，请重新选择';pending.push(message);errors.push(message);}
         if (cnoList.some(c=>!validExistingCno(c))) {
           const message = '所选坐席存在无效工号，请核对坐席资料';
           pending.push(message); errors.push(message);
@@ -456,7 +458,7 @@
           }
           cnos=cnos.map(text).filter(Boolean);
           if(!cnos.length||cnos.some(cno=>!validExistingCno(cno))||new Set(cnos).size!==cnos.length)issue('请选择有效且不重复的座席工号','wizardAgents');
-          else if(!Array.isArray(data.agents)||cnos.some(cno=>!data.agents.some(a=>a.cno===cno&&a.tenantId===d.tenantId&&String(a.enterpriseId)===String(d.enterpriseId)&&a.lifecycleStatus==='已启用'&&a.acceptNewTasks!==false&&a.callEnabled!==false)))issue('所选坐席未在当前租户账号内核实为可外呼','wizardAgents');
+          else if(!Array.isArray(data.agents)||cnos.some(cno=>data.agents.filter(a=>a.cno===cno&&a.tenantId===d.tenantId&&String(a.enterpriseId)===String(d.enterpriseId)&&a.lifecycleStatus==='已启用'&&a.syncStatus==='同步成功'&&a.acceptNewTasks!==false&&a.callEnabled!==false).length!==1))issue('所选坐席未在当前租户账号内核实为可外呼','wizardAgents');
           else fields.cnos=cnos.join(',');
         }else if(groupType===2){
           const found=root.OutboundGroups?.resolve?.(v,d);

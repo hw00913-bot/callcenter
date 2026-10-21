@@ -225,7 +225,10 @@
     const uniqueStates = [...new Set(fixtureStates)];
     if (!liveState && uniqueStates.length > 1) return fail('坐席状态来源不一致，请稍后重查');
     const localState = ({'通话中':'通话','振铃':'响铃','话后处理':'整理','示忙':'置忙','未登录':'离线'})[target.agentStatus] || target.agentStatus;
-    const status = target.lifecycleStatus === '已停用' ? '离线' : liveState || uniqueStates[0] || localState || '离线';
+    const active=work(),call=active.call;
+    const deviceApplies=call?.simulation===true&&call.enterpriseId===target.enterpriseId&&call.tenantId===target.tenantId&&call.accountId===s.accountId&&call.cno===target.cno&&target.accountId===s.accountId&&!call.endedAt;
+    const deviceState=deviceApplies?({offered:'响铃',answering:'响铃',dialing:'呼叫中',ringing:'响铃',connected:'通话'})[active.phase]:'';
+    const status = target.lifecycleStatus === '已停用' ? '离线' : deviceState || liveState || uniqueStates[0] || localState || '离线';
     const loginStatus = status === '离线' ? 0 : status === '置忙' ? 2 : status === '整理' ? 3 : 1;
     const deviceStatus = ({'呼叫中':2,'响铃':3,'通话':4})[status] ?? 0;
     const response = {result:0,description:'查询成功',data:{state:status,loginStatus,

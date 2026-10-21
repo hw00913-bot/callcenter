@@ -32,25 +32,45 @@ function showToast(msg, type = 'default') {
   }, 3000);
 }
 
-/* ===== 异步导出模拟 ===== */
+/* ===== 当前查询结果导出 ===== */
+function downloadCsv(filename, columns, rows) {
+  if (!Array.isArray(columns) || !columns.length || !Array.isArray(rows)) {
+    showToast('导出数据尚未准备好，请刷新后重试', 'warning');
+    return false;
+  }
+  const cell = value => {
+    let text = value == null ? '' : String(value);
+    // A CSV opened by a spreadsheet must keep user-entered values as text.
+    if (/^[\s\u0000-\u001f]*[=+\-@]/.test(text)) text = "'" + text;
+    return '"' + text.replace(/"/g, '""') + '"';
+  };
+  let anchor, url;
+  try {
+    const lines = [columns.map(column => cell(column.label || column.key)).join(','),
+      ...rows.map(row => columns.map(column => cell(typeof column.render === 'function' ? column.render(row[column.key], row) : row[column.key])).join(','))];
+    const blob = new Blob(['\uFEFF' + lines.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
+    url = URL.createObjectURL(blob);
+    anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = String(filename || '查询结果.csv').replace(/[\\/\u0000-\u001f]/g, '_');
+    document.body.appendChild(anchor);
+    anchor.click();
+    showToast('已生成 ' + rows.length + ' 条记录的导出文件，请查看浏览器下载', 'success');
+    return true;
+  } catch (_) {
+    showToast('文件生成失败，请重试', 'error');
+    return false;
+  } finally {
+    anchor?.remove();
+    if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+}
+window.downloadCsv = downloadCsv;
+
 function doExport(event) {
-  const btn = event.currentTarget;
-  if (btn.classList.contains('loading')) return;
-  const originalContent = btn.innerHTML;
-  btn.classList.add('loading');
-  btn.innerHTML = '<span class="loading-icon"></span> 导出中...';
-  btn.disabled = true;
-  btn.style.cursor = 'not-allowed';
-  btn.style.opacity = '0.7';
-  showToast('导出任务已提交，系统正在生成报表，请稍后...', 'info');
-  setTimeout(() => {
-    btn.classList.remove('loading');
-    btn.innerHTML = originalContent;
-    btn.disabled = false;
-    btn.style.cursor = 'pointer';
-    btn.style.opacity = '1';
-    showToast('导出成功！文件已准备就绪。', 'success');
-  }, 2500);
+  // Pages provide scoped, filtered source rows; DOM tables may be paginated.
+  showToast('当前页面尚未提供可导出的数据', 'warning');
+  return false;
 }
 
 function doQuery() {

@@ -312,9 +312,9 @@
       const number=caller.callerMode==='navigation'?null:d.phoneNumbers.find(number=>numberIds.includes(number.numberId)&&CloudResourceRules.usableNumber(number,context.tenantId,'呼出','预外呼'));
       if(caller.callerMode!=='navigation'&&!number)continue;
       let selected=null;
-      const candidates=batches.filter(batch=>batch.tenantId===context.tenantId&&batch.enterpriseId===context.enterpriseId)
+      const candidates=(window.DccRuntime?.isManagedTask?.(task)?(window.DccRuntime?.predictiveReceivingCandidates?.(context.agent)||[]).filter(row=>row.task.taskId===task.taskId).map(row=>row.item):batches.filter(batch=>batch.tenantId===context.tenantId&&batch.enterpriseId===context.enterpriseId)
         .flatMap(batch=>Array.isArray(batch.rows)?batch.rows:[])
-        .filter(item=>item.taskId===task.taskId&&item.method==='预外呼'&&uncalled(item)&&localPhone(item.phone)&&!d.calls.some(call=>call.taskId===task.taskId&&call.customerTaskItemId===item.id));
+        .filter(item=>item.taskId===task.taskId&&item.method==='预外呼'&&uncalled(item)&&localPhone(item.phone)&&!d.calls.some(call=>call.taskId===task.taskId&&call.customerTaskItemId===item.id)));
       for(const item of candidates){
         const verified=CustomerTasks.receivingItem(task.taskId,item.id,context.agent);
         if(verified?.task?.taskId===task.taskId&&verified.item?.id===item.id&&uncalled(verified.item)){
@@ -341,10 +341,42 @@
     const payload=contactId&&receivingOffers.get(contactId);
     return context?.phase==='offered'&&payload&&payload.tenantId===context.tenantId&&payload.accountId===context.accountId&&payload.enterpriseId===context.enterpriseId&&payload.cno===String(context.agent.cno)?payload:null;
   }
+  let apiImportDemo=null;
+  function apiImportDemoAllowed(){return d.demoSwitchEnabled===true&&AppState.isReady()&&AppState.effectiveAccess().valid&&AppState.get().activeDomain==='CLOUD_CONTACT_CENTER'&&AppState.canAction('customer.import');}
+  function apiImportDemoScope(){const c=AppState.get();return JSON.stringify([c.accountId,c.tenantId,String(c.enterpriseId)]);}
+  function apiImportDemoOptions(){
+    if(!apiImportDemo||apiImportDemo.scope!==apiImportDemoScope()||!apiImportDemoAllowed())return;
+    const tenantId=document.getElementById('api-demo-tenant')?.value||'',tenant=AppState.scoped(d.tenants).find(t=>t.tenantId===tenantId&&t.status==='启用'&&!t.builtIn);
+    const apps=tenant?window.DccRuntime?.applicationsForTenant?.(tenantId):null;
+    const appSelect=document.getElementById('api-demo-application'),typeSelect=document.getElementById('api-demo-type');
+    if(appSelect)appSelect.innerHTML='<option value="">请选择来源应用</option>'+((apps?.ok?apps.data:[])||[]).map(app=>'<option value="'+ui.escape(app.applicationId)+'"'+(!app.callbackConfigured?' disabled':'')+'>'+ui.escape(app.name+(app.callbackConfigured?'':'（请先配置回调地址）'))+'</option>').join('');
+    if(typeSelect)typeSelect.innerHTML='<option value="">请选择业务类型</option>'+(tenant?(CustomerBusiness.list(tenant)||[]).filter(t=>t.enabled!==false).map(t=>'<option value="'+ui.escape(t.id)+'">'+ui.escape(t.label)+'</option>').join(''):'');
+    const hint=document.getElementById('api-demo-hint');if(hint)hint.textContent=tenant?(apps?.ok&&apps.data.some(a=>a.callbackConfigured)?'仅导入两条合成线索，不会拨号或发送真实请求。':'当前租户尚无已配置回调地址的来源应用，请由超级管理员先配置。'):'请选择要接收线索的租户。';
+  }
+  function openApiImportDemo(){
+    if(!apiImportDemoAllowed())return showToast('请用有客户导入权限的账号进入当前租户','warning');
+    const c=AppState.get(),tenants=AppState.scoped(d.tenants).filter(t=>t.status==='启用'&&!t.builtIn&&String(t.enterpriseId)===String(c.enterpriseId));
+    apiImportDemo={scope:apiImportDemoScope(),requestId:'DEMO-API-MANUAL-'+crypto.randomUUID(),busy:false};
+    ui.openLayer('api-import-demo','<div class="layer-header"><div><h2>接口导入演示</h2><p>人工外呼 · 两条合成线索</p></div><button aria-label="关闭接口导入演示" onclick="PlatformUI.closeLayer(\'api-import-demo\')">×</button></div><div class="layer-body"><label class="field"><span>接收租户 *</span><select id="api-demo-tenant" onchange="ScenarioDemo.apiImportDemoOptions()"><option value="">请选择租户</option>'+tenants.map(t=>'<option value="'+ui.escape(t.tenantId)+'"'+(t.tenantId===c.tenantId?' selected':'')+'>'+ui.escape(t.name)+'</option>').join('')+'</select></label><label class="field"><span>来源应用 *</span><select id="api-demo-application"></select></label><label class="field"><span>业务类型 *</span><select id="api-demo-type"></select></label><label class="field"><span>业务批次号 *</span><input id="api-demo-batch" maxlength="100" value="接口导入演示批次"></label><label class="field"><span>云呼叫坐席工号（选填）</span><input id="api-demo-seat" placeholder="留空则不分配云呼叫坐席"><small>如填写，请使用本租户的有效 AliCti 坐席工号。</small></label><p id="api-demo-hint"></p></div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer(\'api-import-demo\')">取消</button><button class="btn btn-primary" id="api-demo-submit" onclick="ScenarioDemo.submitApiImportDemo()">模拟接口导入</button></div>','small');
+    apiImportDemoOptions();
+  }
+  function submitApiImportDemo(){
+    if(!apiImportDemo||apiImportDemo.busy||!apiImportDemoAllowed()||apiImportDemo.scope!==apiImportDemoScope())return showToast('工作范围已变化，请重新打开接口演示','warning');
+    const input={tenantId:document.getElementById('api-demo-tenant')?.value||'',sourceApplicationId:document.getElementById('api-demo-application')?.value||'',businessType:document.getElementById('api-demo-type')?.value||'',businessBatchNo:document.getElementById('api-demo-batch')?.value||'',agentWorkNo:document.getElementById('api-demo-seat')?.value||'',requestId:apiImportDemo.requestId};
+    if(!input.tenantId||!input.sourceApplicationId||!input.businessType||!input.businessBatchNo.trim())return showToast('请选择租户、来源应用、业务类型并填写业务批次号','warning');
+    apiImportDemo.busy=true;const button=document.getElementById('api-demo-submit');if(button)button.disabled=true;
+    try{
+      const result=window.DccRuntime?.simulateManualApiImport?.(input);
+      if(!result?.ok)return showToast(result?.reason||'接口演示暂时不可用，请刷新后重试','warning');
+      if(!result.data.savedCount){apiImportDemo.requestId='DEMO-API-MANUAL-'+crypto.randomUUID();return showToast(result.data.rows?.find(row=>!row.ok)?.reason||'没有通过校验的线索，未新增批次','warning');}
+      ui.closeLayer('api-import-demo');ui.closeLayer('demo-accounts');CustomerTasks.open(result.data.batchId);
+      showToast('已保存 '+result.data.savedCount+' 条合成线索，可分别查看分配、通话和跟进状态','success');
+    }finally{apiImportDemo.busy=false;if(button)button.disabled=false;}
+  }
   function receivingTools(){
     if(d.demoSwitchEnabled!==true)return '';
     const context=receivingContext();
-    return '<section class="panel-card receiving-demo-entry"><div class="panel-header"><h3>来电演示</h3></div><div class="panel-body"><p>模拟一通来电，体验坐席接听和话后处理。</p><button class="btn" type="button" onclick="ScenarioDemo.openReceivingDemo()"'+(!context?' disabled':'')+'>打开来电演示</button> <button class="btn" type="button" onclick="SeatOperationUI.openConnectionDemo()"'+(!context?' disabled':'')+'>电话连接演示</button><p class="form-help">'+ui.escape(!context?'请先用已关联坐席的账号进入云联络中心。':context.online?'当前坐席已上线。':'请先在坐席工作台上线。')+'</p></div></section>';
+    return '<section class="panel-card receiving-demo-entry"><div class="panel-header"><h3>来电演示</h3></div><div class="panel-body"><p>模拟一通来电，体验坐席接听和话后处理。</p><button class="btn" type="button" onclick="ScenarioDemo.openReceivingDemo()"'+(!context?' disabled':'')+'>打开来电演示</button> <button class="btn" type="button" onclick="SeatOperationUI.openConnectionDemo()"'+(!context?' disabled':'')+'>电话连接演示</button><p class="form-help">'+ui.escape(!context?'请先用已关联坐席的账号进入云联络中心。':context.online?'当前坐席已上线。':'请先在坐席工作台上线。')+'</p>'+(apiImportDemoAllowed()?'<button class="btn" type="button" onclick="ScenarioDemo.openApiImportDemo()">接口导入演示</button>':'')+'</div></section>';
   }
   function openReceivingDemo(options){
     const context=receivingContext();if(!context)return showToast('请先进入已关联坐席的云联络中心','warning');
@@ -425,7 +457,7 @@
     if(action!=='device-answered')receivingOffers.delete(payload.contactId);
     ui.closeLayer('receiving-demo');return result||true;
   }
-  window.ScenarioDemo={prepare,open,runNext,inbound,panel,saveTask,canConfirmResult,confirmResult,receivingTools,openReceivingDemo,setReceivingOption,setReceivingDevice,triggerReceiving,receivingEvent};
+  window.ScenarioDemo={prepare,open,runNext,inbound,panel,saveTask,canConfirmResult,confirmResult,receivingTools,openReceivingDemo,setReceivingOption,setReceivingDevice,triggerReceiving,receivingEvent,openApiImportDemo,apiImportDemoOptions,submitApiImportDemo};
   if(saved.enabled)resources();
   restoreLocalResults();
 })();

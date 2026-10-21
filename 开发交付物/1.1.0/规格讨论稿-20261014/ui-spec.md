@@ -8,7 +8,7 @@
 
 **状态**：DRAFT_NOT_FROZEN_NOT_READY_FOR_DEVELOPMENT
 
-**source_root**：/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2
+**source_root**：[本机资料路径已省略]
 
 **范围**
 
@@ -38,11 +38,15 @@
 
 **meaning**：保留旧5个PAGE ID作为已有界面定位，增加已有坐席工作台的DRAFT-UI-WORKBENCH规格，不新增产品顶级页面、不分配正式PAGE/FUNC/ACTION。12故事/104验收/7场景为当前需求范围。
 
-**engineering_status**：拨号即填单、预外呼坐席振铃编辑及明确未接外呼通话状态选择/条件校验/独立保存详情已完成局部合成修复；应用多对多/各应用回调、双方式接口及预测转当前坐席人工归属仍待实现或验证，真实契约和工程证据未齐。 SRC-124六项选填来源字段解析、本地保存及原界面展示已完成局部合成源码验证；浏览器导入/详情/早填定点通过，非整版视觉，真实API接收与生产时间格式尚待。 新接口业务批次号、完成沟通后本次通话与业务信息快照回调尚未实现。 本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。 SRC125业务类型已完成41组当前源码定点回归及原名单/详情浏览器核验。仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+**engineering_status**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。 真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
 
 **ui_schema_boundary**：本文件是现有专用草稿清单，不是正式 plan.ui 导出；正式产品/开发验证仍为 pending。
 
 **priority_boundary**：P0主功能为应用接入、线索导入接口（含业务批次号）、早填/未接通填单及已完成沟通后的本次快照回调；关联查看、分配、继续跟进等依赖单列dependency。手工CSV与其他预测任务操作不因共页而整体升P0；优先级不等于实现、冻结或发布批准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**existing_import_assignment_view_revision**：复用现有导入与分配批次清单和客户/通话详情，不新增并排原型或正式页面编号。
 
 **source_manifest**
 
@@ -56,6 +60,8 @@
 
 **角色**：prior_stage_stale
 
+**bytes**：516767
+
 #### 2
 
 **存储语义键**：ac
@@ -65,6 +71,8 @@
 **sha256**：b264e69c08cbdad2459a39eb38296d588e7fc54e2f9555b031d2def572f76033
 
 **角色**：current_requirement
+
+**bytes**：1361857
 
 #### 3
 
@@ -76,15 +84,19 @@
 
 **角色**：prior_stage_stale
 
+**bytes**：872622
+
 #### 4
 
 **存储语义键**：records
 
 **path**：prototype/js/components/dcc-records.js
 
-**sha256**：0b51f8552229f5fcd5f6b8750bd055b26113ee3e5b19f7fb5ffba30c27251437
+**sha256**：b641fab35db57426fa69ba5e629b9d3c4098ef49f349eb171eb93181106f1712
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：112070
 
 #### 5
 
@@ -92,9 +104,11 @@
 
 **path**：prototype/js/pages/cloud-task-workspace.js
 
-**sha256**：23023f84583721bfbbcd86e7b4d5f3e345b8d50116b11983a26affba65393805
+**sha256**：4e1361c4a82b098039c71a5e3ee4c93fbf852d95d1446b1a5e40c877d55a5488
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：225133
 
 #### 6
 
@@ -102,9 +116,11 @@
 
 **path**：prototype/js/pages/application-access.js
 
-**sha256**：c28978c32cd56ca2bfb3c7a2925c343c7ee37dfe8188aadacc2a570393f3a3d8
+**sha256**：497cf1c7f4bf852618eeec22abd50d96654b055c09782f5f9e88b0ea1bf34922
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：17068
 
 #### 7
 
@@ -112,9 +128,11 @@
 
 **path**：prototype/js/components/dcc-runtime.js
 
-**sha256**：7f598ffd388ef16433256c61e7dfd4e4ae09fbbfc46c3292ecc27613ed3ce2bb
+**sha256**：2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：177516
 
 #### 8
 
@@ -122,9 +140,11 @@
 
 **path**：prototype/memory/change-log.md
 
-**sha256**：5593b067eade744fcb8bdcc956f8d37027350d01cc371da8b0ab543ce04da2ab
+**sha256**：12c390417bf478543f81db5fdaafa54f0d046f07c91b49bd098c273381a44cd8
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：42085
 
 #### 9
 
@@ -136,6 +156,8 @@
 
 **角色**：actual_local_source_or_scoped_evidence
 
+**bytes**：10419
+
 #### 10
 
 **存储语义键**：manual
@@ -145,6 +167,8 @@
 **sha256**：929386dfc37e28f250528c9c50973746aa013c7a110ed696ad61498e040b13ed
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：2308
 
 #### 11
 
@@ -156,6 +180,8 @@
 
 **角色**：actual_local_source_or_scoped_evidence
 
+**bytes**：1737
+
 #### 12
 
 **存储语义键**：ops
@@ -165,6 +191,8 @@
 **sha256**：ac018025ebbfb842c090053247c5c0b1e2ea929e6b8b9fa226e597614e56175f
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：3040
 
 #### 13
 
@@ -176,6 +204,8 @@
 
 **角色**：actual_local_source_or_scoped_evidence
 
+**bytes**：920
+
 #### 14
 
 **存储语义键**：saveProof
@@ -186,15 +216,19 @@
 
 **角色**：actual_local_source_or_scoped_evidence
 
+**bytes**：2886
+
 #### 15
 
 **存储语义键**：project-facts
 
 **path**：需求/1.1.0/分析工作区/memory/project-facts.json
 
-**sha256**：550f34a7bc21527176f7030f581a594bf131d837b11930e548556f0a8484b085
+**sha256**：0fef4dc8c1952ff64082c22b53da2055a2de1220d09ec9b448057ce76aeabd3a
 
 **角色**：current_requirement
+
+**bytes**：539326
 
 #### 16
 
@@ -202,9 +236,11 @@
 
 **path**：需求/1.1.0/分析工作区/outputs/G2集中审阅方案.md
 
-**sha256**：370b42fa629e36cadccd9da4aa843994fcf4550c5510841f9330640265453386
+**sha256**：147ac387f318281a754dd2ce5e2816aa583446a30e272d2f074fd6b8bcf5b750
 
 **角色**：current_requirement
+
+**bytes**：91760
 
 #### 17
 
@@ -216,6 +252,8 @@
 
 **角色**：current_requirement
 
+**bytes**：1633
+
 #### 18
 
 **存储语义键**：user-workbench-followup-20261014
@@ -225,6 +263,8 @@
 **sha256**：5f4ef530522f8474f332583390f3e6db61ae2e776c694e57a3b41fa30edbd47e
 
 **角色**：current_requirement
+
+**bytes**：605
 
 #### 19
 
@@ -236,6 +276,8 @@
 
 **角色**：current_requirement
 
+**bytes**：1039
+
 #### 20
 
 **存储语义键**：user-app-tenants-followup-owner-20261014
@@ -246,15 +288,19 @@
 
 **角色**：current_requirement
 
+**bytes**：1893
+
 #### 21
 
 **存储语义键**：current-review-status
 
 **path**：需求/1.1.0/分析工作区/runtime/current-review-status.json
 
-**sha256**：9583f9e51fd6fa3d32f88108c1b014a2acfdc25d8dbb637e12d448e563b97d9a
+**sha256**：e4c1c7c1edd5fdff10e705d4741769f928762394b3f2fd0b848405cae10bd68c
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：35103
 
 #### 22
 
@@ -262,9 +308,11 @@
 
 **path**：prototype/js/pages/cloud-call-tasks.js
 
-**sha256**：3c9e11d592c1bde95caaae6303d40676b97da7a5bc17f9bd64743ea43583656c
+**sha256**：01808700b27c1509b490568590d99e420e333c2b9d22e9f6cf29c0c84dcc9300
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：16948
 
 #### 23
 
@@ -272,9 +320,11 @@
 
 **path**：prototype/js/pages/agent-workbench.js
 
-**sha256**：49f0708e1187eb0ada6a5cced98f1fa46899042a15c16fada0ff33977267d3a0
+**sha256**：45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：92029
 
 #### 24
 
@@ -282,9 +332,11 @@
 
 **path**：prototype/js/pages/customer-tasks.js
 
-**sha256**：ba5200d57d80291787615b29e5eea90a8b3009ff3748adc9f54d518f559f5a90
+**sha256**：91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：80030
 
 #### 25
 
@@ -292,9 +344,11 @@
 
 **path**：prototype/js/components/customer-followup.js
 
-**sha256**：6b701cb18597079dc5be5bf0ea3ec58eaf93989f2f5ddf1bb515e6d1bf0a2a42
+**sha256**：c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：19439
 
 #### 26
 
@@ -306,6 +360,8 @@
 
 **角色**：actual_local_source_or_scoped_evidence
 
+**bytes**：22744
+
 #### 27
 
 **存储语义键**：import-entry-repair-20261014
@@ -315,6 +371,8 @@
 **sha256**：96442e05ff2c14258c867216153a7ce63722e474e196e0098bd2f2d6593b2bf8
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：13169
 
 #### 28
 
@@ -326,6 +384,8 @@
 
 **角色**：actual_local_source_or_scoped_evidence
 
+**bytes**：35350
+
 #### 29
 
 **存储语义键**：source-index
@@ -335,6 +395,8 @@
 **sha256**：a54656e638d49b89f34a5c493f59cb979beb18f57049c12285208bb3dbf45f47
 
 **角色**：current_requirement
+
+**bytes**：119731
 
 #### 30
 
@@ -346,6 +408,8 @@
 
 **角色**：current_requirement
 
+**bytes**：11306
+
 #### 31
 
 **path**：prototype/memory/verification-evidence/workbench-early-form-repair-20261014.json
@@ -356,15 +420,19 @@
 
 **存储语义键**：workbench-early-form-repair-20261014
 
+**bytes**：7210
+
 #### 32
 
 **path**：prototype/js/components/workbench-overview.js
 
-**sha256**：b09009daef8c20f4428048d0708342cd487789bc54210dddc9b643ee63a1b2af
+**sha256**：434af9c482bf6641dbc5b57d2a3bd0fb24a709045af51269d7268e3dbe535deb
 
 **角色**：local_synthetic_evidence_not_formal_business_approval
 
 **存储语义键**：workbench-overview
+
+**bytes**：41130
 
 #### 33
 
@@ -376,6 +444,8 @@
 
 **角色**：local_synthetic_evidence_not_formal_business_approval
 
+**bytes**：16760
+
 #### 34
 
 **存储语义键**：user-workbench-manual-status-20261014
@@ -386,15 +456,19 @@
 
 **角色**：current_requirement_scoped_delta_pending_formal_recheck
 
+**bytes**：3592
+
 #### 35
 
 **存储语义键**：cloud-call-records
 
 **path**：prototype/js/pages/cloud-call-records.js
 
-**sha256**：6da436ac342c66ee60fc2d4782d51c741249056ad9ab68fe47e83bf8ea9d9959
+**sha256**：1d92bb56bfd0e3263d287ec12ae78053dc15a0588ff1c4709b4dacbf27104cce
 
 **角色**：actual_local_source_or_scoped_evidence
+
+**bytes**：37273
 
 #### 36
 
@@ -406,6 +480,8 @@
 
 **角色**：local_dictionary_source_not_live_supplier_contract
 
+**bytes**：7195
+
 #### 37
 
 **存储语义键**：user-completed-communication-business-batch-20261014
@@ -415,6 +491,8 @@
 **sha256**：9ce58da2c984f59e2d8fcf2bc3bf5e6cdafd072a050056b32251a57b1fc2de12
 
 **角色**：original_user_requirement_SRC123_current_target_not_frozen
+
+**bytes**：4712
 
 #### 38
 
@@ -426,15 +504,19 @@
 
 **角色**：read_only_actual_prototype_structure_not_new_callback_proof
 
+**bytes**：38566
+
 #### 39
 
 **存储语义键**：customer-business
 
 **path**：prototype/js/components/customer-business.js
 
-**sha256**：a9e7b1a616656fb770d61d335e4ebb1d87dcd31652aebb9237268eae3bd4a6a4
+**sha256**：dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b
 
 **角色**：read_only_actual_prototype_structure_not_new_callback_proof
+
+**bytes**：21278
 
 #### 40
 
@@ -446,6 +528,8 @@
 
 **角色**：current_S2_scenarios_not_gate_approval
 
+**bytes**：366469
+
 #### 41
 
 **存储语义键**：completion-business-batch-s1-check-r2-20261014
@@ -455,6 +539,8 @@
 **sha256**：82548ac15e07c95cdb57f84e9ebffbe3d1db78e41d060c227ec49fefc2af8504
 
 **角色**：current_S1_normalization_evidence_not_gate_approval
+
+**bytes**：3310
 
 #### 42
 
@@ -466,6 +552,8 @@
 
 **角色**：current_S2_scenario_evidence_not_gate_approval
 
+**bytes**：2482
+
 #### 43
 
 **存储语义键**：user-intention-fields-20261014
@@ -475,6 +563,8 @@
 **sha256**：7f4945fc2e31ba10a320ee5efbe1c3fded5861f6be11851fedfbbcb0ae4e2083
 
 **角色**：original_user_source_SRC124_six_fields_UI_and_bounded_contract_proposals
+
+**bytes**：3029
 
 #### 44
 
@@ -486,6 +576,8 @@
 
 **角色**：historical_SRC124_r2_checks_not_current_source_binding
 
+**bytes**：3201
+
 #### 45
 
 **存储语义键**：intent-fields-s2-check-r2-20261014
@@ -495,6 +587,8 @@
 **sha256**：b7619e02d3381ee6c0bc97d5ddce070f0690ed064ed2e6bfb73c1c2f6c6c6ab7
 
 **角色**：historical_SRC124_r2_checks_not_current_source_binding
+
+**bytes**：2630
 
 #### 46
 
@@ -506,6 +600,8 @@
 
 **角色**：current_local_synthetic_source_checks_not_API_or_callback_proof
 
+**bytes**：14593
+
 #### 47
 
 **存储语义键**：dcc-v1.1.0
@@ -516,15 +612,19 @@
 
 **角色**：actual_local_synthetic_six_field_source_or_display_not_real_ingest_or_callback_proof
 
+**bytes**：15070
+
 #### 48
 
 **存储语义键**：index
 
 **path**：prototype/index.html
 
-**sha256**：8a4c75e4b8812c039a60fe7969e937002d2fadba00cf0cddfa211c677774ed70
+**sha256**：5ae7ced733ddc58ee2c3cdc61d57d3ce45e3c445c3786c8f748c38a4b58e3a5d
 
 **角色**：actual_local_synthetic_six_field_source_or_display_not_real_ingest_or_callback_proof
+
+**bytes**：17244
 
 #### 49
 
@@ -532,9 +632,11 @@
 
 **path**：prototype/js/components/customer-directory.js
 
-**sha256**：e65fdc3de4ae8c9ce5ec6a7f44f245dee000effb0365530c30a201125ae910a9
+**sha256**：700e88fad6e41cba9dfecb109a5a3f9c95476cec683b848d17df5e643aabafca
 
 **角色**：actual_local_synthetic_six_field_source_or_display_not_real_ingest_or_callback_proof
+
+**bytes**：23085
 
 #### 50
 
@@ -544,6 +646,8 @@
 
 **sha256**：83dce8372287687d80705b9ba428605bfe5d8d931c426c9bde2768840d72ffa4
 
+**bytes**：3228
+
 #### 51
 
 **path**：需求/1.1.0/分析工作区/runtime/intent-fields-s2-check-r3-20261014.json
@@ -551,6 +655,8 @@
 **角色**：current_requirement_or_scoped_implementation_evidence
 
 **sha256**：f2b7d26ce33f38e303ce71b0e272392827005fae80743c8e843b8fd33de65382
+
+**bytes**：2657
 
 #### 52
 
@@ -560,6 +666,8 @@
 
 **sha256**：f3c873bb5e980a3cf1de70eb5c323438aca5aa3da14ccab356b2551103252ed5
 
+**bytes**：6674
+
 #### 53
 
 **path**：prototype/memory/verification-evidence/imported-customer-info-detail-20261014.png
@@ -567,6 +675,8 @@
 **角色**：current_requirement_or_scoped_implementation_evidence
 
 **sha256**：2db448f92194ff6198529fd997ebb761c123e5331a4217db35e0ea3f12a86e12
+
+**bytes**：45246
 
 #### 54
 
@@ -576,6 +686,8 @@
 
 **sha256**：570833f1663ce921a771f042eda23f1ad370a4eccd058cddd055aff778c9c332
 
+**bytes**：48938
+
 #### 55
 
 **path**：需求/1.1.0/分析工作区/inputs/user-import-business-type-20261014.md
@@ -583,6 +695,8 @@
 **角色**：current_requirement_SRC125
 
 **sha256**：1e7e898634ba9f2c22700810e47af4dba58c7afa0286e67e43dc03111135dba5
+
+**bytes**：3211
 
 #### 56
 
@@ -592,6 +706,8 @@
 
 **sha256**：166f10e1e73d94150bb5935babcc262867cc55df96c640df630c034a44315dc1
 
+**bytes**：19839
+
 #### 57
 
 **path**：prototype/memory/verification-evidence/api-business-type-list-20261014.png
@@ -599,6 +715,8 @@
 **角色**：current_SRC125_requirement_or_scoped_runtime_evidence
 
 **sha256**：c815b5cfdfe81b992b9595e1d4454afdaa45a2f5b717b79d70163653ffef827e
+
+**bytes**：70548
 
 #### 58
 
@@ -608,6 +726,8 @@
 
 **sha256**：95f4281e1e51b16979e2f408deeaa78a9cde6e73c0ec17516556cd7495c7a376
 
+**bytes**：40976
+
 #### 59
 
 **path**：需求/1.1.0/分析工作区/runtime/business-type-s1-check-20261014.json
@@ -616,6 +736,8 @@
 
 **sha256**：b00797984a0bb83fe3ea470e3542936161a1142d593ea47e4001edf7519ba924
 
+**bytes**：3151
+
 #### 60
 
 **path**：需求/1.1.0/分析工作区/runtime/business-type-s2-check-20261014.json
@@ -623,6 +745,1558 @@
 **角色**：current_SRC125_requirement_or_scoped_runtime_evidence
 
 **sha256**：de11602cf7596401d8655d8db5816bccf083ef3a15d51b4f1d5fa99281f936ad
+
+**bytes**：2452
+
+#### 61
+
+**path**：prototype/memory/verification-evidence/customer-directory-ledger-repair-20261014.json
+
+**角色**：current_customer_archive_defect_repair_scoped_observation_not_new_requirement
+
+**sha256**：ddcaff452c55962793a48100e5ed062f05710ffd4ba8036561acbe1fcb9f3880
+
+**bytes**：16434
+
+#### 62
+
+**path**：prototype/js/pages/customer-directory.js
+
+**角色**：current_customer_archive_defect_repair_scoped_observation_not_new_requirement
+
+**sha256**：b4935dc59c2752b63902e48e9336a346c54178d16028b1346afca3385644d3e6
+
+**bytes**：16728
+
+#### 63
+
+**path**：prototype/memory/verification-evidence/customer-directory-ledger-list-20261014.png
+
+**角色**：current_customer_archive_defect_repair_scoped_observation_not_new_requirement
+
+**sha256**：19c25363f497e26fc00fea35c84ca7069f401860a18797894816094d1f831a13
+
+**bytes**：82571
+
+#### 64
+
+**path**：prototype/memory/verification-evidence/customer-directory-ledger-detail-20261014.png
+
+**角色**：current_customer_archive_defect_repair_scoped_observation_not_new_requirement
+
+**sha256**：ee7e9f52029f8044ccbaec86c30a26bb8c4a926ae366b7765ef1f6a86890347b
+
+**bytes**：51782
+
+#### 65
+
+**path**：prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**角色**：user_reported_four_breakpoints_current_scoped_repair_not_formal_freeze
+
+**sha256**：89b474bfae9ae4813ba4858cf1773a4e9f23f934b18f66fab21b3cc71452fefa
+
+**bytes**：34759
+
+#### 66
+
+**path**：prototype/js/components/alicti-task-control.js
+
+**角色**：user_reported_four_breakpoints_current_scoped_repair_not_formal_freeze
+
+**sha256**：8e0db16ff0a45233578c50d1fc603ab5a5526d448bd475965e31a944a7a6bad3
+
+**bytes**：23831
+
+#### 67
+
+**path**：prototype/js/components/task-schedule-runtime.js
+
+**角色**：user_reported_four_breakpoints_current_scoped_repair_not_formal_freeze
+
+**sha256**：16f0c818df617e2a9775ccf2a04c4881015d5808fd25ab639d1d54593db6c3ca
+
+**bytes**：8590
+
+#### 68
+
+**path**：prototype/js/components/role-focus.js
+
+**角色**：full_prototype_local_audit_current_source_not_production_or_formal_freeze
+
+**sha256**：86787b6ddd3dc31937c46a61a2c690f1155de116d2e240dcdb26b94194d63763
+
+**bytes**：4305
+
+#### 69
+
+**path**：prototype/mock/demo-kit.js
+
+**角色**：full_prototype_local_audit_current_source_not_production_or_formal_freeze
+
+**sha256**：2d8ccb8d321eb60e5d53d06309067c3c075a10e525b2eb38d4c13f5e4ca576b6
+
+**bytes**：7342
+
+#### 70
+
+**path**：prototype/mock/demo-compact.js
+
+**角色**：full_prototype_local_audit_current_source_not_production_or_formal_freeze
+
+**sha256**：b1dcd4163ff12f9e73d942b8e95a94a9131ae9726135d626d9e07b4a8fb940f9
+
+**bytes**：16412
+
+#### 71
+
+**path**：prototype/js/pages/account-tenant.js
+
+**角色**：full_prototype_local_audit_current_source_not_production_or_formal_freeze
+
+**sha256**：341bf42b8be5b9a21391b7a742947a02982bba19aa8850f5567c5a64cc35edb2
+
+**bytes**：33361
+
+#### 72
+
+**path**：prototype/js/pages/system-center.js
+
+**角色**：full_prototype_local_audit_current_source_not_production_or_formal_freeze
+
+**sha256**：acece8536ed1812d90f8fc4a1ef76d2db996863c06ec30b1e857b38b39afe58f
+
+**bytes**：5221
+
+#### 73
+
+**path**：prototype/js/common.js
+
+**角色**：full_prototype_local_audit_current_source_not_production_or_formal_freeze
+
+**sha256**：5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1
+
+**bytes**：25338
+
+#### 74
+
+**path**：prototype/js/app.js
+
+**角色**：full_prototype_local_audit_current_source_not_production_or_formal_freeze
+
+**sha256**：3d72f5d0b1420a78e99792b72f463a083d9d45773d794aa0f25a364dc190cc42
+
+**bytes**：50253
+
+#### 75
+
+**path**：prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**角色**：full_prototype_local_audit_evidence_current_hash_bound
+
+**sha256**：31558b6492ff83d73b366963ca3d786acebea19fe66954d01184b0f33e7d7b34
+
+**bytes**：303176
+
+#### 76
+
+**path**：prototype/js/alicti-storage.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4f641b823a400193df6e34b0773a450cf1674993b06f3c0e901e7243e65cf5e3
+
+**bytes**：6088
+
+#### 77
+
+**path**：prototype/js/components/account-seat.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：75220eadba6507751785373aba88920ea45b6c3e6949c97a051e42599cd4e8f0
+
+**bytes**：30811
+
+#### 78
+
+**path**：prototype/js/components/account-tenant-forms.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：aaac281e865ba95a2603aa48275ebc1b3891f9b544199d2cbf94aa4f625d52fd
+
+**bytes**：26731
+
+#### 79
+
+**path**：prototype/js/components/alicti-accounts.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：7c6992609817a9d6042e93897e5a77a4e9455f08cfff0c737eb9298d168ce240
+
+**bytes**：23447
+
+#### 80
+
+**path**：prototype/js/components/alicti-adapter.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：505b5c1239996b89713b289a2295f4a8d642d3f7af78d71c7891b80f584dd32b
+
+**bytes**：16372
+
+#### 81
+
+**path**：prototype/js/components/alicti-contract-panel.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：dc51877e8572daf7cef0cb958298673e5c655824f761e78b638a69101f3b2d83
+
+**bytes**：14414
+
+#### 82
+
+**path**：prototype/js/components/alicti-demo.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：44eacacad4d29d7735c3da6569e70ce981d99f98df6918c0de4328262bd2c825
+
+**bytes**：11975
+
+#### 83
+
+**path**：prototype/js/components/alicti-extensions.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：f95d14f9ff0b7a54a18ff21617ebcc0a5aed6dca4eebbe29a68ae053b8b5dc88
+
+**bytes**：19946
+
+#### 84
+
+**path**：prototype/js/components/alicti-fields.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：eaaa5fe33c9a628df28944cc09f77b4e6fde3c8aba5875fb808fdaf36fdfdbf8
+
+**bytes**：67794
+
+#### 85
+
+**path**：prototype/js/components/alicti-inbound.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：04c6f14738a8f54ff6a79c2e747c2b997c61e53c80f7cbccd23e611e4f3a1fdf
+
+**bytes**：15214
+
+#### 86
+
+**path**：prototype/js/components/alicti-ivr.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：12a03334a1fd5673704f49eeefff7693a5656693edb391c1c56b594b10fe83b0
+
+**bytes**：7227
+
+#### 87
+
+**path**：prototype/js/components/alicti-number-import.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：a9224f433577c866d515c2e696c56a28b025d97b5d215e12db716393091b38f0
+
+**bytes**：14446
+
+#### 88
+
+**path**：prototype/js/components/alicti-number-pools.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：9559a8eef834fe756585ed534e01568f74293ee58616a3409a6c9805a8be245f
+
+**bytes**：22816
+
+#### 89
+
+**path**：prototype/js/components/alicti-queue-contracts.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：a68c84e4fe6c4be0617522af3786cd0049bdb603140ca6af6e227aa3fb9d0670
+
+**bytes**：12083
+
+#### 90
+
+**path**：prototype/js/components/alicti-queues.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：f193197371653caf3b5ff3c00182a38e244b6061fe6d37d63e584c16e4408a3a
+
+**bytes**：36189
+
+#### 91
+
+**path**：prototype/js/components/alicti-receiving.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：81a236706882bc9c173479a87787871ebdeae3923c5607210c9cbb87c187fd63
+
+**bytes**：7817
+
+#### 92
+
+**path**：prototype/js/components/alicti-report-facts.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：f27aaaa52b00d5999ee0302c09a3d42903bf4daa03a324a00deb3c409e412569
+
+**bytes**：8190
+
+#### 93
+
+**path**：prototype/js/components/alicti-report-summary.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：e3a3f85be0cac69868b46bc597bd5aa0f424e89443e27d0f23681fd8de50c3ae
+
+**bytes**：11122
+
+#### 94
+
+**path**：prototype/js/components/alicti-retry-editor.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：29a75a2035f0dcac125e845f6f28fea228a8e1cd3308857e05ecc03ab3fef899
+
+**bytes**：13217
+
+#### 95
+
+**path**：prototype/js/components/alicti-retry.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：9ffa65434a8e472585abfec13aba1755f95df5f434001e38d01890b9228070ff
+
+**bytes**：4683
+
+#### 96
+
+**path**：prototype/js/components/alicti-seat-import.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：ef3dde051891bceccfef52f13dbfe1de40984c0beb5479a8f7987680879beb02
+
+**bytes**：22386
+
+#### 97
+
+**path**：prototype/js/components/alicti-seat-operations.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：c4594bd50d2b684c9733fe5a02f21e8f5d105d2176e745ce1b30b59151083795
+
+**bytes**：49392
+
+#### 98
+
+**path**：prototype/js/components/alicti-task-update.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：8c21c7af888c89aab1e01a711b682fc1f001b659394ade40aebe2c86585d4e55
+
+**bytes**：8148
+
+#### 99
+
+**path**：prototype/js/components/alicti-time-conditions.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：31e6746e6f3f40555ef0501eb6015ad895d8c75bad2474a0f9f6a54a41fe485e
+
+**bytes**：15977
+
+#### 100
+
+**path**：prototype/js/components/business-issues.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：a37de59bd5ae150018d92f4d91475eefbbf7b9d0edd6b08cdf3d45076ccfad36
+
+**bytes**：7827
+
+#### 101
+
+**path**：prototype/js/components/call-data-issues.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：f7824a20b94601c71426786f2a6456db0a33166ba5b34c89ed23bfa3a7534dee
+
+**bytes**：8204
+
+#### 102
+
+**path**：prototype/js/components/call-data-sync.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4c36be5b85b48080c9dfa65d0f89e60a685f97a785b79e10350927d66f628030
+
+**bytes**：9957
+
+#### 103
+
+**path**：prototype/js/components/call-media.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：ec61f9eb77d4b99088a46bd9fd8063cc1de069e835f76baefae4f5f25b0cd17d
+
+**bytes**：17301
+
+#### 104
+
+**path**：prototype/js/components/call-state.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：93048ccfe263df33cee3262a7bd903ce887aa46829f9123cb1da3a9839c0a0df
+
+**bytes**：21079
+
+#### 105
+
+**path**：prototype/js/components/demo-switch.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：dbbf9c50f6934e3d4a812c2c71c0e3d85af292231aa2421a46bd51fdb06b8ae5
+
+**bytes**：7475
+
+#### 106
+
+**path**：prototype/js/components/lead-report.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：56b435d045bd817274aaed37fe203d303d41a86227ab18e6c8eb840efaf178c0
+
+**bytes**：15757
+
+#### 107
+
+**path**：prototype/js/components/manual-skill-access.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：a3520428d91163a4b8664d4eacf10ca8cdfea911d257e83dc26e3887e53a3a8f
+
+**bytes**：716
+
+#### 108
+
+**path**：prototype/js/components/number-import-history.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：ab88f25625bf5763a5bdaabd36c7c84f832d3dd245a0c1493cfe65e6f09b523a
+
+**bytes**：2496
+
+#### 109
+
+**path**：prototype/js/components/outbound-groups.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520
+
+**bytes**：34564
+
+#### 110
+
+**path**：prototype/js/components/platform-ui.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2
+
+**bytes**：33014
+
+#### 111
+
+**path**：prototype/js/components/queue-config.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：412b78d3f4ce6e34e780de9e4d0705f1c2f05f5985ef6a40a8a230c5bfd04f28
+
+**bytes**：22873
+
+#### 112
+
+**path**：prototype/js/components/queue-detail.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：c27cbb5353ffb6099f92d1fdf1c000cf67cfa2496106187d2535e2537367171b
+
+**bytes**：17011
+
+#### 113
+
+**path**：prototype/js/components/repeat-predictive.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：2f6bd7906b0ab70eb6d644e93208df5ef9a9a9278ecff34dc4356c3dc4af979c
+
+**bytes**：25559
+
+#### 114
+
+**path**：prototype/js/components/report-data.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：7619f556705c174845de56b24c1a21c11af5f973bf71c89cb50d951f4b5391f6
+
+**bytes**：29205
+
+#### 115
+
+**path**：prototype/js/components/report-metrics.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4974c6a13bba80b82f6c9a501b5b5e3ab78d693a572b8e9ce8f978158b6da0be
+
+**bytes**：11842
+
+#### 116
+
+**path**：prototype/js/components/resource-rules.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：b4667756955fe8f03a5ee95daea99e19589bfb1de774f299de75a9b8b1f768ca
+
+**bytes**：6827
+
+#### 117
+
+**path**：prototype/js/components/role-charts.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：d22f69c0b2b5c53113c4f3f214e47384b060c68cf50083fc38820a68585824ac
+
+**bytes**：7248
+
+#### 118
+
+**path**：prototype/js/components/seat-event-log.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：da870a05d0a48945803c45f72e1b6181c794f08a4f3cda21bc5c99b3a42d99be
+
+**bytes**：7365
+
+#### 119
+
+**path**：prototype/js/components/seat-operation-ui.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：0d065f566fac31d0176bc98ffa489c4b392124098e64bb07502ee31c7c31de8f
+
+**bytes**：21170
+
+#### 120
+
+**path**：prototype/js/components/seat-phone-config.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：bda324e0aeb723a3a0ab6a9b0e95e7a84abfa836c9d0cdadbb4dcfb79d95e44a
+
+**bytes**：12855
+
+#### 121
+
+**path**：prototype/js/components/tenant-call-monitor.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：be12fd16c4190b6f46f9f0aabdd5b7d2f25bb32481c4ae314eb833c517a91b34
+
+**bytes**：24660
+
+#### 122
+
+**path**：prototype/js/components/tenant-supervisor-policy.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：8cb7cd48d814fec3453ae9d41f9449aa555dcfac373d731a680acb0639732359
+
+**bytes**：1743
+
+#### 123
+
+**path**：prototype/js/delivery-nav.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：2c52b5dca34d3a68fd4fa86fcde0e0ec7aa3e092db3fc7766b69773680b75a3f
+
+**bytes**：9747
+
+#### 124
+
+**path**：prototype/js/documentation-nav.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：ac5def2bd50e5128420e446585e5489502c6ba5f27362c960b6733d089b852aa
+
+**bytes**：955
+
+#### 125
+
+**path**：prototype/js/nav.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b
+
+**bytes**：29203
+
+#### 126
+
+**path**：prototype/js/pages/agent-center.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e
+
+**bytes**：52233
+
+#### 127
+
+**path**：prototype/js/pages/alicti-accounts.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：71c5ae8b9a8f117a7f52cb36d729e5476f960a12e6ea34092e18ce62d0670f61
+
+**bytes**：30122
+
+#### 128
+
+**path**：prototype/js/pages/business-categories.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：addb6fc38834d414609d9a21a874ea59f96bd82203d039c2b1c0823deaf2e463
+
+**bytes**：25727
+
+#### 129
+
+**path**：prototype/js/pages/contact-center-settings.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：b70d9a9eb689f9112284d6903458d63075560f15df9b0457b2e55d4a0e8e24a6
+
+**bytes**：20502
+
+#### 130
+
+**path**：prototype/js/pages/customer-demo.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：1616eec112234cd0b37b7aba8f21c8f175b2b3bf926da90b480ed0e1f7dc47b3
+
+**bytes**：4290
+
+#### 131
+
+**path**：prototype/js/pages/extension-management.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：588d123344d5666bfca172b93220e2e10e2848bf6d5bba3be133ad76c26207d7
+
+**bytes**：23705
+
+#### 132
+
+**path**：prototype/js/pages/home.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：77e2f34c43955287b5babeaf33baecebed6ee57995c8c4416a58a923a0a0f8cb
+
+**bytes**：373
+
+#### 133
+
+**path**：prototype/js/pages/inbound-routing.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：fc1c9bd0bce959501b44b66c5facc9dd9c9e17aa49b815f236284fab9e4f40f4
+
+**bytes**：15397
+
+#### 134
+
+**path**：prototype/js/pages/number-pool-management.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：d6cd4b0b995b590bed8629326ec27ca9296c2430f6124a332ef46474885f537a
+
+**bytes**：14452
+
+#### 135
+
+**path**：prototype/js/pages/operations-monitor.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：faad3ad2fca61d62d6749694e26870cd43708df90f25cdf9b79a343c7161fa2d
+
+**bytes**：8246
+
+#### 136
+
+**path**：prototype/js/pages/outbound-group-management.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02
+
+**bytes**：14938
+
+#### 137
+
+**path**：prototype/js/pages/queue-management.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：77ec5107da644326566c56be697dbe2318e474081c7b36410e152bffceb2263f
+
+**bytes**：16607
+
+#### 138
+
+**path**：prototype/js/pages/report-center.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：7648bb4223d562826659570f3931d07bf0d74aee75a205cf2a6648a535029f08
+
+**bytes**：44167
+
+#### 139
+
+**path**：prototype/js/pages/resource-lines.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：d68a6e106985af44a7a5310ab4f8bc41cc8d98b69c0cf4444c03953c29bc351a
+
+**bytes**：17472
+
+#### 140
+
+**path**：prototype/js/pages/scenario-demo.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：fa7a21be0d3e8f2795c5c87ab40a61f198e5fa29190b01a7f64445955ff0bb41
+
+**bytes**：51412
+
+#### 141
+
+**path**：prototype/js/pages/scenario-readiness.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：339e26e4c53e2ea7ee3aae5a95e7c09201b23d656bb04b2a8fd928a36f442b5b
+
+**bytes**：22490
+
+#### 142
+
+**path**：prototype/js/pages/time-condition-management.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：b319d1e521387e38e21b54e1c0fb2aa7f50f3054370a25316c1488b16d6c0bb5
+
+**bytes**：22629
+
+#### 143
+
+**path**：prototype/js/review-view-cache.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：70d270b31dd7e1437e9540498762b9819a6c2e7d06935a00b9cfc055ad472571
+
+**bytes**：1447
+
+#### 144
+
+**path**：prototype/js/version-nav.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：6a2912e748e9fca7d01a0134f52b9de509ae56b9ef1e707e7225a2859efc1b79
+
+**bytes**：25931
+
+#### 145
+
+**path**：prototype/assets/css/account-seat.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：9464001d5dc7772d8caecbc1fe14ea911015364008f6b70422b0da8a6a983763
+
+**bytes**：3553
+
+#### 146
+
+**path**：prototype/assets/css/account-tenant-forms.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：8baff4c4c41d3cacf733b339a3247c22bf971903e8129dab019650b9b2eec46f
+
+**bytes**：7920
+
+#### 147
+
+**path**：prototype/assets/css/agent-workbench.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：db2c50236081f7ed46aa96c8b70fc0cf997da7b98ff9e3a595e67180ad43795e
+
+**bytes**：40400
+
+#### 148
+
+**path**：prototype/assets/css/alicti-accounts.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：33ddd12b7d4a35138209c17feae7a93bb0341b5a6d93016f7b8730bde3606abd
+
+**bytes**：5990
+
+#### 149
+
+**path**：prototype/assets/css/alicti-contracts.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：f2fd43da4df286bdadc3bea5645f7383d49f0b732eb644d14102b00d633ad887
+
+**bytes**：745
+
+#### 150
+
+**path**：prototype/assets/css/alicti-number-import.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：3e4db05ad1ac1151f2c9272b10a55d7530435cd758b132ecbbacd7e6b92ac8ed
+
+**bytes**：1959
+
+#### 151
+
+**path**：prototype/assets/css/app.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4f38ab5f6be96777f25c31748363c83256f8703a0555a36991094716eb0a0e48
+
+**bytes**：164865
+
+#### 152
+
+**path**：prototype/assets/css/atlas-sidebar.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：babf4f49045328107abf64c8174ef1bb1ef0ea9f9f2c8b4f8a5cfd15efaf1ee3
+
+**bytes**：1681
+
+#### 153
+
+**path**：prototype/assets/css/auth-showcase.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：6a528ef7f51004fb8022aca6a1d0eb8bb2602720b384860c9894198729673e4e
+
+**bytes**：9845
+
+#### 154
+
+**path**：prototype/assets/css/business-categories.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：97ca772a2adca9bd78aa2e9c7b0b294a3702a7fec914b91d90ac4d25cdeb0082
+
+**bytes**：4986
+
+#### 155
+
+**path**：prototype/assets/css/business-issues.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：8da6c6a20c25ba930aa20791a1f6d47c3d006ab37f71853b9796802440bbe9a3
+
+**bytes**：1186
+
+#### 156
+
+**path**：prototype/assets/css/call-media.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：85931e531773f995f5f3b50ce939eb3bc5cc72ff665ea5405df3b3bb9caf773d
+
+**bytes**：6926
+
+#### 157
+
+**path**：prototype/assets/css/call-sync.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：3435fa99874621effaba95320ba02424354ecfe83865f65f416130018d80fcbd
+
+**bytes**：2896
+
+#### 158
+
+**path**：prototype/assets/css/customer-directory.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：7644e38a4650f9cd7f09567af37c6dd92f5f5eb8e3abe6a84d0c863d5d35f296
+
+**bytes**：2822
+
+#### 159
+
+**path**：prototype/assets/css/customer-followup.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：c4ff171dfc2151afe42e688320888657748ff4b6fef9769e3741801dffd691be
+
+**bytes**：2889
+
+#### 160
+
+**path**：prototype/assets/css/dcc-v1.1.0.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：75dab21b741a5d51732b1c67b2eeda0d9368affc1c8c3e9edd7fc07b98e45cc6
+
+**bytes**：21975
+
+#### 161
+
+**path**：prototype/assets/css/delivery-diagrams.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：13441c07d23e01ed7f1e6b8906db43ff3a0056c1f6f5cf0dd3fb10659e3c7168
+
+**bytes**：4708
+
+#### 162
+
+**path**：prototype/assets/css/delivery-docs.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：723ef6f97d203f9e911b7c1187af50712e8a93962f02ffa17c155673452fb3da
+
+**bytes**：3758
+
+#### 163
+
+**path**：prototype/assets/css/demo-switch.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：462e5397b52e805c5b8f2d4e866ad97faa7f9a68ad04db99f894f567f3431a66
+
+**bytes**：3029
+
+#### 164
+
+**path**：prototype/assets/css/extension-management.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：f4a25715da6a2d432c0a4bba6ea772613bbeb81b2b9e9b37b8543f6ca965e2bd
+
+**bytes**：2409
+
+#### 165
+
+**path**：prototype/assets/css/global.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：cd2247fa5742d9617356a6075404efb062b259b74d93b8f820c2cd6c23f487f2
+
+**bytes**：17394
+
+#### 166
+
+**path**：prototype/assets/css/inbound-routing.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：d06d30a8b2e53a06a7de36935fc59738e4f96ef4cc8def326678334a092029c1
+
+**bytes**：1996
+
+#### 167
+
+**path**：prototype/assets/css/legacy-drawers.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：50dc38a7e632ce734c5551b166bc3ca8e725cb5d86d04aa9ce286304a84bc3d8
+
+**bytes**：2453
+
+#### 168
+
+**path**：prototype/assets/css/number-assignment.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：7e1130aa09e03a0c0a32f1fb0d1a9e92ecbb6e0ba4e53004c51ddf8f593a144a
+
+**bytes**：2975
+
+#### 169
+
+**path**：prototype/assets/css/number-pools.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：30d6a83c669850b5d072f72a6dd6978523e531a46c9c438e5b7f7b86774f289e
+
+**bytes**：981
+
+#### 170
+
+**path**：prototype/assets/css/outbound-group-management.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：cc593127ddebefa35e3b6abbeec9a533fb3d5051352e5467db9121bab660a153
+
+**bytes**：424
+
+#### 171
+
+**path**：prototype/assets/css/queue-config.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：8ba4b3bced36fa1fff63b932e2cca4219745d1947455e35435dfc88446f9c9b9
+
+**bytes**：2707
+
+#### 172
+
+**path**：prototype/assets/css/queue-management.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：3daa9add5ea31dce8a1b1e17c49abf07e8ffc007aad612cc88e1a80975208bfc
+
+**bytes**：1171
+
+#### 173
+
+**path**：prototype/assets/css/repeat-predictive.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：f71ef07b24b4ed9d2f1c6503e30698e68df7f92752e4d07b47638594f6e4f142
+
+**bytes**：992
+
+#### 174
+
+**path**：prototype/assets/css/report-center.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：e0657a74777c01a6283633f07f69f08ad6be915b550f5e0c1241fb6f4016b4b0
+
+**bytes**：8651
+
+#### 175
+
+**path**：prototype/assets/css/resource-onboarding.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4750279e0d641bd485674e0c29bfca30d8896547ef5785bbc2279ee95655d762
+
+**bytes**：2373
+
+#### 176
+
+**path**：prototype/assets/css/resource-relations.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：ad2d095c19d09583c76e814837dba30d5cf38cfb9204de2e744da0889b58c11c
+
+**bytes**：6167
+
+#### 177
+
+**path**：prototype/assets/css/role-charts.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：1f8c95acf97e15be096e6f8e6755c68ffd2d72afbb8e742d17ce641081601a5d
+
+**bytes**：2757
+
+#### 178
+
+**path**：prototype/assets/css/seat-detail.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：7f7decf9d388558148bdd36f2138ea13e0db941e0d5e0007ede3f3e523e310a9
+
+**bytes**：4600
+
+#### 179
+
+**path**：prototype/assets/css/seat-home.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4c0e15a9af87ba755558c463fe299c3dda429fac13d7a2592d2d1af7820ebeed
+
+**bytes**：2531
+
+#### 180
+
+**path**：prototype/assets/css/secondary-navigation.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：71098866c4707ad7cf7d34ab52d653ea672193d7490d3a3be8e50c4bb879e722
+
+**bytes**：4418
+
+#### 181
+
+**path**：prototype/assets/css/system-blueprint.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4c9030c9aee4b5a6e5fb90e57a518bf1f366039b781c4f4f423ecf2613d41c03
+
+**bytes**：14074
+
+#### 182
+
+**path**：prototype/assets/css/task-create.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：470982a4d2a8145d0bb8f588632a0b8e6721d9951dfecff430968b7fb16de68a
+
+**bytes**：27126
+
+#### 183
+
+**path**：prototype/assets/css/task-retry.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：578a97c3c90908e356d9e28d6cb97a125456cd75f2943f6ebf08423c2e2e9bf8
+
+**bytes**：11419
+
+#### 184
+
+**path**：prototype/assets/css/time-condition-management.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：fca1d7e4ffb10242bb8492a42bf8725014064bb8feaf641452364ed866620a67
+
+**bytes**：3410
+
+#### 185
+
+**path**：prototype/assets/css/version-history.css
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：5d128357bb4b0750d3fd64a150a736c8704c76617874d4b465c9adc5a42756bd
+
+**bytes**：6386
+
+#### 186
+
+**path**：prototype/mock/alicti-number-status.json
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：64d549cbfd260335cfd82f461f7af92623312ab9fd083524f0371e888e4de0eb
+
+**bytes**：3236
+
+#### 187
+
+**path**：prototype/mock/call-media.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4fb2055a45370af65d38da4a74fec14076e61a3b13549042788675eae59d918b
+
+**bytes**：9912
+
+#### 188
+
+**path**：prototype/mock/ccc-support.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：d0e0bd3740c6937be960b6fad775dd9e9039c214e5d6332843f5642e7046a2cd
+
+**bytes**：6881
+
+#### 189
+
+**path**：prototype/mock/customer-followup.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：1dcb0bcf05132612ea2d355da93432915ad0178b95b4fab1db94d0ee45eac906
+
+**bytes**：391
+
+#### 190
+
+**path**：prototype/mock/customer-import.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：377f10d2834bae436bd1baac3871e43c3ce0cb87fcc2cde9e7300be2f7c2e580
+
+**bytes**：1140
+
+#### 191
+
+**path**：prototype/mock/demo-activity.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4a8c630a2f70447630f2958ee3aaf822d339b6d49338525e121fa38ff4296bbf
+
+**bytes**：23437
+
+#### 192
+
+**path**：prototype/mock/demo-install.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：63eed579189c60ee1f445c30c7d6bcbef0da98e88b77054c5d6205feb5736ce1
+
+**bytes**：2629
+
+#### 193
+
+**path**：prototype/mock/demo-media.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：f99b9a22732cb62fd9df0f65d137a28d49029ef52f3a79191ae67f9d7db86e1c
+
+**bytes**：862
+
+#### 194
+
+**path**：prototype/mock/demo-ready.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：c2b62bdda99c6647b0f034cab6090b13ce8374ccbec097d0ba902012255349b4
+
+**bytes**：417
+
+#### 195
+
+**path**：prototype/mock/demo-resources.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：ed71493afa15312a4b7d5f50cc8bc767201d5d888f6e2aaa47f181803b4d8391
+
+**bytes**：12631
+
+#### 196
+
+**path**：prototype/mock/extensions.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：848e283f1958f922cd4e4b4d927946021734a11ebbdf1d9074be0c0a88e5e8e1
+
+**bytes**：1455
+
+#### 197
+
+**path**：prototype/mock/inbound-routing.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：a0da233b4706e9f80e28a3d717e68e8c7ecd7c797850d619959ac625535c2092
+
+**bytes**：3157
+
+#### 198
+
+**path**：prototype/mock/number-onboarding.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：75cce87e551e7b431d43fa51bbf0d66df2a80bd3e775a0f5b7f97b15bf798dfe
+
+**bytes**：2529
+
+#### 199
+
+**path**：prototype/mock/number-pools.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：45118c56b5322cf50b46de4534d33f1bbf64dd0dd6e6c99d0ad371a6f4b7fac6
+
+**bytes**：1146
+
+#### 200
+
+**path**：prototype/mock/queue-resources.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：ee0b11f873661fb843cdb709df8371b0210e25e9a5d5f048003cd9a961a20f55
+
+**bytes**：4578
+
+#### 201
+
+**path**：prototype/mock/report-fixtures.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：fc3719abe44dcab7f3c634b6d53eae5259181ad26b451c3472e4ecc4b39d41a5
+
+**bytes**：5550
+
+#### 202
+
+**path**：prototype/mock/report-summaries.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：30ce6f034418c81554319b654e707b20f71ee828bb4102748db0e3e97e0e006a
+
+**bytes**：2113
+
+#### 203
+
+**path**：prototype/mock/scenario-demo.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：1fdf32393b654983835fa2c9449e41ba5ebaf2f2ae620a0d2a8616042b1ff50b
+
+**bytes**：1572
+
+#### 204
+
+**path**：prototype/mock/seat-operations.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：30b7cf3be50186cd4b7bbafd3b371cb2226f032417c21d6c570da44ffa01f8b0
+
+**bytes**：8763
+
+#### 205
+
+**path**：prototype/mock/time-conditions.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：c842c0faa650107055a33a8b87342890614530c8665cc7c47f2ae17e971414ed
+
+**bytes**：1412
+
+#### 206
+
+**path**：prototype/mock/workbench-fixtures.js
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：cb55f6f2440e830ce17de4bcd854bdac3ffef4a59d6f5a9964e914318d669e4b
+
+**bytes**：8299
+
+#### 207
+
+**path**：prototype/config/interface-sources.json
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：e868576825e3048911dc7aca752ba143283c413328e477b16024274191b773df
+
+**bytes**：679
+
+#### 208
+
+**path**：prototype/config/nav.json
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：96c4f252d464b9092e412860014e43be92328720a8c639e9644fc4fa53a82c99
+
+**bytes**：497
+
+#### 209
+
+**path**：prototype/config/project.json
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：604a7cd8727316c7c02173a7f7eaf39ab46729501f268d7f2a95ebb83ccca672
+
+**bytes**：94
+
+#### 210
+
+**path**：prototype/config/requirement-analysis.json
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：4210ac32190283057cb07c8542506d19b8f0341a766d2c104b91a816fa930021
+
+**bytes**：1550
+
+#### 211
+
+**path**：prototype/config/workflow.json
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：f7f535135bb580d1a5c77547bafbb8fa98ef61b547be8e5a015504f8dffca038
+
+**bytes**：4464
+
+#### 212
+
+**path**：prototype/memory/verification-log.md
+
+**角色**：full_prototype_local_audit_current_source_or_evidence_not_formal_freeze
+
+**sha256**：910c5412a0a972e275f292f3288bbc1a3e227003071d07269c77ec81a7bcffdd
+
+**bytes**：56483
+
+#### 213
+
+**path**：prototype/README.md
+
+**sha256**：fbc7d4ad464a1e9f699293312af080bd28c176fb8bf007dd690210404e5c5fbc
+
+**bytes**：5039
+
+**角色**：current_reading_entry_not_frozen_baseline
+
+#### 214
+
+**path**：开发交付物/1.1.0/README.md
+
+**sha256**：55c125c0177939a2278b1d019544485e566852b979f4b25c9795be1bc083535f
+
+**bytes**：8132
+
+**角色**：current_reading_entry_not_frozen_baseline
+
+#### 215
+
+**path**：prototype/memory/verification-evidence/import-assignment-status-20261016.json
+
+**sha256**：69c077060fd9c00d9bce508b80ad41e2ce7733c35ad258fc6eb39deee09632ac
+
+**bytes**：126622
+
+**角色**：SRC126_scoped_current_source_runtime_browser_evidence
 
 **global**
 
@@ -884,11 +2558,11 @@
 
 **predictive**：核当前token租户与原任务、接口初始来源；按原任务坐席组分配，不用导入工号覆盖任务坐席组。
 
-**manual**：接口人工行指定同租户有效坐席工号，保留前导零并解析准确坐席身份；导入后保存分配到既有待联系，坐席主动联系才拨号，不伪造预测taskId/fileId/root。
+**manual**：人工接口工号选填，缺省接收且不分配，有有效工号才分配云呼叫坐席；业务跟进初始未同步，未同步不计待联系或跟进已完成。本人可显式确认联系安排后联系，不据此推定DCC未联系；无预测taskId/fileId/root。
 
 **callback**：两种方式的应用来源均先配置所属应用回调地址；方式与来源是两个维度。
 
-**状态**：draft_interface_and_UI_display_boundary_not_implemented
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **独立草案操作**
 
@@ -1014,13 +2688,15 @@
 
 3. AC-101
 
-**状态**：local_synthetic_six_field_parse_save_display_source_checks_passed_browser_pending_external_ingest_and_completion_callback_not_implemented
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **来源**：需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 **completion_callback**
 
-**状态**：draft_target_not_implemented
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **交付优先级**
 
@@ -1120,6 +2796,684 @@
 
 **business_code_mapping**：按准确原租户在本次保存时配置，冻结已填写字段的业务编码和值，单选/多选还带全部所选选项业务编码与值；不以中文标签或内部ID兜底。后续改配置不改原快照，历史缺码回调资料待完善且本地保存保留，不加运营编码输入。
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**客户档案局部归集**
+
+**标识**：UI-LOCAL-CUSTOMER-ARCHIVE-20261014
+
+**change_kind**：existing_archive_integration_defect_repair_not_new_product_scope
+
+**actual_user_request**：修复客户档案的问题
+
+**说明**：现有客户档案接入新版预外呼任务API及手工导入账本：同企业、同租户、同归一号码归一档案，保留每次已授权导入和准确实际通话的独立明细。
+
+**证据**
+
+1. prototype/memory/verification-evidence/customer-directory-ledger-repair-20261014.json
+
+**来源文件**：prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js, prototype/index.html, prototype/memory/verification-evidence/customer-directory-ledger-list-20261014.png, prototype/memory/verification-evidence/customer-directory-ledger-detail-20261014.png
+
+**实现状态**：local_synthetic_read_only_projection_scoped_verified_real_backend_not_implemented_or_verified
+
+**档案归组范围**
+
+1. enterpriseId
+
+2. tenantId
+
+3. normalizedPhone
+
+**只读归集**：True
+
+**是否改写原账本**：False
+
+**business_records_and_calls_merged_by_phone**：False
+
+**原回调归属保留**：True
+
+**原业务记录身份**：导入明细保持原recordId、应用/来源、企业/租户、requestId、task、leadCode、businessType和已保存的平台/根批次以及六项来源资料；原业务批次号如已保存也保留，不因归一客户档案重算或替换。当前接口业务批次号完整实现仍待，不能据此视作补齐。
+
+**已实现**
+
+1. 已有效保存的新版任务API及手工记录即使尚未拨号也进入已有客户档案；旧手工名单与新来源同号码在同企业/租户范围内归一，其他企业及租户仍分开。
+
+2. 档案只读取原账本形成临时投影，不将新导入/结果复制到旧名单或全局通话存储；原record/来源应用/线索/任务/批次/类型及本次六项资料独立保留，不以同号码最新资料覆盖。
+
+3. 仅已存在且可精确关联的客观call进入联系历史；受理、导入数及无话单失败不合造成呼叫。重复稳定call不重复统计，未知接通/时长保留未知，接收时间不充当实际联系时间。
+
+4. 主管/管理员沿现有企业/租户授权读取；坐席只可查看明确本人分配记录或实际已确认本人通话，任务可见或相同手机号不自动扩大其客户及其他坐席通话权限。
+
+5. 现有客户档案导入明细打开准确原record详情，联系历史打开准确task/result详情，并逐次复核身份、租户、任务与原记录；从任务客户详情可进入同一档案。归集上下文下详情保持只读，不绕过任务管理权限。
+
+6. 跨页刷新读取已保存账本；损坏/歧义记录保留原数据并提示，拒绝猜测归属，不清空或修复写回原账本。
+
+7. 历史有效的新账本记录缺少单存企业字段时，仅在原tenant/task/supplier标识精确匹配已授权可信任务上下文后只读解析；缺少或冲突不归集，不按号码或最近任务猜配，不迁移写回旧记录。首次进入与跨页任务目录读取不依赖先打开任务页。
+
+8. 已删除任务优先读取独立保存的删除状态，不因兼容索引或旧页面目录复活；结果有显式supplierTaskId时须与准确原任务一致，冲突拒绝。
+
+**verification**
+
+**source_checks_passed**：48
+
+**source_checks_failed**：0
+
+**source_result**：pass_scoped_vm_and_targeted_browser
+
+**independent_permission_checks_passed**：22
+
+**independent_permission_review_status**：pass_scoped_no_new_blocking_findings
+
+**browser_status**：pass_targeted_browser
+
+**browser_scope**：1280x720现有手工任务的档案进入/同号两次导入零通话/准确导入和call详情/返回同档案及时间显示；最终源码刷新仍20客户、无warning/errors。API导入及权限反例由VM覆盖，浏览器未构造外部API或攻击请求。
+
+**observation_history**：证据保留首次仅9客户的失败、只读旧数据兼容修正、2项最后守卫复核及各浏览器观察source hash；详细VM/独立反例与截图指纹以证据正文为准。
+
+**验证边界**
+
+1. 此为既有前端客户档案的局部合成整合修复，不新增AC/FUNC/PAGE/规则或调整主子批、幂等、失败额度、调用和回调路由。
+
+2. 真实后端客户实体/授权查询/数据库索引及一致性归集仍待工程实现与验证；本次不证明生产分库或后端已部署。
+
+3. 完整人工外呼导入接口、业务批次号协议、已完成沟通可靠快照及真实回调仍未因本修复完成。
+
+4. 整版104条验收与02全局/三宽度验证未执行；正式门禁、风险未决与真实调用关闭保持。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**四处断点的局部修复**
+
+**标识**：UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**change_kind**：user_reported_defect_repair_and_manual_list_capability_restoration
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**证据**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**来源文件**：prototype/index.html, prototype/js/components/alicti-task-control.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js
+
+**实现状态**：local_synthetic_scoped_verified_production_not_verified
+
+**已核对行为**
+
+#### ARCHIVE
+
+**标识**：ARCHIVE
+
+**状态**：existing_repair_reverified
+
+**行为**：API和手工任务的已保存客户在统一客户档案按当前权限查询，未拨号也可见；原业务记录和准确通话独立保留。
+
+#### SCHEDULE
+
+**标识**：SCHEDULE
+
+**状态**：implemented_local_synthetic
+
+**行为**：页面运行或恢复时检查已保存定时任务，到点后重新核名单、权限、时间条件和坐席资源，仅记录一次首启；暂停、终止、未受理名单和保存失败不越过。
+
+**生产验证边界**：供应商autoStart字段已存在；本次只补静态演示首启，不承诺浏览器关闭时执行，不新增生产平台调度器。
+
+#### WIZARD
+
+**标识**：WIZARD
+
+**状态**：restored_manual_source_with_explicit_field_confirmation
+
+**行为**：手工来源在创建向导选择原未分配名单，明确确认线索编码、优先级、业务类型和本次批次名；转换为本版导入记录并保留原行来源。接口来源仍由业务系统导入，不能混入手工名单。
+
+**范围说明**：按本次用户报告恢复既有选择能力；这与先前仅来源选择的实现不同，不改历史冻结源或自动补盖G1/G2/G3。
+
+#### FAILURE-RETRY
+
+**标识**：FAILURE-RETRY
+
+**状态**：implemented_local_synthetic
+
+**行为**：运营商禁呼、运营商限呼、外呼黑名单三类从确认失败起120秒自动补提交；其余八类人工。按租户＋原任务＋线索＋固定号码共享首次外最多2次，不随主批、原因或重新导入重置。
+
+**未知尝试规则**：实际发起后结果未知保留原尝试和占用，停止盲发；待执行计划不等于已提交。
+
+**秒挂规则**：准确秒挂显式禁止平台补提交，不创建等待计划或消耗次数。
+
+**结果补送边界**：业务系统结果补送只重新交付原结果，不提交AliCti，不消耗失败补提交次数。
+
+**生产验证边界**：供应商导航降级、原生重呼互斥、实际返回关联和生产并发可靠性仍待核实；合成确认不能替代真实联调。
+
+**验证边界**
+
+1. 只在现有唯一prototype中修复本地合成行为，不是生产后端实现或全部104条验收通过。
+
+2. 定时启动按浏览器本地时间；页面关闭不执行，重开再核条件。不将本地首启当作AliCti真实启动确认。
+
+3. 供应商导航降级、原生重呼互斥、真实fileId及回调契约、生产并发/崩溃恢复仍待真实工程与联调证据。
+
+4. 现行需求和历史冻结源未改写；手工名单能力按本次用户报告恢复，不自动推进正式G1/G2/G3。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**full_prototype_local_audit**
+
+**标识**：UI-LOCAL-FULL-AUDIT-20261015
+
+**as_of**：2026-10-15
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**来源文件**：prototype/js/alicti-storage.js, prototype/js/app.js, prototype/js/common.js, prototype/js/components/account-seat.js, prototype/js/components/account-tenant-forms.js, prototype/js/components/alicti-accounts.js, prototype/js/components/alicti-adapter.js, prototype/js/components/alicti-contract-panel.js, prototype/js/components/alicti-demo.js, prototype/js/components/alicti-extensions.js, prototype/js/components/alicti-fields.js, prototype/js/components/alicti-inbound.js, prototype/js/components/alicti-ivr.js, prototype/js/components/alicti-number-import.js, prototype/js/components/alicti-number-pools.js, prototype/js/components/alicti-number-status.js, prototype/js/components/alicti-queue-contracts.js, prototype/js/components/alicti-queues.js, prototype/js/components/alicti-receiving.js, prototype/js/components/alicti-report-facts.js, prototype/js/components/alicti-report-summary.js, prototype/js/components/alicti-retry-editor.js, prototype/js/components/alicti-retry.js, prototype/js/components/alicti-seat-import.js, prototype/js/components/alicti-seat-operations.js, prototype/js/components/alicti-task-control.js, prototype/js/components/alicti-task-update.js, prototype/js/components/alicti-time-conditions.js, prototype/js/components/business-issues.js, prototype/js/components/call-data-issues.js, prototype/js/components/call-data-sync.js, prototype/js/components/call-media.js, prototype/js/components/call-state.js, prototype/js/components/customer-business.js, prototype/js/components/customer-directory.js, prototype/js/components/customer-followup.js, prototype/js/components/dcc-records.js, prototype/js/components/dcc-runtime.js, prototype/js/components/demo-switch.js, prototype/js/components/lead-report.js, prototype/js/components/manual-skill-access.js, prototype/js/components/number-import-history.js, prototype/js/components/outbound-groups.js, prototype/js/components/platform-ui.js, prototype/js/components/queue-config.js, prototype/js/components/queue-detail.js, prototype/js/components/repeat-predictive.js, prototype/js/components/report-data.js, prototype/js/components/report-metrics.js, prototype/js/components/resource-rules.js, prototype/js/components/role-charts.js, prototype/js/components/role-focus.js, prototype/js/components/seat-event-log.js, prototype/js/components/seat-operation-ui.js, prototype/js/components/seat-phone-config.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/tenant-call-monitor.js, prototype/js/components/tenant-supervisor-policy.js, prototype/js/components/workbench-overview.js, prototype/js/delivery-nav.js, prototype/js/documentation-nav.js, prototype/js/nav.js, prototype/js/pages/account-tenant.js, prototype/js/pages/agent-center.js, prototype/js/pages/agent-workbench.js, prototype/js/pages/alicti-accounts.js, prototype/js/pages/application-access.js, prototype/js/pages/business-categories.js, prototype/js/pages/cloud-call-records.js, prototype/js/pages/cloud-call-tasks.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/contact-center-settings.js, prototype/js/pages/customer-demo.js, prototype/js/pages/customer-directory.js, prototype/js/pages/customer-tasks.js, prototype/js/pages/extension-management.js, prototype/js/pages/home.js, prototype/js/pages/inbound-routing.js, prototype/js/pages/number-pool-management.js, prototype/js/pages/operations-monitor.js, prototype/js/pages/outbound-group-management.js, prototype/js/pages/queue-management.js, prototype/js/pages/report-center.js, prototype/js/pages/resource-lines.js, prototype/js/pages/scenario-demo.js, prototype/js/pages/scenario-readiness.js, prototype/js/pages/system-center.js, prototype/js/pages/time-condition-management.js, prototype/js/review-view-cache.js, prototype/js/version-nav.js, prototype/assets/css/account-seat.css, prototype/assets/css/account-tenant-forms.css, prototype/assets/css/agent-workbench.css, prototype/assets/css/alicti-accounts.css, prototype/assets/css/alicti-contracts.css, prototype/assets/css/alicti-number-import.css, prototype/assets/css/app.css, prototype/assets/css/atlas-sidebar.css, prototype/assets/css/auth-showcase.css, prototype/assets/css/business-categories.css, prototype/assets/css/business-issues.css, prototype/assets/css/call-media.css, prototype/assets/css/call-sync.css, prototype/assets/css/customer-directory.css, prototype/assets/css/customer-followup.css, prototype/assets/css/dcc-v1.1.0.css, prototype/assets/css/delivery-diagrams.css, prototype/assets/css/delivery-docs.css, prototype/assets/css/demo-switch.css, prototype/assets/css/extension-management.css, prototype/assets/css/global.css, prototype/assets/css/inbound-routing.css, prototype/assets/css/legacy-drawers.css, prototype/assets/css/number-assignment.css, prototype/assets/css/number-pools.css, prototype/assets/css/outbound-group-management.css, prototype/assets/css/queue-config.css, prototype/assets/css/queue-management.css, prototype/assets/css/repeat-predictive.css, prototype/assets/css/report-center.css, prototype/assets/css/resource-onboarding.css, prototype/assets/css/resource-relations.css, prototype/assets/css/role-charts.css, prototype/assets/css/seat-detail.css, prototype/assets/css/seat-home.css, prototype/assets/css/secondary-navigation.css, prototype/assets/css/system-blueprint.css, prototype/assets/css/task-create.css, prototype/assets/css/task-retry.css, prototype/assets/css/time-condition-management.css, prototype/assets/css/version-history.css, prototype/mock/alicti-number-status.json, prototype/mock/call-media.js, prototype/mock/ccc-support.js, prototype/mock/customer-followup.js, prototype/mock/customer-import.js, prototype/mock/data.js, prototype/mock/dcc-v1.1.0.js, prototype/mock/demo-activity.js, prototype/mock/demo-compact.js, prototype/mock/demo-install.js, prototype/mock/demo-kit.js, prototype/mock/demo-media.js, prototype/mock/demo-ready.js, prototype/mock/demo-resources.js, prototype/mock/extensions.js, prototype/mock/inbound-routing.js, prototype/mock/number-onboarding.js, prototype/mock/number-pools.js, prototype/mock/queue-resources.js, prototype/mock/report-fixtures.js, prototype/mock/report-summaries.js, prototype/mock/scenario-demo.js, prototype/mock/seat-operations.js, prototype/mock/time-conditions.js, prototype/mock/workbench-fixtures.js, prototype/config/interface-sources.json, prototype/config/nav.json, prototype/config/project.json, prototype/config/requirement-analysis.json, prototype/config/workflow.json, prototype/index.html
+
+**source_hashes**
+
+**prototype/js/alicti-storage.js**：4f641b823a400193df6e34b0773a450cf1674993b06f3c0e901e7243e65cf5e3
+
+**prototype/js/app.js**：3d72f5d0b1420a78e99792b72f463a083d9d45773d794aa0f25a364dc190cc42
+
+**prototype/js/common.js**：5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1
+
+**prototype/js/components/account-seat.js**：75220eadba6507751785373aba88920ea45b6c3e6949c97a051e42599cd4e8f0
+
+**prototype/js/components/account-tenant-forms.js**：aaac281e865ba95a2603aa48275ebc1b3891f9b544199d2cbf94aa4f625d52fd
+
+**prototype/js/components/alicti-accounts.js**：7c6992609817a9d6042e93897e5a77a4e9455f08cfff0c737eb9298d168ce240
+
+**prototype/js/components/alicti-adapter.js**：505b5c1239996b89713b289a2295f4a8d642d3f7af78d71c7891b80f584dd32b
+
+**prototype/js/components/alicti-contract-panel.js**：dc51877e8572daf7cef0cb958298673e5c655824f761e78b638a69101f3b2d83
+
+**prototype/js/components/alicti-demo.js**：44eacacad4d29d7735c3da6569e70ce981d99f98df6918c0de4328262bd2c825
+
+**prototype/js/components/alicti-extensions.js**：f95d14f9ff0b7a54a18ff21617ebcc0a5aed6dca4eebbe29a68ae053b8b5dc88
+
+**prototype/js/components/alicti-fields.js**：eaaa5fe33c9a628df28944cc09f77b4e6fde3c8aba5875fb808fdaf36fdfdbf8
+
+**prototype/js/components/alicti-inbound.js**：04c6f14738a8f54ff6a79c2e747c2b997c61e53c80f7cbccd23e611e4f3a1fdf
+
+**prototype/js/components/alicti-ivr.js**：12a03334a1fd5673704f49eeefff7693a5656693edb391c1c56b594b10fe83b0
+
+**prototype/js/components/alicti-number-import.js**：a9224f433577c866d515c2e696c56a28b025d97b5d215e12db716393091b38f0
+
+**prototype/js/components/alicti-number-pools.js**：9559a8eef834fe756585ed534e01568f74293ee58616a3409a6c9805a8be245f
+
+**prototype/js/components/alicti-number-status.js**：e364f8b5cfb31ecf34dc48635d69dd7ac754b7a24faea7158d3d929160762226
+
+**prototype/js/components/alicti-queue-contracts.js**：a68c84e4fe6c4be0617522af3786cd0049bdb603140ca6af6e227aa3fb9d0670
+
+**prototype/js/components/alicti-queues.js**：f193197371653caf3b5ff3c00182a38e244b6061fe6d37d63e584c16e4408a3a
+
+**prototype/js/components/alicti-receiving.js**：81a236706882bc9c173479a87787871ebdeae3923c5607210c9cbb87c187fd63
+
+**prototype/js/components/alicti-report-facts.js**：f27aaaa52b00d5999ee0302c09a3d42903bf4daa03a324a00deb3c409e412569
+
+**prototype/js/components/alicti-report-summary.js**：e3a3f85be0cac69868b46bc597bd5aa0f424e89443e27d0f23681fd8de50c3ae
+
+**prototype/js/components/alicti-retry-editor.js**：29a75a2035f0dcac125e845f6f28fea228a8e1cd3308857e05ecc03ab3fef899
+
+**prototype/js/components/alicti-retry.js**：9ffa65434a8e472585abfec13aba1755f95df5f434001e38d01890b9228070ff
+
+**prototype/js/components/alicti-seat-import.js**：ef3dde051891bceccfef52f13dbfe1de40984c0beb5479a8f7987680879beb02
+
+**prototype/js/components/alicti-seat-operations.js**：c4594bd50d2b684c9733fe5a02f21e8f5d105d2176e745ce1b30b59151083795
+
+**prototype/js/components/alicti-task-control.js**：8e0db16ff0a45233578c50d1fc603ab5a5526d448bd475965e31a944a7a6bad3
+
+**prototype/js/components/alicti-task-update.js**：8c21c7af888c89aab1e01a711b682fc1f001b659394ade40aebe2c86585d4e55
+
+**prototype/js/components/alicti-time-conditions.js**：31e6746e6f3f40555ef0501eb6015ad895d8c75bad2474a0f9f6a54a41fe485e
+
+**prototype/js/components/business-issues.js**：a37de59bd5ae150018d92f4d91475eefbbf7b9d0edd6b08cdf3d45076ccfad36
+
+**prototype/js/components/call-data-issues.js**：f7824a20b94601c71426786f2a6456db0a33166ba5b34c89ed23bfa3a7534dee
+
+**prototype/js/components/call-data-sync.js**：4c36be5b85b48080c9dfa65d0f89e60a685f97a785b79e10350927d66f628030
+
+**prototype/js/components/call-media.js**：ec61f9eb77d4b99088a46bd9fd8063cc1de069e835f76baefae4f5f25b0cd17d
+
+**prototype/js/components/call-state.js**：93048ccfe263df33cee3262a7bd903ce887aa46829f9123cb1da3a9839c0a0df
+
+**prototype/js/components/customer-business.js**：dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b
+
+**prototype/js/components/customer-directory.js**：f9afe74e6637aa983355d0e9bb10d6387bcafca18c2791ac3084e5542cd60707
+
+**prototype/js/components/customer-followup.js**：c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9
+
+**prototype/js/components/dcc-records.js**：b641fab35db57426fa69ba5e629b9d3c4098ef49f349eb171eb93181106f1712
+
+**prototype/js/components/dcc-runtime.js**：3fc26ebfaf7e93a5e2b19ddc9063a52d47ed28d562b530d0ac266676e4482993
+
+**prototype/js/components/demo-switch.js**：dbbf9c50f6934e3d4a812c2c71c0e3d85af292231aa2421a46bd51fdb06b8ae5
+
+**prototype/js/components/lead-report.js**：56b435d045bd817274aaed37fe203d303d41a86227ab18e6c8eb840efaf178c0
+
+**prototype/js/components/manual-skill-access.js**：a3520428d91163a4b8664d4eacf10ca8cdfea911d257e83dc26e3887e53a3a8f
+
+**prototype/js/components/number-import-history.js**：ab88f25625bf5763a5bdaabd36c7c84f832d3dd245a0c1493cfe65e6f09b523a
+
+**prototype/js/components/outbound-groups.js**：c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520
+
+**prototype/js/components/platform-ui.js**：5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2
+
+**prototype/js/components/queue-config.js**：412b78d3f4ce6e34e780de9e4d0705f1c2f05f5985ef6a40a8a230c5bfd04f28
+
+**prototype/js/components/queue-detail.js**：c27cbb5353ffb6099f92d1fdf1c000cf67cfa2496106187d2535e2537367171b
+
+**prototype/js/components/repeat-predictive.js**：2f6bd7906b0ab70eb6d644e93208df5ef9a9a9278ecff34dc4356c3dc4af979c
+
+**prototype/js/components/report-data.js**：7619f556705c174845de56b24c1a21c11af5f973bf71c89cb50d951f4b5391f6
+
+**prototype/js/components/report-metrics.js**：4974c6a13bba80b82f6c9a501b5b5e3ab78d693a572b8e9ce8f978158b6da0be
+
+**prototype/js/components/resource-rules.js**：b4667756955fe8f03a5ee95daea99e19589bfb1de774f299de75a9b8b1f768ca
+
+**prototype/js/components/role-charts.js**：d22f69c0b2b5c53113c4f3f214e47384b060c68cf50083fc38820a68585824ac
+
+**prototype/js/components/role-focus.js**：86787b6ddd3dc31937c46a61a2c690f1155de116d2e240dcdb26b94194d63763
+
+**prototype/js/components/seat-event-log.js**：da870a05d0a48945803c45f72e1b6181c794f08a4f3cda21bc5c99b3a42d99be
+
+**prototype/js/components/seat-operation-ui.js**：0d065f566fac31d0176bc98ffa489c4b392124098e64bb07502ee31c7c31de8f
+
+**prototype/js/components/seat-phone-config.js**：bda324e0aeb723a3a0ab6a9b0e95e7a84abfa836c9d0cdadbb4dcfb79d95e44a
+
+**prototype/js/components/task-schedule-runtime.js**：16f0c818df617e2a9775ccf2a04c4881015d5808fd25ab639d1d54593db6c3ca
+
+**prototype/js/components/tenant-call-monitor.js**：be12fd16c4190b6f46f9f0aabdd5b7d2f25bb32481c4ae314eb833c517a91b34
+
+**prototype/js/components/tenant-supervisor-policy.js**：8cb7cd48d814fec3453ae9d41f9449aa555dcfac373d731a680acb0639732359
+
+**prototype/js/components/workbench-overview.js**：7be8712f23cf1396895e2bd24c34bbb709139f3d257f4dfe19f9ed3aaa46df4f
+
+**prototype/js/delivery-nav.js**：2c52b5dca34d3a68fd4fa86fcde0e0ec7aa3e092db3fc7766b69773680b75a3f
+
+**prototype/js/documentation-nav.js**：ac5def2bd50e5128420e446585e5489502c6ba5f27362c960b6733d089b852aa
+
+**prototype/js/nav.js**：995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b
+
+**prototype/js/pages/account-tenant.js**：341bf42b8be5b9a21391b7a742947a02982bba19aa8850f5567c5a64cc35edb2
+
+**prototype/js/pages/agent-center.js**：e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e
+
+**prototype/js/pages/agent-workbench.js**：45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3
+
+**prototype/js/pages/alicti-accounts.js**：71c5ae8b9a8f117a7f52cb36d729e5476f960a12e6ea34092e18ce62d0670f61
+
+**prototype/js/pages/application-access.js**：497cf1c7f4bf852618eeec22abd50d96654b055c09782f5f9e88b0ea1bf34922
+
+**prototype/js/pages/business-categories.js**：addb6fc38834d414609d9a21a874ea59f96bd82203d039c2b1c0823deaf2e463
+
+**prototype/js/pages/cloud-call-records.js**：1d92bb56bfd0e3263d287ec12ae78053dc15a0588ff1c4709b4dacbf27104cce
+
+**prototype/js/pages/cloud-call-tasks.js**：01808700b27c1509b490568590d99e420e333c2b9d22e9f6cf29c0c84dcc9300
+
+**prototype/js/pages/cloud-task-workspace.js**：4e1361c4a82b098039c71a5e3ee4c93fbf852d95d1446b1a5e40c877d55a5488
+
+**prototype/js/pages/contact-center-settings.js**：b70d9a9eb689f9112284d6903458d63075560f15df9b0457b2e55d4a0e8e24a6
+
+**prototype/js/pages/customer-demo.js**：1616eec112234cd0b37b7aba8f21c8f175b2b3bf926da90b480ed0e1f7dc47b3
+
+**prototype/js/pages/customer-directory.js**：5f1ffb739d4801d49802eb53c884e1d6833cadd11a2d61633e3db7fd35b895c2
+
+**prototype/js/pages/customer-tasks.js**：a42137862b5a1ae7619d52218874876592dd1088f70ecabd04a48eb6f6d32775
+
+**prototype/js/pages/extension-management.js**：588d123344d5666bfca172b93220e2e10e2848bf6d5bba3be133ad76c26207d7
+
+**prototype/js/pages/home.js**：77e2f34c43955287b5babeaf33baecebed6ee57995c8c4416a58a923a0a0f8cb
+
+**prototype/js/pages/inbound-routing.js**：fc1c9bd0bce959501b44b66c5facc9dd9c9e17aa49b815f236284fab9e4f40f4
+
+**prototype/js/pages/number-pool-management.js**：d6cd4b0b995b590bed8629326ec27ca9296c2430f6124a332ef46474885f537a
+
+**prototype/js/pages/operations-monitor.js**：faad3ad2fca61d62d6749694e26870cd43708df90f25cdf9b79a343c7161fa2d
+
+**prototype/js/pages/outbound-group-management.js**：0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02
+
+**prototype/js/pages/queue-management.js**：77ec5107da644326566c56be697dbe2318e474081c7b36410e152bffceb2263f
+
+**prototype/js/pages/report-center.js**：7648bb4223d562826659570f3931d07bf0d74aee75a205cf2a6648a535029f08
+
+**prototype/js/pages/resource-lines.js**：d68a6e106985af44a7a5310ab4f8bc41cc8d98b69c0cf4444c03953c29bc351a
+
+**prototype/js/pages/scenario-demo.js**：b5b666cf10e1628b4ac85e2957344f6fde7190a08184c93a075544c0cefd7723
+
+**prototype/js/pages/scenario-readiness.js**：339e26e4c53e2ea7ee3aae5a95e7c09201b23d656bb04b2a8fd928a36f442b5b
+
+**prototype/js/pages/system-center.js**：acece8536ed1812d90f8fc4a1ef76d2db996863c06ec30b1e857b38b39afe58f
+
+**prototype/js/pages/time-condition-management.js**：b319d1e521387e38e21b54e1c0fb2aa7f50f3054370a25316c1488b16d6c0bb5
+
+**prototype/js/review-view-cache.js**：70d270b31dd7e1437e9540498762b9819a6c2e7d06935a00b9cfc055ad472571
+
+**prototype/js/version-nav.js**：6a2912e748e9fca7d01a0134f52b9de509ae56b9ef1e707e7225a2859efc1b79
+
+**prototype/assets/css/account-seat.css**：9464001d5dc7772d8caecbc1fe14ea911015364008f6b70422b0da8a6a983763
+
+**prototype/assets/css/account-tenant-forms.css**：8baff4c4c41d3cacf733b339a3247c22bf971903e8129dab019650b9b2eec46f
+
+**prototype/assets/css/agent-workbench.css**：db2c50236081f7ed46aa96c8b70fc0cf997da7b98ff9e3a595e67180ad43795e
+
+**prototype/assets/css/alicti-accounts.css**：33ddd12b7d4a35138209c17feae7a93bb0341b5a6d93016f7b8730bde3606abd
+
+**prototype/assets/css/alicti-contracts.css**：f2fd43da4df286bdadc3bea5645f7383d49f0b732eb644d14102b00d633ad887
+
+**prototype/assets/css/alicti-number-import.css**：3e4db05ad1ac1151f2c9272b10a55d7530435cd758b132ecbbacd7e6b92ac8ed
+
+**prototype/assets/css/app.css**：4f38ab5f6be96777f25c31748363c83256f8703a0555a36991094716eb0a0e48
+
+**prototype/assets/css/atlas-sidebar.css**：babf4f49045328107abf64c8174ef1bb1ef0ea9f9f2c8b4f8a5cfd15efaf1ee3
+
+**prototype/assets/css/auth-showcase.css**：6a528ef7f51004fb8022aca6a1d0eb8bb2602720b384860c9894198729673e4e
+
+**prototype/assets/css/business-categories.css**：97ca772a2adca9bd78aa2e9c7b0b294a3702a7fec914b91d90ac4d25cdeb0082
+
+**prototype/assets/css/business-issues.css**：8da6c6a20c25ba930aa20791a1f6d47c3d006ab37f71853b9796802440bbe9a3
+
+**prototype/assets/css/call-media.css**：85931e531773f995f5f3b50ce939eb3bc5cc72ff665ea5405df3b3bb9caf773d
+
+**prototype/assets/css/call-sync.css**：3435fa99874621effaba95320ba02424354ecfe83865f65f416130018d80fcbd
+
+**prototype/assets/css/customer-directory.css**：7644e38a4650f9cd7f09567af37c6dd92f5f5eb8e3abe6a84d0c863d5d35f296
+
+**prototype/assets/css/customer-followup.css**：c4ff171dfc2151afe42e688320888657748ff4b6fef9769e3741801dffd691be
+
+**prototype/assets/css/dcc-v1.1.0.css**：75dab21b741a5d51732b1c67b2eeda0d9368affc1c8c3e9edd7fc07b98e45cc6
+
+**prototype/assets/css/delivery-diagrams.css**：13441c07d23e01ed7f1e6b8906db43ff3a0056c1f6f5cf0dd3fb10659e3c7168
+
+**prototype/assets/css/delivery-docs.css**：723ef6f97d203f9e911b7c1187af50712e8a93962f02ffa17c155673452fb3da
+
+**prototype/assets/css/demo-switch.css**：462e5397b52e805c5b8f2d4e866ad97faa7f9a68ad04db99f894f567f3431a66
+
+**prototype/assets/css/extension-management.css**：f4a25715da6a2d432c0a4bba6ea772613bbeb81b2b9e9b37b8543f6ca965e2bd
+
+**prototype/assets/css/global.css**：cd2247fa5742d9617356a6075404efb062b259b74d93b8f820c2cd6c23f487f2
+
+**prototype/assets/css/inbound-routing.css**：d06d30a8b2e53a06a7de36935fc59738e4f96ef4cc8def326678334a092029c1
+
+**prototype/assets/css/legacy-drawers.css**：50dc38a7e632ce734c5551b166bc3ca8e725cb5d86d04aa9ce286304a84bc3d8
+
+**prototype/assets/css/number-assignment.css**：7e1130aa09e03a0c0a32f1fb0d1a9e92ecbb6e0ba4e53004c51ddf8f593a144a
+
+**prototype/assets/css/number-pools.css**：30d6a83c669850b5d072f72a6dd6978523e531a46c9c438e5b7f7b86774f289e
+
+**prototype/assets/css/outbound-group-management.css**：cc593127ddebefa35e3b6abbeec9a533fb3d5051352e5467db9121bab660a153
+
+**prototype/assets/css/queue-config.css**：8ba4b3bced36fa1fff63b932e2cca4219745d1947455e35435dfc88446f9c9b9
+
+**prototype/assets/css/queue-management.css**：3daa9add5ea31dce8a1b1e17c49abf07e8ffc007aad612cc88e1a80975208bfc
+
+**prototype/assets/css/repeat-predictive.css**：f71ef07b24b4ed9d2f1c6503e30698e68df7f92752e4d07b47638594f6e4f142
+
+**prototype/assets/css/report-center.css**：e0657a74777c01a6283633f07f69f08ad6be915b550f5e0c1241fb6f4016b4b0
+
+**prototype/assets/css/resource-onboarding.css**：4750279e0d641bd485674e0c29bfca30d8896547ef5785bbc2279ee95655d762
+
+**prototype/assets/css/resource-relations.css**：ad2d095c19d09583c76e814837dba30d5cf38cfb9204de2e744da0889b58c11c
+
+**prototype/assets/css/role-charts.css**：1f8c95acf97e15be096e6f8e6755c68ffd2d72afbb8e742d17ce641081601a5d
+
+**prototype/assets/css/seat-detail.css**：7f7decf9d388558148bdd36f2138ea13e0db941e0d5e0007ede3f3e523e310a9
+
+**prototype/assets/css/seat-home.css**：4c0e15a9af87ba755558c463fe299c3dda429fac13d7a2592d2d1af7820ebeed
+
+**prototype/assets/css/secondary-navigation.css**：71098866c4707ad7cf7d34ab52d653ea672193d7490d3a3be8e50c4bb879e722
+
+**prototype/assets/css/system-blueprint.css**：4c9030c9aee4b5a6e5fb90e57a518bf1f366039b781c4f4f423ecf2613d41c03
+
+**prototype/assets/css/task-create.css**：470982a4d2a8145d0bb8f588632a0b8e6721d9951dfecff430968b7fb16de68a
+
+**prototype/assets/css/task-retry.css**：578a97c3c90908e356d9e28d6cb97a125456cd75f2943f6ebf08423c2e2e9bf8
+
+**prototype/assets/css/time-condition-management.css**：fca1d7e4ffb10242bb8492a42bf8725014064bb8feaf641452364ed866620a67
+
+**prototype/assets/css/version-history.css**：5d128357bb4b0750d3fd64a150a736c8704c76617874d4b465c9adc5a42756bd
+
+**prototype/mock/alicti-number-status.json**：64d549cbfd260335cfd82f461f7af92623312ab9fd083524f0371e888e4de0eb
+
+**prototype/mock/call-media.js**：4fb2055a45370af65d38da4a74fec14076e61a3b13549042788675eae59d918b
+
+**prototype/mock/ccc-support.js**：d0e0bd3740c6937be960b6fad775dd9e9039c214e5d6332843f5642e7046a2cd
+
+**prototype/mock/customer-followup.js**：1dcb0bcf05132612ea2d355da93432915ad0178b95b4fab1db94d0ee45eac906
+
+**prototype/mock/customer-import.js**：377f10d2834bae436bd1baac3871e43c3ce0cb87fcc2cde9e7300be2f7c2e580
+
+**prototype/mock/data.js**：22fa116694fd3a46f6a6d38e4cb1da90e2c471183a81b5039bc2d200788c3bce
+
+**prototype/mock/dcc-v1.1.0.js**：c06080417cd05562087bb01dc92a62c20f88b4d472de66f66cff6adefd910d24
+
+**prototype/mock/demo-activity.js**：4a8c630a2f70447630f2958ee3aaf822d339b6d49338525e121fa38ff4296bbf
+
+**prototype/mock/demo-compact.js**：b1dcd4163ff12f9e73d942b8e95a94a9131ae9726135d626d9e07b4a8fb940f9
+
+**prototype/mock/demo-install.js**：63eed579189c60ee1f445c30c7d6bcbef0da98e88b77054c5d6205feb5736ce1
+
+**prototype/mock/demo-kit.js**：2d8ccb8d321eb60e5d53d06309067c3c075a10e525b2eb38d4c13f5e4ca576b6
+
+**prototype/mock/demo-media.js**：f99b9a22732cb62fd9df0f65d137a28d49029ef52f3a79191ae67f9d7db86e1c
+
+**prototype/mock/demo-ready.js**：c2b62bdda99c6647b0f034cab6090b13ce8374ccbec097d0ba902012255349b4
+
+**prototype/mock/demo-resources.js**：ed71493afa15312a4b7d5f50cc8bc767201d5d888f6e2aaa47f181803b4d8391
+
+**prototype/mock/extensions.js**：848e283f1958f922cd4e4b4d927946021734a11ebbdf1d9074be0c0a88e5e8e1
+
+**prototype/mock/inbound-routing.js**：a0da233b4706e9f80e28a3d717e68e8c7ecd7c797850d619959ac625535c2092
+
+**prototype/mock/number-onboarding.js**：75cce87e551e7b431d43fa51bbf0d66df2a80bd3e775a0f5b7f97b15bf798dfe
+
+**prototype/mock/number-pools.js**：45118c56b5322cf50b46de4534d33f1bbf64dd0dd6e6c99d0ad371a6f4b7fac6
+
+**prototype/mock/queue-resources.js**：ee0b11f873661fb843cdb709df8371b0210e25e9a5d5f048003cd9a961a20f55
+
+**prototype/mock/report-fixtures.js**：fc3719abe44dcab7f3c634b6d53eae5259181ad26b451c3472e4ecc4b39d41a5
+
+**prototype/mock/report-summaries.js**：30ce6f034418c81554319b654e707b20f71ee828bb4102748db0e3e97e0e006a
+
+**prototype/mock/scenario-demo.js**：1fdf32393b654983835fa2c9449e41ba5ebaf2f2ae620a0d2a8616042b1ff50b
+
+**prototype/mock/seat-operations.js**：30b7cf3be50186cd4b7bbafd3b371cb2226f032417c21d6c570da44ffa01f8b0
+
+**prototype/mock/time-conditions.js**：c842c0faa650107055a33a8b87342890614530c8665cc7c47f2ae17e971414ed
+
+**prototype/mock/workbench-fixtures.js**：cb55f6f2440e830ce17de4bcd854bdac3ffef4a59d6f5a9964e914318d669e4b
+
+**prototype/config/interface-sources.json**：e868576825e3048911dc7aca752ba143283c413328e477b16024274191b773df
+
+**prototype/config/nav.json**：96c4f252d464b9092e412860014e43be92328720a8c639e9644fc4fa53a82c99
+
+**prototype/config/project.json**：604a7cd8727316c7c02173a7f7eaf39ab46729501f268d7f2a95ebb83ccca672
+
+**prototype/config/requirement-analysis.json**：4210ac32190283057cb07c8542506d19b8f0341a766d2c104b91a816fa930021
+
+**prototype/config/workflow.json**：f7f535135bb580d1a5c77547bafbb8fa98ef61b547be8e5a015504f8dffca038
+
+**prototype/index.html**：acfab4112185c518f29f18c5edb008bdc609d4db81985309dfbfcd012e48b436
+
+**范围**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。
+
+**verified_local_behaviors**
+
+1. 应用多对多与回调地址本地保存/回读；保留已停用租户的既有授权显示但拒绝获取身份；跨窗口读最新配置，旧表单/删除确认冲突拒绝，删除或撤权即时失效。
+
+2. 接口强制callMode、businessType、businessBatchNo；预外呼核taskId归属，人工按同租户有效agentWorkNo写入原待联系账本；同app/tenant/requestId重放不重复，另app同号同批次独立。
+
+3. 全部已验应用沿原应用地址形成结果/完成事件；手工UI无应用不外发；地址变更、撤权或删app后的积压保持待核，不转投新同名应用。
+
+4. 原预外呼账本客户通过显式本地offer进入坐席振铃、接听/未接、填写与跟进保存；继续跟进归当前坐席，原任务仍运行时阻止人工再次拨号，暂停/结束后按本地守卫继续。
+
+5. 本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。
+
+6. 客户/通话/报表沿准确原记录归集；未知结果不当作未接通，真0秒不丢，重复标识及跨租户范围受控。
+
+7. 受控保存取消/写入失败及普通下载保留失败记录；成功关闭/回读的准确版本才清理；失败补提交与结果补送继续独立。
+
+8. 租户与审计导出读取当前权限下的筛选模型，输出CSV而不伪报成功；资源引用保护及供应商账号业务数据锁定保留。
+
+9. 旧scope缓存和演示样例精简只识别明确静态种子，用户合成业务、未知/混合记录和坏存储原字节保留；完成标记仅可靠保存后写。
+
+10. 新导入已明确受理且具有准确首提和fileId证据时，列表显示待启动并开放启动入口；未知、失败和仅保存不开放，点击仍复核权限、时间、资源及坐席。
+
+11. 保存与运行态发布先克隆已提交任务；即使传入当前任务对象，也保留ID、配置及状态，不因原地替换清空。
+
+12. 任务详情关闭或返回后刷新原列表，并保留筛选、页码和滚动位置；任务行操作保持相同顺序。
+
+13. 通话详情优先展示话单姓名；可靠话单工号准确相同时使用本通已保存原生坐席姓名，不查当前目录补猜历史。
+
+14. 管理任务按准确原记录和通话事实统计已结束及已接通客户，多通话不重复名单；明确接通与秒挂三态独立，错任务/租户/应用/坐席不纳入，不改变供应商任务终态。
+
+**剩余范围**
+
+1. 真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
+**verification_boundary**：通读源文件与已覆盖本地合成运行/浏览器证据由本证据逐项登记；没有将104条CHECK声明为整版执行通过，不证明真实接口联调。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**supersedes_current_implementation_claims_only**：True
+
+**historical_evidence_policy**：此前局部证据只证明当时来源快照及当时范围；本覆盖层优先说明当前局部实现，不改冻结需求原文或继承正式批准。
+
+**接口分配与状态本轮修订**
+
+**标识**：UI-LOCAL-IMPORT-ASSIGNMENT-STATUS-20261016
+
+**source_id**：SRC-126
+
+**date**：2026-10-16
+
+**状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**范围**：统一批次查看、接口人工坐席工号选填、分配/通话/业务跟进三轴及外部人工通话准确关联的局部修订。
+
+**source_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**证据**
+
+1. prototype/memory/verification-evidence/import-assignment-status-20261016.json
+
+**source_hashes**
+
+**prototype/index.html**：5ae7ced733ddc58ee2c3cdc61d57d3ce45e3c445c3786c8f748c38a4b58e3a5d
+
+**prototype/js/components/dcc-runtime.js**：2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3
+
+**prototype/js/pages/customer-tasks.js**：91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28
+
+**prototype/js/pages/scenario-demo.js**：fa7a21be0d3e8f2795c5c87ab40a61f198e5fa29190b01a7f64445955ff0bb41
+
+**prototype/js/pages/customer-directory.js**：b4935dc59c2752b63902e48e9336a346c54178d16028b1346afca3385644d3e6
+
+**prototype/js/components/workbench-overview.js**：434af9c482bf6641dbc5b57d2a3bd0fb24a709045af51269d7268e3dbe535deb
+
+**prototype/js/pages/agent-workbench.js**：45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3
+
+**prototype/js/components/customer-business.js**：dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b
+
+**prototype/js/components/customer-followup.js**：c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9
+
+**prototype/js/components/customer-directory.js**：700e88fad6e41cba9dfecb109a5a3f9c95476cec683b848d17df5e643aabafca
+
+**prototype/js/components/alicti-fields.js**：eaaa5fe33c9a628df28944cc09f77b4e6fde3c8aba5875fb808fdaf36fdfdbf8
+
+**prototype/js/components/call-state.js**：93048ccfe263df33cee3262a7bd903ce887aa46829f9123cb1da3a9839c0a0df
+
+**prototype/js/components/platform-ui.js**：5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2
+
+**prototype/js/common.js**：5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1
+
+**prototype/js/nav.js**：995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b
+
+**prototype/mock/dcc-v1.1.0.js**：c06080417cd05562087bb01dc92a62c20f88b4d472de66f66cff6adefd910d24
+
+**rules**
+
+**optional_agent_assignment**：人工外呼agentWorkNo选填；缺省接收且不分配云呼叫坐席、不进入个人待联系；显式提供时精确校验当前租户唯一有效坐席，错误拒绝该行，不回退成未分配或改派。预外呼仍必须传准确taskId并沿任务坐席组，工号不覆盖组分配。
+
+**separate_state_axes**：所有新接口来源的业务跟进初始为“未同步”，与是否已分配、是否拨打/接通分开。无工号不认定未联系；有有效工号表示已分配云呼叫坐席，不凭分配就认定业务待联系。平台本人保存的明确处理结果或经过准确关联的外部业务处理结果方可更新跟进；仅AliCti话单、挂断、接通和时长不能推断业务已完成。平台明确继续跟进/需要再次联系保留当前有权坐席待办；结束性处理结果已保存可标跟进已完成，但独立“完成沟通回调”仍只由精确结果已完成沟通触发。
+
+**unified_batch_projection**：在既有“导入与分配”批次清单只读展示人工和预外呼接口导入；按当前权限保留原app/tenant/request与原客户记录、预测task和实际映射。相同businessBatchNo可多请求复用但不合并不同请求；不复制/迁移原账本，不重新分配或重复导入。预外呼显示任务去向，人工无工号显示未分配云呼叫坐席。
+
+**external_call_correlation**：DCC拨号入口与平台共用同一AliCti；线索负责人/平台分配坐席与本通实际坐席分别保存展示。外部人工通话按稳定app、已鉴权tenant、供应商实例、原记录与callId精确关联；实际坐席取该通真实话单工号，不反写线索分配。不能仅按手机号、同名业务批次或工号关联，错误/歧义/冲突保持待核。外部通话的业务结果为独立显式同步，不能用话单接通代替。
+
+**history_and_gates**：仅影响本次新导入及本轮显式合成验证；历史记录状态和原账本不批量改写，旧无值保留未知。旧SRC125的S1/S2通过仅证明当时104条正文，未继承为SRC126通过；正式104条验收/US规范化及S1开始的下游复核待后续正式执行，G1/G2/G3仍pending。
+
+**local_source_order_and_unknown**：本地合成同步使用同原记录的独立call版本/业务版本。平台保存跟进时记录已观察到的外部业务版本，旧版本不覆盖本次平台保存，只有更高外部业务版本可更新显示，不比较两套系统时钟。任一准确关联的通话未结束均保留在途占用；外部资料不可读或关联待核时阻止新拨打和重新分配。真实双方版本冲突协议仍待评审。
+
+**platform_contact_arrangement**：有有效云呼叫分配的接口人工客户，跟进未同步时由有权本人显式确认平台联系安排后才进入个人待联系；该安排不表示DCC尚未联系。人工接口补分配只选坐席，不静默改成预外呼任务，原导入方式与原应用回调归属保留。
+
+**affected_historical_acceptance_ids**
+
+1. AC-007
+
+2. AC-012
+
+3. AC-014
+
+4. AC-050
+
+5. AC-051
+
+6. AC-080
+
+7. AC-081
+
+8. AC-082
+
+9. AC-083
+
+10. AC-099
+
+**formal_requirement_rebaseline**：not_executed_SRC126_overlay_precedes_conflicting_SRC125_clauses_in_this_scoped_draft
+
+**剩余范围**
+
+1. 正式外部通话/业务结果同步报文、可靠来源验证/关联标识和ACK、后端并发原子保存与生产AliCti轨迹仍待工程和双方核实；本轮只做本地合成桥，不新增已联调生产端点。
+
+2. 供应商实例映射未建立；本地示例按原记录和租户演示，显式带instance字段的未确认记录拒绝，不提供真实AliCti自动归集承诺。外部接收不反向生成新的平台完成沟通回调，避免环路。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**previous_evidence_policy**：full-prototype-audit-20261015及更早证据保持原字节，仅证明当时源码与当时范围；本轮证据另行严格绑定当前源。
+
+**verified_evidence_sha256**：69c077060fd9c00d9bce508b80ad41e2ce7733c35ad258fc6eb39deee09632ac
+
+**verification_boundary**：本轮局部合成运行及已记录浏览器范围通过；不代表104条全套或真实DCC/AliCti同步契约。
+
+**分配通话跟进三轴**
+
+**allocation**：平台分配坐席/预外呼任务；无工号明确未分配云呼叫坐席，不代表DCC未分配。
+
+**call**：每通AliCti真实拨打/接通/未接/未知及实际坐席；不反写负责人。
+
+**followup**：所有新接口来源的业务跟进初始为“未同步”，与是否已分配、是否拨打/接通分开。无工号不认定未联系；有有效工号表示已分配云呼叫坐席，不凭分配就认定业务待联系。平台本人保存的明确处理结果或经过准确关联的外部业务处理结果方可更新跟进；仅AliCti话单、挂断、接通和时长不能推断业务已完成。平台明确继续跟进/需要再次联系保留当前有权坐席待办；结束性处理结果已保存可标跟进已完成，但独立“完成沟通回调”仍只由精确结果已完成沟通触发。
+
+**batch_view**：在既有“导入与分配”批次清单只读展示人工和预外呼接口导入；按当前权限保留原app/tenant/request与原客户记录、预测task和实际映射。相同businessBatchNo可多请求复用但不合并不同请求；不复制/迁移原账本，不重新分配或重复导入。预外呼显示任务去向，人工无工号显示未分配云呼叫坐席。
+
 **pages**
 
 #### PAGE-001 应用接入列表
@@ -1128,7 +3482,7 @@
 
 **名称**：应用接入列表
 
-**事实状态**：draft_target_with_explicit_local_overlay
+**事实状态**：draft_target_with_current_scoped_local_audit
 
 **路由**：application-access
 
@@ -1782,13 +4136,27 @@
 
 1. P0-APP
 
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**范围**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
 #### PAGE-002 预外呼任务记录页
 
 **标识**：PAGE-002
 
 **名称**：预外呼任务记录页
 
-**事实状态**：draft_target_with_explicit_local_overlay
+**事实状态**：draft_target_with_current_scoped_local_audit
 
 **路由**：predictive-tasks / task workspace
 
@@ -2111,6 +4479,10 @@
 **formal_gates_changed**：False
 
 **real_calls_enabled**：False
+
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 #### importBatchName
 
@@ -3014,7 +5386,7 @@
 
 **rule**：按准确原应用/租户的记录及事件/版本显示待发送、已送达或失败；本地保存成功独立。完成沟通回调含本次通话/业务信息与原业务批次号，失败不重拨/重导/覆盖业务快照。手工UI无原应用不默认外发，历史缺关联显示待核；正式ACK及晚到处理待核。 已填字段或选项业务编码缺失显示资料待完善，不冒充完整发送成功；本地已保存继续保留，不给坐席新增技术编码输入，配置补齐沿现有权限。 已送达须有对应业务确认；不能仅凭本地保存或HTTP受理显示成功。
 
-**事实状态**：draft_current_requirement_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **traceability**
 
@@ -3100,7 +5472,7 @@
 
 **field_id**：DFIELD-124
 
-**事实状态**：draft_target_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **交付优先级**
 
@@ -3308,7 +5680,7 @@
 
 **名称**：准确记录详情内的业务系统回传状态（无独立页签）
 
-**content**：移除独立DCC回传页签。目标全部API应用来源在准确客户/通话/异常/移除详情查看送达状态，完成沟通保存后的本次快照回调也在这里查看；本地已保存与回调待发送/成功/失败分开，异常才提示。手工UI无原应用不显示对外回调。当前仅原DCC内嵌回传有局部证据；全部应用及完成沟通新回调尚未实现。
+**content**：移除独立DCC回传页签。目标全部API应用来源在准确客户/通话/异常/移除详情查看送达状态，完成沟通保存后的本次快照回调也在这里查看；本地已保存与回调待发送/成功/失败分开，异常才提示。手工UI无原应用不显示对外回调。当前全部应用的本地合成结果及完成沟通回调均按原来源归属，详情内查看；真实网络与ACK仍待验证。
 
 **事实状态**：local_DCC_inline_verified_all_app_target_pending
 
@@ -3634,7 +6006,7 @@
 
 1. 有该任务查看权
 
-**processing**：接口来源任务直接打开导入说明/只读入口，不先弹出任务看板，不混入手工名单或请求JSON。全部应用接入显示自身记录与回传状态的新文案仍待实现。
+**processing**：接口来源任务直接打开导入说明/只读入口，不先弹出任务看板，不混入手工名单或请求JSON。全部应用来源按原记录查看本地合成交付状态，正式业务系统接收仍待验证。
 
 **success_feedback**：查看准确受理和逐记录来源状态
 
@@ -4336,7 +6708,7 @@
 
 **名称**：任务固定操作与直接导入
 
-**事实状态**：implemented_local_UI_repair_new_business_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **触发**：任务列表或准确记录详情
 
@@ -4384,7 +6756,7 @@
 
 **名称**：回传信息内嵌详情
 
-**事实状态**：implemented_local_UI_repair_new_business_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **触发**：任务列表或准确记录详情
 
@@ -4392,7 +6764,7 @@
 
 1. 当前对象与操作权限有效
 
-**processing**：独立DCC回传页签已移除；历史原DCC回传内嵌准确记录详情。所有应用来源回调为本轮待实现目标。 SRC-123目标新增完成沟通事件状态，仍内嵌准确详情；只补送原快照，不改变本地已保存内容或发起拨号。该新增部分未实现。
+**processing**：独立DCC回传页签已移除；历史原DCC回传内嵌准确记录详情。所有已验应用来源回调已在本地合成路径按原应用定位。 SRC-123目标新增完成沟通事件状态，仍内嵌准确详情；只补送原快照，不改变本地已保存内容或发起拨号。该新增部分已完成局部合成实现，正式网络/ACK待核。
 
 **success_feedback**：保持原任务/客户范围及原始记录
 
@@ -5084,7 +7456,7 @@
 
 **permission**：沿原任务查看权限展示接口来源受理/结果；DCC或天网真正接口写入分别按独立应用凭据、tenant/task归属及来源锁定校验，应用token不授内部运营或应用管理权限。
 
-**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 接口来源任务点击常驻导入客户；接口来源任务直接打开导入说明/只读入口，不先弹出任务看板，不混入手工名单或请求JSON。全部应用接入显示自身记录与回传状态的新文案仍待实现。；查看准确受理和逐记录来源状态
+**requirement_details**：保留上轮操作ID，本轮S6待重验；最新US/AC优先。 接口来源任务点击常驻导入客户；接口来源任务直接打开导入说明/只读入口，不先弹出任务看板，不混入手工名单或请求JSON。全部应用来源按原记录查看本地合成交付状态，正式业务系统接收仍待验证。；查看准确受理和逐记录来源状态
 
 **事实状态**：prior_action_id_draft_target_S6_stale
 
@@ -5228,13 +7600,209 @@
 
 **来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
 
+**客户档案局部证据**
+
+**标识**：UI-LOCAL-CUSTOMER-ARCHIVE-20261014
+
+**change_kind**：existing_archive_integration_defect_repair_not_new_product_scope
+
+**actual_user_request**：修复客户档案的问题
+
+**说明**：现有客户档案接入新版预外呼任务API及手工导入账本：同企业、同租户、同归一号码归一档案，保留每次已授权导入和准确实际通话的独立明细。
+
+**证据**
+
+1. prototype/memory/verification-evidence/customer-directory-ledger-repair-20261014.json
+
+**来源文件**：prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js, prototype/index.html, prototype/memory/verification-evidence/customer-directory-ledger-list-20261014.png, prototype/memory/verification-evidence/customer-directory-ledger-detail-20261014.png
+
+**实现状态**：local_synthetic_read_only_projection_scoped_verified_real_backend_not_implemented_or_verified
+
+**档案归组范围**
+
+1. enterpriseId
+
+2. tenantId
+
+3. normalizedPhone
+
+**只读归集**：True
+
+**是否改写原账本**：False
+
+**business_records_and_calls_merged_by_phone**：False
+
+**原回调归属保留**：True
+
+**原业务记录身份**：导入明细保持原recordId、应用/来源、企业/租户、requestId、task、leadCode、businessType和已保存的平台/根批次以及六项来源资料；原业务批次号如已保存也保留，不因归一客户档案重算或替换。当前接口业务批次号完整实现仍待，不能据此视作补齐。
+
+**已实现**
+
+1. 已有效保存的新版任务API及手工记录即使尚未拨号也进入已有客户档案；旧手工名单与新来源同号码在同企业/租户范围内归一，其他企业及租户仍分开。
+
+2. 档案只读取原账本形成临时投影，不将新导入/结果复制到旧名单或全局通话存储；原record/来源应用/线索/任务/批次/类型及本次六项资料独立保留，不以同号码最新资料覆盖。
+
+3. 仅已存在且可精确关联的客观call进入联系历史；受理、导入数及无话单失败不合造成呼叫。重复稳定call不重复统计，未知接通/时长保留未知，接收时间不充当实际联系时间。
+
+4. 主管/管理员沿现有企业/租户授权读取；坐席只可查看明确本人分配记录或实际已确认本人通话，任务可见或相同手机号不自动扩大其客户及其他坐席通话权限。
+
+5. 现有客户档案导入明细打开准确原record详情，联系历史打开准确task/result详情，并逐次复核身份、租户、任务与原记录；从任务客户详情可进入同一档案。归集上下文下详情保持只读，不绕过任务管理权限。
+
+6. 跨页刷新读取已保存账本；损坏/歧义记录保留原数据并提示，拒绝猜测归属，不清空或修复写回原账本。
+
+7. 历史有效的新账本记录缺少单存企业字段时，仅在原tenant/task/supplier标识精确匹配已授权可信任务上下文后只读解析；缺少或冲突不归集，不按号码或最近任务猜配，不迁移写回旧记录。首次进入与跨页任务目录读取不依赖先打开任务页。
+
+8. 已删除任务优先读取独立保存的删除状态，不因兼容索引或旧页面目录复活；结果有显式supplierTaskId时须与准确原任务一致，冲突拒绝。
+
+**verification**
+
+**source_checks_passed**：48
+
+**source_checks_failed**：0
+
+**source_result**：pass_scoped_vm_and_targeted_browser
+
+**independent_permission_checks_passed**：22
+
+**independent_permission_review_status**：pass_scoped_no_new_blocking_findings
+
+**browser_status**：pass_targeted_browser
+
+**browser_scope**：1280x720现有手工任务的档案进入/同号两次导入零通话/准确导入和call详情/返回同档案及时间显示；最终源码刷新仍20客户、无warning/errors。API导入及权限反例由VM覆盖，浏览器未构造外部API或攻击请求。
+
+**observation_history**：证据保留首次仅9客户的失败、只读旧数据兼容修正、2项最后守卫复核及各浏览器观察source hash；详细VM/独立反例与截图指纹以证据正文为准。
+
+**验证边界**
+
+1. 此为既有前端客户档案的局部合成整合修复，不新增AC/FUNC/PAGE/规则或调整主子批、幂等、失败额度、调用和回调路由。
+
+2. 真实后端客户实体/授权查询/数据库索引及一致性归集仍待工程实现与验证；本次不证明生产分库或后端已部署。
+
+3. 完整人工外呼导入接口、业务批次号协议、已完成沟通可靠快照及真实回调仍未因本修复完成。
+
+4. 整版104条验收与02全局/三宽度验证未执行；正式门禁、风险未决与真实调用关闭保持。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**四处断点局部证据**
+
+**标识**：UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**change_kind**：user_reported_defect_repair_and_manual_list_capability_restoration
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**证据**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**来源文件**：prototype/index.html, prototype/js/components/alicti-task-control.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js
+
+**实现状态**：local_synthetic_scoped_verified_production_not_verified
+
+**已核对行为**
+
+#### ARCHIVE
+
+**标识**：ARCHIVE
+
+**状态**：existing_repair_reverified
+
+**行为**：API和手工任务的已保存客户在统一客户档案按当前权限查询，未拨号也可见；原业务记录和准确通话独立保留。
+
+#### SCHEDULE
+
+**标识**：SCHEDULE
+
+**状态**：implemented_local_synthetic
+
+**行为**：页面运行或恢复时检查已保存定时任务，到点后重新核名单、权限、时间条件和坐席资源，仅记录一次首启；暂停、终止、未受理名单和保存失败不越过。
+
+**生产验证边界**：供应商autoStart字段已存在；本次只补静态演示首启，不承诺浏览器关闭时执行，不新增生产平台调度器。
+
+#### WIZARD
+
+**标识**：WIZARD
+
+**状态**：restored_manual_source_with_explicit_field_confirmation
+
+**行为**：手工来源在创建向导选择原未分配名单，明确确认线索编码、优先级、业务类型和本次批次名；转换为本版导入记录并保留原行来源。接口来源仍由业务系统导入，不能混入手工名单。
+
+**范围说明**：按本次用户报告恢复既有选择能力；这与先前仅来源选择的实现不同，不改历史冻结源或自动补盖G1/G2/G3。
+
+#### FAILURE-RETRY
+
+**标识**：FAILURE-RETRY
+
+**状态**：implemented_local_synthetic
+
+**行为**：运营商禁呼、运营商限呼、外呼黑名单三类从确认失败起120秒自动补提交；其余八类人工。按租户＋原任务＋线索＋固定号码共享首次外最多2次，不随主批、原因或重新导入重置。
+
+**未知尝试规则**：实际发起后结果未知保留原尝试和占用，停止盲发；待执行计划不等于已提交。
+
+**秒挂规则**：准确秒挂显式禁止平台补提交，不创建等待计划或消耗次数。
+
+**结果补送边界**：业务系统结果补送只重新交付原结果，不提交AliCti，不消耗失败补提交次数。
+
+**生产验证边界**：供应商导航降级、原生重呼互斥、实际返回关联和生产并发可靠性仍待核实；合成确认不能替代真实联调。
+
+**验证边界**
+
+1. 只在现有唯一prototype中修复本地合成行为，不是生产后端实现或全部104条验收通过。
+
+2. 定时启动按浏览器本地时间；页面关闭不执行，重开再核条件。不将本地首启当作AliCti真实启动确认。
+
+3. 供应商导航降级、原生重呼互斥、真实fileId及回调契约、生产并发/崩溃恢复仍待真实工程与联调证据。
+
+4. 现行需求和历史冻结源未改写；手工名单能力按本次用户报告恢复，不自动推进正式G1/G2/G3。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**范围**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
+**接口分配与状态本轮修订**
+
+**source_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**rules**
+
+1. 人工外呼agentWorkNo选填；缺省接收且不分配云呼叫坐席、不进入个人待联系；显式提供时精确校验当前租户唯一有效坐席，错误拒绝该行，不回退成未分配或改派。预外呼仍必须传准确taskId并沿任务坐席组，工号不覆盖组分配。
+
+2. 所有新接口来源的业务跟进初始为“未同步”，与是否已分配、是否拨打/接通分开。无工号不认定未联系；有有效工号表示已分配云呼叫坐席，不凭分配就认定业务待联系。平台本人保存的明确处理结果或经过准确关联的外部业务处理结果方可更新跟进；仅AliCti话单、挂断、接通和时长不能推断业务已完成。平台明确继续跟进/需要再次联系保留当前有权坐席待办；结束性处理结果已保存可标跟进已完成，但独立“完成沟通回调”仍只由精确结果已完成沟通触发。
+
+3. 在既有“导入与分配”批次清单只读展示人工和预外呼接口导入；按当前权限保留原app/tenant/request与原客户记录、预测task和实际映射。相同businessBatchNo可多请求复用但不合并不同请求；不复制/迁移原账本，不重新分配或重复导入。预外呼显示任务去向，人工无工号显示未分配云呼叫坐席。
+
+4. DCC拨号入口与平台共用同一AliCti；线索负责人/平台分配坐席与本通实际坐席分别保存展示。外部人工通话按稳定app、已鉴权tenant、供应商实例、原记录与callId精确关联；实际坐席取该通真实话单工号，不反写线索分配。不能仅按手机号、同名业务批次或工号关联，错误/歧义/冲突保持待核。外部通话的业务结果为独立显式同步，不能用话单接通代替。
+
 #### PAGE-003 新增应用
 
 **标识**：PAGE-003
 
 **名称**：新增应用
 
-**事实状态**：draft_target_with_explicit_local_overlay
+**事实状态**：draft_target_with_current_scoped_local_audit
 
 **路由**：application-access
 
@@ -5464,6 +8032,10 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 **sections**
 
 #### 1 应用信息
@@ -5586,6 +8158,10 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 **official_actions**
 
 #### ACTION-021 创建应用
@@ -5658,13 +8234,27 @@
 
 1. P0-APP
 
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**范围**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
 #### PAGE-004 应用详情
 
 **标识**：PAGE-004
 
 **名称**：应用详情
 
-**事实状态**：draft_target_with_explicit_local_overlay
+**事实状态**：draft_target_with_current_scoped_local_audit
 
 **路由**：application-access
 
@@ -5933,6 +8523,10 @@
 **formal_gates_changed**：False
 
 **real_calls_enabled**：False
+
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 **sections**
 
@@ -6294,13 +8888,27 @@
 
 1. P0-APP
 
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**范围**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
 #### PAGE-005 修改应用
 
 **标识**：PAGE-005
 
 **名称**：修改应用
 
-**事实状态**：draft_target_with_explicit_local_overlay
+**事实状态**：draft_target_with_current_scoped_local_audit
 
 **路由**：application-access
 
@@ -6532,6 +9140,10 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 **sections**
 
 #### 1 应用信息
@@ -6652,6 +9264,10 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 **official_actions**
 
 #### ACTION-001 保存应用修改
@@ -6724,6 +9340,20 @@
 
 1. P0-APP
 
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**范围**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
 #### DRAFT-UI-WORKBENCH 既有坐席工作台与待联系（本轮草稿扩展）
 
 **标识**：DRAFT-UI-WORKBENCH
@@ -6734,7 +9364,7 @@
 
 
 
-**事实状态**：local_early_form_and_unanswered_status_verified_remaining_business_pending
+**事实状态**：draft_target_with_current_scoped_local_audit
 
 **页面来源状态**：no_formal_PAGE_assignment_existing_workbench
 
@@ -6816,7 +9446,7 @@
 
 **状态**
 
-**正常**：准确客户与通话上下文，人工成功发起拨号即显示原跟进表单，预外呼坐席振铃即可填写，适用接听/取消/挂断仍可操作。明确外呼客户未接且已结束时必选通话状态，选择处理结果后保存；未知、已接或仅坐席未接不套客户未接必选。目标继续跟进：人工客户保留原分配坐席待联系；预外呼转当前坐席人工待联系仍待实现/排他验证。 原客户及通话详情、坐席填单上下文按准确记录只读展示意向门店编码/名称、意向车系编码/名称、Smartcode和留资时间；缺值显示未提供，不沿同号客户或最新汇总补造。 留资时间显示业务方原值，与平台导入时间/跟进保存时间区分。
+**正常**：准确客户与通话上下文，人工成功发起拨号即显示原跟进表单，预外呼坐席振铃即可填写，适用接听/取消/挂断仍可操作。明确外呼客户未接且已结束时必选通话状态，选择处理结果后保存；未知、已接或仅坐席未接不套客户未接必选。目标继续跟进：人工客户保留原分配坐席待联系；预外呼转当前坐席人工待联系已有局部合成实现，真实供应商排他仍待验证。 原客户及通话详情、坐席填单上下文按准确记录只读展示意向门店编码/名称、意向车系编码/名称、Smartcode和留资时间；缺值显示未提供，不沿同号客户或最新汇总补造。 留资时间显示业务方原值，与平台导入时间/跟进保存时间区分。
 
 **加载**：载入准确对象前不显示另一客户旧表单；保存时防重复，保持草稿和通话状态；未收到保存结果不移出原待联系。 新完成回调由后台排队，本地保存成功无需等待外部ACK；不能把回调待确认当作保存未完成。 六字段随当前准确对象载入，切换对象不短暂显示上一客户值。
 
@@ -6922,6 +9552,10 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### customerIdentity
 
 **标识**：customerIdentity
@@ -6936,7 +9570,7 @@
 
 **rule**：只读准确原客户/线索/手机号；接口人工分配保存原应用/租户，预外呼继续跟进保留原任务/记录/通话溯源。
 
-**事实状态**：draft_current_requirement_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **traceability**
 
@@ -7268,7 +9902,7 @@
 
 **rule**：人工客户保留原分配坐席；预外呼接入后继续跟进归当前坐席，不能按姓名或跨租户工号猜配。接口原始工号保留前导零，坐席UI只展示已核实归属。
 
-**事实状态**：draft_current_requirement_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **traceability**
 
@@ -7326,7 +9960,7 @@
 
 **rule**：继续跟进保存成功保留/进入待联系，不标已完成，不重复新增同一客户。待联系不等于满足拨号条件，预外呼转人工先核排他。
 
-**事实状态**：draft_current_requirement_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **traceability**
 
@@ -7382,7 +10016,7 @@
 
 **rule**：原预测自动呼叫排他未核则显示待确认并禁用再次拨号，提供原因；停止本地计划不证明远端已停止。
 
-**事实状态**：draft_current_requirement_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **traceability**
 
@@ -7434,7 +10068,7 @@
 
 **editability**：只读
 
-**rule**：通话详情独立“坐席记录”展示本次人工通话状态、录入人和时间；编码与描述完整保存。处理结果与原客观线路结果各自保留；失败不伪造新历史，后到真实话单不改人工选择。 目标完成沟通回调使用本call保存时的customerFollowup，不用aggregate(calls)合并；通话详情展示本次客户业务信息与回调状态相互独立。新快照/回调未实现。
+**rule**：通话详情独立“坐席记录”展示本次人工通话状态、录入人和时间；编码与描述完整保存。处理结果与原客观线路结果各自保留；失败不伪造新历史，后到真实话单不改人工选择。 目标完成沟通回调使用本call保存时的customerFollowup，不用aggregate(calls)合并；通话详情展示本次客户业务信息与回调状态相互独立。本次快照与回调意图已有局部合成实现，真实发送/ACK待核。
 
 **事实状态**：local_agent_status_detail_verified_formal_history_contract_pending
 
@@ -7516,7 +10150,7 @@
 
 **field_id**：DFIELD-124
 
-**事实状态**：draft_target_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **交付优先级**
 
@@ -7590,7 +10224,7 @@
 
 4. DFIELD-125
 
-**事实状态**：draft_target_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **交付优先级**
 
@@ -8050,9 +10684,9 @@
 
 **名称**：待联系与后续人工跟进
 
-**content**：复用既有分配给我的客户/待联系；人工接口导入有效分配后出现，坐席主动联系才拨号。继续跟进保存成功保留同一线索，预外呼转当前坐席人工跟进并显示可联系状态。无新顶级页面。
+**content**：复用既有分配给我的客户/待联系；新人工接口未同步跟进不直接作为待联系，先由有权本人明确确认平台联系安排，或取得准确已保存处理结果。无工号不入个人列表。继续跟进成功保存才保留同一线索，预测转当前坐席人工仍核原任务排他。
 
-**事实状态**：draft_target
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **traceability**
 
@@ -8102,9 +10736,9 @@
 
 **名称**：业务系统回传
 
-**content**：已验API来源两模式均沿原应用回调。新增目标：外呼已结束、明确选择“已完成沟通”且本次可靠保存成功后，后台回调本次call、已保存客户业务信息与原业务批次号；原手工UI无应用不默认外发。当前操作人/最近租户不决定目标。只在原详情内按需显示回调状态，本地保存与送达分开，不加页签；新回调尚未实现，正式报文/ACK/字段映射待核。 后台同时回传本次已填写字段/所选选项业务编码（多选完整），不要求坐席另填编码；空值或历史缺编码不伪造。
+**content**：已验API来源两模式均沿原应用回调。新增目标：外呼已结束、明确选择“已完成沟通”且本次可靠保存成功后，后台回调本次call、已保存客户业务信息与原业务批次号；原手工UI无应用不默认外发。当前操作人/最近租户不决定目标。只在原详情内按需显示回调状态，本地保存与送达分开，不加页签；新回调已有局部合成实现，正式报文/ACK/字段映射待核。 后台同时回传本次已填写字段/所选选项业务编码（多选完整），不要求坐席另填编码；空值或历史缺编码不伪造。
 
-**事实状态**：draft_target
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **traceability**
 
@@ -8280,9 +10914,9 @@
 
 2. 处理结果已选；明确外呼客户未接时通话状态必选，完整编码+描述匹配；已填业务字段有效。已接/未知沿原业务必填，不以坐席未接推定客户未接。
 
-**processing**：分别保存坐席人工通话状态（编码/描述/录入人/时间）、处理结果与跟进，不覆盖客观话单。当前合成原型已核空选拦截、三个存储步骤失败重试、重复保存幂等与草稿恢复；正式后端原子/可恢复能力仍待工程证据。 SRC-123新增目标：明确“已完成沟通”且结束后的可靠保存成功才生成本次call/customerFollowup/原业务批次号快照并交后台回调；不使用通用processingStatus或aggregate作为触发/内容。此完成回调尚未实现。 新增完成回调目标同时冻结该记录原导入六字段，不能以坐席本次plannedStoreName或后续导入替换。该后台快照与回调仍未实现。
+**processing**：分别保存坐席人工通话状态（编码/描述/录入人/时间）、处理结果与跟进，不覆盖客观话单。当前合成原型已核空选拦截、三个存储步骤失败重试、重复保存幂等与草稿恢复；正式后端原子/可恢复能力仍待工程证据。 SRC-123新增目标：明确“已完成沟通”且结束后的可靠保存成功才生成本次call/customerFollowup/原业务批次号快照并交后台回调；不使用通用processingStatus或aggregate作为触发/内容。此完成回调已完成局部合成实现；生产契约与真实发送待核。 新增完成回调目标同时冻结该记录原导入六字段，不能以坐席本次plannedStoreName或后续导入替换。本次保存快照与本地交付已实现；真实服务端原子快照及网络/ACK仍待验证。
 
-**success_feedback**：本地详情可见独立坐席记录；既有人工需要再次联系保留原坐席待联系。目标预外呼转当前坐席人工待联系仍待实现与排他验证；不自动拨号。 API来源目标另显示业务系统回调待发送/已送达/失败，本地保存成功不依赖外部ACK；手工UI无原应用不默认外发。
+**success_feedback**：本地详情可见独立坐席记录；既有人工需要再次联系保留原坐席待联系。预外呼继续跟进已在本地归当前坐席待联系；原任务运行时本地阻止再次拨号，真实停呼排他仍待验证，不自动拨号。 API来源目标另显示业务系统回调待发送/已送达/失败，本地保存成功不依赖外部ACK；手工UI无原应用不默认外发。
 
 **failure_feedback**：权限/版本/校验/写入失败保草稿和原名单；重复保存返同次，不重复建条目；不强迫未接客户虚构业务信息 已保存后回调失败不回滚或覆盖业务、不再次拨号/导入；重试只发送原事件。 已填写业务字段/选项缺码属于回调资料待完善，不因此阻断本地保存或要求坐席填技术码。
 
@@ -8352,7 +10986,7 @@
 
 1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
 
-**completion_callback_status**：draft_target_not_implemented
+**completion_callback_status**：local_synthetic_scoped_verified_not_production_implementation
 
 **completion_callback_priority**
 
@@ -8360,11 +10994,15 @@
 
 **角色**：primary
 
-**范围**：已完成沟通结束且可靠保存后产生本次快照并回调，当前未实现。
+**范围**：已完成沟通结束且可靠保存后，本地保留原事件快照并按原应用形成交付；真实网络/ACK待核。
 
 **优先组**
 
 1. P0-FOLLOWUP
+
+**current_completion_evidence**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
 
 #### DRAFT-UI-PENDING-CONTACT 从待联系再次联系
 
@@ -8372,7 +11010,7 @@
 
 **名称**：从待联系再次联系
 
-**事实状态**：draft_target_not_implemented
+**事实状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **触发**：当前坐席选择本人待联系客户并点击联系
 
@@ -8508,17 +11146,11 @@
 
 2. UI-LOCAL-IMPORTED-BUSINESS-FIELDS-20261014
 
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
 **剩余范围**
 
-1. 预外呼继续跟进转当前坐席人工归属、溯源与供应商排他尚待实现和验证。
-
-2. 本地验证不证明后端认证、原子保存、并发和真实供应商/业务系统契约。
-
-3. AC-091各业务表单的生产必填/可选清单、正式状态存储与回调字段仍待S3/S4/S6；局部条件校验通过不等于整条验收冻结。
-
-4. 当前104条验收全量未执行，正式G1/G2/G3pending、S3～S9旧产物stale；各局部证据仅证明自身范围。
-
-5. 业务批次号API必传及详情展示、完成沟通可靠保存后的本次call/业务信息快照回调尚未实现，正式快照字段/配置版本/ACK及修订策略仍待。
+1. 真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
 
 **交付优先级**
 
@@ -8564,6 +11196,34 @@
 
 **来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
 
+**current_local_audit**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**范围**：本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
+**接口分配与状态本轮修订**
+
+**source_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**rules**
+
+1. 人工外呼agentWorkNo选填；缺省接收且不分配云呼叫坐席、不进入个人待联系；显式提供时精确校验当前租户唯一有效坐席，错误拒绝该行，不回退成未分配或改派。预外呼仍必须传准确taskId并沿任务坐席组，工号不覆盖组分配。
+
+2. 所有新接口来源的业务跟进初始为“未同步”，与是否已分配、是否拨打/接通分开。无工号不认定未联系；有有效工号表示已分配云呼叫坐席，不凭分配就认定业务待联系。平台本人保存的明确处理结果或经过准确关联的外部业务处理结果方可更新跟进；仅AliCti话单、挂断、接通和时长不能推断业务已完成。平台明确继续跟进/需要再次联系保留当前有权坐席待办；结束性处理结果已保存可标跟进已完成，但独立“完成沟通回调”仍只由精确结果已完成沟通触发。
+
+3. 在既有“导入与分配”批次清单只读展示人工和预外呼接口导入；按当前权限保留原app/tenant/request与原客户记录、预测task和实际映射。相同businessBatchNo可多请求复用但不合并不同请求；不复制/迁移原账本，不重新分配或重复导入。预外呼显示任务去向，人工无工号显示未分配云呼叫坐席。
+
+4. DCC拨号入口与平台共用同一AliCti；线索负责人/平台分配坐席与本通实际坐席分别保存展示。外部人工通话按稳定app、已鉴权tenant、供应商实例、原记录与callId精确关联；实际坐席取该通真实话单工号，不反写线索分配。不能仅按手机号、同名业务批次或工号关联，错误/歧义/冲突保持待核。外部通话的业务结果为独立显式同步，不能用话单接通代替。
+
 **implementation_overlay**
 
 #### UI-LOCAL-MANUAL-20261014
@@ -8584,6 +11244,8 @@
 
 **验证边界**：maxlength、文件大小、行数等demo实现限制并非本次自动冻结的生产字段规则。
 
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
 #### UI-LOCAL-OPERATIONS-20261014
 
 **标识**：UI-LOCAL-OPERATIONS-20261014
@@ -8597,6 +11259,8 @@
 2. prototype/memory/verification-evidence/call-navigation-repair-20261014.json
 
 **requirement_writeback**：只确认本地显示修复，不证明最新DCC/天网路由和失败新策略已实现。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
 
 #### UI-LOCAL-NAVIGATION-20261014
 
@@ -8614,6 +11278,8 @@
 
 **验证边界**：原型主干仍旧冻结业务基线；当前12故事/104验收不由局部导航证据视作全量实现。
 
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
 #### UI-LOCAL-IMPORT-ENTRY-20261014
 
 **标识**：UI-LOCAL-IMPORT-ENTRY-20261014
@@ -8628,6 +11294,8 @@
 
 **验证边界**：历史局部证据；后续修改源码时需按其来源指纹判断适用性，非本轮104验收全部验证。
 
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
 #### UI-LOCAL-DELIVERY-INLINE-20261014
 
 **标识**：UI-LOCAL-DELIVERY-INLINE-20261014
@@ -8640,6 +11308,8 @@
 
 **验证边界**：天网隐藏是旧原型事实，新全部应用回调目标已覆盖旧限制、但尚未实现；此证据只证明局部简化。
 
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
 #### UI-LOCAL-TASK-ACTIONS-20261014
 
 **标识**：UI-LOCAL-TASK-ACTIONS-20261014
@@ -8651,6 +11321,8 @@
 1. prototype/memory/verification-evidence/task-actions-ui-repair-20261014.json
 
 **验证边界**：仅局部合成UI证据，不提升G1/G2/G3或新业务实现状态。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
 
 #### UI-LOCAL-EARLY-FOLLOWUP-20261014
 
@@ -8701,6 +11373,8 @@
 **优先组**
 
 1. P0-FOLLOWUP
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
 
 #### UI-LOCAL-UNANSWERED-STATUS-20261014
 
@@ -8758,6 +11432,8 @@
 
 **full_acceptance_suite_executed**：False
 
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
 #### UI-LOCAL-IMPORTED-BUSINESS-FIELDS-20261014
 
 **标识**：UI-LOCAL-IMPORTED-BUSINESS-FIELDS-20261014
@@ -8808,6 +11484,8 @@
 
 **范围**：只限定六项原导入业务信息展示与本次跟进上下文，不整体提升手工导入功能。
 
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
 #### UI-LOCAL-APPLICATION-CALLBACK-20261014
 
 **标识**：UI-LOCAL-APPLICATION-CALLBACK-20261014
@@ -8823,6 +11501,8 @@
 **formal_gates_changed**：False
 
 **real_calls_enabled**：False
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
 
 #### UI-LOCAL-API-BUSINESS-TYPE-20261014
 
@@ -8856,17 +11536,685 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+#### UI-LOCAL-CUSTOMER-ARCHIVE-20261014
+
+**标识**：UI-LOCAL-CUSTOMER-ARCHIVE-20261014
+
+**change_kind**：existing_archive_integration_defect_repair_not_new_product_scope
+
+**actual_user_request**：修复客户档案的问题
+
+**说明**：现有客户档案接入新版预外呼任务API及手工导入账本：同企业、同租户、同归一号码归一档案，保留每次已授权导入和准确实际通话的独立明细。
+
+**证据**
+
+1. prototype/memory/verification-evidence/customer-directory-ledger-repair-20261014.json
+
+**来源文件**：prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js, prototype/index.html, prototype/memory/verification-evidence/customer-directory-ledger-list-20261014.png, prototype/memory/verification-evidence/customer-directory-ledger-detail-20261014.png
+
+**实现状态**：local_synthetic_read_only_projection_scoped_verified_real_backend_not_implemented_or_verified
+
+**档案归组范围**
+
+1. enterpriseId
+
+2. tenantId
+
+3. normalizedPhone
+
+**只读归集**：True
+
+**是否改写原账本**：False
+
+**business_records_and_calls_merged_by_phone**：False
+
+**原回调归属保留**：True
+
+**原业务记录身份**：导入明细保持原recordId、应用/来源、企业/租户、requestId、task、leadCode、businessType和已保存的平台/根批次以及六项来源资料；原业务批次号如已保存也保留，不因归一客户档案重算或替换。当前接口业务批次号完整实现仍待，不能据此视作补齐。
+
+**已实现**
+
+1. 已有效保存的新版任务API及手工记录即使尚未拨号也进入已有客户档案；旧手工名单与新来源同号码在同企业/租户范围内归一，其他企业及租户仍分开。
+
+2. 档案只读取原账本形成临时投影，不将新导入/结果复制到旧名单或全局通话存储；原record/来源应用/线索/任务/批次/类型及本次六项资料独立保留，不以同号码最新资料覆盖。
+
+3. 仅已存在且可精确关联的客观call进入联系历史；受理、导入数及无话单失败不合造成呼叫。重复稳定call不重复统计，未知接通/时长保留未知，接收时间不充当实际联系时间。
+
+4. 主管/管理员沿现有企业/租户授权读取；坐席只可查看明确本人分配记录或实际已确认本人通话，任务可见或相同手机号不自动扩大其客户及其他坐席通话权限。
+
+5. 现有客户档案导入明细打开准确原record详情，联系历史打开准确task/result详情，并逐次复核身份、租户、任务与原记录；从任务客户详情可进入同一档案。归集上下文下详情保持只读，不绕过任务管理权限。
+
+6. 跨页刷新读取已保存账本；损坏/歧义记录保留原数据并提示，拒绝猜测归属，不清空或修复写回原账本。
+
+7. 历史有效的新账本记录缺少单存企业字段时，仅在原tenant/task/supplier标识精确匹配已授权可信任务上下文后只读解析；缺少或冲突不归集，不按号码或最近任务猜配，不迁移写回旧记录。首次进入与跨页任务目录读取不依赖先打开任务页。
+
+8. 已删除任务优先读取独立保存的删除状态，不因兼容索引或旧页面目录复活；结果有显式supplierTaskId时须与准确原任务一致，冲突拒绝。
+
+**verification**
+
+**source_checks_passed**：48
+
+**source_checks_failed**：0
+
+**source_result**：pass_scoped_vm_and_targeted_browser
+
+**independent_permission_checks_passed**：22
+
+**independent_permission_review_status**：pass_scoped_no_new_blocking_findings
+
+**browser_status**：pass_targeted_browser
+
+**browser_scope**：1280x720现有手工任务的档案进入/同号两次导入零通话/准确导入和call详情/返回同档案及时间显示；最终源码刷新仍20客户、无warning/errors。API导入及权限反例由VM覆盖，浏览器未构造外部API或攻击请求。
+
+**observation_history**：证据保留首次仅9客户的失败、只读旧数据兼容修正、2项最后守卫复核及各浏览器观察source hash；详细VM/独立反例与截图指纹以证据正文为准。
+
+**验证边界**
+
+1. 此为既有前端客户档案的局部合成整合修复，不新增AC/FUNC/PAGE/规则或调整主子批、幂等、失败额度、调用和回调路由。
+
+2. 真实后端客户实体/授权查询/数据库索引及一致性归集仍待工程实现与验证；本次不证明生产分库或后端已部署。
+
+3. 完整人工外呼导入接口、业务批次号协议、已完成沟通可靠快照及真实回调仍未因本修复完成。
+
+4. 整版104条验收与02全局/三宽度验证未执行；正式门禁、风险未决与真实调用关闭保持。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+#### UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**标识**：UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**change_kind**：user_reported_defect_repair_and_manual_list_capability_restoration
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**证据**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**来源文件**：prototype/index.html, prototype/js/components/alicti-task-control.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js
+
+**实现状态**：local_synthetic_scoped_verified_production_not_verified
+
+**已核对行为**
+
+#### ARCHIVE
+
+**标识**：ARCHIVE
+
+**状态**：existing_repair_reverified
+
+**行为**：API和手工任务的已保存客户在统一客户档案按当前权限查询，未拨号也可见；原业务记录和准确通话独立保留。
+
+#### SCHEDULE
+
+**标识**：SCHEDULE
+
+**状态**：implemented_local_synthetic
+
+**行为**：页面运行或恢复时检查已保存定时任务，到点后重新核名单、权限、时间条件和坐席资源，仅记录一次首启；暂停、终止、未受理名单和保存失败不越过。
+
+**生产验证边界**：供应商autoStart字段已存在；本次只补静态演示首启，不承诺浏览器关闭时执行，不新增生产平台调度器。
+
+#### WIZARD
+
+**标识**：WIZARD
+
+**状态**：restored_manual_source_with_explicit_field_confirmation
+
+**行为**：手工来源在创建向导选择原未分配名单，明确确认线索编码、优先级、业务类型和本次批次名；转换为本版导入记录并保留原行来源。接口来源仍由业务系统导入，不能混入手工名单。
+
+**范围说明**：按本次用户报告恢复既有选择能力；这与先前仅来源选择的实现不同，不改历史冻结源或自动补盖G1/G2/G3。
+
+#### FAILURE-RETRY
+
+**标识**：FAILURE-RETRY
+
+**状态**：implemented_local_synthetic
+
+**行为**：运营商禁呼、运营商限呼、外呼黑名单三类从确认失败起120秒自动补提交；其余八类人工。按租户＋原任务＋线索＋固定号码共享首次外最多2次，不随主批、原因或重新导入重置。
+
+**未知尝试规则**：实际发起后结果未知保留原尝试和占用，停止盲发；待执行计划不等于已提交。
+
+**秒挂规则**：准确秒挂显式禁止平台补提交，不创建等待计划或消耗次数。
+
+**结果补送边界**：业务系统结果补送只重新交付原结果，不提交AliCti，不消耗失败补提交次数。
+
+**生产验证边界**：供应商导航降级、原生重呼互斥、实际返回关联和生产并发可靠性仍待核实；合成确认不能替代真实联调。
+
+**验证边界**
+
+1. 只在现有唯一prototype中修复本地合成行为，不是生产后端实现或全部104条验收通过。
+
+2. 定时启动按浏览器本地时间；页面关闭不执行，重开再核条件。不将本地首启当作AliCti真实启动确认。
+
+3. 供应商导航降级、原生重呼互斥、真实fileId及回调契约、生产并发/崩溃恢复仍待真实工程与联调证据。
+
+4. 现行需求和历史冻结源未改写；手工名单能力按本次用户报告恢复，不自动推进正式G1/G2/G3。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+#### UI-LOCAL-FULL-AUDIT-20261015
+
+**标识**：UI-LOCAL-FULL-AUDIT-20261015
+
+**as_of**：2026-10-15
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**来源文件**：prototype/js/alicti-storage.js, prototype/js/app.js, prototype/js/common.js, prototype/js/components/account-seat.js, prototype/js/components/account-tenant-forms.js, prototype/js/components/alicti-accounts.js, prototype/js/components/alicti-adapter.js, prototype/js/components/alicti-contract-panel.js, prototype/js/components/alicti-demo.js, prototype/js/components/alicti-extensions.js, prototype/js/components/alicti-fields.js, prototype/js/components/alicti-inbound.js, prototype/js/components/alicti-ivr.js, prototype/js/components/alicti-number-import.js, prototype/js/components/alicti-number-pools.js, prototype/js/components/alicti-number-status.js, prototype/js/components/alicti-queue-contracts.js, prototype/js/components/alicti-queues.js, prototype/js/components/alicti-receiving.js, prototype/js/components/alicti-report-facts.js, prototype/js/components/alicti-report-summary.js, prototype/js/components/alicti-retry-editor.js, prototype/js/components/alicti-retry.js, prototype/js/components/alicti-seat-import.js, prototype/js/components/alicti-seat-operations.js, prototype/js/components/alicti-task-control.js, prototype/js/components/alicti-task-update.js, prototype/js/components/alicti-time-conditions.js, prototype/js/components/business-issues.js, prototype/js/components/call-data-issues.js, prototype/js/components/call-data-sync.js, prototype/js/components/call-media.js, prototype/js/components/call-state.js, prototype/js/components/customer-business.js, prototype/js/components/customer-directory.js, prototype/js/components/customer-followup.js, prototype/js/components/dcc-records.js, prototype/js/components/dcc-runtime.js, prototype/js/components/demo-switch.js, prototype/js/components/lead-report.js, prototype/js/components/manual-skill-access.js, prototype/js/components/number-import-history.js, prototype/js/components/outbound-groups.js, prototype/js/components/platform-ui.js, prototype/js/components/queue-config.js, prototype/js/components/queue-detail.js, prototype/js/components/repeat-predictive.js, prototype/js/components/report-data.js, prototype/js/components/report-metrics.js, prototype/js/components/resource-rules.js, prototype/js/components/role-charts.js, prototype/js/components/role-focus.js, prototype/js/components/seat-event-log.js, prototype/js/components/seat-operation-ui.js, prototype/js/components/seat-phone-config.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/tenant-call-monitor.js, prototype/js/components/tenant-supervisor-policy.js, prototype/js/components/workbench-overview.js, prototype/js/delivery-nav.js, prototype/js/documentation-nav.js, prototype/js/nav.js, prototype/js/pages/account-tenant.js, prototype/js/pages/agent-center.js, prototype/js/pages/agent-workbench.js, prototype/js/pages/alicti-accounts.js, prototype/js/pages/application-access.js, prototype/js/pages/business-categories.js, prototype/js/pages/cloud-call-records.js, prototype/js/pages/cloud-call-tasks.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/contact-center-settings.js, prototype/js/pages/customer-demo.js, prototype/js/pages/customer-directory.js, prototype/js/pages/customer-tasks.js, prototype/js/pages/extension-management.js, prototype/js/pages/home.js, prototype/js/pages/inbound-routing.js, prototype/js/pages/number-pool-management.js, prototype/js/pages/operations-monitor.js, prototype/js/pages/outbound-group-management.js, prototype/js/pages/queue-management.js, prototype/js/pages/report-center.js, prototype/js/pages/resource-lines.js, prototype/js/pages/scenario-demo.js, prototype/js/pages/scenario-readiness.js, prototype/js/pages/system-center.js, prototype/js/pages/time-condition-management.js, prototype/js/review-view-cache.js, prototype/js/version-nav.js, prototype/assets/css/account-seat.css, prototype/assets/css/account-tenant-forms.css, prototype/assets/css/agent-workbench.css, prototype/assets/css/alicti-accounts.css, prototype/assets/css/alicti-contracts.css, prototype/assets/css/alicti-number-import.css, prototype/assets/css/app.css, prototype/assets/css/atlas-sidebar.css, prototype/assets/css/auth-showcase.css, prototype/assets/css/business-categories.css, prototype/assets/css/business-issues.css, prototype/assets/css/call-media.css, prototype/assets/css/call-sync.css, prototype/assets/css/customer-directory.css, prototype/assets/css/customer-followup.css, prototype/assets/css/dcc-v1.1.0.css, prototype/assets/css/delivery-diagrams.css, prototype/assets/css/delivery-docs.css, prototype/assets/css/demo-switch.css, prototype/assets/css/extension-management.css, prototype/assets/css/global.css, prototype/assets/css/inbound-routing.css, prototype/assets/css/legacy-drawers.css, prototype/assets/css/number-assignment.css, prototype/assets/css/number-pools.css, prototype/assets/css/outbound-group-management.css, prototype/assets/css/queue-config.css, prototype/assets/css/queue-management.css, prototype/assets/css/repeat-predictive.css, prototype/assets/css/report-center.css, prototype/assets/css/resource-onboarding.css, prototype/assets/css/resource-relations.css, prototype/assets/css/role-charts.css, prototype/assets/css/seat-detail.css, prototype/assets/css/seat-home.css, prototype/assets/css/secondary-navigation.css, prototype/assets/css/system-blueprint.css, prototype/assets/css/task-create.css, prototype/assets/css/task-retry.css, prototype/assets/css/time-condition-management.css, prototype/assets/css/version-history.css, prototype/mock/alicti-number-status.json, prototype/mock/call-media.js, prototype/mock/ccc-support.js, prototype/mock/customer-followup.js, prototype/mock/customer-import.js, prototype/mock/data.js, prototype/mock/dcc-v1.1.0.js, prototype/mock/demo-activity.js, prototype/mock/demo-compact.js, prototype/mock/demo-install.js, prototype/mock/demo-kit.js, prototype/mock/demo-media.js, prototype/mock/demo-ready.js, prototype/mock/demo-resources.js, prototype/mock/extensions.js, prototype/mock/inbound-routing.js, prototype/mock/number-onboarding.js, prototype/mock/number-pools.js, prototype/mock/queue-resources.js, prototype/mock/report-fixtures.js, prototype/mock/report-summaries.js, prototype/mock/scenario-demo.js, prototype/mock/seat-operations.js, prototype/mock/time-conditions.js, prototype/mock/workbench-fixtures.js, prototype/config/interface-sources.json, prototype/config/nav.json, prototype/config/project.json, prototype/config/requirement-analysis.json, prototype/config/workflow.json, prototype/index.html
+
+**source_hashes**
+
+**prototype/js/alicti-storage.js**：4f641b823a400193df6e34b0773a450cf1674993b06f3c0e901e7243e65cf5e3
+
+**prototype/js/app.js**：3d72f5d0b1420a78e99792b72f463a083d9d45773d794aa0f25a364dc190cc42
+
+**prototype/js/common.js**：5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1
+
+**prototype/js/components/account-seat.js**：75220eadba6507751785373aba88920ea45b6c3e6949c97a051e42599cd4e8f0
+
+**prototype/js/components/account-tenant-forms.js**：aaac281e865ba95a2603aa48275ebc1b3891f9b544199d2cbf94aa4f625d52fd
+
+**prototype/js/components/alicti-accounts.js**：7c6992609817a9d6042e93897e5a77a4e9455f08cfff0c737eb9298d168ce240
+
+**prototype/js/components/alicti-adapter.js**：505b5c1239996b89713b289a2295f4a8d642d3f7af78d71c7891b80f584dd32b
+
+**prototype/js/components/alicti-contract-panel.js**：dc51877e8572daf7cef0cb958298673e5c655824f761e78b638a69101f3b2d83
+
+**prototype/js/components/alicti-demo.js**：44eacacad4d29d7735c3da6569e70ce981d99f98df6918c0de4328262bd2c825
+
+**prototype/js/components/alicti-extensions.js**：f95d14f9ff0b7a54a18ff21617ebcc0a5aed6dca4eebbe29a68ae053b8b5dc88
+
+**prototype/js/components/alicti-fields.js**：eaaa5fe33c9a628df28944cc09f77b4e6fde3c8aba5875fb808fdaf36fdfdbf8
+
+**prototype/js/components/alicti-inbound.js**：04c6f14738a8f54ff6a79c2e747c2b997c61e53c80f7cbccd23e611e4f3a1fdf
+
+**prototype/js/components/alicti-ivr.js**：12a03334a1fd5673704f49eeefff7693a5656693edb391c1c56b594b10fe83b0
+
+**prototype/js/components/alicti-number-import.js**：a9224f433577c866d515c2e696c56a28b025d97b5d215e12db716393091b38f0
+
+**prototype/js/components/alicti-number-pools.js**：9559a8eef834fe756585ed534e01568f74293ee58616a3409a6c9805a8be245f
+
+**prototype/js/components/alicti-number-status.js**：e364f8b5cfb31ecf34dc48635d69dd7ac754b7a24faea7158d3d929160762226
+
+**prototype/js/components/alicti-queue-contracts.js**：a68c84e4fe6c4be0617522af3786cd0049bdb603140ca6af6e227aa3fb9d0670
+
+**prototype/js/components/alicti-queues.js**：f193197371653caf3b5ff3c00182a38e244b6061fe6d37d63e584c16e4408a3a
+
+**prototype/js/components/alicti-receiving.js**：81a236706882bc9c173479a87787871ebdeae3923c5607210c9cbb87c187fd63
+
+**prototype/js/components/alicti-report-facts.js**：f27aaaa52b00d5999ee0302c09a3d42903bf4daa03a324a00deb3c409e412569
+
+**prototype/js/components/alicti-report-summary.js**：e3a3f85be0cac69868b46bc597bd5aa0f424e89443e27d0f23681fd8de50c3ae
+
+**prototype/js/components/alicti-retry-editor.js**：29a75a2035f0dcac125e845f6f28fea228a8e1cd3308857e05ecc03ab3fef899
+
+**prototype/js/components/alicti-retry.js**：9ffa65434a8e472585abfec13aba1755f95df5f434001e38d01890b9228070ff
+
+**prototype/js/components/alicti-seat-import.js**：ef3dde051891bceccfef52f13dbfe1de40984c0beb5479a8f7987680879beb02
+
+**prototype/js/components/alicti-seat-operations.js**：c4594bd50d2b684c9733fe5a02f21e8f5d105d2176e745ce1b30b59151083795
+
+**prototype/js/components/alicti-task-control.js**：8e0db16ff0a45233578c50d1fc603ab5a5526d448bd475965e31a944a7a6bad3
+
+**prototype/js/components/alicti-task-update.js**：8c21c7af888c89aab1e01a711b682fc1f001b659394ade40aebe2c86585d4e55
+
+**prototype/js/components/alicti-time-conditions.js**：31e6746e6f3f40555ef0501eb6015ad895d8c75bad2474a0f9f6a54a41fe485e
+
+**prototype/js/components/business-issues.js**：a37de59bd5ae150018d92f4d91475eefbbf7b9d0edd6b08cdf3d45076ccfad36
+
+**prototype/js/components/call-data-issues.js**：f7824a20b94601c71426786f2a6456db0a33166ba5b34c89ed23bfa3a7534dee
+
+**prototype/js/components/call-data-sync.js**：4c36be5b85b48080c9dfa65d0f89e60a685f97a785b79e10350927d66f628030
+
+**prototype/js/components/call-media.js**：ec61f9eb77d4b99088a46bd9fd8063cc1de069e835f76baefae4f5f25b0cd17d
+
+**prototype/js/components/call-state.js**：93048ccfe263df33cee3262a7bd903ce887aa46829f9123cb1da3a9839c0a0df
+
+**prototype/js/components/customer-business.js**：dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b
+
+**prototype/js/components/customer-directory.js**：f9afe74e6637aa983355d0e9bb10d6387bcafca18c2791ac3084e5542cd60707
+
+**prototype/js/components/customer-followup.js**：c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9
+
+**prototype/js/components/dcc-records.js**：b641fab35db57426fa69ba5e629b9d3c4098ef49f349eb171eb93181106f1712
+
+**prototype/js/components/dcc-runtime.js**：3fc26ebfaf7e93a5e2b19ddc9063a52d47ed28d562b530d0ac266676e4482993
+
+**prototype/js/components/demo-switch.js**：dbbf9c50f6934e3d4a812c2c71c0e3d85af292231aa2421a46bd51fdb06b8ae5
+
+**prototype/js/components/lead-report.js**：56b435d045bd817274aaed37fe203d303d41a86227ab18e6c8eb840efaf178c0
+
+**prototype/js/components/manual-skill-access.js**：a3520428d91163a4b8664d4eacf10ca8cdfea911d257e83dc26e3887e53a3a8f
+
+**prototype/js/components/number-import-history.js**：ab88f25625bf5763a5bdaabd36c7c84f832d3dd245a0c1493cfe65e6f09b523a
+
+**prototype/js/components/outbound-groups.js**：c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520
+
+**prototype/js/components/platform-ui.js**：5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2
+
+**prototype/js/components/queue-config.js**：412b78d3f4ce6e34e780de9e4d0705f1c2f05f5985ef6a40a8a230c5bfd04f28
+
+**prototype/js/components/queue-detail.js**：c27cbb5353ffb6099f92d1fdf1c000cf67cfa2496106187d2535e2537367171b
+
+**prototype/js/components/repeat-predictive.js**：2f6bd7906b0ab70eb6d644e93208df5ef9a9a9278ecff34dc4356c3dc4af979c
+
+**prototype/js/components/report-data.js**：7619f556705c174845de56b24c1a21c11af5f973bf71c89cb50d951f4b5391f6
+
+**prototype/js/components/report-metrics.js**：4974c6a13bba80b82f6c9a501b5b5e3ab78d693a572b8e9ce8f978158b6da0be
+
+**prototype/js/components/resource-rules.js**：b4667756955fe8f03a5ee95daea99e19589bfb1de774f299de75a9b8b1f768ca
+
+**prototype/js/components/role-charts.js**：d22f69c0b2b5c53113c4f3f214e47384b060c68cf50083fc38820a68585824ac
+
+**prototype/js/components/role-focus.js**：86787b6ddd3dc31937c46a61a2c690f1155de116d2e240dcdb26b94194d63763
+
+**prototype/js/components/seat-event-log.js**：da870a05d0a48945803c45f72e1b6181c794f08a4f3cda21bc5c99b3a42d99be
+
+**prototype/js/components/seat-operation-ui.js**：0d065f566fac31d0176bc98ffa489c4b392124098e64bb07502ee31c7c31de8f
+
+**prototype/js/components/seat-phone-config.js**：bda324e0aeb723a3a0ab6a9b0e95e7a84abfa836c9d0cdadbb4dcfb79d95e44a
+
+**prototype/js/components/task-schedule-runtime.js**：16f0c818df617e2a9775ccf2a04c4881015d5808fd25ab639d1d54593db6c3ca
+
+**prototype/js/components/tenant-call-monitor.js**：be12fd16c4190b6f46f9f0aabdd5b7d2f25bb32481c4ae314eb833c517a91b34
+
+**prototype/js/components/tenant-supervisor-policy.js**：8cb7cd48d814fec3453ae9d41f9449aa555dcfac373d731a680acb0639732359
+
+**prototype/js/components/workbench-overview.js**：7be8712f23cf1396895e2bd24c34bbb709139f3d257f4dfe19f9ed3aaa46df4f
+
+**prototype/js/delivery-nav.js**：2c52b5dca34d3a68fd4fa86fcde0e0ec7aa3e092db3fc7766b69773680b75a3f
+
+**prototype/js/documentation-nav.js**：ac5def2bd50e5128420e446585e5489502c6ba5f27362c960b6733d089b852aa
+
+**prototype/js/nav.js**：995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b
+
+**prototype/js/pages/account-tenant.js**：341bf42b8be5b9a21391b7a742947a02982bba19aa8850f5567c5a64cc35edb2
+
+**prototype/js/pages/agent-center.js**：e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e
+
+**prototype/js/pages/agent-workbench.js**：45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3
+
+**prototype/js/pages/alicti-accounts.js**：71c5ae8b9a8f117a7f52cb36d729e5476f960a12e6ea34092e18ce62d0670f61
+
+**prototype/js/pages/application-access.js**：497cf1c7f4bf852618eeec22abd50d96654b055c09782f5f9e88b0ea1bf34922
+
+**prototype/js/pages/business-categories.js**：addb6fc38834d414609d9a21a874ea59f96bd82203d039c2b1c0823deaf2e463
+
+**prototype/js/pages/cloud-call-records.js**：1d92bb56bfd0e3263d287ec12ae78053dc15a0588ff1c4709b4dacbf27104cce
+
+**prototype/js/pages/cloud-call-tasks.js**：01808700b27c1509b490568590d99e420e333c2b9d22e9f6cf29c0c84dcc9300
+
+**prototype/js/pages/cloud-task-workspace.js**：4e1361c4a82b098039c71a5e3ee4c93fbf852d95d1446b1a5e40c877d55a5488
+
+**prototype/js/pages/contact-center-settings.js**：b70d9a9eb689f9112284d6903458d63075560f15df9b0457b2e55d4a0e8e24a6
+
+**prototype/js/pages/customer-demo.js**：1616eec112234cd0b37b7aba8f21c8f175b2b3bf926da90b480ed0e1f7dc47b3
+
+**prototype/js/pages/customer-directory.js**：5f1ffb739d4801d49802eb53c884e1d6833cadd11a2d61633e3db7fd35b895c2
+
+**prototype/js/pages/customer-tasks.js**：a42137862b5a1ae7619d52218874876592dd1088f70ecabd04a48eb6f6d32775
+
+**prototype/js/pages/extension-management.js**：588d123344d5666bfca172b93220e2e10e2848bf6d5bba3be133ad76c26207d7
+
+**prototype/js/pages/home.js**：77e2f34c43955287b5babeaf33baecebed6ee57995c8c4416a58a923a0a0f8cb
+
+**prototype/js/pages/inbound-routing.js**：fc1c9bd0bce959501b44b66c5facc9dd9c9e17aa49b815f236284fab9e4f40f4
+
+**prototype/js/pages/number-pool-management.js**：d6cd4b0b995b590bed8629326ec27ca9296c2430f6124a332ef46474885f537a
+
+**prototype/js/pages/operations-monitor.js**：faad3ad2fca61d62d6749694e26870cd43708df90f25cdf9b79a343c7161fa2d
+
+**prototype/js/pages/outbound-group-management.js**：0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02
+
+**prototype/js/pages/queue-management.js**：77ec5107da644326566c56be697dbe2318e474081c7b36410e152bffceb2263f
+
+**prototype/js/pages/report-center.js**：7648bb4223d562826659570f3931d07bf0d74aee75a205cf2a6648a535029f08
+
+**prototype/js/pages/resource-lines.js**：d68a6e106985af44a7a5310ab4f8bc41cc8d98b69c0cf4444c03953c29bc351a
+
+**prototype/js/pages/scenario-demo.js**：b5b666cf10e1628b4ac85e2957344f6fde7190a08184c93a075544c0cefd7723
+
+**prototype/js/pages/scenario-readiness.js**：339e26e4c53e2ea7ee3aae5a95e7c09201b23d656bb04b2a8fd928a36f442b5b
+
+**prototype/js/pages/system-center.js**：acece8536ed1812d90f8fc4a1ef76d2db996863c06ec30b1e857b38b39afe58f
+
+**prototype/js/pages/time-condition-management.js**：b319d1e521387e38e21b54e1c0fb2aa7f50f3054370a25316c1488b16d6c0bb5
+
+**prototype/js/review-view-cache.js**：70d270b31dd7e1437e9540498762b9819a6c2e7d06935a00b9cfc055ad472571
+
+**prototype/js/version-nav.js**：6a2912e748e9fca7d01a0134f52b9de509ae56b9ef1e707e7225a2859efc1b79
+
+**prototype/assets/css/account-seat.css**：9464001d5dc7772d8caecbc1fe14ea911015364008f6b70422b0da8a6a983763
+
+**prototype/assets/css/account-tenant-forms.css**：8baff4c4c41d3cacf733b339a3247c22bf971903e8129dab019650b9b2eec46f
+
+**prototype/assets/css/agent-workbench.css**：db2c50236081f7ed46aa96c8b70fc0cf997da7b98ff9e3a595e67180ad43795e
+
+**prototype/assets/css/alicti-accounts.css**：33ddd12b7d4a35138209c17feae7a93bb0341b5a6d93016f7b8730bde3606abd
+
+**prototype/assets/css/alicti-contracts.css**：f2fd43da4df286bdadc3bea5645f7383d49f0b732eb644d14102b00d633ad887
+
+**prototype/assets/css/alicti-number-import.css**：3e4db05ad1ac1151f2c9272b10a55d7530435cd758b132ecbbacd7e6b92ac8ed
+
+**prototype/assets/css/app.css**：4f38ab5f6be96777f25c31748363c83256f8703a0555a36991094716eb0a0e48
+
+**prototype/assets/css/atlas-sidebar.css**：babf4f49045328107abf64c8174ef1bb1ef0ea9f9f2c8b4f8a5cfd15efaf1ee3
+
+**prototype/assets/css/auth-showcase.css**：6a528ef7f51004fb8022aca6a1d0eb8bb2602720b384860c9894198729673e4e
+
+**prototype/assets/css/business-categories.css**：97ca772a2adca9bd78aa2e9c7b0b294a3702a7fec914b91d90ac4d25cdeb0082
+
+**prototype/assets/css/business-issues.css**：8da6c6a20c25ba930aa20791a1f6d47c3d006ab37f71853b9796802440bbe9a3
+
+**prototype/assets/css/call-media.css**：85931e531773f995f5f3b50ce939eb3bc5cc72ff665ea5405df3b3bb9caf773d
+
+**prototype/assets/css/call-sync.css**：3435fa99874621effaba95320ba02424354ecfe83865f65f416130018d80fcbd
+
+**prototype/assets/css/customer-directory.css**：7644e38a4650f9cd7f09567af37c6dd92f5f5eb8e3abe6a84d0c863d5d35f296
+
+**prototype/assets/css/customer-followup.css**：c4ff171dfc2151afe42e688320888657748ff4b6fef9769e3741801dffd691be
+
+**prototype/assets/css/dcc-v1.1.0.css**：75dab21b741a5d51732b1c67b2eeda0d9368affc1c8c3e9edd7fc07b98e45cc6
+
+**prototype/assets/css/delivery-diagrams.css**：13441c07d23e01ed7f1e6b8906db43ff3a0056c1f6f5cf0dd3fb10659e3c7168
+
+**prototype/assets/css/delivery-docs.css**：723ef6f97d203f9e911b7c1187af50712e8a93962f02ffa17c155673452fb3da
+
+**prototype/assets/css/demo-switch.css**：462e5397b52e805c5b8f2d4e866ad97faa7f9a68ad04db99f894f567f3431a66
+
+**prototype/assets/css/extension-management.css**：f4a25715da6a2d432c0a4bba6ea772613bbeb81b2b9e9b37b8543f6ca965e2bd
+
+**prototype/assets/css/global.css**：cd2247fa5742d9617356a6075404efb062b259b74d93b8f820c2cd6c23f487f2
+
+**prototype/assets/css/inbound-routing.css**：d06d30a8b2e53a06a7de36935fc59738e4f96ef4cc8def326678334a092029c1
+
+**prototype/assets/css/legacy-drawers.css**：50dc38a7e632ce734c5551b166bc3ca8e725cb5d86d04aa9ce286304a84bc3d8
+
+**prototype/assets/css/number-assignment.css**：7e1130aa09e03a0c0a32f1fb0d1a9e92ecbb6e0ba4e53004c51ddf8f593a144a
+
+**prototype/assets/css/number-pools.css**：30d6a83c669850b5d072f72a6dd6978523e531a46c9c438e5b7f7b86774f289e
+
+**prototype/assets/css/outbound-group-management.css**：cc593127ddebefa35e3b6abbeec9a533fb3d5051352e5467db9121bab660a153
+
+**prototype/assets/css/queue-config.css**：8ba4b3bced36fa1fff63b932e2cca4219745d1947455e35435dfc88446f9c9b9
+
+**prototype/assets/css/queue-management.css**：3daa9add5ea31dce8a1b1e17c49abf07e8ffc007aad612cc88e1a80975208bfc
+
+**prototype/assets/css/repeat-predictive.css**：f71ef07b24b4ed9d2f1c6503e30698e68df7f92752e4d07b47638594f6e4f142
+
+**prototype/assets/css/report-center.css**：e0657a74777c01a6283633f07f69f08ad6be915b550f5e0c1241fb6f4016b4b0
+
+**prototype/assets/css/resource-onboarding.css**：4750279e0d641bd485674e0c29bfca30d8896547ef5785bbc2279ee95655d762
+
+**prototype/assets/css/resource-relations.css**：ad2d095c19d09583c76e814837dba30d5cf38cfb9204de2e744da0889b58c11c
+
+**prototype/assets/css/role-charts.css**：1f8c95acf97e15be096e6f8e6755c68ffd2d72afbb8e742d17ce641081601a5d
+
+**prototype/assets/css/seat-detail.css**：7f7decf9d388558148bdd36f2138ea13e0db941e0d5e0007ede3f3e523e310a9
+
+**prototype/assets/css/seat-home.css**：4c0e15a9af87ba755558c463fe299c3dda429fac13d7a2592d2d1af7820ebeed
+
+**prototype/assets/css/secondary-navigation.css**：71098866c4707ad7cf7d34ab52d653ea672193d7490d3a3be8e50c4bb879e722
+
+**prototype/assets/css/system-blueprint.css**：4c9030c9aee4b5a6e5fb90e57a518bf1f366039b781c4f4f423ecf2613d41c03
+
+**prototype/assets/css/task-create.css**：470982a4d2a8145d0bb8f588632a0b8e6721d9951dfecff430968b7fb16de68a
+
+**prototype/assets/css/task-retry.css**：578a97c3c90908e356d9e28d6cb97a125456cd75f2943f6ebf08423c2e2e9bf8
+
+**prototype/assets/css/time-condition-management.css**：fca1d7e4ffb10242bb8492a42bf8725014064bb8feaf641452364ed866620a67
+
+**prototype/assets/css/version-history.css**：5d128357bb4b0750d3fd64a150a736c8704c76617874d4b465c9adc5a42756bd
+
+**prototype/mock/alicti-number-status.json**：64d549cbfd260335cfd82f461f7af92623312ab9fd083524f0371e888e4de0eb
+
+**prototype/mock/call-media.js**：4fb2055a45370af65d38da4a74fec14076e61a3b13549042788675eae59d918b
+
+**prototype/mock/ccc-support.js**：d0e0bd3740c6937be960b6fad775dd9e9039c214e5d6332843f5642e7046a2cd
+
+**prototype/mock/customer-followup.js**：1dcb0bcf05132612ea2d355da93432915ad0178b95b4fab1db94d0ee45eac906
+
+**prototype/mock/customer-import.js**：377f10d2834bae436bd1baac3871e43c3ce0cb87fcc2cde9e7300be2f7c2e580
+
+**prototype/mock/data.js**：22fa116694fd3a46f6a6d38e4cb1da90e2c471183a81b5039bc2d200788c3bce
+
+**prototype/mock/dcc-v1.1.0.js**：c06080417cd05562087bb01dc92a62c20f88b4d472de66f66cff6adefd910d24
+
+**prototype/mock/demo-activity.js**：4a8c630a2f70447630f2958ee3aaf822d339b6d49338525e121fa38ff4296bbf
+
+**prototype/mock/demo-compact.js**：b1dcd4163ff12f9e73d942b8e95a94a9131ae9726135d626d9e07b4a8fb940f9
+
+**prototype/mock/demo-install.js**：63eed579189c60ee1f445c30c7d6bcbef0da98e88b77054c5d6205feb5736ce1
+
+**prototype/mock/demo-kit.js**：2d8ccb8d321eb60e5d53d06309067c3c075a10e525b2eb38d4c13f5e4ca576b6
+
+**prototype/mock/demo-media.js**：f99b9a22732cb62fd9df0f65d137a28d49029ef52f3a79191ae67f9d7db86e1c
+
+**prototype/mock/demo-ready.js**：c2b62bdda99c6647b0f034cab6090b13ce8374ccbec097d0ba902012255349b4
+
+**prototype/mock/demo-resources.js**：ed71493afa15312a4b7d5f50cc8bc767201d5d888f6e2aaa47f181803b4d8391
+
+**prototype/mock/extensions.js**：848e283f1958f922cd4e4b4d927946021734a11ebbdf1d9074be0c0a88e5e8e1
+
+**prototype/mock/inbound-routing.js**：a0da233b4706e9f80e28a3d717e68e8c7ecd7c797850d619959ac625535c2092
+
+**prototype/mock/number-onboarding.js**：75cce87e551e7b431d43fa51bbf0d66df2a80bd3e775a0f5b7f97b15bf798dfe
+
+**prototype/mock/number-pools.js**：45118c56b5322cf50b46de4534d33f1bbf64dd0dd6e6c99d0ad371a6f4b7fac6
+
+**prototype/mock/queue-resources.js**：ee0b11f873661fb843cdb709df8371b0210e25e9a5d5f048003cd9a961a20f55
+
+**prototype/mock/report-fixtures.js**：fc3719abe44dcab7f3c634b6d53eae5259181ad26b451c3472e4ecc4b39d41a5
+
+**prototype/mock/report-summaries.js**：30ce6f034418c81554319b654e707b20f71ee828bb4102748db0e3e97e0e006a
+
+**prototype/mock/scenario-demo.js**：1fdf32393b654983835fa2c9449e41ba5ebaf2f2ae620a0d2a8616042b1ff50b
+
+**prototype/mock/seat-operations.js**：30b7cf3be50186cd4b7bbafd3b371cb2226f032417c21d6c570da44ffa01f8b0
+
+**prototype/mock/time-conditions.js**：c842c0faa650107055a33a8b87342890614530c8665cc7c47f2ae17e971414ed
+
+**prototype/mock/workbench-fixtures.js**：cb55f6f2440e830ce17de4bcd854bdac3ffef4a59d6f5a9964e914318d669e4b
+
+**prototype/config/interface-sources.json**：e868576825e3048911dc7aca752ba143283c413328e477b16024274191b773df
+
+**prototype/config/nav.json**：96c4f252d464b9092e412860014e43be92328720a8c639e9644fc4fa53a82c99
+
+**prototype/config/project.json**：604a7cd8727316c7c02173a7f7eaf39ab46729501f268d7f2a95ebb83ccca672
+
+**prototype/config/requirement-analysis.json**：4210ac32190283057cb07c8542506d19b8f0341a766d2c104b91a816fa930021
+
+**prototype/config/workflow.json**：f7f535135bb580d1a5c77547bafbb8fa98ef61b547be8e5a015504f8dffca038
+
+**prototype/index.html**：acfab4112185c518f29f18c5edb008bdc609d4db81985309dfbfcd012e48b436
+
+**范围**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。
+
+**verified_local_behaviors**
+
+1. 应用多对多与回调地址本地保存/回读；保留已停用租户的既有授权显示但拒绝获取身份；跨窗口读最新配置，旧表单/删除确认冲突拒绝，删除或撤权即时失效。
+
+2. 接口强制callMode、businessType、businessBatchNo；预外呼核taskId归属，人工按同租户有效agentWorkNo写入原待联系账本；同app/tenant/requestId重放不重复，另app同号同批次独立。
+
+3. 全部已验应用沿原应用地址形成结果/完成事件；手工UI无应用不外发；地址变更、撤权或删app后的积压保持待核，不转投新同名应用。
+
+4. 原预外呼账本客户通过显式本地offer进入坐席振铃、接听/未接、填写与跟进保存；继续跟进归当前坐席，原任务仍运行时阻止人工再次拨号，暂停/结束后按本地守卫继续。
+
+5. 本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。
+
+6. 客户/通话/报表沿准确原记录归集；未知结果不当作未接通，真0秒不丢，重复标识及跨租户范围受控。
+
+7. 受控保存取消/写入失败及普通下载保留失败记录；成功关闭/回读的准确版本才清理；失败补提交与结果补送继续独立。
+
+8. 租户与审计导出读取当前权限下的筛选模型，输出CSV而不伪报成功；资源引用保护及供应商账号业务数据锁定保留。
+
+9. 旧scope缓存和演示样例精简只识别明确静态种子，用户合成业务、未知/混合记录和坏存储原字节保留；完成标记仅可靠保存后写。
+
+10. 新导入已明确受理且具有准确首提和fileId证据时，列表显示待启动并开放启动入口；未知、失败和仅保存不开放，点击仍复核权限、时间、资源及坐席。
+
+11. 保存与运行态发布先克隆已提交任务；即使传入当前任务对象，也保留ID、配置及状态，不因原地替换清空。
+
+12. 任务详情关闭或返回后刷新原列表，并保留筛选、页码和滚动位置；任务行操作保持相同顺序。
+
+13. 通话详情优先展示话单姓名；可靠话单工号准确相同时使用本通已保存原生坐席姓名，不查当前目录补猜历史。
+
+14. 管理任务按准确原记录和通话事实统计已结束及已接通客户，多通话不重复名单；明确接通与秒挂三态独立，错任务/租户/应用/坐席不纳入，不改变供应商任务终态。
+
+**剩余范围**
+
+1. 真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
+**verification_boundary**：通读源文件与已覆盖本地合成运行/浏览器证据由本证据逐项登记；没有将104条CHECK声明为整版执行通过，不证明真实接口联调。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**supersedes_current_implementation_claims_only**：True
+
+**historical_evidence_policy**：此前局部证据只证明当时来源快照及当时范围；本覆盖层优先说明当前局部实现，不改冻结需求原文或继承正式批准。
+
+#### UI-LOCAL-IMPORT-ASSIGNMENT-STATUS-20261016
+
+**标识**：UI-LOCAL-IMPORT-ASSIGNMENT-STATUS-20261016
+
+**source_id**：SRC-126
+
+**date**：2026-10-16
+
+**状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**范围**：统一批次查看、接口人工坐席工号选填、分配/通话/业务跟进三轴及外部人工通话准确关联的局部修订。
+
+**source_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**证据**
+
+1. prototype/memory/verification-evidence/import-assignment-status-20261016.json
+
+**source_hashes**
+
+**prototype/index.html**：5ae7ced733ddc58ee2c3cdc61d57d3ce45e3c445c3786c8f748c38a4b58e3a5d
+
+**prototype/js/components/dcc-runtime.js**：2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3
+
+**prototype/js/pages/customer-tasks.js**：91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28
+
+**prototype/js/pages/scenario-demo.js**：fa7a21be0d3e8f2795c5c87ab40a61f198e5fa29190b01a7f64445955ff0bb41
+
+**prototype/js/pages/customer-directory.js**：b4935dc59c2752b63902e48e9336a346c54178d16028b1346afca3385644d3e6
+
+**prototype/js/components/workbench-overview.js**：434af9c482bf6641dbc5b57d2a3bd0fb24a709045af51269d7268e3dbe535deb
+
+**prototype/js/pages/agent-workbench.js**：45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3
+
+**prototype/js/components/customer-business.js**：dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b
+
+**prototype/js/components/customer-followup.js**：c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9
+
+**prototype/js/components/customer-directory.js**：700e88fad6e41cba9dfecb109a5a3f9c95476cec683b848d17df5e643aabafca
+
+**prototype/js/components/alicti-fields.js**：eaaa5fe33c9a628df28944cc09f77b4e6fde3c8aba5875fb808fdaf36fdfdbf8
+
+**prototype/js/components/call-state.js**：93048ccfe263df33cee3262a7bd903ce887aa46829f9123cb1da3a9839c0a0df
+
+**prototype/js/components/platform-ui.js**：5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2
+
+**prototype/js/common.js**：5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1
+
+**prototype/js/nav.js**：995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b
+
+**prototype/mock/dcc-v1.1.0.js**：c06080417cd05562087bb01dc92a62c20f88b4d472de66f66cff6adefd910d24
+
+**rules**
+
+**optional_agent_assignment**：人工外呼agentWorkNo选填；缺省接收且不分配云呼叫坐席、不进入个人待联系；显式提供时精确校验当前租户唯一有效坐席，错误拒绝该行，不回退成未分配或改派。预外呼仍必须传准确taskId并沿任务坐席组，工号不覆盖组分配。
+
+**separate_state_axes**：所有新接口来源的业务跟进初始为“未同步”，与是否已分配、是否拨打/接通分开。无工号不认定未联系；有有效工号表示已分配云呼叫坐席，不凭分配就认定业务待联系。平台本人保存的明确处理结果或经过准确关联的外部业务处理结果方可更新跟进；仅AliCti话单、挂断、接通和时长不能推断业务已完成。平台明确继续跟进/需要再次联系保留当前有权坐席待办；结束性处理结果已保存可标跟进已完成，但独立“完成沟通回调”仍只由精确结果已完成沟通触发。
+
+**unified_batch_projection**：在既有“导入与分配”批次清单只读展示人工和预外呼接口导入；按当前权限保留原app/tenant/request与原客户记录、预测task和实际映射。相同businessBatchNo可多请求复用但不合并不同请求；不复制/迁移原账本，不重新分配或重复导入。预外呼显示任务去向，人工无工号显示未分配云呼叫坐席。
+
+**external_call_correlation**：DCC拨号入口与平台共用同一AliCti；线索负责人/平台分配坐席与本通实际坐席分别保存展示。外部人工通话按稳定app、已鉴权tenant、供应商实例、原记录与callId精确关联；实际坐席取该通真实话单工号，不反写线索分配。不能仅按手机号、同名业务批次或工号关联，错误/歧义/冲突保持待核。外部通话的业务结果为独立显式同步，不能用话单接通代替。
+
+**history_and_gates**：仅影响本次新导入及本轮显式合成验证；历史记录状态和原账本不批量改写，旧无值保留未知。旧SRC125的S1/S2通过仅证明当时104条正文，未继承为SRC126通过；正式104条验收/US规范化及S1开始的下游复核待后续正式执行，G1/G2/G3仍pending。
+
+**local_source_order_and_unknown**：本地合成同步使用同原记录的独立call版本/业务版本。平台保存跟进时记录已观察到的外部业务版本，旧版本不覆盖本次平台保存，只有更高外部业务版本可更新显示，不比较两套系统时钟。任一准确关联的通话未结束均保留在途占用；外部资料不可读或关联待核时阻止新拨打和重新分配。真实双方版本冲突协议仍待评审。
+
+**platform_contact_arrangement**：有有效云呼叫分配的接口人工客户，跟进未同步时由有权本人显式确认平台联系安排后才进入个人待联系；该安排不表示DCC尚未联系。人工接口补分配只选坐席，不静默改成预外呼任务，原导入方式与原应用回调归属保留。
+
+**affected_historical_acceptance_ids**
+
+1. AC-007
+
+2. AC-012
+
+3. AC-014
+
+4. AC-050
+
+5. AC-051
+
+6. AC-080
+
+7. AC-081
+
+8. AC-082
+
+9. AC-083
+
+10. AC-099
+
+**formal_requirement_rebaseline**：not_executed_SRC126_overlay_precedes_conflicting_SRC125_clauses_in_this_scoped_draft
+
+**剩余范围**
+
+1. 正式外部通话/业务结果同步报文、可靠来源验证/关联标识和ACK、后端并发原子保存与生产AliCti轨迹仍待工程和双方核实；本轮只做本地合成桥，不新增已联调生产端点。
+
+2. 供应商实例映射未建立；本地示例按原记录和租户演示，显式带instance字段的未确认记录拒绝，不提供真实AliCti自动归集承诺。外部接收不反向生成新的平台完成沟通回调，避免环路。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**previous_evidence_policy**：full-prototype-audit-20261015及更早证据保持原字节，仅证明当时源码与当时范围；本轮证据另行严格绑定当前源。
+
+**verified_evidence_sha256**：69c077060fd9c00d9bce508b80ad41e2ce7733c35ad258fc6eb39deee09632ac
+
+**verification_boundary**：本轮局部合成运行及已记录浏览器范围通过；不代表104条全套或真实DCC/AliCti同步契约。
+
 **known_differences**
 
 #### UI-GAP-001
 
 **标识**：UI-GAP-001
 
-**说明**：局部原型已删DCC独立页签并仅在原DCC记录详情展示。当前要求全部应用来源包括天网均按各自应用回调，尚未实现。
+**说明**：已移除独立DCC回传页签；全部已验应用的结果与完成沟通事件在准确原记录详情内显示本地交付状态。手工UI无原应用不回调，真实接收与ACK待核。
 
 **impact**：新回调范围不能用旧原型DCC专属路由推断；手工UI无接入应用仍不回调。
 
-**状态**：draft_target_not_implemented
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **验收**
 
@@ -8898,13 +12246,19 @@
 
 3. P0-FOLLOWUP
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**local_evidence**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
 #### UI-GAP-002
 
 **标识**：UI-GAP-002
 
-**说明**：原型业务账本仍旧冻结基线；三类120秒/八类共享2次、未知保留与精准删除新规则不因局部UI回归视作已实现。
+**说明**：本地合成账本已实现三类120秒/八类人工共享首次外2次、未知尝试占用与秒挂显式禁止补提交，定点运行和浏览器证据见四处断点覆盖层；这不证明精准删除、真实供应商导航/原生重呼互斥、生产原子并发及整版对齐已完成。
 
-**状态**：full_alignment_pending
+**状态**：scoped_local_retry_verified_production_deletion_and_full_alignment_pending
 
 **验收**
 
@@ -8917,6 +12271,10 @@
 4. AC-073
 
 5. AC-078
+
+**local_evidence**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
 
 #### UI-GAP-003
 
@@ -8938,9 +12296,9 @@
 
 **标识**：UI-GAP-004
 
-**说明**：本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。 既有多租户选择不证明正式多租户token完整实现。
+**说明**：应用多对多、本应用回调配置及本地身份交换已实现；保留停用租户既有授权但拒绝取身份，跨窗口读最新配置并拒绝旧表单覆盖，删除/撤权即时使旧身份失效。真实token/URL安全/签名/网络与ACK待核。
 
-**状态**：partial_local_callback_configuration_remaining_backend_and_identity_gaps
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **验收**
 
@@ -8982,13 +12340,23 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**local_evidence**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
 #### UI-GAP-005
 
 **标识**：UI-GAP-005
 
-**说明**：接口双方式、人工工号映射及幂等分配是新草稿；旧前端手工分配不等于对外API或后端已存在。
+**说明**：预外呼与人工两方式接口本地接收已实现；预外呼核taskId，人工按有效同租户工号进入原待联系账本，幂等重放及失败恢复不重复分配。没有生产HTTP端点或真实鉴权。
 
-**状态**：draft_target_not_implemented
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **验收**
 
@@ -9012,13 +12380,19 @@
 
 1. P0-IMPORT
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**local_evidence**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
 #### UI-GAP-006
 
 **标识**：UI-GAP-006
 
-**说明**：拨号即填、预外呼坐席振铃编辑及明确未接外呼20描述/16码状态选择、未选拦截、草稿恢复、条件校验和独立详情已局部验证。预测转当前坐席人工归属/排他、正式存储/回调契约与生产业务条件清单仍待；既有人工需要再次联系不证明完整新闭环。
+**说明**：早填/未接独立状态及保存恢复保留；预外呼原账本现可显式本地接席，继续跟进归当前坐席人工待联系，运行中原任务阻止本地再次拨号。真实供应商排他、正式保存契约及业务条件清单仍待核。
 
-**状态**：local_form_and_unanswered_status_verified_remaining_production_and_predictive_pending
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **来源**：prototype/js/pages/agent-workbench.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-followup.js, prototype/memory/verification-evidence/workbench-early-form-repair-20261014.json, 需求/1.1.0/分析工作区/inputs/user-workbench-manual-status-20261014.md, prototype/memory/verification-evidence/workbench-manual-status-20261014.json, prototype/js/pages/cloud-call-records.js, prototype/js/components/alicti-number-status.js
 
@@ -9046,13 +12420,19 @@
 
 1. P0-FOLLOWUP
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**local_evidence**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
 #### UI-GAP-007
 
 **标识**：UI-GAP-007
 
-**说明**：预外呼转人工继续跟进的供应商停呼/排他能力待验证；保存本地待联系并不证明原任务已停止或可安全再次拨号。
+**说明**：预外呼继续跟进的当前坐席归属、原记录溯源及本地原任务状态守卫已实现；真实供应商停呼/自动重呼互斥仍待验证，不能据本地守卫宣布原任务已停止。
 
-**状态**：production_contract_pending
+**状态**：local_followup_guard_verified_production_exclusion_pending
 
 **验收**
 
@@ -9070,13 +12450,19 @@
 
 1. P0-FOLLOWUP
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**local_evidence**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
 #### UI-GAP-008
 
 **标识**：UI-GAP-008
 
-**说明**：新增业务批次号仅API导入必传，可在同app/tenant反复用于新导入；当前原型未保存或展示该原号。完成沟通后的本次通话+客户业务信息快照回调也尚未实现，现有保存成功与旧DCC回传不能证明它已存在。 新回调还须携已填字段及全部所选选项的业务编码，取本次快照；现有原型值存储不证明此能力已存在，界面不增加编码输入。
+**说明**：本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。
 
-**状态**：draft_target_not_implemented
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **交付优先级**
 
@@ -9116,13 +12502,19 @@
 
 3. SC-002
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**local_evidence**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
 #### UI-GAP-009
 
 **标识**：UI-GAP-009
 
-**说明**：SRC-124六项原导入业务信息已在原界面局部合成实现，21组源码验证通过，浏览器导入/详情/早填定点通过，非整版视觉。真实API接收/认证、正式字段与留资时间类型/格式/时区、完成事件固化及回调仍未实现或待核；本地UI展示不证明后端原子快照、业务码映射或ACK。
+**说明**：六项原导入字段在两方式本地接口接收、原记录保存、原界面显示及本次完成事件冻结中保留字符串原值；原先展示证据仅证明当时范围，当前以新覆盖层为准。正式字段/留资时间格式时区及真实生产回调仍待核。
 
-**状态**：local_synthetic_source_and_targeted_browser_passed_external_contract_not_implemented
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **验收**
 
@@ -9161,6 +12553,12 @@
 **范围**：六字段接口接收与完成回调属于既有P0能力范围，界面只读展示为依赖；手工CSV整体优先级不变。
 
 **来源**：需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**local_evidence**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
 
 **coverage**
 
@@ -9718,6 +13116,12 @@
 
 **meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
 
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
+
 #### 8
 
 **acceptance_id**：AC-008
@@ -9798,6 +13202,12 @@
 
 **meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
 
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
+
 #### 13
 
 **acceptance_id**：AC-013
@@ -9829,6 +13239,12 @@
 **current_requirement**：本地保存原客户称呼、号码、备注和按业务类型的编码，以及leadCode/最终priority/可选R；线索类新导入的单一编码同源写入leadCode与兼容externalDocumentId，其他类型及历史记录不批量改写。外部接口保存requestId/行、验真租户/稳定应用、由应用登记识别的业务来源及外呼方式；人工分配另保存原坐席工号及解析后的身份。预外呼保存原任务、record/batch/root、原时间和实际供应商映射，失败补提固定触发root/priority及共享连续额度；人工不伪造预测映射或预算。原接入来源不因应用改名/删除或后续同组记录改变。所有已鉴权并保存接入应用/source的接口来源准确结果（含DCC、天网）按US-006回调；原手工UI导入且无接入应用者仅平台查看，秒挂不补提交。
 
 **meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
 
 #### 15
 
@@ -10424,6 +13840,12 @@
 
 **meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
 
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
+
 #### 51
 
 **acceptance_id**：AC-051
@@ -10439,6 +13861,12 @@
 **current_requirement**：在已鉴权tenant+stableApp+operation的拟定作用域内，同requestId完整有效内容不同拒整个重复请求，不覆盖原回执或新增记录/分配/批次/供应商提交/呼叫。比较实际方式、预测原taskId或人工工号、行定位及leadCode/phone/priority/R等；保留source时还核与应用登记一致。预测missing isNewBatch与false归一相同，true不同。跨租户/应用不得借ID复用另一主体回执，正式命名空间、完整摘要及历史兼容待S4。
 
 **meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
 
 #### 52
 
@@ -10940,6 +14368,14 @@
 
 **meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
+
 #### 81
 
 **acceptance_id**：AC-081
@@ -10967,6 +14403,14 @@
 **优先组**
 
 1. P0-IMPORT
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
 
 #### 82
 
@@ -10996,6 +14440,14 @@
 
 1. P0-IMPORT
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
+
 #### 83
 
 **acceptance_id**：AC-083
@@ -11023,6 +14475,14 @@
 **优先组**
 
 1. P0-IMPORT
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
 
 #### 84
 
@@ -11062,6 +14522,12 @@
 
 **real_calls_enabled**：False
 
+**historical_scope_note**：此前局部证据只证明当时快照与范围；当前实现以UI-LOCAL-FULL-AUDIT-20261015为准。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 85
 
 **acceptance_id**：AC-085
@@ -11084,6 +14550,8 @@
 
 **meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 86
 
 **acceptance_id**：AC-086
@@ -11103,6 +14571,8 @@
 **current_requirement**：应用未配置回调地址时不得接口导入，覆盖全部应用接入业务系统含DCC/天网和两种外呼方式；本方建议在新业务落账前统一检查，缺失则明确返回未配置原因，不新增客户/分配/预测批次/供应商提交，补配置后方可重新发起。不能先导入再排队等地址，也不回退到旧固定DCC地址或其他应用地址。正式错误结构、历史技术重传只读回执及地址删除并发守卫待S4，不把URL已填写当作已完成真实联调。
 
 **meaning**：本稿说明可见操作/反馈；该验收后端条件仍需逻辑、接口和工程验证，非运行通过。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 #### 87
 
@@ -11136,6 +14606,8 @@
 
 1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 88
 
 **acceptance_id**：AC-088
@@ -11168,6 +14640,8 @@
 
 1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 89
 
 **acceptance_id**：AC-089
@@ -11195,6 +14669,8 @@
 **优先组**
 
 1. P0-FOLLOWUP
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 #### 90
 
@@ -11228,6 +14704,8 @@
 
 1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 91
 
 **acceptance_id**：AC-091
@@ -11260,6 +14738,8 @@
 
 1. prototype/memory/verification-evidence/workbench-manual-status-20261014.json
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 92
 
 **acceptance_id**：AC-092
@@ -11275,6 +14755,8 @@
 **current_requirement**：多租户身份验收提案：同一应用可分别申请已关联租户A/B身份并各自导入；缺tenantId、未关联租户、A身份请求B任务/坐席或正文租户时明确拒绝且不新增业务。另一应用在同租户的请求与回调仍归其自身配置，不按报文source切应用。关联撤销、旧token及并发变更的正式响应/有效期需S4和工程补证，不默认首个或最近租户。
 
 **meaning**：核心为鉴权、请求、分配、结果关联或后台策略；不为覆盖数字造UI。读取原有结果展示不证明本项后端行为，详见logic-draft。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 #### 93
 
@@ -11292,7 +14774,7 @@
 
 **current_requirement**：全部应用接口新导入（预外呼和人工外呼）必须提供外部业务批次号，候选名businessBatchNo；先按稳定应用和token明确租户校验归属，再逐记录保存对应原值。同一app+tenant可在多个新业务请求中复用同一个业务批次号，不因重复批次号拒绝新请求；各次新业务仍使用独立requestId并沿原记录、预测任务或人工坐席分支处理。跨app或tenant的同值不得混合归属。请求级字段及逐行继承为本方建议，正式字段名、层级、长度、格式和错误结构待S4；原手工CSV不新增该必填字段。
 
-**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+**meaning**：本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。 这是局部合成证据，不是整条AC的生产或正式验收通过。
 
 **交付优先级**
 
@@ -11311,6 +14793,8 @@
 **scenario_ids**
 
 1. SC-001
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 #### 94
 
@@ -11328,7 +14812,7 @@
 
 **current_requirement**：业务批次号只是外部业务关联标识，不是技术去重键，也不替代平台batchId/rootBatchId或供应商fileId。按原app+tenant+operation+requestId拟定作用域比较完整内容时须包含businessBatchNo；同requestId同内容返回原逐行结果不重导/重派，同requestId改业务批次号属于冲突且不覆盖原记录。新业务使用新requestId可复用原业务批次号，但不绕过同线索固定手机号、原主子批次/任务规则或重置预测失败首次外共享2次。历史缺少业务批次号保留明确缺值，不从平台批次、fileId、R或最近请求猜造；旧请求兼容及准确错误码待核。
 
-**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+**meaning**：本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。 这是局部合成证据，不是整条AC的生产或正式验收通过。
 
 **交付优先级**
 
@@ -11348,6 +14832,8 @@
 
 1. SC-001
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 95
 
 **acceptance_id**：AC-095
@@ -11364,7 +14850,7 @@
 
 **current_requirement**：仅本次外呼通话已结束、坐席本次处理结果明确为“已完成沟通”，且本次跟进及客户业务信息保存成功后，生成该次完成沟通回调所需的已保存快照。通用处理状态“已完成”不能代替“已完成沟通”；未保存、保存失败、振铃/通话中或其他处理结果不触发此完成事件。快照关联准确原应用/租户/记录及本次call，冻结本次保存的业务信息和处理结果/录入人时间，不取跨通话聚合、后续编辑或其他客户资料。坐席选择该处理结果不证明客户接通，不改客观话单、时长、统计或秒挂；原继续跟进去向不变，手工无接入应用来源不新增外部回调。保存与快照/事件的原子可靠性及正式快照字段为待核提案。
 
-**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+**meaning**：本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。 这是局部合成证据，不是整条AC的生产或正式验收通过。
 
 **交付优先级**
 
@@ -11384,6 +14870,8 @@
 
 1. SC-007
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 96
 
 **acceptance_id**：AC-096
@@ -11400,7 +14888,7 @@
 
 **current_requirement**：对准确原应用接口来源的完成沟通事件，按保存的原应用、tenant和业务记录路由到该应用配置的对应业务系统，回调本次通话记录、本次已保存的客户业务信息快照及该记录原businessBatchNo。不能以最近应用/租户token/同批其他记录、外呼方式或临时URL改接收端；预外呼和人工接口来源均适用。原有每次结果/进度回调也携带对应记录原业务批次号，字段缺失时明确保留历史缺值、不猜造。话单未齐或部分字段未知时保留真实已知与缺失状态，不为“已完成沟通”伪造接通；动态业务字段标识/类型/选项与配置版本、通话记录具体结构、晚到话单后续交付机制及正式签名/ACK契约仍待S4核验。
 
-**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+**meaning**：本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。 这是局部合成证据，不是整条AC的生产或正式验收通过。
 
 **交付优先级**
 
@@ -11419,6 +14907,8 @@
 **scenario_ids**
 
 1. SC-002
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 #### 97
 
@@ -11436,7 +14926,7 @@
 
 **current_requirement**：新增完成沟通回调不替代或撤销既有每次通话结果、真实进度、秒挂分类及失败结果回调。建议按准确记录、本次call及保存版本形成稳定事件身份；重复保存/重复通知不重复生成同一完成事件，交付失败仅补送该事件的原业务批次号与已保存快照，不重新导入、分配或拨号。业务批次号可复用，不能用它单独去重回调。补送不偷偷读取当前业务表单或跨通话聚合；后到话单只按正式更新/版本方案补充同一call的客观事实，不覆写原已保存业务快照。稳定事件ID、版本、接收ACK、超时/补送策略、地址变更积压目标及重复或修改保存语义继续待双方契约与工程证据，不将HTTP受理或本地保存当作业务系统已接收成功。
 
-**meaning**：新需求仅有目标UI规格，原型业务批次号/本次快照/完成沟通回调均未实现；详情只读与保存反馈不证明后端幂等、原子生成、准确路由或ACK已完成。
+**meaning**：本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。 这是局部合成证据，不是整条AC的生产或正式验收通过。
 
 **交付优先级**
 
@@ -11456,6 +14946,8 @@
 
 1. SC-002
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 98
 
 **acceptance_id**：AC-098
@@ -11470,7 +14962,7 @@
 
 **current_requirement**：完成沟通回调中的本次已填写客户业务信息（含选填业务字段），须携带对应字段业务编码及已保存值；枚举选项还须携配置的选项业务编码和值，多选包含全部选中项编码，不得只发中文标签或内部字段/选项ID。与AC-096的本次已保存快照绑定，按原租户保存当时配置冻结字段及选项业务编码、值和可溯源配置信息，后续配置改名或改码不改写原快照，补送沿同一快照。未填写的选填字段不伪造值或选项编码；已填写字段或已选选项缺业务编码时，标记“回调资料待完善”，不得以label/内部ID兜底并声称完整交付成功，也不得因此阻止满足既有校验的坐席本地保存或丢失草稿。历史缺编码不猜造，正式报文字段、配置版本/值类型、缺码补全及恢复交付规则待双方契约与工程验证。验收须覆盖文本字段业务编码、单选及多选全部编码、空选填、已填缺码、本地保存成功但交付待完善，以及保存后改配置再补送仍用原码原值。
 
-**meaning**：字段/选项业务编码由后台从本次保存时原租户配置快照生成，不增加坐席技术输入或默认编码展示。UI只承接独立回调资料待完善反馈；该编码契约能力尚未实现，不由原型跟进保存证明。
+**meaning**：本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。 这是局部合成证据，不是整条AC的生产或正式验收通过。
 
 **交付优先级**
 
@@ -11489,6 +14981,8 @@
 1. SC-002
 
 **来源**：需求/1.1.0/分析工作区/inputs/user-completed-communication-business-batch-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-123
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 #### 99
 
@@ -11523,6 +15017,14 @@
 1. SC-001
 
 **来源**：需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**旧验收本轮适用边界**
+
+**来源**：SRC-126
+
+**note**：保留旧验收原文，工号和状态冲突条款以本轮覆盖层为准；正式重验待执行。
 
 #### 100
 
@@ -11562,6 +15064,8 @@
 
 **来源**：需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 101
 
 **acceptance_id**：AC-101
@@ -11596,6 +15100,8 @@
 
 **来源**：需求/1.1.0/分析工作区/inputs/user-intention-fields-20261014.md, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 102
 
 **acceptance_id**：AC-102
@@ -11610,7 +15116,7 @@
 
 **current_requirement**：业务系统导入客户接口API-001／DCC-RST-IMPORT新增请求级必填businessType，一次新请求只导入一种业务类型；必须提交当前已验真token租户配置内启用的稳定业务类型编码，不取展示名称或由source、callMode、手机号、任务默认值推断。新业务缺失、无效、不属于当前租户或停用类型时明确拒收，不新增客户、不分配坐席、不提交供应商。通过后将原类型编码及名称快照按原app/tenant/request行/record逐条保存。不同类型分次导入仍可复用businessBatchNo，原leadCode、phone、priority必填及taskId/坐席分支不变；类型不加入既有线索/批次归组或失败额度键，不因换类型重新获得补提交次数。完成当前身份鉴权后，完整幂等内容包含businessType；同app+tenant+requestId同内容技术重放返回原受理回执，不重复保存/分配/提交，不因后来停用类型改写或重解释原请求；同requestId改类型冲突。原手工流程的业务类型选择沿用，历史记录不批量回填，不据此修改API-002供应商报文。正式码集合、字段版本、旧调用迁移及可靠持久校验仍待S4/工程核验。
 
-**meaning**：41组源码定点及原名单/详情浏览器证据仅证明指定本地模拟路径；仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+**meaning**：原业务类型在预外呼/人工两方式本地接收、原记录/表单及结果/完成回调中保留；旧41组只证明此前范围，当前局部证据见新覆盖层；真实外部契约与整条AC尚待。
 
 **交付优先级**
 
@@ -11634,6 +15140,8 @@
 
 1. prototype/memory/verification-evidence/api-business-type-20261014.json
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 103
 
 **acceptance_id**：AC-103
@@ -11650,7 +15158,7 @@
 
 **current_requirement**：接口导入后，客户名单、客户详情、准确本次通话详情及坐席拨号/振铃即可打开的跟进表单展示本记录保存的业务类型名称并保留稳定编码，按该原类型载入客户业务表单；不要求坐席为已确定类型的接口线索重新选择，也不允许静默切换原类型。原类型从准确app/tenant/record及本call取得，不从source、callMode、最近同号或其他批次推断。类型后续改名或停用不改写历史原类型或把旧记录切换到其他类型，若原业务表单暂不可用则说明原因并保留草稿，不能默认其他表单。历史无值显示未提供且不批量猜补。原手工导入已选业务类型的流程、单一线索编码、原弹窗与六项选填来源信息后置保持；不新增独立页面或业务类型配置功能。
 
-**meaning**：41组源码定点及原名单/详情浏览器证据仅证明指定本地模拟路径；仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+**meaning**：原业务类型在预外呼/人工两方式本地接收、原记录/表单及结果/完成回调中保留；旧41组只证明此前范围，当前局部证据见新覆盖层；真实外部契约与整条AC尚待。
 
 **交付优先级**
 
@@ -11676,6 +15184,8 @@
 
 1. prototype/memory/verification-evidence/api-business-type-20261014.json
 
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
 #### 104
 
 **acceptance_id**：AC-104
@@ -11690,7 +15200,7 @@
 
 **current_requirement**：向对应原应用业务系统回调每次准确结果、进度及已完成沟通的保存快照时，均携本记录原businessType稳定编码，并与原businessBatchNo、线索编码及准确app/tenant/record/call关联；业务类型展示名称不能替代编码，source和callMode分别保留。原每次回调及完成沟通触发条件不变，六项原来源字段、本次已填业务字段及枚举项编码和值继续按AC-098/101的保存时快照回传。补送沿同事件原类型快照，配置后续改名/停用、同手机号新导入或同业务批次重复使用不得替换原类型；类型不改变回调所属应用与租户、不触发新导入/分配/重拨。旧记录无类型不伪造默认，旧事件兼容与正式payload/ACK、表单版本及可靠保存仍待S4与工程核验，未证明真实回调可用。
 
-**meaning**：41组源码定点及原名单/详情浏览器证据仅证明指定本地模拟路径；仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+**meaning**：原业务类型在预外呼/人工两方式本地接收、原记录/表单及结果/完成回调中保留；旧41组只证明此前范围，当前局部证据见新覆盖层；真实外部契约与整条AC尚待。
 
 **交付优先级**
 
@@ -11713,6 +15223,8 @@
 **证据**
 
 1. prototype/memory/verification-evidence/api-business-type-20261014.json
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 **official_action_ids**
 
@@ -11780,7 +15292,7 @@
 
 3. DRAFT-UI-PENDING-CONTACT
 
-**claim**：104条当前验收逐项分为UI呈现及后端依赖或后端契约，无遗漏登记；不是104条实现或运行测试全部通过。AC102/104为请求级类型与回调契约，AC103为原名单/详情/跟进表单展示；局部原型证据另列，真实接口、可靠快照与ACK仍待实现。
+**claim**：104条当前验收逐项登记UI及后端依赖，未遗漏登记；本轮局部合成实现以UI-LOCAL-FULL-AUDIT-20261015为准，不声明104条实现、运行或正式门禁全部通过。
 
 **priority_policy_ref**：draft-20261014.json#priority_policy.user_request
 
@@ -11788,7 +15300,7 @@
 
 **prototype_completion_observation**
 
-**状态**：read_only_actual_source_not_new_feature_implementation
+**状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **disposition_key**：已完成沟通
 
@@ -11814,23 +15326,25 @@
 
 5. customerFollowup
 
-**business_snapshot**：call.customerFollowup={businessType, enabled fieldId: scalar string or multiselect array, plannedStoreId, updatedAt, updatedBy}; journal identity uses enterpriseId+tenantId+phone+callId.
+**business_snapshot**：本次customerFollowup保存businessFieldSnapshot，固化字段/所选选项业务码、值和名称及保存版本；communicationCompletion持久意图另固化本call及原六项来源，延迟登记/补送沿原快照。
 
-**known_configuration_gap**：当前customerFollowup仅保存本次字段ID/选项ID值，未绑定字段/选项businessKey、标签或配置版本快照。用户现已要求回调已填写字段及所选选项的业务编码，多选携全部所选编码；此后台快照能力尚未实现，正式格式/历史缺编码兼容仍待。 现CustomerBusiness允许业务编码留空，因此不能推断当前可完整发送；目标缺码回调待完善与本地保存成功分开，补齐由既有配置权限处理。
+**known_configuration_gap**：当前CustomerBusiness仍允许业务编码为空；已填缺码时完成事件保回调资料待完善、无假发送尝试，本地合法保存继续成功。生产缺码补齐/事件修订、签名与ACK契约仍待核。
 
 **detail_location**：通话详情已有坐席处理结果与本次客户业务信息；业务状态和客观线路结果分开。
 
 **not_implemented**
 
-1. API业务批次号输入/保存/详情
+1. 真实后端原子保存/并发恢复与服务端事件投递
 
-2. 已完成沟通保存后生成不可变本次快照并按原应用回调
+2. 业务系统正式报文/签名/URL安全、可靠ACK与修订版本
 
-3. SRC-124六个导入业务字段的真实对外接口接收及完成事件固化/回调（本地展示由独立局部证据另列）
+3. 真实AliCti接席、原生重呼与人工跟进排他验证
 
-**来源**：prototype/mock/data.js, prototype/js/pages/agent-workbench.js, prototype/js/components/customer-followup.js, prototype/js/components/customer-business.js, prototype/js/pages/cloud-call-records.js, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json
+**来源**：prototype/mock/data.js, prototype/js/pages/agent-workbench.js, prototype/js/components/customer-followup.js, prototype/js/components/customer-business.js, prototype/js/pages/cloud-call-records.js, 需求/1.1.0/分析工作区/inputs/source-index.json#SRC-124, prototype/memory/verification-evidence/imported-customer-info-20261014.json, prototype/memory/verification-evidence/full-prototype-audit-20261015.json
 
-**six_import_business_fields_local_snapshot**：SRC-124局部实现把原记录六项来源字段复制到本次准确通话，旧历史不从当前客户回填；展示在导入检查、客户/通话详情及跟进表单只读区。该本地数据快照不是正式完成沟通事件的原子保存/业务码/真实回调证明。
+**six_import_business_fields_local_snapshot**：原六项来源由准确本次call的已保存完成意图冻结，延迟登记不再读当前客户来源字段；已登记事件原内容不随后续配置/话单/同号新导入重算。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
 
 **business_type_delta**
 
@@ -11842,10 +15356,52 @@
 
 **来源**：inputs/source-index.json#SRC-125, memory/normalized-user-stories.json#AC-102, memory/normalized-user-stories.json#AC-103, memory/normalized-user-stories.json#AC-104
 
-**实现状态**：local_synthetic_predictive_receiver_and_existing_UI_scoped_pass
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
 
 **证据**
 
 1. prototype/memory/verification-evidence/api-business-type-20261014.json
 
-**验证边界**：仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+2. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**验证边界**：当前预外呼/人工本地接收、业务批次、原类型跟进与结果/完成事件已有合成实现；正式报文、真实身份/网络及ACK与整版验收仍待。
+
+**previous_local_scope_note**：旧41组证据只证明当时预外呼接收及原界面。
+
+**current_local_audit_ref**：UI-LOCAL-FULL-AUDIT-20261015
+
+**updated_at**：2026-10-16T20:22:18.347720+08:00
+
+**本轮有效口径优先级**
+
+**来源**：SRC-126
+
+**overlay_id**：UI-LOCAL-IMPORT-ASSIGNMENT-STATUS-20261016
+
+**rule**：本轮有效行为以此局部修订为准；104条旧验收正文留作追溯和正式重验输入，冲突条款不作为当前实现验收。
+
+**affected_acceptance_ids**
+
+1. AC-007
+
+2. AC-012
+
+3. AC-014
+
+4. AC-050
+
+5. AC-051
+
+6. AC-080
+
+7. AC-081
+
+8. AC-082
+
+9. AC-083
+
+10. AC-099
+
+**formal_rebaseline_complete**：False
+
+**source_scope_note**：全局多版本README入口非本轮v1.1.0规范事实源，不绑定其当前摘要，避免跨版本入口及并行1.1.1工作与本轮交付耦合。本版仍绑定prototype/README、需求1.1.0及开发交付物1.1.0当前来源；历史证据及原冻结来源保持原字节。

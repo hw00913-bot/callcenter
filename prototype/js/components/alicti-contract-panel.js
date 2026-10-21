@@ -4,7 +4,7 @@
   const ui=PlatformUI,esc=ui.escape,read=id=>document.getElementById('contract-'+id)?.value||'';
   let context='',pushes=[],lastPush=null,lastEvent=null;try{const saved=JSON.parse(sessionStorage.getItem('alicti-demo-pushes-v1')||'[]');if(Array.isArray(saved))pushes=saved;}catch(_){}
   const scope=()=>[AppState.get().accountId,AppState.get().tenantId,AppState.get().enterpriseId].join('|');
-  const allowed=()=>AppState.get().activeDomain==='CLOUD_CONTACT_CENTER'&&['SUPER_ADMIN','ADMIN'].includes(AppState.effectiveAccess().roleCode);
+  const allowed=()=>root.HistorySnapshot?.read_only!==true&&AppState.isReady?.()===true&&AppState.effectiveAccess().valid===true&&AppState.get().activeDomain==='CLOUD_CONTACT_CENTER'&&['SUPER_ADMIN','ADMIN'].includes(AppState.effectiveAccess().roleCode);
   const valid=()=>allowed()&&context===scope();
   const json=value=>'<details class="contract-result"><summary>查看请求字段与模拟响应</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(JSON.stringify(value,null,2))+'</pre></details>';
   const options=(values,selected)=>Object.entries(values).map(([value,label])=>'<option value="'+esc(value)+'"'+(String(value)===String(selected)?' selected':'')+'>'+esc(label)+'</option>').join('');
@@ -35,18 +35,24 @@
     if(!valid())return;const input=Object.fromEntries(['name','type','mode','url','method','contentType','timeout','targetUrlId'].map(k=>[k,read(k)])),request=AliCtiFields.pushFields(input);
     if(request.pending.length)return showToast(request.pending.join('；'),'warning');
     const enterpriseId=AppState.get().enterpriseId;if(pushes.some(p=>p.enterpriseId===enterpriseId&&p.name===request.fields.name))return showToast('当前供应商账号内已有同名推送设置（演示）','warning');
-    const response={requestId:'DEMO-PUSH-'+Date.now(),id:900001+pushes.length};pushes.push({enterpriseId,name:request.fields.name,response});sessionStorage.setItem('alicti-demo-pushes-v1',JSON.stringify(pushes));lastPush={request,response,mock:true};
+    const response={requestId:'DEMO-PUSH-'+Date.now(),id:900001+pushes.length},next=[...pushes,{enterpriseId,name:request.fields.name,response}];try{sessionStorage.setItem('alicti-demo-pushes-v1',JSON.stringify(next));}catch(_){showToast('推送演示配置未保存，请重试','warning');return false;}pushes=next;lastPush={request,response,mock:true};
     document.getElementById('contract-push-result').innerHTML=json(lastPush);
   }
   function eventChanged(){document.getElementById('contract-status').innerHTML=options(read('eventType')==='1'?{0:'初始',1:'运行中',2:'暂停',3:'结束'}:{0:'未导入号码',1:'导入',2:'缓存中',3:'结束',4:'已冻结'},0);}
   function applyEvent(raw){
     if(!valid())return {accepted:false,reason:'当前范围已改变'};
-    const event=AliCtiFields.pushState(raw),task=AppState.scoped(CloudCallData.tasks).find(t=>t.simulation&&String(t.enterpriseId)===String(event.enterpriseId)&&t.demoProviderTaskId===event.taskId);
-    if(!task||event.label==='待确认')return {accepted:false,reason:'事件无唯一授权归属或状态未识别',event};
-    if(event.type===1){task.providerStatusCode=event.status;task.providerStatus=event.label+'（模拟推送）';task.alictiTaskPush=event;}
-    else if(event.type===2&&event.fileId){const batch=task.alictiImportResults?.find(b=>b.normalized.providerBatchId===event.fileId);if(!batch)return {accepted:false,reason:'批次不属于当前任务',event};batch.pushStatus=event;}
+    const event=AliCtiFields.pushState(raw),tasks=AppState.scoped(CloudCallData.tasks).filter(t=>t.simulation&&String(t.enterpriseId)===String(event.enterpriseId)&&t.demoProviderTaskId===event.taskId);
+    if(tasks.length!==1||event.label==='待确认')return {accepted:false,reason:'事件无唯一授权归属或状态未识别',event};
+    const current=tasks[0],task=structuredClone(current);
+    if(event.type===1){
+      if(['已终止','已完成','已结束','已删除'].includes(current.status)&&event.status!==3)return {accepted:false,reason:'已结束任务不接受重新开启的状态',event};
+      const previous=current.alictiTaskPush?.raw?.time;if(Number.isFinite(previous)&&Number.isFinite(raw?.time)&&raw.time<previous)return {accepted:false,reason:'较旧状态只保留原状态',event};
+      task.providerStatusCode=event.status;task.providerStatus=event.label+'（模拟推送）';task.alictiTaskPush=event;
+      task.status=event.status===0?(Number(task.total)>0?'待启动':'待分配客户'):event.status===1?'执行中':event.status===2?'已暂停':current.status==='已完成'?'已完成':'已终止';task.stopNewDialing=event.status!==1||!!task.resourcePause||!!task.alictiTaskControlPending;
+    }
+    else if(event.type===2&&event.fileId){const batches=(task.alictiImportResults||[]).filter(b=>String(b.normalized?.providerBatchId)===String(event.fileId));if(batches.length!==1)return {accepted:false,reason:'批次不属于当前任务或存在歧义',event};batches[0].pushStatus=event;}
     else return {accepted:false,reason:'批次编号缺失',event};
-    CloudTaskWorkspace.saveDemoTask(task);return {accepted:true,event,mock:true};
+    try{if(CloudTaskWorkspace.saveDemoTask(task)!==true)throw Error('save-failed');}catch(_){return {accepted:false,reason:'状态尚未保存，原任务保持不变',event};}return {accepted:true,event,mock:true};
   }
   function receive(){
     if(!valid())return;const task=AppState.scoped(CloudCallData.tasks).find(t=>t.taskId===read('task'));if(!task?.simulation)return;

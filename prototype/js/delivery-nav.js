@@ -80,6 +80,9 @@
       '.delivery-nav__link.is-active:after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:#2563eb}',
       '.delivery-nav__frame{position:fixed;z-index:9998;left:0;right:0;bottom:0;top:var(--delivery-nav-height);width:100%;height:calc(100vh - var(--delivery-nav-height));border:0;background:#f5f7fa;display:none}',
       '.delivery-nav__frame.is-visible{display:block}',
+      '.delivery-reference-notice{position:fixed;z-index:9999;top:48px;left:0;right:0;min-height:34px;padding:7px 20px;background:#fff8e8;border-bottom:1px solid #eedcaa;color:#7a6134;font:12px/20px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}',
+      '.delivery-reference-notice[hidden]{display:none}',
+      'body.has-delivery-reference-notice{padding-top:82px!important}',
       'body.has-delivery-nav>.main-layout{height:calc(100vh - var(--delivery-nav-height) - 52px)!important}',
       'body.has-delivery-nav>.app-layout{height:calc(100vh - var(--delivery-nav-height))!important;min-height:calc(100vh - var(--delivery-nav-height))!important}',
       'body.has-delivery-nav>.diagram-layout,body.has-delivery-nav>.flow-layout,body.has-delivery-nav>.docs-layout{min-height:calc(100vh - var(--delivery-nav-height))!important}',
@@ -117,6 +120,10 @@
   frame.setAttribute('title', '交付内容');
   frame.setAttribute('allowfullscreen', '');
   frame.setAttribute('allow', 'fullscreen');
+  var referenceNotice = document.createElement('div');
+  referenceNotice.className = 'delivery-reference-notice';
+  referenceNotice.textContent = '历史冻结参考（2026-10-11）：以下图文尚未纳入后续变更。当前规则请以现有需求及开发交付讨论包为准。';
+  referenceNotice.hidden = true;
 
   function updateActive(key) {
     tabs.querySelectorAll('.delivery-nav__link').forEach(function (link) {
@@ -130,6 +137,11 @@
   function setView(key, updateHistory) {
     if (!itemMap[key]) key = itemMap[hostKey] ? hostKey : 'prototype';
     updateActive(key);
+    var referenceView = ['business-flow', 'sequence-flow', 'related-systems'].indexOf(key) >= 0;
+    referenceNotice.hidden = !referenceView;
+    document.body.classList.toggle('has-delivery-reference-notice', referenceView);
+    frame.style.top = referenceView ? '82px' : '';
+    frame.style.height = referenceView ? 'calc(100vh - 82px)' : '';
 
     if (key === hostKey) {
       frame.classList.remove('is-visible');
@@ -137,7 +149,8 @@
     } else {
       var target = embeddedUrl(itemMap[key].href);
       if (frame.dataset.currentUrl !== target) {
-        frame.contentWindow.location.replace(target);
+        if (window.location.protocol === 'file:') frame.src = target;
+        else frame.contentWindow.location.replace(target);
         frame.dataset.currentUrl = target;
       }
       frame.title = itemMap[key].label;
@@ -178,6 +191,7 @@
 
   document.body.classList.add('has-delivery-nav');
   document.body.insertBefore(nav, document.body.firstChild);
+  document.body.appendChild(referenceNotice);
   document.body.appendChild(frame);
 
   var initialMatch = window.location.hash.match(/^#delivery=(prototype|versions|docs|business-flow|sequence-flow|related-systems)$/);

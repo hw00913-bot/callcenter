@@ -5,11 +5,12 @@
   const scoped=rows=>AppState.scoped(rows||[]);
   const tenantName=id=>CloudCallRuntime.tenant(id)?.name||id;
   let auditFilter={keyword:'',action:'全部动作'};
+  const auditRows=()=>scoped(CloudCallData.audits).filter(r=>(!auditFilter.keyword||[r.operator,r.object,r.action].join(' ').includes(auditFilter.keyword))&&(auditFilter.action==='全部动作'||r.action===auditFilter.action));
   function renderAudit() {
     if (!AppState.canMenu('system.audit')) return ui.empty('当前身份无权访问', '请使用有操作审计权限的账号。');
-    const filtered = scoped(CloudCallData.audits).filter(r=>(!auditFilter.keyword||[r.operator,r.object,r.action].join(' ').includes(auditFilter.keyword))&&(auditFilter.action==='全部动作'||r.action===auditFilter.action));
+    const filtered = auditRows();
     const rows = ui.sortByUpdated?.(filtered, ['at']) || filtered;
-    return `<section class="platform-page audit-page">${ui.pageHeader('操作审计', '记录关键配置、状态变更、导出和重试行为，包括操作前后差异。', '<button class="btn" onclick="doExport(event)">导出审计</button>')}<div class="filter-panel"><label class="field grow"><span>操作人 / 对象</span><input id="auditKeyword" value="${esc(auditFilter.keyword)}" placeholder="输入关键词"></label><label class="field"><span>动作</span><select id="auditAction">${['全部动作',...new Set(scoped(CloudCallData.audits).map(r=>r.action))].map(a=>`<option ${a===auditFilter.action?'selected':''}>${esc(a)}</option>`).join('')}</select></label><button class="btn" onclick="window.Pages['system-center'].resetAudit()">重置</button><button class="btn btn-primary" onclick="window.Pages['system-center'].queryAudit()">查询</button></div>${ui.table([{ key: 'auditId', label: '审计编号', render: value => `<code>${esc(value)}</code>` }, { key: 'operator', label: '操作人' }, { key: 'action', label: '动作' }, { key: 'object', label: '对象', render: value => `<code>${esc(value)}</code>` }, { key: 'before', label: '操作前' }, { key: 'after', label: '操作后' }, { key: 'at', label: '操作时间' }, { key: 'auditId', label: '操作', render: value => `<button class="btn-link" onclick="window.Pages['system-center'].openAudit('${value}')">查看差异</button>` }], rows)}</section>`;
+    return `<section class="platform-page audit-page">${ui.pageHeader('操作审计', '记录关键配置、状态变更、导出和重试行为，包括操作前后差异。', '<button class="btn" onclick="window.Pages[\'system-center\'].exportAudit()">导出审计</button>')}<div class="filter-panel"><label class="field grow"><span>操作人 / 对象</span><input id="auditKeyword" value="${esc(auditFilter.keyword)}" placeholder="输入关键词"></label><label class="field"><span>动作</span><select id="auditAction">${['全部动作',...new Set(scoped(CloudCallData.audits).map(r=>r.action))].map(a=>`<option ${a===auditFilter.action?'selected':''}>${esc(a)}</option>`).join('')}</select></label><button class="btn" onclick="window.Pages['system-center'].resetAudit()">重置</button><button class="btn btn-primary" onclick="window.Pages['system-center'].queryAudit()">查询</button></div>${ui.table([{ key: 'auditId', label: '审计编号', render: value => `<code>${esc(value)}</code>` }, { key: 'operator', label: '操作人' }, { key: 'action', label: '动作' }, { key: 'object', label: '对象', render: value => `<code>${esc(value)}</code>` }, { key: 'before', label: '操作前' }, { key: 'after', label: '操作后' }, { key: 'at', label: '操作时间' }, { key: 'auditId', label: '操作', render: value => `<button class="btn-link" onclick="window.Pages['system-center'].openAudit('${value}')">查看差异</button>` }], rows)}</section>`;
   }
 
 
@@ -20,6 +21,18 @@
   }
   function queryAudit(){auditFilter={keyword:document.getElementById('auditKeyword').value.trim(),action:document.getElementById('auditAction').value};navigateTo('audit');}
   function resetAudit(){auditFilter={keyword:'',action:'全部动作'};navigateTo('audit');}
+  function exportAudit(){
+    if(!AppState.canMenu('system.audit')||!AppState.canAction('report.export'))return showToast('当前范围无审计导出权限','warning');
+    const rows=ui.sortByUpdated?.(auditRows(),['at'])||auditRows();
+    if(!rows.length)return showToast('当前筛选条件下没有可导出的审计记录','warning');
+    if(typeof window.downloadCsv!=='function')return showToast('导出功能尚未就绪，请刷新后重试','warning');
+    const columns=[{key:'auditId',label:'审计编号'},{key:'operator',label:'操作人'},{key:'action',label:'动作'},
+      {key:'object',label:'对象'},{key:'tenantId',label:'所属租户',render:(_,row)=>tenantName(row.tenantId)||'供应商账号级'},
+      {key:'before',label:'操作前'},{key:'after',label:'操作后'},{key:'at',label:'操作时间'}];
+    const saved=window.downloadCsv('操作审计_'+new Date().toISOString().slice(0,10)+'.csv',columns,rows);
+    if(saved)showToast('已发起当前筛选全部审计记录的下载','success');
+    return saved;
+  }
   function openAudit(id) {
     const row = scoped(CloudCallData.audits).find(item => item.auditId === id);
     if (!AppState.canMenu('system.audit') || !row || !AppState.authorizeObject('', row)) {
@@ -33,5 +46,5 @@
   function captureNavigationState(){return {auditFilter:{...auditFilter}};}
   function restoreNavigationState(state){if(state)auditFilter={...state.auditFilter};}
   window.Pages=window.Pages||{};
-  window.Pages['system-center']={render,captureNavigationState,restoreNavigationState,init(){},reconcile:id=>CallDataIssues.open(id),queryAudit,resetAudit,openAudit};
+  window.Pages['system-center']={render,captureNavigationState,restoreNavigationState,init(){},reconcile:id=>CallDataIssues.open(id),queryAudit,resetAudit,exportAudit,openAudit};
 })();

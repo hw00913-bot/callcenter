@@ -108,9 +108,30 @@
     // 独立资源目录也属于业务数据，创建分机、时间条件等之后同样不能改绑。
     const referenced = value => !!value && typeof value === 'object' && (linked(value) ||
       (value.enterpriseId === tenant.enterpriseId && !value.tenantId) || Object.values(value).some(child => child && typeof child === 'object' && referenced(child)));
+    // Parseable JSON can still have lost its ownership. Such a journal must be
+    // checked before allowing a tenant to leave its original supplier account.
+    const object = value => value && typeof value === 'object' && !Array.isArray(value);
+    const text = value => typeof value === 'string' && value.trim().length > 0;
+    const scoped = value => object(value) && text(value.tenantId) && text(value.enterpriseId);
+    for (const key of ['dcc-task-ledger-v1.1.0', 'native-workbench-records-v1', 'customer-task-batches-v1']) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw === null) continue;
+        const journal = JSON.parse(raw);
+        if (key === 'dcc-task-ledger-v1.1.0') {
+          if (!object(journal) || !object(journal.tasks) || Object.entries(journal.tasks).some(([id, entry]) =>
+            !object(entry) || !scoped(entry.task) || entry.task.taskId !== id || !Array.isArray(entry.records))) return true;
+        } else {
+          const id = key === 'native-workbench-records-v1' ? 'callId' : 'id';
+          if (!Array.isArray(journal) || journal.some(row => !scoped(row) || !text(row[id]) ||
+            (key === 'customer-task-batches-v1' && (!Array.isArray(row.rows) || row.rows.some(item => !object(item) || !text(item.id)))))) return true;
+          if (new Set(journal.map(row => [row.enterpriseId, row.tenantId, row[id]].join('|'))).size !== journal.length) return true;
+        }
+        if (referenced(journal)) return true;
+      } catch (_) { return true; }
+    }
     return ['alicti-extension-directory-v2', 'alicti-time-conditions-v1', 'alicti-number-import-v1', 'alicti-inbound-router-v1',
-      'outbound-groups-v1', 'alicti-queue-bindings-v1', 'skill-groups-v2:' + tenant.enterpriseId,
-      'customer-task-batches-v1', 'native-workbench-records-v1'].some(key => {
+      'outbound-groups-v1', 'alicti-queue-bindings-v1', 'skill-groups-v2:' + tenant.enterpriseId].some(key => {
       try { return referenced(JSON.parse(localStorage.getItem(key) || 'null')); }
       catch (_) { return true; }
     });

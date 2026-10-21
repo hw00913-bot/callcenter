@@ -21,7 +21,7 @@
     return normalized && tenantId && enterpriseId ? JSON.stringify([tenantId, enterpriseId, normalized]) : '';
   }
   function phoneOf(call) { return normalizePhone(call.customerPhone || (call.direction === '呼入' ? call.caller : call.callee)); }
-  function at(call) { return call.endedAt || call.ringingAt || call.recordedAt || ''; }
+  function at(call) { return call.endedAt || (call.directoryMeta?.externalResult ? call.startedAt : '') || call.ringingAt || call.recordedAt || ''; }
   function latestTime(values) {
     let latest = '', latestTimestamp = -Infinity;
     for (const value of values) {
@@ -43,6 +43,7 @@
     return String(Math.floor(value / 60)).padStart(2, '0') + ':' + String(value % 60).padStart(2, '0');
   }
   function result(call) {
+    if (call.directoryMeta?.ledgerResult || call.directoryMeta?.externalResult) return call.directoryMeta.resultPending ? '结果待确认' : call.directoryMeta.customerAnswered === true ? (call.directoryMeta.shortHangup ? '秒挂' : '已接通') : call.directoryMeta.customerAnswered === false ? '未接通' : '结果未知';
     const view = CallState.view(call);
     return view.answerResult === 'UNKNOWN' ? '结果未知' : view.answerLabel;
   }
@@ -53,6 +54,8 @@
     return generated && /^模拟[：:](结果待确认|未接通|完成沟通|客户按1确认知悉|客户确认知悉)$/.test(value) ? value.slice(3) : value;
   }
   function provenance(call) {
+    if (call.directoryMeta?.externalResult) return '业务系统拨号同步（演示）';
+    if (call.directoryMeta?.ledgerResult) return '任务通话结果（演示）';
     if (call.directoryMeta?.legacyOnly) return call.directoryMeta?.historicalSimulation ? '历史模拟记录' : '历史联系记录';
     if (call.simulation) return '本地模拟通话';
     return '预置演示记录';
@@ -136,12 +139,12 @@
     } finally { syncing = false; }
   }
   function valid() { return window.AppState?.isReady() && AppState.effectiveAccess().valid && AppState.get().activeDomain === 'CLOUD_CONTACT_CENTER'; }
-  function calls() { sync(); return valid() ? AppState.scoped(CloudCallData.calls) : []; }
+  function calls() { return list().flatMap(customer => customer.calls); }
   function list() {
     sync();
     if (!valid()) return [];
     const access = AppState.effectiveAccess(), accountId = AppState.get().accountId;
-    const operator = access.roleCode === 'OPERATOR', directories = new Map(), ownedRows = new Set();
+    const operator = access.roleCode === 'OPERATOR', directories = new Map(), ownedRows = new Set(), externalCandidates=[];
     const seatIds = new Set(array(CloudCallData.agents).filter(seat => seat.accountId === accountId && seat.tenantId === access.tenantId && seat.enterpriseId === access.enterpriseId).map(seat => seat.contactCenterIdentityId));
     function get(phone, tenantId, enterpriseId) {
       const id = identity(phone, tenantId, enterpriseId); if (!id) return null;
@@ -152,7 +155,19 @@
       for (const row of array(batch.rows).filter(row => !operator || row.ownerId === accountId || row.repeatContact && batch.createdBy === accountId)) {
         const customer = get(row.phone, batch.tenantId, batch.enterpriseId); if (!customer) continue;
         ownedRows.add(JSON.stringify([batch.tenantId, batch.enterpriseId, row.id]));
-        customer.batches.push({ batchId: batch.id, batchName: batch.name, rowId: row.id, name: row.name, note: row.note || '', enterpriseId:batch.enterpriseId, tenantId:batch.tenantId, ...CustomerBusiness.snapshot({...row,enterpriseId:batch.enterpriseId,tenantId:batch.tenantId}), ownerId: row.ownerId || '', taskId: row.taskId || '', taskName: row.taskName || '', method: row.method || '', followup: row.followup, createdAt: batch.createdAt || '', updatedAt: latestTime([row.updatedAt, row.updateTime, row.createdAt, ...array(row.history).map(event => event.at), ...array(row.calls).flatMap(call => [call.updatedAt, call.at, call.endedAt])]) || latestTime([batch.updatedAt, batch.createdAt]), simulation: !!batch.simulation });
+        const origin=row.apiOrigin,manualApi=origin?.callMode==='manual';
+        let external=null;
+        if(manualApi){
+          try{const projected=window.DccRuntime?.externalRecordView?.(origin);if(projected?.ok&&Array.isArray(projected.data?.calls))external=projected.data;else storageIssue='部分业务系统通话同步暂不可读取，原导入资料未改动。';}catch(_){storageIssue='部分业务系统通话同步暂不可读取，原导入资料未改动。';}
+        }
+        const followup=manualApi&&window.CustomerTasks?.outcome?CustomerTasks.outcome(row):row.followup;
+        customer.batches.push({ batchId: batch.id, batchName: batch.name, rowId: row.id, name: row.name, note: row.note || '', enterpriseId:batch.enterpriseId, tenantId:batch.tenantId, ...CustomerBusiness.snapshot({...row,enterpriseId:batch.enterpriseId,tenantId:batch.tenantId}), sourceLabel:manualApi?(batch.sourceApplicationName||'接口导入'):'手工导入',...(manualApi?{businessBatchNo:origin.businessBatchNo,sourceApplicationId:origin.sourceApplicationId}:{}),ownerId: row.ownerId || '', taskId: row.taskId || '', taskName: row.taskName || '', method: row.method || '', followup, createdAt: batch.createdAt || '', updatedAt: latestTime([row.updatedAt, row.updateTime, row.createdAt, ...array(row.history).map(event => event.at), ...array(row.calls).flatMap(call => [call.updatedAt, call.at, call.endedAt])]) || latestTime([batch.updatedAt, batch.createdAt]), simulation: !!batch.simulation });
+        if(external&&origin.recordId===row.id&&origin.tenantId===batch.tenantId&&origin.enterpriseId===batch.enterpriseId&&origin.phone===row.phone&&typeof origin.sourceApplicationId==='string'&&origin.sourceApplicationId){
+          for(const call of external.calls){
+            if(!call?.external||typeof call.callId!=='string'||!call.callId||call.tenantId!==batch.tenantId||call.enterpriseId!==batch.enterpriseId||phoneOf(call)!==normalizePhone(row.phone))continue;
+            externalCandidates.push({customerId:customer.id,origin:clone(origin),call:{...clone(call),...CustomerBusiness.snapshot({...row,tenantId:batch.tenantId,enterpriseId:batch.enterpriseId}),apiOrigin:clone(origin),customerName:row.name||origin.leadCode,customerPhone:normalizePhone(row.phone),customerTaskItemId:row.id,direction:'呼出',callType:'人工外呼',durationSeconds:null,agentName:'',agentDisposition:'',simulation:true,directoryMeta:{externalResult:true,customerAnswered:call.customerAnswered,sourceApplicationId:origin.sourceApplicationId,sourceApplicationName:batch.sourceApplicationName||'',sourceRecordId:origin.recordId,businessBatchNo:origin.businessBatchNo,followupState:followup,ownerId:row.ownerId||'',sources:['业务系统拨号同步']}}});
+          }
+        }
         if (row.name && !customer.names.includes(row.name)) customer.names.push(row.name);
         if (row.note && !customer.notes.includes(row.note)) customer.notes.push(row.note);
       }
@@ -164,6 +179,52 @@
       customer.calls.push(call);
       if (call.customerName && !customer.names.includes(call.customerName)) customer.names.push(call.customerName);
       if (call.customerNote && !customer.notes.includes(call.customerNote)) customer.notes.push(call.customerNote);
+    }
+    // External calls are an authorized read projection only. Never persist them
+    // in the customer journal, unified call cache or the native workbench journal.
+    const externalGroups=new Map();
+    for(const candidate of externalCandidates){const id=candidate.call.callId;if(!externalGroups.has(id))externalGroups.set(id,[]);externalGroups.get(id).push(candidate);}
+    for(const [callId,candidates] of externalGroups){
+      const first=candidates[0],association=value=>JSON.stringify([value.origin.tenantId,value.origin.enterpriseId,value.origin.sourceApplicationId,value.origin.recordId,value.origin.phone]);
+      const existing=Array.from(directories.values()).flatMap(customer=>customer.calls).filter(call=>call.callId===callId);
+      const conflict=candidates.some(candidate=>association(candidate)!==association(first)||fingerprint(candidate.call)!==fingerprint(first.call))||existing.some(call=>call.tenantId!==first.origin.tenantId||call.enterpriseId!==first.origin.enterpriseId||call.apiOrigin?.sourceApplicationId!==first.origin.sourceApplicationId||call.apiOrigin?.recordId!==first.origin.recordId);
+      if(conflict){conflicts.push(callId);storageIssue='部分业务系统通话关联存在冲突，暂未归档；原始资料未改动。';continue;}
+      if(!existing.length)directories.get(first.customerId)?.calls.push(first.call);
+    }
+    const view=window.DccRuntime?.directoryView?.();
+    if(view&&!view.ok&&view.code!=='FORBIDDEN')storageIssue=view.reason;
+    if(view?.data?.incomplete)storageIssue='部分新版客户记录关联不完整，暂未归档；原始导入记录未改动。';
+    if(view?.ok) {
+      for(const record of view.data.records) {
+        const customer=get(record.phone,record.tenantId,record.enterpriseId);if(!customer)continue;
+        const received=record.originalImportedAt||record.newBatchCreatedAt||'';
+        const original={...clone(record),batchName:record.businessBatchNo||record.importBatchName||record.batchId,rowId:record.recordId,
+          externalDocumentId:record.externalDocumentId||record.leadCode,name:record.name||record.leadCode,method:'预外呼',
+          sourceLabel:record.source==='manual'?'手工导入':record.sourceApplicationName||'接口导入',
+          followup:record.callState==='not_observed'?'待联系':record.callState==='failure_event_observed'?'呼叫异常':'已有通话',
+          createdAt:received,updatedAt:latestTime([received,record.updatedAt,...view.data.results.filter(row=>row.taskId===record.taskId&&row.recordId===record.recordId).map(row=>row.updatedAt||row.createdAt)]),simulation:true,archiveLedgerRecord:true};
+        customer.batches.push(original);
+        if(original.name&&!customer.names.includes(original.name))customer.names.push(original.name);
+        if(original.note&&!customer.notes.includes(original.note))customer.notes.push(original.note);
+      }
+      const seen=new Set();
+      for(const result of view.data.results) {
+        if(result.kind!=='call')continue;
+        const record=view.data.records.find(row=>row.taskId===result.taskId&&row.recordId===result.recordId);
+        const customer=record&&get(record.phone,record.tenantId,record.enterpriseId);if(!customer)continue;
+        // A routed local call is already present from the native journal. Its exact
+        // ledger reference is task/result evidence, not a second customer call.
+        if(result.nativeWorkbenchCallId&&customer.calls.some(call=>call.callSource==='NATIVE_WORKBENCH'&&call.callId===result.nativeWorkbenchCallId&&call.tenantId===result.tenantId&&call.enterpriseId===result.enterpriseId&&call.customerTaskItemId===result.recordId))continue;
+        const id=JSON.stringify([result.taskId,result.resultId,result.callID]);if(seen.has(id))continue;seen.add(id);
+        const pending=!!result.reviewReasons?.length||result.outcomeState==='unknown';
+        // Keep each call's original snapshot. Receipt time is not a call start/end time.
+        customer.calls.push({...clone(result),callId:'DCC-RESULT-'+encodeURIComponent(JSON.stringify([result.taskId,result.resultId,result.callID])),customerPhone:normalizePhone(result.phone),customerName:record.name||record.leadCode,
+          externalDocumentId:result.externalDocumentId||result.leadCode,direction:'呼出',callType:'预外呼',recordedAt:'',endedAt:'',
+          receivedAt:result.createdAt||'',updatedAt:result.updatedAt||result.createdAt||'',
+          durationSeconds:!pending&&result.durationIsTrusted===true&&typeof result.customerBridgeDuration==='number'&&Number.isFinite(result.customerBridgeDuration)&&result.customerBridgeDuration>=0?result.customerBridgeDuration:null,
+          agentName:'',simulation:true,directoryMeta:{ledgerResult:true,sourceTaskId:result.taskId,sourceResultId:result.resultId,sourceRecordId:result.recordId,
+            customerAnswered:result.customerAnswered,resultPending:pending,shortHangup:result.shortHangupState==='confirmed'&&result.shortHangup===true,sources:['任务通话结果']}});
+      }
     }
     for (const customer of directories.values()) {
       customer.batches.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -191,5 +252,5 @@
   }
   window.CustomerDirectory = { sync, list, calls, find, open, normalizePhone, duration, result, dispositionLabel, provenance, phoneOf, at,
     status: () => ({ storageIssue, conflictingCallIds: [...new Set(conflicts)] }) };
-  window.addEventListener('storage', event => { if ([key, batchKey, 'native-workbench-records-v1', 'linked-scenario-demo-v1', 'customer-followup-v1'].includes(event.key)) sync(); });
+  window.addEventListener('storage', event => { if ([key, batchKey, 'dcc-task-ledger-v1.1.0', 'native-workbench-records-v1', 'linked-scenario-demo-v1', 'customer-followup-v1'].includes(event.key)) sync(); });
 })();

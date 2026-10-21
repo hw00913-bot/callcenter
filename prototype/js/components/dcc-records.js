@@ -69,7 +69,7 @@
         {key:'newBatchCreatedAt',label:'导入时间',render:value=>esc(beijingTime(value))},
         {key:'importState',label:'导入状态',render:(_,row)=>ui().status(importLabel(row))},
         {key:'callState',label:'呼叫进展',render:(_,row)=>recordResultLabel(row,actualData)},
-        {key:'recordId',label:'操作',render:(value,row)=>'<button class="table-link" type="button" onclick="'+handler('openDetail',task.taskId,value)+'" data-func-id="FUNC-015">查看详情</button><br><button class="table-link" type="button" onclick="'+handler('openCalls',task.taskId,value)+'">查看通话</button>'+deliveryException(task,'record',row,data,'openDetail',value)}
+        {key:'recordId',label:'操作',render:(value,row)=>'<button class="table-link" type="button" onclick="'+handler('openDetail',task.taskId,value)+'" data-func-id="FUNC-015">查看详情</button><br><button class="table-link" type="button" onclick="'+handler('openCalls',task.taskId,value)+'">查看通话</button>'+(runtime().directoryRecord?.(task.taskId,value)?.ok?'<br><button class="table-link" type="button" onclick="'+handler('openArchive',task.taskId,value)+'">客户档案</button>':'')+deliveryException(task,'record',row,data,'openDetail',value)}
       ],records,{numbered:false,className:'dcc-record-table dcc-operator-table',emptyText:'还没有导入客户',emptyDetail:'点击右上方“导入客户”添加名单。'})}
       ${localFailures.length?'<p class="dcc-operator-review">'+localFailures.length+' 条客户信息未通过校验。<button type="button" class="table-link" onclick="'+handler('switchTab',task.taskId,'failures')+'">查看导入异常</button></p>':''}
       ${technical('<p>优先级数值越高越先提交；同优先级按导入先后提交。这里只约束提交顺序，不代表实际拨打顺序。</p>'+ui().table([{key:'submissionId',label:'提交标识'},{key:'batchId',label:'批次号'},{key:'request',label:'号码 / priority',render:request=>esc(request.taskTelList[0].tel)+' / '+esc(request.taskTelList[0].priority)},{key:'submittedAt',label:'提交时间',render:value=>esc(beijingTime(value))}],submissions,{numbered:false,emptyText:'尚未提交'})+'<p>本地合成演示；API-001 missing / API-002 partial。priority 生产类型与范围待核；R 为选填字段。原始响应与来源见客户详情。')}`;
@@ -107,7 +107,7 @@
         {key:'state',label:'处理结果',render:value=>esc(deletionStateLabel(value))},
         {key:'deletionId',label:'操作',render:(value,row)=>'<button class="table-link" type="button" onclick="'+handler('openDeletionDetail',task.taskId,value)+'">查看详情</button>'+deliveryException(task,'deletion',row,data,'openDeletionDetail',value)}
       ],requests,{numbered:false,className:'dcc-failure-table dcc-operator-table',emptyText:'还没有移除记录'})}
-      <details class="dcc-operator-tools"><summary>演示工具 · 号码移除</summary><p>仅模拟移除结果，不发送真实请求。</p><label class="dcc-field"><span>下一次移除结果</span><select id="dccDeletionScenario" ${busy?'disabled':''} onchange="${handler('selectDeletionScenario',task.taskId,'__VALUE__').replace('&quot;__VALUE__&quot;','this.value')}">${Object.entries(deletionScenarios()).map(([id,scenario])=>'<option value="'+esc(id)+'" '+(id===scenarioId?'selected':'')+'>'+esc(scenario.label)+'</option>').join('')}</select></label>${requests.filter(row=>['pending','unknown'].includes(row.state)).map(row=>'<div class="dcc-snapshot-actions"><span>'+esc(row.target?.phone)+' · '+esc(row.target?.batchId)+'</span><button class="btn" type="button" '+(disabled?'disabled':'')+' onclick="'+handler('receiveDeletionConfirmation',task.taskId,row.deletionId)+'">模拟收到后续确认</button></div>').join('')}${task.dccImportSource==='api'?'<label class="dcc-field"><span>再次导入样例：选择原记录</span><select id="dccDeleteRecord" onchange="'+handler('selectDeletionRecord',task.taskId,'__VALUE__').replace('&quot;__VALUE__&quot;','this.value')+'"><option value="">请选择</option>'+records.map(row=>'<option value="'+esc(row.recordId)+'" '+(selectedDeletionRecords.get(task.taskId)===row.recordId?'selected':'')+'>'+esc(row.phone+' / '+recordBatch(row))+'</option>').join('')+'</select></label><button class="btn" type="button" id="dccLineageRepush" '+(disabled||!selectedDeletionRecords.get(task.taskId)?'disabled':'')+' onclick="'+handler('repushSelectedRecord',task.taskId)+'">模拟 DCC 再次导入</button>':''}</details>
+      <details class="dcc-operator-tools"><summary>演示工具 · 号码移除</summary><p>仅模拟移除结果，不发送真实请求。</p><label class="dcc-field"><span>下一次移除结果</span><select id="dccDeletionScenario" ${busy?'disabled':''} onchange="${handler('selectDeletionScenario',task.taskId,'__VALUE__').replace('&quot;__VALUE__&quot;','this.value')}">${Object.entries(deletionScenarios()).map(([id,scenario])=>'<option value="'+esc(id)+'" '+(id===scenarioId?'selected':'')+'>'+esc(scenario.label)+'</option>').join('')}</select></label>${requests.filter(row=>['pending','unknown'].includes(row.state)).map(row=>'<div class="dcc-snapshot-actions"><span>'+esc(row.target?.phone)+' · '+esc(row.target?.batchId)+'</span><button class="btn" type="button" '+(disabled?'disabled':'')+' onclick="'+handler('receiveDeletionConfirmation',task.taskId,row.deletionId)+'">模拟收到后续确认</button></div>').join('')}${task.dccImportSource==='api'?'<label class="dcc-field"><span>再次导入样例：选择原记录</span><select id="dccDeleteRecord" onchange="'+handler('selectDeletionRecord',task.taskId,'__VALUE__').replace('&quot;__VALUE__&quot;','this.value')+'"><option value="">请选择</option>'+records.map(row=>'<option value="'+esc(row.recordId)+'" '+(selectedDeletionRecords.get(task.taskId)===row.recordId?'selected':'')+'>'+esc(row.phone+' / '+recordBatch(row))+'</option>').join('')+'</select></label><button class="btn" type="button" id="dccLineageRepush" '+(disabled||!selectedDeletionRecords.get(task.taskId)?'disabled':'')+' onclick="'+handler('repushSelectedRecord',task.taskId)+'">模拟 业务系统再次导入</button>':''}</details>
       ${technical('<p>API-006 partial；真实精准删除契约和成功判据待核。每次移除绑定租户、任务、批次与号码；未知或拒绝不标记成功，本地历史保留。</p>')}
     </div>`;
   }
@@ -162,14 +162,14 @@
     });
   }
   function repushSelectedRecord(taskId) {
-    const task=canonical(taskId);if(task?.dccImportSource!=='api'){window.showToast?.('手工任务不接收 DCC 再次导入','warning');return false;}
+    const task=canonical(taskId);if(task?.dccImportSource!=='api'){window.showToast?.('手工任务不接收 业务系统再次导入','warning');return false;}
     const recordId=selectedDeletionRecords.get(taskId)||'';
-    return deletionOperation(taskId,'repush','合成 DCC 再次导入',recordId,()=>runtime().simulateLineageRepush({taskId,recordId}),result=>{
+    return deletionOperation(taskId,'repush','合成 业务系统再次导入',recordId,()=>runtime().simulateLineageRepush({taskId,recordId}),result=>{
       const rows=result.data?.rows||result.data?.savedRecords||result.data?.records||[],savedCount=result.data?.savedCount??rows.filter(row=>row.ok!==false).length;
       const ids=new Set(rows.filter(row=>row.ok!==false).map(row=>row.recordId)),view=runtime().taskRecords(taskId),records=view.ok?(view.data.records||[]).filter(row=>ids.has(row.recordId)):[];
       if(!savedCount)return {tone:'warning',title:'再次导入未保存有效记录',detail:'逐行校验结果已保留，未新增有效批次。旧记录与删除状态继续保留。'};
       if(records.length!==savedCount||records.some(row=>!row.rootBatchId||row.lineageState==='pending_review'||row.reviewReason))return {tone:'warning',title:'新批次已保留，批次关联待核',detail:'已保存 '+savedCount+' 条独立记录；请查看精确批次详情，关系待核时暂停供应商提交。'};
-      return {tone:'success',title:'合成 DCC 再次导入已记录',detail:'已保存 '+savedCount+' 条新记录，使用本次 priority，子批次关联此线索最近的主批次。旧记录、旧批次删除状态和原请求重试关联保持。'};
+      return {tone:'success',title:'合成 业务系统再次导入已记录',detail:'已保存 '+savedCount+' 条新记录，使用本次 priority，子批次关联此线索最近的主批次。旧记录、旧批次删除状态和原请求重试关联保持。'};
     });
   }
   function deletionEvidenceMarkup(taskId,record) {
@@ -256,7 +256,7 @@
       <div class="dcc-section-title"><h2>通话明细</h2><span>${calls.length} 条</span></div>
       ${ui().table([
         {key:'phone',label:'客户 / 手机号',render:(_,row)=>customerCell(row)},
-        {key:'batchId',label:'导入批次'},
+        {key:'batchId',label:'导入批次',render:(_,row)=>esc(row.businessBatchNo||row.batchId)},
         {key:'customerAnswered',label:'通话结果',render:(_,row)=>ui().status(resultStatus(row))},
         {key:'customerBridgeDuration',label:'客户通话时长',render:(value,row)=>esc(row.durationIsTrusted?valueLabel(value)+' 秒':'待确认')},
         {key:'values',label:'挂断方',render:value=>esc(hangupLabel(value?.hangupParty))},
@@ -270,8 +270,9 @@
         {key:'resultId',label:'当前情况',render:()=> '已收到失败结果，尚无通话明细'},
         {key:'resultId',label:'操作',render:(value,row)=>'<button class="table-link" type="button" data-dcc-result-id="'+esc(value)+'" onclick="'+handler('openResultDetail',task.taskId,value)+'">查看详情</button>'+deliveryException(task,'result',row,data,'openResultDetail',value)}
       ],events,{numbered:false,className:'dcc-result-event-table dcc-operator-table',emptyText:'暂无已确认的呼叫异常',emptyDetail:'未收到结果的客户继续显示“暂无呼叫结果”。'})}
+      ${renderFailureRetries(task,data)}
       ${reviews.length?'<p class="dcc-operator-review">'+reviews.length+' 条结果的客户归属或内容有冲突，待核对后更新；暂不计为已接通。</p>':''}
-      ${data.filteredRecord?'':`<details class="dcc-demo-input"><summary>演示工具 · 通话结果样例</summary><p>先准备一条准确关联的合成线索，再选择 0 / 1 / 2 秒、普通时长、无话单失败、重复或 SIP 晚更新样例。每次操作只保存合成结果与交付证据，不触发真实请求或平台重导。</p><div class="dcc-demo-input-actions"><button class="btn" type="button" id="dccPrepareResultDemo" ${disabled?'disabled':''} onclick="${handler('prepareResultDemo',task.taskId)}" data-func-id="FUNC-004">准备合成结果线索</button><label for="dccResultScenario">合成实际结果</label><select id="dccResultScenario" ${resultBusy.has(task.taskId)?'disabled':''} onchange="${handler('selectResultScenario',task.taskId,'__VALUE__').replace('&quot;__VALUE__&quot;','this.value')}">${Object.entries(resultScenarios()).map(([id,scenario])=>'<option value="'+esc(id)+'" '+(id===scenarioId?'selected':'')+'>'+esc(scenario.label)+'</option>').join('')}</select><button class="btn" type="button" id="dccReceiveResult" ${disabled?'disabled':''} onclick="${handler('receiveResult',task.taskId)}" data-func-id="FUNC-011">接收合成实际结果</button></div>${(data.records||[]).some(record=>dccRecordSource(task,record))?'<p>DCC 回传异常可在对应记录详情查看，并重新回传。</p>':''}</details>`}
+      ${data.filteredRecord?'':`<details class="dcc-demo-input"><summary>演示工具 · 通话结果样例</summary><p>先准备一条准确关联的合成线索，再选择 0 / 1 / 2 秒、普通时长、无话单失败、重复或 SIP 晚更新样例。每次操作仅保存合成结果，不发送真实请求；失败补提交另按下方规则演示。</p><div class="dcc-demo-input-actions"><button class="btn" type="button" id="dccPrepareResultDemo" ${disabled?'disabled':''} onclick="${handler('prepareResultDemo',task.taskId)}" data-func-id="FUNC-004">准备合成结果线索</button><label for="dccResultScenario">合成实际结果</label><select id="dccResultScenario" ${resultBusy.has(task.taskId)?'disabled':''} onchange="${handler('selectResultScenario',task.taskId,'__VALUE__').replace('&quot;__VALUE__&quot;','this.value')}">${Object.entries(resultScenarios()).map(([id,scenario])=>'<option value="'+esc(id)+'" '+(id===scenarioId?'selected':'')+'>'+esc(scenario.label)+'</option>').join('')}</select><button class="btn" type="button" id="dccReceiveResult" ${disabled?'disabled':''} onclick="${handler('receiveResult',task.taskId)}" data-func-id="FUNC-011">接收合成实际结果</button></div>${(data.records||[]).some(record=>dccRecordSource(task,record))?'<p>业务系统回传异常可在对应记录详情查看，并重新回传。</p>':''}</details>`}
       ${technical('<h3>归属与冲突记录</h3>'+evidence(reviews)+'<h3>话单查询记录</h3>'+evidence(queries)+'<p>重复结果不新增通话；SIP 更新沿用原对象。无话单不等于未拨打，空查询不生成失败。API-003 / API-004 partial，API-010 missing；挂断方映射等真实契约待核。</p>')}
     </div>`;
   }
@@ -295,20 +296,20 @@
   function receiveResult(taskId) {
     const scenarioId=selectedResultScenarios.get(taskId)||'STEP07-SHORT-2';
     return resultOperation(taskId,'receive','合成实际结果',()=>runtime().simulateCallResult({taskId,scenarioId}),result=>{
-      if(resultScenarios()[scenarioId]?.kind==='empty_query')return '空话单查询证据已保留；未新增呼叫、无话单失败或 DCC 失败交付，不能据此判断未拨打。';
+      if(resultScenarios()[scenarioId]?.kind==='empty_query')return '空话单查询证据已保留；未新增呼叫、无话单失败或 业务系统失败回传，不能据此判断未拨打。';
       if(result.data?.duplicate)return '相同结果已去重，不新增呼叫、导入提交或交付；已有待核与来源证据继续保留。';
       if(result.data?.pendingReview)return '缺口或冲突的原字段已保留待核，不新建呼叫，不标为普通接通，也不补造成功交付。';
-      if(result.data?.updated)return 'SIP 晚更新已保存在同一呼叫对象的新版本；呼叫数不增加，接口任务的更新有独立 DCC 交付。';
+      if(result.data?.updated)return 'SIP 晚更新已保存在同一呼叫对象的新版本；呼叫数不增加，接口任务的更新有独立业务系统回传。';
       return '准确关联的合成实际结果及来源证据已保存；接口任务每次结果独立交付，手工任务仅平台查看，均不触发平台重导。';
     });
   }
-  function openResultDetail(taskId,resultId) {
-    const result=runtime().resultView(taskId),row=result.data?.actualResults?.find(item=>item.resultId===resultId);if(!result.ok||!row)return false;
-    ui().openLayer('dcc-result-detail',`<div class="layer-header"><div><h2>${row.kind==='call'?'通话详情':'呼叫异常详情'}</h2><p>${esc(row.phone)} · ${esc(row.batchId)}</p></div><button type="button" aria-label="关闭" onclick="PlatformUI.closeLayer('dcc-result-detail')">×</button></div><div class="layer-body"><dl class="dcc-detail-list"><div><dt>手机号</dt><dd>${esc(row.phone)}</dd></div><div><dt>业务类型</dt><dd>${esc(recordBusinessType(row))}</dd></div><div><dt>通话结果</dt><dd>${esc(row.kind==='no_cdr_failure'?'呼叫异常':resultStatus(row))}</dd></div><div><dt>客户通话时长</dt><dd>${esc(row.durationIsTrusted?valueLabel(row.customerBridgeDuration)+' 秒':'待确认')}</dd></div><div><dt>挂断方</dt><dd>${esc(hangupLabel(row.values?.hangupParty))}</dd></div><div><dt>异常原因</dt><dd>${esc(row.kind==='no_cdr_failure'?callReason(row):'—')}</dd></div></dl><h3>导入时的客户信息</h3>${CustomerBusiness.importedDetail(row)}${deliveryDetails(taskId,'result',resultId)}<details class="dcc-submission-details"><summary>技术详情（排查时查看）</summary><dl class="dcc-detail-list"><div><dt>稳定关联</dt><dd>${esc(row.identityKey)}</dd></div><div><dt>callID / 事件标识</dt><dd>${esc(row.callID||'未提供')} / ${esc(row.eventId||'未提供')}</dd></div><div><dt>业务记录 / 单号批次</dt><dd>${esc(row.recordId)} / ${esc(row.batchId)}</dd></div><div><dt>线索 / 手机号</dt><dd>${esc(row.leadCode)} / ${esc(row.phone)}</dd></div><div><dt>客户实际接听</dt><dd>${esc(row.reviewReasons?.length?'接听状态待核 · 保留原值 '+valueLabel(row.customerAnswered):row.customerAnswered===true?'客户真实接通':row.customerAnswered===false?'客户未接通':'接听状态待核')}</dd></div><div><dt>挂断方合成语义</dt><dd>${esc(hangupLabel(row.values?.hangupParty))} · hangupParty 原值 ${esc(valueLabel(row.values?.hangupParty))}</dd></div><div><dt>onHookSource 原字段</dt><dd>${esc(valueLabel(row.values?.onHookSource))} · 合成映射，真实来源映射待核</dd></div><div><dt>客户真实有效时长</dt><dd>${esc(row.durationIsTrusted?valueLabel(row.customerBridgeDuration)+' 秒':'客户时长待核')} · 原值 ${esc(valueLabel(row.customerBridgeDuration))}</dd></div><div><dt>坐席桥接时长</dt><dd>${esc(valueLabel(row.values?.agentBridgeDuration))} · 仅展示原字段，不作为客户时长</dd></div><div><dt>秒挂判定</dt><dd>${esc(shortLabel(row))}</dd></div><div><dt>最后一次供应商标志</dt><dd>${esc(finishLabel(row.finishRetryFlag))} · 原值 ${esc(finishRaw(row.finishRetryFlag))} · 来源 ${esc(row.finishRetryFlag?.source||'来源待核')}</dd></div><div><dt>SIP 晚更新</dt><dd>${(row.sipUpdates||[]).length} 次 · 沿用 callID 与对象 · 版本 ${esc(row.version)}</dd></div><div><dt>SIP 当前原字段</dt><dd>sipCause：${esc(valueLabel(row.values?.sipCause))} / obSipCause：${esc(valueLabel(row.values?.obSipCause))} / obSipCode：${esc(valueLabel(row.values?.obSipCode))}</dd></div><div><dt>待核说明</dt><dd>${esc((row.reviewReasons||[]).join('；')||'—')}</dd></div></dl><h3>当前对象保留的原字段</h3>${evidence(row.values)}<h3>各次来源、原字段与更新证据</h3>${ui().table([{key:'source',label:'来源'},{key:'fingerprint',label:'证据指纹',render:value=>'<code>'+esc(value)+'</code>'},{key:'receivedAt',label:'接收时间（北京）',render:value=>esc(beijingTime(value))}],row.evidence||[],{numbered:false,className:'dcc-result-evidence-table',emptyText:'来源证据待核'})}${evidence(row.evidence||[])}${row.sipUpdates?.length?'<h3>SIP 晚更新各次原字段与来源</h3>'+evidence(row.sipUpdates):''}<p class="dcc-muted">同一 callID 的 SIP 晚更新沿用本对象并保留来源与版本；供应商的最后一次标志不代表整个任务已完成。</p></details></div><div class="layer-footer"><button class="btn" type="button" onclick="PlatformUI.closeLayer('dcc-result-detail')">关闭</button></div>`,'wide');return true;
+  function openResultDetail(taskId,resultId,fromDirectory=false) {
+    const result=fromDirectory?runtime().directoryResult(taskId,resultId):runtime().resultView(taskId),row=result.data?.actualResults?.find(item=>item.resultId===resultId);if(!result.ok||!row)return false;
+    ui().openLayer('dcc-result-detail',`<div class="layer-header"><div><h2>${row.kind==='call'?'通话详情':'呼叫异常详情'}</h2><p>${esc(row.phone)} · ${esc(row.batchId)}</p></div><button type="button" aria-label="关闭" onclick="PlatformUI.closeLayer('dcc-result-detail')">×</button></div><div class="layer-body"><dl class="dcc-detail-list"><div><dt>手机号</dt><dd>${esc(row.phone)}</dd></div><div><dt>业务类型</dt><dd>${esc(recordBusinessType(row))}</dd></div>${row.sourceApplicationId?'<div><dt>业务批次号</dt><dd>'+esc(row.businessBatchNo||'历史未提供')+'</dd></div>':''}<div><dt>通话结果</dt><dd>${esc(row.kind==='no_cdr_failure'?'呼叫异常':resultStatus(row))}</dd></div><div><dt>客户通话时长</dt><dd>${esc(row.durationIsTrusted?valueLabel(row.customerBridgeDuration)+' 秒':'待确认')}</dd></div><div><dt>挂断方</dt><dd>${esc(hangupLabel(row.values?.hangupParty))}</dd></div><div><dt>异常原因</dt><dd>${esc(row.kind==='no_cdr_failure'?callReason(row):'—')}</dd></div></dl><h3>导入时的客户信息</h3>${CustomerBusiness.importedDetail(row)}${deliveryDetails(taskId,'result',resultId)}<details class="dcc-submission-details"><summary>技术详情（排查时查看）</summary><dl class="dcc-detail-list"><div><dt>稳定关联</dt><dd>${esc(row.identityKey)}</dd></div><div><dt>callID / 事件标识</dt><dd>${esc(row.callID||'未提供')} / ${esc(row.eventId||'未提供')}</dd></div><div><dt>业务记录 / 单号批次</dt><dd>${esc(row.recordId)} / ${esc(row.batchId)}</dd></div><div><dt>线索 / 手机号</dt><dd>${esc(row.leadCode)} / ${esc(row.phone)}</dd></div><div><dt>客户实际接听</dt><dd>${esc(row.reviewReasons?.length?'接听状态待核 · 保留原值 '+valueLabel(row.customerAnswered):row.customerAnswered===true?'客户真实接通':row.customerAnswered===false?'客户未接通':'接听状态待核')}</dd></div><div><dt>挂断方合成语义</dt><dd>${esc(hangupLabel(row.values?.hangupParty))} · hangupParty 原值 ${esc(valueLabel(row.values?.hangupParty))}</dd></div><div><dt>onHookSource 原字段</dt><dd>${esc(valueLabel(row.values?.onHookSource))} · 合成映射，真实来源映射待核</dd></div><div><dt>客户真实有效时长</dt><dd>${esc(row.durationIsTrusted?valueLabel(row.customerBridgeDuration)+' 秒':'客户时长待核')} · 原值 ${esc(valueLabel(row.customerBridgeDuration))}</dd></div><div><dt>坐席桥接时长</dt><dd>${esc(valueLabel(row.values?.agentBridgeDuration))} · 仅展示原字段，不作为客户时长</dd></div><div><dt>秒挂判定</dt><dd>${esc(shortLabel(row))}</dd></div><div><dt>最后一次供应商标志</dt><dd>${esc(finishLabel(row.finishRetryFlag))} · 原值 ${esc(finishRaw(row.finishRetryFlag))} · 来源 ${esc(row.finishRetryFlag?.source||'来源待核')}</dd></div><div><dt>SIP 晚更新</dt><dd>${(row.sipUpdates||[]).length} 次 · 沿用 callID 与对象 · 版本 ${esc(row.version)}</dd></div><div><dt>SIP 当前原字段</dt><dd>sipCause：${esc(valueLabel(row.values?.sipCause))} / obSipCause：${esc(valueLabel(row.values?.obSipCause))} / obSipCode：${esc(valueLabel(row.values?.obSipCode))}</dd></div><div><dt>待核说明</dt><dd>${esc((row.reviewReasons||[]).join('；')||'—')}</dd></div></dl><h3>当前对象保留的原字段</h3>${evidence(row.values)}<h3>各次来源、原字段与更新证据</h3>${ui().table([{key:'source',label:'来源'},{key:'fingerprint',label:'证据指纹',render:value=>'<code>'+esc(value)+'</code>'},{key:'receivedAt',label:'接收时间（北京）',render:value=>esc(beijingTime(value))}],row.evidence||[],{numbered:false,className:'dcc-result-evidence-table',emptyText:'来源证据待核'})}${evidence(row.evidence||[])}${row.sipUpdates?.length?'<h3>SIP 晚更新各次原字段与来源</h3>'+evidence(row.sipUpdates):''}<p class="dcc-muted">同一 callID 的 SIP 晚更新沿用本对象并保留来源与版本；供应商的最后一次标志不代表整个任务已完成。</p></details></div><div class="layer-footer"><button class="btn" type="button" onclick="PlatformUI.closeLayer('dcc-result-detail')">关闭</button></div>`,'wide');return true;
   }
   const stageLabel = value => ({local_validation:'客户信息有误',supplier_import:'导入失败',association_review:'结果待确认'}[value]||'结果待确认');
   const completenessLabel = value => ({complete:'已声明失败组收齐',incomplete:'失败组未收齐',pending_review:'分片声明 / 关联待核',unknown:'失败完整性未知'}[value]||'失败完整性未知');
-  const downloadLabel = value => ({generated:'文件已准备',clicked:'已发起下载，保存待确认',failed:'下载失败，可重试',interrupted:'下载中断，可重试',succeeded:'模拟保存完成，本次明细已清理'}[value]||'保存结果待确认');
+  const downloadLabel = value => ({generated:'文件已准备',clicked:'已发起下载，保存待确认',failed:'下载失败，可重试',interrupted:'下载中断，可重试',succeeded:'保存完成，本次明细已清理'}[value]||'保存结果待确认');
   const deliveryLabel = value => ({pending:'等待回传',failed:'回传失败',succeeded:'已回传（演示）'}[value]||'回传结果待确认');
   const deliveryStageLabel = value => ({supplier_import:'导入失败通知',call_result:'通话结果',no_cdr_failure:'呼叫异常通知',sip_update:'通话结果更新',supplier_deletion:'号码移除结果'}[value]||'结果类型待确认');
   const failureDisabled = task => !canWrite(task)||failureBusy.has(task.taskId)||resultBusy.has(task.taskId)||deletionBusy.has(task.taskId);
@@ -345,23 +346,21 @@
   function renderFailureSnapshot(task,snapshot) {
     const disabled=failureDisabled(task)||snapshot.state==='succeeded';
     const actionButton=(action,label,primary=false)=>'<button class="btn '+(primary?'btn-primary':'')+'" type="button" data-dcc-snapshot-id="'+esc(snapshot.snapshotId)+'" data-dcc-action="'+action+'" '+(disabled||action==='download'&&!snapshot.file?'disabled':'')+' onclick="'+handler(action==='download'?'downloadFailureSnapshot':'signalSnapshotDownload',task.taskId,snapshot.snapshotId,...(action==='download'?[]:[action]))+'" data-func-id="FUNC-006">'+esc(label)+'</button>';
-    return `<article class="dcc-snapshot-card" data-dcc-snapshot="${esc(snapshot.snapshotId)}"><div class="dcc-snapshot-heading"><div><h3>导入异常明细 · ${(snapshot.memberIds||[]).length} 条</h3><p>${esc(beijingTime(snapshot.createdAt))} 准备</p></div><span class="dcc-snapshot-state">${esc(downloadLabel(snapshot.state))}</span></div><div class="dcc-snapshot-actions">${actionButton('download','下载文件',true)}</div><p class="dcc-muted">普通下载暂不能确认文件已保存，因此保留异常明细。</p><details class="dcc-operator-tools"><summary>演示工具 · 模拟保存结果</summary><p>以下仅模拟保存结果，不代表浏览器已经完成下载。</p><div class="dcc-snapshot-actions">${actionButton('failed','模拟下载失败')}${actionButton('interrupted','模拟下载中断')}${actionButton('succeeded','模拟保存完成')}</div></details>${technical('<p>文件：'+esc(snapshot.file?.name||'本次文件已清理')+'</p>'+evidence(snapshot),'技术详情 · 下载记录')}</article>`;
+    return `<article class="dcc-snapshot-card" data-dcc-snapshot="${esc(snapshot.snapshotId)}"><div class="dcc-snapshot-heading"><div><h3>导入异常明细 · ${(snapshot.memberIds||[]).length} 条</h3><p>${esc(beijingTime(snapshot.createdAt))} 准备</p></div><span class="dcc-snapshot-state">${esc(downloadLabel(snapshot.state))}</span></div><div class="dcc-snapshot-actions">${actionButton('download','下载文件',true)}</div><p class="dcc-muted">支持的浏览器可选择保存位置，写入并核对文件后清理本次明细；普通下载继续保留明细。</p><details class="dcc-operator-tools"><summary>演示工具 · 模拟保存结果</summary><p>以下仅模拟保存结果，不代表浏览器已经完成下载。</p><div class="dcc-snapshot-actions">${actionButton('failed','模拟下载失败')}${actionButton('interrupted','模拟下载中断')}${actionButton('succeeded','模拟保存完成')}</div></details>${technical('<p>文件：'+esc(snapshot.file?.name||'本次文件已清理')+'</p>'+evidence(snapshot),'技术详情 · 下载记录')}</article>`;
   }
 
   function dccRecordSource(task,record) {
-    if(task?.dccImportSource!=='api'||record?.source!=='api'||!['DEMO-DCC-APP-A','DEMO-DCC-APP-B'].includes(record.sourceApplicationId))return false;
-    // Only the two historical synthetic DCC fixtures are mapped; this is not a production source contract.
-    return ![task.sourceSystem,task.originSystem,record.sourceSystem,record.originSystem,record.applicationSource].some(value=>value!==undefined&&value!==null&&value!==''&&String(value).toLowerCase()!=='dcc');
+    return task?.dccImportSource==='api'&&record?.source==='api'&&typeof record.sourceApplicationId==='string'&&record.sourceApplicationId.length>0;
   }
   function dccDeliveries(task,data) {
     if(!task||data?.task?.source!=='api'||data.task.taskId!==task.taskId||data.task.tenantId!==task.tenantId)return [];
     return (data.deliveries||[]).filter(delivery=>{
       const payload=delivery.payload||{},recordId=payload.recordId||delivery.recordId;
       const record=(data.records||[]).find(item=>item.recordId===recordId);
-      return record&&dccRecordSource(task,record)&&deliveryLinksRecord(delivery,record,data)&&delivery.target==='BACKEND_FIXED_DCC_RECEIVER'&&delivery.taskId===task.taskId&&delivery.tenantId===task.tenantId&&
+      return record&&dccRecordSource(task,record)&&deliveryLinksRecord(delivery,record,data)&&['APPLICATION_CALLBACK','BACKEND_FIXED_DCC_RECEIVER'].includes(delivery.target)&&(!delivery.sourceApplicationId||delivery.sourceApplicationId===record.sourceApplicationId)&&delivery.taskId===task.taskId&&delivery.tenantId===task.tenantId&&
         (!delivery.recordId||delivery.recordId===record.recordId)&&(!payload.localTaskId||payload.localTaskId===task.taskId)&&(!payload.tenantId||payload.tenantId===task.tenantId)&&
         (!payload.taskId||payload.taskId===data.task.supplierTaskId)&&(!payload.phone||payload.phone===record.phone)&&
-        (!payload.batchId||payload.batchId===record.batchId)&&(!payload.fileId||payload.fileId===record.supplierFileId);
+        (!payload.batchId||payload.batchId===record.batchId)&&(!payload.fileId||payload.fileId===record.supplierFileId||(data.failureRetryAttempts||[]).some(attempt=>attempt.recordId===record.recordId&&attempt.supplierFileId===payload.fileId&&attempt.state==='accepted'));
     });
   }
   function deliveryLinksRecord(delivery,record,data) {
@@ -397,10 +396,10 @@
     const row=deliveryObject(view.data,kind,id),deliveries=objectDeliveries(task,kind,row,view.data);
     if(!deliveries.length)return '';
     const disabled=failureDisabled(task);
-    return '<h3>DCC 回传</h3>'+deliveries.map(delivery=>{
+    return '<h3>业务系统回传</h3>'+deliveries.map(delivery=>{
       const stage=deliveryStageLabel(delivery.stage||delivery.payload?.stage),version=delivery.resultVersion?' · 第 '+delivery.resultVersion+' 版':'';
       return '<article class="dcc-delivery-card" data-dcc-delivery="'+esc(delivery.deliveryId)+'"><div class="dcc-snapshot-heading"><h3>'+esc(stage+version)+'</h3><span class="dcc-snapshot-state">'+esc(deliveryLabel(delivery.state))+'</span></div>'+
-        (delivery.state==='failed'?'<p class="dcc-delivery-error">尚未确认 DCC 收到这条结果，可重新回传。</p><button class="btn" type="button" '+(disabled?'disabled':'')+' onclick="'+handler('openDeliveryRetry',taskId,delivery.deliveryId)+'">重新回传</button>':'')+
+        (delivery.state==='pending'?'<p class="dcc-delivery-error">'+esc(delivery.routeReason||delivery.error||'回传接收地址待确认')+'</p>':'')+(delivery.state==='failed'?'<p class="dcc-delivery-error">尚未确认业务系统收到这条结果，可重新回传。</p><button class="btn" type="button" '+(disabled?'disabled':'')+' onclick="'+handler('openDeliveryRetry',taskId,delivery.deliveryId)+'">重新回传</button>':'')+
         technical('<h3>回传内容</h3>'+evidence(delivery.payload)+'<h3>回传记录</h3>'+evidence(delivery.attempts||[])+(delivery.error?'<p>'+esc(delivery.error)+'</p>':''),'查看回传记录')+'</article>';
     }).join('');
   }
@@ -417,8 +416,37 @@
       if(body&&scroll!==undefined)body.scrollTop=scroll;
     });
   }
+  function renderFailureRetries(task,data) {
+    const view=runtime().failureRetryView?.(task.taskId);if(!view?.ok)return '';
+    const plans=view.data.plans.filter(row=>!data.filteredRecord||row.recordId===data.filteredRecord.recordId),attempts=view.data.attempts;
+    const stateLabel=plan=>{const attempt=attempts.find(row=>row.attemptId===plan.attemptId);if(attempt)return {accepted:'补提交已受理',rejected:'补提交被拒绝',unknown:'提交结果待确认',dispatching:'提交结果待确认'}[attempt.state]||'结果待确认';if(plan.state==='cancelled')return '已取消';if(plan.blockReason==='等待 2 分钟后自动补提交')return '<span data-failure-retry-due="'+esc(plan.dueAt)+'">'+plan.secondsRemaining+' 秒后自动补提交</span>';return esc(plan.blockReason||'等待人工确认');};
+    return `<section class="dcc-failure-retries"><div class="dcc-section-title"><h2>失败客户处理</h2><span>${plans.length} 条</span></div><p class="dcc-operator-guide">三类线路限制等待 2 分钟自动处理，其余已确认失败由有权限人员补提交。同一任务、线索和号码最多额外提交 2 次；秒挂只保留结果。</p>${ui().table([
+      {key:'phone',label:'客户号码'}, {key:'reason',label:'失败原因'},
+      {key:'mode',label:'处理方式',render:value=>value==='auto'?'2 分钟后自动':'人工补提交'},
+      {key:'planId',label:'当前情况',render:(_,row)=>stateLabel(row)},
+      {key:'quota',label:'补提交次数',render:value=>esc('已提交 '+value.used+' 次'+(value.unknown?' · 待确认占用 '+value.unknown+' 次':'')+' · 剩余 '+value.remaining+' 次')},
+      {key:'planId',label:'操作',render:(value,row)=>row.mode==='manual'&&row.state==='queued'?'<button class="table-link" type="button" '+(row.canExecute?'':'disabled title="'+esc(row.blockReason)+'"')+' onclick="'+handler('openFailureResubmit',task.taskId,value)+'">补提交当前客户</button>':'—'}
+    ],plans,{numbered:false,className:'dcc-operator-table',emptyText:'暂无待处理的失败客户',emptyDetail:'秒挂和呼叫过频不进入补提交。'})}
+    ${data.filteredRecord?'':`<details class="dcc-demo-input"><summary>演示工具 · 失败处理</summary><p>仅合成演示；真实供应商的线路导航和原生重呼互斥仍待核实。确认合成条件后才演示自动或人工补提交，不发送真实请求。</p><div class="dcc-demo-input-actions"><button class="btn" type="button" ${canWrite(task)?'':'disabled'} onclick="${handler('openRetryDemoConfirmation',task.taskId)}">确认演示执行条件</button><label for="dccRetryFailureReason">失败原因样例</label><select id="dccRetryFailureReason"><option>运营商禁呼</option><option>运营商限呼</option><option>外呼黑名单</option><option>无可用中继</option><option>bad tel</option><option>真实号码为空!</option><option>no clid</option><option>bad clid</option><option>无可用中继信息</option><option>wrong obClidGroup</option><option>bad timeout range</option><option>呼叫过频</option></select><button class="btn" type="button" ${canWrite(task)?'':'disabled'} onclick="${handler('receiveRetryFailureDemo',task.taskId)}">接收合成失败</button></div></details>`}
+    ${technical('<h3>失败补提交尝试</h3>'+evidence(attempts)+'<p>排队计划不消耗次数；已实际准备发送、明确受理或拒绝均占用，未知保留原尝试。每次供应商新业务补提交单独记录 fileId，业务系统结果补送不改变额度。</p>')}</section>`;
+  }
+  function tickFailureRetryUi(observedAt=Date.now()) {
+    if(typeof document?.querySelectorAll!=='function')return;
+    for(const node of document.querySelectorAll('[data-failure-retry-due]')){const seconds=Math.max(0,Math.ceil((Date.parse(node.getAttribute('data-failure-retry-due'))-observedAt)/1000));node.textContent=seconds?seconds+' 秒后自动补提交':'等待系统处理';}
+  }
+  function openRetryDemoConfirmation(taskId) {
+    const task=canonical(taskId);if(!task||!canWrite(task))return false;
+    ui().confirm({id:'dcc-failure-retry-demo-confirm',title:'确认本地演示条件',confirmText:'确认合成演示',body:'<p>这些勾选只说明本次合成演示已准备好，不能代表真实供应商能力通过。</p><label><input id="dccRetryNativeConfirmed" type="checkbox"> 本次合成客户已排除供应商原生重呼</label><br><label><input id="dccRetryNavigationConfirmed" type="checkbox"> 本次合成线路已完成导航降级</label><label class="dcc-field"><span>合成提交响应</span><select id="dccFailureRetryOutcome"><option value="accepted">已受理</option><option value="rejected">明确拒绝</option><option value="unknown">结果未知</option></select></label>',onConfirm:()=>{const conditions={taskId,confirmed:true,nativeRetryExcluded:document.getElementById('dccRetryNativeConfirmed')?.checked===true,navigationReady:document.getElementById('dccRetryNavigationConfirmed')?.checked===true,outcome:document.getElementById('dccFailureRetryOutcome')?.value};return failureOperation(taskId,'retry-demo','失败处理演示条件',()=>runtime().confirmFailureRetryDemo(conditions),'演示条件已保存；真实调用继续关闭。');}});return true;
+  }
+  function receiveRetryFailureDemo(taskId) {const reason=document.getElementById('dccRetryFailureReason')?.value;return failureOperation(taskId,'retry-failure','合成失败结果',()=>runtime().simulateFailureRetryFailure({taskId,reason}),'准确失败已保存。自动类从本次确认时间等待 2 分钟，人工类请处理当前记录。');}
+  function openFailureResubmit(taskId,planId) {
+    const view=runtime().failureRetryView(taskId),plan=view?.data?.plans.find(row=>row.planId===planId);
+    if(!view.ok||!plan||plan.mode!=='manual'||!plan.canExecute){window.showToast?.(plan?.blockReason||'当前失败客户不能补提交','warning');return false;}
+    ui().confirm({id:'dcc-manual-failure-resubmit',title:'补提交当前失败客户',confirmText:'确认补提交',body:'<p>只补提交号码 '+esc(plan.phone)+'，沿用原任务和导入资料。</p><p>已使用 '+plan.quota.used+' 次，剩余 '+plan.quota.remaining+' 次（不含首次）。此操作不会新增或编辑客户名单。</p>',onConfirm:()=>failureOperation(taskId,'failure-resubmit','客户补提交',()=>runtime().executeFailureRetry({taskId,planId,manualConfirmed:true}),result=>result.data.state==='unknown'?'提交结果待确认，本次占用保留，请勿重复提交。':result.data.state==='accepted'?'本次补提交已受理（演示）。':'本次补提交明确被拒绝，已消耗一次。')});return true;
+  }
+
   function deliveryException(task,kind,row,data,method,id) {
-    return objectDeliveries(task,kind,row,data).some(delivery=>delivery.state==='failed')?'<br><button class="table-link dcc-delivery-warning" type="button" data-dcc-delivery-alert="'+esc(id)+'" onclick="'+handler(method,task.taskId,id)+'">DCC 回传失败</button>':'';
+    return objectDeliveries(task,kind,row,data).some(delivery=>delivery.state==='failed')?'<br><button class="table-link dcc-delivery-warning" type="button" data-dcc-delivery-alert="'+esc(id)+'" onclick="'+handler(method,task.taskId,id)+'">业务系统回传失败</button>':'';
   }
   function retryCandidate(taskId,deliveryId) {
     const task=canonical(taskId),view=runtime().taskRecords(taskId);
@@ -455,23 +483,38 @@
     return failureOperation(taskId,'shard','合成失败分片',()=>runtime().simulateFailure53({taskId,scenarioId}),result=>result.data.duplicate?'相同分片已去重，未新增失败明细、交付或导入提交。':'分片与原始关联证据已保存；'+completenessLabel(result.data.group?.completeness)+'，全导入终态仍未知。');
   }
   function createFailureSnapshot(taskId) { return failureOperation(taskId,'snapshot','下载文件',()=>runtime().createFailureSnapshot({taskId}),result=>'已准备 '+result.data.memberIds.length+' 条异常明细，请在下载记录中下载文件。'); }
-  function downloadFailureSnapshot(taskId,snapshotId) {
-    return failureOperation(taskId,'download','下载点击',()=>{
-      const view=runtime().failureView(taskId),snapshot=view.data?.exportSnapshots?.find(row=>row.snapshotId===snapshotId);
-      if(!view.ok||!snapshot?.file)return {ok:false,reason:'本次快照文件不存在或已在可信成功后清理。'};
+  async function downloadFailureSnapshot(taskId,snapshotId) {
+    const task=canonical(taskId),view=runtime().failureView(taskId),snapshot=view.data?.exportSnapshots?.find(row=>row.snapshotId===snapshotId);
+    if(!task||failureDisabled(task)||!view.ok||!snapshot?.file)return false;
+    if(typeof window.showSaveFilePicker!=='function')return failureOperation(taskId,'download','下载文件',()=>{
+      const current=runtime().failureView(taskId),saved=current.data?.exportSnapshots?.find(row=>row.snapshotId===snapshotId);
+      if(!current.ok||!saved?.file)return {ok:false,reason:'当前文件已变化，请重新准备。'};
       const result=runtime().recordSnapshotDownload({taskId,snapshotId,outcome:'clicked'});if(!result.ok)return result;
       let url;
-      try {
-        url=URL.createObjectURL(new Blob([snapshot.file.content],{type:'text/csv;charset=utf-8'}));
-        const anchor=document.createElement('a');anchor.href=url;anchor.download=snapshot.file.name;anchor.hidden=true;document.body.appendChild(anchor);anchor.click();anchor.remove();
-        setTimeout(()=>URL.revokeObjectURL(url),1000);
-      } catch(error) { if(url)URL.revokeObjectURL(url);runtime().recordSnapshotDownload({taskId,snapshotId,outcome:'failed'});return {ok:false,reason:'文件下载点击未完成，快照文件与明细继续保留。'}; }
+      try{url=URL.createObjectURL(new Blob([saved.file.content],{type:'text/csv;charset=utf-8'}));const anchor=document.createElement('a');anchor.href=url;anchor.download=saved.file.name;anchor.hidden=true;document.body.appendChild(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+      catch(_){if(url)URL.revokeObjectURL(url);runtime().recordSnapshotDownload({taskId,snapshotId,outcome:'failed'});return {ok:false,reason:'下载未完成，异常明细继续保留。'};}
       return result;
-    },'已发起下载。暂不能确认文件已保存，异常明细继续保留。');
+    },'已发起普通下载，保存结果待确认，异常明细继续保留。');
+    const accountId=window.AppState.get().accountId,bytes=snapshot.file.content;
+    const active=()=>accountId===window.AppState.get().accountId&&canonical(taskId)&&canWrite(canonical(taskId))&&runtime().failureView(taskId).ok;
+    let chosen;
+    // Open immediately during the user's click; no artificial delay precedes the native dialog.
+    try{chosen=window.showSaveFilePicker({suggestedName:snapshot.file.name,types:[{description:'CSV 文件',accept:{'text/csv':['.csv']}}]});}
+    catch(_){return false;}
+    failureBusy.set(taskId,'save-file');let stream,result;
+    try{
+      const handle=await chosen;if(!active())throw Error('工作范围已变化，异常明细保留。');
+      const clicked=runtime().recordSnapshotDownload({taskId,snapshotId,outcome:'clicked'});if(!clicked.ok)throw Error(clicked.reason);
+      stream=await handle.createWritable();await stream.write(bytes);await stream.close();stream=null;
+      const written=await handle.getFile();if(await written.text()!==bytes)throw Error('文件回读未通过，异常明细保留。');
+      if(!active())throw Error('文件已保存，但工作范围已变化，异常明细保留。');
+      result=runtime().recordSnapshotDownload({taskId,snapshotId,outcome:'succeeded',trustedFileCompletion:true,completionEvidence:{method:'file-system-access',closed:true,readBackVerified:true,bytes:written.size}});
+    }catch(error){try{await stream?.abort?.();}catch(_){}if(active())runtime().recordSnapshotDownload({taskId,snapshotId,outcome:error?.name==='AbortError'?'interrupted':'failed'});result={ok:false,reason:error?.name==='AbortError'?'已取消保存，异常明细继续保留。':error.message||'保存未确认完成，异常明细继续保留。'};}
+    failureBusy.delete(taskId);failureFeedback.set(taskId,{tone:result.ok?'success':'warning',title:result.ok?'文件已保存':'异常明细已保留',detail:result.ok?'已完成写入、关闭并回读核对，仅清理本次文件包含的明细版本。':result.reason});refresh(taskId);return result;
   }
   function signalSnapshotDownload(taskId,snapshotId,outcome) {
     if(!['failed','interrupted','succeeded'].includes(outcome))return false;
-    return failureOperation(taskId,'download-signal','独立合成下载信号',()=>runtime().recordSnapshotDownload({taskId,snapshotId,outcome,...(outcome==='succeeded'?{trustedSyntheticCompletion:true}:{})}),outcome==='succeeded'?'合成可信成功已记录，只清本次快照包含的明细版本和文件；后到的新失败、业务记录、分片和 DCC 交付状态继续保留。':'本次合成下载'+(outcome==='failed'?'失败':'中断')+'已记录，文件与明细继续保留，可再次下载。');
+    return failureOperation(taskId,'download-signal','独立合成下载信号',()=>runtime().recordSnapshotDownload({taskId,snapshotId,outcome,...(outcome==='succeeded'?{trustedSyntheticCompletion:true}:{})}),outcome==='succeeded'?'合成可信成功已记录，只清本次快照包含的明细版本和文件；后到的新失败、业务记录、分片和 业务系统回传状态继续保留。':'本次合成下载'+(outcome==='failed'?'失败':'中断')+'已记录，文件与明细继续保留，可再次下载。');
   }
   async function retryFailureDelivery(taskId,deliveryId,outcome,expectedBinding) {
     const delivery=retryCandidate(taskId,deliveryId);
@@ -482,7 +525,7 @@
       const current=view.ok?dccDeliveries(task,view.data).find(row=>row.deliveryId===deliveryId&&row.state==='failed'):null;
       if(!current||deliveryBinding(current)!==binding)return {ok:false,reason:'结果或回传状态已变化，请重新查看详情。'};
       return runtime().retryDelivery({taskId,deliveryId,outcome});
-    },outcome==='succeeded'?'DCC 已收到这条结果（演示），未再次呼叫客户。':'回传仍未成功，可稍后再试。');
+    },outcome==='succeeded'?'业务系统已收到这条结果（演示），未再次呼叫客户。':'回传仍未成功，可稍后再试。');
     if(result&&!result.ok)window.showToast?.(result.reason,'warning');
     return result;
   }
@@ -504,7 +547,7 @@
     if(panel){const status=document.createElement('div');status.id='dccImportProcessing';status.setAttribute('aria-live','polite');status.innerHTML=ui().alert('info','逐行接收处理中','本地保存后将自动提交单号批次；不发送真实请求。');panel.prepend(status);}
     await new Promise(resolve=>setTimeout(resolve,240));
     const current=canonical(taskId);
-    const result=accountId===window.AppState.get().accountId&&current?.dccImportSource==='api'&&canWrite(current)?runtime().simulateDccImport({taskId,scenarioId:selectedScenarios.get(taskId)||'STEP05-TWO'}):{ok:false,reason:'登录身份已变化，未接收线索。'};
+    const result=accountId===window.AppState.get().accountId&&current?.dccImportSource==='api'&&canWrite(current)?runtime().simulateDccImport({taskId,scenarioId:selectedScenarios.get(taskId)||'STEP05-TWO',sourceApplicationId:document.getElementById('dccSourceApplication')?.value,businessBatchNo:document.getElementById('dccBusinessBatchNo')?.value}):{ok:false,reason:'登录身份已变化，未接收线索。'};
     importFeedback.set(taskId,result);dccBusy=false;
     const feedback=document.getElementById('dccApiImportFeedback');
     if(result.ok)ui().closeLayer('dcc-api-import');
@@ -515,14 +558,14 @@
     if(dccBusy||manualDraft?.busy)return false;
     const task=canonical(taskId);let view=runtime().taskRecords(taskId);
     if(task&&view.code==='UNREGISTERED_TASK'&&canWrite(task)){const registered=runtime().registerTask(task);if(registered.ok)view=runtime().taskRecords(taskId);}
-    if(!task||!view.ok||!canWrite(task)){window.showToast?.(view.reason||'当前任务不可导入客户','warning');return false;}
+    if(!task||!view.ok||!canWrite(task)||window.CloudTaskWorkspace?.customerImportReason?.(task)){window.showToast?.(window.CloudTaskWorkspace?.customerImportReason?.(task)||view.reason||'当前任务不可导入客户','warning');return false;}
     return task.dccImportSource==='api'?openDccImport(taskId):openManual(taskId);
   }
   function openDccImport(taskId) {
     const task=canonical(taskId),view=runtime().taskRecords(taskId);
     if(dccBusy||!task||!view.ok||task.dccImportSource!=='api'||!canWrite(task))return false;
-    const scenarioId=selectedScenarios.get(taskId)||'STEP05-TWO';
-    ui().openLayer('dcc-api-import',`<div class="layer-header"><div><h2>导入客户</h2><p>当前任务由 DCC 接口导入。</p></div><button type="button" aria-label="关闭" onclick="PlatformUI.closeLayer('dcc-api-import')">×</button></div><div class="layer-body"><label class="dcc-field"><span>合成导入样例</span><select id="dccScenarioId" onchange="DccRecords.selectScenario('${esc(taskId)}',this.value)">${Object.entries(scenarios()).map(([id,scenario])=>'<option value="'+esc(id)+'" '+(id===scenarioId?'selected':'')+'>'+esc(scenario.label)+'</option>').join('')}</select></label><div id="dccApiImportFeedback" aria-live="polite"></div></div><div class="layer-footer"><button class="btn" type="button" onclick="PlatformUI.closeLayer('dcc-api-import')">取消</button><button class="btn btn-primary" id="dccReceiveScenario" type="button" onclick="DccRecords.receiveScenario('${esc(taskId)}')">接收合成 DCC 线索</button></div>`,'wide');return true;
+    const scenarioId=selectedScenarios.get(taskId)||'STEP05-TWO',applicationResult=runtime().applicationsForTask?.(taskId),applications=applicationResult?.ok?applicationResult.data:[];
+    ui().openLayer('dcc-api-import',`<div class="layer-header"><div><h2>导入客户</h2><p>当前预外呼任务接收业务系统导入。</p></div><button type="button" aria-label="关闭" onclick="PlatformUI.closeLayer('dcc-api-import')">×</button></div><div class="layer-body"><label class="dcc-field"><span>来源应用</span><select id="dccSourceApplication"><option value="">请选择</option>${applications.map(app=>'<option value="'+esc(app.applicationId)+'" '+(applications.length===1?'selected':'')+'>'+esc(app.name)+(app.callbackConfigured?'':'（请先配置回调地址）')+'</option>').join('')}</select></label><label class="dcc-field"><span>业务批次号</span><input id="dccBusinessBatchNo" value="DEMO-BUSINESS-IMPORT" placeholder="请输入业务系统批次号"></label><label class="dcc-field"><span>合成导入样例</span><select id="dccScenarioId" onchange="DccRecords.selectScenario('${esc(taskId)}',this.value)">${Object.entries(scenarios()).map(([id,scenario])=>'<option value="'+esc(id)+'" '+(id===scenarioId?'selected':'')+'>'+esc(scenario.label)+'</option>').join('')}</select></label><div id="dccApiImportFeedback" aria-live="polite"></div></div><div class="layer-footer"><button class="btn" type="button" onclick="PlatformUI.closeLayer('dcc-api-import')">取消</button><button class="btn btn-primary" id="dccReceiveScenario" type="button" onclick="DccRecords.receiveScenario('${esc(taskId)}')">接收合成线索</button></div>`,'wide');return true;
   }
   function canonical(taskId) { return (window.CloudCallData?.tasks||[]).find(row=>row.taskId===taskId); }
   const manualSavedDrafts=new Map();
@@ -556,7 +599,7 @@
   }
   function openManual(taskId) {
     const task=canonical(taskId),data=runtime().taskRecords(taskId);
-    if(manualDraft?.busy||dccBusy||!data.ok||!task||task.dccImportSource!=='manual'||!canWrite(task)){window.showToast?.(data.reason||'来源或权限不允许手工导入','warning');return false;}
+    if(manualDraft?.busy||dccBusy||!data.ok||!task||task.dccImportSource!=='manual'||!canWrite(task)||window.CloudTaskWorkspace?.customerImportReason?.(task)){window.showToast?.(data.reason||'来源或权限不允许手工导入','warning');return false;}
     rememberManualDraft();
     const context=window.AppState.get(),scope={accountId:context.accountId,scopeTenantId:context.tenantId,scopeEnterpriseId:context.enterpriseId,activeDomain:context.activeDomain,taskTenantId:task.tenantId,taskEnterpriseId:task.enterpriseId,supplierTaskId:task.dccSupplierTaskId};
     const saved=manualSavedDrafts.get(taskId),restored=saved&&Object.keys(scope).every(key=>scope[key]===saved.context[key])?saved:null;
@@ -616,7 +659,7 @@
     if(!draft)return false;
     const task=canonical(draft.taskId),context=window.AppState.get();
     return draft.accountId===context.accountId&&draft.scopeTenantId===context.tenantId&&draft.scopeEnterpriseId===context.enterpriseId&&draft.activeDomain===context.activeDomain&&
-      task?.tenantId===draft.taskTenantId&&task?.enterpriseId===draft.taskEnterpriseId&&task?.dccSupplierTaskId===draft.supplierTaskId&&task?.dccImportSource==='manual'&&canWrite(task)&&runtime().taskRecords(draft.taskId).ok;
+      task?.tenantId===draft.taskTenantId&&task?.enterpriseId===draft.taskEnterpriseId&&task?.dccSupplierTaskId===draft.supplierTaskId&&task?.dccImportSource==='manual'&&canWrite(task)&&!window.CloudTaskWorkspace?.customerImportReason?.(task)&&runtime().taskRecords(draft.taskId).ok;
   }
   function draftAllowed() {return manualDraft&&!manualDraft.busy&&manualContextAllowed(manualDraft);}
   function setManualBusy(draft,busy) {
@@ -731,10 +774,19 @@
     return result;
   }
   function closeManual() {if(manualDraft?.busy)return false;rememberManualDraft();ui().closeLayer('dcc-manual-import');manualDraft=null;return true;}
-  function openDetail(taskId,recordId) {
-    const result=runtime().taskRecords(taskId),record=result.data?.records.find(row=>row.recordId===recordId);if(!result.ok||!record)return false;
-    const actual=runtime().resultView?.(taskId),actualRows=(actual?.data?.actualResults||[]).filter(row=>row.recordId===recordId);
-    ui().openLayer('dcc-record-detail',`<div class="layer-header"><div><h2>客户详情</h2><p>${esc(record.leadCode)} · ${esc(record.phone)}</p></div><button aria-label="关闭" onclick="PlatformUI.closeLayer('dcc-record-detail')">×</button></div><div class="layer-body"><h3>客户信息</h3><dl class="dcc-detail-list"><div><dt>客户 / 手机号</dt><dd>${esc(record.name||record.leadCode)} / ${esc(record.phone)}</dd></div><div><dt>业务类型</dt><dd>${esc(recordBusinessType(record))}</dd></div><div><dt>导入批次</dt><dd>${esc(recordBatch(record))}</dd></div><div><dt>导入状态</dt><dd>${esc(importLabel(record))}</dd></div><div><dt>呼叫进展</dt><dd>${recordResultLabel(record,actual?.ok?actual.data:null)} <button class="table-link" type="button" onclick="${handler('openCalls',taskId,recordId)}">查看通话</button></dd></div><div><dt>优先级</dt><dd>${esc(record.priority)}</dd></div><div><dt>联系备注</dt><dd>${esc(record.note||'—')}</dd></div></dl><h3>导入时的客户信息</h3>${CustomerBusiness.importedDetail(record)}${deliveryDetails(taskId,'record',recordId)}<details class="dcc-submission-details"><summary>技术详情（排查时查看）</summary><dl class="dcc-detail-list"><div><dt>租户 / 供应商任务</dt><dd>${esc(record.tenantId)} / ${esc(record.supplierTaskId)}</dd></div><div><dt>本地记录 / 批次</dt><dd>${esc(record.recordId)} / ${esc(record.batchId)}</dd></div><div><dt>供应商 fileId</dt><dd>${esc(record.supplierFileId||'未准确返回')}</dd></div>${result.data.task?.source==='api'||record.source==='api'?'<div><dt>批次关系 / 主批次</dt><dd>'+esc(batchKind(record))+' / '+esc(record.rootBatchId||'待核')+'</dd></div><div><dt>本次请求</dt><dd>'+esc(record.requestId||'历史请求待核')+'</dd></div>':''}<div><dt>新批次时间（北京）</dt><dd>${esc(beijingTime(record.newBatchCreatedAt))}</dd></div>${record.source==='manual'?'<div><dt>客户称呼</dt><dd>'+esc(record.name||'—')+'</dd></div><div><dt>业务类型 / 导入批次名称</dt><dd>'+esc(window.CustomerBusiness?.get?.(record.businessType,{tenantId:record.tenantId,enterpriseId:result.data.task.enterpriseId})?.label||record.businessType||'—')+' / '+esc(record.importBatchName||'—')+'</dd></div><div><dt>'+esc(record.businessType==='lead'?'原导入关联编码（历史）':window.CustomerBusiness?.get?.(record.businessType,{tenantId:record.tenantId,enterpriseId:result.data.task.enterpriseId})?.codeLabel||'关联单号')+'</dt><dd>'+esc(record.externalDocumentId||'—')+'</dd></div><div><dt>联系备注</dt><dd class="dcc-manual-note-value">'+esc(record.note??'—')+'</dd></div>':''}<div><dt>priority / R</dt><dd>${esc(record.priority)} / ${esc(Object.hasOwn(record,'R')?record.R:'未提供（有效）')}</dd></div><div><dt>来源追踪</dt><dd>${esc(record.sourceApplicationId||(record.source==='manual'?'手工导入，无来源应用绑定':'来源应用待核'))}</dd></div><div><dt>三阶段状态</dt><dd>本地已保存 / ${esc(importLabel(record))} / 实际呼叫对象 ${actualRows.filter(row=>row.kind==='call').length}，稳定无话单事件 ${actualRows.filter(row=>row.kind==='no_cdr_failure').length}</dd></div><div><dt>待核原因</dt><dd>${esc(record.reviewReason||'—')}</dd></div></dl><h3>合成同步响应原字段及来源</h3><pre class="dcc-raw-evidence">${esc(JSON.stringify(record.syncResponses,null,2))}</pre><p class="dcc-muted">result 与 importTotal / successTotal / invalidTotal 均保留来源；导入接受不是接通。未返回的字段不补成功值。</p>${deletionEvidenceMarkup(taskId,record)}</details></div><div class="layer-footer"><button class="btn" onclick="PlatformUI.closeLayer('dcc-record-detail')">关闭</button></div>`,'wide');return true;
+  function openArchive(taskId,recordId) {
+    const view=runtime().directoryRecord(taskId,recordId);
+    if(!view.ok){window.showToast?.(view.reason,'warning');return false;}
+    const row=view.data.record;return window.CustomerDirectory?.open?.(row.phone,row.tenantId,row.enterpriseId)||false;
+  }
+  const openDirectoryRecord=(taskId,recordId)=>openDetail(taskId,recordId,true);
+  const openDirectoryCall=(taskId,resultId)=>openResultDetail(taskId,resultId,true);
+  function openDetail(taskId,recordId,fromDirectory=false) {
+    const scoped=fromDirectory?runtime().directoryRecord(taskId,recordId):null;
+    if(fromDirectory&&!scoped.ok)return false;
+    const result=fromDirectory?{ok:true,data:{records:[scoped.data.record],task:{source:scoped.data.record.source}}}:runtime().taskRecords(taskId),record=result.data?.records.find(row=>row.recordId===recordId);if(!result.ok||!record)return false;
+    const actual=fromDirectory?{ok:true,data:{actualResults:scoped.data.results}}:runtime().resultView?.(taskId),actualRows=(actual?.data?.actualResults||[]).filter(row=>row.recordId===recordId);
+    ui().openLayer('dcc-record-detail',`<div class="layer-header"><div><h2>客户详情</h2><p>${esc(record.leadCode)} · ${esc(record.phone)}</p></div><button aria-label="关闭" onclick="PlatformUI.closeLayer('dcc-record-detail')">×</button></div><div class="layer-body"><h3>客户信息</h3><dl class="dcc-detail-list"><div><dt>客户 / 手机号</dt><dd>${esc(record.name||record.leadCode)} / ${esc(record.phone)}</dd></div><div><dt>业务类型</dt><dd>${esc(recordBusinessType(record))}</dd></div>${record.source==='api'?'<div><dt>业务批次号</dt><dd>'+esc(record.businessBatchNo||'历史未提供')+'</dd></div>':''}<div><dt>导入批次</dt><dd>${esc(recordBatch(record))}</dd></div><div><dt>导入状态</dt><dd>${esc(importLabel(record))}</dd></div><div><dt>呼叫进展</dt><dd>${recordResultLabel(record,actual?.ok?actual.data:null)} ${fromDirectory?'':'<button class="table-link" type="button" onclick="'+handler('openCalls',taskId,recordId)+'">查看通话</button>'}</dd></div><div><dt>优先级</dt><dd>${esc(record.priority)}</dd></div><div><dt>联系备注</dt><dd>${esc(record.note||'—')}</dd></div></dl><h3>导入时的客户信息</h3>${CustomerBusiness.importedDetail(record)}${deliveryDetails(taskId,'record',recordId)}<details class="dcc-submission-details"><summary>技术详情（排查时查看）</summary><dl class="dcc-detail-list"><div><dt>租户 / 供应商任务</dt><dd>${esc(record.tenantId)} / ${esc(record.supplierTaskId)}</dd></div><div><dt>本地记录 / 批次</dt><dd>${esc(record.recordId)} / ${esc(record.batchId)}</dd></div><div><dt>供应商 fileId</dt><dd>${esc(record.supplierFileId||'未准确返回')}</dd></div>${result.data.task?.source==='api'||record.source==='api'?'<div><dt>批次关系 / 主批次</dt><dd>'+esc(batchKind(record))+' / '+esc(record.rootBatchId||'待核')+'</dd></div><div><dt>本次请求</dt><dd>'+esc(record.requestId||'历史请求待核')+'</dd></div>':''}<div><dt>新批次时间（北京）</dt><dd>${esc(beijingTime(record.newBatchCreatedAt))}</dd></div>${record.source==='manual'?'<div><dt>客户称呼</dt><dd>'+esc(record.name||'—')+'</dd></div><div><dt>业务类型 / 导入批次名称</dt><dd>'+esc(window.CustomerBusiness?.get?.(record.businessType,{tenantId:record.tenantId,enterpriseId:result.data.task.enterpriseId})?.label||record.businessType||'—')+' / '+esc(record.importBatchName||'—')+'</dd></div><div><dt>'+esc(record.businessType==='lead'?'原导入关联编码（历史）':window.CustomerBusiness?.get?.(record.businessType,{tenantId:record.tenantId,enterpriseId:result.data.task.enterpriseId})?.codeLabel||'关联单号')+'</dt><dd>'+esc(record.externalDocumentId||'—')+'</dd></div><div><dt>联系备注</dt><dd class="dcc-manual-note-value">'+esc(record.note??'—')+'</dd></div>':''}<div><dt>priority / R</dt><dd>${esc(record.priority)} / ${esc(Object.hasOwn(record,'R')?record.R:'未提供（有效）')}</dd></div><div><dt>来源追踪</dt><dd>${esc(record.sourceApplicationId||(record.source==='manual'?'手工导入，无来源应用绑定':'来源应用待核'))}</dd></div><div><dt>三阶段状态</dt><dd>本地已保存 / ${esc(importLabel(record))} / 实际呼叫对象 ${actualRows.filter(row=>row.kind==='call').length}，稳定无话单事件 ${actualRows.filter(row=>row.kind==='no_cdr_failure').length}</dd></div><div><dt>待核原因</dt><dd>${esc(record.reviewReason||'—')}</dd></div></dl><h3>合成同步响应原字段及来源</h3><pre class="dcc-raw-evidence">${esc(JSON.stringify(record.syncResponses,null,2))}</pre><p class="dcc-muted">result 与 importTotal / successTotal / invalidTotal 均保留来源；导入接受不是接通。未返回的字段不补成功值。</p>${deletionEvidenceMarkup(taskId,record)}</details></div><div class="layer-footer">${runtime().directoryRecord?.(taskId,recordId)?.ok?'<button class="btn" type="button" onclick="'+handler('openArchive',taskId,recordId)+'">查看客户档案</button>':''}<button class="btn" onclick="PlatformUI.closeLayer('dcc-record-detail')">关闭</button></div>`,'wide');return true;
   }
   function refresh(taskId) {
     if(!taskId)return;
@@ -750,5 +802,5 @@
     } else if(records?.dataset.dccTaskId===taskId)window.RouteRuntime?.refreshCurrent?.();
   }
   window.addEventListener('dcc:records-changed',event=>refresh(event.detail?.taskId));
-  window.DccRecords={render,renderCalls,resultSummary,openCalls,syncCallScope,clearCallFilter,switchTab,openDeliveryRetry,confirmDeletion,receiveDeletionConfirmation,selectScenario,receiveScenario,openImport,openDccImport,openManual,closeManual,loadManualSample,readManualFile,changeManualBusinessType,previewManualCsv,invalidateManualPreview,updateManualRow,applyUniformPriority,submitManual,openDetail,selectFailureScenario,prepareFailureDemo,sendFailureShard,createFailureSnapshot,downloadFailureSnapshot,signalSnapshotDownload,retryFailureDelivery,openFailureDetail,openFailureGroup,selectResultScenario,prepareResultDemo,receiveResult,openResultDetail,selectDeletionRecord,selectDeletionScenario,deleteSupplierRecord,repushSelectedRecord,openDeletionDetail};
+  window.DccRecords={openArchive,openDirectoryRecord,openDirectoryCall,render,renderCalls,resultSummary,openCalls,syncCallScope,clearCallFilter,switchTab,openDeliveryRetry,confirmDeletion,receiveDeletionConfirmation,selectScenario,receiveScenario,openImport,openDccImport,openManual,closeManual,loadManualSample,readManualFile,changeManualBusinessType,previewManualCsv,invalidateManualPreview,updateManualRow,applyUniformPriority,submitManual,openDetail,selectFailureScenario,prepareFailureDemo,sendFailureShard,createFailureSnapshot,downloadFailureSnapshot,signalSnapshotDownload,retryFailureDelivery,openFailureDetail,openFailureGroup,selectResultScenario,prepareResultDemo,receiveResult,openResultDetail,openFailureResubmit,openRetryDemoConfirmation,receiveRetryFailureDemo,tickFailureRetryUi,selectDeletionRecord,selectDeletionScenario,deleteSupplierRecord,repushSelectedRecord,openDeletionDetail};
 }());

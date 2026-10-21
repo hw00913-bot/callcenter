@@ -9,7 +9,7 @@ block(window.AccountSeat,'retry','坐席查证重试');
 
 // ivrRouter CRUD is handled by the documented inbound service; there is no local publish/version operation.
 // Number onboarding is a local demonstration workflow; do not replace its navigation with supplier-operation guards.
-const workspace=window.CloudTaskWorkspace;if(workspace){const originalDelete=workspace.deleteTask;workspace.deleteTask=function(id,...args){const task=data.tasks.find(t=>t.taskId===id&&!t.isWizardDraft);if(task&&!(task.localPrototypeTask===true&&task.simulation===true&&task.repeatContact))return pending('供应商任务删除');return originalDelete.call(this,id,...args)};}
+const workspace=window.CloudTaskWorkspace;if(workspace){const originalDelete=workspace.deleteTask;workspace.deleteTask=function(id,...args){const task=data.tasks.find(t=>t.taskId===id&&!t.isWizardDraft);if(task&&!(task.localPrototypeTask===true&&task.simulation===true&&workspace.canDeleteTask?.(task)))return pending('供应商任务删除');return originalDelete.call(this,id,...args)};}
 function labelBlockedButtons(){const root=document.body;if(!root)return;root.querySelectorAll('button[onclick]').forEach(el=>{const code=el.getAttribute('onclick');const match=blocked.find(b=>b.marker&&code.includes(b.marker)&&new RegExp('\\.'+b.method+'\\(').test(code));if(match&&!el.dataset.alictiPending){el.dataset.alictiPending='true';el.title=pendingMessage(match.name);if(!el.textContent.includes('待确认'))el.append(' · 待确认');}});}
 let queued=false;new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;labelBlockedButtons()})}).observe(document.documentElement,{childList:true,subtree:true});labelBlockedButtons();
 window.AliCtiAdapter={pending,blocked,mode:'mock',enterpriseIdField:'enterpriseId',labelBlockedButtons};

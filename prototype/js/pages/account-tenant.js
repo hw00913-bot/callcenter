@@ -193,9 +193,16 @@
     '</section>';
   }
 
+  function filteredTenants() {
+    return tenants().filter(function (row) {
+      return (!tenantKeyword || row.name.toLowerCase().indexOf(tenantKeyword.toLowerCase()) >= 0) &&
+        (!tenantType || row.organizationScope === tenantType) && (!tenantStatus || row.status === tenantStatus);
+    });
+  }
+
   function renderTenants() {
     var editable = AppState.isSuper();
-    var rows = tenants().map(function (row) {
+    var rows = filteredTenants().map(function (row) {
       var instance = CloudCallRuntime.instance(row.enterpriseId);
       return {
         tenantId: row.tenantId,
@@ -205,11 +212,6 @@
         status: row.status,
         raw: row
       };
-    }).filter(function (row) {
-      var matchesKeyword = !tenantKeyword || row.name.toLowerCase().indexOf(tenantKeyword.toLowerCase()) >= 0;
-      var matchesType = !tenantType || row.raw.organizationScope === tenantType;
-      var matchesStatus = !tenantStatus || row.status === tenantStatus;
-      return matchesKeyword && matchesType && matchesStatus;
     });
     rows = ui.sortByUpdated?.(rows, ['raw.updatedAt', 'raw.updateTime', 'raw.modifiedAt', 'raw.createdAt', 'raw.createTime']) || rows;
     var pageCount = Math.max(1, Math.ceil(rows.length / tenantPageSize));
@@ -332,7 +334,16 @@
   }
 
   function exportTenants() {
-    showToast('租户列表已按当前筛选条件导出', 'success');
+    if (!AppState.canMenu('tenants') || !AppState.canAction('report.export') || !tenants().length) return showToast('当前范围无租户导出权限', 'warning');
+    const rows = ui.sortByUpdated?.(filteredTenants()) || filteredTenants();
+    if (!rows.length) return showToast('当前筛选条件下没有可导出的租户', 'warning');
+    if (typeof window.downloadCsv !== 'function') return showToast('导出功能尚未就绪，请刷新后重试', 'warning');
+    const columns = [{key:'tenantId',label:'租户编号'},{key:'name',label:'租户名称'},{key:'organizationLabel',label:'租户类型'},
+      {key:'enterpriseId',label:'AliCti 账号 ID'},{key:'status',label:'状态'},{key:'desc',label:'描述'},
+      {key:'updatedAt',label:'更新时间'},{key:'updatedBy',label:'更新人'}];
+    const saved=window.downloadCsv('租户列表_'+new Date().toISOString().slice(0,10)+'.csv',columns,rows);
+    if(saved)showToast('已发起当前筛选全部租户的下载', 'success');
+    return saved;
   }
 
   function confirmToggleTenant(id) {

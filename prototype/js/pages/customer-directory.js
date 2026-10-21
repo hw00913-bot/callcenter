@@ -10,6 +10,13 @@
   const arg = value => esc(JSON.stringify(String(value || '')));
   const tenantName = id => CloudCallData.tenants.find(row => row.tenantId === id)?.name || id;
   const accountName = id => CloudCallData.accounts.find(row => row.accountId === id)?.name || '待分配';
+  function displayedTime(value, fallback='时间未记录') {
+    let input=value;
+    // Older UI journals saved Beijing wall-clock text; ISO and epoch values keep their explicit zone.
+    if(typeof input==='string'&&/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?$/.test(input.trim()))input=input.trim().replace(' ','T')+'+08:00';
+    const stamp=ui.timestamp(input);
+    return stamp===null||!Number.isFinite(stamp)?fallback:new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date(stamp));
+  }
   function refresh() { navigateTo('customer-directory', { preserveFilters: true }); }
   function contextKey() { const c = AppState.get(); return [c.accountId, c.tenantId, c.enterpriseId, c.activeDomain].join(':'); }
   function reset(options) {
@@ -19,7 +26,7 @@
   function source(customer) { return customer.batches.length ? '客户导入' : '直接联系'; }
   function follows(customer) { return [...new Set(customer.batches.map(row => row.followup || '待联系'))].join('、') || '无批次跟进'; }
   function rows() {
-    return sorted(directory.list().filter(customer => (!keyword || [customer.name, customer.phone, ...customer.names, ...customer.batches.map(row => row.externalDocumentId || ''), ...customer.calls.map(call => call.externalDocumentId || '')].join(' ').toLowerCase().includes(keyword.toLowerCase())) &&
+    return sorted(directory.list().filter(customer => (!keyword || [customer.name, customer.phone, ...customer.names, ...customer.batches.flatMap(row => [row.externalDocumentId || '',row.leadCode || '',row.businessBatchNo || '',row.sourceLabel || '']), ...customer.calls.map(call => call.externalDocumentId || '')].join(' ').toLowerCase().includes(keyword.toLowerCase())) &&
       (!contactFilter || (contactFilter === 'called' ? customer.callCount > 0 : customer.callCount === 0)) &&
       (!sourceFilter || source(customer) === sourceFilter)));
   }
@@ -45,7 +52,7 @@
         { key: 'batchCount', label: '导入批次', help: '同号客户可能在多批次出现，批次之间的分配和进度相互独立。', render: value => value ? value + ' 批' : '无导入批次' },
         { key: 'id', label: '批次跟进状态', help: '展示当前可见各批次的跟进状态，不用一次接通覆盖其他批次进度。', render: (_, row) => esc(follows(row)) },
         { key: 'callCount', label: '通话次数' },
-        { key: 'lastCall', label: '最近联系', render: value => value ? esc(directory.at(value) || '时间未记录') + '<div class="table-sub">' + esc(directory.result(value)) + '</div>' : '尚未联系' },
+        { key: 'lastCall', label: '最近联系', render: value => value ? esc(displayedTime(directory.at(value))) + '<div class="table-sub">' + esc(directory.result(value)) + '</div>' : '尚未联系' },
         { key: 'id', label: '操作', className: 'action-column', render: value => '<button class="btn-link" onclick="' + api + '.openDetail(' + arg(value) + ')">查看档案</button>' }
       ], customers.slice((page - 1) * pageSize, page * pageSize), { rowOffset: (page - 1) * pageSize, emptyText: '暂无符合条件的客户档案', emptyDetail: '导入客户或完成临时拨号后，将在当前权限范围内归档。', footer: ui.pagination(customers.length, page, pageSize, api + '.setPage') }) + '</section></section>';
   }
@@ -55,16 +62,16 @@
     const types = [...new Set(customer.calls.map(call => call.callType || '历史通话'))];
     return '<section class="customer-directory-section"><div class="customer-directory-section-head"><h3>联系历史 <span>' + calls.length + ' 次</span></h3><label>外呼类型 <select aria-label="筛选联系历史类型" onchange="' + api + '.setCallFilter(this.value)"><option value="">全部</option>' + types.map(type => '<option value="' + esc(type) + '"' + (type === callFilter ? ' selected' : '') + '>' + esc(ui.callTypeLabel(type)) + '</option>').join('') + '</select></label></div>' +
       ui.table([
-        { key: 'callId', label: '联系时间', render: (_, row) => esc(directory.at(row) || '未记录') },
+        { key: 'callId', label: '联系时间', render: (_, row) => esc(displayedTime(directory.at(row),'通话时间未记录')) + (row.directoryMeta?.ledgerResult && row.receivedAt ? '<div class="table-sub">结果接收：' + esc(displayedTime(row.receivedAt)) + '</div>' : '') },
         { key: 'callId', label: '联系轮次', render: (_, row) => esc(window.RepeatPredictive?.contactLabel(row) || '—') },
         { key: 'callType', label: '外呼类型' },
         { key: 'businessType', label: '业务类型', render: (_, row) => esc(CustomerBusiness.typeLabel(row)) },
         { key: 'externalDocumentId', label: '业务单据', render: (value, row) => esc(CustomerBusiness.codeLabel(row)) + '：' + esc(value || '—') },
-        { key: 'agentName', label: '实际坐席', render: value => esc(value || '未记录 / 无人参与') },
+        { key: 'agentName', label: '实际坐席', render: (value,row) => esc(value || (row.directoryMeta?.externalResult ? row.cno || row.agentWorkNo || '未记录' : '未记录 / 无人参与')) },
         { key: 'result', label: '通话结果', render: (_, row) => esc(directory.result(row)) },
         { key: 'durationSeconds', label: '时长', help: '历史快照缺少时长时显示“未记录”，不计为 0 秒。', render: (_, row) => esc(directory.duration(row)) },
         { key: 'agentDisposition', label: '处理结果', render: (_, row) => esc(directory.dispositionLabel(row) || '未填写 / 未记录') },
-        { key: 'callId', label: '操作', className: 'action-column', render: value => '<button class="btn-link" onclick="' + api + '.openCall(' + arg(value) + ')">通话详情</button>' }
+        { key: 'callId', label: '操作', className: 'action-column', render: (value,row) => '<button class="btn-link" onclick="' + api + '.openCall(' + arg(value) + ',' + arg(row.directoryMeta?.sourceTaskId) + ',' + arg(row.directoryMeta?.sourceResultId) + ')">通话详情</button>' }
       ], calls.slice((callPage - 1) * pageSize, callPage * pageSize), { rowOffset: (callPage - 1) * pageSize, emptyText: '尚无联系历史', emptyDetail: '只导入或分配客户不会生成通话；完成呼叫后可在此查看。', footer: ui.pagination(calls.length, callPage, pageSize, api + '.setCallPage') }) + '</section>';
   }
   function batchTable(customer) {
@@ -72,15 +79,22 @@
     batchPage = Math.min(batchPage, Math.max(1, Math.ceil(customer.batches.length / pageSize)));
     return '<section class="customer-directory-section"><div class="customer-directory-section-head"><h3>导入与分配记录 <span>' + customer.batches.length + ' 条</span></h3></div>' +
       ui.table([
-        { key: 'batchName', label: '导入批次' }, { key: 'createdAt', label: '导入时间' },
+        { key: 'batchName', label: '导入批次' }, { key: 'sourceLabel', label: '客户来源', render: value => esc(value || '手工导入') }, { key: 'createdAt', label: '导入时间', render: value => esc(displayedTime(value)) },
         { key: 'name', label: '本批次称呼' },
         { key: 'businessType', label: '业务类型', render: (_, row) => esc(CustomerBusiness.typeLabel(row)) },
         { key: 'externalDocumentId', label: '业务单据', render: (value, row) => '<span class="customer-directory-note">' + esc(CustomerBusiness.codeLabel(row)) + '：' + esc(value || '—') + '</span>' },
         { key: 'method', label: '外呼方式', render: value => esc(ui.callTypeLabel(value) || '待分配') },
         { key: 'ownerId', label: '分配对象', render: (value, row) => esc(row.taskId ? row.taskName || row.taskId : accountName(value)) },
         { key: 'followup', label: '跟进状态' },
-        { key: 'note', label: '联系备注', render: value => value ? '<span class="customer-directory-note">' + esc(value) + '</span>' : '—' }
+        { key: 'note', label: '联系备注', render: value => value ? '<span class="customer-directory-note">' + esc(value) + '</span>' : '—' },
+        { key: 'rowId', label: '操作', render: (_,row) => row.archiveLedgerRecord ? '<button class="btn-link" onclick="' + api + '.openImportRecord(' + arg(row.taskId) + ',' + arg(row.recordId) + ')">导入详情</button>' : '—' }
       ], batches.slice((batchPage - 1) * pageSize, batchPage * pageSize), { rowOffset: (batchPage - 1) * pageSize, emptyText: '此客户尚无导入批次', emptyDetail: '临时拨号可独立归档，不自动新建或完成导入任务。', footer: ui.pagination(customer.batches.length, batchPage, pageSize, api + '.setBatchPage') }) + '</section>';
+  }
+  function openExternalCall(customer,call) {
+    const meta=call.directoryMeta,origin=call.apiOrigin;
+    const fields=[['通话编号',call.callId],['通话结果',directory.result(call)],['实际坐席工号',call.cno||call.agentWorkNo||'未记录'],['来源应用',meta.sourceApplicationName||origin.sourceApplicationId],['业务批次号',origin.businessBatchNo||'未记录'],['线索编码',origin.leadCode||'未记录'],['拨打时间',displayedTime(call.startedAt)],['结束时间',displayedTime(call.endedAt)],['云呼叫分配',meta.ownerId?accountName(meta.ownerId):'未分配云呼叫'],['本线索跟进状态',meta.followupState||'跟进状态未同步']];
+    ui.openLayer(detailId,'<div class="layer-header"><div><h2>业务系统通话详情</h2><p>'+esc(customer.name)+' · '+esc(customer.phone)+'</p></div><button aria-label="关闭客户档案" onclick="PlatformUI.closeLayer(\''+detailId+'\')">×</button></div><div class="layer-body customer-directory-detail"><p>业务系统发起的通话，按原导入记录关联。</p>'+ui.table([{key:'label',label:'项目'},{key:'value',label:'内容'}],fields.map(([label,value])=>({label,value})))+'</div><div class="layer-footer"><button class="btn" onclick="'+api+'.openDetail('+arg(customer.id)+',true)">返回客户档案</button></div>','wide');
+    return true;
   }
   function openDetail(id, preserve) {
     const customer = directory.find(id);
@@ -109,6 +123,7 @@
     setCallPage(value) { callPage = Math.max(1, Number(value) || 1); openDetail(activeId, true); },
     setBatchPage(value) { batchPage = Math.max(1, Number(value) || 1); openDetail(activeId, true); },
     setCallFilter(value) { callFilter = value; callPage = 1; openDetail(activeId, true); },
-    openCall(id) { const customer = directory.find(activeId); if (customer?.calls.some(call => call.callId === id)) window.Pages['cloud-call-records']?.openCall(id); else showToast('当前记录已不在客户授权范围内', 'warning'); }
+    openImportRecord(taskId,recordId) { const customer=directory.find(activeId); if(customer?.batches.some(row=>row.archiveLedgerRecord&&row.taskId===taskId&&row.recordId===recordId))return window.DccRecords?.openDirectoryRecord?.(taskId,recordId); showToast('当前记录已不在客户授权范围内','warning');return false; },
+    openCall(id,taskId='',resultId='') { const customer = directory.find(activeId),call=customer?.calls.find(row=>row.callId===id&&(taskId?row.directoryMeta?.sourceTaskId===taskId&&row.directoryMeta?.sourceResultId===resultId:!row.directoryMeta?.ledgerResult)); if(call?.directoryMeta?.ledgerResult)return window.DccRecords?.openDirectoryCall?.(taskId,resultId); if(call?.directoryMeta?.externalResult)return openExternalCall(customer,call); if(call)return window.Pages['cloud-call-records']?.openCall(id); showToast('当前记录已不在客户授权范围内','warning');return false; }
   };
 })();

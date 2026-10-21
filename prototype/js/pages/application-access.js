@@ -6,10 +6,11 @@
   const runtime = () => window.DccRuntime;
   const esc = value => ui().escape(value);
   const command = (name, ...args) => esc("window.Pages['application-access']." + name + '(' + args.map(value => JSON.stringify(value)).join(',') + ')');
-  const tenantRows = () => (window.CloudCallData?.tenants || []).filter(row => row.builtIn !== true && row.status === '启用');
-  const tenantName = id => tenantRows().find(row => row.tenantId === id)?.name || id;
-  const contextKey = () => { const state = window.AppState?.get?.() || {}; return [state.accountId, state.tenantId, state.enterpriseId, state.activeDomain].join('|'); };
-  let context = '', view = 'list', selectedId = '', keyword = '', page = 1, revealed = false, saving = false;
+  const businessTenants = () => (window.CloudCallData?.tenants || []).filter(row => row.builtIn !== true);
+  const tenantRows = (selected = []) => businessTenants().filter(row => row.status === '启用' || selected.includes(row.tenantId));
+  const tenantName = id => { const row=businessTenants().find(row => row.tenantId === id);return row ? row.name+(row.status==='启用'?'':'（已停用）') : id; };
+  const contextKey = () => { const state = window.AppState?.get?.() || {}; return [state.accountId, state.sessionId, state.tenantId, state.enterpriseId, state.activeDomain].join('|'); };
+  let context = '', view = 'list', selectedId = '', keyword = '', page = 1, revealed = false, saving = false, formRevision = null;
   const pageSize = 10;
   const allowed = () => runtime()?.canManageApplications() && context === contextKey();
   const notify = (message, tone) => window.showToast?.(message, tone);
@@ -47,7 +48,7 @@
       ], rows.slice(start, start + pageSize), { numbered: false, emptyText: keyword ? '暂无符合条件的应用' : '暂无应用', emptyDetail: keyword ? '调整查询条件后重试。' : '点击“新增应用”获取接入密钥。' }) + ui().pagination(rows.length, page, pageSize, "window.Pages['application-access'].setPage") + '</div>';
   }
   function tenantChoices(selected) {
-    return tenantRows().map(row => '<label class="dcc-application-tenant-choice"><input name="dccAuthorizedTenant" type="checkbox" value="' + esc(row.tenantId) + '"' + (selected.includes(row.tenantId) ? ' checked' : '') + '><span>' + esc(row.name) + '</span></label>').join('');
+    return tenantRows(selected).map(row => '<label class="dcc-application-tenant-choice"><input name="dccAuthorizedTenant" type="checkbox" value="' + esc(row.tenantId) + '"' + (selected.includes(row.tenantId) ? ' checked' : '') + '><span>' + esc(tenantName(row.tenantId)) + '</span></label>').join('');
   }
   function renderForm(row) {
     const editing = view === 'edit';
@@ -80,9 +81,10 @@
       view = nextView; selectedId = options.applicationId || '';
     }
     const result = runtime().listApplications();
-    if (!result.ok) return denied();
+    if (!result.ok) return result.code==='FORBIDDEN' ? denied() : '<section class="platform-page dcc-application-page">'+ui().pageHeader('应用接入')+ui().alert('warning','应用资料暂时无法读取',esc(result.reason || '请刷新后重试。'))+'<button class="btn btn-default" onclick="'+command('refreshList')+'">重新获取</button></section>';
     const row = result.data.find(item => item.applicationId === selectedId);
     if (['detail', 'edit'].includes(view) && !row) { view = 'list'; selectedId = ''; revealed = false; }
+    formRevision = ['create','edit'].includes(view) ? result.revision : null;
     const body = view === 'list' ? renderList(result.data) : view === 'detail' ? renderDetail(row) : renderForm(row);
     const pageId={list:'PAGE-001',create:'PAGE-003',detail:'PAGE-004',edit:'PAGE-005'}[view],functionId={list:'FUNC-018',create:'FUNC-019',detail:'FUNC-020',edit:'FUNC-001'}[view];
     return '<section class="platform-page dcc-application-page" data-page-id="'+pageId+'" data-func-id="'+functionId+'" data-application-view="' + view + '" data-application-id="' + esc(selectedId) + '">' + body + '</section>';
@@ -100,7 +102,8 @@
     if (!allowed() || saving || !['create', 'edit'].includes(view)) return false;
     const form = document.getElementById('dccApplicationForm');
     if (!form?.reportValidity()) return false;
-    const input = { name: document.getElementById('dccApplicationName')?.value.trim() || '', callbackUrl: document.getElementById('dccApplicationCallbackUrl')?.value.trim() || '', authorizedTenantIds: Array.from(form.querySelectorAll('input[name="dccAuthorizedTenant"]:checked')).map(node => node.value) };
+    if(!Number.isSafeInteger(formRevision)){formError('请重新打开应用表单后保存。');return false;}
+    const input = { expectedRevision:formRevision, name: document.getElementById('dccApplicationName')?.value.trim() || '', callbackUrl: document.getElementById('dccApplicationCallbackUrl')?.value.trim() || '', authorizedTenantIds: Array.from(form.querySelectorAll('input[name="dccAuthorizedTenant"]:checked')).map(node => node.value) };
     if (!input.name) { formError('请输入应用名称。'); return false; }
     if (!input.authorizedTenantIds.length) { formError('请选择至少一个可访问租户。'); return false; }
     const editing = view === 'edit';
@@ -116,12 +119,13 @@
     return result;
   }
   function remove(id) {
-    const row = application(id);
-    if (!row || saving) return false;
+    if(!allowed() || saving)return false;
+    const latest=runtime().snapshot(),row=latest.ok && latest.data.applications.find(item=>item.applicationId===id);
+    if (!row) {notify(latest.reason || '应用已变化，请刷新后重试','warning');return false;}
     const originalContext = context;
     ui().confirm({ id: 'dcc-application-delete-confirm', title: '删除应用', body: '<div data-func-id="FUNC-021"><p>确定删除“' + esc(row.name || row.applicationId) + '”？</p><p>删除后，该应用的接入密钥将无法继续获取 token。</p></div>', confirmText: '删除应用', danger: true, onConfirm() {
       if (!allowed() || context !== originalContext || !application(id)) { notify('应用或当前账号已变化，请重新打开', 'warning'); return false; }
-      const result = runtime().deleteApplication({ applicationId: id });
+      const result = runtime().deleteApplication({ applicationId: id, expectedRevision:latest.data.revision });
       if (!result.ok) { notify(result.reason || '删除失败，请重试', 'warning'); return false; }
       go('list'); notify('应用已删除', 'success'); return true;
     } });

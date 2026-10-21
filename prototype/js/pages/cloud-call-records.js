@@ -48,7 +48,8 @@
     else if(endAt)Object.assign(state,{stage:'RELEASED',stageLabel:'已结束',ended:true});
     else if(facts.present)Object.assign(state,{stage:null,stageLabel:'未记录',ended:false});
     Object.assign(state,{customerEstablishedAt:customerAt,agentEstablishedAt:agentAt,endedAt:endAt});
-    const agentName=facts.present?textValue(raw[inbound?'firstCallCname':'clientName']):textValue(call.agentName);
+    const savedAgentName=call.callSource==='NATIVE_WORKBENCH'&&facts.usable&&textValue(call.cno)&&facts.primaryAgentCno===call.cno?textValue(call.agentName):'';
+    const agentName=facts.present?textValue(raw[inbound?'firstCallCname':'clientName'])||savedAgentName:textValue(call.agentName);
     const agentCno=facts.present?facts.primaryAgentCno:textValue(call.cno);
     const caller=(inbound?facts.customerNumber:textValue(raw[facts.kind==='manual'?'leftClid':'clid']))||(!facts.present||facts.usable?textValue(call.caller):'');
     const callee=(inbound?textValue(raw.hotline):facts.customerNumber)||(!facts.present||facts.usable?textValue(call.callee):'');
@@ -163,7 +164,7 @@
       ${journeyMarkup('records')}
       <div class="record-type-tabs">${tabs.map(type => `<button class="${type === activeType ? 'active' : ''}" onclick="window.Pages['cloud-call-records'].setType('${type}')">${esc(ui.callTypeLabel(type))}</button>`).join('')}</div>
       <div class="filter-panel"><label class="field"><span>通话编号 / 客户号码</span><input id="recordKeyword" value="${esc(recordKeyword)}" placeholder="请输入通话编号或号码"></label><label class="field"><span>客户接通</span><select id="recordResult"><option value="">全部</option>${['已接通','未接通','待确认'].map(value=>`<option value="${value}"${recordResult===value?' selected':''}>${value==='待确认'?'结果未知':value}</option>`).join('')}</select></label><label class="field"><span>呼叫来源</span><select id="recordSource"><option value="">全部</option><option value="NATIVE_WORKBENCH"${recordSource==='NATIVE_WORKBENCH'?' selected':''}>中台控制台</option><option value="LOCAL_TASK_SIMULATION"${recordSource==='LOCAL_TASK_SIMULATION'?' selected':''}>平台任务</option></select></label><label class="field"><span>录音状态</span><select id="recordingFilter"><option value="">全部</option>${['可播放','演示音频','录音生成中','录音生成失败','录音链接已过期','未提供录音','演示无录音','不适用','待判定'].map(value=>`<option${recordingFilter===value?' selected':''}>${value}</option>`).join('')}</select></label><label class="field"><span>资料同步</span><select id="recordSyncFilter"><option value="">全部</option>${Object.entries(syncLabels).map(([value,label])=>`<option value="${value}"${syncFilter===value?' selected':''}>${value==='synced'?'已有资料 / 已同步':label}</option>`).join('')}</select></label><label class="field"><span>开始时间</span><input id="recordStart" type="datetime-local" value="${esc(dateStart)}"></label><label class="field"><span>结束时间</span><input id="recordEnd" type="datetime-local" value="${esc(dateEnd)}"></label><div class="filter-actions"><button class="btn" onclick="window.Pages['cloud-call-records'].resetFilters()">重置</button><button class="btn btn-primary" onclick="window.Pages['cloud-call-records'].query()">查询</button></div></div>
-      <div class="cloud-record-list-shell">${ui.toolbar('<button class="btn" onclick="doExport(event)">导出</button>')}
+      <div class="cloud-record-list-shell">${ui.toolbar('<button class="btn" onclick="CloudCallRecords.exportRecords()">导出</button>')}
       ${ui.table([
         { key: 'callId', label: '通话编号', render: value => `<button class="table-link" onclick="window.Pages['cloud-call-records'].openCall('${value}')"><strong>${esc(value)}</strong></button>` },
         { key: 'callType', label: '呼叫类型 / 来源', render: (value, row) => `<span class="call-type type-${value === '呼入' ? 'in' : value === 'IVR 外呼' ? 'ivr' : 'out'}">${esc(ui.callTypeLabel(value))}</span><div class="table-sub">${row.callSource==='NATIVE_WORKBENCH'?'中台控制台':row.taskId?'平台任务':row.callType==='呼入'?'客户来电':'平台记录'}</div>` },
@@ -180,6 +181,13 @@
     </section>`;
   }
 
+  function exportRecords() {
+    if(!AppState.canAction('report.export')||AppState.get().activeDomain!=='CLOUD_CONTACT_CENTER')return showToast('当前账号无权导出通话记录','warning');
+    const rows=recordRows();if(!rows.length)return showToast('当前筛选没有可导出的通话记录','info');
+    const mapped=rows.map(call=>{const value=display(call),sync=syncState(call);return {callId:call.callId,callType:ui.callTypeLabel(call.callType),caller:value.caller||'未记录',callee:value.callee||'未记录',result:value.resultLabel,numberStatus:value.state.numberStatus?.label||'—',agent:value.agentText,startAt:stateTime(value.startAt),answeredAt:stateTime(value.inbound?value.agentAt:value.customerAt),endedAt:stateTime(value.endAt),duration:formatDuration(value.durationSeconds),sync:sync.label};});
+    const columns=[['callId','通话编号'],['callType','呼叫类型'],['caller','主叫号码'],['callee','被叫号码'],['result','接听结果'],['numberStatus','号码状态'],['agent','坐席 / 工号'],['startAt','开始时间'],['answeredAt','接听时间'],['endedAt','结束时间'],['duration','通话时长'],['sync','资料同步']].map(([key,label])=>({key,label}));
+    if(window.downloadCsv?.('通话记录-'+new Date().toLocaleDateString('sv-SE')+'.csv',columns,mapped))showToast('已生成当前筛选的 '+rows.length+' 条通话记录','success');
+  }
   function query() {
     const start=document.getElementById('recordStart')?.value||'',end=document.getElementById('recordEnd')?.value||'';
     if(start||end){const kinds=activeType==='全部'?['manual','predictive','automatic','inbound']:[({'人工外呼':'manual','预外呼':'predictive','IVR 外呼':'automatic','呼入':'inbound'})[activeType]];const plans=kinds.map(kind=>AliCtiFields.cdrQuery(kind,start,end));const errors=plans.flatMap(p=>p.pending);if(errors.length)return showToast(errors.join('；'),'warning');queryPlan={mock:true,requests:plans.flatMap(p=>p.requests)};}else queryPlan=null;
@@ -259,6 +267,14 @@
       '<div data-agent-call-status>' + grid([['通话状态',agentCallStatus.description],
         ['录入人',agentCallStatus.recordedBy === call.accountId ? call.agentName || agentCallStatus.recordedBy : agentCallStatus.recordedBy || '未记录'],
         ['录入时间',stateTime(agentCallStatus.recordedAt)]]) + '<p class="table-sub">坐席填写的联系情况，线路结果保持原记录。</p></div>') : '';
+    const completion=call.apiOrigin&&call.communicationCompletion?window.DccRuntime?.communicationCompletionView?.(call):null;
+    const deliveries=completion?.ok?completion.data.deliveries||[]:[],delivery=deliveries[deliveries.length-1];
+    const callbackLabels={succeeded:'已送达（演示）',failed:'发送未成功，待处理',pending:'待发送',incomplete:'资料待完善'};
+    const callbackSection=completion?ui.detailSection('业务系统回传',grid([
+      ['业务批次号',call.apiOrigin.businessBatchNo||'未记录'],
+      ['完成沟通回传',completion.ok?delivery?(callbackLabels[delivery.state]||'待核对'):'待登记':'资料待核对'],
+      ...(delivery?.error?[['待处理事项',delivery.error]]:!completion.ok?[['待处理事项',completion.reason||'暂时无法读取回传进度']]:[])
+    ])+'<p class="table-sub">回传本次已保存的通话和客户业务信息。当前为本地演示。</p>'):'';
     return '<div class="layer-header"><div><h2>通话详情 <small>'+esc(call.callId)+'</small></h2><p data-call-sync-part="header">'+esc(ui.callTypeLabel(call.callType))+' · '+esc(state.stageLabel+' · '+data.resultLabel)+'</p></div><button aria-label="关闭通话详情" onclick="PlatformUI.closeLayer(\'cloud-call-detail\')">×</button></div>'+
       '<div class="layer-body call-review-body"><div class="call-review-left">'+(withMedia?CloudCallMedia.render(call):'')+'</div><div class="call-review-right"><div data-call-sync-part="summary">'+syncPanel(call)+'</div><p id="call-detail-sync-live" class="call-sync-sr-only" role="status" aria-live="polite" aria-atomic="true"></p><div class="call-review-tabs" role="tablist" aria-label="通话详情内容"><button role="tab" id="call-review-result-tab" aria-controls="call-review-result" aria-selected="true" onclick="CloudCallRecords.reviewTab(\'result\')">通话结果</button><button role="tab" id="call-review-info-tab" aria-controls="call-review-info" aria-selected="false" onclick="CloudCallRecords.reviewTab(\'info\')">详细信息</button></div><div class="call-review-pane" id="call-review-result" role="tabpanel" aria-labelledby="call-review-result-tab"><div data-call-sync-part="facts">'+
       ui.detailSection('接听结果',grid(resultRows)+'<dl class="detail-grid"><dt>号码状态识别</dt><dd>'+numberStatusMarkup(call)+'</dd></dl>')+
@@ -266,6 +282,7 @@
       agentStatusSection+
       ui.detailSection('业务信息',grid([['来源任务',sourceTask],...(contactLabel?[['联系轮次',contactLabel]]:[]),['坐席处理结果',CustomerDirectory.dispositionLabel(call)||'未填写']])+(window.RepeatPredictive?.contactOrigin(call)||'')+(task?window.RepeatPredictive?.callAction(call)||'':''))+
       ui.detailSection('本次客户业务信息',CustomerFollowup.detail(call.customerFollowup,call))+
+      callbackSection+
       (call.customerNote||call.dispositionRemark?ui.detailSection('联系备注',grid([['客户称呼',call.customerName||'未记录'],['联系备注',call.customerNote||'—'],['处理备注',call.dispositionRemark||'—']])):'')+
       '</div><div class="call-review-pane" id="call-review-info" role="tabpanel" aria-labelledby="call-review-info-tab" hidden><div data-call-sync-part="info">'+
       ui.detailSection('基本信息',grid([['通话类型',ui.callTypeLabel(call.callType)],['所属租户',CloudCallRuntime.tenant(call.tenantId)?.name||'未记录'],['客户号码',data.customerNumber||'未记录'],['主叫号码',data.caller||'未记录'],['被叫号码',data.callee||'未记录'],['业务类型',CustomerBusiness.typeLabel(call)],[CustomerBusiness.codeLabel(call),call.externalDocumentId||'—']]))+
@@ -344,7 +361,7 @@
   }
   function switchView(target) { navigateTo('cloud-call-records', { view: 'records', type: activeType, preserveContext:true }); }
   function returnTask() { return RouteRuntime.back({ fallback: 'cloud-task-center' }); }
-  window.CloudCallRecords = { display, relatedTask, formatDuration, stateTime, openFromTask, switchView, returnTask, refreshSync, demoSync,
+  window.CloudCallRecords = { display, relatedTask, exportRecords, formatDuration, stateTime, openFromTask, switchView, returnTask, refreshSync, demoSync,
     reviewTab(key) {
       if (!['result', 'info'].includes(key)) return;
       ['result', 'info'].forEach(name => {

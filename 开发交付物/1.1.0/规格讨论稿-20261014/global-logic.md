@@ -106,7 +106,7 @@
 
 **requirements**：当前12故事/104验收/7场景；SRC125请求级业务类型增量由04独立S1/S2核验。G1/G2/G3pending，正式S3～S9stale。规范化US/AC及真实用户来源优先，原101条正文保留。
 
-**prototype**：SRC124六项选填来源字段已局部实现原导入CSV/预览/详情/早填工作台及本call来源传递，21组定点源码检查通过，浏览器范围见新证据。此前早填/未接状态证据保留各自范围。正式多对多身份/双方式API/全部应用回调与完成事件仍未实现；局部证据不代表整版验收或门禁。 本地合成应用新增/编辑可保存callbackUrl，详情可回读；允许未配置应用先保存但合成接口导入会拒绝，手工UI导入不受该门槛影响。http(s)基础格式/禁止内嵌账号密码为本地演示校验，正式URL安全/积压选址/后端鉴权/ACK仍待核；未实现真实回调。 SRC125业务类型新证据41组通过，名单/详情浏览器定点通过。仅现有预外呼本地合成接收、准确记录/结果传播及原类型跟进表单；完整人工外呼接口、真实鉴权、业务批次号、完成沟通事件和真实回调仍未实现或未验证，未执行整版S8/三宽度验证。
+**prototype**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。 当前源码证据见UI-LOCAL-FULL-AUDIT-20261015；此前overlay只保留历史范围。
 
 **engineering**：后端仓库/栈及正式身份、回调、人工分配与供应商排他协议仍待核。本次是开发交付讨论稿，不批准生产开发或上线。
 
@@ -114,7 +114,7 @@
 
 **global**
 
-**overview**：应用与租户多对多，各系统独立应用及回调；接口按明确租户身份接收，缺回调不得导入。预外呼用原任务组与既定失败策略，人工按工号分配待联系。工作台振铃可填写，未接人工状态独立保存，继续跟进保留待联系；预外呼转当前坐席人工且待核原任务排他。所有应用接口来源逐次回调，手工UI无应用仅查看。
+**overview**：应用与租户多对多，各系统独立应用及回调；接口按明确租户身份接收，缺回调不得导入。预外呼用原任务组与既定失败策略，人工工号选填且业务跟进初始未同步。工作台振铃可填写，未接人工状态独立保存，继续跟进保留待联系；预外呼转当前坐席人工且待核原任务排他。所有应用接口来源逐次回调，手工UI无应用仅查看。
 
 **system_boundary**
 
@@ -168,7 +168,7 @@
 
 **标识**：BR-002
 
-**statement**：预外呼范围：外部调用方（DCC／天网）接口同tenant/原supplierTaskId/leadCode固定phone的真实再次业务导入用新请求级requestId；有效新行创建新记录/单手机号batchId并归同组。isNewBatch=true另开独立主(root=batch)，false/未传有主则新子挂最近已保存同组主，无主自动首主；不要求外部调用方（DCC／天网）提供上一批次，不仅因同组历史相同而拒绝。同ID同归一后完整内容技术重传返原逐行映射，不新建重交。 外部接口每次业务请求携requestId、多行定位及leadCode/phone/priority，外呼方式按AC-080。各系统使用自己的稳定应用身份和明确的当前租户，须有效关联；接收前核该应用回调配置，缺失按AC-086拒绝，人工外呼也不豁免。预外呼沿可选Boolean isNewBatch及新record/单号batch/root，人工不套主子字段。原app/tenant/业务来源及交付关系保存；source若保留只校验与应用登记一致，不以名称/R或报文自行换来源。 仅预外呼新业务有效行按同tenant/原supplierTaskId/leadCode固定phone归组；true另开独立主root=batch，false/缺省新子挂最近已保存同组主，无主自动首主。最近主按本地主批稳定顺序，不按结果/priority/同号/子批，子不挂子，无需previousBatchId。应用与其登记来源仅用于鉴权审计及原记录回调，不加入预外呼业务组/失败预算键；同组不同应用各保留原接入来源，不按root决定子记录接收端。人工不使用本条主子规则。 仅预外呼新业务逐行核token租户、原supplierTaskId、leadCode及固定phone；改号、归属冲突或历史主关系不明拒绝/待核，其他有效行继续。isNewBatch必须Boolean，缺省false，不绕校验或重置正常任务轮次/失败额度。先核稳定app与token租户有效关联，按应用登记保存来源；source若保留仅一致性校验，非法/冲突不得改路由或默认DCC。应用/来源不分割既定业务组和额度，历史身份冲突不猜配。人工分支核同租户坐席，不虚构任务组。 鉴权稳定应用、当前租户及其有效关联，校验外呼方式和分支对象后，按建议tenant+stableApp+operation+requestId作用域核完整归一内容。技术重传返原逐行接收/拒绝/待核结果和实际映射，不新保存、分配、提交或呼叫。预外呼missing isNewBatch归一false，返原record/batch/root，不重选新主；人工只返真实客户/分配。外呼方式、坐席工号与保留的source一致性字段纳入内容比较；不能改source切换命名空间。不同应用或租户各自隔离，正式键与历史回执兼容待S4。 在已鉴权tenant+stableApp+operation的拟定作用域内，同requestId完整有效内容不同拒整个重复请求，不覆盖原回执或新增记录/分配/批次/供应商提交/呼叫。比较实际方式、预测原taskId或人工工号、行定位及leadCode/phone/priority/R等；保留source时还核与应用登记一致。预测missing isNewBatch与false归一相同，true不同。跨租户/应用不得借ID复用另一主体回执，正式命名空间、完整摘要及历史兼容待S4。 导入接口明确外呼方式（预外呼或人工外呼）；先核稳定应用与当前明确租户的有效关联及应用回调地址。预外呼按原任务坐席组，人工须指定同租户有效坐席工号按US-011。业务来源由应用登记识别，报文source若保留仅做一致性校验；不能用它换租户/系统或回调地址。全部应用接口来源均按原应用配置回调，人工外呼不等于手工UI来源。字段名/层级与身份传递为本方设计待S4。 SRC123补充：新接口请求必带可复用业务批次号，按原应用/租户保存回传，纳入requestId完整内容比较；不改变平台主子及供应商批次，不给原手工CSV新增必填。
+**statement**：预外呼范围：外部调用方（DCC／天网）接口同tenant/原supplierTaskId/leadCode固定phone的真实再次业务导入用新请求级requestId；有效新行创建新记录/单手机号batchId并归同组。isNewBatch=true另开独立主(root=batch)，false/未传有主则新子挂最近已保存同组主，无主自动首主；不要求外部调用方（DCC／天网）提供上一批次，不仅因同组历史相同而拒绝。同ID同归一后完整内容技术重传返原逐行映射，不新建重交。 外部接口每次业务请求携requestId、多行定位及leadCode/phone/priority，外呼方式按AC-080。各系统使用自己的稳定应用身份和明确的当前租户，须有效关联；接收前核该应用回调配置，缺失按AC-086拒绝，人工外呼也不豁免。预外呼沿可选Boolean isNewBatch及新record/单号batch/root，人工不套主子字段。原app/tenant/业务来源及交付关系保存；source若保留只校验与应用登记一致，不以名称/R或报文自行换来源。 仅预外呼新业务有效行按同tenant/原supplierTaskId/leadCode固定phone归组；true另开独立主root=batch，false/缺省新子挂最近已保存同组主，无主自动首主。最近主按本地主批稳定顺序，不按结果/priority/同号/子批，子不挂子，无需previousBatchId。应用与其登记来源仅用于鉴权审计及原记录回调，不加入预外呼业务组/失败预算键；同组不同应用各保留原接入来源，不按root决定子记录接收端。人工不使用本条主子规则。 仅预外呼新业务逐行核token租户、原supplierTaskId、leadCode及固定phone；改号、归属冲突或历史主关系不明拒绝/待核，其他有效行继续。isNewBatch必须Boolean，缺省false，不绕校验或重置正常任务轮次/失败额度。先核稳定app与token租户有效关联，按应用登记保存来源；source若保留仅一致性校验，非法/冲突不得改路由或默认DCC。应用/来源不分割既定业务组和额度，历史身份冲突不猜配。人工分支核同租户坐席，不虚构任务组。 鉴权稳定应用、当前租户及其有效关联，校验外呼方式和分支对象后，按建议tenant+stableApp+operation+requestId作用域核完整归一内容。技术重传返原逐行接收/拒绝/待核结果和实际映射，不新保存、分配、提交或呼叫。预外呼missing isNewBatch归一false，返原record/batch/root，不重选新主；人工只返真实客户/分配。外呼方式、坐席工号与保留的source一致性字段纳入内容比较；不能改source切换命名空间。不同应用或租户各自隔离，正式键与历史回执兼容待S4。 在已鉴权tenant+stableApp+operation的拟定作用域内，同requestId完整有效内容不同拒整个重复请求，不覆盖原回执或新增记录/分配/批次/供应商提交/呼叫。比较实际方式、预测原taskId或人工工号、行定位及leadCode/phone/priority/R等；保留source时还核与应用登记一致。预测missing isNewBatch与false归一相同，true不同。跨租户/应用不得借ID复用另一主体回执，正式命名空间、完整摘要及历史兼容待S4。 导入接口明确外呼方式（预外呼或人工外呼）；先核稳定应用与当前明确租户的有效关联及应用回调地址。预外呼按原任务坐席组，人工工号按SRC126选填，提供时校验同租户有效坐席。业务来源由应用登记识别，报文source若保留仅做一致性校验；不能用它换租户/系统或回调地址。全部应用接口来源均按原应用配置回调，人工外呼不等于手工UI来源。字段名/层级与身份传递为本方设计待S4。 SRC123补充：新接口请求必带可复用业务批次号，按原应用/租户保存回传，纳入requestId完整内容比较；不改变平台主子及供应商批次，不给原手工CSV新增必填。
 
 **来源映射**：memory/normalized-user-stories.json#AC-010, memory/normalized-user-stories.json#AC-047, memory/normalized-user-stories.json#AC-048, memory/normalized-user-stories.json#AC-049, memory/normalized-user-stories.json#AC-050, memory/normalized-user-stories.json#AC-051, memory/normalized-user-stories.json#AC-080, memory/project-facts.json, memory/normalized-user-stories.json#AC-093, memory/normalized-user-stories.json#AC-094
 
@@ -222,7 +222,7 @@
 
 **标识**：BR-004
 
-**statement**：一次已鉴权外部调用方（DCC／天网）传入多客户，某条记录业务校验失败仅拒绝该条，其余有效记录继续；预外呼按原单手机号批次处理，人工外呼有效行按US-011保存并分配，不因单行业务失败整请求回滚。请求级身份、来源/外呼方式或技术重传冲突另按AC-080/050/051处理。 预外呼范围：有效手工客户完成当前校验、本地新增独立记录及单手机号批次后，以该原任务已保存的准确供应商任务ID和最终priority自动提交供应商接口，无需运营再手动提交；不采用统一预设供应商任务、不猜任务映射。 仅预外呼导入携带准确的原供应商任务ID taskId；自动提交供应商时直接使用，不做本地任务ID猜测、不采用统一预设任务。人工外呼按US-011分配指定坐席；复用现有人工流程、无需预测taskId为本方设计建议待范围审阅，不伪造预测任务或fileId。 预外呼范围：本地校验保存成功但供应商明确拒绝接收时，纳入导入失败记录，供运营下载并展示供应商返回失败原因。 同步及53异步明确导入失败均适用，未知不误判；导入失败与呼叫失败分开。 预外呼范围：同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。 预外呼范围：导入阶段明确失败保存并展示原始原因及准确tenant/原task/record/batch/root/leadCode/phone与实际fileId关联；无准确关联待核。已鉴权保存应用/source的全部接口来源按US-006回调准确导入失败，无接入应用的手工UI来源仅平台查看；导入失败不计实际呼叫、不触发11类呼叫失败补提交，结果交付失败不重新提交供应商。 导入接口明确外呼方式（预外呼或人工外呼）；先核稳定应用与当前明确租户的有效关联及应用回调地址。预外呼按原任务坐席组，人工须指定同租户有效坐席工号按US-011。业务来源由应用登记识别，报文source若保留仅做一致性校验；不能用它换租户/系统或回调地址。全部应用接口来源均按原应用配置回调，人工外呼不等于手工UI来源。字段名/层级与身份传递为本方设计待S4。 应用未配置回调地址时不得接口导入，覆盖全部应用接入业务系统含DCC/天网和两种外呼方式；本方建议在新业务落账前统一检查，缺失则明确返回未配置原因，不新增客户/分配/预测批次/供应商提交，补配置后方可重新发起。不能先导入再排队等地址，也不回退到旧固定DCC地址或其他应用地址。正式错误结构、历史技术重传只读回执及地址删除并发守卫待S4，不把URL已填写当作已完成真实联调。
+**statement**：一次已鉴权外部调用方（DCC／天网）传入多客户，某条记录业务校验失败仅拒绝该条，其余有效记录继续；预外呼按原单手机号批次处理，人工外呼有效行保存，按SRC126仅提供有效工号时分配，不因单行业务失败整请求回滚。请求级身份、来源/外呼方式或技术重传冲突另按AC-080/050/051处理。 预外呼范围：有效手工客户完成当前校验、本地新增独立记录及单手机号批次后，以该原任务已保存的准确供应商任务ID和最终priority自动提交供应商接口，无需运营再手动提交；不采用统一预设供应商任务、不猜任务映射。 仅预外呼导入携带准确的原供应商任务ID taskId；自动提交供应商时直接使用，不做本地任务ID猜测、不采用统一预设任务。人工外呼按SRC126保存并可选分配坐席；复用现有人工流程、无需预测taskId为本方设计建议待范围审阅，不伪造预测任务或fileId。 预外呼范围：本地校验保存成功但供应商明确拒绝接收时，纳入导入失败记录，供运营下载并展示供应商返回失败原因。 同步及53异步明确导入失败均适用，未知不误判；导入失败与呼叫失败分开。 预外呼范围：同步返回result=0不代表逐条全成功：分别展示本地校验/保存、供应商导入、呼叫阶段；保留importTotal/successTotal/invalidTotal原始数量与来源。有准确同步证据的成功正常记录；仅汇总数量不能任意指定成功行，未知/矛盾待核，不将同步响应一概降为仅受理。 预外呼范围：导入阶段明确失败保存并展示原始原因及准确tenant/原task/record/batch/root/leadCode/phone与实际fileId关联；无准确关联待核。已鉴权保存应用/source的全部接口来源按US-006回调准确导入失败，无接入应用的手工UI来源仅平台查看；导入失败不计实际呼叫、不触发11类呼叫失败补提交，结果交付失败不重新提交供应商。 导入接口明确外呼方式（预外呼或人工外呼）；先核稳定应用与当前明确租户的有效关联及应用回调地址。预外呼按原任务坐席组，人工工号按SRC126选填，提供时校验同租户有效坐席。业务来源由应用登记识别，报文source若保留仅做一致性校验；不能用它换租户/系统或回调地址。全部应用接口来源均按原应用配置回调，人工外呼不等于手工UI来源。字段名/层级与身份传递为本方设计待S4。 应用未配置回调地址时不得接口导入，覆盖全部应用接入业务系统含DCC/天网和两种外呼方式；本方建议在新业务落账前统一检查，缺失则明确返回未配置原因，不新增客户/分配/预测批次/供应商提交，补配置后方可重新发起。不能先导入再排队等地址，也不回退到旧固定DCC地址或其他应用地址。正式错误结构、历史技术重传只读回执及地址删除并发守卫待S4，不把URL已填写当作已完成真实联调。
 
 **来源映射**：memory/normalized-user-stories.json#AC-007, memory/normalized-user-stories.json#AC-011, memory/normalized-user-stories.json#AC-012, memory/normalized-user-stories.json#AC-013, memory/normalized-user-stories.json#AC-039, memory/normalized-user-stories.json#AC-041, memory/normalized-user-stories.json#AC-080, memory/normalized-user-stories.json#AC-086, memory/project-facts.json
 
@@ -640,7 +640,7 @@
 
 **标识**：DGR-MANUAL-ASSIGN
 
-**statement**：人工外呼行指定坐席工号，本方建议按租户及已有供应商实例关系查找唯一有效坐席，再解析关联账号/坐席身份；工号按原始字符串保存并保留前导零，不按显示姓名或跨租户同工号猜配。沿现有分配规则核账号及租户成员启用、有效坐席关联、坐席已启用/同步成功并接受新任务。工号缺失、无效、冲突或无可用关联时该行明确失败/待核且不自动改派，其他有效行继续；不要求坐席在线才保存分配，真实拨号前另核登录与当前可用状态。 人工外呼有效行保存独立客户/导入记录、原应用/租户、source、requestId/行、线索/号码及最终priority后，按已核实坐席分配到既有待联系区域；本方建议无需预测taskId，不生成虚构供应商fileId/预测主子root，也不调用importTaskTel或自动拨号。priority沿原必填保存但不进入预测队列。坐席本人从待联系点击联系客户后才按既有人工工作台拨号；预测三天五呼、3类120秒/8类共享2次和预测任务精准删除不自动套用人工分配。 同一人工导入在建议tenant+stableApp+operation+requestId作用域技术重传，返原保存与分配结果，不重复客户/派发/拨号；同ID改方式、工号或业务内容报冲突，不能重传换坐席或改source另获次数。不同应用/租户各自隔离。原子保存分配及未知恢复待工程核验，未完成/未知保留原处理如实反馈；分配前复核目标，失败不误写他人客户。保存原app/tenant及已登记来源供本应用回调；人工方式不等于手工UI来源。
+**statement**：人工外呼行坐席工号选填，本方建议按租户及已有供应商实例关系查找唯一有效坐席，再解析关联账号/坐席身份；工号按原始字符串保存并保留前导零，不按显示姓名或跨租户同工号猜配。沿现有分配规则核账号及租户成员启用、有效坐席关联、坐席已启用/同步成功并接受新任务。工号显式无效、冲突或无可用关联时该行明确失败/待核且不自动改派，其他有效行继续；不要求坐席在线才保存分配，真实拨号前另核登录与当前可用状态。 人工外呼有效行保存原客户/导入记录、原应用/租户、source、requestId/行、线索/号码及最终priority后，仅提供有效工号时分配该坐席，缺省不分配；新接口业务跟进初始未同步；本方建议无需预测taskId，不生成虚构供应商fileId/预测主子root，也不调用importTaskTel或自动拨号。priority沿原必填保存但不进入预测队列。坐席本人从待联系点击联系客户后才按既有人工工作台拨号；预测三天五呼、3类120秒/8类共享2次和预测任务精准删除不自动套用人工分配。 同一人工导入在建议tenant+stableApp+operation+requestId作用域技术重传，返原保存与分配结果，不重复客户/派发/拨号；同ID改方式、工号或业务内容报冲突，不能重传换坐席或改source另获次数。不同应用/租户各自隔离。原子保存分配及未知恢复待工程核验，未完成/未知保留原处理如实反馈；分配前复核目标，失败不误写他人客户。保存原app/tenant及已登记来源供本应用回调；人工方式不等于手工UI来源。
 
 **来源映射**：memory/normalized-user-stories.json#AC-081, memory/normalized-user-stories.json#AC-082, memory/normalized-user-stories.json#AC-083, memory/project-facts.json
 
@@ -1314,7 +1314,7 @@
 
 **actor**：云呼叫中心
 
-**action**：人工有效行分配指定坐席待联系
+**action**：人工有效行保存并可选分配，业务跟进未同步
 
 **local_id**：DLOCAL-MANUAL-ASSIGN
 
@@ -1468,6 +1468,20 @@
 
 **cross_module_note**：本轮只有产品讨论稿；工程模块、物理接口和一致性协议待后端资料后补，不能当可直接实施包。
 
+**current_local_implementation**
+
+**overlay_id**：UI-LOCAL-FULL-AUDIT-20261015
+
+**状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**范围**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**生产验证边界**：真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
 **open_questions**
 
 #### DQ-01
@@ -1578,4 +1592,704 @@
 
 **来源**：需求/1.1.0/分析工作区/memory/normalized-user-stories.json, 需求/1.1.0/分析工作区/memory/project-facts.json
 
-**updated_at**：2026-10-14T15:30:48.231740+08:00
+**updated_at**：2026-10-16T20:22:18.347720+08:00
+
+**客户档案局部归集**
+
+**标识**：UI-LOCAL-CUSTOMER-ARCHIVE-20261014
+
+**change_kind**：existing_archive_integration_defect_repair_not_new_product_scope
+
+**actual_user_request**：修复客户档案的问题
+
+**说明**：现有客户档案接入新版预外呼任务API及手工导入账本：同企业、同租户、同归一号码归一档案，保留每次已授权导入和准确实际通话的独立明细。
+
+**证据**
+
+1. prototype/memory/verification-evidence/customer-directory-ledger-repair-20261014.json
+
+**来源文件**：prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js, prototype/index.html, prototype/memory/verification-evidence/customer-directory-ledger-list-20261014.png, prototype/memory/verification-evidence/customer-directory-ledger-detail-20261014.png
+
+**实现状态**：local_synthetic_read_only_projection_scoped_verified_real_backend_not_implemented_or_verified
+
+**档案归组范围**
+
+1. enterpriseId
+
+2. tenantId
+
+3. normalizedPhone
+
+**只读归集**：True
+
+**是否改写原账本**：False
+
+**business_records_and_calls_merged_by_phone**：False
+
+**原回调归属保留**：True
+
+**原业务记录身份**：导入明细保持原recordId、应用/来源、企业/租户、requestId、task、leadCode、businessType和已保存的平台/根批次以及六项来源资料；原业务批次号如已保存也保留，不因归一客户档案重算或替换。当前接口业务批次号完整实现仍待，不能据此视作补齐。
+
+**已实现**
+
+1. 已有效保存的新版任务API及手工记录即使尚未拨号也进入已有客户档案；旧手工名单与新来源同号码在同企业/租户范围内归一，其他企业及租户仍分开。
+
+2. 档案只读取原账本形成临时投影，不将新导入/结果复制到旧名单或全局通话存储；原record/来源应用/线索/任务/批次/类型及本次六项资料独立保留，不以同号码最新资料覆盖。
+
+3. 仅已存在且可精确关联的客观call进入联系历史；受理、导入数及无话单失败不合造成呼叫。重复稳定call不重复统计，未知接通/时长保留未知，接收时间不充当实际联系时间。
+
+4. 主管/管理员沿现有企业/租户授权读取；坐席只可查看明确本人分配记录或实际已确认本人通话，任务可见或相同手机号不自动扩大其客户及其他坐席通话权限。
+
+5. 现有客户档案导入明细打开准确原record详情，联系历史打开准确task/result详情，并逐次复核身份、租户、任务与原记录；从任务客户详情可进入同一档案。归集上下文下详情保持只读，不绕过任务管理权限。
+
+6. 跨页刷新读取已保存账本；损坏/歧义记录保留原数据并提示，拒绝猜测归属，不清空或修复写回原账本。
+
+7. 历史有效的新账本记录缺少单存企业字段时，仅在原tenant/task/supplier标识精确匹配已授权可信任务上下文后只读解析；缺少或冲突不归集，不按号码或最近任务猜配，不迁移写回旧记录。首次进入与跨页任务目录读取不依赖先打开任务页。
+
+8. 已删除任务优先读取独立保存的删除状态，不因兼容索引或旧页面目录复活；结果有显式supplierTaskId时须与准确原任务一致，冲突拒绝。
+
+**verification**
+
+**source_checks_passed**：48
+
+**source_checks_failed**：0
+
+**source_result**：pass_scoped_vm_and_targeted_browser
+
+**independent_permission_checks_passed**：22
+
+**independent_permission_review_status**：pass_scoped_no_new_blocking_findings
+
+**browser_status**：pass_targeted_browser
+
+**browser_scope**：1280x720现有手工任务的档案进入/同号两次导入零通话/准确导入和call详情/返回同档案及时间显示；最终源码刷新仍20客户、无warning/errors。API导入及权限反例由VM覆盖，浏览器未构造外部API或攻击请求。
+
+**observation_history**：证据保留首次仅9客户的失败、只读旧数据兼容修正、2项最后守卫复核及各浏览器观察source hash；详细VM/独立反例与截图指纹以证据正文为准。
+
+**验证边界**
+
+1. 此为既有前端客户档案的局部合成整合修复，不新增AC/FUNC/PAGE/规则或调整主子批、幂等、失败额度、调用和回调路由。
+
+2. 真实后端客户实体/授权查询/数据库索引及一致性归集仍待工程实现与验证；本次不证明生产分库或后端已部署。
+
+3. 完整人工外呼导入接口、业务批次号协议、已完成沟通可靠快照及真实回调仍未因本修复完成。
+
+4. 整版104条验收与02全局/三宽度验证未执行；正式门禁、风险未决与真实调用关闭保持。
+
+**full_acceptance_suite_executed**：False
+
+**formal_gates_changed**：False
+
+**real_calls_enabled**：False
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**四处断点的局部修复**
+
+**标识**：UI-LOCAL-FOUR-BREAKPOINTS-20261014
+
+**change_kind**：user_reported_defect_repair_and_manual_list_capability_restoration
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**证据**
+
+1. prototype/memory/verification-evidence/four-breakpoints-repair-20261014.json
+
+**来源文件**：prototype/index.html, prototype/js/components/alicti-task-control.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/dcc-runtime.js, prototype/js/components/dcc-records.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/customer-tasks.js, prototype/js/components/customer-directory.js, prototype/js/pages/customer-directory.js
+
+**实现状态**：local_synthetic_scoped_verified_production_not_verified
+
+**已核对行为**
+
+#### ARCHIVE
+
+**标识**：ARCHIVE
+
+**状态**：existing_repair_reverified
+
+**行为**：API和手工任务的已保存客户在统一客户档案按当前权限查询，未拨号也可见；原业务记录和准确通话独立保留。
+
+#### SCHEDULE
+
+**标识**：SCHEDULE
+
+**状态**：implemented_local_synthetic
+
+**行为**：页面运行或恢复时检查已保存定时任务，到点后重新核名单、权限、时间条件和坐席资源，仅记录一次首启；暂停、终止、未受理名单和保存失败不越过。
+
+**生产验证边界**：供应商autoStart字段已存在；本次只补静态演示首启，不承诺浏览器关闭时执行，不新增生产平台调度器。
+
+#### WIZARD
+
+**标识**：WIZARD
+
+**状态**：restored_manual_source_with_explicit_field_confirmation
+
+**行为**：手工来源在创建向导选择原未分配名单，明确确认线索编码、优先级、业务类型和本次批次名；转换为本版导入记录并保留原行来源。接口来源仍由业务系统导入，不能混入手工名单。
+
+**范围说明**：按本次用户报告恢复既有选择能力；这与先前仅来源选择的实现不同，不改历史冻结源或自动补盖G1/G2/G3。
+
+#### FAILURE-RETRY
+
+**标识**：FAILURE-RETRY
+
+**状态**：implemented_local_synthetic
+
+**行为**：运营商禁呼、运营商限呼、外呼黑名单三类从确认失败起120秒自动补提交；其余八类人工。按租户＋原任务＋线索＋固定号码共享首次外最多2次，不随主批、原因或重新导入重置。
+
+**未知尝试规则**：实际发起后结果未知保留原尝试和占用，停止盲发；待执行计划不等于已提交。
+
+**秒挂规则**：准确秒挂显式禁止平台补提交，不创建等待计划或消耗次数。
+
+**结果补送边界**：业务系统结果补送只重新交付原结果，不提交AliCti，不消耗失败补提交次数。
+
+**生产验证边界**：供应商导航降级、原生重呼互斥、实际返回关联和生产并发可靠性仍待核实；合成确认不能替代真实联调。
+
+**验证边界**
+
+1. 只在现有唯一prototype中修复本地合成行为，不是生产后端实现或全部104条验收通过。
+
+2. 定时启动按浏览器本地时间；页面关闭不执行，重开再核条件。不将本地首启当作AliCti真实启动确认。
+
+3. 供应商导航降级、原生重呼互斥、真实fileId及回调契约、生产并发/崩溃恢复仍待真实工程与联调证据。
+
+4. 现行需求和历史冻结源未改写；手工名单能力按本次用户报告恢复，不自动推进正式G1/G2/G3。
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
+
+**full_prototype_local_audit**
+
+**标识**：UI-LOCAL-FULL-AUDIT-20261015
+
+**as_of**：2026-10-15
+
+**实现状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**证据**
+
+1. prototype/memory/verification-evidence/full-prototype-audit-20261015.json
+
+**来源文件**：prototype/js/alicti-storage.js, prototype/js/app.js, prototype/js/common.js, prototype/js/components/account-seat.js, prototype/js/components/account-tenant-forms.js, prototype/js/components/alicti-accounts.js, prototype/js/components/alicti-adapter.js, prototype/js/components/alicti-contract-panel.js, prototype/js/components/alicti-demo.js, prototype/js/components/alicti-extensions.js, prototype/js/components/alicti-fields.js, prototype/js/components/alicti-inbound.js, prototype/js/components/alicti-ivr.js, prototype/js/components/alicti-number-import.js, prototype/js/components/alicti-number-pools.js, prototype/js/components/alicti-number-status.js, prototype/js/components/alicti-queue-contracts.js, prototype/js/components/alicti-queues.js, prototype/js/components/alicti-receiving.js, prototype/js/components/alicti-report-facts.js, prototype/js/components/alicti-report-summary.js, prototype/js/components/alicti-retry-editor.js, prototype/js/components/alicti-retry.js, prototype/js/components/alicti-seat-import.js, prototype/js/components/alicti-seat-operations.js, prototype/js/components/alicti-task-control.js, prototype/js/components/alicti-task-update.js, prototype/js/components/alicti-time-conditions.js, prototype/js/components/business-issues.js, prototype/js/components/call-data-issues.js, prototype/js/components/call-data-sync.js, prototype/js/components/call-media.js, prototype/js/components/call-state.js, prototype/js/components/customer-business.js, prototype/js/components/customer-directory.js, prototype/js/components/customer-followup.js, prototype/js/components/dcc-records.js, prototype/js/components/dcc-runtime.js, prototype/js/components/demo-switch.js, prototype/js/components/lead-report.js, prototype/js/components/manual-skill-access.js, prototype/js/components/number-import-history.js, prototype/js/components/outbound-groups.js, prototype/js/components/platform-ui.js, prototype/js/components/queue-config.js, prototype/js/components/queue-detail.js, prototype/js/components/repeat-predictive.js, prototype/js/components/report-data.js, prototype/js/components/report-metrics.js, prototype/js/components/resource-rules.js, prototype/js/components/role-charts.js, prototype/js/components/role-focus.js, prototype/js/components/seat-event-log.js, prototype/js/components/seat-operation-ui.js, prototype/js/components/seat-phone-config.js, prototype/js/components/task-schedule-runtime.js, prototype/js/components/tenant-call-monitor.js, prototype/js/components/tenant-supervisor-policy.js, prototype/js/components/workbench-overview.js, prototype/js/delivery-nav.js, prototype/js/documentation-nav.js, prototype/js/nav.js, prototype/js/pages/account-tenant.js, prototype/js/pages/agent-center.js, prototype/js/pages/agent-workbench.js, prototype/js/pages/alicti-accounts.js, prototype/js/pages/application-access.js, prototype/js/pages/business-categories.js, prototype/js/pages/cloud-call-records.js, prototype/js/pages/cloud-call-tasks.js, prototype/js/pages/cloud-task-workspace.js, prototype/js/pages/contact-center-settings.js, prototype/js/pages/customer-demo.js, prototype/js/pages/customer-directory.js, prototype/js/pages/customer-tasks.js, prototype/js/pages/extension-management.js, prototype/js/pages/home.js, prototype/js/pages/inbound-routing.js, prototype/js/pages/number-pool-management.js, prototype/js/pages/operations-monitor.js, prototype/js/pages/outbound-group-management.js, prototype/js/pages/queue-management.js, prototype/js/pages/report-center.js, prototype/js/pages/resource-lines.js, prototype/js/pages/scenario-demo.js, prototype/js/pages/scenario-readiness.js, prototype/js/pages/system-center.js, prototype/js/pages/time-condition-management.js, prototype/js/review-view-cache.js, prototype/js/version-nav.js, prototype/assets/css/account-seat.css, prototype/assets/css/account-tenant-forms.css, prototype/assets/css/agent-workbench.css, prototype/assets/css/alicti-accounts.css, prototype/assets/css/alicti-contracts.css, prototype/assets/css/alicti-number-import.css, prototype/assets/css/app.css, prototype/assets/css/atlas-sidebar.css, prototype/assets/css/auth-showcase.css, prototype/assets/css/business-categories.css, prototype/assets/css/business-issues.css, prototype/assets/css/call-media.css, prototype/assets/css/call-sync.css, prototype/assets/css/customer-directory.css, prototype/assets/css/customer-followup.css, prototype/assets/css/dcc-v1.1.0.css, prototype/assets/css/delivery-diagrams.css, prototype/assets/css/delivery-docs.css, prototype/assets/css/demo-switch.css, prototype/assets/css/extension-management.css, prototype/assets/css/global.css, prototype/assets/css/inbound-routing.css, prototype/assets/css/legacy-drawers.css, prototype/assets/css/number-assignment.css, prototype/assets/css/number-pools.css, prototype/assets/css/outbound-group-management.css, prototype/assets/css/queue-config.css, prototype/assets/css/queue-management.css, prototype/assets/css/repeat-predictive.css, prototype/assets/css/report-center.css, prototype/assets/css/resource-onboarding.css, prototype/assets/css/resource-relations.css, prototype/assets/css/role-charts.css, prototype/assets/css/seat-detail.css, prototype/assets/css/seat-home.css, prototype/assets/css/secondary-navigation.css, prototype/assets/css/system-blueprint.css, prototype/assets/css/task-create.css, prototype/assets/css/task-retry.css, prototype/assets/css/time-condition-management.css, prototype/assets/css/version-history.css, prototype/mock/alicti-number-status.json, prototype/mock/call-media.js, prototype/mock/ccc-support.js, prototype/mock/customer-followup.js, prototype/mock/customer-import.js, prototype/mock/data.js, prototype/mock/dcc-v1.1.0.js, prototype/mock/demo-activity.js, prototype/mock/demo-compact.js, prototype/mock/demo-install.js, prototype/mock/demo-kit.js, prototype/mock/demo-media.js, prototype/mock/demo-ready.js, prototype/mock/demo-resources.js, prototype/mock/extensions.js, prototype/mock/inbound-routing.js, prototype/mock/number-onboarding.js, prototype/mock/number-pools.js, prototype/mock/queue-resources.js, prototype/mock/report-fixtures.js, prototype/mock/report-summaries.js, prototype/mock/scenario-demo.js, prototype/mock/seat-operations.js, prototype/mock/time-conditions.js, prototype/mock/workbench-fixtures.js, prototype/config/interface-sources.json, prototype/config/nav.json, prototype/config/project.json, prototype/config/requirement-analysis.json, prototype/config/workflow.json, prototype/index.html
+
+**source_hashes**
+
+**prototype/js/alicti-storage.js**：4f641b823a400193df6e34b0773a450cf1674993b06f3c0e901e7243e65cf5e3
+
+**prototype/js/app.js**：3d72f5d0b1420a78e99792b72f463a083d9d45773d794aa0f25a364dc190cc42
+
+**prototype/js/common.js**：5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1
+
+**prototype/js/components/account-seat.js**：75220eadba6507751785373aba88920ea45b6c3e6949c97a051e42599cd4e8f0
+
+**prototype/js/components/account-tenant-forms.js**：aaac281e865ba95a2603aa48275ebc1b3891f9b544199d2cbf94aa4f625d52fd
+
+**prototype/js/components/alicti-accounts.js**：7c6992609817a9d6042e93897e5a77a4e9455f08cfff0c737eb9298d168ce240
+
+**prototype/js/components/alicti-adapter.js**：505b5c1239996b89713b289a2295f4a8d642d3f7af78d71c7891b80f584dd32b
+
+**prototype/js/components/alicti-contract-panel.js**：dc51877e8572daf7cef0cb958298673e5c655824f761e78b638a69101f3b2d83
+
+**prototype/js/components/alicti-demo.js**：44eacacad4d29d7735c3da6569e70ce981d99f98df6918c0de4328262bd2c825
+
+**prototype/js/components/alicti-extensions.js**：f95d14f9ff0b7a54a18ff21617ebcc0a5aed6dca4eebbe29a68ae053b8b5dc88
+
+**prototype/js/components/alicti-fields.js**：eaaa5fe33c9a628df28944cc09f77b4e6fde3c8aba5875fb808fdaf36fdfdbf8
+
+**prototype/js/components/alicti-inbound.js**：04c6f14738a8f54ff6a79c2e747c2b997c61e53c80f7cbccd23e611e4f3a1fdf
+
+**prototype/js/components/alicti-ivr.js**：12a03334a1fd5673704f49eeefff7693a5656693edb391c1c56b594b10fe83b0
+
+**prototype/js/components/alicti-number-import.js**：a9224f433577c866d515c2e696c56a28b025d97b5d215e12db716393091b38f0
+
+**prototype/js/components/alicti-number-pools.js**：9559a8eef834fe756585ed534e01568f74293ee58616a3409a6c9805a8be245f
+
+**prototype/js/components/alicti-number-status.js**：e364f8b5cfb31ecf34dc48635d69dd7ac754b7a24faea7158d3d929160762226
+
+**prototype/js/components/alicti-queue-contracts.js**：a68c84e4fe6c4be0617522af3786cd0049bdb603140ca6af6e227aa3fb9d0670
+
+**prototype/js/components/alicti-queues.js**：f193197371653caf3b5ff3c00182a38e244b6061fe6d37d63e584c16e4408a3a
+
+**prototype/js/components/alicti-receiving.js**：81a236706882bc9c173479a87787871ebdeae3923c5607210c9cbb87c187fd63
+
+**prototype/js/components/alicti-report-facts.js**：f27aaaa52b00d5999ee0302c09a3d42903bf4daa03a324a00deb3c409e412569
+
+**prototype/js/components/alicti-report-summary.js**：e3a3f85be0cac69868b46bc597bd5aa0f424e89443e27d0f23681fd8de50c3ae
+
+**prototype/js/components/alicti-retry-editor.js**：29a75a2035f0dcac125e845f6f28fea228a8e1cd3308857e05ecc03ab3fef899
+
+**prototype/js/components/alicti-retry.js**：9ffa65434a8e472585abfec13aba1755f95df5f434001e38d01890b9228070ff
+
+**prototype/js/components/alicti-seat-import.js**：ef3dde051891bceccfef52f13dbfe1de40984c0beb5479a8f7987680879beb02
+
+**prototype/js/components/alicti-seat-operations.js**：c4594bd50d2b684c9733fe5a02f21e8f5d105d2176e745ce1b30b59151083795
+
+**prototype/js/components/alicti-task-control.js**：8e0db16ff0a45233578c50d1fc603ab5a5526d448bd475965e31a944a7a6bad3
+
+**prototype/js/components/alicti-task-update.js**：8c21c7af888c89aab1e01a711b682fc1f001b659394ade40aebe2c86585d4e55
+
+**prototype/js/components/alicti-time-conditions.js**：31e6746e6f3f40555ef0501eb6015ad895d8c75bad2474a0f9f6a54a41fe485e
+
+**prototype/js/components/business-issues.js**：a37de59bd5ae150018d92f4d91475eefbbf7b9d0edd6b08cdf3d45076ccfad36
+
+**prototype/js/components/call-data-issues.js**：f7824a20b94601c71426786f2a6456db0a33166ba5b34c89ed23bfa3a7534dee
+
+**prototype/js/components/call-data-sync.js**：4c36be5b85b48080c9dfa65d0f89e60a685f97a785b79e10350927d66f628030
+
+**prototype/js/components/call-media.js**：ec61f9eb77d4b99088a46bd9fd8063cc1de069e835f76baefae4f5f25b0cd17d
+
+**prototype/js/components/call-state.js**：93048ccfe263df33cee3262a7bd903ce887aa46829f9123cb1da3a9839c0a0df
+
+**prototype/js/components/customer-business.js**：dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b
+
+**prototype/js/components/customer-directory.js**：f9afe74e6637aa983355d0e9bb10d6387bcafca18c2791ac3084e5542cd60707
+
+**prototype/js/components/customer-followup.js**：c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9
+
+**prototype/js/components/dcc-records.js**：b641fab35db57426fa69ba5e629b9d3c4098ef49f349eb171eb93181106f1712
+
+**prototype/js/components/dcc-runtime.js**：3fc26ebfaf7e93a5e2b19ddc9063a52d47ed28d562b530d0ac266676e4482993
+
+**prototype/js/components/demo-switch.js**：dbbf9c50f6934e3d4a812c2c71c0e3d85af292231aa2421a46bd51fdb06b8ae5
+
+**prototype/js/components/lead-report.js**：56b435d045bd817274aaed37fe203d303d41a86227ab18e6c8eb840efaf178c0
+
+**prototype/js/components/manual-skill-access.js**：a3520428d91163a4b8664d4eacf10ca8cdfea911d257e83dc26e3887e53a3a8f
+
+**prototype/js/components/number-import-history.js**：ab88f25625bf5763a5bdaabd36c7c84f832d3dd245a0c1493cfe65e6f09b523a
+
+**prototype/js/components/outbound-groups.js**：c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520
+
+**prototype/js/components/platform-ui.js**：5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2
+
+**prototype/js/components/queue-config.js**：412b78d3f4ce6e34e780de9e4d0705f1c2f05f5985ef6a40a8a230c5bfd04f28
+
+**prototype/js/components/queue-detail.js**：c27cbb5353ffb6099f92d1fdf1c000cf67cfa2496106187d2535e2537367171b
+
+**prototype/js/components/repeat-predictive.js**：2f6bd7906b0ab70eb6d644e93208df5ef9a9a9278ecff34dc4356c3dc4af979c
+
+**prototype/js/components/report-data.js**：7619f556705c174845de56b24c1a21c11af5f973bf71c89cb50d951f4b5391f6
+
+**prototype/js/components/report-metrics.js**：4974c6a13bba80b82f6c9a501b5b5e3ab78d693a572b8e9ce8f978158b6da0be
+
+**prototype/js/components/resource-rules.js**：b4667756955fe8f03a5ee95daea99e19589bfb1de774f299de75a9b8b1f768ca
+
+**prototype/js/components/role-charts.js**：d22f69c0b2b5c53113c4f3f214e47384b060c68cf50083fc38820a68585824ac
+
+**prototype/js/components/role-focus.js**：86787b6ddd3dc31937c46a61a2c690f1155de116d2e240dcdb26b94194d63763
+
+**prototype/js/components/seat-event-log.js**：da870a05d0a48945803c45f72e1b6181c794f08a4f3cda21bc5c99b3a42d99be
+
+**prototype/js/components/seat-operation-ui.js**：0d065f566fac31d0176bc98ffa489c4b392124098e64bb07502ee31c7c31de8f
+
+**prototype/js/components/seat-phone-config.js**：bda324e0aeb723a3a0ab6a9b0e95e7a84abfa836c9d0cdadbb4dcfb79d95e44a
+
+**prototype/js/components/task-schedule-runtime.js**：16f0c818df617e2a9775ccf2a04c4881015d5808fd25ab639d1d54593db6c3ca
+
+**prototype/js/components/tenant-call-monitor.js**：be12fd16c4190b6f46f9f0aabdd5b7d2f25bb32481c4ae314eb833c517a91b34
+
+**prototype/js/components/tenant-supervisor-policy.js**：8cb7cd48d814fec3453ae9d41f9449aa555dcfac373d731a680acb0639732359
+
+**prototype/js/components/workbench-overview.js**：7be8712f23cf1396895e2bd24c34bbb709139f3d257f4dfe19f9ed3aaa46df4f
+
+**prototype/js/delivery-nav.js**：2c52b5dca34d3a68fd4fa86fcde0e0ec7aa3e092db3fc7766b69773680b75a3f
+
+**prototype/js/documentation-nav.js**：ac5def2bd50e5128420e446585e5489502c6ba5f27362c960b6733d089b852aa
+
+**prototype/js/nav.js**：995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b
+
+**prototype/js/pages/account-tenant.js**：341bf42b8be5b9a21391b7a742947a02982bba19aa8850f5567c5a64cc35edb2
+
+**prototype/js/pages/agent-center.js**：e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e
+
+**prototype/js/pages/agent-workbench.js**：45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3
+
+**prototype/js/pages/alicti-accounts.js**：71c5ae8b9a8f117a7f52cb36d729e5476f960a12e6ea34092e18ce62d0670f61
+
+**prototype/js/pages/application-access.js**：497cf1c7f4bf852618eeec22abd50d96654b055c09782f5f9e88b0ea1bf34922
+
+**prototype/js/pages/business-categories.js**：addb6fc38834d414609d9a21a874ea59f96bd82203d039c2b1c0823deaf2e463
+
+**prototype/js/pages/cloud-call-records.js**：1d92bb56bfd0e3263d287ec12ae78053dc15a0588ff1c4709b4dacbf27104cce
+
+**prototype/js/pages/cloud-call-tasks.js**：01808700b27c1509b490568590d99e420e333c2b9d22e9f6cf29c0c84dcc9300
+
+**prototype/js/pages/cloud-task-workspace.js**：4e1361c4a82b098039c71a5e3ee4c93fbf852d95d1446b1a5e40c877d55a5488
+
+**prototype/js/pages/contact-center-settings.js**：b70d9a9eb689f9112284d6903458d63075560f15df9b0457b2e55d4a0e8e24a6
+
+**prototype/js/pages/customer-demo.js**：1616eec112234cd0b37b7aba8f21c8f175b2b3bf926da90b480ed0e1f7dc47b3
+
+**prototype/js/pages/customer-directory.js**：5f1ffb739d4801d49802eb53c884e1d6833cadd11a2d61633e3db7fd35b895c2
+
+**prototype/js/pages/customer-tasks.js**：a42137862b5a1ae7619d52218874876592dd1088f70ecabd04a48eb6f6d32775
+
+**prototype/js/pages/extension-management.js**：588d123344d5666bfca172b93220e2e10e2848bf6d5bba3be133ad76c26207d7
+
+**prototype/js/pages/home.js**：77e2f34c43955287b5babeaf33baecebed6ee57995c8c4416a58a923a0a0f8cb
+
+**prototype/js/pages/inbound-routing.js**：fc1c9bd0bce959501b44b66c5facc9dd9c9e17aa49b815f236284fab9e4f40f4
+
+**prototype/js/pages/number-pool-management.js**：d6cd4b0b995b590bed8629326ec27ca9296c2430f6124a332ef46474885f537a
+
+**prototype/js/pages/operations-monitor.js**：faad3ad2fca61d62d6749694e26870cd43708df90f25cdf9b79a343c7161fa2d
+
+**prototype/js/pages/outbound-group-management.js**：0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02
+
+**prototype/js/pages/queue-management.js**：77ec5107da644326566c56be697dbe2318e474081c7b36410e152bffceb2263f
+
+**prototype/js/pages/report-center.js**：7648bb4223d562826659570f3931d07bf0d74aee75a205cf2a6648a535029f08
+
+**prototype/js/pages/resource-lines.js**：d68a6e106985af44a7a5310ab4f8bc41cc8d98b69c0cf4444c03953c29bc351a
+
+**prototype/js/pages/scenario-demo.js**：b5b666cf10e1628b4ac85e2957344f6fde7190a08184c93a075544c0cefd7723
+
+**prototype/js/pages/scenario-readiness.js**：339e26e4c53e2ea7ee3aae5a95e7c09201b23d656bb04b2a8fd928a36f442b5b
+
+**prototype/js/pages/system-center.js**：acece8536ed1812d90f8fc4a1ef76d2db996863c06ec30b1e857b38b39afe58f
+
+**prototype/js/pages/time-condition-management.js**：b319d1e521387e38e21b54e1c0fb2aa7f50f3054370a25316c1488b16d6c0bb5
+
+**prototype/js/review-view-cache.js**：70d270b31dd7e1437e9540498762b9819a6c2e7d06935a00b9cfc055ad472571
+
+**prototype/js/version-nav.js**：6a2912e748e9fca7d01a0134f52b9de509ae56b9ef1e707e7225a2859efc1b79
+
+**prototype/assets/css/account-seat.css**：9464001d5dc7772d8caecbc1fe14ea911015364008f6b70422b0da8a6a983763
+
+**prototype/assets/css/account-tenant-forms.css**：8baff4c4c41d3cacf733b339a3247c22bf971903e8129dab019650b9b2eec46f
+
+**prototype/assets/css/agent-workbench.css**：db2c50236081f7ed46aa96c8b70fc0cf997da7b98ff9e3a595e67180ad43795e
+
+**prototype/assets/css/alicti-accounts.css**：33ddd12b7d4a35138209c17feae7a93bb0341b5a6d93016f7b8730bde3606abd
+
+**prototype/assets/css/alicti-contracts.css**：f2fd43da4df286bdadc3bea5645f7383d49f0b732eb644d14102b00d633ad887
+
+**prototype/assets/css/alicti-number-import.css**：3e4db05ad1ac1151f2c9272b10a55d7530435cd758b132ecbbacd7e6b92ac8ed
+
+**prototype/assets/css/app.css**：4f38ab5f6be96777f25c31748363c83256f8703a0555a36991094716eb0a0e48
+
+**prototype/assets/css/atlas-sidebar.css**：babf4f49045328107abf64c8174ef1bb1ef0ea9f9f2c8b4f8a5cfd15efaf1ee3
+
+**prototype/assets/css/auth-showcase.css**：6a528ef7f51004fb8022aca6a1d0eb8bb2602720b384860c9894198729673e4e
+
+**prototype/assets/css/business-categories.css**：97ca772a2adca9bd78aa2e9c7b0b294a3702a7fec914b91d90ac4d25cdeb0082
+
+**prototype/assets/css/business-issues.css**：8da6c6a20c25ba930aa20791a1f6d47c3d006ab37f71853b9796802440bbe9a3
+
+**prototype/assets/css/call-media.css**：85931e531773f995f5f3b50ce939eb3bc5cc72ff665ea5405df3b3bb9caf773d
+
+**prototype/assets/css/call-sync.css**：3435fa99874621effaba95320ba02424354ecfe83865f65f416130018d80fcbd
+
+**prototype/assets/css/customer-directory.css**：7644e38a4650f9cd7f09567af37c6dd92f5f5eb8e3abe6a84d0c863d5d35f296
+
+**prototype/assets/css/customer-followup.css**：c4ff171dfc2151afe42e688320888657748ff4b6fef9769e3741801dffd691be
+
+**prototype/assets/css/dcc-v1.1.0.css**：75dab21b741a5d51732b1c67b2eeda0d9368affc1c8c3e9edd7fc07b98e45cc6
+
+**prototype/assets/css/delivery-diagrams.css**：13441c07d23e01ed7f1e6b8906db43ff3a0056c1f6f5cf0dd3fb10659e3c7168
+
+**prototype/assets/css/delivery-docs.css**：723ef6f97d203f9e911b7c1187af50712e8a93962f02ffa17c155673452fb3da
+
+**prototype/assets/css/demo-switch.css**：462e5397b52e805c5b8f2d4e866ad97faa7f9a68ad04db99f894f567f3431a66
+
+**prototype/assets/css/extension-management.css**：f4a25715da6a2d432c0a4bba6ea772613bbeb81b2b9e9b37b8543f6ca965e2bd
+
+**prototype/assets/css/global.css**：cd2247fa5742d9617356a6075404efb062b259b74d93b8f820c2cd6c23f487f2
+
+**prototype/assets/css/inbound-routing.css**：d06d30a8b2e53a06a7de36935fc59738e4f96ef4cc8def326678334a092029c1
+
+**prototype/assets/css/legacy-drawers.css**：50dc38a7e632ce734c5551b166bc3ca8e725cb5d86d04aa9ce286304a84bc3d8
+
+**prototype/assets/css/number-assignment.css**：7e1130aa09e03a0c0a32f1fb0d1a9e92ecbb6e0ba4e53004c51ddf8f593a144a
+
+**prototype/assets/css/number-pools.css**：30d6a83c669850b5d072f72a6dd6978523e531a46c9c438e5b7f7b86774f289e
+
+**prototype/assets/css/outbound-group-management.css**：cc593127ddebefa35e3b6abbeec9a533fb3d5051352e5467db9121bab660a153
+
+**prototype/assets/css/queue-config.css**：8ba4b3bced36fa1fff63b932e2cca4219745d1947455e35435dfc88446f9c9b9
+
+**prototype/assets/css/queue-management.css**：3daa9add5ea31dce8a1b1e17c49abf07e8ffc007aad612cc88e1a80975208bfc
+
+**prototype/assets/css/repeat-predictive.css**：f71ef07b24b4ed9d2f1c6503e30698e68df7f92752e4d07b47638594f6e4f142
+
+**prototype/assets/css/report-center.css**：e0657a74777c01a6283633f07f69f08ad6be915b550f5e0c1241fb6f4016b4b0
+
+**prototype/assets/css/resource-onboarding.css**：4750279e0d641bd485674e0c29bfca30d8896547ef5785bbc2279ee95655d762
+
+**prototype/assets/css/resource-relations.css**：ad2d095c19d09583c76e814837dba30d5cf38cfb9204de2e744da0889b58c11c
+
+**prototype/assets/css/role-charts.css**：1f8c95acf97e15be096e6f8e6755c68ffd2d72afbb8e742d17ce641081601a5d
+
+**prototype/assets/css/seat-detail.css**：7f7decf9d388558148bdd36f2138ea13e0db941e0d5e0007ede3f3e523e310a9
+
+**prototype/assets/css/seat-home.css**：4c0e15a9af87ba755558c463fe299c3dda429fac13d7a2592d2d1af7820ebeed
+
+**prototype/assets/css/secondary-navigation.css**：71098866c4707ad7cf7d34ab52d653ea672193d7490d3a3be8e50c4bb879e722
+
+**prototype/assets/css/system-blueprint.css**：4c9030c9aee4b5a6e5fb90e57a518bf1f366039b781c4f4f423ecf2613d41c03
+
+**prototype/assets/css/task-create.css**：470982a4d2a8145d0bb8f588632a0b8e6721d9951dfecff430968b7fb16de68a
+
+**prototype/assets/css/task-retry.css**：578a97c3c90908e356d9e28d6cb97a125456cd75f2943f6ebf08423c2e2e9bf8
+
+**prototype/assets/css/time-condition-management.css**：fca1d7e4ffb10242bb8492a42bf8725014064bb8feaf641452364ed866620a67
+
+**prototype/assets/css/version-history.css**：5d128357bb4b0750d3fd64a150a736c8704c76617874d4b465c9adc5a42756bd
+
+**prototype/mock/alicti-number-status.json**：64d549cbfd260335cfd82f461f7af92623312ab9fd083524f0371e888e4de0eb
+
+**prototype/mock/call-media.js**：4fb2055a45370af65d38da4a74fec14076e61a3b13549042788675eae59d918b
+
+**prototype/mock/ccc-support.js**：d0e0bd3740c6937be960b6fad775dd9e9039c214e5d6332843f5642e7046a2cd
+
+**prototype/mock/customer-followup.js**：1dcb0bcf05132612ea2d355da93432915ad0178b95b4fab1db94d0ee45eac906
+
+**prototype/mock/customer-import.js**：377f10d2834bae436bd1baac3871e43c3ce0cb87fcc2cde9e7300be2f7c2e580
+
+**prototype/mock/data.js**：22fa116694fd3a46f6a6d38e4cb1da90e2c471183a81b5039bc2d200788c3bce
+
+**prototype/mock/dcc-v1.1.0.js**：c06080417cd05562087bb01dc92a62c20f88b4d472de66f66cff6adefd910d24
+
+**prototype/mock/demo-activity.js**：4a8c630a2f70447630f2958ee3aaf822d339b6d49338525e121fa38ff4296bbf
+
+**prototype/mock/demo-compact.js**：b1dcd4163ff12f9e73d942b8e95a94a9131ae9726135d626d9e07b4a8fb940f9
+
+**prototype/mock/demo-install.js**：63eed579189c60ee1f445c30c7d6bcbef0da98e88b77054c5d6205feb5736ce1
+
+**prototype/mock/demo-kit.js**：2d8ccb8d321eb60e5d53d06309067c3c075a10e525b2eb38d4c13f5e4ca576b6
+
+**prototype/mock/demo-media.js**：f99b9a22732cb62fd9df0f65d137a28d49029ef52f3a79191ae67f9d7db86e1c
+
+**prototype/mock/demo-ready.js**：c2b62bdda99c6647b0f034cab6090b13ce8374ccbec097d0ba902012255349b4
+
+**prototype/mock/demo-resources.js**：ed71493afa15312a4b7d5f50cc8bc767201d5d888f6e2aaa47f181803b4d8391
+
+**prototype/mock/extensions.js**：848e283f1958f922cd4e4b4d927946021734a11ebbdf1d9074be0c0a88e5e8e1
+
+**prototype/mock/inbound-routing.js**：a0da233b4706e9f80e28a3d717e68e8c7ecd7c797850d619959ac625535c2092
+
+**prototype/mock/number-onboarding.js**：75cce87e551e7b431d43fa51bbf0d66df2a80bd3e775a0f5b7f97b15bf798dfe
+
+**prototype/mock/number-pools.js**：45118c56b5322cf50b46de4534d33f1bbf64dd0dd6e6c99d0ad371a6f4b7fac6
+
+**prototype/mock/queue-resources.js**：ee0b11f873661fb843cdb709df8371b0210e25e9a5d5f048003cd9a961a20f55
+
+**prototype/mock/report-fixtures.js**：fc3719abe44dcab7f3c634b6d53eae5259181ad26b451c3472e4ecc4b39d41a5
+
+**prototype/mock/report-summaries.js**：30ce6f034418c81554319b654e707b20f71ee828bb4102748db0e3e97e0e006a
+
+**prototype/mock/scenario-demo.js**：1fdf32393b654983835fa2c9449e41ba5ebaf2f2ae620a0d2a8616042b1ff50b
+
+**prototype/mock/seat-operations.js**：30b7cf3be50186cd4b7bbafd3b371cb2226f032417c21d6c570da44ffa01f8b0
+
+**prototype/mock/time-conditions.js**：c842c0faa650107055a33a8b87342890614530c8665cc7c47f2ae17e971414ed
+
+**prototype/mock/workbench-fixtures.js**：cb55f6f2440e830ce17de4bcd854bdac3ffef4a59d6f5a9964e914318d669e4b
+
+**prototype/config/interface-sources.json**：e868576825e3048911dc7aca752ba143283c413328e477b16024274191b773df
+
+**prototype/config/nav.json**：96c4f252d464b9092e412860014e43be92328720a8c639e9644fc4fa53a82c99
+
+**prototype/config/project.json**：604a7cd8727316c7c02173a7f7eaf39ab46729501f268d7f2a95ebb83ccca672
+
+**prototype/config/requirement-analysis.json**：4210ac32190283057cb07c8542506d19b8f0341a766d2c104b91a816fa930021
+
+**prototype/config/workflow.json**：f7f535135bb580d1a5c77547bafbb8fa98ef61b547be8e5a015504f8dffca038
+
+**prototype/index.html**：acfab4112185c518f29f18c5edb008bdc609d4db81985309dfbfcd012e48b436
+
+**范围**：本轮已完成局部合成原型实现与审计修复：应用多对多授权、各应用回调配置及停用授权保留、跨窗口配置版本守卫；预外呼/人工接口导入、原业务批次号及请求隔离；原客户档案统一查询；人工工号分配与原预外呼账本显式接席、早填、继续跟进转当前坐席人工；已完成沟通可靠保存意图、原call/原六字段/业务字段及选项编码快照与原应用结果交付状态。所有外部网络、真实token、AliCti执行和业务ACK均未实现或验证，不代表104条整版验收及正式门禁。
+
+**verified_local_behaviors**
+
+1. 应用多对多与回调地址本地保存/回读；保留已停用租户的既有授权显示但拒绝获取身份；跨窗口读最新配置，旧表单/删除确认冲突拒绝，删除或撤权即时失效。
+
+2. 接口强制callMode、businessType、businessBatchNo；预外呼核taskId归属，人工按同租户有效agentWorkNo写入原待联系账本；同app/tenant/requestId重放不重复，另app同号同批次独立。
+
+3. 全部已验应用沿原应用地址形成结果/完成事件；手工UI无应用不外发；地址变更、撤权或删app后的积压保持待核，不转投新同名应用。
+
+4. 原预外呼账本客户通过显式本地offer进入坐席振铃、接听/未接、填写与跟进保存；继续跟进归当前坐席，原任务仍运行时阻止人工再次拨号，暂停/结束后按本地守卫继续。
+
+5. 本地合成路径已实现：外呼已结束且处理结果准确为“已完成沟通”、本次客户与通话可靠保存后保留完成意图；以原app/tenant/record/call及保存版本冻结本次通话、原业务批次号、原类型、六项来源原字符串和已填业务字段/全部所选选项的业务编码。写入失败不假报完成，延迟登记/配置变化/晚到话单不重算原快照；已填缺码保待完善、不伪造发送成功。真实服务端原子性、事件修订、签名、URL安全与ACK仍待工程和双方契约。
+
+6. 客户/通话/报表沿准确原记录归集；未知结果不当作未接通，真0秒不丢，重复标识及跨租户范围受控。
+
+7. 受控保存取消/写入失败及普通下载保留失败记录；成功关闭/回读的准确版本才清理；失败补提交与结果补送继续独立。
+
+8. 租户与审计导出读取当前权限下的筛选模型，输出CSV而不伪报成功；资源引用保护及供应商账号业务数据锁定保留。
+
+9. 旧scope缓存和演示样例精简只识别明确静态种子，用户合成业务、未知/混合记录和坏存储原字节保留；完成标记仅可靠保存后写。
+
+10. 新导入已明确受理且具有准确首提和fileId证据时，列表显示待启动并开放启动入口；未知、失败和仅保存不开放，点击仍复核权限、时间、资源及坐席。
+
+11. 保存与运行态发布先克隆已提交任务；即使传入当前任务对象，也保留ID、配置及状态，不因原地替换清空。
+
+12. 任务详情关闭或返回后刷新原列表，并保留筛选、页码和滚动位置；任务行操作保持相同顺序。
+
+13. 通话详情优先展示话单姓名；可靠话单工号准确相同时使用本通已保存原生坐席姓名，不查当前目录补猜历史。
+
+14. 管理任务按准确原记录和通话事实统计已结束及已接通客户，多通话不重复名单；明确接通与秒挂三态独立，错任务/租户/应用/坐席不纳入，不改变供应商任务终态。
+
+**剩余范围**
+
+1. 真实后端、稳定token/正式报文、供应商号码导入/导航/停呼排他、生产调度与并发崩溃恢复、下载后台清理及业务系统签名/版本/持久ACK仍待验证；接口missing/partial与13高9中1低未决保留，真实调用关闭。
+
+**verification_boundary**：通读源文件与已覆盖本地合成运行/浏览器证据由本证据逐项登记；没有将104条CHECK声明为整版执行通过，不证明真实接口联调。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**supersedes_current_implementation_claims_only**：True
+
+**historical_evidence_policy**：此前局部证据只证明当时来源快照及当时范围；本覆盖层优先说明当前局部实现，不改冻结需求原文或继承正式批准。
+
+**接口分配与状态本轮修订**
+
+**标识**：UI-LOCAL-IMPORT-ASSIGNMENT-STATUS-20261016
+
+**source_id**：SRC-126
+
+**date**：2026-10-16
+
+**状态**：local_synthetic_scoped_verified_not_production_implementation
+
+**范围**：统一批次查看、接口人工坐席工号选填、分配/通话/业务跟进三轴及外部人工通话准确关联的局部修订。
+
+**source_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**证据**
+
+1. prototype/memory/verification-evidence/import-assignment-status-20261016.json
+
+**source_hashes**
+
+**prototype/index.html**：5ae7ced733ddc58ee2c3cdc61d57d3ce45e3c445c3786c8f748c38a4b58e3a5d
+
+**prototype/js/components/dcc-runtime.js**：2e133fb57cc006724d80735d1974091a7aed2a35dd92ee82278cdefa76343ff3
+
+**prototype/js/pages/customer-tasks.js**：91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28
+
+**prototype/js/pages/scenario-demo.js**：fa7a21be0d3e8f2795c5c87ab40a61f198e5fa29190b01a7f64445955ff0bb41
+
+**prototype/js/pages/customer-directory.js**：b4935dc59c2752b63902e48e9336a346c54178d16028b1346afca3385644d3e6
+
+**prototype/js/components/workbench-overview.js**：434af9c482bf6641dbc5b57d2a3bd0fb24a709045af51269d7268e3dbe535deb
+
+**prototype/js/pages/agent-workbench.js**：45177a4ea988a79372eaeefc8728602219f47acbdc68118ff226b4c566509ae3
+
+**prototype/js/components/customer-business.js**：dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b
+
+**prototype/js/components/customer-followup.js**：c36804a76f13f37d9ff9a19f036af38c08e3af61eabdc2eefc9c0da88ff51cb9
+
+**prototype/js/components/customer-directory.js**：700e88fad6e41cba9dfecb109a5a3f9c95476cec683b848d17df5e643aabafca
+
+**prototype/js/components/alicti-fields.js**：eaaa5fe33c9a628df28944cc09f77b4e6fde3c8aba5875fb808fdaf36fdfdbf8
+
+**prototype/js/components/call-state.js**：93048ccfe263df33cee3262a7bd903ce887aa46829f9123cb1da3a9839c0a0df
+
+**prototype/js/components/platform-ui.js**：5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2
+
+**prototype/js/common.js**：5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1
+
+**prototype/js/nav.js**：995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b
+
+**prototype/mock/dcc-v1.1.0.js**：c06080417cd05562087bb01dc92a62c20f88b4d472de66f66cff6adefd910d24
+
+**rules**
+
+**optional_agent_assignment**：人工外呼agentWorkNo选填；缺省接收且不分配云呼叫坐席、不进入个人待联系；显式提供时精确校验当前租户唯一有效坐席，错误拒绝该行，不回退成未分配或改派。预外呼仍必须传准确taskId并沿任务坐席组，工号不覆盖组分配。
+
+**separate_state_axes**：所有新接口来源的业务跟进初始为“未同步”，与是否已分配、是否拨打/接通分开。无工号不认定未联系；有有效工号表示已分配云呼叫坐席，不凭分配就认定业务待联系。平台本人保存的明确处理结果或经过准确关联的外部业务处理结果方可更新跟进；仅AliCti话单、挂断、接通和时长不能推断业务已完成。平台明确继续跟进/需要再次联系保留当前有权坐席待办；结束性处理结果已保存可标跟进已完成，但独立“完成沟通回调”仍只由精确结果已完成沟通触发。
+
+**unified_batch_projection**：在既有“导入与分配”批次清单只读展示人工和预外呼接口导入；按当前权限保留原app/tenant/request与原客户记录、预测task和实际映射。相同businessBatchNo可多请求复用但不合并不同请求；不复制/迁移原账本，不重新分配或重复导入。预外呼显示任务去向，人工无工号显示未分配云呼叫坐席。
+
+**external_call_correlation**：DCC拨号入口与平台共用同一AliCti；线索负责人/平台分配坐席与本通实际坐席分别保存展示。外部人工通话按稳定app、已鉴权tenant、供应商实例、原记录与callId精确关联；实际坐席取该通真实话单工号，不反写线索分配。不能仅按手机号、同名业务批次或工号关联，错误/歧义/冲突保持待核。外部通话的业务结果为独立显式同步，不能用话单接通代替。
+
+**history_and_gates**：仅影响本次新导入及本轮显式合成验证；历史记录状态和原账本不批量改写，旧无值保留未知。旧SRC125的S1/S2通过仅证明当时104条正文，未继承为SRC126通过；正式104条验收/US规范化及S1开始的下游复核待后续正式执行，G1/G2/G3仍pending。
+
+**local_source_order_and_unknown**：本地合成同步使用同原记录的独立call版本/业务版本。平台保存跟进时记录已观察到的外部业务版本，旧版本不覆盖本次平台保存，只有更高外部业务版本可更新显示，不比较两套系统时钟。任一准确关联的通话未结束均保留在途占用；外部资料不可读或关联待核时阻止新拨打和重新分配。真实双方版本冲突协议仍待评审。
+
+**platform_contact_arrangement**：有有效云呼叫分配的接口人工客户，跟进未同步时由有权本人显式确认平台联系安排后才进入个人待联系；该安排不表示DCC尚未联系。人工接口补分配只选坐席，不静默改成预外呼任务，原导入方式与原应用回调归属保留。
+
+**affected_historical_acceptance_ids**
+
+1. AC-007
+
+2. AC-012
+
+3. AC-014
+
+4. AC-050
+
+5. AC-051
+
+6. AC-080
+
+7. AC-081
+
+8. AC-082
+
+9. AC-083
+
+10. AC-099
+
+**formal_requirement_rebaseline**：not_executed_SRC126_overlay_precedes_conflicting_SRC125_clauses_in_this_scoped_draft
+
+**剩余范围**
+
+1. 正式外部通话/业务结果同步报文、可靠来源验证/关联标识和ACK、后端并发原子保存与生产AliCti轨迹仍待工程和双方核实；本轮只做本地合成桥，不新增已联调生产端点。
+
+2. 供应商实例映射未建立；本地示例按原记录和租户演示，显式带instance字段的未确认记录拒绝，不提供真实AliCti自动归集承诺。外部接收不反向生成新的平台完成沟通回调，避免环路。
+
+**formal_gates_changed**：False
+
+**full_acceptance_suite_executed**：False
+
+**real_calls_enabled**：False
+
+**previous_evidence_policy**：full-prototype-audit-20261015及更早证据保持原字节，仅证明当时源码与当时范围；本轮证据另行严格绑定当前源。
+
+**verified_evidence_sha256**：69c077060fd9c00d9bce508b80ad41e2ce7733c35ad258fc6eb39deee09632ac
+
+**verification_boundary**：本轮局部合成运行及已记录浏览器范围通过；不代表104条全套或真实DCC/AliCti同步契约。
+
+**本轮有效口径优先级**
+
+**来源**：SRC-126
+
+**overlay_id**：UI-LOCAL-IMPORT-ASSIGNMENT-STATUS-20261016
+
+**rule**：本轮有效行为以此局部修订为准；104条旧验收正文留作追溯和正式重验输入，冲突条款不作为当前实现验收。
+
+**affected_acceptance_ids**
+
+1. AC-007
+
+2. AC-012
+
+3. AC-014
+
+4. AC-050
+
+5. AC-051
+
+6. AC-080
+
+7. AC-081
+
+8. AC-082
+
+9. AC-083
+
+10. AC-099
+
+**formal_rebaseline_complete**：False
+
+**source_scope_note**：全局多版本README入口非本轮v1.1.0规范事实源，不绑定其当前摘要，避免跨版本入口及并行1.1.1工作与本轮交付耦合。本版仍绑定prototype/README、需求1.1.0及开发交付物1.1.0当前来源；历史证据及原冻结来源保持原字节。

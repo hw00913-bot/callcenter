@@ -1,9 +1,10 @@
 /** Shared helpers for the daily, entirely fictional module demonstration pack. */
 (function (root) {
   'use strict';
-  // The enterprise/tenant split invalidates only this prototype's old module caches.
-  // A one-time reset runs before any module restores data; unrelated and identity
-  // preferences stay outside this exact allowlist. New-schema edits survive reload.
+  // Old caches can contain both bundled examples and later user work. Remove
+  // only independently identified obsolete examples; unknown/mixed records stay
+  // with their owning module, which can reject an incompatible scope safely.
+  const version = 'alicti-showcase-v1';
   const schemaKey = 'demo-enterprise-scope-schema-v2';
   const cacheKeys = [
     'account-seat-v1', 'alicti-accounts-v1', 'alicti-queue-bindings-v1',
@@ -20,24 +21,50 @@
     'alicti-contract-demo-ids-v1', 'alicti-demo-preferences-v1', 'alicti-demo-pushes-v1',
     'demo-small-sample-migration-v1'
   ];
-  function oldScope(value, inheritedEnterprise = '') {
-    if (!value || typeof value !== 'object') return false;
-    const enterprise = String(value.enterpriseId ?? inheritedEnterprise);
-    const tenantIds = [value.tenantId, value.defaultTenantId, ...[value.tenantIds, value.authorizedTenantIds, value.localTenantIds].filter(Array.isArray).flat()];
-    if (enterprise === '7522240' && tenantIds.includes('TEN-NISSAN-SH')) return true;
-    return Object.entries(value).some(([key, child]) => child && typeof child === 'object' && (key === 'TEN-NISSAN-SH' && String(child.enterpriseId) === '7522240' || oldScope(child, enterprise)));
+  const migrationWarnings = [];
+  function obsoleteFixture(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value) || value.simulation !== true || value.demoPack !== version ||
+        value.tenantId !== 'TEN-NISSAN-SH' || String(value.enterpriseId) !== '7522240') return false;
+    // A parent example may contain later user work, even in the same scope.
+    // Keep every nonempty container rather than deleting that work with its seed.
+    if (Object.values(value).some(child => child && typeof child === 'object' && (Array.isArray(child) ? child.length > 0 : Object.keys(child).length > 0))) return false;
+    // A prefix is not sufficient proof that a customer's record is disposable.
+    const ids = [value.id, value.callId, value.taskId, value.agentRecordId, value.physicalGroupId, value.numberId].filter(item => typeof item === 'string');
+    if (!ids.some(id => /^SHOWCASE-SH-20260921-(?:(?:PRED|AUTO)-(?:READY|RUNNING|PAUSED|ENDED|SAME-TASK-FOLLOWUP)(?:-BATCH|-C0[1-6](?:-CALL-[12])?)?|(?:MANUAL|POOL)-(?:LEAD|AFTERSALES|ACTIVITY)(?:-C0[1-4](?:-CALL-[12])?)?|INBOUND(?:-BATCH|-C0[1-4](?:-CALL-[12]-IN)?)?)$/.test(id))) return false;
+    function singleScope(row) {
+      if (!row || typeof row !== 'object') return true;
+      if (row.tenantId !== undefined && row.tenantId !== 'TEN-NISSAN-SH' || row.defaultTenantId !== undefined && row.defaultTenantId !== 'TEN-NISSAN-SH' ||
+          row.enterpriseId !== undefined && String(row.enterpriseId) !== '7522240') return false;
+      for (const key of ['tenantIds', 'authorizedTenantIds', 'localTenantIds']) if (row[key] !== undefined && (!Array.isArray(row[key]) || row[key].some(id => id !== 'TEN-NISSAN-SH'))) return false;
+      return Object.values(row).every(child => !child || typeof child !== 'object' || singleScope(child));
+    }
+    return singleScope(value);
+  }
+  function withoutObsoleteFixtures(value) {
+    if (Array.isArray(value)) return value.filter(row => !obsoleteFixture(row)).map(withoutObsoleteFixtures);
+    if (!value || typeof value !== 'object') return value;
+    return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, withoutObsoleteFixtures(child)]));
   }
   for (const storage of [localStorage, sessionStorage]) {
     try {
       if (storage.getItem(schemaKey) === '2') continue;
-      const incompatible = cacheKeys.some(key => {
-        try { return oldScope(JSON.parse(storage.getItem(key) || 'null')); } catch (_) { return false; }
-      });
-      if (incompatible) for (const key of cacheKeys) storage.removeItem(key);
-      storage.setItem(schemaKey, '2');
-    } catch (_) { /* Storage failures are surfaced by the module that owns the cache. */ }
+      let reliable = true;
+      for (const key of cacheKeys) {
+        const original = storage.getItem(key);
+        if (original === null) continue;
+        let value;
+        try { value = JSON.parse(original); }
+        catch (_) { reliable = false; migrationWarnings.push({ key, reason: '旧资料格式无法识别，原数据保留。' }); continue; }
+        const next = withoutObsoleteFixtures(value);
+        if (JSON.stringify(next) === JSON.stringify(value)) continue;
+        // A changed tab or failed write must not be reported as a completed migration.
+        if (storage.getItem(key) !== original) { reliable = false; continue; }
+        try { storage.setItem(key, JSON.stringify(next)); }
+        catch (_) { reliable = false; migrationWarnings.push({ key, reason: '旧演示资料整理未能保存，原数据保留。' }); }
+      }
+      if (reliable) storage.setItem(schemaKey, '2');
+    } catch (_) { migrationWarnings.push({ key: schemaKey, reason: '旧演示资料整理未完成，稍后重试。' }); }
   }
-  const version = 'alicti-showcase-v1';
   const today = new Date().toLocaleDateString('sv-SE');
   const anchorKey = 'alicti-showcase-clock-v1';
   let anchor = Date.now();
@@ -49,7 +76,7 @@
   const kit = {
     // Keep sample identities stable across days; only their displayed time follows today.
     version, prefix: 'SHOWCASE-', cohort: '20260921', date: today, anchor,
-    scopes: [], batches: [], tasksForStorage: [], localTaskCallsForStorage: [], afterLoad: [], warnings: [],
+    scopes: [], batches: [], tasksForStorage: [], localTaskCallsForStorage: [], afterLoad: [], warnings: migrationWarnings,
     at(minutes = 0) { return new Date(anchor - minutes * 60000).toLocaleString('sv-SE'); },
     day(days = 0) { const value = new Date(anchor); value.setDate(value.getDate() - days); return value.toLocaleDateString('sv-SE'); },
     add(list, key, row) {

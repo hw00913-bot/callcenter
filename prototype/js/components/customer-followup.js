@@ -107,6 +107,7 @@
     const checked = validate(values, call, previous);
     if (!checked.ok) return checked;
     const snapshot = { ...checked.values, updatedAt: new Date().toISOString(), updatedBy: AppState.get().accountId };
+    if(window.CustomerBusiness?.callbackSnapshot)snapshot.businessFieldSnapshot=CustomerBusiness.callbackSnapshot(snapshot,call);
     const next = { key: id, values: snapshot };
     journal.entries = journal.entries.filter(row => row.key !== id).concat(next);
     try { localStorage.setItem(key, JSON.stringify(journal)); } catch (_) { return { ok: false, message: '业务信息未能保存，请保留当前填写内容并重试' }; }

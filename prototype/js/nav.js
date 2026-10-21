@@ -368,13 +368,19 @@
     }
     else navigateTo('home', { historyNavigation: true });
   });
-  window.addEventListener('popstate', () => {const requested=location.hash.slice(1)||'home';const key=routes[requested]?requested:'home';if(key!==requested)history.replaceState({routeKey:key},'',`#${key}`);navigateTo(key,{...historyOptions(key,history.state),historyNavigation:true,browserNavigation:true});});
+  window.addEventListener('popstate', event => {
+    // Delivery tabs own their history entries; treating them as business routes
+    // replaces the visible diagram URL with #home during Back/Forward.
+    if (/^#delivery=/.test(location.hash) || event.state?.deliveryKey) return;
+    const requested=location.hash.slice(1)||'home';const key=routes[requested]?requested:'home';if(key!==requested)history.replaceState({routeKey:key},'',`#${key}`);navigateTo(key,{...historyOptions(key,history.state),historyNavigation:true,browserNavigation:true});
+  });
   document.addEventListener('DOMContentLoaded', () => {
     renderNav();
     if (!AppState.isReady()) return;
-    const requested = location.hash.slice(1) || AppState.get().currentPage || 'home';
+    const deliveryEntry = /^#delivery=/.test(location.hash);
+    const requested = (deliveryEntry ? '' : location.hash.slice(1)) || AppState.get().currentPage || 'home';
     const key = routes[requested] ? requested : 'home';
-    if (key !== requested) history.replaceState({routeKey:key},'',`#${key}`);
+    if (key !== requested && !deliveryEntry) history.replaceState({routeKey:key},'',`#${key}`);
     navigateTo(key, { ...historyOptions(key,history.state), historyNavigation: true });
   });
 })();

@@ -14,7 +14,7 @@
 
   function scoped(rows) { return AppState.scoped(rows || []); }
   function tenantName(id) { return (CloudCallRuntime.tenant(id) || {}).name || '—'; }
-  function progress(row) { return row.total ? Math.round(Number(row.completed || 0) / Number(row.total) * 100) : 0; }
+  function progress(row) { return !Number.isFinite(Number(row.completed)) ? null : row.total ? Math.min(100,Math.round(Number(row.completed || 0) / Number(row.total) * 100)) : 0; }
   function routeKey(type) { return type === '预外呼' ? 'predictive-tasks' : 'ivr-tasks'; }
   function filterKey(type) { return type === '预外呼' ? 'predictive' : 'ivr'; }
 
@@ -24,7 +24,7 @@
     CloudTaskWorkspace.syncAssignedCustomers();
     var state = filters[filterKey(type)];
     var source = [].concat(CloudTaskWorkspace.listDraftTasks(type), scoped(type === '预外呼' ? CloudCallData.predictiveTasks : CloudCallData.ivrTasks));
-    return sorted(source.filter(function (row) {
+    return sorted(source.map(function(row){if(type!=='预外呼'||!window.DccRuntime?.isManagedTask(row)||!AppState.authorizeObject('',row))return row;var progress=window.DccRuntime.taskProgressView(row.taskId),records=window.DccRuntime.taskRecords(row.taskId);if(!records.ok)return row;return Object.assign({},row,progress.ok?{total:progress.data.total,completed:progress.data.completed,connected:progress.data.connected}:{total:records.data.records.length,completed:'待确认',connected:'待确认'},CloudTaskWorkspace.managedReadyForStart?.(row)?{status:'待启动'}:{});}).filter(function (row) {
       var keywordMatch = !state.keyword || String(row.name || '').toLowerCase().indexOf(state.keyword.toLowerCase()) >= 0;
       var statusMatch = !state.status || row.status === state.status;
       return keywordMatch && statusMatch;
@@ -52,10 +52,6 @@
     if (state.page > pageCount) state.page = pageCount;
     var pageRows = rows.slice((state.page - 1) * pageSize, state.page * pageSize).map(function (row, index) {
       var displayRow = Object.assign({ orderNo: (state.page - 1) * pageSize + index + 1 }, row);
-      if (isPredictive && window.DccRuntime?.isManagedTask(row) && AppState.authorizeObject('', row)) {
-        var records = window.DccRuntime.taskRecords(row.taskId);
-        if (records.ok) displayRow.total = records.data.records.length;
-      }
       return displayRow;
     });
     var helpText = isPredictive
@@ -82,7 +78,7 @@
         { key: 'total', label: '名单条数' },
         { key: 'completed', label: '已完成' },
         { key: 'connected', label: '已接通' },
-        { key: 'taskId', label: '完成进度', render: function (value, row) { return '<div class="progress-cell"><span><i style="width:' + progress(row) + '%"></i></span><small>' + progress(row) + '%</small></div>'; } },
+        { key: 'taskId', label: '完成进度', render: function (value, row) { var value=progress(row);return '<div class="progress-cell"><span><i style="width:' + (value??0) + '%"></i></span><small>' + (value===null?'待确认':value+'%') + '</small></div>'; } },
         { key: 'owner', label: '负责人' },
         { key: 'taskId', label: '操作', className: 'action-column', render: function (value, row) { if(isPredictive)return predictiveTaskActions(row); return '<div class="table-actions"><button onclick="window.Pages[\'cloud-call-tasks\'].openTask(\'' + esc(value) + '\')">' + (row.isWizardDraft ? '继续创建' : '查看与管理') + '</button>' + (!row.isWizardDraft&&CloudTaskWorkspace.canEditTask(row)?'<button onclick="CloudTaskWorkspace.editTask(\''+esc(value)+'\')">编辑</button>':'') + (isPredictive?CloudTaskWorkspace.customerImportButton(row,{table:true}):'')+(window.DccRuntime?.isManagedTask(row)?'<button onclick="CloudTaskWorkspace.openTask(\''+esc(value)+'\',\'dcc-records\')" data-func-id="FUNC-015">客户与处理记录</button>':'') + (!row.isWizardDraft&&isPredictive ? window.RepeatPredictive?.listTaskAction(row)||'' : '') + (row.isWizardDraft ? '<button onclick="CloudTaskWorkspace.deleteTask(\''+esc(value)+'\')">删除</button>' : '') + '</div>'; } }
       ], pageRows, { emptyText: '未找到符合条件的任务', emptyDetail: '可重置筛选或新建任务。', footer: ui.pagination(rows.length, state.page, pageSize, "window.Pages['cloud-call-tasks'].setPage.bind(null,'" + type + "')") }) +

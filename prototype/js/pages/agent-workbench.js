@@ -23,6 +23,14 @@
   const currentScope = () => AppState.account().accountId + ':' + AppState.get().tenantId;
   function read(key, storage) { try { return JSON.parse(storage.getItem(key) || 'null'); } catch (_) { return null; } }
   function write(key, value, storage) { try { storage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; } }
+  function nativeJournal() {
+    try {
+      const bytes=localStorage.getItem(recordsKey),rows=bytes===null?[]:JSON.parse(bytes),ids=new Set();
+      if(!Array.isArray(rows))throw Error('Invalid native journal');
+      for(const row of rows){if(!row||typeof row.callId!=='string'||!row.callId||!row.tenantId||!row.enterpriseId||ids.has(row.callId))throw Error('Invalid native journal');ids.add(row.callId);}
+      return {ok:true,bytes,rows};
+    } catch (_) { return {ok:false,message:'已有通话记录暂时无法读取，请保留浏览器数据并刷新后重试'}; }
+  }
   function sameNativeCall(a, b) {
     return !!a?.callId && !!b?.callId && a.callSource === 'NATIVE_WORKBENCH' && b.callSource === 'NATIVE_WORKBENCH' &&
       ['callId', 'contactId', 'tenantId', 'enterpriseId', 'accountId', 'customerTaskItemId', 'taskId', 'workbenchKind', 'caller', 'callee'].every(key => (a[key] || '') === (b[key] || ''));
@@ -46,23 +54,24 @@
     }
   }
   function loadRecords() {
-    const rows = read(recordsKey, localStorage);
-    if (!Array.isArray(rows)) return;
+    const saved=nativeJournal();if(!saved.ok)return;
+    const rows=saved.rows;
     rows.filter(r => r.callSource === 'NATIVE_WORKBENCH' && r.callId).forEach(r => {
       const existing = data.calls.find(c => c.callId === r.callId);
+      if(existing&&!sameNativeCall(existing,r))return;
       if (existing) Object.assign(existing, r); else data.calls.unshift(r);
     });
     window.CustomerDirectory?.sync();syncReceivingProgress();
   }
-  function saveRecord(row, complete = false) {
+  function saveRecord(row, complete = false, claimCustomer = false) {
     if (complete) {
       let previous, rows, written = false, customerSaved = false;
       const completed = { ...row }; delete completed.pendingDisposition;
       try {
-        previous = localStorage.getItem(recordsKey);
-        rows = previous === null ? [] : JSON.parse(previous);
-        if (!Array.isArray(rows)) throw Error('Invalid native journal');
+        const saved=nativeJournal();if(!saved.ok)throw Error('Invalid native journal');
+        previous = saved.bytes;rows=saved.rows;
         const merged = new Map(rows.map(record => [record.callId, record]));
+        if(merged.has(row.callId)&&!sameNativeCall(merged.get(row.callId),row))throw Error('Call identity conflict');
         data.calls.filter(record => record.callSource === 'NATIVE_WORKBENCH' && !merged.has(record.callId)).forEach(record => merged.set(record.callId, record));
         // Persist a recoverable intent, never a completed call, before updating
         // the customer row. Failed rollback therefore cannot publish success.
@@ -86,14 +95,41 @@
       try { window.CustomerDirectory?.sync(); } catch (_) { showToast('处理结果已保存，客户档案展示暂未刷新，请重新查看', 'warning'); }
       syncReceivingProgress();return { ok: true };
     }
+    const saved=nativeJournal();if(!saved.ok){showToast(saved.message+'；本次填写仍保留在当前会话','warning');return {ok:false,message:saved.message};}
+    const merged = new Map(saved.rows.map(c => [c.callId, c]));
+    const previous=merged.get(row.callId);if(previous&&!sameNativeCall(previous,row))return {ok:false,message:'本次通话身份与已有记录不一致，请保留资料并核对'};
+    merged.set(row.callId,row);
+    const nextBytes=JSON.stringify([...merged.values()]);
+    try{localStorage.setItem(recordsKey,nextBytes);}catch(_){showToast('浏览器存储不可用，记录仅保留在当前页面会话', 'warning');return {ok:false,message:'本次通话暂未保存，请保留当前页面'};}
+    let customerSaved=!row.customerTaskItemId;try{if(row.customerTaskItemId)customerSaved=(claimCustomer?window.CustomerTasks?.claim(row.customerTaskItemId,row):window.CustomerTasks?.syncCall(row))===true;}catch(_){customerSaved=false;}
+    if(!customerSaved){
+      try{if(localStorage.getItem(recordsKey)!==nextBytes)throw Error('Native journal changed');if(saved.bytes===null)localStorage.removeItem(recordsKey);else localStorage.setItem(recordsKey,saved.bytes);}
+      catch(_){showToast('通话暂存保留待恢复，客户处理状态未确认，请保留当前页面','warning');return {ok:false,recoveryRequired:true,message:'通话暂存保留待恢复，客户处理状态未确认'};}
+      showToast('本次通话与客户记录尚未同步保存，请重试','warning');return {ok:false,message:'本次通话与客户记录尚未同步保存，请重试'};
+    }
     const existing = data.calls.find(c => c.callId === row.callId);
     if (existing) Object.assign(existing, row); else data.calls.unshift(row);
-    const saved = read(recordsKey, localStorage);
-    const merged = new Map((Array.isArray(saved) ? saved : []).map(c => [c.callId, c]));
-    data.calls.filter(c => c.callSource === 'NATIVE_WORKBENCH').forEach(c => merged.set(c.callId, c));
-    if (!write(recordsKey, Array.from(merged.values()), localStorage)) showToast('浏览器存储不可用，记录仅保留在当前页面会话', 'warning');
-    window.CustomerTasks?.syncCall(row);
-    window.CustomerDirectory?.sync();syncReceivingProgress();
+    window.CustomerDirectory?.sync();syncReceivingProgress();return {ok:true};
+  }
+  function queueCommunicationCompletion(row) {
+    if(!row?.apiOrigin||row.callType==='呼入'||row.agentDisposition!=='已完成沟通'||row.processingStatus!=='已完成'||!row.endedAt||!row.customerFollowup?.updatedAt)return {ok:true,skipped:true};
+    const intent=row.communicationCompletion;
+    if(!intent||intent.state==='queued')return {ok:true,skipped:true};
+    const result=window.DccRuntime?.recordCommunicationCompletion?.({call:structuredClone(row),savedBusinessSnapshot:structuredClone(intent.frozenBusinessSnapshot||row.customerFollowup.businessFieldSnapshot||{businessType:row.businessType||row.customerFollowup.businessType,values:row.customerFollowup,fields:[],savedBusinessVersion:row.customerFollowup.updatedAt}),eventId:intent.eventId})||{ok:false,reason:'完成沟通回传暂未就绪'};
+    if(!result.ok)return result;
+    // Keep the saved pending intent if this status update fails. Replaying the exact event is safe.
+    try{
+      const journal=nativeJournal();if(!journal.ok)throw Error('Invalid native journal');
+      const current=journal.rows.find(c=>sameNativeCall(c,row));if(!current||current.communicationCompletion?.eventId!==intent.eventId)return {ok:false,reason:'已保存的完成沟通记录已变化，请核对'};
+      current.communicationCompletion={...current.communicationCompletion,state:'queued'};localStorage.setItem(recordsKey,JSON.stringify(journal.rows));
+      row.communicationCompletion=structuredClone(current.communicationCompletion);
+      const live=data.calls.find(c=>sameNativeCall(c,row));if(live)live.communicationCompletion=structuredClone(current.communicationCompletion);
+      return result;
+    }catch(_){return {ok:false,reason:'完成沟通已保存，回传登记状态待核对；原事件保留待重放'};}
+  }
+  function reconcileCompletionCallbacks(){
+    if(!window.DccRuntime?.recordCommunicationCompletion)return;
+    for(const row of data.calls.filter(c=>c.callSource==='NATIVE_WORKBENCH'&&c.communicationCompletion?.state==='pending'&&AppState.authorizeObject('',c)))queueCommunicationCompletion(row);
   }
   function demoEvent(row, role, type, at = Date.now()) {
     return CallState.ingest(row, { enterpriseId: row.enterpriseId, contactId: row.contactId,
@@ -184,8 +220,19 @@
     scope = currentScope(); workspaceTab = ''; seatOptions = {}; draft = {}; call = null; phase = 'idle'; error = ''; suspendedDraft=null;receivingOrigin=false;
     restorationError = '';
     disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = ''; agentCallStatusDraft = null; lastSavedId = '';
-    const saved = read(sessionKey, sessionStorage);
-    if (saved?.scope !== scope) return;
+    let saved = read(sessionKey, sessionStorage);
+    if(saved?.scope!==scope||!saved.call){
+      const journal=nativeJournal(),context=AppState.get(),agent=myAgent();
+      if(!journal.ok){restorationError=journal.message;error=restorationError;return;}
+      const pending=journal.rows.filter(row=>row.callSource==='NATIVE_WORKBENCH'&&row.accountId===AppState.account().accountId&&row.tenantId===context.tenantId&&row.enterpriseId===context.enterpriseId&&row.processingStatus!=='已完成');
+      if(pending.length){
+        const candidate=pending.length===1?pending[0]:null;
+        const linked=candidate?.customerTaskItemId?window.CustomerTasks?.row(candidate.customerTaskItemId):null;
+        const exact=!!candidate&&!!agent&&candidate.contactCenterIdentityId===agent.contactCenterIdentityId&&candidate.cno===agent.cno&&(!candidate.customerTaskItemId||!!linked&&linked.b.tenantId===candidate.tenantId&&linked.b.enterpriseId===candidate.enterpriseId&&linked.r.phone===customerPhone(candidate)&&(linked.r.activeCallId===candidate.callId||linked.r.calls?.some(row=>row.callId===candidate.callId)));
+        if(!exact){restorationError='有尚未完成的通话资料需要核对，请保留浏览器数据，不要重复呼叫';error=restorationError;return;}
+        saved={scope,draft:{},call:structuredClone(candidate),phase:candidate.endedAt?'wrap':candidate.workbenchKind?'offered':'dialing',followup:candidate.customerFollowup||CustomerFollowup.empty(candidate),disposition:candidate.pendingDisposition?.agentDisposition||candidate.agentDisposition||'',remark:candidate.pendingDisposition?.dispositionRemark||candidate.dispositionRemark||'',followupVersion:candidate.customerFollowup?.updatedAt||''};
+      }else if(saved?.scope!==scope)return;
+    }
     draft = saved.draft || {}; suspendedDraft=saved.suspendedDraft||null;receivingOrigin=!!saved.receivingOrigin;lastSavedId = saved.lastSavedId || '';
     delete draft.skillGroupId; delete draft.numberId;
     if(suspendedDraft) { delete suspendedDraft.skillGroupId; delete suspendedDraft.numberId; }
@@ -434,6 +481,7 @@
   }
   function receiveOffer(payload){
     ensureScope();
+    const journal=nativeJournal();if(!journal.ok)return fail(journal.message);
     const c=config(),linked=payload?.kind==='predictive'?window.CustomerTasks?.receivingItem(payload.taskId,payload.customerTaskItemId,c.agent):null;
     const result=AliCtiReceiving.validateOffer(payload,{agent:c.agent,enterpriseId:AppState.get().enterpriseId,tenantId:AppState.get().tenantId,accountId:AppState.account().accountId,online,busy:busy(),call,receivingItem:linked});
     if(!result.ok){showToast(result.message,'warning');return false;}
@@ -468,7 +516,7 @@
     call={callId:offer.callId,contactId:offer.contactId,enterpriseId:c.agent.enterpriseId,tenantId:c.agent.tenantId,accountId:AppState.account().accountId,cno:c.agent.cno,
       contactCenterIdentityId:seatId,agentIdentityId:seatId,agentName:c.agent.userName,callSource:'NATIVE_WORKBENCH',workbenchKind:offer.kind,
       customerNumber:offer.customerNumber,customerName:linked?.item.name||offer.customerName||'来电客户',customerNote:linked?.item.note||'',
-      ...CustomerBusiness.snapshot(linked?.item||{}),...(window.RepeatPredictive?.callMetadata(linked?.item)||{}),taskId:linked?.task.taskId||'',taskName:linked?.task.name||'',customerTaskItemId:linked?.item.id||'',
+      ...CustomerBusiness.snapshot(linked?.item||{}),...(linked?.item.apiOrigin?{apiOrigin:structuredClone(linked.item.apiOrigin)}:{}),...(window.RepeatPredictive?.callMetadata(linked?.item)||{}),taskId:linked?.task.taskId||'',taskName:linked?.task.name||'',customerTaskItemId:linked?.item.id||'',
       caller:inbound?offer.customerNumber:offer.hotline||'',callee:inbound?offer.hotline||'':offer.customerNumber,callerNumberId:offer.callerNumberId||'',
       skillGroupId:offer.skillGroupId||linked?.task.targetSkillGroupId||'',skillGroupName:c.groups.find(group=>group.skillGroupId===offer.skillGroupId)?.name||'',
       callType:inbound?'呼入':'预外呼',direction:inbound?'呼入':'呼出',bindType:Number(AliCtiAdapter.session.bindType),
@@ -481,9 +529,13 @@
     // must never become customer-unanswered when the agent misses the offer.
     demoEvent(call,'customer','Established',at);demoEvent(call,'agent','Ringing',at);
     phase='offered';error='';disposition='';remark='';followup=CustomerFollowup.empty(call);followupVersion='';agentCallStatusDraft=null;lastSavedId='';muted=false;
-    if(call.customerTaskItemId&&CustomerTasks.syncCall(call)!==true){call=null;phase='idle';draft=suspendedDraft;suspendedDraft=null;showToast('客户任务已变化，无法接收本次分配','warning');return false;}
+    const saved=saveRecord(call);
+    if(!saved.ok){
+      if(saved.recoveryRequired){persist();openDialog();showToast(saved.message,'warning');return false;}
+      call=null;phase='idle';draft=suspendedDraft||{};suspendedDraft=null;receivingOrigin=false;followup=CustomerFollowup.empty();persist();showToast(saved.message,'warning');return false;
+    }
     c.agent.currentCall=true;c.agent.agentStatus='振铃';
-    saveRecord(call);persist();openDialog();return true;
+    persist();openDialog();return true;
   }
   function localReceivingEvent(stateAction){
     return {mock:true,source:'local-simulation',stateAction,enterpriseId:call.enterpriseId,tenantId:call.tenantId,accountId:call.accountId,cno:call.cno,contactId:call.contactId,callId:call.callId};
@@ -559,6 +611,7 @@
   }
   function dial() {
     if (busy()) return false;
+    const journal=nativeJournal();if(!journal.ok)return fail(journal.message);
     if(window.AliCtiSeatOperations && !AliCtiSeatOperations.canDial())return fail('请先登录并置闲；主动联系需选择相应工作模式');
     const c = config();
     if (c.reason) return fail(c.reason);
@@ -581,7 +634,9 @@
     call = {
       requestUniqueId:request.requestUniqueId, transcriptionGate:request.transcriptionGate, ...(request.cdrIsAsr===undefined?{}:{cdrIsAsr:request.cdrIsAsr}), cno:c.agent.cno, callId: 'MC' + Date.now().toString(36).toUpperCase() + crypto.randomUUID().slice(0, 4).toUpperCase(), contactId: '—', tenantId: c.tenant.tenantId, enterpriseId: c.tenant.enterpriseId,
       accountId: AppState.account().accountId, contactCenterIdentityId: seatId, agentIdentityId: seatId, agentName: c.agent.userName,
-      customerName: draft.customerName.trim(), customerNote: draft.note || '', ...CustomerBusiness.snapshot(draft.customerTaskItemId ? CustomerTasks.row(draft.customerTaskItemId)?.r : {}), caller, callee: phone,
+      customerName: draft.customerName.trim(), customerNote: draft.note || '', ...CustomerBusiness.snapshot(draft.customerTaskItemId ? CustomerTasks.row(draft.customerTaskItemId)?.r : {}),
+      ...(draft.customerTaskItemId&&CustomerTasks.row(draft.customerTaskItemId)?.r.apiOrigin?{apiOrigin:structuredClone(CustomerTasks.row(draft.customerTaskItemId).r.apiOrigin)}:{}),
+      ...(draft.customerTaskItemId&&CustomerTasks.row(draft.customerTaskItemId)?.r.followupAssignment?{predictiveFollowupOrigin:structuredClone(CustomerTasks.row(draft.customerTaskItemId).r.followupAssignment)}:{}),caller, callee: phone,
       callerNumberId: number.numberId, skillGroupName: '',
       skillGroupId: '', callSource: 'NATIVE_WORKBENCH', callType: '人工外呼', direction: '呼出',
       ringingAt: stamp(), answeredAt: '—', endedAt: '', durationSeconds: 0, result: '呼叫中',
@@ -589,11 +644,12 @@
       recordingScope: '不适用', recordingUrlExpiresAt: '不适用', agentDisposition: '', processingStatus: '待填写',
       customerTaskItemId:draft.customerTaskItemId||'', simulation: true, simulationOutcome: demoResult
     };
-    if(call.customerTaskItemId&&!CustomerTasks.claim(call.customerTaskItemId,call)){call=null;return fail('客户正在被处理或分配已改变，请刷新名单');}
     call.contactId = 'DEMO-' + call.callId;
     CallState.start(call, { at: Date.now(), source: 'local-simulation' });
     demoEvent(call, 'agent', 'Established');
     demoEvent(call, 'customer', 'Dialing');
+    const saved=saveRecord(call,false,true);
+    if(!saved.ok){if(saved.recoveryRequired){phase='dialing';persist();openDialog();return fail(saved.message);}call=null;return fail(saved.message);}
     // Snapshot call resources; later configuration changes only affect the next call.
     phase = 'dialing'; muted = false; error = ''; disposition = ''; remark = ''; followup = CustomerFollowup.empty(call); followupVersion = ''; agentCallStatusDraft = null; lastSavedId = '';
     c.agent.currentCall = true; c.agent.agentStatus = '通话中'; refresh();
@@ -652,9 +708,15 @@
     }
     next.agentDisposition = disposition; next.dispositionRemark = remark.trim(); next.processingStatus = '已完成';
     next.dispositionAt = stamp();
+    if(next.apiOrigin&&next.callType!=='呼入'&&disposition==='已完成沟通'){
+      delete next.communicationCompletion;
+      const frozenCallSnapshot=structuredClone(next),frozenBusinessSnapshot=structuredClone(businessResult.values.businessFieldSnapshot||{businessType:next.businessType||businessResult.values.businessType,values:businessResult.values,fields:[],savedBusinessVersion:businessResult.values.updatedAt});
+      next.communicationCompletion={eventId:'communication:'+next.callId+':'+businessResult.values.updatedAt,state:'pending',savedBusinessVersion:businessResult.values.updatedAt,frozenCallSnapshot,frozenBusinessSnapshot};
+    }
     const saved = saveRecord(next, true);
     if (!saved.ok) return fail(saved.message, 'seat-save');
     Object.assign(call, next); lastSavedId = call.callId;
+    const completion=queueCommunicationCompletion(call);
     if (disposition === '客户拒绝联系' && !data.nativeWorkbench.blockedNumbers.some(n => n.tenantId === call.tenantId && n.phone === customerPhone(call)))
       data.nativeWorkbench.blockedNumbers.push({ tenantId: call.tenantId, phone: customerPhone(call) });
     CloudCallRuntime.addAudit('保存'+call.callType+'处理结果', call.callId, call.tenantId, '待填写', disposition);
@@ -664,9 +726,10 @@
     draft = suspendedDraft || {}; suspendedDraft=null;disposition = ''; remark = ''; followup = CustomerFollowup.empty(); followupVersion = ''; agentCallStatusDraft = null;
     if (a?.lifecycleStatus !== '已启用' || !a?.acceptNewTasks) release();
     else {a.agentStatus = online ? '话后处理' : '离线';if(online)window.SeatOperationUI?.afterRecordSaved();}
+    const incomplete=completion.data?.state==='incomplete';
+    showToast(incomplete?'跟进已保存，业务回传资料待完善，请在通话详情查看缺项':completion.ok?'跟进已保存；通话资料会独立更新':'跟进已保存，业务回传待处理；原记录已保留',completion.ok&&!incomplete?'success':'warning');
     if(modalMode){persist();modalMode=false;modalVisible=false;ui.closeLayer(modalId);updateDock();refreshOrigin();returnFocus?.focus?.();}
     else refresh();
-    showToast('跟进已保存；通话资料会独立更新', 'success');
   }
   let muteDirection='all';
   function toggleMute() { if (phase === 'connected') { if(!muted)muteDirection=document.getElementById('seatMuteDirection')?.value||'all';const request=AliCtiFields.muteFields(muteDirection);if(request.pending?.length)return;AliCtiAdapter.lastRequest=request;muted = !muted; refresh(); } }
@@ -920,8 +983,9 @@
     openDialog,closeDialog,minimizeDialog,beforeRouteChange,receiveOffer,receiveStatus,answerIncoming,receivingContext,current:receivingContext,refreshTelephone,syncReceivingProgress,
 
     selectAssigned(r){ensureScope();if(busy()){open();return showToast('请先完成当前通话及结果填写','warning');}receivingOrigin=false;returnFocus=document.activeElement;origin=window.RouteRuntime?.snapshot?.()||null;originScroll=document.getElementById('page-content')?.scrollTop||0;draft={...draft,...CustomerBusiness.snapshot(r),customerDirectoryId:'',customerTaskItemId:r.id,customerName:r.name,phone:r.phone,note:r.note};error='';lastSavedId='';persist();modalMode=true;openDialog();},
-    updateField, chooseContact, dial, end, saveDisposition, toggleMute, setDisposition, setRemark, setFollowup, setAgentCallStatus, setDemoResult, records, bindingPanel, bindAccount, confirmDemoResult };
-  AppState.subscribe?.(()=>{ if(!hasSeat()||scope!==currentScope()) updateDock(); });
+    reconcileCompletionCallbacks, updateField, chooseContact, dial, end, saveDisposition, toggleMute, setDisposition, setRemark, setFollowup, setAgentCallStatus, setDemoResult, records, bindingPanel, bindAccount, confirmDemoResult };
+  AppState.subscribe?.(()=>{ if(!hasSeat()||scope!==currentScope()) updateDock();reconcileCompletionCallbacks(); });
+  Promise.resolve().then(reconcileCompletionCallbacks);
   document.addEventListener('keydown',e=>{
     if(e.defaultPrevented||!modalVisible||document.getElementById('seat-operation-drawer'))return;
     if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeDialog();}

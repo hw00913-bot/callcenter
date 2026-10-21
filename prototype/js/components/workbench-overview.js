@@ -24,6 +24,21 @@
     return (window.CustomerTasks?.mine()||[]).filter(row=>{const source=CustomerTasks.row(row.id);return source?.b.tenantId===context.tenantId&&source.b.enterpriseId===context.enterpriseId&&row.ownerId===context.accountId;});
   }
   function seatState(a){if(a.currentCall||a.agentStatus==='通话中')return '忙碌';if(a.agentStatus==='话后处理')return '话后处理';if(a.agentStatus==='空闲')return '空闲';return '未上线';}
+  function manualPendingRows(){
+    try{
+      const batches=JSON.parse(localStorage.getItem('customer-task-batches-v1')||'[]');if(!Array.isArray(batches))return [];
+      return AppState.scoped(batches).flatMap(b=>Array.isArray(b.rows)?b.rows.map(r=>({...r,tenantId:b.tenantId,enterpriseId:b.enterpriseId,batchName:b.name,batchUpdatedAt:b.updatedAt,batchCreatedAt:b.createdAt})):[]).filter(r=>{
+        if(r.method!=='人工外呼'||!r.ownerId||r.activeCallId)return false;
+        const followup=window.CustomerTasks?.outcome?.(r)||r.followup||'待联系';
+        if(!['待联系','待继续跟进'].includes(followup))return false;
+        if(r.apiOrigin?.callMode==='manual'){
+          const external=window.DccRuntime?.externalRecordView?.(r.apiOrigin);
+          if(!external?.ok||external.data.inProgress)return false;
+        }
+        r.followup=followup;return true;
+      });
+    }catch(_){return [];}
+  }
   function model(personal=false){
     const agent=mine(),universe=AppState.scoped(d.calls),all=universe.filter(c=>!personal||(agent&&c.tenantId===agent.tenantId&&c.enterpriseId===agent.enterpriseId&&identity(c)===agent.contactCenterIdentityId));
     const calls=all.filter(c=>c.direction!=='呼入'&&day(metrics.callTime(c))===today()&&callView(c).ended);
@@ -31,7 +46,7 @@
     const tasks=AppState.scoped(d.tasks).filter(t=>(!personal||calls.some(c=>c.taskId===t.taskId))&&(day(t.scheduleAt)===today()||day(t.startedAt)===today()||day(t.createdAt)===today()||calls.some(c=>c.taskId===t.taskId)));
     const pending=personal?(agent?myCustomers():[]):AppState.scoped(d.tasks).filter(t=>tasks.includes(t)&&!['已完成','已终止','草稿'].includes(t.status));
     const firstCalls=calls.filter(c=>metrics.attemptKind(c,universe)==='first'),answered=calls.filter(connected),unanswered=calls.filter(c=>callView(c).answered===false),unknown=calls.filter(c=>!callView(c).known),confirmed=calls.filter(c=>callView(c).known),firstConfirmed=firstCalls.filter(c=>callView(c).known),summary=metrics.stats(calls,universe);
-    let manualPending=[];try{manualPending=AppState.scoped(JSON.parse(localStorage.getItem('customer-task-batches-v1')||'[]')).flatMap(b=>b.rows.filter(r=>r.method==='人工外呼'&&r.ownerId&&r.followup!=='已完成'&&!r.activeCallId).map(r=>({...r,batchName:b.name,batchUpdatedAt:b.updatedAt,batchCreatedAt:b.createdAt})));}catch(_){}
+    const manualPending=manualPendingRows();
     return {calls,receivingCalls,agentAnsweredCalls:receivingCalls.filter(agentAnswered),tasks,pending,manualPending:personal?pending:manualPending,firstCalls,firstConfirmed,answered,unanswered,unknown,confirmed,seconds:summary.seconds,avgSeconds:summary.avgSeconds,durationSamples:summary.durationSamples,durationMissing:summary.durationMissing,stats:summary,seats:personal?(agent?[agent]:[]):seats(),calledCustomers:new Set(calls.map(key)).size,waiting:personal?pending.length:manualPending.length+pending.reduce((n,t)=>n+Math.max(0,Number(t.total||0)-Number(t.completed||0)),0)};
   }
   const pct=(a,b)=>b?(100*a/b).toFixed(1)+'%':'—';
@@ -148,7 +163,7 @@
     const size=10,pages=Math.max(1,Math.ceil(ordered.length/size));
     const page=options.pendingScope===scopeKey?Math.min(pages,Math.max(1,Math.floor(Number(options.pendingPage)||1))):1;
     options.pendingScope=scopeKey;options.pendingPage=page;
-    const reason=seatBlockReason(mine());return ui.table([{key:'name',label:'客户称呼'},{key:'phone',label:'客户号码'},{key:'batchName',label:'所属批次'},{key:'method',label:'外呼方式',render:v=>typeBadge(v||'人工外呼')},{key:'followup',label:'跟进状态',render:v=>ui.status(v)},{key:'id',label:'操作',render:(id,row)=>{const blocked=reason||(!window.CustomerTasks?.canCall(row)?'当前客户不属于本人可联系名单':'');return blocked?'<button class="btn-link" disabled>联系客户</button>'+ui.help(blocked,'查看不能联系的原因'):'<button class="btn-link" onclick="CustomerTasks.pick(\''+esc(id)+'\')">联系客户</button>';}}],ordered.slice((page-1)*size,page*size),{rowOffset:(page-1)*size,emptyText:'暂无待联络客户',footer:ui.pagination(ordered.length,page,size,'AgentWorkbench.setPendingPage')});}
+    const reason=seatBlockReason(mine());return ui.table([{key:'name',label:'客户称呼'},{key:'phone',label:'客户号码'},{key:'batchName',label:'所属批次'},{key:'method',label:'外呼方式',render:v=>typeBadge(v||'人工外呼')},{key:'followup',label:'跟进状态',render:v=>ui.status(v)},{key:'id',label:'操作',render:(id,row)=>{const blocked=reason||window.CustomerTasks?.callBlockedReason?.(row)||(!window.CustomerTasks?.canCall(row)?'当前客户不属于本人可联系名单':'');return blocked?'<button class="btn-link" disabled>联系客户</button>'+ui.help(blocked,'查看不能联系的原因'):'<button class="btn-link" onclick="CustomerTasks.pick(\''+esc(id)+'\')">联系客户</button>';}}],ordered.slice((page-1)*size,page*size),{rowOffset:(page-1)*size,emptyText:'暂无待联络客户',footer:ui.pagination(ordered.length,page,size,'AgentWorkbench.setPendingPage')});}
   function personal(m,options={}){
     const work='<div class="kpi-grid">'+card('待联络客户',m.waiting,'customers','',true)+card('已外呼客户',m.calledCustomers,'calls','',true)+'</div>';
     const receiving='<div class="panel-header"><h3>今日接收来电</h3>'+ui.help('统计本人今日已结束的呼入和预外呼分配。坐席已接听以坐席接听结果或接听时间为准；客户接通系统不代表坐席接听。待联络客户仍为人工分配名单。')+'</div><div class="kpi-grid">'+card('呼入来电',m.receivingCalls.filter(c=>c.workbenchKind==='inbound').length,'receiving','inbound',true)+card('预外呼分配',m.receivingCalls.filter(c=>c.workbenchKind==='predictive').length,'receiving','predictive',true)+card('坐席已接听',m.agentAnsweredCalls.length,'receiving','answered',true)+'</div>';

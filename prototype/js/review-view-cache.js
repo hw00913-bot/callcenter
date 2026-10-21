@@ -23,7 +23,8 @@
       url.searchParams.set('review_revision', revision);
       if (frame.dataset.currentUrl) {
         frame.dataset.currentUrl = url.href;
-        frame.contentWindow.location.replace(url.href);
+        if (window.location.protocol === 'file:') frame.src = url.href;
+        else frame.contentWindow.location.replace(url.href);
       } else {
         frame.src = url.href;
       }

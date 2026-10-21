@@ -473,6 +473,7 @@
   const isGroup = value => Number(value?.callGroupType) === 2;
   function taskSource(row) { return row?.planSnapshot || row?.executionConfig || row || {}; }
   function references(id) {
+    if(window.CloudTaskWorkspace?.refreshStoredTasks?.()===false)return [{taskId:'PENDING-TASK-STORAGE',name:'任务记录暂不可核对',status:'待核对',alictiTaskControlPending:true}];
     const group = snapshot.groups.find(g => (g.outboundGroupId === id || g.gno === id) && inScope(g));
     const aliases = new Set([id, group?.outboundGroupId, group?.gno].filter(Boolean));
     return [...new Map((data.tasks || []).filter(t => {

@@ -16,13 +16,26 @@
   const predictive=row=>row.callType==='预外呼'||Number(row.providerType)===1;
   const validCno=value=>f.validExistingCno?f.validExistingCno(value):typeof value==='string'&&/^\d+$/.test(value)&&/[1-9]/.test(value);
   const suppliedSeats=row=>[row.alictiMockTaskProperty,row.alictiControlResponse?.data?.taskProperty,row.alictiCreateDraft?.fields].find(value=>value&&Object.hasOwn(value,'cnos'));
+  function acceptedCustomerCount(row){
+    if(root.DccRuntime?.isManagedTask?.(row)){
+      const result=root.DccRuntime.taskRecords(row.taskId);
+      if(!result?.ok||!Array.isArray(result.data?.records))return 0;
+      return result.data.records.filter(record=>record.taskId===row.taskId&&record.tenantId===row.tenantId&&
+        (!record.enterpriseId||record.enterpriseId===row.enterpriseId)&&record.importState==='accepted'&&
+        !record.reviewReason&&record.supplierDeleted!==true&&
+        !['pending','unknown','succeeded'].includes(record.deletionState)).length;
+    }
+    return Number.isSafeInteger(Number(row?.total))&&Number(row.total)>0?Number(row.total):0;
+  }
   function guard(row,action){
+    if(root.HistorySnapshot?.read_only===true)return '当前历史演示只读，不能操作任务';
     if(!Object.hasOwn(actionLabels,action)||!row||!CloudTaskWorkspace.canControlTask(row)||!AppState.scoped([row]).length||!AppState.canAction(action==='terminate'?'task.abort':'task.'+action))return '当前无权执行此操作';
-    if(!allowedLocal[action].includes(row.status)||f.code(row.providerStatusCode)===3)return '当前任务状态不可执行此操作，已结束任务不能重新开启';
+    const acceptedManagedInitial=action==='start'&&row.status==='待分配客户'&&root.DccRuntime?.isManagedTask?.(row)&&acceptedCustomerCount(row)>0;
+    if(!(allowedLocal[action].includes(row.status)||acceptedManagedInitial)||f.code(row.providerStatusCode)===3)return '当前任务状态不可执行此操作，已结束任务不能重新开启';
     if(action==='start'||action==='resume'){
       const supplied=suppliedSeats(row);
       if(predictive(row)&&supplied&&(typeof supplied.cnos!=='string'||!supplied.cnos.trim()||supplied.cnos.split(',').some(value=>!validCno(value.trim()))))return '接听坐席配置不完整，请重新核对任务配置后再启动。';
-      if(!Number(row.total))return '请先分配客户，空名单不能启动或继续';
+      if(!acceptedCustomerCount(row))return '请先导入或分配已确认的客户，空名单或待确认名单不能启动或继续';
       if(row.resourcePause){
         if(!['SUPER_ADMIN','ADMIN'].includes(AppState.effectiveAccess().roleCode)||!AppState.canAction('task.resume'))return '号码停用保护的任务需有权管理员逐项恢复';
         if(!Array.isArray(row.resourcePause.numberIds)||row.resourcePause.numberIds.some(id=>!CloudCallData.phoneNumbers.some(n=>n.numberId===id&&n.enterpriseId===row.enterpriseId&&n.businessStatus==='正常'&&n.localEnabled!==false)))return '仍有引用号码未恢复使用，请先核对所有停用号码';
@@ -78,7 +91,7 @@
     row.alictiTaskControlPending=false;
     row.alictiMockTaskProperty=clone(result.property);
     // Supplier fields, including a returned pauseDuration, remain raw evidence only.
-    row.status=result.status===0?(Number(row.total)?'待启动':'待分配客户'):result.status===1?'执行中':result.status===2?'已暂停':previous==='已完成'?'已完成':'已终止';
+    row.status=result.status===0?(acceptedCustomerCount(row)?'待启动':'待分配客户'):result.status===1?'执行中':result.status===2?'已暂停':previous==='已完成'?'已完成':'已终止';
     // A confirmed manual operation or a changed supplier status supersedes the
     // local availability hold. A failed manual resume still leaves status 2.
     if(result.status!==2||(phase==='after'&&action==='pause'))delete row.availabilityPause;
@@ -94,7 +107,7 @@
     row.alictiTaskControlTrace=clone(a.taskControlTrace);
     row.alictiTaskControlSummary=message;
     (row.dispatchHistory||(row.dispatchHistory=[])).push({at:row.updatedAt,actor:AppState.get().accountId,action:actionLabels[action]+'（本地演示）',before:beforeStatus,after:row.status,result:message});
-    CloudTaskWorkspace.saveDemoTask(row,{confirmedInitialStart:result.confirmedInitialStart===true});
+    try{if(CloudTaskWorkspace.saveDemoTask(row,{confirmedInitialStart:result.confirmedInitialStart===true})!==true)throw Error('Save failed');}catch(_){const message='任务操作结果尚未保存，页面保留原状态，请刷新核对后重试';showToast(message,'warning');return {ok:false,pending:true,message,mock:true,trace:clone(a.taskControlTrace)};}
     CloudCallRuntime.addAudit?.('任务'+actionLabels[action]+'（本地演示）',row.taskId,row.tenantId,beforeStatus,message);
     showToast(message,result.ok?'success':'warning');
     if (window.RouteRuntime?.refreshCurrent) RouteRuntime.refreshCurrent();
@@ -117,6 +130,7 @@
       }});
     }
     if(confirmed.context&&confirmed.context!==context()||confirmed.identity&&!sameIdentity(row,confirmed.identity))return {ok:false,message:'任务或工作范围已变化'};
+    row=clone(row);
     const firstStart=action==='start'&&!row.startedAt&&!row.campaignId&&!row.planSnapshot&&!row.planSnapshotId;
     const beforeStatus=row.status,activeContext=context(),scenario=AliCtiDemo.taskControlScenario||'success',id=identity.providerTaskId;
     const auth=f.authFields(row.enterpriseId);
@@ -133,6 +147,7 @@
     // Recheck the current object, access, resources and work context immediately before writing.
     row=canonical(identity);error=!row||activeContext!==context()||!sameIdentity(row,identity)?'任务或工作范围已变化':guard(row,action);
     if(error)return {ok:false,message:error,mock:true,trace:clone(a.taskControlTrace)};
+    row=clone(row);
     applyRead(row,before,action,'before');
     const writeResponse=scenario==='write-failure'?{result:-1,description:'操作被拒绝（模拟）'}:scenario==='write-unknown'?null:{result:0,description:'请求已受理（模拟）'};
     trace(endpoints[action],'write',fields,writeResponse);
@@ -146,14 +161,67 @@
     const message=!after.known?'操作后的任务状态待核对，未确认操作成功':ok?'已核对任务状态：'+f.taskStatus[after.status]+'（模拟）':'已读取当前状态：'+f.taskStatus[after.status]+'，未确认'+actionLabels[action]+'成功';
     return finish(row,action,beforeStatus,{ok,pending:!after.known,response:afterResponse,confirmedInitialStart:ok&&firstStart},message);
   };
+  // This is an observed local clock transition, never a supplier task/start
+  // request. Persist a candidate first; publishing is owned by the workspace.
+  a.reconcileScheduledStart=function(input,observedAt=Date.now()){
+    const row=canonical(input),at=Number(observedAt);
+    const unchanged=reason=>({changed:false,action:null,reason,status:row?.status??null,mock:true});
+    if(root.HistorySnapshot?.read_only===true||!row||!root.CloudTaskWorkspace?.isPersistedLocalDemoTask?.(row)||
+      Number(row.autoStart)!==1||row.providerTaskId||row.startedAt||row.campaignId||row.planSnapshot||row.planSnapshotId||row.localScheduleStartedAt||
+      !['待启动','待分配客户'].includes(row.status))return unchanged('not-pending-local-schedule');
+    if(!Number.isFinite(at))return unchanged('invalid-observed-time');
+    if(row.alictiTaskControlPending||row.resourcePause||row.stopNewDialing||f.code(row.providerStatusCode)!==0)return unchanged('task-held-or-status-unknown');
+    const eligibility=root.TaskScheduleRuntime?.eligibility?.(row,at);
+    if(!eligibility?.ok)return unchanged(eligibility?.reason||'schedule-runtime-unavailable');
+    const count=acceptedCustomerCount(row);
+    if(!count)return unchanged('no-confirmed-customers');
+    // Reuse normal access, resource and outbound-group conflict checks. Only the
+    // local status/confirmed count view differs for a DCC task's separate journal.
+    const problem=guard({...row,status:'待启动'},'start');
+    if(problem)return unchanged(problem);
+    if(predictive(row)){
+      const observed=root.TaskScheduleRuntime.availableSeats(row);
+      if(!observed.ok)return unchanged(observed.reason);
+      const minimum=Number(row.minAvailableAgentCount);
+      if(!Number.isInteger(minimum)||minimum<1||minimum>10)return unchanged('invalid-minimum');
+      if(observed.count<minimum)return unchanged('available-seats-below-minimum');
+    }
+    const id=AliCtiDemo.resourceId('task',row),property=initialProperty(row,id,'start');
+    if(f.integer(property?.id)!==id||f.code(property?.status)!==0)return unchanged('initial-supplier-state-unconfirmed');
+    const priorStatus=row.status,next=clone(row),stamp=new Date(at).toLocaleString('sv-SE');
+    next.status='执行中';next.providerStatusCode=1;next.providerStatus='运行（本地演示）';
+    next.alictiMockTaskProperty={...clone(property),status:1,statusTriggerType:0};
+    next.stopNewDialing=false;next.startedAt=stamp;next.updatedAt=stamp;next.localScheduleStartedAt=stamp;
+    next.localScheduleObservation={scheduledAt:row.scheduleAt,observedAt:stamp,confirmedCustomerCount:count,mock:true};
+    (next.dispatchHistory||(next.dispatchHistory=[])).push({at:stamp,actor:'本地定时演示',action:'到计划时间自动启动（本地演示）',before:row.status,after:next.status,result:'已核对客户名单、权限、资源和可呼叫时间'});
+    let saved=false;
+    try{saved=CloudTaskWorkspace.persistScheduledTask(next,{confirmedInitialStart:true})===true;}catch(_){saved=false;}
+    if(!saved)return unchanged('save-failed');
+    try{root.CloudCallRuntime?.addAudit?.('到计划时间自动启动（本地演示）',row.taskId,row.tenantId,priorStatus,'执行中');}catch(_){}
+    return {changed:true,action:'start',status:next.status,mock:true,scheduledAt:row.scheduleAt,observedAt:stamp};
+  };
+  a.reconcileScheduledStop=function(input,observedAt=Date.now()) {
+    const row=canonical(input),at=Number(observedAt),unchanged=reason=>({changed:false,reason,mock:true});
+    if(root.HistorySnapshot?.read_only===true||!row||!CloudTaskWorkspace.isPersistedLocalDemoTask?.(row)||Number(row.autoStop)!==1||row.localScheduledStopObserved||!CloudTaskWorkspace.canControlTask(row)||['已完成','已终止','已删除','已结束'].includes(row.status))return unchanged('not-pending-local-stop');
+    const value=String(row.stopAt||'').replace(' ','T'),valid=f.scheduleFields(value),stop=Date.parse(value);
+    if(valid.error||!Number.isFinite(at)||stop>at)return unchanged('stop-not-due-or-invalid');
+    const next=clone(row),stamp=new Date(at).toLocaleString('sv-SE');
+    // Ordinary supplier autoStop semantics remain unverified. Locally stop new
+    // dialing and preserve the last supplier status until an explicit check.
+    next.localScheduledStopObserved=stamp;next.stopNewDialing=true;next.updatedAt=stamp;
+    next.alictiTaskControlPending=true;next.providerStatus='计划结束时间已到，结束状态待核';
+    (next.dispatchHistory||(next.dispatchHistory=[])).push({at:stamp,actor:'本地定时演示',action:'计划结束时间已到，停止新拨号',before:row.status,after:row.status,result:'供应商结束状态尚未确认，已有通话和历史保留'});
+    let saved=false;try{saved=CloudTaskWorkspace.persistScheduledTask(next)===true;}catch(_){}
+    return saved?{changed:true,action:'stop-new-dialing',status:next.status,pending:true,mock:true}:unchanged('save-failed');
+  };
   // Local demonstration only. The caller supplies an observed available-seat
   // count; this method never polls seats or sends a supplier task request.
   a.reconcileAvailability=function(input,count){
     const row=canonical(input),available=typeof count==='number'||typeof count==='string'&&count.trim()?Number(count):NaN;
     const threshold=row?.minAvailableAgentCount,minimum=typeof threshold==='number'||typeof threshold==='string'&&threshold.trim()?Number(threshold):NaN;
     const unchanged=reason=>({changed:false,action:null,status:row?.status??null,reason,mock:true});
-    if(!row||row.callType!=='预外呼'||Object.hasOwn(row,'providerType')&&Number(row.providerType)!==1||
-      row.simulation!==true||row.localPrototypeTask!==true||!CloudTaskWorkspace.isLocalSimulationTask?.(row)||
+    if(root.HistorySnapshot?.read_only===true||!row||row.callType!=='预外呼'||Object.hasOwn(row,'providerType')&&Number(row.providerType)!==1||
+      row.simulation!==true||row.localPrototypeTask!==true||!CloudTaskWorkspace.isPersistedLocalDemoTask?.(row)||
       !CloudTaskWorkspace.canControlTask(row)||!AppState.scoped([row]).length)return unchanged('not-local-predictive-task');
     if(!Number.isSafeInteger(available)||available<0)return unchanged('invalid-available-count');
     if(!Number.isInteger(minimum)||minimum<1||minimum>10)return unchanged('invalid-minimum');

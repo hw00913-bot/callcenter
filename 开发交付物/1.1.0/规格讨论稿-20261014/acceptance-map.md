@@ -1,6 +1,6 @@
 # 验收检查（104条）
 
-以下为本版计划执行的验收步骤；整版执行状态均为未执行。已有局部原型证据另列，不代替供应商/后端验收。预期结果逐字取当前需求验收正文。
+以下104条为SRC125时的验收正文，原文留作追溯；整版执行状态均为未执行。SRC126已局部修订人工工号和状态口径，冲突条款以本轮有效修订为准、正式验收规范化待重验；下方逐项注明适用边界。其余沿用，不能将旧预期视为本轮已验证。
 
 ## CHECK-001 / AC-001
 
@@ -64,6 +64,18 @@
 
 ## CHECK-007 / AC-007
 
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
+
 **优先级**：P0 · 最高。仅本条对应P0组定义的业务场景；共享验收不把其他分支整体提级。
 
 **操作**：外部请求含两个有效行、一个无效行；核对坏行原因与其他行成功保存，不做整请求业务回滚。
@@ -114,6 +126,18 @@
 
 ## CHECK-012 / AC-012
 
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
+
 **优先级**：P0 · 最高。仅本条对应P0组定义的业务场景；共享验收不把其他分支整体提级。
 
 **操作**：两任务分别使用其供应商taskId提交，验证不会使用统一本地占位任务或猜测ID映射。
@@ -133,6 +157,18 @@
 **执行**：本版未执行整套验收；来源 `需求/1.1.0/分析工作区/memory/normalized-user-stories.json#AC-013`。
 
 ## CHECK-014 / AC-014
+
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
 
 **优先级**：P0 · 必要依赖。仅P0闭环所需依赖，其他分支沿原排期。
 
@@ -494,6 +530,18 @@
 
 ## CHECK-050 / AC-050
 
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
+
 **优先级**：P0 · 最高。仅本条对应P0组定义的业务场景；共享验收不把其他分支整体提级。
 
 **操作**：同app同tenant更换token重放完整请求，再换app或tenant复用字面requestId，验证作用域隔离、原回执与无重复业务。
@@ -503,6 +551,18 @@
 **执行**：本版未执行整套验收；来源 `需求/1.1.0/分析工作区/memory/normalized-user-stories.json#AC-050`。
 
 ## CHECK-051 / AC-051
+
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
 
 **优先级**：P0 · 最高。仅本条对应P0组定义的业务场景；共享验收不把其他分支整体提级。
 
@@ -794,6 +854,18 @@
 
 ## CHECK-080 / AC-080
 
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
+
 **优先级**：P0 · 最高。仅本条对应P0组定义的业务场景；共享验收不把其他分支整体提级。
 
 **操作**：同租户各提交预外呼和人工外呼请求，缺失/错误callMode以及预测传入工号不改变任务组；人工缺工号不自动派组。
@@ -803,6 +875,18 @@
 **执行**：本版未执行整套验收；来源 `需求/1.1.0/分析工作区/memory/normalized-user-stories.json#AC-080`。
 
 ## CHECK-081 / AC-081
+
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
 
 **优先级**：P0 · 最高。仅本条对应P0组定义的业务场景；共享验收不把其他分支整体提级。
 
@@ -814,6 +898,18 @@
 
 ## CHECK-082 / AC-082
 
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
+
 **优先级**：P0 · 最高。仅本条对应P0组定义的业务场景；共享验收不把其他分支整体提级。
 
 **操作**：有效人工接口行导入后从指定坐席待联系查看，再主动联系；核对导入时不拨号、不造预测taskId/fileId/root。
@@ -823,6 +919,18 @@
 **执行**：本版未执行整套验收；来源 `需求/1.1.0/分析工作区/memory/normalized-user-stories.json#AC-082`。
 
 ## CHECK-083 / AC-083
+
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
 
 **优先级**：P0 · 最高。仅本条对应P0组定义的业务场景；共享验收不把其他分支整体提级。
 
@@ -857,6 +965,8 @@
 **formal_gates_changed**：False
 
 **real_calls_enabled**：False
+
+**historical_scope_note**：历史局部证据，仅证明当时源码/范围；当前实现状态以UI-LOCAL-FULL-AUDIT-20261015为准，旧“未实现”不作为当前结论。
 
 ## CHECK-085 / AC-085
 
@@ -1059,6 +1169,18 @@
 **执行**：本版未执行整套验收；来源 `需求/1.1.0/分析工作区/memory/normalized-user-stories.json#AC-098`。
 
 ## CHECK-099 / AC-099
+
+**本轮适用边界**
+
+**来源**：SRC-126
+
+**状态**：historical_clause_overlaid_formal_recheck_pending
+
+**effective_rule_ref**：需求/1.1.0/分析工作区/memory/project-facts.json#local_revision_SRC126
+
+**note**：原expected正文保持作追溯；涉及人工工号必填/默认待联系等部分以本轮局部修订为准，未声明该旧CHECK已验证新规则。
+
+**effective_summary**：本轮人工坐席工号选填，缺省接收不分配，有明确无效值拒绝该行；新接口业务跟进未同步，不由分配或AliCti接通推断待联系/跟进完成。预外呼taskId及坐席组不变，原记录/回调/请求隔离保留。
 
 **优先级**：P0 · 最高。只本次六项来源字段接收/显示/快照，原手工CSV和其他操作未整体提级。
 

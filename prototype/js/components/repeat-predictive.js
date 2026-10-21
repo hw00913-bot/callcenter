@@ -11,7 +11,7 @@
   function allowed(){return AppState.isReady()&&AppState.effectiveAccess().valid&&ctx().activeDomain==='CLOUD_CONTACT_CENTER'&&AppState.canAction('task.create');}
   function guardLegacyTask(taskOrId,notify=true){
     const identity=typeof taskOrId==='string'?{taskId:taskOrId}:taskOrId;
-    if(identity?.dccManaged===true){if(notify)showToast('本版任务由 DCC 决定重导，请使用任务的线索导入入口；不能由平台安排再次联系。','warning');return false;}
+    if(identity?.dccManaged===true){if(notify)showToast('本版任务按任务重呼与失败处理规则执行，请从任务记录查看；旧名单入口不能再次安排。','warning');return false;}
     if(!identity?.taskId)return true;
     let stored=[];try{stored=window.CloudTaskWorkspace?.storedTasks?.()||[];}catch(_){}
     const candidates=[identity,...[data.tasks,data.predictiveTasks,data.ivrTasks,stored].flatMap(list=>list||[]).filter(task=>task.taskId===identity.taskId)];
