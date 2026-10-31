@@ -1,0 +1,50 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>工作资料/复核证据-平台.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../index.html">返回资料索引</a> · <a href="../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%B7%A5%E4%BD%9C%E8%B5%84%E6%96%99/%E5%A4%8D%E6%A0%B8%E8%AF%81%E6%8D%AE-%E5%B9%B3%E5%8F%B0.md">原始 Markdown</a></p><h1>工作资料/复核证据-平台.md</h1><pre># 平台与原专业能力产品语义复核
+
+复核对象为本轮产品规格片段 `fragments/platform.json`，结合当前原型代码、`prototype/docs/decisions.md`、`prototype/docs/role-permissions.md` 和原专业 renderer 核对。此次仅补产品规格与追溯资料，未修改运行代码；未运行原型构建、浏览器或真实服务测试，也未作用户审批或正式门禁通过声明。
+
+## 覆盖结果
+
+- 保留平台分工的 28 个 FUNC 稳定 ID；与业务片段合并后共 43 个 FUNC。
+- 原专业 222 个 operation key 全部逐项提供承载 PAGE、明确触发、输入与状态资格、结果、错误、权限及 LOCAL/FIELD/CHECK 引用，不把原未实现控件升级成可用能力。
+- 平台片段包含 119 个独立 LOCAL、119 个产品 CHECK、245 个 FIELD、41 个 PAGE 映射及 71 个原 ACTION 映射。
+- 与业务片段交叉检查，未发现同 `entity + key` 重复定义；134 个原 AC 均有当前正文，43 个 FUNC、46 个原 PAGE（43 当前、3 替代来源）均保留身份。原 4 个被替代页面 ACTION 保留在来源历史中。
+- 片段执行了 JSON 结构审阅：FIELD/LOCAL/CHECK ID 唯一、局部字段引用精确并集、派生依赖及验收引用存在、222 原 key 不重复。以上是规格完整性检查，不能解释为业务运行或生产接口验证。
+
+## 发现并修正的语义问题
+
+1. 统一五种生产角色和五个顶栏。坐席保持电话能力，独立资源范围保持功能资格；没有从同品牌、页面入口或原型演示身份推授生产权。
+2. 租户基础资料维护与创建、品牌／总部门店身份、门店编码、企业资源关联、商业标记、模块开通逐项分权；有本租户 `tenant.update` 权的管理员可以维护允许的本租户基础资料。创建租户与品牌关联同次提交，明确失败不留孤立对象，未知核对原请求。AC-2095、2096 已纳入相应检查。
+3. 原 `retained-source-ai-scene-type-*` 是标签场景目录操作，而非具体 AI 业务场景或业务类型 CRUD。新增独立 AI-TAXONOMY 说明和 6 个实际标签场景／标签供应商目录字段，明确运营无标签配置权限，具体场景使用及选择已有配置不要求标签维护权。
+4. AI 标签按选中执行段的 supplier／tenant／type／tagScene／category／brand／revision 七元组和标签 ID 子集校验。准确映射可供人工确认路径判断；未匹配保原始值，不首项回退，不写业务字段，不因回执自动推进。
+5. 黑名单沿原分组＋号码唯一入口；超管仅查看。人工拒联在成功话后保存后入库，AI 拒联必须明确人工确认；解除只限本租户管理员填写原因，只解除准确来源。天润同步按准确企业＋号码及 type/useRange，不用远端分组标识；本地与远端终态分开。
+6. AI 服务账户／流水五角色按范围只读；套餐、充值、调账、同请求核对及固定 8 列服务汇总导出只限超管。补齐原套餐数量、价格精度、入账分钟、时分有效期、偏离原因及调整方向／对象／方式／单位。
+7. 录音播放、暂停和定位按对象读权，不依赖编辑权。电话保护只看本人会话，有限收尾不重新启用停用账号；管理员配置呼入规则不需本人坐席。
+8. 补齐真实队列、分机、号码池、AliCti 配置及预外呼／IVR任务原子字段。呼入规则真实去向仅语音导航／联系电话／分机；规则名称创建选填、保存后只读。专业任务接听团队选择与新业务“分配跟进人”分开；未实现原 AI 控制、导出等保持明确不可用。
+9. 原客户任务“待继续跟进／已完成”与新四节点运行终态分开。每轮开始读取并展示最新定义／有效值，保存沿本轮已展示依据；保存不临时替换 schema 或吸入未展示新资料，不安全并发保输入并提示核对／重载。实际拨打／接听人填写，不用责任跟进人代替。
+10. REPORT-DATA 已按七个 Cloud renderer、三个 AI renderer补齐真实列、粒度、单位、归期、分母、空与零及明细标识。Cloud 接通率只用确认结果作分母、0 秒是有效样本、缺失时长不填 0；累计供应商、平台名单与周期通话分开。AI 通话保原 connected/roster 与 (connected+missed)/dial 公式；AI 计费保客户接通逐通分钟向上取整，客户平均时长未实现的原列明确为“—”。源缺失不沿静态 renderer 默认值伪装成可靠零。
+11. PRO-FIELD-DEF 已明确 id、label、type、businessKey、options、enabled 及接口取数成员的类型、长度、枚举、必需条件、选项唯一性、引用保护，引用现有 FIELD-FLOW 原子定义作为同源专业入口视图，不复制旧租户字段库。导入编码必填不会被原专业选填口径豁免，不提供格式配置。
+12. 同 ID 的全局规则在 canonical source 与 plan 中应保持同正文；已提醒根组装统一 GR-CONTACT。运行创建即固定方案的措辞已建议统一为“尚未创建的新运行读取当前路由”，不能将未拨号解释为尚未开始运行。
+
+## 14 项原工程缺证保留
+
+`engineering_issue_crosswalk` 保留每个原 ISSUE 的稳定身份、当前已明确产品规则、剩余工程证据和当前问题映射，不把修改 owner 当作问题已解决。
+
+| 原 ISSUE | 当前工程问题映射 | 仍需核证的内容 |
+|---|---|---|
+| ISSUE-2001 | EQ-PLAT-IDENTITY | 真实认证主体、租户／供应商身份映射、授权与会话撤销 |
+| ISSUE-2004 | EQ-PLAT-CONTACT-STATE | 当前有效来源、期限／解除码及同号多来源可靠聚合；旧 v2 迁移已取消 |
+| ISSUE-2005 | EQ-PLAT-ACCEPTED-CALL | 各供应商已接收未拨号码的拦截／取消／删除边界 |
+| ISSUE-2006 | EQ-PLAT-REMOTE | 原目标足迹、共享来源解除、幂等和真实最终回执 |
+| ISSUE-2008 | EQ-PLAT-PROFESSIONAL／FINANCE／PHONE | 专业授权取数、财务快照、CTI／媒体及终态证据 |
+| ISSUE-2011 | EQ-PLAT-DELETE | 真实删除实体、最终一致引用检查和可靠终态读回 |
+| ISSUE-2013 | ENG-FLOW-PERSISTENCE／EXECUTION | 稳定业务编码、真实身份资源映射和单条幂等完成证明 |
+| ISSUE-2014 | ENG-FLOW-PERSISTENCE／EXECUTION | 当前专业回传及关联变更物理契约；不恢复旧 v2 迁移 |
+| ISSUE-2015 | ENG-FLOW-EXECUTION | 真实通话／重试结束、保存归档与后继衔接判据 |
+| ISSUE-2016 | ENG-FLOW-EXECUTION／SCENE | AI 与 Cloud 准确业务／任务／通话及标签投影接续 |
+| ISSUE-2017 | ENG-FLOW-PERSISTENCE／EXECUTION | 正式导入、应用鉴权、列映射与重复请求生产契约 |
+| ISSUE-2018 | EQ-PLAT-PROFESSIONAL | 前序 v1.1.1 正式专业基底契约来源（ISSUE-11214）；v1.2 冻结及 Mock 已有证据不重复核验 |
+| ISSUE-2021 | ENG-FLOW-PERSISTENCE／EXECUTION／SCENE | 分类、模板、节点、执行段、远端标识及终态／标签精确映射 |
+| ISSUE-2022 | ENG-FLOW-PERSISTENCE／EXECUTION | 稳定唯一有效 brandId/storeCode 映射及转交同次提交终态 |
+
+这些问题仍保持工程证据未完成。当前产品参与者、权限、字段时点和失败关闭方向已明确；真实权限、接口、供应商终态、生产统计／支付能力不能以本地 Mock 替代。
+</pre></body></html>

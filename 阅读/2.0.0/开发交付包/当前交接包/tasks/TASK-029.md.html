@@ -1,0 +1,112 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/tasks/TASK-029.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/tasks/TASK-029.md">原始 Markdown</a></p><h1>当前交接包/tasks/TASK-029.md</h1><pre># TASK-029 未知请求核对与责任交接
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](../features/FUNC-2032.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](../features/FUNC-2038.md)
+
+## 目标
+
+保持同一request身份核对导入/分配/起呼/启用/转交等未知结果；不另造副作用重放。；移交的是核对事项责任，原动作权限、业务归属和实际填写人不随之授予。
+
+## 产品依据
+
+- FUNC-2032 保存本轮跟进、准确通话事实并唯一归档：DIRECT与TEMPLATE均按准确实际办理/接听人保存必要内容、真实通话及当时定义和值快照，重试可靠收敛后唯一归档；当前更正独立留痕，不借旧事实完成新节点。 直接周期完成须明确业务结论、全部执行与必要归档收敛，并有真实完成跟进或NO_CALL+原因；不能自动从归档完成。；来源 documentation/input/functions.json#FUNC-2032
+- FUNC-2038 判断并确认本租户后继节点：按准确条件确认后继，END执行无模板跟进/业务结束两动作；原run先结束，原业务与事实保留。；来源 documentation/input/functions.json#FUNC-2038
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+
+## 前置任务
+
+- TASK-005
+- TASK-015
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-PRIVACY](../global-logic.md#GR-PRIVACY)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-FLOW-REVIEW](../local-logic/LOCAL-FLOW-REVIEW.md)、[LOCAL-FLOW-HANDOFF](../local-logic/LOCAL-FLOW-HANDOFF.md)
+
+字段：[FIELD-FLOW-REASON](../field-specs.md#FIELD-FLOW-REASON)、[FIELD-FLOW-REQUEST-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)、[FIELD-FLOW-REQUEST-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)、[FIELD-FLOW-REVIEW-ASSIGNEE](../field-specs.md#FIELD-FLOW-REVIEW-ASSIGNEE)、[FIELD-FLOW-WORK-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2006](../ui-pages/UI-PAGE-2006.md)
+- [UI-PAGE-2204](../ui-pages/UI-PAGE-2204.md)
+- [UI-PAGE-2227](../ui-pages/UI-PAGE-2227.md)
+- [UI-PAGE-2228](../ui-pages/UI-PAGE-2228.md)
+
+## 实现要求
+
+- 保持同一request身份核对导入/分配/起呼/启用/转交等未知结果；不另造副作用重放。
+- 移交的是核对事项责任，原动作权限、业务归属和实际填写人不随之授予。
+- 查询权不等于重放权；未知不能判未发生或假成功。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2122**：受理、真实拨打、执行终态、内容保存、唯一归档、节点、owner及业务结论分别确认；未知核原请求而非新身份重发。
+  依据：docs/functional-spec.json#AC-2122
+
+## 测试要求（尚未执行）
+
+### CHECK-FLOW-REVIEW / manual
+
+步骤：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。从待核列表打开准确requestId。仅原本可核人员或被明确移交的本租户核对人。依次执行：读取准确原请求实际状态及最小可见结果，unknown不当成功/失败；明确原已执行或未执行后只改变确认表达，不重办原动作。分别构造：仍unknown；确认先前已成功；核对人缺原业务权限
+
+预期：继续待核并保同身份，不释放占用或新request重发；返回原一次结果，不再建followup、转交或删模板；只见最小请求，不授数据详情或原动作重放；核对不是业务代办或人工结果代填
+
+覆盖：AC-2122
+
+### CHECK-FLOW-HANDOFF / manual
+
+步骤：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。对准确未知request选择本租户核对人并说明原因。当前owner租户有权管理员及该request存在本租户待核。依次执行：明确唯一请求和本租户有效账号，不按记录模糊移交所有权限；保存本次移交人/接收人/原因/时间，接收人只核该request。分别构造：请求不唯一、失效或人员无效；明确移交
+
+预期：拒并保选择，不扩大原权限；myReviewWork可定位准确事项，不能读整档案、重放原操作、代填；不改变原业务owner和责任跟进人
+
+覆盖：AC-2122
+
+## 完成条件
+
+- 保持同一request身份核对导入/分配/起呼/启用/转交等未知结果；不另造副作用重放。
+- 移交的是核对事项责任，原动作权限、业务归属和实际填写人不随之授予。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [four-node-model.js](../../../prototype/scripts/four-node-model.js) · 只读行为参考，非生产可写目标
+- [template_lifecycle_build.py](../../../prototype/scripts/template_lifecycle_build.py) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：ENG-FLOW-PERSISTENCE, EQ-PLAT-REMOTE。
+</pre></body></html>

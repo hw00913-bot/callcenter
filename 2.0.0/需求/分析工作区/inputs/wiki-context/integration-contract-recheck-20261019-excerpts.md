@@ -1,0 +1,843 @@
+# AI与天润现行接口定义补充摘录
+
+现行来源版本未升级；本次纠正摘要并补读遗漏定义。
+仅接口声明、字段与限制。接口文档核验、项目适配设计与生产联调分别记录。
+
+## 使用模板新增黑白名单
+Wiki：lib-天润融通配置黑白名单管理；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/配置管理/黑白名单管理/使用模板新增黑白名单.md；SHA256：2e0440345df4a2a2229b192df3a6060d0660f9f5ff06b47d54a28c381e6d51e7。
+
+```text
+L1: ##### 使用模板新增黑白名单
+L3: - 接口说明：使用模板新增黑白名单，大小最多支持一次新增5000个
+L5: - API URL<br> 接口请求地址： [https://api-{region}.alicti.cn/interface/{version}/restrictTel/importExcel](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/restrictTel/importExcel)<br><br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10 <br><br> 接口请求方式：POST
+L7: - 相关参数
+L9: | 字段 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L12: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L13: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | restrictType | Int | 必选 | 黑白名单类型 1黑名单 2白名单 |  |
+L17: | type | Int | 必选 | 呼叫类型 1 呼入 2外呼 |  |
+L18: | useRange | Int | 可选 | 黑名单适用外呼范围,呼叫类型为2时必选 | 说明： 外呼黑名单适用范围 四位二进制数表示四个外呼类型的开关 实际传参时用十进制；全部外呼类型都适用： 二进制形式为 1111 十进制值为 15；针对预览外呼生效： 四位二进制数最后一位表示开关 0001 转为十进制值为 1;主叫外呼： 四位二进制数右起第二位表示开关 0010 转为十进制值为 2 webcall: 四位二进制数右起第三位表示开关 0100 转为十进制值为 4;预测外呼: 四位二进制数左起第一位表示开关 1000 转为十进制值为 8；需要打开那几个就把他们的十进制数相加传参进来 全部生效时传15 传参范围为\[1,15\] |
+L19: | file | File | 必选 | form-data中媒体文件标识，有filename、filelength、content-type等信息 [模板文件下载](https://wiki.alicti.cn/html/wiki/telNumber.xls) |  |
+L20: | telType | Int | 可选 | 电话类型 | 1.固话 2手机 3分机 默认为1 |
+L21: | fileId | String | 可选 | 批次号 |  |
+L32: - 接口返回
+L34: JSON格式数据
+L36: | 参数 | 类型 | 说明 |
+L37: | --- | --- | --- |
+L38: | result | Int | 0 成功, -1 失败 |
+L39: | description | String | 返回结果描述 |
+L40: | data | JSON | 结果 |
+L42: description给出成功或失败时的文本描述：
+L44: | description | 返回结果说明 |
+L45: | --- | --- |
+L46: | 验证失败，参数\[{param}\]不能为空 | {param}为接口参数中必选字段 |
+L47: | 验证失败，参数\[{param}\]格式不正确 | {param}为接口参数中格式有要求的字段 |
+L48: | 验证失败，参数\[{param}\]取值不正确 | {param}为接口参数中有固定取值的字段 |
+L49: | 验证失败，参数\[param\]取值范围不正确 | {param}为接口参数中有固定范围的字段 |
+L50: | 验证失败，超过频次限制 | 接口调用超过接口的访问频次限制 |
+L51: | 成功 | 成功 |
+L52: | 失败，{param} | {param}为失败描述 |
+L70: - data 字段说明
+L72: | 字段 | 类型 | 描述 |
+L73: | --- | --- | --- |
+L74: | successCount | Int | 删除成功的条数 |
+L75: | failCount | Int | 删除失败的条数 |
+L76: | failList | List&lt; RestrictTel &gt; | 失败的数据集合 |
+```
+
+## 删除黑白名单
+Wiki：lib-天润融通配置黑白名单管理；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/配置管理/黑白名单管理/删除黑白名单.md；SHA256：0478b1f8b2ff74fe95a1b8873b3bdcd17cfda2ec90a62729196ca82f562b6b17。
+
+```text
+L1: ##### 删除黑白名单
+L3: - 接口说明：
+L5: - API URL<br> 接口请求地址： [https://api-{region}.alicti.cn/interface/{version}/restrictTel/delete](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/restrictTel/delete)<br><br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10 <br><br> 接口请求方式：GET/POST
+L7: - 相关参数
+L9: | 字段 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L12: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L13: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | restrictType | Int | 必选 | 1:黑名单 2:白名单 |  |
+L17: | type | Int | 必选 | 1:呼入 2:外呼 |  |
+L18: | useRange | Int | 可选 | 呼叫类型为2时可选，黑名单适用外呼范围 | 说明： 外呼黑名单适用范围 四位二进制数表示四个外呼类型的开关 实际传参时用十进制；全部外呼类型都适用： 二进制形式为 1111 十进制值为 15；针对预览外呼生效： 四位二进制数最后一位表示开关 0001 转为十进制值为 1;主叫外呼： 四位二进制数右起第二位表示开关 0010 转为十进制值为 2 webcall: 四位二进制数右起第三位表示开关 0100 转为十进制值为 4;预测外呼: 四位二进制数左起第一位表示开关 1000 转为十进制值为 8；需要打开那几个就把他们的十进制数相加传参进来 全部生效时传15 传参范围为\[1,15\] |
+L19: | tel | String | 必选 | 电话 |  |
+L20: | telType | Int | 必选 | 电话号码类型 1:单个电话手机不加0固话加区号例如&lt;REDACTED\_PHONE&gt;/01059222999 2:地区例如010/0311 3:未知号码 4:号码号段，telType为4时，tel字段必须为前7位~前10位的号码 |  |
+L29: - 接口返回
+L31: 无data
+```
+
+## 批量删除黑白名单
+Wiki：lib-天润融通配置黑白名单管理；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/配置管理/黑白名单管理/批量删除黑白名单.md；SHA256：114f22eea000bcaff53bc0fd9815f7b301f01b1d6f0cadeca6f499327adc5f2a。
+
+```text
+L1: ##### 批量删除黑白名单
+L3: - 接口说明：
+L5: - API URL<br> 接口请求地址： [https://api-{region}.alicti.cn/interface/{version}/restrictTel/batchDelete](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/restrictTel/batchDelete)<br><br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10 <br><br> 接口请求方式：POST
+L7: - 相关参数
+L9: | 字段 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L12: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L13: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | restrictType | Int | 必选 | 名单类型 | 1:黑名单 2:白名单 |
+L17: | type | Int | 必选 | 呼叫类型 | 1:呼入 2:外呼 |
+L18: | useRange | Int | 可选 | 呼叫类型为2时可选，黑名单适用外呼范围 | 说明： 外呼黑名单适用范围 四位二进制数表示四个外呼类型的开关 实际传参时用十进制；全部外呼类型都适用： 二进制形式为 1111 十进制值为 15；针对预览外呼生效： 四位二进制数最后一位表示开关 0001 转为十进制值为 1;主叫外呼： 四位二进制数右起第二位表示开关 0010 转为十进制值为 2 webcall: 四位二进制数右起第三位表示开关 0100 转为十进制值为 4;预测外呼: 四位二进制数左起第一位表示开关 1000 转为十进制值为 8；需要打开那几个就把他们的十进制数相加传参进来 全部生效时传15 传参范围为\[1,15\] |
+L19: | tels | String | 可选：最多支持500个 | 与 fileId 二选一,二者都传优先使用 tels; 所有要添加的号码，英文逗号分隔的字符串 |  |
+L20: | fileId | String | 可选 | 与 tels 二选一,二者都传优先使用 tels; 批次号 | 字符串 |
+L28: - 接口返回
+L30: JSON格式数据
+L32: | 参数 | 类型 | 说明 |
+L33: | --- | --- | --- |
+L34: | result | Int | 0 成功, -1 失败 |
+L35: | description | String | 返回结果描述 |
+L36: | data | JSON | 结果 |
+L38: description给出成功或失败时的文本描述：
+L40: | description | 返回结果说明 |
+L41: | --- | --- |
+L42: | 验证失败，参数\[{param}\]不能为空 | {param}为接口参数中必选字段 |
+L43: | 验证失败，参数\[{param}\]格式不正确 | {param}为接口参数中格式有要求的字段 |
+L44: | 验证失败，参数\[{param}\]取值不正确 | {param}为接口参数中有固定取值的字段 |
+L45: | 验证失败，参数\[param\]取值范围不正确 | {param}为接口参数中有固定范围的字段 |
+L46: | 验证失败，超过频次限制 | 接口调用超过接口的访问频次限制 |
+L47: | 成功 | 成功 |
+L48: | 失败，{param} | {param}为失败描述 |
+L65: - data 字段说明
+L67: | 字段 | 类型 | 描述 |
+L68: | --- | --- | --- |
+L69: | successCount | Int | 删除成功的条数 |
+L70: | failCount | Int | 删除失败的条数 |
+L71: | failList | List&lt; RestrictTel &gt; | 失败的数据集合 |
+L73: - RestrictTel 字段说明
+L75: | 字段 | 类型 | 描述 |
+L76: | --- | --- | --- |
+L77: | restrictType | Int | 黑白名单类型 1黑名单 2白名单 |
+L78: | type | Int | 呼叫类型 1 呼入 2外呼 |
+L79: | tel | String | 电话号码 |
+L80: | telType | Int | 电话类型(必填\) 1:单个电话手机不加0,固话加区号例如&lt;REDACTED\_PHONE&gt;/01059222999 2:地区例如010/0311 3:未知号码 |
+L81: | comment | String | 备注 |
+L82: | expiredDate | String | 有效期 0或空代表长期有效,如果传值小于30天则有效期为30天 |
+L83: | fileId | String | 批次号 |
+```
+
+## 批量新增黑白名单
+Wiki：lib-天润融通配置黑白名单管理；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/配置管理/黑白名单管理/批量新增黑白名单.md；SHA256：ce8387ea9fb342af338198122b6c417932245dfae917f3de4539ab18d7ff825a。
+
+```text
+L1: ##### 批量新增黑白名单
+L3: - 接口说明：
+L5: - API URL<br> 接口请求地址： [https://api-{region}.alicti.cn/interface/{version}/restrictTel/batchCreate](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/restrictTel/batchCreate)<br><br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10 <br><br> 接口请求方式：POST
+L7: - 相关参数
+L9: | 字段 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L12: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L13: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | data | List&lt; RestrictTel &gt; | 必选：最多支持5000个 | 要删除的黑白名单列表,需要使用requestBody，设置"Content-Type:application/json"请求头传递JSON格式参数 |  |
+L17: | telType | Int | 可选 | 电话类型 | 1.固话 2手机 3分机 默认为1 |
+L19: - RestrictTel 字段说明
+L21: | 字段 | 类型 | 要求 | 描述 |
+L22: | --- | --- | --- | --- |
+L23: | restrictType | Int | 必选 | 黑白名单类型 1黑名单 2白名单 |
+L24: | type | Int | 必选 | 呼叫类型 1 呼入 2外呼 |
+L25: | useRange | Int | 可选 | 呼叫类型为2时必选选，黑名单适用外呼范围 |
+L26: | tel | String | 必选 | 电话号码 |
+L27: | telType | Int | 必选 | 电话类型(必填\) 1:单个电话手机不加0,固话加区号例如&lt;REDACTED\_PHONE&gt;/01059222999 2:地区例如010/0311 3:未知号码 4:号码号段，telType为4时，tel字段必须为前7位~前10位的号码 |
+L28: | comment | String | 可选 | 备注 |
+L29: | expiredDate | String | 可选 | 有效期 0或空代表长期有效,如果传值小于30天则有效期为30天 |
+L30: | fileId | String | 可选 | 批次号 |
+L63: - 接口返回
+L65: JSON格式数据
+L67: | 参数 | 类型 | 说明 |
+L68: | --- | --- | --- |
+L69: | result | Int | 0 成功, -1 失败 |
+L70: | description | String | 返回结果描述 |
+L71: | data | JSON | 结果 |
+L73: description给出成功或失败时的文本描述：
+L75: | description | 返回结果说明 |
+L76: | --- | --- |
+L77: | 验证失败，参数\[{param}\]不能为空 | {param}为接口参数中必选字段 |
+L78: | 验证失败，参数\[{param}\]格式不正确 | {param}为接口参数中格式有要求的字段 |
+L79: | 验证失败，参数\[{param}\]取值不正确 | {param}为接口参数中有固定取值的字段 |
+L80: | 验证失败，参数\[param\]取值范围不正确 | {param}为接口参数中有固定范围的字段 |
+L81: | 验证失败，超过频次限制 | 接口调用超过接口的访问频次限制 |
+L82: | 成功 | 成功 |
+L83: | 失败，{param} | {param}为失败描述；例如超出企业黑白名单上限时返回：失败，超出最大黑白名单数，剩余还可添加{N}个 |
+L101: - data 字段说明
+L103: | 字段 | 类型 | 描述 |
+L104: | --- | --- | --- |
+L105: | successCount | Int | 删除成功的条数 |
+L106: | failCount | Int | 删除失败的条数 |
+L107: | failList | List&lt; RestrictTel &gt; | 失败的数据集合 |
+```
+
+## 新增黑白名单
+Wiki：lib-天润融通配置黑白名单管理；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/配置管理/黑白名单管理/新增黑白名单.md；SHA256：ab68cb26ff3dd662a7f34fedebf0af5295e5d61601694a417745a14b6c6d933e。
+
+```text
+L1: ##### 新增黑白名单
+L3: - 接口说明：
+L5: - API URL<br> 接口请求地址： [https://api-{region}.alicti.cn/interface/{version}/restrictTel/create](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/restrictTel/create)<br><br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10 <br><br> 接口请求方式：GET/POST
+L7: - 相关参数
+L9: | 字段 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L12: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L13: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | restrictType | Int | 必选 | 名单类型 | 1:黑名单 2:白名单 |
+L17: | type | Int | 必选 | 呼叫类型 | 1:呼入 2:外呼 |
+L18: | useRange | Int | 可选 | 呼叫类型为2时必选，黑名单适用外呼范围 | 说明： 外呼黑名单适用范围 四位二进制数表示四个外呼类型的开关 实际传参时用十进制；全部外呼类型都适用： 二进制形式为 1111 十进制值为 15；针对预览外呼生效： 四位二进制数最后一位表示开关 0001 转为十进制值为 1;主叫外呼： 四位二进制数右起第二位表示开关 0010 转为十进制值为 2 webcall: 四位二进制数右起第三位表示开关 0100 转为十进制值为 4;预测外呼: 四位二进制数左起第一位表示开关 1000 转为十进制值为 8；需要打开那几个就把他们的十进制数相加传参进来 全部生效时传15 传参范围为\[1,15\] |
+L19: | tel | String | 必选 | tel | 电话/地区/unknown\_number/号段 |
+L20: | telType | Int | 必选 | 电话号码类型 | 1:单个电话手机不加0固话加区号例如&lt;REDACTED\_PHONE&gt;/01059222999 2:地区区号，例如010/0311 3:未知号码，telType为3时，tel字段输入非空值，添加后tel字段变为unknown\_number，注：未知号码只能添加一次 4:号码号段，telType为4时，tel字段必须为前7位~前10位的号码 |
+L21: | comment | String | 可选 | 描述 |  |
+L22: | expiredDay | String | 可选 | 有效期 | 0或空代表长期有效，如果传值小于30天则有效期为30天 |
+L31: - 接口返回
+L33: data定义：
+L35: | 字段 | 类型 | 描述 |
+L36: | --- | --- | --- |
+L37: | id | Int | 黑白名单id |
+L38: | enterpriseId | String | 企业编号 |
+L39: | restrictType | Int | 1:黑名单 2:白名单 |
+L40: | type | Int | 1:呼入 2:外呼 |
+L41: | useRange | Int | 外呼黑名单适用范围 四位二进制数表示四个外呼类型的开关 实际传参时用十进制；全部外呼类型都适用： 二进制形式为 1111 十进制值为 15；针对预览外呼生效： 四位二进制数最后一位表示开关 0001 转为十进制值为 1;主叫外呼： 四位二进制数右起第二位表示开关 0010 转为十进制值为 2 webcall: 四位二进制数右起第三位表示开关 0100 转为十进制值为 4;预测外呼: 四位二进制数左起第一位表示开关 1000 转为十进制值为 8；需要打开那几个就把他们的十进制数相加传参进来 全部生效时传15 传参范围为\[1,15\] |
+L42: | tel | String | 电话/地区 |
+L43: | telType | Int | 电话号码类型 1:单个电话手机不加0固话加区号例如&lt;REDACTED\_PHONE&gt;/01059222999 2:地区区号，例如010/0311 3:未知号码，telType为3时，tel字段输入非空值，添加后tel字段变为unknown\_number，注：未知号码只能添加一次 |
+L44: | comment | String | 描述 |
+L45: | createTime | String | 创建时间 |
+L46: | expiredDate | String | 有效时间 |
+L47: | fileId | String | 批次号 |
+```
+
+## 查询黑白名单
+Wiki：lib-天润融通配置黑白名单管理；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/配置管理/黑白名单管理/查询黑白名单.md；SHA256：3efc33440f1e8a433f8ccc2103afe0501f5789e951212c569fce9b3a9126c958。
+
+```text
+L1: ##### 查询黑白名单
+L3: - 接口说明：
+L5: - API URL<br> 接口请求地址： [https://api-{region}.alicti.cn/interface/{version}/restrictTel/checkByOneTel](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/restrictTel/checkByOneTel)<br><br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10 <br><br> 接口请求方式：GET/POST
+L7: - 相关参数
+L9: | 字段 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L12: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L13: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | restrictType | Int | 必选 | 名单类型 | 1:黑名单 2:白名单 |
+L17: | type | Int | 必选 | 呼叫类型 | 1:呼入 2:外呼 |
+L18: | tel | String | 必选 | tel | 电话/地区/unknown\_number/号段；其中号段类型号码必须是前7位~前10位 |
+L27: - 接口返回
+L29: data定义：
+L31: | 字段 | 类型 | 描述 |
+L32: | --- | --- | --- |
+L33: | id | Int | 黑白名单id |
+L34: | enterpriseId | String | 企业编号 |
+L35: | restrictType | Int | 1:黑名单 2:白名单 |
+L36: | type | Int | 1:呼入 2:外呼 |
+L37: | useRange | Int | 外呼黑名单适用范围 四位二进制数表示四个外呼类型的开关 实际传参时用十进制；全部外呼类型都适用： 二进制形式为 1111 十进制值为 15；针对预览外呼生效： 四位二进制数最后一位表示开关 0001 转为十进制值为 1;主叫外呼： 四位二进制数右起第二位表示开关 0010 转为十进制值为 2 webcall: 四位二进制数右起第三位表示开关 0100 转为十进制值为 4;预测外呼: 四位二进制数左起第一位表示开关 1000 转为十进制值为 8；需要打开那几个就把他们的十进制数相加传参进来 全部生效时传15 传参范围为\[1,15\] |
+L38: | tel | String | 电话/地区 |
+L39: | telType | Int | 电话号码类型 1:单个电话手机不加0固话加区号例如&lt;REDACTED\_PHONE&gt;/01059222999 2:地区区号，例如010/0311 3:未知号码，telType为3时，tel字段输入非空值，添加后tel字段变为unknown\_number，注：未知号码只能添加一次 |
+L40: | comment | String | 描述 |
+L41: | createTime | String | 创建时间 |
+L42: | expiredDate | String | 有效时间 |
+L43: | fileId | String | 批次号 |
+```
+
+## 获取黑白名单列表
+Wiki：lib-天润融通配置黑白名单管理；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/配置管理/黑白名单管理/获取黑白名单列表.md；SHA256：2bc028e28d7123e3389b0154d5520c56737510351758d11bd287aead06196fd5。
+
+```text
+L1: ##### 获取黑白名单列表
+L3: - 接口说明：
+L5: - API URL<br> 接口请求地址： [https://api-{region}.alicti.cn/interface/{version}/restrictTel/list](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/restrictTel/list)<br><br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10 <br><br> 接口请求方式：GET/POST
+L7: - 相关参数 增加telType参数
+L9: | 字段 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L12: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L13: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | restrictType | Int | 可选 |  | 1:黑名单 2:白名单 |
+L17: | type | Int | 可选 |  | 1:呼入 2:外呼 |
+L18: | tel | String | 可选 | 电话 |  |
+L19: | telType | Int | 可选 | 电话号码类型 | 电话号码类型 1:单个电话手机不加0固话加区号例如&lt;REDACTED\_PHONE&gt;/01059222999 2:地区例如010/0311 3:未知号码 |
+L20: | fileId | String | 可选 | 批次号 | 字符串 |
+L21: | timeType | Int | 可选 | 时间查询条件类型 1:按创建时间查询 2:按有效到期时间查询; 使用时间条件时必选 |  |
+L22: | startTime | String | 可选 | 起始时间，格式：yyyy-MM-dd HH:mm:ss |  |
+L23: | endTime | String | 可选 | 结束时间，格式：yyyy-MM-dd HH:mm:ss |  |
+L24: | limit | Int | 必选 | 条数 | 正整数 大于0 小于等于500 |
+L25: | offset | String | 必选 | 从第几条开始 |  |
+L34: - 接口返回
+L36: data定义：
+L38: | 字段 | 类型 | 描述 |
+L39: | --- | --- | --- |
+L40: | id | Int | 黑白名单id |
+L41: | enterpriseId | String | 企业编号 |
+L42: | restrictType | Int | 1:黑名单 2:白名单 |
+L43: | type | Int | 1:呼入 2:外呼 |
+L44: | tel | String | 电话 |
+L45: | telType | Int | 电话号码类型 1:单个电话手机不加0固话加区号例如&lt;REDACTED\_PHONE&gt;/01059222999 2:地区例如010/0311 3:未知号码 |
+L46: | comment | String | 描述 |
+L47: | createTime | String | 创建时间 |
+L48: | expiredDate | String | 有效期 |
+L49: | fileId | String | 批次号 |
+```
+
+## 任务暂停接口
+Wiki：lib-天润融通预测式外呼；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/预测式外呼/任务暂停接口.md；SHA256：8ed2f2211933119099a2651ea98ce70cd2af75d035e57d4e8efb265ffb001ed2。
+
+```text
+L1: ##### 任务暂停接口
+L3: - 接口说明<br> 暂停预测外呼任务
+L5: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/task/pause](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/task/pause)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST请求
+L7: - 相关参数
+L9: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证 |
+L12: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L13: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1:<br>MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2：<br>MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | taskId | Int | 必选 | 外呼任务id |  |
+L17: | pauseDuration | Int | 可选 | 暂停时长 | 默认0 |
+L26: - 接口返回
+L28: | 参数 | 类型 | 说明 |
+L29: | --- | --- | --- |
+L30: | result | Int | 0 成功, -1 失败 |
+L31: | description | String | 返回结果描述 |
+L32: | errorCode | Int | 错误码,当返回result=-1时，返回该参数 |
+L34: description给出成功或失败时的文本描述：
+L36: | description | 返回结果说明 |
+L37: | --- | --- |
+L38: | 验证失败，参数\[{param}\]不能为空 | {param}为接口参数中必选字段 |
+L39: | 验证失败，参数\[{param}\]格式不正确 | {param}为接口参数中格式有要求的字段 |
+L40: | 验证失败，参数\[{param}\]取值不正确 | {param}为接口参数中有固定取值的字段 |
+L41: | 验证失败，参数\[param\]取值范围不正确 | {param}为接口参数中有固定范围的字段 |
+L42: | 验证失败，超过频次限制 | 接口调用超过接口的访问频次限制 |
+L43: | 成功，{param} | {param}为成功描述 |
+L44: | 失败，{param} | {param}为失败描述 |
+```
+
+## 任务结束接口
+Wiki：lib-天润融通预测式外呼；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/预测式外呼/任务结束接口.md；SHA256：a6b024fb33c7c23c7425b83b7fec753668bfe63bf9594e10a804116c22225261。
+
+```text
+L1: ##### 任务结束接口
+L3: - 接口说明<br> 结束预测外呼任务
+L5: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/task/stop](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/task/stop)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST请求
+L7: - 相关参数
+L9: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证 |
+L12: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L13: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1:<br>MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2：<br>MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | taskId | Int | 必选 | 外呼任务id |  |
+L25: - 接口返回
+L27: | 参数 | 类型 | 说明 |
+L28: | --- | --- | --- |
+L29: | result | Int | 0 成功, -1 失败 |
+L30: | description | String | 返回结果描述 |
+L31: | errorCode | Int | 错误码,当返回result=-1时，返回该参数 |
+L33: description给出成功或失败时的文本描述：
+L35: | description | 返回结果说明 |
+L36: | --- | --- |
+L37: | 验证失败，参数\[{param}\]不能为空 | {param}为接口参数中必选字段 |
+L38: | 验证失败，参数\[{param}\]格式不正确 | {param}为接口参数中格式有要求的字段 |
+L39: | 验证失败，参数\[{param}\]取值不正确 | {param}为接口参数中有固定取值的字段 |
+L40: | 验证失败，参数\[param\]取值范围不正确 | {param}为接口参数中有固定范围的字段 |
+L41: | 验证失败，超过频次限制 | 接口调用超过接口的访问频次限制 |
+L42: | 成功，{param} | {param}为成功描述 |
+L43: | 失败，{param} | {param}为失败描述 |
+```
+
+## 更新任务批次启停状态
+Wiki：lib-天润融通预测式外呼；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/预测式外呼/更新任务批次启停状态接口.md；SHA256：b8387cc2770d3cd8af2daa0ee7ab444cf5a0d475a7f0bafb7d0dcadc2dfdf0c0。
+
+```text
+L1: ##### 更新任务批次启停状态
+L3: - 接口说明
+L5: 更新任务批次启停状态接口
+L7: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/task/updateTaskFileStatus](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/task/updateTaskFileStatus)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST请求
+L9: - 相关参数
+L11: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L12: | --- | --- | --- | --- | --- |
+L13: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证 |
+L14: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L15: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L16: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L17: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1:<br>MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2：<br>MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L18: | taskId | Int | 必选 | 任务Id |  |
+L19: | fileId | Int | 必选 | 批次Id |  |
+L20: | isActive | Int | 必选 | 批次启停状态 | 说明：0:停用 1:启用 |
+L29: - 接口返回<br> JSON格式数据：
+L31: | 参数 | 类型 | 说明 |
+L32: | --- | --- | --- |
+L33: | result | Int | 0 成功, -1 失败 |
+L34: | description | String | 返回结果描述 |
+L35: | errorCode | Int | 错误码,当返回result=-1时，返回该参数 |
+L36: | data | TaskFile | 任务批次信息 |
+L38: description给出成功或失败时的文本描述：
+L40: | description | 返回结果说明 |
+L41: | --- | --- |
+L42: | 验证失败，参数\[{param}\]不能为空 | {param}为接口参数中必选字段 |
+L43: | 验证失败，参数\[{param}\]格式不正确 | {param}为接口参数中格式有要求的字段 |
+L44: | 验证失败，参数\[{param}\]取值不正确 | {param}为接口参数中有固定取值的字段 |
+L45: | 验证失败，参数\[param\]取值范围不正确 | {param}为接口参数中有固定范围的字段 |
+L46: | 验证失败，超过频次限制 | 接口调用超过接口的访问频次限制 |
+L47: | 成功，{param} | {param}为成功描述 |
+L48: | 失败，{param} | {param}为失败描述 |
+L50: data定义：
+L52: | 字段 | 类型 | 描述 |
+L53: | --- | --- | --- |
+L54: | taskFile | [TaskFile](https://wiki.alicti.cn/html/wiki/API/dataType/TaskFile.html) | 任务批次信息 |
+L58: 成功：
+L81: 失败：
+```
+
+## 任务号码删除接口
+Wiki：lib-天润融通预测式外呼；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/预测式外呼/任务号码删除接口.md；SHA256：f4c691d99f4fc398a9da14fa43ef667daff3f917db04702bb771aaab4c58256f。
+
+```text
+L1: ##### 任务号码删除接口
+L3: - 接口说明
+L5: 任务号码删除接口
+L7: ###### 号码删除顺序说明：
+L9: - 注：建议在任务非运行状态下删除号码
+L11: - **按号码或属性删除（最高优先级）**
+L13: - 支持tels参数
+L15: - 任务运行中可删除
+L17: - **按批次删除**
+L19: - 支持fileId或fileName
+L21: - 任务运行中可删除
+L23: - **按号码状态删除**
+L25: - 支持status参数
+L27: - 任务运行中可删除
+L29: - **删除整个任务号码（最低优先级）**
+L31: - 仅任务初始或结束状态可删除
+L33: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/task/deleteTaskTel](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/task/deleteTaskTel)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST请求
+L35: - 相关参数
+L37: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L38: | --- | --- | --- | --- | --- |
+L39: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证 |
+L40: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L41: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L42: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L43: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1:<br>MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2：<br>MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L44: | taskId | Int | 必选 | 任务Id |  |
+L45: | fileId | Int | 可选 | 批次Id |  |
+L46: | fileName | String | 可选 | 批次名称 | 按照名称删除会删除最近添加的批次 |
+L47: | status | Int | 可选 | 号码状态 | 0:未呼叫 1:已呼叫 |
+L48: | tels | String | 可选 | 电话号码 | 支持多个，多个号码用英文逗号","分隔；任务在运行中，号码也会被删除，最多支持10W个号码；支持加密号码删除，加密号码传参时需URL Encode |
+L49: | skipCalling | Int | 可选 | 是否跳过呼叫中号码 | 0或不传：呼叫中号码也删除（默认，兼容原行为）；1：跳过呼叫中号码不删除，其余号码正常删除。部分成功仍返回成功，跳过的号码见返回data.skippedCallingTels。与 skipRetry 互斥，不能同时为1 |
+L50: | skipRetry | Int | 可选 | 是否跳过重呼号码 | 0或不传：已呼叫号码同样清缓存并写墓碑（默认）；1：跳过重呼（已呼叫）号码的缓存与墓碑，仅删除数据库；未呼叫号码仍删除数据库、缓存并写墓碑。与 skipCalling 互斥 |
+L58: - 接口返回
+L60: | 参数 | 类型 | 说明 |
+L61: | --- | --- | --- |
+L62: | result | Int | 0 成功, -1 失败 |
+L63: | description | String | 返回结果描述 |
+L64: | errorCode | Int | 错误码,当返回result=-1时，返回该参数 |
+L65: | data | Object | 可选。当skipCalling=1且存在因呼叫中被跳过的号码时返回 |
+L67: data字段说明：
+L69: | 参数 | 类型 | 说明 |
+L70: | --- | --- | --- |
+L71: | skippedCallingTels | List&lt;String&gt; | 因处于呼叫中而被跳过、未删除的电话号码列表 |
+L73: description给出成功或失败时的文本描述：
+L75: | description | 返回结果说明 |
+L76: | --- | --- |
+L77: | 验证失败，参数\[{param}\]不能为空 | {param}为接口参数中必选字段 |
+L78: | 验证失败，参数\[{param}\]格式不正确 | {param}为接口参数中格式有要求的字段 |
+L79: | 验证失败，参数\[{param}\]取值不正确 | {param}为接口参数中有固定取值的字段 |
+L80: | 验证失败，参数\[param\]取值范围不正确 | {param}为接口参数中有固定范围的字段 |
+L81: | 验证失败，超过频次限制 | 接口调用超过接口的访问频次限制 |
+L82: | 成功，{param} | {param}为成功描述 |
+L83: | 失败，{param} | {param}为失败描述 |
+```
+
+## 座席操作
+Wiki：lib-天润融通工具条与座席开发包；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/工具条/座席操作.md；SHA256：28f83ccf629c214b7776bbaa114b62cdfeb81e7139be61828d4c06cbe65aa75d。
+
+```text
+L60: ##### 2 退出
+L61: 
+L62: CTILink.Agent.logout(params, callback\);
+L63: 
+L64: 参数params:
+L65: 
+L66: | 参数 | 类型 | 可选 | 描述 |
+L67: | --- | --- | --- | --- |
+L68: | logoutMode | Int | 必选 | 退出方式，0：退出但后台在线，1：完全退出 |
+L69: | removeBinding | Int | 必选 | logoutMode=1时生效，是否解绑电话，0：不解绑，1：解绑 |
+L70: 
+L71: 返回给callback方法的参数：
+L72: 
+L73: | 参数 | 类型 | 可选 | 描述 |
+L74: | --- | --- | --- | --- |
+L75: | type | String | 必选 | type=response |
+L76: | reqType | String | 必选 | reqType=logout |
+L77: | code | Int | 必选 | 0：成功，-1：失败 |
+L78: | msg | String | 必选 | ok: 成功: <br>status not idle: 设备没有处于空闲状态 <br>no call agent 不存在该座席数据:（在login时生成，在logout时删除）<br>exception: 服务异常 <br>no such agent: 座席不存在 |
+```
+
+## 1. 状态动作事件
+Wiki：lib-天润融通工具条与座席开发包；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/工具条/座席状态动作.md；SHA256：409aa8e4725dfa34f65896c39d6004d974993a79cae520a8f1163d6c52586522。
+
+```text
+L1: ##### 1. 状态动作事件
+L2: 
+L3: 以下事件会返回座席状态state和状态动作stateAction：
+L4: 
+L5: - 座席状态 status
+L6: 
+L7: - 预览外呼客户响铃 previewOutcallRinging
+L8: 
+L9: - 预览外呼双方接通 previewOutcallBridge
+L10: 
+L11: - 咨询开始 consultStart
+L12: 
+L13: - 咨询接听 consultLink
+L14: 
+L15: - 咨询挂断/接回/取消 unconsult
+L16: 
+L17: - 咨询失败 consultError
+L18: 
+L19: - 咨询三方 consultThreeway
+L20: 
+L21: - 咨询三方挂断 consultThreewayUnlink
+L22: 
+L23: - 咨询转移 consultTransfer
+L24: 
+L25: ##### 2. 状态定义
+L26: 
+L27: | state | 描述 |
+L28: | --- | --- |
+L29: | 离线 | 座席不在线 |
+L30: | 空闲 |  |
+L31: | 置忙 | 包括普通置忙，休息等 |
+L32: | 呼叫中 |  |
+L33: | 响铃 |  |
+L34: | 通话 |  |
+L35: | 整理 |  |
+L103: ###### 3.6 state=整理时，stateAction取值：
+L104: 
+L105: | stateAction | 描述 | 事件 |
+L106: | --- | --- | --- |
+L107: | ACW | 整理中 | status |
+```
+
+## 事件
+Wiki：lib-天润融通工具条与座席开发包；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/工具条/事件.md；SHA256：3c728ee923fd4704d16d620b08524a16b3e021fc8409f06ce3d816d28e482523。
+
+```text
+L5: ###### 1 座席状态
+L6: 
+L7: CTILink.event("status", callback\);
+L8: 
+L9: 返回给callback方法的参数：
+L10: 
+L11: | 参数 | 类型 | 可选 | 描述 |
+L12: | --- | --- | --- | --- |
+L13: | type | String | 必选 | type=event |
+L14: | name | String | 必选 | name=status |
+L15: | enterpriseId | Int | 必选 | 呼叫中心编号 |
+L16: | cno | String | 必选 | 座席工号 |
+L17: | state | String | 必选 | 座席状态描述（结合了登录状态和设备状态）：离线，失效，空闲，置忙，整理，呼叫中，响铃，保持，通话 |
+L18: | stateAction | String | 必选 | 状态对应的动作，详见[座席状态动作说明](https://wiki.alicti.cn/html/wiki/工具条/%E5%BA%A7%E5%B8%AD%E7%8A%B6%E6%80%81%E5%8A%A8%E4%BD%9C.html) |
+L19: | loginStatus | Int | 必选 | 登录状态，0：离线，1：在线，2：置忙，3：整理 |
+L20: | deviceStatus | Int | 必选 | 设备状态，-1：失效，0：空闲，1：已锁定，2：呼叫中，3：响铃，4：通话中 |
+L21: | pauseDescription | String | 可选 | loginStatus=2时，置忙描述 |
+L22: | callType | Int | 可选 | deviceStatus=2,3或4时，通话类型 |
+L23: | busyDescription | String | 可选 | deviceStatus=4时，忙碌描述，hold：保持 |
+L24: | wrapupTime | Int | 可选 | loginStatus=3时，整理时间 |
+L25: | uniqueId | String | 可选 | deviceStatus=3或4，loginStatus=3时，座席侧通话标识 |
+L26: | mainUniqueId | String | 可选 | deviceStatus=3或4，loginStatus=3时，主通话标识，一通通话唯一 |
+L27: | idleDescript | String | 可选 | idleDescript=pauseOutCall表示置忙状态下呼叫，状态置闲 |
+L292: ###### 19 断线
+L293: 
+L294: CTILink.event("breakLine", callback\);
+L295: 
+L296: 断线后，系统会自动进行重连，每次重连都会回调breakLine。系统最多进行20次重连，超过20次需要座席重新登录。
+L297: 
+L298: 返回给callback方法的参数：
+L299: 
+L300: | 参数 | 类型 | 可选 | 描述 |
+L301: | --- | --- | --- | --- |
+L302: | type | String | 必选 | type=event |
+L303: | name | String | 必选 | name=breakLine |
+L304: | enterpriseId | Int | 必选 | 呼叫中心编号 |
+L305: | cno | String | 必选 | 座席工号 |
+L306: | code | Int | 必选 | 0，表示重连成功<br>-1，表示连接断开 |
+L307: | msg | String | 必选 | msg=open，表示重连成功<br>msg=close，表示连接断开 |
+L308: | randoms | Int | 必选 | 随机数，重连间隔描述 |
+L309: | attempts | Int | 可选 | 重连次数 |
+```
+
+## 座席实时状态获取
+Wiki：lib-天润融通座席数据管理；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/座席数据管理/座席实时状态获取接口.md；SHA256：e298b308d241ddd4de70da37688d1f1f5ecdab491a74036cefff40ab91b565fb。
+
+```text
+L1: ##### 座席实时状态获取
+L3: - 接口说明
+L5: 获取座席实时状态
+L7: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/agentStatus/get](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/agentStatus/get)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST
+L9: - 相关参数
+L11: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L12: | --- | --- | --- | --- | --- |
+L13: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L14: | departmentId | String | 必选 | 部门编号 | 说明：validateType=1时，此参数为必选参数，例如：departmentId=BM0000001 |
+L15: | enterpriseId | Int | 必选 | 呼叫中心编号 | 说明：validateType=2时，此参数为必选参数，例如：enterpriseId=7000101 |
+L16: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L17: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L18: | cno | String | 必选 | 座席号 | 单个座席号 |
+L27: - 接口返回<br> JSON格式数据：
+L29: | 参数 | 类型 | 说明 |
+L30: | --- | --- | --- |
+L31: | result | Int | 0 成功, -1 失败 |
+L32: | description | String | 返回结果描述 |
+L33: | data | JSON | 返回数据JSON格式 |
+L34: | errorCode | Int | 错误码,当返回result=-1时，返回该参数 |
+L36: description给出成功或失败时的文本描述：
+L38: | description | 返回结果说明 |
+L39: | --- | --- |
+L40: | 验证失败，参数\[{param}\]不能为空 | {param}为接口参数中必选字段 |
+L41: | 验证失败，参数\[{param}\]格式不正确 | {param}为接口参数中格式有要求的字段 |
+L42: | 验证失败，参数\[{param}\]取值不正确 | {param}为接口参数中有固定取值的字段 |
+L43: | 验证失败，参数\[param\]取值范围不正确 | {param}为接口参数中有固定范围的字段 |
+L44: | 验证失败，超过频次限制 | 接口调用超过接口的访问频次限制 |
+L45: | 成功，{param} | {param}为成功描述 |
+L46: | 失败，{param} | {param}为失败描述 |
+L48: data定义：
+L50: | 字段 | 类型 | 描述 |
+L51: | --- | --- | --- |
+L52: | state | String | 座席状态描述（结合了登录状态和设备状态），离线，空闲，置忙，整理，呼叫中，响铃，保持，通话 |
+L53: | stateAction | String | 状态对应的动作，座席登录状态不是离线时返回。详见[座席状态动作说明](https://wiki.alicti.cn/html/wiki/%E5%B7%A5%E5%85%B7%E6%9D%A1/%E5%BA%A7%E5%B8%AD%E7%8A%B6%E6%80%81%E5%8A%A8%E4%BD%9C.html) |
+L54: | stateDuration | Long | 座席当前综合状态持续时长，单位秒。优先按综合状态开始时间计算，缺失时降级为登录状态开始时间；离线或不存在可用开始时间时不返回 |
+L55: | loginStatus | Integer | 座席登录状态 0：离线状态 1：在线状态 2：置忙状态 3：整理状态 |
+L56: | deviceStatus | Integer | 座席设备状态，座席登录状态不是离线时返回 -1：错误的状态 0：空闲状态 1：锁定状态 2：邀请中状态 3：响铃状态 4：使用中状态 |
+L57: | mainUniqueId | String | 座席当前参与的通话唯一标识，座席设备状态为1/2/3/4时返回 |
+L58: | extenReachable | Boolean | 座席当前绑定终端是否可达，` true ` 表示可达，` false ` 表示不可达 |
+L60: errorCode说明：
+L62: | 代码 | 说明 |
+L63: | --- | --- |
+L64: | 10001 | 系统异常 |
+L65: | 10002 | 超出请求频度限制 |
+L66: | 10003 | 权限验证失败 |
+L67: | 10004 | 企业状态异常 |
+L68: | 20000 | 参数不正确 |
+```
+
+## 座席状态推送变量定义
+Wiki：lib-天润融通字段定义；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/字段定义/推送变量和值/座席状态推送变量.md；SHA256：48ad4e687ceca58d6d549abf1298afd042b0551fc688c36c23bb24b4bed9fb71。
+
+```text
+L1: ##### 座席状态推送变量定义
+L3: 不支持通道变量
+L5: 座席状态推送默认推送以下所有存在的字段，只支持修改推送key值
+L8: | --- | --- | --- |
+L9: | event | status | status |
+L10: | enterpriseId | 企业ID | &lt;EXAMPLE\_VALUE&gt; |
+L11: | callType | deviceStatus=2,3或4时，呼叫类型 | 1 |
+L12: | cno | 座席工号 | &lt;EXAMPLE\_VALUE&gt; |
+L13: | loginStatus | 登录状态，0：离线，1：在线，2：置忙，3：整理 | 1 |
+L14: | deviceStatus | 设备状态，-1：失效，0：空闲，1：已锁定，2：呼叫中，3：响铃，4：通话中 | 4 |
+L15: | pauseType | loginStatus=2时，置忙类型 | 取值说明：1 普通 2 休息 |
+L16: | pauseDescription | loginStatus=2时，置忙描述 | 置忙 |
+L17: | busyDescription | deviceStatus=4时，忙碌描述，hold：保持 | hold |
+L18: | wrapupTime | loginStatus=3时，整理时间 | 30 |
+L19: | uniqueId | deviceStatus=3或4，loginStatus=3时，座席侧通话标识 | &lt;EXAMPLE\_VALUE&gt; |
+L20: | mainUniqueId | deviceStatus=3或4，loginStatus=3时，主通话标识，一通通话唯一 | sip-13-1527307333.19590 |
+L21: | state | 座席状态描述：离线，空闲，置忙，整理，呼叫中，响铃，保持，通话 | 通话 |
+L22: | stateAction | 状态对应的动作，详见[座席状态动作说明](https://wiki.alicti.cn/html/wiki/%E5%B7%A5%E5%85%B7%E6%9D%A1/%E5%BA%A7%E5%B8%AD%E7%8A%B6%E6%80%81%E5%8A%A8%E4%BD%9C.html) | idle |
+L23: | bindType | 绑定电话类型 | 取值 1.普通电话,2.分机,3.webrtc |
+L24: | bindTel | 绑定电话 | 184\*\*\*\*\*\*\* |
+L25: | consulterCno | 发起咨询的座席工号 | 2000 |
+L26: | transferCno | 转移座席号 | 2000 |
+L27: | customerNumber | 客户号码 | &lt;EXAMPLE\_VALUE&gt; |
+L28: | timeInMillis | 事件时间戳（ms） http推送时必存在 | 1720500293285 |
+L29: | time | 事件时间戳（s） http推送时必存在 | 1720500293 |
+```
+
+## 新增推送设置接口
+Wiki：lib-天润融通配置推送管理；原文：raw/external/tianrun-api-official/v1/文档/html/wiki/API/配置管理/推送管理/新增推送设置接口.md；SHA256：d3fbc3684f9f7aee434b99fe38060dd556cb08da248684f8340e5f45bd75f2e7。
+
+```text
+L1: ##### 新增推送设置接口
+L3: ###### 接口说明
+L5: 创建一条新的推送设置。目标配置支持两种方式：
+L7: - 目标接口模式：传 ` targetUrlId `，关联已存在的目标接口
+L9: - 直配模式：直接传 ` url `、` method `、` contentType `、` timeout `
+L11: 如果两种方式同时传入，服务端优先以 ` targetUrlId ` 对应的目标接口配置为准。
+L13: - 接口路径：` /cc/create_push_action `
+L15: - 请求方式：` POST `
+L17: - Content-Type：` application/json `
+L19: - 鉴权方式：请参考[接口鉴权](https://wiki.alicti.cn/html/wiki/API/%E6%9D%83%E9%99%90%E9%AA%8C%E8%AF%81/%E6%8E%A5%E5%8F%A3%E9%89%B4%E6%9D%83.html)
+L21: ###### 请求体参数
+L23: | 参数 | 类型 | 必填 | 说明 |
+L24: | --- | --- | --- | --- |
+L25: | name | String | 是 | 推送设置名称，企业内唯一 |
+L26: | targetUrlId | Integer | 否 | 目标接口 ID；与 ` url/method/contentType/timeout ` 二选一 |
+L27: | url | String | 否 | 目标接口地址；未传 ` targetUrlId ` 时必填，必须以 ` http:// ` 或 ` https:// ` 开头 |
+L28: | method | Integer | 否 | 请求方式；未传 ` targetUrlId ` 时必填，` 0=POST `，` 1=GET ` |
+L29: | contentType | Integer | 否 | 内容类型；未传 ` targetUrlId ` 时必填，` 1=form `，` 2=json ` |
+L30: | timeout | Integer | 否 | 超时时间；未传 ` targetUrlId ` 时必填，范围 ` 1~10 ` |
+L31: | type | Integer | 是 | 推送类型 |
+L32: | retry | Integer | 否 | 重试次数，范围 ` 0~3 `；仅在未传 ` retryStrategy ` 时生效 |
+L33: | active | Integer | 否 | 是否启用，` 0=停用 `，` 1=启用 `；默认 ` 1 ` |
+L34: | intervalTime | Integer | 否 | 重试间隔时间，范围 ` 0~60 `；仅在未传 ` retryStrategy ` 时生效 |
+L35: | callType | Integer | 否 | 呼叫类型 |
+L36: | pushAgent | Integer | 否 | 是否推送到座席前端，` 0=不推送 `，` 1=座席端推送 `，` 2=http推送+座席端推送 ` |
+L37: | customScriptSwitch | Integer | 否 | 数据加工开关，` 0=关闭 `，` 1=开启 `；默认 ` 0 ` |
+L38: | customScriptId | Integer | 否 | 数据加工脚本 ID；通常在 ` customScriptSwitch=1 ` 时传入 |
+L39: | retryStrategy | Object | 否 | 重试策略对象；传入后优先于顶层 ` retry `、` intervalTime ` |
+L40: | delayedPush | Object | 否 | 延迟推送对象，字段为 ` delay ` |
+L41: | meetConditions | Array | 否 | 条件设置 |
+L42: | params | Array | 否 | 推送参数 |
+L43: | scriptInputParamList | Array | 否 | 脚本入参 |
+L44: | pushParamList | Array | 否 | 脚本生成参数 |
+L46: ###### ` type ` 枚举
+L48: 以下枚举按照当前前端创建页的可见分组整理，并结合后端枚举与校验逻辑确认。
+L50: 来电推送：
+L52: | 取值 | 说明 |
+L53: | --- | --- |
+L54: | 1 | 来电到达推送 |
+L55: | 2 | 座席侧响铃推送 |
+L56: | 5 | 来电接听推送 |
+L57: | 7 | 来电挂断推送 |
+L58: | 38 | 来电转移接听推送 |
+L59: | 39 | 来电咨询接听推送 |
+L60: | 54 | 队列排队详情推送 |
+L62: 外呼推送：
+L64: | 取值 | 说明 |
+L65: | --- | --- |
+L66: | 3 | 预览外呼座席侧响铃推送 |
+L67: | 19 | 预览外呼客户侧响铃推送 |
+L68: | 6 | 预览外呼通话接听推送 |
+L69: | 8 | 外呼通话挂断推送 |
+L70: | 37 | 预览外呼座席接听推送 |
+L71: | 23 | 主叫外呼分机响铃推送 |
+L72: | 24 | 主叫外呼分机接听推送 |
+L73: | 25 | 主叫外呼客户侧响铃推送 |
+L74: | 26 | 主叫外呼双方接听推送 |
+L75: | 31 | 预测外呼客户侧响铃推送 |
+L76: | 16 | 预测外呼客户接听推送 |
+L77: | 17 | 预测外呼双方接听推送 |
+L78: | 42 | 预测外呼任务状态推送 |
+L79: | 52 | 预测外呼呼叫失败推送 |
+L80: | 53 | 预测外呼导入号码失败结果推送 |
+L81: | 1060 | 预测外呼降级执行结果推送 |
+L82: | 4 | WebCall转接响铃推送 |
+L83: | 14 | WebCall首叫响铃推送 |
+L84: | 20 | WebCall首叫接听推送 |
+L85: | 22 | WebCall转接接听推送 |
+L86: | 32 | WebCall请求回调推送 |
+L88: SIP接入推送：
+L90: | 取值 | 说明 |
+L91: | --- | --- |
+L92: | 34 | SIP接入推送 |
+L93: | 35 | SIP接入响铃推送 |
+L94: | 36 | SIP接入接听推送 |
+L96: 状态推送：
+L98: | 取值 | 说明 |
+L99: | --- | --- |
+L100: | 9 | 座席状态变更推送 |
+L101: | 11 | 号码状态识别推送 |
+L102: | 12 | 录音状态推送 |
+L104: 转写结果推送：
+L106: | 取值 | 说明 |
+L107: | --- | --- |
+L108: | 13 | 离线转写（ASR）结果推送 |
+L109: | 29 | 实时转写（RASR）结果推送 |
+L110: | 55 | 对话分析结果推送 |
+L111: | 58 | 智能体转写文本推送（整体） |
+L112: | 1062 | 智能体转写文本推送（逐句） |
+L114: 其他推送：
+L116: | 取值 | 说明 |
+L117: | --- | --- |
+L118: | 10 | DTMF按键推送 |
+L119: | 15 | 满意度调查结果推送 |
+L120: | 18 | IVR交互完成推送 |
+L121: | 28 | 放音推送 |
+L122: | 27 | 会议室进出事件推送 |
+L123: | 40 | 主通话记录推送 |
+L124: | 41 | 从通话记录推送 |
+L125: | 51 | 号码管理操作日志推送 |
+L126: | 1059 | 录音质量分析推送 |
+L127: | 1061 | 机器人接通事件推送 |
+L129: ###### 子结构说明
+L131: ` retryStrategy `：
+L133: | 参数 | 类型 | 必填 | 说明 |
+L134: | --- | --- | --- | --- |
+L135: | retry | Integer | 否 | 重试次数 |
+L136: | intervalTime | Integer | 否 | 重试间隔时间，单位秒 |
+L138: ` delayedPush `：
+L140: | 参数 | 类型 | 必填 | 说明 |
+L141: | --- | --- | --- | --- |
+L142: | delay | Integer | 否 | 延迟推送秒数，范围 ` 0~900 ` |
+L144: ` meetConditions[] `：
+L146: | 参数 | 类型 | 必填 | 说明 |
+L147: | --- | --- | --- | --- |
+L148: | conditionRelationship | Array | 否 | 组内条件关系，例如 ` ["and"] ` |
+L149: | meetGroup | Array | 否 | 条件明细列表 |
+L151: ` meetGroup[] `：
+L153: | 参数 | 类型 | 必填 | 说明 |
+L154: | --- | --- | --- | --- |
+L155: | condition | String | 否 | 条件字段 |
+L156: | ruleName | String | 否 | 比较规则 |
+L157: | ruleValue | String | 否 | 比较值 |
+L159: ` params[] `：
+L161: | 参数 | 类型 | 必填 | 说明 |
+L162: | --- | --- | --- | --- |
+L163: | encryptionRuleId | Integer | 否 | 加密规则 ID；无加密可传 ` -1 ` |
+L164: | paramName | String | 否 | 参数描述名称 |
+L165: | paramVar | String | 否 | 推送变量值 |
+L166: | pushParamName | String | 否 | 推送参数名 |
+L167: | paramType | String | 否 | 参数类型；未传时默认使用 ` 2 ` |
+L169: ` scriptInputParamList[] `：
+L171: | 参数 | 类型 | 必填 | 说明 |
+L172: | --- | --- | --- | --- |
+L173: | paramDesc | String | 否 | 脚本入参描述 |
+L174: | paramName | String | 否 | 脚本入参名称 |
+L175: | type | Integer | 否 | 脚本入参类型 |
+L176: | paramVariable | String | 否 | 脚本入参变量值 |
+L178: ` pushParamList[] `：
+L180: | 参数 | 类型 | 必填 | 说明 |
+L181: | --- | --- | --- | --- |
+L182: | desc | String | 否 | 脚本生成参数描述 |
+L183: | name | String | 否 | 脚本生成参数名称 |
+L184: | type | Integer | 否 | 脚本生成参数类型 |
+L270: ###### 返回参数
+L272: | 参数 | 类型 | 说明 |
+L273: | --- | --- | --- |
+L274: | requestId | String | 请求 ID |
+L275: | id | Integer | 新建成功后的推送设置 ID |
+L286: ###### 常见校验
+L288: - 同一企业下 ` name ` 不能重复。
+L290: - ` targetUrlId ` 与 ` url/method/contentType/timeout ` 至少需要提供一种方式。
+L292: - 若传入 ` targetUrlId `，该目标接口必须存在且属于当前企业。
+```
+
+## 公司scope写入摘要更正
+以下原定义已存在于SRC-2022，本次未更改Wiki或原始定义。
+```text
+L10632: **接口地址**:`/base/company/update`
+L10635: **请求方式**:`PUT`
+L10700: |&emsp;&emsp;scope|作用域：1-智能外呼;2-云呼叫；多个以逗号分隔||false|string||
+L11334: **接口地址**:`/base/company/create`
+L11403: |&emsp;&emsp;scope|作用域单选：1-智能外呼;2-云呼叫；未传默认1||false|string||
+L11844: |&emsp;&emsp;scope|作用域：1-智能外呼;2-云呼叫；多个以逗号分隔|string||
+```
+

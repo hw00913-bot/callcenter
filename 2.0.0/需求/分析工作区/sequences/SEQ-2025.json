@@ -1,0 +1,637 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2025",
+  "scenario_id": "SC-2025",
+  "name": "当前负责租户开展一轮多方式培育交互时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "design_status": "S5_current_G2_analysis_candidate_not_implementation",
+  "participants": [
+    {
+      "id": "person",
+      "name": "当前负责或原人工段有权人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "D联络云原功能前端",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "本方业务办理职责",
+      "kind": "system"
+    },
+    {
+      "id": "records",
+      "name": "本方稳定对象、配置及历史职责",
+      "kind": "system"
+    },
+    {
+      "id": "checks",
+      "name": "原执行/话后与公共禁呼核验职责",
+      "kind": "system"
+    },
+    {
+      "id": "association",
+      "name": "本方精确执行关联职责（正式合同missing）",
+      "kind": "system"
+    },
+    {
+      "id": "executor",
+      "name": "本次选定AI或预外呼执行侧（partial）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "明确本次是当前负责方主动新段，或原有权方首次补录已结束未保存原人工段",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 1
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "按品牌唯一编码/稳定记录及本次互斥意图请求上下文",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 2
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "新段核当前owner/节点及整记录最近执行段结束保存，换owner/round不豁免，仅从未有段例外",
+      "type": "request",
+      "api_id": null,
+      "condition": "仅主动新段意图",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 3
+    },
+    {
+      "from": "service",
+      "to": "checks",
+      "message": "实际起呼核本方式模块/成员执行权/资源后，检查本租户公共禁呼和有效专项",
+      "type": "request",
+      "api_id": "API-2007",
+      "condition": "仅实际新起呼；partial未取得可靠检查则受阻",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 4
+    },
+    {
+      "from": "checks",
+      "to": "service",
+      "message": "只认本次可核通过；命中/失败/未知均不启动，不要求双模块，正常呼入保持",
+      "type": "response",
+      "api_id": "API-2007",
+      "condition": "仅实际新起呼分支",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 5
+    },
+    {
+      "from": "service",
+      "to": "association",
+      "message": "核原记录/轮次/段与真实远端唯一标识关联；正式missing合同未落实只待核",
+      "type": "request",
+      "api_id": "API-2024",
+      "condition": "登记新段或核准确原段结果确需此关系；不按手机号猜",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 6
+    },
+    {
+      "from": "association",
+      "to": "service",
+      "message": "只有实际可唯一反查证据及同次状态可靠才允许继续，不假定当前已实现",
+      "type": "response",
+      "api_id": "API-2024",
+      "condition": "关联契约与本次证据可靠；否则受阻",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 7
+    },
+    {
+      "from": "service",
+      "to": "executor",
+      "message": "人员本次选AI，沿准确原段请求原方式受理及后来真实结束/结果依据",
+      "type": "external_call",
+      "api_id": "API-2019",
+      "condition": "仅AI新段全部原准入可靠通过；partial未核停待核",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 8
+    },
+    {
+      "from": "executor",
+      "to": "service",
+      "message": "仅在真实取得原AI段证据时分别反馈受理、结束、结果；无自动callback字段/时限假定",
+      "type": "response",
+      "api_id": "API-2019",
+      "condition": "实际AI证据可核；受理不等结束/保存",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 9
+    },
+    {
+      "from": "service",
+      "to": "executor",
+      "message": "人员本次选预外呼，沿原名单/任务请求准确段受理及真实执行/结果依据",
+      "type": "external_call",
+      "api_id": "API-2020",
+      "condition": "仅预外呼新段全部原准入可靠通过；partial未核受阻",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 10
+    },
+    {
+      "from": "executor",
+      "to": "service",
+      "message": "逐条导入/受理、执行结束及结果分别确认，不把整任务提交当本条完成",
+      "type": "response",
+      "api_id": "API-2020",
+      "condition": "实际预外呼证据可核；否则待核",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 11
+    },
+    {
+      "from": "ui",
+      "to": "person",
+      "message": "ref SEQ2018原人工作业/电话现场；按原资源与准确段固定本通表单，不复制电话命令",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2025-MANUAL] 本次新段选择人工且全部原准入通过",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-MANUAL"
+      ],
+      "reused_sequence_ref": "SEQ-2018",
+      "step": 12
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "原人工段补录只携原tenant/round/segment/nodeRun及固定表单身份，不带下游当前字段",
+      "type": "request",
+      "api_id": null,
+      "condition": "[ALT-2025-ORIGINAL-MANUAL] 仅原人工段首次补录，和新起呼互斥",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-ORIGINAL-MANUAL"
+      ],
+      "step": 13
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "核准确原段受理/结束未存、固定表单/版本、当前原操作资格及同次状态；原资源仅核历史身份关联",
+      "type": "request",
+      "api_id": null,
+      "condition": "[ALT-2025-ORIGINAL-MANUAL] 仅补录；不重新要求新起呼资源可用或拨前禁呼",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-ORIGINAL-MANUAL"
+      ],
+      "step": 14
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "只在原guard可靠时展示原表单/原值供有权人员确认；不读新owner字段，不授下游访问",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2025-ORIGINAL-MANUAL] 仅原段首次补录且原资格可靠",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-ORIGINAL-MANUAL"
+      ],
+      "step": 15
+    },
+    {
+      "from": "service",
+      "to": "checks",
+      "message": "核人工真实结束及原话后首次保存/补录资格；原电话命令和现场ref SEQ2018，不重新起呼",
+      "type": "request",
+      "api_id": "API-2021",
+      "condition": "人工新段已结束首次提交或原人工段补录确认；partial无真实依据受阻",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "reused_sequence_ref": "SEQ-2018",
+      "step": 16
+    },
+    {
+      "from": "checks",
+      "to": "service",
+      "message": "准确原段、结束和未保存状态分别可核才继续；挂机/整理或HTTP成功不当结果已保存",
+      "type": "response",
+      "api_id": "API-2021",
+      "condition": "仅人工首次保存/原段补录分支",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 17
+    },
+    {
+      "from": "service",
+      "to": "checks",
+      "message": "人工若成功保存明确拒联，ref SEQ2013联合核原话后与原租户公共入库整体责任",
+      "type": "request",
+      "api_id": "API-2005",
+      "condition": "仅人工明确拒联；missing联合合同未落实不报全部完成",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "reused_sequence_ref": "SEQ-2013",
+      "step": 18
+    },
+    {
+      "from": "checks",
+      "to": "service",
+      "message": "区分话后保存和公共入库的成功/部分失败/未知；一项成功不能代整体完成",
+      "type": "response",
+      "api_id": "API-2005",
+      "condition": "仅人工拒联联合保存分支",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 19
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "只有真实结束/精确关联及本次原保存资格可靠才归档原段固定快照；已存人工结果不重写",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次或原段实际可归档；补录不改新owner/node/round及当前较新值",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 20
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "返回可核实际归档结论；各fieldId省略保值、显式[]仅清本字段，旧段不覆盖较新值，不新增AI写字段",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次原段保存事实可核",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 21
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "分别展示原段受理/结束/已保存或待核事实，不把三者混为一次成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "仅本次相应事实可核",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 22
+    },
+    {
+      "from": "ui",
+      "to": "person",
+      "message": "查看准确已保存快照；下一新段仍由当前有权人另次启动并核整记录最近原段",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次段结束且结果保存明确",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 23
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "取消本次发起，不推定需要终止已运行的AI、预外呼或人工任务。",
+      "type": "event",
+      "api_id": null,
+      "condition": "[ALT-2025-CANCEL] 人员在主动新段发起前或原人工段补录提交前取消。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-CANCEL"
+      ],
+      "step": 24
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "平台在同一次准入校验中反馈不能启动及未满足原因。；人员收到原因后结束本次尝试，实际执行未启动；处理前段结束/保存等条件后可另次发起。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2025-CONDITION] 整条记录最近原执行段未结束/未保存（含换租户或换轮后），或当前归属/执行资格/资源不满足。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-CONDITION"
+      ],
+      "step": 25
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "不得把该段记为已结束且已保存结果，不允许由此启动下一段。；保留待核对状态；等待、重试、停止与超时的真实契约仍由S4核验，不承诺自动补偿或自动条件衔接。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2025-EXECUTION] 当前执行未形成可记录结果，或执行失败/结果状态无法核实。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-EXECUTION"
+      ],
+      "step": 26
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "不向业务人员宣称本段结果已保存，不允许启动下一段。；恢复、幂等及结果关联方式待接口核验；不新增独立重试功能。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2025-RECORD] 已取得结果，但平台未能记录成功。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-RECORD"
+      ],
+      "step": 27
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "不启动本次实际处理；说明原因，保留原记录、当前节点和已受理段。；公共禁呼按本租户外呼范围校验，正常呼入沿原规则。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2025-V2-EXECUTION-GUARD] 本次方式未开通、无执行权、资源不可用、有效公共禁呼命中或检查待核。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-V2-EXECUTION-GUARD"
+      ],
+      "step": 28
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "不展示下游当前字段，不用最新表单替代原快照；不保存或改写任何新旧结果。；保留可确认输入及原因；先核原事实或同次结果，再由仍有权人员另次办理，不授无限期补录权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2025-ORIGINAL-DENIED] 原段身份/固定表单/资格/资源或结束事实不可核、已保存、版本过期、待核请求未解决，或停用不具合法收尾资格。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2025-ORIGINAL-DENIED"
+      ],
+      "step": 29
+    }
+  ],
+  "source_story_ids": [
+    "US-2030",
+    "US-2036"
+  ],
+  "source_acceptance_ids": [
+    "AC-2090",
+    "AC-2091",
+    "AC-2092",
+    "AC-2121"
+  ],
+  "business_rule_ids": [
+    "BR-2029",
+    "BR-2030",
+    "BR-2031",
+    "BR-2032",
+    "BR-2033",
+    "BR-2035",
+    "BR-2036",
+    "BR-2037",
+    "BR-2038",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2008",
+    "BR-2009",
+    "BR-2016",
+    "BR-2017",
+    "BR-2018",
+    "BR-2020"
+  ],
+  "source_refs": [
+    "scenarios/SC-2025.json",
+    "memory/normalized-user-stories.json",
+    "memory/business-rules.json",
+    "memory/project-facts.json",
+    "interfaces/interface-index.json",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "source_bindings": {
+    "scenario_sha256": "3d48859af72c6cd909c2acc8076cbec082677a8b1641fc16de34fbd27e50ec12",
+    "interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+    "G2_basis": [
+      "SRC-2095",
+      "SRC-2096"
+    ]
+  },
+  "api_refs": [
+    "API-2005",
+    "API-2007",
+    "API-2019",
+    "API-2020",
+    "API-2021",
+    "API-2024"
+  ],
+  "internal_capability_refs": [
+    "API-2018",
+    "API-2028"
+  ],
+  "contract_dependency_refs": [
+    "API-2022",
+    "API-2023",
+    "API-2025"
+  ],
+  "reused_sequence_refs": [
+    "SEQ-2001",
+    "SEQ-2002",
+    "SEQ-2013",
+    "SEQ-2018"
+  ],
+  "main_step_coverage": [
+    {
+      "source_step": 1,
+      "message_steps": [
+        1,
+        2
+      ]
+    },
+    {
+      "source_step": 2,
+      "message_steps": [
+        1,
+        2
+      ]
+    },
+    {
+      "source_step": 3,
+      "message_steps": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "source_step": 4,
+      "message_steps": [
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "source_step": 5,
+      "message_steps": [
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "source_step": 6,
+      "message_steps": [
+        22,
+        23
+      ]
+    }
+  ],
+  "alternate_flow_coverage": [
+    {
+      "id": "ALT-2025-CANCEL",
+      "condition": "人员在主动新段发起前或原人工段补录提交前取消。",
+      "message_steps": [
+        24
+      ]
+    },
+    {
+      "id": "ALT-2025-CONDITION",
+      "condition": "整条记录最近原执行段未结束/未保存（含换租户或换轮后），或当前归属/执行资格/资源不满足。",
+      "message_steps": [
+        25
+      ]
+    },
+    {
+      "id": "ALT-2025-MANUAL",
+      "condition": "当前执行段按有效安排使用人工。",
+      "message_steps": [
+        12
+      ]
+    },
+    {
+      "id": "ALT-2025-EXECUTION",
+      "condition": "当前执行未形成可记录结果，或执行失败/结果状态无法核实。",
+      "message_steps": [
+        26
+      ]
+    },
+    {
+      "id": "ALT-2025-RECORD",
+      "condition": "已取得结果，但平台未能记录成功。",
+      "message_steps": [
+        27
+      ]
+    },
+    {
+      "id": "ALT-2025-V2-EXECUTION-GUARD",
+      "condition": "本次方式未开通、无执行权、资源不可用、有效公共禁呼命中或检查待核。",
+      "message_steps": [
+        28
+      ]
+    },
+    {
+      "id": "ALT-2025-ORIGINAL-MANUAL",
+      "condition": "原有权人员选择首次补录已结束未保存的原人工段，记录可能已转交或换轮。",
+      "message_steps": [
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "id": "ALT-2025-ORIGINAL-DENIED",
+      "condition": "原段身份/固定表单/资格/资源或结束事实不可核、已保存、版本过期、待核请求未解决，或停用不具合法收尾资格。",
+      "message_steps": [
+        29
+      ]
+    }
+  ],
+  "notes": [
+    "SRC2095+2096仅批准按当前缺口继续分析；不是G3、原型实施或生产验收。成功消息仅为本次事实可核后的条件目标，partial/missing合同或真实身份/关联/结果未核则停留待核/受阻。",
+    "参与方为产品责任边界，不宣称已部署新服务；not_required能力仅列内部职责，这7族内部消息api_id均为null，不伪造URL、方法、字段、回调、时限、重试或补偿协议。",
+    "按condition阅读互斥分支，非所有消息一次必经。真实受理、执行结束、结果保存、归属及节点分别核定，不以HTTP成功或已发请求代替业务完成。",
+    "共同认证/原操作资格及切离返回保护复用SEQ2001/2002等，不强制每页重新登录、退出电话或调用公共API；原独立AI/专业资源/财务资格、电话现场和停用有限收尾保持。",
+    "SRC2096：本版AI标签仅配置/映射和原始/映射结果展示，不新增AI标准标签写业务字段或由此新增自动流转；未匹配保原值无首项兜底，既有业务字段条件、人工保存和其他原有流转不变。",
+    "新段与原段首次补录互斥；补录不经过新起呼/禁呼检查，仍核原身份/原资源关联、固定表单、当前原操作资格和停用有限收尾，不增加结果修订。",
+    "API2019/2020/2021为原方式事实责任；受理与后续真实结束/结果来自已核证据，不虚构成功回调或新取证端点。",
+    "API2022不被画成自动停止命令；API2023仅既有出站兼容，无当前原触发不强加回传；API2025不因来源入站而在本次已存在记录的新段启动重复调用。"
+  ],
+  "source_scenario_sha256": "3d48859af72c6cd909c2acc8076cbec082677a8b1641fc16de34fbd27e50ec12",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

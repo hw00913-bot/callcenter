@@ -1,0 +1,128 @@
+# LOCAL-FLOW-IMPORT-MAP 读取名单并显式列映射
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [按实际分类严格预检并导入业务 · FUNC\-2036](../features/FUNC-2036.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2036
+
+触发：在导入与分配粘贴CSV/TSV或选择CSV/XLSX并配置映射
+
+## 前置条件
+
+- 当前租户管理员有customer.import资格
+
+## 必须遵守的全局规则
+
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-FIELDS](../global-logic.md#GR-FIELDS)
+- [GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-FILE-PENDING](../field-specs.md#FIELD-FLOW-FILE-PENDING)、[FIELD-FLOW-FILE-READ](../field-specs.md#FIELD-FLOW-FILE-READ)、[FIELD-FLOW-IMPORT-MAPPING](../field-specs.md#FIELD-FLOW-IMPORT-MAPPING)、[FIELD-FLOW-IMPORT-TEXT](../field-specs.md#FIELD-FLOW-IMPORT-TEXT)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)
+
+输出：[FIELD-FLOW-IMPORT-TEXT](../field-specs.md#FIELD-FLOW-IMPORT-TEXT)、[FIELD-FLOW-IMPORT-MAPPING](../field-specs.md#FIELD-FLOW-IMPORT-MAPPING)、[FIELD-FLOW-FILE-READ](../field-specs.md#FIELD-FLOW-FILE-READ)
+
+## 处理步骤
+
+### STEP-FLOW-IMPORT-MAP-1
+
+按实际分类导入schema识别表头，非标准列明确目标或忽略
+
+读取：FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-CATEGORY-IMPORT-REFS, FIELD-FLOW-IMPORT-TEXT；写入：FIELD-FLOW-IMPORT-MAPPING
+
+规则：GR-AUTH, GR-FIELDS, GR-DATA-FACTS, GR-UNKNOWN
+
+### STEP-FLOW-IMPORT-MAP-2
+
+核一目标一列、必填列和未知数据列；映射/表头/字段变化使预览失效
+
+读取：FIELD-FLOW-IMPORT-MAPPING, FIELD-FLOW-IMPORT-TEXT；写入：FIELD-FLOW-IMPORT-PREVIEW, FIELD-FLOW-IMPORT-TOKEN
+
+规则：GR-AUTH, GR-FIELDS, GR-DATA-FACTS, GR-UNKNOWN
+
+### STEP-FLOW-IMPORT-MAP-3
+
+读取期间锁检查/提交，仅最新窗口/身份/序号结果可应用
+
+读取：FIELD-FLOW-FILE-READ, FIELD-FLOW-IMPORT-TEXT；写入：FIELD-FLOW-FILE-READ, FIELD-FLOW-IMPORT-TEXT
+
+规则：GR-AUTH, GR-FIELDS, GR-DATA-FACTS, GR-UNKNOWN
+
+### STEP-FLOW-IMPORT-MAP-4
+
+整批明确DIRECT或TEMPLATE；DIRECT显式选择AI/MANUAL/PREDICTIVE，AI明确场景。模式/方式/分类/场景/名单/映射变化均使旧预检失效
+
+读取：FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-AI-SCENE；写入：FIELD-FLOW-IMPORT-TOKEN
+
+规则：GR-AUTH, GR-FIELDS, GR-DATA-FACTS, GR-UNKNOWN, GR-HANDLING-MODE
+
+## 分支与异常
+
+### BRANCH-FLOW-IMPORT-MAP-1
+
+条件：重复目标、未映必填或FOLLOWUP/未知目标
+
+结果：保原文本具体报错，不静默丢行
+
+涉及字段：FIELD-FLOW-IMPORT-MAPPING, FIELD-FLOW-IMPORT-TEXT
+
+验证：CHECK-FLOW-IMPORT-MAP
+
+### BRANCH-FLOW-IMPORT-MAP-2
+
+条件：旧文件迟到/读取失败/用户手改
+
+结果：不覆盖新文本或新窗口，旧预览不可提交
+
+涉及字段：FIELD-FLOW-FILE-READ, FIELD-FLOW-IMPORT-TEXT
+
+验证：CHECK-FLOW-IMPORT-MAP
+
+### BRANCH-FLOW-IMPORT-MAP-3
+
+条件：映射合法
+
+结果：生成规范字段输入，但尚未创建业务
+
+涉及字段：FIELD-FLOW-IMPORT-MAPPING
+
+验证：CHECK-FLOW-IMPORT-MAP
+
+## 完成后的状态
+
+- 格式示例只示格式，不保证满足分流
+
+## 字段定义
+
+- [FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)
+- [FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)
+- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
+- [FIELD-FLOW-CATEGORY-IMPORT-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)
+- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+- [FIELD-FLOW-FILE-PENDING](../field-specs.md#FIELD-FLOW-FILE-PENDING)
+- [FIELD-FLOW-FILE-READ](../field-specs.md#FIELD-FLOW-FILE-READ)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-IMPORT-MAPPING](../field-specs.md#FIELD-FLOW-IMPORT-MAPPING)
+- [FIELD-FLOW-IMPORT-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)
+- [FIELD-FLOW-IMPORT-TEXT](../field-specs.md#FIELD-FLOW-IMPORT-TEXT)
+- [FIELD-FLOW-IMPORT-TOKEN](../field-specs.md#FIELD-FLOW-IMPORT-TOKEN)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2115, features:FUNC-2036, features:FUNC-2036/behavior_spec/0/branches/0, features:FUNC-2036/behavior_spec/0/branches/1, features:FUNC-2036/behavior_spec/0/branches/2, features:FUNC-2036/behavior_spec/0/postconditions/0, features:FUNC-2036/behavior_spec/0/preconditions/0, features:FUNC-2036/behavior_spec/0/steps/0, features:FUNC-2036/behavior_spec/0/steps/1, features:FUNC-2036/behavior_spec/0/steps/2, features:FUNC-2036/behavior_spec/0/steps/3, pages:PAGE-2006/fields/5, pages:PAGE-2006/fields/59, pages:PAGE-2006/fields/6, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2204, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/11, pages:PAGE-2204/fields/2, pages:PAGE-2204/fields/27, pages:PAGE-2204/fields/28, pages:PAGE-2204/fields/32, pages:PAGE-2204/fields/35, pages:PAGE-2204/fields/36, pages:PAGE-2204/fields/37, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2223/fields/4, pages:PAGE-2223/fields/5, pages:PAGE-2226/fields/20, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/8, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/4, pages:PAGE-2228/fields/3, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/145, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/147, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/21, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/52, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/53, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/54, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/57, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/58, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/70, scenarios:FLOW-CURRENT-CUSTOMER/steps/12
+
+验证：CHECK-FLOW-IMPORT-MAP
+
+## 实施任务
+
+- [TASK-013](../tasks/TASK-013.md)

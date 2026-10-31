@@ -1,0 +1,109 @@
+{
+  "schema": "superseded-else-clauses@1",
+  "status": "historical_only_not_current_requirement",
+  "superseded_by": "CHG-031-ELSE / AC-2139 / step-40",
+  "field": {
+    "id": "FIELD-FLOW-BRANCH-KIND",
+    "name": "条件路径／默认路径",
+    "entity": "FlowEdge",
+    "key": "branch.kind",
+    "source_refs": [
+      "docs/field-alignment.json#FIELD-FLOW-BRANCH-KIND"
+    ],
+    "source_keys": [],
+    "type": "enum",
+    "format": "IF/ELSEIF/ELSE对应有序条件路径／默认路径",
+    "nullable": false,
+    "required_when": "保存路径必需",
+    "default": {
+      "kind": "derived",
+      "value": null,
+      "rule": "首条条件IF、后续ELSEIF，显式默认ELSE；新单连线初始为默认可改条件"
+    },
+    "validation_rules": [
+      "当前新方案有出口时必须唯一末位ELSE，前序IF/ELSEIF按优先级首命中；未知不能进入后续或ELSE。"
+    ],
+    "permissions": {
+      "read": [
+        "有本品牌当前模板查看资格者；查看不要求修改/删除权",
+        "有准确业务读取权者只读本run完整捕获方案；不因此取得当前模板配置权"
+      ],
+      "write": [
+        "获对应品牌配置权的超级管理员或本品牌租户管理员"
+      ]
+    },
+    "lifecycle": [
+      {
+        "state": "模板保存",
+        "behavior": "编排组件/路径/条件为草稿，合法确认后成为当前模板；当前分类应用另行独立保存，已开run快照不改。"
+      },
+      {
+        "state": "失败/未知或并发变化",
+        "behavior": "保留本次输入与已经明确生效的原事实，说明本字段对应原因；unknown沿准确原请求核对。"
+      },
+      {
+        "state": "后续读取/使用",
+        "behavior": "普通CALL/TRANSFER默认路径可选；有默认则最多一条且末尾，不带规则；单条件路径合法"
+      }
+    ],
+    "derivation": {
+      "kind": "input",
+      "rule": "普通CALL/TRANSFER默认路径可选；有默认则最多一条且末尾，不带规则；单条件路径合法",
+      "dependencies": []
+    },
+    "persistence": {
+      "kind": "stored",
+      "write_when": "流转模板当前配置明确保存成功时写入同一配置；新建草稿不供业务使用；后续编辑只影响新运行可用方案。"
+    },
+    "examples": {
+      "valid": [
+        "单条有条件出口为IF，无默认也可合法。"
+      ],
+      "invalid": [
+        "普通节点两个ELSE或ELSE后再条件，拒绝。"
+      ]
+    },
+    "test_refs": [
+      "CHECK-FLOW-TEMPLATE-CREATE",
+      "CHECK-FLOW-TEMPLATE-EDIT",
+      "CHECK-FLOW-TEMPLATE-READ",
+      "CHECK-FLOW-ROUTE-BIND"
+    ]
+  },
+  "acceptance": {
+    "id": "AC-2124",
+    "statement": "路径按优先顺序只选首个命中；任何依赖事实待核都阻后续及默认，已知均不匹配留原节点/owner。普通默认可选且唯一末位，开始必有明确默认；不存在多路径人工任选。",
+    "source_refs": [
+      "docs/functional-spec.json#AC-2124"
+    ],
+    "decision_refs": [
+      "docs/decisions.md"
+    ]
+  },
+  "replaced_page_clauses": [
+    {
+      "old": "普通节点默认可选且唯一末位，START必须有唯一末位默认路径。",
+      "replaced_by": "所有有出口节点必须有且仅有一个末位ELSE；未知不能进入后序或ELSE。"
+    },
+    {
+      "old": "条件从上到下只取第一条命中；普通节点默认可选、唯一且末位，未命中停留，未知不越过。",
+      "replaced_by": "条件从上到下首命中，所有有出口节点须唯一末位ELSE，前序条件明确不匹配才兜底，未知不越过。"
+    },
+    {
+      "old": "严格实际执行／结果归档后判断；默认可选，未知或冲突不推进；操作者明确确认后进入唯一合法节点。",
+      "replaced_by": "严格实际执行／结果归档后判断；当前方案必须唯一末位ELSE，未知或冲突不推进；操作者明确确认后进入唯一合法节点。"
+    },
+    {
+      "old": "START必有唯一末位默认，普通节点默认可选且唯一末位；未知不越过后续/默认，已知未命中停留。",
+      "replaced_by": "所有有出口节点须唯一末位ELSE；未知保留当前节点/归属且不越过后续/ELSE，前序条件明确均不匹配才进入ELSE。"
+    },
+    {
+      "old": "从上到下首命中，未知阻后续；普通默认可选且唯一末位，START唯一默认必需",
+      "replaced_by": "当前新方案所有有出口节点必须有且仅有一个末位ELSE，前序IF/ELSEIF按优先级首命中；ELSE不带条件，未知事实继续PENDING且不得进入后续或兜底。"
+    },
+    {
+      "old": "路径按优先顺序只选首个命中；任何依赖事实待核都阻后续及默认，已知均不匹配留原节点/owner。普通默认可选且唯一末位，开始必有明确默认；不存在多路径人工任选。",
+      "replaced_by": "路径按优先顺序只选首个命中；任何依赖事实待核都阻后续及ELSE，保留原节点/owner。所有有出口节点必须唯一末位ELSE，前序条件明确均不匹配才用ELSE；单一出口为ELSE，不存在多路径人工任选。"
+    }
+  ]
+}

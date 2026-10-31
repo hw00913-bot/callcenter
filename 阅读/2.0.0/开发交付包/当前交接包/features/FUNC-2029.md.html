@@ -1,0 +1,122 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/features/FUNC-2029.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/features/FUNC-2029.md">原始 Markdown</a></p><h1>当前交接包/features/FUNC-2029.md</h1><pre># 删除无业务引用的准确租户 · FUNC\-2029
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+沿独立原删除权及默认管理组保护，引用/权限/修订终提交再验；不级联清账、任务、品牌和其他租户。
+
+来源业务域：系统管理；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md) — 共用页面，另有 4 个功能
+
+## 局部逻辑
+
+- [删除无业务引用的准确租户 · LOCAL\-PLAT\-TENANT\-DELETE](../local-logic/LOCAL-PLAT-TENANT-DELETE.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：有原删除权者对准确对象确认删除
+
+- 独立原删除权及准确对象
+- 业务引用判定明确为none
+- 保原默认管理组不可删；不级联品牌/账务/通话/任务
+
+### 处理步骤
+
+1. **LOCAL\-PLAT\-TENANT\-DELETE\-S1**：确认框展示准确对象及不可级联范围
+
+2. **LOCAL\-PLAT\-TENANT\-DELETE\-S2**：最终提交再验权限、引用和修订；任一变化拒绝
+
+3. **LOCAL\-PLAT\-TENANT\-DELETE\-S3**：仅可靠终态认定删除；HTTP200或列表查不到不作唯一证据
+
+### 分支与异常
+
+- **LOCAL\-PLAT\-TENANT\-DELETE\-B1**：当前提、字段及对象修订校验通过且结果明确成功，仅准确无引用对象被确认删除；必要审计保留，失败/未知不假报成功。
+
+- **LOCAL\-PLAT\-TENANT\-DELETE\-B2**：当无权/字段不合法/对象失效/修订冲突，明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更。
+
+- **LOCAL\-PLAT\-TENANT\-DELETE\-B3**：当提交失败或结果未知，失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功。
+
+### 完成后的状态
+
+- 仅准确无引用对象被确认删除；必要审计保留，失败/未知不假报成功
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [变更审计 · FIELD\-PLAT\-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)；依据：[删除无业务引用的准确租户 · LOCAL\-PLAT\-TENANT\-DELETE](../local-logic/LOCAL-PLAT-TENANT-DELETE.md)
+
+- [操作结果状态 · FIELD\-PLAT\-OP\-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)；依据：[删除无业务引用的准确租户 · LOCAL\-PLAT\-TENANT\-DELETE](../local-logic/LOCAL-PLAT-TENANT-DELETE.md)
+
+- [业务引用判定 · FIELD\-PLAT\-REFERENCE\-STATE](../field-specs.md#FIELD-PLAT-REFERENCE-STATE)；依据：[删除无业务引用的准确租户 · LOCAL\-PLAT\-TENANT\-DELETE](../local-logic/LOCAL-PLAT-TENANT-DELETE.md)
+
+- [操作请求标识 · FIELD\-PLAT\-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)；依据：[删除无业务引用的准确租户 · LOCAL\-PLAT\-TENANT\-DELETE](../local-logic/LOCAL-PLAT-TENANT-DELETE.md)
+
+- [对象当前修订 · FIELD\-PLAT\-REVISION](../field-specs.md#FIELD-PLAT-REVISION)；依据：[删除无业务引用的准确租户 · LOCAL\-PLAT\-TENANT\-DELETE](../local-logic/LOCAL-PLAT-TENANT-DELETE.md)
+
+- [业务租户标识 · FIELD\-PLAT\-TENANT\-ID](../field-specs.md#FIELD-PLAT-TENANT-ID)；依据：[删除无业务引用的准确租户 · LOCAL\-PLAT\-TENANT\-DELETE](../local-logic/LOCAL-PLAT-TENANT-DELETE.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [模块开通状态 · FIELD\-PLAT\-MODULES](../field-specs.md#FIELD-PLAT-MODULES)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [门店编码 · FIELD\-PLAT\-STORE\-CODE](../field-specs.md#FIELD-PLAT-STORE-CODE)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [所属品牌 · FIELD\-PLAT\-TENANT\-BRAND](../field-specs.md#FIELD-PLAT-TENANT-BRAND)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [商业类型 · FIELD\-PLAT\-TENANT\-COMMERCIAL](../field-specs.md#FIELD-PLAT-TENANT-COMMERCIAL)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [租户联系人 · FIELD\-PLAT\-TENANT\-CONTACT](../field-specs.md#FIELD-PLAT-TENANT-CONTACT)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [租户说明 · FIELD\-PLAT\-TENANT\-DESC](../field-specs.md#FIELD-PLAT-TENANT-DESC)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [云呼叫企业资源关联 · FIELD\-PLAT\-TENANT\-ENTERPRISE](../field-specs.md#FIELD-PLAT-TENANT-ENTERPRISE)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [租户名称 · FIELD\-PLAT\-TENANT\-NAME](../field-specs.md#FIELD-PLAT-TENANT-NAME)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [总部／门店身份 · FIELD\-PLAT\-TENANT\-TYPE](../field-specs.md#FIELD-PLAT-TENANT-TYPE)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [最近更新时间 · FIELD\-PLAT\-UPDATED](../field-specs.md#FIELD-PLAT-UPDATED)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [账号稳定标识 · FIELD\-PLAT\-ACCOUNT\-ID](../field-specs.md#FIELD-PLAT-ACCOUNT-ID)；依据：[账号与租户引用保护删除 · TASK\-007](../tasks/TASK-007.md)
+
+## 本功能验收
+
+- **AC\-2080**：原AI租户删除在PAGE\-2004沿原删除权只作用于准确单个业务租户；仅无任务、通话、账务等业务引用时可删，有业务历史继续保留，必要删除审计保留并维持原默认管理组不可删保护。复用原确认和反馈，最终提交中一致校验对象、原权和资格，引用/授权并发变化时拒绝或按真实结果处理；实体/能力未核不调用DELETE，失败或未知不假报成功、不盲重试，HTTP200或列表查不到不能单独证明已删。不级联清历史、自动清账/取消任务，不删除品牌或其他租户，不增租户停用或新增删除权限。
+
+## 实施任务
+
+- [账号与租户引用保护删除 · TASK\-007](../tasks/TASK-007.md) — 共同实施任务，包含其他功能
+
+先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-2029。产品：续接输入 / 2\.0\.0\-current\-20261030\-step41。
+
+来源类型：current；来源指纹：0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe。
+
+- documentation/input/functions\.json\#FUNC\-2029
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>

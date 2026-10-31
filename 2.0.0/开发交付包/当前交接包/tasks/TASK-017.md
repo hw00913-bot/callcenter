@@ -1,0 +1,127 @@
+# TASK-017 直接跟进完成与再次跟进周期
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](../features/FUNC-2031.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](../features/FUNC-2032.md)
+- [按实际分类严格预检并导入业务 · FUNC\-2036](../features/FUNC-2036.md)
+- [分配本租户责任跟进人与AI安排 · FUNC\-2037](../features/FUNC-2037.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](../features/FUNC-2039.md)
+
+## 目标
+
+完成直接周期仍需明确结论及真实已归档跟进，或NO_CALL带原因；后续再次跟进保原周期事实。；区分普通DIRECT准入和可信END来源接续；两者都保持准确当前租户/实际人/资源/限制和直接周期，不伪造活动run。
+
+## 产品依据
+
+- FUNC-2031 明确发起当前呼叫及同组批呼叫：明确发起同租户DIRECT或TEMPLATE当前CALL的AI/人工/预外呼；按准确模式身份核串行、本人/场景/资源和联系限制，同组AI/预外呼可逐条核验后批量发起。 已完成直接业务可显式选下一次方式建立独立直接周期，清旧责任安排后重新分配。；来源 documentation/input/functions.json#FUNC-2031
+- FUNC-2032 保存本轮跟进、准确通话事实并唯一归档：DIRECT与TEMPLATE均按准确实际办理/接听人保存必要内容、真实通话及当时定义和值快照，重试可靠收敛后唯一归档；当前更正独立留痕，不借旧事实完成新节点。 直接周期完成须明确业务结论、全部执行与必要归档收敛，并有真实完成跟进或NO_CALL+原因；不能自动从归档完成。；来源 documentation/input/functions.json#FUNC-2032
+- FUNC-2036 按实际分类严格预检并导入业务：整批明确DIRECT或TEMPLATE后严格预检及导入：DIRECT须分类显式允许、方式明确且AI场景必选，仅豁免路由附加资料，不建run/node；TEMPLATE沿当前路由建run。已有直接业务后续显式启用流程，在旧执行与必要归档收敛且当前路由资料通过后于原业务建新run，不重复导入。；来源 documentation/input/functions.json#FUNC-2036
+- FUNC-2037 分配本租户责任跟进人与AI安排：按准确当前模式/方式只分配本租户责任跟进人，AI场景在导入与分配同一安排明确；不选择任务/线路/队列，不改owner/方式、不自动起呼。；来源 documentation/input/functions.json#FUNC-2037
+- FUNC-2039 查询业务、批次和工作队列：查询模式、批次、队列和下一步；DIRECT显示同租户待安排/起呼/结果/本人填写/待核及再次跟进，允许有权人经独立预检显式启用流程。；来源 documentation/input/functions.json#FUNC-2039
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+
+## 前置任务
+
+- TASK-021
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-SERIAL](../global-logic.md#GR-SERIAL)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-FLOW-COMPLETE-DIRECT](../local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[LOCAL-FLOW-RESUME-DIRECT](../local-logic/LOCAL-FLOW-RESUME-DIRECT.md)
+
+字段：[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-ARCHIVE-STATE](../field-specs.md#FIELD-FLOW-ARCHIVE-STATE)、[FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-DIRECT-OUTCOME](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME)、[FIELD-FLOW-DIRECT-OUTCOME-CODE](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME-CODE)、[FIELD-FLOW-DIRECT-OUTCOME-LABEL](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME-LABEL)、[FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)、[FIELD-FLOW-END-FOLLOWUP-ORIGIN](../field-specs.md#FIELD-FLOW-END-FOLLOWUP-ORIGIN)、[FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-REASON](../field-specs.md#FIELD-FLOW-REASON)、[FIELD-FLOW-RECORD-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2204](../ui-pages/UI-PAGE-2204.md)
+- [UI-PAGE-2227](../ui-pages/UI-PAGE-2227.md)
+
+## 实现要求
+
+- 完成直接周期仍需明确结论及真实已归档跟进，或NO_CALL带原因；后续再次跟进保原周期事实。
+- 区分普通DIRECT准入和可信END来源接续；两者都保持准确当前租户/实际人/资源/限制和直接周期，不伪造活动run。
+- directCycle不是run；关闭分类权限后不能再开直接周期；完成与业务达成分开。
+- END来源可保已结束runs/nodeRuns历史；这不允许普通DIRECT请求伪造来源绕分类开关。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2115**：按实际分类生成系统必需和IMPORT列及必填校验；合法等待名单数据中性提示，检查后具体报字段/节点/条件；正式提交所有行通过且token一致。
+  依据：docs/functional-spec.json#AC-2115
+
+- **AC-2116**：LEAD同品牌统一编码跨分类/来源唯一，ORDINARY同品牌同分类唯一；不凭手机号合并，不覆盖重复业务或自动重开。
+  依据：docs/functional-spec.json#AC-2116
+
+- **AC-2118**：分配只确定当前租户责任跟进人和必要AI场景，方式已由节点明确，不选择坐席/任务，不改owner、不自动起呼。
+  依据：docs/functional-spec.json#AC-2118
+
+- **AC-2122**：受理、真实拨打、执行终态、内容保存、唯一归档、节点、owner及业务结论分别确认；未知核原请求而非新身份重发。
+  依据：docs/functional-spec.json#AC-2122
+
+- **AC-2129**：超管在管理范围仅监管查询，列表/详情/直接访问一致，不代分配、起呼、填结果或转交。
+  依据：docs/functional-spec.json#AC-2129
+
+## 测试要求（尚未执行）
+
+### CHECK-FLOW-COMPLETE-DIRECT / manual
+
+步骤：DIRECT新业务无拨打尝试完成SUCCESS、无原因NO_CALL、带原因NO_CALL；另有真实已归档完成跟进的当前周期选择明确结论。分别置旧请求未知、重试未收敛、本人内容未归档；最后全部满足后重复同请求并查看原段。
+
+预期：无真实完成跟进仅NO_CALL+原因合法，且全部旧执行及必要归档须收敛；合法时只封一个COMPLETED周期/业务结论，不造通话或跟进完成数；原段保持，失败保输入，未知沿同请求核对。
+
+覆盖：AC-2118, AC-2122, AC-2129
+
+### CHECK-FLOW-RESUME-DIRECT / manual
+
+步骤：按当前续接版本执行：有再次直接办理资格者在COMPLETED业务选择下一次方式后确认“再次直接跟进”。前提：当前业务为DIRECT且当前周期COMPLETED，具本业务再次直接跟进资格；分类当前仍显式允许直接跟进；全部旧执行、未知及必要归档已可靠收敛；明确下一次AI/MANUAL/PREDICTIVE；AI明确有效本租户/分类场景，实际专业能力仍可核。操作：按当前分类开关和准确业务/owner/周期重验；下一次方式须明确确认，AI重核当前准确场景，不把旧结果当新输入。；同业务追加新directCycleId并设ACTIVE，保存本次明确方式/必要场景；原周期COMPLETED及结论快照保留。；清旧责任跟进人及旧执行安排，清当前业务结论但保周期历史；新周期重新分配和明确起呼，不建run/node或自动续拨。。分别构造：周期未完成、分类关闭、旧执行未收敛或必要场景不可用；明确成功或重复同请求；结果未知；当前直接周期具有可靠END接续来源。
+
+预期：再次直接跟进与同周期内真实重拨分开；新周期不能借旧完成结论或通话充当本次跟进。；保旧COMPLETED及全部输入，指出具体原因；不建新周期，不自动启用模板。；同record/owner只新增一个DIRECT周期，旧段仍归旧周期，当前安排待重新分人。；沿准确原请求核对，不重放新周期。；可以按已确认END继续人工跟进；普通DIRECT开关不替代此来源，但当前分类/本人/资源/联系/必要归档照常核验。
+
+覆盖：AC-2115, AC-2116, AC-2129
+
+## 完成条件
+
+- 完成直接周期仍需明确结论及真实已归档跟进，或NO_CALL带原因；后续再次跟进保原周期事实。
+- 区分普通DIRECT准入和可信END来源接续；两者都保持准确当前租户/实际人/资源/限制和直接周期，不伪造活动run。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [four-node-model.js](../../../prototype/scripts/four-node-model.js) · 只读行为参考，非生产可写目标
+- [four-node-workspace.js](../../../prototype/js/adapters/four-node-workspace.js) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：ENG-FLOW-PERSISTENCE。

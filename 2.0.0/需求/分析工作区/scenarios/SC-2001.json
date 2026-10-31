@@ -1,0 +1,835 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2001",
+  "name": "登录并进入合法业务入口",
+  "summary": "账号认证后选择/恢复合法租户，并进入六入口中的有权原入口",
+  "actors": [
+    "登录账号",
+    "统一身份与租户访问控制",
+    "合法入口解析与六入口导航"
+  ],
+  "trigger": "首次或后续登录",
+  "preconditions": [
+    "使用AI现有生产身份与租户关系作为存量基准；具体认证和云呼叫映射契约待 ISSUE-2001 核验。",
+    "先验证账号再取得有权租户；单租户直进，多租户首次选择，后续恢复上次仍有权租户。仅合法平台资源/公共管理范围者沿原有权入口，不强制进入业务租户。",
+    "六入口为工作台、业务中心、客户中心、呼叫中心、报表中心、系统管理；登录首次优先和后续恢复沿原稳定PAGE映射，不依六入口排序重算。原公共管理功能已分散承接，原管理范围及原顺序保留。"
+  ],
+  "expected_outcome": "账号认证后选择/恢复合法租户，并进入六入口中的有权原入口",
+  "exception_scope": "认证失败、租户关系读取/映射异常、无合法租户、选择取消/失权、原入口失效及模块权限不足分别反馈",
+  "source_story_ids": [
+    "US-2001"
+  ],
+  "source_acceptance_ids": [
+    "AC-2001",
+    "AC-2002",
+    "AC-2003",
+    "AC-2004"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2036",
+    "inputs/source-index.json#SRC-2037",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2039",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "G1已确认场景范围；S3流程候选。认证机制、租户/成员稳定标识仍待核验，图中身份系统代表业务责任而非已选技术架构；默认子页、无业务权限落点是待页面评审的候选。 具体默认子页与无工作区权限的落地页面是设计缺口，仅记在 ISSUE-2009，不作为运行时失败原因。 SRC-2035～2041的合法租户与首次窄人群入口规则保留；展示按SRC-2088更新为六入口，替代原切换器，AI/云呼叫模块独立开通和操作授权仍保留。首次PAGE-2204仅适用SRC-2039条件，不形成历史失效回退优先级；原角色与入口盘点不等于生产角色码或授权证明。 结构修正保留全部原节点和异常ID：业务单租户、合法历史、多租户手动选择及独立平台范围在统一进入复核处汇合，不增加额外确认弹窗；业务、专业资源/财务、公共入口分层解析。仅Cloud首次同样适用SRC-2039窄条件，历史失效不套用首次优先。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 新增分类/模板的配置查看、监管和本租户业务处理按各自动作资格区分；品牌配置或列表查看不要求同时开通两种业务模块，不冒用租户身份，不授予跨租户记录、拨号、转交或成员授权。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "登录账号",
+      "action": "提交现有合法登录凭据",
+      "system_response": "D联络云沿AI生产既有认证能力验证系统身份，不要求分别填写两套凭据；认证成功后才读取合法访问范围。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "统一身份与租户访问控制",
+      "action": "核验身份关系并选择/恢复合法租户",
+      "system_response": "仅以稳定身份取得有权范围。业务单租户自动选定，多租户首次选择；后续恢复上次仍合法租户，原租户失效时重新选择。单租户、合法历史与原独立平台范围自动继续，不额外增加确认弹窗；仅多租户手动选择可取消。进入前重验，失败不猜默认租户或按名称合并身份。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "统一身份与租户访问控制",
+      "action": "求得当前合法范围内原业务、专业与管理功能的可用入口",
+      "system_response": "分别结合租户模块开通、成员及操作权限，按原合法入口意图区分业务模块、供应商资源/AI服务财务等独立专业入口与原公共管理功能；这些功能映射到六入口，不由入口名称重新划分权限。没有业务模块权限不等于没有原专业入口；入口可见不代表区内全权。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "合法入口解析与六入口导航",
+      "action": "解析首次或后续有权入口",
+      "system_response": "首次只要有云呼叫访问权（含仅云呼叫）即解析其有权原入口；原综合概览、无明确本人作业/监管默认且同时有导入分配和云报表权时优先导入与分配，其他原意图沿用。仅AI首次沿AI原入口意图；后续恢复该账号该合法范围上次位置，历史失效按原合法入口意图重新解析，不套首次导入分配优先。原专业资源/财务入口独立承接，不要求同时有业务模块或公共资料管理权。 原稳定PAGE及访问记录映射至新入口；不按六入口展示顺序重算首次优先级或后续恢复位置。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "合法入口解析与六入口导航",
+      "action": "确认目标入口",
+      "system_response": "既有页面失效时按原合法入口意图和当前权限重新解析，不回到已取消概览，不把首次导入分配优先扩为历史失效兜底。仅原公共管理权限时沿原管理入口顺序选择首个有权稳定PAGE并映射至现入口，无权与读取失败分开反馈。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "合法入口解析与六入口导航",
+      "action": "读取目标原业务页面",
+      "system_response": "在工作台/业务中心/客户中心/呼叫中心/报表中心/系统管理展示有权菜单和最新内容；账号与选定合法范围保持一致，不新增统一首页，不自动电话上线。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2001-01",
+      "condition": "认证未通过",
+      "steps": [
+        "反馈认证失败，不进入受保护业务入口；用户重新发起登录另算一次操作。"
+      ]
+    },
+    {
+      "id": "ALT-2001-02",
+      "condition": "账号/租户身份关系读取失败、未知或映射不可确认",
+      "steps": [
+        "明确提示本次读取/映射未完成，允许重试或核对关系；不把读取失败当无权限，不猜默认租户、不按同名/手机号自动合并。"
+      ]
+    },
+    {
+      "id": "ALT-2001-03",
+      "condition": "仅一个工作区有权",
+      "steps": [
+        "选择唯一合法模块后，仍按该模块的首次/后续合法访问记录解析；仅云呼叫首次同样适用已确认窄人群导入分配规则，仅AI首次沿AI原有权入口。"
+      ]
+    },
+    {
+      "id": "ALT-2001-04",
+      "condition": "没有可用业务工作区",
+      "steps": [
+        "无业务模块入口但有原供应商资源/AI服务财务等专业入口时，按原合法入口意图进入其有权页面，不强制业务租户或公共管理员身份。",
+        "仅有原公共管理页面权限时，沿原管理入口顺序选择首个有权稳定PAGE并映射至现入口，再校验目标页与读取结果；不按六入口排序重算落点。无任何有权入口时明确提示并允许退出，不自动赋权。"
+      ]
+    },
+    {
+      "id": "ALT-2001-05",
+      "condition": "历史工作区记录缺失或失效",
+      "steps": [
+        "按原合法入口意图与当前可达页面重新解析；不使用失效历史授权，不回退已取消概览，不套用仅首次窄人群的导入分配优先级。"
+      ]
+    },
+    {
+      "id": "ALT-2001-06",
+      "condition": "目标子页面失效、失权或已无合法入口",
+      "steps": [
+        "反馈目标页不可用；仍有合法入口时回退该入口，已无合法入口时明确反馈，不恢复无权页面。"
+      ]
+    },
+    {
+      "id": "ALT-2001-07",
+      "condition": "读取工作区失败",
+      "steps": [
+        "显示本次进入未完成，允许用户重新发起；不以缓存数据伪装读取成功。"
+      ]
+    },
+    {
+      "id": "ALT-2001-08",
+      "condition": "上次租户已失效，或选择/恢复后租户授权变化",
+      "steps": [
+        "不恢复失权租户；仍有其他合法租户时由用户重新选择，已无合法范围时明确反馈。不得静默任选租户或携带原租户对象继续。"
+      ]
+    },
+    {
+      "id": "ALT-2001-09",
+      "condition": "多租户选择时取消进入",
+      "steps": [
+        "结束本次租户进入，保持在有权租户选择/退出入口，不进入受保护的租户业务页面。"
+      ]
+    },
+    {
+      "id": "ALT-2001-10",
+      "condition": "没有可用业务租户且没有合法平台/公共访问范围",
+      "steps": [
+        "明确提示暂无可用权限并提供退出；不创建默认租户或通过旧历史绕过授权。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功时同一身份进入已确认合法租户或独立平台管理范围中的获授权原功能；后续恢复合法租户及位置，不新增统一首页或自动电话上线。",
+    "失败或权限不足时不取得未经授权的业务访问；保留原生产身份及历史归属。"
+  ],
+  "acceptance_points": [
+    "AC-2001：一次登录后，先按真实授权确定合法租户；单租户直接进入，多租户首次选择，后续恢复上次仍合法租户。当前租户有权AI/云呼叫功能共用认证，无需再次填写另一套系统凭证。",
+    "AC-2002：以AI生产账号/租户及历史归属为存量基准，云呼叫映射接入。",
+    "AC-2003：首次登录在已开通且有权时优先原云呼叫合法入口；原默认综合概览、无明确本人作业／监管默认入口且同时有导入与分配和云报表权限的人群，首次进入导入与分配。后续恢复上次合法位置；单一模块按其合法入口进入。本次首次选择不新增历史失效兜底优先级。",
+    "AC-2004：本版不新增统一首页。取消独立运营概览，原入口按有权内容归位；没有业务入口但有公共管理权时，沿原公共管理入口顺序选择首个有权稳定PAGE，并映射至其现入口。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "user",
+        "name": "登录账号",
+        "kind": "actor"
+      },
+      {
+        "id": "identity",
+        "name": "统一身份与租户访问控制",
+        "kind": "system"
+      },
+      {
+        "id": "workspace",
+        "name": "合法入口解析与六入口导航",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "user",
+        "type": "start",
+        "order": 1,
+        "label": "发起首次或后续登录"
+      },
+      {
+        "id": "credentials",
+        "lane_id": "user",
+        "type": "action",
+        "order": 2,
+        "label": "提交现有合法登录凭据",
+        "step_ref": 1
+      },
+      {
+        "id": "auth",
+        "lane_id": "identity",
+        "type": "decision",
+        "order": 3,
+        "label": "身份认证是否通过？",
+        "step_ref": 2
+      },
+      {
+        "id": "relation",
+        "lane_id": "identity",
+        "type": "decision",
+        "order": 4,
+        "label": "身份与合法访问范围可确认？"
+      },
+      {
+        "id": "authfail",
+        "lane_id": "user",
+        "type": "end",
+        "order": 5,
+        "label": "认证未通过，提示失败"
+      },
+      {
+        "id": "mappingfail",
+        "lane_id": "user",
+        "type": "end",
+        "order": 6,
+        "label": "关系读取/映射未完成，不猜租户"
+      },
+      {
+        "id": "hasworkspace",
+        "lane_id": "identity",
+        "type": "decision",
+        "order": 22,
+        "label": "当前合法范围有任一可用原入口？",
+        "step_ref": 3
+      },
+      {
+        "id": "available",
+        "lane_id": "identity",
+        "type": "decision",
+        "order": 25,
+        "label": "本次合法业务模块组合？",
+        "step_ref": 3
+      },
+      {
+        "id": "history",
+        "lane_id": "workspace",
+        "type": "decision",
+        "order": 27,
+        "label": "当前合法模块的访问记录？",
+        "step_ref": 4
+      },
+      {
+        "id": "cloud",
+        "lane_id": "workspace",
+        "type": "action",
+        "order": 34,
+        "label": "首次解析云呼叫有权原入口"
+      },
+      {
+        "id": "last",
+        "lane_id": "workspace",
+        "type": "action",
+        "order": 28,
+        "label": "恢复该账号该租户上次合法位置"
+      },
+      {
+        "id": "single",
+        "lane_id": "workspace",
+        "type": "action",
+        "order": 26,
+        "label": "选择唯一合法模块，继续解析其访问记录"
+      },
+      {
+        "id": "fallback",
+        "lane_id": "workspace",
+        "type": "action",
+        "order": 29,
+        "label": "按原合法入口意图重新解析"
+      },
+      {
+        "id": "page",
+        "lane_id": "workspace",
+        "type": "decision",
+        "order": 39,
+        "label": "目标子页面是否仍可访问？",
+        "step_ref": 5
+      },
+      {
+        "id": "legal",
+        "lane_id": "workspace",
+        "type": "action",
+        "order": 40,
+        "label": "恢复或选择有权原页面"
+      },
+      {
+        "id": "load",
+        "lane_id": "workspace",
+        "type": "decision",
+        "order": 41,
+        "label": "目标原页面最新内容读取成功？",
+        "step_ref": 6
+      },
+      {
+        "id": "success",
+        "lane_id": "user",
+        "type": "end",
+        "order": 42,
+        "label": "进入合法范围内有权原入口"
+      },
+      {
+        "id": "public",
+        "lane_id": "identity",
+        "type": "action",
+        "order": 30,
+        "label": "沿原管理入口顺序解析有权页"
+      },
+      {
+        "id": "publicend",
+        "lane_id": "user",
+        "type": "action",
+        "order": 31,
+        "label": "映射首个有权原管理页"
+      },
+      {
+        "id": "noneend",
+        "lane_id": "user",
+        "type": "end",
+        "order": 23,
+        "label": "明确反馈暂无可用权限"
+      },
+      {
+        "id": "pagefail",
+        "lane_id": "workspace",
+        "type": "end",
+        "order": 43,
+        "label": "目标失效，按合法原意图回退或反馈无入口"
+      },
+      {
+        "id": "loadfail",
+        "lane_id": "user",
+        "type": "end",
+        "order": 44,
+        "label": "读取失败，反馈本次进入未完成"
+      },
+      {
+        "id": "tenantset",
+        "lane_id": "identity",
+        "type": "decision",
+        "label": "存在合法业务租户或原平台/公共范围？",
+        "order": 7,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantonly",
+        "lane_id": "identity",
+        "type": "action",
+        "label": "单租户，直接选定合法租户",
+        "order": 12,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantlast",
+        "lane_id": "identity",
+        "type": "action",
+        "label": "多租户，恢复上次仍合法租户",
+        "order": 14,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantpick",
+        "lane_id": "user",
+        "type": "action",
+        "label": "多租户首次/历史失效，重新选择",
+        "order": 17,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantconfirm",
+        "lane_id": "user",
+        "type": "decision",
+        "label": "已自动选定/本人选定，还是取消手动选择？",
+        "order": 18,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantexpired",
+        "lane_id": "identity",
+        "type": "action",
+        "label": "上次租户失效，列出当前合法租户",
+        "order": 16,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantvalid",
+        "lane_id": "identity",
+        "type": "decision",
+        "label": "选定业务租户或原平台范围授权仍有效？",
+        "order": 19,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantinvalid",
+        "lane_id": "user",
+        "type": "end",
+        "label": "本次范围进入未完成，重新选择合法范围",
+        "order": 20,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantcancel",
+        "lane_id": "user",
+        "type": "end",
+        "label": "停留租户选择或退出，不进租户业务",
+        "order": 21,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantnone",
+        "lane_id": "user",
+        "type": "end",
+        "label": "暂无合法范围，提示并允许退出",
+        "order": 8,
+        "step_ref": 2
+      },
+      {
+        "id": "platformscope",
+        "lane_id": "identity",
+        "type": "action",
+        "label": "使用原独立平台资源/公共合法范围",
+        "order": 10,
+        "step_ref": 2
+      },
+      {
+        "id": "firstintent",
+        "lane_id": "workspace",
+        "type": "decision",
+        "label": "首次是否满足导入分配窄人群条件？",
+        "order": 35,
+        "step_ref": 4
+      },
+      {
+        "id": "firstimport",
+        "lane_id": "workspace",
+        "type": "action",
+        "label": "首次选择导入与分配 PAGE-2204",
+        "order": 36,
+        "step_ref": 4
+      },
+      {
+        "id": "firstoriginal",
+        "lane_id": "workspace",
+        "type": "action",
+        "label": "沿原有权作业/监管/资源等入口",
+        "order": 37,
+        "step_ref": 4
+      },
+      {
+        "id": "scopekind",
+        "lane_id": "identity",
+        "type": "decision",
+        "label": "业务租户范围还是原独立平台范围？",
+        "order": 9,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantcount",
+        "lane_id": "identity",
+        "type": "decision",
+        "label": "合法业务租户是单个还是多个？",
+        "order": 11,
+        "step_ref": 2
+      },
+      {
+        "id": "tenanthistory",
+        "lane_id": "identity",
+        "type": "decision",
+        "label": "多租户是否有上次仍合法租户？",
+        "order": 13,
+        "step_ref": 2
+      },
+      {
+        "id": "tenantreselectreason",
+        "lane_id": "identity",
+        "type": "decision",
+        "label": "首次/无历史，还是上次租户失效？",
+        "order": 15,
+        "step_ref": 2
+      },
+      {
+        "id": "entrytype",
+        "lane_id": "workspace",
+        "type": "decision",
+        "label": "按原合法入口意图解析的目标类型？",
+        "order": 24,
+        "step_ref": 3
+      },
+      {
+        "id": "professional",
+        "lane_id": "workspace",
+        "type": "action",
+        "label": "选择有权原供应商资源/AI服务财务入口",
+        "order": 32,
+        "step_ref": 4
+      },
+      {
+        "id": "firstmodule",
+        "lane_id": "workspace",
+        "type": "decision",
+        "label": "首次有权模块是否包含云呼叫？",
+        "order": 33,
+        "step_ref": 4
+      },
+      {
+        "id": "firstaioriginal",
+        "lane_id": "workspace",
+        "type": "action",
+        "label": "仅AI首次沿原有权入口意图",
+        "order": 38,
+        "step_ref": 4
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "credentials"
+      },
+      {
+        "from": "credentials",
+        "to": "auth"
+      },
+      {
+        "from": "auth",
+        "to": "relation",
+        "label": "通过"
+      },
+      {
+        "from": "auth",
+        "to": "authfail",
+        "label": "未通过",
+        "path_id": "ALT-2001-01",
+        "type": "exception"
+      },
+      {
+        "from": "relation",
+        "to": "tenantset",
+        "label": "关系可确认"
+      },
+      {
+        "from": "relation",
+        "to": "mappingfail",
+        "label": "读取失败/未知或映射不明",
+        "path_id": "ALT-2001-02",
+        "type": "exception"
+      },
+      {
+        "from": "tenantset",
+        "to": "scopekind",
+        "label": "存在合法业务租户或原平台/公共范围"
+      },
+      {
+        "from": "tenantset",
+        "to": "tenantnone",
+        "label": "两类合法范围均不存在",
+        "path_id": "ALT-2001-10",
+        "type": "exception"
+      },
+      {
+        "from": "scopekind",
+        "to": "tenantcount",
+        "label": "本次使用有权业务租户范围"
+      },
+      {
+        "from": "scopekind",
+        "to": "platformscope",
+        "label": "无业务租户，使用原独立平台/公共范围"
+      },
+      {
+        "from": "tenantcount",
+        "to": "tenantonly",
+        "label": "仅一个合法业务租户"
+      },
+      {
+        "from": "tenantcount",
+        "to": "tenanthistory",
+        "label": "有多个合法业务租户"
+      },
+      {
+        "from": "tenanthistory",
+        "to": "tenantlast",
+        "label": "上次租户记录存在且仍合法"
+      },
+      {
+        "from": "tenanthistory",
+        "to": "tenantreselectreason",
+        "label": "首次/无历史，或原租户已失效"
+      },
+      {
+        "from": "tenantreselectreason",
+        "to": "tenantpick",
+        "label": "首次或无历史租户记录"
+      },
+      {
+        "from": "tenantreselectreason",
+        "to": "tenantexpired",
+        "label": "原租户已失效",
+        "path_id": "ALT-2001-08",
+        "type": "exception"
+      },
+      {
+        "from": "tenantexpired",
+        "to": "tenantpick"
+      },
+      {
+        "from": "tenantonly",
+        "to": "tenantconfirm"
+      },
+      {
+        "from": "tenantlast",
+        "to": "tenantconfirm"
+      },
+      {
+        "from": "tenantpick",
+        "to": "tenantconfirm"
+      },
+      {
+        "from": "platformscope",
+        "to": "tenantconfirm"
+      },
+      {
+        "from": "tenantconfirm",
+        "to": "tenantvalid",
+        "label": "单租户/合法历史/平台范围自动继续，或本人选定目标"
+      },
+      {
+        "from": "tenantconfirm",
+        "to": "tenantcancel",
+        "label": "本人取消多租户手动选择",
+        "path_id": "ALT-2001-09",
+        "type": "exception"
+      },
+      {
+        "from": "tenantvalid",
+        "to": "hasworkspace",
+        "label": "所选业务租户/原平台范围当前仍合法"
+      },
+      {
+        "from": "tenantvalid",
+        "to": "tenantinvalid",
+        "label": "访问授权变化或选择失效",
+        "path_id": "ALT-2001-08",
+        "type": "exception"
+      },
+      {
+        "from": "hasworkspace",
+        "to": "entrytype",
+        "label": "至少一业务/原专业/公共页面入口可用"
+      },
+      {
+        "from": "hasworkspace",
+        "to": "noneend",
+        "label": "没有任何有权原入口",
+        "path_id": "ALT-2001-04",
+        "type": "exception"
+      },
+      {
+        "from": "entrytype",
+        "to": "available",
+        "label": "按原意图解析为业务模块入口"
+      },
+      {
+        "from": "entrytype",
+        "to": "professional",
+        "label": "按原意图解析为有权供应商资源/服务财务入口"
+      },
+      {
+        "from": "entrytype",
+        "to": "public",
+        "label": "仅有公共页面入口可用",
+        "path_id": "ALT-2001-04",
+        "type": "exception"
+      },
+      {
+        "from": "professional",
+        "to": "page"
+      },
+      {
+        "from": "public",
+        "to": "publicend"
+      },
+      {
+        "from": "publicend",
+        "to": "page"
+      },
+      {
+        "from": "available",
+        "to": "history",
+        "label": "AI与云呼叫均开通且有权"
+      },
+      {
+        "from": "available",
+        "to": "single",
+        "label": "仅一个业务模块开通且有权",
+        "path_id": "ALT-2001-03",
+        "type": "exception"
+      },
+      {
+        "from": "single",
+        "to": "history"
+      },
+      {
+        "from": "history",
+        "to": "firstmodule",
+        "label": "首次登录"
+      },
+      {
+        "from": "history",
+        "to": "last",
+        "label": "非首次且上次位置仍合法"
+      },
+      {
+        "from": "history",
+        "to": "fallback",
+        "label": "非首次且历史缺失或失效",
+        "path_id": "ALT-2001-05",
+        "type": "exception"
+      },
+      {
+        "from": "firstmodule",
+        "to": "cloud",
+        "label": "当前有云呼叫访问权（含仅云呼叫）"
+      },
+      {
+        "from": "firstmodule",
+        "to": "firstaioriginal",
+        "label": "无云呼叫访问权，仅AI有权"
+      },
+      {
+        "from": "cloud",
+        "to": "firstintent"
+      },
+      {
+        "from": "firstintent",
+        "to": "firstimport",
+        "label": "原综合概览、无明确作业/监管且同时有导入分配/云报表权"
+      },
+      {
+        "from": "firstintent",
+        "to": "firstoriginal",
+        "label": "不同时满足该窄人群条件"
+      },
+      {
+        "from": "firstimport",
+        "to": "page"
+      },
+      {
+        "from": "firstoriginal",
+        "to": "page"
+      },
+      {
+        "from": "firstaioriginal",
+        "to": "page"
+      },
+      {
+        "from": "last",
+        "to": "page"
+      },
+      {
+        "from": "fallback",
+        "to": "page"
+      },
+      {
+        "from": "page",
+        "to": "legal",
+        "label": "已识别且有权访问"
+      },
+      {
+        "from": "page",
+        "to": "pagefail",
+        "label": "页面失效、失权或已无合法入口",
+        "path_id": "ALT-2001-06",
+        "type": "exception"
+      },
+      {
+        "from": "legal",
+        "to": "load"
+      },
+      {
+        "from": "load",
+        "to": "success",
+        "label": "读取成功"
+      },
+      {
+        "from": "load",
+        "to": "loadfail",
+        "label": "读取失败",
+        "path_id": "ALT-2001-07",
+        "type": "exception"
+      }
+    ]
+  },
+  "design_status": "S3_flow_draft",
+  "scope_status": "confirmed_G1",
+  "issue_ids": [
+    "ISSUE-2001",
+    "ISSUE-2009"
+  ],
+  "rule_ids": [
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2004",
+    "BR-2052"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

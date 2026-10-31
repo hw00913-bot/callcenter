@@ -1,0 +1,816 @@
+{
+  "schema": "current-prototype-projection@1",
+  "version": "2.0.0-current-20261030-step41",
+  "captured_at": "2026-10-31T01:01:24.453176+00:00",
+  "prototype_root": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype",
+  "scope": "当前原型和步骤29～41变更记录；只规范化到规划输入，不改原型源码或台账",
+  "audit_corrections": {
+    "id": "AUDIT-040",
+    "statement": "AI-only准入共享只读模型及异步失效检查；ELSE正文与验收统一，继承测试/入口/状态及统计修复"
+  },
+  "changes": [
+    {
+      "id": "CHG-029-NAV",
+      "title": "普通导航不再以电话状态拦截",
+      "acceptance_id": "AC-2138",
+      "statement": "正常跨业务域、切租户及系统退出不因拨号/振铃/通话/话后/电话未知而拦截，也不强制先退出电话；身份、数据范围和普通未保存表单检查保留，撤权后的有限当前收尾是独立机制。",
+      "local_ids": [
+        "LOCAL-PLAT-NAVIGATE",
+        "LOCAL-PLAT-CONTEXT-SWITCH",
+        "LOCAL-PLAT-LOGOUT"
+      ]
+    },
+    {
+      "id": "CHG-030-DIRECTORY",
+      "title": "客户档案页签与筛选记忆",
+      "acceptance_id": "AC-2147",
+      "statement": "业务跟进/联系档案统一页签与tabpanel，键盘方向/Home/End可用；同身份切换保各自查询/分页，跨身份不恢复旧状态，显式客户详情与原摘要刷新仍定位正确。",
+      "local_ids": [
+        "LOCAL-FLOW-CUSTOMER-TIMELINE",
+        "LOCAL-PLAT-CUSTOMER-DIRECTORY"
+      ]
+    },
+    {
+      "id": "CHG-031-ELSE",
+      "title": "当前方案强制唯一末位ELSE",
+      "acceptance_id": "AC-2139",
+      "statement": "所有有出口的当前新配置须有且仅有一个末位ELSE；IF/ELSE IF按优先级首命中，明确不匹配才到兜底，未知继续PENDING。保存/新导入/重开/启用均校验，不依赖DIRECT绕开分流。",
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT",
+        "LOCAL-FLOW-ROUTE-BIND",
+        "LOCAL-FLOW-IMPORT-PREVIEW"
+      ]
+    },
+    {
+      "id": "CHG-031-NULL",
+      "title": "当前选填导入缺列按空捕获",
+      "acceptance_id": "AC-2140",
+      "statement": "对当前可可靠读取schema内、启用且支持条件的非必填IMPORT字段，新导入/新run准备时缺列规范化为null用于判断；必填缺失或schema读取失败仍拒绝，通话/填写未知及已捕获历史缺失不在读取时补空。",
+      "local_ids": [
+        "LOCAL-FLOW-IMPORT-PREVIEW",
+        "LOCAL-FLOW-IMPORT-COMMIT",
+        "LOCAL-FLOW-REOPEN",
+        "LOCAL-FLOW-ENABLE-TEMPLATE",
+        "LOCAL-FLOW-RECLASSIFY"
+      ]
+    },
+    {
+      "id": "CHG-032-EDITOR",
+      "title": "条件优先与未选目标草稿",
+      "acceptance_id": "AC-2142",
+      "statement": "节点按命名→条件→下一节点→继续条件编辑，末位轻量“其他情况”；未选目标可留编辑草稿但不产生业务连线，保存仍逐项拒绝缺项并定位。",
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT"
+      ]
+    },
+    {
+      "id": "CHG-032-END",
+      "title": "END两种动作及真实接续",
+      "acceptance_id": "AC-2141",
+      "statement": "END只配置名称和DIRECT_FOLLOWUP/CLOSE两种后续动作。先结束原run；CLOSE不再跟进，DIRECT_FOLLOWUP同record/当前tenant生成无模板人工周期，不自动起呼。合法END来源可授权此接续，即使分类没有开放普通DIRECT导入；原run/节点/call/快照保留，原人员仅当前仍有效且具电话资格时沿用。",
+      "local_ids": [
+        "LOCAL-FLOW-END-HANDOFF"
+      ]
+    },
+    {
+      "id": "CHG-033-TASK",
+      "title": "任务页移除额外统计模块",
+      "acceptance_id": "AC-2148",
+      "statement": "预外呼及IVR页不额外显示“今日任务名单分布”，保原任务查询/筛选/空态/重置和专业报表口径；不因此删除底层任务状态或统计能力。",
+      "local_ids": [
+        "LOCAL-PLAT-CLOUD-TASK-QUERY"
+      ]
+    },
+    {
+      "id": "CHG-034-RULE",
+      "title": "条件即时修改与防环",
+      "acceptance_id": "AC-2143",
+      "statement": "条件修改直接进入当前草稿，不再显示待应用三按钮；兼容operator保值，字段/来源或不兼容类型/基数变化清不适用比较值，空判断清值。目标选择/拖线拒环并保原草稿，保存仍防绕过。",
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT"
+      ]
+    },
+    {
+      "id": "CHG-035-SIP",
+      "title": "人工/预外呼客户侧SIP判断",
+      "acceptance_id": "AC-2144",
+      "statement": "流转判断分别使用TIANRUN_MANUAL_SIP_CAUSE和TIANRUN_PREDICTIVE_SIP_CAUSE客户侧结果：200已接通、710～724当前字典；不再用1～4接听标记推断，不改AI状态域或原专业记录的其他状态展示。新回执与实际方式/原段/场景准确关联，未知PENDING。",
+      "local_ids": [
+        "LOCAL-FLOW-CALL-FACTS",
+        "LOCAL-FLOW-EVALUATE"
+      ]
+    },
+    {
+      "id": "CHG-036-LOCAL",
+      "title": "本租户路径继续办理",
+      "acceptance_id": "AC-2145",
+      "statement": "线索域转交组件允许CURRENT本租户分支；命中后保持owner、run及tenant阶段，不新建跨租户截止/轮次，不清原安排与封存结果，并重核后继CALL资格。OTHER仍执行原意向锚定和跨租户保护；CURRENT不冒充OTHER，拒伪造目标或过期令牌。",
+      "local_ids": [
+        "LOCAL-FLOW-TRANSFER",
+        "LOCAL-FLOW-IMPORT-PREVIEW",
+        "LOCAL-FLOW-TEMPLATE-EDIT"
+      ]
+    },
+    {
+      "id": "CHG-037-038-FEEDBACK",
+      "title": "多值提示及错误定位",
+      "acceptance_id": "AC-2146",
+      "statement": "普通及START比较值提示“多个值请换行填写/每行一个值”，保持IN/NOT_IN类型含义；报错节点/START/提示区统一浅红，切换节点保留定位，编辑该节点清当前标记，保存重新判断，不改变原校验。",
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT"
+      ]
+    },
+    {
+      "id": "CHG-039-ENTRY",
+      "title": "移除分类行AI标签快捷入口",
+      "acceptance_id": "AC-2149",
+      "statement": "业务分类行只保编辑/路由配置/预览/删除；不恢复AI标签配置快捷按钮。标签维护仍在呼叫中心AI配置的独立有权入口，原具体AI场景分类引用及其稳定身份保留。",
+      "local_ids": [
+        "LOCAL-FLOW-CATEGORY-EDIT",
+        "LOCAL-PLAT-AI-CATEGORY-BIND",
+        "LOCAL-PLAT-AI-TAG-CONFIG"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "assets/css/app.css",
+      "bytes": 6255,
+      "sha256": "cd2cf76f68c7e0e8035317a48c1eeac5fd46e0f4d64dbebbd2d795be836ad7e6"
+    },
+    {
+      "path": "assets/css/cloud-ui-overrides.css",
+      "bytes": 16757,
+      "sha256": "ea06900bd6886ed20f96b0bc0ce6aea5ab9c9f0a3be05c7d81d10fe578bac6c5"
+    },
+    {
+      "path": "assets/css/cloud-ui.css",
+      "bytes": 26951,
+      "sha256": "47e190e97dbe8d25870ae57f6bd579826c8070ae8cff3dd8ee2189b63eb77a96"
+    },
+    {
+      "path": "assets/css/delivery-diagrams.css",
+      "bytes": 4708,
+      "sha256": "13441c07d23e01ed7f1e6b8906db43ff3a0056c1f6f5cf0dd3fb10659e3c7168"
+    },
+    {
+      "path": "assets/css/diagram-reading.css",
+      "bytes": 246,
+      "sha256": "274a80ffd69ba13576674f8cc911a0d53dec54ccbfc8480d496d1b7774d8e2c6"
+    },
+    {
+      "path": "assets/css/global.css",
+      "bytes": 6888,
+      "sha256": "a7b1e5f265b1793d167d1263e7d69408373ae5e59099f2abe34797a3a4ac235e"
+    },
+    {
+      "path": "assets/css/login.css",
+      "bytes": 26120,
+      "sha256": "5237af49c8b8859e1dc243b84eaa01a7f5512e898cc134058cfa5f322c01c414"
+    },
+    {
+      "path": "assets/css/reading-views.css",
+      "bytes": 958,
+      "sha256": "aa92a3b701246095d67ddfcd29dea8f7fbace6323f0f0801bf9d581dd8fea957"
+    },
+    {
+      "path": "assets/css/shared-forms.css",
+      "bytes": 17394,
+      "sha256": "cd2247fa5742d9617356a6075404efb062b259b74d93b8f820c2cd6c23f487f2"
+    },
+    {
+      "path": "assets/css/version-history.css",
+      "bytes": 6386,
+      "sha256": "5d128357bb4b0750d3fd64a150a736c8704c76617874d4b465c9adc5a42756bd"
+    },
+    {
+      "path": "config/nav.json",
+      "bytes": 9865,
+      "sha256": "ee24a125e66781785a8d73701c5fe93a28619497e00cae42aa298b3b13c6e341"
+    },
+    {
+      "path": "config/project.json",
+      "bytes": 96,
+      "sha256": "8a13a751bfd26c81fded080cd451d889af6c7105d1ebcbce22f0ac583aa883b6"
+    },
+    {
+      "path": "config/requirement-analysis.json",
+      "bytes": 603,
+      "sha256": "7a29f5520a7905cf1a264ad70daab912f3d4a302a6c9aa8532d10b326e69ad24"
+    },
+    {
+      "path": "index.html",
+      "bytes": 2236,
+      "sha256": "9de5d83ddc5217bbb99e8b23e1a59b613dfa75807af59f5e2273e1ffea8a4bc7"
+    },
+    {
+      "path": "inputs/cloud-sip-status-authorization-20261030.json",
+      "bytes": 1028,
+      "sha256": "dfbb22f9abb7d8b77b0ff87f0b3e49aee657153b55f44b61ff145e996a4d1d2d"
+    },
+    {
+      "path": "inputs/local-tenant-flow-authorization-20261030.json",
+      "bytes": 730,
+      "sha256": "2159dc328b2f0af48ac3ba8cb649512446a7f890b2b11edc27b85b108b0ddb5e"
+    },
+    {
+      "path": "js/adapters/ai-assignment-identity.js",
+      "bytes": 1469,
+      "sha256": "6f24dec0ec456a9439ab6a7b6e60bbe4a26a41ca7e10a701e67e6275a97e836f"
+    },
+    {
+      "path": "js/adapters/ai-config-store.js",
+      "bytes": 11271,
+      "sha256": "c012f346157ded36775a5e3c80c73952aea27e9f9ebfe8c0a67f4d6e37cf09a7"
+    },
+    {
+      "path": "js/adapters/ai-finance.js",
+      "bytes": 25457,
+      "sha256": "8db509dd6a40de780ac56eeec0e1a5b73128273a38e330d8f89aa6a8e5401769"
+    },
+    {
+      "path": "js/adapters/ai-special.js",
+      "bytes": 45486,
+      "sha256": "27c84905b53af3adf0293264a72f48b160f38a193b1d5e8d7eff4cec224629af"
+    },
+    {
+      "path": "js/adapters/ai.js",
+      "bytes": 16998,
+      "sha256": "c99b00bc0aa0dab2d61a8fa4b188acc62fcb5acdda1e56d4b97c35b8841ebe8c"
+    },
+    {
+      "path": "js/adapters/cloud-resources.js",
+      "bytes": 5097,
+      "sha256": "0423a52bda658dbad46138e02a240e0ed655e93bbac576c3f6af3d9994a687b6"
+    },
+    {
+      "path": "js/adapters/cloud.js",
+      "bytes": 47010,
+      "sha256": "7ca7aafb855d1e92c2dee138253265f5211b9bca7a6908f7ee767ef60246ce37"
+    },
+    {
+      "path": "js/adapters/customer-import-enhancements.js",
+      "bytes": 5573,
+      "sha256": "6c1ee275369259c66c3ce3fd7a6ebd15179943abb62674a438366dcc5cb9196c"
+    },
+    {
+      "path": "js/adapters/dcc-import-enhancements.js",
+      "bytes": 7929,
+      "sha256": "5e4098c14e352ccbe49ccb5c6735601862ec38289c4b0cd813d476a8edac6d2f"
+    },
+    {
+      "path": "js/adapters/four-node-execution.js",
+      "bytes": 8577,
+      "sha256": "8c303de1948af65e12228d2d281e5db7adfb78215a62f56346f1dcb55a4b4eb5"
+    },
+    {
+      "path": "js/adapters/four-node-workspace.css",
+      "bytes": 4447,
+      "sha256": "26f11a7c6a920f0b381fbfe6276a2529e69e9cbd98685b84a4e48e4631086b74"
+    },
+    {
+      "path": "js/adapters/four-node-workspace.js",
+      "bytes": 126879,
+      "sha256": "92dc51112e16654afbec33a4db8fed8ab0b5f80fe92de7b15fa059abf790cdfa"
+    },
+    {
+      "path": "js/adapters/unified-ai.js",
+      "bytes": 6964,
+      "sha256": "42ab4e72dde8aaccd7bcd136c9abdaf0e71b6f1518dbf2b6640ec39126318232"
+    },
+    {
+      "path": "js/app.js",
+      "bytes": 15900,
+      "sha256": "9488f98d551f07709eff8a56fe69517a46bd4adc04c1800ec2722831ed7787ea"
+    },
+    {
+      "path": "js/common.js",
+      "bytes": 2166,
+      "sha256": "aa971481d217e7e54b8b3fa32cd1a2f643ac55c81d9141a608693df47285a798"
+    },
+    {
+      "path": "js/components/business-link.js",
+      "bytes": 1892,
+      "sha256": "7ace21c574f5b6c618e961ef4fdeeee4d8a895b3af5f09fa442017d28c6abf8a"
+    },
+    {
+      "path": "js/components/catalog-store.js",
+      "bytes": 4510,
+      "sha256": "4bd7d8018152f34105e506fbbf84b1ca62b918f14516772777e5a093f14d5d3b"
+    },
+    {
+      "path": "js/components/category-links.js",
+      "bytes": 12973,
+      "sha256": "38e4099f6d56798e3e8dde68a76e8dc4a0fca592a889ccadab32b487d68d2ced"
+    },
+    {
+      "path": "js/components/contact-policy.js",
+      "bytes": 38394,
+      "sha256": "e00b1a63c2ceb8a2c4dae343a9715b87ab8a3ff59ab2e145bb0d6d4e8b9d1575"
+    },
+    {
+      "path": "js/components/current-diagram-guide.js",
+      "bytes": 5530,
+      "sha256": "d0537e812311beed45f4055fb9ce12848acc40a8f94f41af703902eaf0876696"
+    },
+    {
+      "path": "js/components/flow-routing.js",
+      "bytes": 35829,
+      "sha256": "b75fea5c392f4644c58d6953cafc6ba226434ced9d34a8c8b1d4b23ac0330a59"
+    },
+    {
+      "path": "js/components/flow-status-domains.js",
+      "bytes": 3299,
+      "sha256": "48cd960894b6ea5a7b8919c2feced7c9c9cfa37e8507e6d354407a9641dc119a"
+    },
+    {
+      "path": "js/components/import-workbook.js",
+      "bytes": 18302,
+      "sha256": "9ba4563cc805c3755b415ef49d3bda2079b38ec5ff3f838251bbd2f29ebd2812"
+    },
+    {
+      "path": "js/components/list-order.js",
+      "bytes": 3340,
+      "sha256": "895073218d1c3efb0476678601dead5a0c717ab7d6ffc5ea8f714e85c10a5260"
+    },
+    {
+      "path": "js/components/login-screen.js",
+      "bytes": 15282,
+      "sha256": "26690c6c5ddd534bc5a0f98685a0313cb4752b5ca003bb7ebb9cfaf6da7eb0a0"
+    },
+    {
+      "path": "js/components/module-host.js",
+      "bytes": 59667,
+      "sha256": "48e8f5adb4b974ab3078d32ecf39d1b377f00d4b057dea762f8fdb51011f301b"
+    },
+    {
+      "path": "js/components/organization-store.js",
+      "bytes": 28642,
+      "sha256": "ecb13f753e099ce98ca2eb767d7e466281ab491f0962d70955b1083fb4f6a8d7"
+    },
+    {
+      "path": "js/components/role-permissions.js",
+      "bytes": 14951,
+      "sha256": "21d6e43deea2257dbcb47e471a558584b03ba182c2577de653b6bf78018513c6"
+    },
+    {
+      "path": "js/components/session-store.js",
+      "bytes": 22999,
+      "sha256": "df00d346656e05b2f2cd654a7385146f7632769399b9d81a138747729b6fec51"
+    },
+    {
+      "path": "js/components/unified-categories.js",
+      "bytes": 2434,
+      "sha256": "b288af4a275aafcef301717e428576f77952524925c9bd350a4af8264907cdf8"
+    },
+    {
+      "path": "js/delivery-nav.js",
+      "bytes": 8644,
+      "sha256": "dbbd29af01bc107960726720784e26c7863a9a0a284bd2b217533c28d0cb6f9c"
+    },
+    {
+      "path": "js/modules/ai.bundle.js",
+      "bytes": 1450070,
+      "sha256": "a8a6d902b14ab09136d9e19c8511627e66237c5434e253bb331dd196a7948cad"
+    },
+    {
+      "path": "js/modules/cloud.bundle.js",
+      "bytes": 4390650,
+      "sha256": "346a1db33c77f9caf9777e14253f9e4f79087f760d330db8686c9826314a2588"
+    },
+    {
+      "path": "js/nav.js",
+      "bytes": 9880,
+      "sha256": "77f01a4f96f4641c179629954c7b215df0c9c32122c0747f116fd046b40da13f"
+    },
+    {
+      "path": "js/pages/business.js",
+      "bytes": 287,
+      "sha256": "46d19e99d505ebe835d2e9408cb23926fa46a47f03d53dd724c66cf2996b8acd"
+    },
+    {
+      "path": "js/pages/catalog.js",
+      "bytes": 293,
+      "sha256": "a1011642eb048a9667ad705743797ed57bab0cd7d295c565d738872cdf72ec31"
+    },
+    {
+      "path": "js/pages/contacts.js",
+      "bytes": 3092,
+      "sha256": "bcb0036f7a142d622324b641959342be634ad5035cb93504103cdd7c1aba4974"
+    },
+    {
+      "path": "js/pages/organization.js",
+      "bytes": 46852,
+      "sha256": "ed5ecfaccf9853ba1405bdb83df0f511d466a404a357a7cee33d35fe416585c0"
+    },
+    {
+      "path": "js/version-nav.js",
+      "bytes": 27812,
+      "sha256": "e5213e6d5f22659a2c09ded2b330dfa5d9bd8297387ec369ed68ec2a382c5117"
+    },
+    {
+      "path": "memory/change-log.md",
+      "bytes": 165218,
+      "sha256": "5ac5c3a1c6be0cc8945fdf12ece7077fab0327781dca3c0f200c4bbd48e45e7d"
+    },
+    {
+      "path": "memory/execution-steps.md",
+      "bytes": 99709,
+      "sha256": "70d05b1e7d2e9128c2653006b1514c1f6b5b2b14b57b36f4dc833a5538d1c0e0"
+    },
+    {
+      "path": "scripts/ai_import_parse_build.py",
+      "bytes": 10307,
+      "sha256": "6891c9221428da04bff450225da3f32181b9347f8aba787045a801e5fefea80e"
+    },
+    {
+      "path": "scripts/ai_import_result_build.py",
+      "bytes": 6324,
+      "sha256": "bba0334a06c2ecc5f58e4890ece4e22f9b95e6dbe2165d52229e6a4a9eb0e8ef"
+    },
+    {
+      "path": "scripts/ai_parity_build.py",
+      "bytes": 11524,
+      "sha256": "92d7eae2bb8a42acd3ce56d893f842e981c66886e64cb1a461cd6fcc8e3b3032"
+    },
+    {
+      "path": "scripts/build-modules.py",
+      "bytes": 134310,
+      "sha256": "786fa8d5758bc1203c8c1134a7d7cd6688aa3a76dfefeb91ffdf29c3df9f879b"
+    },
+    {
+      "path": "scripts/business_family_build.py",
+      "bytes": 7105,
+      "sha256": "d98aeebcfdfd6e9e3ed1cb821e51b7c328e5692e5d29bdf6dc8f1a3f280969b7"
+    },
+    {
+      "path": "scripts/category_build.py",
+      "bytes": 12038,
+      "sha256": "a6ced2caab5ce75ea1811efd7663f6e65323f456c78b772755fb53d7d01b92cd"
+    },
+    {
+      "path": "scripts/check-ai-only-coordination.cjs",
+      "bytes": 12995,
+      "sha256": "c176fa8afe513e1c9fa680e203e0b269800ba1540223f918444e95c0be387eae"
+    },
+    {
+      "path": "scripts/check-branch-editor-ux.cjs",
+      "bytes": 8875,
+      "sha256": "68a9b2c173b8ef7ba665323af1dc11da3381ff922c0823328feb937c4263afa9"
+    },
+    {
+      "path": "scripts/check-business-rules-editor.cjs",
+      "bytes": 12729,
+      "sha256": "594596242c047f66d04878c740f68bfa2654a6c68e8323356594d467aef09ba3"
+    },
+    {
+      "path": "scripts/check-business-rules-integration.cjs",
+      "bytes": 12828,
+      "sha256": "f70654b26a5f0e1d183806052d0443b90e99a5b5e1dfd8ca4eae8a861962088e"
+    },
+    {
+      "path": "scripts/check-business-rules-model.cjs",
+      "bytes": 18123,
+      "sha256": "0d0ab8f2bc3605d8857e685187b8b3147b60e8438e203c422c4e7bd94c6cf8a5"
+    },
+    {
+      "path": "scripts/check-business-rules-post-audit-model.cjs",
+      "bytes": 7717,
+      "sha256": "270692088530d8f21b63b177121eece53b92d6969092b33302d63a9c7efcddae"
+    },
+    {
+      "path": "scripts/check-business-rules-workspace.cjs",
+      "bytes": 18468,
+      "sha256": "b62b8c68a5ae8b36db1131081daa23d11f85ff59779fba1b0bca4c6057103aa9"
+    },
+    {
+      "path": "scripts/check-cloud-sip-status.cjs",
+      "bytes": 9709,
+      "sha256": "7a3871d1a3a06af951ab6c1b37c21b7635e7bbd9cfad247473c1f5cb5a466741"
+    },
+    {
+      "path": "scripts/check-conditional-paths.cjs",
+      "bytes": 14801,
+      "sha256": "ef0d69cd33c54975445d9e5c5e30416d04bbdc143bec43527aac0d7b58e29133"
+    },
+    {
+      "path": "scripts/check-current-planning-data.cjs",
+      "bytes": 12839,
+      "sha256": "99b586b98c6848a3a889c550ac8b154ada1829e2f7f322fb6e7e96a7483668c7"
+    },
+    {
+      "path": "scripts/check-direct-category.cjs",
+      "bytes": 3088,
+      "sha256": "d4452f423628089b0225da0d67c9ab4d98debeae82e0a3edbe67b6ead5cd563b"
+    },
+    {
+      "path": "scripts/check-direct-followup-model.cjs",
+      "bytes": 28253,
+      "sha256": "1b7aa38b5b13906706ebf7a3cbd7730c788f7a770e23995a54d384ae3bc754f9"
+    },
+    {
+      "path": "scripts/check-direct-followup-workspace.cjs",
+      "bytes": 18249,
+      "sha256": "6d3029f2ffc5334676b4f8fc8dd907114b4544b1a1a8624521f42a63498ccbd4"
+    },
+    {
+      "path": "scripts/check-end-action.cjs",
+      "bytes": 10022,
+      "sha256": "725844c04755760dfa45a9e672ac1f7d270eeaf8a850c87642340db015065c10"
+    },
+    {
+      "path": "scripts/check-field-configuration.cjs",
+      "bytes": 28727,
+      "sha256": "81474935f65e26c6a5f0ede5ee325e4ddcd9f3611359437421b94006fa6e875a"
+    },
+    {
+      "path": "scripts/check-flow-condition-sources.cjs",
+      "bytes": 25781,
+      "sha256": "9f6f63824ccb62085f8eda6b921757ddc13f964db0c392c3560017998014bfa4"
+    },
+    {
+      "path": "scripts/check-followup-chain-audit.cjs",
+      "bytes": 11519,
+      "sha256": "d861901045e051edce0921f8fb94f970606d0a65c0469b8a764771b4f7613073"
+    },
+    {
+      "path": "scripts/check-four-node-audit-model.cjs",
+      "bytes": 10468,
+      "sha256": "050ce2cac5f4a8712d570a4fdb4ebd5f49d516fa52999358b4b6b201aebdbf03"
+    },
+    {
+      "path": "scripts/check-four-node-audit-workspace.cjs",
+      "bytes": 9078,
+      "sha256": "9e15b61879a39d356750ba638f8455f4bb15a3a77b5f9d0dfe786be2bfe62113"
+    },
+    {
+      "path": "scripts/check-four-node-execution.cjs",
+      "bytes": 13078,
+      "sha256": "664d009110b35f526e224a6b871293f446002b293ad0be0bad9b6f912f271570"
+    },
+    {
+      "path": "scripts/check-four-node-model.cjs",
+      "bytes": 32948,
+      "sha256": "2b24d3631d75e17c7849bdfdb608a901e11a15e5fb2a0aa2910085ea23b9c2fc"
+    },
+    {
+      "path": "scripts/check-four-node-ui.cjs",
+      "bytes": 9930,
+      "sha256": "d0c5719c10f083e5f82ade8e9fcc08ab0cefae6adca74cb595ee6331b17d73d5"
+    },
+    {
+      "path": "scripts/check-four-node-workspace.cjs",
+      "bytes": 12834,
+      "sha256": "940879cde192f8763608f80ebaa74ce6d395ba75ad30b1f749e678cddbe635bf"
+    },
+    {
+      "path": "scripts/check-import-chain-audit.cjs",
+      "bytes": 18729,
+      "sha256": "ac577e1fbbd0fe5710abc3e3ea07528d7096b9973fb63f3713febe3a6acdbc7d"
+    },
+    {
+      "path": "scripts/check-import-routing-guidance.cjs",
+      "bytes": 15765,
+      "sha256": "0a7f2a24a94fa3237ec934d4407460aab170f777b07e674dc5bb77205e25986d"
+    },
+    {
+      "path": "scripts/check-inheritance.cjs",
+      "bytes": 11495,
+      "sha256": "ff0989f03adc56f4ee79950cfc51389721df23c1c444b505ebe46e1efce6fbf8"
+    },
+    {
+      "path": "scripts/check-list-order.cjs",
+      "bytes": 38324,
+      "sha256": "6e35a7d742d7c4c8ef986508b412af80a533e40ce5a044b8abcb551b34e11db8"
+    },
+    {
+      "path": "scripts/check-local-tenant-flow.cjs",
+      "bytes": 10904,
+      "sha256": "2c6d612835f0261fca2067459eaf1b298872ab85a55e4c611374817a5a5bd4f0"
+    },
+    {
+      "path": "scripts/check-multiple-values.cjs",
+      "bytes": 22653,
+      "sha256": "9dfd519ea92fc34d352c1f7e5245efafcb4639d4a0af253be27bbc1705ad8c0f"
+    },
+    {
+      "path": "scripts/check-product-chain-audit.cjs",
+      "bytes": 4646,
+      "sha256": "bd92d3fed811dc50bfc199981c58fafc14c3f4fb752bea374866fff3b75760d3"
+    },
+    {
+      "path": "scripts/check-reference-audit.cjs",
+      "bytes": 18538,
+      "sha256": "35f9eebb43bfbc09a041f11232bb97920cabf9f1f42a3592d39e0e80be804908"
+    },
+    {
+      "path": "scripts/check-reference-category.cjs",
+      "bytes": 20110,
+      "sha256": "afe3dc851f53e106646b4cf7cd2c4ad6deea8bf3b22ff146c56b2411b1fd4315"
+    },
+    {
+      "path": "scripts/check-rule-change-cycle-ux.cjs",
+      "bytes": 10996,
+      "sha256": "8567e3f14592534c22e1c3a2bed9163764e64fcb2b1c14411f6f5a8687905a7d"
+    },
+    {
+      "path": "scripts/check-simulation-selection.cjs",
+      "bytes": 4639,
+      "sha256": "37b0fd223597266571a380a526bdca6348d44cfb943ee81c9509f435af2fb534"
+    },
+    {
+      "path": "scripts/check-template-lifecycle.cjs",
+      "bytes": 9563,
+      "sha256": "43092d34307e3e46412130a29494bbaec1361eba0ab6cb599b487c6157738379"
+    },
+    {
+      "path": "scripts/check-template-roundtrip.cjs",
+      "bytes": 7144,
+      "sha256": "fb0930307a0977d8342626ae0b0e3e87c4cc4199cc65fff5ae9ffa16a7b8cbe2"
+    },
+    {
+      "path": "scripts/current_catalog_build.py",
+      "bytes": 4803,
+      "sha256": "678a359691a8324e656e300caf7675d60caf607cec9fb38707e82965fd1d4173"
+    },
+    {
+      "path": "scripts/current_planning_build.py",
+      "bytes": 12436,
+      "sha256": "bc5ac1608765f96843dd9305e619d03682bc780f4b0585ce966fc9b298ecf734"
+    },
+    {
+      "path": "scripts/direct_followup_build.py",
+      "bytes": 3390,
+      "sha256": "37c7722d1f7fb7e4215a75e349a246f7844705971a1789eb80f384e5030b5ae2"
+    },
+    {
+      "path": "scripts/entry-asset-contracts.cjs",
+      "bytes": 1768,
+      "sha256": "241dbe082b5e83ad7fc4355f5bd36f9fe254816733aa20d3185482fcca9aaef0"
+    },
+    {
+      "path": "scripts/field-import-store.js",
+      "bytes": 5100,
+      "sha256": "4f0c417b691b77875fb745f9c8f6f5a03d2a60970b9837d644daa2de0dcba9b1"
+    },
+    {
+      "path": "scripts/field-import-ui.js",
+      "bytes": 3514,
+      "sha256": "d1c9f76cb36f015231cc19fc728e2aeaa90acf0485710f3f84cb8aed33e8f03b"
+    },
+    {
+      "path": "scripts/field_import_build.py",
+      "bytes": 7993,
+      "sha256": "cbeec71f68c1743919494f0eb7bb07f4d572d1aa37ee4745c5954e07763f7b33"
+    },
+    {
+      "path": "scripts/field_model_build.py",
+      "bytes": 25034,
+      "sha256": "3e75cedea89a975884604edcdba4814ecfd259d4ae6698356d1f60b1d6f742d3"
+    },
+    {
+      "path": "scripts/field_ui_build.py",
+      "bytes": 27796,
+      "sha256": "ac3f96845bd4028199b28c84f2bfc290690085ee59b82c05a34751da47036ad0"
+    },
+    {
+      "path": "scripts/flow-canvas-ui.css",
+      "bytes": 16516,
+      "sha256": "41cae141d4f09d3cef266c2414977ae8fdbb46f496e3f98c3b9a46f3653394bd"
+    },
+    {
+      "path": "scripts/flow-canvas-ui.js",
+      "bytes": 25309,
+      "sha256": "d2933cd96b6b48a47c9f877b1a4fd968060f601d117d7ca386a898e67e144ec1"
+    },
+    {
+      "path": "scripts/flow-condition-feedback.js",
+      "bytes": 4373,
+      "sha256": "1a7efe1c99e28abc860a25e191d80c453404759822c6852bb2edca28b38913de"
+    },
+    {
+      "path": "scripts/flow-node-config.css",
+      "bytes": 14187,
+      "sha256": "33bc55917a98390e0e3a7e22806f9787001ac77b13e32102c941611e4b5150e5"
+    },
+    {
+      "path": "scripts/flow-node-config.js",
+      "bytes": 10371,
+      "sha256": "76e0bc15cd39b5e056f68632449db590d5f7cc2632a91eaea434800ca79379b2"
+    },
+    {
+      "path": "scripts/flow-routing-store.js",
+      "bytes": 10696,
+      "sha256": "be5fc5d93731b9c09733fa95e9fa143ed2af871e3de1a6ed5cb0b593b56dbb47"
+    },
+    {
+      "path": "scripts/flow-runtime-store.js",
+      "bytes": 1524,
+      "sha256": "405fff30bf52f942074edf356da88996ba6dbded37eb0b34b8e36a5930130007"
+    },
+    {
+      "path": "scripts/flow-runtime-ui.js",
+      "bytes": 10459,
+      "sha256": "1b291eb87fadf4d4ae7003b734bdcda1fe7d000bf943b4e4882de42e1ad00444"
+    },
+    {
+      "path": "scripts/flow-warning-feedback.js",
+      "bytes": 1893,
+      "sha256": "d43690db889bef5eebd83234c025e65a1e4ef93711f7d91b79b0c6f819c1f2f6"
+    },
+    {
+      "path": "scripts/flow_condition_ui_build.py",
+      "bytes": 11628,
+      "sha256": "cad7f038bec43e232d1f7caea39c824e6d68830a23f3b515fdccf5f49a756e77"
+    },
+    {
+      "path": "scripts/flow_editor_build.py",
+      "bytes": 6782,
+      "sha256": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb"
+    },
+    {
+      "path": "scripts/flow_feedback_build.py",
+      "bytes": 3755,
+      "sha256": "f011b8fe5497941416ea55768cd073aa5ae1d683fcd8fc479a4d3b4f47e46d7f"
+    },
+    {
+      "path": "scripts/flow_routing_build.py",
+      "bytes": 7723,
+      "sha256": "c6b7c548cbfe10acccfa865932f9176f359b879bea155c2bf47703b2c40fba86"
+    },
+    {
+      "path": "scripts/flow_runtime_build.py",
+      "bytes": 1802,
+      "sha256": "e380f8a345674a46d0822a2acf5dc47182ca7f9a34ba1eccd54f9439ba0d7467"
+    },
+    {
+      "path": "scripts/four-node-model.js",
+      "bytes": 140897,
+      "sha256": "ffcbaba63cc5861f01916e67cb9696101cd0fad9d4a06c89843a71e4e0d7f0bd"
+    },
+    {
+      "path": "scripts/four_node_model_build.py",
+      "bytes": 2983,
+      "sha256": "89afe4386b3724ff2d1cbdc319d88f66ea133247fda6eab41ecc9502ec656bca"
+    },
+    {
+      "path": "scripts/four_node_ui_build.py",
+      "bytes": 60551,
+      "sha256": "403fe7dc9d0e4e9d5308a3aaee9afaaab0a98983c6d5939b8d9d89f38982a2d6"
+    },
+    {
+      "path": "scripts/four_node_workspace_build.py",
+      "bytes": 1712,
+      "sha256": "df73feaa07cf6c49a1da0cbce556630095a9f126c628946c70c911e062894064"
+    },
+    {
+      "path": "scripts/import_build.py",
+      "bytes": 9074,
+      "sha256": "446d7658de366cfccb51c70c5c2510711af0693983f20240249eff631467e913"
+    },
+    {
+      "path": "scripts/list_sort_ai_build.py",
+      "bytes": 10821,
+      "sha256": "794889736d0ed22b0c078fc4e3a13f2a9abc219967f02af1b06a9f4b0ce8342b"
+    },
+    {
+      "path": "scripts/list_sort_build.py",
+      "bytes": 759,
+      "sha256": "e91adee36288637c51fb263c5261f822f6876da17a63445a2b1ec494b09d8710"
+    },
+    {
+      "path": "scripts/list_sort_cloud_build.py",
+      "bytes": 15288,
+      "sha256": "26745e7ccf12f7b9b2cd128a8fb56c76293f1d813c1f099710041ba71501deb6"
+    },
+    {
+      "path": "scripts/multiple_values_ui_build.py",
+      "bytes": 11612,
+      "sha256": "c9ef6d296b1003857d782e59becd49c099a310b5d4d9c873d85b7295a2a69bcd"
+    },
+    {
+      "path": "scripts/publish-views.py",
+      "bytes": 6454,
+      "sha256": "1d17985ff811cff800577e0cf9bb1a84772335d321ef86e5433ef6f27984f0a4"
+    },
+    {
+      "path": "scripts/template-list-ui.css",
+      "bytes": 1207,
+      "sha256": "454851bbcc8f67a60a741ed1566a048882ebc69cd12763b269659977e1f5d0e5"
+    },
+    {
+      "path": "scripts/template_lifecycle_build.py",
+      "bytes": 7311,
+      "sha256": "209dbb81a942c7b1d7bacc7e54960f7494ccd472f6cd39fbc804c9a3f6a99122"
+    },
+    {
+      "path": "scripts/template_list_ui_build.py",
+      "bytes": 1589,
+      "sha256": "a327c65c8666c02a96f5b467b72a7b4b44baaec5efc9ae18ec9025ff1a03550c"
+    }
+  ]
+}

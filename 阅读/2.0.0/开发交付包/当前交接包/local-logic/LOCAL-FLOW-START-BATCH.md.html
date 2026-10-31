@@ -1,0 +1,116 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/local-logic/LOCAL-FLOW-START-BATCH.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/local-logic/LOCAL-FLOW-START-BATCH.md">原始 Markdown</a></p><h1>当前交接包/local-logic/LOCAL-FLOW-START-BATCH.md</h1><pre># LOCAL-FLOW-START-BATCH 同组AI／预外呼逐条批发起
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](../features/FUNC-2031.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2031
+
+触发：勾选同组AI/预外呼并明确确认发起
+
+## 前置条件
+
+- 对准确业务有当前本租户办理权
+- 确认业务/run/node/owner及并发依据仍一致
+- 每行有startMany资格，分类/模板/节点/方式/场景同组
+
+## 必须遵守的全局规则
+
+- [GR-SERIAL](../global-logic.md#GR-SERIAL)
+- [GR-CONTACT](../global-logic.md#GR-CONTACT)
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)、[FIELD-FLOW-METHOD](../field-specs.md#FIELD-FLOW-METHOD)、[FIELD-FLOW-CONTACT-POLICY](../field-specs.md#FIELD-FLOW-CONTACT-POLICY)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+
+输出：[FIELD-FLOW-FOLLOWUP-ID](../field-specs.md#FIELD-FLOW-FOLLOWUP-ID)、[FIELD-FLOW-EXECUTION-STATE](../field-specs.md#FIELD-FLOW-EXECUTION-STATE)、[FIELD-FLOW-REQUEST-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)
+
+## 处理步骤
+
+### STEP-FLOW-START-BATCH-1
+
+按分类优先及同级先后逐条重核，不抢占已有执行
+
+读取：FIELD-FLOW-RECORD-ID, FIELD-FLOW-CATEGORY-PRIORITY, FIELD-FLOW-ARRANGEMENT；写入：无
+
+规则：GR-SERIAL, GR-CONTACT, GR-AUTH, GR-DATA-FACTS, GR-UNKNOWN
+
+### STEP-FLOW-START-BATCH-2
+
+每记录独立建立跟进/受理结果，仍对同号执行协调
+
+读取：FIELD-FLOW-RECORD-ID, FIELD-FLOW-PHONE, FIELD-FLOW-ARRANGEMENT；写入：FIELD-FLOW-FOLLOWUP-ID, FIELD-FLOW-EXECUTION-STATE, FIELD-FLOW-REQUEST-STATUS
+
+规则：GR-SERIAL, GR-CONTACT, GR-AUTH, GR-DATA-FACTS, GR-UNKNOWN
+
+### STEP-FLOW-START-BATCH-4
+
+DIRECT同方式同有效安排组也可明确批量发起AI/预外呼；逐条重核模式、串行占用及联系限制，人工仍逐条本人办理
+
+读取：FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD；写入：无
+
+规则：GR-SERIAL, GR-CONTACT, GR-AUTH, GR-DATA-FACTS, GR-UNKNOWN, GR-HANDLING-MODE
+
+## 分支与异常
+
+### BRANCH-FLOW-START-BATCH-1
+
+条件：部分受理/失败/未知
+
+结果：逐行准确反馈和身份，已受理不回滚成未发生，失败不自动续拨
+
+涉及字段：FIELD-FLOW-REQUEST-STATUS, FIELD-FLOW-FOLLOWUP-ID
+
+验证：CHECK-FLOW-START-BATCH
+
+### BRANCH-FLOW-START-BATCH-2
+
+条件：人工或跨组混选
+
+结果：阻批发起，人工本人逐条处理
+
+涉及字段：FIELD-FLOW-METHOD, FIELD-FLOW-ARRANGEMENT
+
+验证：CHECK-FLOW-START-BATCH
+
+## 完成后的状态
+
+- 分配批次与执行批次不是同一成功口径
+
+## 字段定义
+
+- [FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)
+- [FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)
+- [FIELD-FLOW-CATEGORY-PRIORITY](../field-specs.md#FIELD-FLOW-CATEGORY-PRIORITY)
+- [FIELD-FLOW-CONTACT-POLICY](../field-specs.md#FIELD-FLOW-CONTACT-POLICY)
+- [FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+- [FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+- [FIELD-FLOW-EXECUTION-STATE](../field-specs.md#FIELD-FLOW-EXECUTION-STATE)
+- [FIELD-FLOW-FOLLOWUP-ID](../field-specs.md#FIELD-FLOW-FOLLOWUP-ID)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-METHOD](../field-specs.md#FIELD-FLOW-METHOD)
+- [FIELD-FLOW-PHONE](../field-specs.md#FIELD-FLOW-PHONE)
+- [FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)
+- [FIELD-FLOW-REQUEST-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2120, acceptance:AC-2121, acceptance:AC-2122, features:FUNC-2031, features:FUNC-2031/behavior_spec/2/branches/0, features:FUNC-2031/behavior_spec/2/branches/1, features:FUNC-2031/behavior_spec/2/postconditions/0, features:FUNC-2031/behavior_spec/2/preconditions/0, features:FUNC-2031/behavior_spec/2/preconditions/1, features:FUNC-2031/behavior_spec/2/preconditions/2, features:FUNC-2031/behavior_spec/2/steps/0, features:FUNC-2031/behavior_spec/2/steps/1, features:FUNC-2031/behavior_spec/2/steps/2, pages:PAGE-2006/fields/25, pages:PAGE-2006/fields/39, pages:PAGE-2006/fields/59, pages:PAGE-2203/fields/19, pages:PAGE-2203/fields/28, pages:PAGE-2203/fields/35, pages:PAGE-2203/fields/39, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2203/fields/66, pages:PAGE-2204, pages:PAGE-2204/fields/12, pages:PAGE-2204/fields/15, pages:PAGE-2204/fields/26, pages:PAGE-2204/fields/3, pages:PAGE-2204/fields/30, pages:PAGE-2204/fields/41, pages:PAGE-2204/fields/46, pages:PAGE-2204/fields/48, pages:PAGE-2204/fields/51, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2204/fields/87, pages:PAGE-2226/fields/15, pages:PAGE-2226/fields/17, pages:PAGE-2226/fields/2, pages:PAGE-2226/fields/23, pages:PAGE-2226/fields/27, pages:PAGE-2226/fields/28, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/37, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/140, pages:PAGE-2227/fields/19, pages:PAGE-2227/fields/39, pages:PAGE-2227/fields/43, pages:PAGE-2227/fields/57, pages:PAGE-2227/fields/7, pages:PAGE-2227/fields/70, pages:PAGE-2227/fields/79, pages:PAGE-2227/fields/82, pages:PAGE-2228/fields/10, pages:PAGE-2228/fields/18, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/105, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/121, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/125, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/128, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/147, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/151, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/35, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/60, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/63, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/69, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/83, scenarios:FLOW-CURRENT-CUSTOMER/steps/19
+
+验证：CHECK-FLOW-START-BATCH
+
+## 实施任务
+
+- [TASK-018](../tasks/TASK-018.md)
+</pre></body></html>

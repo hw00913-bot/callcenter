@@ -1,0 +1,114 @@
+# TASK-014 DIRECT/TEMPLATE整批严格预检
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [按实际分类严格预检并导入业务 · FUNC\-2036](../features/FUNC-2036.md)
+
+## 目标
+
+两模式均严格校系统/分类必填、类型/选项、映射及唯一性；当前schema启用可判断的选填IMPORT缺列在新输入捕获为null。；TEMPLATE检当前ELSE完整方案及首次真实分流，DIRECT不读路由；未知目录、必填缺失、通话/填写待核不借ELSE放行。
+
+## 产品依据
+
+- FUNC-2036 按实际分类严格预检并导入业务：整批明确DIRECT或TEMPLATE后严格预检及导入：DIRECT须分类显式允许、方式明确且AI场景必选，仅豁免路由附加资料，不建run/node；TEMPLATE沿当前路由建run。已有直接业务后续显式启用流程，在旧执行与必要归档收敛且当前路由资料通过后于原业务建新run，不重复导入。；来源 documentation/input/functions.json#FUNC-2036
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+
+## 前置任务
+
+- TASK-012
+- TASK-013
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-CONFIG](../global-logic.md#GR-CONFIG)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-FIELDS](../global-logic.md#GR-FIELDS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-FLOW-IMPORT-PREVIEW](../local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)
+
+字段：[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-BATCH-NAME](../field-specs.md#FIELD-FLOW-BATCH-NAME)、[FIELD-FLOW-BUSINESS-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CUSTOMER-NAME](../field-specs.md#FIELD-FLOW-CUSTOMER-NAME)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-ENTRY-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)、[FIELD-FLOW-ENTRY-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)、[FIELD-FLOW-FILE-PENDING](../field-specs.md#FIELD-FLOW-FILE-PENDING)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-IMPORT-MAPPING](../field-specs.md#FIELD-FLOW-IMPORT-MAPPING)、[FIELD-FLOW-IMPORT-NOTE](../field-specs.md#FIELD-FLOW-IMPORT-NOTE)、[FIELD-FLOW-IMPORT-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)、[FIELD-FLOW-IMPORT-TEXT](../field-specs.md#FIELD-FLOW-IMPORT-TEXT)、[FIELD-FLOW-IMPORT-TOKEN](../field-specs.md#FIELD-FLOW-IMPORT-TOKEN)、[FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-INTENDED-STORE-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)、[FIELD-FLOW-PHONE](../field-specs.md#FIELD-FLOW-PHONE)、[FIELD-FLOW-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2204](../ui-pages/UI-PAGE-2204.md)
+
+## 实现要求
+
+- 两模式均严格校系统/分类必填、类型/选项、映射及唯一性；当前schema启用可判断的选填IMPORT缺列在新输入捕获为null。
+- TEMPLATE检当前ELSE完整方案及首次真实分流，DIRECT不读路由；未知目录、必填缺失、通话/填写待核不借ELSE放行。
+- 依赖模板能力的实施完成不增加DIRECT运行时模板门槛；无模板DIRECT正例必须验收。
+- 不将新输入补null扩成历史读取迁移，不靠普通DIRECT绕过不完整模板。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2115**：按实际分类生成系统必需和IMPORT列及必填校验；合法等待名单数据中性提示，检查后具体报字段/节点/条件；正式提交所有行通过且token一致。
+  依据：docs/functional-spec.json#AC-2115
+
+- **AC-2116**：LEAD同品牌统一编码跨分类/来源唯一，ORDINARY同品牌同分类唯一；不凭手机号合并，不覆盖重复业务或自动重开。
+  依据：docs/functional-spec.json#AC-2116
+
+- **AC-2117**：导入失败保名单可重检；确认全部通过才同次创建批次/记录/实际run及首节点；重复/冲突不改原owner/值/结果。
+  依据：docs/functional-spec.json#AC-2117
+
+- **AC-2139**：所有有出口的当前新配置须有且仅有一个末位ELSE；IF/ELSE IF按优先级首命中，明确不匹配才到兜底，未知继续PENDING。保存/新导入/重开/启用均校验，不依赖DIRECT绕开分流。
+  依据：docs/functional-spec.json#AC-2139
+
+- **AC-2140**：对当前可可靠读取schema内、启用且支持条件的非必填IMPORT字段，新导入/新run准备时缺列规范化为null用于判断；必填缺失或schema读取失败仍拒绝，通话/填写未知及已捕获历史缺失不在读取时补空。
+  依据：docs/functional-spec.json#AC-2140
+
+- **AC-2145**：线索域转交组件允许CURRENT本租户分支；命中后保持owner、run及tenant阶段，不新建跨租户截止/轮次，不清原安排与封存结果，并重核后继CALL资格。OTHER仍执行原意向锚定和跨租户保护；CURRENT不冒充OTHER，拒伪造目标或过期令牌。
+  依据：docs/functional-spec.json#AC-2145
+
+## 测试要求（尚未执行）
+
+### CHECK-FLOW-IMPORT-PREVIEW / manual
+
+步骤：按当前续接版本执行：点击检查名单。前提：管理员导入资格有效；整批明确办理模式；DIRECT分类显式允许且方式明确，TEMPLATE实际分类绑定已确认有效流程。操作：两模式均校系统必需、分类导入必填、IMPORT类型/选项/编码映射及同品牌业务唯一性；TEMPLATE按真实行数据判断首路径/首CALL及场景；DIRECT只豁免路由分流所需的附加资料，不读取路由或生成节点，校显式方式与AI必要场景；仅全部行通过才生成绑定模式、方式、数据、字段、分类开关和必要场景的token；TEMPLATE额外绑定路由及方案。分别构造：TEMPLATE且尚未输入可影响路由的IMPORT资料；TEMPLATE且实际行空/不匹配/首次依赖未来通话或填写；存在重复或类型/选项错误；所有行通过；DIRECT缺基础必填、类型/映射/唯一性失败、分类未显式允许、方式未选或AI无有效场景。
+
+预期：预览不转交、不起呼、不写正式业务；中性列所需分流字段，不提前标配置错误；具体报节点、字段和条件，无token不创建业务；给逐行原因，不覆盖已有业务；展示每行当前模式及DIRECT显式方式或TEMPLATE首CALL/无需呼叫和确认依据。；逐行具体报错，保名单且无有效token；不因仅绕过路由而放宽任何基础校验，也不静默转TEMPLATE。。
+
+覆盖：AC-2115, AC-2116, AC-2117, AC-2139, AC-2140, AC-2145
+
+## 完成条件
+
+- 两模式均严格校系统/分类必填、类型/选项、映射及唯一性；当前schema启用可判断的选填IMPORT缺列在新输入捕获为null。
+- TEMPLATE检当前ELSE完整方案及首次真实分流，DIRECT不读路由；未知目录、必填缺失、通话/填写待核不借ELSE放行。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [four-node-model.js](../../../prototype/scripts/four-node-model.js) · 只读行为参考，非生产可写目标
+- [four-node-workspace.js](../../../prototype/js/adapters/four-node-workspace.js) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：ENG-FLOW-PERSISTENCE, ENG-FLOW-SCENE。

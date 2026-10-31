@@ -1,0 +1,566 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2007",
+  "scenario_id": "SC-2007",
+  "name": "创建本租户账号并分配工作区权限时序",
+  "participants": [
+    {
+      "id": "admin",
+      "name": "有成员管理权的租户管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "公共账号与成员前端",
+      "kind": "system"
+    },
+    {
+      "id": "account",
+      "name": "本租户账号/成员管理（内部目标）",
+      "kind": "system"
+    },
+    {
+      "id": "perm",
+      "name": "本租户角色可授范围校验（内部目标）",
+      "kind": "system"
+    },
+    {
+      "id": "identity_adapter",
+      "name": "既有AI人员/成员接入边界",
+      "kind": "system"
+    },
+    {
+      "id": "authorization",
+      "name": "工作区授权保存（内部目标）",
+      "kind": "system"
+    },
+    {
+      "id": "ai",
+      "name": "实际AI生产人员/角色服务（关系待核）",
+      "kind": "external_system"
+    }
+  ],
+  "source_refs": [
+    "scenarios/SC-2007.json",
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "status": "S5_current_design_for_review_not_implementation",
+  "messages": [
+    {
+      "step": 1,
+      "from": "admin",
+      "to": "ui",
+      "message": "选择在本租户新建人员或维护已核实的本租户成员；不是跨租户建号或升全局身份。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次本租户成员操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "perm",
+      "message": "核本租户成员管理权、目标稳定身份/关系和可授范围，保AI原基准。",
+      "type": "request",
+      "api_id": "API-2002",
+      "condition": "真实多租户关系与角色语义未核不推定通过。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "perm",
+      "to": "ui",
+      "message": "无权、越租户或试图授全局身份则拒绝，不创建越权成员/角色。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2007-01｜原权/范围明确不符或无法可靠核实。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2007-01"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "ui",
+      "to": "account",
+      "message": "读取并分流新建与已有本租户成员，不按姓名/手机号自动归并。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜操作者范围已可靠核对。",
+      "source_step_refs": [
+        1,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 5,
+      "from": "account",
+      "to": "identity_adapter",
+      "message": "按稳定标识核原AI人员及当前租户成员关系；复用前须关系明确。",
+      "type": "request",
+      "api_id": null,
+      "condition": "原关系查询/复用责任，不新造身份合并能力。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 6,
+      "from": "identity_adapter",
+      "to": "ai",
+      "message": "沿已有人员/租户关系候选定义取得本次准确身份依据。",
+      "type": "external_call",
+      "api_id": "API-2002",
+      "condition": "条件目标｜仅在相关真实契约、稳定身份/对象映射及本次权限已核实后，真实成员关系查询及身份映射可靠时。",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 7,
+      "from": "ai",
+      "to": "identity_adapter",
+      "message": "返回准确成员关系/原规则依据，或失败、冲突及未知。",
+      "type": "response",
+      "api_id": "API-2002",
+      "condition": "条件目标｜对应本次合法原身份读取。",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 8,
+      "from": "identity_adapter",
+      "to": "account",
+      "message": "已有账号拟复用但关系不符/未知时保留输入，不自动合并、不改历史。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2007-03｜已有账号关系校验未通过或不能可靠确认。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2007-03"
+      ]
+    },
+    {
+      "step": 9,
+      "from": "account",
+      "to": "ui",
+      "message": "已核实本租户既有成员直接维护分别授权，不重复建号或重置原AI授权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2007-02｜准确既有成员关系已可靠确认。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2007-02"
+      ]
+    },
+    {
+      "step": 10,
+      "from": "account",
+      "to": "ui",
+      "message": "新建身份冲突/超出原实际创建规则则明确拒绝并保留输入，不新增本版上限或例外。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2007-04｜本次新建原规则校验未通过。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2007-04"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "ui",
+      "to": "identity_adapter",
+      "message": "仅本次为合法新建时承接AI原建号能力，不把创建候选字段当完整跨租户契约。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜原创建规则/稳定租户映射及本次资格已可靠核实。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 12,
+      "from": "identity_adapter",
+      "to": "ai",
+      "message": "承接已有本租户人员创建能力，不新增全局角色或跨租户身份关系。",
+      "type": "external_call",
+      "api_id": "API-2002",
+      "condition": "条件目标｜仅在相关真实契约、稳定身份/对象映射及本次权限已核实后，原建号能力满足本次本租户语义时。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "ai",
+      "to": "identity_adapter",
+      "message": "返回本次人员创建真实结果及可核稳定身份，或失败未知。",
+      "type": "response",
+      "api_id": "API-2002",
+      "condition": "条件目标｜对应本次合法人员创建。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 14,
+      "from": "identity_adapter",
+      "to": "ui",
+      "message": "创建失败或不能确认成员已建立则反馈未完成，不向不存在/未确认成员继续写授权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2007-05｜本次建号失败或未知。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2007-05"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "identity_adapter",
+      "to": "account",
+      "message": "仅创建明确成立后记录可核本租户成员；人员已建立不表示授权已保存。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜原创建结果及成员关系明确成立。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 16,
+      "from": "ui",
+      "to": "admin",
+      "message": "针对已确认成员分别选择本租户AI与Cloud允许的业务权限，原两边权限可不同。",
+      "type": "response",
+      "api_id": null,
+      "condition": "既有成员可用或本次创建已确认；身份不明分支不进入。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 17,
+      "from": "admin",
+      "to": "ui",
+      "message": "提交本次分开的AI/Cloud权限选择，不申请未开通模块或公共/全局权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本租户有权管理员提交业务授权。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 18,
+      "from": "ui",
+      "to": "authorization",
+      "message": "按稳定成员及本次租户提交授权，不把六入口打成同区全权包。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜目标成员关系可确认。",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 19,
+      "from": "authorization",
+      "to": "perm",
+      "message": "提交前核模块已由超管开通、原可授角色及本次管理员范围。",
+      "type": "request",
+      "api_id": "API-2002",
+      "condition": "原实际角色/多租户授权语义仍须可靠证据。",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 20,
+      "from": "perm",
+      "to": "ui",
+      "message": "未开通模块或越可授业务角色则拒绝本次授权，保原授权；已建人员结果单独保留。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2007-06｜本次模块/角色校验不满足或未知。",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2007-06"
+      ]
+    },
+    {
+      "step": 21,
+      "from": "authorization",
+      "to": "identity_adapter",
+      "message": "仅按原已核授权能力分别保存当前租户的两模块业务授权，不新增角色或推得管理/财务权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜原授权协议和本次可授范围可靠满足。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 22,
+      "from": "identity_adapter",
+      "to": "ai",
+      "message": "承接原人员/角色授权保存；不臆造两模块角色映射或单次全区授权协议。",
+      "type": "external_call",
+      "api_id": "API-2002",
+      "condition": "条件目标｜仅在相关真实契约、稳定身份/对象映射及本次权限已核实后，真实原授权保存和Cloud兼容语义可核验时。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 23,
+      "from": "ai",
+      "to": "identity_adapter",
+      "message": "返回本次分别授权实际结果或失败/未知，不以建号成功代表授权成功。",
+      "type": "response",
+      "api_id": "API-2002",
+      "condition": "条件目标｜对应本次合法授权保存。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 24,
+      "from": "identity_adapter",
+      "to": "authorization",
+      "message": "交付当前租户各模块可确认结果，其他租户关系与原历史不受本次改写。",
+      "type": "response",
+      "api_id": null,
+      "condition": "只按本次实际授权结果确认。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 25,
+      "from": "authorization",
+      "to": "ui",
+      "message": "成员存在但授权失败/未知时分别反馈，保已建立账号与原授权，不默认回滚建号或宣称获全部权限。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2007-07｜本次授权未明确成功。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2007-07"
+      ]
+    },
+    {
+      "step": 26,
+      "from": "authorization",
+      "to": "ui",
+      "message": "仅真实授权结果已明确时反馈本租户分别获得的合法业务范围。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜本次原授权及兼容语义均可靠且保存明确成立。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 27,
+      "from": "ui",
+      "to": "admin",
+      "message": "分别展示人员与授权结果；公共账号为唯一基础维护，原内部入口转同场景，不按中心名称扩大权限。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜当前合法上下文仍匹配；失败/未知如实反馈。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2008",
+    "US-2009"
+  ],
+  "source_acceptance_ids": [
+    "AC-2022",
+    "AC-2023",
+    "AC-2024",
+    "AC-2025",
+    "AC-2026"
+  ],
+  "source_business_rule_ids": [
+    "BR-2001",
+    "BR-2002",
+    "BR-2009",
+    "BR-2052"
+  ],
+  "source_step_refs": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "covered_alternate_flow_ids": [
+    "ALT-2007-01",
+    "ALT-2007-02",
+    "ALT-2007-03",
+    "ALT-2007-04",
+    "ALT-2007-05",
+    "ALT-2007-06",
+    "ALT-2007-07"
+  ],
+  "main_flow_coverage": {
+    "1": [
+      1,
+      4
+    ],
+    "2": [
+      2,
+      3,
+      6,
+      7
+    ],
+    "3": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "4": [
+      16,
+      17,
+      18
+    ],
+    "5": [
+      18,
+      19,
+      20
+    ],
+    "6": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2007-01": [
+      3
+    ],
+    "ALT-2007-02": [
+      9
+    ],
+    "ALT-2007-03": [
+      8
+    ],
+    "ALT-2007-04": [
+      10
+    ],
+    "ALT-2007-05": [
+      14
+    ],
+    "ALT-2007-06": [
+      20
+    ],
+    "ALT-2007-07": [
+      25
+    ]
+  },
+  "source_scenario_sha256": "c82d9648d4142e715837adecc566888cb79c8d6f5121a3c650d59ed3db04ac2b",
+  "interface_evidence_statuses": {
+    "API-2002": "partial"
+  },
+  "source_interface_fact_sha256": {
+    "API-2002": "9b3a95827be48ae6157be6497aa154f779a24c02347392ef1e631482ee3fa614"
+  },
+  "production_verified": false,
+  "execution_status": "not_executed_design_only",
+  "v2_gate_status": "G1_G2_analysis_approved_G3_pending",
+  "notes": [
+    "本文件消费当前SC/AC/BR及已批准G2接口事实，仅时序分析，不证明生产、原型或真实调用已完成。partial/missing能力保当前受阻/未知；标为条件目标的调用和成功仅在真实契约、稳定身份/对象映射、当次权限与实际结果均已落实时成立。未满足不执行后续成功分支。",
+    "消息按条件表达互斥主线/备选责任，不表示一次运行依次执行所有消息。source_step_refs为当前SC main_flow.step整数，covered_alternate_flow_ids为该消息明确覆盖的ALT稳定ID；顶层映射可逐项复核。",
+    "保AI生产身份和真实原多租户/模块/操作范围，六入口只组织展示；品牌配置/监管/独立AI财务或供应商资源资格不代业务执行权，也不统一要求业务租户成员、本人坐席或双模块。",
+    "not_required本方能力和普通内部责任消息api_id=null：位置记忆/表单提示由API-2014对应本方责任承接；公共品牌/租户基础查询由API-2003对应责任承接，API-2017只是其来源投影，不新增维护库。未直接调用的这些族不写成外部消息。",
+    "只引用所用API已登记能力族，不造URL、字段、权限码、主动撤销协议、幂等键、引用查询接口或超时重试次数。原普通表单/话后责任只作当前SC要求的复用，不用未知服务成功代证；必要话后与拒联一致结果沿原SC-2013/2018另有权责任。",
+    "本版AI标签configuration_only沿SRC-2096；仅原配置/映射/结果展示，不新增AI标签写业务字段及由此新增自动流转，不影响既有人工保存/条件与其他原流转，不作未来永久禁令。"
+  ],
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "reason": "当前G2后S5，按当前SC压缩并补齐主线/全部ALT与条件目标，不改接口事实。",
+      "previous_detail_sha256": "6d5edbc0f37dad793b8fb3816af9d1c47f00f35332dcf9ea2d6e5e5185899f49",
+      "previous_message_count": 26,
+      "stable_participant_ids_retained": [
+        "admin",
+        "ui",
+        "account",
+        "perm",
+        "identity_adapter",
+        "authorization",
+        "ai"
+      ]
+    }
+  ],
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

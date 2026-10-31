@@ -1,0 +1,45 @@
+{
+  "schema": "business-product-post-audit-findings@1",
+  "date": "2026-10-30T08:36:01.928046+08:00",
+  "count": 5,
+  "fixed": 5,
+  "remaining": [],
+  "redEvidence": "memory/business-product-post-audit-red-20261030.json",
+  "findings": [
+    {
+      "id": "B18-01",
+      "problem": "受控转类后旧段补录误用当前分类",
+      "repair": "表单、校验、系统归档和正式快照统一使用原段basis.category.id，当前新分类值保持隔离",
+      "evidence": "memory/business-product-post-audit-20261030.json",
+      "status": "fixed-and-independently-reverified"
+    },
+    {
+      "id": "B18-02",
+      "problem": "真实拨打按排队时间计频控，跨日漏计",
+      "repair": "首次真实拨打封dialedAt，重复不改；旧事件只读推导resolvedDialedAt，证据不足显示待核，页面分开排队与拨打时间",
+      "evidence": "memory/business-product-post-audit-20261030.json",
+      "status": "fixed-and-independently-reverified"
+    },
+    {
+      "id": "B18-03",
+      "problem": "转类显式修改映射电话时旧系统别名冲突",
+      "repair": "明确稳定字段提交同步其已配置系统别名，同次显式矛盾值仍拒，跨用途不猜配",
+      "evidence": "memory/business-product-post-audit-20261030.json",
+      "status": "fixed-and-independently-reverified"
+    },
+    {
+      "id": "B18-04",
+      "problem": "专业通话裸ID跨执行域／供应商碰撞导致频次低估",
+      "repair": "canonicalId包含租户、执行域、供应商及账号范围和原ID；内部尝试独立命名，只有明确镜像才合并",
+      "evidence": "memory/business-product-new-integration-20261030.json",
+      "status": "fixed-and-independently-reverified"
+    },
+    {
+      "id": "B18-05",
+      "problem": "执行中仍能打开重新分配表单，队列与保存准入不同源",
+      "repair": "分配共用ACTIVE/admin/type/noRunning守卫；另设有权startContext，普通运营起呼和批次逐条结果不被管理员分配权限误挡",
+      "evidence": "memory/business-product-post-audit-20261030.json",
+      "status": "fixed-and-independently-reverified"
+    }
+  ]
+}

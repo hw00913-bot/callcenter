@@ -1,0 +1,121 @@
+{
+  "rules": [
+    {
+      "id": "GR-IDENTITY",
+      "statement": "统一账号以准确稳定身份关联已授权租户，五种生产角色与本人坐席能力分离；不按同名／手机号自动合并身份。",
+      "name": "GR-IDENTITY",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-SCOPE",
+      "statement": "每次读取和操作均按当前账号、合法租户、品牌、模块、功能权与对象范围重验；品牌配置关系不授全品牌客户资料。",
+      "name": "GR-SCOPE",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-AUTH",
+      "statement": "菜单可见、操作资格和数据范围分别判断；总部／门店角色不互相冒用，超管监管不代办业务，未授功能不自动开放。",
+      "name": "GR-AUTH",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-DATA-FACTS",
+      "statement": "受理、排队、真实拨打、接通、执行结束、重试收敛、正式内容保存、归档、节点推进、业务结论分别记录；不把前一状态冒充后一状态。",
+      "name": "GR-DATA-FACTS",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-SERIAL",
+      "statement": "同一业务不论DIRECT/TEMPLATE均串行办理；在途/排队/重试/未知执行未收敛以及必要本人内容未归档时，不启动下一段、启用新run或推进/转交/完成废弃。",
+      "name": "GR-SERIAL",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-CONFIG",
+      "statement": "TEMPLATE的模板字段参考分类只供编排，实际分类独立关联当前同品牌兼容模板，新run仅消费明确生效配置并封完整方案，已开始run不追改。DIRECT不消费路由或生成run；分类开关不自动转换既有业务模式。",
+      "name": "GR-CONFIG",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-FIELDS",
+      "statement": "字段以品牌、IMPORT/FOLLOWUP用途和稳定ID解释，同名不同用途不合并；类型、选项和取值上下文不相容即拒，不按标签名／首项猜配。",
+      "name": "GR-FIELDS",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-PRIVACY",
+      "statement": "当前负责方按资格办理；转出方仅见本方截止快照；实际接听人只填自己的准确原段，查询权、核对权、跟进责任均不替代实际填写权。",
+      "name": "GR-PRIVACY",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-CONTACT",
+      "statement": "本租户规范号码按所有有效限制来源独立判定，解除某来源不解除其他来源；呼出准入覆盖四类呼叫，未知不放行，正常呼入不被外呼限制拦。同号正在执行的联系租约、联系间隔和当日频次单独核验；同号多业务不合并身份，有冲突按已配置分类优先级及稳定顺序协调。",
+      "name": "GR-CONTACT",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-UNKNOWN",
+      "statement": "失败与未知分开；未知保留同次请求身份、输入和待核状态，不重放新请求、不假报成功或以空结果/0值替代读取失败。",
+      "name": "GR-UNKNOWN",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-NO-HISTORY",
+      "statement": "本轮规划无旧流转数据迁移／模板兼容；未来发生的运行、跟进、通话、来源和审计快照仍按产品规则完整保留。专业现有能力的复用不等于迁移旧流转账本。",
+      "name": "GR-NO-HISTORY",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-LIST-ORDER",
+      "statement": "普通业务列表按真实更新时间倒序后分页；无可靠时间保持稳定，不在读取时造时间。字段／选项顺序、分支优先级、节点及事件序列保业务语义顺序。",
+      "name": "GR-LIST-ORDER",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    },
+    {
+      "id": "GR-HANDLING-MODE",
+      "statement": "分类allowDirectFollowup仅显式true开放DIRECT，缺省false。导入整批明确DIRECT或TEMPLATE，不因失败静默降级。DIRECT明确AI/MANUAL/PREDICTIVE，AI场景必选；仅豁免路由条件附加资料，基础必填、类型、映射、唯一性全部保留，且无run或节点。DIRECT有完整同租户真实呼叫、本人填写、快照、联系限制和当前资料更正，但无模板转交/推进。后续仅在当前路由和必需资料验证通过、全部旧执行及必要归档可靠收敛后，明确在原业务启用新run，不重复导入；旧直接事实不能完成新节点。 DIRECT使用独立directCycleId/directCycles及ACTIVE/COMPLETED状态，不是run；完成周期须明确结论且有真实已归档完成跟进或NO_CALL+原因。再次直接跟进显式确认下一次方式和必要AI场景，新周期清旧责任安排。启用流程不强制先完成直接周期，成功时directStatus记FLOW_ENABLED，已完成周期保原COMPLETED结论，原ACTIVE周期记录FLOW_ENABLED。",
+      "name": "GR-HANDLING-MODE",
+      "source_refs": [
+        "docs/decisions.md",
+        "docs/role-permissions.md"
+      ]
+    }
+  ]
+}

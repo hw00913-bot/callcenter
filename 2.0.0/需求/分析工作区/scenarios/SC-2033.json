@@ -1,0 +1,445 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2033",
+  "name": "人工切换关联备用模板并接续",
+  "status": "proposed_flow",
+  "summary": "在独立准入及合法接续点切备用，保留同一记录及历史；不换租户、不新建轮次、不重跑或自动回主。",
+  "actors": [
+    "当前负责租户管理员、运营或当前负责坐席",
+    "D联络云"
+  ],
+  "trigger": "当前负责租户人员决定使用预配置的备用路径",
+  "preconditions": [
+    "操作者属于当前负责租户且具有本条记录办理资格。",
+    "记录固定了备用版本，当前节点存在匹配的接续映射。",
+    "无执行中、排队或待重呼，当前归属、节点和同次办理状态明确。",
+    "沿用 AI 生产身份和稳定租户/对象标识；直接访问与菜单采用同一当前操作授权校验，不按名称、手机号或品牌关系合并身份或授权。",
+    "切换独立核人员/记录/固定接续、无在途且归属/节点/同次结果明确；未来门店待指派或后续条件未匹配/待核本身不挡合法切换，不要求双模块。",
+    "业务中心整合已确认的分类、规则、导入批次、业务台账、分配及记录处理入口，复用同一业务记录和原执行/详情跳转；不复制客户档案、任务或专业配置，不改变当前负责租户、原动作资格、固定版本和历史可见边界。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "当前负责租户管理员、运营或当前负责坐席",
+      "action": "从业务中心原记录入口根据业务需要主动发起切换备用。",
+      "system_response": "无自动异常兜底。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2044",
+        "BR-2045",
+        "BR-2049",
+        "BR-2050",
+        "BR-2051",
+        "BR-2052"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "D联络云",
+      "action": "展示固定主备版本、当前节点、可用映射和执行/结果状态。",
+      "system_response": "只展示合法固定备用接续，不提供任意模板跳转；同时提示后续下发仍适用意向目标规则，切换自身不确定门店。 主备路径条件随各自固定版本，展示备用后续路径条件不等于本次切换会转交。 备用及接续映射来自记录固定的SC-2037路由配置快照，不读取后来新路由替换本实例。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2044",
+        "BR-2045",
+        "BR-2049",
+        "BR-2050",
+        "BR-2051",
+        "BR-2052"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "当前负责租户管理员、运营或当前负责坐席",
+      "action": "选择合法接续点，填写原因并确认。",
+      "system_response": "提示切换本身不转交租户、不重放已完成节点。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2044",
+        "BR-2045",
+        "BR-2049",
+        "BR-2050",
+        "BR-2051",
+        "BR-2052"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "复核当前负责资格、版本/节点、接续映射、无在途及无归属/节点/同次办理结果待核。",
+      "system_response": "无接续映射、归属/节点/办理状态不明或归属已变时拒绝；重复请求读取同次结果。单独门店目标待指派或匹配待处理不阻止原本合法的切换。 仅后续路径条件UNMATCHED/PENDING或门店匹配异常，不额外阻断原本合法的备用接续切换；切换自身不评估为已执行后续转交。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2044",
+        "BR-2045",
+        "BR-2049",
+        "BR-2050",
+        "BR-2051",
+        "BR-2052"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "D联络云",
+      "action": "同次保存原/新版本节点、操作者时间原因及备用指针。",
+      "system_response": "原结果归原执行段；未保存状态不伪装已保存。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2044",
+        "BR-2045",
+        "BR-2049",
+        "BR-2050",
+        "BR-2051",
+        "BR-2052"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "D联络云",
+      "action": "反馈备用接续节点与完整切换轨迹。",
+      "system_response": "后续处理仍由人员另次发起；备用下发复用SC-2026，有意向定向/无意向HQ管理员同次指派/异常待核，不能借备用任选门店。 人员另次推进/转交时按备用固定edgeId条件、最新本轮call和record当前有效标签重评估；不自动转交、不清空标签、不沿用旧模板条件结论。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2044",
+        "BR-2045",
+        "BR-2049",
+        "BR-2050",
+        "BR-2051",
+        "BR-2052"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2033-CANCEL",
+      "condition": "提交前取消本次操作",
+      "steps": [
+        "不提交本次请求，不改变记录或配置。"
+      ]
+    },
+    {
+      "id": "ALT-2033-INVALID",
+      "condition": "资格、配置、当前版本或本次业务条件不满足",
+      "steps": [
+        "无权、无接续映射、在途或归属/节点/同次办理结果待核时不能切换；门店目标待指派或匹配待处理本身不阻断合法切换。",
+        "反馈具体原因；当前数据保持原实际状态。"
+      ]
+    },
+    {
+      "id": "ALT-2033-UNKNOWN",
+      "condition": "读写失败或本次结果不能确定",
+      "steps": [
+        "不展示成功；区分明确失败和结果待核。",
+        "结果待核先核对同次请求的实际结果，不能用新请求重复创建或推进。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "备用切换完成，可按接续点办理",
+    "取消、校验不通过或未确认成功时，不伪造本次业务成功。",
+    "切换不换归属、不新增轮次、不重放节点、不清标签；结果归准确原段。",
+    "切换不授执行/转交/永久补录权，后续实际执行仍核当前方式与本租户公共禁呼。"
+  ],
+  "acceptance_points": [
+    "AC-2126：备用模板由当前负责租户的管理员、运营及当前负责坐席根据业务需要主动切换，不按未匹配或技术异常自动兜底。",
+    "AC-2127：切换沿用同一业务记录并保留原已完成结果，记录操作者、时间、原因、原/新模板版本及接续节点。",
+    "AC-2128：切换时核对状态与合法接续，不绕过执行、归属和历史权限；重复或未知办理不得重复切换或重跑已完成节点。"
+  ],
+  "source_story_ids": [
+    "US-2037"
+  ],
+  "source_acceptance_ids": [
+    "AC-2126",
+    "AC-2127",
+    "AC-2128"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088"
+  ],
+  "business_rule_ids": [
+    "BR-2041",
+    "BR-2044",
+    "BR-2045",
+    "BR-2049",
+    "BR-2050",
+    "BR-2051",
+    "BR-2052",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010"
+  ],
+  "notes": [
+    "本期只规划主模板到其关联备用；不自动回主、不做多备用串联。",
+    "例：主总部培育→备总部复核；主门店跟进→备门店人工处理。切换时负责租户不变，后续转交另行确认。",
+    "本场景按 SRC-2086 通过的 v2.0.0 G1 范围细化；v1.2.0 冻结包只作为继承来源，不代表本版 G2/G3 或真实执行能力已通过。",
+    "沿 D联络云六入口及原页面交互承载，不采用源版过渡外链；配置共享不产生跨租户业务数据权。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "human",
+        "name": "当前负责租户管理员、运营或当前负责坐席",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "human",
+        "type": "start",
+        "order": 1,
+        "label": "人员根据业务需要主动选择备用模板"
+      },
+      {
+        "id": "N-OPEN",
+        "lane_id": "human",
+        "type": "action",
+        "order": 2,
+        "label": "主动发起备用切换",
+        "step_ref": 1
+      },
+      {
+        "id": "N-CONTEXT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "展示固定版本、当前节点\n合法映射与执行状态",
+        "step_ref": 2
+      },
+      {
+        "id": "N-CHOOSE",
+        "lane_id": "human",
+        "type": "action",
+        "order": 4,
+        "label": "选择接续点、填原因并确认",
+        "step_ref": 3
+      },
+      {
+        "id": "N-CONFIRM",
+        "lane_id": "human",
+        "type": "decision",
+        "order": 5,
+        "label": "是否确认本次办理？"
+      },
+      {
+        "id": "N-CANCEL-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "取消本次办理，不保存本次变更"
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "human",
+        "type": "end",
+        "order": 7,
+        "label": "已取消"
+      },
+      {
+        "id": "N-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 8,
+        "label": "核资格/接续/当前版本及无在途\n无归属/节点/同次办理结果待核",
+        "step_ref": 4
+      },
+      {
+        "id": "N-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 9,
+        "label": "本次校验通过？"
+      },
+      {
+        "id": "N-INVALID-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 10,
+        "label": "无权/无接续/在途或办理状态待核\n不能以门店匹配待处理混同阻断"
+      },
+      {
+        "id": "N-INVALID",
+        "lane_id": "human",
+        "type": "end",
+        "order": 11,
+        "label": "本次未办理，说明原因"
+      },
+      {
+        "id": "N-COMMIT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 12,
+        "label": "同次保存切换事件及备用节点\n记录/归属/原历史保持",
+        "step_ref": 5
+      },
+      {
+        "id": "N-COMMITTED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 13,
+        "label": "取得明确成功结果？"
+      },
+      {
+        "id": "N-UNKNOWN-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 14,
+        "label": "反馈失败或待核\n待核先核对同次结果，不能盲目重试"
+      },
+      {
+        "id": "N-UNKNOWN",
+        "lane_id": "human",
+        "type": "end",
+        "order": 15,
+        "label": "本次未确认成功"
+      },
+      {
+        "id": "N-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 16,
+        "label": "切换自身不转交/不清空标签\n后续路径另按备用固定条件由人办理",
+        "step_ref": 6
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "human",
+        "type": "end",
+        "order": 17,
+        "label": "备用已接续，后续另次由人办理\n下发仍按SC-2026目标规则"
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-OPEN"
+      },
+      {
+        "from": "N-OPEN",
+        "to": "N-CONTEXT"
+      },
+      {
+        "from": "N-CONTEXT",
+        "to": "N-CHOOSE"
+      },
+      {
+        "from": "N-CHOOSE",
+        "to": "N-CONFIRM"
+      },
+      {
+        "from": "N-CONFIRM",
+        "to": "N-CANCEL-RESPONSE",
+        "label": "取消",
+        "path_id": "ALT-2033-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "N-CANCEL-RESPONSE",
+        "to": "N-CANCEL"
+      },
+      {
+        "from": "N-CONFIRM",
+        "to": "N-CHECK",
+        "label": "确认"
+      },
+      {
+        "from": "N-CHECK",
+        "to": "N-VALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-INVALID-RESPONSE",
+        "label": "不通过",
+        "path_id": "ALT-2033-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "N-INVALID-RESPONSE",
+        "to": "N-INVALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-COMMIT",
+        "label": "通过"
+      },
+      {
+        "from": "N-COMMIT",
+        "to": "N-COMMITTED"
+      },
+      {
+        "from": "N-COMMITTED",
+        "to": "N-UNKNOWN-RESPONSE",
+        "label": "失败或待核",
+        "path_id": "ALT-2033-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "N-UNKNOWN-RESPONSE",
+        "to": "N-UNKNOWN"
+      },
+      {
+        "from": "N-COMMITTED",
+        "to": "N-RESPONSE",
+        "label": "明确成功"
+      },
+      {
+        "from": "N-RESPONSE",
+        "to": "N-SUCCESS"
+      }
+    ]
+  },
+  "expected_outcome": "在独立准入及合法接续点切备用，保留同一记录及历史；不换租户、不新建轮次、不重跑或自动回主。",
+  "exception_scope": "无权、版本变化、校验不符、取消、读取/保存失败或同次结果待核。",
+  "scope": "in_scope",
+  "scope_status": "confirmed_G1",
+  "design_status": "S3_incremental_flow_design_pending_G2",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [
+    "ISSUE-2021"
+  ],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-213",
+    "inputs/source-index.json#SRC-214",
+    "inputs/source-index.json#SRC-215",
+    "inputs/source-index.json#SRC-216",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-223",
+    "inputs/source-index.json#SRC-224",
+    "inputs/source-index.json#SRC-225",
+    "inputs/source-index.json#SRC-226",
+    "inputs/source-index.json#SRC-227",
+    "inputs/source-index.json#SRC-228",
+    "inputs/source-index.json#SRC-230",
+    "inputs/source-index.json#SRC-231"
+  ],
+  "v12_origin_scenario_id": "SC-11212",
+  "v12_origin_detail_sha256": "e84570f25111d6c666c7e2022ef97f74eabf013af9ba9a197a2625725667ec33",
+  "v12_origin_snapshot": "04ed3e3552872ccc863b05b9c0ec08c7d31b3f6d8806d9b86f054b83978db58d",
+  "rule_ids": [
+    "BR-2041",
+    "BR-2044",
+    "BR-2045",
+    "BR-2049",
+    "BR-2050",
+    "BR-2051",
+    "BR-2052",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010"
+  ],
+  "acceptance_contributions": {},
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ]
+}

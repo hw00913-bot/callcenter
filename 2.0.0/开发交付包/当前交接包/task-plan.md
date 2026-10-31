@@ -1,0 +1,66 @@
+# 开发任务与依赖
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](README.md) · [按功能阅读](features/README.md)
+
+建议按下表顺序执行。没有依赖且没有文件写入冲突的任务可以独立安排。
+
+| 任务 | 功能 | 前置任务 | 修改范围 |
+| --- | --- | --- | --- |
+| [TASK-001 统一登录与合法入口](tasks/TASK-001.md) | FUNC-2001 | 无 | 未填写 |
+| [TASK-002 身份/草稿检查下的导航与退出](tasks/TASK-002.md) | FUNC-2002, FUNC-2003, FUNC-2004 | TASK-001 | 未填写 |
+| [TASK-003 品牌档案和关联租户查询](tasks/TASK-003.md) | FUNC-2008, FUNC-2009, FUNC-2026 | TASK-001 | 未填写 |
+| [TASK-004 租户资料与品牌身份同次保存](tasks/TASK-004.md) | FUNC-2005, FUNC-2006, FUNC-2007 | TASK-003 | 未填写 |
+| [TASK-005 模块开通、账号和成员授权](tasks/TASK-005.md) | FUNC-2002, FUNC-2010, FUNC-2011, FUNC-2012 | TASK-004 | 未填写 |
+| [TASK-006 人员停用与有限话后收尾](tasks/TASK-006.md) | FUNC-2013, FUNC-2014, FUNC-2015 | TASK-005 | 未填写 |
+| [TASK-007 账号与租户引用保护删除](tasks/TASK-007.md) | FUNC-2028, FUNC-2029 | TASK-005 | 未填写 |
+| [TASK-008 品牌导入/填写字段库与稳定选项](tasks/TASK-008.md) | FUNC-2016, FUNC-2017 | TASK-003, TASK-005 | 未填写 |
+| [TASK-037 原黑名单分组和号码维护](tasks/TASK-037.md) | FUNC-2002, FUNC-2020 | TASK-005 | 未填写 |
+| [TASK-055 供应商账号与应用接入](tasks/TASK-055.md) | FUNC-2002 | TASK-004, TASK-005 | 未填写 |
+| [TASK-009 分类双Tab、业务域和直接跟进开关](tasks/TASK-009.md) | FUNC-2016, FUNC-2017 | TASK-008 | 未填写 |
+| [TASK-036 通话记录、录音和异常核对](tasks/TASK-036.md) | FUNC-2002 | TASK-005, TASK-055 | 未填写 |
+| [TASK-038 名单来源详情与供应商同步核对](tasks/TASK-038.md) | FUNC-2002, FUNC-2020, FUNC-2021 | TASK-037, TASK-055 | 未填写 |
+| [TASK-040 AI服务账户、办理、调整和未知交易核对](tasks/TASK-040.md) | FUNC-2002 | TASK-005, TASK-055 | 未填写 |
+| [TASK-049 坐席资料与账号准确关联](tasks/TASK-049.md) | FUNC-2002 | TASK-005, TASK-055 | 未填写 |
+| [TASK-053 外呼组、号码与号码池](tasks/TASK-053.md) | FUNC-2002 | TASK-005, TASK-055 | 未填写 |
+| [TASK-054 分机与时间条件](tasks/TASK-054.md) | FUNC-2002 | TASK-005, TASK-055 | 未填写 |
+| [TASK-010 接口填写字段定义与依赖配置](tasks/TASK-010.md) | FUNC-2002, FUNC-2016, FUNC-2017, FUNC-2018 | TASK-008, TASK-009 | 未填写 |
+| [TASK-011 条件优先的四节点参考模板维护](tasks/TASK-011.md) | FUNC-2034, FUNC-2035, FUNC-2041, FUNC-2042 | TASK-009 | 未填写 |
+| [TASK-013 文件读取、表头及显式列映射](tasks/TASK-013.md) | FUNC-2036 | TASK-009 | 未填写 |
+| [TASK-032 AI专业目录、执行场景与分类引用](tasks/TASK-032.md) | FUNC-2002, FUNC-2018, FUNC-2019 | TASK-005, TASK-009, TASK-055 | 未填写 |
+| [TASK-033 AI标签目录、池、标准集与准确映射](tasks/TASK-033.md) | FUNC-2002, FUNC-2019 | TASK-005, TASK-009, TASK-055 | 未填写 |
+| [TASK-039 明确拒联入库、解除与所有外呼准入](tasks/TASK-039.md) | FUNC-2022, FUNC-2023, FUNC-2024, FUNC-2025 | TASK-037, TASK-038 | 未填写 |
+| [TASK-041 AI服务汇总八列导出](tasks/TASK-041.md) | FUNC-2027 | TASK-040 | 未填写 |
+| [TASK-043 原客户任务、联系档案和批次](tasks/TASK-043.md) | FUNC-2002 | TASK-005, TASK-009, TASK-049 | 未填写 |
+| [TASK-050 供应商坐席批开、同步和失败修正](tasks/TASK-050.md) | FUNC-2002 | TASK-049 | 未填写 |
+| [TASK-051 技能目录与坐席技能关联](tasks/TASK-051.md) | FUNC-2002 | TASK-049 | 未填写 |
+| [TASK-012 实际分类独立绑定当前路由](tasks/TASK-012.md) | FUNC-2040 | TASK-011 | 未填写 |
+| [TASK-034 原AI任务及名单导入维护](tasks/TASK-034.md) | FUNC-2002 | TASK-032, TASK-039 | 未填写 |
+| [TASK-044 原业务系统入站与结果回传](tasks/TASK-044.md) | FUNC-2002 | TASK-043 | 未填写 |
+| [TASK-048 配置审计、操作审计及坐席事件](tasks/TASK-048.md) | FUNC-2002 | TASK-005, TASK-050, TASK-055 | 未填写 |
+| [TASK-052 队列配置与技能成员核对](tasks/TASK-052.md) | FUNC-2002 | TASK-051 | 未填写 |
+| [TASK-014 DIRECT/TEMPLATE整批严格预检](tasks/TASK-014.md) | FUNC-2036 | TASK-012, TASK-013 | 未填写 |
+| [TASK-035 原AI线索查询与回访保存](tasks/TASK-035.md) | FUNC-2002 | TASK-034 | 未填写 |
+| [TASK-045 预外呼/IVR任务配置和名单导入](tasks/TASK-045.md) | FUNC-2002 | TASK-005, TASK-039, TASK-052, TASK-053, TASK-054, TASK-055 | 未填写 |
+| [TASK-056 呼入规则与接听去向](tasks/TASK-056.md) | FUNC-2002 | TASK-052, TASK-053, TASK-054 | 未填写 |
+| [TASK-015 确认导入、业务身份和批次证据](tasks/TASK-015.md) | FUNC-2036 | TASK-014 | 未填写 |
+| [TASK-042 本人电话、话后及原坐席监管](tasks/TASK-042.md) | FUNC-2002, FUNC-2022, FUNC-2024 | TASK-005, TASK-006, TASK-039, TASK-049, TASK-056 | 未填写 |
+| [TASK-046 专业任务控制、重呼、补交与结果导出](tasks/TASK-046.md) | FUNC-2002, FUNC-2024, FUNC-2043 | TASK-045 | 未填写 |
+| [TASK-016 跟进人分配、同组批量及AI安排](tasks/TASK-016.md) | FUNC-2031, FUNC-2034, FUNC-2037 | TASK-015, TASK-032, TASK-049 | 未填写 |
+| [TASK-029 未知请求核对与责任交接](tasks/TASK-029.md) | FUNC-2032, FUNC-2038 | TASK-005, TASK-015 | 未填写 |
+| [TASK-031 同号占用、间隔、上限和优先级](tasks/TASK-031.md) | FUNC-2031, FUNC-2039 | TASK-005, TASK-015 | 未填写 |
+| [TASK-018 明确单条及同组批量起呼](tasks/TASK-018.md) | FUNC-2031 | TASK-016, TASK-031, TASK-039, TASK-042 | 未填写 |
+| [TASK-019 准确通话回执、重试与AI标签事实](tasks/TASK-019.md) | FUNC-2002, FUNC-2019, FUNC-2032 | TASK-018, TASK-033 | 未填写 |
+| [TASK-020 本人填写、独立取数和正式内容快照](tasks/TASK-020.md) | FUNC-2032, FUNC-2033 | TASK-010, TASK-019 | 未填写 |
+| [TASK-021 唯一跟进归档与统计事实](tasks/TASK-021.md) | FUNC-2032 | TASK-019, TASK-020 | 未填写 |
+| [TASK-017 直接跟进完成与再次跟进周期](tasks/TASK-017.md) | FUNC-2031, FUNC-2032, FUNC-2036, FUNC-2037, FUNC-2039 | TASK-021 | 未填写 |
+| [TASK-022 当前有效资料更正与并发确认](tasks/TASK-022.md) | FUNC-2032 | TASK-015, TASK-020, TASK-021 | 未填写 |
+| [TASK-047 十类专业报表查询、明细和导出](tasks/TASK-047.md) | FUNC-2002 | TASK-021, TASK-036, TASK-043, TASK-046 | 未填写 |
+| [TASK-023 有序强兜底条件与准确结果判断](tasks/TASK-023.md) | FUNC-2016, FUNC-2030, FUNC-2038 | TASK-012, TASK-021, TASK-022 | 未填写 |
+| [TASK-028 原直接业务显式启用当前流程](tasks/TASK-028.md) | FUNC-2034, FUNC-2036, FUNC-2039 | TASK-012, TASK-017, TASK-021, TASK-029 | 未填写 |
+| [TASK-024 确认节点推进及END两动作接续](tasks/TASK-024.md) | FUNC-2038 | TASK-023 | 未填写 |
+| [TASK-025 本租户路径与合法跨租户转交](tasks/TASK-025.md) | FUNC-2030 | TASK-023, TASK-024 | 未填写 |
+| [TASK-026 废弃运行、再次跟进与归属纠偏](tasks/TASK-026.md) | FUNC-2031, FUNC-2032, FUNC-2034, FUNC-2038, FUNC-2040 | TASK-024, TASK-025, TASK-029 | 未填写 |
+| [TASK-030 统一业务队列、批次、详情与联系时间线](tasks/TASK-030.md) | FUNC-2033, FUNC-2039 | TASK-015, TASK-017, TASK-021, TASK-022, TASK-025 | 未填写 |
+| [TASK-027 受控转冷和分类调整](tasks/TASK-027.md) | FUNC-2036, FUNC-2038, FUNC-2040 | TASK-026, TASK-014 | 未填写 |

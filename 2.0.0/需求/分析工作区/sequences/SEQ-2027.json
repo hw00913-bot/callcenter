@@ -1,0 +1,427 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2027",
+  "scenario_id": "SC-2027",
+  "name": "门店向同品牌总部上交线索交互时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "design_status": "S5_current_G2_analysis_candidate_not_implementation",
+  "participants": [
+    {
+      "id": "person",
+      "name": "门店有权业务人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "D联络云原功能前端",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "本方业务办理职责",
+      "kind": "system"
+    },
+    {
+      "id": "records",
+      "name": "本方稳定对象、配置及历史职责",
+      "kind": "system"
+    },
+    {
+      "id": "proof",
+      "name": "该条实际执行证明来源（合同missing）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "选择本租户线索并发起上交",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 1
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "请求当前有权记录/固定单模板及本次目标上下文",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 2
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "核当前owner、角色、原意向/映射版本及合法目标：同品牌唯一有效总部，不新建门店指派",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 3
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "只返本次可核目标及固定edge路径，各fieldId三态、来源与版本分别展示",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次关系/读取可靠",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 4
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "展示本线索与同品牌唯一有效总部，目标总部不可替换成其他门店。；意向门店及此前人工指派事实保留；本次上交不清空或回填客户意向。 同时展示固定edgeId路径条件三态及来源，通话取当前负责租户本轮最近已结束call，标签取record有效已保存值；TRANSFER节点不要求自身有处理段。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次范围可核",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 5
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "核对本次目标并确认提交，可在提交前取消",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 6
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "确认提交本次目标/固定路径，不独立保存选店或修改客户意向",
+      "type": "request",
+      "api_id": null,
+      "condition": "人员确认本次转交",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 7
+    },
+    {
+      "from": "service",
+      "to": "proof",
+      "message": "核该条执行已结束且不会再呼叫的真实证明；不发停止整个任务或新删除命令",
+      "type": "external_call",
+      "api_id": "API-2022",
+      "condition": "仅实际证明合同及证据可核才允许；当前missing无证明即受阻",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 8
+    },
+    {
+      "from": "proof",
+      "to": "service",
+      "message": "仅认准确该条执行证明；仍通话/排队/待重呼或仅发停止请求不算通过",
+      "type": "response",
+      "api_id": "API-2022",
+      "condition": "仅实际取得可靠证明；否则待核/受阻",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 9
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "提交时重核当前owner、固定单模板/节点/路径、实际发起资格、合法同品牌目标及执行结束且确认不再呼叫；所选路径有条件时，读取当前owner/round最近已结束通话及每条fieldId当前可信保存值/版本，按ALL/ANY重新评估。 门店仅能上交当前同品牌唯一有效总部，不能直接转其他门店。；转交不统一要求前段结果先保存，条件只核所引用可信值",
+      "type": "event",
+      "api_id": null,
+      "condition": "本次确认后按原动作分别准入",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 10
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "以同次请求一致保存转交及来源轨迹；明确成功才切owner、清旧租户assignment/assignedAccountId、记录转出截止并新增目标接续轮次。；保同条记录/线索编码、固定单模板版本、历轮结果及原意向；保留此前意向及人工指派来源；本次仅记录向唯一总部上交的轨迹，不新增门店指派、不回填客户意向。接收轮执行安排为空，目标按本租户资格另分配，不带旧坐席、不自动起呼。失败不留半次切换，未知核同次实际归属与轮次，不盲目重发。",
+      "type": "request",
+      "api_id": null,
+      "condition": "全部原准入可靠成立且所选路径MATCHED或无附加条件",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 11
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "同次归属/新轮/旧分配清理的实际一致结果可核才反馈，真实持久化未落实则待核",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次保存结果可核",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 12
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "反馈成功归属及目标可接续资料范围；目标可接续并查看基本及历轮结果，源方仅限转出前历史，无需目标确认",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次明确转交成功",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 13
+    },
+    {
+      "from": "ui",
+      "to": "person",
+      "message": "目标另按本租户资格分配；后续新启动仍核整记录最近段结束保存，不带旧坐席或自动起呼",
+      "type": "response",
+      "api_id": null,
+      "condition": "明确转交成功",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 14
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "不提交本次操作，结束本次尝试，归属不因取消而切换",
+      "type": "event",
+      "api_id": null,
+      "condition": "[ALT-2027-CANCEL] 源方在提交前取消本次转交",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2027-CANCEL"
+      ],
+      "step": 15
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "说明不满足的转交条件，不办理归属切换；结束本次尝试；处理该条条件后可另次发起，不自动停止整个其他客户任务",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2027-INVALID] 归属/权限/品牌方向不符，或仍有执行安排及无法确认不再呼叫",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2027-INVALID"
+      ],
+      "step": 16
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "不提示转交成功，保留失败或状态待核结论；核对实际归属后再决定重试；真实幂等/异常持久化合同待S4核验",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2027-SAVE-FAILED] 本次办理未形成成功结果",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2027-SAVE-FAILED"
+      ],
+      "step": 17
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "留原节点及归属，显示待核原因；不按同名/首字段、旧轮通话或未确认AI映射猜配。；先核当前可信事实及版本再另次由有权人员确认；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。原人工段补录仍走SC-2025原guard，不自动转交/起呼或独立保存选店。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2027-CONDITION-PENDING] 原强制准入通过，但所选固定路径的通话事实或各fieldId/optionId定义、来源、当前保存值/版本待核。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2027-CONDITION-PENDING"
+      ],
+      "step": 18
+    }
+  ],
+  "source_story_ids": [
+    "US-2029",
+    "US-2036"
+  ],
+  "source_acceptance_ids": [
+    "AC-2123",
+    "AC-2124",
+    "AC-2125",
+    "AC-2084",
+    "AC-2085",
+    "AC-2087",
+    "AC-2088",
+    "AC-2089"
+  ],
+  "business_rule_ids": [
+    "BR-2027",
+    "BR-2033",
+    "BR-2035",
+    "BR-2011",
+    "BR-2026",
+    "BR-2028",
+    "BR-2037",
+    "BR-2032",
+    "BR-2030",
+    "BR-2034",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2015",
+    "BR-2018"
+  ],
+  "source_refs": [
+    "scenarios/SC-2027.json",
+    "memory/normalized-user-stories.json",
+    "memory/business-rules.json",
+    "memory/project-facts.json",
+    "interfaces/interface-index.json",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "source_bindings": {
+    "scenario_sha256": "5e234902b925a1a15afd61178d6c42cf5d128ac1481576b0a6f540b7988d2cb7",
+    "interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+    "G2_basis": [
+      "SRC-2095",
+      "SRC-2096"
+    ]
+  },
+  "api_refs": [
+    "API-2022"
+  ],
+  "internal_capability_refs": [
+    "API-2018",
+    "API-2028"
+  ],
+  "contract_dependency_refs": [
+    "API-2024",
+    "API-2021",
+    "API-2023"
+  ],
+  "reused_sequence_refs": [
+    "SEQ-2001",
+    "SEQ-2002",
+    "SEQ-2025"
+  ],
+  "main_step_coverage": [
+    {
+      "source_step": 1,
+      "message_steps": [
+        1,
+        2
+      ]
+    },
+    {
+      "source_step": 2,
+      "message_steps": [
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "source_step": 3,
+      "message_steps": [
+        6,
+        7
+      ]
+    },
+    {
+      "source_step": 4,
+      "message_steps": [
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "source_step": 5,
+      "message_steps": [
+        11,
+        12
+      ]
+    },
+    {
+      "source_step": 6,
+      "message_steps": [
+        13,
+        14
+      ]
+    }
+  ],
+  "alternate_flow_coverage": [
+    {
+      "id": "ALT-2027-CANCEL",
+      "condition": "源方在提交前取消本次转交",
+      "message_steps": [
+        15
+      ]
+    },
+    {
+      "id": "ALT-2027-INVALID",
+      "condition": "归属/权限/品牌方向不符，或仍有执行安排及无法确认不再呼叫",
+      "message_steps": [
+        16
+      ]
+    },
+    {
+      "id": "ALT-2027-SAVE-FAILED",
+      "condition": "本次办理未形成成功结果",
+      "message_steps": [
+        17
+      ]
+    },
+    {
+      "id": "ALT-2027-CONDITION-PENDING",
+      "condition": "原强制准入通过，但所选固定路径的通话事实或各fieldId/optionId定义、来源、当前保存值/版本待核。",
+      "message_steps": [
+        18
+      ]
+    }
+  ],
+  "notes": [
+    "SRC2095+2096仅批准按当前缺口继续分析；不是G3、原型实施或生产验收。成功消息仅为本次事实可核后的条件目标，partial/missing合同或真实身份/关联/结果未核则停留待核/受阻。",
+    "参与方为产品责任边界，不宣称已部署新服务；not_required能力仅列内部职责，这7族内部消息api_id均为null，不伪造URL、方法、字段、回调、时限、重试或补偿协议。",
+    "按condition阅读互斥分支，非所有消息一次必经。真实受理、执行结束、结果保存、归属及节点分别核定，不以HTTP成功或已发请求代替业务完成。",
+    "共同认证/原操作资格及切离返回保护复用SEQ2001/2002等，不强制每页重新登录、退出电话或调用公共API；原独立AI/专业资源/财务资格、电话现场和停用有限收尾保持。",
+    "SRC2096：本版AI标签仅配置/映射和原始/映射结果展示，不新增AI标准标签写业务字段或由此新增自动流转；未匹配保原值无首项兜底，既有业务字段条件、人工保存和其他原有流转不变。",
+    "API2022只核已取得的该条结束/不再呼叫证明，不新增自动停止、重呼或精准删除命令；其missing保持不变。",
+    "转交成功清旧assignment/assignedAccountId并新增合法目标轮次，普通节点变化不新建轮次。未知先核同次结果，不重复转交。",
+    "API2024精确关联与幂等仍missing；内部一致保存为产品目标，不声明生产事务已实现。API2023只保既有回传，不因转交新增触发/目标/载荷。"
+  ],
+  "source_scenario_sha256": "5e234902b925a1a15afd61178d6c42cf5d128ac1481576b0a6f540b7988d2cb7",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

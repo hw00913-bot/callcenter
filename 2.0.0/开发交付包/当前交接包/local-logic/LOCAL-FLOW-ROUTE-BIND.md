@@ -1,0 +1,151 @@
+# LOCAL-FLOW-ROUTE-BIND 实际分类独立绑定单模板
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [在实际业务分类独立绑定单模板路由 · FUNC\-2040](../features/FUNC-2040.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2040
+
+触发：从已保存分类的路由配置选择并保存模板
+
+## 前置条件
+
+- 当前品牌及配置管理资格真实有效
+- 提交来源与当前上下文一致
+
+## 必须遵守的全局规则
+
+- [GR-CONFIG](../global-logic.md#GR-CONFIG)
+- [GR-FIELDS](../global-logic.md#GR-FIELDS)
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-END-ACTION](../global-logic.md#GR-END-ACTION)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-BRANCH-KIND](../field-specs.md#FIELD-FLOW-BRANCH-KIND)、[FIELD-FLOW-BRANCH-PRIORITY](../field-specs.md#FIELD-FLOW-BRANCH-PRIORITY)、[FIELD-FLOW-BRAND-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CATEGORY-REVISION](../field-specs.md#FIELD-FLOW-CATEGORY-REVISION)、[FIELD-FLOW-EDGE-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)、[FIELD-FLOW-EDGES](../field-specs.md#FIELD-FLOW-EDGES)、[FIELD-FLOW-ENTRY-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)、[FIELD-FLOW-ENTRY-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)、[FIELD-FLOW-GROUP-MODE](../field-specs.md#FIELD-FLOW-GROUP-MODE)、[FIELD-FLOW-METHOD](../field-specs.md#FIELD-FLOW-METHOD)、[FIELD-FLOW-NEXT-NODE](../field-specs.md#FIELD-FLOW-NEXT-NODE)、[FIELD-FLOW-NODE-ID](../field-specs.md#FIELD-FLOW-NODE-ID)、[FIELD-FLOW-NODE-NAME](../field-specs.md#FIELD-FLOW-NODE-NAME)、[FIELD-FLOW-NODE-TYPE](../field-specs.md#FIELD-FLOW-NODE-TYPE)、[FIELD-FLOW-NODES](../field-specs.md#FIELD-FLOW-NODES)、[FIELD-FLOW-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)、[FIELD-FLOW-RESULT-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)、[FIELD-FLOW-ROUTE-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)、[FIELD-FLOW-ROUTE-VERSION](../field-specs.md#FIELD-FLOW-ROUTE-VERSION)、[FIELD-FLOW-RULE-FIELD](../field-specs.md#FIELD-FLOW-RULE-FIELD)、[FIELD-FLOW-RULE-ID](../field-specs.md#FIELD-FLOW-RULE-ID)、[FIELD-FLOW-RULE-OPERATOR](../field-specs.md#FIELD-FLOW-RULE-OPERATOR)、[FIELD-FLOW-RULE-SOURCE](../field-specs.md#FIELD-FLOW-RULE-SOURCE)、[FIELD-FLOW-RULE-VALUES](../field-specs.md#FIELD-FLOW-RULE-VALUES)、[FIELD-FLOW-RULES](../field-specs.md#FIELD-FLOW-RULES)、[FIELD-FLOW-TEMPLATE-ID](../field-specs.md#FIELD-FLOW-TEMPLATE-ID)、[FIELD-FLOW-TEMPLATE-NAME](../field-specs.md#FIELD-FLOW-TEMPLATE-NAME)、[FIELD-FLOW-TEMPLATE-REF-CATEGORY](../field-specs.md#FIELD-FLOW-TEMPLATE-REF-CATEGORY)、[FIELD-FLOW-TEMPLATE-REVISION](../field-specs.md#FIELD-FLOW-TEMPLATE-REVISION)
+
+输出：[FIELD-FLOW-ROUTE-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)、[FIELD-FLOW-ROUTE-VERSION](../field-specs.md#FIELD-FLOW-ROUTE-VERSION)
+
+## 处理步骤
+
+### STEP-FLOW-ROUTE-BIND-1
+
+列本品牌全部当前模板，不按字段参考分类硬筛选
+
+读取：FIELD-FLOW-BRAND-ID, FIELD-FLOW-TEMPLATE-REF-CATEGORY, FIELD-FLOW-TEMPLATE-ID；写入：无
+
+规则：GR-CONFIG, GR-FIELDS, GR-SCOPE, GR-UNKNOWN, GR-AUTH
+
+### STEP-FLOW-ROUTE-BIND-2
+
+按实际分类所用稳定字段/用途/类型/选项、AI上下文、LEAD转交域生成有效预览
+
+读取：FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-TEMPLATE-ID, FIELD-FLOW-BRAND-ID, FIELD-FLOW-TEMPLATE-NAME, FIELD-FLOW-TEMPLATE-REF-CATEGORY, FIELD-FLOW-TEMPLATE-REVISION, FIELD-FLOW-NODES, FIELD-FLOW-EDGES, FIELD-FLOW-ENTRY-RULES, FIELD-FLOW-NODE-ID, FIELD-FLOW-NODE-NAME, FIELD-FLOW-NODE-TYPE, FIELD-FLOW-RECIPIENT, FIELD-FLOW-METHOD, FIELD-FLOW-NEXT-NODE, FIELD-FLOW-EDGE-ID, FIELD-FLOW-BRANCH-KIND, FIELD-FLOW-BRANCH-PRIORITY, FIELD-FLOW-GROUP-MODE, FIELD-FLOW-RULES, FIELD-FLOW-RULE-ID, FIELD-FLOW-RULE-SOURCE, FIELD-FLOW-RULE-FIELD, FIELD-FLOW-RULE-OPERATOR, FIELD-FLOW-RULE-VALUES, FIELD-FLOW-RESULT-SOURCE, FIELD-FLOW-ENTRY-CONTEXT, FIELD-FLOW-FIELD-ID, FIELD-FLOW-FIELD-USAGE, FIELD-FLOW-FIELD-LABEL, FIELD-FLOW-FIELD-TYPE, FIELD-FLOW-FIELD-KEY, FIELD-FLOW-FIELD-ENABLED, FIELD-FLOW-FIELD-OPTIONS；写入：FIELD-FLOW-EFFECTIVE-PLAN
+
+规则：GR-CONFIG, GR-FIELDS, GR-SCOPE, GR-UNKNOWN, GR-AUTH
+
+### STEP-FLOW-ROUTE-BIND-3
+
+只保存必选单模板应用关系或更换该模板，不提供解绑；重核BASE/fields/route依据，不写基础
+
+读取：FIELD-FLOW-ROUTE-MAIN, FIELD-FLOW-ROUTE-VERSION, FIELD-FLOW-CATEGORY-REVISION, FIELD-FLOW-END-ACTION；写入：FIELD-FLOW-ROUTE-MAIN, FIELD-FLOW-ROUTE-VERSION
+
+规则：GR-CONFIG, GR-FIELDS, GR-SCOPE, GR-UNKNOWN, GR-AUTH
+
+## 分支与异常
+
+### BRANCH-FLOW-ROUTE-BIND-1
+
+条件：缺所用字段/上下文、跨品牌或配置待核
+
+结果：阻保存并具体说明，不按同名猜配
+
+涉及字段：FIELD-FLOW-ROUTE-MAIN, FIELD-FLOW-RULE-FIELD, FIELD-FLOW-RESULT-SOURCE
+
+验证：CHECK-FLOW-ROUTE-BIND
+
+### BRANCH-FLOW-ROUTE-BIND-2
+
+条件：明确成功
+
+结果：新run用本次当前关系，已开run按原完整plan
+
+涉及字段：FIELD-FLOW-ROUTE-MAIN, FIELD-FLOW-EFFECTIVE-PLAN
+
+验证：CHECK-FLOW-ROUTE-BIND
+
+### BRANCH-FLOW-ROUTE-BIND-3
+
+条件：结果未知或冲突
+
+结果：保本次选择，核同请求或重读，不接收新run
+
+涉及字段：FIELD-FLOW-REQUEST-ID, FIELD-FLOW-REQUEST-STATUS, FIELD-FLOW-ROUTE-VERSION
+
+验证：CHECK-FLOW-ROUTE-BIND
+
+## 完成后的状态
+
+- 参考与应用保持分离，分类字段/名称不被覆盖
+
+## 字段定义
+
+- [FIELD-FLOW-BRANCH-KIND](../field-specs.md#FIELD-FLOW-BRANCH-KIND)
+- [FIELD-FLOW-BRANCH-PRIORITY](../field-specs.md#FIELD-FLOW-BRANCH-PRIORITY)
+- [FIELD-FLOW-BRAND-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)
+- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
+- [FIELD-FLOW-CATEGORY-REVISION](../field-specs.md#FIELD-FLOW-CATEGORY-REVISION)
+- [FIELD-FLOW-EDGE-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)
+- [FIELD-FLOW-EDGES](../field-specs.md#FIELD-FLOW-EDGES)
+- [FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)
+- [FIELD-FLOW-END-ACTION](../field-specs.md#FIELD-FLOW-END-ACTION)
+- [FIELD-FLOW-ENTRY-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)
+- [FIELD-FLOW-ENTRY-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)
+- [FIELD-FLOW-FIELD-ENABLED](../field-specs.md#FIELD-FLOW-FIELD-ENABLED)
+- [FIELD-FLOW-FIELD-ID](../field-specs.md#FIELD-FLOW-FIELD-ID)
+- [FIELD-FLOW-FIELD-KEY](../field-specs.md#FIELD-FLOW-FIELD-KEY)
+- [FIELD-FLOW-FIELD-LABEL](../field-specs.md#FIELD-FLOW-FIELD-LABEL)
+- [FIELD-FLOW-FIELD-OPTIONS](../field-specs.md#FIELD-FLOW-FIELD-OPTIONS)
+- [FIELD-FLOW-FIELD-TYPE](../field-specs.md#FIELD-FLOW-FIELD-TYPE)
+- [FIELD-FLOW-FIELD-USAGE](../field-specs.md#FIELD-FLOW-FIELD-USAGE)
+- [FIELD-FLOW-GROUP-MODE](../field-specs.md#FIELD-FLOW-GROUP-MODE)
+- [FIELD-FLOW-METHOD](../field-specs.md#FIELD-FLOW-METHOD)
+- [FIELD-FLOW-NEXT-NODE](../field-specs.md#FIELD-FLOW-NEXT-NODE)
+- [FIELD-FLOW-NODE-ID](../field-specs.md#FIELD-FLOW-NODE-ID)
+- [FIELD-FLOW-NODE-NAME](../field-specs.md#FIELD-FLOW-NODE-NAME)
+- [FIELD-FLOW-NODE-TYPE](../field-specs.md#FIELD-FLOW-NODE-TYPE)
+- [FIELD-FLOW-NODES](../field-specs.md#FIELD-FLOW-NODES)
+- [FIELD-FLOW-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)
+- [FIELD-FLOW-REQUEST-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)
+- [FIELD-FLOW-REQUEST-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)
+- [FIELD-FLOW-RESULT-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)
+- [FIELD-FLOW-ROUTE-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)
+- [FIELD-FLOW-ROUTE-VERSION](../field-specs.md#FIELD-FLOW-ROUTE-VERSION)
+- [FIELD-FLOW-RULE-FIELD](../field-specs.md#FIELD-FLOW-RULE-FIELD)
+- [FIELD-FLOW-RULE-ID](../field-specs.md#FIELD-FLOW-RULE-ID)
+- [FIELD-FLOW-RULE-OPERATOR](../field-specs.md#FIELD-FLOW-RULE-OPERATOR)
+- [FIELD-FLOW-RULE-SOURCE](../field-specs.md#FIELD-FLOW-RULE-SOURCE)
+- [FIELD-FLOW-RULE-VALUES](../field-specs.md#FIELD-FLOW-RULE-VALUES)
+- [FIELD-FLOW-RULES](../field-specs.md#FIELD-FLOW-RULES)
+- [FIELD-FLOW-TEMPLATE-ID](../field-specs.md#FIELD-FLOW-TEMPLATE-ID)
+- [FIELD-FLOW-TEMPLATE-NAME](../field-specs.md#FIELD-FLOW-TEMPLATE-NAME)
+- [FIELD-FLOW-TEMPLATE-REF-CATEGORY](../field-specs.md#FIELD-FLOW-TEMPLATE-REF-CATEGORY)
+- [FIELD-FLOW-TEMPLATE-REVISION](../field-specs.md#FIELD-FLOW-TEMPLATE-REVISION)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2104, acceptance:AC-2106, acceptance:AC-2107, acceptance:AC-2108, acceptance:AC-2134, acceptance:AC-2135, acceptance:AC-2139, features:FUNC-2040, features:FUNC-2040/behavior_spec/0/branches/0, features:FUNC-2040/behavior_spec/0/branches/1, features:FUNC-2040/behavior_spec/0/branches/2, features:FUNC-2040/behavior_spec/0/postconditions/0, features:FUNC-2040/behavior_spec/0/preconditions/0, features:FUNC-2040/behavior_spec/0/preconditions/1, features:FUNC-2040/behavior_spec/0/steps/0, features:FUNC-2040/behavior_spec/0/steps/1, features:FUNC-2040/behavior_spec/0/steps/2, pages:PAGE-2006, pages:PAGE-2006/actions/3, pages:PAGE-2006/fields/0, pages:PAGE-2006/fields/1, pages:PAGE-2006/fields/11, pages:PAGE-2006/fields/12, pages:PAGE-2006/fields/13, pages:PAGE-2006/fields/14, pages:PAGE-2006/fields/15, pages:PAGE-2006/fields/17, pages:PAGE-2006/fields/18, pages:PAGE-2006/fields/19, pages:PAGE-2006/fields/2, pages:PAGE-2006/fields/20, pages:PAGE-2006/fields/21, pages:PAGE-2006/fields/22, pages:PAGE-2006/fields/23, pages:PAGE-2006/fields/24, pages:PAGE-2006/fields/25, pages:PAGE-2006/fields/26, pages:PAGE-2006/fields/27, pages:PAGE-2006/fields/28, pages:PAGE-2006/fields/29, pages:PAGE-2006/fields/30, pages:PAGE-2006/fields/37, pages:PAGE-2006/fields/38, pages:PAGE-2006/fields/39, pages:PAGE-2006/fields/40, pages:PAGE-2006/fields/41, pages:PAGE-2006/fields/42, pages:PAGE-2006/fields/43, pages:PAGE-2006/fields/44, pages:PAGE-2006/fields/45, pages:PAGE-2006/fields/46, pages:PAGE-2006/fields/47, pages:PAGE-2006/fields/48, pages:PAGE-2006/fields/5, pages:PAGE-2006/fields/50, pages:PAGE-2006/fields/51, pages:PAGE-2006/fields/52, pages:PAGE-2006/fields/53, pages:PAGE-2006/fields/60, pages:PAGE-2006/fields/8, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/17, pages:PAGE-2203/fields/28, pages:PAGE-2203/fields/31, pages:PAGE-2203/fields/7, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/19, pages:PAGE-2204/fields/20, pages:PAGE-2204/fields/21, pages:PAGE-2204/fields/23, pages:PAGE-2204/fields/41, pages:PAGE-2204/fields/42, pages:PAGE-2204/fields/47, pages:PAGE-2204/fields/50, pages:PAGE-2204/fields/51, pages:PAGE-2204/fields/54, pages:PAGE-2204/fields/55, pages:PAGE-2204/fields/7, pages:PAGE-2223/fields/1, pages:PAGE-2223/fields/11, pages:PAGE-2223/fields/12, pages:PAGE-2223/fields/13, pages:PAGE-2223/fields/15, pages:PAGE-2223/fields/16, pages:PAGE-2223/fields/17, pages:PAGE-2223/fields/18, pages:PAGE-2223/fields/19, pages:PAGE-2223/fields/20, pages:PAGE-2223/fields/21, pages:PAGE-2223/fields/22, pages:PAGE-2223/fields/30, pages:PAGE-2223/fields/31, pages:PAGE-2223/fields/32, pages:PAGE-2223/fields/33, pages:PAGE-2223/fields/4, pages:PAGE-2223/fields/7, pages:PAGE-2226/fields/13, pages:PAGE-2226/fields/23, pages:PAGE-2226/fields/24, pages:PAGE-2226/fields/5, pages:PAGE-2226/fields/8, pages:PAGE-2227/fields/109, pages:PAGE-2227/fields/11, pages:PAGE-2227/fields/110, pages:PAGE-2227/fields/111, pages:PAGE-2227/fields/112, pages:PAGE-2227/fields/12, pages:PAGE-2227/fields/13, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/30, pages:PAGE-2227/fields/31, pages:PAGE-2227/fields/32, pages:PAGE-2227/fields/33, pages:PAGE-2227/fields/35, pages:PAGE-2227/fields/41, pages:PAGE-2227/fields/47, pages:PAGE-2227/fields/57, pages:PAGE-2227/fields/59, pages:PAGE-2227/fields/61, pages:PAGE-2227/fields/62, pages:PAGE-2227/fields/64, pages:PAGE-2227/fields/65, pages:PAGE-2227/fields/76, pages:PAGE-2227/fields/81, pages:PAGE-2227/fields/82, pages:PAGE-2227/fields/85, pages:PAGE-2227/fields/88, pages:PAGE-2227/fields/91, pages:PAGE-2227/fields/92, pages:PAGE-2227/fields/93, pages:PAGE-2227/fields/94, pages:PAGE-2227/fields/95, pages:PAGE-2227/fields/96, pages:PAGE-2228/fields/0, pages:PAGE-2228/fields/1, pages:PAGE-2228/fields/10, pages:PAGE-2228/fields/11, pages:PAGE-2228/fields/12, pages:PAGE-2228/fields/13, pages:PAGE-2228/fields/14, pages:PAGE-2228/fields/15, pages:PAGE-2228/fields/16, pages:PAGE-2228/fields/17, pages:PAGE-2228/fields/18, pages:PAGE-2228/fields/19, pages:PAGE-2228/fields/2, pages:PAGE-2228/fields/20, pages:PAGE-2228/fields/21, pages:PAGE-2228/fields/22, pages:PAGE-2228/fields/23, pages:PAGE-2228/fields/24, pages:PAGE-2228/fields/25, pages:PAGE-2228/fields/26, pages:PAGE-2228/fields/27, pages:PAGE-2228/fields/28, pages:PAGE-2228/fields/29, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/30, pages:PAGE-2228/fields/32, pages:PAGE-2228/fields/4, pages:PAGE-2228/fields/5, pages:PAGE-2228/fields/6, pages:PAGE-2228/fields/7, pages:PAGE-2228/fields/8, pages:PAGE-2228/fields/9, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/0, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/1, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/120, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/121, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/157, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/2, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/23, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/24, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/25, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/26, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/27, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/28, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/29, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/3, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/30, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/31, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/32, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/33, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/34, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/35, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/36, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/37, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/38, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/39, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/4, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/40, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/41, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/42, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/43, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/44, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/45, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/46, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/47, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/48, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/49, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/5, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/50, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/51, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/6, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/7, scenarios:FLOW-CURRENT-CUSTOMER/steps/11
+
+验证：CHECK-FLOW-ROUTE-BIND
+
+## 实施任务
+
+- [TASK-012](../tasks/TASK-012.md)

@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2013",
+  "scenario_id": "SC-2013",
+  "name": "人工保存拒联结果自动进入公共禁呼时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "seat",
+      "name": "本通话有权坐席",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "原话后界面",
+      "kind": "system"
+    },
+    {
+      "id": "follow",
+      "name": "云呼叫话后服务",
+      "kind": "system"
+    },
+    {
+      "id": "list",
+      "name": "本租户公共禁呼服务",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "seat",
+      "to": "ui",
+      "message": "选择本次明确拒联并提交保存；仅选择不形成入库事实。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "follow",
+      "message": "核当前租户、准确本通、原处理权及内容；不从同号其他通话取来源。",
+      "type": "request",
+      "api_id": "API-2005",
+      "condition": "当前合同缺证据先受阻；以下仅条件目标职责，须本期正式合同及真实资格核实后办理｜主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "seat",
+      "to": "ui",
+      "message": "保存前取消，原通话及名单保持。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2013-CANCEL｜未提交保存；本次结束",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2013-CANCEL"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "follow",
+      "to": "ui",
+      "message": "无权/租户/必需内容不符，拒绝写入并保合法输入。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2013-INVALID｜校验未过；本次结束",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2013-INVALID"
+      ]
+    },
+    {
+      "step": 5,
+      "from": "follow",
+      "to": "ui",
+      "message": "当前API2005一致性、真实本通映射或恢复合同未核时受阻，不报保存入库全完成。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2013-SAVEFAIL｜当前证据边界｜missing未补齐，不把HTTP成功当联合结果",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2013-SAVEFAIL"
+      ]
+    },
+    {
+      "step": 6,
+      "from": "follow",
+      "to": "follow",
+      "message": "本方按原表单/结束事实可靠保存本次拒联结果，取得可核保存状态。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜本通资格、结束/字段及正式保存合同经本期核实",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 7,
+      "from": "follow",
+      "to": "ui",
+      "message": "保存失败或结果未知保草稿与已有通话事实，不进入已完成入库主线。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2013-SAVEFAIL｜保存未确认；本次结束",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2013-SAVEFAIL"
+      ]
+    },
+    {
+      "step": 8,
+      "from": "follow",
+      "to": "list",
+      "message": "仅在本次话后明确保存后，按准确来源形成本租户长期公共拒联；不需管理员再审批。",
+      "type": "request",
+      "api_id": "API-2005",
+      "condition": "条件目标｜本地一致性及恢复合同已核、话后保存明确",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 9,
+      "from": "list",
+      "to": "list",
+      "message": "核重复与实际生效；记录来源通话/人/时间，保其他来源和租户隔离。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜本方持久化与有效状态规则可核",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 10,
+      "from": "list",
+      "to": "follow",
+      "message": "入库失败/生效不明，保已确认话后事实，不虚报联合成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2013-ENTRYFAIL｜话后已存而公共入库未确认",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2013-ENTRYFAIL"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "follow",
+      "to": "ui",
+      "message": "保输入和可辨的部分完成状态；恢复核旧结果，不强迫管理员再次审批。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2013-ENTRYFAIL｜本次未全部完成；不盲重存",
+      "source_step_refs": [
+        5,
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2013-ENTRYFAIL"
+      ]
+    },
+    {
+      "step": 12,
+      "from": "list",
+      "to": "follow",
+      "message": "本次公共记录可靠生效，覆盖四类外呼而非正常呼入。",
+      "type": "response",
+      "api_id": "API-2007",
+      "condition": "条件目标｜实际本地生效已确认",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "follow",
+      "to": "ui",
+      "message": "仅话后保存与本地公共生效均明确时返回本地处理完成。",
+      "type": "response",
+      "api_id": "API-2005",
+      "condition": "条件目标｜API2005联合判据真实成立",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 14,
+      "from": "ui",
+      "to": "seat",
+      "message": "展示本地完成及实际供应商事实；本地成功不冒充所有远端已同步。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜取得可信联合结果",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 15,
+      "from": "follow",
+      "to": "list",
+      "message": "后续四种外呼仍逐次走SC-2015；本次不发起新呼叫或未知补偿。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本方后置责任｜不新增供应商自动同步承诺",
+      "source_step_refs": [
+        5,
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2019"
+  ],
+  "source_acceptance_ids": [
+    "AC-2051",
+    "AC-2052",
+    "AC-2053"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096",
+    "scenarios/SC-2013.json",
+    "interfaces/interface-index.json"
+  ],
+  "notes": [
+    "参与方表达当前业务责任，不选择生产部署架构；消息条件为互斥分支或条件目标，不表示所有消息在一次操作中依次发生。",
+    "G2仅批准分析推进。partial/missing均保真实身份、授权、稳定关联及技术契约待核；当前无可靠证据时明确受阻，不由文档/Mock或HTTP成功推定端到端成功。",
+    "真实跨内部服务的partial/missing合同可引用API能力族，内部参与方仍为system；7个not_required仅在notes登记内部责任，消息api_id=null，不伪造调用URL/参数/新回调。",
+    "本版AI标签仅整合原配置、映射和结果展示；不新增AI→业务字段写入或由此自动流转。保原人工保存、字段条件及其他流转，未匹配保原值不首项兜底，仅限本版。"
+  ],
+  "internal_responsibility_refs": [],
+  "previous_revision": {
+    "sha256": "122bbb7739ab7b9163efadedb26cbce164f78e48e0e798348f5e7cba197c185a",
+    "preserved_sequence_id": "SEQ-2013"
+  },
+  "main_step_coverage": {
+    "1": [
+      1,
+      3
+    ],
+    "2": [
+      2,
+      4,
+      5
+    ],
+    "3": [
+      5,
+      6,
+      7
+    ],
+    "4": [
+      8,
+      9
+    ],
+    "5": [
+      9,
+      10,
+      11,
+      12,
+      15
+    ],
+    "6": [
+      11,
+      13,
+      14,
+      15
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2013-CANCEL": [
+      3
+    ],
+    "ALT-2013-ENTRYFAIL": [
+      10,
+      11
+    ],
+    "ALT-2013-INVALID": [
+      4
+    ],
+    "ALT-2013-SAVEFAIL": [
+      5,
+      7
+    ]
+  },
+  "api_usage_boundaries": [
+    {
+      "api_id": "API-2005",
+      "verification_status": "missing",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    },
+    {
+      "api_id": "API-2007",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    }
+  ],
+  "source_scenario_sha256": "e76bc75261406a0a2a1b3de8b28ac3bd3de0d84d49742ecdec0a9211a50f9086",
+  "source_interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

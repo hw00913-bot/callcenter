@@ -1,0 +1,277 @@
+{
+  "version": "2.0.0-current-20261030-step41",
+  "changes": [
+    {
+      "id": "SUP-FLOW-NODES",
+      "old": "添加空白节点后逐次选择类型/职责/多种方式",
+      "current": "唯一START锚点；组件确定TRANSFER/CALL/END，每CALL仅一种方式",
+      "evidence_refs": [
+        "docs/decisions.md#四节点改造本轮交付记录",
+        "docs/四节点与客户跟进闭环需求记录.md#2"
+      ]
+    },
+    {
+      "id": "SUP-FLOW-ASSIGN",
+      "old": "分配坐席、选择AI/预外呼任务或在分配时选择方式",
+      "current": "仅分配责任跟进人及必要AI场景；方式固定于当前CALL，真实执行人另记",
+      "evidence_refs": [
+        "docs/四节点与客户跟进闭环需求记录.md#6",
+        "docs/decisions.md#step-24"
+      ]
+    },
+    {
+      "id": "SUP-FLOW-ROUTES",
+      "old": "被步骤31替代的普通默认可选规则；原记录仅用于追溯",
+      "current": "当前新方案所有有出口节点必须有且仅有一个末位ELSE，前序IF/ELSEIF按优先级首命中；ELSE不带条件，未知事实继续PENDING且不得进入后续或兜底。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-031-ELSE"
+      ]
+    },
+    {
+      "id": "SUP-FLOW-REFERENCE",
+      "old": "模板字段参考分类必须等于实际业务分类",
+      "current": "参考只编排字段；实际分类独立路由绑定同品牌兼容模板，运行按目标目录捕获",
+      "evidence_refs": [
+        "docs/decisions.md#字段参考分类与应用关系"
+      ]
+    },
+    {
+      "id": "SUP-FLOW-IMPORT",
+      "old": "按原逐行受理/失败结果导入，不把确认范围改全批回滚",
+      "current": "正式提交范围所有行均通过才同次创建；有错保名单重检，不静默过滤失败行",
+      "evidence_refs": [
+        "docs/四节点与客户跟进闭环需求记录.md#6.1",
+        "scripts/four-node-model.js#importRecords"
+      ]
+    },
+    {
+      "id": "SUP-FLOW-HISTORY",
+      "old": "保旧模板归档索引、旧schema回退和旧记录result.values兼容",
+      "current": "无旧规划迁移/模板适配；未来本版run/内容/实际场景/转出截止事实照常封存",
+      "evidence_refs": [
+        "docs/decisions.md#用户更正：规划功能无旧历史负担",
+        "docs/decisions.md#step-24"
+      ]
+    },
+    {
+      "id": "SUP-FLOW-FIELD-CONFIRM",
+      "old": "只有本次provided才有值，或SYSTEM继承result可直接作本节点填写依据",
+      "current": "正式人填区分modified与confirmed；basis已知预填可确认，absent和SYSTEM不造新确认",
+      "evidence_refs": [
+        "docs/decisions.md#业务产品链审计规则细化"
+      ]
+    },
+    {
+      "id": "SUP-FLOW-TAG-FACTS",
+      "old": "AI标签事实只要属于运行catalog即可，场景可不核下游依赖",
+      "current": "依赖按冻结plan，实际事实按执行段所选sceneSnapshot；所有提供tags核准确上下文与版本",
+      "evidence_refs": [
+        "scripts/four-node-model.js#fourCheckTagEvidence",
+        "js/adapters/four-node-execution.js#choices",
+        "docs/decisions.md#step-24"
+      ]
+    },
+    {
+      "id": "SUP-FLOW-VALUES",
+      "old": "只有单值比较或只支持部分类型IN，START与普通解析不同",
+      "current": "统一每行多值IN/NOT_IN与类型规范化，EQ/NE/大小比较仍单值，空值及unknown独立",
+      "evidence_refs": [
+        "docs/decisions.md#多值比较"
+      ]
+    },
+    {
+      "id": "SUP-FLOW-PREVIEW",
+      "old": "空名单预录即红报错；演示数据仿佛保证能通过",
+      "current": "名单依赖中性说明，实际行具体给节点/字段/条件；格式示例不猜业务分流值",
+      "evidence_refs": [
+        "docs/decisions.md#step-27",
+        "scripts/four-node-model.js#fourThrowRouteFailure"
+      ]
+    },
+    {
+      "id": "SUPERSEDE-DIRECT-FOLLOWUP-20261030",
+      "old": "所有新业务导入均必须先有可判断路由并建立run；无路由资料一律不能导入。",
+      "current": "分类显式允许时整批可选DIRECT并明确AI/人工/预外呼；只豁免路由附加资料，严格保基础校验且不建run/node。TEMPLATE沿原完整流程规则。已有直接业务经显式预检在旧执行及必要归档全部收敛后启用新run，原业务不重复导入。"
+    },
+    {
+      "id": "CHG-029-NAV",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "正常跨业务域、切租户及系统退出不因拨号/振铃/通话/话后/电话未知而拦截，也不强制先退出电话；身份、数据范围和普通未保存表单检查保留，撤权后的有限当前收尾是独立机制。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-029-NAV"
+      ]
+    },
+    {
+      "id": "CHG-030-DIRECTORY",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "业务跟进/联系档案统一页签与tabpanel，键盘方向/Home/End可用；同身份切换保各自查询/分页，跨身份不恢复旧状态，显式客户详情与原摘要刷新仍定位正确。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-030-DIRECTORY"
+      ]
+    },
+    {
+      "id": "CHG-031-ELSE",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "所有有出口的当前新配置须有且仅有一个末位ELSE；IF/ELSE IF按优先级首命中，明确不匹配才到兜底，未知继续PENDING。保存/新导入/重开/启用均校验，不依赖DIRECT绕开分流。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-031-ELSE"
+      ]
+    },
+    {
+      "id": "CHG-031-NULL",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "对当前可可靠读取schema内、启用且支持条件的非必填IMPORT字段，新导入/新run准备时缺列规范化为null用于判断；必填缺失或schema读取失败仍拒绝，通话/填写未知及已捕获历史缺失不在读取时补空。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-031-NULL"
+      ]
+    },
+    {
+      "id": "CHG-032-EDITOR",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "节点按命名→条件→下一节点→继续条件编辑，末位轻量“其他情况”；未选目标可留编辑草稿但不产生业务连线，保存仍逐项拒绝缺项并定位。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-032-EDITOR"
+      ]
+    },
+    {
+      "id": "CHG-032-END",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "END只配置名称和DIRECT_FOLLOWUP/CLOSE两种后续动作。先结束原run；CLOSE不再跟进，DIRECT_FOLLOWUP同record/当前tenant生成无模板人工周期，不自动起呼。合法END来源可授权此接续，即使分类没有开放普通DIRECT导入；原run/节点/call/快照保留，原人员仅当前仍有效且具电话资格时沿用。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-032-END"
+      ]
+    },
+    {
+      "id": "CHG-033-TASK",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "预外呼及IVR页不额外显示“今日任务名单分布”，保原任务查询/筛选/空态/重置和专业报表口径；不因此删除底层任务状态或统计能力。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-033-TASK"
+      ]
+    },
+    {
+      "id": "CHG-034-RULE",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "条件修改直接进入当前草稿，不再显示待应用三按钮；兼容operator保值，字段/来源或不兼容类型/基数变化清不适用比较值，空判断清值。目标选择/拖线拒环并保原草稿，保存仍防绕过。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-034-RULE"
+      ]
+    },
+    {
+      "id": "CHG-035-SIP",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "流转判断分别使用TIANRUN_MANUAL_SIP_CAUSE和TIANRUN_PREDICTIVE_SIP_CAUSE客户侧结果：200已接通、710～724当前字典；不再用1～4接听标记推断，不改AI状态域或原专业记录的其他状态展示。新回执与实际方式/原段/场景准确关联，未知PENDING。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-035-SIP"
+      ]
+    },
+    {
+      "id": "CHG-036-LOCAL",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "线索域转交组件允许CURRENT本租户分支；命中后保持owner、run及tenant阶段，不新建跨租户截止/轮次，不清原安排与封存结果，并重核后继CALL资格。OTHER仍执行原意向锚定和跨租户保护；CURRENT不冒充OTHER，拒伪造目标或过期令牌。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-036-LOCAL"
+      ]
+    },
+    {
+      "id": "CHG-037-038-FEEDBACK",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "普通及START比较值提示“多个值请换行填写/每行一个值”，保持IN/NOT_IN类型含义；报错节点/START/提示区统一浅红，切换节点保留定位，编辑该节点清当前标记，保存重新判断，不改变原校验。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-037-038-FEEDBACK"
+      ]
+    },
+    {
+      "id": "CHG-039-ENTRY",
+      "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
+      "current": "业务分类行只保编辑/路由配置/预览/删除；不恢复AI标签配置快捷按钮。标签维护仍在呼叫中心AI配置的独立有权入口，原具体AI场景分类引用及其稳定身份保留。",
+      "evidence_refs": [
+        "docs/exception-definitions.json#CHG-039-ENTRY"
+      ]
+    },
+    {
+      "topic": "六顶栏旧口径",
+      "replaces": "工作台/业务中心/客户中心/呼叫中心/报表中心/系统管理六区",
+      "current": "坐席工作台/业务&客户/呼叫中心/报表中心/系统管理五区；稳定专业PAGE/ACTION保留",
+      "reason": "当前nav配置与已确认UI归位",
+      "id": "SUP-CURRENT-24"
+    },
+    {
+      "topic": "旧v2历史兼容",
+      "replaces": "旧未绑定租户补品牌、旧目录同名迁移、旧模板v1/v2升级与旧历史名单迁移对账",
+      "current": "当前无旧v2模板/业务数据迁移；今后新发生运行/跟进/通话/审计快照留存。专业域现行目录能力及222原操作仍有独立身份",
+      "reason": "用户明确没有历史负担；不能误删当前专业能力",
+      "id": "SUP-CURRENT-25"
+    },
+    {
+      "topic": "黑名单结构及超管权限",
+      "replaces": "公共/专项两页签及超管可代办新增/解除/同步",
+      "current": "唯一原分组+号码模型；超管只读；拒联源解除仅有权本租户管理员填原因；天润沿当前enterprise+号码",
+      "reason": "当前role-permissions及contact-policy",
+      "id": "SUP-CURRENT-26"
+    },
+    {
+      "topic": "AI标签与场景使用",
+      "replaces": "标签仅展示不得作为路径条件；或运营使用场景必须有标签维护权",
+      "current": "准确执行段快照映射标签可供人工确认路径判断，不写业务字段/不自动推进；运营可用场景/已有标签而无标签维护权",
+      "reason": "当前四节点执行和权限已确认",
+      "id": "SUP-CURRENT-27"
+    },
+    {
+      "topic": "财务及录音权限",
+      "replaces": "财务读取等同充值调整；录音播放依赖编辑权",
+      "current": "五角色有权服务/流水只读；服务办理、调账、核对和8列汇总导出仅超管；有权录音按读权播放/暂停/seek",
+      "reason": "当前role-permissions及bridge修复",
+      "id": "SUP-CURRENT-28"
+    },
+    {
+      "topic": "专业客户任务和新运行终态",
+      "replaces": "把原待继续跟进/已完成直接映成四节点运行结束或废弃",
+      "current": "原专业两态与新四节点run/执行段/跟进事实分开，按准确业务ID连接；谁接听谁填写，分配负责人不等于实际处理人",
+      "reason": "当前业务闭环已确认",
+      "id": "SUP-CURRENT-29"
+    },
+    {
+      "source_page_id": "PAGE-2101",
+      "status": "superseded",
+      "replacement_page_ids": [
+        "PAGE-2002"
+      ],
+      "reason": "历史来源明确不作为当前有效页面",
+      "source_refs": [
+        "documentation/input/pages.json#PAGE-2101"
+      ],
+      "id": "SUP-CURRENT-30",
+      "old": "独立来源页面 PAGE-2101",
+      "current": "不再作为独立页面；相关有效能力归位 PAGE-2002"
+    },
+    {
+      "source_page_id": "PAGE-2104",
+      "status": "superseded",
+      "replacement_page_ids": [
+        "PAGE-2007"
+      ],
+      "reason": "历史来源明确不作为当前有效页面",
+      "source_refs": [
+        "documentation/input/pages.json#PAGE-2104"
+      ],
+      "id": "SUP-CURRENT-31",
+      "old": "独立来源页面 PAGE-2104",
+      "current": "不再作为独立页面；相关有效能力归位 PAGE-2007"
+    },
+    {
+      "source_page_id": "PAGE-2201",
+      "status": "superseded",
+      "replacement_page_ids": [
+        "PAGE-2002"
+      ],
+      "reason": "历史来源明确不作为当前有效页面",
+      "source_refs": [
+        "documentation/input/pages.json#PAGE-2201"
+      ],
+      "id": "SUP-CURRENT-32",
+      "old": "独立来源页面 PAGE-2201",
+      "current": "不再作为独立页面；相关有效能力归位 PAGE-2002"
+    }
+  ]
+}

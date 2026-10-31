@@ -1,0 +1,431 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2020",
+  "scenario_id": "SC-2020",
+  "name": "在整合入口管理原云呼叫IVR外呼任务时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "有原IVR操作权人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "原IVR任务/名单界面",
+      "kind": "system"
+    },
+    {
+      "id": "cloud",
+      "name": "本方IVR适配与限制服务",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "原AliCti自动外呼服务",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "选择一次原IVR配置、名单、控制或结果操作；不是每次重建任务。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "cloud",
+      "message": "核租户/供应商账号、原权、外呼语音流程/外显和真实用途，不拿呼入流程或本地ID顶替。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "cloud",
+      "to": "ui",
+      "message": "资源用途/归属/开通或原资格不满足/未知，保原任务不发本次请求。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2020-RESOURCE｜本次结束",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-RESOURCE"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "operator",
+      "to": "ui",
+      "message": "提交前取消，按原输入规则，不发新增执行/控制。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2020-CANCEL｜本次结束",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-CANCEL"
+      ]
+    },
+    {
+      "step": 5,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "沿原自动外呼向导保存一次语音流程/资源配置，不新增预测坐席分配。",
+      "type": "external_call",
+      "api_id": "API-2012",
+      "condition": "ALT-2020-CONFIG｜条件目标｜独立选择配置且真实原API2012/资源与资格已核",
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-CONFIG"
+      ]
+    },
+    {
+      "step": 6,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "沿原IVR名单导入/选择和结果规则办理本次名单操作，不移植预测主子批/预算。",
+      "type": "external_call",
+      "api_id": "API-2012",
+      "condition": "ALT-2020-LIST｜条件目标｜独立选择原名单且真实契约经核实",
+      "source_step_refs": [
+        1,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-LIST"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "按原任务状态允许的非启动控制办理，导航/退出不是控制命令。",
+      "type": "external_call",
+      "api_id": "API-2012",
+      "condition": "ALT-2020-CONTROL｜条件目标｜独立选择已核原控制能力",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-CONTROL"
+      ]
+    },
+    {
+      "step": 8,
+      "from": "cloud",
+      "to": "cloud",
+      "message": "本次启动及原有每次后续尝试均ref SC-2015，保持原IVR策略和专项限制。",
+      "type": "request",
+      "api_id": "API-2007",
+      "condition": "条件目标｜本期实际调用语义/身份及对象关系已核，原准入通过；否则当前待核受阻。主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 9,
+      "from": "cloud",
+      "to": "ui",
+      "message": "命中或检查失败/未知阻本次外呼，保真实结果；不绕禁呼追加提交。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2020-BLOCK｜本次不新增外呼",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-BLOCK"
+      ]
+    },
+    {
+      "step": 10,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "只按合法原IVR任务/流程发起本次触达，不推断资源列表存在即可执行。",
+      "type": "external_call",
+      "api_id": "API-2012",
+      "condition": "条件目标｜本次原执行/资源合同已核且全部准入通过",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 11,
+      "from": "vendor",
+      "to": "cloud",
+      "message": "按真实既有受理/事件/结果给出本次事实，不以未核回执假报成功。",
+      "type": "event",
+      "api_id": "API-2012",
+      "condition": "条件目标｜真实现网事件/结果及准确关联可核",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 12,
+      "from": "cloud",
+      "to": "cloud",
+      "message": "准确关联本次任务/客户与原IVR结果语义，保原名单范围，不按同号猜配。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "cloud",
+      "to": "ui",
+      "message": "原供应商失败/未知或关联失败保事实，不追加预测失败补提交。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2020-UNKNOWN｜本次结束或原核对，不自动重发",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-UNKNOWN"
+      ]
+    },
+    {
+      "step": 14,
+      "from": "operator",
+      "to": "ui",
+      "message": "独立选择原查询/详情或已有导出，各验原操作权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2020-QUERY｜不由入口查看权取得导出权",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-QUERY"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "读取本次有权原任务/客户结果，原有导出按真实文件结果表达。",
+      "type": "external_call",
+      "api_id": "API-2012",
+      "condition": "ALT-2020-QUERY｜条件目标｜原API2012查询合同及本次范围已核",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-QUERY"
+      ]
+    },
+    {
+      "step": 16,
+      "from": "vendor",
+      "to": "cloud",
+      "message": "给出真实结果/空态或失败，不把未确认下载当成功。",
+      "type": "response",
+      "api_id": "API-2012",
+      "condition": "条件目标｜原查询实际返回",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 17,
+      "from": "cloud",
+      "to": "ui",
+      "message": "仅按本次有权原结果和真实文件事实展示列表/详情/导出或实际失败，不将来源未知当空态或下载成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2020-QUERY｜条件目标｜原服务本次查询实际结果可核；未核时仅表达受阻",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-QUERY"
+      ]
+    },
+    {
+      "step": 18,
+      "from": "cloud",
+      "to": "ui",
+      "message": "配置/名单/控制/查询本次失败保输入、原生效状态及真实结果；后续沿原方式处理。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2020-OP-FAIL｜含当前契约未核的受阻，不生成新能力",
+      "source_step_refs": [
+        1,
+        5,
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2020-OP-FAIL"
+      ]
+    },
+    {
+      "step": 19,
+      "from": "ui",
+      "to": "operator",
+      "message": "结束本次；后台按原规则，不新增模板IVR节点、转人工引擎或跨租户路线。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次结束｜真实资源及执行缺口继续保留",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2026"
+  ],
+  "source_acceptance_ids": [
+    "AC-2070",
+    "AC-2071"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2008",
+    "inputs/source-index.json#SRC-2009",
+    "inputs/source-index.json#SRC-2011",
+    "inputs/source-index.json#SRC-2025",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096",
+    "scenarios/SC-2020.json",
+    "interfaces/interface-index.json"
+  ],
+  "notes": [
+    "参与方表达当前业务责任，不选择生产部署架构；消息条件为互斥分支或条件目标，不表示所有消息在一次操作中依次发生。",
+    "G2仅批准分析推进。partial/missing均保真实身份、授权、稳定关联及技术契约待核；当前无可靠证据时明确受阻，不由文档/Mock或HTTP成功推定端到端成功。",
+    "真实跨内部服务的partial/missing合同可引用API能力族，内部参与方仍为system；7个not_required仅在notes登记内部责任，消息api_id=null，不伪造调用URL/参数/新回调。",
+    "本版AI标签仅整合原配置、映射和结果展示；不新增AI→业务字段写入或由此自动流转。保原人工保存、字段条件及其他流转，未匹配保原值不首项兜底，仅限本版。"
+  ],
+  "internal_responsibility_refs": [],
+  "previous_revision": {
+    "sha256": "dc88bdcbf7ec113e66fa8a9018bc2d03f294c471d90b2b200e2a985e0281f7b5",
+    "preserved_sequence_id": "SEQ-2020"
+  },
+  "main_step_coverage": {
+    "1": [
+      1,
+      4,
+      5,
+      6,
+      7,
+      18
+    ],
+    "2": [
+      2,
+      3,
+      5
+    ],
+    "3": [
+      8,
+      9
+    ],
+    "4": [
+      10,
+      11,
+      13
+    ],
+    "5": [
+      6,
+      11,
+      12,
+      13,
+      18
+    ],
+    "6": [
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2020-BLOCK": [
+      9
+    ],
+    "ALT-2020-CANCEL": [
+      4
+    ],
+    "ALT-2020-CONFIG": [
+      5
+    ],
+    "ALT-2020-CONTROL": [
+      7
+    ],
+    "ALT-2020-LIST": [
+      6
+    ],
+    "ALT-2020-OP-FAIL": [
+      18
+    ],
+    "ALT-2020-QUERY": [
+      14,
+      15,
+      17
+    ],
+    "ALT-2020-RESOURCE": [
+      3
+    ],
+    "ALT-2020-UNKNOWN": [
+      13
+    ]
+  },
+  "api_usage_boundaries": [
+    {
+      "api_id": "API-2007",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    },
+    {
+      "api_id": "API-2012",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    }
+  ],
+  "source_scenario_sha256": "42e5808813ba5a6e5c41f521d1c9f77980e407df3f896365adc203dfb2c57b7d",
+  "source_interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

@@ -1,0 +1,128 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/local-logic/LOCAL-FLOW-ARCHIVE.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/local-logic/LOCAL-FLOW-ARCHIVE.md">原始 Markdown</a></p><h1>当前交接包/local-logic/LOCAL-FLOW-ARCHIVE.md</h1><pre># LOCAL-FLOW-ARCHIVE 唯一完成跟进归档
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](../features/FUNC-2032.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2032
+
+触发：通话终态/人工保存/必要证据齐备后系统评估
+
+## 前置条件
+
+- 同followup准确身份
+- 真实所有拨打结束、重试完毕、实际人工事实和必要状态/下游tags可核
+
+## 必须遵守的全局规则
+
+- [GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+- [GR-SERIAL](../global-logic.md#GR-SERIAL)
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-ACTUAL-ANSWER](../field-specs.md#FIELD-FLOW-ACTUAL-ANSWER)、[FIELD-FLOW-CALLS](../field-specs.md#FIELD-FLOW-CALLS)、[FIELD-FLOW-CONTENT-SAVED](../field-specs.md#FIELD-FLOW-CONTENT-SAVED)、[FIELD-FLOW-FOLLOWUP-ID](../field-specs.md#FIELD-FLOW-FOLLOWUP-ID)、[FIELD-FLOW-FOLLOWUP-SUMMARY](../field-specs.md#FIELD-FLOW-FOLLOWUP-SUMMARY)、[FIELD-FLOW-HUMAN-ANSWER](../field-specs.md#FIELD-FLOW-HUMAN-ANSWER)、[FIELD-FLOW-RETRIES-COMPLETE](../field-specs.md#FIELD-FLOW-RETRIES-COMPLETE)、[FIELD-FLOW-ROUTING-EVIDENCE](../field-specs.md#FIELD-FLOW-ROUTING-EVIDENCE)、[FIELD-FLOW-TAG-EVIDENCE](../field-specs.md#FIELD-FLOW-TAG-EVIDENCE)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+
+输出：[FIELD-FLOW-ARCHIVED](../field-specs.md#FIELD-FLOW-ARCHIVED)、[FIELD-FLOW-ARCHIVE-STATE](../field-specs.md#FIELD-FLOW-ARCHIVE-STATE)、[FIELD-FLOW-CONTENT-SNAPSHOT](../field-specs.md#FIELD-FLOW-CONTENT-SNAPSHOT)、[FIELD-FLOW-STATISTICS](../field-specs.md#FIELD-FLOW-STATISTICS)
+
+## 处理步骤
+
+### STEP-FLOW-ARCHIVE-1
+
+有人工必须由实际人先保存内容；纯AI/明确无人由系统保存事实摘要
+
+读取：FIELD-FLOW-ACTUAL-HANDLER, FIELD-FLOW-HUMAN-ANSWER, FIELD-FLOW-CONTENT-SAVED；写入：FIELD-FLOW-CONTENT-SNAPSHOT, FIELD-FLOW-CONTENT-SAVED
+
+规则：GR-DATA-FACTS, GR-UNKNOWN, GR-SERIAL
+
+### STEP-FLOW-ARCHIVE-2
+
+两模式必要真实终态、重试与本人内容明确后唯一归档；TEMPLATE另核配置下游依赖，DIRECT无模板路由依赖且归档后回同租户待跟进，不自动新起呼
+
+读取：FIELD-FLOW-RETRIES-COMPLETE, FIELD-FLOW-ROUTING-EVIDENCE, FIELD-FLOW-TAG-EVIDENCE, FIELD-FLOW-CONTENT-SAVED, FIELD-FLOW-HANDLING-MODE；写入：FIELD-FLOW-ARCHIVED, FIELD-FLOW-ARCHIVE-STATE, FIELD-FLOW-STATISTICS
+
+规则：GR-DATA-FACTS, GR-UNKNOWN, GR-SERIAL, GR-HANDLING-MODE
+
+### STEP-FLOW-ARCHIVE-3
+
+DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。
+
+读取：FIELD-FLOW-HANDLING-MODE；写入：无
+
+规则：GR-DATA-FACTS, GR-UNKNOWN, GR-SERIAL, GR-HANDLING-MODE
+
+## 分支与异常
+
+### BRANCH-FLOW-ARCHIVE-1
+
+条件：首通结束但重试或人/标签事实未知
+
+结果：保持待结果/待核，不计完成
+
+涉及字段：FIELD-FLOW-ARCHIVE-STATE, FIELD-FLOW-STATISTICS
+
+验证：CHECK-FLOW-ARCHIVE
+
+### BRANCH-FLOW-ARCHIVE-2
+
+条件：SYSTEM未接听自动归档
+
+结果：只记录真实事实，不以继承旧result值造新人工confirmed
+
+涉及字段：FIELD-FLOW-CONFIRMED-FIELDS, FIELD-FLOW-ROUTING-FIELD-SNAPSHOT
+
+验证：CHECK-FLOW-ARCHIVE
+
+### BRANCH-FLOW-ARCHIVE-3
+
+条件：完成或同事件重复到达
+
+结果：不重复封内容或计完成；真实零拨失败只记异常
+
+涉及字段：FIELD-FLOW-ARCHIVED, FIELD-FLOW-STATISTICS
+
+验证：CHECK-FLOW-ARCHIVE
+
+## 完成后的状态
+
+- 完成跟进与流程END及业务达成分开
+
+## 字段定义
+
+- [FIELD-FLOW-ACTUAL-ANSWER](../field-specs.md#FIELD-FLOW-ACTUAL-ANSWER)
+- [FIELD-FLOW-ACTUAL-HANDLER](../field-specs.md#FIELD-FLOW-ACTUAL-HANDLER)
+- [FIELD-FLOW-ARCHIVE-STATE](../field-specs.md#FIELD-FLOW-ARCHIVE-STATE)
+- [FIELD-FLOW-ARCHIVED](../field-specs.md#FIELD-FLOW-ARCHIVED)
+- [FIELD-FLOW-CALLS](../field-specs.md#FIELD-FLOW-CALLS)
+- [FIELD-FLOW-CONFIRMED-FIELDS](../field-specs.md#FIELD-FLOW-CONFIRMED-FIELDS)
+- [FIELD-FLOW-CONTENT-SAVED](../field-specs.md#FIELD-FLOW-CONTENT-SAVED)
+- [FIELD-FLOW-CONTENT-SNAPSHOT](../field-specs.md#FIELD-FLOW-CONTENT-SNAPSHOT)
+- [FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+- [FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+- [FIELD-FLOW-FOLLOWUP-ID](../field-specs.md#FIELD-FLOW-FOLLOWUP-ID)
+- [FIELD-FLOW-FOLLOWUP-SUMMARY](../field-specs.md#FIELD-FLOW-FOLLOWUP-SUMMARY)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-HUMAN-ANSWER](../field-specs.md#FIELD-FLOW-HUMAN-ANSWER)
+- [FIELD-FLOW-RETRIES-COMPLETE](../field-specs.md#FIELD-FLOW-RETRIES-COMPLETE)
+- [FIELD-FLOW-ROUTING-EVIDENCE](../field-specs.md#FIELD-FLOW-ROUTING-EVIDENCE)
+- [FIELD-FLOW-ROUTING-FIELD-SNAPSHOT](../field-specs.md#FIELD-FLOW-ROUTING-FIELD-SNAPSHOT)
+- [FIELD-FLOW-STATISTICS](../field-specs.md#FIELD-FLOW-STATISTICS)
+- [FIELD-FLOW-TAG-EVIDENCE](../field-specs.md#FIELD-FLOW-TAG-EVIDENCE)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2092, acceptance:AC-2121, acceptance:AC-2122, features:FUNC-2032, features:FUNC-2032/behavior_spec/2/branches/0, features:FUNC-2032/behavior_spec/2/branches/1, features:FUNC-2032/behavior_spec/2/branches/2, features:FUNC-2032/behavior_spec/2/postconditions/0, features:FUNC-2032/behavior_spec/2/preconditions/0, features:FUNC-2032/behavior_spec/2/preconditions/1, features:FUNC-2032/behavior_spec/2/steps/0, features:FUNC-2032/behavior_spec/2/steps/1, features:FUNC-2032/behavior_spec/2/steps/2, pages:PAGE-2203, pages:PAGE-2203/fields/1, pages:PAGE-2203/fields/11, pages:PAGE-2203/fields/12, pages:PAGE-2203/fields/13, pages:PAGE-2203/fields/19, pages:PAGE-2203/fields/2, pages:PAGE-2203/fields/20, pages:PAGE-2203/fields/23, pages:PAGE-2203/fields/3, pages:PAGE-2203/fields/4, pages:PAGE-2203/fields/40, pages:PAGE-2203/fields/41, pages:PAGE-2203/fields/42, pages:PAGE-2203/fields/47, pages:PAGE-2203/fields/48, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/66, pages:PAGE-2203/fields/9, pages:PAGE-2204/fields/1, pages:PAGE-2204/fields/30, pages:PAGE-2204/fields/61, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/87, pages:PAGE-2204/fields/9, pages:PAGE-2223/fields/9, pages:PAGE-2226/fields/0, pages:PAGE-2226/fields/1, pages:PAGE-2226/fields/17, pages:PAGE-2226/fields/18, pages:PAGE-2226/fields/31, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/37, pages:PAGE-2226/fields/7, pages:PAGE-2226/fields/9, pages:PAGE-2227, pages:PAGE-2227/fields/106, pages:PAGE-2227/fields/107, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/140, pages:PAGE-2227/fields/16, pages:PAGE-2227/fields/18, pages:PAGE-2227/fields/2, pages:PAGE-2227/fields/20, pages:PAGE-2227/fields/21, pages:PAGE-2227/fields/3, pages:PAGE-2227/fields/43, pages:PAGE-2227/fields/44, pages:PAGE-2227/fields/48, pages:PAGE-2227/fields/5, pages:PAGE-2227/fields/6, pages:PAGE-2227/fields/86, pages:PAGE-2227/fields/89, pages:PAGE-2227/fields/90, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/104, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/106, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/107, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/124, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/142, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/143, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/151, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/83, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/85, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/86, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/90, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/91, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/92, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/93, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/94, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/95, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/97, scenarios:FLOW-CURRENT-CUSTOMER/steps/22
+
+验证：CHECK-FLOW-ARCHIVE
+
+## 实施任务
+
+- [TASK-021](../tasks/TASK-021.md)
+</pre></body></html>

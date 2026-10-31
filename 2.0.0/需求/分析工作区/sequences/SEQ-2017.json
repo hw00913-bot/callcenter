@@ -1,0 +1,628 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2017",
+  "scenario_id": "SC-2017",
+  "name": "在整合入口连续使用AI原有业务能力时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "本次原AI操作有权人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "原AI页面/统一导航",
+      "kind": "system"
+    },
+    {
+      "id": "ai",
+      "name": "本方AI适配及原范围校验",
+      "kind": "system"
+    },
+    {
+      "id": "provider",
+      "name": "原AI生产服务/实际供应商",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "选择一次原查询、任务、专业标签配置或独立财务操作，保当前合法位置。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "ai",
+      "message": "按所选原操作核真实身份/租户或独立平台资源/财务范围，不强制无关业务成员/本人坐席/双模块。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "ai",
+      "to": "ui",
+      "message": "失权或身份/映射不明拒绝，不猜租户或自动授权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2017-AUTH｜本次结束",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-AUTH"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "ai",
+      "to": "ai",
+      "message": "分派本次独立原操作；公共基础/名单委托原唯一场景，不必每次执行全部动作。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 5,
+      "from": "ai",
+      "to": "provider",
+      "message": "查询本次有权原记录/统计或用量摘要/明细，保持供应商及原分钟口径。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "条件目标｜真实原功能/授权/取数合同与当前范围经核实",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 6,
+      "from": "ai",
+      "to": "ui",
+      "message": "查询失败或当前证据未足时保筛选，不以旧缓存或空列表冒充成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2017-QUERY-FAIL｜本次结束",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-QUERY-FAIL"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "provider",
+      "to": "ai",
+      "message": "仅在本次真实可靠返回后显示原结果，允许真实空态；原始和可靠映射标签并存。",
+      "type": "response",
+      "api_id": "API-2015",
+      "condition": "条件目标｜真实查询成功；未映射保原值不首项兜底",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 8,
+      "from": "operator",
+      "to": "ui",
+      "message": "独立选择原导出；原财务导出权/有权AI租户集合及一致取数另验，不继承摘要权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2017-EXPORT｜仅本次选择导出",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-EXPORT"
+      ]
+    },
+    {
+      "step": 9,
+      "from": "ai",
+      "to": "provider",
+      "message": "按原有权导出意图取当前服务快照8列：名称/ID/类型、可用/冻结/累计分钟、有效期、呼叫控制；不回算金额/模型余额。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-EXPORT｜条件目标｜原导出与一致取数已核；独立于统计日期/平台及公共租户筛选",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-EXPORT"
+      ]
+    },
+    {
+      "step": 10,
+      "from": "ai",
+      "to": "ui",
+      "message": "实际启动才ref SC-2015；命中或检查未知阻本次新增提交，暂停不当新起呼。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2017-BLOCK｜ALT-2017-TASK/BLOCK｜选择已核原控制；仅启动执行SC-2015，命中/未知则受阻；暂停沿原控制",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-TASK",
+        "ALT-2017-BLOCK"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "ai",
+      "to": "provider",
+      "message": "仅按已证实的原能力及当前任务状态办理本次启动/暂停，不自动重启或合并任务。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-TASK｜条件目标｜原控制/真实授权与映射已核；启动已通过SC-2015",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-TASK"
+      ]
+    },
+    {
+      "step": 12,
+      "from": "provider",
+      "to": "ai",
+      "message": "原控制失败/未知如实保原任务，不重发启动。",
+      "type": "response",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-PROVIDER｜原服务真实失败或结果不明",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-PROVIDER"
+      ]
+    },
+    {
+      "step": 13,
+      "from": "operator",
+      "to": "ui",
+      "message": "选择原供应商池/标签启用/标准映射或专业场景操作；不同身份不能互相代替。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2017-CONFIG｜本次原专业操作",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-CONFIG"
+      ]
+    },
+    {
+      "step": 14,
+      "from": "ai",
+      "to": "provider",
+      "message": "沿原权及准确作用域办理一次原配置：池按supplier；启用/映射按supplier+租户类型+标签场景；标准集按租户类型+标签场景。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-CONFIG｜条件目标｜原接口/资格/稳定ID与版本已核，非按名称或首项猜配",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-CONFIG"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "ai",
+      "to": "ui",
+      "message": "仅凭真实原配置保存结果展示该范围更新；分类关联ref SC-2011，执行场景PAGE2110与标签场景PAGE2111分开。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2017-CONFIG｜条件目标｜原操作明确成功；不代表AI业务字段写入或自动流转",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-CONFIG"
+      ]
+    },
+    {
+      "step": 16,
+      "from": "ai",
+      "to": "ui",
+      "message": "原配置校验/保存失败或映射未核则保输入及原生效配置。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2017-SAVE｜不显示保存成功",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-SAVE"
+      ]
+    },
+    {
+      "step": 17,
+      "from": "operator",
+      "to": "ui",
+      "message": "独立选择原AI充值/手工调整，另验真实财务/服务资格和对象范围。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2017-BILL｜非公共租户维护权，不强制无关成员/双模块",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-BILL"
+      ]
+    },
+    {
+      "step": 18,
+      "from": "ai",
+      "to": "provider",
+      "message": "仅沿已核原AI分钟池/充值规则提交本次原财务操作，不并云呼叫账务。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-BILL｜条件目标｜原财务合同及本次资格已核",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-BILL"
+      ]
+    },
+    {
+      "step": 19,
+      "from": "provider",
+      "to": "ai",
+      "message": "财务失败/回执未知保原账和实际事实，不重复记账。",
+      "type": "response",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-BILL-FAIL｜不新增补偿规则",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-BILL-FAIL"
+      ]
+    },
+    {
+      "step": 20,
+      "from": "provider",
+      "to": "ai",
+      "message": "原服务只返回本次所选原查询/导出/控制/配置/财务的真实可靠结果；未确认不能冒充业务完成。",
+      "type": "response",
+      "api_id": "API-2015",
+      "condition": "条件目标｜真实已核原合同返回，未在前述失败出口终止；各操作互斥，非一次全做",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 21,
+      "from": "ai",
+      "to": "ui",
+      "message": "本方按该次可辨结果分别展示明确成功、失败或待核；摘要不授明细/导出/财务权，未知不重复记账或启动。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次所选原操作已有可靠实际事实或当前缺证据受阻；不将HTTP200/受理等同业务完成",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 22,
+      "from": "ui",
+      "to": "ai",
+      "message": "公共账号/租户/分类/名单分别ref原唯一SC；删除分别SC-2023/24，不复制维护、不能借原入口增权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2017-PUBLIC｜仅本次确实选择该基础/名单操作",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-PUBLIC"
+      ]
+    },
+    {
+      "step": 23,
+      "from": "operator",
+      "to": "ui",
+      "message": "提交前取消，沿原草稿规则；未发新增执行或记账，不停后台。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2017-CANCEL｜本次结束",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-CANCEL"
+      ]
+    },
+    {
+      "step": 24,
+      "from": "ai",
+      "to": "provider",
+      "message": "读取准确有权原任务详情及名单原视图，不以任务入口授其他名单操作权。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-LIST｜条件目标｜本次选择任务详情且原读取合同已核",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-LIST"
+      ]
+    },
+    {
+      "step": 25,
+      "from": "ai",
+      "to": "provider",
+      "message": "本次手动导入沿原文件/模板/供应商约束及真实逐行结果，不把本地演示当远端执行。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-IMPORT｜条件目标｜本次独立选择原导入且原资格/合同已核",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-IMPORT"
+      ]
+    },
+    {
+      "step": 26,
+      "from": "ai",
+      "to": "provider",
+      "message": "本次只读取当前有权任务的原导入记录，真实空结果不造新记录。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-IMPORT-HISTORY｜条件目标｜本次独立选择导入记录且原能力已核",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-IMPORT-HISTORY"
+      ]
+    },
+    {
+      "step": 27,
+      "from": "ai",
+      "to": "provider",
+      "message": "按准确任务/租户及已分配号码办理原单条移除；不扩批量、不保证已排队远端已取消。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-REMOVE｜条件目标｜本次选择原单条移除且实际能力/资格已核",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-REMOVE"
+      ]
+    },
+    {
+      "step": 28,
+      "from": "provider",
+      "to": "ai",
+      "message": "名单查询/导入/移除失败、部分结果或未知保原名单及证据，不把错误变成新任务或额外重呼。",
+      "type": "response",
+      "api_id": "API-2015",
+      "condition": "ALT-2017-LIST-FAIL｜前述本次实际名单操作失败/不明",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2017-LIST-FAIL"
+      ]
+    },
+    {
+      "step": 29,
+      "from": "ai",
+      "to": "ui",
+      "message": "本方按本次名单操作可辨真实结果展示列表、逐行导入/单条移除结果或失败/未知，保原输入和名单；未确认不报成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次所选名单原操作已实际返回，或因当前证据未足而受阻；其他独立操作另次发起",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 30,
+      "from": "ui",
+      "to": "operator",
+      "message": "本次结束；原结果/映射展示不写业务字段、不自动流转；后台按原规则，切离沿SC-2002。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次结束｜未匹配保原值；不作未来永久限制",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2023"
+  ],
+  "source_acceptance_ids": [
+    "AC-2063",
+    "AC-2064",
+    "AC-2065",
+    "AC-2078"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2008",
+    "inputs/source-index.json#SRC-2009",
+    "inputs/source-index.json#SRC-2011",
+    "inputs/source-index.json#SRC-2025",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2036",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2058",
+    "inputs/source-index.json#SRC-2070",
+    "inputs/source-index.json#SRC-2077",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2092",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2096",
+    "inputs/source-index.json#SRC-2095",
+    "scenarios/SC-2017.json",
+    "interfaces/interface-index.json"
+  ],
+  "notes": [
+    "参与方表达当前业务责任，不选择生产部署架构；消息条件为互斥分支或条件目标，不表示所有消息在一次操作中依次发生。",
+    "G2仅批准分析推进。partial/missing均保真实身份、授权、稳定关联及技术契约待核；当前无可靠证据时明确受阻，不由文档/Mock或HTTP成功推定端到端成功。",
+    "真实跨内部服务的partial/missing合同可引用API能力族，内部参与方仍为system；7个not_required仅在notes登记内部责任，消息api_id=null，不伪造调用URL/参数/新回调。",
+    "本版AI标签仅整合原配置、映射和结果展示；不新增AI→业务字段写入或由此自动流转。保原人工保存、字段条件及其他流转，未匹配保原值不首项兜底，仅限本版。"
+  ],
+  "internal_responsibility_refs": [],
+  "previous_revision": {
+    "sha256": "82b532df4a0af4cf06d9c675b2090da829049413463fc5ef586625bfa1c9a675",
+    "preserved_sequence_id": "SEQ-2017"
+  },
+  "main_step_coverage": {
+    "1": [
+      1
+    ],
+    "2": [
+      2,
+      3
+    ],
+    "3": [
+      4,
+      10,
+      11,
+      12,
+      13,
+      14,
+      17,
+      18,
+      22,
+      23,
+      25,
+      27
+    ],
+    "4": [
+      5,
+      6,
+      7,
+      24,
+      26
+    ],
+    "5": [
+      6,
+      7,
+      8,
+      9,
+      15,
+      16,
+      19,
+      20,
+      21,
+      28,
+      29
+    ],
+    "6": [
+      30
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2017-AUTH": [
+      3
+    ],
+    "ALT-2017-BILL": [
+      17,
+      18
+    ],
+    "ALT-2017-BILL-FAIL": [
+      19
+    ],
+    "ALT-2017-BLOCK": [
+      10
+    ],
+    "ALT-2017-CANCEL": [
+      23
+    ],
+    "ALT-2017-CONFIG": [
+      13,
+      14,
+      15
+    ],
+    "ALT-2017-EXPORT": [
+      8,
+      9
+    ],
+    "ALT-2017-IMPORT": [
+      25
+    ],
+    "ALT-2017-IMPORT-HISTORY": [
+      26
+    ],
+    "ALT-2017-LIST": [
+      24
+    ],
+    "ALT-2017-LIST-FAIL": [
+      28
+    ],
+    "ALT-2017-PROVIDER": [
+      12
+    ],
+    "ALT-2017-PUBLIC": [
+      22
+    ],
+    "ALT-2017-QUERY-FAIL": [
+      6
+    ],
+    "ALT-2017-REMOVE": [
+      27
+    ],
+    "ALT-2017-SAVE": [
+      16
+    ],
+    "ALT-2017-TASK": [
+      10,
+      11
+    ]
+  },
+  "api_usage_boundaries": [
+    {
+      "api_id": "API-2015",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    }
+  ],
+  "source_scenario_sha256": "49971c5162238f01efee354dc728e9794c17c3d98f093bdb464f94905e26cd13",
+  "source_interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

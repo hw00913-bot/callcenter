@@ -1,0 +1,663 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2001",
+  "scenario_id": "SC-2001",
+  "name": "登录并进入合法业务入口时序",
+  "participants": [
+    {
+      "id": "user",
+      "name": "登录账号",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "D联络云统一登录与导航前端",
+      "kind": "system"
+    },
+    {
+      "id": "auth",
+      "name": "身份接入与会话边界（内部目标）",
+      "kind": "system"
+    },
+    {
+      "id": "perm",
+      "name": "有权租户与操作范围校验（内部目标）",
+      "kind": "system"
+    },
+    {
+      "id": "entry",
+      "name": "合法租户入口选择与位置恢复（内部目标）",
+      "kind": "system"
+    },
+    {
+      "id": "workspace",
+      "name": "目标既有页面／片段业务读取（内部目标）",
+      "kind": "system"
+    },
+    {
+      "id": "ai_identity",
+      "name": "实际AI生产身份服务（协议待核）",
+      "kind": "external_system"
+    }
+  ],
+  "source_refs": [
+    "scenarios/SC-2001.json",
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2036",
+    "inputs/source-index.json#SRC-2037",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2039",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "status": "S5_current_design_for_review_not_implementation",
+  "messages": [
+    {
+      "step": 1,
+      "from": "user",
+      "to": "ui",
+      "message": "提交AI生产既有合法凭据，开始一次统一登录；不要求两套登录。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次登录请求",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "auth",
+      "message": "交身份接入边界验证；尚未确认身份前不读取受保护租户业务。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次已提交登录",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "auth",
+      "to": "ai_identity",
+      "message": "承接已有认证/令牌定义核验身份；不把仅按账号查询或退出callback当完整认证协议。",
+      "type": "external_call",
+      "api_id": "API-2001",
+      "condition": "条件目标｜仅在相关真实契约、稳定身份/对象映射及本次权限已核实后，实际认证调用链可可靠承接时。",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 4,
+      "from": "ai_identity",
+      "to": "auth",
+      "message": "返回本次实际认证结论或失败/未知；文档候选不证明跨服务会话已互通。",
+      "type": "response",
+      "api_id": "API-2001",
+      "condition": "条件目标｜仅响应本次合法认证请求，实际语义按API-2001核验。",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 5,
+      "from": "auth",
+      "to": "ui",
+      "message": "认证明确未通过：反馈失败并结束本次，不进入受保护功能。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2001-01｜本次认证明确失败；重新登录另算一次。",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-01"
+      ]
+    },
+    {
+      "step": 6,
+      "from": "auth",
+      "to": "ui",
+      "message": "认证/会话映射所需契约未落实或身份结果未知：本次受阻，不猜默认身份。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2001-02｜当前缺口仍保留；未知不当认证成功。",
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-02"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "auth",
+      "to": "perm",
+      "message": "仅身份已可靠确认后解析有权租户、模块、独立专业与管理范围。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜认证明确有效且授权关系可核实时。",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 8,
+      "from": "perm",
+      "to": "ai_identity",
+      "message": "按稳定身份读取原人员/租户及资源角色依据，不按姓名、手机号或品牌关系推权。",
+      "type": "external_call",
+      "api_id": "API-2002",
+      "condition": "条件目标｜仅在相关真实契约、稳定身份/对象映射及本次权限已核实后，真实人员/租户关系查询及授权语义可核对时。",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 9,
+      "from": "ai_identity",
+      "to": "perm",
+      "message": "返回可核对的范围依据或读取失败/关系未知；不据文档字段自行形成跨租户授权。",
+      "type": "response",
+      "api_id": "API-2002",
+      "condition": "条件目标｜本次合法范围读取的实际结果。",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 10,
+      "from": "perm",
+      "to": "ui",
+      "message": "关系读取失败、稳定映射或权限语义不能确认：提示本次未完成，可核对/另次重试，不当无权或空租户。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2001-02｜读取/关系核验失败或未知时停止进入。",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-02"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "perm",
+      "to": "entry",
+      "message": "按可靠原身份分流业务单租户、多租户或原独立平台/供应商资源/AI财务/管理范围。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜身份和对应范围实际可核实。",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 12,
+      "from": "entry",
+      "to": "ui",
+      "message": "单租户、仍合法历史租户及原独立平台范围自动继续；不额外增加确认弹窗。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜唯一合法范围或仍合法历史已重验。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "ui",
+      "to": "user",
+      "message": "仅需多租户手动选择时展示有权选择；失效历史租户不可恢复。",
+      "type": "response",
+      "api_id": null,
+      "condition": "已确认确有需手动选择的多个合法业务租户。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 14,
+      "from": "user",
+      "to": "ui",
+      "message": "从本次有权列表明确选择目标租户；选择本身不授成员或模块权限。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次确需多租户手动选择且用户选择继续；自动范围及取消分支不执行。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 15,
+      "from": "user",
+      "to": "ui",
+      "message": "取消本次多租户进入：保留合法选择/退出入口，不进入受保护租户页面。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2001-09｜人员在多租户手动选择时明确取消。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-09"
+      ]
+    },
+    {
+      "step": 16,
+      "from": "ui",
+      "to": "perm",
+      "message": "选择/恢复后进入前再次核验目标租户及操作范围，不携旧租户对象继续。",
+      "type": "request",
+      "api_id": null,
+      "condition": "仅本次仍继续进入时；取消分支不执行。",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 17,
+      "from": "perm",
+      "to": "ui",
+      "message": "目标租户已失效则重新选择仍有权租户；无任何业务租户且无独立合法范围则提示无权并可退出。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2001-08、ALT-2001-10｜目标失权或已无合法范围；不静默任选租户。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-08",
+        "ALT-2001-10"
+      ]
+    },
+    {
+      "step": 18,
+      "from": "perm",
+      "to": "entry",
+      "message": "传递本次已验证的合法范围及各原页面/操作/片段权限，六入口不成为权限包。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜目标范围当前有效。",
+      "source_step_refs": [
+        3,
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 19,
+      "from": "entry",
+      "to": "entry",
+      "message": "仅一个业务模块有权时沿该模块原首次/后续意图；仅云呼叫首次也适用原窄分支，非强制双模块。",
+      "type": "event",
+      "api_id": null,
+      "condition": "ALT-2001-03｜唯一合法业务模块分支。",
+      "source_step_refs": [
+        3,
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-03"
+      ]
+    },
+    {
+      "step": 20,
+      "from": "entry",
+      "to": "entry",
+      "message": "无业务模块但有原专业资源/财务入口时沿其原意图；仅原管理权则沿原管理顺序选首个有权稳定PAGE。",
+      "type": "event",
+      "api_id": null,
+      "condition": "ALT-2001-04｜原独立专业或仅管理范围分支；不强制业务成员、坐席或公共管理员。",
+      "source_step_refs": [
+        3,
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-04"
+      ]
+    },
+    {
+      "step": 21,
+      "from": "entry",
+      "to": "ui",
+      "message": "没有任何原合法入口则明确受限并允许退出，不创建默认租户或自动赋权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2001-04、ALT-2001-10｜已可靠判定无任何合法入口；读取失败另列。",
+      "source_step_refs": [
+        3,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-04",
+        "ALT-2001-10"
+      ]
+    },
+    {
+      "step": 22,
+      "from": "entry",
+      "to": "entry",
+      "message": "首次有云呼叫权即沿原有权入口；仅原综合概览、无本人作业/监管默认且兼有导入分配与云报表权的窄分支优先PAGE-2204；仅AI沿AI原意图。",
+      "type": "event",
+      "api_id": null,
+      "condition": "首次进入该合法范围；不创建统一首页，不按六入口排序重算。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 23,
+      "from": "entry",
+      "to": "entry",
+      "message": "后续恢复账号在本合法范围的原位置/筛选；历史缺失或失效按当前原合法入口意图重新解析，不套首次导入优先或回已取消概览。",
+      "type": "event",
+      "api_id": null,
+      "condition": "ALT-2001-05｜后续进入；历史有效或ALT历史缺失/失效分流。",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-05"
+      ]
+    },
+    {
+      "step": 24,
+      "from": "entry",
+      "to": "ui",
+      "message": "给出稳定PAGE及目标功能的六入口展示映射，专业财务/资源与管理范围各自保权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜已解析到当前可达原入口。",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 25,
+      "from": "ui",
+      "to": "perm",
+      "message": "目标读取前重验该PAGE及片段权限；入口可见不等区内全权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次确定目标后再次校验。",
+      "source_step_refs": [
+        5,
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 26,
+      "from": "perm",
+      "to": "ui",
+      "message": "子页失效/失权时只回退当前合法原入口；已无入口则明确反馈，不恢复失效页面。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2001-06｜本次目标失效或权限变化。",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-06"
+      ]
+    },
+    {
+      "step": 27,
+      "from": "perm",
+      "to": "workspace",
+      "message": "仅本次目标及范围仍有权时读取原页面最新内容，按其原业务能力承接，不在此新造业务协议。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜身份、范围、目标检查全部通过。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 28,
+      "from": "workspace",
+      "to": "ui",
+      "message": "读取失败或状态未知则反馈进入未完成，不用缓存伪装本次成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2001-07｜本次原页面读取失败或未知。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2001-07"
+      ]
+    },
+    {
+      "step": 29,
+      "from": "workspace",
+      "to": "ui",
+      "message": "返回本次实际可确认且仍有权的最新内容；业务数据范围按原服务裁剪。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜原页面真实读取成功且范围仍有效。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 30,
+      "from": "ui",
+      "to": "user",
+      "message": "展示有权原页面及工作台/业务中心/客户中心/呼叫中心/报表中心/系统管理入口；不新增首页、不自动电话上线。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜取得本次可靠内容，未落入失败/取消分支。",
+      "source_step_refs": [
+        4,
+        5,
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2001"
+  ],
+  "source_acceptance_ids": [
+    "AC-2001",
+    "AC-2002",
+    "AC-2003",
+    "AC-2004"
+  ],
+  "source_business_rule_ids": [
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2004",
+    "BR-2052"
+  ],
+  "source_step_refs": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "covered_alternate_flow_ids": [
+    "ALT-2001-01",
+    "ALT-2001-02",
+    "ALT-2001-03",
+    "ALT-2001-04",
+    "ALT-2001-05",
+    "ALT-2001-06",
+    "ALT-2001-07",
+    "ALT-2001-08",
+    "ALT-2001-09",
+    "ALT-2001-10"
+  ],
+  "main_flow_coverage": {
+    "1": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "2": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "3": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      16,
+      18,
+      19,
+      20,
+      21
+    ],
+    "4": [
+      18,
+      19,
+      20,
+      22,
+      23,
+      24,
+      30
+    ],
+    "5": [
+      20,
+      21,
+      23,
+      24,
+      25,
+      26,
+      30
+    ],
+    "6": [
+      25,
+      27,
+      28,
+      29,
+      30
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2001-01": [
+      5
+    ],
+    "ALT-2001-02": [
+      6,
+      10
+    ],
+    "ALT-2001-03": [
+      19
+    ],
+    "ALT-2001-04": [
+      20,
+      21
+    ],
+    "ALT-2001-05": [
+      23
+    ],
+    "ALT-2001-06": [
+      26
+    ],
+    "ALT-2001-07": [
+      28
+    ],
+    "ALT-2001-08": [
+      17
+    ],
+    "ALT-2001-09": [
+      15
+    ],
+    "ALT-2001-10": [
+      17,
+      21
+    ]
+  },
+  "source_scenario_sha256": "f99f5969c99f367716ff7a3be9f55f2c84a5b46bf30e72ec48e2855de90a7d78",
+  "interface_evidence_statuses": {
+    "API-2001": "partial",
+    "API-2002": "partial"
+  },
+  "source_interface_fact_sha256": {
+    "API-2001": "12d5d670662ed638412d6f3cf80350db8f8a92052e6c6ee27c5d7843abee4afd",
+    "API-2002": "9b3a95827be48ae6157be6497aa154f779a24c02347392ef1e631482ee3fa614"
+  },
+  "production_verified": false,
+  "execution_status": "not_executed_design_only",
+  "v2_gate_status": "G1_G2_analysis_approved_G3_pending",
+  "notes": [
+    "本文件消费当前SC/AC/BR及已批准G2接口事实，仅时序分析，不证明生产、原型或真实调用已完成。partial/missing能力保当前受阻/未知；标为条件目标的调用和成功仅在真实契约、稳定身份/对象映射、当次权限与实际结果均已落实时成立。未满足不执行后续成功分支。",
+    "消息按条件表达互斥主线/备选责任，不表示一次运行依次执行所有消息。source_step_refs为当前SC main_flow.step整数，covered_alternate_flow_ids为该消息明确覆盖的ALT稳定ID；顶层映射可逐项复核。",
+    "保AI生产身份和真实原多租户/模块/操作范围，六入口只组织展示；品牌配置/监管/独立AI财务或供应商资源资格不代业务执行权，也不统一要求业务租户成员、本人坐席或双模块。",
+    "not_required本方能力和普通内部责任消息api_id=null：位置记忆/表单提示由API-2014对应本方责任承接；公共品牌/租户基础查询由API-2003对应责任承接，API-2017只是其来源投影，不新增维护库。未直接调用的这些族不写成外部消息。",
+    "只引用所用API已登记能力族，不造URL、字段、权限码、主动撤销协议、幂等键、引用查询接口或超时重试次数。原普通表单/话后责任只作当前SC要求的复用，不用未知服务成功代证；必要话后与拒联一致结果沿原SC-2013/2018另有权责任。",
+    "本版AI标签configuration_only沿SRC-2096；仅原配置/映射/结果展示，不新增AI标签写业务字段及由此新增自动流转，不影响既有人工保存/条件与其他原流转，不作未来永久禁令。"
+  ],
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "reason": "当前G2后S5，按当前SC压缩并补齐主线/全部ALT与条件目标，不改接口事实。",
+      "previous_detail_sha256": "55fe0dd237a633cda882b1cc2f009c26ac280c7f823241312e1b87c984764096",
+      "previous_message_count": 40,
+      "stable_participant_ids_retained": [
+        "user",
+        "ui",
+        "auth",
+        "perm",
+        "entry",
+        "workspace",
+        "ai_identity"
+      ]
+    }
+  ],
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

@@ -1,0 +1,137 @@
+# LOCAL-FLOW-CUSTOMER-TIMELINE 客户档案业务跟进与联系档案分视图
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](../features/FUNC-2033.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](../features/FUNC-2039.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2033, FUNC-2039
+
+触发：客户档案切换业务跟进或联系档案、打开关联业务
+
+## 前置条件
+
+- 各来源本来有权读取，不因归集新增授权
+
+## 必须遵守的全局规则
+
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-PRIVACY](../global-logic.md#GR-PRIVACY)
+- [GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-ACTIVITY-INTEREST](../field-specs.md#FIELD-FLOW-ACTIVITY-INTEREST)、[FIELD-FLOW-ACTUAL-ANSWER](../field-specs.md#FIELD-FLOW-ACTUAL-ANSWER)、[FIELD-FLOW-FOLLOWUP-SUMMARY](../field-specs.md#FIELD-FLOW-FOLLOWUP-SUMMARY)、[FIELD-FLOW-INTENTION-LEVEL](../field-specs.md#FIELD-FLOW-INTENTION-LEVEL)、[FIELD-FLOW-INTERESTED-ITEMS](../field-specs.md#FIELD-FLOW-INTERESTED-ITEMS)、[FIELD-FLOW-LEAD-LEVEL](../field-specs.md#FIELD-FLOW-LEAD-LEVEL)、[FIELD-FLOW-MAPPING-SERIES](../field-specs.md#FIELD-FLOW-MAPPING-SERIES)、[FIELD-FLOW-NEXT-SERVICE](../field-specs.md#FIELD-FLOW-NEXT-SERVICE)、[FIELD-FLOW-PARTICIPANTS](../field-specs.md#FIELD-FLOW-PARTICIPANTS)、[FIELD-FLOW-PHONE](../field-specs.md#FIELD-FLOW-PHONE)、[FIELD-FLOW-PLANNED-STORE](../field-specs.md#FIELD-FLOW-PLANNED-STORE)、[FIELD-FLOW-PLANNED-VISIT](../field-specs.md#FIELD-FLOW-PLANNED-VISIT)、[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-SERVICE-CONCERN](../field-specs.md#FIELD-FLOW-SERVICE-CONCERN)、[FIELD-FLOW-SERVICE-SATISFACTION](../field-specs.md#FIELD-FLOW-SERVICE-SATISFACTION)、[FIELD-FLOW-TESTDRIVE-INTENTION](../field-specs.md#FIELD-FLOW-TESTDRIVE-INTENTION)、[FIELD-FLOW-VISIT-INTENTION](../field-specs.md#FIELD-FLOW-VISIT-INTENTION)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+
+输出：[FIELD-FLOW-BATCH-ID](../field-specs.md#FIELD-FLOW-BATCH-ID)、[FIELD-FLOW-BRAND-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)、[FIELD-FLOW-BUSINESS-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)、[FIELD-FLOW-CALLS](../field-specs.md#FIELD-FLOW-CALLS)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CONTENT-SNAPSHOT](../field-specs.md#FIELD-FLOW-CONTENT-SNAPSHOT)、[FIELD-FLOW-CUSTOMER-NAME](../field-specs.md#FIELD-FLOW-CUSTOMER-NAME)、[FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)、[FIELD-FLOW-METHOD](../field-specs.md#FIELD-FLOW-METHOD)、[FIELD-FLOW-NODE-ID](../field-specs.md#FIELD-FLOW-NODE-ID)、[FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-PHONE](../field-specs.md#FIELD-FLOW-PHONE)、[FIELD-FLOW-RUN-ID](../field-specs.md#FIELD-FLOW-RUN-ID)、[FIELD-FLOW-UPDATED-AT](../field-specs.md#FIELD-FLOW-UPDATED-AT)、[FIELD-FLOW-WORK-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)、[FIELD-FLOW-DIRECT-OUTCOME](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME)
+
+## 处理步骤
+
+### STEP-FLOW-CUSTOMER-TIMELINE-1
+
+同租户规范号码仅展示归集有权业务，不合并身份/编码/结果
+
+读取：FIELD-FLOW-BATCH-ID, FIELD-FLOW-BRAND-ID, FIELD-FLOW-BUSINESS-CODE, FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-CUSTOMER-NAME, FIELD-FLOW-FOLLOWER, FIELD-FLOW-METHOD, FIELD-FLOW-NODE-ID, FIELD-FLOW-OWNER-TENANT, FIELD-FLOW-PHONE, FIELD-FLOW-RECORD-ID, FIELD-FLOW-RUN-ID, FIELD-FLOW-UPDATED-AT；写入：无
+
+规则：GR-SCOPE, GR-PRIVACY, GR-DATA-FACTS
+
+### STEP-FLOW-CUSTOMER-TIMELINE-2
+
+保原联系档案/独立呼入临时通话，业务followup按准确关联展示
+
+读取：FIELD-FLOW-CONTENT-SNAPSHOT, FIELD-FLOW-CALLS；写入：无
+
+规则：GR-SCOPE, GR-PRIVACY, GR-DATA-FACTS
+
+### STEP-FLOW-CUSTOMER-TIMELINE-3
+
+按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。
+
+读取：FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-RUN-END-ACTION, FIELD-FLOW-END-FOLLOWUP-ORIGIN；写入：无
+
+规则：GR-SCOPE, GR-PRIVACY, GR-DATA-FACTS, GR-HANDLING-MODE
+
+## 分支与异常
+
+### BRANCH-FLOW-CUSTOMER-TIMELINE-1
+
+条件：独立来电或临时通话无业务关联
+
+结果：显示有权联系历史，不猜挂某条业务
+
+涉及字段：FIELD-FLOW-CALLS
+
+验证：CHECK-FLOW-CUSTOMER-TIMELINE
+
+### BRANCH-FLOW-CUSTOMER-TIMELINE-2
+
+条件：同号多业务
+
+结果：各自可打开有权记录及跟进，仍有独立run和联系策略
+
+涉及字段：FIELD-FLOW-RECORD-ID, FIELD-FLOW-RUN-ID
+
+验证：CHECK-FLOW-CUSTOMER-TIMELINE
+
+## 完成后的状态
+
+- 档案归集不是第二套可变业务账本
+
+## 字段定义
+
+- [FIELD-FLOW-ACTIVITY-INTEREST](../field-specs.md#FIELD-FLOW-ACTIVITY-INTEREST)
+- [FIELD-FLOW-ACTUAL-ANSWER](../field-specs.md#FIELD-FLOW-ACTUAL-ANSWER)
+- [FIELD-FLOW-BATCH-ID](../field-specs.md#FIELD-FLOW-BATCH-ID)
+- [FIELD-FLOW-BRAND-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)
+- [FIELD-FLOW-BUSINESS-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)
+- [FIELD-FLOW-CALLS](../field-specs.md#FIELD-FLOW-CALLS)
+- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
+- [FIELD-FLOW-CONTENT-SNAPSHOT](../field-specs.md#FIELD-FLOW-CONTENT-SNAPSHOT)
+- [FIELD-FLOW-CUSTOMER-NAME](../field-specs.md#FIELD-FLOW-CUSTOMER-NAME)
+- [FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+- [FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)
+- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+- [FIELD-FLOW-DIRECT-OUTCOME](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME)
+- [FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+- [FIELD-FLOW-END-FOLLOWUP-ORIGIN](../field-specs.md#FIELD-FLOW-END-FOLLOWUP-ORIGIN)
+- [FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)
+- [FIELD-FLOW-FOLLOWUP-SUMMARY](../field-specs.md#FIELD-FLOW-FOLLOWUP-SUMMARY)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-INTENTION-LEVEL](../field-specs.md#FIELD-FLOW-INTENTION-LEVEL)
+- [FIELD-FLOW-INTERESTED-ITEMS](../field-specs.md#FIELD-FLOW-INTERESTED-ITEMS)
+- [FIELD-FLOW-LEAD-LEVEL](../field-specs.md#FIELD-FLOW-LEAD-LEVEL)
+- [FIELD-FLOW-MAPPING-SERIES](../field-specs.md#FIELD-FLOW-MAPPING-SERIES)
+- [FIELD-FLOW-METHOD](../field-specs.md#FIELD-FLOW-METHOD)
+- [FIELD-FLOW-NEXT-SERVICE](../field-specs.md#FIELD-FLOW-NEXT-SERVICE)
+- [FIELD-FLOW-NODE-ID](../field-specs.md#FIELD-FLOW-NODE-ID)
+- [FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)
+- [FIELD-FLOW-PARTICIPANTS](../field-specs.md#FIELD-FLOW-PARTICIPANTS)
+- [FIELD-FLOW-PHONE](../field-specs.md#FIELD-FLOW-PHONE)
+- [FIELD-FLOW-PLANNED-STORE](../field-specs.md#FIELD-FLOW-PLANNED-STORE)
+- [FIELD-FLOW-PLANNED-VISIT](../field-specs.md#FIELD-FLOW-PLANNED-VISIT)
+- [FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)
+- [FIELD-FLOW-RUN-END-ACTION](../field-specs.md#FIELD-FLOW-RUN-END-ACTION)
+- [FIELD-FLOW-RUN-ID](../field-specs.md#FIELD-FLOW-RUN-ID)
+- [FIELD-FLOW-SERVICE-CONCERN](../field-specs.md#FIELD-FLOW-SERVICE-CONCERN)
+- [FIELD-FLOW-SERVICE-SATISFACTION](../field-specs.md#FIELD-FLOW-SERVICE-SATISFACTION)
+- [FIELD-FLOW-TESTDRIVE-INTENTION](../field-specs.md#FIELD-FLOW-TESTDRIVE-INTENTION)
+- [FIELD-FLOW-UPDATED-AT](../field-specs.md#FIELD-FLOW-UPDATED-AT)
+- [FIELD-FLOW-VISIT-INTENTION](../field-specs.md#FIELD-FLOW-VISIT-INTENTION)
+- [FIELD-FLOW-WORK-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2130, acceptance:AC-2131, acceptance:AC-2132, acceptance:AC-2147, features:FUNC-2033, features:FUNC-2033/behavior_spec/1/branches/0, features:FUNC-2033/behavior_spec/1/branches/1, features:FUNC-2033/behavior_spec/1/postconditions/0, features:FUNC-2033/behavior_spec/1/preconditions/0, features:FUNC-2033/behavior_spec/1/steps/0, features:FUNC-2033/behavior_spec/1/steps/1, features:FUNC-2033/behavior_spec/1/steps/2, features:FUNC-2039, features:FUNC-2039/behavior_spec/2/branches/0, features:FUNC-2039/behavior_spec/2/branches/1, features:FUNC-2039/behavior_spec/2/postconditions/0, features:FUNC-2039/behavior_spec/2/preconditions/0, features:FUNC-2039/behavior_spec/2/steps/0, features:FUNC-2039/behavior_spec/2/steps/1, features:FUNC-2039/behavior_spec/2/steps/2, pages:PAGE-2006/fields/2, pages:PAGE-2006/fields/25, pages:PAGE-2006/fields/27, pages:PAGE-2006/fields/5, pages:PAGE-2006/fields/54, pages:PAGE-2203, pages:PAGE-2203/fields/0, pages:PAGE-2203/fields/1, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/13, pages:PAGE-2203/fields/14, pages:PAGE-2203/fields/18, pages:PAGE-2203/fields/20, pages:PAGE-2203/fields/24, pages:PAGE-2203/fields/25, pages:PAGE-2203/fields/26, pages:PAGE-2203/fields/27, pages:PAGE-2203/fields/28, pages:PAGE-2203/fields/30, pages:PAGE-2203/fields/31, pages:PAGE-2203/fields/32, pages:PAGE-2203/fields/34, pages:PAGE-2203/fields/35, pages:PAGE-2203/fields/36, pages:PAGE-2203/fields/37, pages:PAGE-2203/fields/39, pages:PAGE-2203/fields/43, pages:PAGE-2203/fields/45, pages:PAGE-2203/fields/46, pages:PAGE-2203/fields/49, pages:PAGE-2203/fields/50, pages:PAGE-2203/fields/53, pages:PAGE-2203/fields/54, pages:PAGE-2203/fields/6, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2203/fields/66, pages:PAGE-2203/fields/67, pages:PAGE-2203/fields/7, pages:PAGE-2203/fields/8, pages:PAGE-2203/fields/9, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/16, pages:PAGE-2204/fields/29, pages:PAGE-2204/fields/41, pages:PAGE-2204/fields/42, pages:PAGE-2204/fields/45, pages:PAGE-2204/fields/46, pages:PAGE-2204/fields/48, pages:PAGE-2204/fields/5, pages:PAGE-2204/fields/56, pages:PAGE-2204/fields/63, pages:PAGE-2204/fields/65, pages:PAGE-2204/fields/7, pages:PAGE-2204/fields/8, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2204/fields/87, pages:PAGE-2204/fields/88, pages:PAGE-2204/fields/9, pages:PAGE-2223/fields/1, pages:PAGE-2223/fields/4, pages:PAGE-2223/fields/9, pages:PAGE-2226/fields/0, pages:PAGE-2226/fields/11, pages:PAGE-2226/fields/16, pages:PAGE-2226/fields/18, pages:PAGE-2226/fields/23, pages:PAGE-2226/fields/24, pages:PAGE-2226/fields/26, pages:PAGE-2226/fields/27, pages:PAGE-2226/fields/28, pages:PAGE-2226/fields/29, pages:PAGE-2226/fields/32, pages:PAGE-2226/fields/34, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/37, pages:PAGE-2226/fields/38, pages:PAGE-2226/fields/4, pages:PAGE-2226/fields/5, pages:PAGE-2226/fields/6, pages:PAGE-2226/fields/7, pages:PAGE-2226/fields/8, pages:PAGE-2226/fields/9, pages:PAGE-2227/fields/0, pages:PAGE-2227/fields/10, pages:PAGE-2227/fields/102, pages:PAGE-2227/fields/103, pages:PAGE-2227/fields/113, pages:PAGE-2227/fields/114, pages:PAGE-2227/fields/117, pages:PAGE-2227/fields/118, pages:PAGE-2227/fields/13, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/14, pages:PAGE-2227/fields/140, pages:PAGE-2227/fields/141, pages:PAGE-2227/fields/16, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/2, pages:PAGE-2227/fields/21, pages:PAGE-2227/fields/24, pages:PAGE-2227/fields/42, pages:PAGE-2227/fields/44, pages:PAGE-2227/fields/53, pages:PAGE-2227/fields/54, pages:PAGE-2227/fields/55, pages:PAGE-2227/fields/56, pages:PAGE-2227/fields/57, pages:PAGE-2227/fields/60, pages:PAGE-2227/fields/61, pages:PAGE-2227/fields/67, pages:PAGE-2227/fields/69, pages:PAGE-2227/fields/70, pages:PAGE-2227/fields/71, pages:PAGE-2227/fields/72, pages:PAGE-2227/fields/79, pages:PAGE-2227/fields/97, pages:PAGE-2228/fields/10, pages:PAGE-2228/fields/12, pages:PAGE-2228/fields/2, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/31, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/0, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/123, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/129, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/130, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/131, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/132, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/133, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/134, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/135, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/136, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/137, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/138, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/139, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/140, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/141, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/142, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/143, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/151, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/152, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/153, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/158, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/159, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/31, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/35, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/56, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/60, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/61, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/62, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/63, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/67, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/68, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/74, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/75, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/91, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/97, scenarios:FLOW-CURRENT-CUSTOMER/steps/33
+
+验证：CHECK-FLOW-CUSTOMER-TIMELINE
+
+## 实施任务
+
+- [TASK-030](../tasks/TASK-030.md)

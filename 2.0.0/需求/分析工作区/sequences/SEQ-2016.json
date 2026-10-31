@@ -1,0 +1,371 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2016",
+  "scenario_id": "SC-2016",
+  "name": "有权管理员解除公共禁呼时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "admin",
+      "name": "有当前租户解除管理权的人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "原唯一联系限制界面",
+      "kind": "system"
+    },
+    {
+      "id": "list",
+      "name": "公共禁呼解除及审计服务",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "既有供应商同步适配/服务",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "admin",
+      "to": "ui",
+      "message": "选择当前租户拟解除的同一公共记录；AI快捷入口只带范围筛选。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "list",
+      "message": "核本条解除管理权、租户及实际对象；新增权/运营称谓不代解除权。",
+      "type": "request",
+      "api_id": "API-2007",
+      "condition": "条件目标｜本期实际调用语义/身份及对象关系已核，原准入通过；否则当前待核受阻。主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "list",
+      "to": "ui",
+      "message": "缺解除权或已失权拒绝；另有合法管理员权者按实际权，不因兼运营身份一概拒绝。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2016-AUTH｜本次结束",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2016-AUTH"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "list",
+      "to": "list",
+      "message": "读取本条来源、期限、解除/到期历史及多来源状态，不复活旧记录。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 5,
+      "from": "list",
+      "to": "ui",
+      "message": "读取或有效/多来源含义不可靠则保原约束，不擅自永久化/解除。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2016-LOADFAIL｜本次结束",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2016-LOADFAIL"
+      ]
+    },
+    {
+      "step": 6,
+      "from": "list",
+      "to": "ui",
+      "message": "返回本次可靠状态及原历史，说明只解除本条来源。",
+      "type": "response",
+      "api_id": "API-2007",
+      "condition": "条件目标｜本地状态合同与本次记录可核",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 7,
+      "from": "admin",
+      "to": "ui",
+      "message": "填写有效原因并确认本次解除。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 8,
+      "from": "admin",
+      "to": "ui",
+      "message": "取消，不改记录或历史。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2016-CANCEL｜本次结束",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2016-CANCEL"
+      ]
+    },
+    {
+      "step": 9,
+      "from": "ui",
+      "to": "list",
+      "message": "提交重核当前权限、准确记录/租户、版本与解除原因。",
+      "type": "request",
+      "api_id": "API-2007",
+      "condition": "条件目标｜本期实际调用语义/身份及对象关系已核，原准入通过；否则当前待核受阻。主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 10,
+      "from": "list",
+      "to": "ui",
+      "message": "原因缺失、目标/版本或范围校验不符，不执行解除。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2016-INVALID｜保合法输入；本次结束",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2016-INVALID"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "list",
+      "to": "ui",
+      "message": "当前多来源有效判定/解除生效次序及审计合同未核则受阻，不报全部放行。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2016-RELEASEFAIL｜当前证据边界｜API2007 partial，原远端状态不替代本方本地解除",
+      "source_step_refs": [
+        5,
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2016-RELEASEFAIL"
+      ]
+    },
+    {
+      "step": 12,
+      "from": "list",
+      "to": "list",
+      "message": "本方按已核规则办理本条解除并留原因、人、时间，保其他来源及历史。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜本地资格/状态/生效与恢复合同已经核实",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "list",
+      "to": "vendor",
+      "message": "仅本条原同步配置确需且生效次序已核时，办理既有供应商对应解除/同步。",
+      "type": "external_call",
+      "api_id": "API-2009",
+      "condition": "条件目标｜API2009真实对象/原同步合同已核；不定义新的本地/远端先后次序",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 14,
+      "from": "vendor",
+      "to": "list",
+      "message": "返回该供应商实际解除事实或失败/未知；不代替其他来源或供应商放行。",
+      "type": "response",
+      "api_id": "API-2009",
+      "condition": "条件目标｜真实既有回执/可核结果",
+      "source_step_refs": [
+        6,
+        7
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 15,
+      "from": "list",
+      "to": "ui",
+      "message": "失败/不明保所有已确认事实和原来源，恢复先读实际状态，不盲重发。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2016-RELEASEFAIL｜本地/远端任一未确认，不虚报全部解除",
+      "source_step_refs": [
+        6,
+        7
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2016-RELEASEFAIL"
+      ]
+    },
+    {
+      "step": 16,
+      "from": "list",
+      "to": "ui",
+      "message": "分别返回本条本地实际结果、其他有效来源及已取得远端事实。",
+      "type": "response",
+      "api_id": "API-2007",
+      "condition": "条件目标｜仅展示可确认结果",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 17,
+      "from": "ui",
+      "to": "admin",
+      "message": "说明本条解除不等于所有来源或所有供应商已可外呼；下一次拨前仍查限制。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次结束｜不新增电话或解除豁免",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2022"
+  ],
+  "source_acceptance_ids": [
+    "AC-2060",
+    "AC-2061",
+    "AC-2062"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2059",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096",
+    "scenarios/SC-2016.json",
+    "interfaces/interface-index.json"
+  ],
+  "notes": [
+    "参与方表达当前业务责任，不选择生产部署架构；消息条件为互斥分支或条件目标，不表示所有消息在一次操作中依次发生。",
+    "G2仅批准分析推进。partial/missing均保真实身份、授权、稳定关联及技术契约待核；当前无可靠证据时明确受阻，不由文档/Mock或HTTP成功推定端到端成功。",
+    "真实跨内部服务的partial/missing合同可引用API能力族，内部参与方仍为system；7个not_required仅在notes登记内部责任，消息api_id=null，不伪造调用URL/参数/新回调。",
+    "本版AI标签仅整合原配置、映射和结果展示；不新增AI→业务字段写入或由此自动流转。保原人工保存、字段条件及其他流转，未匹配保原值不首项兜底，仅限本版。"
+  ],
+  "internal_responsibility_refs": [],
+  "previous_revision": {
+    "sha256": "78e1ead71a090896711e95dc6fd780358a7dd86862f914336cb410acd365f436",
+    "preserved_sequence_id": "SEQ-2016"
+  },
+  "main_step_coverage": {
+    "1": [
+      1
+    ],
+    "2": [
+      2,
+      3
+    ],
+    "3": [
+      4,
+      5,
+      6
+    ],
+    "4": [
+      7,
+      8
+    ],
+    "5": [
+      9,
+      10,
+      11
+    ],
+    "6": [
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "7": [
+      14,
+      15,
+      16,
+      17
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2016-AUTH": [
+      3
+    ],
+    "ALT-2016-CANCEL": [
+      8
+    ],
+    "ALT-2016-INVALID": [
+      10
+    ],
+    "ALT-2016-LOADFAIL": [
+      5
+    ],
+    "ALT-2016-RELEASEFAIL": [
+      11,
+      15
+    ]
+  },
+  "api_usage_boundaries": [
+    {
+      "api_id": "API-2007",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    },
+    {
+      "api_id": "API-2009",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    }
+  ],
+  "source_scenario_sha256": "0a009f75641bae26b32a4847f3356a44ae38840e1bfffca9dba878117c14bebe",
+  "source_interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

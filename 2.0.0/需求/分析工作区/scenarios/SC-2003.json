@@ -1,0 +1,407 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2003",
+  "name": "退出统一系统身份",
+  "summary": "合法退出，两模块受保护访问需重新认证",
+  "actors": [
+    "当前登录账号",
+    "退出前保护",
+    "统一身份及两工作区会话"
+  ],
+  "trigger": "结束登录使用",
+  "preconditions": [
+    "账号处于登录状态；退出保护属于 US-2002 的设计候选，具体会话失效机制待 ISSUE-2001/2002。"
+  ],
+  "expected_outcome": "合法退出，两模块受保护访问需重新认证",
+  "exception_scope": "在途电话、未保存内容、两模块会话失效点待核",
+  "source_story_ids": [
+    "US-2002"
+  ],
+  "source_acceptance_ids": [
+    "AC-2005",
+    "AC-2006"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "G1仅确认场景范围；统一退出及保护细节仍是设计候选。图中“两模块退出确认”表达目标结果，未定义令牌、接口、广播、超时或具体退出时点；未新增退出审批。 退出统一身份属于切离本人电话现场，按SRC-2040沿原收尾离线；同Cloud页面间保留原电话条不等于可以略过统一退出保护。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "当前登录账号",
+      "action": "请求退出统一系统",
+      "system_response": "启动本次退出前检查。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "退出前保护",
+      "action": "检查本人电话及话后事项",
+      "system_response": "退出统一身份前沿原规则完成本人通话、必要话后并确认电话离线；本人确无会话不依据他人坐席状态阻拦，状态未知/离线失败保留现场。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "当前登录账号",
+      "action": "处理普通未保存输入",
+      "system_response": "无未保存输入或用户成功保存／明确放弃后继续；取消或保存失败则结束本次退出。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "统一身份及两工作区会话",
+      "action": "执行统一退出目标",
+      "system_response": "以同一身份覆盖AI及云呼叫受保护访问；实际失效机制不在此臆造。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "统一身份及两工作区会话",
+      "action": "按实际结果反馈",
+      "system_response": "仅在两模块退出均可确认时显示完成，再次访问受保护内容须重新登录。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2003-01",
+      "condition": "仍有电话或话后事项待处理",
+      "steps": [
+        "保留当前现场并提示先处理，不直接丢失输入或默认挂断；完成后用户重新发起退出。"
+      ]
+    },
+    {
+      "id": "ALT-2003-02",
+      "condition": "普通未保存内容选择保存",
+      "steps": [
+        "按原流程保存，成功再继续退出。"
+      ]
+    },
+    {
+      "id": "ALT-2003-03",
+      "condition": "普通未保存内容选择放弃",
+      "steps": [
+        "放弃明确选定的未保存内容后继续。"
+      ]
+    },
+    {
+      "id": "ALT-2003-04",
+      "condition": "用户取消退出",
+      "steps": [
+        "保留当前登录及输入，结束本次请求。"
+      ]
+    },
+    {
+      "id": "ALT-2003-05",
+      "condition": "退出前保存失败",
+      "steps": [
+        "保留输入并反馈保存失败，不继续退出。"
+      ]
+    },
+    {
+      "id": "ALT-2003-06",
+      "condition": "退出明确失败",
+      "steps": [
+        "反馈未完成；不把仍有效的实际会话表述为已失效。"
+      ]
+    },
+    {
+      "id": "ALT-2003-07",
+      "condition": "部分会话退出或结果无法确认",
+      "steps": [
+        "按实际已知结果反馈，不能声称两模块统一退出完成；剩余会话失效和恢复处理由 ISSUE-2001/2002 核验。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功退出后的业务目标是两模块受保护访问均要求重新登录；具体失效点未冻结。",
+    "失败、取消或结果不明时如实反馈，不因前端跳转就宣称会话已全部失效。"
+  ],
+  "acceptance_points": [
+    "AC-2005：统一退出系统身份及两模块会话，再次访问受保护页面需要登录；实际会话失效机制待核验。",
+    "AC-2006：退出前处理在途电话及未保存内容，提示和异常细节沿后续流程评审，不直接丢失未保存输入。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "user",
+        "name": "当前登录账号",
+        "kind": "actor"
+      },
+      {
+        "id": "guard",
+        "name": "退出前保护",
+        "kind": "system"
+      },
+      {
+        "id": "identity",
+        "name": "统一身份及两工作区会话",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "user",
+        "type": "start",
+        "order": 1,
+        "label": "请求退出系统登录"
+      },
+      {
+        "id": "request",
+        "lane_id": "user",
+        "type": "action",
+        "order": 2,
+        "label": "发起退出",
+        "step_ref": 1
+      },
+      {
+        "id": "phone",
+        "lane_id": "guard",
+        "type": "decision",
+        "order": 3,
+        "label": "本人电话是否仍需处理？",
+        "step_ref": 2
+      },
+      {
+        "id": "phoneend",
+        "lane_id": "user",
+        "type": "end",
+        "order": 4,
+        "label": "保留当前使用现场，先完成电话及话后处理"
+      },
+      {
+        "id": "dirty",
+        "lane_id": "guard",
+        "type": "decision",
+        "order": 5,
+        "label": "普通未保存内容如何处理？",
+        "step_ref": 3
+      },
+      {
+        "id": "save",
+        "lane_id": "guard",
+        "type": "action",
+        "order": 6,
+        "label": "沿原流程保存输入"
+      },
+      {
+        "id": "discard",
+        "lane_id": "guard",
+        "type": "action",
+        "order": 7,
+        "label": "放弃用户明确选择的未保存内容"
+      },
+      {
+        "id": "noform",
+        "lane_id": "guard",
+        "type": "action",
+        "order": 8,
+        "label": "无普通未保存内容"
+      },
+      {
+        "id": "cancelchoice",
+        "lane_id": "user",
+        "type": "action",
+        "order": 9,
+        "label": "选择取消本次退出"
+      },
+      {
+        "id": "savecheck",
+        "lane_id": "guard",
+        "type": "decision",
+        "order": 10,
+        "label": "退出前普通表单处理结果？"
+      },
+      {
+        "id": "savefail",
+        "lane_id": "user",
+        "type": "end",
+        "order": 11,
+        "label": "保留输入，本次退出未完成"
+      },
+      {
+        "id": "cancel",
+        "lane_id": "user",
+        "type": "end",
+        "order": 12,
+        "label": "取消退出，保留输入"
+      },
+      {
+        "id": "exit",
+        "lane_id": "identity",
+        "type": "action",
+        "order": 13,
+        "label": "请求统一系统身份及两模块会话退出",
+        "step_ref": 4
+      },
+      {
+        "id": "result",
+        "lane_id": "identity",
+        "type": "decision",
+        "order": 14,
+        "label": "退出结果是否可确认覆盖两个模块？",
+        "step_ref": 5
+      },
+      {
+        "id": "success",
+        "lane_id": "user",
+        "type": "end",
+        "order": 15,
+        "label": "退出完成，再访受保护页面须登录"
+      },
+      {
+        "id": "failure",
+        "lane_id": "user",
+        "type": "end",
+        "order": 16,
+        "label": "退出失败，明确反馈本次未完成"
+      },
+      {
+        "id": "unknown",
+        "lane_id": "user",
+        "type": "end",
+        "order": 17,
+        "label": "退出未能全部确认，反馈实际状态并核验"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "request"
+      },
+      {
+        "from": "request",
+        "to": "phone"
+      },
+      {
+        "from": "phone",
+        "to": "phoneend",
+        "label": "存在在途电话、待存话后或电话退出未确认",
+        "path_id": "ALT-2003-01",
+        "type": "exception"
+      },
+      {
+        "from": "phone",
+        "to": "dirty",
+        "label": "无待处理电话事项"
+      },
+      {
+        "from": "dirty",
+        "to": "noform",
+        "label": "无普通未保存内容"
+      },
+      {
+        "from": "dirty",
+        "to": "save",
+        "label": "有未保存内容且选择保存",
+        "path_id": "ALT-2003-02",
+        "type": "exception"
+      },
+      {
+        "from": "dirty",
+        "to": "discard",
+        "label": "有未保存内容且选择放弃",
+        "path_id": "ALT-2003-03",
+        "type": "exception"
+      },
+      {
+        "from": "dirty",
+        "to": "cancelchoice",
+        "label": "有未保存内容且选择取消",
+        "path_id": "ALT-2003-04",
+        "type": "exception"
+      },
+      {
+        "from": "noform",
+        "to": "savecheck"
+      },
+      {
+        "from": "save",
+        "to": "savecheck"
+      },
+      {
+        "from": "discard",
+        "to": "savecheck"
+      },
+      {
+        "from": "cancelchoice",
+        "to": "savecheck"
+      },
+      {
+        "from": "savecheck",
+        "to": "cancel",
+        "label": "取消退出"
+      },
+      {
+        "from": "savecheck",
+        "to": "savefail",
+        "label": "需要保存但保存失败",
+        "path_id": "ALT-2003-05",
+        "type": "exception"
+      },
+      {
+        "from": "savecheck",
+        "to": "exit",
+        "label": "无未保存内容、已保存成功或已明确放弃"
+      },
+      {
+        "from": "exit",
+        "to": "result"
+      },
+      {
+        "from": "result",
+        "to": "success",
+        "label": "已确认全部退出"
+      },
+      {
+        "from": "result",
+        "to": "failure",
+        "label": "两模块均明确失败，且无成功或未知",
+        "path_id": "ALT-2003-06",
+        "type": "exception"
+      },
+      {
+        "from": "result",
+        "to": "unknown",
+        "label": "部分退出或结果无法确认",
+        "path_id": "ALT-2003-07",
+        "type": "exception"
+      }
+    ]
+  },
+  "design_status": "S3_flow_draft",
+  "scope_status": "confirmed_G1",
+  "issue_ids": [
+    "ISSUE-2001",
+    "ISSUE-2002",
+    "ISSUE-2012"
+  ],
+  "rule_ids": [
+    "BR-2001",
+    "BR-2006",
+    "BR-2007"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

@@ -1,0 +1,97 @@
+# TASK-013 文件读取、表头及显式列映射
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [按实际分类严格预检并导入业务 · FUNC\-2036](../features/FUNC-2036.md)
+
+## 目标
+
+CSV/TSV/XLSX读取与显式目标列/忽略列映射，保持稳定字段身份。；一目标一列，异步文件只允许最新窗口/账号/租户/请求序号结果落回；变化使预览失效。
+
+## 产品依据
+
+- FUNC-2036 按实际分类严格预检并导入业务：整批明确DIRECT或TEMPLATE后严格预检及导入：DIRECT须分类显式允许、方式明确且AI场景必选，仅豁免路由附加资料，不建run/node；TEMPLATE沿当前路由建run。已有直接业务后续显式启用流程，在旧执行与必要归档收敛且当前路由资料通过后于原业务建新run，不重复导入。；来源 documentation/input/functions.json#FUNC-2036
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+
+## 前置任务
+
+- TASK-009
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-FIELDS](../global-logic.md#GR-FIELDS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-FLOW-IMPORT-MAP](../local-logic/LOCAL-FLOW-IMPORT-MAP.md)
+
+字段：[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CATEGORY-IMPORT-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-FILE-PENDING](../field-specs.md#FIELD-FLOW-FILE-PENDING)、[FIELD-FLOW-FILE-READ](../field-specs.md#FIELD-FLOW-FILE-READ)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-IMPORT-MAPPING](../field-specs.md#FIELD-FLOW-IMPORT-MAPPING)、[FIELD-FLOW-IMPORT-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)、[FIELD-FLOW-IMPORT-TEXT](../field-specs.md#FIELD-FLOW-IMPORT-TEXT)、[FIELD-FLOW-IMPORT-TOKEN](../field-specs.md#FIELD-FLOW-IMPORT-TOKEN)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2204](../ui-pages/UI-PAGE-2204.md)
+
+## 实现要求
+
+- CSV/TSV/XLSX读取与显式目标列/忽略列映射，保持稳定字段身份。
+- 一目标一列，异步文件只允许最新窗口/账号/租户/请求序号结果落回；变化使预览失效。
+- 读取未完成不得检查或提交；不能把旧文件回调套到新分类或新模式。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2115**：按实际分类生成系统必需和IMPORT列及必填校验；合法等待名单数据中性提示，检查后具体报字段/节点/条件；正式提交所有行通过且token一致。
+  依据：docs/functional-spec.json#AC-2115
+
+## 测试要求（尚未执行）
+
+### CHECK-FLOW-IMPORT-MAP / manual
+
+步骤：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。在导入与分配粘贴CSV/TSV或选择CSV/XLSX并配置映射。当前租户管理员有customer.import资格。依次执行：按实际分类导入schema识别表头，非标准列明确目标或忽略；核一目标一列、必填列和未知数据列；映射/表头/字段变化使预览失效；读取期间锁检查/提交，仅最新窗口/身份/序号结果可应用。分别构造：重复目标、未映必填或FOLLOWUP/未知目标；旧文件迟到/读取失败/用户手改；映射合法
+
+预期：保原文本具体报错，不静默丢行；不覆盖新文本或新窗口，旧预览不可提交；生成规范字段输入，但尚未创建业务；格式示例只示格式，不保证满足分流
+
+覆盖：AC-2115
+
+## 完成条件
+
+- CSV/TSV/XLSX读取与显式目标列/忽略列映射，保持稳定字段身份。
+- 一目标一列，异步文件只允许最新窗口/账号/租户/请求序号结果落回；变化使预览失效。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [import-workbook.js](../../../prototype/js/components/import-workbook.js) · 只读行为参考，非生产可写目标
+- [four-node-workspace.js](../../../prototype/js/adapters/four-node-workspace.js) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：ENG-FLOW-CHECKS。

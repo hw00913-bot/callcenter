@@ -1,0 +1,507 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2021",
+  "scenario_id": "SC-2021",
+  "name": "使用云呼叫其余既有资源与查询入口时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "所选原Cloud操作有权人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "原资源/档案/记录界面",
+      "kind": "system"
+    },
+    {
+      "id": "cloud",
+      "name": "本方原Cloud操作及查询服务",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "原Cloud/供应商资源话单服务",
+      "kind": "external_system"
+    },
+    {
+      "id": "app",
+      "name": "原接入业务应用",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "选择本次原资源、联系档案、记录/报表/审计或应用操作；入口不授整区权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "cloud",
+      "message": "按本次实际对象/操作与租户或独立平台资源资格核验，不强制无关业务成员/本人坐席/双模块。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "cloud",
+      "to": "ui",
+      "message": "无权或映射缺失保可用原位置，不猜账号/租户；档案、来源通话及名单各验原权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2021-AUTH｜本次结束",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-AUTH"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "cloud",
+      "to": "cloud",
+      "message": "按原操作分派；账号/租户/品牌、分类字段、名单各转原唯一主维护，原专业资源分开。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 5,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "本次已有坐席/技能/组/队列/号码/分机/时间/供应商账号维护沿该原对象子流程。",
+      "type": "external_call",
+      "api_id": "API-2013",
+      "condition": "ALT-2021-RESOURCE｜条件目标｜选择原资源，实际允许动作/资源合同已核，不补CRUD",
+      "source_step_refs": [
+        1,
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-RESOURCE"
+      ]
+    },
+    {
+      "step": 6,
+      "from": "vendor",
+      "to": "cloud",
+      "message": "分别给出原本地/供应商实际结果；需同步才按原已核同步流程，不能把本地保存当远端成功。",
+      "type": "response",
+      "api_id": "API-2013",
+      "condition": "ALT-2021-RESOURCE｜条件目标｜真实原结果",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-RESOURCE"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "维护本次原呼入条件/优先级/接听去向及原用途，不扩IVR外呼或跨租户路由。",
+      "type": "external_call",
+      "api_id": "API-2013",
+      "condition": "ALT-2021-INBOUND｜条件目标｜选择原呼入规则且真实资源/保存合同已核",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-INBOUND"
+      ]
+    },
+    {
+      "step": 8,
+      "from": "ui",
+      "to": "cloud",
+      "message": "基础/字段只ref SC-2010，单模板路由ref SC-2037；原专业参数按原入口，不复制分类或标签来源控件。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2021-FIELDS｜本次委托唯一配置，不在此重复保存",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-FIELDS"
+      ]
+    },
+    {
+      "step": 9,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "按原通话数据异常对象做已有查看/核对，保原始证据，未知不补假话单或新外呼。",
+      "type": "external_call",
+      "api_id": "API-2013",
+      "condition": "ALT-2021-ISSUES｜条件目标｜选择原异常处理且确有原能力/资格",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-ISSUES"
+      ]
+    },
+    {
+      "step": 10,
+      "from": "ui",
+      "to": "cloud",
+      "message": "按原应用管理资格维护一次既有应用/租户授权或回传配置，当前正式合同未核则受阻。",
+      "type": "request",
+      "api_id": "API-2016",
+      "condition": "当前合同缺证据先受阻；以下仅条件目标职责，须本期正式合同及真实资格核实后办理｜ALT-2021-APP｜API2016 missing，不造新取数协议",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-APP"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "app",
+      "to": "cloud",
+      "message": "原应用事件按独立应用身份及准确租户/来源进入既有导入或结果交付责任，不使用人员菜单授权代应用凭证。",
+      "type": "external_call",
+      "api_id": "API-2016",
+      "condition": "ALT-2021-BUSINESS｜条件目标｜仅原已接入应用，真实鉴权/接收与交付合同经本期核实",
+      "source_step_refs": [
+        1,
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-BUSINESS"
+      ]
+    },
+    {
+      "step": 12,
+      "from": "cloud",
+      "to": "app",
+      "message": "鉴权/配置/交付失败或未知如实反馈，不改投其他应用、不因交付失败重复呼叫。",
+      "type": "response",
+      "api_id": "API-2016",
+      "condition": "ALT-2021-BUSINESS、ALT-2021-FAIL｜当前证据边界或实际失败｜API2016 missing先受阻；不假报已接收/交付",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-BUSINESS",
+        "ALT-2021-FAIL"
+      ]
+    },
+    {
+      "step": 13,
+      "from": "cloud",
+      "to": "app",
+      "message": "仅沿原人工/预外呼及原应用回传范围交付本次真实结果，不新增逐轮回传。",
+      "type": "response",
+      "api_id": "API-2016",
+      "condition": "ALT-2021-BUSINESS｜条件目标｜原正式合同与本次真实结果均核实",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-BUSINESS"
+      ]
+    },
+    {
+      "step": 14,
+      "from": "operator",
+      "to": "ui",
+      "message": "提交前取消本次维护，原配置和后台任务保留。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2021-CANCEL｜本次结束",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-CANCEL"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "ui",
+      "to": "cloud",
+      "message": "查询本次有权号码档案、关联业务/批次及已有联系历史；内部台账查询责任，不新增客户ID/CRM。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜按原tenant/enterprise/规范号码和原对象范围；内部API2027责任",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 16,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "仅本次确需原话单/报表/审计来源时读取该原范围，保原指标与来源身份。",
+      "type": "external_call",
+      "api_id": "API-2013",
+      "condition": "条件目标｜原API2013真实查询/授权及字段口径已核",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 17,
+      "from": "vendor",
+      "to": "cloud",
+      "message": "返回本次真实话单/查询事实或失败/未知，时长未知不当0。",
+      "type": "response",
+      "api_id": "API-2013",
+      "condition": "条件目标｜原来源真实响应，不伪造通话",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 18,
+      "from": "cloud",
+      "to": "ui",
+      "message": "仅按可核身份归集原联系历史，保每业务/批次独立分配进度；同号不合线索、不跨租户拼接。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜本方查询/来源均可靠，真实空态合法",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 19,
+      "from": "operator",
+      "to": "ui",
+      "message": "查看列表/准确详情；需要继续联系跳原作业，话后保存仍原权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 20,
+      "from": "operator",
+      "to": "ui",
+      "message": "独立选择已有导出，复核原授权/筛选及记录快照，不由档案入口授导出权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2021-EXPORT｜仅本次选择已有导出",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-EXPORT"
+      ]
+    },
+    {
+      "step": 21,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "按已核原导出能力取实际文件结果，不以点击或未知下载冒充成功/清理。",
+      "type": "external_call",
+      "api_id": "API-2013",
+      "condition": "ALT-2021-EXPORT｜条件目标｜原API2013导出/范围及可信文件结果能力经核实",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-EXPORT"
+      ]
+    },
+    {
+      "step": 22,
+      "from": "cloud",
+      "to": "ui",
+      "message": "查询/保存/同步/交付/下载失败或未知保原状态、输入及证据，仅按原操作核对，不新增补偿或重呼。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2021-FAIL｜任何本次原操作未可靠完成",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2021-FAIL"
+      ]
+    },
+    {
+      "step": 23,
+      "from": "ui",
+      "to": "operator",
+      "message": "只展示本次实际结果；不新增客户主档、公海、生命周期或自动合并，联系限制仍唯一原名单。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次结束｜原Cloud内部保电话现场；切AI/原管理/换租户ref SC-2002",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2027"
+  ],
+  "source_acceptance_ids": [
+    "AC-2072",
+    "AC-2073"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2008",
+    "inputs/source-index.json#SRC-2009",
+    "inputs/source-index.json#SRC-2011",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2036",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2039",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096",
+    "scenarios/SC-2021.json",
+    "interfaces/interface-index.json"
+  ],
+  "notes": [
+    "参与方表达当前业务责任，不选择生产部署架构；消息条件为互斥分支或条件目标，不表示所有消息在一次操作中依次发生。",
+    "G2仅批准分析推进。partial/missing均保真实身份、授权、稳定关联及技术契约待核；当前无可靠证据时明确受阻，不由文档/Mock或HTTP成功推定端到端成功。",
+    "真实跨内部服务的partial/missing合同可引用API能力族，内部参与方仍为system；7个not_required仅在notes登记内部责任，消息api_id=null，不伪造调用URL/参数/新回调。",
+    "本版AI标签仅整合原配置、映射和结果展示；不新增AI→业务字段写入或由此自动流转。保原人工保存、字段条件及其他流转，未匹配保原值不首项兜底，仅限本版。",
+    "内部责任（非接口调用）：API-2027 本方按分类导入、租户内分配及统一台账监管查询。对应内部消息api_id=null；原操作权及版本/事务责任保留，不表示已实现。"
+  ],
+  "internal_responsibility_refs": [
+    "API-2027"
+  ],
+  "previous_revision": {
+    "sha256": "65916b177ba95da99c63efefe18b73dfd5a58b469bf11191ed6e11ba8faded3e",
+    "preserved_sequence_id": "SEQ-2021"
+  },
+  "main_step_coverage": {
+    "1": [
+      1,
+      5,
+      11
+    ],
+    "2": [
+      2,
+      3,
+      11
+    ],
+    "3": [
+      4,
+      5,
+      7,
+      8,
+      9,
+      10,
+      11,
+      14
+    ],
+    "4": [
+      15,
+      16,
+      17,
+      18
+    ],
+    "5": [
+      18,
+      19,
+      20,
+      21
+    ],
+    "6": [
+      6,
+      12,
+      13,
+      22,
+      23
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2021-APP": [
+      10
+    ],
+    "ALT-2021-AUTH": [
+      3
+    ],
+    "ALT-2021-BUSINESS": [
+      11,
+      12,
+      13
+    ],
+    "ALT-2021-CANCEL": [
+      14
+    ],
+    "ALT-2021-EXPORT": [
+      20,
+      21
+    ],
+    "ALT-2021-FAIL": [
+      12,
+      22
+    ],
+    "ALT-2021-FIELDS": [
+      8
+    ],
+    "ALT-2021-INBOUND": [
+      7
+    ],
+    "ALT-2021-ISSUES": [
+      9
+    ],
+    "ALT-2021-RESOURCE": [
+      5,
+      6
+    ]
+  },
+  "api_usage_boundaries": [
+    {
+      "api_id": "API-2013",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    },
+    {
+      "api_id": "API-2016",
+      "verification_status": "missing",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    }
+  ],
+  "source_scenario_sha256": "691253d64b2f54746e9d1e5a84cff9b73ffdc01286d8ddafe5f1eb107f258bd3",
+  "source_interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

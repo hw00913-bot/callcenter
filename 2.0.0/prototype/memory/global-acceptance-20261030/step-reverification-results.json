@@ -1,0 +1,833 @@
+[
+  {
+    "step": "step-01",
+    "title": "离线登录、合法租户与六入口",
+    "goal": "离线登录、合法租户与六入口，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 加载入口不产生HTTP依赖、动态import或fetch JSON；本地所有链接存在。\n- 纯模型验证多租户合法恢复、无权拒绝、默认原入口、两个模块授权独立；导航DOM按权限生成。\n- 本步只验外壳/登录/路由；未接页面不得假报功能完成。",
+    "files": "- `js/pages/organization.js`、`js/components/organization-store.js`、`js/components/session-store.js`、`js/app.js`、`js/components/module-host.js`、`js/adapters/ai-finance.js`（超管组织与权限/接入管理全局读取和独立筛选，不跟随业务租户；成员操作仍显式指定租户）\n\n- `js/components/module-host.js`、`js/adapters/cloud.js`、`js/adapters/ai.js`、`js/adapters/ai-finance.js`、`js/components/organization-store.js`、`js/components/contact-policy.js`（按用户纠偏复用1.2直接租户上下文切换；平台授权与数据租户分离，删除租户报表专用模式，不新增成员或角色）\n\n- `index.html`\n- `assets/css/global.css`\n- `assets/css/app.css`\n- `assets/css/cloud-ui-overrides.css`、`assets/css/cloud-ui.css`、`assets/css/shared-forms.css`（2026-10-28 用户要求登录与系统UI全部对齐1.2.0，完整保留源CSS层叠并按当前DOM映射）\n- `js/common.js`\n- `js/nav.js`\n- `js/app.js`\n- `mock/data.js`\n- `config/nav.json`\n- `js/components/session-store.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/components/login-screen.js`、`assets/css/login.css`（2026-10-28 用户确认恢复原账号密码登录界面；按 1.2.0 原登录展示复用，不回退当前租户/权限模型）",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "按现行AC-2007/2008验证五入口与五种生产角色，原六入口说法由当前产品基线替代。",
+    "models": [
+      "check-inheritance",
+      "check-ai-only-coordination",
+      "check-business-rules-integration"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; browser-summary.json; static-checks.json; reference-integrity.json; finance-ui-download.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-02",
+    "title": "离线复用原专业页面载体",
+    "goal": "离线复用原专业页面载体，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 本地资源依赖闭包与来源摘要可追溯，包内没有运行必需远程脚本/fetch数据。\n- 原AI三列卡片及Cloud各原页面控制器存在；隔离DOM/加载检查无丢失依赖。\n- 不复制旧原型适配器；只做本轮必要上下文适配。",
+    "files": "- `index.html`（模块脚本需在现有唯一入口加载）\n- `js/app.js`（转发原页面内部操作上下文）\n\n- `scripts/build-modules.py`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/components/module-host.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/modules/ai.bundle.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/modules/cloud.bundle.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/adapters/ai.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/adapters/cloud.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `assets/css/app.css`\n- `memory/reuse-provenance.json`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-inheritance",
+      "check-ai-only-coordination",
+      "check-business-rules-integration"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; browser-summary.json; static-checks.json; reference-integrity.json; finance-ui-download.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-03",
+    "title": "品牌、租户、账号成员和模块开通",
+    "goal": "品牌、租户、账号成员和模块开通，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 角色/对象/租户范围模型有越权反例；品牌归属不授跨租户业务权。\n- 创建/编辑/停用的实际Mock回读、错误保输入和未知不重发可核。\n- 删除保护保留历史，开模块不自动授所有人员。",
+    "files": "- `assets/css/cloud-ui-overrides.css`、派生 `assets/css/cloud-ui.css`、`memory/reuse-provenance.json`（原字段与管理抽屉、列表和动作链对齐，现有生成器输出）\n- `index.html`、`assets/css/shared-forms.css`、`assets/css/app.css`（加载公共管理及复用原云呼叫表单样式）\n- `js/components/module-host.js`、`js/adapters/cloud.js`、`scripts/build-modules.py`（统一身份接入与原坐席关联入口，源页面只读）\n\n- `js/components/session-store.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/components/organization-store.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/pages/organization.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `mock/data.js`\n- `js/app.js`",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-inheritance",
+      "check-ai-only-coordination",
+      "check-business-rules-integration"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; browser-summary.json; static-checks.json; reference-integrity.json; finance-ui-download.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-04",
+    "title": "分类字段与AI专业关联",
+    "goal": "分类字段与AI专业关联，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 分类和专业场景不能按名称自动合并；跨租户/不匹配值拒绝或待核。\n- 原字段类型/枚举/多选/取数配置及既有快照语义与原来源对应。\n- 公共配置权不替代AI专业操作权。",
+    "files": "- `js/adapters/ai-config-store.js`、`scripts/build-modules.py`（同一AI分类删除入口的只读原文/版本审查及精确配置键引用保护；不新增业务功能或分类删除授权）\n\n- `index.html`、`config/nav.json`、`js/nav.js`、`js/components/session-store.js`（原字段内部页沿所属公共配置权访问）\n- `js/components/module-host.js`、`scripts/build-modules.py`、`js/modules/ai.bundle.js`、`js/modules/cloud.bundle.js`（仅适配公共配置范围、原字段编辑与只读目录桥接）\n\n- `js/components/catalog-store.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/pages/catalog.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/adapters/ai.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/adapters/cloud.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `mock/data.js`\n- `js/app.js`",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-field-configuration",
+      "check-reference-category",
+      "check-reference-audit"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; prototype-direct-import-browser.json; four-node-editor.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-05",
+    "title": "单模板、导入分配与串行流转",
+    "goal": "单模板、导入分配与串行流转，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 新记录导入不会自动分配/起呼；路径ALL/ANY、未知字段和条件只控制人工准入。\n- 整记录最近段未结束/未保存阻止下一方式，换轮次/归属也不豁免。\n- 有意向唯一映射/无意向总部管理员/映射异常及门店上交保持；迟到结果不覆盖新轮。",
+    "files": "- `index.html`、`js/components/module-host.js`、`scripts/build-modules.py`、`js/modules/cloud.bundle.js`（原业务模型的逐操作授权与AI字段待核边界，保持同一原台账）\n- `scripts/flow_editor_build.py`、`scripts/flow-editor.patch.json`、`scripts/flow-canvas-ui.js`、`scripts/flow-canvas-ui.css`（本轮已授权画布交互的生成期转换；保留原保存与执行模型，避免重建覆盖）\n- `assets/css/app.css`（仅流转模板应用内全屏容器；基础信息与编排阶段共用原保存模型）\n\n- `js/adapters/cloud.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/components/business-link.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/pages/business.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `mock/data.js`\n- `js/app.js`",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "按四节点、两办理模式、当前分类/引用及新运行快照规则验证，不恢复旧主备或多方式运行。",
+    "models": [
+      "check-four-node-model",
+      "check-four-node-audit-model",
+      "check-four-node-workspace",
+      "check-business-rules-model",
+      "check-business-rules-workspace",
+      "check-product-chain-audit",
+      "check-import-chain-audit",
+      "check-followup-chain-audit"
+    ],
+    "ui_evidence": "prototype-direct-followup-browser.json; prototype-handover-confirm-browser.json; local-route-and-reference.json; template-end-direct.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-06",
+    "title": "客户联系、公共拒联与专项名单",
+    "goal": "客户联系、公共拒联与专项名单，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 公共和专项没有重复主维护；同品牌其它租户不自动共享名单。\n- 同号多来源、已解除/到期不复活、供应商状态未知不能当已全放行。\n- 读取/保存失败保现场，拒联话后与名单部分失败分开可核。",
+    "files": "- `index.html`、`assets/css/app.css`、`js/components/module-host.js`、`js/components/session-store.js`、`js/components/organization-store.js`、`js/pages/organization.js`（统一名单入口及单独的公共新增授权）\n- `js/adapters/ai-special.js`、`scripts/build-modules.py`、`js/modules/ai.bundle.js`、`js/modules/cloud.bundle.js`（在原专项页面内实现固定来源操作及四方式校验）\n\n- `js/components/contact-policy.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/pages/contacts.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/adapters/ai.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/adapters/cloud.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/app.js`\n- `mock/data.js`",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-business-rules-integration",
+      "check-business-rules-post-audit-model"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; current-regression.json; partial-scope-disposition.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-07",
+    "title": "原电话、任务、资源与报表操作",
+    "goal": "原电话、任务、资源与报表操作，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 原卡片、向导、资源维护、明细与结果回读保原交互；参考代码指纹及必要适配逐项可追溯。\n- 原电话字段/任务资格/公共禁呼/只读角色/独立财务范围的关键行为有模型或DOM证据。\n- 真实远端执行、同步、账务不伪造通过；file未实际验项如实列出。",
+    "files": "- `scripts/build-modules.py`（2060快照保存回读逐字节校验，保留BOM与原成功/清理守卫）\n\n- `mock/data.js`、`js/adapters/ai.js`（已批准2045独立财务样例、最小授权；不含真实账务）\n\n- `js/adapters/ai-assignment-identity.js`（2032同脱敏键误移除修复：稳定行身份/租户任务边界，保留旧行和历史）\n\n- `js/adapters/ai.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/adapters/cloud.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/components/module-host.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/components/contact-policy.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/components/business-link.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/app.js`\n- `js/modules/ai.bundle.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `js/modules/cloud.bundle.js`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `scripts/build-modules.py`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `memory/reuse-provenance.json`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n\n- `scripts/import_build.py`、`js/components/import-workbook.js`、`js/adapters/dcc-import-enhancements.js`、`js/adapters/customer-import-enhancements.js`（2026-10-28用户明确的Excel/模板/名称反馈修复）\n- `assets/vendor/jszip.min.js`、`assets/vendor/sax.js`及对应许可证/README（已安装本地依赖、生成期内联，无运行时联网）",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-inheritance",
+      "check-ai-only-coordination",
+      "check-business-rules-integration"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; browser-summary.json; static-checks.json; reference-integrity.json; finance-ui-download.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-08",
+    "title": "复用业务流程图",
+    "goal": "复用业务流程图，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 源几何摘要可核，宽屏/折叠目录/缩放原能力保持；与已确认业务行为对应。\n- 本轮工具不允许的file可见性不能用静态标签冒充通过。",
+    "files": "- `flowcharts/business-process.html`\n- `js/delivery-nav.js`\n- `assets/css/delivery-diagrams.css`\n- `scripts/publish-views.py`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `memory/reuse-provenance.json`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-inheritance"
+    ],
+    "ui_evidence": "prototype-delivery-views-browser.json; reference-integrity.json; diagram-geometry.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-09",
+    "title": "复用交互时序图",
+    "goal": "复用交互时序图，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 当前源与发布图几何一致，语义/导航/资源完整；图页存在不等于业务时序已验。",
+    "files": "- `flowcharts/sequence-interaction.html`\n- `js/delivery-nav.js`\n- `assets/css/delivery-diagrams.css`\n- `scripts/publish-views.py`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）\n- `memory/reuse-provenance.json`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-inheritance"
+    ],
+    "ui_evidence": "prototype-delivery-views-browser.json; reference-integrity.json; diagram-geometry.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-10",
+    "title": "关联系统与单入口阅读",
+    "goal": "关联系统与单入口阅读，在已确认边界内形成可观察且离线运行的结果。",
+    "acceptance": "- 无远程iframe或必需服务，资源闭包完整；不新增独立说明/标注/备份包。\n- 保既有未验状态，最小人工file核验步骤可执行。",
+    "files": "- `docs/interaction.html`、`docs/role-permissions.md`、`功能说明.md`、`README.md`（用户明确要求维护已有权限说明：全局管理/业务租户、账号成员和独立授权；非新增交互文档生成或业务变更）\n\n- `related-systems/index.html`\n- `version-history.html`\n- `js/version-nav.js`\n- `js/delivery-nav.js`\n- `index.html`\n- `README.md`（新增：新轮没有该模块/适配/生成器，保证原专业离线复用所需）",
+    "verification": "- 对修改脚本做node --check；检查本地src/href及静态模块依赖。\n- 通过隔离模型/DOM检查关键状态、权限、错误与回读；这类证据不冒充实际浏览器file验收。\n- 实际页面操作仅在已有工具授权边界内；file自动拒绝保留，待用户最小人工核验。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-inheritance",
+      "check-ai-only-coordination",
+      "check-business-rules-integration"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; browser-summary.json; static-checks.json; reference-integrity.json; finance-ui-download.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-11",
+    "title": "已批准统一七分类与三配置菜单",
+    "goal": "同一目录管理七分类，字段/字典及AI标签分菜单集中维护；原8项保留待验，不声明全局通过。",
+    "acceptance": "- 新旧目录幂等升级、删除后不复活，未知/同名实体冲突不自动合并。\n- 供应商/租户类型/标签上下文、未映射、权限/存储隔离不破坏；AI不写业务字段。\n- 两次正式构建一致，原全屏拖拽生成器/样式/原执行模型保持；受影响UI独立实验，不覆盖105/113证据或8待验。",
+    "files": "- scripts/category_build.py、scripts/build-modules.py\n- js/components/unified-categories.js、js/components/category-links.js、js/components/catalog-store.js\n- js/adapters/ai.js、js/adapters/cloud.js、js/adapters/unified-ai.js\n- js/components/module-host.js、js/components/session-store.js、js/nav.js、config/nav.json、mock/data.js、index.html\n- js/modules/ai.bundle.js、js/modules/cloud.bundle.js、memory/reuse-provenance.json",
+    "verification": "JS语法/资源闭包、当前bundle隔离模型与DOM、受支持原HTTP主页面。file及上传旧拒绝不重试，不调用真实接口。新证据使用unified-20261028独立文件名。",
+    "current_applicability": "当前七分类和三个配置入口保留；旧规划目录迁移由step22取消，原专业稳定ID与来源继续核对。",
+    "models": [
+      "check-field-configuration",
+      "check-reference-category",
+      "check-reference-audit"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; prototype-direct-import-browser.json; four-node-editor.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-12",
+    "title": "已批准分类绑定与条件单路编排",
+    "goal": "保留基础信息后进入全屏的编辑器，模板精确关联分类；AI按状态/意向标签，云按状态/分类导入/培育字段，以IF/ELSEIF/ELSE优先级只选一条合法出口。",
+    "acceptance": "基础分类必选、全屏往返草稿/取消/失败/未知回读；类型及渠道白名单、稳定状态域/标签上下文、空值与未就绪、优先级及唯一ELSE、重叠/循环/版本/权限/幂等。旧模板图/历史精确保留，新保存追加版本，不启动呼叫或自动推进。分类删除检查新模板引用。",
+    "files": "- scripts/flow-editor.patch.json、flow_editor_build.py、flow-canvas-ui.js、flow-canvas-ui.css、flow_routing_build.py、flow-routing-store.js、build-modules.py\n- js/components/flow-routing.js、flow-status-domains.js、js/adapters/unified-ai.js\n- js/modules/ai.bundle.js、cloud.bundle.js、index.html、memory/reuse-provenance.json及生成的既有共享样式",
+    "verification": "JS语法、纯路由与权威Store合成模型、实际主项目临时HTTP全新非持久Chrome、两次生成一致和参考指纹；明确区分UI、模型、file未验和供应商待核。不得重试已拒file/上传。",
+    "current_applicability": "按当前四节点和模板当前定义编辑/删除、最新参考分类、实际路由独立绑定；不恢复V1/V2分类选择或旧模板兼容索引。",
+    "models": [
+      "check-template-lifecycle",
+      "check-template-roundtrip",
+      "check-current-planning-data",
+      "check-reference-category",
+      "check-reference-audit",
+      "check-conditional-paths",
+      "check-branch-editor-ux"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-setup-browser.json; prototype-handover-setup-browser.json; local-route-and-reference.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-13",
+    "title": "已确认品牌导入与填写字段配置联动",
+    "goal": "落实本轮用户逐项确认并直接授权实施的字段配置变更，保留既有功能、字段身份、引用及历史数据。",
+    "acceptance": "两用途同名/同码独立；跨品牌不可选；分类双Tab草稿与引用互不覆盖；导入映射无歧义、必填和系统列原校验保留；模板候选仅来自当前分类对应用途；未提供值不当空；旧读取0写入、旧ID/字段指纹/历史快照保持；允许名称/选项文案和新增选项，不允许改变引用字段含义或删引用。",
+    "files": "- `scripts/field_model_build.py`、`scripts/field_ui_build.py`、`scripts/field_import_build.py`\n- `scripts/field-import-store.js`、`scripts/field-import-ui.js`、`scripts/flow-routing-store.js`\n- `js/components/import-workbook.js`、`scripts/build-modules.py`及生成模块、入口资源版本\n- `scripts/check-field-configuration.cjs`及本轮验证记录",
+    "verification": "模型和导入/路由的隔离VM正反例、源语法和资源版本核验、构建前后无关控制器指纹比较、实际本轮独立HTTP页面检查。临时HTTP使用独立浏览器来源，不更改原file环境数据；不重试既有file自动验收限制。不以本轮专项通过替代整版S8或供应商联调。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-field-configuration",
+      "check-reference-category",
+      "check-reference-audit"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; prototype-direct-import-browser.json; four-node-editor.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-14",
+    "title": "所有普通数据列表默认更新时间倒序",
+    "goal": "按用户直接要求统一现有普通列表默认顺序，在筛选后、分页前按真实更新时间倒序；保原业务语义顺序、引用、权限及历史数据。",
+    "acceptance": "全量过滤结果排序后再分页；更新时间最大值优先，缺值不造时间；北京无时区/ISO偏移/秒毫秒正确；同时间稳定；编辑保存/刷新后新更新记录置顶；原引用及快照继续可读；成员页不读取其他租户成员更新时间；原权限、条件优先级、导入预览行及对话/轮次顺序保持。",
+    "files": "- `js/components/list-order.js`、`scripts/list_sort_build.py`、`scripts/list_sort_cloud_build.py`、`scripts/list_sort_ai_build.py`\n- `js/components/organization-store.js`、`js/components/contact-policy.js`、`js/adapters/ai-finance.js`\n- `scripts/build-modules.py`、`js/modules/ai.bundle.js`、`js/modules/cloud.bundle.js`、`index.html`\n- `scripts/check-list-order.cjs`、`scripts/check-inheritance.cjs`及本轮验证记录",
+    "verification": "隔离VM验证日期解析、稳定不变性、实际Host/AI/Cloud列表、分页和操作目标；覆盖清单逐页核对；字段配置31组回归；资源闭包/源指纹/旧通用回归前后比较；获准独立HTTP实页查看和原值保存置顶。file自动验收、真实供应商及整版S8/G3边界保留，不清理原浏览器数据。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-list-order"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; prototype-professional-filters-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-15",
+    "title": "独立导入条件与最新业务分类配置",
+    "goal": "修复用户截图的导入字段条件强绑呼叫方式及分类V1/V2确认；每次配置自动读取最新分类，保原值和历史快照。",
+    "acceptance": "无channel无通话的ASSIGN/TRANSFER纯IMPORT可配置并求值；AI/Cloud组合正例，错来源/错域/未知或AI段伪装填写拒绝；缺导入值PENDING阻ELSE；类选项无V/无确认，连续刷新保草稿和失效字段名；旧draft保存用最新定义而旧template/record不写不迁移；PROCESS实际方式、三态、权限及手动推进不放松。",
+    "files": "- `js/components/flow-routing.js`、`scripts/flow-routing-store.js`、`scripts/flow-node-config.js`\n- `scripts/flow_condition_ui_build.py`、`scripts/build-modules.py`、生成Cloud模块与入口资源版本\n- `scripts/check-flow-condition-sources.cjs`、`scripts/check-field-configuration.cjs`及本轮验证记录",
+    "verification": "先记录原最小失败红证据，再用真实built validator/evaluator、实际controller及store的隔离VM回归；保字段31和排序30；获准独立HTTP实页检查用户截图路径，无需保存测试模板。参考/源资源、既有回归和未验范围另列，不推进整版S8。",
+    "current_applicability": "IMPORT来源独立；仅当前合法选填IMPORT缺列在新输入捕获为null，按step31。历史快照缺失及通话/填写未知不补空。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-16",
+    "title": "四节点与客户跟进闭环",
+    "goal": "按用户最终确认记录在原址实现开始、转交、呼叫、结束四节点，明确承接方、归属与人员分配、AI场景、新跟进最新值及历史快照的闭环。",
+    "acceptance": "四节点无二次类型选择；独立IMPORT不绑通话；转交不受人员/场景缺失阻断；跨租户清空安排；重复导入不重复运行；每次跟进最新定义和值，历史封存；实际处理人唯一填写；并发/幂等/迟到回调不错误覆写；开始运行不随换绑换流程，完成或废弃后新运行从开始；真实通话与跟进统计分开；原专业路径可访问。",
+    "files": "- `scripts/four_node_model_build.py`、`scripts/four-node-model.js`\n- `scripts/four_node_ui_build.py`、`scripts/flow-canvas-ui.js`、`scripts/flow-node-config.js`及对应样式\n- `scripts/four_node_workspace_build.py`、`js/adapters/four-node-workspace.js`及页面样式\n- `js/adapters/four-node-execution.js`、`js/components/module-host.js`、`js/components/flow-routing.js`、`js/adapters/cloud.js`\n- `scripts/build-modules.py`、生成模块、`index.html`资源摘要及本轮测试与记录",
+    "verification": "真实构建产物JS语法、资源闭包与引用源指纹、四节点隔离VM状态链/异常/权限检查；字段/列表/条件来源回归；获准独立loopback HTTP浏览器验证编辑器与运行入口。明确未验file://自动直开、真实供应商与整版S8/G3，不用成功toast代替保存。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-four-node-model",
+      "check-four-node-audit-model",
+      "check-four-node-workspace",
+      "check-business-rules-model",
+      "check-business-rules-workspace",
+      "check-product-chain-audit",
+      "check-import-chain-audit",
+      "check-followup-chain-audit"
+    ],
+    "ui_evidence": "prototype-direct-followup-browser.json; prototype-handover-confirm-browser.json; local-route-and-reference.json; template-end-direct.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-17",
+    "title": "四节点改造独立审计与修复",
+    "goal": "完成后对四节点及关联导入、分配、流转、跟进、快照、通话链做一轮独立审计，修复已复现问题并回归，不改既定需求或清理数据。",
+    "acceptance": "可复现的本轮问题全部修复并有回归；字段引用、封存快照、租户及实际接听权限、并发和运行身份准确；导入到通话/归档闭环可用；普通列表排序与原专业功能保留。审计报告给出范围、问题/触发/根因/修复/验证及未验边界。",
+    "files": "- `scripts/four-node-model.js`、`scripts/four_node_model_build.py`、`js/components/flow-routing.js`\n- `scripts/four_node_ui_build.py`、`scripts/flow-canvas-ui.js`、`scripts/flow-node-config.js`及受影响样式\n- `js/adapters/four-node-workspace.js`、`scripts/four_node_workspace_build.py`\n- `js/adapters/four-node-execution.js`、`js/components/module-host.js`、`js/adapters/cloud.js`\n- 复现/回归脚本、`scripts/build-modules.py`、对应生成模块和入口摘要\n- 本轮audit17审计、修复、验证与推荐决策记录",
+    "verification": "当前built专项、独立负例及旧字段/列表/条件回归；必要的获准独立HTTP页面检查、源码摘要/资源闭包；不以静态扫描替代已知交互故障。file://自动操作、真实CTI/供应商及正式S8/G3状态保持。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-four-node-model",
+      "check-four-node-audit-model",
+      "check-four-node-workspace",
+      "check-business-rules-model",
+      "check-business-rules-workspace",
+      "check-product-chain-audit",
+      "check-import-chain-audit",
+      "check-followup-chain-audit"
+    ],
+    "ui_evidence": "prototype-direct-followup-browser.json; prototype-handover-confirm-browser.json; local-route-and-reference.json; template-end-direct.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-18",
+    "title": "业务规则与产品工作区完整落地及复审",
+    "goal": "落实用户批准的6项业务规则及3项产品改进，保留既有功能、引用与历史，完成后独立审计并修复发现的问题。",
+    "acceptance": "9项均有可见配置／操作与保存结果；字段／业务ID和历史快照不迁移不重绘；同号占用跨业务一致、未知不释放；转类不可绕过资料和旧运行终态；批次逐条反馈且幂等；队列和动作守卫同源、更新时间倒序；原专业入口保持；审计确认问题全部回归闭环。",
+    "files": "- `scripts/four-node-model.js`、`scripts/four_node_model_build.py`及新核心专项\n- `scripts/four_node_ui_build.py`、`scripts/flow-canvas-ui.js`、`scripts/flow-node-config.js`及样式／编辑器专项\n- `js/adapters/four-node-workspace.js`、样式／workspace build helper及新真实控件专项\n- `scripts/business_family_build.py`、`js/adapters/four-node-execution.js`\n- `js/components/flow-routing.js`、`js/components/contact-policy.js`、`js/components/module-host.js`及原动作授权桥\n- `scripts/build-modules.py`、生成AI/Cloud模块、入口摘要和本轮需求／实施／审计证据",
+    "verification": "当前built真实模型／表单／editor和新增负例，保原174专项与历史fixture差异对照；获准独立HTTP实页业务链与资源指纹；实施完成后独立有限审计→修复→最终回归。file自动直开、真实provider/CTI、正式S8/G3保持未验。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-four-node-model",
+      "check-four-node-audit-model",
+      "check-four-node-workspace",
+      "check-business-rules-model",
+      "check-business-rules-workspace",
+      "check-product-chain-audit",
+      "check-import-chain-audit",
+      "check-followup-chain-audit"
+    ],
+    "ui_evidence": "prototype-direct-followup-browser.json; prototype-handover-confirm-browser.json; local-route-and-reference.json; template-end-direct.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-19",
+    "title": "模板保存后重新编辑误拦截修复",
+    "goal": "修复截图所示正常END／TRANSFER保存后因缺少非适用methods而被兼容检查误拦，提示提供可理解的问题定位。",
+    "acceptance": "新建→保存→重新打开→修改再保存，END-only／TRANSFER／CALL及入口分流与业务结论均不误拦；坏methods／next／未知配置仍阻保存且保原对象；只读历史不写入。",
+    "files": "- `scripts/four_node_ui_build.py`、`scripts/flow-canvas-ui.js`\n- `scripts/check-template-roundtrip.cjs`及本轮复现／回归证据\n- 生成Cloud模块、`index.html`资源摘要及实施记录",
+    "verification": "当前built真实Store与实际editor roundtrip red→green；编辑器、字段、条件来源与原模型回归；获准HTTP实页保存并重新编辑，无file自动操作，不升级正式阶段。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-template-lifecycle",
+      "check-template-roundtrip",
+      "check-current-planning-data",
+      "check-reference-category",
+      "check-reference-audit",
+      "check-conditional-paths",
+      "check-branch-editor-ux"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-setup-browser.json; prototype-handover-setup-browser.json; local-route-and-reference.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-20",
+    "title": "模板二次编辑与删除引用规则修复",
+    "goal": "区分当前配置维护与冻结业务执行，允许正常二次编辑及仅保留历史引用模板从列表移除，保全部精确版本和历史数据。",
+    "acceptance": "有权模板可二次编辑；未核业务不误挡新配置，未核配置仍阻；当前分类关联不可删除；切绑后历史引用可从当前列表移除，旧run／无planSnapshot旧引用和字段保护均保留；跨品牌／只读／并发版本／未知幂等守卫不放松。",
+    "files": "- `scripts/template_lifecycle_build.py`、`scripts/build-modules.py`及生成Cloud模块／入口摘要\n- `scripts/check-template-lifecycle.cjs`及本轮引用／编辑往返验证\n- 本轮授权、决策、审计和验证记录",
+    "verification": "真实built Store及editor lifecycle负正例、原save-reopen9和相关模型／字段回归，获准独立HTTP删除确认／二次编辑页面核对；不操作用户原file数据，不升级正式G3/S8。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-template-lifecycle",
+      "check-template-roundtrip",
+      "check-current-planning-data",
+      "check-reference-category",
+      "check-reference-audit",
+      "check-conditional-paths",
+      "check-branch-editor-ux"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-setup-browser.json; prototype-handover-setup-browser.json; local-route-and-reference.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-21",
+    "title": "条件出口可选默认路径与未命中停留修复",
+    "goal": "修复截图中呼叫／转交的合法纯条件路径无法保存，明确已知不匹配与资料待核的安全停留语义。",
+    "acceptance": "截图式配置可保存／重开；单IF和无默认的IF／ELSEIF正常；坏顺序／重复默认／空条件仍拦；无匹配不能推进，待核不能走默认；首次转交不能判定仍禁止导入；旧配置和快照不改，工作队列准确表达条件未满足。",
+    "files": "- `js/components/flow-routing.js`、`scripts/four-node-model.js`、`scripts/four_node_ui_build.py`、`js/adapters/four-node-workspace.js`\n- `scripts/check-conditional-paths.cjs`、生成模块与资源摘要及本轮证据",
+    "verification": "实际built Store与编辑器隔离复现→修复复验，条件、字段、模型、工作台及模板往返回归，获准HTTP编辑器页面核验；原file／供应商／全量正式验收边界保留。",
+    "current_applicability": "可选ELSE旧规则已由step31/40取代，当前所有有出口节点必须唯一末位ELSE；未知保留节点/归属不兜底。",
+    "models": [
+      "check-template-lifecycle",
+      "check-template-roundtrip",
+      "check-current-planning-data",
+      "check-reference-category",
+      "check-reference-audit",
+      "check-conditional-paths",
+      "check-branch-editor-ux"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-setup-browser.json; prototype-handover-setup-browser.json; local-route-and-reference.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-22",
+    "title": "规划期旧流转数据和兼容分支清理",
+    "goal": "按用户明确无历史负担清理旧流转台账、模板归档和示例悬空引用，统一当前四节点规范。",
+    "acceptance": "真实首次初始化无旧模板／业务／归档索引／悬空种子；旧数据清理只发生一次且不清无关key；新配置持久重读；当前模板CRUD、分类字段、严格导入、分配／AI场景、四节点及逐次快照可用；坏JSON或未知结构明确失败。",
+    "files": "- 当前模型／编辑器／目录／生成链及相关测试\n- `scripts/current_planning_build.py`、`scripts/current_catalog_build.py`、模块存储形状及生成资源",
+    "verification": "实际构建隔离存储清理与当前链路回归，获准HTTP页面检查；原file自动操作和正式阶段／外部接口验收不升级。",
+    "current_applicability": "无旧v2迁移/兼容；当前已保存运行和正式跟进快照继续保留。不在用户存储执行清理来验收。",
+    "models": [
+      "check-template-lifecycle",
+      "check-template-roundtrip",
+      "check-current-planning-data",
+      "check-reference-category",
+      "check-reference-audit",
+      "check-conditional-paths",
+      "check-branch-editor-ux"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-setup-browser.json; prototype-handover-setup-browser.json; local-route-and-reference.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-23",
+    "title": "字段参考分类与实际路由绑定解耦",
+    "goal": "模板基础的分类仅作字段参考，实际应用由业务分类路由配置显式关联。",
+    "acceptance": "保存模板不自动绑定；同品牌兼容分类可复用；缺字段、类型／用途／品牌不符拒绝；入口与跟进／通话运行始终按目标分类，已开始运行保捕获；无同名猜配或全局分类身份保护放宽。",
+    "files": "- `scripts/four-node-model.js`、模板字段参考和路由选择UI生成helper\n- `scripts/check-reference-category.cjs`、生成模块及本轮证据记录",
+    "verification": "真实built Store／editor红绿测试、受影响回归及获准HTTP基础信息／路由选择验证；不升级正式阶段或真实供应商验收。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-template-lifecycle",
+      "check-template-roundtrip",
+      "check-current-planning-data",
+      "check-reference-category",
+      "check-reference-audit",
+      "check-conditional-paths",
+      "check-branch-editor-ux"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-setup-browser.json; prototype-handover-setup-browser.json; local-route-and-reference.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-24",
+    "title": "参考分类、导入分配与跟进链条业务审计修复",
+    "goal": "业务和产品逻辑独立审计并直接修复已复现链路缺陷，无历史兼容。",
+    "acceptance": "新运行只消费明确已确认配置，旧已开run按原方案；映射按稳定字段校验且变更使预览失效；AI实际分类／执行租户／场景／tag版本及下游依赖一致；预填known正式确认可判断、absent仍待核、CAS不放松；实际路由预览使用实际分类目录。",
+    "files": "- `scripts/four-node-model.js`、路由UI/helper、AI执行桥、模块场景投影和当前导入workspace\n- `js/components/flow-routing.js`及本轮4组审计测试、生成资源和审计证据",
+    "verification": "独立built VM红绿复现和当前链条回归，获准HTTP导入映射／实际分类预览／办理入口验证；只定向S7，不推进正式S8/G3。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-four-node-model",
+      "check-four-node-audit-model",
+      "check-four-node-workspace",
+      "check-business-rules-model",
+      "check-business-rules-workspace",
+      "check-product-chain-audit",
+      "check-import-chain-audit",
+      "check-followup-chain-audit"
+    ],
+    "ui_evidence": "prototype-direct-followup-browser.json; prototype-handover-confirm-browser.json; local-route-and-reference.json; template-end-direct.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-25",
+    "title": "多值条件判断与填写提示",
+    "goal": "比较值可明确按多值判断，填写方式与运算符语义一致。",
+    "acceptance": "文本多行集合、枚举多选、数值和日期集合可保存并正确命中／排除；EQ/NE多值仍清楚拒绝；入口／节点UI和解析一致，空值／unknown守卫保留，原规则身份与其他业务能力不改。",
+    "files": "- `js/components/flow-routing.js`、`scripts/multiple_values_ui_build.py`及构建接入\n- `scripts/check-multiple-values.cjs`、生成模块与本轮验证记录",
+    "verification": "实际built evaluator及编辑器多值正反例、受影响回归和获准HTTP输入／保存／重开；不升级正式阶段或真实供应商验收。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-26",
+    "title": "流转模板筛选栏UI修复",
+    "goal": "修复截图筛选栏按钮错位、输入过长及说明混排。",
+    "acceptance": "桌面输入与查询对齐、说明不挤占输入，窄宽不横溢；品牌切换、关键词查询、新建／编辑／保存功能不受影响，画布和弹窗样式不改。",
+    "files": "- `scripts/template_list_ui_build.py`、`scripts/template-list-ui.css`、构建接入和生成资源\n- 本轮授权、变更及验证证据",
+    "verification": "构建／实际获准HTTP截图与DOM尺寸、筛选行为及当前模板往返回归；仅UI定向验证，不升级正式阶段。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-reference-audit",
+      "check-four-node-ui"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; four-node-editor.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-27",
+    "title": "导入首次分流诊断与样例提示修复",
+    "goal": "修复空名单预录即红报错、样例误导及行校验不指明条件，明确管理员资格与资料分流分别判断。",
+    "acceptance": "ADMIN有权导入仍需行条件；空预录无假红错，格式示例不误承诺，错误行具体指出SC等原因；真实匹配可通过且顶部无旧红错；START输入条件与无条件路径正确，配置错不吞，严格正式导入保留。",
+    "files": "- `scripts/four-node-model.js`、`js/adapters/four-node-workspace.js/.css`\n- `scripts/check-import-routing-guidance.cjs`、构建摘要及本轮证据",
+    "verification": "actual built模型／workspace复现红绿、相关导入／条件回归及获准HTTP页面验证；不操作用户原file数据或改原模板条件。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-28",
+    "title": "分类控制的直接跟进与模板流转",
+    "goal": "拆开业务入库与流程启动，支持同一台账的直接跟进和按模板流转，并保留字段、跟进、通话、请求和权限完整链条。",
+    "acceptance": "未允许的分类不能直接导入；缺路由依赖但基础完整时DIRECT成功、TEMPLATE失败；缺基础必填/类型/唯一性两模式都失败。DIRECT三方式明确，AI无场景拒绝，完整呼叫到跟进归档可走通。跨身份代填、重复、未知和并行仍受阻。启用流程后原记录/历史不变，当前路由和补齐资料重新核验，禁止旧入口并行启动。已有模板功能与稳定字段身份保留。",
+    "files": "- `scripts/direct_followup_build.py`、`scripts/build-modules.py`\n- `scripts/four-node-model.js`、`scripts/four_node_model_build.py`\n- `js/adapters/four-node-workspace.js/.css`、必要执行桥接\n- 本轮专项检查、需求记录、产品规格与验证证据",
+    "verification": "实际built模型和workspace专项正反例、分类保存回读、模板及专业能力回归、获准HTTP交互和桌面观察；后续业务与产品审计发现问题修复后重验。file自动操作和真实外部服务边界不提升。",
+    "current_applicability": "DIRECT/TEMPLATE准入与完整跟进保留，END合法DIRECT接续按step32补充；不是分类普通DIRECT开关替代。",
+    "models": [
+      "check-direct-followup-model",
+      "check-direct-followup-workspace",
+      "check-direct-category",
+      "check-end-action",
+      "check-simulation-selection"
+    ],
+    "ui_evidence": "prototype-direct-import-browser.json; prototype-direct-followup-browser.json; prototype-fresh-followup-fixed-browser.json; template-end-direct.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-29",
+    "title": "取消电话状态对退出与跨业务域导航的拦截",
+    "goal": "按用户当前截图“这个逻辑不需要”，移除通话、记录或电话状态核对对退出及切换业务域的前置限制。",
+    "acceptance": "通话中、在线、登录中、操作或管理请求待核、连接待核均不因电话状态阻拦跨域与退出，不自动调用电话signOut。跨页面后原通话仍在；未保存表单及失效权限仍拒绝。原文档不再要求上述电话退出前置步骤。",
+    "files": "- `js/adapters/cloud.js`\n- `js/modules/cloud.bundle.js`、`index.html`、`memory/reuse-provenance.json`\n- `docs/interaction.html`、`docs/role-permissions.md`\n- 本轮局部验证记录及证据",
+    "verification": "实际adapter与当前built运行包隔离VM正反例、脚本语法／27入口资产摘要／只读源hash，以及隔离HTTP实页通话中切系统管理、回坐席、切业务和退出。继承测试旧角色5失败与favicon.ico非功能404照实保留；仅局部step，不声明全局验收。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-inheritance",
+      "check-business-rules-integration",
+      "check-cloud-leave-request-20261030",
+      "check-customer-directory-interaction-20261030"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; prototype-delivery-views-browser.json; current-regression.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-30",
+    "title": "客户档案页签布局与状态交互修复",
+    "goal": "按用户客户档案截图“修复交互问题”，修复业务跟进与联系档案页签布局、切换与查询状态衔接。",
+    "acceptance": "单一客户档案标题；页签与内容对齐、无独立挤压白块；当前页签可聚焦且选中态与tabpanel关联正确，鼠标与键盘可切换。两视图来回切换、查询、分页和导航快照恢复保持各自状态；跨身份不借用旧查询。联系档案详情可开，跟进保存后的摘要刷新不丢页签或重复标题。既有业务与原专业能力保持。",
+    "files": "- `js/adapters/four-node-workspace.js`、`js/adapters/four-node-workspace.css`\n- `scripts/four_node_workspace_build.py`及必要的2.0导航状态适配\n- `js/modules/cloud.bundle.js`、`index.html`、`memory/reuse-provenance.json`\n- 本轮局部验收与验证记录",
+    "verification": "当前built原生customer-directory与four-node-workspace隔离模型/DOM专项、现有workspace受影响回归、入口与参考摘要检查，以及获准HTTP真实页面布局／切换／查询复核。仅step局部，不提升S8或正式G3；不操作用户原file页面。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-inheritance",
+      "check-business-rules-integration",
+      "check-cloud-leave-request-20261030",
+      "check-customer-directory-interaction-20261030"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; prototype-delivery-views-browser.json; current-regression.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-31",
+    "title": "新配置和新办理运行强制 IF／ELSE IF／ELSE 兜底",
+    "goal": "按用户“流转规则没有强制兜底条件，if，elseif，else还是需要的”的当前修订，令可执行新配置具有明确、唯一、末位的ELSE兜底出口。",
+    "acceptance": "新配置缺少／重复／非末位ELSE均拒绝；原IF和ELSE IF条件及优先级保留，重叠时只命中首条。已知空／不匹配及新导入已归一缺省非必填字段可进入明确兜底；必填缺失、字段目录读取失败及未知不进入后续或ELSE。当前旧缺兜底方案不能接收新流程业务，DIRECT启用和新运行同样收口；已捕获旧方案可完成原办理且快照不改。编辑器显示IF／ELSE IF／ELSE并在缺兜底时定位节点，不伪造默认去向。",
+    "files": "- `js/components/flow-routing.js`\n- `scripts/four-node-model.js`、`scripts/four_node_ui_build.py`、`js/adapters/four-node-workspace.js`\n- 本次直接受影响的条件、导入、参考分类、多值及跟进链路回归脚本\n- 当前Cloud运行包、入口版本、来源摘要及局部证据",
+    "verification": "实际built模型／编辑器／workspace正反例及受影响回归；显式构造隔离历史快照以保留旧no-match、联系限制和优先级反例；27入口摘要、只读参考及设计锁摘要、脚本语法与获准HTTP最小页面操作。仅step局部，不推进S8或G3，不操作用户原file页面。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-32",
+    "title": "条件优先的节点分支编辑",
+    "goal": "按用户截图纠正节点配置：先命名，再配置条件与下一节点，继续添加条件；兜底收在末尾，避免初始长文与警告驱动交互。",
+    "acceptance": "新节点不出现长篇说明或初始黄色兜底警告；命名、条件、下一节点、继续添加条件的顺序清晰。未选择目标的条件草稿不因重绘、readValues或sync丢失；画布不画幽灵连线。保存拒绝缺条件/目标/兜底并定位；补齐后IF/ELSE IF/ELSE及原比较值可保存回读。取消不写入，新配置只读回读完整。schema4一次重置旧台账和分类路由，不迁移旧业务；组织及字段不受影响，标记写入失败可安全重试，有完成标记后的坏数据不伪装重置。END仅两选项；CLOSE结束且无跟进队列，DIRECT同record同当前租户建无模板周期且不自动呼叫，未授权/跨租户/受限号码/代填仍拒绝。",
+    "files": "- `scripts/four_node_ui_build.py`、`scripts/flow-canvas-ui.js`、`scripts/flow-node-config.js`\n- 当前节点配置样式、直接受影响的编辑器回归脚本\n- 当前Cloud运行包、入口版本、来源摘要与本轮局部验证证据",
+    "verification": "实际built控制器与原模型隔离专项，编辑器与分支/导入受影响回归；源码语法、入口和只读来源摘要；根代理获准HTTP实际操作和截图。仅step局部，不推进S8或G3，不操作用户原file页面。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-33",
+    "title": "移除任务页额外统计",
+    "goal": "按用户截图及明确纠正“1.2 是没有红框这块东西的”，移除2.0预外呼与IVR任务页额外追加的“今日任务名单分布”，恢复1.2任务页面结构。",
+    "acceptance": "预外呼和IVR任务页均不显示额外统计；任务名称查询、空态及重置正常；原只读来源、入口资源摘要及代码语法通过。",
+    "files": "`js/adapters/cloud.js`、`js/modules/cloud.bundle.js`、`index.html`、`memory/reuse-provenance.json`及本次局部验证记录。",
+    "verification": "当前HTTP隔离浏览器1880×900，实际菜单访问两页、查询/重置；源码与运行包语法及资源/来源摘要核对。仅本次页面移除范围，不推进S8或G3。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-inheritance"
+    ],
+    "ui_evidence": "prototype-professional-filters-browser.json; static-checks.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-34",
+    "title": "条件即时编辑与循环连接就地反馈",
+    "goal": "按用户两张截图追问，移除条件变更的待应用确认面板，将不允许的循环连接在选择目标时阻止，并给出简短、可定位反馈。",
+    "acceptance": "EQ/NE到IN/NOT_IN等兼容值保留；多值改为单值、空判断及不兼容字段变化不留下非法比较值，readonly/提交中/待核不能修改。无待应用面板或待处理变更阻塞。A→B后不能选择B→A、不能自环或通过ELSE/拖线绕过，多级回路同样阻止；合法DAG与空目标草稿正常。模型仍拒循环，保存错误简短并指向冲突卡片，既有多值、空值、未知/PENDING和END两动作不回归。",
+    "files": "条件编辑生成期transform、`js/components/flow-routing.js`、`scripts/four_node_ui_build.py`、`scripts/flow-canvas-ui.js`，当前Cloud运行包/入口/摘要，以及本次直接相关验证脚本和局部证据。",
+    "verification": "实际built条件控制器与当前模型正反例、相关回归、源码语法/入口和只读来源摘要、根代理获准HTTP真实页面操作与截图。仅step34局部，不推进S8/G3，不修改或验收并行step33。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-35",
+    "title": "人工与预外呼使用客户侧SIP通话结果",
+    "goal": "按用户确认“701写错了，就是710那套”，纠正人工外呼及预外呼误用接听标记作为通话状态。",
+    "acceptance": "两方式均显示710占线等结果并准确保存/回读/求值；旧接听标记及另一方式来源不能冒充客户结果；未知结果继续待核，未完成重试不推进。编辑来源、快照及租户/本人守卫正确；模拟可选择710并生成710回执，AI不受影响。",
+    "files": "- `js/components/flow-status-domains.js`、`scripts/flow-node-config.js`、`scripts/flow_condition_ui_build.py`\n- `js/adapters/four-node-workspace.js`及当前Cloud运行包/入口/来源摘要\n- 本轮状态域与实际执行、配置回读相关回归及局部证据",
+    "verification": "当前built控制器/模型/模拟事件链正反例、受影响回归、来源与入口摘要、语法及独立HTTP人工/预外呼选项与保存回读。仅局部，不推进S8/G3或声称真实供应商联调。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-36",
+    "title": "转交路径允许本租户继续办理",
+    "goal": "修复当前用户截图中本租户选项被禁用的问题。",
+    "acceptance": "本租户可选、保存与回读；本租户IF/ELSE导入及办理不依赖跨租户意向映射，不改归属或伪造OTHER承接；保留已有跟进及两种END动作；旧目标/路径令牌及伪造外租户目标拒绝；其他租户仍按原映射跨租户转交。",
+    "files": "`scripts/four_node_ui_build.py`、`scripts/four_node_model_build.py`、`scripts/four-node-model.js`、`js/adapters/four-node-workspace.js`及当前Cloud运行包/入口/摘要；本次专项与局部证据。",
+    "verification": "实际built编辑器/模型/workspace正反例、相关回归、语法与摘要及独立HTTP选择保存回读。仅step36，不推进全局阶段。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-37",
+    "title": "多个比较值填写提示",
+    "goal": "按用户截图将1111/2222/3333占位示例换成明确填写说明，并标明多个值须使用的判断方式。",
+    "acceptance": "空白比较值区不出现1111等示例，明确换行和两种判断方式；现有条件读取、保存、求值正常。",
+    "files": "`scripts/multiple_values_ui_build.py`、当前Cloud运行包/入口/来源摘要，以及本次局部证据。",
+    "verification": "当前built原有多值22用例、语法/入口/来源摘要及独立HTTP文本字段实际显示与截图。局部文案验证，不推进全局阶段。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-38",
+    "title": "错误节点使用报错同色底色",
+    "goal": "按用户截图，让报错关联的画布节点显示与提示相同的红色底色。",
+    "acceptance": "错误节点浅红且颜色与提示一致；无关节点保持原色，切换查看不误移标记，输入修改后恢复；开始节点定位正常，原保存和权限规则不变。",
+    "files": "`scripts/flow-canvas-ui.js`、`scripts/flow-canvas-ui.css`、`scripts/four_node_ui_build.py`、`scripts/flow_feedback_build.py`及当前Cloud运行包/入口/摘要；本步局部证据。",
+    "verification": "当前built既有相关4套52用例、语法/入口/来源摘要及独立HTTP真实多值错误、颜色、切换、输入修正和开始错误验证与截图。仅局部，不推进全局阶段。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-flow-condition-sources",
+      "check-multiple-values",
+      "check-import-routing-guidance",
+      "check-local-tenant-flow",
+      "check-branch-editor-ux",
+      "check-end-action",
+      "check-rule-change-cycle-ux",
+      "check-cloud-sip-status"
+    ],
+    "ui_evidence": "four-node-editor.json; prototype-template-followup-browser.json; prototype-handover-confirm-browser.json; prototype-direct-import-browser.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-39",
+    "title": "移除分类列表的AI标签配置入口",
+    "goal": "按用户红框截图移除业务分类列表“AI标签配置”操作。",
+    "acceptance": "所有分类行不显示该入口，编辑/路由配置/预览/删除仍在；独立AI标签配置页可正常打开。",
+    "files": "`scripts/category_build.py`、`js/adapters/cloud.js`、当前Cloud运行包/入口/摘要及局部证据。",
+    "verification": "当前构建及原31项字段分类回归、语法/资源/来源摘要；独立HTTP核对7分类操作、截图及集中标签页面打开。不推进全局阶段。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-field-configuration",
+      "check-reference-category",
+      "check-reference-audit"
+    ],
+    "ui_evidence": "prototype-all-pages-browser.json; prototype-direct-import-browser.json; four-node-editor.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-40",
+    "title": "审计修复与开发交接口径统一",
+    "goal": "复现并修复AI-only冷启动名单准入阻断；保留所有联系限制，消除当前ELSE规格冲突并恢复有效继承回归，统一最新交接入口、计数和复核状态。",
+    "acceptance": "AI-only管理员和运营冷启动正常号码可导入，限制号码仍拒绝、未知不放行、失效请求不提交；当前规格正文无ELSE相反要求，继承回归有效；最新入口、405字段/162局部检查和语义复核状态一致。",
+    "files": "`scripts/four-node-model.js`、相关模型/AI导入构建源、`js/components/module-host.js`、`scripts/check-ai-only-coordination.cjs`、继承测试、运行包/指纹、需求记录及开发交付包当前规划源与导出。",
+    "verification": "失败复现、新专项/既有回归、构建语法资源指纹、独立HTTP真实上传及当前规划/包门禁；不声明真实CTI/供应商/认证/账务、file或整版正式验收通过。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-ai-only-coordination",
+      "check-inheritance",
+      "check-business-rules-integration"
+    ],
+    "ui_evidence": "browser-summary.json; current-regression.json; static-checks.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  },
+  {
+    "step": "step-41",
+    "title": "产品与原型全局验收准备及交付入口收敛",
+    "goal": "根据用户继续补齐S8/final的授权，修复原型交付入口、版本信息及全局复验中发现的问题，逐项核定当前产品/原型验收范围，保留真实工程和接口责任。",
+    "acceptance": "四个核心阅读视图及版本可用；没有阻塞性资源/脚本错误；旧通过不作为新轮证据。当前规则、角色/租户、分类/字段参考/实际绑定、两模式导入/分配/跟进/通话和结束链条按现行决定实际可验；产品/原型与工程验收范围明确。",
+    "files": "`index.html`、`js/delivery-nav.js`、`版本清单.js`、`scripts/build-modules.py`、`scripts/check-inheritance.cjs`、必要的当前业务生成源、memory验收/变更/开放项及全局证据；阶段/快照只由受控工具写入。",
+    "verification": "当前构建回归、语法/入口/来源/字段引用核对、全部43页及核心动作真实HTTP浏览器、图集可见性和当前步骤逐项证据。最终按受控S7/S8/S9/final门禁推进；正式需求G3及生产接口不代确认。",
+    "current_applicability": "原步骤当前适用准则；工程真实服务和已被后续决定替代条款按本轮范围分列。",
+    "models": [
+      "check-simulation-selection",
+      "check-ai-only-coordination",
+      "check-inheritance"
+    ],
+    "ui_evidence": "prototype-fresh-followup-fixed-browser.json; prototype-handover-confirm-browser.json; browser-summary.json; static-checks.json; partial-scope-disposition.json",
+    "result": "pass",
+    "scope": "current applicable product/prototype finite Mock criteria; original superseded and engineering subclauses explicitly allocated",
+    "source_business_files_current": true
+  }
+]

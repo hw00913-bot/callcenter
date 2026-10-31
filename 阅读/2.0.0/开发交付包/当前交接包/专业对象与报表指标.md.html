@@ -1,0 +1,266 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/专业对象与报表指标.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../index.html">返回资料索引</a> · <a href="../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/%E4%B8%93%E4%B8%9A%E5%AF%B9%E8%B1%A1%E4%B8%8E%E6%8A%A5%E8%A1%A8%E6%8C%87%E6%A0%87.md">原始 Markdown</a></p><h1>当前交接包/专业对象与报表指标.md</h1><pre># 专业对象子字段与报表指标
+
+[返回阅读入口](README.md) · [完整字段规则](field-specs.md)
+
+按当前专业renderer的稳定列键解释各指标，中文说明表达同一业务含义；“尚未明确”是实际待核事实，不是产品规则尚未决定。此表不改变现有统计口径，不以未实现指标补零。
+
+&lt;a id=&quot;FIELD-PLAT-PRO-FIELD-DEF&quot;&gt;&lt;/a&gt;
+## FIELD-PLAT-PRO-FIELD-DEF 云呼叫专业字段定义
+
+[基本规则](field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)
+
+| 子键 | 具体规则 |
+|---|---|
+| id | type=string；nullable=False；required_when=创建系统生成，编辑/引用必需；default=系统稳定ID；validation=字母开头、字母数字下划线连字符，最多64字符，禁__proto__/prototype/constructor；编辑不可改；canonical_field_ref=FIELD-FLOW-FIELD-ID |
+| label | type=string；nullable=False；required_when=字段保存必填；default=新建空，编辑现值；validation=去首尾空白1–40字符；canonical_field_ref=FIELD-FLOW-FIELD-LABEL |
+| type | type=enum；nullable=False；required_when=字段保存必选；default=新建text，编辑保持；validation=text/textarea/number/select/multiselect/date/datetime/interface；接口single/multiple是selectionMode，不新增别的类型；预置保护类型不可改；canonical_field_ref=FIELD-FLOW-FIELD-TYPE |
+| businessKey | type=string；nullable=True；required_when=当前IMPORT用途必填，FOLLOWUP无映射需求可空；原专业选填不能放宽IMPORT；default=空字符串仅按用途允许；validation=去首尾空白≤80、无控制字符；前导零/字母大小写按不透明编码保留；品牌+用途内映射唯一性按当前字段规则；canonical_field_ref=FIELD-FLOW-FIELD-KEY |
+| options | type=array；nullable=False；required_when=select/multiselect为1–50项，非选项类型为空集合；default=新建非选项[]，首次切换选项类型新空项须用户完成；validation=每项{id,label,businessKey,enabled?}；id非空≤80且同字段唯一，label非空≤80且同字段不分大小写唯一，非空业务编码≤80无控制符且同字段唯一；稳定optionId保引用；预置选项保护；canonical_field_ref=FIELD-FLOW-FIELD-OPTIONS；member_refs=[&#x27;FIELD-FLOW-OPTION-ID&#x27;, &#x27;FIELD-FLOW-OPTION-LABEL&#x27;, &#x27;FIELD-FLOW-OPTION-KEY&#x27;, &#x27;FIELD-FLOW-OPTION-ENABLED&#x27;] |
+| enabled | type=boolean；nullable=False；required_when=创建/启停必需；default=True；validation=显示/必填是分类引用规则；字段库启用不自动加入分类；当前启用分类显示引用时不允许停用，任何分类引用不得删；canonical_field_ref=FIELD-FLOW-FIELD-ENABLED |
+| dictionaryId | type=string；nullable=True；required_when=type=interface必填；default=无自动首项；validation=仅当前租户已授权且启用真实取数能力；品牌共享不扩接口查询权；引用已使用后更换来源须准确能力/引用保护；canonical_field_ref=FIELD-FLOW-DICTIONARY-ID |
+| selectionMode | type=enum；nullable=True；required_when=type=interface明确single或multiple；default=按当前已保存明确模式，不把未知回退single；validation=只single/multiple；单选只能一值，多选数组；保存原选择稳定值与显示名；canonical_field_ref=FIELD-FLOW-SELECTION-MODE |
+| useQueryConditions/depends/parameterBindings | type=boolean/array/object；nullable=False；required_when=interface明确是否关联及参数映射；default=仅按显式已保存配置；无关联时空depends；validation=按准入接口schema支持参数，将多个上游字段属性映射多个参数；上游必须在当前分类显示、类型匹配、无自依赖或循环；意向车系预置接口无需关联其他字段且不可改手工选项；member_refs=[&#x27;FIELD-FLOW-QUERY-CONDITIONS&#x27;, &#x27;FIELD-FLOW-FIELD-DEPENDS&#x27;, &#x27;FIELD-FLOW-PARAM-BINDINGS&#x27;] |
+&lt;a id=&quot;FIELD-PLAT-REPORT-DATA&quot;&gt;&lt;/a&gt;
+## FIELD-PLAT-REPORT-DATA 报表指标与明细
+
+[基本规则](field-specs.md#FIELD-PLAT-REPORT-DATA)
+
+| 子键 | 具体规则 |
+|---|---|
+| reportKind | type=string；required=True；rule=Cloud七类及AI-call/AI-billing/AI-lead明确区分；不以同名字段跨报表共享分母 |
+| appliedFilters | type=object；required=True；rule=与本次统计结果同次固定的有权筛选，见FIELD-PLAT-QUERY |
+| scope | type=object；required=True；rule=准确账号/租户/enterprise/平台读权交集 |
+| summary/rows | type=object/array；required=True；rule=按以下report_variants字段解释；可靠空结果rows=[]，读取失败不是空集 |
+| quality | type=object；required=True；rule=缺失时间/号码/归属/首重呼/时长样本分别计量展示；不静默填0 |
+| detailLinks | type=array；required=False；rule=准确row key和callId/taskId/customerId，仅明示已实现入口可进入，目标读权再次检查 |
+
+### overview
+
+粒度：当前有权tenant+enterprise；按呼叫方式行
+
+归期：已结束话单开始时间归期，缺失只用可核实接通/结束时间；时间全缺不计周期并显示质量计数
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| type | 呼叫方式 | string／枚举 | 人工/预外呼/IVR/呼入 |
+| total | 呼叫量 | number／次 | 周期内已结束的呼叫尝试；重呼另算一次 |
+| connected | 客户接通 | number／次 | 有明确客户接通证据 |
+| unanswered | 客户未接通 | number／次 | 有明确未接通证据 |
+| pending | 结果尚未明确 | number／次 | 证据不足，不能当未接通 |
+| rate | 接通率 | number／% | connected/(connected+unanswered)×100，一位小数；分母0为— |
+| firstCount | 首呼量 | number／次 | 完整可见历史或明确attemptNumber=1证据；不因筛选周期重算 |
+| firstRate | 首呼接通率 | number／% | 首呼接通/首呼已确认结果量，一位小数；unknown首重呼不入分母 |
+| repeatCount | 重呼量 | number／次 | 明确attemptNumber&gt;1或同任务有已知更早尝试 |
+| duration | 双方时长 | number／秒 | 接口双方bridgeSeconds有效非负样本合计，自动纯IVR不适用 |
+| customerSeconds | 客户接听时长 | number／秒 | 仅预测/自动接口明确客户时长，其他方式不补算 |
+
+summary_extra：customers按tenant+enterprise+规范号码去重，号码未识别另计，不以callId伪造客户；durationSamples为已接通且适用且时长可确认样本，0秒有效；durationMissing不当0；avgSeconds=有效双方时长合计/有效时长样本数；无有效样本—；显示最多一位小数秒；attemptUnknown单列，不默认首呼
+
+drill：方式行/指标/时间桶→同筛选准确callId；录音/文本按对象读权
+
+### leads
+
+粒度：仅当前有权范围内，同品牌同稳定线索编码聚合；无编码行各自保留，不按手机号合并不同编码
+
+归期：以线索首次导入日期筛选，再显示这些线索截至当前累计联系及最新业务填写；不是历史状态快照
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| code | 线索编码 | string／文本 | 前导零保留 |
+| name | 客户 | string／文本 | 称呼及关联规范号码 |
+| followupStatus | 跟进状态 | string／枚举 | 原待继续跟进/已完成及原未分配状态 |
+| callCount | 呼叫次数 | number／次 | 关联的明确呼叫尝试数 |
+| connectedCount | 接通次数 | number／次 | 至少客户接通的准确通话次数 |
+| lastContactAt | 最近联系 | string／时间戳 | 该线索最后联系时间 |
+| intentionLevel | 意向等级 | string／枚举 | 最近一次已填写意向值，未填为空不首项 |
+| plannedVisitAt | 计划到店 | string／日期时间 | 计划到店时间与门店，不表示已实际到店 |
+
+summary_extra：leadCount为筛选线索条数；assigned至少一关联名单分配；contacted至少一次呼叫尝试；connected为至少一次确认客户接通的线索数；pendingFollowup未标记跟进完成；contacted/leadCount联系覆盖率与connected/leadCount线索接通率，一位小数；分母0为—；completed只指原跟进完成，不指成交；visitIntended/testDriveIntended取最近已填有意向，不等实际到店/试驾；intentionRecorded为已填写意向条数，plannedVisit为已计划到店条数，missingCode另列
+
+drill：准确聚合key→仅其授权业务记录id/任务id/callId；原始多记录不合并业务身份
+
+### customers
+
+粒度：导入批次行；每批每条客户名单计1条
+
+归期：按导入批次日期选择，显示截至当前分配/跟进累计状态
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| name | 导入批次 | string／文本 | 准确batchId名称 |
+| businessType | 业务类型 | string／枚举 | 导入当时业务类型 |
+| total | 名单量 | number／条 | 本批客户行数 |
+| assigned | 已分配 | number／条 | 已分配人工坐席或专业任务 |
+| unassigned | 待分配 | number／条 | 没有坐席也没有任务 |
+| contacted | 已联系 | number／条 | 具有呼叫尝试，不要求接通 |
+| followup | 待继续跟进 | number／条 | 原跟进状态待继续跟进 |
+| completed | 跟进完成 | number／条 | 原人工已完成，不表示成交 |
+
+summary_extra：同号不同批次分别计名单；distinctCustomers按当前tenant+规范号码去重另显；不把旧专业坐席/任务分配解释成新四节点导入分配目标
+
+drill：批次行/状态指标→该范围原客户名单id及当前归属状态，不增加准确批次导出能力
+
+### outbound
+
+粒度：预外呼/IVR准确专业任务行
+
+归期：任务创建/计划/启动日期在周期内或周期内有通话；周期通话与累计供应商/平台名单并列不可混算
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| name | 任务名称 | string／文本 | taskId对应名称 |
+| callType | 任务类型 | string／枚举 | 预外呼/IVR |
+| status | 当前状态 | string／枚举 | 准确任务确认态 |
+| supplierTotal | 累计号码 | number／条 | 供应商任务报表总号码，不按本周期裁剪 |
+| supplierCalled | 累计呼叫 | number／次 | 供应商任务累计呼叫次数含重呼 |
+| supplierRetry | 累计重呼 | number／次 | 供应商任务累计重试次数 |
+| completed | 平台已处理名单 | number／条 | 平台累计已处理客户行数，不代表接通 |
+| finishRate | 平台处理率 | number／% | 平台累计已处理/平台累计名单，不是供应商进度 |
+| loaded | 周期呼叫量 | number／次 | 本周期已加载的已结束尝试 |
+| connected | 客户接通 | number／次 | 周期确认接通 |
+| unanswered | 客户未接通 | number／次 | 周期确认未接通 |
+| pending | 结果尚未明确 | number／次 | 周期未知结果 |
+| connectRate | 周期接通率 | number／% | 周期connected/(connected+unanswered)，未知不入分母，0分母— |
+
+summary_extra：任务数为筛选任务行数；重呼计次数；供应商字段未知不补0；不同累计/周期分母禁止交叉计算
+
+drill：准确taskId详情或其当前周期通话callId明细
+
+### agents
+
+粒度：按当前tenant+enterprise+准确工号聚合坐席
+
+归期：只含已结束通话；无法确认实际人工接听归属的呼入/多方流转不强分摊，未关联记录单列质量计数
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| name | 坐席/工号 | string／文本 | 准确资源身份 |
+| tenant | 所属租户 | string／文本 | 当前授权租户 |
+| skills | 当前关联技能数 | number／个 | 当前有效关联数量，不代表周期历史数量 |
+| total | 关联通话 | number／次 | 周期关联已结束通话尝试 |
+| connected | 人工接通 | number／次 | 客户与坐席双方均有接通证据 |
+| unanswered | 人工未接通 | number／次 | 有明确人工未建立事实 |
+| pending | 人工结果尚未明确 | number／次 | 仅客户或仅坐席接通不足证明双方接通 |
+| rate | 人工接通率 | number／% | humanConnected/(humanConnected+humanUnanswered)，一位小数，未知不入分母，0分母— |
+| talk | 人工时长 | number／秒 | 双方实际通话有效时长，不将整通多方时长重复分摊 |
+
+summary_extra：联系客户按tenant+enterprise+规范号码去重；无法识号另列；humanDurationSamples仅双方人工接通且时长可靠样本；0秒有效；humanDurationMissing不填0；humanAvgSeconds=有效人工秒数合计/有效样本数，无样本—，秒最多一位小数
+
+drill：资源行→该准确历史归属的callId集合；读明细不授监管/资源编辑
+
+### skills
+
+粒度：按首呼队列与技能明确历史对应聚合，不能按当前坐席技能倒推历史
+
+归期：只含已结束通话；无法确认实际人工接听归属的呼入/多方流转不强分摊，未关联记录单列质量计数
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| name | 服务技能 | string／文本 | 准确资源身份 |
+| tenant | 所属租户 | string／文本 | 当前授权租户 |
+| members | 当前关联坐席数 | number／个 | 当前有效关联数量，不代表周期历史数量 |
+| total | 关联通话 | number／次 | 周期关联已结束通话尝试 |
+| connected | 人工接通 | number／次 | 客户与坐席双方均有接通证据 |
+| unanswered | 人工未接通 | number／次 | 有明确人工未建立事实 |
+| pending | 人工结果尚未明确 | number／次 | 仅客户或仅坐席接通不足证明双方接通 |
+| rate | 人工接通率 | number／% | humanConnected/(humanConnected+humanUnanswered)，一位小数，未知不入分母，0分母— |
+| talk | 人工时长 | number／秒 | 双方实际通话有效时长，不将整通多方时长重复分摊 |
+| queue | 首队列平均等待 | number／秒 | 首次队列等待有效样本平均，不含后续流转队列 |
+
+summary_extra：联系客户按tenant+enterprise+规范号码去重；无法识号另列；humanDurationSamples仅双方人工接通且时长可靠样本；0秒有效；humanDurationMissing不填0；humanAvgSeconds=有效人工秒数合计/有效样本数，无样本—，秒最多一位小数
+
+drill：资源行→该准确历史归属的callId集合；读明细不授监管/资源编辑
+
+### inbound
+
+粒度：每个已结束呼入callId一行
+
+归期：按已结束呼入开始时间，缺失仅可靠接通/结束时间；正常呼入不因公共拒联排除
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| id | 通话编号 | string／标识 | 准确callId |
+| tenant | 所属租户 | string／文本 | 当前授权tenant |
+| agent | 首呼坐席 | string／文本 | 接口首呼目标，不代表流转后全部实际接听人 |
+| result | 客户结果 | string／枚举 | 客户接通IVR不等于人工接通 |
+| humanResult | 人工结果 | string／枚举 | 双方接通才确认人工通话 |
+| queueResult | 排队结果 | string／枚举 | 官方队列中放弃/溢出，不自行推排队超时 |
+| duration | 通话时长 | number／秒 | 接口明确时长，缺失— |
+
+summary_extra：呼入量已结束呼入次数；人工接通率仅人工已确认结果分母；首队列平均等待=可靠首次排队秒数和/首次排队有效样本数，无样本—；queueAbandoned/queueOverflow须系统应答且官方相应队列结果；不可只看短时长猜测
+
+drill：本条准确callId→录音/文本，读权独立核验
+
+### AI-call
+
+粒度：当前有权AI租户，日期+具体场景+平台行；保外呼统计/客户统计两tab
+
+归期：原AI呼叫时间筛选，场景与平台独立；不混Cloud已确认结果分母
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| date | 呼叫时间 | string／日期 | 原统计归期 |
+| sceneName | 场景名称 | string／文本 | 准确原场景 |
+| platformName | 智能平台 | string／文本 | 准确供应商平台 |
+| dialTotal | 拨打总次数 | number／次 | 原拨打次数 |
+| rosterTotal | 呼叫名单总数 | number／条 | 原本行名单/客户基数 |
+| connectedTotal | 接通总数 | number／次 | 原统计确认接通数 |
+| missedTotal | 未接通总数 | number／次 | 原统计确认未接通数 |
+| connectedRate | 接通率 | number／% | 当前renderer connectedTotal/rosterTotal×100，两位小数 |
+| touchRate | 触达率 | number／% | 当前renderer (connectedTotal+missedTotal)/dialTotal×100，两位小数；保原AI口径不替换Cloud公式 |
+| duration | 累计通话时长 | string／人类可读时长 | 源值如23分15秒/1小时12分8秒；不得当分钟数直接做账务 |
+
+summary_extra：明确分母=0时原AI显示0.00%；源字段缺失/未知不假装为已确认0；客户tab展示date/scene/platform/rosterTotal客户总数/connectedTotal有效通话客户数/duration累计时长；客户平均通话时长当前renderer仅—，本版未提供计算能力，不编造均值；原列设置/导出若仅有界面但未实现，明确不可用，不生成假文件
+
+drill：原AI通话统计为行展示；无已实现明细动作时不由表格自行新增通话查询权
+
+### AI-billing
+
+粒度：当前有权AI租户，计费日期区间+平台+计费类型；下钻模型，再到准确通话
+
+归期：计费日期筛选独立于服务汇总8列导出及公共租户列表筛选
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| dateFrom/dateTo | 计费日期 | string／日期区间 | 原计费统计归期 |
+| tenantName | 租户名称 | string／文本 | 准确AI服务租户显示 |
+| platformName | 智能平台 | string／文本 | 原供应商平台 |
+| billingType | 计费类型 | string／枚举 | 原按分钟收费；按账号收费不在此统计 |
+| durationMinutes | 计费时长 | number／分钟 | 以客户接通为准，每通未满1分钟按1分钟计费；不是原时长总秒数四舍五入 |
+
+detail_columns：模型层：计费日期/租户/平台/模型类型/计费时长分钟；通话层：规范用户号码/通话开始结束时间/原通话时长/逐通计费分钟/场景名称
+
+summary_extra：零通话且可靠统计可0分钟；未知时长/未知账务不补0，不由分钟服务池反算原报表；模型层是统计维度，不能恢复旧大/小模型独立余额列或合并Cloud账务；计费汇总须为对应通话计费分钟之和，单通接通记录的计费分钟ceil(可计费秒数/60)；缺计费证据标未知，不把人工双方时长替代客户计费时长
+
+drill：原统计行→准确模型行→准确原通话计费明细；查看不授充值/调整
+
+### AI-lead
+
+粒度：总部NEV/ICE各自独立；外呼线索统计/外呼线索明细/线索回流统计三tab
+
+归期：统计按导入日期或回流统计时间及当前已应用场景/意向级别/门店筛选；业务明细保稳定clueCode及前导零
+
+| 列键 | 含义 | 类型／单位 | 计算和空值 |
+|---|---|---|---|
+| date | 导入日期 | string／日期 | 原统计归期 |
+| type | 业务类型 | string／枚举 | 原新/冷等专业类型 |
+| importCount | 导入线索量 | number／条 | 源统计导入线索数 |
+| callCount | 外呼客户量 | number／人 | 源统计已外呼客户基数 |
+| connectedCount | AI已接通量 | number／人 | 源统计接通客户数 |
+| dispatchCount | 已下发线索数 | number／条 | 源确认下发数 |
+| rate | AI接通率 | number／% | connectedCount/callCount×100，一位小数；接收源同口径值时保原值和基数 |
+| avgDuration | 平均通话时长 | string／mm:ss | 以具有效接通时长样本均值为口径；源提供的平均值必须对应其有效样本基数，未知不以00:00代填 |
+| levelA | A级客户数 | number／人 | 原中台意向A分类计数；E混合拒绝/无效/无应答不等于客户明确拒联 |
+| levelB | B级客户数 | number／人 | 原中台意向B分类计数；E混合拒绝/无效/无应答不等于客户明确拒联 |
+| levelC | C级客户数 | number／人 | 原中台意向C分类计数；E混合拒绝/无效/无应答不等于客户明确拒联 |
+| levelD | D级客户数 | number／人 | 原中台意向D分类计数；E混合拒绝/无效/无应答不等于客户明确拒联 |
+| levelE | E级客户数 | number／人 | 原中台意向E分类计数；E混合拒绝/无效/无应答不等于客户明确拒联 |
+
+detail_columns：importTime导入时间/clueCode线索编码/sceneName场景/type业务类型/phone号码/storeCode门店编码/storeName门店名称/callTime呼叫时间/status通话状态/duration时长/levelCenter中台意向/levelBiz业务系统意向/dispatchStore下发门店
+
+return_columns：date统计时间/scene场景/importCount线索传入数/submitCount提交外呼数/returnCount线索回流数；都是各自明确条数，不由差额推成功
+
+summary_extra：callCount为0且明确无客户时百分比展示无基数—；缺失/未知均显未取得，不能沿旧静态renderer默认补0；意向levelCenter与levelBiz来源分别保留，不据标签自动写业务字段或自动下发；统计聚合不改变业务记录身份，不以同号/同名合并业务
+
+drill：明细行保准确来源线索/场景/通话标识；原不可用导出明确不可用，不因统计可见授跨租户数据
+</pre></body></html>

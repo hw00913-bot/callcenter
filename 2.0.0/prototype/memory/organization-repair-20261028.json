@@ -1,0 +1,260 @@
+{
+  "schema": "organization-repair-verification@1",
+  "date": "2026-10-28T17:41:07.451253+08:00",
+  "user_request": "整个账号、租户、品牌的逻辑和操作界面都有问题，创建租户和账号原有的字段填写都丢失了，其次交互都没有对齐，整个逻辑和交互没有串起来",
+  "steps": [
+    "step-01",
+    "step-03"
+  ],
+  "classification": "existing-field-and-interaction-regression",
+  "sources": {
+    "js/pages/organization.js": "14ae425ceb60a1b8d7853614e7ae855388fb35516662d76661fa85a474c22f75",
+    "js/components/organization-store.js": "27047f1e2b67a3a1973382cd077ba0e2796115e46fe8698f679c7006cb056a30",
+    "js/components/session-store.js": "6306064a79b0abce9d9a7ad33af9272bd73276b6bb925721f9c75d1999da6ef0",
+    "js/components/login-screen.js": "26690c6c5ddd534bc5a0f98685a0313cb4752b5ca003bb7ebb9cfaf6da7eb0a0",
+    "js/app.js": "709d25163fbfede81c2127d24bd3a4413853243221ee923f3111216f71a5a48d",
+    "assets/css/cloud-ui-overrides.css": "082734609c4f1f5a0285be8781df74b16d7cc645b185fca2594d8a66fe4f4b93",
+    "assets/css/cloud-ui.css": "11c4fdc0ab5b62daed45be52ff3829853e3be9f63928fd8ad338901a2ef9f127",
+    "index.html": "c25e25465c6d45b2581d3cc6dbd1d210293f9355e45698bfa7ebb728d9522bbd"
+  },
+  "model_test_groups": 54,
+  "model_results": {
+    "fields": {
+      "checks": 22,
+      "passed": [
+        "tenant profile desc and disabled status persist",
+        "disabled tenant blocks account creation",
+        "tenant edit preserves fields not submitted and checks stamp",
+        "new account explicit identity and tenant admin preserve module separation",
+        "created private credentials are excluded from demo tools",
+        "new username and chosen password authenticate",
+        "new admin can create and delegate existing granted rights only",
+        "mobile SMS authenticates actual newly created account",
+        "lookup returns existing account identity without password",
+        "exact existing link preserves profile and password",
+        "phone and username duplication are rejected atomically",
+        "public member role and module roles update independently",
+        "global profile blank password preserves chosen password",
+        "global credential update and reload use current phone and password",
+        "tenant admin cannot edit global profile or tenant status",
+        "status disable immediately removes tenant from restored legal scopes",
+        "brand scope keeps disabled tenant manageable and can restore it",
+        "enabled empty operator refused but disabled pending account allowed",
+        "brand scope cannot assign tenant or edit brand outside current brand",
+        "omitted tenant contact preserves saved contact",
+        "unchanged fixture alias preserves original login identity and credentials",
+        "original public demo fixture credentials still work"
+      ],
+      "storageKeys": [
+        "d-contact-cloud-v200-rebuild-20261026:positions",
+        "d-contact-cloud-v200-rebuild-20261026:organization"
+      ]
+    },
+    "landing": {
+      "checks": 5,
+      "passed": [
+        "public admin with AI module enters account management",
+        "AI operator enters actual AI task page rather than usage service",
+        "Cloud operator retains business workspace landing",
+        "changed member role recomputes correct landing",
+        "new AI tenant receives no invented provider or financial mapping"
+      ]
+    },
+    "independent": {
+      "date": "2026-10-28",
+      "sources": {
+        "js/components/session-store.js": "6306064a79b0abce9d9a7ad33af9272bd73276b6bb925721f9c75d1999da6ef0",
+        "js/components/organization-store.js": "27047f1e2b67a3a1973382cd077ba0e2796115e46fe8698f679c7006cb056a30"
+      },
+      "scope": "independent organization VM review; current managed-tenant session semantics",
+      "notes": [
+        "2026-10-28 first review used persistent platform/brand management scopes. New source intentionally uses a business tenant plus authorityScopeId; selectScope(platform) is compatibility resolution only.",
+        "The intermediate unique-HQ check failed because it created a new brand then submitted its tenant from the old brand context. This was an obsolete test assumption; the updated check explicitly selects the new brand, selects its first enabled tenant after creation, then verifies unique-HQ and historical locks without changing production rules.",
+        "Empty-brand scope expires immediately after first enabled tenant is saved; UI must select the returned stable tenant ID before page refresh. Disabling current data tenant similarly requires legal brand/tenant reselection."
+      ],
+      "tests": [
+        {
+          "name": "create does not allow a completely unusable operator membership",
+          "status": "pass"
+        },
+        {
+          "name": "disabled tenant stays manageable in selected brand scope",
+          "status": "pass"
+        },
+        {
+          "name": "selected brand cannot create a tenant in a different brand",
+          "status": "pass"
+        },
+        {
+          "name": "unique HQ and history locks reject with zero durable writes",
+          "status": "pass"
+        },
+        {
+          "name": "tenant partial edit preserves optional prior profile and independent modules",
+          "status": "pass"
+        },
+        {
+          "name": "saved custom credentials authenticate and do not appear in demo shortcut tools",
+          "status": "pass"
+        },
+        {
+          "name": "explicit existing-account link changes only selected tenant membership",
+          "status": "pass"
+        },
+        {
+          "name": "member disable and global account disable have separate effects",
+          "status": "pass"
+        },
+        {
+          "name": "tenant admin cannot modify global profile and cannot widen tenant target",
+          "status": "pass"
+        },
+        {
+          "name": "tenant admin can create public admin without opening either professional module",
+          "status": "pass"
+        },
+        {
+          "name": "storage write failure keeps organization snapshot and durable data unchanged",
+          "status": "pass"
+        },
+        {
+          "name": "readback failure yields one operation and reconciliation cannot duplicate creation",
+          "status": "pass"
+        },
+        {
+          "name": "global profile update preserves empty password and authenticates with renamed login/mobile",
+          "status": "pass"
+        },
+        {
+          "name": "managed super scope resolves a business tenant while preserving management authority",
+          "status": "pass"
+        },
+        {
+          "name": "first enabled tenant replaces empty-brand scope and is explicitly selected after save",
+          "status": "pass"
+        },
+        {
+          "name": "first disabled tenant leaves a usable empty-brand management context",
+          "status": "pass"
+        },
+        {
+          "name": "disabling the selected tenant invalidates data context and brand reselection recovers management",
+          "status": "pass"
+        }
+      ],
+      "passed": 17,
+      "failed": 0
+    },
+    "ui_guard": {
+      "date": "2026-10-28",
+      "sources": {
+        "js/components/session-store.js": "6306064a79b0abce9d9a7ad33af9272bd73276b6bb925721f9c75d1999da6ef0",
+        "js/components/organization-store.js": "27047f1e2b67a3a1973382cd077ba0e2796115e46fe8698f679c7006cb056a30",
+        "js/pages/organization.js": "14ae425ceb60a1b8d7853614e7ae855388fb35516662d76661fa85a474c22f75"
+      },
+      "scope": "actual organization UI save callback with isolated DOM",
+      "notes": [
+        "Uses actual organization.js and actual model/session sources. DOM substitutes expose the existing draft guard save function; no browser evidence is claimed."
+      ],
+      "tests": [
+        {
+          "name": "first enabled tenant stays in legal context when guard saves before navigation",
+          "status": "pass"
+        },
+        {
+          "name": "disabling current data tenant keeps management context when guard saves before navigation",
+          "status": "pass"
+        },
+        {
+          "name": "ordinary/cross-page save: empty-brand first tenant context recovery false",
+          "status": "pass"
+        },
+        {
+          "name": "ordinary/cross-page save: disabled current tenant falls back to legal brand false",
+          "status": "pass"
+        },
+        {
+          "name": "ordinary/cross-page save: empty-brand first tenant context recovery true",
+          "status": "pass"
+        },
+        {
+          "name": "ordinary/cross-page save: disabled current tenant falls back to legal brand true",
+          "status": "pass"
+        },
+        {
+          "name": "unknown save freezes every form control and only reconciles the original request",
+          "status": "pass"
+        },
+        {
+          "name": "keep existing reader omits role and preserves identity on save",
+          "status": "pass"
+        },
+        {
+          "name": "keep existing seat omits role and preserves identity on save",
+          "status": "pass"
+        },
+        {
+          "name": "unknown first-tenant write reconciles once and restores new tenant context",
+          "status": "pass"
+        }
+      ],
+      "passed": 10,
+      "failed": 0
+    }
+  },
+  "static": {
+    "entryResources": 25,
+    "entryJavaScriptSyntax": "pass",
+    "entryHashes": "pass",
+    "lockedAnalysisFiles": 90,
+    "referenceFiles": 190,
+    "protectedHashes": "pass",
+    "sources": {
+      "js/pages/organization.js": "14ae425ceb60a1b8d7853614e7ae855388fb35516662d76661fa85a474c22f75",
+      "js/components/organization-store.js": "27047f1e2b67a3a1973382cd077ba0e2796115e46fe8698f679c7006cb056a30",
+      "js/components/session-store.js": "6306064a79b0abce9d9a7ad33af9272bd73276b6bb925721f9c75d1999da6ef0",
+      "js/components/login-screen.js": "26690c6c5ddd534bc5a0f98685a0313cb4752b5ca003bb7ebb9cfaf6da7eb0a0",
+      "js/app.js": "709d25163fbfede81c2127d24bd3a4413853243221ee923f3111216f71a5a48d",
+      "assets/css/cloud-ui-overrides.css": "082734609c4f1f5a0285be8781df74b16d7cc645b185fca2594d8a66fe4f4b93",
+      "assets/css/cloud-ui.css": "11c4fdc0ab5b62daed45be52ff3829853e3be9f63928fd8ad338901a2ef9f127",
+      "index.html": "c25e25465c6d45b2581d3cc6dbd1d210293f9355e45698bfa7ebb728d9522bbd"
+    }
+  },
+  "browser": {
+    "tool": "cua_repl",
+    "url": "http://localhost:56348/2.0.0/prototype/index.html",
+    "tab": "980688187",
+    "viewport": {
+      "width": 1920,
+      "height": 993
+    },
+    "storage": "localhost origin; separate from existing 127.0.0.1 and file data; no cache clearing",
+    "observed": [
+      "Created a brand and returned to its stable-ID context immediately",
+      "Created HQ with contact, description and enabled state; saved values read back",
+      "Opened AI only; Cloud stayed closed and ungrantable",
+      "Created account with chosen mobile/login/nickname/password, tenant admin role and AI admin role",
+      "Global profile edit with blank password preserved login credentials",
+      "Created same-brand store then looked up existing account by exact mobile; identity fields hidden and no password requested",
+      "Empty enabled operator grant refused without closing form; explicit admin association succeeded",
+      "Same account logged in with chosen password and saw exactly its two legal tenant memberships",
+      "Tenant admin could manage members but had no global-profile/whole-account controls",
+      "Cancel retained a changed role draft; discard returned saved admin role",
+      "Fresh final-source creation of an empty brand and its first tenant retained legal management context and correct selected tenant",
+      "Edited current tenant to disabled using cancel then save-and-continue; remained on tenant management, showed disabled row and no active tenant",
+      "Restored that tenant from same brand; selected tenant and enabled row returned and description persisted",
+      "Created final no-module public admin on final source; chosen password login landed PAGE-2003 and showed tenant-admin label with no module grant",
+      "1920px lists and form drawer inspected visually; no document horizontal overflow; generated org-context styling applied"
+    ],
+    "console_errors": [],
+    "avatar_file_selection": {
+      "status": "environment-blocked",
+      "detail": "Chrome extension setFiles refused because Allow access to file URLs is disabled; no settings changes or alternate upload channel attempted. Avatar field and local validation restored, actual file selection remains unverified."
+    }
+  },
+  "limits": [
+    "Bounded local Mock verification only; full S8/G3 unchanged",
+    "No automated file URL verification; no real authentication, SMS, provider account, phone, recharge or production access",
+    "AI supplier/usage/financial correspondence for new tenants remains explicitly unconfigured; no mappings invented"
+  ]
+}

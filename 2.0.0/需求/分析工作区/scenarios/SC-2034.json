@@ -1,0 +1,478 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2034",
+  "name": "超管按品牌租户分类监管业务数据",
+  "status": "proposed_flow",
+  "summary": "监管资格过滤同一台账及轨迹，不冒用业务租户身份，不自动授代处理权。",
+  "actors": [
+    "平台超级管理员",
+    "D联络云"
+  ],
+  "trigger": "超管需要查看所管理品牌/租户/分类业务情况",
+  "preconditions": [
+    "已登录且具有本次数据查看资格。",
+    "监管和业务共享同一记录，权限分别核对。",
+    "沿用 AI 生产身份和稳定租户/对象标识；直接访问与菜单采用同一当前操作授权校验，不按名称、手机号或品牌关系合并身份或授权。",
+    "按当前平台管理/品牌配置/监管职责及实际对象范围验权；不以业务租户成员、本人电话坐席或同时开通 AI 与云呼叫作为配置/监管前提，不因此获得代处理或其他数据访问权。",
+    "监管和业务查看分别按实际授权及历史截止核验；不以本人坐席或双模块为只读前提，不授代处理权。",
+    "业务中心整合已确认的分类、规则、导入批次、业务台账、分配及记录处理入口，复用同一业务记录和原执行/详情跳转；不复制客户档案、任务或专业配置，不改变当前负责租户、原动作资格、固定版本和历史可见边界。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "平台超级管理员",
+      "action": "进入业务中心的统一业务数据工作区。",
+      "system_response": "按登录身份选监管或业务视角。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2045",
+        "BR-2052",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "D联络云",
+      "action": "核定本次可见品牌、租户、分类及历史范围。",
+      "system_response": "共享配置不赋予全品牌数据权。 按本操作管理/品牌/监管职责校验；不要求业务成员、电话坐席或双模块开通，不授代执行权。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2045",
+        "BR-2052",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "平台超级管理员",
+      "action": "按有权范围筛选分类、租户或导入批次并查询。",
+      "system_response": "菜单与直接访问执行同一权限。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2045",
+        "BR-2052",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "读取同一台账和有权批次，区分新模型和存量。",
+      "system_response": "读取同一原台账及有权批次；新模型按BASE/ROUTE/单模板和各字段定义/选项/结果快照区分，存量仍原查询和原处理，不补建实例或迁移。读取失败/关联待核不以空态代替。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2045",
+        "BR-2052",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "平台超级管理员",
+      "action": "查看查询结果并选择一条记录打开详情。",
+      "system_response": "没有记录时展示真实空状态。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2045",
+        "BR-2052",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "D联络云",
+      "action": "重新核定详情权限，按分类快照、当前归属/历史截止和原版本展示。",
+      "system_response": "只读监管当前授权品牌/租户交集内的同一记录和真实轨迹；展示固定单模板、分类字段、意向/人工指派/目标状态，逐路径依据仅在实际可见范围内。不代HQ管理员选店，不启动/分配/转交/补录，不扩大源录音、存量或截止历史范围。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2045",
+        "BR-2052",
+        "BR-2054"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2034-DENY",
+      "condition": "无权查询或伪造直接链接",
+      "steps": [
+        "拒绝访问，不能跨范围泄露记录。"
+      ]
+    },
+    {
+      "id": "ALT-2034-READ",
+      "condition": "读取失败或结果待核",
+      "steps": [
+        "显示失败/待核，不把读取失败展示成没有记录。"
+      ]
+    },
+    {
+      "id": "ALT-2034-EMPTY",
+      "condition": "成功查询但没有匹配记录",
+      "steps": [
+        "展示真实空状态，可调整条件另次查询。"
+      ]
+    },
+    {
+      "id": "ALT-2034-DETAIL",
+      "condition": "打开详情时资格变化或读取失败",
+      "steps": [
+        "详情再次鉴权和读取，不展示旧缓存冒充有权当前详情。",
+        "详情打开时再次核范围、当前身份及原快照；失权或无法可靠读取不展示过期缓存，不依品牌共用推全品牌权。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "按实际权限和历史快照展示真实结果，不改变归属、执行、模板或旧数据模型。"
+  ],
+  "acceptance_points": [
+    "AC-2129：超管具有所管理品牌/租户/分类的监管查看视角，菜单、列表、详情与直接访问资格一致；监管查看不自动赋予业务代处理权限。",
+    "AC-2130：监管查询和业务处理读取同一记录及实际轨迹，不需要冒用业务租户身份或建立第二份线索表。"
+  ],
+  "source_story_ids": [
+    "US-2038"
+  ],
+  "source_acceptance_ids": [
+    "AC-2129",
+    "AC-2130"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2084",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "business_rule_ids": [
+    "BR-2030",
+    "BR-2034",
+    "BR-2041",
+    "BR-2045",
+    "BR-2052",
+    "BR-2054",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2012",
+    "BR-2022"
+  ],
+  "notes": "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "human",
+        "name": "平台超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "human",
+        "type": "start",
+        "order": 1,
+        "label": "需要定位业务记录或查看处理轨迹"
+      },
+      {
+        "id": "OPEN",
+        "lane_id": "human",
+        "type": "action",
+        "order": 2,
+        "label": "进入统一业务数据工作区",
+        "step_ref": 1
+      },
+      {
+        "id": "SCOPE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "建立监管管理范围\n按管理/配置/监管范围验权\n不要求双模块或本人坐席",
+        "step_ref": 2
+      },
+      {
+        "id": "FILTER",
+        "lane_id": "human",
+        "type": "action",
+        "order": 4,
+        "label": "选择品牌/租户/分类并查询",
+        "step_ref": 3
+      },
+      {
+        "id": "CHECK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 5,
+        "label": "当前查询权限通过？"
+      },
+      {
+        "id": "DENY",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 6,
+        "label": "拒绝无权访问；直接链接同样校验"
+      },
+      {
+        "id": "READ",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 7,
+        "label": "读同一台账/有权批次\n单模板及逐字段历史快照\n存量仍原查询处理",
+        "step_ref": 4
+      },
+      {
+        "id": "LOADED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 8,
+        "label": "取得可核对查询结果？"
+      },
+      {
+        "id": "FAIL",
+        "lane_id": "human",
+        "type": "end",
+        "order": 9,
+        "label": "查询失败/待核，不能用空列表冒充"
+      },
+      {
+        "id": "EMPTY",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 10,
+        "label": "本次结果有记录？"
+      },
+      {
+        "id": "NONE",
+        "lane_id": "human",
+        "type": "end",
+        "order": 11,
+        "label": "显示真实空状态及查询条件"
+      },
+      {
+        "id": "SELECT",
+        "lane_id": "human",
+        "type": "action",
+        "order": 12,
+        "label": "查看列表，选择一条记录打开详情",
+        "step_ref": 5
+      },
+      {
+        "id": "DETAIL",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 13,
+        "label": "按授权重核监管只读详情\n单模板/字段快照及原目标来源",
+        "step_ref": 6
+      },
+      {
+        "id": "DETAIL_OK",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 14,
+        "label": "详情可按当前权限加载？"
+      },
+      {
+        "id": "DETAIL_FAIL",
+        "lane_id": "human",
+        "type": "end",
+        "order": 15,
+        "label": "归属/资格变化或读取失败\n不展示过期数据"
+      },
+      {
+        "id": "DONE",
+        "lane_id": "human",
+        "type": "end",
+        "order": 16,
+        "label": "查看有权基本资料及真实轨迹\n监管无代处理入口"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "OPEN"
+      },
+      {
+        "from": "OPEN",
+        "to": "SCOPE"
+      },
+      {
+        "from": "SCOPE",
+        "to": "FILTER"
+      },
+      {
+        "from": "FILTER",
+        "to": "CHECK"
+      },
+      {
+        "from": "CHECK",
+        "to": "DENY",
+        "label": "无权",
+        "path_id": "ALT-2034-DENY"
+      },
+      {
+        "from": "CHECK",
+        "to": "READ",
+        "label": "有权"
+      },
+      {
+        "from": "READ",
+        "to": "LOADED"
+      },
+      {
+        "from": "LOADED",
+        "to": "FAIL",
+        "label": "失败/待核",
+        "path_id": "ALT-2034-READ"
+      },
+      {
+        "from": "LOADED",
+        "to": "EMPTY",
+        "label": "查询成功"
+      },
+      {
+        "from": "EMPTY",
+        "to": "NONE",
+        "label": "无记录",
+        "path_id": "ALT-2034-EMPTY"
+      },
+      {
+        "from": "EMPTY",
+        "to": "SELECT",
+        "label": "有记录"
+      },
+      {
+        "from": "SELECT",
+        "to": "DETAIL"
+      },
+      {
+        "from": "DETAIL",
+        "to": "DETAIL_OK"
+      },
+      {
+        "from": "DETAIL_OK",
+        "to": "DETAIL_FAIL",
+        "label": "无权或失败",
+        "path_id": "ALT-2034-DETAIL"
+      },
+      {
+        "from": "DETAIL_OK",
+        "to": "DONE",
+        "label": "有权且成功"
+      }
+    ]
+  },
+  "expected_outcome": "监管资格过滤同一台账及轨迹，不冒用业务租户身份，不自动授代处理权。",
+  "exception_scope": "无权、版本变化、校验不符、取消、读取/保存失败或同次结果待核。",
+  "scope": "in_scope",
+  "scope_status": "G1_approved_SRC2094",
+  "design_status": "S3_rebuilt_candidate_pending_global_verification",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [
+    "ISSUE-2018"
+  ],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-213",
+    "inputs/source-index.json#SRC-214",
+    "inputs/source-index.json#SRC-215",
+    "inputs/source-index.json#SRC-216",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-223",
+    "inputs/source-index.json#SRC-224"
+  ],
+  "v12_origin_scenario_id": "SC-11213",
+  "v12_origin_detail_sha256": "09089f1a48bbfaf668f2922a6d9816d576351087203b6cb51781737e23859ed3",
+  "v12_origin_snapshot": "04ed3e3552872ccc863b05b9c0ec08c7d31b3f6d8806d9b86f054b83978db58d",
+  "rule_ids": [
+    "BR-2030",
+    "BR-2034",
+    "BR-2041",
+    "BR-2045",
+    "BR-2052",
+    "BR-2054",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2012",
+    "BR-2022"
+  ],
+  "acceptance_contributions": {},
+  "analysis_notes": [
+    "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+    "六入口按实际原功能组织展示；原Cloud作业/号码档案/报表迁位继续保原电话现场和检查，原管理功能仍按SC-2002切离保护、同窗口返回和同次记忆。未核真实身份、供应商能力和持久化契约继续由S4核验，不把产品流程当生产证明。"
+  ],
+  "revision_history": [
+    {
+      "at": "2026-10-24T12:23:18+08:00",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_scope_metadata": {
+        "scope_status": "confirmed_G1",
+        "design_status": "S3_incremental_flow_design_pending_G2",
+        "v2_gate_status": "G1_approved_G2_G3_pending",
+        "scope_confirmation_source": null
+      },
+      "previous_notes": [
+        "列表查询与详情查看为独立业务操作；角色视角和筛选字段不另造重复功能。",
+        "查询无保存事务，没有虚构查询前审批；取消浏览直接结束，不产生业务变更。",
+        "本场景按 SRC-2086 通过的 v2.0.0 G1 范围细化；v1.2.0 冻结包只作为继承来源，不代表本版 G2/G3 或真实执行能力已通过。",
+        "沿 D联络云六入口及原页面交互承载，不采用源版过渡外链；配置共享不产生跨租户业务数据权。",
+        "导入、查询及详情不启动处理；仅后续明确执行才核对应方式模块/资源/操作权与本租户公共禁呼，共享分类不授全品牌数据权。"
+      ],
+      "reason": "当前G1后按最终c847和实际S1/S2重建S3；旧说明及源快照仅作历史，不改原始冻结包。",
+      "previous_analysis_notes": [
+        "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+      ]
+    }
+  ],
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_v12_baseline": "c84782225797ba928b75f4854640cde7ff34d07d33f951bb0985cafc61f2c1ac",
+  "diagram_revision": {
+    "at": "2026-10-24T12:23:18+08:00",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ],
+    "retained_node_ids": [
+      "CHECK",
+      "DENY",
+      "DETAIL",
+      "DETAIL_FAIL",
+      "DETAIL_OK",
+      "DONE",
+      "EMPTY",
+      "FAIL",
+      "FILTER",
+      "LOADED",
+      "NONE",
+      "OPEN",
+      "READ",
+      "SCOPE",
+      "SELECT",
+      "START"
+    ],
+    "added_node_ids": [],
+    "retained_alternate_ids": [
+      "ALT-2034-DENY",
+      "ALT-2034-DETAIL",
+      "ALT-2034-EMPTY",
+      "ALT-2034-READ"
+    ],
+    "added_alternate_ids": [],
+    "step_relation": "原main_flow step编号全部保留；新增原人工段补录分支复用原step5/6。",
+    "edge_relation": "原节点/边及ALT/step_ref保留；按已批准S1/S2更新动作和guard语义。"
+  }
+}

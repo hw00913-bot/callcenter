@@ -1,0 +1,419 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2034",
+  "scenario_id": "SC-2034",
+  "name": "超管按品牌租户分类监管业务数据交互时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "design_status": "S5_current_G2_analysis_candidate_not_implementation",
+  "participants": [
+    {
+      "id": "person",
+      "name": "平台超级管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "D联络云原功能前端",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "本方业务办理职责",
+      "kind": "system"
+    },
+    {
+      "id": "records",
+      "name": "本方稳定对象、配置及历史职责",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "进入业务中心的统一业务数据工作区。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 1
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "请求本次实际查看范围及原筛选上下文",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 2
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "核品牌/租户/分类及当前/历史范围；配置共享不授全品牌数据权",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 3
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "返回原有权筛选范围，不要求本人坐席/双模块，不授代处理",
+      "type": "response",
+      "api_id": null,
+      "condition": "查看范围可核",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 4
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "按有权范围筛选分类、租户或导入批次并查询。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 5
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "按原筛选请求同一台账/批次结果",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 6
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "读取同一台账和有权批次，区分新模型和存量。；读取同一原台账及有权批次；新模型按BASE/ROUTE/单模板和各字段定义/选项/结果快照区分，存量仍原查询和原处理，不补建实例或迁移。读取失败/关联待核不以空态代替。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 7
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "返回本次可核查询结果，可以是真实空结果",
+      "type": "response",
+      "api_id": null,
+      "condition": "读取可靠",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 8
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "展示本次有权原列表及定位；无记录走真实空态，不复制业务表",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次查询可靠",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 9
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "选择一条记录打开详情",
+      "type": "request",
+      "api_id": null,
+      "condition": "有本次有权记录",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 10
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "详情再次鉴权并核当前归属/截止和固定版本",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 11
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "按本次可见范围读取原定义/选项/值与真实轨迹，不露下游当前字段或录音",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 12
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "仅返回可靠范围内的固定快照及事实，原精确关联/权限未核则待核",
+      "type": "response",
+      "api_id": null,
+      "condition": "详情范围及读取可靠",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 13
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "只读监管当前授权品牌/租户交集内的同一记录和真实轨迹；展示固定单模板、分类字段、意向/人工指派/目标状态，逐路径依据仅在实际可见范围内。不代HQ管理员选店，不启动/分配/转交/补录，不扩大源录音、存量或截止历史范围。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次有权详情可靠",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 14
+    },
+    {
+      "from": "ui",
+      "to": "person",
+      "message": "本次监管只读，无分配/启动/转交/选店/补录入口",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次详情展示完成",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 15
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "拒绝访问，不能跨范围泄露记录。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2034-DENY] 无权查询或伪造直接链接",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2034-DENY"
+      ],
+      "step": 16
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "显示失败/待核，不把读取失败展示成没有记录。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2034-READ] 读取失败或结果待核",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2034-READ"
+      ],
+      "step": 17
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "展示真实空状态，可调整条件另次查询。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2034-EMPTY] 成功查询但没有匹配记录",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2034-EMPTY"
+      ],
+      "step": 18
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "详情再次鉴权和读取，不展示旧缓存冒充有权当前详情。；详情打开时再次核范围、当前身份及原快照；失权或无法可靠读取不展示过期缓存，不依品牌共用推全品牌权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2034-DETAIL] 打开详情时资格变化或读取失败",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2034-DETAIL"
+      ],
+      "step": 19
+    }
+  ],
+  "source_story_ids": [
+    "US-2038"
+  ],
+  "source_acceptance_ids": [
+    "AC-2129",
+    "AC-2130"
+  ],
+  "business_rule_ids": [
+    "BR-2030",
+    "BR-2034",
+    "BR-2041",
+    "BR-2045",
+    "BR-2052",
+    "BR-2054",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2012",
+    "BR-2022"
+  ],
+  "source_refs": [
+    "scenarios/SC-2034.json",
+    "memory/normalized-user-stories.json",
+    "memory/business-rules.json",
+    "memory/project-facts.json",
+    "interfaces/interface-index.json",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "source_bindings": {
+    "scenario_sha256": "feebb47a3720d0f62caa88d085a39bbf88b8de256b0913eb27d8da7f0f75827e",
+    "interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+    "G2_basis": [
+      "SRC-2095",
+      "SRC-2096"
+    ]
+  },
+  "api_refs": [],
+  "internal_capability_refs": [
+    "API-2018",
+    "API-2027"
+  ],
+  "contract_dependency_refs": [
+    "API-2024"
+  ],
+  "reused_sequence_refs": [
+    "SEQ-2001",
+    "SEQ-2002",
+    "SEQ-2028"
+  ],
+  "main_step_coverage": [
+    {
+      "source_step": 1,
+      "message_steps": [
+        1,
+        2
+      ]
+    },
+    {
+      "source_step": 2,
+      "message_steps": [
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "source_step": 3,
+      "message_steps": [
+        5,
+        6
+      ]
+    },
+    {
+      "source_step": 4,
+      "message_steps": [
+        7,
+        8
+      ]
+    },
+    {
+      "source_step": 5,
+      "message_steps": [
+        9,
+        10
+      ]
+    },
+    {
+      "source_step": 6,
+      "message_steps": [
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    }
+  ],
+  "alternate_flow_coverage": [
+    {
+      "id": "ALT-2034-DENY",
+      "condition": "无权查询或伪造直接链接",
+      "message_steps": [
+        16
+      ]
+    },
+    {
+      "id": "ALT-2034-READ",
+      "condition": "读取失败或结果待核",
+      "message_steps": [
+        17
+      ]
+    },
+    {
+      "id": "ALT-2034-EMPTY",
+      "condition": "成功查询但没有匹配记录",
+      "message_steps": [
+        18
+      ]
+    },
+    {
+      "id": "ALT-2034-DETAIL",
+      "condition": "打开详情时资格变化或读取失败",
+      "message_steps": [
+        19
+      ]
+    }
+  ],
+  "notes": [
+    "SRC2095+2096仅批准按当前缺口继续分析；不是G3、原型实施或生产验收。成功消息仅为本次事实可核后的条件目标，partial/missing合同或真实身份/关联/结果未核则停留待核/受阻。",
+    "参与方为产品责任边界，不宣称已部署新服务；not_required能力仅列内部职责，这7族内部消息api_id均为null，不伪造URL、方法、字段、回调、时限、重试或补偿协议。",
+    "按condition阅读互斥分支，非所有消息一次必经。真实受理、执行结束、结果保存、归属及节点分别核定，不以HTTP成功或已发请求代替业务完成。",
+    "共同认证/原操作资格及切离返回保护复用SEQ2001/2002等，不强制每页重新登录、退出电话或调用公共API；原独立AI/专业资源/财务资格、电话现场和停用有限收尾保持。",
+    "SRC2096：本版AI标签仅配置/映射和原始/映射结果展示，不新增AI标准标签写业务字段或由此新增自动流转；未匹配保原值无首项兜底，既有业务字段条件、人工保存和其他原有流转不变。",
+    "只读展示原保存快照，不意味着每次调用实时供应商话单/资源；真正打开原专业详情才复用其共同序列及原独立查看/录音资格。"
+  ],
+  "source_scenario_sha256": "feebb47a3720d0f62caa88d085a39bbf88b8de256b0913eb27d8da7f0f75827e",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

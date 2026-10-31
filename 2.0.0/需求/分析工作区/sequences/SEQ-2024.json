@@ -1,0 +1,521 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2024",
+  "scenario_id": "SC-2024",
+  "name": "仅在无业务引用时删除原租户时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "具备原租户删除操作权及相应对象范围的人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "公共租户页面",
+      "kind": "system"
+    },
+    {
+      "id": "adapter",
+      "name": "本方身份与删除适配（目标责任）",
+      "kind": "system"
+    },
+    {
+      "id": "platform",
+      "name": "原AI平台服务（仅条件核符合时承接）",
+      "kind": "external_system"
+    }
+  ],
+  "source_acceptance_ids": [
+    "AC-2080"
+  ],
+  "source_refs": [
+    "scenarios/SC-2024.json",
+    "inputs/source-index.json#SRC-2077",
+    "inputs/source-index.json#SRC-2066",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2042",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "从原租户列表行选择删除准确对象，复用原入口，不新增删除页面/审批/恢复。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次原删除操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "adapter",
+      "message": "固定准确租户及本次合法对象上下文，交本方原身份/删除适配。",
+      "type": "request",
+      "api_id": null,
+      "condition": "以AI生产原实体为基准，不按同名/手机号猜实体。",
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "adapter",
+      "to": "adapter",
+      "message": "核准确实体映射、原删除权承接及最终资格与删除一致控制能力是否真实落实。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本方责任；已有DELETE定义不等整合能力已具备。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 4,
+      "from": "adapter",
+      "to": "ui",
+      "message": "任一准确实体/原权或最终一致控制尚未落实则受阻，不调用原删除；页面仅提示暂无法办理。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2024-CONTRACT｜当前契约/可靠适配未落实或无法核实。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2024-CONTRACT"
+      ]
+    },
+    {
+      "step": 5,
+      "from": "adapter",
+      "to": "adapter",
+      "message": "仅原前置可靠时核原删除操作权及准确对象管理范围；成员管理/模块开通/全局停用不代删除权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜原实体和受控执行前置明确落实。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 6,
+      "from": "adapter",
+      "to": "ui",
+      "message": "原删除权/对象范围无效则拒绝；撤权后移除失效范围展示，不从超管或页面可见推定删除权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2024-AUTH｜本次原删除资格明确不满足。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2024-AUTH"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "adapter",
+      "to": "adapter",
+      "message": "检查任务/通话/账务及实际新记录、节点、轮次、执行/模板关联和历史引用；保原默认管理组保护。必要删除审计保留，不另加未投入使用标志；无关模板不推定引用。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜必要引用及原保护可完整可靠核验。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 8,
+      "from": "adapter",
+      "to": "ui",
+      "message": "存在任一实际业务引用/历史或原保护不满足则保对象，禁止删除；不清引用、级联历史或清账来凑可删。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2024-REF｜业务引用或原保护成立；未知也不能通过，归契约受阻。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2024-REF"
+      ]
+    },
+    {
+      "step": 9,
+      "from": "adapter",
+      "to": "ui",
+      "message": "仅原权有效且无实际业务引用、原保护满足时呈现准确租户及范围供原确认；不宣称无依据不可恢复。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜完整可靠资格已满足；无关模板不作为拒绝理由。",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 10,
+      "from": "ui",
+      "to": "operator",
+      "message": "展示原删除确认和本次准确作用范围，不加入清历史、自动清账或恢复承诺。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次原确认准备完成。",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 11,
+      "from": "operator",
+      "to": "ui",
+      "message": "取消本次原删除确认，保对象及原合法位置/筛选，不替换为停用或成员移除。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2024-CANCEL｜用户提交前明确取消。",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2024-CANCEL"
+      ]
+    },
+    {
+      "step": 12,
+      "from": "operator",
+      "to": "ui",
+      "message": "确认本次准确对象及已说明范围。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次用户明确确认原删除。",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "ui",
+      "to": "adapter",
+      "message": "提交本次固定对象和合法上下文；提交中防重复，不声明已有幂等字段。",
+      "type": "request",
+      "api_id": null,
+      "condition": "用户已确认且本次仍合法。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 14,
+      "from": "adapter",
+      "to": "ui",
+      "message": "同对象已有删除结果未知时先按可靠既有能力核对，不再DELETE当查询。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2024-UNKNOWN｜同一对象已有本次/前次删除结果未知。",
+      "source_step_refs": [
+        6,
+        9
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2024-UNKNOWN"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "adapter",
+      "to": "adapter",
+      "message": "最终提交中一致重核准确对象、原权、当前业务引用及原保护；预查不代最终一致控制，本方可靠执行未具备则受阻。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜同次未知已排除，最终受控能力已真实符合。",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 16,
+      "from": "adapter",
+      "to": "ui",
+      "message": "确认后对象/权限/引用变化时一致拒绝，保对象与可追溯事实，不先删引用换取资格。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2024-CHANGE｜本次最终检查明确拒绝；无法可靠检查归契约受阻。",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2024-CHANGE"
+      ]
+    },
+    {
+      "step": 17,
+      "from": "adapter",
+      "to": "platform",
+      "message": "仅实体及最终资格/一致控制已核符合时承接原租户DELETE定义，不造引用检查端点、幂等字段或新权限码。",
+      "type": "external_call",
+      "api_id": "API-2002",
+      "condition": "条件目标｜仅在相关真实契约、稳定身份/对象映射及本次权限已核实后，本次无引用与原保护和最终一致执行均可靠满足时才发出；当前缺口分支不调用。",
+      "source_step_refs": [
+        8
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 18,
+      "from": "platform",
+      "to": "adapter",
+      "message": "返回准确对象本次最终删除证据，或明确未删除失败/未知；HTTP200或受理不单独等于删除完成。",
+      "type": "response",
+      "api_id": "API-2002",
+      "condition": "条件目标｜对应本次合法原DELETE办理。",
+      "source_step_refs": [
+        9
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 19,
+      "from": "adapter",
+      "to": "ui",
+      "message": "服务明确未删除失败时保原可确认对象/筛选并说明；仅已明确未执行且再核合法后人员才可另次提交。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2024-FAIL｜本次服务明确返回未删除失败。",
+      "source_step_refs": [
+        9
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2024-FAIL"
+      ]
+    },
+    {
+      "step": 20,
+      "from": "adapter",
+      "to": "adapter",
+      "message": "结果不明仅用已有可靠证据核同一准确对象/同次结果；无可靠能力保未知，不将普通查询无记录当成功，不重DELETE。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次最终删除结果未知；不新增查询协议、字段或重试额度。",
+      "source_step_refs": [
+        9
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 21,
+      "from": "adapter",
+      "to": "ui",
+      "message": "最终证据仍不足时保结果未知，不本地移行假成功、不盲重试；必要审计及主体追溯保持。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2024-UNKNOWN｜结果未知且无法取得可靠最终证据。",
+      "source_step_refs": [
+        9
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2024-UNKNOWN"
+      ]
+    },
+    {
+      "step": 22,
+      "from": "adapter",
+      "to": "ui",
+      "message": "仅本次准确对象最终删除已可靠确认时传递成功及必要审计事实；不改变其他主体/历史。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜本次最终删除证据明确成立。",
+      "source_step_refs": [
+        9,
+        10
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 23,
+      "from": "ui",
+      "to": "ui",
+      "message": "响应时重核当前账号/租户/对象上下文；已变化则旧响应不回填新列表，保准确操作结果事实。",
+      "type": "event",
+      "api_id": null,
+      "condition": "ALT-2024-STALE｜处理响应时本次上下文已变化。",
+      "source_step_refs": [
+        10
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2024-STALE"
+      ]
+    },
+    {
+      "step": 24,
+      "from": "ui",
+      "to": "operator",
+      "message": "仅当前合法上下文仍匹配且最终成功已确认时刷新租户列表/真实计数；失败/未知保可辨状态，不改其他主体或历史。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜本次最终成功且当前合法上下文仍一致；其他分支不显示成功。",
+      "source_step_refs": [
+        10
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2023"
+  ],
+  "source_business_rule_ids": [
+    "BR-2024",
+    "BR-2054"
+  ],
+  "source_step_refs": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "covered_alternate_flow_ids": [
+    "ALT-2024-CONTRACT",
+    "ALT-2024-AUTH",
+    "ALT-2024-REF",
+    "ALT-2024-CANCEL",
+    "ALT-2024-CHANGE",
+    "ALT-2024-FAIL",
+    "ALT-2024-UNKNOWN",
+    "ALT-2024-STALE"
+  ],
+  "main_flow_coverage": {
+    "1": [
+      1,
+      2
+    ],
+    "2": [
+      2,
+      3,
+      4
+    ],
+    "3": [
+      5,
+      6
+    ],
+    "4": [
+      7,
+      8,
+      9
+    ],
+    "5": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "6": [
+      13,
+      14
+    ],
+    "7": [
+      15,
+      16
+    ],
+    "8": [
+      17
+    ],
+    "9": [
+      14,
+      18,
+      19,
+      20,
+      21,
+      22
+    ],
+    "10": [
+      22,
+      23,
+      24
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2024-CONTRACT": [
+      4
+    ],
+    "ALT-2024-AUTH": [
+      6
+    ],
+    "ALT-2024-REF": [
+      8
+    ],
+    "ALT-2024-CANCEL": [
+      11
+    ],
+    "ALT-2024-CHANGE": [
+      16
+    ],
+    "ALT-2024-FAIL": [
+      19
+    ],
+    "ALT-2024-UNKNOWN": [
+      14,
+      21
+    ],
+    "ALT-2024-STALE": [
+      23
+    ]
+  },
+  "source_scenario_sha256": "016e1075bdfd2c27a26519f8a79de8c7a65e4a9235590d7a8a57fd63fa8e9b98",
+  "interface_evidence_statuses": {
+    "API-2002": "partial"
+  },
+  "source_interface_fact_sha256": {
+    "API-2002": "9b3a95827be48ae6157be6497aa154f779a24c02347392ef1e631482ee3fa614"
+  },
+  "production_verified": false,
+  "execution_status": "not_executed_design_only",
+  "v2_gate_status": "G1_G2_analysis_approved_G3_pending",
+  "notes": [
+    "本文件消费当前SC/AC/BR及已批准G2接口事实，仅时序分析，不证明生产、原型或真实调用已完成。partial/missing能力保当前受阻/未知；标为条件目标的调用和成功仅在真实契约、稳定身份/对象映射、当次权限与实际结果均已落实时成立。未满足不执行后续成功分支。",
+    "消息按条件表达互斥主线/备选责任，不表示一次运行依次执行所有消息。source_step_refs为当前SC main_flow.step整数，covered_alternate_flow_ids为该消息明确覆盖的ALT稳定ID；顶层映射可逐项复核。",
+    "保AI生产身份和真实原多租户/模块/操作范围，六入口只组织展示；品牌配置/监管/独立AI财务或供应商资源资格不代业务执行权，也不统一要求业务租户成员、本人坐席或双模块。",
+    "not_required本方能力和普通内部责任消息api_id=null：位置记忆/表单提示由API-2014对应本方责任承接；公共品牌/租户基础查询由API-2003对应责任承接，API-2017只是其来源投影，不新增维护库。未直接调用的这些族不写成外部消息。",
+    "只引用所用API已登记能力族，不造URL、字段、权限码、主动撤销协议、幂等键、引用查询接口或超时重试次数。原普通表单/话后责任只作当前SC要求的复用，不用未知服务成功代证；必要话后与拒联一致结果沿原SC-2013/2018另有权责任。",
+    "本版AI标签configuration_only沿SRC-2096；仅原配置/映射/结果展示，不新增AI标签写业务字段及由此新增自动流转，不影响既有人工保存/条件与其他原流转，不作未来永久禁令。",
+    "引用业务主体/历史保护包含新记录、模板节点、轮次和执行安排；必要删除审计不是额外业务引用，无关模板存在不构成对象被引用。预查无引用不足以发DELETE；可靠最终一致能力未落实时按CONTRACT受阻。"
+  ],
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "reason": "当前G2后S5，按当前SC压缩并补齐主线/全部ALT与条件目标，不改接口事实。",
+      "previous_detail_sha256": "3f317857eb6f7a66520000903b2037c6ebea080d1347faae0f118bb23a3e82a8",
+      "previous_message_count": 23,
+      "stable_participant_ids_retained": [
+        "operator",
+        "ui",
+        "adapter",
+        "platform"
+      ]
+    }
+  ],
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

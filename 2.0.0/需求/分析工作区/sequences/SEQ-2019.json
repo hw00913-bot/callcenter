@@ -1,0 +1,479 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2019",
+  "scenario_id": "SC-2019",
+  "name": "在整合入口管理原云呼叫预外呼任务时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "有原预外呼操作权人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "原预外呼任务/名单界面",
+      "kind": "system"
+    },
+    {
+      "id": "cloud",
+      "name": "本方预外呼适配与原限制服务",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "原AliCti预外呼服务",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "选择既有任务一次配置/导入/控制/查询，或接续原计划一次尝试；不必全做。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "cloud",
+      "message": "核本次任务/来源锁定/租户/原权及坐席或外呼组，不用呼入队列或AI任务代替。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "cloud",
+      "to": "ui",
+      "message": "授权/准确映射/资源不符则不发本次尝试，保既有任务及受理事实。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2019-AUTH｜本次结束",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-AUTH"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "operator",
+      "to": "ui",
+      "message": "提交前取消，按原草稿规则，后台与已在途通话不因此停止。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2019-CANCEL｜本次结束",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-CANCEL"
+      ]
+    },
+    {
+      "step": 5,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "按原向导保存一次本次新建/编辑配置；来源锁定和真实供应商任务映射保持。",
+      "type": "external_call",
+      "api_id": "API-2011",
+      "condition": "ALT-2019-CONFIG｜条件目标｜选择配置且原创建/编辑/资源契约与资格已核；不证明已呼叫",
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-CONFIG"
+      ]
+    },
+    {
+      "step": 6,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "本次原任务导入保原手工/接口来源、批次/优先与业务类型；本地与远端导入结果分开。",
+      "type": "external_call",
+      "api_id": "API-2011",
+      "condition": "ALT-2019-IMPORT｜条件目标｜独立选择原导入且真实接入/导入合同已核",
+      "source_step_refs": [
+        1,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-IMPORT"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "cloud",
+      "to": "cloud",
+      "message": "原应用接口来源仅沿既有应用/租户授权及原协议，缺API2016正式合同则受阻，不造接收成功。",
+      "type": "request",
+      "api_id": "API-2016",
+      "condition": "当前合同缺证据先受阻；以下仅条件目标职责，须本期正式合同及真实资格核实后办理｜ALT-2019-IMPORT｜接口来源条件分支",
+      "source_step_refs": [
+        2,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-IMPORT"
+      ]
+    },
+    {
+      "step": 8,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "暂停/结束等原控制按本次状态和原权办理；已发起通话按原规则，不以导航代控制。",
+      "type": "external_call",
+      "api_id": "API-2011",
+      "condition": "ALT-2019-CONTROL｜条件目标｜独立选择已核原控制能力",
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-CONTROL"
+      ]
+    },
+    {
+      "step": 9,
+      "from": "cloud",
+      "to": "cloud",
+      "message": "初呼/正常重呼/异常补提交均ref SC-2015核当前租户有效禁呼；restrict tel不能绕拒联。",
+      "type": "request",
+      "api_id": "API-2007",
+      "condition": "条件目标｜本期实际调用语义/身份及对象关系已核，原准入通过；否则当前待核受阻。主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 10,
+      "from": "cloud",
+      "to": "ui",
+      "message": "命中或检查失败/未知阻本次新增提交，已收未拨能力仍逐供应商核，不报全部已取消。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2019-BLOCK｜本次不新增外呼",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-BLOCK"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "仅向本次合法原任务发起一次通过准入的尝试，保所选坐席/组和既有策略。",
+      "type": "external_call",
+      "api_id": "API-2011",
+      "condition": "条件目标｜原模式/企业开通/真实映射及API2011合同经核实；本次检查通过",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 12,
+      "from": "vendor",
+      "to": "cloud",
+      "message": "按真实既有结果/事件报告受理、逐条导入、呼叫或失败，不把提交当全部完成。",
+      "type": "event",
+      "api_id": "API-2011",
+      "condition": "条件目标｜仅处理现有已核事件与准确本次关联",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "cloud",
+      "to": "cloud",
+      "message": "准确绑定原任务/本条/批次与来源快照；模板变体保固定原记录/节点，不按最近同号拼接。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 14,
+      "from": "cloud",
+      "to": "ui",
+      "message": "当前缺准确事件/关联或实际结果未知时保事实，不造成功、不重复提交。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2019-UNKNOWN｜本次结果不唯一或未确认",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-UNKNOWN"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "cloud",
+      "to": "cloud",
+      "message": "分别判正常重呼与异常补提交、原来源/批次及共享额度；本次只留原计划。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2019-RETRY｜最终原规则明确允许后续尝试",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-RETRY"
+      ]
+    },
+    {
+      "step": 16,
+      "from": "cloud",
+      "to": "ui",
+      "message": "后续每次独立尝试重新核权/资源及SC-2015；不因切区域停后台或借错误加次数。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2019-RETRY｜本次结束，后续另发",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-RETRY"
+      ]
+    },
+    {
+      "step": 17,
+      "from": "operator",
+      "to": "ui",
+      "message": "独立查看本次准确任务/原结果或选原失败下载。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2019-QUERY｜查询/下载各沿原权",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-QUERY"
+      ]
+    },
+    {
+      "step": 18,
+      "from": "cloud",
+      "to": "vendor",
+      "message": "按本次原查询/下载资格获取真实结果或文件；不由点击认定下载/清理成功。",
+      "type": "external_call",
+      "api_id": "API-2011",
+      "condition": "ALT-2019-QUERY｜条件目标｜原查询/下载及对应清理合同已经核实",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-QUERY"
+      ]
+    },
+    {
+      "step": 19,
+      "from": "vendor",
+      "to": "cloud",
+      "message": "返回真实逐条/查询/下载结果；部分失败不归全部成功，未知不清数据。",
+      "type": "response",
+      "api_id": "API-2011",
+      "condition": "条件目标｜实际可信返回",
+      "source_step_refs": [
+        5,
+        7
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 20,
+      "from": "cloud",
+      "to": "ui",
+      "message": "配置/导入/控制/查询/下载失败或部分结果保原输入和证据，不造成新任务/额外次数。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2019-OP-FAIL｜当前未核或实际所选操作失败",
+      "source_step_refs": [
+        2,
+        5,
+        7
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2019-OP-FAIL"
+      ]
+    },
+    {
+      "step": 21,
+      "from": "ui",
+      "to": "operator",
+      "message": "展示仅本次可靠结果及原口径；其他独立操作另次发起。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜可信结果；当前证据未足时仅受阻/待核",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2025"
+  ],
+  "source_acceptance_ids": [
+    "AC-2068",
+    "AC-2069"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2008",
+    "inputs/source-index.json#SRC-2009",
+    "inputs/source-index.json#SRC-2011",
+    "inputs/source-index.json#SRC-2025",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096",
+    "scenarios/SC-2019.json",
+    "interfaces/interface-index.json"
+  ],
+  "notes": [
+    "参与方表达当前业务责任，不选择生产部署架构；消息条件为互斥分支或条件目标，不表示所有消息在一次操作中依次发生。",
+    "G2仅批准分析推进。partial/missing均保真实身份、授权、稳定关联及技术契约待核；当前无可靠证据时明确受阻，不由文档/Mock或HTTP成功推定端到端成功。",
+    "真实跨内部服务的partial/missing合同可引用API能力族，内部参与方仍为system；7个not_required仅在notes登记内部责任，消息api_id=null，不伪造调用URL/参数/新回调。",
+    "本版AI标签仅整合原配置、映射和结果展示；不新增AI→业务字段写入或由此自动流转。保原人工保存、字段条件及其他流转，未匹配保原值不首项兜底，仅限本版。"
+  ],
+  "internal_responsibility_refs": [],
+  "previous_revision": {
+    "sha256": "b20c16ff006b7ac005eb8355e9129290f43a9e07cd96231419fffda47ec1e588",
+    "preserved_sequence_id": "SEQ-2019"
+  },
+  "main_step_coverage": {
+    "1": [
+      1,
+      4,
+      5,
+      6,
+      8
+    ],
+    "2": [
+      2,
+      3,
+      5,
+      7,
+      8,
+      20
+    ],
+    "3": [
+      9,
+      10
+    ],
+    "4": [
+      11,
+      12
+    ],
+    "5": [
+      6,
+      7,
+      12,
+      13,
+      14,
+      19,
+      20
+    ],
+    "6": [
+      15,
+      16
+    ],
+    "7": [
+      17,
+      18,
+      19,
+      20,
+      21
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2019-AUTH": [
+      3
+    ],
+    "ALT-2019-BLOCK": [
+      10
+    ],
+    "ALT-2019-CANCEL": [
+      4
+    ],
+    "ALT-2019-CONFIG": [
+      5
+    ],
+    "ALT-2019-CONTROL": [
+      8
+    ],
+    "ALT-2019-IMPORT": [
+      6,
+      7
+    ],
+    "ALT-2019-OP-FAIL": [
+      20
+    ],
+    "ALT-2019-QUERY": [
+      17,
+      18
+    ],
+    "ALT-2019-RETRY": [
+      15,
+      16
+    ],
+    "ALT-2019-UNKNOWN": [
+      14
+    ]
+  },
+  "api_usage_boundaries": [
+    {
+      "api_id": "API-2007",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    },
+    {
+      "api_id": "API-2011",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    },
+    {
+      "api_id": "API-2016",
+      "verification_status": "missing",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    }
+  ],
+  "source_scenario_sha256": "45c98876f5d80a43a63be4cb1f2a42eb48cdf9671f858c50cf2e9636aafaa457",
+  "source_interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

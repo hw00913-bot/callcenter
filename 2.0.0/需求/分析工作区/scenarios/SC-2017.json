@@ -1,0 +1,1158 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2017",
+  "name": "在整合入口连续使用AI原有业务能力",
+  "summary": "原可用功能在统一外壳内按授权和原规则使用",
+  "actors": [
+    "具备所选原AI操作权限的人员",
+    "统一系统",
+    "AI外呼模块",
+    "原AI供应商"
+  ],
+  "trigger": "成员执行原AI任务/查询/配置操作",
+  "preconditions": [
+    "按本次所选原操作的真实人员权限、业务租户或独立平台资源/财务范围进入；配置/查询/监管不以双模块开通或无关业务成员/本人坐席为统一门槛。",
+    "实际AI外呼按当前合法业务租户、AI开通及操作/执行资源校验；来自新模板时还须满足当前记录归属、节点与本次动作准入，不能借配置或监管身份代租户执行。",
+    "六入口按功能职责承接原专业页面、任务、表单和资源；只重组入口并复用现有操作，实际方式权限、供应商规则、电话现场及原联系限制不随中心名称改变，不新增业务动作或自动执行。",
+    "供应商标签池按supplierId；启用及标准映射按supplierId+tenantType（总部/门店）+tagScene（AI标签场景）；本地标准标签集按tenantType+tagScene。tagScene、具体AI执行sceneId和公共分类categoryId为不同身份，只能按可靠稳定关系关联，不按名称或首项猜配。"
+  ],
+  "expected_outcome": "原可用功能在统一外壳内按授权和原规则使用",
+  "exception_scope": "全量原菜单及抽屉按当前可用范围复用；占位不新增，AI计费/充值保留。保原供应商池、场景启用及映射来源与原权限；不可靠名称推荐/首项兜底不写业务值或覆盖人工结果。",
+  "source_story_ids": [
+    "US-2023"
+  ],
+  "source_acceptance_ids": [
+    "AC-2063",
+    "AC-2064",
+    "AC-2065",
+    "AC-2078"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2008",
+    "inputs/source-index.json#SRC-2009",
+    "inputs/source-index.json#SRC-2011",
+    "inputs/source-index.json#SRC-2025",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2036",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2058",
+    "inputs/source-index.json#SRC-2070",
+    "inputs/source-index.json#SRC-2077",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2092",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "原页面动作盘点为local Mock/partial证据，不代证生产可用或原角色授权；占位启动/暂停/终止/删除、批量移除及开发中导出不补开发。原任务名单查询、手动导入、导入记录及已分配单条移除按既有ISSUE-2008核实；不保证远端队列已取消。",
+    "AI生产身份/真实权限归ISSUE-2001，供应商未拨禁呼/同步归ISSUE-2005/2006。图中供应商步骤仅为已有能力条件下的责任，不证明契约已经核验。",
+    "原摘要、使用明细、导出和财务各自授权；原AI用量与服务/分钟口径独立，不并云呼叫账务，不强制原财务资源人员为业务租户成员。账号/租户删除分别委托SC-2023/24，公共对象只一份主维护。",
+    "供应商标签池按supplierId；启用及标准映射按supplierId+tenantType（总部/门店）+tagScene（AI标签场景）；本地标准标签集按tenantType+tagScene。tagScene、具体AI执行sceneId和公共分类categoryId为不同身份，只能按可靠稳定关系关联，不按名称或首项猜配。",
+    "SRC-2096已确认本版AI标签只整合配置、映射和结果展示，不新增AI标准标签向业务字段写入及由此新增自动流转；原供应商池、启用和标准映射作用域、原始结果及未匹配不回退首项继续保留。既有字段条件、人工保存和其他原有流转不变；本次范围不作未来永久禁止。",
+    "本图原59节点分派承接每次所选的一个原操作，非依次执行所有分支。业务任务不因离开入口自动暂停；停用者禁新动作，系统已受理任务依原条件继续，既有接通通话有限收尾。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "具备所选原AI操作权限的人员",
+      "action": "从对应区域选择一次AI原有操作，例如任务详情、通话/线索记录、统计或AI用量与服务。",
+      "system_response": "复用原页面布局、筛选、卡片/列表、详情和弹窗；原概览摘要与使用情况归同一入口，进入保护沿SC-2001/SC-2002，区域变更不产生新增操作权限。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "统一系统",
+      "action": "按所选原操作实际适用的身份、租户或平台资源范围及操作权限分别校验；摘要、使用明细、财务和报表沿各自授权。",
+      "system_response": "仅传递已核对的原身份及对应业务或平台上下文；不以无关业务成员或本人seat作统一门槛，失权或映射不明不进入目标操作。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "AI外呼模块",
+      "action": "按此次选择分派到原有操作子流程。",
+      "system_response": "查询、任务内名单、生产证实的任务控制、专业配置和AI服务/财务分别沿原独立子流程；账号/租户由系统管理、分类/字段由业务中心、黑名单由客户中心“联系限制”承接各自原唯一主维护，不要求依次执行所有操作。原账号/租户删除分别独立委托SC-2023/SC-2024，不在其他业务入口直接执行。 专业标签池、启用及标准映射按原各自作用域办理，不能以公共分类替代标签场景身份。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "AI外呼模块",
+      "action": "读取本次授权范围内的原记录或统计。",
+      "system_response": "保留原供应商/场景统计、计费和分钟口径，不混入云呼叫账务。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "AI外呼模块",
+      "action": "展示本次查询结果、空结果或真实失败。",
+      "system_response": "AI用量与服务内原摘要、使用明细和财务办理分别按原权限；摘要权不提升明细/导出/财务权，不另建AI概览。查询失败不以旧缓存结果表示本次成功。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "具备所选原AI操作权限的人员",
+      "action": "查看本次结果并结束操作。",
+      "system_response": "其他已有独立操作可再次发起，后台任务不因离开页面或工作区自动暂停。 名称推荐和首项兜底仅为原界面建议，不能据此认定可靠路由事实或已保存业务值。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2017-AUTH",
+      "condition": "无权或身份/租户映射未确认",
+      "steps": [
+        "不进入原业务操作，展示原因；不得猜租户或自动补授权。"
+      ]
+    },
+    {
+      "id": "ALT-2017-TASK",
+      "condition": "生产可用清单证实已有且本次选择的原任务控制。",
+      "steps": [
+        "原型开发中占位不新增能力；只有生产已证实的原控制承接本分支，按原任务状态、供应商与操作权办理。",
+        "发起原独立AI任务沿原资格及SC-2015公共禁呼；来自新模板才另核当前记录/节点及所选动作准入，固定单模板不自动拨号。暂停不当成新起呼。",
+        "原供应商返回后如实表达成功/失败/未知，未知不重复启动；不合并两模块任务。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2017-CONFIG",
+      "condition": "选择原AI场景/供应商标签池/启用或标准映射等已有专业配置。",
+      "steps": [
+        "按原入口和原配置权限办理一次已存在操作；分类引用仅委托SC-2011，分类基础/字段仅引用SC-2010，不另造同名分类。",
+        "供应商标签池按supplierId；启用及标准映射按supplierId+tenantType（总部/门店）+tagScene（AI标签场景）；本地标准标签集按tenantType+tagScene。tagScene、具体AI执行sceneId和公共分类categoryId为不同身份，只能按可靠稳定关系关联，不按名称或首项猜配。",
+        "读取并核对本次对象身份、原范围和版本后仅保存该范围；未核身份/映射拒绝本次保存并保留输入，名称推荐或首项兜底不能当可靠已保存映射。",
+        "保留AI新/冷、机器人及供应商允许值；占位通道/禁用编辑不新增；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2017-BILL",
+      "condition": "选择原AI充值或手工调整",
+      "steps": [
+        "仅原有合法财务操作权限可办理，沿原AI充值/分钟池规则形成独立结果。",
+        "不使用公共租户资料维护权限代替充值权，不接入云呼叫统一账务。"
+      ]
+    },
+    {
+      "id": "ALT-2017-PUBLIC",
+      "condition": "选择已移交公共的基础资料或名单操作",
+      "steps": [
+        "基础账号/租户交SC-2004/SC-2007等公共身份场景，公共目录交SC-2010，名单交SC-2012～SC-2016；原内部路由、详情和表单也转同一公共维护，不保留第二套写入。",
+        "原AI拦截仅快捷筛选同一份AI范围限制，逐条保留来源、期限和权限；未知旧范围不自动升级公共禁呼。原专业场景关联仍沿SC-2011。",
+        "原AI账号删除和租户删除分别委托SC-2023/FUNC-2028、SC-2024/FUNC-2029，按SRC-2077无业务引用政策及原权办理；不是停用或成员移除，不新增删除权限，实体/最终一致执行能力未核则受阻。"
+      ]
+    },
+    {
+      "id": "ALT-2017-CANCEL",
+      "condition": "提交前取消本次操作",
+      "steps": [
+        "按原页面流程保留或放弃草稿，本次不发出新增执行或记账请求。"
+      ]
+    },
+    {
+      "id": "ALT-2017-QUERY-FAIL",
+      "condition": "本次查询失败",
+      "steps": [
+        "保留筛选并说明失败；结束本次查询，可重新查询。"
+      ]
+    },
+    {
+      "id": "ALT-2017-BLOCK",
+      "condition": "发起外呼命中公共禁呼或无法取得可靠检查结果",
+      "steps": [
+        "按SC-2015拦截；检查失败或未知时停止本次新增提交；不把已提交远端队列全部拦截宣称为既有能力。"
+      ]
+    },
+    {
+      "id": "ALT-2017-PROVIDER",
+      "condition": "原供应商控制失败或结果未知",
+      "steps": [
+        "保留原任务与实际返回原因；未知不记成功，不自动重复启动。"
+      ]
+    },
+    {
+      "id": "ALT-2017-SAVE",
+      "condition": "专业配置保存失败或校验不通过",
+      "steps": [
+        "保留当前输入及原生效配置，不显示保存成功。"
+      ]
+    },
+    {
+      "id": "ALT-2017-BILL-FAIL",
+      "condition": "原AI充值/调整失败或回执未知",
+      "steps": [
+        "保留实际结果和原账务状态，不重复记账、不借整合新增补偿规则。"
+      ]
+    },
+    {
+      "id": "ALT-2017-EXPORT",
+      "condition": "本次发起原页面已有导出操作",
+      "steps": [
+        "原已有导出分别校验原操作权、数据范围与真实结果。租户AI服务汇总另由PAGE-2106/ACTION-2103承接FUNC-2027，按SRC-2070/AC-2078导当前8列：名称、ID、类型、可用/冻结/累计消耗分钟、有效期及呼叫控制状态；不保留或回算旧金额及模型独立余额。",
+        "租户AI服务汇总保留原全部有权AI租户导出意图，真实财务权/租户集合和当前一致取数未核实则受阻；当前服务快照独立于原统计日期/平台及公共租户列表筛选。成功、失败和未知如实表达，其他原导出/统计口径与业务状态不变，不新增bulk接口或参数。"
+      ]
+    },
+    {
+      "id": "ALT-2017-LIST",
+      "condition": "从原任务详情进入呼叫名单",
+      "steps": [
+        "打开当前有权任务详情和呼叫名单，按已分配/待呼叫/已呼叫/已过滤/呼叫失败等原视图查看。",
+        "手动导入、导入记录和已分配单条移除分别发起，不合成一次必须全做的操作；占位批量移除不新增。"
+      ]
+    },
+    {
+      "id": "ALT-2017-IMPORT",
+      "condition": "在任务呼叫名单选择手动导入",
+      "steps": [
+        "沿原上传文件/模板及供应商限制选择文件，按原校验提交。",
+        "按真实原处理结果显示成功/失败数量和记录，不把本地演示批次证明为供应商已执行；失败保留原状态。"
+      ]
+    },
+    {
+      "id": "ALT-2017-IMPORT-HISTORY",
+      "condition": "选择导入记录",
+      "steps": [
+        "按当前任务读取原导入记录和实际结果；空结果不造新记录，失败不假报成功。"
+      ]
+    },
+    {
+      "id": "ALT-2017-REMOVE",
+      "condition": "对当前任务已分配名单发起单条移除",
+      "steps": [
+        "核对当前任务/租户与所选号码，沿原单条移除能力更新已分配名单。",
+        "不扩成批量移除、公共禁呼或保证远端已排队号码已取消；实际服务端效果仍按ISSUE-2008核实。"
+      ]
+    },
+    {
+      "id": "ALT-2017-LIST-FAIL",
+      "condition": "任务名单查询、导入或单条移除失败/未知",
+      "steps": [
+        "保留原名单及实际失败/未知结果，停止本次新增提交；可按原操作重新发起。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "本次选定操作按原AI权限和执行/统计/财务规则得到可分辨结果；各独立操作未被合成单一功能。",
+    "账号/租户/公共目录/黑名单只维护一份，AI专属资源、原摘要内容、使用明细及合法充值/调整能力继续保留；AI概览归AI用量与服务同一入口，片段权与财务权不扩大。",
+    "工作区切换沿SC-2002，后台任务按原规则继续；本场景不改变公共禁呼及专项名单边界。",
+    "人员停用前系统已受理的本租户任务仍在原任务条件满足时继续；停用者不能再操作，其他已有权人员可按原权限管理，不自动转交。业务政策已确认，已受理边界/执行主体与资源条件仍按真实契约核验。",
+    "供应商标签池按supplierId；启用及标准映射按supplierId+tenantType（总部/门店）+tagScene（AI标签场景）；本地标准标签集按tenantType+tagScene。tagScene、具体AI执行sceneId和公共分类categoryId为不同身份，只能按可靠稳定关系关联，不按名称或首项猜配。",
+    "专业配置和原AI财务/资源资格独立保留，不因公共分类共享变成业务成员、本人坐席或双模块门槛；配置/财务资格不授代执行业务权。"
+  ],
+  "acceptance_points": [
+    "AC-2063：接入AI全部已有可用功能，原专业参数、机器人/供应商差异与执行统计规则保留；占位不自动新增开发。",
+    "AC-2064：原AI任务、通话／计费／线索统计、通话／线索记录、场景／标签及专业服务充值能力全量盘点；原首页摘要与使用情况合并为AI用量与服务，摘要／明细／财务分权；原拦截能力归同一公共名单的AI范围。保留旧PAGE及ACTION来源追溯，最终范围以生产可用清单复核。 原供应商标签池、场景启用及标准标签映射继续保来源和原授权；名称推荐/首项兜底不是已确认映射或业务结果，不能据此写业务字段、覆盖人工结果或判路径匹配。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "AC-2065：账号与租户基础资料移交公共后，AI专属资源、计费/分钟与充值业务继续保留，不自动合并云呼叫账务。",
+    "AC-2078：原租户AI汇总CSV改用当前统一分钟与服务口径，仅含租户名称、租户ID、租户类型、可用分钟、冻结分钟、累计消耗分钟、有效期、呼叫控制状态8列；移除冲突的旧金额及大/小模型独立可用余额列，不换算或恢复旧账。复用原全部有权AI租户导出意图和CSV下载交互，文件为当前服务快照，与原计费统计日期/平台筛选及公共租户列表筛选分开；财务导出权、实际有权租户范围、身份映射和可靠一致取数须按真实能力核验，未证实则受阻，不由本次列口径确认授予或扩大权限，不改其他原报表。"
+  ],
+  "scope_status": "confirmed_G1_SRC2094",
+  "design_status": "S3_revised_detail_structural_native_compile_checked_not_rendered",
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "actor",
+        "name": "具备所选原AI操作权限的人员",
+        "kind": "actor"
+      },
+      {
+        "id": "shell",
+        "name": "统一系统",
+        "kind": "system"
+      },
+      {
+        "id": "ai",
+        "name": "AI外呼模块",
+        "kind": "system"
+      },
+      {
+        "id": "provider",
+        "name": "原AI供应商",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "actor",
+        "type": "start",
+        "label": "选择一次原AI操作",
+        "order": 1
+      },
+      {
+        "id": "choose",
+        "lane_id": "actor",
+        "type": "action",
+        "label": "从对应区域选择原AI入口/对象",
+        "step_ref": 1,
+        "order": 2
+      },
+      {
+        "id": "auth",
+        "lane_id": "shell",
+        "type": "decision",
+        "label": "本次原操作的身份、范围及授权有效？",
+        "step_ref": 2,
+        "order": 3
+      },
+      {
+        "id": "kind",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "本次操作属于哪一类？",
+        "step_ref": 3,
+        "order": 4
+      },
+      {
+        "id": "deny",
+        "lane_id": "shell",
+        "type": "end",
+        "label": "说明原因，不进入操作",
+        "order": 5
+      },
+      {
+        "id": "query",
+        "lane_id": "ai",
+        "type": "action",
+        "label": "按本次原授权范围读取记录/统计",
+        "step_ref": 4,
+        "order": 6
+      },
+      {
+        "id": "task",
+        "lane_id": "actor",
+        "type": "decision",
+        "label": "原生产支持的启动还是暂停？",
+        "order": 7
+      },
+      {
+        "id": "config",
+        "lane_id": "actor",
+        "type": "action",
+        "label": "编辑一次原AI专业配置\n池supplier；启用/映射supplier+type+tagScene",
+        "order": 8
+      },
+      {
+        "id": "bill",
+        "lane_id": "actor",
+        "type": "action",
+        "label": "按独立原AI财务/资源权\n提交一次充值或调整",
+        "order": 9
+      },
+      {
+        "id": "public",
+        "lane_id": "shell",
+        "type": "action",
+        "label": "转交公共单一维护场景",
+        "order": 10
+      },
+      {
+        "id": "cancel",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "取消本次，沿原草稿规则处理",
+        "order": 11
+      },
+      {
+        "id": "taskdetail",
+        "lane_id": "actor",
+        "type": "action",
+        "label": "打开原任务详情→呼叫名单",
+        "order": 12
+      },
+      {
+        "id": "qok",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "本次查询取得结果？",
+        "step_ref": 5,
+        "order": 13
+      },
+      {
+        "id": "guard",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "本次实际AI启动资格及SC-2015通过？",
+        "order": 14
+      },
+      {
+        "id": "provider",
+        "lane_id": "provider",
+        "type": "action",
+        "label": "按已证实原能力处理控制请求",
+        "order": 15
+      },
+      {
+        "id": "save",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "本次身份/作用域/版本及原保存通过？",
+        "order": 16
+      },
+      {
+        "id": "billok",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "原财务流程确认成功？",
+        "order": 17
+      },
+      {
+        "id": "publicend",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "沿公共场景完成本次操作",
+        "order": 18
+      },
+      {
+        "id": "listop",
+        "lane_id": "actor",
+        "type": "decision",
+        "label": "本次名单操作？",
+        "order": 19
+      },
+      {
+        "id": "read",
+        "lane_id": "actor",
+        "type": "action",
+        "label": "查看原口径结果",
+        "step_ref": 6,
+        "order": 20
+      },
+      {
+        "id": "qfail",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "查询失败，保留筛选",
+        "order": 21
+      },
+      {
+        "id": "provider__branch3_1",
+        "lane_id": "provider",
+        "type": "action",
+        "label": "按已证实原能力处理控制请求",
+        "order": 22
+      },
+      {
+        "id": "block",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "命中拦截；失败/未知不新增提交",
+        "order": 23
+      },
+      {
+        "id": "pstatus",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "控制结果有可靠成功依据？",
+        "order": 24
+      },
+      {
+        "id": "saveend",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "仅本次原专业范围配置已保存\n不代表业务字段写入已授权",
+        "order": 25
+      },
+      {
+        "id": "savefail",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "身份/映射待核或保存失败\n保留输入及原生效范围",
+        "order": 26
+      },
+      {
+        "id": "billend",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "本次AI账务结果可见",
+        "order": 27
+      },
+      {
+        "id": "billfail",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "失败/未知，不重复记账",
+        "order": 28
+      },
+      {
+        "id": "listview",
+        "lane_id": "ai",
+        "type": "action",
+        "label": "读取当前任务各名单原视图",
+        "order": 29
+      },
+      {
+        "id": "importfile",
+        "lane_id": "actor",
+        "type": "action",
+        "label": "手动导入：选择文件并提交",
+        "order": 30
+      },
+      {
+        "id": "importhistory",
+        "lane_id": "ai",
+        "type": "action",
+        "label": "读取当前任务导入记录",
+        "order": 31
+      },
+      {
+        "id": "removeone",
+        "lane_id": "actor",
+        "type": "action",
+        "label": "选择已分配号码单条移除",
+        "order": 32
+      },
+      {
+        "id": "querymode",
+        "lane_id": "actor",
+        "type": "decision",
+        "label": "本次查看还是已有导出？",
+        "order": 33
+      },
+      {
+        "id": "pstatus__branch3_1",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "控制结果有可靠成功依据？",
+        "order": 34
+      },
+      {
+        "id": "pend",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "本次原任务控制结果可见",
+        "order": 35
+      },
+      {
+        "id": "punknown",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "失败/未知按原任务状态表达",
+        "order": 36
+      },
+      {
+        "id": "listviewok",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "本次名单查询成功？",
+        "order": 37
+      },
+      {
+        "id": "importconfirm",
+        "lane_id": "actor",
+        "type": "decision",
+        "label": "提交文件还是取消？",
+        "order": 38
+      },
+      {
+        "id": "historyok",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "本次导入记录查询成功？",
+        "order": 39
+      },
+      {
+        "id": "removeok",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "原单条移除处理成功？",
+        "order": 40
+      },
+      {
+        "id": "qend",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "本次查询完成",
+        "order": 41
+      },
+      {
+        "id": "export",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "原导出取得成功结果？",
+        "order": 42
+      },
+      {
+        "id": "pend__branch3_1",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "本次原任务控制结果可见",
+        "order": 43
+      },
+      {
+        "id": "punknown__branch3_1",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "失败/未知按原任务状态表达",
+        "order": 44
+      },
+      {
+        "id": "listviewend",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "显示当前任务名单",
+        "order": 45
+      },
+      {
+        "id": "listfail",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留原名单和实际失败/未知",
+        "order": 46
+      },
+      {
+        "id": "importvalidate",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "原任务/文件/供应商限制通过？",
+        "order": 47
+      },
+      {
+        "id": "cancel__branch5_1",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "取消本次，沿原草稿规则处理",
+        "order": 48
+      },
+      {
+        "id": "historyend",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "展示原导入记录",
+        "order": 49
+      },
+      {
+        "id": "listfail__branch4_3",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留原名单和实际失败/未知",
+        "order": 50
+      },
+      {
+        "id": "removeend",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "当前任务已分配名单已更新",
+        "order": 51
+      },
+      {
+        "id": "listfail__branch4_4",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留原名单和实际失败/未知",
+        "order": 52
+      },
+      {
+        "id": "qend__branch1_1",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "本次查询完成",
+        "order": 53
+      },
+      {
+        "id": "qfail__branch2_1",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "查询失败，保留筛选",
+        "order": 54
+      },
+      {
+        "id": "importapply",
+        "lane_id": "ai",
+        "type": "action",
+        "label": "沿原方式处理导入及记录结果",
+        "order": 55
+      },
+      {
+        "id": "listfail__branch4_1",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留原名单和实际失败/未知",
+        "order": 56
+      },
+      {
+        "id": "importok",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "本次导入结果准确可表达？",
+        "order": 57
+      },
+      {
+        "id": "importend",
+        "lane_id": "actor",
+        "type": "end",
+        "label": "显示本次导入结果和记录",
+        "order": 58
+      },
+      {
+        "id": "listfail__branch4_2",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留原名单和实际失败/未知",
+        "order": 59
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "choose"
+      },
+      {
+        "from": "choose",
+        "to": "auth"
+      },
+      {
+        "from": "auth",
+        "to": "kind",
+        "label": "是"
+      },
+      {
+        "from": "auth",
+        "to": "deny",
+        "label": "否",
+        "path_id": "ALT-2017-AUTH",
+        "type": "failure"
+      },
+      {
+        "from": "kind",
+        "to": "query",
+        "label": "记录/统计/AI用量与服务（按片段权）"
+      },
+      {
+        "from": "kind",
+        "to": "task",
+        "label": "生产清单证实已有的任务控制",
+        "path_id": "ALT-2017-TASK"
+      },
+      {
+        "from": "kind",
+        "to": "config",
+        "label": "原专业配置",
+        "path_id": "ALT-2017-CONFIG"
+      },
+      {
+        "from": "kind",
+        "to": "bill",
+        "label": "原AI充值/调整",
+        "path_id": "ALT-2017-BILL"
+      },
+      {
+        "from": "kind",
+        "to": "public",
+        "label": "公共资料/目录/同一黑名单",
+        "path_id": "ALT-2017-PUBLIC"
+      },
+      {
+        "from": "kind",
+        "to": "cancel",
+        "label": "提交前取消",
+        "path_id": "ALT-2017-CANCEL"
+      },
+      {
+        "from": "query",
+        "to": "qok"
+      },
+      {
+        "from": "qok",
+        "to": "read",
+        "label": "有结果（可为空）"
+      },
+      {
+        "from": "qok",
+        "to": "qfail",
+        "label": "查询失败",
+        "path_id": "ALT-2017-QUERY-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "task",
+        "to": "guard",
+        "label": "启动"
+      },
+      {
+        "from": "task",
+        "to": "provider",
+        "label": "暂停"
+      },
+      {
+        "from": "guard",
+        "to": "provider__branch3_1",
+        "label": "允许"
+      },
+      {
+        "from": "guard",
+        "to": "block",
+        "label": "命中或检查失败/未知",
+        "path_id": "ALT-2017-BLOCK",
+        "type": "failure"
+      },
+      {
+        "from": "provider",
+        "to": "pstatus"
+      },
+      {
+        "from": "pstatus",
+        "to": "pend",
+        "label": "成功依据明确"
+      },
+      {
+        "from": "pstatus",
+        "to": "punknown",
+        "label": "失败或未知",
+        "path_id": "ALT-2017-PROVIDER",
+        "type": "failure"
+      },
+      {
+        "from": "config",
+        "to": "save"
+      },
+      {
+        "from": "save",
+        "to": "saveend",
+        "label": "成功"
+      },
+      {
+        "from": "save",
+        "to": "savefail",
+        "label": "校验/保存失败",
+        "path_id": "ALT-2017-SAVE",
+        "type": "failure"
+      },
+      {
+        "from": "bill",
+        "to": "billok"
+      },
+      {
+        "from": "billok",
+        "to": "billend",
+        "label": "成功"
+      },
+      {
+        "from": "billok",
+        "to": "billfail",
+        "label": "失败或未知",
+        "path_id": "ALT-2017-BILL-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "public",
+        "to": "publicend"
+      },
+      {
+        "from": "read",
+        "to": "querymode"
+      },
+      {
+        "from": "querymode",
+        "to": "qend",
+        "label": "查看完成"
+      },
+      {
+        "from": "querymode",
+        "to": "export",
+        "label": "原有导出",
+        "path_id": "ALT-2017-EXPORT"
+      },
+      {
+        "from": "export",
+        "to": "qend__branch1_1",
+        "label": "成功"
+      },
+      {
+        "from": "export",
+        "to": "qfail__branch2_1",
+        "label": "失败/未知",
+        "path_id": "ALT-2017-QUERY-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "kind",
+        "to": "taskdetail",
+        "label": "原任务详情与呼叫名单",
+        "path_id": "ALT-2017-LIST"
+      },
+      {
+        "from": "taskdetail",
+        "to": "listop"
+      },
+      {
+        "from": "listop",
+        "to": "listview",
+        "label": "查看名单"
+      },
+      {
+        "from": "listop",
+        "to": "importfile",
+        "label": "手动导入",
+        "path_id": "ALT-2017-IMPORT"
+      },
+      {
+        "from": "listop",
+        "to": "importhistory",
+        "label": "导入记录",
+        "path_id": "ALT-2017-IMPORT-HISTORY"
+      },
+      {
+        "from": "listop",
+        "to": "removeone",
+        "label": "已分配单条移除",
+        "path_id": "ALT-2017-REMOVE"
+      },
+      {
+        "from": "listview",
+        "to": "listviewok"
+      },
+      {
+        "from": "listviewok",
+        "to": "listviewend",
+        "label": "成功"
+      },
+      {
+        "from": "listviewok",
+        "to": "listfail",
+        "label": "失败/未知",
+        "path_id": "ALT-2017-LIST-FAIL"
+      },
+      {
+        "from": "importfile",
+        "to": "importconfirm"
+      },
+      {
+        "from": "importconfirm",
+        "to": "importvalidate",
+        "label": "提交"
+      },
+      {
+        "from": "importconfirm",
+        "to": "cancel__branch5_1",
+        "label": "取消",
+        "path_id": "ALT-2017-CANCEL"
+      },
+      {
+        "from": "importvalidate",
+        "to": "importapply",
+        "label": "通过"
+      },
+      {
+        "from": "importvalidate",
+        "to": "listfail__branch4_1",
+        "label": "不通过",
+        "path_id": "ALT-2017-LIST-FAIL"
+      },
+      {
+        "from": "importapply",
+        "to": "importok"
+      },
+      {
+        "from": "importok",
+        "to": "importend",
+        "label": "准确（可含失败明细）"
+      },
+      {
+        "from": "importok",
+        "to": "listfail__branch4_2",
+        "label": "失败/未知",
+        "path_id": "ALT-2017-LIST-FAIL"
+      },
+      {
+        "from": "importhistory",
+        "to": "historyok"
+      },
+      {
+        "from": "historyok",
+        "to": "historyend",
+        "label": "成功"
+      },
+      {
+        "from": "historyok",
+        "to": "listfail__branch4_3",
+        "label": "失败/未知",
+        "path_id": "ALT-2017-LIST-FAIL"
+      },
+      {
+        "from": "removeone",
+        "to": "removeok"
+      },
+      {
+        "from": "removeok",
+        "to": "removeend",
+        "label": "成功"
+      },
+      {
+        "from": "removeok",
+        "to": "listfail__branch4_4",
+        "label": "失败/未知",
+        "path_id": "ALT-2017-LIST-FAIL"
+      },
+      {
+        "from": "provider__branch3_1",
+        "to": "pstatus__branch3_1"
+      },
+      {
+        "from": "pstatus__branch3_1",
+        "to": "pend__branch3_1",
+        "label": "成功依据明确"
+      },
+      {
+        "from": "pstatus__branch3_1",
+        "to": "punknown__branch3_1",
+        "label": "失败或未知",
+        "path_id": "ALT-2017-PROVIDER",
+        "type": "failure"
+      }
+    ]
+  },
+  "rule_ids": [
+    "BR-2014",
+    "BR-2018",
+    "BR-2020",
+    "BR-2021",
+    "BR-2049",
+    "BR-2052",
+    "BR-2054"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "analysis_notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "本轮只修订当前场景明细；旧SRC2086的37场景G1及SRC2088六入口采纳保历史来源，当前批准为SRC2094的36场景。原型/生产能力未据本次细化改写；不新增US/SC/功能或新统计。"
+  ],
+  "pending_choice_ids": [],
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "change_id": "CH-V200-C847-S3-SRC2094",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_detail_sha256": "326286734e3b88e406e08c7c66058259ff632cfaec04d3fcd0a9ebea6d2f3c85",
+      "retained_node_ids": [
+        "start",
+        "choose",
+        "auth",
+        "deny",
+        "kind",
+        "query",
+        "qok",
+        "qfail",
+        "read",
+        "qend",
+        "task",
+        "guard",
+        "block",
+        "provider",
+        "pstatus",
+        "punknown",
+        "pend",
+        "config",
+        "save",
+        "savefail",
+        "saveend",
+        "bill",
+        "billok",
+        "billfail",
+        "billend",
+        "public",
+        "publicend",
+        "cancel",
+        "querymode",
+        "export",
+        "taskdetail",
+        "listop",
+        "listview",
+        "listviewok",
+        "listviewend",
+        "importfile",
+        "importconfirm",
+        "importvalidate",
+        "importapply",
+        "importok",
+        "importend",
+        "importhistory",
+        "historyok",
+        "historyend",
+        "removeone",
+        "removeok",
+        "removeend",
+        "listfail",
+        "qend__branch1_1",
+        "qfail__branch2_1",
+        "provider__branch3_1",
+        "pstatus__branch3_1",
+        "pend__branch3_1",
+        "punknown__branch3_1",
+        "listfail__branch4_1",
+        "listfail__branch4_2",
+        "listfail__branch4_3",
+        "listfail__branch4_4",
+        "cancel__branch5_1"
+      ],
+      "retained_alternate_flow_ids": [
+        "ALT-2017-AUTH",
+        "ALT-2017-TASK",
+        "ALT-2017-CONFIG",
+        "ALT-2017-BILL",
+        "ALT-2017-PUBLIC",
+        "ALT-2017-CANCEL",
+        "ALT-2017-QUERY-FAIL",
+        "ALT-2017-BLOCK",
+        "ALT-2017-PROVIDER",
+        "ALT-2017-SAVE",
+        "ALT-2017-BILL-FAIL",
+        "ALT-2017-EXPORT",
+        "ALT-2017-LIST",
+        "ALT-2017-IMPORT",
+        "ALT-2017-IMPORT-HISTORY",
+        "ALT-2017-REMOVE",
+        "ALT-2017-LIST-FAIL"
+      ],
+      "added_node_ids": [],
+      "added_alternate_flow_ids": [],
+      "semantic_replacement": "本条branch_semantics记本场景旧新关系；旧文件只按previous_detail_sha256及历史来源追溯，不作为当前分支。",
+      "branch_semantics": {
+        "retired": [
+          "旧任务分支中的备用自动切换暗示"
+        ],
+        "retained": [
+          "原操作能力须生产可用证据",
+          "AI财务资源独立资格",
+          "供应商专业标签原作用域"
+        ]
+      }
+    }
+  ],
+  "ai_label_scope_boundary": "AI标签原供应商池/作用域/可靠映射保留；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。名称推荐、首项兜底及不可靠映射不构成已保存业务值或路径匹配。",
+  "scope_choice_update": {
+    "change_id": "CH-V200-AI-TAGS-CONFIG-ONLY-20261024",
+    "source_ref": "inputs/source-index.json#SRC-2096",
+    "version": "2.0.0",
+    "selected": "configuration_only",
+    "new_API_permission_business_field_or_scenario": false,
+    "at": "2026-10-24T13:43:27+08:00"
+  },
+  "resolved_choice_ids": [
+    "AI-STANDARD-TAG-WRITE"
+  ]
+}

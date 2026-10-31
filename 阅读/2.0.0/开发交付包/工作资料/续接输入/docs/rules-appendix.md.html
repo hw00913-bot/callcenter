@@ -1,0 +1,36 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>工作资料/续接输入/docs/rules-appendix.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../../index.html">返回资料索引</a> · <a href="../../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%B7%A5%E4%BD%9C%E8%B5%84%E6%96%99/%E7%BB%AD%E6%8E%A5%E8%BE%93%E5%85%A5/docs/rules-appendix.md">原始 Markdown</a></p><h1>工作资料/续接输入/docs/rules-appendix.md</h1><pre># 当前全局业务约束
+
+GR-IDENTITY：统一账号以准确稳定身份关联已授权租户，五种生产角色与本人坐席能力分离；不按同名／手机号自动合并身份。
+
+GR-SCOPE：每次读取和操作均按当前账号、合法租户、品牌、模块、功能权与对象范围重验；品牌配置关系不授全品牌客户资料。
+
+GR-AUTH：菜单可见、操作资格和数据范围分别判断；总部／门店角色不互相冒用，超管监管不代办业务，未授功能不自动开放。
+
+GR-DATA-FACTS：受理、排队、真实拨打、接通、执行结束、重试收敛、正式内容保存、归档、节点推进、业务结论分别记录；不把前一状态冒充后一状态。
+
+GR-SERIAL：同一业务不论DIRECT/TEMPLATE均串行办理；在途/排队/重试/未知执行未收敛以及必要本人内容未归档时，不启动下一段、启用新run或推进/转交/完成废弃。
+
+GR-CONFIG：TEMPLATE的模板字段参考分类只供编排，实际分类独立关联当前同品牌兼容模板，新run仅消费明确生效配置并封完整方案，已开始run不追改。DIRECT不消费路由或生成run；分类开关不自动转换既有业务模式。 当前有出口新配置必须唯一末位ELSE；END只配置两种后续动作。
+
+GR-FIELDS：字段以品牌、IMPORT/FOLLOWUP用途和稳定ID解释，同名不同用途不合并；类型、选项和取值上下文不相容即拒，不按标签名／首项猜配。 对当前可可靠读取schema内、启用且支持条件的非必填IMPORT字段，新导入/新run准备时缺列规范化为null用于判断；必填缺失或schema读取失败仍拒绝，通话/填写未知及已捕获历史缺失不在读取时补空。
+
+GR-PRIVACY：当前负责方按资格办理；转出方仅见本方截止快照；实际接听人只填自己的准确原段，查询权、核对权、跟进责任均不替代实际填写权。
+
+GR-CONTACT：本租户规范号码按所有有效限制来源独立判定，解除某来源不解除其他来源；呼出准入覆盖四类呼叫，未知不放行，正常呼入不被外呼限制拦。同号正在执行的联系租约、联系间隔和当日频次单独核验；同号多业务不合并身份，有冲突按已配置分类优先级及稳定顺序协调。
+
+GR-UNKNOWN：失败与未知分开；未知保留同次请求身份、输入和待核状态，不重放新请求、不假报成功或以空结果/0值替代读取失败。
+
+GR-NO-HISTORY：本轮规划无旧流转数据迁移／模板兼容；未来发生的运行、跟进、通话、来源和审计快照仍按产品规则完整保留。专业现有能力的复用不等于迁移旧流转账本。
+
+GR-LIST-ORDER：普通业务列表按真实更新时间倒序后分页；无可靠时间保持稳定，不在读取时造时间。字段／选项顺序、分支优先级、节点及事件序列保业务语义顺序。
+
+GR-HANDLING-MODE：分类allowDirectFollowup仅显式true开放DIRECT，缺省false。导入整批明确DIRECT或TEMPLATE，不因失败静默降级。DIRECT明确AI/MANUAL/PREDICTIVE，AI场景必选；仅豁免路由条件附加资料，基础必填、类型、映射、唯一性全部保留，且无run或节点。DIRECT有完整同租户真实呼叫、本人填写、快照、联系限制和当前资料更正，但无模板转交/推进。后续仅在当前路由和必需资料验证通过、全部旧执行及必要归档可靠收敛后，明确在原业务启用新run，不重复导入；旧直接事实不能完成新节点。 DIRECT使用独立directCycleId/directCycles及ACTIVE/COMPLETED状态，不是run；完成周期须明确结论且有真实已归档完成跟进或NO_CALL+原因。再次直接跟进显式确认下一次方式和必要AI场景，新周期清旧责任安排。启用流程不强制先完成直接周期，成功时directStatus记FLOW_ENABLED，已完成周期保原COMPLETED结论，原ACTIVE周期记录FLOW_ENABLED。 合法END来源可按已确认动作接续当前租户人工周期；它与普通DIRECT导入许可分开，可保已结束run历史但无当前模板节点。
+
+GR-NAVIGATION：正常跨业务域、切租户及系统退出不因拨号/振铃/通话/话后/电话未知而拦截，也不强制先退出电话；身份、数据范围和普通未保存表单检查保留，撤权后的有限当前收尾是独立机制。
+
+GR-END-ACTION：END只配置名称和DIRECT_FOLLOWUP/CLOSE两种后续动作。先结束原run；CLOSE不再跟进，DIRECT_FOLLOWUP同record/当前tenant生成无模板人工周期，不自动起呼。合法END来源可授权此接续，即使分类没有开放普通DIRECT导入；原run/节点/call/快照保留，原人员仅当前仍有效且具电话资格时沿用。
+
+GR-LOCAL-ROUTE：线索域转交组件允许CURRENT本租户分支；命中后保持owner、run及tenant阶段，不新建跨租户截止/轮次，不清原安排与封存结果，并重核后继CALL资格。OTHER仍执行原意向锚定和跨租户保护；CURRENT不冒充OTHER，拒伪造目标或过期令牌。
+
+GR-CUSTOMER-SIP：流转判断分别使用TIANRUN_MANUAL_SIP_CAUSE和TIANRUN_PREDICTIVE_SIP_CAUSE客户侧结果：200已接通、710～724当前字典；不再用1～4接听标记推断，不改AI状态域或原专业记录的其他状态展示。新回执与实际方式/原段/场景准确关联，未知PENDING。
+</pre></body></html>

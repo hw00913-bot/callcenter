@@ -1,0 +1,240 @@
+# AliCti 坐席离线及原电话控制：必要原始证据摘录
+
+核验时间：2026-10-16T11:09:52+08:00。候选来源 SRC-2028（预留，未改source-index）。
+仅选当前 active raw/tianrun-api-official@v1。以下保留原始Markdown行号；省略所有请求/返回JSON样例、号码及签名值，未执行任何示例或接口。
+
+文档定义可补部分能力证据；生产配置、真实ID映射、时序/幂等/超时与本地话后保存判据继续保留缺口。
+
+<a id="logout"></a>
+## 座席Action/座席下线接口.md
+Wiki页面：`lib-天润融通座席动作`；raw来源：`raw/tianrun-api-official@v1`。
+原文件：`/Users/huhaowen/Documents/00_automatic_prototype/01_WIKI_LLM/raw/external/tianrun-api-official/v1/文档/html/wiki/API/座席Action/座席下线接口.md`。
+SHA-256：`ccf5f9cf881c8c4dc7c27b0c4a05add8b9b5d4448d4b36f05b5247ba269cd64a`。
+
+```text
+L1: ##### 座席下线接口
+L3: - 接口说明<br> 下线座席
+L5: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/agent/logout](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/agent/logout)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST
+L9: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | cno | String | 必选 | 座席工号 | 取值3-10位正整数 |
+L17: | removeBinding | Int | 可选 | 解除绑定电话 | 取值： 0:不解除绑定电话， 1:解除绑定电话 默认为0 |
+L18: | isKickout | Int | 可选 | 是否给座席发生kickout事件 | 取值： 0:不发送， 1:发送 默认为1，发送 |
+L19: | ignoreOffline | Int | 可选 | 是否忽略重复下线报错 | 取值：0:不忽略 1:忽略 默认为0，不忽略 |
+L28: - 接口返回<br> JSON格式数据：
+L30: | 参数 | 类型 | 说明 |
+L31: | --- | --- | --- |
+L32: | result | Int | 0 成功, -1 失败 |
+L33: | description | String | 返回结果描述 |
+L39: | 验证失败，参数\[{param}\]不能为空 | {param}为接口参数中必选字段 |
+L40: | 验证失败，参数\[{param}\]格式不正确 | {param}为接口参数中格式有要求的字段 |
+L41: | 验证失败，参数\[{param}\]取值不正确 | {param}为接口参数中有固定取值的字段 |
+L42: | 验证失败，参数\[{param}\]取值范围不正确 | {param}为接口参数中有固定范围的字段 |
+L43: | 验证失败，超过频次限制 | 接口调用超过接口的访问频次限制 |
+L44: | 成功，{param} | {param}为成功描述 |
+L45: | 失败，{param} | {param}为失败描述 |
+```
+
+<a id="state"></a>
+## 座席数据管理/座席实时状态获取接口.md
+Wiki页面：`lib-天润融通座席数据管理`；raw来源：`raw/tianrun-api-official@v1`。
+原文件：`/Users/huhaowen/Documents/00_automatic_prototype/01_WIKI_LLM/raw/external/tianrun-api-official/v1/文档/html/wiki/API/座席数据管理/座席实时状态获取接口.md`。
+SHA-256：`e298b308d241ddd4de70da37688d1f1f5ecdab491a74036cefff40ab91b565fb`。
+
+```text
+L1: ##### 座席实时状态获取
+L3: - 接口说明
+L5: 获取座席实时状态
+L7: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/agentStatus/get](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/agentStatus/get)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST
+L11: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L12: | --- | --- | --- | --- | --- |
+L13: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L16: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L17: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L18: | cno | String | 必选 | 座席号 | 单个座席号 |
+L27: - 接口返回<br> JSON格式数据：
+L29: | 参数 | 类型 | 说明 |
+L30: | --- | --- | --- |
+L31: | result | Int | 0 成功, -1 失败 |
+L32: | description | String | 返回结果描述 |
+L33: | data | JSON | 返回数据JSON格式 |
+L34: | errorCode | Int | 错误码,当返回result=-1时，返回该参数 |
+L48: data定义：
+L50: | 字段 | 类型 | 描述 |
+L51: | --- | --- | --- |
+L52: | state | String | 座席状态描述（结合了登录状态和设备状态），离线，空闲，置忙，整理，呼叫中，响铃，保持，通话 |
+L53: | stateAction | String | 状态对应的动作，座席登录状态不是离线时返回。详见[座席状态动作说明](https://wiki.alicti.cn/html/wiki/%E5%B7%A5%E5%85%B7%E6%9D%A1/%E5%BA%A7%E5%B8%AD%E7%8A%B6%E6%80%81%E5%8A%A8%E4%BD%9C.html) |
+L54: | stateDuration | Long | 座席当前综合状态持续时长，单位秒。优先按综合状态开始时间计算，缺失时降级为登录状态开始时间；离线或不存在可用开始时间时不返回 |
+L55: | loginStatus | Integer | 座席登录状态 0：离线状态 1：在线状态 2：置忙状态 3：整理状态 |
+L56: | deviceStatus | Integer | 座席设备状态，座席登录状态不是离线时返回 -1：错误的状态 0：空闲状态 1：锁定状态 2：邀请中状态 3：响铃状态 4：使用中状态 |
+L57: | mainUniqueId | String | 座席当前参与的通话唯一标识，座席设备状态为1/2/3/4时返回 |
+L58: | extenReachable | Boolean | 座席当前绑定终端是否可达，` true ` 表示可达，` false ` 表示不可达 |
+L60: errorCode说明：
+L62: | 代码 | 说明 |
+L63: | --- | --- |
+L64: | 10001 | 系统异常 |
+L65: | 10002 | 超出请求频度限制 |
+L66: | 10003 | 权限验证失败 |
+L67: | 10004 | 企业状态异常 |
+L68: | 20000 | 参数不正确 |
+```
+
+<a id="event"></a>
+## 字段定义/推送变量和值/座席状态推送变量.md
+Wiki页面：`lib-天润融通字段定义`；raw来源：`raw/tianrun-api-official@v1`。
+原文件：`/Users/huhaowen/Documents/00_automatic_prototype/01_WIKI_LLM/raw/external/tianrun-api-official/v1/文档/html/wiki/API/字段定义/推送变量和值/座席状态推送变量.md`。
+SHA-256：`48ad4e687ceca58d6d549abf1298afd042b0551fc688c36c23bb24b4bed9fb71`。
+
+```text
+L1: ##### 座席状态推送变量定义
+L3: 不支持通道变量
+L5: 座席状态推送默认推送以下所有存在的字段，只支持修改推送key值
+L7: | 变量名 | 说明 | 示例 |
+L8: | --- | --- | --- |
+L9: | event | status | status |
+L10: | enterpriseId | 企业ID | &lt;EXAMPLE\_VALUE&gt; |
+L11: | callType | deviceStatus=2,3或4时，呼叫类型 | 1 |
+L12: | cno | 座席工号 | &lt;EXAMPLE\_VALUE&gt; |
+L13: | loginStatus | 登录状态，0：离线，1：在线，2：置忙，3：整理 | 1 |
+L14: | deviceStatus | 设备状态，-1：失效，0：空闲，1：已锁定，2：呼叫中，3：响铃，4：通话中 | 4 |
+L15: | pauseType | loginStatus=2时，置忙类型 | 取值说明：1 普通 2 休息 |
+L16: | pauseDescription | loginStatus=2时，置忙描述 | 置忙 |
+L17: | busyDescription | deviceStatus=4时，忙碌描述，hold：保持 | hold |
+L18: | wrapupTime | loginStatus=3时，整理时间 | 30 |
+L19: | uniqueId | deviceStatus=3或4，loginStatus=3时，座席侧通话标识 | &lt;EXAMPLE\_VALUE&gt; |
+L20: | mainUniqueId | deviceStatus=3或4，loginStatus=3时，主通话标识，一通通话唯一 | sip-13-1527307333.19590 |
+L21: | state | 座席状态描述：离线，空闲，置忙，整理，呼叫中，响铃，保持，通话 | 通话 |
+L22: | stateAction | 状态对应的动作，详见[座席状态动作说明](https://wiki.alicti.cn/html/wiki/%E5%B7%A5%E5%85%B7%E6%9D%A1/%E5%BA%A7%E5%B8%AD%E7%8A%B6%E6%80%81%E5%8A%A8%E4%BD%9C.html) | idle |
+L23: | bindType | 绑定电话类型 | 取值 1.普通电话,2.分机,3.webrtc |
+L28: | timeInMillis | 事件时间戳（ms） http推送时必存在 | 1720500293285 |
+L29: | time | 事件时间戳（s） http推送时必存在 | 1720500293 |
+```
+
+<a id="push"></a>
+## 配置管理/推送管理/新增推送设置接口.md
+Wiki页面：`lib-天润融通配置推送管理`；raw来源：`raw/tianrun-api-official@v1`。
+原文件：`/Users/huhaowen/Documents/00_automatic_prototype/01_WIKI_LLM/raw/external/tianrun-api-official/v1/文档/html/wiki/API/配置管理/推送管理/新增推送设置接口.md`。
+SHA-256：`d3fbc3684f9f7aee434b99fe38060dd556cb08da248684f8340e5f45bd75f2e7`。
+
+```text
+L1: ##### 新增推送设置接口
+L5: 创建一条新的推送设置。目标配置支持两种方式：
+L7: - 目标接口模式：传 ` targetUrlId `，关联已存在的目标接口
+L9: - 直配模式：直接传 ` url `、` method `、` contentType `、` timeout `
+L11: 如果两种方式同时传入，服务端优先以 ` targetUrlId ` 对应的目标接口配置为准。
+L13: - 接口路径：` /cc/create_push_action `
+L15: - 请求方式：` POST `
+L17: - Content-Type：` application/json `
+L19: - 鉴权方式：请参考[接口鉴权](https://wiki.alicti.cn/html/wiki/API/%E6%9D%83%E9%99%90%E9%AA%8C%E8%AF%81/%E6%8E%A5%E5%8F%A3%E9%89%B4%E6%9D%83.html)
+L23: | 参数 | 类型 | 必填 | 说明 |
+L24: | --- | --- | --- | --- |
+L25: | name | String | 是 | 推送设置名称，企业内唯一 |
+L26: | targetUrlId | Integer | 否 | 目标接口 ID；与 ` url/method/contentType/timeout ` 二选一 |
+L27: | url | String | 否 | 目标接口地址；未传 ` targetUrlId ` 时必填，必须以 ` http:// ` 或 ` https:// ` 开头 |
+L28: | method | Integer | 否 | 请求方式；未传 ` targetUrlId ` 时必填，` 0=POST `，` 1=GET ` |
+L29: | contentType | Integer | 否 | 内容类型；未传 ` targetUrlId ` 时必填，` 1=form `，` 2=json ` |
+L30: | timeout | Integer | 否 | 超时时间；未传 ` targetUrlId ` 时必填，范围 ` 1~10 ` |
+L31: | type | Integer | 是 | 推送类型 |
+L32: | retry | Integer | 否 | 重试次数，范围 ` 0~3 `；仅在未传 ` retryStrategy ` 时生效 |
+L33: | active | Integer | 否 | 是否启用，` 0=停用 `，` 1=启用 `；默认 ` 1 ` |
+L34: | intervalTime | Integer | 否 | 重试间隔时间，范围 ` 0~60 `；仅在未传 ` retryStrategy ` 时生效 |
+L35: | callType | Integer | 否 | 呼叫类型 |
+L36: | pushAgent | Integer | 否 | 是否推送到座席前端，` 0=不推送 `，` 1=座席端推送 `，` 2=http推送+座席端推送 ` |
+L39: | retryStrategy | Object | 否 | 重试策略对象；传入后优先于顶层 ` retry `、` intervalTime ` |
+L40: | delayedPush | Object | 否 | 延迟推送对象，字段为 ` delay ` |
+L100: | 9 | 座席状态变更推送 |
+```
+
+<a id="login"></a>
+## 座席Action/座席上线接口.md
+Wiki页面：`lib-天润融通座席动作`；raw来源：`raw/tianrun-api-official@v1`。
+原文件：`/Users/huhaowen/Documents/00_automatic_prototype/01_WIKI_LLM/raw/external/tianrun-api-official/v1/文档/html/wiki/API/座席Action/座席上线接口.md`。
+SHA-256：`36e5fa9d5efceeddfe504b7a2195ccda970cc6099608dafb4b7a565ffd247014`。
+
+```text
+L1: ##### 座席上线接口
+L3: - 接口说明<br> 上线座席
+L5: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/agent/login](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/agent/login)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST
+L9: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | cno | String | 必选 | 座席工号 | 取值3-10位正整数 |
+L17: | bindTel | String | 必选 | 绑定电话 | 绑定电话 |
+L18: | bindType | Int | 必选 | 绑定电话类型 | 取值 1.普通电话,2.分机,3.webrtc <br>说明：绑定类型如果是分机则必须先让分机电话设备注册成功。如果绑定类型为webrtc，就算调用接口成功也是无法呼叫的。如果在企业设置页面开启了自适应绑定电话类型，则系统会根据绑定的号码来找到对应的绑定类型，使用系统找到的绑定类型，此处的设置优先级低。 |
+L19: | loginStatus | Int | 可选 | 登录状态，1：置闲，2：置忙，默认为1 |  |
+L20: | pauseDescription | String | 可选 | 置忙描述 |  |
+L29: - 接口返回<br> JSON格式数据：
+L31: | 参数 | 类型 | 说明 |
+L32: | --- | --- | --- |
+L33: | result | Int | 0 成功, -1 失败 |
+L34: | description | String | 返回结果描述 |
+```
+
+<a id="dial"></a>
+## 座席Action/座席外呼接口.md
+Wiki页面：`lib-天润融通座席动作`；raw来源：`raw/tianrun-api-official@v1`。
+原文件：`/Users/huhaowen/Documents/00_automatic_prototype/01_WIKI_LLM/raw/external/tianrun-api-official/v1/文档/html/wiki/API/座席Action/座席外呼接口.md`。
+SHA-256：`993616e2d356bcf42a0200f411866a885dd58b58e66334653d618cacffebdc60`。
+
+```text
+L1: ##### 座席外呼接口
+L3: - 接口说明<br> 当座席在线时，可以直接将此接口嵌入到客户的CRM系统中，在对应的号码后面增加图标或者链接，从而实现点击呼叫功能。<br> 接口支持加密外呼，即接口传入的外呼号码是已被加密过后的。目前支持AES算法加密，需要开启加密外呼，只需在企业配置中开启配置"外呼加密规则"。
+L5: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/previewOutcall](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/previewOutcall)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST请求
+L9: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证 |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1:<br>MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2：<br>MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | cno | String | 必选 | 座席工号 | 3-10位数字 |
+L17: | tel | String | 必选 | 外呼号码 | 需要进行呼叫的客户方电话号码，固话带区号，手机不加0。 当开启号码隐藏设置时，可从弹屏事件中获取customerNumberKey的值，进行外呼；[加密外呼](https://wiki.alicti.cn/html/wiki/API/%E5%AD%97%E6%AE%B5%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E9%83%A8%E5%88%86/%E5%8A%A0%E5%AF%86%E5%A4%96%E5%91%BC%E5%8F%B7%E7%A0%81%E5%8A%A0%E5%AF%86%E8%A7%84%E5%88%99.html)；如果是加密的号码，需要URLEncode后传入；当外呼相关配置-支持分机号外呼开启后，此字段可支持传手机号-分机号格式 |
+L18: | timeout | Int | 可选 | 呼叫座席侧超时时间 | 取值范围 5&lt;=timeout&lt;=60，默认30(单位:s\) |
+L19: | dialTelTimeout | Int | 可选 | 呼叫客户侧超时时间 | 取值范围 5&lt;=dialTelTimeout&lt;=60，默认45(单位:s\) |
+L21: | requestUniqueId | String | 可选 | 请求唯一id | 取值：如果没有传入值则系统会生产。如果是加密的号码，需要URLEncode后传入 |
+L38: - 接口返回<br> JSON格式数据
+L40: | 参数 | 类型 | 说明 |
+L41: | --- | --- | --- |
+L42: | result | Int | 0 成功, -1 失败 |
+L43: | description | String | 返回结果描述 |
+L44: | requestUniqueId | String | 请求唯一id，接口调用成功时返回 |
+L45: | errorCode | Int | 错误码,当返回result=-1时，返回该参数 |
+L56: | 提交成功 | 接口调用成功 |
+L65: | 20011 | 外呼失败，previewOutcall agent busy | 座席忙，比如座席正在外呼中或通话中 |
+L66: | 20012 | 外呼失败，no such agent | 座席不存在或不在线 |
+L67: | 20016 | 外呼失败，permission denied | 没有外呼权限 |
+L68: | 20024 | 外呼失败，no ob permission | 没有开启外呼功能 |
+L69: | 20025 | 外呼失败，bad destInterface | 分机未注册 |
+L70: | 20031 | 外呼失败，restrict tel | 号码在黑名单中，或不在白名单中 |
+```
+
+<a id="unlink"></a>
+## 座席Action/座席挂机接口.md
+Wiki页面：`lib-天润融通座席动作`；raw来源：`raw/tianrun-api-official@v1`。
+原文件：`/Users/huhaowen/Documents/00_automatic_prototype/01_WIKI_LLM/raw/external/tianrun-api-official/v1/文档/html/wiki/API/座席Action/座席挂机接口.md`。
+SHA-256：`71d5e0528e8ee38e6a67c6ff711e28d7995f3a76aff9783314626433adc8bbdd`。
+
+```text
+L1: ##### 座席挂机接口
+L3: - 接口说明<br> 座席挂机
+L5: - API URL<br> 接口请求地址：<br>[https://api-{region}.alicti.cn/interface/{version}/agent/unlink](https://api-%7Bregion%7D.alicti.cn/interface/%7Bversion%7D/agent/unlink)<br> 地址参数说明：<br> {region}为alicti平台区域，{region}=1 表示华东1区，{region}=2 表示华北2区，{region}=5 表示华东5区，{region}=6 表示华北6区<br> {version}为接口版本，当前{version}=v10<br> 接口请求方式：<br> GET/POST
+L9: | 参数 | 类型 | 要求 | 描述 | 备注 |
+L10: | --- | --- | --- | --- | --- |
+L11: | validateType | Int | 必选 | 验证类型 | 说明：<br>validateType=1：使用部门编号(departmentId\)进行验证；<br>validateType=2：使用呼叫中心编号(enterpriseId\)进行验证； |
+L14: | timestamp | Long | 必选 | 当前时间戳 | 说明：取当前linux时间戳，精确到s，时间戳有效期为30分钟 |
+L15: | sign | String | 必选 | 验证值 | 说明：<br>validateType=1时，MD5({departmentId}+{timestamp}+{部门token值}\)；<br>validateType=2时，MD5({enterpriseId}+{timestamp}+{部门token值}\)；<br>格式要求：32位全小写 |
+L16: | cno | String | 可选 | 座席工号 | 取值3-10位正整数，参数cno,uniqueId和requestUniqueId三选一 |
+L17: | uniqueId | String | 可选 | 通话唯一标识 | 参数cno,uniqueId和requestUniqueId三选一 |
+L18: | requestUniqueId | String | 可选 | 请求唯一标识 | 参数cno,uniqueId和requestUniqueId三选一。<br>注意：requestUniqueId挂机功能只在呼叫类型为webcall时生效，且需提前在管理后台将功能开启 |
+L19: | side | Int | 可选 | 是否座席侧挂机 | 取值范围：1,2（数字含义，座席侧，非座席侧\)，默认座席侧 |
+L28: - 接口返回<br> JSON格式数据：
+L30: | 参数 | 类型 | 说明 |
+L31: | --- | --- | --- |
+L32: | result | Int | 0 成功, -1 失败 |
+L33: | description | String | 返回结果描述 |
+L44: | 成功，{param} | {param}为成功描述 |
+L45: | 失败，{param} | {param}为失败描述 |
+```

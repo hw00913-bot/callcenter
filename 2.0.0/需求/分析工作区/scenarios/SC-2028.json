@@ -1,0 +1,524 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2028",
+  "name": "接收方查看线索基本信息及历轮结果",
+  "summary": "查看基本资料及有权历史快照；原转出方只看截止历史，不泄露下游新标签、通话或录音。",
+  "status": "proposed_flow",
+  "actors": [
+    "本线索有权查看人员",
+    "D联络云"
+  ],
+  "trigger": "接收租户需要接续了解上游跟进",
+  "preconditions": [
+    "线索已成功发生归属转交，无需接收方另行确认接收。",
+    "请求人员属于该线索当前接收租户，或该线索已转出原负责租户的有权人员；具体查看权限沿现有平台权限及S4身份契约核对，转交授权不自动增加查看权。",
+    "同条线索再次回总部或同门店时沿用原线索并新增轮次、保留历轮；当前身份优先于历史已转出身份。",
+    "同一品牌线索编码跨媒体、门店统一唯一；查看与历轮关联均按编码，不因手机号相同判同或拼接历史。",
+    "结果时间/转出事件及租户身份需能判定访问范围；真实字段、接口及关联变更由本版接口/执行待核项、本版接口/执行待核项继续核验。",
+    "沿用 AI 生产身份和稳定租户/对象标识；直接访问与菜单采用同一当前操作授权校验，不按名称、手机号或品牌关系合并身份或授权。",
+    "按实际数据查看范围验权，不要求另开未使用的外呼模块或本人坐席，不因此授启动/分配/转交权。",
+    "业务中心整合已确认的分类、规则、导入批次、业务台账、分配及记录处理入口，复用同一业务记录和原执行/详情跳转；不复制客户档案、任务或专业配置，不改变当前负责租户、原动作资格、固定版本和历史可见边界。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "本线索有权查看人员",
+      "action": "当前接收租户人员以同品牌统一唯一编码选择转入线索，准备查看基本信息及历轮结果。",
+      "system_response": "本次查看的身份及范围由平台核定；已转出方路径见备选流程。",
+      "rule_ids": [
+        "BR-2030",
+        "BR-2034",
+        "BR-2035"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "D联络云",
+      "action": "按同品牌统一唯一线索编码核对请求租户、查看资格及当前/已转出身份。",
+      "system_response": "再次收回按当前接收身份处理；具体查看权限沿现有平台权限及S4身份契约核对，转交授权不自动增加查看权，品牌关系也不授予全量数据权。 重新核当前成员/范围；仅具转交、品牌配置或监管资格不自动获得本次记录、来源通话或录音权，失权不展示旧缓存。",
+      "rule_ids": [
+        "BR-2030",
+        "BR-2032",
+        "BR-2034",
+        "BR-2035"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "D联络云",
+      "action": "按该线索编码为当前有权接收方取得基本信息与此前各轮跟进结果。",
+      "system_response": "历轮与转交事件按同条编码关联，当前有权方可区分客户意向和人工指派；同码往返不拼接同手机号其他线索。 基础及业务多选字段按各自保存定义/选项和值快照展示，不按最新配置、同名字段或同号其他线索重解释。",
+      "rule_ids": [
+        "BR-2030",
+        "BR-2032",
+        "BR-2035"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "向当前有权接收方呈现基本信息及历轮结果。",
+      "system_response": "当前有权方按资料范围看基本及历轮；旧转出方按原转出截止、发生时间及准确原段裁剪，过滤下游当前字段、条件依据、目标/指派和录音。迟到结果只归原段，不能把入库时间当发生时间。原人工未保存段只提供原段授权入口另循SC-2025，不在本查询授下游读取或结果改写权。",
+      "rule_ids": [
+        "BR-2030",
+        "BR-2031",
+        "BR-2034"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "本线索有权查看人员",
+      "action": "阅读有权范围内的结果。",
+      "system_response": "当前接收方可据此接续培育，继续培育由SC-2025表达；本次查看不改变归属。",
+      "rule_ids": [
+        "BR-2030",
+        "BR-2034"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2028-CANCEL",
+      "condition": "查看者在提交查看前取消或离开。",
+      "steps": [
+        "结束本次查看意图，不改变线索归属及已有结果。"
+      ],
+      "status": "analysis_draft"
+    },
+    {
+      "id": "ALT-2028-PERMISSION",
+      "condition": "请求人员不属于本线索当前接收方或有权已转出方。",
+      "steps": [
+        "不通过本次请求展示线索资料。",
+        "具体查看权限沿现有平台权限及S4身份契约核对，转交授权不自动增加查看权；总部身份不提供品牌所有线索访问权。"
+      ],
+      "status": "analysis_draft"
+    },
+    {
+      "id": "ALT-2028-SOURCE",
+      "condition": "请求租户已转出该线索，且当前尚未再次收回。",
+      "steps": [
+        "按该租户转出事件的截止时点核定历史结果范围。",
+        "仅取得并呈现转出前已发生的历史结果；不增加原负责租户对接收方后续结果的查看权。",
+        "原未保存人工段补录入口仅带原tenant/round/segment/固定表单引用，不携带下游当前字段；另由SC-2025核当前原操作资格。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ],
+      "rule_ids": [
+        "BR-2034"
+      ]
+    },
+    {
+      "id": "ALT-2028-FUTURE",
+      "condition": "已转出方的请求包含转出之后发生的后续结果。",
+      "steps": [
+        "过滤其转出后结果。",
+        "仅向其呈现转出前已发生的历史结果；不将无后续访问权误判为完全没有历史查看权。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ],
+      "rule_ids": [
+        "BR-2034"
+      ]
+    },
+    {
+      "id": "ALT-2028-LOAD",
+      "condition": "本次有权范围内的资料无法完整取得，或身份/截止范围无法可靠判定。",
+      "steps": [
+        "明确本次未能完整取得有权范围内资料，不以空列表或成功提示替代未知结果。",
+        "字段、结果身份、转出截止及恢复方式继续核对，不在当前草案承诺自动补齐或外部接口重试。",
+        "截止、发生时间、原段或字段定义/值快照不可核时不按空或0补齐，不用最新字段定义重解释历史。"
+      ],
+      "status": "analysis_draft"
+    }
+  ],
+  "postconditions": [
+    "当前有权接收方成功查看该线索基本信息和历轮跟进结果；再次收回该线索时按当前接收身份查看此前历轮。",
+    "已转出方成功分支只展示其转出前已发生的历史结果，转出后的结果不展示。",
+    "查看不改变归属，不增加接收确认环节。",
+    "本场景不扩大为总部可查看同品牌所有线索，亦不补写已转出方基本信息的额外字段范围。",
+    "失败或取消不构成本次有权资料完整展示成功。",
+    "历轮及截止历史按同品牌跨媒体、门店统一唯一线索编码关联，手机号相同不能作为同条线索判断依据。"
+  ],
+  "acceptance_points": [
+    "AC-2093：接收租户可查看转入线索的基本信息。",
+    "AC-2094：接收租户可查看该线索历轮跟进结果。"
+  ],
+  "source_story_ids": [
+    "US-2031"
+  ],
+  "source_acceptance_ids": [
+    "AC-2093",
+    "AC-2094"
+  ],
+  "business_rule_ids": [
+    "BR-2030",
+    "BR-2031",
+    "BR-2032",
+    "BR-2034",
+    "BR-2035",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2081",
+    "inputs/source-index.json#SRC-2082",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2084",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "analysis_notes": [
+    "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+    "六入口按实际原功能组织展示；原Cloud作业/号码档案/报表迁位继续保原电话现场和检查，原管理功能仍按SC-2002切离保护、同窗口返回和同次记忆。未核真实身份、供应商能力和持久化契约继续由S4核验，不把产品流程当生产证明。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "requester",
+        "name": "本线索有权查看人员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "requester",
+        "type": "start",
+        "order": 1,
+        "label": "需查看本线索资料"
+      },
+      {
+        "id": "N-OPEN",
+        "lane_id": "requester",
+        "type": "action",
+        "order": 2,
+        "label": "按品牌唯一线索编码选择",
+        "step_ref": 1
+      },
+      {
+        "id": "N-CONTINUE",
+        "lane_id": "requester",
+        "type": "decision",
+        "order": 3,
+        "label": "继续本次查看？"
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "requester",
+        "type": "end",
+        "order": 4,
+        "label": "取消本次查看"
+      },
+      {
+        "id": "N-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 4,
+        "label": "按品牌唯一编码核对身份",
+        "step_ref": 2
+      },
+      {
+        "id": "N-ALLOWED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 5,
+        "label": "本次有权访问？"
+      },
+      {
+        "id": "N-DENIED",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 6,
+        "label": "不展示本次请求资料"
+      },
+      {
+        "id": "N-IDENTITY",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "当前接收方身份？"
+      },
+      {
+        "id": "N-CURRENT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 8,
+        "label": "取有权基本资料及历轮快照\n客户意向/人工指派分开",
+        "step_ref": 3
+      },
+      {
+        "id": "N-SOURCE-REQUEST",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 9,
+        "label": "请求含转出后结果？"
+      },
+      {
+        "id": "N-FILTER",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 10,
+        "label": "过滤转出后发生的结果"
+      },
+      {
+        "id": "N-CUTOFF",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "仅取截止前原段历史快照\n不露下游字段/条件/目标"
+      },
+      {
+        "id": "N-LOADED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 12,
+        "label": "有权资料完整取得？"
+      },
+      {
+        "id": "N-LOAD-FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 13,
+        "label": "本次未能完整取得资料"
+      },
+      {
+        "id": "N-SHOW",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 14,
+        "label": "按核定范围呈现资料",
+        "step_ref": 4
+      },
+      {
+        "id": "N-READ",
+        "lane_id": "requester",
+        "type": "action",
+        "order": 15,
+        "label": "阅读有权快照\n原段补录另循原guard",
+        "step_ref": 5
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "requester",
+        "type": "end",
+        "order": 16,
+        "label": "有权资料查看完成"
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-OPEN"
+      },
+      {
+        "from": "N-OPEN",
+        "to": "N-CONTINUE"
+      },
+      {
+        "from": "N-CONTINUE",
+        "to": "N-CHECK",
+        "label": "继续"
+      },
+      {
+        "from": "N-CONTINUE",
+        "to": "N-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-2028-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "N-CHECK",
+        "to": "N-ALLOWED"
+      },
+      {
+        "from": "N-ALLOWED",
+        "to": "N-IDENTITY",
+        "label": "有权"
+      },
+      {
+        "from": "N-ALLOWED",
+        "to": "N-DENIED",
+        "label": "无权",
+        "path_id": "ALT-2028-PERMISSION",
+        "type": "failure"
+      },
+      {
+        "from": "N-IDENTITY",
+        "to": "N-CURRENT",
+        "label": "是；含再次收回"
+      },
+      {
+        "from": "N-IDENTITY",
+        "to": "N-SOURCE-REQUEST",
+        "label": "否；已转出有历史权",
+        "path_id": "ALT-2028-SOURCE"
+      },
+      {
+        "from": "N-CURRENT",
+        "to": "N-LOADED"
+      },
+      {
+        "from": "N-SOURCE-REQUEST",
+        "to": "N-FILTER",
+        "label": "包含后续结果",
+        "path_id": "ALT-2028-FUTURE"
+      },
+      {
+        "from": "N-SOURCE-REQUEST",
+        "to": "N-CUTOFF",
+        "label": "仅请求截止前历史"
+      },
+      {
+        "from": "N-FILTER",
+        "to": "N-CUTOFF"
+      },
+      {
+        "from": "N-CUTOFF",
+        "to": "N-LOADED"
+      },
+      {
+        "from": "N-LOADED",
+        "to": "N-SHOW",
+        "label": "完整取得"
+      },
+      {
+        "from": "N-LOADED",
+        "to": "N-LOAD-FAIL",
+        "label": "获取失败或范围不明",
+        "path_id": "ALT-2028-LOAD",
+        "type": "failure"
+      },
+      {
+        "from": "N-SHOW",
+        "to": "N-READ"
+      },
+      {
+        "from": "N-READ",
+        "to": "N-SUCCESS"
+      }
+    ]
+  },
+  "scope_review_source_ref": "inputs/source-index.json#SRC-218",
+  "notes": "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+  "expected_outcome": "查看基本资料及有权历史快照；原转出方只看截止历史，不泄露下游新标签、通话或录音。",
+  "exception_scope": "按当前/已转出身份、发生时间及截止裁剪；不泄露下游字段、当前条件、目标或录音。身份/截止不可核时明确失败，不当空态。",
+  "scope": "in_scope",
+  "scope_status": "G1_approved_SRC2094",
+  "design_status": "S3_rebuilt_candidate_pending_global_verification",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [
+    "ISSUE-2014"
+  ],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-187",
+    "inputs/source-index.json#SRC-188",
+    "inputs/raw/user-s3-rules-SRC-193.json",
+    "inputs/raw/user-s3-rules-SRC-194.json",
+    "inputs/raw/user-s3-rules-SRC-195.json",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-223",
+    "inputs/source-index.json#SRC-224"
+  ],
+  "v12_origin_scenario_id": "SC-11206",
+  "v12_origin_detail_sha256": "f152237c5adb8829d81724d7353160f1dcbcba28b9a1a2a8056dbfbfdab923b4",
+  "v12_origin_snapshot": "04ed3e3552872ccc863b05b9c0ec08c7d31b3f6d8806d9b86f054b83978db58d",
+  "rule_ids": [
+    "BR-2030",
+    "BR-2031",
+    "BR-2032",
+    "BR-2034",
+    "BR-2035",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010"
+  ],
+  "acceptance_contributions": {},
+  "revision_history": [
+    {
+      "at": "2026-10-24T12:23:18+08:00",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_scope_metadata": {
+        "scope_status": "confirmed_G1",
+        "design_status": "S3_incremental_flow_design_pending_G2",
+        "v2_gate_status": "G1_approved_G2_G3_pending",
+        "scope_confirmation_source": null
+      },
+      "previous_notes": [
+        "本场景按 SRC-2086 通过的 v2.0.0 G1 范围细化；v1.2.0 冻结包只作为继承来源，不代表本版 G2/G3 或真实执行能力已通过。",
+        "沿 D联络云六入口及原页面交互承载，不采用源版过渡外链；配置共享不产生跨租户业务数据权。"
+      ],
+      "reason": "当前G1后按最终c847和实际S1/S2重建S3；旧说明及源快照仅作历史，不改原始冻结包。",
+      "previous_analysis_notes": [
+        "SRC-193确认转出前历史截止，本图保留已转出方转出前历史权；总部品牌全量权限没有扩大。",
+        "已转出支路只说明历史结果范围，不据此扩展其基本信息、录音或转出后接续结果访问范围。",
+        "再次收回先识别当前接收身份并取得此前历轮，不能继续套用旧转出截止。",
+        "具体查看权限沿现有平台权限及S4身份契约核对，转交授权不自动增加查看权；真实字段、截止事件/时间及接口由本版接口/执行待核项、本版接口/执行待核项核验。",
+        "访问失败、资料获取失败和发起前取消是待评审异常契约，不冒充既有生产实现；本图未补写跨系统查询接口。",
+        "SRC-195确认同品牌线索编码跨媒体、门店统一唯一，不按手机号判同；当前接收方基本+历轮及已转出方历史截止规则保持。",
+        "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+      ]
+    }
+  ],
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_v12_baseline": "c84782225797ba928b75f4854640cde7ff34d07d33f951bb0985cafc61f2c1ac",
+  "diagram_revision": {
+    "at": "2026-10-24T12:23:18+08:00",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ],
+    "retained_node_ids": [
+      "N-ALLOWED",
+      "N-CANCEL",
+      "N-CHECK",
+      "N-CONTINUE",
+      "N-CURRENT",
+      "N-CUTOFF",
+      "N-DENIED",
+      "N-FILTER",
+      "N-IDENTITY",
+      "N-LOAD-FAIL",
+      "N-LOADED",
+      "N-OPEN",
+      "N-READ",
+      "N-SHOW",
+      "N-SOURCE-REQUEST",
+      "N-START",
+      "N-SUCCESS"
+    ],
+    "added_node_ids": [],
+    "retained_alternate_ids": [
+      "ALT-2028-CANCEL",
+      "ALT-2028-FUTURE",
+      "ALT-2028-LOAD",
+      "ALT-2028-PERMISSION",
+      "ALT-2028-SOURCE"
+    ],
+    "added_alternate_ids": [],
+    "step_relation": "原main_flow step编号全部保留；新增原人工段补录分支复用原step5/6。",
+    "edge_relation": "原节点/边及ALT/step_ref保留；按已批准S1/S2更新动作和guard语义。"
+  }
+}

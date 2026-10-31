@@ -1,0 +1,117 @@
+# LOCAL-PLAT-PHONE-OUTBOUND 人工主动外呼
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](../features/FUNC-2002.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](../features/FUNC-2024.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2002, FUNC-2024
+
+触发：有权本人对任务/客户或原手动号码入口点击呼叫
+
+## 前置条件
+
+- 本人电话就绪、当前对象拨号权及准确规范号码
+
+## 必须遵守的全局规则
+
+- [GR-IDENTITY](../global-logic.md#GR-IDENTITY)
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+- [GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)
+
+## 输入与输出
+
+输入：[FIELD-PLAT-CUSTOMER-ID](../field-specs.md#FIELD-PLAT-CUSTOMER-ID)、[FIELD-PLAT-DIAL-NUMBER](../field-specs.md#FIELD-PLAT-DIAL-NUMBER)、[FIELD-PLAT-PHONE-STATE](../field-specs.md#FIELD-PLAT-PHONE-STATE)、[FIELD-PLAT-CONTACT-DECISION](../field-specs.md#FIELD-PLAT-CONTACT-DECISION)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)
+
+输出：[FIELD-PLAT-CALL-ID](../field-specs.md#FIELD-PLAT-CALL-ID)、[FIELD-PLAT-CALL-STATE](../field-specs.md#FIELD-PLAT-CALL-STATE)、[FIELD-PLAT-CALL-ACTOR](../field-specs.md#FIELD-PLAT-CALL-ACTOR)、[FIELD-PLAT-PHONE-STATE](../field-specs.md#FIELD-PLAT-PHONE-STATE)
+
+## 处理步骤
+
+### LOCAL-PLAT-PHONE-OUTBOUND-S1
+
+校验当前任务/客户与号码，实时执行CONTACT-CHECK
+
+读取：FIELD-PLAT-CUSTOMER-ID, FIELD-PLAT-DIAL-NUMBER, FIELD-PLAT-PHONE-STATE, FIELD-PLAT-CONTACT-DECISION, FIELD-PLAT-REQUEST；写入：无
+
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+
+### LOCAL-PLAT-PHONE-OUTBOUND-S2
+
+明确允许后仅提交本次人工拨号，保留准确callId及本人映射
+
+读取：FIELD-PLAT-CUSTOMER-ID, FIELD-PLAT-DIAL-NUMBER, FIELD-PLAT-PHONE-STATE, FIELD-PLAT-CONTACT-DECISION, FIELD-PLAT-REQUEST；写入：无
+
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+
+### LOCAL-PLAT-PHONE-OUTBOUND-S3
+
+按振铃/接通/结束事件转电话状态，失败/未知不重拨
+
+读取：FIELD-PLAT-CUSTOMER-ID, FIELD-PLAT-DIAL-NUMBER, FIELD-PLAT-PHONE-STATE, FIELD-PLAT-CONTACT-DECISION, FIELD-PLAT-REQUEST；写入：FIELD-PLAT-CALL-ID, FIELD-PLAT-CALL-STATE, FIELD-PLAT-CALL-ACTOR, FIELD-PLAT-PHONE-STATE
+
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+
+## 分支与异常
+
+### LOCAL-PLAT-PHONE-OUTBOUND-B1
+
+条件：前提、字段及对象修订校验通过且结果明确成功
+
+结果：人工呼叫事实准确形成，公共禁呼或未知阻止新拨；不套预外呼策略
+
+涉及字段：FIELD-PLAT-CUSTOMER-ID, FIELD-PLAT-DIAL-NUMBER, FIELD-PLAT-PHONE-STATE, FIELD-PLAT-CONTACT-DECISION, FIELD-PLAT-REQUEST, FIELD-PLAT-CALL-ID, FIELD-PLAT-CALL-STATE, FIELD-PLAT-CALL-ACTOR
+
+验证：CHECK-PLAT-PHONE-OUTBOUND
+
+### LOCAL-PLAT-PHONE-OUTBOUND-B2
+
+条件：无权/字段不合法/对象失效/修订冲突
+
+结果：明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更
+
+涉及字段：FIELD-PLAT-CUSTOMER-ID, FIELD-PLAT-DIAL-NUMBER, FIELD-PLAT-PHONE-STATE, FIELD-PLAT-CONTACT-DECISION, FIELD-PLAT-REQUEST, FIELD-PLAT-CALL-ID, FIELD-PLAT-CALL-STATE, FIELD-PLAT-CALL-ACTOR
+
+验证：CHECK-PLAT-PHONE-OUTBOUND
+
+### LOCAL-PLAT-PHONE-OUTBOUND-B3
+
+条件：提交失败或结果未知
+
+结果：失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功
+
+涉及字段：FIELD-PLAT-CUSTOMER-ID, FIELD-PLAT-DIAL-NUMBER, FIELD-PLAT-PHONE-STATE, FIELD-PLAT-CONTACT-DECISION, FIELD-PLAT-REQUEST, FIELD-PLAT-CALL-ID, FIELD-PLAT-CALL-STATE, FIELD-PLAT-CALL-ACTOR
+
+验证：CHECK-PLAT-PHONE-OUTBOUND
+
+## 完成后的状态
+
+- 人工呼叫事实准确形成，公共禁呼或未知阻止新拨；不套预外呼策略
+
+## 字段定义
+
+- [FIELD-PLAT-CALL-ACTOR](../field-specs.md#FIELD-PLAT-CALL-ACTOR)
+- [FIELD-PLAT-CALL-ID](../field-specs.md#FIELD-PLAT-CALL-ID)
+- [FIELD-PLAT-CALL-STATE](../field-specs.md#FIELD-PLAT-CALL-STATE)
+- [FIELD-PLAT-CONTACT-DECISION](../field-specs.md#FIELD-PLAT-CONTACT-DECISION)
+- [FIELD-PLAT-CUSTOMER-ID](../field-specs.md#FIELD-PLAT-CUSTOMER-ID)
+- [FIELD-PLAT-DIAL-NUMBER](../field-specs.md#FIELD-PLAT-DIAL-NUMBER)
+- [FIELD-PLAT-PHONE-STATE](../field-specs.md#FIELD-PLAT-PHONE-STATE)
+- [FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2057, acceptance:AC-2058, acceptance:AC-2066, acceptance:AC-2067, acceptance:AC-2069, features:FUNC-2002, features:FUNC-2002/behavior_spec/26/branches/0, features:FUNC-2002/behavior_spec/26/branches/1, features:FUNC-2002/behavior_spec/26/branches/2, features:FUNC-2002/behavior_spec/26/postconditions/0, features:FUNC-2002/behavior_spec/26/preconditions/0, features:FUNC-2002/behavior_spec/26/steps/0, features:FUNC-2002/behavior_spec/26/steps/1, features:FUNC-2002/behavior_spec/26/steps/2, features:FUNC-2024, features:FUNC-2024/behavior_spec/1/branches/0, features:FUNC-2024/behavior_spec/1/branches/1, features:FUNC-2024/behavior_spec/1/branches/2, features:FUNC-2024/behavior_spec/1/postconditions/0, features:FUNC-2024/behavior_spec/1/preconditions/0, features:FUNC-2024/behavior_spec/1/steps/0, features:FUNC-2024/behavior_spec/1/steps/1, features:FUNC-2024/behavior_spec/1/steps/2, pages:PAGE-2003/fields/22, pages:PAGE-2004/fields/4, pages:PAGE-2005/fields/8, pages:PAGE-2007/fields/18, pages:PAGE-2007/fields/24, pages:PAGE-2103/fields/19, pages:PAGE-2103/fields/7, pages:PAGE-2103/fields/9, pages:PAGE-2108/fields/11, pages:PAGE-2108/fields/12, pages:PAGE-2108/fields/13, pages:PAGE-2108/fields/18, pages:PAGE-2109/fields/4, pages:PAGE-2111/fields/13, pages:PAGE-2112/fields/13, pages:PAGE-2202, pages:PAGE-2202/actions/1, pages:PAGE-2202/fields/11, pages:PAGE-2202/fields/12, pages:PAGE-2202/fields/23, pages:PAGE-2202/fields/28, pages:PAGE-2202/fields/6, pages:PAGE-2202/fields/7, pages:PAGE-2202/fields/8, pages:PAGE-2202/fields/9, pages:PAGE-2203/fields/55, pages:PAGE-2203/fields/56, pages:PAGE-2204/fields/72, pages:PAGE-2204/fields/73, pages:PAGE-2204/fields/82, pages:PAGE-2205/fields/15, pages:PAGE-2205/fields/4, pages:PAGE-2205/fields/5, pages:PAGE-2205/fields/6, pages:PAGE-2206/fields/15, pages:PAGE-2206/fields/4, pages:PAGE-2206/fields/5, pages:PAGE-2206/fields/6, pages:PAGE-2207/fields/1, pages:PAGE-2207/fields/15, pages:PAGE-2207/fields/17, pages:PAGE-2207/fields/2, pages:PAGE-2207/fields/3, pages:PAGE-2208/fields/1, pages:PAGE-2208/fields/2, pages:PAGE-2208/fields/3, pages:PAGE-2209/fields/0, pages:PAGE-2209/fields/1, pages:PAGE-2210/fields/5, pages:PAGE-2211/fields/4, pages:PAGE-2212/fields/9, pages:PAGE-2213/fields/25, pages:PAGE-2214/fields/4, pages:PAGE-2215/fields/6, pages:PAGE-2216/fields/10, pages:PAGE-2217/fields/17, pages:PAGE-2218/fields/5, pages:PAGE-2219/fields/11, pages:PAGE-2220/fields/17, pages:PAGE-2220/fields/8, pages:PAGE-2220/fields/9, pages:PAGE-2221/fields/2, pages:PAGE-2221/fields/3, pages:PAGE-2221/fields/6, pages:PAGE-2227/fields/125, pages:PAGE-2227/fields/126, pages:PAGE-2227/fields/127, pages:PAGE-2227/fields/136, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/186, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/208, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/215, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/216, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/217, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/222, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/223, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/254, scenarios:FLOW-CURRENT-PLATFORM/steps/53
+
+验证：CHECK-PLAT-PHONE-OUTBOUND
+
+## 实施任务
+
+- [TASK-042](../tasks/TASK-042.md)

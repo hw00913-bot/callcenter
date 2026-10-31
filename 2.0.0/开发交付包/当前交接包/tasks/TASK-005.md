@@ -1,0 +1,169 @@
+# TASK-005 模块开通、账号和成员授权
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](../features/FUNC-2002.md)
+- [分别开通租户AI与Cloud模块 · FUNC\-2010](../features/FUNC-2010.md)
+- [创建账号或显式关联已有账号为本租户成员 · FUNC\-2011](../features/FUNC-2011.md)
+- [配置本租户成员角色与模块权限 · FUNC\-2012](../features/FUNC-2012.md)
+
+## 目标
+
+AI和Cloud模块分别开通，账号全局主体与租户成员关系分开。；新建、显式关联已有账号、全局资料修改、本租户角色/模块授权分别落实原权限。
+
+## 产品依据
+
+- FUNC-2002 进入有权工作位置与保留专业能力：当前五顶栏只负责功能归位。按稳定页面/动作身份保留AI与Cloud现行专业操作、状态、资源、报表和业务接口，分别校验模块、成员、对象、读写/导出权。；来源 documentation/input/functions.json#FUNC-2002
+- FUNC-2010 分别开通租户AI与Cloud模块：有权超管独立开通AI、Cloud或两者；Cloud需有效企业映射，仅AI不需Cloud资源；开通不自动授权成员。；来源 documentation/input/functions.json#FUNC-2010
+- FUNC-2011 创建账号或显式关联已有账号为本租户成员：账号全局档案与租户成员关系分开；准确手机号查找仅返回候选，需明确账号ID后关联，不能同名同号自动合并。；来源 documentation/input/functions.json#FUNC-2011
+- FUNC-2012 配置本租户成员角色与模块权限：租户管理员只委派本租户已开通模块内本人允许子集；五生产角色固定，坐席能力和标签配置/财务/资源资格单独控制。；来源 documentation/input/functions.json#FUNC-2012
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+
+## 前置任务
+
+- TASK-004
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-PLAT-TENANT-MODULE](../local-logic/LOCAL-PLAT-TENANT-MODULE.md)、[LOCAL-PLAT-ACCOUNT-CREATE](../local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](../local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)、[LOCAL-PLAT-ACCOUNT-PROFILE](../local-logic/LOCAL-PLAT-ACCOUNT-PROFILE.md)、[LOCAL-PLAT-MEMBER-GRANT](../local-logic/LOCAL-PLAT-MEMBER-GRANT.md)、[LOCAL-PLAT-ACCOUNT-QUERY](../local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
+
+字段：[FIELD-PLAT-ACCOUNT-ID](../field-specs.md#FIELD-PLAT-ACCOUNT-ID)、[FIELD-PLAT-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)、[FIELD-PLAT-AVATAR](../field-specs.md#FIELD-PLAT-AVATAR)、[FIELD-PLAT-CURRENT-TENANT](../field-specs.md#FIELD-PLAT-CURRENT-TENANT)、[FIELD-PLAT-LOGIN-NAME](../field-specs.md#FIELD-PLAT-LOGIN-NAME)、[FIELD-PLAT-MEMBER-ACCOUNT](../field-specs.md#FIELD-PLAT-MEMBER-ACCOUNT)、[FIELD-PLAT-MEMBER-GRANTS](../field-specs.md#FIELD-PLAT-MEMBER-GRANTS)、[FIELD-PLAT-MEMBER-ID](../field-specs.md#FIELD-PLAT-MEMBER-ID)、[FIELD-PLAT-MEMBER-ROLE](../field-specs.md#FIELD-PLAT-MEMBER-ROLE)、[FIELD-PLAT-MEMBER-STATE](../field-specs.md#FIELD-PLAT-MEMBER-STATE)、[FIELD-PLAT-MEMBER-TENANT](../field-specs.md#FIELD-PLAT-MEMBER-TENANT)、[FIELD-PLAT-MOBILE](../field-specs.md#FIELD-PLAT-MOBILE)、[FIELD-PLAT-MODULES](../field-specs.md#FIELD-PLAT-MODULES)、[FIELD-PLAT-NICKNAME](../field-specs.md#FIELD-PLAT-NICKNAME)、[FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)、[FIELD-PLAT-PAGING](../field-specs.md#FIELD-PLAT-PAGING)、[FIELD-PLAT-PASSWORD](../field-specs.md#FIELD-PLAT-PASSWORD)、[FIELD-PLAT-QUERY](../field-specs.md#FIELD-PLAT-QUERY)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)、[FIELD-PLAT-REVISION](../field-specs.md#FIELD-PLAT-REVISION)、[FIELD-PLAT-TENANT-ENTERPRISE](../field-specs.md#FIELD-PLAT-TENANT-ENTERPRISE)、[FIELD-PLAT-TENANT-ID](../field-specs.md#FIELD-PLAT-TENANT-ID)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2003](../ui-pages/UI-PAGE-2003.md)
+- [UI-PAGE-2004](../ui-pages/UI-PAGE-2004.md)
+
+## 实现要求
+
+- AI和Cloud模块分别开通，账号全局主体与租户成员关系分开。
+- 新建、显式关联已有账号、全局资料修改、本租户角色/模块授权分别落实原权限。
+- 坐席是电话能力而非第六个生产角色；不得借配置权授业务数据权。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2019**：超管为租户独立开通AI、云呼叫，支持仅AI、仅云呼叫及两者同时使用。
+  依据：docs/functional-spec.json#AC-2019
+
+- **AC-2020**：AI与Cloud保持独立开通状态，Cloud完成当前有效唯一企业资源配置后单独开通；开通不是成员授权，也不是财务服务已结算。
+  依据：docs/functional-spec.json#AC-2020
+
+- **AC-2021**：仅AI不要求云呼叫执行资源，仅云呼叫不要求AI机器人；开通不等于自动给全部成员使用权。
+  依据：docs/functional-spec.json#AC-2021
+
+- **AC-2022**：有本租户建号/成员维护权的管理员可创建普通全局账号并关联本租户，或显式关联准确已有账号；不跨租户建成员、不授超管，真实账号服务授权和额度另需工程证据。
+  依据：docs/functional-spec.json#AC-2022
+
+- **AC-2023**：登录名/手机号唯一，手机号查找只是准确账号候选，须明确选择accountId后关联；同名同号不自动合并或覆盖资料。全局资料修改、成员授权和坐席绑定分别验权。
+  依据：docs/functional-spec.json#AC-2023
+
+- **AC-2024**：租户管理员只在本租户已开通模块及允许业务角色范围内维护成员使用和操作权限。
+  依据：docs/functional-spec.json#AC-2024
+
+- **AC-2025**：同一账号多个租户成员及AI/Cloud模块授权独立；只授当前模块已开通且管理员可委派子集，不复用原型演示身份推授生产权。
+  依据：docs/functional-spec.json#AC-2025
+
+- **AC-2026**：菜单、直接路由和业务操作使用相应授权，具体生产权限码及撤权生效时间待核验。
+  依据：docs/functional-spec.json#AC-2026
+
+## 测试要求（尚未执行）
+
+### CHECK-PLAT-TENANT-MODULE / manual
+
+步骤：在准确有权范围触发“独立开通AI或Cloud模块”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：只改变准确租户指定模块开通状态，未授成员新权；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2019, AC-2020, AC-2021
+
+### CHECK-PLAT-ACCOUNT-CREATE / manual
+
+步骤：在准确有权范围触发“新建账号并加入本租户”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：准确普通账号与本租户成员创建成功，不授超管或其他租户权限；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2022, AC-2023, AC-2024, AC-2025
+
+### CHECK-PLAT-ACCOUNT-LINK / manual
+
+步骤：在准确有权范围触发“查找并显式关联已有账号”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：已有全局账号显式加入本租户，不自动合并账号或改其他租户成员；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2022, AC-2023, AC-2024, AC-2025
+
+### CHECK-PLAT-ACCOUNT-PROFILE / manual
+
+步骤：在准确有权范围触发“修改全局账号资料”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：只更新允许的全局资料，不改成员角色或坐席绑定；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2023
+
+### CHECK-PLAT-MEMBER-GRANT / manual
+
+步骤：在准确有权范围触发“配置本租户成员角色及模块权”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：新授权只在本租户已开通模块和可委派范围内生效；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2024, AC-2025, AC-2026
+
+### CHECK-PLAT-ACCOUNT-QUERY / manual
+
+步骤：在准确有权范围触发“查询本范围账号及成员”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：准确账号成员列表可读，读权不授全局改密/停用/删除；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2022, AC-2023, AC-2024
+
+## 完成条件
+
+- AI和Cloud模块分别开通，账号全局主体与租户成员关系分开。
+- 新建、显式关联已有账号、全局资料修改、本租户角色/模块授权分别落实原权限。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [organization-store.js](../../../prototype/js/components/organization-store.js) · 只读行为参考，非生产可写目标
+- [role-permissions.js](../../../prototype/js/components/role-permissions.js) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：EQ-PLAT-IDENTITY。
+
+原专业操作：
+
+- [retained-source-ai-legacy-account-query](../原专业操作任务映射.md#retained-source-ai-legacy-account-query)

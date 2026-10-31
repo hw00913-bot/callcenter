@@ -1,0 +1,134 @@
+# LOCAL-FLOW-RESUME-DIRECT 显式再次直接跟进并建立独立新周期
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](../features/FUNC-2031.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](../features/FUNC-2039.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2031, FUNC-2039
+
+触发：有再次直接办理资格者在COMPLETED业务选择下一次方式后确认“再次直接跟进”
+
+## 前置条件
+
+- 当前业务为DIRECT且当前周期COMPLETED，具本业务再次直接跟进资格
+- 分类当前仍显式允许直接跟进；全部旧执行、未知及必要归档已可靠收敛
+- 明确下一次AI/MANUAL/PREDICTIVE；AI明确有效本租户/分类场景，实际专业能力仍可核
+
+## 必须遵守的全局规则
+
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+- [GR-SERIAL](../global-logic.md#GR-SERIAL)
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)、[FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)、[FIELD-FLOW-DIRECT-OUTCOME](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME)、[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)、[FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)、[FIELD-FLOW-RECORD-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)
+
+输出：[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)、[FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-DIRECT-OUTCOME](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME)、[FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)、[FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)
+
+## 处理步骤
+
+### STEP-FLOW-RESUME-DIRECT-1
+
+按当前分类开关和准确业务/owner/周期重验；下一次方式须明确确认，AI重核当前准确场景，不把旧结果当新输入。
+
+读取：FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-DIRECT-CYCLE-ID, FIELD-FLOW-DIRECT-CYCLES, FIELD-FLOW-DIRECT-STATUS, FIELD-FLOW-DIRECT-OUTCOME, FIELD-FLOW-AI-SCENE, FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-FOLLOWER, FIELD-FLOW-RECORD-REVISION；写入：无
+
+规则：GR-HANDLING-MODE, GR-SERIAL, GR-DATA-FACTS, GR-UNKNOWN, GR-AUTH
+
+### STEP-FLOW-RESUME-DIRECT-2
+
+同业务追加新directCycleId并设ACTIVE，保存本次明确方式/必要场景；原周期COMPLETED及结论快照保留。
+
+读取：FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-DIRECT-CYCLE-ID, FIELD-FLOW-DIRECT-CYCLES, FIELD-FLOW-DIRECT-STATUS, FIELD-FLOW-DIRECT-OUTCOME, FIELD-FLOW-AI-SCENE, FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-FOLLOWER, FIELD-FLOW-RECORD-REVISION；写入：无
+
+规则：GR-HANDLING-MODE, GR-SERIAL, GR-DATA-FACTS, GR-UNKNOWN, GR-AUTH
+
+### STEP-FLOW-RESUME-DIRECT-3
+
+清旧责任跟进人及旧执行安排，清当前业务结论但保周期历史；新周期重新分配和明确起呼，不建run/node或自动续拨。
+
+读取：FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-DIRECT-CYCLE-ID, FIELD-FLOW-DIRECT-CYCLES, FIELD-FLOW-DIRECT-STATUS, FIELD-FLOW-DIRECT-OUTCOME, FIELD-FLOW-AI-SCENE, FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-FOLLOWER, FIELD-FLOW-RECORD-REVISION, FIELD-FLOW-END-FOLLOWUP-ORIGIN；写入：FIELD-FLOW-DIRECT-CYCLE-ID, FIELD-FLOW-DIRECT-CYCLES, FIELD-FLOW-DIRECT-STATUS, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-DIRECT-OUTCOME, FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-FOLLOWER
+
+规则：GR-HANDLING-MODE, GR-SERIAL, GR-DATA-FACTS, GR-UNKNOWN, GR-AUTH
+
+## 分支与异常
+
+### BRANCH-FLOW-RESUME-DIRECT-1
+
+条件：周期未完成、分类关闭、旧执行未收敛或必要场景不可用
+
+结果：保旧COMPLETED及全部输入，指出具体原因；不建新周期，不自动启用模板。
+
+涉及字段：FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-DIRECT-CYCLE-ID, FIELD-FLOW-DIRECT-CYCLES, FIELD-FLOW-DIRECT-STATUS, FIELD-FLOW-DIRECT-OUTCOME, FIELD-FLOW-AI-SCENE, FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-FOLLOWER, FIELD-FLOW-RECORD-REVISION
+
+验证：CHECK-FLOW-RESUME-DIRECT
+
+### BRANCH-FLOW-RESUME-DIRECT-2
+
+条件：明确成功或重复同请求
+
+结果：同record/owner只新增一个DIRECT周期，旧段仍归旧周期，当前安排待重新分人。
+
+涉及字段：FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-DIRECT-CYCLE-ID, FIELD-FLOW-DIRECT-CYCLES, FIELD-FLOW-DIRECT-STATUS, FIELD-FLOW-DIRECT-OUTCOME, FIELD-FLOW-AI-SCENE, FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-FOLLOWER, FIELD-FLOW-RECORD-REVISION
+
+验证：CHECK-FLOW-RESUME-DIRECT
+
+### BRANCH-FLOW-RESUME-DIRECT-3
+
+条件：结果未知
+
+结果：沿准确原请求核对，不重放新周期。
+
+涉及字段：FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-DIRECT-CYCLE-ID, FIELD-FLOW-DIRECT-CYCLES, FIELD-FLOW-DIRECT-STATUS, FIELD-FLOW-DIRECT-OUTCOME, FIELD-FLOW-AI-SCENE, FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-FOLLOWER, FIELD-FLOW-RECORD-REVISION
+
+验证：CHECK-FLOW-RESUME-DIRECT
+
+### LOCAL-FLOW-RESUME-DIRECT-END-ORIGIN
+
+条件：当前直接周期具有可靠END接续来源
+
+结果：可以按已确认END继续人工跟进；普通DIRECT开关不替代此来源，但当前分类/本人/资源/联系/必要归档照常核验
+
+涉及字段：FIELD-FLOW-END-FOLLOWUP-ORIGIN
+
+验证：CHECK-FLOW-RESUME-DIRECT
+
+## 完成后的状态
+
+- 再次直接跟进与同周期内真实重拨分开；新周期不能借旧完成结论或通话充当本次跟进。
+
+## 字段定义
+
+- [FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)
+- [FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)
+- [FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)
+- [FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+- [FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)
+- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+- [FIELD-FLOW-DIRECT-OUTCOME](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME)
+- [FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+- [FIELD-FLOW-END-FOLLOWUP-ORIGIN](../field-specs.md#FIELD-FLOW-END-FOLLOWUP-ORIGIN)
+- [FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-RECORD-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2115, acceptance:AC-2116, acceptance:AC-2129, features:FUNC-2031, features:FUNC-2031/behavior_spec/5/branches/0, features:FUNC-2031/behavior_spec/5/branches/1, features:FUNC-2031/behavior_spec/5/branches/2, features:FUNC-2031/behavior_spec/5/branches/3, features:FUNC-2031/behavior_spec/5/postconditions/0, features:FUNC-2031/behavior_spec/5/preconditions/0, features:FUNC-2031/behavior_spec/5/preconditions/1, features:FUNC-2031/behavior_spec/5/preconditions/2, features:FUNC-2031/behavior_spec/5/steps/0, features:FUNC-2031/behavior_spec/5/steps/1, features:FUNC-2031/behavior_spec/5/steps/2, features:FUNC-2039, features:FUNC-2039/behavior_spec/6/branches/0, features:FUNC-2039/behavior_spec/6/branches/1, features:FUNC-2039/behavior_spec/6/branches/2, features:FUNC-2039/behavior_spec/6/branches/3, features:FUNC-2039/behavior_spec/6/postconditions/0, features:FUNC-2039/behavior_spec/6/preconditions/0, features:FUNC-2039/behavior_spec/6/preconditions/1, features:FUNC-2039/behavior_spec/6/preconditions/2, features:FUNC-2039/behavior_spec/6/steps/0, features:FUNC-2039/behavior_spec/6/steps/1, features:FUNC-2039/behavior_spec/6/steps/2, pages:PAGE-2006/fields/59, pages:PAGE-2203/fields/18, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2203/fields/66, pages:PAGE-2203/fields/67, pages:PAGE-2204, pages:PAGE-2204/fields/2, pages:PAGE-2204/fields/29, pages:PAGE-2204/fields/3, pages:PAGE-2204/fields/49, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2204/fields/87, pages:PAGE-2204/fields/88, pages:PAGE-2226/fields/16, pages:PAGE-2226/fields/2, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/37, pages:PAGE-2226/fields/38, pages:PAGE-2227, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/140, pages:PAGE-2227/fields/141, pages:PAGE-2227/fields/4, pages:PAGE-2227/fields/42, pages:PAGE-2227/fields/7, pages:PAGE-2227/fields/80, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/147, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/151, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/152, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/153, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/159, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/68, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/69, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/70, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/73, scenarios:FLOW-CURRENT-CUSTOMER/steps/41
+
+验证：CHECK-FLOW-RESUME-DIRECT
+
+## 实施任务
+
+- [TASK-017](../tasks/TASK-017.md)

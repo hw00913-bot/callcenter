@@ -1,0 +1,510 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2006",
+  "scenario_id": "SC-2006",
+  "name": "超管独立开通租户模块时序",
+  "participants": [
+    {
+      "id": "super",
+      "name": "有权超管",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "租户模块开通前端",
+      "kind": "system"
+    },
+    {
+      "id": "module",
+      "name": "公共租户模块管理（内部目标）",
+      "kind": "system"
+    },
+    {
+      "id": "perm",
+      "name": "超管与目标租户授权（内部目标）",
+      "kind": "system"
+    },
+    {
+      "id": "ai_adapter",
+      "name": "AI既有资源/开通状态接入边界",
+      "kind": "system"
+    },
+    {
+      "id": "cloud_adapter",
+      "name": "云呼叫既有资源接入边界",
+      "kind": "system"
+    },
+    {
+      "id": "ai",
+      "name": "实际AI生产资源/租户服务（承接待核）",
+      "kind": "external_system"
+    },
+    {
+      "id": "cloud",
+      "name": "实际云呼叫资源服务（承接待核）",
+      "kind": "external_system"
+    }
+  ],
+  "source_refs": [
+    "scenarios/SC-2006.json",
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "status": "S5_current_design_for_review_not_implementation",
+  "messages": [
+    {
+      "step": 1,
+      "from": "super",
+      "to": "ui",
+      "message": "选择有权租户及拟开通的一个模块，AI/云呼叫分开，不捆绑。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次原模块开通操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "perm",
+      "message": "核超管的本次模块开通权和目标租户，不从管理入口可见或租管角色推权。",
+      "type": "request",
+      "api_id": "API-2002",
+      "condition": "身份/开通权契约按实际API-2002证据；未核不视为通过。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "perm",
+      "to": "ui",
+      "message": "非有权超管拒绝开通，保持目标和其他模块状态。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2006-01｜原开通资格无效或未可靠核实。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2006-01"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "ui",
+      "to": "module",
+      "message": "读取目标模块原开通/启停状态，不重置已有AI租户配置。",
+      "type": "request",
+      "api_id": "API-2002",
+      "condition": "条件目标｜有权操作范围、原状态和身份关系可核。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 5,
+      "from": "module",
+      "to": "ai_adapter",
+      "message": "仅本次选择AI时核原AI资源和状态，不要求Cloud坐席/号码。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜本次选择AI，原AI资源接入契约可核。",
+      "source_step_refs": [
+        3,
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 6,
+      "from": "ai_adapter",
+      "to": "ai",
+      "message": "读取所选租户原AI服务/资源依据，保独立原专业资源与财务资格。",
+      "type": "external_call",
+      "api_id": "API-2015",
+      "condition": "条件目标｜仅在相关真实契约、稳定身份/对象映射及本次权限已核实后，原AI资源能力和对应租户映射已可靠核验时。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 7,
+      "from": "ai",
+      "to": "ai_adapter",
+      "message": "返回原AI实际资源/状态或失败未知，不将候选定义当实际已开通。",
+      "type": "response",
+      "api_id": "API-2015",
+      "condition": "条件目标｜对应本次合法AI资源读取。",
+      "source_step_refs": [
+        3,
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 8,
+      "from": "module",
+      "to": "cloud_adapter",
+      "message": "仅本次选择云呼叫时核原必要资源，不要求AI机器人或AI模块。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜本次选择云呼叫，原资源接入契约可核。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 9,
+      "from": "cloud_adapter",
+      "to": "cloud",
+      "message": "读取所选租户原云呼叫资源，沿原平台资源域/业务租户域及操作范围。",
+      "type": "external_call",
+      "api_id": "API-2013",
+      "condition": "条件目标｜仅在相关真实契约、稳定身份/对象映射及本次权限已核实后，原Cloud资源协议及对象映射已可靠核验时。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 10,
+      "from": "cloud",
+      "to": "cloud_adapter",
+      "message": "返回原云呼叫资源实际结果或失败未知，不造资源或扩大供应商能力。",
+      "type": "response",
+      "api_id": "API-2013",
+      "condition": "条件目标｜对应本次合法Cloud资源读取。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 11,
+      "from": "ai_adapter",
+      "to": "module",
+      "message": "交付本次已选AI模块的可确认资源/状态，未知不视为齐备。",
+      "type": "response",
+      "api_id": null,
+      "condition": "仅AI被选择且本次原读取已返回。",
+      "source_step_refs": [
+        3,
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 12,
+      "from": "cloud_adapter",
+      "to": "module",
+      "message": "交付本次已选Cloud模块的可确认资源/状态，未知不视为齐备。",
+      "type": "response",
+      "api_id": null,
+      "condition": "仅Cloud被选择且本次原读取已返回。",
+      "source_step_refs": [
+        3,
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "module",
+      "to": "ui",
+      "message": "已开通则展示原状态，不重复开通或重置原资源配置。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2006-02｜可靠确认目标模块已开通。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2006-02"
+      ]
+    },
+    {
+      "step": 14,
+      "from": "module",
+      "to": "ui",
+      "message": "目标模块资源缺失、原条件/契约或真实状态未知则本次受阻，保原状态；未选模块资源不构成门槛。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2006-03｜目标所需条件未齐或不能可靠确认。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2006-03"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "ui",
+      "to": "super",
+      "message": "展示仅目标模块和必需资源核对结论；模块开通与成员授权分开。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜目标尚未开通且本次必要前置可靠满足。",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 16,
+      "from": "super",
+      "to": "ui",
+      "message": "提交本次所选模块开通，未选模块不随同开启。",
+      "type": "request",
+      "api_id": null,
+      "condition": "有权超管本次明确提交。",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 17,
+      "from": "ui",
+      "to": "module",
+      "message": "固定本次租户及所选模块进入开通控制，不写其他模块或全体成员权限。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜目标与原状态仍有效。",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 18,
+      "from": "module",
+      "to": "perm",
+      "message": "提交时重核原超管权、租户/模块状态和本次必要资源；过期或未知不执行。",
+      "type": "request",
+      "api_id": "API-2002",
+      "condition": "本次提交前再次核验。",
+      "source_step_refs": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 19,
+      "from": "perm",
+      "to": "module",
+      "message": "仅本次仍有权且目标前置明确满足才可开通；无权/缺口分别沿原拒绝/资源受阻分支。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2006-01、ALT-2006-03｜条件目标｜最终检查有可靠结果；无权或未知不当通过。",
+      "source_step_refs": [
+        2,
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2006-01",
+        "ALT-2006-03"
+      ]
+    },
+    {
+      "step": 20,
+      "from": "module",
+      "to": "module",
+      "message": "按本方开通责任及可核原执行能力只保存目标模块实际开通结果，不把方案当已部署开通服务。",
+      "type": "request",
+      "api_id": "API-2002",
+      "condition": "条件目标｜真实开通/状态保存契约与受控实现已符合；否则不声称办理成功。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 21,
+      "from": "module",
+      "to": "ui",
+      "message": "失败或结果未知反馈本次未完成，保其他模块和成员授权，不盲重复开通。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2006-04｜本次真实开通失败或结果未知。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2006-04"
+      ]
+    },
+    {
+      "step": 22,
+      "from": "module",
+      "to": "ui",
+      "message": "仅本次目标模块真实开通已确认时返回实际状态，允许进入后续成员可授范围。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜目标开通最终结果明确成立。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 23,
+      "from": "ui",
+      "to": "super",
+      "message": "按实际结果反馈；仅AI/仅Cloud/两者独立开通皆可，成员使用权另由有权租管办理，不自动授全区权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜本次最终结果已明确；失败/未知不显示成功。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2007"
+  ],
+  "source_acceptance_ids": [
+    "AC-2019",
+    "AC-2020",
+    "AC-2021"
+  ],
+  "source_business_rule_ids": [
+    "BR-2002",
+    "BR-2008",
+    "BR-2052"
+  ],
+  "source_step_refs": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "covered_alternate_flow_ids": [
+    "ALT-2006-01",
+    "ALT-2006-02",
+    "ALT-2006-03",
+    "ALT-2006-04"
+  ],
+  "main_flow_coverage": {
+    "1": [
+      1
+    ],
+    "2": [
+      2,
+      3,
+      18,
+      19
+    ],
+    "3": [
+      4,
+      5,
+      7,
+      11,
+      12,
+      13,
+      18
+    ],
+    "4": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      14,
+      15,
+      18,
+      19
+    ],
+    "5": [
+      15,
+      16,
+      17,
+      18
+    ],
+    "6": [
+      20,
+      21,
+      22,
+      23
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2006-01": [
+      3,
+      19
+    ],
+    "ALT-2006-02": [
+      13
+    ],
+    "ALT-2006-03": [
+      14,
+      19
+    ],
+    "ALT-2006-04": [
+      21
+    ]
+  },
+  "source_scenario_sha256": "aaecea0ef2006db4cf408d0814477591c2a100f0212f1237aff0a8461131a55c",
+  "interface_evidence_statuses": {
+    "API-2002": "partial",
+    "API-2013": "partial",
+    "API-2015": "partial"
+  },
+  "source_interface_fact_sha256": {
+    "API-2002": "9b3a95827be48ae6157be6497aa154f779a24c02347392ef1e631482ee3fa614",
+    "API-2013": "2a3b9644073f786bb066af6dde163f81d6c62811082230c5e6b009382014f9ef",
+    "API-2015": "980306c4caeb3e3f8bd7d870b1e42869b506ebba052644ddee78c45bfd36b720"
+  },
+  "production_verified": false,
+  "execution_status": "not_executed_design_only",
+  "v2_gate_status": "G1_G2_analysis_approved_G3_pending",
+  "notes": [
+    "本文件消费当前SC/AC/BR及已批准G2接口事实，仅时序分析，不证明生产、原型或真实调用已完成。partial/missing能力保当前受阻/未知；标为条件目标的调用和成功仅在真实契约、稳定身份/对象映射、当次权限与实际结果均已落实时成立。未满足不执行后续成功分支。",
+    "消息按条件表达互斥主线/备选责任，不表示一次运行依次执行所有消息。source_step_refs为当前SC main_flow.step整数，covered_alternate_flow_ids为该消息明确覆盖的ALT稳定ID；顶层映射可逐项复核。",
+    "保AI生产身份和真实原多租户/模块/操作范围，六入口只组织展示；品牌配置/监管/独立AI财务或供应商资源资格不代业务执行权，也不统一要求业务租户成员、本人坐席或双模块。",
+    "not_required本方能力和普通内部责任消息api_id=null：位置记忆/表单提示由API-2014对应本方责任承接；公共品牌/租户基础查询由API-2003对应责任承接，API-2017只是其来源投影，不新增维护库。未直接调用的这些族不写成外部消息。",
+    "只引用所用API已登记能力族，不造URL、字段、权限码、主动撤销协议、幂等键、引用查询接口或超时重试次数。原普通表单/话后责任只作当前SC要求的复用，不用未知服务成功代证；必要话后与拒联一致结果沿原SC-2013/2018另有权责任。",
+    "本版AI标签configuration_only沿SRC-2096；仅原配置/映射/结果展示，不新增AI标签写业务字段及由此新增自动流转，不影响既有人工保存/条件与其他原流转，不作未来永久禁令。"
+  ],
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "reason": "当前G2后S5，按当前SC压缩并补齐主线/全部ALT与条件目标，不改接口事实。",
+      "previous_detail_sha256": "fbdf9bba0917a0cecc565cb80271362a5490e4c6f70b48bc3f38ce3f8e038d98",
+      "previous_message_count": 23,
+      "stable_participant_ids_retained": [
+        "super",
+        "ui",
+        "module",
+        "perm",
+        "ai_adapter",
+        "cloud_adapter",
+        "ai",
+        "cloud"
+      ]
+    }
+  ],
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

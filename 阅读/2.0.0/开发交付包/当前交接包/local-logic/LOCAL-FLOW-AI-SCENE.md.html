@@ -1,0 +1,111 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/local-logic/LOCAL-FLOW-AI-SCENE.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/local-logic/LOCAL-FLOW-AI-SCENE.md">原始 Markdown</a></p><h1>当前交接包/local-logic/LOCAL-FLOW-AI-SCENE.md</h1><pre># LOCAL-FLOW-AI-SCENE 选择并重核当前AI场景
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](../features/FUNC-2031.md)
+- [分配本租户责任跟进人与AI安排 · FUNC\-2037](../features/FUNC-2037.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2037, FUNC-2031
+
+触发：DIRECT+AI导入或当前AI安排显式选择场景
+
+## 前置条件
+
+- 实际执行租户及当前成员有AI使用模块
+- 真实场景目录可核
+
+## 必须遵守的全局规则
+
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-CONFIG](../global-logic.md#GR-CONFIG)
+- [GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-RESULT-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)、[FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+
+输出：[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-SCENE-SNAPSHOT](../field-specs.md#FIELD-FLOW-SCENE-SNAPSHOT)
+
+## 处理步骤
+
+### STEP-FLOW-AI-SCENE-1
+
+只投影实际租户/分类当前启用场景，不要求标签维护权
+
+读取：FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-OWNER-TENANT；写入：FIELD-FLOW-AI-SCENE
+
+规则：GR-SCOPE, GR-AUTH, GR-CONFIG, GR-DATA-FACTS
+
+### STEP-FLOW-AI-SCENE-2
+
+DIRECT仅核本租户/分类准确启用场景及专业执行配置；TEMPLATE额外汇总本CALL及下游AI_TAG依赖并核准确上下文
+
+读取：FIELD-FLOW-EFFECTIVE-PLAN, FIELD-FLOW-RESULT-SOURCE, FIELD-FLOW-AI-SCENE, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD；写入：FIELD-FLOW-SCENE-SNAPSHOT
+
+规则：GR-SCOPE, GR-AUTH, GR-CONFIG, GR-DATA-FACTS, GR-HANDLING-MODE
+
+## 分支与异常
+
+### BRANCH-FLOW-AI-SCENE-1
+
+条件：需标签依赖但当前上下文不一致
+
+结果：阻选择/起呼并指出需核流程与场景，不把其他租户标签替代
+
+涉及字段：FIELD-FLOW-AI-SCENE, FIELD-FLOW-SCENE-SNAPSHOT
+
+验证：CHECK-FLOW-AI-SCENE
+
+### BRANCH-FLOW-AI-SCENE-2
+
+条件：普通AI无标签条件依赖
+
+结果：沿执行配置有效性可正常选/起呼，不因闲置标签metadata强绑
+
+涉及字段：FIELD-FLOW-AI-SCENE
+
+验证：CHECK-FLOW-AI-SCENE
+
+### BRANCH-FLOW-AI-SCENE-3
+
+条件：首节点先转交
+
+结果：原方不选目标私有场景，接收方接续再选
+
+涉及字段：FIELD-FLOW-OWNER-TENANT, FIELD-FLOW-AI-SCENE
+
+验证：CHECK-FLOW-AI-SCENE
+
+## 完成后的状态
+
+- 场景不是客户永久属性，受理后按实际快照保留
+
+## 字段定义
+
+- [FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)
+- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
+- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+- [FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)
+- [FIELD-FLOW-RESULT-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)
+- [FIELD-FLOW-SCENE-SNAPSHOT](../field-specs.md#FIELD-FLOW-SCENE-SNAPSHOT)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2111, acceptance:AC-2118, acceptance:AC-2119, features:FUNC-2031, features:FUNC-2031/behavior_spec/0/branches/0, features:FUNC-2031/behavior_spec/0/branches/1, features:FUNC-2031/behavior_spec/0/branches/2, features:FUNC-2031/behavior_spec/0/postconditions/0, features:FUNC-2031/behavior_spec/0/preconditions/0, features:FUNC-2031/behavior_spec/0/preconditions/1, features:FUNC-2031/behavior_spec/0/steps/0, features:FUNC-2031/behavior_spec/0/steps/1, features:FUNC-2037, features:FUNC-2037/behavior_spec/2/branches/0, features:FUNC-2037/behavior_spec/2/branches/1, features:FUNC-2037/behavior_spec/2/branches/2, features:FUNC-2037/behavior_spec/2/postconditions/0, features:FUNC-2037/behavior_spec/2/preconditions/0, features:FUNC-2037/behavior_spec/2/preconditions/1, features:FUNC-2037/behavior_spec/2/steps/0, features:FUNC-2037/behavior_spec/2/steps/1, pages:PAGE-2006/fields/13, pages:PAGE-2006/fields/40, pages:PAGE-2006/fields/5, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/32, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2204, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/2, pages:PAGE-2204/fields/20, pages:PAGE-2204/fields/45, pages:PAGE-2204/fields/54, pages:PAGE-2204/fields/58, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2223/fields/12, pages:PAGE-2223/fields/4, pages:PAGE-2226/fields/13, pages:PAGE-2226/fields/26, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/8, pages:PAGE-2227, pages:PAGE-2227/actions/5, pages:PAGE-2227/fields/100, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/32, pages:PAGE-2227/fields/4, pages:PAGE-2227/fields/67, pages:PAGE-2227/fields/85, pages:PAGE-2228/fields/19, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/6, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/47, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/51, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/67, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/70, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/71, scenarios:FLOW-CURRENT-CUSTOMER/steps/17
+
+验证：CHECK-FLOW-AI-SCENE
+
+## 实施任务
+
+- [TASK-016](../tasks/TASK-016.md)
+</pre></body></html>

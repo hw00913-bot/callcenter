@@ -1,0 +1,345 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2012",
+  "scenario_id": "SC-2012",
+  "name": "集中查看公共与专项名单状态时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "viewer",
+      "name": "本租户名单有权查看人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "联系限制界面",
+      "kind": "system"
+    },
+    {
+      "id": "list",
+      "name": "本租户公共及专项名单服务",
+      "kind": "system"
+    },
+    {
+      "id": "sync",
+      "name": "既有供应商同步事实服务",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "viewer",
+      "to": "ui",
+      "message": "从联系限制唯一入口查询当前租户；AI入口仅带原范围筛选。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "list",
+      "message": "核本次租户、列表及逐条来源查看权，读取同一份名单。",
+      "type": "request",
+      "api_id": "API-2007",
+      "condition": "条件目标｜本期实际调用语义/身份及对象关系已核，原准入通过；否则当前待核受阻。主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        2,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "list",
+      "to": "ui",
+      "message": "无权不展示跨租户/同品牌其他租户数据或来源。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2012-AUTH｜未获该对象查看权；本次结束",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2012-AUTH"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "list",
+      "to": "ui",
+      "message": "当前契约/身份/有效状态不能可靠核定时受阻；读取失败不伪装0条。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2012-QUERYFAIL｜当前证据缺口或本次读取失败",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2012-QUERYFAIL"
+      ]
+    },
+    {
+      "step": 5,
+      "from": "list",
+      "to": "ui",
+      "message": "条件具备后读取实际列表，保分组、来源、范围、期限及本地有效事实；查询不迁入历史。",
+      "type": "response",
+      "api_id": "API-2007",
+      "condition": "条件目标｜API2007真实范围/状态合同已核，查询成功",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 6,
+      "from": "ui",
+      "to": "viewer",
+      "message": "真实成功且无匹配时展示空态，不拼其他租户。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2012-EMPTY｜可靠查询0条；本次结束",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2012-EMPTY"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "viewer",
+      "to": "ui",
+      "message": "仅查看当前列表即结束，保查询条件。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2012-LISTONLY｜不打开详情；本次结束",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2012-LISTONLY"
+      ]
+    },
+    {
+      "step": 8,
+      "from": "viewer",
+      "to": "ui",
+      "message": "选择本次有权名单记录打开详情。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 9,
+      "from": "ui",
+      "to": "list",
+      "message": "重核记录与来源范围，读有效/解除/到期事实；含义不明保原约束。",
+      "type": "request",
+      "api_id": "API-2007",
+      "condition": "条件目标｜本期实际调用语义/身份及对象关系已核，原准入通过；否则当前待核受阻。主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 10,
+      "from": "list",
+      "to": "ui",
+      "message": "详情读取失败不造来源或同步成功，保列表与条件。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2012-DETAILFAIL｜本次详情未可靠取得；本次结束",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2012-DETAILFAIL"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "list",
+      "to": "sync",
+      "message": "仅在原同步流程确有配置且本次需要读取时，取该记录已有供应商同步事实。",
+      "type": "external_call",
+      "api_id": "API-2009",
+      "condition": "条件目标｜现网同步查询/来源映射和查看权已核；不触发新同步",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 12,
+      "from": "sync",
+      "to": "list",
+      "message": "返回实际已有同步事实或真实失败/未知；无回执不当远端成功。",
+      "type": "response",
+      "api_id": "API-2009",
+      "condition": "ALT-2012-DETAILFAIL｜条件目标｜原查询真实返回；未知沿详情失败/不完整处理",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2012-DETAILFAIL"
+      ]
+    },
+    {
+      "step": 13,
+      "from": "list",
+      "to": "ui",
+      "message": "组合本次已取得的有权来源、期限和本地/远端独立状态。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜仅表达实际可核事实",
+      "source_step_refs": [
+        5,
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 14,
+      "from": "ui",
+      "to": "viewer",
+      "message": "显示逐条适用范围；专项不改成永久四类禁呼，已解除/到期不复活。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜资料可靠；不保证四类远端均拦截成功",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 15,
+      "from": "list",
+      "to": "list",
+      "message": "保唯一名单和本次只读结果；未核历史不自动永久化或执行迁入。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本方只读责任｜结束本次，不改名单",
+      "source_step_refs": [
+        3,
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2018"
+  ],
+  "source_acceptance_ids": [
+    "AC-2048",
+    "AC-2049",
+    "AC-2050"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2059",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096",
+    "scenarios/SC-2012.json",
+    "interfaces/interface-index.json"
+  ],
+  "notes": [
+    "参与方表达当前业务责任，不选择生产部署架构；消息条件为互斥分支或条件目标，不表示所有消息在一次操作中依次发生。",
+    "G2仅批准分析推进。partial/missing均保真实身份、授权、稳定关联及技术契约待核；当前无可靠证据时明确受阻，不由文档/Mock或HTTP成功推定端到端成功。",
+    "真实跨内部服务的partial/missing合同可引用API能力族，内部参与方仍为system；7个not_required仅在notes登记内部责任，消息api_id=null，不伪造调用URL/参数/新回调。",
+    "本版AI标签仅整合原配置、映射和结果展示；不新增AI→业务字段写入或由此自动流转。保原人工保存、字段条件及其他流转，未匹配保原值不首项兜底，仅限本版。"
+  ],
+  "internal_responsibility_refs": [],
+  "previous_revision": {
+    "sha256": "46e7ce2d23ea4491f981f31795d0a1528688624400840ee229b7233b6ae874a3",
+    "preserved_sequence_id": "SEQ-2012"
+  },
+  "main_step_coverage": {
+    "1": [
+      1
+    ],
+    "2": [
+      2,
+      3
+    ],
+    "3": [
+      2,
+      4,
+      5,
+      6,
+      15
+    ],
+    "4": [
+      7,
+      8,
+      9
+    ],
+    "5": [
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "6": [
+      13,
+      14,
+      15
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2012-AUTH": [
+      3
+    ],
+    "ALT-2012-DETAILFAIL": [
+      10,
+      12
+    ],
+    "ALT-2012-EMPTY": [
+      6
+    ],
+    "ALT-2012-LISTONLY": [
+      7
+    ],
+    "ALT-2012-QUERYFAIL": [
+      4
+    ]
+  },
+  "api_usage_boundaries": [
+    {
+      "api_id": "API-2007",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    },
+    {
+      "api_id": "API-2009",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    }
+  ],
+  "source_scenario_sha256": "33b54852958e5d79230e7ab37327135a0b2fa4853e1ebc604f6fed06fdb52b6e",
+  "source_interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

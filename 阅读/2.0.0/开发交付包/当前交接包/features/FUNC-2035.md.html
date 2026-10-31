@@ -1,0 +1,173 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/features/FUNC-2035.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/features/FUNC-2035.md">原始 Markdown</a></p><h1>当前交接包/features/FUNC-2035.md</h1><pre># 编辑流转模板当前配置 · FUNC\-2035
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+有权修改最新模板配置，保规则身份与输入；配置待核先核同请求，业务执行待核不冻结独立配置维护，已开始run沿自身捕获方案。
+
+来源业务域：业务&amp;amp;客户；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md) — 共用页面，另有 5 个功能
+
+## 局部逻辑
+
+- [维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：从流转模板新建／编辑当前配置
+
+- 当前品牌及配置管理资格真实有效
+- 提交来源与当前上下文一致
+
+### 处理步骤
+
+1. **STEP\-FLOW\-TEMPLATE\-EDIT\-1**：选择字段参考分类读最新字段，唯一开始锚点与组件确定类型
+
+2. **STEP\-FLOW\-TEMPLATE\-EDIT\-2**：编排条件优先的入口/路径和单方式CALL，END仅选后续两动作；当前草稿可未选目标但不形成业务边
+
+3. **STEP\-FLOW\-TEMPLATE\-EDIT\-3**：核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点
+
+### 分支与异常
+
+- **BRANCH\-FLOW\-TEMPLATE\-EDIT\-1**：当单模板配置请求尚待核、条件不合法或并发已变，保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认。
+
+- **BRANCH\-FLOW\-TEMPLATE\-EDIT\-2**：当合法明确保存，更新当前定义，不自动绑定任何分类、不起呼；已开run不追改。
+
+- **LOCAL\-FLOW\-TEMPLATE\-EDIT\-DRAFT\-FIRST**：当条件已填但目标未选，或选择/拖线构成循环，空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位。
+
+### 完成后的状态
+
+- 业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [条件路径／默认路径 · FIELD\-FLOW\-BRANCH\-KIND](../field-specs.md#FIELD-FLOW-BRANCH-KIND)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [出口优先顺序 · FIELD\-FLOW\-BRANCH\-PRIORITY](../field-specs.md#FIELD-FLOW-BRANCH-PRIORITY)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [所属品牌 · FIELD\-FLOW\-BRAND\-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [出口路径稳定身份 · FIELD\-FLOW\-EDGE\-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [模板出口路径 · FIELD\-FLOW\-EDGES](../field-specs.md#FIELD-FLOW-EDGES)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [结束节点后续动作 · FIELD\-FLOW\-END\-ACTION](../field-specs.md#FIELD-FLOW-END-ACTION)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [开始业务上下文 · FIELD\-FLOW\-ENTRY\-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [开始入口分流 · FIELD\-FLOW\-ENTRY\-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [组内条件组合 · FIELD\-FLOW\-GROUP\-MODE](../field-specs.md#FIELD-FLOW-GROUP-MODE)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [本节点唯一呼叫方式 · FIELD\-FLOW\-METHOD](../field-specs.md#FIELD-FLOW-METHOD)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [后继节点 · FIELD\-FLOW\-NEXT\-NODE](../field-specs.md#FIELD-FLOW-NEXT-NODE)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [节点稳定身份 · FIELD\-FLOW\-NODE\-ID](../field-specs.md#FIELD-FLOW-NODE-ID)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [节点名称 · FIELD\-FLOW\-NODE\-NAME](../field-specs.md#FIELD-FLOW-NODE-NAME)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [节点组件类型 · FIELD\-FLOW\-NODE\-TYPE](../field-specs.md#FIELD-FLOW-NODE-TYPE)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [模板业务节点 · FIELD\-FLOW\-NODES](../field-specs.md#FIELD-FLOW-NODES)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [节点或路径承接方 · FIELD\-FLOW\-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [结果依据与范围 · FIELD\-FLOW\-RESULT\-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [条件字段身份 · FIELD\-FLOW\-RULE\-FIELD](../field-specs.md#FIELD-FLOW-RULE-FIELD)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [规则身份 · FIELD\-FLOW\-RULE\-ID](../field-specs.md#FIELD-FLOW-RULE-ID)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [判断运算符 · FIELD\-FLOW\-RULE\-OPERATOR](../field-specs.md#FIELD-FLOW-RULE-OPERATOR)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [条件来源 · FIELD\-FLOW\-RULE\-SOURCE](../field-specs.md#FIELD-FLOW-RULE-SOURCE)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [比较值集合 · FIELD\-FLOW\-RULE\-VALUES](../field-specs.md#FIELD-FLOW-RULE-VALUES)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [判断规则组 · FIELD\-FLOW\-RULES](../field-specs.md#FIELD-FLOW-RULES)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [流转模板稳定身份 · FIELD\-FLOW\-TEMPLATE\-ID](../field-specs.md#FIELD-FLOW-TEMPLATE-ID)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [流转模板名称 · FIELD\-FLOW\-TEMPLATE\-NAME](../field-specs.md#FIELD-FLOW-TEMPLATE-NAME)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [字段参考分类 · FIELD\-FLOW\-TEMPLATE\-REF\-CATEGORY](../field-specs.md#FIELD-FLOW-TEMPLATE-REF-CATEGORY)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [模板当前配置修订依据 · FIELD\-FLOW\-TEMPLATE\-REVISION](../field-specs.md#FIELD-FLOW-TEMPLATE-REVISION)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [实际业务分类身份 · FIELD\-FLOW\-CATEGORY\-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+
+- [实际分类有效方案 · FIELD\-FLOW\-EFFECTIVE\-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+
+- [同次业务请求身份 · FIELD\-FLOW\-REQUEST\-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+
+- [请求确认状态 · FIELD\-FLOW\-REQUEST\-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+
+- [实际分类单模板绑定 · FIELD\-FLOW\-ROUTE\-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+
+- [当前工作队列状态 · FIELD\-FLOW\-WORK\-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)
+
+## 本功能验收
+
+- **AC\-2109**：新模板自带唯一开始锚点，拖入转交/呼叫/结束即定类型和默认名称；首个业务节点及合法有序入口明确，不再空白节点二次选类型。
+
+- **AC\-2110**：新run捕获完整有效plan并按实际分类记录，模板后续编辑/删除不追改已开run；导入成功定位即已开始。
+
+- **AC\-2111**：同品牌模板/实际分类字段与业务域兼容；CALL不隐式换owner，OTHER先转交，不允许普通业务或门店直转越权。
+
+- **AC\-2112**：条件支持独立IMPORT，AI状态/标签与人工/预外呼状态/填写；转交精确上游来源，条件配置不授自动呼叫/推进权。 整批明确DIRECT/TEMPLATE；DIRECT仍严守基础必填、类型、映射和唯一性，仅豁免路由附加资料，且不建run/node。
+
+- **AC\-2113**：组ALL/ANY明确且已知时计算，标量IN/NOT\_IN每行多个值，EQ/NE/大小比较单值；多选及AI标签包含任一/全部，空值独立。 DIRECT显式选择AI/MANUAL/PREDICTIVE，AI场景必选；已有业务启用流程不重复导入。
+
+- **AC\-2114**：规则字段/选项/类型/作用域合法才可保存；未知不反向放行，逗号保文本，空白行忽略。普通交互保已有输入、比较值、滚动/展开；改变定义不静默丢值。
+
+- **AC\-2139**：所有有出口的当前新配置须有且仅有一个末位ELSE；IF/ELSE IF按优先级首命中，明确不匹配才到兜底，未知继续PENDING。保存/新导入/重开/启用均校验，不依赖DIRECT绕开分流。
+
+- **AC\-2142**：节点按命名→条件→下一节点→继续条件编辑，末位轻量“其他情况”；未选目标可留编辑草稿但不产生业务连线，保存仍逐项拒绝缺项并定位。
+
+- **AC\-2143**：条件修改直接进入当前草稿，不再显示待应用三按钮；兼容operator保值，字段/来源或不兼容类型/基数变化清不适用比较值，空判断清值。目标选择/拖线拒环并保原草稿，保存仍防绕过。
+
+- **AC\-2145**：线索域转交组件允许CURRENT本租户分支；命中后保持owner、run及tenant阶段，不新建跨租户截止/轮次，不清原安排与封存结果，并重核后继CALL资格。OTHER仍执行原意向锚定和跨租户保护；CURRENT不冒充OTHER，拒伪造目标或过期令牌。
+
+- **AC\-2146**：普通及START比较值提示“多个值请换行填写/每行一个值”，保持IN/NOT\_IN类型含义；报错节点/START/提示区统一浅红，切换节点保留定位，编辑该节点清当前标记，保存重新判断，不改变原校验。
+
+## 实施任务
+
+- [条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md) — 共同实施任务，包含其他功能
+
+先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-2035。产品：续接输入 / 2\.0\.0\-current\-20261030\-step41。
+
+来源类型：current；来源指纹：0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe。
+
+- documentation/input/functions\.json\#FUNC\-2035
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>

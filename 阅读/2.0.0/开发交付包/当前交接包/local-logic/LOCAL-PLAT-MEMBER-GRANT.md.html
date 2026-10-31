@@ -1,0 +1,116 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/local-logic/LOCAL-PLAT-MEMBER-GRANT.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/local-logic/LOCAL-PLAT-MEMBER-GRANT.md">原始 Markdown</a></p><h1>当前交接包/local-logic/LOCAL-PLAT-MEMBER-GRANT.md</h1><pre># LOCAL-PLAT-MEMBER-GRANT 配置本租户成员角色及模块权
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [配置本租户成员角色与模块权限 · FUNC\-2012](../features/FUNC-2012.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2012
+
+触发：租户管理员保存当前成员授权
+
+## 前置条件
+
+- 本租户成员和委派权；成员未失效
+
+## 必须遵守的全局规则
+
+- [GR-IDENTITY](../global-logic.md#GR-IDENTITY)
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+- [GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)
+
+## 输入与输出
+
+输入：[FIELD-PLAT-MEMBER-ID](../field-specs.md#FIELD-PLAT-MEMBER-ID)、[FIELD-PLAT-MEMBER-ROLE](../field-specs.md#FIELD-PLAT-MEMBER-ROLE)、[FIELD-PLAT-MEMBER-GRANTS](../field-specs.md#FIELD-PLAT-MEMBER-GRANTS)、[FIELD-PLAT-MODULES](../field-specs.md#FIELD-PLAT-MODULES)、[FIELD-PLAT-REVISION](../field-specs.md#FIELD-PLAT-REVISION)
+
+输出：[FIELD-PLAT-MEMBER-GRANTS](../field-specs.md#FIELD-PLAT-MEMBER-GRANTS)、[FIELD-PLAT-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)、[FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)
+
+## 处理步骤
+
+### LOCAL-PLAT-MEMBER-GRANT-S1
+
+分别校验AI与Cloud已开通与自身可委派子集
+
+读取：FIELD-PLAT-MEMBER-ID, FIELD-PLAT-MEMBER-ROLE, FIELD-PLAT-MEMBER-GRANTS, FIELD-PLAT-MODULES, FIELD-PLAT-REVISION；写入：无
+
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+
+### LOCAL-PLAT-MEMBER-GRANT-S2
+
+角色与原专业功能操作权分开，坐席/财务/标签维护不因成员身份推授
+
+读取：FIELD-PLAT-MEMBER-ID, FIELD-PLAT-MEMBER-ROLE, FIELD-PLAT-MEMBER-GRANTS, FIELD-PLAT-MODULES, FIELD-PLAT-REVISION；写入：无
+
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+
+### LOCAL-PLAT-MEMBER-GRANT-S3
+
+直接路由与提交动作刷新权；配置生效后不能用旧页面绕过撤权
+
+读取：FIELD-PLAT-MEMBER-ID, FIELD-PLAT-MEMBER-ROLE, FIELD-PLAT-MEMBER-GRANTS, FIELD-PLAT-MODULES, FIELD-PLAT-REVISION；写入：FIELD-PLAT-MEMBER-GRANTS, FIELD-PLAT-AUDIT, FIELD-PLAT-OP-STATE
+
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+
+## 分支与异常
+
+### LOCAL-PLAT-MEMBER-GRANT-B1
+
+条件：前提、字段及对象修订校验通过且结果明确成功
+
+结果：新授权只在本租户已开通模块和可委派范围内生效
+
+涉及字段：FIELD-PLAT-MEMBER-ID, FIELD-PLAT-MEMBER-ROLE, FIELD-PLAT-MEMBER-GRANTS, FIELD-PLAT-MODULES, FIELD-PLAT-REVISION, FIELD-PLAT-AUDIT, FIELD-PLAT-OP-STATE
+
+验证：CHECK-PLAT-MEMBER-GRANT
+
+### LOCAL-PLAT-MEMBER-GRANT-B2
+
+条件：无权/字段不合法/对象失效/修订冲突
+
+结果：明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更
+
+涉及字段：FIELD-PLAT-MEMBER-ID, FIELD-PLAT-MEMBER-ROLE, FIELD-PLAT-MEMBER-GRANTS, FIELD-PLAT-MODULES, FIELD-PLAT-REVISION, FIELD-PLAT-AUDIT, FIELD-PLAT-OP-STATE
+
+验证：CHECK-PLAT-MEMBER-GRANT
+
+### LOCAL-PLAT-MEMBER-GRANT-B3
+
+条件：提交失败或结果未知
+
+结果：失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功
+
+涉及字段：FIELD-PLAT-MEMBER-ID, FIELD-PLAT-MEMBER-ROLE, FIELD-PLAT-MEMBER-GRANTS, FIELD-PLAT-MODULES, FIELD-PLAT-REVISION, FIELD-PLAT-AUDIT, FIELD-PLAT-OP-STATE
+
+验证：CHECK-PLAT-MEMBER-GRANT
+
+## 完成后的状态
+
+- 新授权只在本租户已开通模块和可委派范围内生效
+
+## 字段定义
+
+- [FIELD-PLAT-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)
+- [FIELD-PLAT-MEMBER-GRANTS](../field-specs.md#FIELD-PLAT-MEMBER-GRANTS)
+- [FIELD-PLAT-MEMBER-ID](../field-specs.md#FIELD-PLAT-MEMBER-ID)
+- [FIELD-PLAT-MEMBER-ROLE](../field-specs.md#FIELD-PLAT-MEMBER-ROLE)
+- [FIELD-PLAT-MODULES](../field-specs.md#FIELD-PLAT-MODULES)
+- [FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)
+- [FIELD-PLAT-REVISION](../field-specs.md#FIELD-PLAT-REVISION)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2024, acceptance:AC-2025, acceptance:AC-2026, features:FUNC-2012, features:FUNC-2012/behavior_spec/0/branches/0, features:FUNC-2012/behavior_spec/0/branches/1, features:FUNC-2012/behavior_spec/0/branches/2, features:FUNC-2012/behavior_spec/0/postconditions/0, features:FUNC-2012/behavior_spec/0/preconditions/0, features:FUNC-2012/behavior_spec/0/steps/0, features:FUNC-2012/behavior_spec/0/steps/1, features:FUNC-2012/behavior_spec/0/steps/2, pages:PAGE-2003, pages:PAGE-2003/actions/1, pages:PAGE-2003/fields/10, pages:PAGE-2003/fields/11, pages:PAGE-2003/fields/15, pages:PAGE-2003/fields/17, pages:PAGE-2003/fields/2, pages:PAGE-2003/fields/24, pages:PAGE-2003/fields/9, pages:PAGE-2004/fields/0, pages:PAGE-2004/fields/1, pages:PAGE-2004/fields/2, pages:PAGE-2004/fields/5, pages:PAGE-2005/fields/0, pages:PAGE-2005/fields/4, pages:PAGE-2005/fields/5, pages:PAGE-2005/fields/9, pages:PAGE-2006/fields/56, pages:PAGE-2006/fields/58, pages:PAGE-2007/fields/1, pages:PAGE-2007/fields/21, pages:PAGE-2007/fields/25, pages:PAGE-2103/fields/13, pages:PAGE-2103/fields/20, pages:PAGE-2103/fields/3, pages:PAGE-2108/fields/4, pages:PAGE-2109/fields/3, pages:PAGE-2109/fields/9, pages:PAGE-2110/fields/12, pages:PAGE-2110/fields/7, pages:PAGE-2110/fields/8, pages:PAGE-2111/fields/12, pages:PAGE-2111/fields/16, pages:PAGE-2112/fields/11, pages:PAGE-2112/fields/14, pages:PAGE-2112/fields/6, pages:PAGE-2202/fields/1, pages:PAGE-2202/fields/18, pages:PAGE-2202/fields/20, pages:PAGE-2202/fields/21, pages:PAGE-2202/fields/30, pages:PAGE-2204/fields/71, pages:PAGE-2204/fields/77, pages:PAGE-2204/fields/84, pages:PAGE-2205/fields/0, pages:PAGE-2205/fields/10, pages:PAGE-2205/fields/17, pages:PAGE-2206/fields/0, pages:PAGE-2206/fields/10, pages:PAGE-2206/fields/17, pages:PAGE-2207/fields/0, pages:PAGE-2207/fields/14, pages:PAGE-2207/fields/18, pages:PAGE-2210/fields/0, pages:PAGE-2210/fields/1, pages:PAGE-2210/fields/8, pages:PAGE-2211/fields/0, pages:PAGE-2211/fields/1, pages:PAGE-2211/fields/7, pages:PAGE-2212/fields/0, pages:PAGE-2212/fields/1, pages:PAGE-2212/fields/12, pages:PAGE-2213/fields/0, pages:PAGE-2213/fields/1, pages:PAGE-2213/fields/28, pages:PAGE-2214/fields/0, pages:PAGE-2214/fields/2, pages:PAGE-2215/fields/0, pages:PAGE-2215/fields/3, pages:PAGE-2215/fields/9, pages:PAGE-2216/fields/0, pages:PAGE-2216/fields/1, pages:PAGE-2216/fields/13, pages:PAGE-2217/fields/0, pages:PAGE-2217/fields/13, pages:PAGE-2217/fields/20, pages:PAGE-2218/fields/0, pages:PAGE-2218/fields/1, pages:PAGE-2218/fields/8, pages:PAGE-2219/fields/0, pages:PAGE-2219/fields/14, pages:PAGE-2219/fields/8, pages:PAGE-2220/fields/12, pages:PAGE-2220/fields/20, pages:PAGE-2220/fields/7, pages:PAGE-2221/fields/0, pages:PAGE-2222/fields/0, pages:PAGE-2223/fields/35, pages:PAGE-2223/fields/39, pages:PAGE-2227/fields/120, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/182, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/185, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/187, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/188, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/190, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/193, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/194, scenarios:FLOW-CURRENT-PLATFORM/steps/13
+
+验证：CHECK-PLAT-MEMBER-GRANT
+
+## 实施任务
+
+- [TASK-005](../tasks/TASK-005.md)
+</pre></body></html>

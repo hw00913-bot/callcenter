@@ -1,0 +1,362 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/features/FUNC-2019.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/features/FUNC-2019.md">原始 Markdown</a></p><h1>当前交接包/features/FUNC-2019.md</h1><pre># 为具体AI执行场景维护业务分类引用 · FUNC\-2019
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+在AI标签管理→场景配置按具体场景ID关联当前品牌有权分类，保原AI细分和供应商参数；业务引用不等于模板实际路由绑定。
+
+来源业务域：呼叫中心；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md) — 共用页面，另有 7 个功能
+
+- [AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md) — 共用页面，另有 2 个功能
+
+- [AI业务场景 · UI\-PAGE\-2110](../ui-pages/UI-PAGE-2110.md) — 共用页面，另有 1 个功能
+
+- [AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md) — 共用页面，另有 1 个功能
+
+## 局部逻辑
+
+- [具体AI场景关联业务分类 · LOCAL\-PLAT\-AI\-CATEGORY\-BIND](../local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：AI标签管理→场景配置显式选择分类并保存
+
+- AI专业配置权；当前品牌分类有权可选
+
+### 处理步骤
+
+1. **LOCAL\-PLAT\-AI\-CATEGORY\-BIND\-S1**：按具体执行场景稳定ID关联分类，保留原AI新/冷类型和供应商参数
+
+2. **LOCAL\-PLAT\-AI\-CATEGORY\-BIND\-S2**：分类只作业务引用，不自动绑定流转模板；实际路由来自分类路由配置
+
+3. **LOCAL\-PLAT\-AI\-CATEGORY\-BIND\-S3**：重新校验分类/品牌/当前修订，禁止同名或首项兜底
+
+### 分支与异常
+
+- **LOCAL\-PLAT\-AI\-CATEGORY\-BIND\-B1**：当前提、字段及对象修订校验通过且结果明确成功，准确场景业务分类引用保存，未扩大品牌数据或AI专业能力。
+
+- **LOCAL\-PLAT\-AI\-CATEGORY\-BIND\-B2**：当无权/字段不合法/对象失效/修订冲突，明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更。
+
+- **LOCAL\-PLAT\-AI\-CATEGORY\-BIND\-B3**：当提交失败或结果未知，失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功。
+
+### 完成后的状态
+
+- 准确场景业务分类引用保存，未扩大品牌数据或AI专业能力
+
+- [查询AI场景及原类型 · LOCAL\-PLAT\-AI\-SCENE\-QUERY](../local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [创建或编辑AI业务场景与场景类型 · LOCAL\-PLAT\-AI\-SCENE\-SAVE](../local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [维护AI标签池、标准集与映射 · LOCAL\-PLAT\-AI\-TAG\-CONFIG](../local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [校验AI执行段标签并保留准确结果 · LOCAL\-PLAT\-AI\-TAG\-RESULT](../local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [AI场景业务分类引用 · FIELD\-PLAT\-AI\-CATEGORY](../field-specs.md#FIELD-PLAT-AI-CATEGORY)；依据：[具体AI场景关联业务分类 · LOCAL\-PLAT\-AI\-CATEGORY\-BIND](../local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)
+
+- [具体AI执行场景 · FIELD\-PLAT\-AI\-SCENE\-ID](../field-specs.md#FIELD-PLAT-AI-SCENE-ID)；依据：[具体AI场景关联业务分类 · LOCAL\-PLAT\-AI\-CATEGORY\-BIND](../local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)
+
+- [AI供应商 · FIELD\-PLAT\-AI\-SUPPLIER](../field-specs.md#FIELD-PLAT-AI-SUPPLIER)；依据：[具体AI场景关联业务分类 · LOCAL\-PLAT\-AI\-CATEGORY\-BIND](../local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)
+
+- [AI业务类型 · FIELD\-PLAT\-AI\-TYPE](../field-specs.md#FIELD-PLAT-AI-TYPE)；依据：[具体AI场景关联业务分类 · LOCAL\-PLAT\-AI\-CATEGORY\-BIND](../local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)
+
+- [变更审计 · FIELD\-PLAT\-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)；依据：[具体AI场景关联业务分类 · LOCAL\-PLAT\-AI\-CATEGORY\-BIND](../local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)
+
+- [对象当前修订 · FIELD\-PLAT\-REVISION](../field-specs.md#FIELD-PLAT-REVISION)；依据：[具体AI场景关联业务分类 · LOCAL\-PLAT\-AI\-CATEGORY\-BIND](../local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [条件路径／默认路径 · FIELD\-FLOW\-BRANCH\-KIND](../field-specs.md#FIELD-FLOW-BRANCH-KIND)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [出口优先顺序 · FIELD\-FLOW\-BRANCH\-PRIORITY](../field-specs.md#FIELD-FLOW-BRANCH-PRIORITY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [所属品牌 · FIELD\-FLOW\-BRAND\-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [业务类型域 · FIELD\-FLOW\-BUSINESS\-FAMILY](../field-specs.md#FIELD-FLOW-BUSINESS-FAMILY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [分类填写字段引用 · FIELD\-FLOW\-CATEGORY\-FOLLOWUP\-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-FOLLOWUP-REFS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [实际业务分类身份 · FIELD\-FLOW\-CATEGORY\-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [分类导入字段引用 · FIELD\-FLOW\-CATEGORY\-IMPORT\-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [业务分类名称 · FIELD\-FLOW\-CATEGORY\-LABEL](../field-specs.md#FIELD-FLOW-CATEGORY-LABEL)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [分类基础／字段校验依据 · FIELD\-FLOW\-CATEGORY\-REVISION](../field-specs.md#FIELD-FLOW-CATEGORY-REVISION)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [业务记录编码列名 · FIELD\-FLOW\-CODE\-LABEL](../field-specs.md#FIELD-FLOW-CODE-LABEL)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [取数能力字典引用 · FIELD\-FLOW\-DICTIONARY\-ID](../field-specs.md#FIELD-FLOW-DICTIONARY-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [出口路径稳定身份 · FIELD\-FLOW\-EDGE\-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [模板出口路径 · FIELD\-FLOW\-EDGES](../field-specs.md#FIELD-FLOW-EDGES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [实际分类有效方案 · FIELD\-FLOW\-EFFECTIVE\-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [开始业务上下文 · FIELD\-FLOW\-ENTRY\-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [开始入口分流 · FIELD\-FLOW\-ENTRY\-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [接口上游依赖 · FIELD\-FLOW\-FIELD\-DEPENDS](../field-specs.md#FIELD-FLOW-FIELD-DEPENDS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段启用状态 · FIELD\-FLOW\-FIELD\-ENABLED](../field-specs.md#FIELD-FLOW-FIELD-ENABLED)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [自定义字段稳定身份 · FIELD\-FLOW\-FIELD\-ID](../field-specs.md#FIELD-FLOW-FIELD-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段业务编码 · FIELD\-FLOW\-FIELD\-KEY](../field-specs.md#FIELD-FLOW-FIELD-KEY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段名称 · FIELD\-FLOW\-FIELD\-LABEL](../field-specs.md#FIELD-FLOW-FIELD-LABEL)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [选项定义顺序 · FIELD\-FLOW\-FIELD\-OPTIONS](../field-specs.md#FIELD-FLOW-FIELD-OPTIONS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段类型 · FIELD\-FLOW\-FIELD\-TYPE](../field-specs.md#FIELD-FLOW-FIELD-TYPE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段用途 · FIELD\-FLOW\-FIELD\-USAGE](../field-specs.md#FIELD-FLOW-FIELD-USAGE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [组内条件组合 · FIELD\-FLOW\-GROUP\-MODE](../field-specs.md#FIELD-FLOW-GROUP-MODE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [本节点唯一呼叫方式 · FIELD\-FLOW\-METHOD](../field-specs.md#FIELD-FLOW-METHOD)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [后继节点 · FIELD\-FLOW\-NEXT\-NODE](../field-specs.md#FIELD-FLOW-NEXT-NODE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [节点稳定身份 · FIELD\-FLOW\-NODE\-ID](../field-specs.md#FIELD-FLOW-NODE-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [节点名称 · FIELD\-FLOW\-NODE\-NAME](../field-specs.md#FIELD-FLOW-NODE-NAME)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [节点组件类型 · FIELD\-FLOW\-NODE\-TYPE](../field-specs.md#FIELD-FLOW-NODE-TYPE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [模板业务节点 · FIELD\-FLOW\-NODES](../field-specs.md#FIELD-FLOW-NODES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [选项启用状态 · FIELD\-FLOW\-OPTION\-ENABLED](../field-specs.md#FIELD-FLOW-OPTION-ENABLED)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [选项稳定身份 · FIELD\-FLOW\-OPTION\-ID](../field-specs.md#FIELD-FLOW-OPTION-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [业务选项编码 · FIELD\-FLOW\-OPTION\-KEY](../field-specs.md#FIELD-FLOW-OPTION-KEY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [选项文案 · FIELD\-FLOW\-OPTION\-LABEL](../field-specs.md#FIELD-FLOW-OPTION-LABEL)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [上游属性到查询参数映射 · FIELD\-FLOW\-PARAM\-BINDINGS](../field-specs.md#FIELD-FLOW-PARAM-BINDINGS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [是否关联查询条件 · FIELD\-FLOW\-QUERY\-CONDITIONS](../field-specs.md#FIELD-FLOW-QUERY-CONDITIONS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [节点或路径承接方 · FIELD\-FLOW\-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [同次业务请求身份 · FIELD\-FLOW\-REQUEST\-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [请求确认状态 · FIELD\-FLOW\-REQUEST\-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [结果依据与范围 · FIELD\-FLOW\-RESULT\-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [实际分类单模板绑定 · FIELD\-FLOW\-ROUTE\-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [路由并发校验依据 · FIELD\-FLOW\-ROUTE\-VERSION](../field-specs.md#FIELD-FLOW-ROUTE-VERSION)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [条件字段身份 · FIELD\-FLOW\-RULE\-FIELD](../field-specs.md#FIELD-FLOW-RULE-FIELD)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [规则身份 · FIELD\-FLOW\-RULE\-ID](../field-specs.md#FIELD-FLOW-RULE-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [判断运算符 · FIELD\-FLOW\-RULE\-OPERATOR](../field-specs.md#FIELD-FLOW-RULE-OPERATOR)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [条件来源 · FIELD\-FLOW\-RULE\-SOURCE](../field-specs.md#FIELD-FLOW-RULE-SOURCE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [比较值集合 · FIELD\-FLOW\-RULE\-VALUES](../field-specs.md#FIELD-FLOW-RULE-VALUES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [判断规则组 · FIELD\-FLOW\-RULES](../field-specs.md#FIELD-FLOW-RULES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [接口返回选择方式 · FIELD\-FLOW\-SELECTION\-MODE](../field-specs.md#FIELD-FLOW-SELECTION-MODE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [流转模板稳定身份 · FIELD\-FLOW\-TEMPLATE\-ID](../field-specs.md#FIELD-FLOW-TEMPLATE-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [流转模板名称 · FIELD\-FLOW\-TEMPLATE\-NAME](../field-specs.md#FIELD-FLOW-TEMPLATE-NAME)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段参考分类 · FIELD\-FLOW\-TEMPLATE\-REF\-CATEGORY](../field-specs.md#FIELD-FLOW-TEMPLATE-REF-CATEGORY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [模板当前配置修订依据 · FIELD\-FLOW\-TEMPLATE\-REVISION](../field-specs.md#FIELD-FLOW-TEMPLATE-REVISION)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [当前工作队列状态 · FIELD\-FLOW\-WORK\-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [业务引用判定 · FIELD\-PLAT\-REFERENCE\-STATE](../field-specs.md#FIELD-PLAT-REFERENCE-STATE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[AI业务场景 · UI\-PAGE\-2110](../ui-pages/UI-PAGE-2110.md)、[AI专业目录、执行场景与分类引用 · TASK\-032](../tasks/TASK-032.md)
+
+- [允许直接跟进 · FIELD\-FLOW\-ALLOW\-DIRECT\-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [结束节点后续动作 · FIELD\-FLOW\-END\-ACTION](../field-specs.md#FIELD-FLOW-END-ACTION)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [标签映射及启用 · FIELD\-PLAT\-AI\-MAPPING](../field-specs.md#FIELD-PLAT-AI-MAPPING)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)、[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[维护AI标签池、标准集与映射 · LOCAL\-PLAT\-AI\-TAG\-CONFIG](../local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)、[校验AI执行段标签并保留准确结果 · LOCAL\-PLAT\-AI\-TAG\-RESULT](../local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)、[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [执行段标签上下文 · FIELD\-PLAT\-AI\-TAG\-CONTEXT](../field-specs.md#FIELD-PLAT-AI-TAG-CONTEXT)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)、[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[校验AI执行段标签并保留准确结果 · LOCAL\-PLAT\-AI\-TAG\-RESULT](../local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)、[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [AI原始与映射标签结果 · FIELD\-PLAT\-AI\-TAG\-RESULT](../field-specs.md#FIELD-PLAT-AI-TAG-RESULT)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)、[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[校验AI执行段标签并保留准确结果 · LOCAL\-PLAT\-AI\-TAG\-RESULT](../local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)、[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [黑名单／拒联来源记录标识 · FIELD\-PLAT\-BAN\-ID](../field-specs.md#FIELD-PLAT-BAN-ID)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [限制有效时段 · FIELD\-PLAT\-BAN\-LIFETIME](../field-specs.md#FIELD-PLAT-BAN-LIFETIME)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [限制规范号码 · FIELD\-PLAT\-BAN\-PHONE](../field-specs.md#FIELD-PLAT-BAN-PHONE)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [限制原因 · FIELD\-PLAT\-BAN\-REASON](../field-specs.md#FIELD-PLAT-BAN-REASON)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [拒联／名单来源证据 · FIELD\-PLAT\-BAN\-SOURCE](../field-specs.md#FIELD-PLAT-BAN-SOURCE)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [本地限制状态 · FIELD\-PLAT\-BAN\-STATE](../field-specs.md#FIELD-PLAT-BAN-STATE)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [实际拨打／接听人 · FIELD\-PLAT\-CALL\-ACTOR](../field-specs.md#FIELD-PLAT-CALL-ACTOR)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [通话稳定标识 · FIELD\-PLAT\-CALL\-ID](../field-specs.md#FIELD-PLAT-CALL-ID)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)、[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[校验AI执行段标签并保留准确结果 · LOCAL\-PLAT\-AI\-TAG\-RESULT](../local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)、[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [通话事实状态 · FIELD\-PLAT\-CALL\-STATE](../field-specs.md#FIELD-PLAT-CALL-STATE)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [通话时间与时长 · FIELD\-PLAT\-CALL\-TIMES](../field-specs.md#FIELD-PLAT-CALL-TIMES)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [分页与结果总量 · FIELD\-PLAT\-PAGING](../field-specs.md#FIELD-PLAT-PAGING)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)、[AI业务场景 · UI\-PAGE\-2110](../ui-pages/UI-PAGE-2110.md)、[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[查询AI场景及原类型 · LOCAL\-PLAT\-AI\-SCENE\-QUERY](../local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[AI专业目录、执行场景与分类引用 · TASK\-032](../tasks/TASK-032.md)
+
+- [查询筛选 · FIELD\-PLAT\-QUERY](../field-specs.md#FIELD-PLAT-QUERY)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)、[AI业务场景 · UI\-PAGE\-2110](../ui-pages/UI-PAGE-2110.md)、[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[查询AI场景及原类型 · LOCAL\-PLAT\-AI\-SCENE\-QUERY](../local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[AI专业目录、执行场景与分类引用 · TASK\-032](../tasks/TASK-032.md)
+
+- [录音访问引用 · FIELD\-PLAT\-RECORDING](../field-specs.md#FIELD-PLAT-RECORDING)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [操作请求标识 · FIELD\-PLAT\-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [专业资源归属 · FIELD\-PLAT\-RESOURCE\-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)；依据：[AI通话记录 · UI\-PAGE\-2108](../ui-pages/UI-PAGE-2108.md)
+
+- [AI执行参数与机器人 · FIELD\-PLAT\-AI\-PARAMS](../field-specs.md#FIELD-PLAT-AI-PARAMS)；依据：[AI业务场景 · UI\-PAGE\-2110](../ui-pages/UI-PAGE-2110.md)、[创建或编辑AI业务场景与场景类型 · LOCAL\-PLAT\-AI\-SCENE\-SAVE](../local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[AI专业目录、执行场景与分类引用 · TASK\-032](../tasks/TASK-032.md)
+
+- [AI场景名称 · FIELD\-PLAT\-AI\-SCENE\-NAME](../field-specs.md#FIELD-PLAT-AI-SCENE-NAME)；依据：[AI业务场景 · UI\-PAGE\-2110](../ui-pages/UI-PAGE-2110.md)、[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[查询AI场景及原类型 · LOCAL\-PLAT\-AI\-SCENE\-QUERY](../local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[创建或编辑AI业务场景与场景类型 · LOCAL\-PLAT\-AI\-SCENE\-SAVE](../local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[AI专业目录、执行场景与分类引用 · TASK\-032](../tasks/TASK-032.md)
+
+- [AI租户映射 · FIELD\-PLAT\-AI\-TENANT](../field-specs.md#FIELD-PLAT-AI-TENANT)；依据：[AI业务场景 · UI\-PAGE\-2110](../ui-pages/UI-PAGE-2110.md)、[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[查询AI场景及原类型 · LOCAL\-PLAT\-AI\-SCENE\-QUERY](../local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[AI专业目录、执行场景与分类引用 · TASK\-032](../tasks/TASK-032.md)
+
+- [操作结果状态 · FIELD\-PLAT\-OP\-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)；依据：[AI业务场景 · UI\-PAGE\-2110](../ui-pages/UI-PAGE-2110.md)、[AI专业目录、执行场景与分类引用 · TASK\-032](../tasks/TASK-032.md)
+
+- [本地标准标签 · FIELD\-PLAT\-AI\-LOCAL\-TAGS](../field-specs.md#FIELD-PLAT-AI-LOCAL-TAGS)；依据：[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[维护AI标签池、标准集与映射 · LOCAL\-PLAT\-AI\-TAG\-CONFIG](../local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [供应商标签池 · FIELD\-PLAT\-AI\-SUPPLIER\-TAGS](../field-specs.md#FIELD-PLAT-AI-SUPPLIER-TAGS)；依据：[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[维护AI标签池、标准集与映射 · LOCAL\-PLAT\-AI\-TAG\-CONFIG](../local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [AI标签场景 · FIELD\-PLAT\-AI\-TAG\-SCENE](../field-specs.md#FIELD-PLAT-AI-TAG-SCENE)；依据：[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[维护AI标签池、标准集与映射 · LOCAL\-PLAT\-AI\-TAG\-CONFIG](../local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [标签场景本地编码 · FIELD\-PLAT\-TAG\-SCENE\-CODE](../field-specs.md#FIELD-PLAT-TAG-SCENE-CODE)；依据：[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [标签场景名称 · FIELD\-PLAT\-TAG\-SCENE\-NAME](../field-specs.md#FIELD-PLAT-TAG-SCENE-NAME)；依据：[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [标签场景状态 · FIELD\-PLAT\-TAG\-SCENE\-STATE](../field-specs.md#FIELD-PLAT-TAG-SCENE-STATE)；依据：[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [标签供应商本地编码 · FIELD\-PLAT\-TAG\-SUPPLIER\-CODE](../field-specs.md#FIELD-PLAT-TAG-SUPPLIER-CODE)；依据：[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [标签供应商名称 · FIELD\-PLAT\-TAG\-SUPPLIER\-NAME](../field-specs.md#FIELD-PLAT-TAG-SUPPLIER-NAME)；依据：[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [标签供应商状态 · FIELD\-PLAT\-TAG\-SUPPLIER\-STATE](../field-specs.md#FIELD-PLAT-TAG-SUPPLIER-STATE)；依据：[AI标签配置 · UI\-PAGE\-2111](../ui-pages/UI-PAGE-2111.md)、[AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md)
+
+- [预外呼实际接听账号 · FIELD\-FLOW\-ACTUAL\-ANSWER](../field-specs.md#FIELD-FLOW-ACTUAL-ANSWER)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [通话尝试身份 · FIELD\-FLOW\-ATTEMPT\-ID](../field-specs.md#FIELD-FLOW-ATTEMPT-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [尝试执行状态 · FIELD\-FLOW\-CALL\-STATE](../field-specs.md#FIELD-FLOW-CALL-STATE)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [实际通话尝试 · FIELD\-FLOW\-CALLS](../field-specs.md#FIELD-FLOW-CALLS)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [正式跟进内容快照 · FIELD\-FLOW\-CONTENT\-SNAPSHOT](../field-specs.md#FIELD-FLOW-CONTENT-SNAPSHOT)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [客户接通事实 · FIELD\-FLOW\-CUSTOMER\-ANSWERED](../field-specs.md#FIELD-FLOW-CUSTOMER-ANSWERED)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [真实拨打标记 · FIELD\-FLOW\-DIALED](../field-specs.md#FIELD-FLOW-DIALED)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [真实拨打时间 · FIELD\-FLOW\-DIALED\-AT](../field-specs.md#FIELD-FLOW-DIALED-AT)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [直接跟进周期身份 · FIELD\-FLOW\-DIRECT\-CYCLE\-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [直接跟进状态 · FIELD\-FLOW\-DIRECT\-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [来源事件身份 · FIELD\-FLOW\-EVENT\-ID](../field-specs.md#FIELD-FLOW-EVENT-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [整业务当前执行事实 · FIELD\-FLOW\-EXECUTION\-STATE](../field-specs.md#FIELD-FLOW-EXECUTION-STATE)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [本次业务跟进身份 · FIELD\-FLOW\-FOLLOWUP\-ID](../field-specs.md#FIELD-FLOW-FOLLOWUP-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [业务办理模式 · FIELD\-FLOW\-HANDLING\-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [人工接听事实 · FIELD\-FLOW\-HUMAN\-ANSWER](../field-specs.md#FIELD-FLOW-HUMAN-ANSWER)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [本次节点办理身份 · FIELD\-FLOW\-NODE\-RUN\-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [供应商通话标识 · FIELD\-FLOW\-PROVIDER\-CALL\-ID](../field-specs.md#FIELD-FLOW-PROVIDER-CALL-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [业务记录身份 · FIELD\-FLOW\-RECORD\-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [重试计划收敛事实 · FIELD\-FLOW\-RETRIES\-COMPLETE](../field-specs.md#FIELD-FLOW-RETRIES-COMPLETE)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [通话状态判断证据 · FIELD\-FLOW\-ROUTING\-EVIDENCE](../field-specs.md#FIELD-FLOW-ROUTING-EVIDENCE)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [本次流程运行身份 · FIELD\-FLOW\-RUN\-ID](../field-specs.md#FIELD-FLOW-RUN-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [实际执行场景及配置 · FIELD\-FLOW\-SCENE\-SNAPSHOT](../field-specs.md#FIELD-FLOW-SCENE-SNAPSHOT)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [租户承接阶段身份 · FIELD\-FLOW\-STAGE\-ID](../field-specs.md#FIELD-FLOW-STAGE-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [业务跟进与通话统计 · FIELD\-FLOW\-STATISTICS](../field-specs.md#FIELD-FLOW-STATISTICS)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [实际AI意向标签事实 · FIELD\-FLOW\-TAG\-EVIDENCE](../field-specs.md#FIELD-FLOW-TAG-EVIDENCE)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+## 本功能验收
+
+- **AC\-2045**：在原标签管理→场景配置入口补充公共分类关联，保留AI原分类、标签及供应商配置。
+
+- **AC\-2046**：公共分类维护权不下放AI专业配置权，新/冷细分及供应商执行允许值沿原规则。保原供应商标签池按supplierId、标签启用与映射按supplierId\+总部/门店租户类型\+AI标签场景、本地标准集按租户类型\+标签场景的作用域；标签场景、具体AI执行场景及公共分类以准确身份关联，不因品牌共用就共享全部标签。
+
+- **AC\-2047**：按本租户具体AI执行场景稳定ID关联当前品牌有权分类；同一类型不同场景可分别归类，保AI新/冷细分、供应商参数及原专业权。分类仅业务引用，模板实际路由以分类路由配置绑定为准；不定义旧v2目录迁移或同名合并。
+
+- **AC\-2063**：保留已确认的222项AI/Cloud原专业能力，按稳定operation\_key、PAGE、ACTION逐项关联当前触发/输入/权限/状态/终态；原仅有界面但未实现或缺证控制不自动升级，Mock交互不证明真实生产可用。
+
+- **AC\-2064**：AI任务、通话/计费/线索统计、通话/线索记录、场景、标签及服务能力保留；原首页摘要/使用归AI用量与服务。AI场景使用与标签配置权分离；标签按准确supplier/tenant/type/tagScene/category/brand/revision执行段快照校验。原始与映射结果保留，未匹配不回退首项。准确映射标签可作人工确认路径条件，不直接写业务字段，不因AI回执自动推进。
+
+- **AC\-2149**：业务分类行只保编辑/路由配置/预览/删除；不恢复AI标签配置快捷按钮。标签维护仍在呼叫中心AI配置的独立有权入口，原具体AI场景分类引用及其稳定身份保留。
+
+## 实施任务
+
+- [准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md) — 共同实施任务，包含其他功能
+
+- [AI专业目录、执行场景与分类引用 · TASK\-032](../tasks/TASK-032.md) — 共同实施任务，包含其他功能
+
+- [AI标签目录、池、标准集与准确映射 · TASK\-033](../tasks/TASK-033.md) — 共同实施任务，包含其他功能
+
+先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-2019。产品：续接输入 / 2\.0\.0\-current\-20261030\-step41。
+
+来源类型：current；来源指纹：0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe。
+
+- documentation/input/functions\.json\#FUNC\-2019
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>
