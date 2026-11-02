@@ -1,0 +1,453 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2037",
+  "scenario_id": "SC-2037",
+  "name": "独立关联并保存业务分类的单一模板路由交互时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "design_status": "S5_current_G2_analysis_candidate_not_implementation",
+  "participants": [
+    {
+      "id": "person",
+      "name": "平台超管或本品牌租户管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "D联络云原功能前端",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "本方业务办理职责",
+      "kind": "system"
+    },
+    {
+      "id": "records",
+      "name": "本方稳定对象、配置及历史职责",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "从业务中心同一分类列表独立路由配置入口打开已有分类。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 1
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "请求本次稳定对象、原操作及可见/可维护范围",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 2
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "读取当前分类ID/品牌、BASE及各字段/选项定义版本和ROUTE版本。；各条件逐fieldId只读核来源和选项，不提供修改名称/字段/接口或单一标签来源选择，不提交tagFieldId；无条件不要求额外字段值。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 3
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "仅在原范围、原值及版本可靠取得时返回本次上下文；读取失败走对应待核分支",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次读取可靠",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 4
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "展示本次有权原表单/状态，沿原角色和对象范围，不增加全量业务数据权",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次范围/读取可核",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 5
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "选择一个本品牌精确模板保存版本，请求立即读取节点说明",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 6
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "请求所选精确保存版本的即时只读说明",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 7
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "读取该版本名称、明确起点、节点职责/允许方式、后续路径与条件",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 8
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "只有完整且版本一致的说明才可交人员核对，不以列表顺序推断线性",
+      "type": "response",
+      "api_id": null,
+      "condition": "精确版本说明可靠完整",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 9
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "展示精确节点说明；未选显示引导，已选但读失败走ALT2037PREVIEW",
+      "type": "response",
+      "api_id": null,
+      "condition": "所选版本说明完整可靠",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 10
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "核对只读说明后确认本次单模板关联",
+      "type": "request",
+      "api_id": null,
+      "condition": "所选精确版本说明已可靠核对",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 11
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "人员确认后提交仅本次独立单模板ROUTE保存意图，未提交不改变原数据",
+      "type": "request",
+      "api_id": null,
+      "condition": "人员确认本次操作",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 12
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "提交重核本品牌配置权、BASE/各字段定义与ROUTE版本和所选单模板版本及逐条件兼容。；每规则fieldId/optionId必须来自本分类已显示/启用多选字段并逐一核兼容；无模板/不合法/过期拒绝并保留输入。只按原配置范围验权，不要求业务成员/本人坐席/双模块，不授代执行业务权。",
+      "type": "event",
+      "api_id": null,
+      "condition": "本次已确认提交",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 13
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "同次仅保存本分类一个模板版本引用及兼容结果为新ROUTE版本。；不覆盖BASE、字段、接口，不提交tagFieldId；不造备用或接续映射。旧记录/批次快照及历史不变；同次重核不重复造版本，保存不执行。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次原资格/对象/版本及实际动作全部准入可靠通过",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 14
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "返回本次真实可核保存结论；一致性及持久化合同未落实不假报成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次保存事实可核",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 15
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "反馈实际保存结果、ROUTE版本和有效/未配/需复核状态。；无引用或字段变化不兼容时保引用/状态并阻新模型新输入；新记录固定当时BASE/字段、ROUTE和一个模板/路径条件快照，旧实例不追改。失败/未知先核同次结果。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次明确保存成功",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 16
+    },
+    {
+      "from": "ui",
+      "to": "person",
+      "message": "展示本次明确结果；后续独立操作由有权人员另次发起",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次明确成功",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 17
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "不保存本次单模板引用或兼容结果，不改BASE/字段/接口或当前ROUTE。",
+      "type": "event",
+      "api_id": null,
+      "condition": "[ALT-2037-CANCEL] 提交前取消本次独立路由操作。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2037-CANCEL"
+      ],
+      "step": 18
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "拒绝本次保存，保留输入；不覆盖当前BASE/ROUTE，不按同名或首字段猜兼容。；重新读取当前版本并核对；需改字段返回SC-2010，不在ROUTE提供标签来源选择或tagFieldId提交。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2037-INVALID] 无权、BASE/字段或ROUTE版本过期、未选择有效单模板，或某条件fieldId/optionId不兼容。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2037-INVALID"
+      ],
+      "step": 19
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "区分明确失败和结果未知，未确认成功不标可用。；先核同次路由请求实际结果，不用新请求重复保存，不覆盖较新基础或路由。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2037-UNKNOWN] 读写失败或本次结果不能确定",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2037-UNKNOWN"
+      ],
+      "step": 20
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "保留选择及原ROUTE，不用旧说明或列表顺序假造该版本节点路径。；重新可靠读取后再由人员核对；未选模板只显示引导，提交仍受未选模板校验阻止。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2037-PREVIEW] 已选择精确模板保存版本，但只读节点说明读取失败、不完整或版本不一致。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2037-PREVIEW"
+      ],
+      "step": 21
+    }
+  ],
+  "source_story_ids": [
+    "US-2032",
+    "US-2033",
+    "US-2014"
+  ],
+  "source_acceptance_ids": [
+    "AC-2102",
+    "AC-2104",
+    "AC-2105",
+    "AC-2114",
+    "AC-2106",
+    "AC-2107",
+    "AC-2108",
+    "AC-2134",
+    "AC-2135"
+  ],
+  "business_rule_ids": [
+    "BR-2041",
+    "BR-2042",
+    "BR-2045",
+    "BR-2046",
+    "BR-2052",
+    "BR-2053",
+    "BR-2054",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2012",
+    "BR-2022"
+  ],
+  "source_refs": [
+    "scenarios/SC-2037.json",
+    "memory/normalized-user-stories.json",
+    "memory/business-rules.json",
+    "memory/project-facts.json",
+    "interfaces/interface-index.json",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "source_bindings": {
+    "scenario_sha256": "f230d2772a25245c38ee8a4768a3779eed66cdd4d6272a4313d5a7fac585c95c",
+    "interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+    "G2_basis": [
+      "SRC-2095",
+      "SRC-2096"
+    ]
+  },
+  "api_refs": [],
+  "internal_capability_refs": [
+    "API-2026"
+  ],
+  "contract_dependency_refs": [],
+  "reused_sequence_refs": [
+    "SEQ-2001",
+    "SEQ-2002"
+  ],
+  "main_step_coverage": [
+    {
+      "source_step": 1,
+      "message_steps": [
+        1,
+        2
+      ]
+    },
+    {
+      "source_step": 2,
+      "message_steps": [
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "source_step": 3,
+      "message_steps": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "source_step": 4,
+      "message_steps": [
+        13
+      ]
+    },
+    {
+      "source_step": 5,
+      "message_steps": [
+        14,
+        15
+      ]
+    },
+    {
+      "source_step": 6,
+      "message_steps": [
+        16,
+        17
+      ]
+    }
+  ],
+  "alternate_flow_coverage": [
+    {
+      "id": "ALT-2037-CANCEL",
+      "condition": "提交前取消本次独立路由操作。",
+      "message_steps": [
+        18
+      ]
+    },
+    {
+      "id": "ALT-2037-INVALID",
+      "condition": "无权、BASE/字段或ROUTE版本过期、未选择有效单模板，或某条件fieldId/optionId不兼容。",
+      "message_steps": [
+        19
+      ]
+    },
+    {
+      "id": "ALT-2037-UNKNOWN",
+      "condition": "读写失败或本次结果不能确定",
+      "message_steps": [
+        20
+      ]
+    },
+    {
+      "id": "ALT-2037-PREVIEW",
+      "condition": "已选择精确模板保存版本，但只读节点说明读取失败、不完整或版本不一致。",
+      "message_steps": [
+        21
+      ]
+    }
+  ],
+  "notes": [
+    "SRC2095+2096仅批准按当前缺口继续分析；不是G3、原型实施或生产验收。成功消息仅为本次事实可核后的条件目标，partial/missing合同或真实身份/关联/结果未核则停留待核/受阻。",
+    "参与方为产品责任边界，不宣称已部署新服务；not_required能力仅列内部职责，这7族内部消息api_id均为null，不伪造URL、方法、字段、回调、时限、重试或补偿协议。",
+    "按condition阅读互斥分支，非所有消息一次必经。真实受理、执行结束、结果保存、归属及节点分别核定，不以HTTP成功或已发请求代替业务完成。",
+    "共同认证/原操作资格及切离返回保护复用SEQ2001/2002等，不强制每页重新登录、退出电话或调用公共API；原独立AI/专业资源/财务资格、电话现场和停用有限收尾保持。",
+    "SRC2096：本版AI标签仅配置/映射和原始/映射结果展示，不新增AI标准标签写业务字段或由此新增自动流转；未匹配保原值无首项兜底，既有业务字段条件、人工保存和其他原有流转不变。",
+    "单模板精确版本只读预览在保存前完成；预览失败/不全/版本不一致保选择及原ROUTE。只更新ROUTE版本及兼容结果，不覆BASE/字段/接口。"
+  ],
+  "source_scenario_sha256": "f230d2772a25245c38ee8a4768a3779eed66cdd4d6272a4313d5a7fac585c95c",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

@@ -1,0 +1,331 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2006",
+  "name": "超管独立开通租户模块",
+  "summary": "按需开通对应模块，按模块配置资源",
+  "actors": [
+    "超管",
+    "公共租户模块管理",
+    "对应模块资源配置"
+  ],
+  "trigger": "租户需开通AI/云呼叫",
+  "preconditions": [
+    "业务租户已存在，操作人为有权超管。",
+    "对应资源配置沿各模块既有规则，开通条件的真实契约由后续生产核验落实。",
+    "入口由系统管理承接原账号、成员、租户或品牌的相应功能，仍沿原对象权限、管理范围和稳定PAGE；该原管理功能的切离保护、同窗口返回及同次登录记忆继续按SC-2002，不因入口归位新增管理权。"
+  ],
+  "expected_outcome": "按需开通对应模块，按模块配置资源",
+  "exception_scope": "保留AI存量开通状态；未开通另一模块不强要资源",
+  "source_story_ids": [
+    "US-2007"
+  ],
+  "source_acceptance_ids": [
+    "AC-2019",
+    "AC-2020",
+    "AC-2021"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "G1确认范围，S3流程候选。模块开通归超管已确定；实际资源清单及生产开通状态读取待核验。本场景不自动扩展模块停用／恢复操作。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 新增分类/模板的配置查看、监管和本租户业务处理按各自动作资格区分；品牌配置或列表查看不要求同时开通两种业务模块，不冒用租户身份，不授予跨租户记录、拨号、转交或成员授权。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "超管",
+      "action": "从系统管理的原有权入口选择租户与拟开通模块",
+      "system_response": "AI、云呼叫分别显示，不将两模块捆绑开通。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "公共租户模块管理",
+      "action": "核验超管操作权限",
+      "system_response": "普通租户管理员不能开通模块。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "公共租户模块管理",
+      "action": "读取当前模块开通状态",
+      "system_response": "已有AI生产租户沿用原开通与启停状态，已开通模块不重复改动。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "对应模块资源配置",
+      "action": "核对所选模块必需资源",
+      "system_response": "云呼叫完成相应资源配置后单独开通；仅AI不要求云呼叫资源，仅云呼叫不要求AI机器人。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "超管",
+      "action": "提交所选模块开通",
+      "system_response": "仅提交目标模块的开通请求，不连带开启其他模块。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "公共租户模块管理",
+      "action": "保存并反馈开通结果",
+      "system_response": "成功后目标模块可进入成员授权范围，成员工作区使用权仍需单独分配。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2006-01",
+      "condition": "操作人不是有权超管",
+      "steps": [
+        "拒绝开通，保持租户模块原状态。"
+      ]
+    },
+    {
+      "id": "ALT-2006-02",
+      "condition": "模块已处于开通状态",
+      "steps": [
+        "展示现有状态，本次不重复开通或重置已有AI配置。"
+      ]
+    },
+    {
+      "id": "ALT-2006-03",
+      "condition": "目标模块必需资源未齐备或条件无法确认",
+      "steps": [
+        "明确展示缺口并保持原状态，不要求未选择模块的资源。"
+      ]
+    },
+    {
+      "id": "ALT-2006-04",
+      "condition": "模块开通失败",
+      "steps": [
+        "反馈开通未完成，不将其他模块状态或成员权限一并改变。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功后租户可以是仅AI、仅云呼叫或两者均开通；各模块资源各自配置。",
+    "模块开通不自动授予全体成员工作区或公共管理权限。"
+  ],
+  "acceptance_points": [
+    "AC-2019：超管为租户独立开通AI、云呼叫，支持仅AI、仅云呼叫及两者同时使用。",
+    "AC-2020：已有AI生产租户沿用当前开通与启停状态；云呼叫完成对应资源配置后单独开通。",
+    "AC-2021：仅AI不要求云呼叫执行资源，仅云呼叫不要求AI机器人；开通不等于自动给全部成员使用权。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "super",
+        "name": "超管",
+        "kind": "actor"
+      },
+      {
+        "id": "module",
+        "name": "公共租户模块管理",
+        "kind": "system"
+      },
+      {
+        "id": "resource",
+        "name": "对应模块资源配置",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "super",
+        "type": "start",
+        "order": 1,
+        "label": "请求为租户开通模块"
+      },
+      {
+        "id": "select",
+        "lane_id": "super",
+        "type": "action",
+        "order": 2,
+        "label": "选定租户及AI／云呼叫模块",
+        "step_ref": 1
+      },
+      {
+        "id": "auth",
+        "lane_id": "module",
+        "type": "decision",
+        "order": 3,
+        "label": "是否为有权操作该租户的超管？",
+        "step_ref": 2
+      },
+      {
+        "id": "denied",
+        "lane_id": "super",
+        "type": "end",
+        "order": 4,
+        "label": "拒绝越权开通"
+      },
+      {
+        "id": "existing",
+        "lane_id": "module",
+        "type": "action",
+        "order": 5,
+        "label": "读取各模块现有开通和启停状态",
+        "step_ref": 3
+      },
+      {
+        "id": "already",
+        "lane_id": "module",
+        "type": "decision",
+        "order": 6,
+        "label": "所选模块是否已开通？"
+      },
+      {
+        "id": "current",
+        "lane_id": "super",
+        "type": "end",
+        "order": 7,
+        "label": "展示已有开通状态，不重复改变"
+      },
+      {
+        "id": "resources",
+        "lane_id": "resource",
+        "type": "decision",
+        "order": 8,
+        "label": "所选模块对应资源是否满足开通条件？",
+        "step_ref": 4
+      },
+      {
+        "id": "missing",
+        "lane_id": "super",
+        "type": "end",
+        "order": 9,
+        "label": "反馈所选模块资源缺口，保持原开通状态"
+      },
+      {
+        "id": "confirm",
+        "lane_id": "super",
+        "type": "action",
+        "order": 10,
+        "label": "提交该模块开通",
+        "step_ref": 5
+      },
+      {
+        "id": "result",
+        "lane_id": "module",
+        "type": "decision",
+        "order": 11,
+        "label": "该模块开通是否成功？",
+        "step_ref": 6
+      },
+      {
+        "id": "fail",
+        "lane_id": "super",
+        "type": "end",
+        "order": 12,
+        "label": "开通失败，保留各模块原状态"
+      },
+      {
+        "id": "end",
+        "lane_id": "super",
+        "type": "end",
+        "order": 13,
+        "label": "目标模块已开通，成员使用权另行分配"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "auth"
+      },
+      {
+        "from": "auth",
+        "to": "existing",
+        "label": "是"
+      },
+      {
+        "from": "auth",
+        "to": "denied",
+        "label": "否",
+        "path_id": "ALT-2006-01",
+        "type": "exception"
+      },
+      {
+        "from": "existing",
+        "to": "already"
+      },
+      {
+        "from": "already",
+        "to": "current",
+        "label": "已开通",
+        "path_id": "ALT-2006-02",
+        "type": "exception"
+      },
+      {
+        "from": "already",
+        "to": "resources",
+        "label": "未开通"
+      },
+      {
+        "from": "resources",
+        "to": "confirm",
+        "label": "所选模块条件满足"
+      },
+      {
+        "from": "resources",
+        "to": "missing",
+        "label": "资源未齐备或条件未确认",
+        "path_id": "ALT-2006-03",
+        "type": "exception"
+      },
+      {
+        "from": "confirm",
+        "to": "result"
+      },
+      {
+        "from": "result",
+        "to": "end",
+        "label": "开通成功"
+      },
+      {
+        "from": "result",
+        "to": "fail",
+        "label": "开通失败",
+        "path_id": "ALT-2006-04",
+        "type": "exception"
+      }
+    ]
+  },
+  "design_status": "S3_flow_draft",
+  "scope_status": "confirmed_G1",
+  "issue_ids": [
+    "ISSUE-2001",
+    "ISSUE-2008",
+    "ISSUE-2011"
+  ],
+  "rule_ids": [
+    "BR-2002",
+    "BR-2008",
+    "BR-2052"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

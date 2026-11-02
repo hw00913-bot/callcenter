@@ -1,0 +1,622 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2010",
+  "name": "维护公共分类基础资料及原状态（新模型品牌共用）",
+  "status": "proposed_flow",
+  "summary": "维护品牌分类基础、原字段及接口配置，取消单一标签来源指定；单模板路由独立，停用保原AI关联及任务政策。",
+  "actors": [
+    "有权超管／品牌租户管理员",
+    "D联络云"
+  ],
+  "trigger": "新增/修改分类基础资料或按原规则停用",
+  "preconditions": [
+    "有权超管或品牌租户管理员在获授权品牌范围维护新模型分类；普通运营只选用，配置共享不授全品牌业务数据权。旧租户目录按原租户ID及稳定分类ID保留，不按同名合并。",
+    "线索类/活动类与AI新/冷及原专业语义保留；分类字段不替代供应商标签池、AI标签场景或具体AI执行场景。",
+    "分类基础、字段/必填及原取数配置由本基础操作唯一维护；BASE与ROUTE均无独立标签来源控件，提交不包含tagFieldId。各路径条件直接引用本分类已显示/启用多选字段的fieldId和稳定optionId。",
+    "分类停用仅限新选择/新关联；既有AI场景保留原关联，仍可按原规则建任务，已受理任务及历史不清除。路由未配/需复核只阻新模型新输入，不额外阻断旧AI任务。",
+    "按当前管理/品牌范围验权，不强制业务租户成员、本人坐席或双模块；进入业务中心沿SC-2002原电话切离保护、返回及同次记忆。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "有权超管／品牌租户管理员",
+      "action": "在业务中心同一分类主配置入口选择新增/修改基础，或按原规则停用目录分类。",
+      "system_response": "明确新品牌分类与原租户目录稳定身份；原专业页仅引用/跳转同一主维护，不复制基础名称、字段、接口或状态写入口。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2042"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "D联络云",
+      "action": "核维护范围，读取当前BASE、字段/选项、原取数配置版本及状态。",
+      "system_response": "ROUTE仅展示当前引用与兼容状态；本基础操作不提交任何路由变更，也不提供单一标签来源选择。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2045",
+        "BR-2046",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "有权超管／品牌租户管理员",
+      "action": "填写分类名称、业务编码名称、原字段/必填/选项与取数配置，或确认停用后提交。",
+      "system_response": "多选字段按各自fieldId/optionId维护；不另指定或提交tagFieldId，不要求同时选择模板；停用只限制新选择/新关联。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2014",
+        "BR-2045",
+        "BR-2046"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "复核BASE版本、各字段及稳定选项合法性和本次状态影响。",
+      "system_response": "拒绝过期或越权覆盖；字段变更破坏既有单模板条件兼容时保留引用并标需复核，只阻新模型新输入；不清既有AI关系或阻其原规则建任务。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2014",
+        "BR-2045",
+        "BR-2046",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "D联络云",
+      "action": "仅可靠保存本次BASE/字段/接口变化或原停用状态。",
+      "system_response": "不覆盖独立ROUTE，不运行模板、不删除原关系、不迁移历史；原记录固定快照保持；无模板分类可先保存。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2014",
+        "BR-2045",
+        "BR-2046",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "D联络云",
+      "action": "分别反馈基础/停用实际结果及独立单模板路由状态。",
+      "system_response": "路由另由SC-2037独立保存；运行条件三态与基础状态分开，不自动执行、转交或增加供应商能力。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2046",
+        "BR-2054"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2010-AUTH",
+      "condition": "无当前品牌/原租户目录的相应维护权。",
+      "steps": [
+        "拒绝写入；普通运营只按已有权限选用，不下放 AI 专业配置权。"
+      ]
+    },
+    {
+      "id": "ALT-2010-CANCEL",
+      "condition": "提交前取消。",
+      "steps": [
+        "不提交本次基础/字段/状态变化，路由和专业关系不变。"
+      ]
+    },
+    {
+      "id": "ALT-2010-INVALID",
+      "condition": "基础版本、字段/选项、维护范围或本次状态条件不合法。",
+      "steps": [
+        "拒绝本次保存并保留输入；稳定ID未核不按同名合并，不以另一字段或默认值兜底。",
+        "读取当前版本后重新核对；本操作不重写ROUTE。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2010-UNKNOWN",
+      "condition": "读取/保存失败或同次结果不明。",
+      "steps": [
+        "读取失败不伪装空目录，保存未明确成功不报成功；先核同次结果，不重复创建或覆盖新配置。"
+      ]
+    },
+    {
+      "id": "ALT-2010-DISABLE",
+      "condition": "本次为原公共分类停用。",
+      "steps": [
+        "仅禁止新选择/新关联；已有 AI 场景保留原关系并可原规则建任务，已受理任务继续，历史及专业参数不清空。",
+        "不把停用变成删除、路由发布、停止任务或解除场景关联。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "本次仅更新BASE/原字段及接口或原状态；无标签来源指定及tagFieldId提交，ROUTE独立。",
+    "各字段定义与选项稳定身份独立；本操作不直接写业务记录值，不用字段省略/空值迁移旧历史。",
+    "停用只限新选/新关联，旧AI场景按原关系继续建任务；路由未配/需复核不阻原专业任务。",
+    "字段变更不兼容保ROUTE引用并标需复核，新模型新输入受阻；旧实例及历史不追改。"
+  ],
+  "acceptance_points": [
+    "AC-2038：新模型由有权超管及租户管理员维护其有管理资格的品牌共用分类，普通运营只选择；替代新模型中的租户独立目录治理。旧租户目录不按同名合并，不把管理品牌配置等同于全品牌数据权限；该治理变化已由SRC2086确认。",
+    "AC-2039：公共线索归类采用线索类，AI保留新/冷细分；公共活动归类采用活动类，不另列售前/售后活动或增加相应公共属性。",
+    "AC-2040：新增公共分类不自动扩展供应商的AI执行能力，原模块字段及执行规则继续保留。",
+    "AC-2041：新模型的有权管理人员修改品牌共用分类基础资料，只改基础信息、原字段显示/顺序/必填和取数配置；不另指定标签来源，单模板路由独立保存。修改不追改既有实例快照，不取得AI专业配置权；旧租户目录及旧AI关联继续按原ID和原规则处理。",
+    "AC-2042：公共分类保持一个基础主维护入口，承接原字段顺序、显示、必填、专业编码说明及取数接口字典，保原多源属性到多参数、接口单/多选等已有类型及原授权；独立路由只保存一个模板版本及兼容状态，不覆盖基础/接口。AI场景类型、供应商参数及历史统计语义保留，不复制第二份可编辑分类，也不扩大原取数来源。",
+    "AC-2043：租户管理员可停用本租户公共分类，未据此增加物理删除能力。",
+    "AC-2044：公共分类停用后仅禁止新选择和新关联；已关联该分类的AI场景保留原关联，并可按原专业规则继续创建任务；已受理任务按原规则继续，历史分类和专业执行参数保留，不自动解除或改写关联。",
+    "AC-2102：超管及管理员可在其有管理权限的品牌内维护业务分类和流转模板，同品牌租户共用；配置管理权不自动扩大业务记录查看权。",
+    "AC-2103：业务分类具有稳定标识，保存业务编码名称、字段与必填配置，统一导入和查看按分类配置生成内容。",
+    "AC-2105：流转标签条件直接引用本品牌业务分类中已添加且显示/启用的多选字段及其稳定选项ID；不再另行指定单一标签来源。每条规则按自己的fieldId取本记录当前有效已保存值，字段之间独立，不按名称或首字段猜取。",
+    "AC-2106：分类列表保留独立路由配置按钮和独立保存；基础新增/编辑不嵌入模板关联；路由配置只选择一个模板并展示节点说明。",
+    "AC-2107：独立路由保存只更新本次选定的一个模板版本及兼容结果；核品牌、BASE/字段与ROUTE版本，不覆盖分类名称/字段/接口；冲突、取消或响应未知保留输入，同次核对不重复生成版本。",
+    "AC-2108：分类可先保留为未关联模板；仅有关联的有效兼容模板才能接收新数据。分类字段变更破坏模板条件兼容时保引用、标需复核并拦新输入。新记录固定当时基础、路由和单一模板/路径条件快照；既有实例及历史不追改。",
+    "AC-2135：分类新增/编辑与独立路由均无独立标签来源指定控件；保存分类不提交tagFieldId。路由逐条件校验fieldId及选项属于分类已启用多选字段，既有字段/路由互不覆盖。新记录按各字段固定定义和各自当前已保存值判定，省略不清空、显式空数组只清该字段、旧段迟到不覆盖更新值；旧历史不迁移。"
+  ],
+  "source_story_ids": [
+    "US-2014",
+    "US-2015",
+    "US-2016",
+    "US-2032"
+  ],
+  "source_acceptance_ids": [
+    "AC-2038",
+    "AC-2039",
+    "AC-2040",
+    "AC-2041",
+    "AC-2042",
+    "AC-2043",
+    "AC-2044",
+    "AC-2102",
+    "AC-2103",
+    "AC-2105",
+    "AC-2106",
+    "AC-2107",
+    "AC-2108",
+    "AC-2135"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2058",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2084",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2092",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "business_rule_ids": [
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2013",
+    "BR-2014",
+    "BR-2042",
+    "BR-2045",
+    "BR-2046",
+    "BR-2052",
+    "BR-2054"
+  ],
+  "notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "每条条件直接按实际fieldId/optionId取对应记录有效已保存值；值、来源和版本的省略保留/显式空数组仅清本字段规则由结果保存场景承接，本基础操作不写记录值。",
+    "六入口整合仅复用原功能；配置共享不改变专业配置/执行权或跨租户数据权。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "human",
+        "name": "有权超管／品牌租户管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "human",
+        "type": "start",
+        "order": 1,
+        "label": "开始本次办理"
+      },
+      {
+        "id": "STEP-1",
+        "lane_id": "human",
+        "type": "action",
+        "order": 2,
+        "label": "业务中心唯一分类入口\n明确品牌基础或原目录状态",
+        "step_ref": 1
+      },
+      {
+        "id": "STEP-2",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "核维护范围与基础版本\n路由状态只读，不回填保存",
+        "step_ref": 2
+      },
+      {
+        "id": "GATE-AUTH",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 4,
+        "label": "当前范围可维护且读取明确？"
+      },
+      {
+        "id": "END-AUTH",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 5,
+        "label": "本次不办理；原配置保留"
+      },
+      {
+        "id": "CONT-AUTH",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "继续本次办理"
+      },
+      {
+        "id": "STEP-3",
+        "lane_id": "human",
+        "type": "action",
+        "order": 7,
+        "label": "填基础/字段/选项及原取数配置\n无单一标签来源，或确认停用",
+        "step_ref": 3
+      },
+      {
+        "id": "GATE-CONFIRM",
+        "lane_id": "human",
+        "type": "decision",
+        "order": 8,
+        "label": "确认本次提交？"
+      },
+      {
+        "id": "END-CONFIRM",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 9,
+        "label": "未保存；基础和路由保持"
+      },
+      {
+        "id": "CONT-CONFIRM",
+        "lane_id": "human",
+        "type": "action",
+        "order": 10,
+        "label": "继续本次办理"
+      },
+      {
+        "id": "STEP-4",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "核BASE版本/各fieldId/optionId及状态\n兼容失效保引用、标需复核",
+        "step_ref": 4
+      },
+      {
+        "id": "GATE-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 12,
+        "label": "基础版本/字段/本次状态合法？"
+      },
+      {
+        "id": "END-VALID",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 13,
+        "label": "保留输入；拒绝本次保存"
+      },
+      {
+        "id": "CONT-VALID",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 14,
+        "label": "继续本次办理"
+      },
+      {
+        "id": "STEP-5",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 15,
+        "label": "仅保存BASE或原状态，不提交tagFieldId\n保留ROUTE、旧实例及AI关联",
+        "step_ref": 5
+      },
+      {
+        "id": "GATE-SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 16,
+        "label": "本次保存明确成功？"
+      },
+      {
+        "id": "END-SAVED",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 17,
+        "label": "不报成功；先核同次结果"
+      },
+      {
+        "id": "CONT-SAVED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 18,
+        "label": "继续本次办理"
+      },
+      {
+        "id": "STATE-KIND",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 19,
+        "label": "本次原公共分类停用？"
+      },
+      {
+        "id": "DISABLED",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 20,
+        "label": "仅限新选择/新关联\n既有 AI 场景与任务原规则继续"
+      },
+      {
+        "id": "STEP-6",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 21,
+        "label": "反馈基础与单模板路由各自状态\n路由独立保存，不自动执行",
+        "step_ref": 6
+      },
+      {
+        "id": "SUCCESS",
+        "lane_id": "human",
+        "type": "end",
+        "order": 22,
+        "label": "本次明确成功；后续另行发起"
+      }
+    ],
+    "edges": [
+      {
+        "from": "START",
+        "to": "STEP-1"
+      },
+      {
+        "from": "STEP-1",
+        "to": "STEP-2"
+      },
+      {
+        "from": "STEP-2",
+        "to": "GATE-AUTH"
+      },
+      {
+        "from": "GATE-AUTH",
+        "to": "END-AUTH",
+        "label": "无权/读取待核",
+        "path_id": "ALT-2010-AUTH",
+        "type": "failure"
+      },
+      {
+        "from": "GATE-AUTH",
+        "to": "CONT-AUTH",
+        "label": "合法且明确"
+      },
+      {
+        "from": "CONT-AUTH",
+        "to": "STEP-3"
+      },
+      {
+        "from": "STEP-3",
+        "to": "GATE-CONFIRM"
+      },
+      {
+        "from": "GATE-CONFIRM",
+        "to": "END-CONFIRM",
+        "label": "取消",
+        "path_id": "ALT-2010-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "GATE-CONFIRM",
+        "to": "CONT-CONFIRM",
+        "label": "提交"
+      },
+      {
+        "from": "CONT-CONFIRM",
+        "to": "STEP-4"
+      },
+      {
+        "from": "STEP-4",
+        "to": "GATE-VALID"
+      },
+      {
+        "from": "GATE-VALID",
+        "to": "END-VALID",
+        "label": "不通过或待核",
+        "path_id": "ALT-2010-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "GATE-VALID",
+        "to": "CONT-VALID",
+        "label": "通过"
+      },
+      {
+        "from": "CONT-VALID",
+        "to": "STEP-5"
+      },
+      {
+        "from": "STEP-5",
+        "to": "GATE-SAVED"
+      },
+      {
+        "from": "GATE-SAVED",
+        "to": "END-SAVED",
+        "label": "失败或待核",
+        "path_id": "ALT-2010-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "GATE-SAVED",
+        "to": "CONT-SAVED",
+        "label": "成功"
+      },
+      {
+        "from": "STEP-6",
+        "to": "SUCCESS"
+      },
+      {
+        "from": "CONT-SAVED",
+        "to": "STATE-KIND"
+      },
+      {
+        "from": "STATE-KIND",
+        "to": "DISABLED",
+        "label": "是",
+        "path_id": "ALT-2010-DISABLE"
+      },
+      {
+        "from": "STATE-KIND",
+        "to": "STEP-6",
+        "label": "否，基础新增/修改"
+      },
+      {
+        "from": "DISABLED",
+        "to": "STEP-6"
+      }
+    ]
+  },
+  "expected_outcome": "维护品牌分类基础、原字段及接口配置，取消单一标签来源指定；单模板路由独立，停用保原AI关联及任务政策。",
+  "exception_scope": "BASE与ROUTE分别保存、互不覆盖；各条件fieldId/optionId须来自分类已启用多选字段；冲突、取消、失败或未知不伪报成功，不迁移旧历史。",
+  "scope": "in_scope",
+  "scope_status": "confirmed_G1_SRC2094",
+  "design_status": "S3_revised_detail_structural_native_compile_checked_not_rendered",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [
+    "ISSUE-2019",
+    "ISSUE-2020"
+  ],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-213",
+    "inputs/source-index.json#SRC-214",
+    "inputs/source-index.json#SRC-215",
+    "inputs/source-index.json#SRC-216",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-223",
+    "inputs/source-index.json#SRC-224",
+    "inputs/source-index.json#SRC-225",
+    "inputs/source-index.json#SRC-226",
+    "inputs/source-index.json#SRC-227",
+    "inputs/source-index.json#SRC-228",
+    "inputs/source-index.json#SRC-230",
+    "inputs/source-index.json#SRC-231",
+    "inputs/source-index.json#SRC-233",
+    "inputs/source-index.json#SRC-234",
+    "inputs/source-index.json#SRC-238"
+  ],
+  "v12_origin_scenario_id": "SC-11207",
+  "v12_origin_detail_sha256": "a820f773be362ef2c32ab276079ca1c0caddab3b358df9c5ea3c7f5cd2a45c04",
+  "v12_origin_snapshot": "2f5f1906236eb99d8996a21ede36891051d7b69628dfda58a7060ce92ac125b7",
+  "rule_ids": [
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2013",
+    "BR-2014",
+    "BR-2042",
+    "BR-2045",
+    "BR-2046",
+    "BR-2052",
+    "BR-2054"
+  ],
+  "acceptance_contributions": {
+    "AC-2106": "只贡献分类基础不夹带路由表单，路由独立操作由SC-2037完成。",
+    "AC-2107": "只贡献基础提交不覆盖路由；完整路由事务不在基础操作保存。",
+    "AC-2108": "只贡献基础先建与兼容状态摘要，独立路由及输入准入各自办理。",
+    "AC-2105": "维护可引用的各已显示/启用多选字段定义，不另指定标签来源；路径兼容由SC-2037核。",
+    "AC-2135": "只覆盖BASE无标签来源控件和tagFieldId提交、直接逐字段定义身份；记录逐字段值保存及迟到保护由执行/结果场景办理。"
+  },
+  "analysis_notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "本轮只修订当前场景明细；旧SRC2086的37场景G1及SRC2088六入口采纳保历史来源，当前批准为SRC2094的36场景。原型/生产能力未据本次细化改写；不新增US/SC/功能或新统计。"
+  ],
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "v12_origin_baseline": "c84782225797ba928b75f4854640cde7ff34d07d33f951bb0985cafc61f2c1ac",
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "change_id": "CH-V200-C847-S3-SRC2094",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_detail_sha256": "af14899c26eb2c80d9901f2f09a2f4bfde5020d23e9fdd9140e952bf5af47285",
+      "retained_node_ids": [
+        "START",
+        "STEP-1",
+        "STEP-2",
+        "GATE-AUTH",
+        "END-AUTH",
+        "CONT-AUTH",
+        "STEP-3",
+        "GATE-CONFIRM",
+        "END-CONFIRM",
+        "CONT-CONFIRM",
+        "STEP-4",
+        "GATE-VALID",
+        "END-VALID",
+        "CONT-VALID",
+        "STEP-5",
+        "GATE-SAVED",
+        "END-SAVED",
+        "CONT-SAVED",
+        "STEP-6",
+        "SUCCESS",
+        "STATE-KIND",
+        "DISABLED"
+      ],
+      "retained_alternate_flow_ids": [
+        "ALT-2010-AUTH",
+        "ALT-2010-CANCEL",
+        "ALT-2010-INVALID",
+        "ALT-2010-UNKNOWN",
+        "ALT-2010-DISABLE"
+      ],
+      "added_node_ids": [],
+      "added_alternate_flow_ids": [],
+      "semantic_replacement": "本条branch_semantics记本场景旧新关系；旧文件只按previous_detail_sha256及历史来源追溯，不作为当前分支。",
+      "branch_semantics": {
+        "retired": [
+          "BASE单一标签来源指定及tagFieldId提交"
+        ],
+        "retained": [
+          "BASE/ROUTE独立写入",
+          "原分类停用仅限新选择/新关联，旧AI场景继续建任务"
+        ]
+      }
+    }
+  ],
+  "scope_choice_update": {
+    "change_id": "CH-V200-AI-TAGS-CONFIG-ONLY-20261024",
+    "source_ref": "inputs/source-index.json#SRC-2096",
+    "version": "2.0.0",
+    "selected": "configuration_only",
+    "new_API_permission_business_field_or_scenario": false,
+    "at": "2026-10-24T13:43:27+08:00"
+  }
+}

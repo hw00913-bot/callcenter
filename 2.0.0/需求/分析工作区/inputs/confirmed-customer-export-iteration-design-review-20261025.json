@@ -1,0 +1,1140 @@
+{
+  "schema_version": "1.0",
+  "review_kind": "confirmed_existing_customer_CSV_iteration_design_and_exact_action_binding",
+  "reviewed_on": "2026-10-25",
+  "decision_ref": "inputs/source-index.json#SRC-2122",
+  "user_message_id": "Sentinel_32ee33eb48148191b660542d3b6b77fa",
+  "original_candidate_key": "predictive-export-task-customers",
+  "candidate_record_sha256": "5c0927f77adab537b7c34e08cd9ba6ca9e470b9f00d66490021229ad0d5c65e8",
+  "historical_conflict_ref": "inputs/source-index.json#SRC-2120",
+  "independent_semantic_reviews": [
+    {
+      "schema_version": "confirmed_existing_export_iteration_design_review@1",
+      "scope": "只读建议；本轮用户已确认需求，原型/原候选/来源冲突及正式阶段不改；不运行任何S7/整版/工具/进程检查",
+      "decision_basis": {
+        "user_choice": "v2保留当前任务客户明细导出；有权且实际名单非空时原入口可用，沿原处理逻辑、六列CSV及可见范围；只确认需求，不改参考原型。",
+        "source_ref": "本轮根实际接收的用户确认，待根独立登记稳定SRC；本审不虚构来源编号。"
+      },
+      "inventory_findings": {
+        "existing_formal_count": 42,
+        "same_business_object_action_and_result_FUNC_found": false,
+        "proposed_stable_id_available_in_current_features": "FUNC-2043",
+        "recommendation": "新增一个本版正式功能台账条目，change_type=iteration；新增的是既有导出修正责任的台账行，不是新增业务能力。",
+        "why_independent": "单任务可见客户记录→导出→六列CSV，可单独发起和验收；不是查询、详情、失败下载或任务列表CSV的字段明细。",
+        "not_reused": [
+          {
+            "ref": "FUNC-2027",
+            "reason": "有权AI租户当前服务汇总CSV，财务对象/字段/独立权利均不同。"
+          },
+          {
+            "ref": "FUNC-2039",
+            "reason": "统一业务台账/导入批次查询，非单预外呼任务名单CSV导出。"
+          },
+          {
+            "ref": "FUNC-2033",
+            "reason": "业务记录接续详情，非客户名单导出。"
+          },
+          {
+            "ref": "retained-source-predictive-export-tasks",
+            "reason": "预外呼筛选任务记录集导出，不是某任务客户记录CSV。"
+          },
+          {
+            "ref": "predictive-download-failures",
+            "reason": "原失败批次输出/下载及相应清理，与客户明细CSV结果不同。"
+          }
+        ]
+      },
+      "proposed_function_outline": {
+        "id": "FUNC-2043",
+        "name": "导出当前预外呼任务客户明细",
+        "version": "2.0.0",
+        "change_type": "iteration",
+        "granularity_version": "business-operation@2",
+        "business_object": "当前准确预外呼任务下本次有权可见的客户明细记录集",
+        "primary_action": "导出",
+        "trigger": "具原操作及对象权限的人员在当前任务实际名单非空时，从原任务客户明细入口选择导出。",
+        "completion_result": "沿原处理逻辑生成并提供当前任务六列客户明细CSV；仅本次实际生成成功才报完成，无权、任务/范围失效、无实际名单或失败/未知不伪报成功。",
+        "included_scope": [
+          "修正v2原入口在有权且实际名单非空时的可用性，接入原exportTaskCustomers(taskId)处理逻辑。",
+          "原任务身份、对象授权和CustomerTasks.taskCustomers(row)可见范围保持；使用原实际记录，不以演示customerRows前8行替代真实名单。",
+          "沿原文件名任务客户明细.csv，六列顺序/原字段值及原CSV生成处理保持。",
+          "必要无数据/无权/失败反馈、原电话现场及本次结果不改变任务执行状态。"
+        ],
+        "csv_columns": [
+          {
+            "key": "name",
+            "label": "客户称呼"
+          },
+          {
+            "key": "phone",
+            "label": "客户号码"
+          },
+          {
+            "key": "batchName",
+            "label": "来源批次"
+          },
+          {
+            "key": "externalDocumentId",
+            "label": "业务单据"
+          },
+          {
+            "key": "followup",
+            "label": "处理状态"
+          },
+          {
+            "key": "note",
+            "label": "联系备注"
+          }
+        ],
+        "excluded_scope": [
+          "不修改参考原型或把原源码冲突视为已修好。",
+          "不新增菜单/页面/导出任务后台、自动定时导出、批量跨任务或跨租户导出。",
+          "不导出筛选任务列表、失败文件、全部客户主档、业务台账或AI财务汇总。",
+          "不新增列/放大可见范围、独立管理权限或新远端API；不要求导出前坐席上线，不触发拨号或公共拨前检查。",
+          "不把本确认当实现、下载成功、生产权限/真实数据合同、风险接受或G3批准。"
+        ],
+        "before": "选定原Cloud源centerCustomers在assigned名单非空/assigned模式提前返回无导出按钮的名单；唯一原导出按钮在其余分支。原exportTaskCustomers要求同taskCustomers实际非空才生成既有六列CSV，故未证明原入口到成功的闭合链。handler/六列处理已定位，不宣称原入口可成功。",
+        "after": "v2需求明确修正该可用性：有权且当前任务实际名单非空时原客户明细导出入口可用，复用原handler和六列处理；无数据保原提示，按原范围导出。此为待实现/待验证设计，不修改旧源事实。",
+        "source_story_ids": [
+          "US-2025"
+        ],
+        "source_acceptance_ids": [
+          "AC-2068"
+        ],
+        "contextual_acceptance_ids": [
+          "AC-2069"
+        ],
+        "source_scenario_ids": [
+          "SC-2019",
+          "SC-2021"
+        ],
+        "acceptance_contributions": [
+          {
+            "acceptance_id": "AC-2068",
+            "role": "primary_operation_predicate",
+            "owned_fragment": "仅原预外呼任务结果查询/下载中本次已确认的当前任务客户明细独立导出，不包任务配置/导入/资源/执行/重呼/失败下载全部操作。"
+          },
+          {
+            "acceptance_id": "AC-2069",
+            "role": "shared_constraint_only",
+            "owned_fragment": "不改变原供应商失败分类/额度，不把预外呼策略套人工或IVR；不将此AC当导出主要依据。"
+          },
+          {
+            "acceptance_id": "AC-2072",
+            "role": "context_only",
+            "owned_fragment": "SC2021原既有功能总承接及原数据/权限隔离的局部汇总关系，非该客户CSV的直接业务判据。"
+          }
+        ],
+        "scenario_contributions": [
+          {
+            "scenario_id": "SC-2019",
+            "steps": [
+              7
+            ],
+            "alternate_flow_ids": [
+              "ALT-2019-QUERY",
+              "ALT-2019-AUTH",
+              "ALT-2019-OP-FAIL"
+            ],
+            "owned_fragment": "原列表/详情/导出分别办理中的本任务客户明细导出分支。"
+          },
+          {
+            "scenario_id": "SC-2021",
+            "steps": [
+              5,
+              6
+            ],
+            "alternate_flow_ids": [
+              "ALT-2021-EXPORT",
+              "ALT-2021-AUTH",
+              "ALT-2021-FAIL"
+            ],
+            "owned_fragment": "同一既有导出在总承接包中的精确复用，不另算第二功能，也不吞其他记录/报表导出。"
+          }
+        ],
+        "current_page_ids": [
+          "PAGE-2205"
+        ],
+        "current_action_ids": [
+          "ACTION-2060"
+        ],
+        "operation_scope_on_mixed_action": "仅当前预外呼任务客户明细导出；同ACTION已有任务列表导出和失败下载仍各归原retained refs，不替代或重复计数。",
+        "baseline_evidence_kind": "selected_reference_source_result_conflict_and_explicit_user_confirmed_iteration_design",
+        "source_candidate_ref": "memory/feature-list.json#/observed_original_operation_candidates/67",
+        "source_result_conflict_ref": "inputs/source-index.json#SRC-2120",
+        "production_verified": false,
+        "assumptions": [
+          "实际生产对象/授权及客户读取、文件生成/下载结果仍按ISSUE2008及原工程缺证核验；不从静态Mock推已部署。"
+        ],
+        "open_issue_ids": [
+          "ISSUE-2008"
+        ]
+      },
+      "attribution_disposition": {
+        "candidate_record_unchanged": true,
+        "candidate_sha256": "5c0927f77adab537b7c34e08cd9ba6ca9e470b9f00d66490021229ad0d5c65e8",
+        "original_candidate_role": "原partial观察，delivery_class/源码/锚/旧hash均不改，不原地升级",
+        "retained_source_pass_created": false,
+        "retained_reference_count_should_remain": 222,
+        "formal_feature_count_if_adopted": 43,
+        "source_pass_statistics": "固定99仍98条原来源严格通过+1条原来源结果冲突；该1条由已确认v2迭代设计承接，绝不可改称99条原来源通过。",
+        "minimal_formal_changes_for_root": [
+          "登记本次实际用户决定及原冲突前后关系；保SRC2120原字节/摘要。",
+          "正式features追加唯一FUNC2043完整boundary/change_detail与精确AC/SC贡献；既有42FUNC不扩对象或主操作。",
+          "PAGE2205.function_ids与ACTION2060.source_function_ids/明确本次分支映射回填FUNC2043，原任务列表/失败下载retained refs及签名按根既有流程核最新实际8字段。",
+          "当前unresolved group最后一项从未定承接转为由FUNC2043承担的confirmed iteration design；将原组/原pending原因留resolved_operation_boundary_attributions或既有历史字段，不删除来源冲突。",
+          "原candidate仍只读观察；当前PAGE/ACTION的pending引用因有正式迭代责任而移至历史来源/差异追溯，原因写“用户确认本版修正设计”，不写“原源proof通过”。",
+          "更新现有人读视图和当前归属结果，保持S7未通过直到根官方检查/记录；不得清ISSUE2008/FUNC2018/14工程问题或推进S8/G3。"
+        ]
+      },
+      "earliest_stage_and_gates": {
+        "recommended_minimal_start_stage": "S7",
+        "reason": "现US2025/AC2068已经承接原结果查询/下载；SC2019 ALT-2019-QUERY已明确列表/详情/导出分开，SC2021已含独立原导出。新决定确认已在原候选集合内的同对象同结果，差异是v2原入口条件修正及功能独立台账/承接方式，不新增故事/验收/场景或接口。",
+        "G1_scope_affected": false,
+        "G1_note": "不增加US/AC/SC或扩大原权限/记录范围，不把新FUNC编号当新G1范围；新用户确认独立登记用于本轮设计责任，不倒签原G1。",
+        "G2_interface_facts_affected": false,
+        "G2_note": "无新端点/字段/供应商能力/权限合同或原28API状态改变，不靠新接口字段“补成功”；G2现指纹保持。API2011/2013及生产缺证不能改通过。",
+        "S6_binding_update": "FUNC回填与混合ACTION精确分支归属属于S7现有职责；首选不改页面结构、入口数量、原ACTION稳定ID或其他操作正文。",
+        "do_not_overclaim_sequences": "现SEQ2019 step18/API2011与SEQ2021 step21/API2013描述条件性远端原查询/导出，不能据此声称这份本地六列CSV必调用远端。新FUNC明确复用原本地handler，不造API调用；保这些SEQ的原条件语义。",
+        "rollback_if_actual_scope_changes": [
+          "若根决定新增/修改US/AC正文而不只是引用精确既有AC，应从S1失效并按规程重核G1，不把该额外修订藏S7。",
+          "若必须更改SC产品流程/泳道，回S3；若新增/改变SEQ消息或外部API调用，回S5或最早S4（涉及接口事实则G2重核）；若实际重排页面/操作结构，回S6。",
+          "本建议的最小做法不需要这些上游变更；不为排除最后提示而改接口/工具/源或假造proof。"
+        ],
+        "G3_status": "pending，不代批"
+      },
+      "evidence": {
+        "features_file": {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/需求/分析工作区/memory/feature-list.json",
+          "sha256": "067f057d0eea0c8807f5e5edc54f1502f6273c45c7e035db8a27d696e335a462"
+        },
+        "candidate_pointer": "/observed_original_operation_candidates/67",
+        "unresolved_group_pointer": "/unresolved_operation_boundaries/0",
+        "page_action_pointer": "/pages/13/actions/4",
+        "source": {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/cloud-task-workspace.js",
+          "sha256": "4e1361c4a82b098039c71a5e3ee4c93fbf852d95d1446b1a5e40c877d55a5488",
+          "conflicting_entry_lines": [
+            2026,
+            2031
+          ],
+          "handler_lines": [
+            2033,
+            2038
+          ],
+          "publication_line": 2328,
+          "source_JS_executed": false
+        },
+        "direct_scope_predicates": [
+          "US2025/AC2068 原结果查询/下载",
+          "SC2019 main_flow[step7]与ALT2019QUERY第一步 原列表/详情/导出分别沿已有操作",
+          "SC2021 main_flow[step5/6]、ALT2021EXPORT 原导出及失败反馈"
+        ],
+        "skill_basis": [
+          "requirement-analysis-loop/references/feature-granularity.md:8-28,48-56",
+          "requirement-analysis-loop/references/workflow.md:81-89"
+        ]
+      },
+      "validation_limit": "仅只读检查现有42条对象/动作/结果、候选与未决组、PAGE/ACTION、SC/SEQ/API及原源片段；未执行源JS、S7/整版、工具回归或进程查询，正式文件不改。",
+      "no_new_FUNC_feasibility_under_existing_contract": {
+        "verdict": "不可合法覆盖该已确认独立迭代；建议唯一FUNC2043/iteration，不新增业务能力或扩工具。",
+        "routes_considered": [
+          {
+            "route": "纯入口/同事务明细",
+            "valid": false,
+            "reason": "main_operation_details仅允许necessary_same_transaction=true且精确相同parent business_object、trigger、completion_result。此导出与失败下载/任务列表导出不同对象和独立结果，导出触发也独立，不能填假相同值。",
+            "contract": "retained_operation_contract.py:336-350"
+          },
+          {
+            "route": "原candidate观察直接覆盖",
+            "valid": false,
+            "reason": "local_candidate_observation_refs只验证候选存在，不产生业务witness；仅候选而无已确认归属会保scope_pending。",
+            "contract": "retained_operation_contract.py:330-334,351-363"
+          },
+          {
+            "route": "把源冲突候选改名/新key转retained",
+            "valid": false,
+            "reason": "canonical要求unchanged_original_operation_reference/source_attribution_only、原候选字节绑定及真实源归属证明；当前UI/成功结果矛盾未变，用户需求修正同意不构成原源码完成证据。",
+            "contract": "operation_attribution.py:403-416,434-485"
+          },
+          {
+            "route": "借FUNC2027/2033/2039或ACTION现有两个witness删除pending",
+            "valid": false,
+            "reason": "同SC、同ACTION容器或同为导出均非同对象/主操作/结果的依据。现有两项retained只覆盖各自任务列表CSV/失败下载，不能吞该客户CSV；即使粗绑定机械上存在witness，仍不构成该独立操作的合法语义归属。",
+            "contract": "business-operation@2；feature-granularity.md:17-28、retained_operation_contract.py:269-286"
+          },
+          {
+            "route": "本版功能独立行FUNC2043，change_type iteration",
+            "valid": true,
+            "reason": "原操作对象、原handler和六列结果存在明确来源，原可达完成链冲突诚实保留；本次用户确认本版修正入口条件，属于对既有导出的迭代交付责任。正式FUNC可由确认业务/既有AC承接，无需声称原source已通过。"
+          }
+        ],
+        "counts": "正式42→43行仅因独立既有导出迭代记账；不计新业务能力、不增retained源222、不将98/99原源通过改99/99。",
+        "S6_S7_note": "不改US/AC正文及原SC流程/API；纯S7正式功能与双向归属回填可从S7处理。若将“有权且实际名单非空时入口可用”的已确认设计精确写入PAGE2205/ACTION2060现有交互正文，则从S6失效并重跑S6/S7；仍不因FUNC行数新增而无故重开G1/G2。",
+        "new_schema_or_whitelist_required": false,
+        "source_JS_or_validator_executed": false
+      }
+    },
+    {
+      "schema_version": "export-confirmed-acceptance-review@1",
+      "reviewed_on": "2026-10-25",
+      "review_scope": "只读审查用户已选择的v2最小入口适配、正反验收、权限/结果边界与追溯；不是实施、源链通过或整版验收",
+      "confirmed_decision": {
+        "reported_human_confirmation": "v2保留当前任务客户明细导出，有权限且实际名单非空时可用原入口；原处理逻辑、六列CSV、可见数据范围不变，不改参考原型。",
+        "evidence_context": "本报告消费root转达的实际用户确认；正式SRC由root依实际输入登记，本报告不编造SRC编号、原话或门禁批准。",
+        "scope_choice_resolved": "retain_original_operation_with_v2_entry_adaptation",
+        "requires_reasking_same_choice": false,
+        "not_a_decision": "不选择扩大字段、数据范围、权限、其它callType/受管任务、API或外部回传；也不表明参考原型已改或新版实现已通过。"
+      },
+      "existing_traceability": {
+        "candidate_key": "predictive-export-task-customers",
+        "original_candidate_sha256": "5c0927f77adab537b7c34e08cd9ba6ca9e470b9f00d66490021229ad0d5c65e8",
+        "original_pointer": "/source_evidence/0",
+        "original_terminal": "exportTaskCustomers",
+        "original_evidence_record_path": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/prototype/js/pages/cloud-task-workspace.js",
+        "actual_relocated_source": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/cloud-task-workspace.js",
+        "actual_source_sha256": "4e1361c4a82b098039c71a5e3ee4c93fbf852d95d1446b1a5e40c877d55a5488",
+        "source_lines": {
+          "actual_list_branch": [
+            2026,
+            2030
+          ],
+          "original_result_handler": [
+            2033,
+            2038
+          ]
+        },
+        "story_id": "US-2025",
+        "story_title": "管理云呼叫原预外呼任务",
+        "primary_acceptance_id": "AC-2068",
+        "primary_acceptance_current_text": "承接v1.1.0最终范围的预外呼任务、导入、任务所用坐席／外呼组及其他资源、正常重呼、异常补提交及结果查询/下载，原执行规则保留。",
+        "context_acceptance_id": "AC-2069",
+        "context_acceptance_current_text": "公共禁呼检查接入不改变原供应商失败分类及额度，不将预外呼策略套用于人工或IVR。",
+        "context_acceptance_limit": "AC2069保预外呼原执行策略，不能给纯查询/CSV生成新增拨前禁呼、双模块、电话上线或执行资源门槛。",
+        "scenario_id": "SC-2019",
+        "scenario_path": "scenarios/SC-2019.json",
+        "scenario_branch": "ALT-2019-QUERY",
+        "scenario_branch_current_steps": [
+          "读取当前租户准确任务记录；列表、详情、导出和失败下载分别沿已有操作。",
+          "失败下载只沿最终v1.1.0的可信下载及对应清理规则，不以点击按钮当下载成功。"
+        ],
+        "failure_branch": "ALT-2019-OP-FAIL",
+        "authorization_boundary": "原任务/对象资格，不将SC主执行流程的每个起呼步骤机械套给导出。",
+        "page_id": "PAGE-2205",
+        "action_id": "ACTION-2060",
+        "mapping_limit": "沿现有粗ACTION内独立原操作精确引用；不退役或吞并该ACTION中的其它结果导出/失败下载。",
+        "new_business_function_or_object_added": false,
+        "new_AC_SC_PAGE_ACTION_or_API_needed_by_this_review": false,
+        "exact_iteration_FUNC_record": "可按当前严格归属要求新增一个稳定FUNC记账行，change_type=iteration，精确记录已确认的同对象客户CSV入口修正；稳定ID由root按现有目录分配，本报告不指定新ID或写正式行。"
+      },
+      "ready_to_reuse_acceptance_clarification": {
+        "target": "现有AC-2068的该独立原导出贡献说明，非新增AC",
+        "text": "保留当前任务客户明细导出：具备该原操作资格且当前任务实际有权名单非空时，复用原入口和原处理逻辑；按点击时原任务、租户、企业及记录可见范围取得的记录生成原六列CSV。空名单或原校验失败不伪报成功；不扩字段、权限或数据范围，不改参考原型。",
+        "scenario_target": "SC-2019/ALT-2019-QUERY的现有导出分支",
+        "scenario_text": "当前任务实际有权名单非空时提供本版适配入口；点击仍沿原taskId定位、原资格/取数及原CSV处理。空态保真实无可导出数据反馈，失败不改变任务或名单。参考原型入口冲突及原证据保留，不以本设计说明源版已修复。",
+        "application_status": "proposal_text_only_not_written_to_formal_facts"
+      },
+      "strict_acceptance_cases": [
+        {
+          "id": "POS-1",
+          "class": "positive",
+          "given": "操作者满足原合法业务上下文和该操作/任务对象资格；实际原getter当前返回本任务2条有权记录",
+          "when": "从本任务实际客户名单处发起导出",
+          "then": [
+            "原入口可用且目标仍为本任务taskId",
+            "仍调用原处理逻辑及原点击时取数",
+            "文件为任务客户明细.csv、原6列、恰好2条数据，不按row.total或展示上限造行"
+          ],
+          "trace": [
+            "AC-2068",
+            "SC-2019/ALT-2019-QUERY",
+            "PAGE-2205/ACTION-2060"
+          ]
+        },
+        {
+          "id": "POS-2",
+          "class": "positive",
+          "given": "同任务存在跨批次记录、重复号码/再次联系记录，且原getter允许当前人员查看",
+          "when": "导出当前任务客户明细",
+          "then": [
+            "逐条保原记录含义和当前可见集合，不按手机号合并",
+            "不加入其它任务或其它tenant/enterprise行",
+            "文件列与原handler完全一致，不跟随列表额外列扩字段"
+          ],
+          "trace": [
+            "AC-2068",
+            "CustomerTasks.taskCustomers:390..395"
+          ]
+        },
+        {
+          "id": "POS-3",
+          "class": "positive",
+          "given": "原6个字段包含中文、逗号、双引号、换行、null或公式前缀",
+          "when": "沿common.downloadCsv生成",
+          "then": [
+            "保持原UTF-8 BOM、CRLF、引号转义、null为空和公式前缀文本保护",
+            "成功只表示文件已生成并发起浏览器下载；不保证最终磁盘落盘或远端能力"
+          ],
+          "trace": [
+            "AC-2068",
+            "common.js:36..68"
+          ]
+        },
+        {
+          "id": "NEG-1",
+          "class": "negative",
+          "given": "assigned模式但实际有权名单为空",
+          "when": "查看/尝试发起该客户导出",
+          "then": [
+            "不出现可成功导出的假象；入口不可用并保真实无数据反馈",
+            "原handler直接调用仍false，不导出任何备用合成行"
+          ],
+          "trace": [
+            "AC-2068",
+            "cloud-task-workspace.js:2029,2035..2036"
+          ]
+        },
+        {
+          "id": "NEG-2",
+          "class": "negative",
+          "given": "非assigned的原允许模式且实际名单为空，备用页面有演示预览",
+          "when": "查看/尝试发起该客户导出",
+          "then": [
+            "同样没有可用的实际客户CSV导出",
+            "customerRows合成的1..8条、掩码号码或row.total不能成为导出输入",
+            "原无数据反馈保留，不用AI固定五行CSV替代"
+          ],
+          "trace": [
+            "AC-2068",
+            "cloud-task-workspace.js:2017..2037"
+          ]
+        },
+        {
+          "id": "NEG-3",
+          "class": "negative",
+          "given": "页面渲染时有数据，点击前原getter已变为空或目标任务不存在",
+          "when": "发起导出",
+          "then": [
+            "由原handler按当前taskId重查",
+            "无数据/无任务沿原false和实际反馈，不用旧渲染快照生成成功文件"
+          ],
+          "trace": [
+            "AC-2068",
+            "cloud-task-workspace.js:1783..1790,2033..2037"
+          ]
+        },
+        {
+          "id": "NEG-4",
+          "class": "negative",
+          "given": "渲染后身份/租户/企业/授权改变，或传入不属当前原对象范围的taskId",
+          "when": "调用原导出处理",
+          "then": [
+            "原canAccessObject和taskCustomers范围不得被适配入口绕过",
+            "不得生成越权文件或放大为同品牌全量",
+            "没有新的授权码或权限默认下放"
+          ],
+          "trace": [
+            "AC-2068",
+            "cloud-task-workspace.js:259..264,2033..2035",
+            "customer-tasks.js:390..395"
+          ]
+        },
+        {
+          "id": "NEG-5",
+          "class": "negative",
+          "given": "普通人员仅能看到原ownerId或本人创建再次联系的子集，管理员有其原有范围",
+          "when": "分别导出",
+          "then": [
+            "各自仍仅原getter允许的集合",
+            "不能因管理员可看、同品牌、同手机号或入口可见授予普通人员更多记录",
+            "未知生产权限映射不由本次确认转成已验证"
+          ],
+          "trace": [
+            "AC-2068",
+            "customer-tasks.js:16..17,390..395"
+          ]
+        },
+        {
+          "id": "NEG-6",
+          "class": "negative",
+          "given": "目标为原受管DCC任务或其它并未属于该原出口的记录模型",
+          "when": "进入现有任务视图/直接调用",
+          "then": [
+            "原DccRecords分流与guardLegacyTask保持",
+            "不借修入口新增受管DCC导出、泛分类导出或新IVR出口"
+          ],
+          "trace": [
+            "AC-2068",
+            "cloud-task-workspace.js:2154..2160",
+            "customer-tasks.js:20..30,390..395"
+          ]
+        },
+        {
+          "id": "NEG-7",
+          "class": "negative",
+          "given": "downloadCsv不可用，或原Blob/URL/DOM生成路径失败",
+          "when": "发起导出",
+          "then": [
+            "不把调用尝试、toast或旧文件当新成功",
+            "沿原false/实际失败反馈，不自动重试或改变任务、名单、归属",
+            "不新增后台任务/回调/导出管理功能"
+          ],
+          "trace": [
+            "AC-2068",
+            "SC-2019/ALT-2019-OP-FAIL",
+            "common.js:36..68"
+          ]
+        },
+        {
+          "id": "NEG-8",
+          "class": "negative",
+          "given": "原取数模块/关联/可靠性尚未证实，或只有本地模拟记录",
+          "when": "评审此确认或实际实现验证",
+          "then": [
+            "不能由“用户同意保留”推定数据已经权威/完整或生产可读",
+            "不得把未知当已核实为空或已核实成功；当前原源码对缺模块等退为空的行为也不证明可辨所有失败，不能补写成已有能力",
+            "维持原成功/失败边界与真实工程缺口，不为通过新增状态机或数据接口"
+          ],
+          "trace": [
+            "AC-2068",
+            "SC-2019/ALT-2019-OP-FAIL",
+            "ISSUE-2008"
+          ]
+        },
+        {
+          "id": "NEG-9",
+          "class": "negative",
+          "given": "执行该被动导出，不发起呼叫或任务控制",
+          "when": "评审/适配入口资格",
+          "then": [
+            "不新增必须同时AI与Cloud开通、本人电话上线、呼叫资源就绪或拨前禁呼门槛",
+            "仍遵守原Cloud电话现场范围，但导出不是启动、暂停、完成或归属变更命令"
+          ],
+          "trace": [
+            "AC-2068",
+            "AC-2069（仅执行边界）",
+            "SC-2019/ALT-2019-QUERY"
+          ]
+        }
+      ],
+      "test_execution_status": "所有案例均为可复用验收定义，当前未执行；无浏览器、源JS、标准S7、整版或工具回归",
+      "CSV_unchanged_contract": {
+        "filename": "任务客户明细.csv",
+        "columns": [
+          {
+            "key": "name",
+            "label": "客户称呼"
+          },
+          {
+            "key": "phone",
+            "label": "客户号码"
+          },
+          {
+            "key": "batchName",
+            "label": "来源批次"
+          },
+          {
+            "key": "externalDocumentId",
+            "label": "业务单据"
+          },
+          {
+            "key": "followup",
+            "label": "处理状态"
+          },
+          {
+            "key": "note",
+            "label": "联系备注"
+          }
+        ],
+        "row_source": "点击时CustomerTasks.taskCustomers(row)原返回集合；不是DOM可见页、row.total、合成customerRows或AI固定5行文件",
+        "no_additions": [
+          "导出字段选择",
+          "新增筛选/排序合同",
+          "号码合并/去重",
+          "新统计/CRM字段",
+          "其它数据模型/受管任务出口",
+          "供应商/后端下载接口"
+        ]
+      },
+      "must_remain_unknown_or_unverified": [
+        {
+          "topic": "实际v2 UI适配与端到端成功链",
+          "boundary": "此次只确认期望行为；原参考源码未改，现有源UI冲突不能被标为已修复或既有链StrictReview通过。需后续适用实现及本项验证证据。"
+        },
+        {
+          "topic": "权威身份/权限/对象与数据范围映射",
+          "boundary": "沿原产品资格，不新增授予；真实服务端独立操作权限码、租户/企业映射和撤权执行仍依原工程证据，用户确认不是生产授权证明。"
+        },
+        {
+          "topic": "数据权威性/完整性/当前快照",
+          "boundary": "原getter读的是现存本地原型journal及其原范围；不能冒充生产准确取数、强一致快照或完整跨服务记录。"
+        },
+        {
+          "topic": "可靠持久化/供应商和远端协议",
+          "boundary": "本导出是本地浏览器文件生成，不证明服务器持久化、供应商执行、原批次准确回执或新下载API。"
+        },
+        {
+          "topic": "浏览器最终下载落盘",
+          "boundary": "common返回true证明本地生成和发起下载，不能声称浏览器策略、用户保存或文件最终磁盘写入均已验证。"
+        },
+        {
+          "topic": "全部异常可区分与恢复",
+          "boundary": "不因这次确认声称原可区分读取失败/缺模块/真空、并发完整性或自动恢复均已实现；不添加重试次数、时限、缓存或回调。"
+        },
+        {
+          "topic": "门禁/风险/冻结",
+          "boundary": "不自动完成S7/S8/G3，不新增风险接受，不关闭ISSUE2008/身份等其它既有问题。"
+        }
+      ],
+      "state_boundary": {
+        "product_scope_choice": "confirmed_retain_nonempty_authorized_current_task_export",
+        "new_product_status_field_required": false,
+        "reference_source_conflict": "historically_real_and_still_true_in_unmodified_reference_source",
+        "v2_entry_adaptation": "approved_product_intent_not_implementation_verified_by_this_review",
+        "production_verified": false,
+        "original_UI_to_success_strict_proof_promoted": false,
+        "original_candidate_rewritten": false,
+        "source_result_conflict_must_not_be_renamed": "不是工具语法缺口、不是导出功能从未存在、不是用户已决定删除，也不是源版已修复",
+        "formal_iteration_accounting": "允许精确同对象差异入账；不是strict retained晋升或新业务功能"
+      },
+      "preserve_history_and_add_current_decision": [
+        "保留原candidate/hash/pointer/terminal、原P4逐项source_result_conflict回执及原未成功链观察；不回写为历史通过或改原参考代码。",
+        "保留两方案提案文件及其中当时choice=null/待审为历史时间点；另登记实际用户确认，现行阅读处说明已选择保留且适配待实施，不再次询问同一选择。",
+        "用新确认记录关联同一candidate/US2025/AC2068/SC2019/PAGE2205/ACTION2060，区分原参考证据和本版批准入口差异；必要时新增精确同对象iteration FUNC记账行，不借财务/归档或宽泛FUNC掩盖原操作。",
+        "现行范围待选可关闭为“保留已确认”，但原来源结果冲突是适配理由且原代码仍有该事实；不能仅改pending标签/计数冒充严格来源通过、实施或生产完成。",
+        "后续若有实际实现/验收，新证据单独绑定适用版本、文件及结果；不覆盖旧源证据或冻结历史。"
+      ],
+      "source_snapshots": [
+        {
+          "file": "/tmp/v200_p4_tool_maintenance/remaining93-export-conflict-review-proposal.json",
+          "source_sha256": "ba34989d32a28b4371716f60fd4520efa80c0caec6d419131122348b2108bb4d",
+          "role": "先前两方案提案，原内容保留历史"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/cloud-task-workspace.js",
+          "source_sha256": "4e1361c4a82b098039c71a5e3ee4c93fbf852d95d1446b1a5e40c877d55a5488",
+          "role": "未改参考UI冲突及原结果handler"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/customer-tasks.js",
+          "source_sha256": "91cf4312f7d7b337772d5e81fa250fb6dc0ae2d0b29d40734bc34beeda2aab28",
+          "line_spans": [
+            [
+              16,
+              30
+            ],
+            [
+              390,
+              395
+            ]
+          ],
+          "role": "原上下文/managed排除及逐记录可见范围"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/common.js",
+          "source_sha256": "5d4b14f0d18a4d8178086cb05df27bb50b4f6c6013ce4ed38a6796ec2a637ee1",
+          "line_spans": [
+            [
+              36,
+              68
+            ]
+          ],
+          "role": "原六列之外通用CSV编码/本地生成/失败"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/需求/分析工作区/memory/normalized-user-stories.json",
+          "source_sha256": "26aaf9d7e8c0cc87ab5cea314f9aaf391eff831d839a2697b4f242e46e8f8d93",
+          "stable_ids": [
+            "US-2025",
+            "AC-2068",
+            "AC-2069"
+          ]
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/需求/分析工作区/scenarios/SC-2019.json",
+          "source_sha256": "45c98876f5d80a43a63be4cb1f2a42eb48cdf9671f858c50cf2e9636aafaa457",
+          "stable_ids": [
+            "ALT-2019-QUERY",
+            "ALT-2019-OP-FAIL"
+          ]
+        }
+      ],
+      "constraints": {
+        "formal_facts_JS_or_tools_modified": false,
+        "source_JS_executed": false,
+        "standard_S7_or_full_project_run": false,
+        "process_query": false,
+        "only_output_written": "/tmp/v200_p4_tool_maintenance/export-confirmed-acceptance-review-20261025.json"
+      },
+      "formal_operation_recording_boundary": {
+        "conclusion": "新增一条稳定iteration FUNC记录与新增业务功能不是同一概念；用户已确认保留并修正这个既有客户CSV出口，可以精确入账其本版入口差异，仍不新增业务目的/字段/API/权限。",
+        "reason": "当前原candidate成功链未证、不能晋升strict retained；现有42 FUNC无该同对象客户CSV操作，不能借财务/归档或宽泛FUNC覆盖。PAGE2205/ACTION2060可绑定同对象iteration差异记录，并保原candidate来源与历史。",
+        "granularity": "同一业务对象=当前任务有权客户明细CSV；一个主操作=导出；独立结果=原6列文件；所选差异仅入口何时可用及所在真实名单分支。",
+        "change_type": "iteration",
+        "before": "原exportTaskCustomers结果handler及六列CSV已存在；但原centerCustomers非空/assigned名单分支无导出入口，唯一按钮在其它模式实际空名单的备用展示分支，点击原handler返回false。不能将before写成原生产可靠导出已可用，也不能写成源版完全没有导出逻辑。",
+        "after": "本版按用户确认，在有原资格且当前任务实际有权名单非空时提供原导出入口，继续原处理函数/六列/可见范围；空态保真实反馈。此为已批准期望差异，实施与验证另需证据，原参考原型不改。",
+        "source_evidence_role": "原handler/source conflict作真实before依据，不以它充当本版after实现证明或未变操作严格成功链。",
+        "do_not_change": [
+          "不改原181候选字节/原pointer/终点",
+          "不把源冲突改成strict retained成功",
+          "不借其它对象FUNC吞并该独立操作",
+          "不新造AC/API/权限或新增业务字段",
+          "不把新增记账行数量写成新增一个业务目的或隐匿正式FUNC总数变化"
+        ],
+        "counting_note": "若正式新增一条iteration行，应如实更新正式FUNC记录数，并解释为既有操作入口差异入账；原严格retained计数不因此加1。固定99项的源成功链计数与本版有明确差异FUNC承接的范围覆盖分别报告，不能把用户确认换算成第99项源链通过。",
+        "replaces_previous_overbroad_phrase": "旧提案“无新FUNC”是当时最小业务范围建议，不是用户冻结了功能记录数量，不能把该句当禁止必要的同对象iteration记账。",
+        "formal_application_status": "只读意见；root主事实尚未由本报告修改"
+      }
+    }
+  ],
+  "iteration_function": {
+    "id": "FUNC-2043",
+    "operation_key": "export-current-predictive-task-visible-customer-csv",
+    "version": "2.0.0",
+    "module_l1": "呼叫中心",
+    "module_l2": "呼叫执行",
+    "module_l3": "预外呼任务",
+    "name": "导出当前任务客户明细（入口修正）",
+    "description": "保留既有当前任务客户明细导出，在原操作/对象资格成立且实际有权名单非空时提供原入口，继续调用原处理逻辑，生成原六列CSV并保持原可见范围；目标设计待实现，不将原源码入口冲突记为通过。",
+    "notes": "新增的是既有独立导出的iteration台账责任，不是新增业务能力、菜单、API或权限，也不自动形成新的报价单元。原42项不改、原候选不晋升，用户只确认本版修正需求。",
+    "change_type": "iteration",
+    "classification_pending": false,
+    "classification_reason": "用户SRC2122明确选择保留同一原操作并修正v2入口条件；现有42项无同对象/主操作/结果条目，不能借任务列表CSV、失败下载、财务或归档功能覆盖。一个迭代条目承担该原功能修正，不计业务新增。",
+    "boundary": {
+      "business_object": "当前准确预外呼任务下本次有权可见的客户明细记录集",
+      "primary_action": "导出",
+      "system_boundary": "D联络云仅承担本版原客户明细入口可用条件的整合修正；原任务定位、对象校验、取数、六列组织及CSV处理继续复用。原参考页面/源码及供应商能力均不因此修改或被证明。",
+      "initiator": "具原当前租户Cloud上下文、原导出操作及任务对象资格的人员；真实权限映射仍待核，不由同品牌/菜单可见授予",
+      "trigger": "在PAGE2205/ACTION2060中独立选择当前任务客户明细导出分支；本版入口只在原资格成立且实际有权名单非空时可用，点击沿原taskId重新定位和取数。",
+      "primary_outcome": "按点击时当前任务及原可见集合生成一个原六列客户明细CSV，不取页面合成样例或其它任务记录",
+      "completion_result": "仅本次原处理逻辑实际生成文件并发起原浏览器下载后反馈该次生成结果及实际记录数；无权、任务/范围失效、实际空名单或生成失败不伪报成功。未知实现/生产取数或最终磁盘落盘不能由本次确认宣称已验证。",
+      "included_scope": [
+        "仅修正本版同一原任务客户明细入口：原操作/对象资格成立且实际名单非空时可使用；继续调用原exportTaskCustomers(taskId)，不复制新导出处理器。",
+        "原taskById、canAccessObject及CustomerTasks.taskCustomers的任务/tenantId/enterpriseId/owner可见范围保持，点击重查；不按手机号合并、不因同品牌扩数据。",
+        "原文件名任务客户明细.csv及六列顺序保持：客户称呼、客户号码、来源批次、业务单据、处理状态、联系备注。",
+        "原CSV的BOM、CRLF、转义、null及公式前缀文本保护沿原处理；行数取实际原getter记录，不用total、最多8行预览或AI固定5行样例。",
+        "空态、失权、目标变化及失败沿原真实反馈；保持原Cloud电话现场，但本导出不要求上线/起呼，不触发拨前禁呼或任务状态变更。"
+      ],
+      "excluded_scope": [
+        "不新增业务能力、页面/菜单、字段选择/新筛选排序、跨任务/跨租户CSV、后台导出队列、定时任务或新权限/API。",
+        "不替代任务列表导出、失败下载、AI财务导出、全部客户主档或业务台账；不新增受管DCC、人工或IVR其它出口。",
+        "不改参考原型/原源码、v1.2或冻结历史，不将原候选或源结果冲突转为已证明的未变retained，不让固定99源通过计数由98变99。",
+        "不由确认推断实现、生产身份/权限/完整取数/服务端持久化或最终下载成功；不发真实请求、外呼或业务数据修改。"
+      ],
+      "business_rules": [
+        "沿BR2021的既有功能/原交互优先复用边界，本次只落实已确认的原导出入口修正，不增加新业务目的。",
+        "有权且实际非空才具备本版入口可用条件；入口可见不授权，点击仍沿原资格/范围/任务重核；空或失败不以样例输出兜底。",
+        "六列、原逻辑与可见集合固定沿原；导出是独立被动输出，不启动、暂停、完成或转交任务。"
+      ],
+      "exception_paths": [
+        "assigned及其它原允许模式实际名单为空，入口不呈现可成功导出假象，沿原无数据反馈，不输出备用演示行。",
+        "显示后任务/身份/租户/对象范围失效或名单变空，点击时重核，不输出旧快照或越权行。",
+        "原取数模块或真实关联/可靠性未证时保留缺证；原代码退为空也不能证明已可区分所有失败，不虚构新增状态机。",
+        "原文件生成失败/未知不冒充成功、不自动重试或改变业务状态；下载发起不证明最终落盘。"
+      ],
+      "dependencies": [
+        "ISSUE2001：权威身份、租户及原操作权限的真实映射继续核验。",
+        "ISSUE2008：生产有权客户取数、完整性、原执行/生成能力继续核验；源版UI冲突已知但当前设计待实现。"
+      ],
+      "assumptions": [
+        "SRC2122只确认产品修正方案，当前原型、源代码及实现均未修改；SRC2120原冲突仍是原来源事实。",
+        "原handler/六列/本地可见规则已定位不等于生产能力，所有已登记工程问题及门禁保持。"
+      ],
+      "split_rationale": "同一当前任务有权客户明细→独立导出→六列CSV是一个既有业务操作；入口条件/同次鉴权/字段/必要失败处理是本操作明细，不逐按钮/列计FUNC。它与任务列表CSV、失败下载、详情、财务及归档不同，故单列一项iteration责任而非挂无关父功能，不新增第二种业务目的。"
+    },
+    "change_detail": {
+      "before": "选定原Cloud源centerCustomers在assigned模式或实际名单非空时返回无导出按钮列表，唯一按钮在其它模式实际空名单的备用分支；原exportTaskCustomers对同一实际名单为空返回false，非空才生成原六列CSV，原入口到成功未获证明。原参考源码字节保持。",
+      "after": "本版按SRC2122确认：原资格成立且实际有权名单非空时原任务客户明细入口可用；仍沿原handler、六列及范围。此为待实现/待验证的整合修正设计，不声称源版已修好。",
+      "impact": [
+        "新增一条既有导出的iteration台账行FUNC2043，不新增业务能力/页面/API/权限；其余42行及原222条未变引用保持。",
+        "当前未决归属改由该已确认设计责任承担；原候选/hash/源码冲突和98+1来源核验事实保留，不伪造retained通过。",
+        "仅更新PAGE2205/ACTION2060精确分支及新签名，不改变其它查询/导出/失败下载及SC2021其它原资源能力。"
+      ],
+      "this_version_delta_only": "现有客户CSV入口条件修正；新FUNC编号只表示本版迭代责任登记，非新增业务功能或已实现证明。"
+    },
+    "source_story_ids": [
+      "US-2025"
+    ],
+    "source_acceptance_ids": [
+      "AC-2068"
+    ],
+    "contextual_acceptance_ids": [
+      "AC-2069",
+      "AC-2072"
+    ],
+    "source_scenario_ids": [
+      "SC-2019"
+    ],
+    "contextual_scenario_ids": [
+      "SC-2021"
+    ],
+    "source_rule_ids": [
+      "BR-2021"
+    ],
+    "source_refs": [
+      "inputs/source-index.json#SRC-2122",
+      "inputs/source-index.json#SRC-2123",
+      "inputs/source-index.json#SRC-2120",
+      "inputs/source-index.json#SRC-2100",
+      "memory/normalized-user-stories.json#AC-2068",
+      "scenarios/SC-2019.json",
+      "sequences/SEQ-2019.json",
+      "planning/page-index.json",
+      "memory/business-rules.json#BR-2021"
+    ],
+    "source_acceptance_text": {
+      "AC-2068": "承接v1.1.0最终范围的预外呼任务、导入、任务所用坐席／外呼组及其他资源、正常重呼、异常补提交及结果查询/下载，原执行规则保留。"
+    },
+    "acceptance_contributions": [
+      {
+        "acceptance_id": "AC-2068",
+        "role": "primary_operation_partial_contribution",
+        "owned_fragment": "保留当前任务客户明细导出：具备该原操作资格且当前任务实际有权名单非空时，复用原入口和原处理逻辑；按点击时原任务、租户、企业及记录可见范围取得的记录生成原六列CSV。空名单或原校验失败不伪报成功；不扩字段、权限或数据范围，不改参考原型。"
+      },
+      {
+        "acceptance_id": "AC-2069",
+        "role": "shared_execution_constraint_only",
+        "owned_fragment": "只保持原执行策略边界，不将导出当起呼或以本项覆盖整个AC。"
+      },
+      {
+        "acceptance_id": "AC-2072",
+        "role": "context_only_not_direct_coverage",
+        "owned_fragment": "SC2021总承接上下文；本FUNC不覆盖其它资源/记录/报表/导出。"
+      }
+    ],
+    "current_page_ids": [
+      "PAGE-2205"
+    ],
+    "current_action_ids": [
+      "ACTION-2060"
+    ],
+    "origin_candidate_key": "predictive-export-task-customers",
+    "raw_source_conflict_ref": "inputs/source-index.json#SRC-2120",
+    "CSV_unchanged_contract": {
+      "filename": "任务客户明细.csv",
+      "columns": [
+        {
+          "key": "name",
+          "label": "客户称呼"
+        },
+        {
+          "key": "phone",
+          "label": "客户号码"
+        },
+        {
+          "key": "batchName",
+          "label": "来源批次"
+        },
+        {
+          "key": "externalDocumentId",
+          "label": "业务单据"
+        },
+        {
+          "key": "followup",
+          "label": "处理状态"
+        },
+        {
+          "key": "note",
+          "label": "联系备注"
+        }
+      ],
+      "row_source": "点击时CustomerTasks.taskCustomers(row)原返回集合；不是DOM可见页、row.total、合成customerRows或AI固定5行文件",
+      "no_additions": [
+        "导出字段选择",
+        "新增筛选/排序合同",
+        "号码合并/去重",
+        "新统计/CRM字段",
+        "其它数据模型/受管任务出口",
+        "供应商/后端下载接口"
+      ]
+    },
+    "acceptance_design_cases": [
+      {
+        "id": "POS-1",
+        "class": "positive",
+        "given": "操作者满足原合法业务上下文和该操作/任务对象资格；实际原getter当前返回本任务2条有权记录",
+        "when": "从本任务实际客户名单处发起导出",
+        "then": [
+          "原入口可用且目标仍为本任务taskId",
+          "仍调用原处理逻辑及原点击时取数",
+          "文件为任务客户明细.csv、原6列、恰好2条数据，不按row.total或展示上限造行"
+        ],
+        "trace": [
+          "AC-2068",
+          "SC-2019/ALT-2019-QUERY",
+          "PAGE-2205/ACTION-2060"
+        ]
+      },
+      {
+        "id": "POS-2",
+        "class": "positive",
+        "given": "同任务存在跨批次记录、重复号码/再次联系记录，且原getter允许当前人员查看",
+        "when": "导出当前任务客户明细",
+        "then": [
+          "逐条保原记录含义和当前可见集合，不按手机号合并",
+          "不加入其它任务或其它tenant/enterprise行",
+          "文件列与原handler完全一致，不跟随列表额外列扩字段"
+        ],
+        "trace": [
+          "AC-2068",
+          "CustomerTasks.taskCustomers:390..395"
+        ]
+      },
+      {
+        "id": "POS-3",
+        "class": "positive",
+        "given": "原6个字段包含中文、逗号、双引号、换行、null或公式前缀",
+        "when": "沿common.downloadCsv生成",
+        "then": [
+          "保持原UTF-8 BOM、CRLF、引号转义、null为空和公式前缀文本保护",
+          "成功只表示文件已生成并发起浏览器下载；不保证最终磁盘落盘或远端能力"
+        ],
+        "trace": [
+          "AC-2068",
+          "common.js:36..68"
+        ]
+      },
+      {
+        "id": "NEG-1",
+        "class": "negative",
+        "given": "assigned模式但实际有权名单为空",
+        "when": "查看/尝试发起该客户导出",
+        "then": [
+          "不出现可成功导出的假象；入口不可用并保真实无数据反馈",
+          "原handler直接调用仍false，不导出任何备用合成行"
+        ],
+        "trace": [
+          "AC-2068",
+          "cloud-task-workspace.js:2029,2035..2036"
+        ]
+      },
+      {
+        "id": "NEG-2",
+        "class": "negative",
+        "given": "非assigned的原允许模式且实际名单为空，备用页面有演示预览",
+        "when": "查看/尝试发起该客户导出",
+        "then": [
+          "同样没有可用的实际客户CSV导出",
+          "customerRows合成的1..8条、掩码号码或row.total不能成为导出输入",
+          "原无数据反馈保留，不用AI固定五行CSV替代"
+        ],
+        "trace": [
+          "AC-2068",
+          "cloud-task-workspace.js:2017..2037"
+        ]
+      },
+      {
+        "id": "NEG-3",
+        "class": "negative",
+        "given": "页面渲染时有数据，点击前原getter已变为空或目标任务不存在",
+        "when": "发起导出",
+        "then": [
+          "由原handler按当前taskId重查",
+          "无数据/无任务沿原false和实际反馈，不用旧渲染快照生成成功文件"
+        ],
+        "trace": [
+          "AC-2068",
+          "cloud-task-workspace.js:1783..1790,2033..2037"
+        ]
+      },
+      {
+        "id": "NEG-4",
+        "class": "negative",
+        "given": "渲染后身份/租户/企业/授权改变，或传入不属当前原对象范围的taskId",
+        "when": "调用原导出处理",
+        "then": [
+          "原canAccessObject和taskCustomers范围不得被适配入口绕过",
+          "不得生成越权文件或放大为同品牌全量",
+          "没有新的授权码或权限默认下放"
+        ],
+        "trace": [
+          "AC-2068",
+          "cloud-task-workspace.js:259..264,2033..2035",
+          "customer-tasks.js:390..395"
+        ]
+      },
+      {
+        "id": "NEG-5",
+        "class": "negative",
+        "given": "普通人员仅能看到原ownerId或本人创建再次联系的子集，管理员有其原有范围",
+        "when": "分别导出",
+        "then": [
+          "各自仍仅原getter允许的集合",
+          "不能因管理员可看、同品牌、同手机号或入口可见授予普通人员更多记录",
+          "未知生产权限映射不由本次确认转成已验证"
+        ],
+        "trace": [
+          "AC-2068",
+          "customer-tasks.js:16..17,390..395"
+        ]
+      },
+      {
+        "id": "NEG-6",
+        "class": "negative",
+        "given": "目标为原受管DCC任务或其它并未属于该原出口的记录模型",
+        "when": "进入现有任务视图/直接调用",
+        "then": [
+          "原DccRecords分流与guardLegacyTask保持",
+          "不借修入口新增受管DCC导出、泛分类导出或新IVR出口"
+        ],
+        "trace": [
+          "AC-2068",
+          "cloud-task-workspace.js:2154..2160",
+          "customer-tasks.js:20..30,390..395"
+        ]
+      },
+      {
+        "id": "NEG-7",
+        "class": "negative",
+        "given": "downloadCsv不可用，或原Blob/URL/DOM生成路径失败",
+        "when": "发起导出",
+        "then": [
+          "不把调用尝试、toast或旧文件当新成功",
+          "沿原false/实际失败反馈，不自动重试或改变任务、名单、归属",
+          "不新增后台任务/回调/导出管理功能"
+        ],
+        "trace": [
+          "AC-2068",
+          "SC-2019/ALT-2019-OP-FAIL",
+          "common.js:36..68"
+        ]
+      },
+      {
+        "id": "NEG-8",
+        "class": "negative",
+        "given": "原取数模块/关联/可靠性尚未证实，或只有本地模拟记录",
+        "when": "评审此确认或实际实现验证",
+        "then": [
+          "不能由“用户同意保留”推定数据已经权威/完整或生产可读",
+          "不得把未知当已核实为空或已核实成功；当前原源码对缺模块等退为空的行为也不证明可辨所有失败，不能补写成已有能力",
+          "维持原成功/失败边界与真实工程缺口，不为通过新增状态机或数据接口"
+        ],
+        "trace": [
+          "AC-2068",
+          "SC-2019/ALT-2019-OP-FAIL",
+          "ISSUE-2008"
+        ]
+      },
+      {
+        "id": "NEG-9",
+        "class": "negative",
+        "given": "执行该被动导出，不发起呼叫或任务控制",
+        "when": "评审/适配入口资格",
+        "then": [
+          "不新增必须同时AI与Cloud开通、本人电话上线、呼叫资源就绪或拨前禁呼门槛",
+          "仍遵守原Cloud电话现场范围，但导出不是启动、暂停、完成或归属变更命令"
+        ],
+        "trace": [
+          "AC-2068",
+          "AC-2069（仅执行边界）",
+          "SC-2019/ALT-2019-QUERY"
+        ]
+      }
+    ],
+    "acceptance_design_cases_execution_status": "not_run_target_design_only_reference_prototype_unchanged",
+    "evidence_level": "actual_user_confirmed_existing_export_iteration_design_implementation_unverified",
+    "classification_scope": "confirmed_existing_operation_entry_correction_not_source_admission",
+    "contract_verification_status": "partial_original_local_definition_real_authorization_and_data_unverified",
+    "open_issue_ids": [
+      "ISSUE-2001",
+      "ISSUE-2008"
+    ],
+    "production_verified": false,
+    "implementation_verified": false,
+    "new_business_capability": false,
+    "source_success_chain_verified": false,
+    "status": "S7_analyzed_for_review_not_frozen"
+  },
+  "retained_operation_bindings": [
+    {
+      "binding_kind": "retained_operation_binding",
+      "page_id": "PAGE-2205",
+      "action_id": "ACTION-2060",
+      "operation_ref": "predictive-download-failures",
+      "business_object": "原预外呼失败批次输出",
+      "primary_action": "下载",
+      "source_scenario_ids": [
+        "SC-2019"
+      ],
+      "action_signature_sha256": "2c917e78603a695dfe92fbf6da7847e36f4bbafd5a894fcad8eaf2ad95c8b822",
+      "reviewed_by": "Codex root exact mixed-action binding; same original outputs preserved; confirmed customer CSV iteration separately attributed",
+      "reviewed_on": "2026-10-25",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2123"
+      ],
+      "permission_granted": false,
+      "production_verified": false
+    },
+    {
+      "binding_kind": "retained_operation_binding",
+      "page_id": "PAGE-2205",
+      "action_id": "ACTION-2060",
+      "operation_ref": "retained-source-predictive-export-tasks",
+      "business_object": "预外呼筛选任务记录集",
+      "primary_action": "导出",
+      "source_scenario_ids": [
+        "SC-2019"
+      ],
+      "action_signature_sha256": "2c917e78603a695dfe92fbf6da7847e36f4bbafd5a894fcad8eaf2ad95c8b822",
+      "reviewed_by": "Codex root exact mixed-action binding; same original outputs preserved; confirmed customer CSV iteration separately attributed",
+      "reviewed_on": "2026-10-25",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2123"
+      ],
+      "permission_granted": false,
+      "production_verified": false
+    }
+  ],
+  "prior_action_signature": "6219e6810c625e605f67a7c59366094f899a0190138714cbd5402638c98e6c76",
+  "prior_action_bindings": [
+    {
+      "binding_kind": "retained_operation_binding",
+      "page_id": "PAGE-2205",
+      "action_id": "ACTION-2060",
+      "operation_ref": "predictive-download-failures",
+      "business_object": "原预外呼失败批次输出",
+      "primary_action": "下载",
+      "source_scenario_ids": [
+        "SC-2019"
+      ],
+      "action_signature_sha256": "6219e6810c625e605f67a7c59366094f899a0190138714cbd5402638c98e6c76",
+      "reviewed_by": "Codex root exact current ACTION binding; prior proven source reused",
+      "reviewed_on": "2026-10-24",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2120"
+      ],
+      "permission_granted": false,
+      "production_verified": false
+    },
+    {
+      "binding_kind": "retained_operation_binding",
+      "page_id": "PAGE-2205",
+      "action_id": "ACTION-2060",
+      "operation_ref": "retained-source-predictive-export-tasks",
+      "business_object": "预外呼筛选任务记录集",
+      "primary_action": "导出",
+      "source_scenario_ids": [
+        "SC-2019"
+      ],
+      "action_signature_sha256": "6219e6810c625e605f67a7c59366094f899a0190138714cbd5402638c98e6c76",
+      "reviewed_by": "Codex root exact current ACTION binding; prior proven source reused",
+      "reviewed_on": "2026-10-24",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2120"
+      ],
+      "permission_granted": false,
+      "production_verified": false
+    }
+  ],
+  "current_action_signature": "2c917e78603a695dfe92fbf6da7847e36f4bbafd5a894fcad8eaf2ad95c8b822",
+  "active_group_disposition": "replaced_by_confirmed_existing_operation_iteration_design_not_source_proof",
+  "source_passes_still": 98,
+  "source_conflicts_still": 1,
+  "new_retained_references": 0,
+  "new_business_capability": false,
+  "US_AC_SC_and_interface_facts_changed": false,
+  "prototype_changed": false,
+  "implementation_verified": false,
+  "production_verified": false,
+  "G3_approved": false
+}

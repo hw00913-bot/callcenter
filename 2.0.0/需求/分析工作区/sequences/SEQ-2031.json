@@ -1,0 +1,381 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2031",
+  "scenario_id": "SC-2031",
+  "name": "租户内分配业务记录至坐席或任务交互时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "design_status": "S5_current_G2_analysis_candidate_not_implementation",
+  "participants": [
+    {
+      "id": "person",
+      "name": "本租户具备分配权限的人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "D联络云原功能前端",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "本方业务办理职责",
+      "kind": "system"
+    },
+    {
+      "id": "records",
+      "name": "本方稳定对象、配置及历史职责",
+      "kind": "system"
+    },
+    {
+      "id": "resource",
+      "name": "原云呼叫资源查询侧（partial）",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "从业务中心台账、批次或详情选择一条记录或原批次多选记录，发起本租户执行分配。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 1
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "请求本次记录集合/节点及原本租户分配上下文",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 2
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "核原分配权、当前owner和节点方式，读每条记录/安排版本及可核共同目标",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 3
+    },
+    {
+      "from": "service",
+      "to": "resource",
+      "message": "本次确需云资源时沿原查询核本租户坐席/已有任务资格，不跨品牌猜配",
+      "type": "external_call",
+      "api_id": "API-2013",
+      "condition": "需原云资源查询且原契约可用；partial未核则受阻",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 4
+    },
+    {
+      "from": "resource",
+      "to": "service",
+      "message": "返回本次原有权可核资源结论，不把未知当可用",
+      "type": "response",
+      "api_id": "API-2013",
+      "condition": "实际查询结果可核",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 5
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "展示节点/owner和共同合法资源，门店目标指派不在此操作",
+      "type": "response",
+      "api_id": null,
+      "condition": "上下文及资源可靠",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 6
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "选择本租户共同合法坐席或已有任务，核对本次单条或多条名单并确认。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 7
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "人员确认本次单条或原批次多选集合及共同目标",
+      "type": "request",
+      "api_id": null,
+      "condition": "人员确认",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 8
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "提交逐条重核当前owner、节点/记录及安排版本、原分配资格、所选方式和共同资源，并确认无在途并行；所有行校验完成后才进入同次保存。；任一行过期、无权、已转交、节点/方式不符或共同资源不可用，全批均不写且逐行反馈原因；不是先写合法行。只核本次安排和资源，不强制双模块；实际起呼另核所选方式及本租户禁呼。",
+      "type": "event",
+      "api_id": null,
+      "condition": "本次已确认提交",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 9
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "在同次请求中一致保存全部所选记录的本租户执行安排与轨迹；不改变owner、单模板版本或节点指针。；共同资源和所有行版本通过才整批提交；失败无半分配，响应未知先核同次结果，重复请求不重复分配。任务仍待当前有权人员主动启动。",
+      "type": "request",
+      "api_id": null,
+      "condition": "所选全部行及共同目标均可靠通过才同次提交",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 10
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "仅返回本次整集合实际一致保存结论，任一行失败全批不写",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次结果可核",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 11
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "反馈分配结果，人员再按节点启动既有处理。；跨租户需求改用合法转交节点，不能用分配替代。",
+      "type": "response",
+      "api_id": null,
+      "condition": "全部所选行同次明确成功",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 12
+    },
+    {
+      "from": "ui",
+      "to": "person",
+      "message": "分配只安排执行，不自动起呼；新启动另ref SEQ2032/2025核本方式、禁呼及整记录前段",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次分配明确完成",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "reused_sequence_ref": "SEQ-2032",
+      "step": 13
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "不提交本次请求，不改变记录或配置。",
+      "type": "event",
+      "api_id": null,
+      "condition": "[ALT-2031-CANCEL] 提交前取消本次操作",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2031-CANCEL"
+      ],
+      "step": 14
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "逐条复核后反馈本次原因；任一行失败则所有行均未写入，不产生部分成功或半分配。；保原执行安排及归属；清除旧目标/过期选择后可由仍有权人员另次发起，不转作跨租户或自动呼叫。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2031-INVALID] 单条或所选批次任一行的原资格、owner/节点/记录版本、方式或共同资源不满足。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2031-INVALID"
+      ],
+      "step": 15
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "不展示成功；区分明确失败和结果待核。；结果待核先核对同次请求的实际结果，不能用新请求重复创建或推进。；批量请求也按同次请求和所选记录集合核对真实结果；不因未知另建第二次分配或把未确认行冒充成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2031-UNKNOWN] 读写失败或本次结果不能确定",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2031-UNKNOWN"
+      ],
+      "step": 16
+    }
+  ],
+  "source_story_ids": [
+    "US-2035"
+  ],
+  "source_acceptance_ids": [
+    "AC-2118",
+    "AC-2119"
+  ],
+  "business_rule_ids": [
+    "BR-2043",
+    "BR-2047",
+    "BR-2048",
+    "BR-2049",
+    "BR-2052",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010"
+  ],
+  "source_refs": [
+    "scenarios/SC-2031.json",
+    "memory/normalized-user-stories.json",
+    "memory/business-rules.json",
+    "memory/project-facts.json",
+    "interfaces/interface-index.json",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "source_bindings": {
+    "scenario_sha256": "7304ae318f588789a052c12b81a0bd99f00d4c7d6d48e814e9680bec5d035d7b",
+    "interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+    "G2_basis": [
+      "SRC-2095",
+      "SRC-2096"
+    ]
+  },
+  "api_refs": [
+    "API-2013"
+  ],
+  "internal_capability_refs": [
+    "API-2018",
+    "API-2027",
+    "API-2028"
+  ],
+  "contract_dependency_refs": [
+    "API-2024",
+    "API-2022"
+  ],
+  "reused_sequence_refs": [
+    "SEQ-2001",
+    "SEQ-2002",
+    "SEQ-2017",
+    "SEQ-2025",
+    "SEQ-2032"
+  ],
+  "main_step_coverage": [
+    {
+      "source_step": 1,
+      "message_steps": [
+        1,
+        2
+      ]
+    },
+    {
+      "source_step": 2,
+      "message_steps": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "source_step": 3,
+      "message_steps": [
+        7,
+        8
+      ]
+    },
+    {
+      "source_step": 4,
+      "message_steps": [
+        9
+      ]
+    },
+    {
+      "source_step": 5,
+      "message_steps": [
+        10,
+        11
+      ]
+    },
+    {
+      "source_step": 6,
+      "message_steps": [
+        12,
+        13
+      ]
+    }
+  ],
+  "alternate_flow_coverage": [
+    {
+      "id": "ALT-2031-CANCEL",
+      "condition": "提交前取消本次操作",
+      "message_steps": [
+        14
+      ]
+    },
+    {
+      "id": "ALT-2031-INVALID",
+      "condition": "单条或所选批次任一行的原资格、owner/节点/记录版本、方式或共同资源不满足。",
+      "message_steps": [
+        15
+      ]
+    },
+    {
+      "id": "ALT-2031-UNKNOWN",
+      "condition": "读写失败或本次结果不能确定",
+      "message_steps": [
+        16
+      ]
+    }
+  ],
+  "notes": [
+    "SRC2095+2096仅批准按当前缺口继续分析；不是G3、原型实施或生产验收。成功消息仅为本次事实可核后的条件目标，partial/missing合同或真实身份/关联/结果未核则停留待核/受阻。",
+    "参与方为产品责任边界，不宣称已部署新服务；not_required能力仅列内部职责，这7族内部消息api_id均为null，不伪造URL、方法、字段、回调、时限、重试或补偿协议。",
+    "按condition阅读互斥分支，非所有消息一次必经。真实受理、执行结束、结果保存、归属及节点分别核定，不以HTTP成功或已发请求代替业务完成。",
+    "共同认证/原操作资格及切离返回保护复用SEQ2001/2002等，不强制每页重新登录、退出电话或调用公共API；原独立AI/专业资源/财务资格、电话现场和停用有限收尾保持。",
+    "SRC2096：本版AI标签仅配置/映射和原始/映射结果展示，不新增AI标准标签写业务字段或由此新增自动流转；未匹配保原值无首项兜底，既有业务字段条件、人工保存和其他原有流转不变。",
+    "分配不是起呼，不在此泛加公共禁呼或双模块条件。只读取已有执行/在途事实，API2022不被推导为新增停止/删除命令。",
+    "AI等原专业任务选择仅复用原有权来源/共同序列的准确资源身份；实际资格/可用性不能可靠核定就受阻，不伪造另一供应商资源API。原批次多选原子性不套给逐行导入。"
+  ],
+  "source_scenario_sha256": "7304ae318f588789a052c12b81a0bd99f00d4c7d6d48e814e9680bec5d035d7b",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

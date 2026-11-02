@@ -1,0 +1,1583 @@
+{
+  "schema_version": "1.0",
+  "review_kind": "bounded_S7_three_representative_diagnosis",
+  "reviewed_at": "2026-10-24T17:18:14+08:00",
+  "not_a_user_business_approval": true,
+  "scope_refs": [
+    "inputs/source-index.json#SRC-2100",
+    "inputs/source-index.json#SRC-2102",
+    "inputs/source-index.json#SRC-2103"
+  ],
+  "request_boundary": "同一原任务续接，根唯一正式写入；动态入口和共享链各一项原验证器检查，旧目录实体另核；不修改工具/参考原型/冻结历史，不重跑全量、不建副本/备份。",
+  "representatives": {
+    "dynamic_entry": {
+      "schema_version": "1.0",
+      "kind": "bounded_single_dynamic_entry_diagnosis",
+      "candidate_key": "cloud-seat-detail",
+      "source_scope_basis_refs": [
+        "inputs/source-index.json#SRC-2100",
+        "inputs/source-index.json#SRC-2102"
+      ],
+      "reviewed_on": "2026-10-24",
+      "same_task_bounded_continuation": true,
+      "one_representative_only": true,
+      "current_carrier": {
+        "page_id": "PAGE-2210",
+        "action_id": "ACTION-2070"
+      },
+      "current_candidate_sha256": "d2a873eec611f2505ed5b77b82a7e3f295ebc4facd38796bf75bb8ec5d3737a1",
+      "source_JS_executed": false,
+      "real_system_accessed": false,
+      "source_or_candidate_or_tool_or_formal_project_modified": false,
+      "conclusion": "cannot_make_this_real_table_callback_chain_pass_existing_supported_proof_grammar; requires_minimal_bounded_render_provenance_support",
+      "actual_source_chain": [
+        {
+          "step": 1,
+          "meaning": "原坐席路由注册，当前复用PAGE-2210/ACTION-2070承载该原操作",
+          "route_key": "agent-maintenance",
+          "page_key": "agent-center",
+          "route_view": "agents",
+          "permission": "agents.manage",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/nav.js",
+            "source_sha256": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+            "line_start": 34,
+            "line_end": 40,
+            "source_quote": "    ] },\n    { key: 'agents', label: '坐席与技能', icon: '席', domain: 'CLOUD_CONTACT_CENTER', children: [\n      { key: 'agent-maintenance', page: 'agent-center', label: '坐席维护', permission: 'agents.manage', view: 'agents' },\n      { key: 'skill-mappings', page: 'contact-center-settings', label: '技能管理', permission: 'settings.skills', view: 'skill-mappings' },\n      { key: 'outbound-group-management', page: 'outbound-group-management', label: '外呼组管理', permission: 'agents.manage' },\n      { key: 'queue-management', page: 'queue-management', label: '队列管理', icon: '队', domain: 'CLOUD_CONTACT_CENTER', permission: 'settings.queues' },\n      { key: 'sync-records', page: 'agent-center', label: '配置记录', permission: 'agents.sync', view: 'sync' }",
+            "evidence_role": "real_route_registration"
+          }
+        },
+        {
+          "step": 2,
+          "meaning": "navigateTo按合法route读取page对象，默认opts.view来自route.view，再把page.render(opts)返回HTML写入content.innerHTML；本诊断保默认路由view及原可见/认证条件",
+          "evidence": [
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/nav.js",
+              "source_sha256": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+              "line_start": 275,
+              "line_end": 287,
+              "source_quote": "  window.navigateTo = function (key, options) {\n    if (!AppState.isReady()) return false;\n    const requestedKey=key;\n    const resolved=resolve(key);key=resolved.key;\n    const route = resolved.route;\n    if (!route) return deny(key, '页面地址不存在。');\n    if (!isVisible(route)) return deny(key, '当前角色或租户没有该页面的访问权限。');\n    if(route.redirect)return window.navigateTo(route.redirect,{...(options||{})});\n    const page = window.Pages[route.page];\n    if (!page || typeof page.render !== 'function') return deny(key, '该功能正在初始化，请刷新页面后重试。');\n    let content = document.getElementById('page-content');\n    if (!content) return false;\n    const opts = { view: route.view, routeKey: key, ...(options || {}) };",
+              "evidence_role": "route_visibility_page_owner_and_options"
+            },
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/nav.js",
+              "source_sha256": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+              "line_start": 327,
+              "line_end": 332,
+              "source_quote": "    document.body.style.overflow = '';\n    AppState.setCurrentPage(key);\n    document.body.dataset.routeKey = key;\n    content.dataset.routeKey = key;\n    content.innerHTML = page.render(opts);\n    window.AgentWorkbench?.updateDock();",
+              "evidence_role": "real_page_render_DOM_sink"
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "meaning": "原静态owner导出render与openAgent；render在Cloud域及agents.manage通过、view非skills/sync时返回renderAgents()",
+          "evidence": [
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+              "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+              "line_start": 59,
+              "line_end": 73,
+              "source_quote": "  }\n  function render(options){\n    const previousContext=pageContext;pageContext=contextKey();view=options?.view||view;\n    if(AppState.get().activeDomain!=='CLOUD_CONTACT_CENTER'||!AppState.canMenu(view==='sync'?'agents.sync':'agents.manage'))return ui.empty('当前工作范围无坐席管理权限');\n    if(previousContext&&previousContext!==pageContext){filters.skills={keyword:'',status:'全部状态'};pages.skills=1;skillScope={physicalGroupId:'',tenantId:''};}\n    if(view==='skills'){\n      const next={physicalGroupId:options?.physicalGroupId||'',tenantId:options?.tenantId||''};\n      if(next.physicalGroupId&&!next.tenantId)next.tenantId=CloudCallData.physicalSkillGroups.find(g=>g.physicalGroupId===next.physicalGroupId)?.tenantId||'';\n      if(next.physicalGroupId!==skillScope.physicalGroupId||next.tenantId!==skillScope.tenantId){filters.skills={keyword:'',status:'全部状态'};pages.skills=1;}\n      skillScope=next;return renderSkills();\n    }\n    if(view==='sync')return renderSync();return renderAgents();\n  }\n  function mayManage(row){return AppState.get().activeDomain==='CLOUD_CONTACT_CENTER'&&AppState.canMenu('agents.manage')&&AppState.authorizeObject('',row);}\n  function contextKey(){const s=AppState.get();return [s.accountId,s.sessionId,s.tenantId,s.enterpriseId,s.activeDomain,s.roleCode].join('|');}",
+              "evidence_role": "exported_render_delegate_and_original_guards"
+            },
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+              "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+              "line_start": 346,
+              "line_end": 346,
+              "source_quote": "  window.Pages=window.Pages||{};window.Pages['agent-center']={render,captureNavigationState,restoreNavigationState,init(){},openSingle,renderNewAgentSkills,createSingle,buildAgent,openPhoneConfig,closePhoneConfig,savePhoneConfig,filterAssignGroups,updateSkillSelection,openAgent,openJoinedGroup,backToGroup,disable,restore,remove,openSkillAssign,saveSkill,submitPendingSkills,changeLevel,openSkillRepair,saveSkillRepair,unassign,retry,openSyncRecord,query,resetFilters,setPage,refresh};",
+              "evidence_role": "same_owner_static_exports"
+            }
+          ]
+        },
+        {
+          "step": 4,
+          "meaning": "renderAgents只取原授权scope内未删除坐席并筛选，返回包含shell(agents,rows,字面量columns数组,...)的模板；列key=contactCenterIdentityId的render(v,r)产生查看按钮，v即该行坐席身份ID",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+            "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+            "line_start": 34,
+            "line_end": 36,
+            "source_quote": "  function renderAgents(){const current=filters.agents,keyword=current.keyword.toLowerCase();const rows=scoped(CloudCallData.agents).filter(row=>row.lifecycleStatus!=='已删除').map(listFields).filter(row=>(!keyword||`${row.userName} ${row.cno || ''} ${row.mobile}`.toLowerCase().includes(keyword))&&(current.status==='全部状态'||activeLabel(row.active)===current.status));return `<section class=\"platform-page agent-page\">${ui.pageHeader('坐席维护','管理坐席、软电话分机、技能和启停；平台账号可在账号管理中关联坐席。')}${BusinessIssues.section('坐席创建')}${filterPanel('agents','坐席姓名 / 手机号')}${shell('agents',rows,[\n    {key:'userName',label:'坐席',render:(v,r)=>`<button class=\"table-link\" onclick=\"window.Pages['agent-center'].openAgent('${r.contactCenterIdentityId}')\"><strong>${esc(v)}</strong><small>${esc(r.mobile||'未填写手机号')}</small></button>`},{key:'tenantId',label:'所属租户',render:v=>esc(tenantName(v))},{key:'softphoneExtension',label:'软电话分机号',render:(v,r)=>esc(phoneLabel(r))},{key:'state',label:'话务状态',render:v=>ui.status(v)},{key:'active',label:'启用状态',render:v=>ui.status(activeLabel(v))},{key:'contactCenterIdentityId',label:'操作',className:'action-column',render:(v,r)=>`<div class=\"table-actions\"><button onclick=\"window.Pages['agent-center'].openAgent('${v}')\">查看</button>${r.lifecycleStatus==='已删除'?'':`<button onclick=\"${command('openPhoneConfig',v)}\">配置分机</button>`}${r.lifecycleStatus==='已启用'?`<button onclick=\"window.Pages['agent-center'].disable('${v}')\">停用</button>`:(r.lifecycleStatus==='已停用'?`<button onclick=\"window.Pages['agent-center'].restore('${v}')\">恢复</button>`:'')}${r.lifecycleStatus==='已删除'?'':`<button class=\"danger\" onclick=\"window.Pages['agent-center'].remove('${v}')\">删除</button>`}</div>`}\n  ],'<button class=\"btn\" onclick=\"window.Pages[\\'agent-center\\'].openSingle()\">新增坐席</button><button class=\"btn\" onclick=\"AliCtiSeatImport.open(\\'existing\\')\">从 AliCti 同步坐席</button><button class=\"btn\" onclick=\"AliCtiSeatImport.open(\\'batch\\')\">批量新增</button>','坐席归属当前租户；在账号管理选择现有坐席或新建并关联，完成技能配置后可进入坐席工作台。')}</section>`;}",
+            "evidence_role": "literal_column_renderer_actual_click_control"
+          }
+        },
+        {
+          "step": 5,
+          "meaning": "同词法scope的shell把columns参数原样传ui.table第0参数，把当前分页rows传第1参数，并返回完整列表HTML",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+            "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+            "line_start": 23,
+            "line_end": 23,
+            "source_quote": "  function shell(key,rows,columns,primary,help){rows=ui.sortByUpdated?.(rows,['supplierAgentSnapshot.updateTime','supplierAgentSnapshot.createTime'])||rows;pages[key]=Math.max(1,Math.min(pages[key],Math.ceil(rows.length/pageSize)||1));const start=(pages[key]-1)*pageSize;return `<div class=\"management-list-shell\">${ui.toolbar(primary,`<button class=\"btn\" onclick=\"window.Pages['agent-center'].refresh('${key}')\">刷新</button>${ui.help(help)}`)}${ui.table(columns,rows.slice(start,start+pageSize),{emptyText:'没有符合条件的数据',rowOffset:start})}${ui.pagination(rows.length,pages[key],pageSize,`window.Pages['agent-center'].setPage.bind(null,'${key}')`)}</div>`;}",
+            "evidence_role": "named_return_wrapper_with_columns_forwarding"
+          }
+        },
+        {
+          "step": 6,
+          "meaning": "原PlatformUI.table实际在rows.map/columns.map中调用col.render(row[col.key],row)，拼入td/body并返回表格；prepend序号不改变原col.render。这里只证明条件性源码输出链，不执行JS",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/platform-ui.js",
+            "source_sha256": "5cbfaa8eb6080c5d613bce26b069daa00620e1bfd9e15dbe2470e85aad4802a2",
+            "line_start": 216,
+            "line_end": 226,
+            "source_quote": "  function table(columns, rows, options) {\n    const opts = options || {};\n    // 云呼叫列表统一编号；数据副本保留调用方对象，现有序号列沿用页面规则。\n    if(window.AppState?.get().activeDomain==='CLOUD_CONTACT_CENTER'&&opts.numbered!==false&&!columns.some(col=>col.label==='序号')){\n      const offset=Number(opts.rowOffset)||0;\n      columns=[{key:'__listSequence',label:'序号',width:'64px'},...columns];\n      rows=rows.map((row,index)=>({...row,__listSequence:offset+index+1}));\n    }\n    const head = columns.map(col => `<th class=\"${escape(col.className || '')}\"${col.width ? ` style=\"width:${escape(col.width)}\"` : ''}>${typeof col.headerRender === 'function' ? col.headerRender() : escape(col.label)}${col.help ? help(col.help, col.label) : ''}</th>`).join('');\n    const body = rows.length ? rows.map(row => `<tr>${columns.map(col => `<td class=\"${escape(col.className || '')}\">${col.render ? col.render(row[col.key], row) : escape(row[col.key] == null ? '—' : ['callType','type','method'].includes(col.key) ? callTypeLabel(row[col.key]) : row[col.key])}</td>`).join('')}</tr>`).join('') : `<tr><td colspan=\"${columns.length}\">${empty(opts.emptyText || '暂无数据', opts.emptyDetail)}</td></tr>`;\n    return `<div class=\"table-card ${escape(opts.className || '')}\"><div class=\"table-scroll\"><table class=\"platform-table\"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>${opts.footer || ''}</div>`;",
+            "evidence_role": "actual_table_callback_contract_and_return"
+          }
+        },
+        {
+          "step": 7,
+          "meaning": "点击精确window.Pages[agent-center].openAgent(v)，静态export绑定唯一openAgent实现；target由agentByIdentity(id)从CloudCallData.agents精确查找，mayManage重核原Cloud域/agents.manage/authorizeObject",
+          "evidence": [
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+              "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+              "line_start": 11,
+              "line_end": 12,
+              "source_quote": "  function agentByIdentity(id){return CloudCallData.agents.find(x=>x.contactCenterIdentityId===id);}\n  const command=(method,...args)=>esc(`window.Pages['agent-center'].${method}(${args.map(value=>JSON.stringify(value)).join(',')})`);",
+              "evidence_role": "exact_agent_identity_lookup"
+            },
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+              "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+              "line_start": 72,
+              "line_end": 74,
+              "source_quote": "  function mayManage(row){return AppState.get().activeDomain==='CLOUD_CONTACT_CENTER'&&AppState.canMenu('agents.manage')&&AppState.authorizeObject('',row);}\n  function contextKey(){const s=AppState.get();return [s.accountId,s.sessionId,s.tenantId,s.enterpriseId,s.activeDomain,s.roleCode].join('|');}\n  let createContext='', retrySyncId='', createRequestId='', creating=false;",
+              "evidence_role": "original_operation_qualification"
+            },
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+              "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+              "line_start": 133,
+              "line_end": 136,
+              "source_quote": "  function openAgent(id){\n    const row=agentByIdentity(id);if(!row||!mayManage(row))return;agentDetail={id,context:contextKey()};\n    let relations=CloudCallData.agentSkills.filter(r=>r.identityId===id).map(r=>({...r,group:CloudCallData.physicalSkillGroups.find(g=>g.physicalGroupId===r.physicalGroupId)})).filter(r=>r.group&&r.group.tenantId===row.tenantId&&r.group.enterpriseId===row.enterpriseId&&AppState.authorizeObject('',r.group));\n    relations=ui.sortByUpdated?.(relations)||relations;",
+              "evidence_role": "exact_detail_object_and_guard"
+            }
+          ]
+        },
+        {
+          "step": 8,
+          "meaning": "以准确坐席为对象显示手机号/租户/工号/区号/分机/接新任务及有权技能关系，ui.openLayer(agent-detail,...)形成可见本地详情；这不是供应商执行、写入、全页授权或生产已验证",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+            "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+            "line_start": 133,
+            "line_end": 149,
+            "source_quote": "  function openAgent(id){\n    const row=agentByIdentity(id);if(!row||!mayManage(row))return;agentDetail={id,context:contextKey()};\n    let relations=CloudCallData.agentSkills.filter(r=>r.identityId===id).map(r=>({...r,group:CloudCallData.physicalSkillGroups.find(g=>g.physicalGroupId===r.physicalGroupId)})).filter(r=>r.group&&r.group.tenantId===row.tenantId&&r.group.enterpriseId===row.enterpriseId&&AppState.authorizeObject('',r.group));\n    relations=ui.sortByUpdated?.(relations)||relations;\n    const basic=`<dl class=\"detail-grid\"><dt>手机号</dt><dd>${esc(row.mobile||'—')}</dd><dt>所属租户</dt><dd>${esc(tenantName(row.tenantId))}</dd><dt>坐席工号</dt><dd>${esc(row.cno)}</dd><dt>区号</dt><dd>${esc(row.areaCode||'尚未取得')}</dd><dt>软电话分机号</dt><dd><span id=\"agent-softphone-value\">${esc(phoneLabel(row))}</span>${row.lifecycleStatus==='已删除'?'':` <button class=\"btn-link\" onclick=\"${command('openPhoneConfig',id)}\">配置分机</button>`}</dd><dt>接收新任务</dt><dd>${row.acceptNewTasks?'允许':'禁止'}</dd></dl>`;\n    const groups=relations.map(r=>{\n      const g=r.group,reasons=[];\n      if(r.status!=='已生效'||r.syncStatus!=='同步成功')reasons.push('成员配置尚未生效');\n      if(g.status!=='已启用')reasons.push('技能未启用');\n      if(row.lifecycleStatus!=='已启用'||row.acceptNewTasks===false)reasons.push('坐席未启用或不接收新任务');\n      if(row.syncStatus!=='同步成功')reasons.push('坐席配置尚未成功');\n      if(!row.callEnabled)reasons.push('坐席电话能力未启用');\n      return `<section class=\"detail-section\"><div class=\"detail-section-head\"><h3><button class=\"table-link\" onclick=\"window.Pages['agent-center'].openJoinedGroup('${esc(g.physicalGroupId)}')\">${esc(g.name)}</button></h3><span>等级 ${esc(r.skillLevel)} · ${esc(r.status)}</span></div>${reasons.length?`<div class=\"detail-section-body\"><p class=\"rr-muted\">${reasons.map(esc).join('；')}</p></div>`:''}</section>`;\n    }).join('')||ui.empty('暂未分配技能，可随时配置');\n    const layerDetail={...agentDetail};\n    ui.openLayer('agent-detail',`<div class=\"layer-header\"><div><h2>${esc(row.userName)}</h2><p>${esc(activeLabel(listFields(row).active))} · ${esc(listFields(row).state)}</p></div><button onclick=\"PlatformUI.closeLayer('agent-detail')\">×</button></div><div class=\"layer-body\">${ui.detailSection('基本信息',basic)}${row.currentCall?ui.alert('warning','当前正在通话','可添加新技能并保存为待提交；停用、修改已有技能及提交新增技能须等待通话结束、完成话后处理并下线。'):''}${row.lifecycleStatus==='已启用'?`<p><button class=\"btn\" onclick=\"window.Pages['agent-center'].openSkillAssign('${esc(id)}')\">配置技能</button></p>`:''}${ui.detailSection('已加入技能',groups)}</div><div class=\"layer-footer\"><button class=\"btn\" onclick=\"PlatformUI.closeLayer('agent-detail')\">关闭</button></div>`,'wide',{objectKey:id,onRestore(){agentDetail={...layerDetail};}});\n  }",
+            "evidence_role": "visible_local_detail_result"
+          }
+        }
+      ],
+      "current_cached_proof": {
+        "file": "/tmp/v200_reference_canonical_proposals_final.json",
+        "candidate_key": "cloud-seat-detail",
+        "scope_status": "audit_accepts_current_prototype_retained_scope_not_production",
+        "proof_kind": "source_chain/bounded-static-chain@1",
+        "error": [
+          "Bounded source-chain proof pending: UI entry lacks exact real event in supported render/layer/toolbar template grammar"
+        ]
+      },
+      "minimal_existing_format_attempt": {
+        "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+        "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+        "line_start": 133,
+        "line_end": 133,
+        "source_quote": "  function openAgent(id){",
+        "source_refs": [
+          "inputs/source-index.json#SRC-2100",
+          "inputs/source-index.json#SRC-2102"
+        ],
+        "candidate_key": "cloud-seat-detail",
+        "candidate_source_pointer": "/source_evidence/0",
+        "business_trigger": "原有权人员从实际入口发起“查看详情坐席”，并在原对象/状态范围内提交或查看",
+        "rationale": "原route/列回调实际存在；本最小提案只尝试现行静态格式，未执行源JS，未推定权限或生产。",
+        "target_symbol": "openAgent",
+        "target_callee": "openAgent",
+        "trigger_kind": "source_chain",
+        "source_chain": {
+          "version": "bounded-static-chain@1",
+          "entry": {
+            "kind": "template_event",
+            "callee": "window.Pages[\"agent-center\"].openAgent",
+            "event": "click",
+            "evidence": {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+              "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+              "line_start": 35,
+              "line_end": 35,
+              "source_quote": "    {key:'userName',label:'坐席',render:(v,r)=>`<button class=\"table-link\" onclick=\"window.Pages['agent-center'].openAgent('${r.contactCenterIdentityId}')\"><strong>${esc(v)}</strong><small>${esc(r.mobile||'未填写手机号')}</small></button>`},{key:'tenantId',label:'所属租户',render:v=>esc(tenantName(v))},{key:'softphoneExtension',label:'软电话分机号',render:(v,r)=>esc(phoneLabel(r))},{key:'state',label:'话务状态',render:v=>ui.status(v)},{key:'active',label:'启用状态',render:v=>ui.status(activeLabel(v))},{key:'contactCenterIdentityId',label:'操作',className:'action-column',render:(v,r)=>`<div class=\"table-actions\"><button onclick=\"window.Pages['agent-center'].openAgent('${v}')\">查看</button>${r.lifecycleStatus==='已删除'?'':`<button onclick=\"${command('openPhoneConfig',v)}\">配置分机</button>`}${r.lifecycleStatus==='已启用'?`<button onclick=\"window.Pages['agent-center'].disable('${v}')\">停用</button>`:(r.lifecycleStatus==='已停用'?`<button onclick=\"window.Pages['agent-center'].restore('${v}')\">恢复</button>`:'')}${r.lifecycleStatus==='已删除'?'':`<button class=\"danger\" onclick=\"window.Pages['agent-center'].remove('${v}')\">删除</button>`}</div>`}",
+              "source_refs": [
+                "inputs/source-index.json#SRC-2100",
+                "inputs/source-index.json#SRC-2102"
+              ]
+            },
+            "ui_alias_evidence": {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+              "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+              "line_start": 3,
+              "line_end": 3,
+              "source_quote": "  'use strict'; const ui=PlatformUI,esc=ui.escape; let view='agents',pageContext='',skillScope={physicalGroupId:'',tenantId:''},agentDetail=null;",
+              "source_refs": [
+                "inputs/source-index.json#SRC-2100",
+                "inputs/source-index.json#SRC-2102"
+              ]
+            }
+          },
+          "links": [
+            {
+              "kind": "static_owner_export",
+              "callee": "window.Pages[\"agent-center\"].openAgent",
+              "symbol": "openAgent",
+              "evidence": {
+                "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+                "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+                "line_start": 346,
+                "line_end": 346,
+                "source_quote": "  window.Pages=window.Pages||{};window.Pages['agent-center']={render,captureNavigationState,restoreNavigationState,init(){},openSingle,renderNewAgentSkills,createSingle,buildAgent,openPhoneConfig,closePhoneConfig,savePhoneConfig,filterAssignGroups,updateSkillSelection,openAgent,openJoinedGroup,backToGroup,disable,restore,remove,openSkillAssign,saveSkill,submitPendingSkills,changeLevel,openSkillRepair,saveSkillRepair,unassign,retry,openSyncRecord,query,resetFilters,setPage,refresh};",
+                "source_refs": [
+                  "inputs/source-index.json#SRC-2100",
+                  "inputs/source-index.json#SRC-2102"
+                ]
+              }
+            }
+          ],
+          "terminal": {
+            "symbol": "openAgent",
+            "evidence": {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/agent-center.js",
+              "source_sha256": "e13e5d1a57ea6831f71f8eca7b0df1999473ae9b832c3cf42e1fb6699bb1441e",
+              "line_start": 133,
+              "line_end": 149,
+              "source_quote": "  function openAgent(id){\n    const row=agentByIdentity(id);if(!row||!mayManage(row))return;agentDetail={id,context:contextKey()};\n    let relations=CloudCallData.agentSkills.filter(r=>r.identityId===id).map(r=>({...r,group:CloudCallData.physicalSkillGroups.find(g=>g.physicalGroupId===r.physicalGroupId)})).filter(r=>r.group&&r.group.tenantId===row.tenantId&&r.group.enterpriseId===row.enterpriseId&&AppState.authorizeObject('',r.group));\n    relations=ui.sortByUpdated?.(relations)||relations;\n    const basic=`<dl class=\"detail-grid\"><dt>手机号</dt><dd>${esc(row.mobile||'—')}</dd><dt>所属租户</dt><dd>${esc(tenantName(row.tenantId))}</dd><dt>坐席工号</dt><dd>${esc(row.cno)}</dd><dt>区号</dt><dd>${esc(row.areaCode||'尚未取得')}</dd><dt>软电话分机号</dt><dd><span id=\"agent-softphone-value\">${esc(phoneLabel(row))}</span>${row.lifecycleStatus==='已删除'?'':` <button class=\"btn-link\" onclick=\"${command('openPhoneConfig',id)}\">配置分机</button>`}</dd><dt>接收新任务</dt><dd>${row.acceptNewTasks?'允许':'禁止'}</dd></dl>`;\n    const groups=relations.map(r=>{\n      const g=r.group,reasons=[];\n      if(r.status!=='已生效'||r.syncStatus!=='同步成功')reasons.push('成员配置尚未生效');\n      if(g.status!=='已启用')reasons.push('技能未启用');\n      if(row.lifecycleStatus!=='已启用'||row.acceptNewTasks===false)reasons.push('坐席未启用或不接收新任务');\n      if(row.syncStatus!=='同步成功')reasons.push('坐席配置尚未成功');\n      if(!row.callEnabled)reasons.push('坐席电话能力未启用');\n      return `<section class=\"detail-section\"><div class=\"detail-section-head\"><h3><button class=\"table-link\" onclick=\"window.Pages['agent-center'].openJoinedGroup('${esc(g.physicalGroupId)}')\">${esc(g.name)}</button></h3><span>等级 ${esc(r.skillLevel)} · ${esc(r.status)}</span></div>${reasons.length?`<div class=\"detail-section-body\"><p class=\"rr-muted\">${reasons.map(esc).join('；')}</p></div>`:''}</section>`;\n    }).join('')||ui.empty('暂未分配技能，可随时配置');\n    const layerDetail={...agentDetail};\n    ui.openLayer('agent-detail',`<div class=\"layer-header\"><div><h2>${esc(row.userName)}</h2><p>${esc(activeLabel(listFields(row).active))} · ${esc(listFields(row).state)}</p></div><button onclick=\"PlatformUI.closeLayer('agent-detail')\">×</button></div><div class=\"layer-body\">${ui.detailSection('基本信息',basic)}${row.currentCall?ui.alert('warning','当前正在通话','可添加新技能并保存为待提交；停用、修改已有技能及提交新增技能须等待通话结束、完成话后处理并下线。'):''}${row.lifecycleStatus==='已启用'?`<p><button class=\"btn\" onclick=\"window.Pages['agent-center'].openSkillAssign('${esc(id)}')\">配置技能</button></p>`:''}${ui.detailSection('已加入技能',groups)}</div><div class=\"layer-footer\"><button class=\"btn\" onclick=\"PlatformUI.closeLayer('agent-detail')\">关闭</button></div>`,'wide',{objectKey:id,onRestore(){agentDetail={...layerDetail};}});\n  }",
+              "source_refs": [
+                "inputs/source-index.json#SRC-2100",
+                "inputs/source-index.json#SRC-2102"
+              ]
+            }
+          }
+        }
+      },
+      "single_item_original_StrictReview": {
+        "method": "StrictReview.evidence(canonical_key, record); original modules, validate_feature_bodies=False; no tool modifications/monkeypatches",
+        "errors": [
+          "Bounded source-chain proof pending: UI entry lacks exact real event in supported render/layer/toolbar template grammar"
+        ],
+        "passed": false,
+        "only_this_candidate_checked": true,
+        "script": "/tmp/v200_dynamic_representative_probe.py",
+        "script_sha256": "10f30390007adfcd52bf9832474eebb240875e9e354f556ee031ebe1d41d8f0d"
+      },
+      "lexical_diagnosis": {
+        "static_owner_export_unique_and_valid": true,
+        "exact_real_event_templates_matched": [
+          {
+            "line_start": 35,
+            "matching_handlers": [
+              {
+                "event": "click",
+                "handler": "window.Pages['agent-center'].openAgent('__SOURCE_CHAIN_EXPR_0__')"
+              }
+            ],
+            "enclosing_callback_symbol": "renderAgents",
+            "callback_parent_symbol": null,
+            "supported_template_context": null
+          },
+          {
+            "line_start": 35,
+            "matching_handlers": [
+              {
+                "event": "click",
+                "handler": "window.Pages['agent-center'].openAgent('__SOURCE_CHAIN_EXPR_0__')"
+              }
+            ],
+            "enclosing_callback_symbol": "renderAgents",
+            "callback_parent_symbol": null,
+            "supported_template_context": null
+          }
+        ],
+        "matched_actual_handler_templates_count": 2,
+        "exact_rejection_condition": "ChainReview.supported_template_context returns None for both exact openAgent templates; entry has no hits and raises the recorded error. The callbacks are not a direct exported-render return template, layer content, or toolbar template.",
+        "rejection_evidence": [
+          {
+            "file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/bounded_source_chain.py",
+            "source_sha256": "07964f4dbc0e07afd8e9c163ed57925932a1a6903fe9930d11abd459cc028fe2",
+            "line_start": 484,
+            "line_end": 504,
+            "source_quote": "    def supported_template_context(self,e,template,ui_alias,parent,export_props,allow_layer=True):\n        # Only an exported render return, or a registered real layer sink with\n        # a separately proven render opening control. Arbitrary returned\n        # strings/unused helpers are not user-entry proofs.\n        for ts in e.model.lists:\n            if template not in ts:continue\n            i=ts.index(template)\n            if i and ts[i-1].value=='return':\n                fn=e.model.enclosing_function(template.start)\n                if fn and fn.symbol=='render' and fn.parent is parent and export_props.get('render')=='render':return ('render',fn)\n            for call in e.model.calls:\n                if call.tokens is not ts:continue\n                if allow_layer and call.path in {('PlatformUI','openLayer'),('window','PlatformUI','openLayer'),((ui_alias or '__none__'),'openLayer')} and len(call.args)>=2 and call.args[1]==[template]:\n                    self.real_ui_owner(e.model,call.path,call.start)\n                    return ('layer',call)\n                if call.path in {('PlatformUI','toolbar'),('window','PlatformUI','toolbar'),((ui_alias or '__none__'),'toolbar')} and any(arg==[template] for arg in call.args):\n                    self.real_ui_owner(e.model,call.path,call.start)\n                    outer=template.parent_template\n                    if outer is not None:\n                        return self.supported_template_context(e,outer,ui_alias,parent,export_props,allow_layer=allow_layer)\n        return None",
+            "evidence_role": "supported_context_finite_grammar"
+          },
+          {
+            "file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/bounded_source_chain.py",
+            "source_sha256": "07964f4dbc0e07afd8e9c163ed57925932a1a6903fe9930d11abd459cc028fe2",
+            "line_start": 546,
+            "line_end": 578,
+            "source_quote": "                    if alias:self.no_shadow(e.model,alias,parent,[token.start])\n                    return True\n        raise Unsupported('Layer has no exact opening control in the exported render template')\n\n    def entry(self,entry,owner_binding):\n        if entry.get('kind')!='template_event' or entry.get('event') not in EVENTS:raise Unsupported('Source-chain entry must be a supported actual UI template event')\n        e=self.evidence(entry.get('evidence'));callee=normalized_callee(entry.get('callee'))\n        if not callee:raise Unsupported('Source-chain entry needs an exact static callee')\n        fn,parent,props,_=owner_binding\n        helper=self.helper(self.evidence(entry['handler_helper_evidence']),entry.get('helper_call')) if 'handler_helper_evidence' in entry else None\n        if helper and (helper['model'] is not e.model or helper['parent'] is not parent):raise Unsupported('UI helper is outside the exact source lexical scope')\n        alias=None\n        if 'ui_alias_evidence' in entry:\n            a=self.evidence(entry['ui_alias_evidence'])\n            if a.model is not e.model:raise Unsupported('UI sink alias is from a different source file')\n            alias=self.alias(a,'ui',parent)\n        hits=[]\n        for ts in e.model.lists:\n            for t in ts:\n                if t.kind!='template' or not e.contains(t):continue\n                html,exprs=template_markup(t);parser=HandlerParser()\n                try:parser.feed(html);parser.close()\n                except Exception:continue\n                if not any(ev==entry['event'] and exact_handler(h,callee,exprs,helper) for ev,h in parser.handlers):continue\n                context=self.supported_template_context(e,t,alias,parent,props)\n                if context:\n                    if context[0]=='layer':self.layer_opening(entry,e,callee,context[1],parent,props,alias)\n                    if alias:self.no_shadow(e.model,alias,parent,[t.start])\n                    if helper:self.no_shadow(e.model,helper['name'],parent,[t.start])\n                    hits.append(t)\n        if not hits:raise Unsupported('UI entry lacks exact real event in supported render/layer/toolbar template grammar')\n        return e,callee\n    def validate(self):",
+            "evidence_role": "entry_requires_exact_handler_plus_supported_render_context"
+          }
+        ],
+        "why_extra_source_chain_links_cannot_fix_it": "当前links位于实际UI event之后，只描述该handler实现的调用/owner绑定；UI必须先通过entry。把renderAgents/shell/table的渲染前参数数据流伪装成事件后callsite既不连通，也改变实际执行链。",
+        "other_current_kinds_not_valid_escape": [
+          "裸operation_callsite在源中不存在对应单独openAgent(...)调用；表格onclick字符串不是实际JS调用语句。",
+          "ui_control直接模式也必须证明真实UI sink/owner，不能把function声明或未渲染的字符串当调用。"
+        ]
+      },
+      "verifier_identity": {
+        "bounded_source_chain.py": {
+          "file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/bounded_source_chain.py",
+          "sha256": "07964f4dbc0e07afd8e9c163ed57925932a1a6903fe9930d11abd459cc028fe2"
+        },
+        "operation_attribution.py": {
+          "file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/operation_attribution.py",
+          "sha256": "c760a7dbfa9279f3e51bd4906345ec6da30b792627feb2a9f94b71d3799b3e51"
+        }
+      },
+      "minimal_tool_change_proposal": {
+        "implemented": false,
+        "target_file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/bounded_source_chain.py",
+        "target_functions": [
+          "ChainReview.supported_template_context",
+          "ChainReview.entry: optional structured render provenance validation"
+        ],
+        "minimal_supported_addition": "仅增加“字面量table列render模板 → 同scope命名返回wrapper至PlatformUI.table → 已导出render的命名helper返回委托”这一有限渲染来源语法；保原template_event和事件后links校验，不把任意回调/返回字符串当UI入口。",
+        "proposed_entry_metadata": {
+          "kind": "template_event",
+          "callee": "window.Pages[\"agent-center\"].openAgent",
+          "event": "click",
+          "render_provenance": {
+            "version": "bounded-table-return@1",
+            "route_key": "agent-maintenance",
+            "route_page": "agent-center",
+            "route_view": "agents",
+            "exported_render_symbol": "render",
+            "render_delegate_symbol": "renderAgents",
+            "delegate_reachability": "conditional_only: original guards pass and view is agents",
+            "column_key_literal": "contactCenterIdentityId",
+            "column_renderer_kind": "literal_object_render_arrow",
+            "wrapper_symbol": "shell",
+            "wrapper_columns_parameter": "columns",
+            "wrapper_columns_argument_index": 2,
+            "wrapper_rows_parameter": "rows",
+            "wrapper_rows_argument_index": 1,
+            "table_sink_callee": "PlatformUI.table",
+            "table_columns_argument_index": 0,
+            "table_rows_argument_index": 1,
+            "exact_event_target_symbol": "openAgent"
+          }
+        },
+        "finite_validation_requirements": [
+          "entry当前原型实际route/page/render静态注册必须有SHA/精确quote；route.view=agents及原render守卫仅保条件可达，不声称权限已获准或实际执行。",
+          "在对应真实返回模板的shell调用中只接受唯一字面量columns数组，精确选择唯一静态key=contactCenterIdentityId对象的render箭头模板；保原callee/事件的exact_handler比对。",
+          "shell须同scope唯一命名实现，columns形参位置与实际字面量数组绑定；仅接受其已返回模板中真实PlatformUI.table(columns,...)的同一参数转送，禁止别名重绑定、columns写入或未知变换。",
+          "真实PlatformUI.table及const ui=PlatformUI身份要绑定；标准table实现按原源码调用该col.render并把结果放td/body返回，不因同名方法、仅存在render属性或字符串含onclick即接受。",
+          "renderAgents返回该wrapper结果的模板必须由同owner已导出render在原view分支直接return委托；不能只证明某辅助函数有return字符串。",
+          "延用原静态owner唯一export/目标属性不被重写、精确candidate终点、源码SHA/quote/registered refs和遮蔽检查；不得用新渲染来源分支抹掉现有拒绝。",
+          "本最小模式不支持任意helper生成onclick、动态owner/方法、任意columns变量、spread列对象、任意回调执行或跨文件业务调用；这些各自继续pending。"
+        ],
+        "why_not_just_add_table_to_sink_allowlist": "ui.table调用接收的是wrapper形参columns，真实控件在上游列回调内，且根render委托renderAgents；只添table名会同时漏掉参数绑定与返回可达关系，并可能放过未使用列/死字符串。",
+        "counterexample_plan": [
+          {
+            "case": "positive_exact_representative",
+            "expected": "pass_after_only_this_extension",
+            "fixture": "保当前源SHA/route/renderAgents/shell/col.render/openAgent原链，不执行源JS。"
+          },
+          {
+            "case": "unused_column_literal",
+            "expected": "reject",
+            "fixture": "相同onclick列存在但未传入任何真实table sink。"
+          },
+          {
+            "case": "unused_named_render_helper",
+            "expected": "reject",
+            "fixture": "renderAgents存在完整表格字符串，但已导出render从不委托它。"
+          },
+          {
+            "case": "unreturned_table_result",
+            "expected": "reject",
+            "fixture": "wrapper调table却返回其他字符串，或table结果从未拼入render结果。"
+          },
+          {
+            "case": "wrong_wrapper_argument_slot",
+            "expected": "reject",
+            "fixture": "proof称columns=第2参数，实际table收到另一个形参/数组。"
+          },
+          {
+            "case": "column_renderer_rewrite",
+            "expected": "reject",
+            "fixture": "进入table前columns目标列render被赋为其他函数、动态computed/spread来源或delete。"
+          },
+          {
+            "case": "shadowed_or_fake_ui",
+            "expected": "reject",
+            "fixture": "局部ui/PlatformUI/table被重绑或同名假table仅缓存不渲染回调。"
+          },
+          {
+            "case": "wrong_callback_or_owner_method",
+            "expected": "reject",
+            "fixture": "真实按钮调用另一个owner/属性，proof仍声称openAgent。"
+          },
+          {
+            "case": "quoted_text_or_comment_only",
+            "expected": "reject",
+            "fixture": "onclick只在注释/转义文本/未使用字符串内，不是表格回调实际HTML event。"
+          },
+          {
+            "case": "wrong_route_view_branch",
+            "expected": "reject",
+            "fixture": "proof用agents路由却只证skills或sync分支，未保正确分支的条件可达。"
+          },
+          {
+            "case": "target_export_or_symbol_rebound",
+            "expected": "reject",
+            "fixture": "owner属性/实现被重写、重复同名绑定、局部shadow；保现有校验。"
+          },
+          {
+            "case": "SHA_quote_candidate_mismatch",
+            "expected": "reject",
+            "fixture": "源文件/证据quote/候选SHA或target终点任一不符。"
+          },
+          {
+            "case": "guard_not_authority",
+            "expected": "preserve_condition_only",
+            "fixture": "用户无原权限或rows为空时不要求渲染；通过只证明原条件链，不能从schema得到新权限/真实执行成功。"
+          }
+        ],
+        "no_tool_code_written": true,
+        "no_negative_fixture_written_or_run": true
+      },
+      "exact_source_pattern_candidate_set": [
+        {
+          "candidate_key": "cloud-seat-detail",
+          "event": "click",
+          "handler": "window.Pages[agent-center].openAgent",
+          "route": "agent-maintenance/view=agents",
+          "source_line": 35,
+          "same_syntax_status": "this_representative_exact_chain_verified_static_and_rejected_by_current_grammar"
+        },
+        {
+          "candidate_key": "cloud-agent-skill-level",
+          "event": "change",
+          "handler": "window.Pages[agent-center].changeLevel",
+          "route": "agent-skills/view=skills",
+          "source_line": 46,
+          "same_syntax_status": "exact_same_return_wrapper_and_direct_column_event_source_form; not_StrictReview_run_here"
+        },
+        {
+          "candidate_key": "cloud-agent-skill-unassign",
+          "event": "click",
+          "handler": "window.Pages[agent-center].unassign",
+          "route": "agent-skills/view=skills",
+          "source_line": 46,
+          "same_syntax_status": "exact_same_return_wrapper_and_direct_column_event_source_form; not_StrictReview_run_here"
+        }
+      ],
+      "applicability_limits": {
+        "current_format_passed_candidate_set": [],
+        "same_syntax_next_validation_candidate_keys": [
+          "cloud-seat-detail",
+          "cloud-agent-skill-level",
+          "cloud-agent-skill-unassign"
+        ],
+        "only_representative_executed_in_StrictReview": [
+          "cloud-seat-detail"
+        ],
+        "no_automatic_extension_to": [
+          "cloud-seat-phone-config: command helper wraps the generated event and needs separate helper grammar",
+          "cloud-seat-disable/cloud-seat-restore/cloud-seat-delete: conditional nested templates need separately bound conditional fragment provenance",
+          "cloud-agent-skill-submit-pending: conditional nested template branch, not the direct event above",
+          "other_resource_modules: different wrappers/inline tables/helpers not checked in this representative run"
+        ]
+      },
+      "product_and_engineering_boundary": [
+        "该拒绝是有限证明语法不支持已有真实入口链，不推翻用户已选定原型存量范围，也不把产品范围改回未知。",
+        "没有把本地详情显示当供应商执行/生产、原权限已核或本版新增CRUD；当前源和正式候选保持不变。",
+        "旧目录FUNC2018的实体/AI关系桥接缺证是另一问题，本诊断不归入工具语法或扩大本轮范围。"
+      ],
+      "formal_write_owner": "root_only"
+    },
+    "shared_call": {
+      "schema_version": "v200-S7-shared-representative-diagnosis@1",
+      "reviewed_at": "2026-10-24T09:13:17.892050+00:00",
+      "scope": "One representative only; read-only project/skill/source/candidate; output only this /tmp JSON; no JS/browser/services/full103 rerun.",
+      "candidate_key": "cloud-outbound-group-members",
+      "candidate_sha256": "95be02cd85e0c16e60dbbb801f0b973058b9f315b10994bbae24ac33dcd932e3",
+      "scope_authority": "SRC-2100 selected original reference prototype; not a renewed product-scope question",
+      "selected_actual_source_chain": "navigation→ui.table members control→members kind/context/revision→layer save→save else branch→const api object alias→window.OutboundGroups.setMembers→local transaction/guards/result",
+      "factory_claim": {
+        "is_factory": false,
+        "actual": "const ui = PlatformUI, esc = ui.escape, api = OutboundGroups;",
+        "reason": "No api() factory exists in this representative. Original source and exact callee remain unchanged."
+      },
+      "source_files": {
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/nav.js": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+        "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/index.html": "b0a3b204040c5bed4298a778ea0a77c1fe6dd3d248823c0620ffc22648083543"
+      },
+      "actual_chain": [
+        {
+          "stage": "navigation_entry",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/nav.js",
+            "source_sha256": "995ec5cd8d6bdb8200b44af10f3e75ab9e752835eb28dcc023ed0582e834297b",
+            "line_start": 35,
+            "line_end": 41,
+            "source_quote": "    { key: 'agents', label: '坐席与技能', icon: '席', domain: 'CLOUD_CONTACT_CENTER', children: [\n      { key: 'agent-maintenance', page: 'agent-center', label: '坐席维护', permission: 'agents.manage', view: 'agents' },\n      { key: 'skill-mappings', page: 'contact-center-settings', label: '技能管理', permission: 'settings.skills', view: 'skill-mappings' },\n      { key: 'outbound-group-management', page: 'outbound-group-management', label: '外呼组管理', permission: 'agents.manage' },\n      { key: 'queue-management', page: 'queue-management', label: '队列管理', icon: '队', domain: 'CLOUD_CONTACT_CENTER', permission: 'settings.queues' },\n      { key: 'sync-records', page: 'agent-center', label: '配置记录', permission: 'agents.sync', view: 'sync' }\n    ] },",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "原坐席与技能下外呼组管理，原agents.manage权限；菜单可见不代真实操作授权。"
+        },
+        {
+          "stage": "script_binding",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/index.html",
+            "source_sha256": "b0a3b204040c5bed4298a778ea0a77c1fe6dd3d248823c0620ffc22648083543",
+            "line_start": 160,
+            "line_end": 162,
+            "source_quote": "  <script src=\"js/components/queue-detail.js?v=20261016-assignment-c27cbb5353\"></script>\n  <script src=\"js/components/outbound-groups.js?v=20261016-assignment-c76252a627\"></script>\n  <script src=\"js/pages/outbound-group-management.js?v=20261016-assignment-0f82459829\"></script>",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "组件先于页面加载；是现有参考源码，未执行。"
+        },
+        {
+          "stage": "opening_control",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+            "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+            "line_start": 39,
+            "line_end": 45,
+            "source_quote": "          { key: 'outboundGroupId', label: '操作', render: (id, g) => `\n            <div class=\"table-actions\">\n              <button onclick=\"${command('detail', id, listContext)}\">查看</button>\n              <button onclick=\"${command('edit', id, listContext)}\">编辑</button>\n              <button onclick=\"${command('members', id, listContext)}\">维护成员</button>\n              <button class=\"btn-text-danger\" onclick=\"${command('remove', id, listContext)}\">删除</button>\n            </div>`",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "原ui.table操作列的render回调内command literal members生成维护成员onclick。"
+        },
+        {
+          "stage": "helper_and_owner_binding",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+            "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+            "line_start": 7,
+            "line_end": 9,
+            "source_quote": "  const ui = PlatformUI, esc = ui.escape, api = OutboundGroups;\n  let keyword = '', tenantId = '', page = 1, listContext = '', editor = null;\n  const command = (method, ...args) => esc(`OutboundGroupManagement.${method}(${args.map(v => JSON.stringify(v)).join(',')})`);",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "ui=PlatformUI/esc=ui.escape/api=OutboundGroups；command将固定owner+literal method/JSON.stringify参数交esc，不是任意动态目标。"
+        },
+        {
+          "stage": "open_and_capture",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+            "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+            "line_start": 176,
+            "line_end": 188,
+            "source_quote": "  function members(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    const used = api.references(id).filter(t => t.alictiTaskControlPending || !['已完成', '已终止', '已结束', '已删除'].includes(t.status));\n    if (used.length) return showToast('请先结束或删除关联任务后维护成员：' + used.map(t => t.name).join('、'), 'warning');\n\n    editor = { kind: 'members', id, context: api.contextKey(), revision: api.revision() };\n    const candidates = api.candidates(g.tenantId, g.enterpriseId);\n    const ids = new Set(candidates.map(a => a.contactCenterIdentityId));\n    const unavailable = g.memberIdentityIds.filter(mid => !ids.has(mid));\n\n    ui.openLayer('outbound-group-edit', `",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "valid(key)、get原有权对象、拒绝在途/待核任务；editor设kind=members，保context/revision。"
+        },
+        {
+          "stage": "selection_and_save_control",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+            "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+            "line_start": 197,
+            "line_end": 218,
+            "source_quote": "        ${unavailable.length ? ui.alert('warning', '存在不可用成员', '本次保存将自动移除已停用或无法找到的坐席成员。') : ''}\n        <p class=\"field-hint\">勾选加入，取消勾选移出。每位坐席只能属于一个外呼组，选择其他组成员会将其移入当前组。</p>\n        <div class=\"obg-member-list\" style=\"max-height:360px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:8px 0;\">\n          ${candidates.map(a => {\n            const isCurrent = g.memberIdentityIds.includes(a.contactCenterIdentityId);\n            const inOther = a.assignedGroupId && a.assignedGroupId !== g.outboundGroupId;\n            return `\n            <label class=\"obg-member\" style=\"display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #e5e7eb;border-radius:6px;background:${isCurrent ? '#f0fdf4' : '#fff'};cursor:pointer;\">\n              <input type=\"checkbox\" name=\"obg-member\" value=\"${esc(a.contactCenterIdentityId)}\" ${isCurrent ? 'checked' : ''}>\n              <span style=\"flex:1;\">\n                <strong>${esc(a.userName)}</strong>\n                <small style=\"color:#6b7280;display:block;\">工号: ${esc(a.cno)}</small>\n                ${inOther ? `<small style=\"color:#f59e0b;display:block;\">[当前在: ${esc(a.assignedGroupName)}]</small>` : ''}\n              </span>\n            </label>`;\n          }).join('') || ui.empty('当前租户暂无已启用坐席')}\n        </div>\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">取消</button>\n        <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.save()\">保存成员</button>\n      </div>`, 'wide');",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "已启用有权候选checkbox，原排他移入文案及原保存成员按钮；没有新增权限。"
+        },
+        {
+          "stage": "handler_branch",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+            "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+            "line_start": 239,
+            "line_end": 261,
+            "source_quote": "  function save() {\n    const e = editor;\n    if (!e || !valid(e.context)) return denied();\n\n    let result;\n    if (e.kind === 'create') {\n      const tenantSelect = document.getElementById('obg-tenant');\n      const tenantVal = tenantSelect ? (tenantSelect.value || AppState.get().tenantId) : AppState.get().tenantId;\n      result = api.create({\n        name: document.getElementById('obg-name')?.value,\n        gno: document.getElementById('obg-gno')?.value,\n        comment: document.getElementById('obg-comment')?.value,\n        tenantId: tenantVal\n      }, e.context, e.revision);\n    } else if (e.kind === 'edit') {\n      result = api.update(e.id, {\n        name: document.getElementById('obg-name')?.value,\n        comment: document.getElementById('obg-comment')?.value\n      }, e.context, e.revision);\n    } else {\n      const checkedIds = [...document.querySelectorAll('[name=\"obg-member\"]:checked')].map(n => n.value);\n      result = api.setMembers(e.id, checkedIds, e.context, e.revision);\n    }",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "save先核editor/context；create/edit另支；本入口kind=members走else，checkedIds及e.id/context/revision传api.setMembers。"
+        },
+        {
+          "stage": "static_alias_export",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js",
+            "source_sha256": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+            "line_start": 563,
+            "line_end": 568,
+            "source_quote": "  window.OutboundGroups = {\n    forTask, choices, isGroup, taskSource, references, resolve, fields, canReceive, executionError,\n    contextKey, canAccess, canManage, list, get, create, update, deleteGroup, setMembers,\n    assignAgent, unassignAgent, listAssignedAgent, queryAgentGroup, candidates, tenantOptions,\n    generateGno, revision, refresh, storageError: () => errorMessage\n  };",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "window.OutboundGroups静态导出setMembers；页面api是const对象别名，不能伪造factory_owner。"
+        },
+        {
+          "stage": "business_terminal",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js",
+            "source_sha256": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+            "line_start": 350,
+            "line_end": 369,
+            "source_quote": "  function setMembers(outboundGroupIdOrGno, memberIdentityIds, expectedContext, expectedRevision) {\n    if (!validText(outboundGroupIdOrGno)) return failure('请选择要维护的外呼组');\n    return transact(expectedContext, expectedRevision, next => {\n      const group = next.groups.find(g => (g.outboundGroupId === outboundGroupIdOrGno || g.gno === outboundGroupIdOrGno) && inScope(g));\n      if (!group || !inScope(group)) return failure('当前工作范围内找不到该外呼组');\n      const used = references(group.outboundGroupId).filter(t => !['已完成', '已终止', '已结束', '已删除'].includes(t.status) || t.alictiTaskControlPending);\n      if (used.length) return failure('请先结束或删除关联任务后维护成员：' + used.map(t => t.name).join('、'));\n\n      const members = normalizeMembers(Array.isArray(memberIdentityIds) ? memberIdentityIds : [], group.tenantId, group.enterpriseId);\n      if (!members.ok) return members;\n\n      if (group.memberIdentityIds.length === members.value.length && group.memberIdentityIds.every((id, i) => id === members.value[i])) {\n        return { unchanged: true };\n      }\n\n      const moved = moveMembersToGroup(next.groups, group, members.value);\n      const msg = moved > 0 ? `外呼组成员已更新（${moved} 位坐席已自动从原外呼组移入）` : '外呼组成员已更新';\n      return { message: msg, group };\n    });\n  }",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "原范围找组，拒绝在途任务，normalizeMembers，未变化返回，moveMembersToGroup，结果消息。"
+        },
+        {
+          "stage": "original_scope_and_role_guard",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js",
+            "source_sha256": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+            "line_start": 27,
+            "line_end": 42,
+            "source_quote": "\n  function contextKey() {\n    const app = window.AppState, state = app?.get?.() || {}, access = app?.effectiveAccess?.() || {};\n    return JSON.stringify([state.accountId || '', state.sessionId || '', app?.isSuper?.() ? 'SUPER_ADMIN' : access.roleCode || '', state.activeDomain || '', state.enterpriseId || '', state.tenantId || '']);\n  }\n  function canAccess() {\n    const app = window.AppState, state = app?.get?.() || {}, access = app?.effectiveAccess?.() || {};\n    return !!(state.accountId && state.sessionId && validText(state.enterpriseId) && app?.isReady?.() && access.valid &&\n      state.activeDomain === 'CLOUD_CONTACT_CENTER' && app?.hasCapability?.('CLOUD_CONTACT_CENTER') && app?.canMenu?.('agents.manage') && (app.isSuper() || access.roleCode === 'ADMIN'));\n  }\n  function inScope(group) {\n    if (!group) return false;\n    const app = window.AppState, state = app.get();\n    return group.enterpriseId === state.enterpriseId && app.authorizeObject('', group);\n  }\n  function canManage(group) { return canAccess() && inScope(group); }",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "原账号/session/enterprise/ready/access.valid/Cloud模块/agents.manage且super或ADMIN；inScope再核enterprise及authorizeObject。只见本地校验，不证明生产身份/真实权限。"
+        },
+        {
+          "stage": "member_and_exclusion_guard",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js",
+            "source_sha256": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+            "line_start": 135,
+            "line_end": 169,
+            "source_quote": "  function normalizeMembers(ids, tenantId, enterpriseId) {\n    if (!Array.isArray(ids) || ids.length > 1000 || ids.some(id => !validText(id)) || new Set(ids).size !== ids.length) return failure('请选择有效且不重复的成员');\n    for (const id of ids) {\n      const agent = currentAgents().find(a => a.contactCenterIdentityId === id);\n      if (!agent || agent.tenantId !== tenantId || agent.enterpriseId !== enterpriseId || agent.lifecycleStatus !== '已启用' || !AliCtiFields.validExistingCno(agent.cno) ||\n        currentAgents().filter(a => a.enterpriseId === enterpriseId && a.cno === agent.cno).length !== 1) {\n        return failure('成员必须为当前租户、当前企业内已启用的坐席');\n      }\n    }\n    return { ok: true, value: clone(ids) };\n  }\n\n  /**\n   * AliCti official rule: One agent can only belong to one outbound group at any time.\n   * Moving agents to targetGroup automatically removes them from any other group in the same enterprise.\n   */\n  function moveMembersToGroup(nextGroups, targetGroup, newMemberIds) {\n    const targetSet = new Set(newMemberIds);\n    const affected = nextGroups.filter(g => g.outboundGroupId === targetGroup.outboundGroupId || (g.enterpriseId === targetGroup.enterpriseId && g.memberIdentityIds.some(id => targetSet.has(id))));\n    for (const group of affected) {\n      if (!inScope(group)) throw Error('成员原外呼组不在当前工作范围，请核对归属');\n      const used = references(group.outboundGroupId).filter(t => !['已完成', '已终止', '已结束', '已删除'].includes(t.status) || t.alictiTaskControlPending);\n      if (used.length) throw Error('请先结束或删除关联任务后维护成员：' + used.map(t => t.name).join('、'));\n    }\n    let movedCount = 0;\n    for (const other of nextGroups) {\n      if (other.outboundGroupId === targetGroup.outboundGroupId || other.enterpriseId !== targetGroup.enterpriseId) continue;\n      const originalCount = other.memberIdentityIds.length;\n      other.memberIdentityIds = other.memberIdentityIds.filter(id => !targetSet.has(id));\n      if (other.memberIdentityIds.length !== originalCount) {\n        other.revision = (other.revision || 1) + 1;\n        movedCount += (originalCount - other.memberIdentityIds.length);\n      }\n    }\n    targetGroup.memberIdentityIds = [...targetSet];",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "最多1000有效不重复成员；同租户同企业且已启用/唯一工号；排他移入前所有受影响组需原范围且无在途任务。"
+        },
+        {
+          "stage": "transaction_and_local_result",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js",
+            "source_sha256": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+            "line_start": 97,
+            "line_end": 124,
+            "source_quote": "  function transact(expectedContext, expectedRevision, operation) {\n    if (!canAccess()) return failure('仅超级管理员或本租户管理员可维护当前范围的外呼组');\n    if (expectedContext && contextKey() !== expectedContext) return failure('登录或租户范围已变化，请重新打开外呼组配置');\n    let latest;\n    try { latest = read(); } catch (error) { errorMessage = error.message; return failure(errorMessage); }\n    if (expectedRevision !== undefined && (!Number.isSafeInteger(expectedRevision) || expectedRevision !== latest.value.revision || snapshot.revision !== latest.value.revision)) {\n      return failure('外呼组已更新，请刷新后重新打开配置');\n    }\n    const next = clone(latest.value);\n    let result;\n    try { result = operation(next); } catch (e) { return failure(e.message || '外呼组校验未完成，请刷新后重试，原记录已保留'); }\n    if (result?.ok === false) return result;\n    if (result?.unchanged) return { ok: true, message: '外呼组未变化', revision: snapshot.revision, unchanged: true };\n    next.revision++;\n    if (result.group) result.group.revision = next.revision;\n    const savedAt = new Date().toISOString();\n    for (const group of next.groups) {\n      const previous = latest.value.groups.find(old => old.outboundGroupId === group.outboundGroupId);\n      if (!previous || JSON.stringify(previous) !== JSON.stringify(group)) group.localUpdatedAt = savedAt;\n    }\n    try {\n      if (expectedContext && contextKey() !== expectedContext) return failure('登录或租户范围已变化，请重新打开外呼组配置');\n      if (localStorage.getItem(storageKey) !== latest.raw) return failure('外呼组已更新，请刷新后重新打开配置');\n      localStorage.setItem(storageKey, JSON.stringify(next));\n    } catch (_) { return failure('保存失败，请检查浏览器存储后重试，原外呼组已保留'); }\n    snapshot = next; rawSeen = JSON.stringify(next); errorMessage = '';\n    return { ok: true, message: result.message || '外呼组已保存', revision: snapshot.revision, ...(result.group ? { group: clone(result.group) } : {}), ...(result.data ? { data: clone(result.data) } : {}) };\n  }",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "保context/revision及原raw一致；clone事务/存储错误保原；localStorage提交、revision后仅本地ok。"
+        },
+        {
+          "stage": "UI_feedback",
+          "evidence": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+            "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+            "line_start": 263,
+            "line_end": 270,
+            "source_quote": "    if (!result.ok) return showToast(result.message, 'warning');\n    editor = null;\n    ui.closeLayer('outbound-group-edit');\n    showToast(result.message, 'success');\n    refresh();\n\n    if (e.kind === 'create' && result.group) {\n      members(result.group.outboundGroupId, api.contextKey());",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "fact": "!result.ok仅warning；ok后关闭刷新。270仅create后打开members，不能独立证明保存。"
+        }
+      ],
+      "prior_proof": {
+        "old_false_positive": {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+          "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+          "line_start": 270,
+          "line_end": 270,
+          "source_quote": "      members(result.group.outboundGroupId, api.contextKey());",
+          "source_refs": [
+            "inputs/source-index.json#SRC-2100",
+            "inputs/source-index.json#SRC-2102"
+          ]
+        },
+        "semantic_rejection": "This source is a post-create opening of members, not a saving trigger or setMembers terminal. Parser acceptance of one call statement was insufficient; no ready/promotion retained.",
+        "prior_current_diagnostic_source": "/tmp/v200_reference_canonical_proposals_current.json",
+        "prior_current_errors": [
+          "Bounded source-chain proof pending: UI entry lacks exact real event in supported render/layer/toolbar template grammar"
+        ],
+        "prior_current_proof": {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+          "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+          "line_start": 176,
+          "line_end": 176,
+          "source_quote": "  function members(id, key) {",
+          "source_refs": [
+            "inputs/source-index.json#SRC-2100",
+            "inputs/source-index.json#SRC-2102"
+          ],
+          "candidate_key": "cloud-outbound-group-members",
+          "candidate_source_pointer": "/source_evidence/0",
+          "business_trigger": "原有权人员从实际入口发起“保存成员外呼组”，并在原对象/状态范围内提交或查看",
+          "rationale": "由审计确认的原有入口/调用与原定位实现建立精确静态来源链；只证明条件性源归属，不证明执行、权限或生产。",
+          "target_symbol": "members",
+          "target_callee": "members",
+          "trigger_kind": "source_chain",
+          "source_chain": {
+            "version": "bounded-static-chain@1",
+            "entry": {
+              "kind": "template_event",
+              "callee": "window.OutboundGroupManagement.members",
+              "event": "click",
+              "evidence": {
+                "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                "line_start": 1,
+                "line_end": 291,
+                "source_quote": "/**\n * Outbound groups management page conforming to AliCti official agentGroup specifications.\n * Enforces 1:N tenant-to-group binding and single-group agent exclusion.\n */\n(function () {\n  'use strict';\n  const ui = PlatformUI, esc = ui.escape, api = OutboundGroups;\n  let keyword = '', tenantId = '', page = 1, listContext = '', editor = null;\n  const command = (method, ...args) => esc(`OutboundGroupManagement.${method}(${args.map(v => JSON.stringify(v)).join(',')})`);\n  const denied = () => showToast('权限或工作范围已变化，请重新打开页面', 'warning');\n\n  function render() {\n    if (!api.canAccess()) return ui.empty('当前账号没有外呼组管理权限');\n    if (listContext !== api.contextKey()) { keyword = ''; tenantId = ''; page = 1; listContext = api.contextKey(); }\n    let rows = api.list().filter(g => (!tenantId || g.tenantId === tenantId) && (!keyword || [g.name, g.gno, g.comment || ''].join(' ').toLowerCase().includes(keyword.toLowerCase())));\n    rows = ui.sortByUpdated?.(rows, []) || rows;\n    page = Math.min(page, Math.max(1, Math.ceil(rows.length / 8)));\n\n    return `<section class=\"platform-page outbound-group-page\">\n      ${ui.pageHeader('外呼组管理', '为预外呼任务组建接听团队，维护本租户的外呼组及坐席成员。')}\n      ${api.storageError() ? ui.alert('warning', '外呼组暂时无法读取', api.storageError()) : ''}\n      <div class=\"filter-panel\">\n        <label class=\"field grow\">\n          <span>外呼组名称 / 编号</span>\n          <input id=\"obg-keyword\" value=\"${esc(keyword)}\" placeholder=\"输入外呼组名称或编号\">\n        </label>\n        <div class=\"filter-actions\">\n          <button class=\"btn\" onclick=\"OutboundGroupManagement.reset()\">重置</button>\n          <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.query()\">查询</button>\n        </div>\n      </div>\n      <div class=\"management-list-shell\">\n        ${ui.toolbar('<button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.create()\">新增外呼组</button>', '')}\n        ${ui.table([\n          { key: 'name', label: '外呼组名称', render: (v, g) => `<button class=\"table-link\" onclick=\"${command('detail', g.outboundGroupId, listContext)}\"><strong>${esc(v)}</strong></button>` },\n          { key: 'gno', label: '外呼组编号', render: v => `<span class=\"badge badge-info\">${esc(v)}</span>` },\n          { key: 'tenantName', label: '所属租户' },\n          { key: 'memberCount', label: '成员数', render: n => `${n} 人` },\n          { key: 'outboundGroupId', label: '操作', render: (id, g) => `\n            <div class=\"table-actions\">\n              <button onclick=\"${command('detail', id, listContext)}\">查看</button>\n              <button onclick=\"${command('edit', id, listContext)}\">编辑</button>\n              <button onclick=\"${command('members', id, listContext)}\">维护成员</button>\n              <button class=\"btn-text-danger\" onclick=\"${command('remove', id, listContext)}\">删除</button>\n            </div>`\n          }\n        ], rows.slice((page - 1) * 8, page * 8), { emptyText: '暂无外呼组，点击“新增外呼组”开始配置' })}\n        ${ui.pagination(rows.length, page, 8, 'OutboundGroupManagement.setPage')}\n      </div>\n    </section>`;\n  }\n\n  function refresh() { RouteRuntime.refreshCurrent(); }\n  function valid(key) { return api.canAccess() && (!key || key === api.contextKey()); }\n\n  function create() {\n    if (!valid(listContext)) return denied();\n    const tenants = api.tenantOptions();\n    if (tenants.length !== 1) return showToast('当前账号须绑定唯一的有效租户', 'warning');\n    const autoGno = api.generateGno();\n    editor = { kind: 'create', context: api.contextKey(), revision: api.revision() };\n\n    ui.openLayer('outbound-group-edit', `\n      <div class=\"layer-header\">\n        <h2>新增外呼组</h2>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        <div class=\"form-vertical\" style=\"display:flex;flex-direction:column;gap:14px;\">\n          <label class=\"field\">\n            <span>所属租户 *</span>\n            <input id=\"obg-tenant\" type=\"hidden\" value=\"${esc(tenants[0].tenantId)}\"><strong>${esc(tenants[0].name)}</strong>\n          </label>\n          <label class=\"field\">\n            <span>外呼组编号 *</span>\n            <div style=\"display:flex;gap:8px;\">\n              <input id=\"obg-gno\" value=\"${esc(autoGno)}\" maxlength=\"20\" placeholder=\"字母开头，2-20位字母与数字组合\" style=\"flex:1;\">\n              <button type=\"button\" class=\"btn\" onclick=\"document.getElementById('obg-gno').value = OutboundGroups.generateGno()\">随机生成</button>\n            </div>\n            <p class=\"field-hint\">2～20 位，以字母开头，须同时包含字母和数字；同一 AliCti 账号内不可重复。</p>\n          </label>\n          <label class=\"field\">\n            <span>外呼组名称 *</span>\n            <input id=\"obg-name\" maxlength=\"50\" placeholder=\"例如：VIP售后回访一组\">\n          </label>\n          <label class=\"field\">\n            <span>描述说明</span>\n            <input id=\"obg-comment\" maxlength=\"100\" placeholder=\"说明该外呼组业务目标（可选，最多100字）\">\n          </label>\n        </div>\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">取消</button>\n        <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.save()\">创建并添加成员</button>\n      </div>`, 'small');\n  }\n\n  function edit(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    editor = { kind: 'edit', id, context: api.contextKey(), revision: api.revision() };\n\n    ui.openLayer('outbound-group-edit', `\n      <div class=\"layer-header\">\n        <h2>编辑外呼组</h2>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        <div class=\"form-vertical\" style=\"display:flex;flex-direction:column;gap:14px;\">\n          <label class=\"field\">\n            <span>外呼组编号</span>\n            <input value=\"${esc(g.gno)}\" readonly disabled style=\"background:#f5f7fa;\">\n            <p class=\"field-hint\">外呼组编号创建后不可修改</p>\n          </label>\n          <label class=\"field\">\n            <span>所属租户</span>\n            <input value=\"${esc(g.tenantName)}\" readonly disabled style=\"background:#f5f7fa;\">\n          </label>\n          <label class=\"field\">\n            <span>外呼组名称 *</span>\n            <input id=\"obg-name\" value=\"${esc(g.name)}\" maxlength=\"50\">\n          </label>\n          <label class=\"field\">\n            <span>描述说明</span>\n            <input id=\"obg-comment\" value=\"${esc(g.comment || '')}\" maxlength=\"100\">\n          </label>\n        </div>\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">取消</button>\n        <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.save()\">保存修改</button>\n      </div>`, 'small');\n  }\n\n  function detail(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    const references = api.references(id), used = ui.sortByUpdated?.(references) || references;\n    const memberRows = ui.sortByUpdated?.(g.members) || g.members;\n\n    ui.openLayer('outbound-group-detail', `\n      <div class=\"layer-header\">\n        <div>\n          <h2>${esc(g.name)}</h2>\n          <p>编号：<span class=\"badge badge-info\">${esc(g.gno)}</span> · ${esc(g.tenantName)} · ${g.memberCount} 位坐席成员</p>\n        </div>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-detail')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        <div class=\"detail-summary\" style=\"margin-bottom:16px;padding:12px;background:#f9fafb;border-radius:4px;font-size:13px;\">\n          <div><strong>描述说明：</strong>${esc(g.comment || '无')}</div>\n          <div><strong>创建时间：</strong>${esc(g.createTime || '—')}</div>\n        </div>\n        <h3>外呼组坐席成员</h3>\n        ${ui.table([\n          { key: 'userName', label: '坐席姓名' },\n          { key: 'cno', label: '工号' },\n          { key: 'mobile', label: '手机号', render: v => esc(v || '—') }\n        ], memberRows, { emptyText: '尚未添加成员，空组不可执行外呼任务' })}\n\n        <h3 style=\"margin-top:20px;\">关联预外呼任务</h3>\n        ${ui.table([\n          { key: 'name', label: '任务名称' },\n          { key: 'status', label: '状态', render: (v, r) => ui.status(r.alictiTaskControlPending ? '待核对' : v) }\n        ], used, { emptyText: '暂无关联任务' })}\n\n\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-detail')\">关闭</button>\n      </div>`, 'wide');\n  }\n\n  function members(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    const used = api.references(id).filter(t => t.alictiTaskControlPending || !['已完成', '已终止', '已结束', '已删除'].includes(t.status));\n    if (used.length) return showToast('请先结束或删除关联任务后维护成员：' + used.map(t => t.name).join('、'), 'warning');\n\n    editor = { kind: 'members', id, context: api.contextKey(), revision: api.revision() };\n    const candidates = api.candidates(g.tenantId, g.enterpriseId);\n    const ids = new Set(candidates.map(a => a.contactCenterIdentityId));\n    const unavailable = g.memberIdentityIds.filter(mid => !ids.has(mid));\n\n    ui.openLayer('outbound-group-edit', `\n      <div class=\"layer-header\">\n        <div>\n          <h2>维护外呼组成员</h2>\n          <p>${esc(g.name)} (编号：${esc(g.gno)}) · ${esc(g.tenantName)}</p>\n        </div>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        ${unavailable.length ? ui.alert('warning', '存在不可用成员', '本次保存将自动移除已停用或无法找到的坐席成员。') : ''}\n        <p class=\"field-hint\">勾选加入，取消勾选移出。每位坐席只能属于一个外呼组，选择其他组成员会将其移入当前组。</p>\n        <div class=\"obg-member-list\" style=\"max-height:360px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:8px 0;\">\n          ${candidates.map(a => {\n            const isCurrent = g.memberIdentityIds.includes(a.contactCenterIdentityId);\n            const inOther = a.assignedGroupId && a.assignedGroupId !== g.outboundGroupId;\n            return `\n            <label class=\"obg-member\" style=\"display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #e5e7eb;border-radius:6px;background:${isCurrent ? '#f0fdf4' : '#fff'};cursor:pointer;\">\n              <input type=\"checkbox\" name=\"obg-member\" value=\"${esc(a.contactCenterIdentityId)}\" ${isCurrent ? 'checked' : ''}>\n              <span style=\"flex:1;\">\n                <strong>${esc(a.userName)}</strong>\n                <small style=\"color:#6b7280;display:block;\">工号: ${esc(a.cno)}</small>\n                ${inOther ? `<small style=\"color:#f59e0b;display:block;\">[当前在: ${esc(a.assignedGroupName)}]</small>` : ''}\n              </span>\n            </label>`;\n          }).join('') || ui.empty('当前租户暂无已启用坐席')}\n        </div>\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">取消</button>\n        <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.save()\">保存成员</button>\n      </div>`, 'wide');\n  }\n\n  function remove(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    const used = api.references(id).filter(t => t.alictiTaskControlPending || !['已完成', '已终止', '已结束', '已删除'].includes(t.status));\n    if (used.length) {\n      return showToast('无法删除！存在执行中或待核对的任务正在使用此外呼组：' + used.map(t => t.name).join('、'), 'warning');\n    }\n\n    const context = api.contextKey(), revision = api.revision();\n    ui.confirm({title:'删除外呼组',body:`<p>确定删除“${esc(g.name)}”（${esc(g.gno)}）？</p><p>删除后该组将被解散，组内坐席保留。</p>`,confirmText:'确认删除',danger:true,onConfirm(){\n      if(!valid(context)){denied();return false;}\n      const res = api.deleteGroup(id, context, revision);\n      if (!res.ok) {showToast(res.message, 'warning');return false;}\n      showToast(res.message, 'success');refresh();\n    }});\n  }\n\n  function save() {\n    const e = editor;\n    if (!e || !valid(e.context)) return denied();\n\n    let result;\n    if (e.kind === 'create') {\n      const tenantSelect = document.getElementById('obg-tenant');\n      const tenantVal = tenantSelect ? (tenantSelect.value || AppState.get().tenantId) : AppState.get().tenantId;\n      result = api.create({\n        name: document.getElementById('obg-name')?.value,\n        gno: document.getElementById('obg-gno')?.value,\n        comment: document.getElementById('obg-comment')?.value,\n        tenantId: tenantVal\n      }, e.context, e.revision);\n    } else if (e.kind === 'edit') {\n      result = api.update(e.id, {\n        name: document.getElementById('obg-name')?.value,\n        comment: document.getElementById('obg-comment')?.value\n      }, e.context, e.revision);\n    } else {\n      const checkedIds = [...document.querySelectorAll('[name=\"obg-member\"]:checked')].map(n => n.value);\n      result = api.setMembers(e.id, checkedIds, e.context, e.revision);\n    }\n\n    if (!result.ok) return showToast(result.message, 'warning');\n    editor = null;\n    ui.closeLayer('outbound-group-edit');\n    showToast(result.message, 'success');\n    refresh();\n\n    if (e.kind === 'create' && result.group) {\n      members(result.group.outboundGroupId, api.contextKey());\n    }\n  }\n\n  function query() {\n    if (!valid(listContext)) return denied();\n    keyword = document.getElementById('obg-keyword')?.value.trim() || '';\n    tenantId = document.getElementById('obg-filter-tenant')?.value || '';\n    page = 1;\n    refresh();\n  }\n\n  function reset() { keyword = ''; tenantId = ''; page = 1; refresh(); }\n  function setPage(value) {\n    if (!valid(listContext)) return denied();\n    page = Math.max(1, Number(value) || 1);\n    refresh();\n  }\n\n  window.OutboundGroupManagement = { render, create, edit, detail, members, remove, save, query, reset, setPage };\n  window.Pages['outbound-group-management'] = { render, init() {} };\n})();",
+                "source_refs": [
+                  "inputs/source-index.json#SRC-2100",
+                  "inputs/source-index.json#SRC-2102"
+                ]
+              },
+              "ui_alias_evidence": {
+                "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                "line_start": 7,
+                "line_end": 7,
+                "source_quote": "  const ui = PlatformUI, esc = ui.escape, api = OutboundGroups;",
+                "source_refs": [
+                  "inputs/source-index.json#SRC-2100",
+                  "inputs/source-index.json#SRC-2102"
+                ]
+              },
+              "opening_evidence": {
+                "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                "line_start": 1,
+                "line_end": 291,
+                "source_quote": "/**\n * Outbound groups management page conforming to AliCti official agentGroup specifications.\n * Enforces 1:N tenant-to-group binding and single-group agent exclusion.\n */\n(function () {\n  'use strict';\n  const ui = PlatformUI, esc = ui.escape, api = OutboundGroups;\n  let keyword = '', tenantId = '', page = 1, listContext = '', editor = null;\n  const command = (method, ...args) => esc(`OutboundGroupManagement.${method}(${args.map(v => JSON.stringify(v)).join(',')})`);\n  const denied = () => showToast('权限或工作范围已变化，请重新打开页面', 'warning');\n\n  function render() {\n    if (!api.canAccess()) return ui.empty('当前账号没有外呼组管理权限');\n    if (listContext !== api.contextKey()) { keyword = ''; tenantId = ''; page = 1; listContext = api.contextKey(); }\n    let rows = api.list().filter(g => (!tenantId || g.tenantId === tenantId) && (!keyword || [g.name, g.gno, g.comment || ''].join(' ').toLowerCase().includes(keyword.toLowerCase())));\n    rows = ui.sortByUpdated?.(rows, []) || rows;\n    page = Math.min(page, Math.max(1, Math.ceil(rows.length / 8)));\n\n    return `<section class=\"platform-page outbound-group-page\">\n      ${ui.pageHeader('外呼组管理', '为预外呼任务组建接听团队，维护本租户的外呼组及坐席成员。')}\n      ${api.storageError() ? ui.alert('warning', '外呼组暂时无法读取', api.storageError()) : ''}\n      <div class=\"filter-panel\">\n        <label class=\"field grow\">\n          <span>外呼组名称 / 编号</span>\n          <input id=\"obg-keyword\" value=\"${esc(keyword)}\" placeholder=\"输入外呼组名称或编号\">\n        </label>\n        <div class=\"filter-actions\">\n          <button class=\"btn\" onclick=\"OutboundGroupManagement.reset()\">重置</button>\n          <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.query()\">查询</button>\n        </div>\n      </div>\n      <div class=\"management-list-shell\">\n        ${ui.toolbar('<button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.create()\">新增外呼组</button>', '')}\n        ${ui.table([\n          { key: 'name', label: '外呼组名称', render: (v, g) => `<button class=\"table-link\" onclick=\"${command('detail', g.outboundGroupId, listContext)}\"><strong>${esc(v)}</strong></button>` },\n          { key: 'gno', label: '外呼组编号', render: v => `<span class=\"badge badge-info\">${esc(v)}</span>` },\n          { key: 'tenantName', label: '所属租户' },\n          { key: 'memberCount', label: '成员数', render: n => `${n} 人` },\n          { key: 'outboundGroupId', label: '操作', render: (id, g) => `\n            <div class=\"table-actions\">\n              <button onclick=\"${command('detail', id, listContext)}\">查看</button>\n              <button onclick=\"${command('edit', id, listContext)}\">编辑</button>\n              <button onclick=\"${command('members', id, listContext)}\">维护成员</button>\n              <button class=\"btn-text-danger\" onclick=\"${command('remove', id, listContext)}\">删除</button>\n            </div>`\n          }\n        ], rows.slice((page - 1) * 8, page * 8), { emptyText: '暂无外呼组，点击“新增外呼组”开始配置' })}\n        ${ui.pagination(rows.length, page, 8, 'OutboundGroupManagement.setPage')}\n      </div>\n    </section>`;\n  }\n\n  function refresh() { RouteRuntime.refreshCurrent(); }\n  function valid(key) { return api.canAccess() && (!key || key === api.contextKey()); }\n\n  function create() {\n    if (!valid(listContext)) return denied();\n    const tenants = api.tenantOptions();\n    if (tenants.length !== 1) return showToast('当前账号须绑定唯一的有效租户', 'warning');\n    const autoGno = api.generateGno();\n    editor = { kind: 'create', context: api.contextKey(), revision: api.revision() };\n\n    ui.openLayer('outbound-group-edit', `\n      <div class=\"layer-header\">\n        <h2>新增外呼组</h2>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        <div class=\"form-vertical\" style=\"display:flex;flex-direction:column;gap:14px;\">\n          <label class=\"field\">\n            <span>所属租户 *</span>\n            <input id=\"obg-tenant\" type=\"hidden\" value=\"${esc(tenants[0].tenantId)}\"><strong>${esc(tenants[0].name)}</strong>\n          </label>\n          <label class=\"field\">\n            <span>外呼组编号 *</span>\n            <div style=\"display:flex;gap:8px;\">\n              <input id=\"obg-gno\" value=\"${esc(autoGno)}\" maxlength=\"20\" placeholder=\"字母开头，2-20位字母与数字组合\" style=\"flex:1;\">\n              <button type=\"button\" class=\"btn\" onclick=\"document.getElementById('obg-gno').value = OutboundGroups.generateGno()\">随机生成</button>\n            </div>\n            <p class=\"field-hint\">2～20 位，以字母开头，须同时包含字母和数字；同一 AliCti 账号内不可重复。</p>\n          </label>\n          <label class=\"field\">\n            <span>外呼组名称 *</span>\n            <input id=\"obg-name\" maxlength=\"50\" placeholder=\"例如：VIP售后回访一组\">\n          </label>\n          <label class=\"field\">\n            <span>描述说明</span>\n            <input id=\"obg-comment\" maxlength=\"100\" placeholder=\"说明该外呼组业务目标（可选，最多100字）\">\n          </label>\n        </div>\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">取消</button>\n        <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.save()\">创建并添加成员</button>\n      </div>`, 'small');\n  }\n\n  function edit(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    editor = { kind: 'edit', id, context: api.contextKey(), revision: api.revision() };\n\n    ui.openLayer('outbound-group-edit', `\n      <div class=\"layer-header\">\n        <h2>编辑外呼组</h2>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        <div class=\"form-vertical\" style=\"display:flex;flex-direction:column;gap:14px;\">\n          <label class=\"field\">\n            <span>外呼组编号</span>\n            <input value=\"${esc(g.gno)}\" readonly disabled style=\"background:#f5f7fa;\">\n            <p class=\"field-hint\">外呼组编号创建后不可修改</p>\n          </label>\n          <label class=\"field\">\n            <span>所属租户</span>\n            <input value=\"${esc(g.tenantName)}\" readonly disabled style=\"background:#f5f7fa;\">\n          </label>\n          <label class=\"field\">\n            <span>外呼组名称 *</span>\n            <input id=\"obg-name\" value=\"${esc(g.name)}\" maxlength=\"50\">\n          </label>\n          <label class=\"field\">\n            <span>描述说明</span>\n            <input id=\"obg-comment\" value=\"${esc(g.comment || '')}\" maxlength=\"100\">\n          </label>\n        </div>\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">取消</button>\n        <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.save()\">保存修改</button>\n      </div>`, 'small');\n  }\n\n  function detail(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    const references = api.references(id), used = ui.sortByUpdated?.(references) || references;\n    const memberRows = ui.sortByUpdated?.(g.members) || g.members;\n\n    ui.openLayer('outbound-group-detail', `\n      <div class=\"layer-header\">\n        <div>\n          <h2>${esc(g.name)}</h2>\n          <p>编号：<span class=\"badge badge-info\">${esc(g.gno)}</span> · ${esc(g.tenantName)} · ${g.memberCount} 位坐席成员</p>\n        </div>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-detail')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        <div class=\"detail-summary\" style=\"margin-bottom:16px;padding:12px;background:#f9fafb;border-radius:4px;font-size:13px;\">\n          <div><strong>描述说明：</strong>${esc(g.comment || '无')}</div>\n          <div><strong>创建时间：</strong>${esc(g.createTime || '—')}</div>\n        </div>\n        <h3>外呼组坐席成员</h3>\n        ${ui.table([\n          { key: 'userName', label: '坐席姓名' },\n          { key: 'cno', label: '工号' },\n          { key: 'mobile', label: '手机号', render: v => esc(v || '—') }\n        ], memberRows, { emptyText: '尚未添加成员，空组不可执行外呼任务' })}\n\n        <h3 style=\"margin-top:20px;\">关联预外呼任务</h3>\n        ${ui.table([\n          { key: 'name', label: '任务名称' },\n          { key: 'status', label: '状态', render: (v, r) => ui.status(r.alictiTaskControlPending ? '待核对' : v) }\n        ], used, { emptyText: '暂无关联任务' })}\n\n\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-detail')\">关闭</button>\n      </div>`, 'wide');\n  }\n\n  function members(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    const used = api.references(id).filter(t => t.alictiTaskControlPending || !['已完成', '已终止', '已结束', '已删除'].includes(t.status));\n    if (used.length) return showToast('请先结束或删除关联任务后维护成员：' + used.map(t => t.name).join('、'), 'warning');\n\n    editor = { kind: 'members', id, context: api.contextKey(), revision: api.revision() };\n    const candidates = api.candidates(g.tenantId, g.enterpriseId);\n    const ids = new Set(candidates.map(a => a.contactCenterIdentityId));\n    const unavailable = g.memberIdentityIds.filter(mid => !ids.has(mid));\n\n    ui.openLayer('outbound-group-edit', `\n      <div class=\"layer-header\">\n        <div>\n          <h2>维护外呼组成员</h2>\n          <p>${esc(g.name)} (编号：${esc(g.gno)}) · ${esc(g.tenantName)}</p>\n        </div>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        ${unavailable.length ? ui.alert('warning', '存在不可用成员', '本次保存将自动移除已停用或无法找到的坐席成员。') : ''}\n        <p class=\"field-hint\">勾选加入，取消勾选移出。每位坐席只能属于一个外呼组，选择其他组成员会将其移入当前组。</p>\n        <div class=\"obg-member-list\" style=\"max-height:360px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:8px 0;\">\n          ${candidates.map(a => {\n            const isCurrent = g.memberIdentityIds.includes(a.contactCenterIdentityId);\n            const inOther = a.assignedGroupId && a.assignedGroupId !== g.outboundGroupId;\n            return `\n            <label class=\"obg-member\" style=\"display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #e5e7eb;border-radius:6px;background:${isCurrent ? '#f0fdf4' : '#fff'};cursor:pointer;\">\n              <input type=\"checkbox\" name=\"obg-member\" value=\"${esc(a.contactCenterIdentityId)}\" ${isCurrent ? 'checked' : ''}>\n              <span style=\"flex:1;\">\n                <strong>${esc(a.userName)}</strong>\n                <small style=\"color:#6b7280;display:block;\">工号: ${esc(a.cno)}</small>\n                ${inOther ? `<small style=\"color:#f59e0b;display:block;\">[当前在: ${esc(a.assignedGroupName)}]</small>` : ''}\n              </span>\n            </label>`;\n          }).join('') || ui.empty('当前租户暂无已启用坐席')}\n        </div>\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">取消</button>\n        <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.save()\">保存成员</button>\n      </div>`, 'wide');\n  }\n\n  function remove(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    const used = api.references(id).filter(t => t.alictiTaskControlPending || !['已完成', '已终止', '已结束', '已删除'].includes(t.status));\n    if (used.length) {\n      return showToast('无法删除！存在执行中或待核对的任务正在使用此外呼组：' + used.map(t => t.name).join('、'), 'warning');\n    }\n\n    const context = api.contextKey(), revision = api.revision();\n    ui.confirm({title:'删除外呼组',body:`<p>确定删除“${esc(g.name)}”（${esc(g.gno)}）？</p><p>删除后该组将被解散，组内坐席保留。</p>`,confirmText:'确认删除',danger:true,onConfirm(){\n      if(!valid(context)){denied();return false;}\n      const res = api.deleteGroup(id, context, revision);\n      if (!res.ok) {showToast(res.message, 'warning');return false;}\n      showToast(res.message, 'success');refresh();\n    }});\n  }\n\n  function save() {\n    const e = editor;\n    if (!e || !valid(e.context)) return denied();\n\n    let result;\n    if (e.kind === 'create') {\n      const tenantSelect = document.getElementById('obg-tenant');\n      const tenantVal = tenantSelect ? (tenantSelect.value || AppState.get().tenantId) : AppState.get().tenantId;\n      result = api.create({\n        name: document.getElementById('obg-name')?.value,\n        gno: document.getElementById('obg-gno')?.value,\n        comment: document.getElementById('obg-comment')?.value,\n        tenantId: tenantVal\n      }, e.context, e.revision);\n    } else if (e.kind === 'edit') {\n      result = api.update(e.id, {\n        name: document.getElementById('obg-name')?.value,\n        comment: document.getElementById('obg-comment')?.value\n      }, e.context, e.revision);\n    } else {\n      const checkedIds = [...document.querySelectorAll('[name=\"obg-member\"]:checked')].map(n => n.value);\n      result = api.setMembers(e.id, checkedIds, e.context, e.revision);\n    }\n\n    if (!result.ok) return showToast(result.message, 'warning');\n    editor = null;\n    ui.closeLayer('outbound-group-edit');\n    showToast(result.message, 'success');\n    refresh();\n\n    if (e.kind === 'create' && result.group) {\n      members(result.group.outboundGroupId, api.contextKey());\n    }\n  }\n\n  function query() {\n    if (!valid(listContext)) return denied();\n    keyword = document.getElementById('obg-keyword')?.value.trim() || '';\n    tenantId = document.getElementById('obg-filter-tenant')?.value || '';\n    page = 1;\n    refresh();\n  }\n\n  function reset() { keyword = ''; tenantId = ''; page = 1; refresh(); }\n  function setPage(value) {\n    if (!valid(listContext)) return denied();\n    page = Math.max(1, Number(value) || 1);\n    refresh();\n  }\n\n  window.OutboundGroupManagement = { render, create, edit, detail, members, remove, save, query, reset, setPage };\n  window.Pages['outbound-group-management'] = { render, init() {} };\n})();",
+                "source_refs": [
+                  "inputs/source-index.json#SRC-2100",
+                  "inputs/source-index.json#SRC-2102"
+                ]
+              }
+            },
+            "links": [
+              {
+                "kind": "static_owner_export",
+                "callee": "window.OutboundGroupManagement.members",
+                "symbol": "members",
+                "evidence": {
+                  "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                  "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                  "line_start": 289,
+                  "line_end": 289,
+                  "source_quote": "  window.OutboundGroupManagement = { render, create, edit, detail, members, remove, save, query, reset, setPage };",
+                  "source_refs": [
+                    "inputs/source-index.json#SRC-2100",
+                    "inputs/source-index.json#SRC-2102"
+                  ]
+                }
+              }
+            ],
+            "terminal": {
+              "symbol": "members",
+              "evidence": {
+                "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                "line_start": 176,
+                "line_end": 219,
+                "source_quote": "  function members(id, key) {\n    if (!valid(key)) return denied();\n    const g = api.get(id);\n    if (!g) return denied();\n    const used = api.references(id).filter(t => t.alictiTaskControlPending || !['已完成', '已终止', '已结束', '已删除'].includes(t.status));\n    if (used.length) return showToast('请先结束或删除关联任务后维护成员：' + used.map(t => t.name).join('、'), 'warning');\n\n    editor = { kind: 'members', id, context: api.contextKey(), revision: api.revision() };\n    const candidates = api.candidates(g.tenantId, g.enterpriseId);\n    const ids = new Set(candidates.map(a => a.contactCenterIdentityId));\n    const unavailable = g.memberIdentityIds.filter(mid => !ids.has(mid));\n\n    ui.openLayer('outbound-group-edit', `\n      <div class=\"layer-header\">\n        <div>\n          <h2>维护外呼组成员</h2>\n          <p>${esc(g.name)} (编号：${esc(g.gno)}) · ${esc(g.tenantName)}</p>\n        </div>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        ${unavailable.length ? ui.alert('warning', '存在不可用成员', '本次保存将自动移除已停用或无法找到的坐席成员。') : ''}\n        <p class=\"field-hint\">勾选加入，取消勾选移出。每位坐席只能属于一个外呼组，选择其他组成员会将其移入当前组。</p>\n        <div class=\"obg-member-list\" style=\"max-height:360px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:8px 0;\">\n          ${candidates.map(a => {\n            const isCurrent = g.memberIdentityIds.includes(a.contactCenterIdentityId);\n            const inOther = a.assignedGroupId && a.assignedGroupId !== g.outboundGroupId;\n            return `\n            <label class=\"obg-member\" style=\"display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #e5e7eb;border-radius:6px;background:${isCurrent ? '#f0fdf4' : '#fff'};cursor:pointer;\">\n              <input type=\"checkbox\" name=\"obg-member\" value=\"${esc(a.contactCenterIdentityId)}\" ${isCurrent ? 'checked' : ''}>\n              <span style=\"flex:1;\">\n                <strong>${esc(a.userName)}</strong>\n                <small style=\"color:#6b7280;display:block;\">工号: ${esc(a.cno)}</small>\n                ${inOther ? `<small style=\"color:#f59e0b;display:block;\">[当前在: ${esc(a.assignedGroupName)}]</small>` : ''}\n              </span>\n            </label>`;\n          }).join('') || ui.empty('当前租户暂无已启用坐席')}\n        </div>\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">取消</button>\n        <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.save()\">保存成员</button>\n      </div>`, 'wide');\n  }",
+                "source_refs": [
+                  "inputs/source-index.json#SRC-2100",
+                  "inputs/source-index.json#SRC-2102"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "attempted_existing_format": {
+        "canonical_record_in_memory_only": {
+          "draft_key": "retained-source-cloud-outbound-group-members",
+          "name": "保存成员外呼组",
+          "business_object": "外呼组",
+          "primary_action": "保存成员",
+          "trigger": "从原外呼组列表点击维护成员；在该入口设置kind=members的成员弹层勾选后点击保存成员，当前上下文/版本及原对象范围有效时进入setMembers本地事务。",
+          "completion_result": "仅本地事务成功后更新外呼组成员、按原排他规则从同企业其他有权外呼组移入，关闭弹层并刷新；未变化单列，权限/范围/在途任务/版本/存储失败保原记录并反馈，不证明真实AliCti远端生效。",
+          "delivery_class": "retained_reference_not_delta",
+          "catalog_role": "canonical_reviewed_original_operation_reference",
+          "reference_kind": "unchanged_original_business_operation",
+          "formal_function_id": null,
+          "production_verified": false,
+          "candidate_only": false,
+          "counts_as_confirmed_existing_usable_operation": true,
+          "counts_as_version_delta": false,
+          "source_refs": [
+            "inputs/source-index.json#SRC-2100",
+            "inputs/source-index.json#SRC-2102"
+          ],
+          "source_story_ids": [
+            "US-2027"
+          ],
+          "source_acceptance_ids": [
+            "AC-2072",
+            "AC-2073"
+          ],
+          "source_scenario_ids": [
+            "SC-2021"
+          ],
+          "historical_origin_source_refs": [
+            "inputs/source-index.json#SRC-2042",
+            "inputs/source-index.json#SRC-2052",
+            "inputs/source-index.json#SRC-2100"
+          ],
+          "source_action_ids": [
+            "ACTION-2072"
+          ],
+          "current_bearing_page_ids": [
+            "PAGE-2212"
+          ],
+          "issue_ids": [
+            "ISSUE-2008"
+          ],
+          "local_source_evidence": [
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+              "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+              "line_start": 176,
+              "line_end": 176,
+              "observed": "original_candidate_locator_same_SHA",
+              "evidence_role": "original_candidate_locator_same_SHA",
+              "source_refs": [
+                "inputs/source-index.json#SRC-2100",
+                "inputs/source-index.json#SRC-2102"
+              ]
+            },
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js",
+              "source_sha256": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+              "line_start": 350,
+              "line_end": 350,
+              "observed": "original_candidate_locator_same_SHA",
+              "evidence_role": "original_candidate_locator_same_SHA",
+              "source_refs": [
+                "inputs/source-index.json#SRC-2100",
+                "inputs/source-index.json#SRC-2102"
+              ]
+            },
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+              "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+              "line_start": 43,
+              "line_end": 43,
+              "observed": "actual_entry_or_explicit_absence_context",
+              "evidence_role": "actual_entry_or_explicit_absence_context",
+              "source_refs": [
+                "inputs/source-index.json#SRC-2100",
+                "inputs/source-index.json#SRC-2102"
+              ]
+            },
+            {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+              "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+              "line_start": 239,
+              "line_end": 267,
+              "observed": "local_result_handler_or_placeholder",
+              "evidence_role": "local_result_handler_or_placeholder",
+              "source_refs": [
+                "inputs/source-index.json#SRC-2100",
+                "inputs/source-index.json#SRC-2102"
+              ]
+            }
+          ],
+          "retained_scope_review": {
+            "origin_candidate_keys": [
+              "cloud-outbound-group-members"
+            ],
+            "reviewed_by": "Codex bounded current-reference-prototype scope reconciliation",
+            "reviewed_on": "2026-10-24",
+            "decision": "unchanged_original_operation_reference",
+            "verification_scope": "source_attribution_only",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ],
+            "scope_basis_acceptance_ids": [
+              "AC-2072"
+            ],
+            "candidate_record_sha256": {
+              "cloud-outbound-group-members": "95be02cd85e0c16e60dbbb801f0b973058b9f315b10994bbae24ac33dcd932e3"
+            },
+            "field_comparison": {
+              "business_object": {
+                "candidate_key": "cloud-outbound-group-members",
+                "candidate_field": "business_object",
+                "candidate_value": "外呼组",
+                "canonical_value": "外呼组",
+                "assessment": "same_original_operation",
+                "rationale": "依据独立审计逐项保留原对象、主要动作及实际参考结果；触发由真实入口/调用证据定位。允许缩窄源模拟/占位边界，不增加权限、生产或远端成功承诺。"
+              },
+              "primary_action": {
+                "candidate_key": "cloud-outbound-group-members",
+                "candidate_field": "primary_action",
+                "candidate_value": "保存成员",
+                "canonical_value": "保存成员",
+                "assessment": "same_original_operation",
+                "rationale": "依据独立审计逐项保留原对象、主要动作及实际参考结果；触发由真实入口/调用证据定位。允许缩窄源模拟/占位边界，不增加权限、生产或远端成功承诺。"
+              },
+              "trigger": {
+                "candidate_key": "cloud-outbound-group-members",
+                "candidate_field": "/source_evidence/1/locator",
+                "candidate_value": "function setMembers(",
+                "canonical_value": "从原外呼组列表点击维护成员；在该入口设置kind=members的成员弹层勾选后点击保存成员，当前上下文/版本及原对象范围有效时进入setMembers本地事务。",
+                "assessment": "same_original_operation",
+                "rationale": "源候选第2条setMembers是成员保存的实际业务终点；第1条members仅是打开维护弹层。真实入口43→members176设置kind183→保存控件217→save239→条件调用260→组件setMembers350。"
+              },
+              "completion_result": {
+                "candidate_key": "cloud-outbound-group-members",
+                "candidate_field": "completion_result",
+                "candidate_value": "按原范围完成“保存成员外呼组”并保留实际/待核结果",
+                "canonical_value": "仅本地事务成功后更新外呼组成员、按原排他规则从同企业其他有权外呼组移入，关闭弹层并刷新；未变化单列，权限/范围/在途任务/版本/存储失败保原记录并反馈，不证明真实AliCti远端生效。",
+                "assessment": "same_original_operation",
+                "rationale": "把原保存成员结果界定到所见本地事务、排他移入、失败及未变化，不增加远端完成承诺。"
+              }
+            },
+            "conditional_inclusion": {
+              "scope": "source_existing_only",
+              "placeholder_excluded": true,
+              "production_verified": false,
+              "final_baseline_verified": false,
+              "pending_baseline_issue_ids": [
+                "ISSUE-2008"
+              ]
+            },
+            "scope_note": "SRC2100已确认当前参考原型产品范围；未核工程/契约/身份/权限/远端结果继续按真实open项保留，不把旧包未冻结当本次产品范围阻断。",
+            "derived_trigger_evidence": {
+              "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js",
+              "source_sha256": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+              "line_start": 350,
+              "line_end": 369,
+              "source_quote": "  function setMembers(outboundGroupIdOrGno, memberIdentityIds, expectedContext, expectedRevision) {\n    if (!validText(outboundGroupIdOrGno)) return failure('请选择要维护的外呼组');\n    return transact(expectedContext, expectedRevision, next => {\n      const group = next.groups.find(g => (g.outboundGroupId === outboundGroupIdOrGno || g.gno === outboundGroupIdOrGno) && inScope(g));\n      if (!group || !inScope(group)) return failure('当前工作范围内找不到该外呼组');\n      const used = references(group.outboundGroupId).filter(t => !['已完成', '已终止', '已结束', '已删除'].includes(t.status) || t.alictiTaskControlPending);\n      if (used.length) return failure('请先结束或删除关联任务后维护成员：' + used.map(t => t.name).join('、'));\n\n      const members = normalizeMembers(Array.isArray(memberIdentityIds) ? memberIdentityIds : [], group.tenantId, group.enterpriseId);\n      if (!members.ok) return members;\n\n      if (group.memberIdentityIds.length === members.value.length && group.memberIdentityIds.every((id, i) => id === members.value[i])) {\n        return { unchanged: true };\n      }\n\n      const moved = moveMembersToGroup(next.groups, group, members.value);\n      const msg = moved > 0 ? `外呼组成员已更新（${moved} 位坐席已自动从原外呼组移入）` : '外呼组成员已更新';\n      return { message: msg, group };\n    });\n  }",
+              "source_refs": [
+                "inputs/source-index.json#SRC-2100",
+                "inputs/source-index.json#SRC-2102"
+              ],
+              "candidate_key": "cloud-outbound-group-members",
+              "candidate_source_pointer": "/source_evidence/1",
+              "business_trigger": "从原外呼组列表点击维护成员；在该入口设置kind=members的成员弹层勾选后点击保存成员，当前上下文/版本及原对象范围有效时进入setMembers本地事务。",
+              "rationale": "仅选择实际setMembers终点；不以创建后打开members当保存。不将const对象别名伪称factory。全部节点为原源码精确范围。",
+              "target_symbol": "setMembers",
+              "target_callee": "setMembers",
+              "trigger_kind": "source_chain",
+              "source_chain": {
+                "version": "bounded-static-chain@1",
+                "entry": {
+                  "kind": "template_event",
+                  "callee": "OutboundGroupManagement.save",
+                  "event": "click",
+                  "evidence": {
+                    "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                    "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                    "line_start": 188,
+                    "line_end": 218,
+                    "source_quote": "    ui.openLayer('outbound-group-edit', `\n      <div class=\"layer-header\">\n        <div>\n          <h2>维护外呼组成员</h2>\n          <p>${esc(g.name)} (编号：${esc(g.gno)}) · ${esc(g.tenantName)}</p>\n        </div>\n        <button aria-label=\"关闭\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">×</button>\n      </div>\n      <div class=\"layer-body\">\n        ${unavailable.length ? ui.alert('warning', '存在不可用成员', '本次保存将自动移除已停用或无法找到的坐席成员。') : ''}\n        <p class=\"field-hint\">勾选加入，取消勾选移出。每位坐席只能属于一个外呼组，选择其他组成员会将其移入当前组。</p>\n        <div class=\"obg-member-list\" style=\"max-height:360px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:8px 0;\">\n          ${candidates.map(a => {\n            const isCurrent = g.memberIdentityIds.includes(a.contactCenterIdentityId);\n            const inOther = a.assignedGroupId && a.assignedGroupId !== g.outboundGroupId;\n            return `\n            <label class=\"obg-member\" style=\"display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #e5e7eb;border-radius:6px;background:${isCurrent ? '#f0fdf4' : '#fff'};cursor:pointer;\">\n              <input type=\"checkbox\" name=\"obg-member\" value=\"${esc(a.contactCenterIdentityId)}\" ${isCurrent ? 'checked' : ''}>\n              <span style=\"flex:1;\">\n                <strong>${esc(a.userName)}</strong>\n                <small style=\"color:#6b7280;display:block;\">工号: ${esc(a.cno)}</small>\n                ${inOther ? `<small style=\"color:#f59e0b;display:block;\">[当前在: ${esc(a.assignedGroupName)}]</small>` : ''}\n              </span>\n            </label>`;\n          }).join('') || ui.empty('当前租户暂无已启用坐席')}\n        </div>\n      </div>\n      <div class=\"layer-footer\">\n        <button class=\"btn\" onclick=\"PlatformUI.closeLayer('outbound-group-edit')\">取消</button>\n        <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.save()\">保存成员</button>\n      </div>`, 'wide');",
+                    "source_refs": [
+                      "inputs/source-index.json#SRC-2100",
+                      "inputs/source-index.json#SRC-2102"
+                    ]
+                  },
+                  "opening_evidence": {
+                    "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                    "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                    "line_start": 19,
+                    "line_end": 50,
+                    "source_quote": "    return `<section class=\"platform-page outbound-group-page\">\n      ${ui.pageHeader('外呼组管理', '为预外呼任务组建接听团队，维护本租户的外呼组及坐席成员。')}\n      ${api.storageError() ? ui.alert('warning', '外呼组暂时无法读取', api.storageError()) : ''}\n      <div class=\"filter-panel\">\n        <label class=\"field grow\">\n          <span>外呼组名称 / 编号</span>\n          <input id=\"obg-keyword\" value=\"${esc(keyword)}\" placeholder=\"输入外呼组名称或编号\">\n        </label>\n        <div class=\"filter-actions\">\n          <button class=\"btn\" onclick=\"OutboundGroupManagement.reset()\">重置</button>\n          <button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.query()\">查询</button>\n        </div>\n      </div>\n      <div class=\"management-list-shell\">\n        ${ui.toolbar('<button class=\"btn btn-primary\" onclick=\"OutboundGroupManagement.create()\">新增外呼组</button>', '')}\n        ${ui.table([\n          { key: 'name', label: '外呼组名称', render: (v, g) => `<button class=\"table-link\" onclick=\"${command('detail', g.outboundGroupId, listContext)}\"><strong>${esc(v)}</strong></button>` },\n          { key: 'gno', label: '外呼组编号', render: v => `<span class=\"badge badge-info\">${esc(v)}</span>` },\n          { key: 'tenantName', label: '所属租户' },\n          { key: 'memberCount', label: '成员数', render: n => `${n} 人` },\n          { key: 'outboundGroupId', label: '操作', render: (id, g) => `\n            <div class=\"table-actions\">\n              <button onclick=\"${command('detail', id, listContext)}\">查看</button>\n              <button onclick=\"${command('edit', id, listContext)}\">编辑</button>\n              <button onclick=\"${command('members', id, listContext)}\">维护成员</button>\n              <button class=\"btn-text-danger\" onclick=\"${command('remove', id, listContext)}\">删除</button>\n            </div>`\n          }\n        ], rows.slice((page - 1) * 8, page * 8), { emptyText: '暂无外呼组，点击“新增外呼组”开始配置' })}\n        ${ui.pagination(rows.length, page, 8, 'OutboundGroupManagement.setPage')}\n      </div>\n    </section>`;",
+                    "source_refs": [
+                      "inputs/source-index.json#SRC-2100",
+                      "inputs/source-index.json#SRC-2102"
+                    ]
+                  },
+                  "ui_alias_evidence": {
+                    "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                    "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                    "line_start": 7,
+                    "line_end": 7,
+                    "source_quote": "  const ui = PlatformUI, esc = ui.escape, api = OutboundGroups;",
+                    "source_refs": [
+                      "inputs/source-index.json#SRC-2100",
+                      "inputs/source-index.json#SRC-2102"
+                    ]
+                  }
+                },
+                "links": [
+                  {
+                    "kind": "static_owner_export",
+                    "callee": "OutboundGroupManagement.save",
+                    "symbol": "save",
+                    "evidence": {
+                      "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                      "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                      "line_start": 289,
+                      "line_end": 289,
+                      "source_quote": "  window.OutboundGroupManagement = { render, create, edit, detail, members, remove, save, query, reset, setPage };",
+                      "source_refs": [
+                        "inputs/source-index.json#SRC-2100",
+                        "inputs/source-index.json#SRC-2102"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "callsite",
+                    "from_symbol": "save",
+                    "callee": "api.setMembers",
+                    "branch": "alternate",
+                    "reachability": "conditional_only",
+                    "branch_condition": "e.kind !== 'create' && e.kind !== 'edit'",
+                    "evidence": {
+                      "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+                      "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+                      "line_start": 244,
+                      "line_end": 261,
+                      "source_quote": "    if (e.kind === 'create') {\n      const tenantSelect = document.getElementById('obg-tenant');\n      const tenantVal = tenantSelect ? (tenantSelect.value || AppState.get().tenantId) : AppState.get().tenantId;\n      result = api.create({\n        name: document.getElementById('obg-name')?.value,\n        gno: document.getElementById('obg-gno')?.value,\n        comment: document.getElementById('obg-comment')?.value,\n        tenantId: tenantVal\n      }, e.context, e.revision);\n    } else if (e.kind === 'edit') {\n      result = api.update(e.id, {\n        name: document.getElementById('obg-name')?.value,\n        comment: document.getElementById('obg-comment')?.value\n      }, e.context, e.revision);\n    } else {\n      const checkedIds = [...document.querySelectorAll('[name=\"obg-member\"]:checked')].map(n => n.value);\n      result = api.setMembers(e.id, checkedIds, e.context, e.revision);\n    }",
+                      "source_refs": [
+                        "inputs/source-index.json#SRC-2100",
+                        "inputs/source-index.json#SRC-2102"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "static_owner_export",
+                    "callee": "window.OutboundGroups.setMembers",
+                    "symbol": "setMembers",
+                    "evidence": {
+                      "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js",
+                      "source_sha256": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+                      "line_start": 563,
+                      "line_end": 568,
+                      "source_quote": "  window.OutboundGroups = {\n    forTask, choices, isGroup, taskSource, references, resolve, fields, canReceive, executionError,\n    contextKey, canAccess, canManage, list, get, create, update, deleteGroup, setMembers,\n    assignAgent, unassignAgent, listAssignedAgent, queryAgentGroup, candidates, tenantOptions,\n    generateGno, revision, refresh, storageError: () => errorMessage\n  };",
+                      "source_refs": [
+                        "inputs/source-index.json#SRC-2100",
+                        "inputs/source-index.json#SRC-2102"
+                      ]
+                    }
+                  }
+                ],
+                "terminal": {
+                  "symbol": "setMembers",
+                  "evidence": {
+                    "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/outbound-groups.js",
+                    "source_sha256": "c76252a627d0e8d103dcd30e0dc4d159778a28cdf3977f88a89ab6ee8ce14520",
+                    "line_start": 350,
+                    "line_end": 369,
+                    "source_quote": "  function setMembers(outboundGroupIdOrGno, memberIdentityIds, expectedContext, expectedRevision) {\n    if (!validText(outboundGroupIdOrGno)) return failure('请选择要维护的外呼组');\n    return transact(expectedContext, expectedRevision, next => {\n      const group = next.groups.find(g => (g.outboundGroupId === outboundGroupIdOrGno || g.gno === outboundGroupIdOrGno) && inScope(g));\n      if (!group || !inScope(group)) return failure('当前工作范围内找不到该外呼组');\n      const used = references(group.outboundGroupId).filter(t => !['已完成', '已终止', '已结束', '已删除'].includes(t.status) || t.alictiTaskControlPending);\n      if (used.length) return failure('请先结束或删除关联任务后维护成员：' + used.map(t => t.name).join('、'));\n\n      const members = normalizeMembers(Array.isArray(memberIdentityIds) ? memberIdentityIds : [], group.tenantId, group.enterpriseId);\n      if (!members.ok) return members;\n\n      if (group.memberIdentityIds.length === members.value.length && group.memberIdentityIds.every((id, i) => id === members.value[i])) {\n        return { unchanged: true };\n      }\n\n      const moved = moveMembersToGroup(next.groups, group, members.value);\n      const msg = moved > 0 ? `外呼组成员已更新（${moved} 位坐席已自动从原外呼组移入）` : '外呼组成员已更新';\n      return { message: msg, group };\n    });\n  }",
+                    "source_refs": [
+                      "inputs/source-index.json#SRC-2100",
+                      "inputs/source-index.json#SRC-2102"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "source_boundary_notes": {
+            "product_scope_basis": "SRC-2100 selected current reference prototypes",
+            "source_JS_executed": false,
+            "remote_verified": false,
+            "permission_verified": false,
+            "production_verified": false,
+            "source_audit_classification": "independent_business_operation",
+            "static_result_scope": "原UI有独立入口；沿原范围调用/提交后渲染本对象列表、详情或操作结果，失败/待核不报成功。只证明本地参考原型结构与Mock/本地结果处理。",
+            "actual_source_carriers": [
+              {
+                "page_id": "PAGE-2212",
+                "page_name": "外呼组管理",
+                "action_id": "ACTION-2072",
+                "action_name": "原外呼组允许的维护操作",
+                "mapping_status": "needs_original_baseline_reconciliation",
+                "source_scenario_ids": [
+                  "SC-2021"
+                ]
+              }
+            ]
+          }
+        },
+        "StrictReview_calls": 1,
+        "StrictReview_target": "retained-source-cloud-outbound-group-members",
+        "errors": [
+          "Bounded source-chain proof pending: No unique exact static owner export/property binding"
+        ],
+        "status": "not_accepted",
+        "first_exact_refusal": "Bounded source-chain proof pending: No unique exact static owner export/property binding",
+        "important": "This complete attempt intentionally preserves actual callee spelling/conditional branch/export, so the unsupported alias/global relation is visible instead of silently rewritten. No unsupported new link kind was treated as valid."
+      },
+      "bounded_existing_subchecks": [
+        {
+          "check": "exact original unqualified UI owner vs window export",
+          "status": "rejected_existing_bounded_subcheck",
+          "error": "Unsupported: No unique exact static owner export/property binding"
+        },
+        {
+          "check": "published qualified window owner itself is static",
+          "status": "accepted_existing_bounded_subcheck",
+          "result": "(Function(symbol='save', start=11763, end=13073, body_start=11779, body_end=13073, parent=Function(symbol=None, start=175, end=13720, body_start=187, body_end=13720, parent=None, is_declaration=False), is_declaration=True), Function(symbol=None, start=175, end=13720, body_start=187, body_end=13720, parent=None, is_declaration=False), {'render': 'render', 'create': 'create', 'edit': 'edit', 'detail': 'detail', 'members': 'members', 'remove': 'remove', 'save': 'save', 'query': 'query', 'reset': 'reset', 'setPage': 'setPage'}, 13537)"
+        },
+        {
+          "check": "real component export setMembers is static",
+          "status": "accepted_existing_bounded_subcheck",
+          "result": "(Function(symbol='setMembers', start=18936, end=20181, body_start=19032, body_end=20181, parent=Function(symbol=None, start=205, end=32179, body_start=217, body_end=32179, parent=None, is_declaration=False), is_declaration=True), Function(symbol=None, start=205, end=32179, body_start=217, body_end=32179, parent=None, is_declaration=False), {'forTask': 'forTask', 'choices': 'choices', 'isGroup': 'isGroup', 'taskSource': 'taskSource', 'references': 'references', 'resolve': 'resolve', 'fields': 'fields', 'canReceive': 'canReceive', 'executionError': 'executionError', 'contextKey': 'contextKey', 'canAccess': 'canAccess', 'canManage': 'canManage', 'list': 'list', 'get': 'get', 'create': 'create', 'update': 'update', 'deleteGroup': 'deleteGroup', 'setMembers': 'setMembers', 'assignAgent': 'assignAgent', 'unassignAgent': 'unassignAgent', 'listAssignedAgent': 'listAssignedAgent', 'queryAgentGrou"
+        },
+        {
+          "check": "actual escaped command helper for literal members",
+          "status": "rejected_existing_bounded_subcheck",
+          "error": "Unsupported: Handler helper is not supported fixed-owner template grammar"
+        },
+        {
+          "check": "actual ui alias",
+          "status": "accepted_existing_bounded_subcheck",
+          "result": "ui"
+        },
+        {
+          "check": "original ui.table column render maintenance control context 0",
+          "status": "recognized",
+          "context": "render",
+          "token_lines": [
+            19,
+            50
+          ]
+        },
+        {
+          "check": "original ui.table column render maintenance control context 1",
+          "status": "unsupported_existing_UI_sink_context",
+          "context": null,
+          "token_lines": [
+            39,
+            45
+          ]
+        },
+        {
+          "check": "exact raw save onclick matches unqualified callee",
+          "result": true
+        },
+        {
+          "check": "exact raw save onclick matches window-qualified export callee",
+          "result": false
+        },
+        {
+          "check": "actual result reassignment call is standalone supported statement",
+          "source": {
+            "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/outbound-group-management.js",
+            "source_sha256": "0f8245982905be310b480e6bf9ad180771a7cb525937fe711bbd0201c5aa4b02",
+            "line_start": 260,
+            "line_end": 260,
+            "source_quote": "      result = api.setMembers(e.id, checkedIds, e.context, e.revision);",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2100",
+              "inputs/source-index.json#SRC-2102"
+            ]
+          },
+          "result": null
+        },
+        {
+          "check": "actual else-if branch condition fits existing bounded bare-identifier ternary condition",
+          "condition": "e.kind !== 'create' && e.kind !== 'edit'",
+          "result": false
+        },
+        {
+          "check": "existing source-chain link vocabulary",
+          "supported_link_kinds": [
+            "callsite",
+            "factory_owner",
+            "static_owner_export"
+          ],
+          "missing_actual_link": "same-scope const api = OutboundGroups plus verified window.OutboundGroups export; no api() factory exists here"
+        }
+      ],
+      "contract_limitations": [
+        {
+          "gap": "global owner spelling",
+          "actual": "onclick OutboundGroupManagement.save() vs published window.OutboundGroupManagement",
+          "existing_rejection": "No unique exact static owner export/property binding; changing entry to window-qualified would instead fail exact original UI event match."
+        },
+        {
+          "gap": "real opening UI sink/helper",
+          "actual": "ui.table column render callback plus esc(fixed-owner template) command helper",
+          "existing_rejection": "ui.table callback not recognized as render/layer/toolbar template context; escaped helper not accepted fixed-owner template grammar."
+        },
+        {
+          "gap": "separate opening and final handler",
+          "actual": "members opening helper vs direct save onclick in layer",
+          "existing_rejection": "Current layer_opening only receives one entry helper and compares opening with helper=None; exact separate opening helper evidence is not expressible."
+        },
+        {
+          "gap": "conditional reassignment",
+          "actual": "else of e.kind create/edit chain, result = api.setMembers(...)",
+          "existing_rejection": "Existing callsite only direct call/return/declaration assignment or exact bare-identifier ternary; this reassignment/else-if cannot be truthfully marked unconditional."
+        },
+        {
+          "gap": "cross-file const object alias",
+          "actual": "api=OutboundGroups; export window.OutboundGroups.setMembers",
+          "existing_rejection": "Current links have callsite/factory_owner/static_owner_export only; exact pending api.setMembers cannot equal window.OutboundGroups.setMembers without a proven const alias link."
+        }
+      ],
+      "minimum_proposed_tool_scope": [
+        {
+          "file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/bounded_source_chain.py",
+          "functions": [
+            "owner_export",
+            "entry",
+            "layer_opening",
+            "supported_template_context"
+          ],
+          "change": "Explicit same-global-object proof may relate an unshadowed unqualified browser-global handler to its exact window export; require no lexical shadow/rebinding/deletion or owner property rewrite. Support a ui.table argument column-render template only when table is an actual UI sink reachable within the verified exported render; do not accept arbitrary returned/unused templates."
+        },
+        {
+          "file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/bounded_source_chain.py",
+          "functions": [
+            "helper",
+            "layer_opening",
+            "entry"
+          ],
+          "change": "Allow this exact fixed-owner template wrapped once by same-scope immutable alias to real PlatformUI.escape, preserving literal method/argument serialization; separately bind opening-control helper evidence (members) and final layer save event (save), without assuming both use the same method/helper."
+        },
+        {
+          "file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/bounded_source_chain.py",
+          "functions": [
+            "validate",
+            "owner_export"
+          ],
+          "change": "Add a bounded const-owner-alias link for actual const api=OutboundGroups, then bind the exact published window.OutboundGroups.setMembers export across files. Reject arbitrary objects, reassignments, dynamic property keys, getter/proxy/factory substitutions. Do not use factory_owner for this source."
+        },
+        {
+          "file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/bounded_source_chain.py",
+          "functions": [
+            "validate callsite conditional branch"
+          ],
+          "change": "Support exact lexical else-of-if/else-if branch with structured comparator evidence and source spans, plus assignment to an already-declared simple result variable. Preserve conditional_only and entry-captured editor.kind=members; do not label line260 unconditional or accept arbitrary expression text as proof."
+        },
+        {
+          "file": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/operation_attribution.py",
+          "functions": [
+            "derived_trigger_errors"
+          ],
+          "change": "Only schema wiring/strict source-pointer and terminal checks if new bounded link fields require it; retain original source file/SHA/quote/candidate SHA/source registry requirements. No generic callee-short-name acceptance and no Chinese business-action inference. For members saving require independently reviewed terminal pointer /source_evidence/1=setMembers; opening members call is not a result terminal."
+        }
+      ],
+      "affected_syntax_items": {
+        "definitely_this_representative": [
+          "cloud-outbound-group-members"
+        ],
+        "same_original_page_sibling_keys": [
+          "cloud-outbound-group-query",
+          "cloud-outbound-group-detail",
+          "cloud-outbound-group-create",
+          "cloud-outbound-group-edit",
+          "cloud-outbound-group-delete"
+        ],
+        "boundary": "Sibling IDs share global owner/escaped command/table syntax but need independent terminal/branch proofs; no automatic pass or claim all103 are fixed. Cross-file factory variants from other modules remain out of this representative and need their own precise const/factory grammar proof."
+      },
+      "strict_validation_plan": {
+        "positive": [
+          "Actual two-file representative under fixed registered source SHA: nav/UI table members→members editor.kind→layer save→save conditional else→const alias→exact component setMembers; conditional static attribution only.",
+          "Same-scope frozen const aliases for ui/escape/api resolve uniquely; qualified export and actual unqualified event share a verified browser global without nearer shadow.",
+          "Empty selected array legitimately clears members; unchanged path remains unchanged; result failure and revision/raw/context mismatch remain failures. These are source-scope assertions, not JS execution or supplier success tests.",
+          "Existing strict source_chain positive fixtures remain accepted; existing simple ui_control/operation_callsite output remains backward compatible only within its documented scope."
+        ],
+        "negative": [
+          "Line270 members(create-result...) alone must not qualify saving-members terminal; selecting /source_evidence/0 open function cannot replace independently reviewed setMembers result pointer.",
+          "Unused markup/table helpers, a table renderer not passed to real ui.table, fake ui/PlatformUI, escaped strings in comments, HTML in non-UI sinks must fail.",
+          "Local parameter/const shadows OutboundGroupManagement/OutboundGroups/window/ui/esc/api/command; reassignment, computed/dynamic owner writes, getters/proxies/duplicates must fail.",
+          "command(dynamicMethod) or helper dynamically chooses owner/URL; non-PlatformUI escape wrapper or serializing different method must fail.",
+          "save create/edit branch, branch omitted/mislabeled unconditional, changed e.kind comparison or stale editor capture must fail members-branch attribution.",
+          "Wrong same-name setMembers in another file/owner, wrong api const target, api() fake factory, unregistered file/SHA mismatch or excerpt mutation must fail.",
+          "Proof that only opens layer, only exports a name, only has a declaration, or lacks the actual save control cannot qualify the completed operation.",
+          "All existing negative source-chain regression fixtures must remain rejected; compare exact rejection family, not only total pass count."
+        ],
+        "regression": "Run bounded source-chain and retained-attribution contract regression fixtures plus the single exact reference record. Do not change source prototype, candidate, snapshot SHA or source approval statuses; no production or permission risk accepted.",
+        "not_implemented": true
+      },
+      "preservation": {
+        "source_files_same_before_after": true,
+        "candidate_sha_same_before_after": true,
+        "skill_files_not_written": true,
+        "formal_project_files_not_written": true
+      },
+      "conclusion": "Original member save operation is explicitly present within bounded local source behavior. It is not ready for canonical usable promotion under the current strict proof format. Remaining blocker is source-proof-expression/semantic terminal binding, not product-scope uncertainty, a new feature request, or production authorization."
+    },
+    "legacy_identity": {
+      "schema_version": "1.0",
+      "case_id": "S7-REP-LEGACY-IDENTITY",
+      "target_function_id": "FUNC-2018",
+      "kind": "specific_business_object_binding_evidence_gap_not_validator_grammar",
+      "reviewed_on": "2026-10-24",
+      "scope_basis_refs": [
+        "inputs/source-index.json#SRC-2058",
+        "inputs/source-index.json#SRC-2100",
+        "inputs/source-index.json#SRC-2101",
+        "inputs/source-index.json#SRC-2103"
+      ],
+      "source_JS_executed": false,
+      "current_route": "Cloud:business-categories → BusinessConfiguration.render(category) → rowActions.toggle(category,id,false) → toggle → CustomerBusiness.setEnabled → get → save → mutate(scope.types)",
+      "proven_source_identity": {
+        "source_system": "Cloud_reference_CustomerBusiness",
+        "storage": "customer-business-config-v3 / scopes[] / types[]",
+        "locator_fields": [
+          "enterpriseId",
+          "tenantId",
+          "category.id"
+        ],
+        "state_field": "category.enabled",
+        "source_permission": "本地effectiveAccess.valid+CLOUD_CONTACT_CENTER+ADMIN/SUPER_ADMIN+allowed(source)及context/revision校验；未证明统一身份或生产授权",
+        "local_result": "原scope.types内同ID enabled=false写localStorage，刷新列表；原分类和字段/历史仍保。非供应商执行或服务端可靠持久证明。"
+      },
+      "AI_distinct_identity": {
+        "execution_scene_document_fields": [
+          "business-scene.id",
+          "companyId",
+          "sceneType"
+        ],
+        "source_prototype_category_value": "新线索/冷线索等场景类型显示值",
+        "not_identity_proof": [
+          "同名",
+          "sceneType枚举值",
+          "标签场景字典id",
+          "新品牌分类id"
+        ]
+      },
+      "existing_evidence_format_result": "FUNC-2018是本期差异，不需要将Cloud toggle候选改造为新FUNC；可把准确源对象/SHA/行补baseline_evidence。当前阻塞不是解析器拒绝，而是目标“旧公共分类”的实体及既有AI关联尚无桥接证据。",
+      "repairable_now": [
+        "把旧v2草稿的基准引用降为历史；增加准确Cloud原对象候选定位与本地状态路径，不宣称其就是所有旧公共目录。",
+        "将泛“缺旧基线/分类ID”说明改为精确Cloud复合定位及缺失的目标关联，不扩大权限、不改原规则。"
+      ],
+      "not_repairable_without_evidence": [
+        "确认FUNC2018目标旧目录是否正是这个Cloud tenant types实体，或其他真实旧目录。",
+        "确认既有关联AI场景使用的准确源分类外键/关联记录；现有源字段和政策不能替代这条桥。"
+      ],
+      "minimal_needed_evidence": {
+        "one_redacted_category_locator": [
+          "sourceSystem或真实目录对象名",
+          "enterpriseId（适用时）",
+          "tenantId",
+          "原分类ID/编码"
+        ],
+        "one_matching_AI_association": [
+          "AI执行场景id＋所属租户/公司ID",
+          "保存分类关联的真实字段名或映射记录ID/两端原值"
+        ],
+        "if_no_existing_association": "明确既有关联记录尚不存在、该关联由本次本方适配新建即可；不索取完整旧包、全库或口令。",
+        "decision_limit": "只解决该旧目录身份/归属，不改变已确认停用政策、品牌新分类范围或真实授权合同。"
+      },
+      "evidence": [
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/business-categories.js",
+          "source_sha256": "addb6fc38834d414609d9a21a874ea59f96bd82203d039c2b1c0823deaf2e463",
+          "line_start": 61,
+          "line_end": 88,
+          "source_quote": "  function rowActions(kind,row,data) {\n    const protectedField=kind==='field'&&model.presetField(row.id);\n    const referenced=kind==='field'&&data.rows.some(category=>category.fields.some(ref=>ref.fieldId===row.id));\n    return `<div class=\"table-actions\"><button onclick=\"${action('open',kind,row.id)}\">编辑</button><button onclick=\"${action('open',kind,row.id,true)}\">预览</button>${protectedField?'':`<button onclick=\"${action('toggle',kind,row.id,!row.enabled)}\">${row.enabled?'停用':'启用'}</button>`}${kind==='category'||protectedField||referenced?'':`<button class=\"business-delete-action\" onclick=\"${action('remove',kind,row.id)}\">删除</button>`}</div>`;\n  }\n  function tableColumns(kind,data) {\n    const common=[{key:'label',label:'名称',render:value=>`<strong>${esc(value)}</strong>`}];\n    if(kind==='category') common.push(\n      {key:'codeLabel',label:'导入业务编码'},\n      {key:'fields',label:'客服填写字段',render:value=>`${value.filter(item=>item.enabled).length} 个<span class=\"business-category-sub\">${esc(value.filter(item=>item.enabled).slice(0,4).map(item=>fieldName(item.fieldId,data)).join('、'))}</span>`}\n    );\n    if(kind==='field') common.push(\n      {key:'type',label:'填写方式',render:value=>esc(typeNames[value]||value)},\n      {key:'businessKey',label:'业务字段编码',render:value=>esc(value||'—')},\n      {key:'options',label:'选项数',render:(value,row)=>['select','multiselect'].includes(row.type) ? esc(value?.length||0) : '—'}\n    );\n    common.push({key:'enabled',label:'状态',render:value=>ui.status(value?'启用':'停用')},{key:'id',label:'操作',render:(_,row)=>rowActions(kind,row,data)});\n    return common;\n  }\n  function render(kind=activeKind) {\n    if(!model.canManage()) return ui.empty('当前账号无业务表单配置权限');\n    activeKind=states[kind]?kind:'category'; kind=activeKind;\n    const tenants=syncScope(), data=catalog(), rows=data.ok?sortedRows(kind,data):[];\n    const descriptions={\n      category:'维护导入业务类型，直接设置客服填写字段的顺序、显示和必填。',\n      field:'独立维护客服填写字段及选项；业务编码只用于本地业务映射。'\n    };\n    return `<section class=\"platform-page business-categories-page business-config-page\">${ui.pageHeader('业务分类',descriptions[kind])}${links(kind)}${filterHtml(kind,tenants)}${data.ok?'':`<p class=\"business-category-error\" role=\"alert\">${esc(data.message)}</p>`}<div class=\"management-list-shell\">${ui.toolbar(`<button class=\"btn btn-primary\" ${data.ok?'':'disabled'} onclick=\"${action('open',kind)}\">新增${kindNames[kind]}</button>`,'<button class=\"btn\" onclick=\"BusinessConfiguration.refresh()\">刷新</button>')}${ui.table(tableColumns(kind,data),rows,{emptyText:'暂无'+kindNames[kind]+'，请新增'})}</div></section>`;",
+          "proves": "真实行控件toggle及kind分支、表格render路径；只有本地allowed/role含义，非生产授权映射"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/pages/business-categories.js",
+          "source_sha256": "addb6fc38834d414609d9a21a874ea59f96bd82203d039c2b1c0823deaf2e463",
+          "line_start": 276,
+          "line_end": 284,
+          "source_quote": "  function toggle(kind,id,enabled) {\n    if(!states[kind]||!model.canManage()||context!==model.context()) return showToast('工作范围已变化，请刷新后操作','warning');\n    const data=catalog(); if(!data.ok) return showToast(data.message,'warning');\n    const row=rowsOf(kind,data).find(item=>item.id===id);\n    if(!row) return showToast('当前租户没有此配置','warning');\n    const options={expectedContext:data.context,expectedRevision:data.revision};\n    const result=kind==='category' ? model.setEnabled(id,enabled,currentScope(),options) : model.saveField({...row,enabled},currentScope(),options);\n    if(!result.ok) return showToast(result.message,'warning');\n    refresh(); showToast(kindNames[kind]+(enabled?'已启用':'已停用'),'success');",
+          "proves": "原category/field切换分支，category实际调用CustomerBusiness.setEnabled"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/customer-business.js",
+          "source_sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+          "line_start": 17,
+          "line_end": 31,
+          "source_quote": "  const state = () => root.AppState?.get?.() || {};\n  const access = () => root.AppState?.effectiveAccess?.() || {};\n  const superUser = () => access().roleCode === 'SUPER_ADMIN';\n  const context = () => JSON.stringify([state().accountId,state().sessionId,state().enterpriseId,state().tenantId,state().activeDomain,access().roleCode,access().valid]);\n  const ready = () => access().valid === true && state().activeDomain === 'CLOUD_CONTACT_CENTER';\n  const canManage = () => ready() && ['ADMIN','SUPER_ADMIN'].includes(access().roleCode);\n  const scopeOf = (source = {}) => ({enterpriseId:text(source?.enterpriseId || state().enterpriseId),tenantId:text(source?.tenantId || state().tenantId)});\n  const sameScope = (a,b) => a.enterpriseId === b.enterpriseId && a.tenantId === b.tenantId;\n  const fail = message => ({ok:false,message});\n\n  function tenants() {\n    if (!ready()) return [];\n    return (root.CloudCallData?.tenants || []).filter(row => !row.builtIn && text(row.enterpriseId) === text(state().enterpriseId) && row.status === '启用' && (row.capabilitySet || []).includes('CLOUD_CONTACT_CENTER') && (superUser() || text(row.tenantId) === text(state().tenantId)) && root.AppState.authorizeObject('',row)).map(clone);\n  }\n  function allowed(source) { const scope = scopeOf(source); return tenants().some(row => sameScope(scopeOf(row),scope)); }",
+          "proves": "原context/role与enterpriseId+tenantId作用域，原本地可见/维护限制"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/customer-business.js",
+          "source_sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+          "line_start": 49,
+          "line_end": 53,
+          "source_quote": "      field('interestedItems','感兴趣的活动','multiselect',['到店体验','试驾体验','车主活动'])\n    ];\n    const refs = ids => ids.map(fieldId => ({fieldId,enabled:true,required:false}));\n    const types = [\n      {id:'lead',label:'线索类',codeLabel:'线索编码',prefix:'LEAD',enabled:true,fields:refs(fields.slice(0,6).map(row => row.id))},",
+          "proves": "租户分类types示例有稳定id，不以label充ID"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/customer-business.js",
+          "source_sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+          "line_start": 126,
+          "line_end": 137,
+          "source_quote": "  }\n  function load() {\n    const raw = root.localStorage.getItem(storageKey);\n    if (raw === null) return {raw,data:{version:3,revision:0,scopes:[]}};\n    const data = JSON.parse(raw), keys = new Set();\n    if (!object(data) || data.version !== 3 || !Number.isSafeInteger(data.revision) || data.revision < 0 || !Array.isArray(data.scopes)) throw Error('Invalid business config store');\n    data.scopes.forEach(scope => {\n      const key = JSON.stringify([scope.enterpriseId,scope.tenantId]);\n      if (!validateScope(scope) || keys.has(key)) throw Error('Invalid business config scope');\n      keys.add(key);\n    });\n    return {raw,data};",
+          "proves": "按scope企业/租户定位bundle.types；数据损坏与无权反馈"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/customer-business.js",
+          "source_sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+          "line_start": 140,
+          "line_end": 166,
+          "source_quote": "    const scope = scopeOf(source);\n    if (!allowed(scope)) return {ok:false,rows:[],fields:[],message:'请选择当前账号下的使用租户',scope,context:context()};\n    try {\n      const {data} = load(), bundle = data.scopes.find(row => sameScope(row,scope)) || defaults();\n      return {ok:true,rows:clone(bundle.types),fields:clone(bundle.fields),scope,revision:data.revision,context:context()};\n    } catch (_) { return {ok:false,rows:[],fields:[],message:'业务配置暂时无法读取，请刷新后重试',scope,context:context()}; }\n  }\n  // Read only: caller must already resolve an application identity. Never use the active UI tenant as fallback.\n  function resolveImportType(type, source) {\n    if (!source || !text(source.tenantId) || !text(source.enterpriseId)) return {ok:false,code:'INVALID_BUSINESS_SCOPE',message:'无法确认业务类型所属租户'};\n    const scope = {tenantId:text(source.tenantId),enterpriseId:text(source.enterpriseId)};\n    if (!(root.CloudCallData?.tenants || []).some(row => !row.builtIn && row.status === '启用' && sameScope(scopeOf(row),scope))) return {ok:false,code:'INVALID_BUSINESS_SCOPE',message:'业务租户不可用'};\n    if (typeof type !== 'string' || !type) return {ok:false,code:'MISSING_BUSINESS_TYPE',message:'请提供业务类型编码'};\n    if (!safeId(type)) return {ok:false,code:'INVALID_BUSINESS_TYPE',message:'业务类型编码无效'};\n    try {\n      const {data} = load(), bundle = data.scopes.find(row => sameScope(row,scope)) || defaults();\n      const row = bundle.types.find(item => item.id === type);\n      if (!row) return {ok:false,code:'INVALID_BUSINESS_TYPE',message:'该租户未配置此业务类型'};\n      if (!row.enabled) return {ok:false,code:'BUSINESS_TYPE_DISABLED',message:'该业务类型已停用，请选择已启用的类型'};\n      return {ok:true,row:clone(row),scope};\n    } catch (_) { return {ok:false,code:'BUSINESS_CONFIG_UNAVAILABLE',message:'业务配置暂时无法读取，请稍后重试'}; }\n  }\n  function fieldCatalog(source = {}) { const data = catalog(source); return {...data,rows:data.fields}; }\n  function list(source = {}, includeDisabled = false) { return catalog(source).rows.filter(row => includeDisabled || row.enabled); }\n  function get(type, source = {}) {\n    if (!safeId(type)) return null;\n    const row = list(source,true).find(value => value.id === type); if (row) return row;",
+          "proves": "新导入禁止disabled分类，而get可以includeDisabled；源查询/历史读取分开"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/customer-business.js",
+          "source_sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+          "line_start": 207,
+          "line_end": 236,
+          "source_quote": "  function mutate(source, options, change) {\n    if (!canManage() || !allowed(source)) return fail('当前账号无权维护此租户的业务配置');\n    if (options.expectedContext !== undefined && options.expectedContext !== context()) return fail('工作范围已变化，请重新打开后操作');\n    try {\n      const loaded = load();\n      if (options.expectedRevision !== undefined && options.expectedRevision !== loaded.data.revision) return fail('业务配置已更新，请重新打开后操作');\n      const scope = scopeOf(source), next = clone(loaded.data);\n      let target = next.scopes.find(row => sameScope(row,scope));\n      if (!target) { target = {...scope,...defaults()}; next.scopes.push(target); }\n      const result = change(target); if (!result.ok) return result;\n      if (!validateScope(target)) return fail('业务配置校验失败，请核对关联关系后重试');\n      if (root.localStorage.getItem(storageKey) !== loaded.raw) return fail('业务配置已更新，请重新打开后操作');\n      next.revision++; root.localStorage.setItem(storageKey,JSON.stringify(next));\n      return {...result,revision:next.revision,scope};\n    } catch (_) { return fail('业务配置未能保存，请保留填写内容并重试'); }\n  }\n  function save(input, source = {}, options = {}) {\n    const parsed = normalize(input); if (!parsed.ok) return parsed;\n    return mutate(source,options,target => {\n      const row = parsed.row;\n      if (row.fields.some(ref => !target.fields.some(field => field.id === ref.fieldId))) return fail('业务分类引用了不存在的字段，请重新选择');\n      if (row.id === 'lead' && !hasLeadFields(row)) return fail('线索类须保留六个预置统计字段，可在分类中关闭显示');\n      if (row.enabled && row.fields.some(ref => ref.enabled && !target.fields.find(field => field.id === ref.fieldId)?.enabled)) return fail('启用的业务分类不能显示已停用字段');\n      if (target.types.some(item => item.id !== row.id && item.label.toLocaleLowerCase() === row.label.toLocaleLowerCase())) return fail('本租户已有同名业务分类，请修改名称');\n      const index = target.types.findIndex(item => item.id === row.id);\n      if (index < 0) target.types.push(row); else target.types[index] = row;\n      return {ok:true,row:clone(row),message:'业务分类已保存'};\n    });\n  }\n  function saveField(input, source = {}, options = {}) {",
+          "proves": "原写入保scope/revision/context并按row.id新增或替换types，属于本地持久化"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/1.1.0/prototype/js/components/customer-business.js",
+          "source_sha256": "dcdc6d29b9ee66a1d68448cfd55212b88df73851635e8da07447b1ffe67c4d0b",
+          "line_start": 257,
+          "line_end": 262,
+          "source_quote": "  function setEnabled(id, enabled, source = {}, options = {}) {\n    const row = get(id,source);\n    return row ? save({...row,enabled:!!enabled},source,options) : fail('当前租户内没有此业务分类');\n  }\n  root.CustomerBusiness = Object.freeze({storageKey,fieldTypes:Object.freeze(fieldTypes),context,scopeOf,canManage,tenants,catalog,resolveImportType,fieldCatalog,list,get,getField,fields,optionLabel,importedFields,importSnapshot,importedDetail,callbackSnapshot,snapshot,typeLabel,codeLabel,newId,presetField,normalize,normalizeField,save,saveField,deleteField,setEnabled});\n})(window);",
+          "proves": "停用由get(id,source)→save({...row,enabled})；原对象ID保留"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/需求/分析工作区/inputs/user-category-disable-confirmation-20261019.json",
+          "source_sha256": "47e1b1414921d05c9346fd996a85536791de035e5c4d61d71a2afe2edf9ae2e6",
+          "line_start": 1,
+          "line_end": 10,
+          "source_quote": "{\n  \"source_kind\": \"actual_user_question_reply\",\n  \"received_on\": \"2026-10-19\",\n  \"question\": \"第1项收口确认：公共业务分类停用后，已关联该分类的 AI 场景再次创建任务，采用哪种规则？推荐只禁止新选择、新关联，保留原场景继续使用；备选要求原场景先更换启用分类才能新建任务。两种方案都建议保留历史、让已受理任务按原规则继续。本次仅确认分类停用行为，不是 G3 或生产上线批准。\",\n  \"answer\": \"仅限制新选择与新关联，已有场景继续使用（推荐）\",\n  \"selected_option_key\": \"preserve_existing_associations\",\n  \"business_policy_confirmed\": true,\n  \"G3_approved\": false,\n  \"production_migration_authorized\": false\n}",
+          "proves": "实际用户只确认停用政策；没有源系统/分类主键/AI关联记录"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/DCC&AI 外呼/AI 外呼/js/pages/sys-scene.js",
+          "source_sha256": "e37de9675d7e1572cdf714a75ab8599a679f8cad3cdcfa2e1c79ef255234a48d",
+          "line_start": 1486,
+          "line_end": 1506,
+          "source_quote": "    var sceneTypeEl = document.querySelector('#bizAddSceneDrawer input[name=\"sceneType\"]:checked');\n    var tenants = getCheckedValues('#tenantCheckboxGroup input[type=\"checkbox\"]:checked');\n    var sceneIdVal = '';\n    if (platform === '一知科技') sceneIdVal = getTrimmedValue('yizhiSceneIdInput');\n    else if (platform === '中科金智能') sceneIdVal = getTrimmedValue('zkjTaskIdInput');\n    else if (platform === '大众通信') sceneIdVal = getTrimmedValue('dazhongTaskId');\n    else if (platform === '厚朴') {\n      var currentScene = currentEditingId ? SceneRows.find(function (item) { return item.id === currentEditingId; }) : null;\n      var houpuSceneCount = SceneRows.filter(function (item) { return item.platform === '厚朴'; }).length + 1;\n      sceneIdVal = currentScene && currentScene.sceneId\n        ? currentScene.sceneId\n        : 'HP-SCENE-' + String(houpuSceneCount).padStart(3, '0');\n    }\n    var row = {\n      name: getTrimmedValue('sceneNameInput'),\n      code: getTrimmedValue('sceneCodeInput'),\n      desc: getTrimmedValue('sceneDescTextarea'),\n      platform: platform,\n      category: sceneTypeEl ? sceneTypeEl.value : '',\n      tenant: tenants.join('、'),\n      sceneId: sceneIdVal,",
+          "proves": "原AI专业场景.category为sceneType单选值，不证明公共分类外键"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/需求/分析工作区/inputs/wiki-context/ai-service-v1-contract-excerpts.md",
+          "source_sha256": "e041995ef059ba684e62c2200814b137e12fb5e1436d18c6910f74a6d52a8123",
+          "line_start": 1792,
+          "line_end": 1805,
+          "source_quote": "L25025: |iccaiBusinessSceneSaveParam|业务场景|body|true|IccaiBusinessSceneSaveParam|IccaiBusinessSceneSaveParam|\nL25026: |&emsp;&emsp;id|主键id||false|integer(int64)||\nL25027: |&emsp;&emsp;companyId|租户ID||false|integer(int64)||\nL25028: |&emsp;&emsp;sceneTitle|场景名称||false|string||\nL25029: |&emsp;&emsp;sceneCode|场景编码||false|string||\nL25030: |&emsp;&emsp;sceneType|场景类型 1-督办 2-服务 3-回访 4-新线索 5-冷线索||false|integer(int32)||\nL25031: |&emsp;&emsp;sceneDesc|场景描述||false|string||\nL25032: |&emsp;&emsp;sceneInputParamList|场景传入参数||false|array|IccaiSceneInfoSaveParam|\nL25033: |&emsp;&emsp;&emsp;&emsp;fieldName|字段名称||false|string||\nL25034: |&emsp;&emsp;&emsp;&emsp;paramName|参数名||false|string||\nL25035: |&emsp;&emsp;&emsp;&emsp;isNecessary|是否必填 0-否 1-是||false|integer(int32)||\nL25036: |&emsp;&emsp;&emsp;&emsp;infoType|信息类型 1-场景传入信息 2-场景提取信息||false|integer(int32)||\nL25037: |&emsp;&emsp;sceneExtractParamList|场景提取参数||false|array|IccaiSceneInfoSaveParam|\nL25038: |&emsp;&emsp;&emsp;&emsp;fieldName|字段名称||false|string||",
+          "proves": "已登记AI创建定义有id/companyId/sceneType等；这段没有公共分类外键，不能由名称猜映射"
+        },
+        {
+          "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/需求/分析工作区/inputs/wiki-context/ai-service-v1-contract-excerpts.md",
+          "source_sha256": "e041995ef059ba684e62c2200814b137e12fb5e1436d18c6910f74a6d52a8123",
+          "line_start": 1940,
+          "line_end": 1949,
+          "source_quote": "L25479: |&emsp;&emsp;id|主键id|integer(int64)||\nL25480: |&emsp;&emsp;companyId|租户ID|integer(int64)||\nL25481: |&emsp;&emsp;companyName|租户名称|string||\nL25482: |&emsp;&emsp;sceneTitle|场景名称|string||\nL25483: |&emsp;&emsp;sceneCode|场景编码|string||\nL25484: |&emsp;&emsp;sceneType|场景类型 1-督办 2-服务 3-回访 4-新线索 5-冷线索|integer(int32)||\nL25485: |&emsp;&emsp;sceneTypeName|场景类型名称|string||\nL25486: |&emsp;&emsp;sceneDesc|场景描述|string||\nL25487: |&emsp;&emsp;status|状态 0-禁用 1-启用|integer(int32)||\nL25488: |&emsp;&emsp;intelligentPlatformType|智能平台类型 1-冰兰 2-科大讯飞 3-一知|integer(int32)||",
+          "proves": "已登记AI列表按id/companyId/sceneType定义，非Cloud type.id直接等同证据"
+        }
+      ],
+      "product_scope_reopened": false,
+      "tool_change_required_for_this_case": false,
+      "production_verified": false,
+      "classification_pending_remains": true,
+      "execution_status": "read_only_trace_completed_precise_source_binding_patch_ready"
+    }
+  },
+  "tool_maintenance_proposal": {
+    "id": "S7-TOOL-MAINTENANCE-PROPOSAL-20261024",
+    "status": "proposed_not_authorized_not_implemented",
+    "reason": "两代表实际入口/处理/结果链已定位，但现有限定证据语法无法覆盖真实表格render回调及准确共享调用。不得以人工白名单或跳过条件替代。",
+    "allowed_files_if_approved": [
+      {
+        "path": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/scripts/bounded_source_chain.py",
+        "base_sha256": "07964f4dbc0e07afd8e9c163ed57925932a1a6903fe9930d11abd459cc028fe2"
+      },
+      {
+        "path": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/tests/test_bounded_source_chain.py",
+        "base_sha256": "5f40c16d470923b3964b84e3301ec5c0a509a21612b07b01884cca7ab107cb78"
+      },
+      {
+        "path": "/Users/huhaowen/.codex/skills/requirement-analysis-loop/references/artifact-contracts.md",
+        "base_sha256": "0d152f52540377c37ba6d4b0d90d8771039d766342c7ed6684cfe18b867c0cd2"
+      }
+    ],
+    "stages": [
+      {
+        "id": "P1",
+        "target": "cloud-seat-detail",
+        "source_pattern": "导出render→renderAgents→shell参数转送→真实PlatformUI.table列render→原openAgent",
+        "change": "仅在bounded_source_chain的supported_template_context/entry添加有限render_provenance；逐跳核参数位置、返回值流、真实table/col.render、route/view条件和唯一owner。保持事件后links与所有SHA/quote/candidate/遮蔽校验。",
+        "same_pattern_candidates_not_yet_passed": [
+          "cloud-agent-skill-level",
+          "cloud-agent-skill-unassign"
+        ],
+        "acceptance": "代表实际原证据通过＋13项正反例按各自预期通过；同型两项逐项复核后才可计入。"
+      },
+      {
+        "id": "P2",
+        "target": "cloud-outbound-group-members",
+        "source_pattern": "真实维护成员按钮→members(kind=members)→弹层save→save的成员分支→const api=OutboundGroups→组件setMembers→本地事务",
+        "change": "限定加入：有明确源码证据且无shadow/rebinding的同一window全局对象绑定；真实PlatformUI.escape一次包裹的固定owner helper；分别核弹层opening helper和保存event；同scope只读const owner alias；精确if/else-if的成员分支及对已声明result的单次赋值。所有路径仅conditional_only，不接纳任意表达式/工厂/动态owner。终点必须原候选/source_evidence/1的setMembers，不能用打开members弹层替代保存结果。",
+        "same_page_candidates_not_yet_passed": [
+          "cloud-outbound-group-query",
+          "cloud-outbound-group-detail",
+          "cloud-outbound-group-create",
+          "cloud-outbound-group-edit",
+          "cloud-outbound-group-delete"
+        ],
+        "acceptance": "仅该代表的真实两文件链及限定正反例先核，5同页项各自补独立终点/分支；不自动通过其余候选。"
+      }
+    ],
+    "unchanged_contracts": [
+      "G1/G2/G3人工门禁与S1–S9顺序",
+      "strict ownership/原操作候选保留/源SHA及注册引用",
+      "权限、业务规则、真实合同及生产状态",
+      "不增加人工豁免白名单，不执行源JS，不改workflow-state来过关"
+    ],
+    "regression_files_read_only": [
+      "tests/test_bounded_source_chain.py",
+      "tests/test_bounded_trigger_grammar.py",
+      "tests/test_shared_attribution_contract.py",
+      "tests/test_trigger_and_scope_regressions.py",
+      "tests/test_retained_operation_contract.py"
+    ],
+    "negative_cases": [
+      "未使用列、未被导出render调用的helper、未返回table结果、参数槽错位必须拒绝",
+      "假PlatformUI/table、局部参数/const遮蔽、重绑/删除/重复owner必须拒绝",
+      "注释或未用字符串中的onclick、动态方法/owner、非原escape包装必须拒绝",
+      "同名不同组件setMembers、api()伪工厂、错误const接收者必须拒绝",
+      "旧270创建后打开成员弹层、只打开弹层、create/edit分支、漏掉成员分支/误报无条件必须拒绝",
+      "源码/quote/candidate SHA/registered refs/精确terminal不符必须拒绝",
+      "只证明条件来源，不产生真实权限、浏览器执行、远端成功或G3结论"
+    ],
+    "impact_limit": "已实跑2代表；确切同型/同页7项仅待复验，不承诺全部9项自动通过。其余94项维持各自诊断，不能宣称103项一起解决。",
+    "stop_conditions": [
+      "需要改动这3文件以外任何技能/工具文件时停止并提出范围差异",
+      "工具base SHA变化先复核，禁止覆盖并行修改",
+      "任一现有负例被错误接受时停止扩展，不用改预期清零",
+      "若仍缺真实对象/权限/结果证据，继续保持未核，不用解析器补事实"
+    ],
+    "production_or_prototype_authorized": false,
+    "authorization_needed": "本轮限定诊断没有授权修改Loop工具；需用户批准本提案后才实施。"
+  },
+  "result_summary": {
+    "representative_checks_run": 2,
+    "new_strict_passes": 0,
+    "source_proof_pending_still": 103,
+    "legacy_reference_locator_repair_ready": true,
+    "not_S7_or_S8_completion": true
+  }
+}

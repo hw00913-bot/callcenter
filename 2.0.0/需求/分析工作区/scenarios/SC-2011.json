@@ -1,0 +1,714 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2011",
+  "name": "在AI原场景配置中关联公共分类",
+  "summary": "原AI具体场景按稳定ID关联分类；旧租户无品牌配置继续，AI专业供应商标签作用域独立保留。",
+  "actors": [
+    "具有原AI场景配置权限的人员",
+    "AI场景配置模块",
+    "公共分类服务"
+  ],
+  "trigger": "AI有权配置人为本租户具体业务场景维护已获准的公共分类关联",
+  "preconditions": [
+    "配置人员具有原AI专业场景配置权限，当前合法租户及具体场景归属可核实；不以品牌已关联、双模块开通或品牌模板管理权作为原AI配置的统一门槛。",
+    "原租户目录及原AI配置按原租户ID、场景ID和原关系继续使用，包含未关联品牌的存量租户；不按同名分类或手机号合并，不批量迁移历史。",
+    "仅本次新增/更换为品牌共用分类时，核验当前品牌及有权启用分类稳定标识；品牌关系或目标标识未核实则不创建该新关联，保留原配置及旧业务。已有停用分类的原关联继续按原规则保留。",
+    "呼叫中心集中AI专业配置入口，按原稳定租户ID、场景ID及分类ID关联；无品牌旧配置仍沿原规则使用，不因入口整合强制补品牌、迁移或新建同名目录。",
+    "供应商标签池按supplierId；启用及标准映射按supplierId+tenantType（总部/门店）+tagScene（AI标签场景）；本地标准标签集按tenantType+tagScene。tagScene、具体AI执行sceneId和公共分类categoryId为不同身份，只能按可靠稳定关系关联，不按名称或首项猜配。",
+    "分类关联不以单模板路由有效、所有标签已映射或AI写业务字段决策作为前置；原AI配置按原专业权限办理。"
+  ],
+  "expected_outcome": "仅更新本租户所选具体AI场景的分类引用；供应商池、启用/标准映射及其他场景维持原独立范围。",
+  "exception_scope": "供应商池按supplierId；启用和映射按supplierId+总部/门店租户类型+AI标签场景；本地标准集按租户类型+标签场景。标签场景、AI执行场景与公共分类身份分别可靠关联，不因品牌共用共享全部标签。",
+  "source_story_ids": [
+    "US-2017"
+  ],
+  "source_acceptance_ids": [
+    "AC-2045",
+    "AC-2046",
+    "AC-2047"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2026",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2058",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2092",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "保留原33节点互斥两路径；旧租户目录/仅维护原AI配置不加品牌门槛，新选品牌类才另验品牌及合法启用稳定ID；已有停用关系及其原任务政策保持。",
+    "供应商标签池按supplierId；启用及标准映射按supplierId+tenantType（总部/门店）+tagScene（AI标签场景）；本地标准标签集按tenantType+tagScene。tagScene、具体AI执行sceneId和公共分类categoryId为不同身份，只能按可靠稳定关系关联，不按名称或首项猜配。",
+    "标签池、启用和标准映射由SC-2017沿原专业操作；本场景仅分类关联，不要求先映射全部标签、不以ROUTE状态约束独立AI旧任务。",
+    "SRC-2096已确认本版AI标签只整合配置、映射和结果展示，不新增AI标准标签向业务字段写入及由此新增自动流转；原供应商池、启用和标准映射作用域、原始结果及未匹配不回退首项继续保留。既有字段条件、人工保存和其他原有流转不变；本次范围不作未来永久禁止。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "具有原AI场景配置权限的人员",
+      "action": "从呼叫中心复用AI原标签管理→场景配置入口，选定本租户具体AI业务场景",
+      "system_response": "复用原入口和专业配置，明确本租户具体场景；无品牌存量按原租户ID进入原配置，不要求补品牌才可使用。 分类基础/字段仅引用业务中心同一主配置的稳定ID或跳转原主维护，不复制分类目录；AI专业标签及供应商参数仍按原专业入口维护。 供应商标签池按supplierId；启用及标准映射按supplierId+tenantType（总部/门店）+tagScene（AI标签场景）；本地标准标签集按tenantType+tagScene。tagScene、具体AI执行sceneId和公共分类categoryId为不同身份，只能按可靠稳定关系关联，不按名称或首项猜配。 专业池/启用/标准映射的原操作复用SC-2017，不在分类关联再保存一套。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2014",
+        "BR-2042",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "AI场景配置模块",
+      "action": "校验原AI专业配置权限、当前租户及具体场景归属",
+      "system_response": "原AI专业配置按本租户及场景实际资格办理；公共分类/模板管理权不替代该资格，也不要求两模块均开通。品牌及新分类引用资格只在新选品牌类路径另验。 仅核本次原AI配置资格；独立资源/财务权不被类目管理权替代。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2014",
+        "BR-2042",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "公共分类服务",
+      "action": "按本次引用模型读取原租户目录/既有关系，或新选品牌分类的有权目录",
+      "system_response": "旧目录/仅保留原AI配置路径按原租户ID、场景ID及既有分类稳定ID读取，未关联品牌仍继续；新选品牌共用分类才核当前品牌及启用目标稳定ID，核不实只阻止本次新关联。已有停用关系照原身份和状态展示，不按同名自动合并。 AI标签场景、具体执行场景和公共分类均按各自稳定ID保留；未核不使用名称推荐或首项关联。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2014",
+        "BR-2042",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "具有原AI场景配置权限的人员",
+      "action": "为本租户具体场景新增/更换合法公共分类引用，或保留原关系后提交",
+      "system_response": "按原租户目录办理或只保留原关系时沿原范围，不新加品牌门槛；本次新选/更换品牌分类才选择当前品牌合法启用稳定标识。保留同一已有停用关系和无关专业字段不强制换类；AI专业标签及其他租户不变。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2014",
+        "BR-2042",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "AI场景配置模块",
+      "action": "依实际引用模型复核旧租户原条件，或新品牌分类的稳定身份及适用条件",
+      "system_response": "旧目录/原配置仅核原租户ID、场景ID、专业权及原关联/停用条件；仅新选或更换品牌类另验当前品牌、分类稳定ID与启用范围。任一路径不通过则保留原输入及关系，不猜映射、不改变其他场景；保留原关系不因品牌未核或已停用而强制替换。 分类引用校验不改supplierId/tenantType/tagScene对应的专业标签启用或标准映射。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2014",
+        "BR-2042",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "AI场景配置模块",
+      "action": "只保存本租户目标具体AI场景的分类关联并返回实际结果",
+      "system_response": "只按本次实际变更保存本租户目标具体场景关系；其他场景和AI专业参数不变。旧关系、无品牌存量业务、已受理任务及历史沿原规则；不自动运行模板或拨号。 不将供应商推荐标签写为业务字段结果，本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+      "rule_ids": [
+        "BR-2013",
+        "BR-2014",
+        "BR-2042",
+        "BR-2054"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2011-AUTH",
+      "condition": "没有原AI专业配置权、当前租户上下文无效或具体场景不属本租户",
+      "steps": [
+        "拒绝本次配置，不授予AI专业配置权限，不修改关联。"
+      ]
+    },
+    {
+      "id": "ALT-2011-LOAD",
+      "condition": "原配置或相应公共目录读取失败",
+      "steps": [
+        "保留原配置，不伪造空目录或默认关联，结束本次读取。"
+      ]
+    },
+    {
+      "id": "ALT-2011-CANCEL",
+      "condition": "配置人员取消本次关联",
+      "steps": [
+        "不保存选择，原关联及专业参数保持。"
+      ]
+    },
+    {
+      "id": "ALT-2011-INVALID",
+      "condition": "旧目录关系超原租户范围或原专业条件无效；或者新选品牌类的品牌/稳定ID/启用范围无效或未核",
+      "steps": [
+        "按本次实际引用模型反馈未通过条件，保留输入与原关系；旧目录/原AI配置不因品牌缺失而受阻。",
+        "仅新选/更换品牌类须当前品牌和稳定目标可核，不按同名猜映射；保留同一原停用关系和保存无关专业字段不触发强制换类。"
+      ]
+    },
+    {
+      "id": "ALT-2011-SAVEFAIL",
+      "condition": "关联保存失败或结果未明确成功",
+      "steps": [
+        "不提示关联成功，保留输入与原可确认配置。",
+        "再次处理须读取当前状态后另行发起。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "只保存当前租户目标具体AI场景的实际变更，其他场景及同品牌其他租户均不受影响。",
+    "原租户目录、无品牌存量租户及原AI配置按原租户ID/场景ID/原关系继续使用，不被新品牌校验门槛阻断；不批量迁移或重分类历史。",
+    "只有新选或更换品牌共用分类才核当前品牌及合法启用稳定标识，未核不创建该新关系；已有停用原关系仍可按原规则保留和执行。",
+    "AI原类型、专业标签、机器人及供应商允许值保留；品牌记录标签不替代专业标签，不自动启动模板、拨号或跨租户处理。",
+    "供应商标签池按supplierId；启用及标准映射按supplierId+tenantType（总部/门店）+tagScene（AI标签场景）；本地标准标签集按tenantType+tagScene。tagScene、具体AI执行sceneId和公共分类categoryId为不同身份，只能按可靠稳定关系关联，不按名称或首项猜配。"
+  ],
+  "acceptance_points": [
+    "AC-2045：在原标签管理→场景配置入口补充公共分类关联，保留AI原分类、标签及供应商配置。",
+    "AC-2046：公共分类维护权不下放AI专业配置权，新/冷细分及供应商执行允许值沿原规则。保原供应商标签池按supplierId、标签启用与映射按supplierId+总部/门店租户类型+AI标签场景、本地标准集按租户类型+标签场景的作用域；标签场景、具体AI执行场景及公共分类以准确身份关联，不因品牌共用就共享全部标签。",
+    "AC-2047：按本租户具体AI业务场景，以稳定ID关联当前品牌有权共用的公共分类；同一AI类型的不同场景可分别归类，沿原标签管理→场景配置入口，保留原AI类型、专业标签/供应商参数和权限。旧租户分类关联保留原ID，不按名称自动合并，实际映射及生产历史引用继续核验。 存量未绑定品牌仍按原租户目录及原ID维护旧配置，不被新品牌前置阻断；新选品牌分类才核品牌引用。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "具有原AI场景配置权限的人员",
+        "kind": "actor"
+      },
+      {
+        "id": "ai",
+        "name": "AI场景配置模块",
+        "kind": "system"
+      },
+      {
+        "id": "catalog",
+        "name": "公共分类服务",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "operator",
+        "type": "start",
+        "label": "发起具体场景分类关联",
+        "order": 1
+      },
+      {
+        "id": "N-ENTER",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "复用原AI场景配置入口\n具体sceneId与tagScene/分类ID分明",
+        "step_ref": 1,
+        "order": 2
+      },
+      {
+        "id": "N-AUTH",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "原AI权及本租户具体场景合法？",
+        "step_ref": 2,
+        "order": 3
+      },
+      {
+        "id": "N-DENIED",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "拒绝配置；原关联保留",
+        "order": 4
+      },
+      {
+        "id": "N-REFERENCE-MODEL",
+        "lane_id": "ai",
+        "type": "decision",
+        "order": 5,
+        "label": "本次是否新选或改选品牌共用分类？",
+        "step_ref": 3
+      },
+      {
+        "id": "N-LOAD__legacy",
+        "lane_id": "catalog",
+        "type": "action",
+        "label": "按原租户ID读取旧目录与原关系\n保留原专业标签作用域",
+        "step_ref": 3,
+        "order": 6
+      },
+      {
+        "id": "N-BRAND-SCOPE",
+        "lane_id": "catalog",
+        "type": "decision",
+        "order": 7,
+        "label": "当前品牌及新分类引用范围可核？",
+        "step_ref": 3
+      },
+      {
+        "id": "N-LOAD",
+        "lane_id": "catalog",
+        "type": "action",
+        "label": "读取本次新选的品牌合法分类",
+        "step_ref": 3,
+        "order": 8
+      },
+      {
+        "id": "N-LOADED",
+        "lane_id": "catalog",
+        "type": "decision",
+        "label": "配置及目录读取成功？",
+        "order": 9
+      },
+      {
+        "id": "N-LOADED__legacy",
+        "lane_id": "catalog",
+        "type": "decision",
+        "label": "配置及目录读取成功？",
+        "order": 10
+      },
+      {
+        "id": "N-LOADFAIL",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "不伪造目录或默认关联",
+        "order": 11
+      },
+      {
+        "id": "N-BRAND-INVALID",
+        "lane_id": "ai",
+        "type": "end",
+        "order": 12,
+        "label": "新关联未建立；原配置/原业务保留"
+      },
+      {
+        "id": "N-LOADFAIL__legacy",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "不伪造目录或默认关联",
+        "order": 13
+      },
+      {
+        "id": "N-SELECT",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "新选合法启用分类；可保留原引用",
+        "step_ref": 4,
+        "order": 14
+      },
+      {
+        "id": "N-SELECT__legacy",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "沿旧目录选择或保留原配置关系",
+        "step_ref": 4,
+        "order": 15
+      },
+      {
+        "id": "N-SUBMIT",
+        "lane_id": "operator",
+        "type": "decision",
+        "label": "本次提交还是取消？",
+        "order": 16
+      },
+      {
+        "id": "N-SUBMIT__legacy",
+        "lane_id": "operator",
+        "type": "decision",
+        "label": "本次提交还是取消？",
+        "order": 17
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "已取消；不保存选择",
+        "order": 18
+      },
+      {
+        "id": "N-CANCEL__legacy",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "已取消；不保存选择",
+        "order": 19
+      },
+      {
+        "id": "N-VALIDATE",
+        "lane_id": "ai",
+        "type": "action",
+        "label": "新选品牌类：核品牌与稳定引用\n不猜同名/首项，不改专业映射",
+        "step_ref": 5,
+        "order": 20
+      },
+      {
+        "id": "N-VALIDATE__legacy",
+        "lane_id": "ai",
+        "type": "action",
+        "label": "旧模型：核原租户ID/场景与原条件\n无品牌配置仍按原专业权",
+        "step_ref": 5,
+        "order": 21
+      },
+      {
+        "id": "N-VALID",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "本次校验通过？",
+        "order": 22
+      },
+      {
+        "id": "N-VALID__legacy",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "本次校验通过？",
+        "order": 23
+      },
+      {
+        "id": "N-INVALID",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留输入及原关联；未保存",
+        "order": 24
+      },
+      {
+        "id": "N-INVALID__legacy",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留输入及原关联；未保存",
+        "order": 25
+      },
+      {
+        "id": "N-SAVE",
+        "lane_id": "ai",
+        "type": "action",
+        "label": "仅保存本租户具体场景引用",
+        "step_ref": 6,
+        "order": 26
+      },
+      {
+        "id": "N-SAVE__legacy",
+        "lane_id": "ai",
+        "type": "action",
+        "label": "仅保存本租户本场景实际变更",
+        "step_ref": 6,
+        "order": 27
+      },
+      {
+        "id": "N-SAVED",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "关联明确保存成功？",
+        "order": 28
+      },
+      {
+        "id": "N-SAVED__legacy",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "关联明确保存成功？",
+        "order": 29
+      },
+      {
+        "id": "N-FAILED",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留输入；不虚报关联成功",
+        "order": 30
+      },
+      {
+        "id": "N-FAILED__legacy",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留输入；不虚报关联成功",
+        "order": 31
+      },
+      {
+        "id": "N-END",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "本场景关联完成；其他保持",
+        "order": 32
+      },
+      {
+        "id": "N-END__legacy",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "本场景关联完成；其他保持",
+        "order": 33
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-AUTH",
+        "to": "N-DENIED",
+        "label": "否",
+        "path_id": "ALT-2011-AUTH",
+        "type": "failure"
+      },
+      {
+        "from": "N-LOADED",
+        "to": "N-LOADFAIL",
+        "label": "否",
+        "path_id": "ALT-2011-LOAD",
+        "type": "failure"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-2011-CANCEL"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-INVALID",
+        "label": "否",
+        "path_id": "ALT-2011-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-FAILED",
+        "label": "否或结果不明",
+        "path_id": "ALT-2011-SAVEFAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-END",
+        "label": "是"
+      },
+      {
+        "from": "N-SAVE",
+        "to": "N-SAVED"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-SAVE",
+        "label": "是"
+      },
+      {
+        "from": "N-VALIDATE",
+        "to": "N-VALID"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-VALIDATE",
+        "label": "提交"
+      },
+      {
+        "from": "N-SELECT",
+        "to": "N-SUBMIT"
+      },
+      {
+        "from": "N-LOADED",
+        "to": "N-SELECT",
+        "label": "是"
+      },
+      {
+        "from": "N-LOAD",
+        "to": "N-LOADED"
+      },
+      {
+        "from": "N-BRAND-SCOPE",
+        "to": "N-LOAD",
+        "label": "本次新选品牌范围可核"
+      },
+      {
+        "from": "N-BRAND-SCOPE",
+        "to": "N-BRAND-INVALID",
+        "label": "品牌/引用范围无效或未核",
+        "path_id": "ALT-2011-INVALID",
+        "type": "exception"
+      },
+      {
+        "from": "N-REFERENCE-MODEL",
+        "to": "N-BRAND-SCOPE",
+        "label": "新选/更换品牌共用分类"
+      },
+      {
+        "from": "N-LOADED__legacy",
+        "to": "N-LOADFAIL__legacy",
+        "label": "否",
+        "path_id": "ALT-2011-LOAD",
+        "type": "failure"
+      },
+      {
+        "from": "N-SUBMIT__legacy",
+        "to": "N-CANCEL__legacy",
+        "label": "取消",
+        "path_id": "ALT-2011-CANCEL"
+      },
+      {
+        "from": "N-VALID__legacy",
+        "to": "N-INVALID__legacy",
+        "label": "否",
+        "path_id": "ALT-2011-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "N-SAVED__legacy",
+        "to": "N-FAILED__legacy",
+        "label": "否或结果不明",
+        "path_id": "ALT-2011-SAVEFAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-SAVED__legacy",
+        "to": "N-END__legacy",
+        "label": "是"
+      },
+      {
+        "from": "N-SAVE__legacy",
+        "to": "N-SAVED__legacy"
+      },
+      {
+        "from": "N-VALID__legacy",
+        "to": "N-SAVE__legacy",
+        "label": "是"
+      },
+      {
+        "from": "N-VALIDATE__legacy",
+        "to": "N-VALID__legacy"
+      },
+      {
+        "from": "N-SUBMIT__legacy",
+        "to": "N-VALIDATE__legacy",
+        "label": "提交"
+      },
+      {
+        "from": "N-SELECT__legacy",
+        "to": "N-SUBMIT__legacy"
+      },
+      {
+        "from": "N-LOADED__legacy",
+        "to": "N-SELECT__legacy",
+        "label": "是"
+      },
+      {
+        "from": "N-LOAD__legacy",
+        "to": "N-LOADED__legacy"
+      },
+      {
+        "from": "N-REFERENCE-MODEL",
+        "to": "N-LOAD__legacy",
+        "label": "保留原关系/原AI配置或沿旧租户目录"
+      },
+      {
+        "from": "N-AUTH",
+        "to": "N-REFERENCE-MODEL",
+        "label": "是"
+      },
+      {
+        "from": "N-ENTER",
+        "to": "N-AUTH"
+      },
+      {
+        "from": "N-START",
+        "to": "N-ENTER"
+      }
+    ]
+  },
+  "issue_ids": [
+    "ISSUE-2003",
+    "ISSUE-2001",
+    "ISSUE-2008"
+  ],
+  "scope_status": "confirmed_G1_SRC2094",
+  "design_status": "S3_revised_detail_structural_native_compile_checked_not_rendered",
+  "rule_ids": [
+    "BR-2013",
+    "BR-2014",
+    "BR-2042",
+    "BR-2054"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "diagram_review_notes": [
+    "引用模型分支源于本次实际变更，原租户ID路径不要求品牌可核；新选品牌分类路径独立核品牌稳定引用，互斥路径不新增选择弹窗或保存次数。"
+  ],
+  "analysis_notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "本轮只修订当前场景明细；旧SRC2086的37场景G1及SRC2088六入口采纳保历史来源，当前批准为SRC2094的36场景。原型/生产能力未据本次细化改写；不新增US/SC/功能或新统计。"
+  ],
+  "pending_choice_ids": [],
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "change_id": "CH-V200-C847-S3-SRC2094",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_detail_sha256": "b2d840590af928fc94a3889122053e6c40da1642eda3d4e160c50841f00c78b7",
+      "retained_node_ids": [
+        "N-START",
+        "N-ENTER",
+        "N-AUTH",
+        "N-DENIED",
+        "N-REFERENCE-MODEL",
+        "N-LOAD__legacy",
+        "N-BRAND-SCOPE",
+        "N-LOAD",
+        "N-LOADED",
+        "N-LOADED__legacy",
+        "N-LOADFAIL",
+        "N-BRAND-INVALID",
+        "N-LOADFAIL__legacy",
+        "N-SELECT",
+        "N-SELECT__legacy",
+        "N-SUBMIT",
+        "N-SUBMIT__legacy",
+        "N-CANCEL",
+        "N-CANCEL__legacy",
+        "N-VALIDATE",
+        "N-VALIDATE__legacy",
+        "N-VALID",
+        "N-VALID__legacy",
+        "N-INVALID",
+        "N-INVALID__legacy",
+        "N-SAVE",
+        "N-SAVE__legacy",
+        "N-SAVED",
+        "N-SAVED__legacy",
+        "N-FAILED",
+        "N-FAILED__legacy",
+        "N-END",
+        "N-END__legacy"
+      ],
+      "retained_alternate_flow_ids": [
+        "ALT-2011-AUTH",
+        "ALT-2011-LOAD",
+        "ALT-2011-CANCEL",
+        "ALT-2011-INVALID",
+        "ALT-2011-SAVEFAIL"
+      ],
+      "added_node_ids": [],
+      "added_alternate_flow_ids": [],
+      "semantic_replacement": "本条branch_semantics记本场景旧新关系；旧文件只按previous_detail_sha256及历史来源追溯，不作为当前分支。",
+      "branch_semantics": {
+        "retired": [],
+        "retained": [
+          "原租户ID无品牌配置与新选品牌分类互斥分流",
+          "供应商池/启用/标准映射原作用域，各专业身份不合并为公共分类"
+        ]
+      }
+    }
+  ],
+  "ai_label_scope_boundary": "AI标签原供应商池/作用域/可靠映射保留；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。名称推荐、首项兜底及不可靠映射不构成已保存业务值或路径匹配。",
+  "scope_choice_update": {
+    "change_id": "CH-V200-AI-TAGS-CONFIG-ONLY-20261024",
+    "source_ref": "inputs/source-index.json#SRC-2096",
+    "version": "2.0.0",
+    "selected": "configuration_only",
+    "new_API_permission_business_field_or_scenario": false,
+    "at": "2026-10-24T13:43:27+08:00"
+  },
+  "resolved_choice_ids": [
+    "AI-STANDARD-TAG-WRITE"
+  ]
+}

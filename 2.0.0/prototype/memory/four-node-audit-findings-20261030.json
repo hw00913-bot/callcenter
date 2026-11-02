@@ -1,0 +1,110 @@
+{
+  "schema": "four-node-audit-findings@1",
+  "date": "2026-10-29T16:25:44.977788+00:00",
+  "audit": "one finite independent audit plus repair verification of implemented four-node change",
+  "findingCount": 10,
+  "findings": [
+    {
+      "id": "A17-01",
+      "priority": "P1",
+      "problem": "已结束呼叫尝试复活／旧跟进迟到事件污染当前执行",
+      "repair": "终态尝试不得复活；当前执行更新同时核准确followup，未结束的重试保占用",
+      "files": "scripts/four-node-model.js",
+      "reproduction": "/tmp/audit17-model-events.cjs; /tmp/audit17-model-same-node-late.cjs",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-model-20261030.json"
+    },
+    {
+      "id": "A17-02",
+      "priority": "P1",
+      "problem": "明确无人接听后迟到人工身份改写已归档事实",
+      "repair": "明确NONE与相反人工身份按冲突处理，原事实和快照保留",
+      "files": "scripts/four-node-model.js",
+      "reproduction": "/tmp/audit17-model-events.cjs",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-model-20261030.json"
+    },
+    {
+      "id": "A17-03",
+      "priority": "P1",
+      "problem": "未知请求核对移交页面和权限未形成闭环",
+      "repair": "准确requestId的reviewContext/myReviewWork；仅核对最小权限，不授原动作重放或全业务读取",
+      "files": "scripts/four-node-model.js; js/adapters/four-node-workspace.js",
+      "reproduction": "/tmp/audit17-model-handoff.cjs; /tmp/audit17-runtime-handoff.cjs",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-model-20261030.json"
+    },
+    {
+      "id": "A17-04",
+      "priority": "P1",
+      "problem": "连续呼叫丢失同阶段合法承接依据，按钮准入与动作不一致",
+      "repair": "同run/stage保合法转交事实；nodeGuard与实际动作共用判断，新run不借旧依据",
+      "files": "scripts/four-node-model.js; scripts/four_node_model_build.py",
+      "reproduction": "/tmp/audit17-config-handover.cjs; /tmp/audit17-model-node-guard-red.json",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-model-20261030.json"
+    },
+    {
+      "id": "A17-05",
+      "priority": "P2",
+      "problem": "未声明修改和校验器默认空值进入正式快照",
+      "repair": "仅basis加实际provided规范值；拒绝未声明改动，保未提供／明确清空区别",
+      "files": "scripts/four-node-model.js",
+      "reproduction": "/tmp/audit17-model-save.cjs; /tmp/audit17-model-handoff.cjs",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-model-20261030.json"
+    },
+    {
+      "id": "A17-06",
+      "priority": "P2",
+      "problem": "不同模板同nodeId记录混入同一批分配",
+      "repair": "权威分组key含分类、捕获模板身份、节点、方式及场景；UI前置同源判断",
+      "files": "scripts/four-node-model.js; js/adapters/four-node-workspace.js",
+      "reproduction": "/tmp/audit17-model-group-history.cjs",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-model-20261030.json"
+    },
+    {
+      "id": "A17-07",
+      "priority": "P2",
+      "problem": "首次转出客户缺少本方历史资料投影",
+      "repair": "转出时封本方截止快照；历史只返该快照或可靠原资料，客户可归集且不露下游新值",
+      "files": "scripts/four-node-model.js",
+      "reproduction": "/tmp/audit17-model-group-history.cjs",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-model-20261030.json"
+    },
+    {
+      "id": "A17-08",
+      "priority": "P2",
+      "problem": "明确放弃的跟进草稿重新打开仍恢复",
+      "repair": "确认放弃仅清当次原段草稿；继续填写保草稿",
+      "files": "js/adapters/four-node-workspace.js",
+      "reproduction": "/tmp/audit17-runtime-discard.cjs",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-workspace-20261030.json"
+    },
+    {
+      "id": "A17-09",
+      "priority": "P2",
+      "problem": "停用字段仍出现在当前资料更正表单",
+      "repair": "当前更正过滤停用引用及定义；历史快照保持",
+      "files": "js/adapters/four-node-workspace.js",
+      "reproduction": "/tmp/audit17-runtime-disabled-field.cjs",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-workspace-20261030.json"
+    },
+    {
+      "id": "A17-10",
+      "priority": "P1",
+      "problem": "页面重载后AI安排首次起呼误报场景不可用",
+      "repair": "AI起呼前准备目录并重核账号／租户；人工与预外呼不依赖AI目录",
+      "files": "js/adapters/four-node-workspace.js",
+      "reproduction": "CUA final-build reload, saved scene 6 shown; confirm produced AI_SCENE_INVALID",
+      "status": "fixed-and-verified",
+      "verification": "memory/four-node-audit-audit-workspace-20261030.json"
+    }
+  ],
+  "completedAt": "2026-10-29T16:30:46.639767+00:00",
+  "unresolvedInAuditedScope": []
+}

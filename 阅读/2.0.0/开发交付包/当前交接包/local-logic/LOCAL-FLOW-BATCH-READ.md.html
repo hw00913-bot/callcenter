@@ -1,0 +1,122 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/local-logic/LOCAL-FLOW-BATCH-READ.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/local-logic/LOCAL-FLOW-BATCH-READ.md">原始 Markdown</a></p><h1>当前交接包/local-logic/LOCAL-FLOW-BATCH-READ.md</h1><pre># LOCAL-FLOW-BATCH-READ 读取有权导入批次和逐行结果
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [查询业务、批次和工作队列 · FUNC\-2039](../features/FUNC-2039.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2039
+
+触发：从当前台账打开批次查看业务
+
+## 前置条件
+
+- 本次批次可见范围有效
+
+## 必须遵守的全局规则
+
+- [GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-PRIVACY](../global-logic.md#GR-PRIVACY)
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+- [GR-TASK-UNIFIED-IMPORT](../global-logic.md#GR-TASK-UNIFIED-IMPORT)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-BATCH-ID](../field-specs.md#FIELD-FLOW-BATCH-ID)、[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)、[FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-FLOW-TASK-IMPORT-PARAMETERS](../field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS)
+
+输出：[FIELD-FLOW-BATCH-ID](../field-specs.md#FIELD-FLOW-BATCH-ID)、[FIELD-FLOW-BRAND-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)、[FIELD-FLOW-BUSINESS-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CUSTOMER-NAME](../field-specs.md#FIELD-FLOW-CUSTOMER-NAME)、[FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)、[FIELD-FLOW-IMPORT-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)、[FIELD-FLOW-METHOD](../field-specs.md#FIELD-FLOW-METHOD)、[FIELD-FLOW-NODE-ID](../field-specs.md#FIELD-FLOW-NODE-ID)、[FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-PHONE](../field-specs.md#FIELD-FLOW-PHONE)、[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-RUN-ID](../field-specs.md#FIELD-FLOW-RUN-ID)、[FIELD-FLOW-UPDATED-AT](../field-specs.md#FIELD-FLOW-UPDATED-AT)、[FIELD-FLOW-WORK-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)、[FIELD-FLOW-DIRECT-OUTCOME](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME)
+
+## 处理步骤
+
+### STEP-FLOW-BATCH-READ-1
+
+按实际可见记录裁剪批次及私有行，准确表明部分可见
+
+读取：FIELD-FLOW-BATCH-ID, FIELD-FLOW-BRAND-ID, FIELD-FLOW-BUSINESS-CODE, FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-CUSTOMER-NAME, FIELD-FLOW-DEPARTURE-SNAPSHOT, FIELD-FLOW-FOLLOWER, FIELD-FLOW-METHOD, FIELD-FLOW-NODE-ID, FIELD-FLOW-OWNER-TENANT, FIELD-FLOW-PHONE, FIELD-FLOW-RUN-ID, FIELD-FLOW-UPDATED-AT；写入：无
+
+规则：GR-LIST-ORDER, GR-SCOPE, GR-PRIVACY
+
+### STEP-FLOW-BATCH-READ-2
+
+可见集按真实更新时间倒序分页，关联到准确业务
+
+读取：FIELD-FLOW-BATCH-ID, FIELD-FLOW-UPDATED-AT；写入：FIELD-FLOW-RECORD-ID, FIELD-FLOW-WORK-STATE
+
+规则：GR-LIST-ORDER, GR-SCOPE, GR-PRIVACY
+
+### STEP-FLOW-BATCH-READ-3
+
+按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。
+
+读取：FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-MANUAL-ASSIGNMENT-MODE, FIELD-FLOW-TASK-IMPORT-SOURCE, FIELD-FLOW-TASK-IMPORT-PARAMETERS；写入：无
+
+规则：GR-LIST-ORDER, GR-SCOPE, GR-PRIVACY, GR-HANDLING-MODE, GR-TASK-UNIFIED-IMPORT
+
+## 分支与异常
+
+### BRANCH-FLOW-BATCH-READ-1
+
+条件：本范围无可见内容
+
+结果：明确无权/不可读，不暴露其他租户名单
+
+涉及字段：FIELD-FLOW-BATCH-ID
+
+验证：CHECK-FLOW-BATCH-READ
+
+### BRANCH-FLOW-BATCH-READ-2
+
+条件：有可见行
+
+结果：展示真实逐行结果和当前办理入口，不按手机号猜记录
+
+涉及字段：FIELD-FLOW-RECORD-ID, FIELD-FLOW-IMPORT-PREVIEW
+
+验证：CHECK-FLOW-BATCH-READ
+
+## 完成后的状态
+
+- 不通过批次扩大跨租户字段或电话读取
+
+## 字段定义
+
+- [FIELD-FLOW-BATCH-ID](../field-specs.md#FIELD-FLOW-BATCH-ID)
+- [FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)
+- [FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)
+- [FIELD-FLOW-TASK-IMPORT-PARAMETERS](../field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS)
+- [FIELD-FLOW-BRAND-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)
+- [FIELD-FLOW-BUSINESS-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)
+- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
+- [FIELD-FLOW-CUSTOMER-NAME](../field-specs.md#FIELD-FLOW-CUSTOMER-NAME)
+- [FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)
+- [FIELD-FLOW-IMPORT-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)
+- [FIELD-FLOW-METHOD](../field-specs.md#FIELD-FLOW-METHOD)
+- [FIELD-FLOW-NODE-ID](../field-specs.md#FIELD-FLOW-NODE-ID)
+- [FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)
+- [FIELD-FLOW-PHONE](../field-specs.md#FIELD-FLOW-PHONE)
+- [FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)
+- [FIELD-FLOW-RUN-ID](../field-specs.md#FIELD-FLOW-RUN-ID)
+- [FIELD-FLOW-UPDATED-AT](../field-specs.md#FIELD-FLOW-UPDATED-AT)
+- [FIELD-FLOW-WORK-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+- [FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)
+- [FIELD-FLOW-DIRECT-OUTCOME](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME)
+- [FIELD-FLOW-DEPARTURE-SNAPSHOT](../field-specs.md#FIELD-FLOW-DEPARTURE-SNAPSHOT)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2131, acceptance:AC-2132, features:FUNC-2039, features:FUNC-2039/behavior_spec/1/branches/0, features:FUNC-2039/behavior_spec/1/branches/1, features:FUNC-2039/behavior_spec/1/postconditions/0, features:FUNC-2039/behavior_spec/1/preconditions/0, features:FUNC-2039/behavior_spec/1/steps/0, features:FUNC-2039/behavior_spec/1/steps/1, features:FUNC-2039/behavior_spec/1/steps/2, pages:PAGE-2006/fields/2, pages:PAGE-2006/fields/25, pages:PAGE-2006/fields/27, pages:PAGE-2006/fields/5, pages:PAGE-2006/fields/54, pages:PAGE-2103/fields/28, pages:PAGE-2103/fields/29, pages:PAGE-2103/fields/31, pages:PAGE-2103/fields/33, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/14, pages:PAGE-2203/fields/18, pages:PAGE-2203/fields/28, pages:PAGE-2203/fields/31, pages:PAGE-2203/fields/32, pages:PAGE-2203/fields/35, pages:PAGE-2203/fields/39, pages:PAGE-2203/fields/43, pages:PAGE-2203/fields/50, pages:PAGE-2203/fields/54, pages:PAGE-2203/fields/6, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2203/fields/67, pages:PAGE-2203/fields/7, pages:PAGE-2203/fields/8, pages:PAGE-2204, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/16, pages:PAGE-2204/fields/17, pages:PAGE-2204/fields/29, pages:PAGE-2204/fields/35, pages:PAGE-2204/fields/41, pages:PAGE-2204/fields/42, pages:PAGE-2204/fields/45, pages:PAGE-2204/fields/46, pages:PAGE-2204/fields/48, pages:PAGE-2204/fields/5, pages:PAGE-2204/fields/56, pages:PAGE-2204/fields/63, pages:PAGE-2204/fields/65, pages:PAGE-2204/fields/7, pages:PAGE-2204/fields/8, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2204/fields/88, pages:PAGE-2204/fields/95, pages:PAGE-2204/fields/96, pages:PAGE-2205/fields/56, pages:PAGE-2205/fields/58, pages:PAGE-2205/fields/61, pages:PAGE-2223/fields/1, pages:PAGE-2223/fields/4, pages:PAGE-2226, pages:PAGE-2226/fields/11, pages:PAGE-2226/fields/12, pages:PAGE-2226/fields/16, pages:PAGE-2226/fields/20, pages:PAGE-2226/fields/23, pages:PAGE-2226/fields/24, pages:PAGE-2226/fields/26, pages:PAGE-2226/fields/27, pages:PAGE-2226/fields/28, pages:PAGE-2226/fields/29, pages:PAGE-2226/fields/32, pages:PAGE-2226/fields/34, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/38, pages:PAGE-2226/fields/4, pages:PAGE-2226/fields/43, pages:PAGE-2226/fields/44, pages:PAGE-2226/fields/5, pages:PAGE-2226/fields/6, pages:PAGE-2226/fields/8, pages:PAGE-2227/fields/10, pages:PAGE-2227/fields/114, pages:PAGE-2227/fields/118, pages:PAGE-2227/fields/13, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/14, pages:PAGE-2227/fields/141, pages:PAGE-2227/fields/148, pages:PAGE-2227/fields/149, pages:PAGE-2227/fields/150, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/24, pages:PAGE-2227/fields/25, pages:PAGE-2227/fields/42, pages:PAGE-2227/fields/57, pages:PAGE-2227/fields/61, pages:PAGE-2227/fields/67, pages:PAGE-2227/fields/70, pages:PAGE-2227/fields/79, pages:PAGE-2227/fields/97, pages:PAGE-2228/fields/10, pages:PAGE-2228/fields/12, pages:PAGE-2228/fields/2, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/31, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/0, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/123, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/152, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/153, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/166, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/168, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/169, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/31, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/35, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/56, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/57, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/60, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/61, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/62, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/63, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/67, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/68, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/74, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/75, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/82, scenarios:FLOW-CURRENT-CUSTOMER/steps/31
+
+验证：CHECK-FLOW-BATCH-READ
+
+## 实施任务
+
+- [TASK-030](../tasks/TASK-030.md)
+</pre></body></html>

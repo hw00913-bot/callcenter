@@ -1,0 +1,688 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2022",
+  "name": "查询品牌关联租户列表",
+  "summary": "只读展示所选品牌下当前有权查看的关联租户基础资料，归属维护另走原权限和流程",
+  "actors": [
+    "有品牌查询及租户资料范围权限的管理员",
+    "公共品牌列表",
+    "租户资料授权与读取"
+  ],
+  "trigger": "管理员在品牌管理中选择品牌并查看关联租户列表",
+  "preconditions": [
+    "操作者已经登录；每次查询仍须按当前有效授权核验所选品牌及可见租户资料范围，不因页面已打开而沿用失效权限。",
+    "品牌查询与基础资料范围不授予关联租户的业务、任务或报表权限；归属维护仅按原独立平台权限判断。",
+    "平台管理域按原合法资料范围查询，不为此切换业务租户或强制AI/Cloud开通、业务成员、本人电话坐席；进入系统管理中的原公共管理功能仍沿原本人电话切离保护。",
+    "入口由系统管理承接原账号、成员、租户或品牌的相应功能，仍沿原对象权限、管理范围和稳定PAGE；该原管理功能的切离保护、同窗口返回及同次登录记忆继续按SC-2002，不因入口归位新增管理权。"
+  ],
+  "expected_outcome": "得到该品牌下有权查看的租户基础资料列表，或可区分的空结果、读取失败、品牌失效及权限撤销反馈",
+  "exception_scope": "取消不发起查询；无权或品牌失效不展示数据；读取/校验失败保留查询条件但不以缓存伪装成功；修改归属须另验原权限并跳转原流程",
+  "source_story_ids": [
+    "US-2028"
+  ],
+  "source_acceptance_ids": [
+    "AC-2074",
+    "AC-2075",
+    "AC-2076",
+    "AC-2077"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2043",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "实际用户确认“本版提供关联租户列表”；本文件现已按SRC-2086纳入本轮37场景，仍为S3查询流程草案。不是品牌全生命周期场景，不新增品牌详情、批量归属、导出或跨租户业务操作。实际授权契约和租户稳定身份映射仍待核验；图中成功路径仅表示内部目标设计，不证明生产能力。 AC-2077的空因在系统内区分，页面统一表达有权范围无记录；不得泄露无权租户存在、名称或数量。 空结果直接结束本次列表查询，没有可选维护目标；另行进入原租户管理是原独立入口，不能由空结果猜选其他租户。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 新增分类/模板的配置查看、监管和本租户业务处理按各自动作资格区分；品牌配置或列表查看不要求同时开通两种业务模块，不冒用租户身份，不授予跨租户记录、拨号、转交或成员授权。 绘图等价修正仅将共享收束检查/终态按互斥来路分别展开，同义节点表示同一业务结果，不新增检查要求、操作、状态或重复执行；原取消、失败、未知路径及ALT/step引用完整保留。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "有品牌查询及租户资料范围权限的管理员",
+      "action": "从系统管理的原有权入口选择品牌并发起关联租户查询",
+      "system_response": "沿用现有品牌管理入口；取消时不发起查询。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "租户资料授权与读取",
+      "action": "核验当前品牌及租户资料可见范围",
+      "system_response": "仅在品牌有效且当前查询权限可验证时继续；无权、品牌失效与校验失败分别反馈，不伪装为空结果。",
+      "rule_ids": [
+        "BR-2022"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "公共品牌列表",
+      "action": "请求授权范围内的品牌关联租户基础资料",
+      "system_response": "按“所选品牌的关联租户”与“操作者当前有权查看的租户资料范围”取交集，不返回无权记录、无权记录数量或跨租户业务数据。",
+      "rule_ids": [
+        "BR-2022"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "租户资料授权与读取",
+      "action": "判断读取结果及响应时授权和查询有效性",
+      "system_response": "仅当前品牌、当前查询及有效会话仍匹配时接纳响应；切品牌、取消或会话失效后旧响应不得回填。读取成功且品牌及权限仍有效时，区分授权交集中有记录和无记录；读取失败、品牌失效、权限撤销及无法完成有效性检查分别结束本次读取。",
+      "rule_ids": [
+        "BR-2022"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "公共品牌列表",
+      "action": "只读展示本次有效查询结果",
+      "system_response": "展示有权租户基础资料；交集为空时显示“当前条件下无可查看的关联租户”。不把“无可见记录”表述为该品牌没有任何租户。",
+      "rule_ids": [
+        "BR-2022"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "有品牌查询及租户资料范围权限的管理员",
+      "action": "从本次可见租户记录选择既有归属维护，或停留列表",
+      "system_response": "空列表没有可选维护目标；仅可从本次有权结果选择目标，列表只读且不直接改归属。",
+      "rule_ids": []
+    },
+    {
+      "step": 7,
+      "actor": "租户资料授权与读取",
+      "action": "重新核验目标租户及原归属维护权限",
+      "system_response": "复用 SC-2004 / FUNC-2007 规定的原独立归属维护权限，列表查询权不扩展为修改权。无权或校验失败时停留列表，保留条件。",
+      "rule_ids": [
+        "BR-2012",
+        "BR-2022"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "公共品牌列表",
+      "action": "将有权操作者导航到既有归属维护入口",
+      "system_response": "仅跳转并带入已授权对象；本场景不提交归属写入，SC-2004 接续按原规则再次控制实际变更。",
+      "rule_ids": [
+        "BR-2012",
+        "BR-2022"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2022-01",
+      "condition": "选择品牌后取消查询",
+      "steps": [
+        "不发起查询，不改动归属，保留原合法位置。"
+      ]
+    },
+    {
+      "id": "ALT-2022-02",
+      "condition": "无相应查询/资料范围权限或读取期间权限已撤销",
+      "steps": [
+        "拒绝或终止本次展示；撤销失效范围的旧展示，不泄露无权记录，不以缓存作为本次成功结果。"
+      ]
+    },
+    {
+      "id": "ALT-2022-03",
+      "condition": "所选品牌失效，或读取期间品牌变为失效",
+      "steps": [
+        "明确提示该品牌当前不可查看，不呈现原缓存记录，不表述为无关联租户。"
+      ]
+    },
+    {
+      "id": "ALT-2022-04",
+      "condition": "读取关联租户基础资料失败",
+      "steps": [
+        "明确提示本次读取失败并保留查询条件；不显示缓存伪成功，不以空列表冒充成功。用户重新查询另算一次读取。"
+      ]
+    },
+    {
+      "id": "ALT-2022-05",
+      "condition": "读取成功且当前有效授权交集中没有记录",
+      "steps": [
+        "显示当前条件下无可查看的关联租户；不展示无权租户或无权数量，不推断该品牌实际关联数量。"
+      ]
+    },
+    {
+      "id": "ALT-2022-06",
+      "condition": "请求前往归属维护，但目标租户或原维护权限无效",
+      "steps": [
+        "保持只读列表和查询条件，拒绝越权跳转，不修改归属；若列表查询权限亦失效，按 ALT-2022-02 移除失效范围展示。"
+      ]
+    },
+    {
+      "id": "ALT-2022-07",
+      "condition": "本次授权或品牌有效性检查无法完成",
+      "steps": [
+        "提示暂时无法完成检查；本次不加载数据或不跳转维护，不当作权限有效、读取成功或空结果；保留查询条件。"
+      ]
+    },
+    {
+      "id": "ALT-2022-08",
+      "condition": "读取尚未完成即切换品牌、取消本次查询或会话失效",
+      "steps": [
+        "旧查询不再回填；切换品牌按新选择重新查询，取消保持当前合法位置，会话失效按既有登录/权限规则退出失效范围，不显示旧缓存成功。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "列表仅含当前合法品牌关联与租户资料可见范围的交集，查询本身不写入归属。",
+    "同品牌不授予跨租户业务、任务、报表或其他资源权限，不切换当前业务租户。",
+    "归属维护若被选择，另验原平台维护权限并交由既有 SC-2004 / FUNC-2007；否则停留列表。",
+    "成功无记录、读取失败、品牌失效及权限撤销有明确区别；无任何关联与授权交集为空只是内部处理原因，页面均展示当前有权范围内无记录，不泄露无权租户存在或数量。",
+    "切换品牌、取消查询或会话失效后，旧响应不得回填；失败或无权时不以旧缓存充当本次合法结果。"
+  ],
+  "acceptance_points": [
+    "AC-2074：在品牌管理提供关联租户列表，按当前品牌与操作人有权查看的租户基础资料范围取交集，只展示该范围内的基础资料。",
+    "AC-2075：同品牌不授予其他租户的基础资料、业务、线索、任务或报表权限；无权租户不得因列表、直接请求或维护入口被展示或进入。",
+    "AC-2076：查询列表不自动修改归属；需要维护时复用既有租户管理路径及品牌归属维护权限，列表查看权不包含归属修改权。",
+    "AC-2077：区分无关联记录、可查看交集为空、查询失败及品牌或权限失效；失败保留查询上下文，不将缓存当最新结果，进入维护前再次核验实际权限。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "有品牌查询及租户资料范围权限的管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "ui",
+        "name": "公共品牌列表",
+        "kind": "system"
+      },
+      {
+        "id": "data",
+        "name": "租户资料授权与读取",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "operator",
+        "type": "start",
+        "label": "查看品牌关联租户",
+        "order": 1
+      },
+      {
+        "id": "choose",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "选择品牌和查询条件",
+        "order": 2,
+        "step_ref": 1
+      },
+      {
+        "id": "submit",
+        "lane_id": "operator",
+        "type": "decision",
+        "label": "是否发起本次查询？",
+        "order": 3
+      },
+      {
+        "id": "cancel",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "取消查询，保留原合法位置",
+        "order": 4
+      },
+      {
+        "id": "scope",
+        "lane_id": "data",
+        "type": "action",
+        "label": "核验品牌及当前资料可见范围",
+        "order": 5,
+        "step_ref": 2
+      },
+      {
+        "id": "scope_current",
+        "lane_id": "ui",
+        "type": "decision",
+        "label": "核验响应是否仍属当前有效查询？",
+        "order": 6
+      },
+      {
+        "id": "scope_result",
+        "lane_id": "data",
+        "type": "decision",
+        "label": "品牌与查询授权核验结果？",
+        "order": 7
+      },
+      {
+        "id": "query",
+        "lane_id": "ui",
+        "type": "action",
+        "label": "仅请求品牌关联与授权范围的交集",
+        "order": 8,
+        "step_ref": 3
+      },
+      {
+        "id": "read",
+        "lane_id": "data",
+        "type": "action",
+        "label": "读取交集内租户基础资料",
+        "order": 9
+      },
+      {
+        "id": "current_request",
+        "lane_id": "ui",
+        "type": "decision",
+        "label": "响应是否属于当前有效查询？",
+        "order": 10,
+        "step_ref": 4
+      },
+      {
+        "id": "obsolete__equivalent_2",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "旧响应不回填，保持当前合法位置",
+        "order": 11
+      },
+      {
+        "id": "obsolete__equivalent_3",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "旧响应不回填，保持当前合法位置",
+        "order": 12
+      },
+      {
+        "id": "read_result",
+        "lane_id": "data",
+        "type": "decision",
+        "label": "本次读取是否成功？",
+        "order": 13
+      },
+      {
+        "id": "fresh_scope",
+        "lane_id": "data",
+        "type": "decision",
+        "label": "响应时品牌及授权是否仍有效？",
+        "order": 14,
+        "step_ref": 4
+      },
+      {
+        "id": "has_rows",
+        "lane_id": "data",
+        "type": "decision",
+        "label": "授权交集中是否有记录？",
+        "order": 15
+      },
+      {
+        "id": "empty",
+        "lane_id": "ui",
+        "type": "action",
+        "label": "当前条件下无可查看的关联租户",
+        "order": 16,
+        "step_ref": 5
+      },
+      {
+        "id": "list",
+        "lane_id": "ui",
+        "type": "action",
+        "label": "只读展示有权租户基础资料",
+        "order": 17,
+        "step_ref": 5
+      },
+      {
+        "id": "review",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "查看本次结果，不获得业务权限",
+        "order": 18
+      },
+      {
+        "id": "maintain",
+        "lane_id": "operator",
+        "type": "decision",
+        "label": "是否从可见租户记录选择既有归属维护？",
+        "order": 19,
+        "step_ref": 6
+      },
+      {
+        "id": "stay",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "停留只读列表，归属不变",
+        "order": 20
+      },
+      {
+        "id": "stay__equivalent_2",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "停留只读列表，归属不变",
+        "order": 21
+      },
+      {
+        "id": "target_auth",
+        "lane_id": "data",
+        "type": "action",
+        "label": "另验目标租户及原归属维护权限",
+        "order": 22,
+        "step_ref": 7
+      },
+      {
+        "id": "target_current",
+        "lane_id": "ui",
+        "type": "decision",
+        "label": "维护校验响应是否仍属当前选择？",
+        "order": 23
+      },
+      {
+        "id": "obsolete",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "旧响应不回填，保持当前合法位置",
+        "order": 24
+      },
+      {
+        "id": "target_result",
+        "lane_id": "data",
+        "type": "decision",
+        "label": "原维护权限核验结果？",
+        "order": 25
+      },
+      {
+        "id": "target_denied",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "拒绝越权跳转，保留列表条件",
+        "order": 26
+      },
+      {
+        "id": "target_failed",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "检查未完成，不跳转，保留条件",
+        "order": 27
+      },
+      {
+        "id": "jump",
+        "lane_id": "ui",
+        "type": "action",
+        "label": "跳转 SC-2004 原维护入口；不写归属",
+        "order": 28,
+        "step_ref": 8
+      },
+      {
+        "id": "end",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "交原维护流程控制实际修改",
+        "order": 29
+      },
+      {
+        "id": "brand_invalid",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "品牌当前不可查看，不显示缓存",
+        "order": 30
+      },
+      {
+        "id": "brand_invalid__equivalent_2",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "品牌当前不可查看，不显示缓存",
+        "order": 31
+      },
+      {
+        "id": "denied",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "权限无效，移除失效范围展示",
+        "order": 32
+      },
+      {
+        "id": "denied__equivalent_2",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "权限无效，移除失效范围展示",
+        "order": 33
+      },
+      {
+        "id": "scope_failed",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "检查未完成，不加载，保留条件",
+        "order": 34
+      },
+      {
+        "id": "scope_failed__equivalent_2",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "检查未完成，不加载，保留条件",
+        "order": 35
+      },
+      {
+        "id": "read_failed",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "本次读取失败，保留条件，不用缓存伪成功",
+        "order": 36
+      }
+    ],
+    "edges": [
+      {
+        "from": "submit",
+        "to": "cancel",
+        "label": "取消",
+        "path_id": "ALT-2022-01",
+        "type": "exception"
+      },
+      {
+        "from": "maintain",
+        "to": "stay",
+        "label": "不前往或取消维护选择"
+      },
+      {
+        "from": "jump",
+        "to": "end"
+      },
+      {
+        "from": "target_result",
+        "to": "jump",
+        "label": "目标租户及原维护权限均有效"
+      },
+      {
+        "from": "target_result",
+        "to": "target_denied",
+        "label": "无原维护权或目标已无权",
+        "path_id": "ALT-2022-06",
+        "type": "exception"
+      },
+      {
+        "from": "target_result",
+        "to": "target_failed",
+        "label": "无法完成维护权限核验",
+        "path_id": "ALT-2022-07",
+        "type": "exception"
+      },
+      {
+        "from": "target_current",
+        "to": "target_result",
+        "label": "仍是本次维护选择且会话有效"
+      },
+      {
+        "from": "target_current",
+        "to": "obsolete",
+        "label": "已切品牌、取消或会话已失效",
+        "path_id": "ALT-2022-08",
+        "type": "exception"
+      },
+      {
+        "from": "target_auth",
+        "to": "target_current"
+      },
+      {
+        "from": "maintain",
+        "to": "target_auth",
+        "label": "选择前往原维护入口"
+      },
+      {
+        "from": "review",
+        "to": "maintain"
+      },
+      {
+        "from": "list",
+        "to": "review"
+      },
+      {
+        "from": "has_rows",
+        "to": "list",
+        "label": "交集中有记录"
+      },
+      {
+        "from": "empty",
+        "to": "stay__equivalent_2"
+      },
+      {
+        "from": "has_rows",
+        "to": "empty",
+        "label": "交集中无记录",
+        "path_id": "ALT-2022-05",
+        "type": "exception"
+      },
+      {
+        "from": "fresh_scope",
+        "to": "has_rows",
+        "label": "品牌有效且授权仍有效"
+      },
+      {
+        "from": "fresh_scope",
+        "to": "brand_invalid",
+        "label": "品牌已失效",
+        "path_id": "ALT-2022-03",
+        "type": "exception"
+      },
+      {
+        "from": "fresh_scope",
+        "to": "denied",
+        "label": "权限已撤销或范围已失效",
+        "path_id": "ALT-2022-02",
+        "type": "exception"
+      },
+      {
+        "from": "fresh_scope",
+        "to": "scope_failed",
+        "label": "无法确认当前有效性",
+        "path_id": "ALT-2022-07",
+        "type": "exception"
+      },
+      {
+        "from": "read_result",
+        "to": "fresh_scope",
+        "label": "本次读取成功"
+      },
+      {
+        "from": "read_result",
+        "to": "read_failed",
+        "label": "本次读取失败",
+        "path_id": "ALT-2022-04",
+        "type": "exception"
+      },
+      {
+        "from": "current_request",
+        "to": "read_result",
+        "label": "仍匹配当前品牌选择及未取消查询，且会话合法"
+      },
+      {
+        "from": "current_request",
+        "to": "obsolete__equivalent_2",
+        "label": "已切品牌、取消或会话已失效",
+        "path_id": "ALT-2022-08",
+        "type": "exception"
+      },
+      {
+        "from": "read",
+        "to": "current_request"
+      },
+      {
+        "from": "query",
+        "to": "read"
+      },
+      {
+        "from": "scope_result",
+        "to": "query",
+        "label": "核验完成，品牌有效且有权"
+      },
+      {
+        "from": "scope_result",
+        "to": "brand_invalid__equivalent_2",
+        "label": "核验完成，品牌失效",
+        "path_id": "ALT-2022-03",
+        "type": "exception"
+      },
+      {
+        "from": "scope_result",
+        "to": "denied__equivalent_2",
+        "label": "核验完成，查询或范围权限无效",
+        "path_id": "ALT-2022-02",
+        "type": "exception"
+      },
+      {
+        "from": "scope_result",
+        "to": "scope_failed__equivalent_2",
+        "label": "无法完成核验",
+        "path_id": "ALT-2022-07",
+        "type": "exception"
+      },
+      {
+        "from": "scope_current",
+        "to": "scope_result",
+        "label": "仍匹配当前品牌选择及未取消查询，且会话合法"
+      },
+      {
+        "from": "scope_current",
+        "to": "obsolete__equivalent_3",
+        "label": "已切品牌、取消或会话已失效",
+        "path_id": "ALT-2022-08",
+        "type": "exception"
+      },
+      {
+        "from": "scope",
+        "to": "scope_current"
+      },
+      {
+        "from": "submit",
+        "to": "scope",
+        "label": "确认查询"
+      },
+      {
+        "from": "choose",
+        "to": "submit"
+      },
+      {
+        "from": "start",
+        "to": "choose"
+      }
+    ]
+  },
+  "design_status": "S3_flow_draft",
+  "scope_status": "confirmed_G1",
+  "issue_ids": [
+    "ISSUE-2001",
+    "ISSUE-2010"
+  ],
+  "rule_ids": [
+    "BR-2022",
+    "BR-2012",
+    "BR-2052"
+  ],
+  "diagram_review_notes": [
+    "共享后继按原进入分支等价展开；带__equivalent_的节点与原节点表达同一业务检查/结果，不新增操作、状态或执行次数。所有原条件、ALT及step_ref保留。"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

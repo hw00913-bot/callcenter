@@ -1,0 +1,784 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2018",
+  "name": "在工作台处理原云呼叫人工通话及呼入",
+  "summary": "按v1.1.0最终规则完成通话与跟进",
+  "actors": [
+    "有云呼叫坐席权限的成员",
+    "云呼叫模块",
+    "AliCti电话服务"
+  ],
+  "trigger": "坐席处理本人客户或来电",
+  "preconditions": [
+    "当前实际业务租户、所选呼叫方式权限及该方式专业执行资源合法；不要求同时开通或拥有另一模块权限。原方式的查询、配置及实际执行按各自操作资格区分。",
+    "六入口按功能职责承接原专业页面、任务、表单和资源；只重组入口并复用现有操作，实际方式权限、供应商规则、电话现场及原联系限制不随中心名称改变，不新增业务动作或自动执行。"
+  ],
+  "expected_outcome": "按v1.1.0最终规则完成通话与跟进",
+  "exception_scope": "人工指定坐席、继续跟进及保存分支以最终基线核对",
+  "source_story_ids": [
+    "US-2024"
+  ],
+  "source_acceptance_ids": [
+    "AC-2066",
+    "AC-2067"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2008",
+    "inputs/source-index.json#SRC-2009",
+    "inputs/source-index.json#SRC-2011",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "SRC-2086已确认本轮37场景范围；本文件仅为S3业务流程草案，未冻结、不证明生产能力已实现。每次发起一个已有业务操作，失败或取消可结束本次操作、保留原状态后重新发起；异步执行未确认不得据此终止真实在途任务。 人工接口分配、振铃早填、完成沟通快照、继续跟进与自动呼叫排他按最终v1.1.0基线逐项对账（ISSUE-2008），当前原型与候选条目不能代替生产已实现。电话在途与离线契约待ISSUE-2012；身份与坐席映射待ISSUE-2001；拒联保存/入库一致性待ISSUE-2007。图中电话状态事件描述一次电话结束过程，不要求用户等待整个预外呼任务结束。 技术资料缺证仅记录在本文件notes及既有ISSUE，不新增名为待核的产品状态；运行时按原实际成功/失败/未知结果表达。共享后继采用同义分支节点展开以保持原条件和步骤，不增加业务操作。 SRC-2040确认电话边界按原Cloud现场而非顶层区域；原名单发起电话能力不被强制迁走。监管查看不是本人通话，监管者无需因他人在线退出电话，也不由名称推定监管权。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 新模板引用已有处理方式时，必须先满足当前记录、节点、负责租户及本次动作资格，再沿本场景和SC-2015原专业规则办理；分配、条件命中、人工确认节点或切备用不自动启动电话，不改变当前负责租户，不绕过串行执行与公共禁呼。原独立任务/通话仍保留原处理，不强制迁为模板记录。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "有云呼叫坐席权限的成员",
+      "action": "进入本人坐席工作台并按原方式准备电话。",
+      "system_response": "从坐席工作台本人作业或原名单“联系客户”等入口复用原电话/客户交互，校验本人账号、当前租户、坐席与原资源关系；进入不自动上线或拨号。 若由模板处理入口进入，先核当前记录/节点及负责租户和本次人工方式资格；不因节点确认自动拨号或创建坐席。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "云呼叫模块",
+      "action": "区分本人主动外呼与收到的呼入/预外呼接听事件。",
+      "system_response": "人工接口线索按原指定坐席关系承接；接听事件使用本次准确坐席及通话关系，不按最近同号猜配。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "有云呼叫坐席权限的成员",
+      "action": "主动选择本人有权联系的客户并发起预览外呼。",
+      "system_response": "先引用SC-2015检查当前租户公共禁呼，再沿原电话流程发起。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "AliCti电话服务",
+      "action": "按原电话方式执行本次呼叫并返回实际状态。",
+      "system_response": "拨号/振铃/接通/结束等按该方式契约表达；客户端动作不伪造客户接通。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "有云呼叫坐席权限的成员",
+      "action": "在原允许阶段填写本次跟进信息，通话结束后提交保存。",
+      "system_response": "人工/预外呼振铃早填及未接通条件按v1.1.0最终基线；呼入仍沿原有规则，不套用本轮外呼新增必填条件。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "云呼叫模块",
+      "action": "复核本次通话结束状态、归属与业务字段后保存。",
+      "system_response": "成功前保留草稿和原名单；原businessType与来源快照不因公共分类或后续同号记录改变。",
+      "rule_ids": []
+    },
+    {
+      "step": 7,
+      "actor": "云呼叫模块",
+      "action": "按已保存处理结果交原跟进/回传子流程。",
+      "system_response": "拒联引用SC-2013；继续跟进沿原坐席承接且核对与预测任务排他；其他结果和接口回调沿原来源与最终规则。 模板后继由相应流程再次人工确认，不把话后保存或标签命中当成自动推进指令。",
+      "rule_ids": []
+    },
+    {
+      "step": 8,
+      "actor": "有云呼叫坐席权限的成员",
+      "action": "查看本次结果；需要切离原电话现场时再沿SC-2002收尾离线。",
+      "system_response": "同Cloud页面含云报表保留原电话条/检查；进入AI原功能或原公共管理功能、不能保留原现场或切租户先完成本人必要话后并确认离线。返回不自动上线；保存失败不假报完成。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2018-AUTH",
+      "condition": "坐席/租户/资源或电话状态不满足原条件",
+      "steps": [
+        "说明实际缺项或电话状态未知，不拨号，也不自动改绑账号或分机。"
+      ]
+    },
+    {
+      "id": "ALT-2018-INCOMING",
+      "condition": "本次是呼入或预外呼接听事件",
+      "steps": [
+        "供应商沿原路由将来电送达本坐席；按原接听/拒接/未接流程处理。",
+        "公共外呼禁呼不用于拒接正常呼入；预外呼已发起阶段与后续重呼检查仍归SC-2015。"
+      ]
+    },
+    {
+      "id": "ALT-2018-BLOCK",
+      "condition": "主动外呼命中公共禁呼或本次检查失败/未知",
+      "steps": [
+        "沿SC-2015拦截；检查失败或未知时停止本次新增提交，本次不拨号；不取消其他无关业务。"
+      ]
+    },
+    {
+      "id": "ALT-2018-CALL-UNKNOWN",
+      "condition": "电话执行失败或无法确认本次状态",
+      "steps": [
+        "展示真实失败/未知并保留现场，等待原电话核对流程；不伪造结束、接通或重复拨号。"
+      ]
+    },
+    {
+      "id": "ALT-2018-CANCEL",
+      "condition": "发起拨号或提交保存前取消",
+      "steps": [
+        "未拨号时按原流程取消；已经在途的通话不能因页面取消被强制结束。",
+        "跟进输入保留/放弃仍按原页面规则，本次不标记已处理。"
+      ]
+    },
+    {
+      "id": "ALT-2018-SAVE",
+      "condition": "通话未结束、归属变化、字段校验或保存失败",
+      "steps": [
+        "保留本次草稿和原客户状态；本次保存结束，可修正后重新提交。",
+        "未保存不触发完成沟通回调或新增公共拒联。"
+      ]
+    },
+    {
+      "id": "ALT-2018-DECLINE",
+      "condition": "成功保存客户拒绝联系",
+      "steps": [
+        "引用SC-2013形成当前租户公共禁呼，保留通话来源。",
+        "公共入库失败/待恢复不显示全链路成功，按ISSUE-2007处理。"
+      ]
+    },
+    {
+      "id": "ALT-2018-FOLLOW",
+      "condition": "成功保存继续跟进",
+      "steps": [
+        "沿v1.1.0最终规则留待联系；人工保持原分配坐席，预外呼后续由当前坐席人工处理。",
+        "保留原预测来源；未核实停止/排他能力时不宣称已停止原自动呼叫。"
+      ]
+    },
+    {
+      "id": "ALT-2018-UNANSWERED",
+      "condition": "实际通话终态为未接通",
+      "steps": [
+        "按呼叫方向与实际客户/坐席接听证据选择原表单校验。",
+        "坐席未接不等于客户未接，人工选择状态不覆盖客观话单。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "人工、呼入和预外呼接听均保留原坐席、客户与通话关联，不创建统一跨模块任务。",
+    "成功保存与未保存/失败可区分；拒联、继续跟进和完成沟通回传沿相应原规则。",
+    "页面切换不自动终止其他后台任务；电话离线保护引用SC-2002。"
+  ],
+  "acceptance_points": [
+    "AC-2066：承接云呼叫最终v1.1.0范围内的人工工作台、主动外呼、呼入接听、跟进与保存结果，沿各自原规则。",
+    "AC-2067：当前核对口径包括人工接口线索指定坐席、振铃填写和后续人工跟进；最终以v1.1.0确认基线逐项对账，不在v2改写其需求。"
+  ],
+  "scope_status": "confirmed_G1",
+  "design_status": "S3_flow_draft",
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "seat",
+        "name": "有云呼叫坐席权限的成员",
+        "kind": "actor"
+      },
+      {
+        "id": "cloud",
+        "name": "云呼叫模块",
+        "kind": "system"
+      },
+      {
+        "id": "provider",
+        "name": "AliCti电话服务",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "seat",
+        "type": "start",
+        "label": "处理一次本人电话",
+        "order": 1
+      },
+      {
+        "id": "enter",
+        "lane_id": "seat",
+        "type": "action",
+        "label": "进入工作台并准备电话",
+        "step_ref": 1,
+        "order": 2
+      },
+      {
+        "id": "ready",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "本人坐席与电话条件有效？",
+        "order": 3
+      },
+      {
+        "id": "denied",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "保留状态并说明缺项",
+        "order": 5
+      },
+      {
+        "id": "mode",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "主动外呼还是接听事件？",
+        "step_ref": 2,
+        "order": 4
+      },
+      {
+        "id": "select",
+        "lane_id": "seat",
+        "type": "action",
+        "label": "选择本人客户并请求外呼",
+        "step_ref": 3,
+        "order": 6
+      },
+      {
+        "id": "intent",
+        "lane_id": "seat",
+        "type": "decision",
+        "label": "是否确认本次拨号？",
+        "order": 8
+      },
+      {
+        "id": "cancel",
+        "lane_id": "seat",
+        "type": "end",
+        "label": "本次取消，不强制结束在途电话",
+        "order": 11
+      },
+      {
+        "id": "guard",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "SC-2015允许主动外呼？",
+        "order": 10
+      },
+      {
+        "id": "blocked",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "命中拦截；失败/未知不新增提交",
+        "order": 14
+      },
+      {
+        "id": "dial",
+        "lane_id": "provider",
+        "type": "action",
+        "label": "按原电话方式呼叫",
+        "step_ref": 4,
+        "order": 13
+      },
+      {
+        "id": "incoming",
+        "lane_id": "provider",
+        "type": "event",
+        "label": "呼入/预外呼来电送达本人",
+        "order": 7
+      },
+      {
+        "id": "answer",
+        "lane_id": "seat",
+        "type": "action",
+        "label": "按原方式接听或处理未接",
+        "order": 9
+      },
+      {
+        "id": "state",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "本次电话状态是否可确认？",
+        "order": 17
+      },
+      {
+        "id": "unknown",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "保留现场等待电话核对",
+        "order": 20
+      },
+      {
+        "id": "talk",
+        "lane_id": "seat",
+        "type": "action",
+        "label": "沿原允许阶段填写本次跟进",
+        "step_ref": 5,
+        "order": 19
+      },
+      {
+        "id": "ended",
+        "lane_id": "provider",
+        "type": "decision",
+        "label": "本次已结束的客观结果？",
+        "order": 22
+      },
+      {
+        "id": "noanswer",
+        "lane_id": "cloud",
+        "type": "action",
+        "label": "按方向和客观证据校验未接通规则",
+        "order": 24
+      },
+      {
+        "id": "submit",
+        "lane_id": "seat",
+        "type": "decision",
+        "label": "是否提交本次跟进？",
+        "order": 27
+      },
+      {
+        "id": "save",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "结束、归属、字段与保存均通过？",
+        "step_ref": 6,
+        "order": 30
+      },
+      {
+        "id": "savefail",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "保留草稿与原名单状态",
+        "order": 36
+      },
+      {
+        "id": "disposition",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "已保存处理结果是哪类？",
+        "step_ref": 7,
+        "order": 35
+      },
+      {
+        "id": "decline",
+        "lane_id": "cloud",
+        "type": "action",
+        "label": "引用SC-2013完成拒联入库及失败反馈",
+        "order": 38
+      },
+      {
+        "id": "follow",
+        "lane_id": "cloud",
+        "type": "action",
+        "label": "沿原坐席继续跟进并保留预测溯源",
+        "order": 39
+      },
+      {
+        "id": "other",
+        "lane_id": "cloud",
+        "type": "action",
+        "label": "沿原结果及来源回传规则处理",
+        "order": 40
+      },
+      {
+        "id": "result",
+        "lane_id": "seat",
+        "type": "action",
+        "label": "查看结果；切离电话现场另走SC-2002",
+        "step_ref": 8,
+        "order": 42
+      },
+      {
+        "id": "end",
+        "lane_id": "seat",
+        "type": "end",
+        "label": "本次电话处理结果可见",
+        "order": 43
+      },
+      {
+        "id": "cancel__branch1_1",
+        "lane_id": "seat",
+        "type": "end",
+        "label": "本次取消，不强制结束在途电话",
+        "order": 31
+      },
+      {
+        "id": "state__branch2_1",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "本次电话状态是否可确认？",
+        "order": 12
+      },
+      {
+        "id": "talk__branch2_1",
+        "lane_id": "seat",
+        "type": "action",
+        "label": "沿原允许阶段填写本次跟进",
+        "step_ref": 5,
+        "order": 15
+      },
+      {
+        "id": "unknown__branch2_1",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "保留现场等待电话核对",
+        "order": 16
+      },
+      {
+        "id": "ended__branch2_1",
+        "lane_id": "provider",
+        "type": "decision",
+        "label": "本次已结束的客观结果？",
+        "order": 18
+      },
+      {
+        "id": "noanswer__branch2_1",
+        "lane_id": "cloud",
+        "type": "action",
+        "label": "按方向和客观证据校验未接通规则",
+        "order": 21
+      },
+      {
+        "id": "submit__branch2_1",
+        "lane_id": "seat",
+        "type": "decision",
+        "label": "是否提交本次跟进？",
+        "order": 23
+      },
+      {
+        "id": "save__branch2_1",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "结束、归属、字段与保存均通过？",
+        "step_ref": 6,
+        "order": 25
+      },
+      {
+        "id": "cancel__branch1_1__branch2_1",
+        "lane_id": "seat",
+        "type": "end",
+        "label": "本次取消，不强制结束在途电话",
+        "order": 26
+      },
+      {
+        "id": "disposition__branch2_1",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "已保存处理结果是哪类？",
+        "step_ref": 7,
+        "order": 28
+      },
+      {
+        "id": "savefail__branch2_1",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "保留草稿与原名单状态",
+        "order": 29
+      },
+      {
+        "id": "decline__branch2_1",
+        "lane_id": "cloud",
+        "type": "action",
+        "label": "引用SC-2013完成拒联入库及失败反馈",
+        "order": 32
+      },
+      {
+        "id": "follow__branch2_1",
+        "lane_id": "cloud",
+        "type": "action",
+        "label": "沿原坐席继续跟进并保留预测溯源",
+        "order": 33
+      },
+      {
+        "id": "other__branch2_1",
+        "lane_id": "cloud",
+        "type": "action",
+        "label": "沿原结果及来源回传规则处理",
+        "order": 34
+      },
+      {
+        "id": "result__branch2_1",
+        "lane_id": "seat",
+        "type": "action",
+        "label": "查看结果；切离电话现场另走SC-2002",
+        "step_ref": 8,
+        "order": 37
+      },
+      {
+        "id": "end__branch2_1",
+        "lane_id": "seat",
+        "type": "end",
+        "label": "本次电话处理结果可见",
+        "order": 41
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "enter"
+      },
+      {
+        "from": "enter",
+        "to": "ready"
+      },
+      {
+        "from": "ready",
+        "to": "mode",
+        "label": "有效"
+      },
+      {
+        "from": "ready",
+        "to": "denied",
+        "label": "无效或状态未知",
+        "path_id": "ALT-2018-AUTH",
+        "type": "failure"
+      },
+      {
+        "from": "mode",
+        "to": "select",
+        "label": "主动外呼"
+      },
+      {
+        "from": "mode",
+        "to": "incoming",
+        "label": "呼入/预外呼接听",
+        "path_id": "ALT-2018-INCOMING"
+      },
+      {
+        "from": "select",
+        "to": "intent"
+      },
+      {
+        "from": "intent",
+        "to": "guard",
+        "label": "确认"
+      },
+      {
+        "from": "intent",
+        "to": "cancel",
+        "label": "取消",
+        "path_id": "ALT-2018-CANCEL"
+      },
+      {
+        "from": "guard",
+        "to": "dial",
+        "label": "允许"
+      },
+      {
+        "from": "guard",
+        "to": "blocked",
+        "label": "命中或检查失败/未知",
+        "path_id": "ALT-2018-BLOCK",
+        "type": "failure"
+      },
+      {
+        "from": "dial",
+        "to": "state"
+      },
+      {
+        "from": "incoming",
+        "to": "answer"
+      },
+      {
+        "from": "answer",
+        "to": "state__branch2_1"
+      },
+      {
+        "from": "state",
+        "to": "talk",
+        "label": "可确认"
+      },
+      {
+        "from": "state",
+        "to": "unknown",
+        "label": "失败/未知",
+        "path_id": "ALT-2018-CALL-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "talk",
+        "to": "ended"
+      },
+      {
+        "from": "ended",
+        "to": "submit",
+        "label": "已结束且客户接通"
+      },
+      {
+        "from": "ended",
+        "to": "noanswer",
+        "label": "已结束且客户未接/坐席未接",
+        "path_id": "ALT-2018-UNANSWERED"
+      },
+      {
+        "from": "noanswer",
+        "to": "submit"
+      },
+      {
+        "from": "submit",
+        "to": "save",
+        "label": "提交"
+      },
+      {
+        "from": "submit",
+        "to": "cancel__branch1_1",
+        "label": "取消本次提交",
+        "path_id": "ALT-2018-CANCEL"
+      },
+      {
+        "from": "save",
+        "to": "disposition",
+        "label": "通过"
+      },
+      {
+        "from": "save",
+        "to": "savefail",
+        "label": "未结束/校验或保存失败",
+        "path_id": "ALT-2018-SAVE",
+        "type": "failure"
+      },
+      {
+        "from": "disposition",
+        "to": "decline",
+        "label": "客户拒绝联系",
+        "path_id": "ALT-2018-DECLINE"
+      },
+      {
+        "from": "disposition",
+        "to": "follow",
+        "label": "继续跟进",
+        "path_id": "ALT-2018-FOLLOW"
+      },
+      {
+        "from": "disposition",
+        "to": "other",
+        "label": "其他原有处理结果"
+      },
+      {
+        "from": "decline",
+        "to": "result"
+      },
+      {
+        "from": "follow",
+        "to": "result"
+      },
+      {
+        "from": "other",
+        "to": "result"
+      },
+      {
+        "from": "result",
+        "to": "end"
+      },
+      {
+        "from": "state__branch2_1",
+        "to": "talk__branch2_1",
+        "label": "可确认"
+      },
+      {
+        "from": "state__branch2_1",
+        "to": "unknown__branch2_1",
+        "label": "失败/未知",
+        "path_id": "ALT-2018-CALL-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "talk__branch2_1",
+        "to": "ended__branch2_1"
+      },
+      {
+        "from": "ended__branch2_1",
+        "to": "submit__branch2_1",
+        "label": "已结束且客户接通"
+      },
+      {
+        "from": "ended__branch2_1",
+        "to": "noanswer__branch2_1",
+        "label": "已结束且客户未接/坐席未接",
+        "path_id": "ALT-2018-UNANSWERED"
+      },
+      {
+        "from": "noanswer__branch2_1",
+        "to": "submit__branch2_1"
+      },
+      {
+        "from": "submit__branch2_1",
+        "to": "save__branch2_1",
+        "label": "提交"
+      },
+      {
+        "from": "submit__branch2_1",
+        "to": "cancel__branch1_1__branch2_1",
+        "label": "取消本次提交",
+        "path_id": "ALT-2018-CANCEL"
+      },
+      {
+        "from": "save__branch2_1",
+        "to": "disposition__branch2_1",
+        "label": "通过"
+      },
+      {
+        "from": "save__branch2_1",
+        "to": "savefail__branch2_1",
+        "label": "未结束/校验或保存失败",
+        "path_id": "ALT-2018-SAVE",
+        "type": "failure"
+      },
+      {
+        "from": "disposition__branch2_1",
+        "to": "decline__branch2_1",
+        "label": "客户拒绝联系",
+        "path_id": "ALT-2018-DECLINE"
+      },
+      {
+        "from": "disposition__branch2_1",
+        "to": "follow__branch2_1",
+        "label": "继续跟进",
+        "path_id": "ALT-2018-FOLLOW"
+      },
+      {
+        "from": "disposition__branch2_1",
+        "to": "other__branch2_1",
+        "label": "其他原有处理结果"
+      },
+      {
+        "from": "decline__branch2_1",
+        "to": "result__branch2_1"
+      },
+      {
+        "from": "follow__branch2_1",
+        "to": "result__branch2_1"
+      },
+      {
+        "from": "other__branch2_1",
+        "to": "result__branch2_1"
+      },
+      {
+        "from": "result__branch2_1",
+        "to": "end__branch2_1"
+      }
+    ]
+  },
+  "rule_ids": [
+    "BR-2018",
+    "BR-2020",
+    "BR-2021",
+    "BR-2049"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

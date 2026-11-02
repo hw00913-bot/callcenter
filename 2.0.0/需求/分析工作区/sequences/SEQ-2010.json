@@ -1,0 +1,409 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2010",
+  "scenario_id": "SC-2010",
+  "name": "维护公共分类基础资料及原状态（新模型品牌共用）交互时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "design_status": "S5_current_G2_analysis_candidate_not_implementation",
+  "participants": [
+    {
+      "id": "person",
+      "name": "有权超管／品牌租户管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "D联络云原功能前端",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "本方业务办理职责",
+      "kind": "system"
+    },
+    {
+      "id": "records",
+      "name": "本方稳定对象、配置及历史职责",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "在业务中心同一分类主配置入口选择新增/修改基础，或按原规则停用目录分类。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 1
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "请求本次稳定对象、原操作及可见/可维护范围",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 2
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "核维护范围，读取当前BASE、字段/选项、原取数配置版本及状态。；ROUTE仅展示当前引用与兼容状态；本基础操作不提交任何路由变更，也不提供单一标签来源选择。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 3
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "仅在原范围、原值及版本可靠取得时返回本次上下文；读取失败走对应待核分支",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次读取可靠",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 4
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "展示本次有权原表单/状态，沿原角色和对象范围，不增加全量业务数据权",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次范围/读取可核",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 5
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "填写分类名称、业务编码名称、原字段/必填/选项与取数配置，或确认停用后提交。",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 6
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "人员确认后提交仅本次BASE/原字段接口或原目录停用意图，未提交不改变原数据",
+      "type": "request",
+      "api_id": null,
+      "condition": "人员确认本次操作",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 7
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "复核BASE版本、各字段及稳定选项合法性和本次状态影响。；拒绝过期或越权覆盖；字段变更破坏既有单模板条件兼容时保留引用并标需复核，只阻新模型新输入；不清既有AI关系或阻其原规则建任务。",
+      "type": "event",
+      "api_id": null,
+      "condition": "本次已确认提交",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 8
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "仅可靠保存本次BASE/字段/接口变化或原停用状态。；不覆盖独立ROUTE，不运行模板、不删除原关系、不迁移历史；原记录固定快照保持；无模板分类可先保存。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次原资格/对象/版本及实际动作全部准入可靠通过",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 9
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "返回本次真实可核保存结论；一致性及持久化合同未落实不假报成功",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次保存事实可核",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 10
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "分别反馈基础/停用实际结果及独立单模板路由状态。；路由另由SC-2037独立保存；运行条件三态与基础状态分开，不自动执行、转交或增加供应商能力。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次明确保存成功",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 11
+    },
+    {
+      "from": "ui",
+      "to": "person",
+      "message": "展示本次明确结果；后续独立操作由有权人员另次发起",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次明确成功",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 12
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "拒绝写入；普通运营只按已有权限选用，不下放 AI 专业配置权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2010-AUTH] 无当前品牌/原租户目录的相应维护权。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2010-AUTH"
+      ],
+      "step": 13
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "不提交本次基础/字段/状态变化，路由和专业关系不变。",
+      "type": "event",
+      "api_id": null,
+      "condition": "[ALT-2010-CANCEL] 提交前取消。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2010-CANCEL"
+      ],
+      "step": 14
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "拒绝本次保存并保留输入；稳定ID未核不按同名合并，不以另一字段或默认值兜底。；读取当前版本后重新核对；本操作不重写ROUTE。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2010-INVALID] 基础版本、字段/选项、维护范围或本次状态条件不合法。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2010-INVALID"
+      ],
+      "step": 15
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "读取失败不伪装空目录，保存未明确成功不报成功；先核同次结果，不重复创建或覆盖新配置。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2010-UNKNOWN] 读取/保存失败或同次结果不明。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2010-UNKNOWN"
+      ],
+      "step": 16
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "仅禁止新选择/新关联；已有 AI 场景保留原关系并可原规则建任务，已受理任务继续，历史及专业参数不清空。；不把停用变成删除、路由发布、停止任务或解除场景关联。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2010-DISABLE] 本次为原公共分类停用。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2010-DISABLE"
+      ],
+      "step": 17
+    }
+  ],
+  "source_story_ids": [
+    "US-2014",
+    "US-2015",
+    "US-2016",
+    "US-2032"
+  ],
+  "source_acceptance_ids": [
+    "AC-2038",
+    "AC-2039",
+    "AC-2040",
+    "AC-2041",
+    "AC-2042",
+    "AC-2043",
+    "AC-2044",
+    "AC-2102",
+    "AC-2103",
+    "AC-2105",
+    "AC-2106",
+    "AC-2107",
+    "AC-2108",
+    "AC-2135"
+  ],
+  "business_rule_ids": [
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2013",
+    "BR-2014",
+    "BR-2042",
+    "BR-2045",
+    "BR-2046",
+    "BR-2052",
+    "BR-2054"
+  ],
+  "source_refs": [
+    "scenarios/SC-2010.json",
+    "memory/normalized-user-stories.json",
+    "memory/business-rules.json",
+    "memory/project-facts.json",
+    "interfaces/interface-index.json",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "source_bindings": {
+    "scenario_sha256": "81d0dff58cefd3395e27fe8989863eb7cd85c00137fd58d236a7f591cb54c8f2",
+    "interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+    "G2_basis": [
+      "SRC-2095",
+      "SRC-2096"
+    ]
+  },
+  "api_refs": [],
+  "internal_capability_refs": [
+    "API-2003",
+    "API-2026"
+  ],
+  "contract_dependency_refs": [],
+  "reused_sequence_refs": [
+    "SEQ-2001",
+    "SEQ-2002",
+    "SEQ-2011"
+  ],
+  "main_step_coverage": [
+    {
+      "source_step": 1,
+      "message_steps": [
+        1,
+        2
+      ]
+    },
+    {
+      "source_step": 2,
+      "message_steps": [
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "source_step": 3,
+      "message_steps": [
+        6,
+        7
+      ]
+    },
+    {
+      "source_step": 4,
+      "message_steps": [
+        8
+      ]
+    },
+    {
+      "source_step": 5,
+      "message_steps": [
+        9,
+        10
+      ]
+    },
+    {
+      "source_step": 6,
+      "message_steps": [
+        11,
+        12
+      ]
+    }
+  ],
+  "alternate_flow_coverage": [
+    {
+      "id": "ALT-2010-AUTH",
+      "condition": "无当前品牌/原租户目录的相应维护权。",
+      "message_steps": [
+        13
+      ]
+    },
+    {
+      "id": "ALT-2010-CANCEL",
+      "condition": "提交前取消。",
+      "message_steps": [
+        14
+      ]
+    },
+    {
+      "id": "ALT-2010-INVALID",
+      "condition": "基础版本、字段/选项、维护范围或本次状态条件不合法。",
+      "message_steps": [
+        15
+      ]
+    },
+    {
+      "id": "ALT-2010-UNKNOWN",
+      "condition": "读取/保存失败或同次结果不明。",
+      "message_steps": [
+        16
+      ]
+    },
+    {
+      "id": "ALT-2010-DISABLE",
+      "condition": "本次为原公共分类停用。",
+      "message_steps": [
+        17
+      ]
+    }
+  ],
+  "notes": [
+    "SRC2095+2096仅批准按当前缺口继续分析；不是G3、原型实施或生产验收。成功消息仅为本次事实可核后的条件目标，partial/missing合同或真实身份/关联/结果未核则停留待核/受阻。",
+    "参与方为产品责任边界，不宣称已部署新服务；not_required能力仅列内部职责，这7族内部消息api_id均为null，不伪造URL、方法、字段、回调、时限、重试或补偿协议。",
+    "按condition阅读互斥分支，非所有消息一次必经。真实受理、执行结束、结果保存、归属及节点分别核定，不以HTTP成功或已发请求代替业务完成。",
+    "共同认证/原操作资格及切离返回保护复用SEQ2001/2002等，不强制每页重新登录、退出电话或调用公共API；原独立AI/专业资源/财务资格、电话现场和停用有限收尾保持。",
+    "SRC2096：本版AI标签仅配置/映射和原始/映射结果展示，不新增AI标准标签写业务字段或由此新增自动流转；未匹配保原值无首项兜底，既有业务字段条件、人工保存和其他原有流转不变。",
+    "BASE与ROUTE独立保存，不提交tagFieldId，不同时选模板；原目录停用只禁新选/关联，原已关联AI及已受理任务保持。原取数字典及接口单/多选、多源参数和独立权限保留，专业关联另ref SEQ2011。"
+  ],
+  "source_scenario_sha256": "81d0dff58cefd3395e27fe8989863eb7cd85c00137fd58d236a7f591cb54c8f2",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

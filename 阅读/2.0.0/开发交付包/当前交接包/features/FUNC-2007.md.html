@@ -1,0 +1,128 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/features/FUNC-2007.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/features/FUNC-2007.md">原始 Markdown</a></p><h1>当前交接包/features/FUNC-2007.md</h1><pre># 维护租户品牌与组织身份 · FUNC\-2007
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+超管按单品牌/品牌唯一总部/门店编码唯一维护归属。有现行业务引用或引用状态不明禁止换绑；不做旧v2数据迁移。
+
+来源业务域：系统管理；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md) — 共用页面，另有 4 个功能
+
+## 局部逻辑
+
+- [维护租户品牌与总部门店身份 · LOCAL\-PLAT\-TENANT\-BIND](../local-logic/LOCAL-PLAT-TENANT-BIND.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：有权超管明确保存品牌/组织身份关联
+
+- 准确租户与品牌存在且超管有归属维护权
+
+### 处理步骤
+
+1. **LOCAL\-PLAT\-TENANT\-BIND\-S1**：检查每租户单品牌/每品牌一个总部/门店编码唯一
+
+2. **LOCAL\-PLAT\-TENANT\-BIND\-S2**：已存在业务引用或无法可靠判定引用时禁止换绑；不执行旧数据迁移
+
+3. **LOCAL\-PLAT\-TENANT\-BIND\-S3**：仅更新当前明确允许关联并留审计；实际转交按业务流程独立办理
+
+### 分支与异常
+
+- **LOCAL\-PLAT\-TENANT\-BIND\-B1**：当前提、字段及对象修订校验通过且结果明确成功，合法品牌与组织身份生效；同品牌不共享数据或绑定路由。
+
+- **LOCAL\-PLAT\-TENANT\-BIND\-B2**：当无权/字段不合法/对象失效/修订冲突，明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更。
+
+- **LOCAL\-PLAT\-TENANT\-BIND\-B3**：当提交失败或结果未知，失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功。
+
+### 完成后的状态
+
+- 合法品牌与组织身份生效；同品牌不共享数据或绑定路由
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [变更审计 · FIELD\-PLAT\-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)；依据：[维护租户品牌与总部门店身份 · LOCAL\-PLAT\-TENANT\-BIND](../local-logic/LOCAL-PLAT-TENANT-BIND.md)
+
+- [业务引用判定 · FIELD\-PLAT\-REFERENCE\-STATE](../field-specs.md#FIELD-PLAT-REFERENCE-STATE)；依据：[维护租户品牌与总部门店身份 · LOCAL\-PLAT\-TENANT\-BIND](../local-logic/LOCAL-PLAT-TENANT-BIND.md)
+
+- [对象当前修订 · FIELD\-PLAT\-REVISION](../field-specs.md#FIELD-PLAT-REVISION)；依据：[维护租户品牌与总部门店身份 · LOCAL\-PLAT\-TENANT\-BIND](../local-logic/LOCAL-PLAT-TENANT-BIND.md)
+
+- [门店编码 · FIELD\-PLAT\-STORE\-CODE](../field-specs.md#FIELD-PLAT-STORE-CODE)；依据：[维护租户品牌与总部门店身份 · LOCAL\-PLAT\-TENANT\-BIND](../local-logic/LOCAL-PLAT-TENANT-BIND.md)
+
+- [所属品牌 · FIELD\-PLAT\-TENANT\-BRAND](../field-specs.md#FIELD-PLAT-TENANT-BRAND)；依据：[维护租户品牌与总部门店身份 · LOCAL\-PLAT\-TENANT\-BIND](../local-logic/LOCAL-PLAT-TENANT-BIND.md)
+
+- [业务租户标识 · FIELD\-PLAT\-TENANT\-ID](../field-specs.md#FIELD-PLAT-TENANT-ID)；依据：[维护租户品牌与总部门店身份 · LOCAL\-PLAT\-TENANT\-BIND](../local-logic/LOCAL-PLAT-TENANT-BIND.md)
+
+- [总部／门店身份 · FIELD\-PLAT\-TENANT\-TYPE](../field-specs.md#FIELD-PLAT-TENANT-TYPE)；依据：[维护租户品牌与总部门店身份 · LOCAL\-PLAT\-TENANT\-BIND](../local-logic/LOCAL-PLAT-TENANT-BIND.md)
+
+- [最近更新时间 · FIELD\-PLAT\-UPDATED](../field-specs.md#FIELD-PLAT-UPDATED)；依据：[维护租户品牌与总部门店身份 · LOCAL\-PLAT\-TENANT\-BIND](../local-logic/LOCAL-PLAT-TENANT-BIND.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [模块开通状态 · FIELD\-PLAT\-MODULES](../field-specs.md#FIELD-PLAT-MODULES)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)
+
+- [操作结果状态 · FIELD\-PLAT\-OP\-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)、[租户资料与品牌身份同次保存 · TASK\-004](../tasks/TASK-004.md)
+
+- [操作请求标识 · FIELD\-PLAT\-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)、[租户资料与品牌身份同次保存 · TASK\-004](../tasks/TASK-004.md)
+
+- [商业类型 · FIELD\-PLAT\-TENANT\-COMMERCIAL](../field-specs.md#FIELD-PLAT-TENANT-COMMERCIAL)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)、[租户资料与品牌身份同次保存 · TASK\-004](../tasks/TASK-004.md)
+
+- [租户联系人 · FIELD\-PLAT\-TENANT\-CONTACT](../field-specs.md#FIELD-PLAT-TENANT-CONTACT)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)、[租户资料与品牌身份同次保存 · TASK\-004](../tasks/TASK-004.md)
+
+- [租户说明 · FIELD\-PLAT\-TENANT\-DESC](../field-specs.md#FIELD-PLAT-TENANT-DESC)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)、[租户资料与品牌身份同次保存 · TASK\-004](../tasks/TASK-004.md)
+
+- [云呼叫企业资源关联 · FIELD\-PLAT\-TENANT\-ENTERPRISE](../field-specs.md#FIELD-PLAT-TENANT-ENTERPRISE)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)、[租户资料与品牌身份同次保存 · TASK\-004](../tasks/TASK-004.md)
+
+- [租户名称 · FIELD\-PLAT\-TENANT\-NAME](../field-specs.md#FIELD-PLAT-TENANT-NAME)；依据：[租户管理 · UI\-PAGE\-2004](../ui-pages/UI-PAGE-2004.md)、[租户资料与品牌身份同次保存 · TASK\-004](../tasks/TASK-004.md)
+
+## 本功能验收
+
+- **AC\-2035**：关联成功的每个租户只对应一个接入品牌。
+
+- **AC\-2036**：每租户一个品牌，每品牌最多一个总部及多独立门店；创建品牌必填。已有当前业务引用或引用无法可靠判定时，禁止更换品牌/总部门店身份；当前不定义旧未绑定租户补迁移。
+
+- **AC\-2037**：品牌关联变更保留前后信息、操作人和时间；品牌相同不自动共享线索/名单、授予总部品牌全量查看或触发转交。跨租户线索仅按独立的本次转交规则办理，普通租户资料编辑不得绕过归属与身份锁定。
+
+- **AC\-2081**：同一接入品牌可关联多个租户。
+
+- **AC\-2082**：每品牌对应一个总部租户及多个独立门店租户。
+
+- **AC\-2083**：租户所属品牌由平台超级管理员统一维护。
+
+## 实施任务
+
+- [租户资料与品牌身份同次保存 · TASK\-004](../tasks/TASK-004.md) — 共同实施任务，包含其他功能
+
+先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-2007。产品：续接输入 / 2\.0\.0\-current\-20261102\-step54。
+
+来源类型：current；来源指纹：b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf。
+
+- documentation/input/functions\.json\#FUNC\-2007
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>

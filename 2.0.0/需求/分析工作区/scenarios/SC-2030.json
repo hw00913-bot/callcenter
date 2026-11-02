@@ -1,0 +1,584 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2030",
+  "name": "按业务分类导入并定位业务数据",
+  "status": "proposed_flow",
+  "summary": "分类字段/编码校验后导入，固定当时BASE/ROUTE及单一模板/条件快照，同台账定位；跨分类可同码，线索品牌内唯一，不按号码合并。",
+  "actors": [
+    "本租户具备导入权限的人员",
+    "D联络云"
+  ],
+  "trigger": "需要导入某业务分类的新记录",
+  "preconditions": [
+    "沿用租户导入资格，当前方案由租户管理员在本租户导入。",
+    "本次新模板输入分类已有一个有效兼容模板保存版本及可核BASE/字段与ROUTE版本；没有备用或接续映射。",
+    "存量继续原查询和原处理，不因再次提交自动迁入。",
+    "沿用 AI 生产身份和稳定租户/对象标识；直接访问与菜单采用同一当前操作授权校验，不按名称、手机号或品牌关系合并身份或授权。",
+    "业务中心整合已确认的分类、规则、导入批次、业务台账、分配及记录处理入口，复用同一业务记录和原执行/详情跳转；不复制客户档案、任务或专业配置，不改变当前负责租户、原动作资格、固定版本和历史可见边界。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "本租户具备导入权限的人员",
+      "action": "从业务中心业务数据工作区按原本租户导入权限发起本次导入。",
+      "system_response": "核当前租户及品牌；配置管理权不自动授导入或跨租户数据权，非线索仅本租户处理。",
+      "rule_ids": [
+        "BR-2040",
+        "BR-2041",
+        "BR-2043",
+        "BR-2045",
+        "BR-2046",
+        "BR-2053",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "D联络云",
+      "action": "展示有权分类、业务编码名称、各字段/必填/选项及当前BASE/ROUTE和单模板版本。",
+      "system_response": "线索保原意向门店编码/名称，编码字符串保前导零；意向不变导入即转交指令。各条件字段定义、选项及版本独立，未额外指定单一标签来源。",
+      "rule_ids": [
+        "BR-2040",
+        "BR-2041",
+        "BR-2043",
+        "BR-2045",
+        "BR-2046",
+        "BR-2053",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "本租户具备导入权限的人员",
+      "action": "选择分类并提交数据，按原预览逐行核对后确认。",
+      "system_response": "同手机号不同编码仍独立记录；分类间可同码，普通记录按品牌+分类+编码核重，线索在品牌内唯一，跨媒体/门店不得复制同码线索。",
+      "rule_ids": [
+        "BR-2040",
+        "BR-2041",
+        "BR-2043",
+        "BR-2045",
+        "BR-2046",
+        "BR-2053",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "复核本次导入资格、当前BASE/字段与ROUTE版本及有效兼容单模板；逐行校验编码、字段并核重复。",
+      "system_response": "整次资格/配置冲突拒请求；行重复/错误分别记明，不覆盖已有字段/归属/模板/历史，有合格行仍可按原逐行规则导入。不把分配批次原子规则套给导入。",
+      "rule_ids": [
+        "BR-2040",
+        "BR-2041",
+        "BR-2043",
+        "BR-2045",
+        "BR-2046",
+        "BR-2053",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "D联络云",
+      "action": "保存合格新记录及实际批次逐行结果，固定BASE/字段、ROUTE、唯一模板及路径条件快照并初始化明确起始节点。",
+      "system_response": "conditionFieldDefinitions按每个fieldId固定，定义/选项/版本独立；原意向值保留，无意向或目标映射待核不造门店副本，也不阻本来合法导入。只初始化，不呼叫/推进；旧记录/旧批次不初始化迁移或追改。",
+      "rule_ids": [
+        "BR-2040",
+        "BR-2041",
+        "BR-2043",
+        "BR-2045",
+        "BR-2046",
+        "BR-2053",
+        "BR-2054"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "D联络云",
+      "action": "返回逐条成功、重复、失败、待核及相应数量和有权定位。",
+      "system_response": "没有合格新行也只反馈实际批次结果，不虚报创建。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+      "rule_ids": [
+        "BR-2040",
+        "BR-2041",
+        "BR-2043",
+        "BR-2045",
+        "BR-2046",
+        "BR-2053",
+        "BR-2054"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2030-CANCEL",
+      "condition": "提交前取消本次操作",
+      "steps": [
+        "不提交本次请求，不改变记录或配置。"
+      ]
+    },
+    {
+      "id": "ALT-2030-INVALID",
+      "condition": "资格、配置、当前版本或本次业务条件不满足",
+      "steps": [
+        "导入无权或配置已变/不齐备\n拒绝整次请求并说明原因",
+        "反馈具体原因；当前数据保持原实际状态。"
+      ]
+    },
+    {
+      "id": "ALT-2030-UNKNOWN",
+      "condition": "读写失败或本次结果不能确定",
+      "steps": [
+        "不展示成功；区分明确失败和结果待核。",
+        "结果待核先核对同次请求的实际结果，不能用新请求重复创建或推进。"
+      ]
+    },
+    {
+      "id": "ALT-2030-ROWS",
+      "condition": "部分或全部行重复、字段错误或不能确认为新数据",
+      "steps": [
+        "逐行记录重复或失败原因，不覆盖既有归属、字段、模板和历史。",
+        "有合格新行时只保存合格新记录；无新行时只保存实际批次结果。",
+        "批次结果明确列出成功、重复、失败及待核，不能把导入完成等同所有行创建成功。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "按逐行实际结果反馈成功、重复、失败及待核；整次资格/配置失败拒请求，行错误不覆盖原记录。",
+    "仅合格新记录固定BASE/字段、ROUTE和唯一模板/路径条件快照并初始化起点，不自动呼叫或转交。",
+    "旧实例/批次保持原模型和历史，不因再次导入迁移；无意向/待核目标不凭空复制门店记录。"
+  ],
+  "acceptance_points": [
+    "AC-2115：导入前选择有权业务分类，字段、业务编码名称和必填校验随分类配置变化，至少用线索类和另一分类验收。",
+    "AC-2116：业务记录在同品牌、同业务分类内编码唯一，跨分类可以同码；线索分类保留品牌内线索编码唯一。不以手机号归并，平台记录ID稳定。",
+    "AC-2117：导入结果能在统一台账定位并继续分配/处理；同条业务重复接收不得覆盖当前归属及既有历史，冲突给出明确处理结果。",
+    "AC-2098：总部当前线索缺失意向门店时，沿用同一记录标记目标门店待指派，保留原记录ID、品牌编码、批次和历史，总部继续负责；不复制线索、不新增模板实例、不将其等同于坐席或任务未分配。",
+    "AC-2108：分类可先保留为未关联模板；仅有关联的有效兼容模板才能接收新数据。分类字段变更破坏模板条件兼容时保引用、标需复核并拦新输入。新记录固定当时基础、路由和单一模板/路径条件快照；既有实例及历史不追改。"
+  ],
+  "source_story_ids": [
+    "US-2034",
+    "US-2029",
+    "US-2014",
+    "US-2032"
+  ],
+  "source_acceptance_ids": [
+    "AC-2115",
+    "AC-2116",
+    "AC-2117",
+    "AC-2098",
+    "AC-2108"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2084",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2092",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "business_rule_ids": [
+    "BR-2040",
+    "BR-2041",
+    "BR-2043",
+    "BR-2045",
+    "BR-2046",
+    "BR-2053",
+    "BR-2054",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010"
+  ],
+  "notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "逐字段条件使用固定定义/选项身份和各自独立值来源/版本；当前有效业务值及三态由SC-2032办理，导入不推断供应商标签。",
+    "仅贡献意向原值保存和目标状态摘要；真正总部下发门店交SC-2026，不将未来转交目标前置于导入。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "human",
+        "name": "本租户具备导入权限的人员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "human",
+        "type": "start",
+        "order": 1,
+        "label": "需要接收一批属于某业务分类的数据"
+      },
+      {
+        "id": "N-OPEN",
+        "lane_id": "human",
+        "type": "action",
+        "order": 2,
+        "label": "从工作区发起导入",
+        "step_ref": 1
+      },
+      {
+        "id": "N-CONTEXT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "展示逐字段要求与BASE/ROUTE版本\n一个有效兼容模板保存版本",
+        "step_ref": 2
+      },
+      {
+        "id": "N-CHOOSE",
+        "lane_id": "human",
+        "type": "action",
+        "order": 4,
+        "label": "选择分类、提交数据\n核对预览并确认",
+        "step_ref": 3
+      },
+      {
+        "id": "N-CONFIRM",
+        "lane_id": "human",
+        "type": "decision",
+        "order": 5,
+        "label": "是否确认本次办理？"
+      },
+      {
+        "id": "N-CANCEL-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "取消本次办理，不保存本次变更"
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "human",
+        "type": "end",
+        "order": 7,
+        "label": "已取消"
+      },
+      {
+        "id": "N-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 8,
+        "label": "核原导入权及BASE/ROUTE/单模板版本\n逐行编码与字段，重复/错行不覆盖",
+        "step_ref": 4
+      },
+      {
+        "id": "N-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 9,
+        "label": "整批资格与配置仍有效？"
+      },
+      {
+        "id": "N-INVALID-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 10,
+        "label": "导入无权或配置已变/不齐备\n拒绝整次请求并说明原因"
+      },
+      {
+        "id": "N-INVALID",
+        "lane_id": "human",
+        "type": "end",
+        "order": 11,
+        "label": "本次未办理，说明原因"
+      },
+      {
+        "id": "N-HAS-NEW",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 12,
+        "label": "本批有合格新记录？"
+      },
+      {
+        "id": "N-NO-NEW",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 13,
+        "label": "无新记录，仅保存批次逐条结果\n重复/错误不覆盖任何既有记录"
+      },
+      {
+        "id": "N-COMMIT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 14,
+        "label": "保存合格新记录/原意向及批次\n固定各fieldId定义+单模板/路径快照\n初始化起点，不呼叫或转交",
+        "step_ref": 5
+      },
+      {
+        "id": "N-COMMITTED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 15,
+        "label": "取得明确成功结果？"
+      },
+      {
+        "id": "N-UNKNOWN-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 16,
+        "label": "反馈失败或待核\n待核先核对同次结果，不能盲目重试"
+      },
+      {
+        "id": "N-UNKNOWN",
+        "lane_id": "human",
+        "type": "end",
+        "order": 17,
+        "label": "本次未确认成功"
+      },
+      {
+        "id": "N-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 18,
+        "label": "返回逐行成功/重复/错误/待核及定位\n旧记录原模型，目标待核不造副本",
+        "step_ref": 6
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "human",
+        "type": "end",
+        "order": 19,
+        "label": "导入实际结果和记录定位可核对"
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-OPEN"
+      },
+      {
+        "from": "N-OPEN",
+        "to": "N-CONTEXT"
+      },
+      {
+        "from": "N-CONTEXT",
+        "to": "N-CHOOSE"
+      },
+      {
+        "from": "N-CHOOSE",
+        "to": "N-CONFIRM"
+      },
+      {
+        "from": "N-CONFIRM",
+        "to": "N-CANCEL-RESPONSE",
+        "label": "取消",
+        "path_id": "ALT-2030-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "N-CANCEL-RESPONSE",
+        "to": "N-CANCEL"
+      },
+      {
+        "from": "N-CONFIRM",
+        "to": "N-CHECK",
+        "label": "确认"
+      },
+      {
+        "from": "N-CHECK",
+        "to": "N-VALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-INVALID-RESPONSE",
+        "label": "不通过",
+        "path_id": "ALT-2030-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "N-INVALID-RESPONSE",
+        "to": "N-INVALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-HAS-NEW",
+        "label": "通过"
+      },
+      {
+        "from": "N-COMMIT",
+        "to": "N-COMMITTED"
+      },
+      {
+        "from": "N-COMMITTED",
+        "to": "N-UNKNOWN-RESPONSE",
+        "label": "失败或待核",
+        "path_id": "ALT-2030-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "N-UNKNOWN-RESPONSE",
+        "to": "N-UNKNOWN"
+      },
+      {
+        "from": "N-COMMITTED",
+        "to": "N-RESPONSE",
+        "label": "明确成功"
+      },
+      {
+        "from": "N-RESPONSE",
+        "to": "N-SUCCESS"
+      },
+      {
+        "from": "N-HAS-NEW",
+        "to": "N-COMMIT",
+        "label": "有合格新行"
+      },
+      {
+        "from": "N-HAS-NEW",
+        "to": "N-NO-NEW",
+        "label": "仅重复/错行，无新行",
+        "path_id": "ALT-2030-ROWS"
+      },
+      {
+        "from": "N-NO-NEW",
+        "to": "N-COMMITTED"
+      }
+    ]
+  },
+  "expected_outcome": "分类字段/编码校验后导入，固定当时BASE/ROUTE及单一模板/条件快照，同台账定位；跨分类可同码，线索品牌内唯一，不按号码合并。",
+  "exception_scope": "无有效兼容单模板或需复核阻新输入；重复保原归属/版本/历史，旧数据原查询和处理，不初始化迁移。",
+  "scope": "in_scope",
+  "scope_status": "confirmed_G1_SRC2094",
+  "design_status": "S3_revised_detail_structural_native_compile_checked_not_rendered",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [
+    "ISSUE-2020",
+    "ISSUE-2021",
+    "ISSUE-2013",
+    "ISSUE-2014",
+    "ISSUE-2022",
+    "ISSUE-2019"
+  ],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-213",
+    "inputs/source-index.json#SRC-214",
+    "inputs/source-index.json#SRC-215",
+    "inputs/source-index.json#SRC-216",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-223",
+    "inputs/source-index.json#SRC-224",
+    "inputs/source-index.json#SRC-230",
+    "inputs/source-index.json#SRC-231",
+    "inputs/source-index.json#SRC-233",
+    "inputs/source-index.json#SRC-234",
+    "inputs/source-index.json#SRC-238"
+  ],
+  "v12_origin_scenario_id": "SC-11209",
+  "v12_origin_detail_sha256": "cddd18055de7dcd766fdeaa983663f2f28c4a79f37c483f180a157d3610795ea",
+  "v12_origin_snapshot": "2f5f1906236eb99d8996a21ede36891051d7b69628dfda58a7060ce92ac125b7",
+  "rule_ids": [
+    "BR-2040",
+    "BR-2041",
+    "BR-2043",
+    "BR-2045",
+    "BR-2046",
+    "BR-2053",
+    "BR-2054",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010"
+  ],
+  "acceptance_contributions": {
+    "AC-2098": "仅承接无意向输入时原记录/批次/历史保持和待指派标记，实际总部下发由SC-2026办理。",
+    "AC-2108": "仅接收新记录前核有效兼容路由及固定快照，不承担独立路由保存。"
+  },
+  "delegated_parent_acceptance": {
+    "note": "父故事其他验收不是本场景主结果；按相应独立场景办理，不作为本场景完整覆盖。",
+    "ids": [
+      "AC-2084",
+      "AC-2085",
+      "AC-2086",
+      "AC-2087",
+      "AC-2088",
+      "AC-2089",
+      "AC-2097",
+      "AC-2099",
+      "AC-2100",
+      "AC-2101",
+      "AC-2038",
+      "AC-2039",
+      "AC-2040",
+      "AC-2102",
+      "AC-2103",
+      "AC-2105"
+    ]
+  },
+  "analysis_notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "本轮只修订当前场景明细；旧SRC2086的37场景G1及SRC2088六入口采纳保历史来源，当前批准为SRC2094的36场景。原型/生产能力未据本次细化改写；不新增US/SC/功能或新统计。"
+  ],
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "v12_origin_baseline": "c84782225797ba928b75f4854640cde7ff34d07d33f951bb0985cafc61f2c1ac",
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "change_id": "CH-V200-C847-S3-SRC2094",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_detail_sha256": "99c498a3d215029939ebb57169ee7af50d7c0fcb09fa98926b664c2daa36ecaa",
+      "retained_node_ids": [
+        "N-START",
+        "N-OPEN",
+        "N-CONTEXT",
+        "N-CHOOSE",
+        "N-CONFIRM",
+        "N-CANCEL-RESPONSE",
+        "N-CANCEL",
+        "N-CHECK",
+        "N-VALID",
+        "N-INVALID-RESPONSE",
+        "N-INVALID",
+        "N-COMMIT",
+        "N-COMMITTED",
+        "N-UNKNOWN-RESPONSE",
+        "N-UNKNOWN",
+        "N-RESPONSE",
+        "N-SUCCESS",
+        "N-HAS-NEW",
+        "N-NO-NEW"
+      ],
+      "retained_alternate_flow_ids": [
+        "ALT-2030-CANCEL",
+        "ALT-2030-INVALID",
+        "ALT-2030-UNKNOWN",
+        "ALT-2030-ROWS"
+      ],
+      "added_node_ids": [],
+      "added_alternate_flow_ids": [],
+      "semantic_replacement": "本条branch_semantics记本场景旧新关系；旧文件只按previous_detail_sha256及历史来源追溯，不作为当前分支。",
+      "branch_semantics": {
+        "retired": [
+          "主备模板/条件快照描述"
+        ],
+        "retained": [
+          "逐行导入实际结果",
+          "旧记录/批次原模型",
+          "品牌内线索唯一及原意向"
+        ]
+      }
+    }
+  ],
+  "scope_choice_update": {
+    "change_id": "CH-V200-AI-TAGS-CONFIG-ONLY-20261024",
+    "source_ref": "inputs/source-index.json#SRC-2096",
+    "version": "2.0.0",
+    "selected": "configuration_only",
+    "new_API_permission_business_field_or_scenario": false,
+    "at": "2026-10-24T13:43:27+08:00"
+  }
+}

@@ -1,0 +1,1852 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "D联络云 v2.0.0 AI外呼与云呼叫整合",
+    "version": "2.0.0",
+    "objective": "以AI生产身份为基准，统一多租户与六入口，复用AI/云呼叫既有能力；承接品牌共用分类、固定单模板及人员逐次办理，保持专业资格、公共禁呼和数据隔离。"
+  },
+  "actors": [
+    {
+      "name": "超管",
+      "description": "开通租户模块及停用整个登录账号，其他职责按实际授权核对；仅在有权对象范围维护品牌资料及品牌/总部/门店关联，不由称谓获得品牌全量线索查看权。"
+    },
+    {
+      "name": "有权平台管理员",
+      "description": "按各独立公共维护权限和对象范围操作；旧非超管品牌写方向由SRC2081/2082替代，资料查看不等于品牌/关联维护。"
+    },
+    {
+      "name": "租户管理员",
+      "description": "在本租户维护成员权限，在有权管理范围维护品牌共用分类及合法公共名单动作；不因共享配置取得其他租户业务数据权。"
+    },
+    {
+      "name": "运营人员",
+      "description": "执行已授权工作区业务；单独授权后可人工确认AI拒联加入公共禁呼"
+    },
+    {
+      "name": "电话坐席",
+      "description": "在云呼叫处理本人电话及跟进；电话在线身份与系统登录身份区分"
+    }
+  ],
+  "systems": [
+    {
+      "name": "统一系统外壳",
+      "description": "当前账号/租户/工作区、授权入口和公共管理"
+    },
+    {
+      "name": "AI外呼",
+      "description": "承接现有场景、任务、标签、名单、记录、统计和专属资源规则"
+    },
+    {
+      "name": "云呼叫",
+      "description": "承接v1.1.0最终功能及人工/预外呼/IVR/呼入规则"
+    },
+    {
+      "name": "外呼供应商",
+      "description": "保留专业执行与资源差异，真实认证/同步/在途能力待核验"
+    }
+  ],
+  "scope": {
+    "in": [
+      "AI生产身份基准下的统一账号、多租户合法登录及租户独立模块/成员授权",
+      "工作台、业务中心、客户中心、呼叫中心、报表中心、系统管理六入口；无新增首页，复用原页面交互与电话边界",
+      "公共账号/租户/名单与品牌档案及唯一总部多门店关系，公共拒联拦AI/人工/预外呼/IVR",
+      "新模型品牌共用业务分类与原字段/取数接口承接；分类基础和路由独立保存，AI具体场景保持专业关联",
+      "固定分类/字段、独立路由及单模板版本的业务记录，分类导入/批次/同台账/详情，原租户内分配和有权监管",
+      "空节点逐个配置与明确起点、模板独立只读详情及未引用保护删除；人员启动和推进，路径ALL/ANY、通话状态及逐字段多选条件三态",
+      "同品牌线索串行培育及总部/门店多轮接续，意向门店定向和无意向仅总部ADMIN同次指派",
+      "存量保留原查询/处理，不自动迁移或按手机号/同名分类合并；本方线索入站及既有出站回传责任保持",
+      "通过入口归位、可靠关联跳转和原作业回看形成现有业务/客户/呼叫链路，不新增业务场景、独立客户业务域或重复维护对象。",
+      "整条记录最近执行段串行及原未保存人工段有权首次补录；转交成功清旧执行安排，原批次多选分配同次原子保存。",
+      "保留原字段/取数接口字典、接口单/多选、多源属性参数、人工结果二态和原完成回传及原有权联系历史；AI标签来源作用域保留，本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。"
+    ],
+    "out": [
+      "完整DCC CRM及通用业务规则引擎；不以有限人工模板机制扩为自动编排",
+      "自动条件推进/呼叫/租户转交、运行中任意改绑模板、任意跨节点或门店改派",
+      "模板发布、批量跨租户转交、自动回收/撤回、门店直转门店；独立模板删除仅按已确认无引用保护范围办理",
+      "跨品牌共享、仅凭品牌/配置关系取得全品牌业务数据或跨租户录音",
+      "历史初始化/迁移/重绑、手机号归并或同名分类合并",
+      "新统一首页、跨AI/公共的常驻电话条、默认合并账务、补齐占位功能、AI拒联自动判定",
+      "新增其他业务分类开放入站、远端查店或新增逐轮出站回传、把外部模板ID作为必传",
+      "将Mock或接口文档当生产闭环；仍在变化的v1.1.1继承实现和源版失效final结论不作为当前验收证据",
+      "本轮不增加独立客户主档/客户ID体系、多号码身份管理、客户生命周期/评分/自动再激活引擎。",
+      "本轮不增加客户负责人/公海/回收、统一跨业务待办/下次维护提醒；原话后字段和待继续跟进含义保留。",
+      "本轮不增加客户自动合并、跨租户客户共享、全新经营漏斗或统计口径；原同号联系归集不合并业务身份。",
+      "本版不新增AI标准标签向业务字段写入或由此新增自动流转；只整合配置/映射/结果展示，保原字段条件/人工保存/其他流转，不作未来永久禁令。"
+    ]
+  },
+  "assumptions": [
+    "以下是v2目标逻辑关系，不是AI生产数据库模型或已核实接口。",
+    "已有跨租户授权按真实关系承接，不由此增加跨租户自动加入或移除成员操作。",
+    "整合实施仍等v1.1.0需求完成，本轮流程分析不成为其它版本前置。"
+  ],
+  "entities": [
+    {
+      "name": "品牌",
+      "responsibility": "表达业务租户的品牌归属，归属不授予跨租户访问"
+    },
+    {
+      "name": "业务租户",
+      "responsibility": "两个工作区共同的业务隔离范围，基础身份以AI生产承接"
+    },
+    {
+      "name": "登录账号",
+      "responsibility": "系统认证主体，状态可全局停用"
+    },
+    {
+      "name": "租户成员关系",
+      "responsibility": "表达同一账号在某租户的访问状态及权限边界，生产承载方式待核"
+    },
+    {
+      "name": "租户模块开通",
+      "responsibility": "表达该租户可使用AI/云呼叫中的哪些模块"
+    },
+    {
+      "name": "工作区操作授权",
+      "responsibility": "表达成员在某已开通模块可执行的业务操作"
+    },
+    {
+      "name": "电话坐席",
+      "responsibility": "人工电话执行身份及在线状态，由云呼叫专业模块管理"
+    },
+    {
+      "name": "供应商账号与执行资源",
+      "responsibility": "机器人、线路、外呼组、队列、IVR流程等按所属模块原规则维护"
+    },
+    {
+      "name": "公共业务分类",
+      "responsibility": "新模型品牌共用分类BASE稳定身份及基础/原字段显示顺序必填与取数配置；与ROUTE独立保存，无单一标签来源指定。原目录ID和原授权保留，不按同名合并。",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "responsibility": "新模型的品牌共用分类BASE稳定身份、基础资料及字段/原取数配置；旧租户目录保留原ID关系，不按同名合并或新增第二主目录。",
+            "source_refs": null
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "name": "公共及专项名单",
+      "responsibility": "以当前租户为隔离边界，保留原来源、范围、期限及同步/解除状态"
+    },
+    {
+      "name": "品牌线索",
+      "responsibility": "同品牌线索编码跨媒体/门店唯一；作为通用业务记录的线索类特例，不能借不同分类放宽，不与手机号档案归并。"
+    },
+    {
+      "name": "接续轮次",
+      "responsibility": "每次明确转交成功，归属和新增轮次一致落地，沿用同一线索编码。"
+    },
+    {
+      "name": "培育执行段",
+      "responsibility": "整条记录内串行的AI/预外呼/人工执行段，分别确认受理/结束/保存/不再呼叫。原租户/轮次/节点和表单版本固定，换owner/round不豁免最近段保存门槛。",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "responsibility": "每次由人员选择AI/预外呼/人工之一，区别受理、执行结束、结果保存和单条不再呼叫证明。",
+            "source_refs": null
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "name": "转交办理记录与历史截止",
+      "responsibility": "同次请求先核对未知，不重复建轮；已转出方只看转出前实际发生历史，再接收按当前身份。"
+    },
+    {
+      "name": "分类路由配置",
+      "responsibility": "已有分类独立可识别ROUTE版本，只关联一个有效模板精确保存版本，立即只读展示起点/节点/路径条件，逐规则核分类字段和选项兼容；不改基础/接口。",
+      "status": "S3_logical_object_not_production_schema",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "responsibility": "属于已有分类的独立保存版本；一个主模板、至多一个可选备用，保留主节点→备用接续映射，只读分类标签/字段版本并核兼容。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "name": "流转模板保存版本",
+      "responsibility": "同品牌可复用的不可变保存版本，含明确起点、节点及edge条件；创建/修改形成新版本，独立详情只读，删除仅限全部当前/历史/待核引用均可靠为空的模板，不发布。",
+      "status": "S3_logical_object_not_production_schema",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "responsibility": "同品牌可复用的不可变保存版本，含稳定节点/路径/条件；修改成新版本，不新增独立发布或删除生命周期。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "name": "模板节点与路径条件",
+      "responsibility": "新建无预设节点，逐个空白配置并选起点；固定节点职责/方式及合法edge，条件逐rule.fieldId/optionId，仅作人员选择准入，不自动运行。",
+      "status": "S3_logical_object_not_production_schema",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "responsibility": "节点职责、处理方式和合法边；条件仅人工选择准入，固定边身份与条件版本。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "name": "通用业务记录",
+      "responsibility": "非线索按品牌+分类+业务编码唯一，保存稳定记录身份、当前负责租户、批次和历史；重复不覆盖归属或产生副本。",
+      "status": "S3_logical_object_not_production_schema",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "name": "记录模板实例及配置快照",
+      "responsibility": "新数据固定分类/全部显示多选字段定义、ROUTE和单模板/edge条件及起点，记录当前节点；后改配置不追改，不创建或迁移存量实例。",
+      "status": "S3_logical_object_not_production_schema",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "responsibility": "新进入时固定分类/字段、路由、主备及条件版本，保存当前模板及节点；后续配置不追改，切备用不另建记录或轮次。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "name": "门店编码映射",
+      "responsibility": "在原品牌—门店租户关联维护稳定字符串业务编码，品牌内唯一且保留前导零；不是门店名或供应商enterpriseId。",
+      "status": "S3_logical_object_not_production_schema",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "name": "转交目标依据",
+      "responsibility": "客户原意向/映射版本或无意向ADMIN人工指派事件；人工目标不写回客户意向，门店目标与坐席任务分配独立。",
+      "status": "S3_logical_object_not_production_schema",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "name": "记录有效标签及条件依据",
+      "responsibility": "各业务多选fieldId分别保存有效optionIds、定义/值版本及原轮/段来源；当前owner本轮最近结束通话单独关联。未提供保留、显式[]仅清该字段，旧段不盖新值；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+      "status": "S3_logical_object_not_production_schema",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "responsibility": "分类指定多选字段和稳定选项的有效已保存值，以及当前负责租户本轮最近结束通话；旧段迟到不覆盖新值，读取待核不当true。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "品牌",
+      "to": "业务租户",
+      "cardinality": "一品牌一个总部及多个独立门店；每租户0或1品牌",
+      "rule": "新建必填；历史未关联保留旧功能且可首次绑定，已有线索绑定后品牌和身份锁定，历史不迁移。",
+      "status": "confirmed",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2081",
+        "inputs/source-index.json#SRC-2082"
+      ]
+    },
+    {
+      "from": "登录账号",
+      "to": "租户成员关系",
+      "cardinality": "1 对 0或多",
+      "rule": "只用于表达本租户与全局停用差异，不断言生产已有此表",
+      "status": "target_logical_model"
+    },
+    {
+      "from": "业务租户",
+      "to": "租户成员关系",
+      "cardinality": "1 对 0或多",
+      "rule": "关系限定本租户授权，不能借此授予其他租户权限",
+      "status": "target_logical_model"
+    },
+    {
+      "from": "业务租户",
+      "to": "租户模块开通",
+      "cardinality": "每模块独立",
+      "rule": "超管开通，AI和云呼叫可单独使用",
+      "status": "confirmed"
+    },
+    {
+      "from": "租户成员关系",
+      "to": "工作区操作授权",
+      "cardinality": "各工作区分别授权",
+      "rule": "只在已开通模块和允许业务范围授权",
+      "status": "confirmed"
+    },
+    {
+      "from": "工作区操作授权",
+      "to": "电话坐席",
+      "cardinality": "具体映射基数待核",
+      "rule": "使用云呼叫账号不等于电话已经上线",
+      "status": "production_mapping_pending"
+    },
+    {
+      "from": "业务租户",
+      "to": "公共业务分类",
+      "cardinality": "本租户有权引用本品牌共用分类；存量原租户目录关系保留",
+      "rule": "新模型配置以品牌为共享域；本租户AI具体场景按稳定ID关联，专业类型/标签/供应商参数保留。旧目录不按同名合并；配置和场景关联不授其他租户业务数据权。",
+      "status": "G1_scope_confirmed_logical_model",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ],
+      "business_granularity_status": "confirmed_by_user"
+    },
+    {
+      "from": "业务租户",
+      "to": "公共及专项名单",
+      "cardinality": "本租户记录",
+      "rule": "品牌相同不自动共享；公共拒联和专项限制分别判定",
+      "status": "confirmed"
+    },
+    {
+      "from": "业务租户",
+      "to": "供应商账号与执行资源",
+      "cardinality": "具体原映射待核",
+      "rule": "不因基础租户统一合并所有供应商身份/账务/资源",
+      "status": "partial"
+    },
+    {
+      "from": "品牌线索",
+      "to": "接续轮次",
+      "cardinality": "1 对 多",
+      "rule": "转交成功时切换归属并开新轮，无接收确认；不按手机号复制或归并。",
+      "status": "G1_scope_confirmed_logical_model"
+    },
+    {
+      "from": "接续轮次",
+      "to": "培育执行段",
+      "cardinality": "1 对 多，按顺序",
+      "rule": "轮次内执行段有序；启动前须核整条记录最近段结束且结果保存，换轮/owner不豁免。转交本身独立仅按执行结束及不再呼叫等原准入，不一律先存全部结果。",
+      "status": "G1_scope_confirmed_logical_model",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "rule": "前段结束且结果保存后人员可启动下一段；转交独立只要求该条结束且不再呼叫，不额外要求结果已保存。",
+            "source_refs": null
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "relationship_key": [
+            "接续轮次",
+            "培育执行段"
+          ],
+          "reason": "按完整from/to关系保留原值；当前单模板与逐字段契约取代旧语义，旧值不作为当前活动要求。"
+        }
+      ]
+    },
+    {
+      "from": "品牌",
+      "to": "公共业务分类",
+      "cardinality": "1 对 多",
+      "rule": "新模型品牌共用分类BASE，由有权超管/品牌ADMIN维护；不等于品牌全量数据权。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "from": "公共业务分类",
+      "to": "分类路由配置",
+      "cardinality": "稳定分类对应可识别路由版本",
+      "rule": "BASE与ROUTE分别保存并重核读取版本，互不覆盖，无独立标签来源选择或tagFieldId提交。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "rule": "基础和路由分别提交并重核各自读取版本；标签指定仅基础可写。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "relationship_key": [
+            "公共业务分类",
+            "分类路由配置"
+          ],
+          "reason": "按完整from/to关系保留原值；当前单模板与逐字段契约取代旧语义，旧值不作为当前活动要求。"
+        }
+      ]
+    },
+    {
+      "from": "分类路由配置",
+      "to": "流转模板保存版本",
+      "cardinality": "当前ROUTE精确关联1个有效保存版本；未关联可保留基础",
+      "rule": "选择即展示精确版本起点及节点/路径说明，逐规则核当前分类显示/启用多选字段及选项兼容；未关联/需复核阻未来新输入。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "cardinality": "主1/备用0或1",
+            "rule": "主备同品牌且版本不同，条件字段及稳定选项身份相容；接续映射在路由维护。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "relationship_key": [
+            "分类路由配置",
+            "流转模板保存版本"
+          ],
+          "reason": "按完整from/to关系保留原值；当前单模板与逐字段契约取代旧语义，旧值不作为当前活动要求。"
+        }
+      ]
+    },
+    {
+      "from": "流转模板保存版本",
+      "to": "模板节点与路径条件",
+      "cardinality": "1 对 多",
+      "rule": "固定保存版本含稳定节点/边；人员只确认合法路径，多路径符合由人选。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "from": "公共业务分类",
+      "to": "通用业务记录",
+      "cardinality": "1 对 多",
+      "rule": "记录固定进入时基础/字段及编码语义，非线索品牌+分类+码唯一，线索品牌内码唯一。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "from": "通用业务记录",
+      "to": "记录模板实例及配置快照",
+      "cardinality": "同一记录持有当前实例/历史快照",
+      "rule": "新数据固定基础/字段、路由、单模板及条件版本和各字段定义；后改配置不追改，旧模型不自动绑定。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "rule": "新数据固定当次分类/路由/主备/条件版本；旧模型数据不自动绑定。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "relationship_key": [
+            "通用业务记录",
+            "记录模板实例及配置快照"
+          ],
+          "reason": "按完整from/to关系保留原值；当前单模板与逐字段契约取代旧语义，旧值不作为当前活动要求。"
+        }
+      ]
+    },
+    {
+      "from": "记录模板实例及配置快照",
+      "to": "接续轮次",
+      "cardinality": "合法归属接续才新增轮次",
+      "rule": "仅成功合法归属转交新增轮次并清原执行安排；纯节点推进或目标待指派不复制记录/新增轮次，原段历史保留。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "rule": "纯节点推进、门店待指派、切备用不复制记录或新建轮次；原轮和原段结果保持。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "relationship_key": [
+            "记录模板实例及配置快照",
+            "接续轮次"
+          ],
+          "reason": "按完整from/to关系保留原值；当前单模板与逐字段契约取代旧语义，旧值不作为当前活动要求。"
+        }
+      ]
+    },
+    {
+      "from": "培育执行段",
+      "to": "模板节点与路径条件",
+      "cardinality": "执行开始时固定来源节点及原轮",
+      "rule": "执行开始固定原节点/轮次和表单定义；迟到结果归原段，原人工段可由有权者首次补录，已保存不可重写。下一处理核整条最近段结束且保存。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "rule": "迟到结果不按当前指针重归档；前段结束且保存才允许下一方式。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "relationship_key": [
+            "培育执行段",
+            "模板节点与路径条件"
+          ],
+          "reason": "按完整from/to关系保留原值；当前单模板与逐字段契约取代旧语义，旧值不作为当前活动要求。"
+        }
+      ]
+    },
+    {
+      "from": "业务租户",
+      "to": "门店编码映射",
+      "cardinality": "有效门店身份对品牌内业务编码",
+      "rule": "由超管维护，映射可逐步补齐；未可靠定位不转交，已有线索身份锁定。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "from": "通用业务记录",
+      "to": "转交目标依据",
+      "cardinality": "每次总部下发保存本次依据",
+      "rule": "意向目标唯一锚定；无意向仅当前HQ ADMIN同次选店；映射异常待核，指派不改原意向。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "from": "公共业务分类",
+      "to": "记录有效标签及条件依据",
+      "cardinality": "已添加且显示/启用的多选字段可被不同规则分别引用",
+      "rule": "逐rule.fieldId/optionId核稳定定义与记录该字段有效已保存值/来源/版本，不按名称或首字段猜取，不要求单一指定字段；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+      "status": "S3_logical_model_not_G2_or_production",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "cardinality": "指定一个已有启用多选字段作为标签来源",
+            "rule": "字段/选项稳定身份与主备条件相容，不与AI专业标签或公共名单合并；未用标签条件不强制指定。",
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "relationship_key": [
+            "公共业务分类",
+            "记录有效标签及条件依据"
+          ],
+          "reason": "按完整from/to关系保留原值；当前单模板与逐字段契约取代旧语义，旧值不作为当前活动要求。"
+        }
+      ]
+    }
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2004",
+    "inputs/source-index.json#SRC-2010",
+    "inputs/source-index.json#SRC-2026",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2036",
+    "inputs/source-index.json#SRC-2037",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2039",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2043",
+    "inputs/source-index.json#SRC-2081",
+    "inputs/source-index.json#SRC-2082",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2087",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "product_structure": [
+    {
+      "name": "工作台",
+      "description": "复用原坐席作业、本人待联系/跟进与有权监管入口，不新增统一待办或提醒引擎。"
+    },
+    {
+      "name": "业务中心",
+      "description": "分类与字段、独立流转路由/模板、导入分配、记录/批次及详情办理，复用原业务页和已确认本期能力；不新建第二套台账。"
+    },
+    {
+      "name": "客户中心",
+      "description": "复用原号码联系档案、可见关联业务/批次和联系历史，继续跟进跳原作业，原公共及专项名单唯一主维护归联系限制；不新建客户主档/ID/生命周期状态机。"
+    },
+    {
+      "name": "呼叫中心",
+      "description": "原AI/预外呼/IVR专业任务、人工电话能力入口、呼入与专业配置、坐席技能队列、号码/分机/时间及原AI用量服务；原独立资格和供应商规则保持。"
+    },
+    {
+      "name": "报表中心",
+      "description": "只归位原AI/云呼叫有权报表和已确认口径，保留原指标、明细与导出，不新增跨模块漏斗或客户维护统计。"
+    },
+    {
+      "name": "系统管理",
+      "description": "原账号成员、租户品牌、应用接入及审计等按对象归位，保留原操作权，不因迁位仅限超管或扩大平台权限。"
+    }
+  ],
+  "navigation_policy": {
+    "areas": [
+      "工作台",
+      "业务中心",
+      "客户中心",
+      "呼叫中心",
+      "报表中心",
+      "系统管理"
+    ],
+    "business_modules": [
+      "AI外呼",
+      "云呼叫"
+    ],
+    "module_entitlements_independent": true,
+    "new_unified_home": false,
+    "first_landing_choice_source": "inputs/source-index.json#SRC-2039",
+    "telephone_boundary_source": "inputs/source-index.json#SRC-2040",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2035",
+      "inputs/source-index.json#SRC-2036",
+      "inputs/source-index.json#SRC-2037",
+      "inputs/source-index.json#SRC-2038",
+      "inputs/source-index.json#SRC-2039",
+      "inputs/source-index.json#SRC-2040",
+      "inputs/source-index.json#SRC-2087",
+      "inputs/source-index.json#SRC-2088"
+    ],
+    "production_verified": false,
+    "presentation": "six_entries_by_business_customer_call_responsibility",
+    "legacy_workspace_switcher": "v1.2_transition_only_not_v2_target",
+    "ai_external_shortcut": "not_an_active_v2_entry",
+    "lead_entry": [
+      "业务中心",
+      "业务台账",
+      "线索类视图"
+    ],
+    "lead_detail": "same_window_non_menu_detail",
+    "customer_entry": [
+      "客户中心",
+      "客户档案"
+    ],
+    "blacklist_entry": [
+      "客户中心",
+      "联系限制"
+    ],
+    "same_stable_page_mapping": true,
+    "top_level_groups_not_entitlements": true,
+    "first_landing_and_memory": "按原稳定页面/功能意图映射到新路径，原首次导入分配优先、合法历史和仅管理首个合法入口规则保持；不按六顶栏的排序重算登录优先级。",
+    "telephone_scope": "按被复用页的原业务/电话现场识别，不按六入口名称。Cloud原客户/作业/报表仍可保留电话；进入AI专业页、原公共管理功能或切租户仍按原保护。",
+    "management_memory_scope": "原公共管理功能分入业务/客户/系统中心后仍保留其原同窗返回与同次记忆；整个新中心不自动变成管理域。",
+    "reuse_mapping_candidate": "planning/functional-integration-reuse-map.json"
+  },
+  "design_status": "G1_SRC2094_approved_S3_structure_updated_formal_diagrams_G2_G3_pending",
+  "state_models": [
+    {
+      "id": "STATE-2001",
+      "name": "线索责任租户",
+      "states": [
+        "总部负责",
+        "门店负责"
+      ],
+      "transitions": [
+        "满足转交条件并总部下发成功：总部负责→门店负责",
+        "满足转交条件并门店上交成功：门店负责→总部负责"
+      ],
+      "notes": [
+        "转交前须结束该条执行且确认不再呼叫；失败/未知状态不得冒充成功。",
+        "归属明确成功同次清原执行安排，接收方另分配；转交不统一要求所有结果先保存。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "status": "S3_product_state_model_not_production_enum_formal_diagram_pending",
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "notes": [
+              "转交前须结束该条执行且确认不再呼叫；失败/未知状态不得冒充成功。"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ],
+            "status": "S3_product_state_model_not_production_enum"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "id": "STATE-2002",
+      "name": "历轮查看范围",
+      "states": [
+        "当前接收身份：基本信息及历轮结果",
+        "已转出身份：仅转出前已经发生的历史结果"
+      ],
+      "transitions": [
+        "转交成功：源租户进入转出历史范围，目标成为当前接收身份",
+        "同条线索再次转入：新增培育轮次，当前方可看此前历轮"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "status": "S3_product_state_model_not_production_enum_formal_diagram_pending",
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ],
+            "status": "S3_product_state_model_not_production_enum"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "id": "STATE-2003",
+      "name": "整条记录执行段衔接",
+      "states": [
+        "人员可发起下一段",
+        "本段执行中",
+        "执行结束待保存结果",
+        "本段结果已保存",
+        "失败或状态待核"
+      ],
+      "transitions": [
+        "人员选择启动：可发起→执行中",
+        "取得明确结束结论：执行中→结束待保存",
+        "保存成功：结束待保存→结果已保存",
+        "整条记录最近段结束且保存：人员可另次启动；换owner/round不豁免，仅整条从未有段才无前段"
+      ],
+      "notes": [
+        "为产品状态表达，不冒充生产接口状态枚举；真实字段与事件顺序待核。",
+        "原有权人员首次补录原未保存人工段归原身份和固定表单，已保存结果不重写，停用仅已确认有限收尾。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "status": "S3_product_state_model_not_production_enum_formal_diagram_pending",
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "name": "同条线索执行段衔接",
+            "transitions": [
+              "人员选择启动：可发起→执行中",
+              "取得明确结束结论：执行中→结束待保存",
+              "保存成功：结束待保存→结果已保存",
+              "上一段结束且结果保存：允许人员另次启动下一方式"
+            ],
+            "notes": [
+              "为产品状态表达，不冒充生产接口状态枚举；真实字段与事件顺序待核。"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ],
+            "status": "S3_product_state_model_not_production_enum"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "id": "STATE-2004",
+      "name": "模板保存版本与实例绑定",
+      "states": [
+        "编辑中未保存",
+        "已保存可引用版本",
+        "新记录已固定版本",
+        "独立只读查看保存版本",
+        "未引用模板删除待确认",
+        "删除成功或结果待核"
+      ],
+      "transitions": [
+        "空节点逐个配置并明确起点，创建/修改通过产生新保存版本",
+        "新数据接收：固定基础/全部字段定义、路由、单一模板及起点",
+        "独立详情只读精确保存版本及辅助历史，不修改配置",
+        "独立删除核当前/历史分类、记录/批次及待核引用和操作权/版本；有引用/失败/取消不删，未知核同次结果"
+      ],
+      "notes": [
+        "实例不追随最新配置；不凭编辑保存自动运行，不新增发布生命周期。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "status": "S3_product_state_model_not_production_enum_formal_diagram_pending",
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "states": [
+              "编辑中未保存",
+              "已保存可引用版本",
+              "新记录已固定版本"
+            ],
+            "transitions": [
+              "创建/修改保存通过：产生可识别新版本",
+              "新数据接收成功：固定分类配置版本、主备模板版本及起始节点"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ],
+            "status": "S3_product_state_model_not_production_enum"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "id": "STATE-2005",
+      "name": "人工节点办理",
+      "states": [
+        "节点待人员办理",
+        "本次处理已受理",
+        "结果待保存",
+        "可人工确认后续节点",
+        "已推进",
+        "办理结果待核",
+        "流程结束"
+      ],
+      "transitions": [
+        "人员启动+准入通过：待办理→本次处理已受理",
+        "处理结束/结果保存分别确认；下一处理核整条最近段保存，推进/转交各按实际动作准入，不自动推进",
+        "人员确认+节点与动作校验通过：同次保存后续节点及必要归属/轮次",
+        "提交结果不明：办理待核，先核对同次结果"
+      ],
+      "notes": [
+        "执行结束、结果保存、归属和节点状态分别表达。不同处理/转交准入按BR-2049，不能混为全局保存条件。",
+        "转交可在未保存原人工结果时按独立准入办理；接收方新启动仍核整条最近段，原有权人员可首次补录原段。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "status": "S3_product_state_model_not_production_enum_formal_diagram_pending",
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "transitions": [
+              "人员启动+准入通过：待办理→本次处理已受理",
+              "实际结束及结果保存：供人员确认后续节点；不自动推进",
+              "人员确认+节点与动作校验通过：同次保存后续节点及必要归属/轮次",
+              "提交结果不明：办理待核，先核对同次结果"
+            ],
+            "notes": [
+              "执行结束、结果保存、归属和节点状态分别表达。不同处理/转交准入按BR-2049，不能混为全局保存条件。"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ],
+            "status": "S3_product_state_model_not_production_enum"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "id": "STATE-2007",
+      "name": "总部线索目标门店",
+      "states": [
+        "意向门店已定位",
+        "待指派门店",
+        "门店匹配待处理",
+        "已成功转交"
+      ],
+      "transitions": [
+        "无意向且总部负责：显示待指派门店；管理员同次选店并确认转交成功才切换归属。",
+        "已有意向经唯一有效映射：显示只读门店目标，人员确认转交成功才切换归属。",
+        "意向有值但映射异常：待核；核对映射有效后恢复按意向锚定。"
+      ],
+      "notes": [
+        "与坐席分配状态、处理状态分别表达；同记录不复制，无自动转交。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "status": "S3_product_state_model_not_production_enum_formal_diagram_pending",
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ],
+            "status": "S3_product_state_model_not_production_enum"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "id": "STATE-2008",
+      "name": "路径条件求值",
+      "states": [
+        "满足",
+        "不满足",
+        "待核"
+      ],
+      "transitions": [
+        "预览按固定规则及当前可核来源求值并说明",
+        "人员确认时重新求值及校验全部原准入；符合才同次保存合法路径推进",
+        "取值变化/不满足/待核保留当前节点并重读核对"
+      ],
+      "notes": [
+        "无条件边无附加门槛，仍须原准入；ALL/ANY按真实布尔及未知分别表达，不自动推进。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "status": "S3_product_state_model_not_production_enum_formal_diagram_pending",
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ],
+            "status": "S3_product_state_model_not_production_enum"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    },
+    {
+      "id": "STATE-2009",
+      "name": "业务分类路由配置可用性",
+      "states": [
+        "路由未配置",
+        "路由配置有效",
+        "路由需复核",
+        "本次路由保存待核"
+      ],
+      "transitions": [
+        "创建分类：基础保存成功，路由可未配置",
+        "独立关联一个有效精确模板版本并逐字段核兼容：未配置/需复核→有效，仅影响未来新记录",
+        "基础字段变化导致既有路由不兼容：路由保留但需复核，停止未来新接收",
+        "取消/失败/并发冲突不改变原路由，响应未知先核同次保存结果"
+      ],
+      "notes": [
+        "基础编辑和路由配置各自保存，旧记录保持原快照，无自动执行。",
+        "选择即只读显示精确版本的节点/路径说明；不把列表顺序当线性流程，无标签来源指定。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "status": "S3_product_state_model_not_production_enum_formal_diagram_pending",
+      "revision_history": [
+        {
+          "at": "2026-10-24T12:26:36+08:00",
+          "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+          "previous_values": {
+            "transitions": [
+              "创建分类：基础保存成功，路由可未配置",
+              "独立配置并确认有效主/可选备用及兼容：未配置/需复核→有效，仅影响未来新记录",
+              "基础字段变化导致既有路由不兼容：路由保留但需复核，停止未来新接收",
+              "取消/失败/并发冲突不改变原路由，响应未知先核同次保存结果"
+            ],
+            "notes": [
+              "基础编辑和路由配置各自保存，旧记录保持原快照，无自动执行。"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ],
+            "status": "S3_product_state_model_not_production_enum"
+          },
+          "source_refs": [
+            "inputs/source-index.json#SRC-2090",
+            "inputs/source-index.json#SRC-2093",
+            "inputs/source-index.json#SRC-2094"
+          ],
+          "reason": "按c847及SRC2094保稳定身份重建当前S3结构；旧语义仅作历史，不复用旧批准或当当前活动要求。"
+        }
+      ]
+    }
+  ],
+  "permission_matrix": [
+    {
+      "role": "平台超管",
+      "brand_configuration": "所管理品牌",
+      "regulatory_query": "所管理品牌/租户/分类",
+      "import_assign": "不因监管自动授予",
+      "status": "G1_scope_approved_S3_permission_model",
+      "manual_store_assignment": "不新增无意向补选门店权限",
+      "v12_origin_source_refs": [
+        "inputs/source-index.json#SRC-216",
+        "inputs/source-index.json#SRC-220",
+        "inputs/source-index.json#SRC-223",
+        "inputs/source-index.json#SRC-224"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "process_advance_transfer": "不因监管自动授予",
+      "template_details_and_protected_delete": "沿所获品牌配置对象范围及本操作资格，删除另核全部引用；不授业务代处理权"
+    },
+    {
+      "role": "租户管理员",
+      "brand_configuration": "本品牌共用分类/模板",
+      "business_query": "本租户有权当前/历史",
+      "import_assign": "本租户，沿原有导入/分配资格",
+      "status": "G1_scope_approved_S3_permission_model",
+      "manual_store_assignment": "仅当前负责总部租户管理员可在无意向分支选承接门店并确认转交",
+      "v12_origin_source_refs": [
+        "inputs/source-index.json#SRC-216",
+        "inputs/source-index.json#SRC-219",
+        "inputs/source-index.json#SRC-220",
+        "inputs/source-index.json#SRC-223",
+        "inputs/source-index.json#SRC-224"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "process_advance_transfer": "本租户有权当前记录",
+      "template_details_and_protected_delete": "沿所获品牌配置对象范围及本操作资格，删除另核全部引用；不授业务代处理权"
+    },
+    {
+      "role": "运营人员",
+      "brand_configuration": "未新增配置权",
+      "business_query": "本租户原有业务资格范围",
+      "import_assign": "未新增全租户导入/分配权",
+      "status": "G1_scope_approved_S3_permission_model",
+      "manual_store_assignment": "不新增无意向补选门店权限",
+      "v12_origin_source_refs": [
+        "inputs/source-index.json#SRC-219",
+        "inputs/source-index.json#SRC-220",
+        "inputs/source-index.json#SRC-223",
+        "inputs/source-index.json#SRC-224"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "process_advance_transfer": "本租户有权当前记录",
+      "template_details_and_protected_delete": "未新增模板配置或删除权"
+    },
+    {
+      "role": "当前负责坐席",
+      "brand_configuration": "未新增配置权",
+      "business_query": "本人有权当前/历史记录",
+      "import_assign": "未新增全租户导入/分配权",
+      "status": "G1_scope_approved_S3_permission_model",
+      "manual_store_assignment": "不新增无意向补选门店权限",
+      "v12_origin_source_refs": [
+        "inputs/source-index.json#SRC-219",
+        "inputs/source-index.json#SRC-220",
+        "inputs/source-index.json#SRC-223",
+        "inputs/source-index.json#SRC-224"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086",
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "process_advance_transfer": "本人当前负责记录",
+      "template_details_and_protected_delete": "未新增模板配置或删除权"
+    }
+  ],
+  "authorization_domains": [
+    {
+      "domain": "平台管理",
+      "rule": "超管按独立平台资格维护品牌/归属/门店编码及租户模块开通；旧平台管理员名称不自动视作超管。"
+    },
+    {
+      "domain": "品牌配置",
+      "rule": "有权超管或本品牌ADMIN维护分类/路由/模板，不要求成为各业务租户成员或开通双模块，不授记录全量查看或代处理。"
+    },
+    {
+      "domain": "平台监管",
+      "rule": "超管只按获授品牌/租户/分类范围读取同一台账，不冒用业务身份、不自动有代处理权。"
+    },
+    {
+      "domain": "租户业务",
+      "rule": "业务动作核当前合法租户、当前/历史记录范围及本动作资格；处理启动再核对应模块/资源/执行权和公共禁呼。无意向补选仅当前HQ ADMIN。"
+    }
+  ],
+  "store_destination_design": {
+    "intention_source": [
+      "intentionStoreCode",
+      "intentionStoreName"
+    ],
+    "mapping_source": "品牌-门店租户单一关联中的storeCode；由平台超管维护，品牌内唯一，与外呼enterpriseId不同。",
+    "mapping_readiness": "允许未齐备配置留待维护，但未齐备不得按该code转交；每次变更有版本并保留历史证据。",
+    "states": [
+      "意向门店已定位",
+      "待指派门店",
+      "门店匹配待处理"
+    ],
+    "no_intention": "code及name均为空的总部线索沿用recordId/业务编码/批次/历史和总部归属；不额外复制一条记录。",
+    "manual_assignment": "仅当前负责总部租户管理员在本次转交选择合法同品牌有效门店后确认；保存指派来源、目标、人员、时间，不把人工目标写回客户原意向。",
+    "match_error": "仅名称或已有code未映射/不唯一/目标停用/非同品牌门店时匹配待处理，不视为无意向开放选店。",
+    "submission": "复核原记录、源意向和映射版本、原负责租户与节点、目标资格及执行结束且不再呼叫，同次保存归属/轮次/节点/事件；失败取消未知不伪成功。",
+    "store_to_hq": "仍沿原有效唯一总部规则；原在门店记录不因无意向自动回总部。",
+    "seat_assignment": "门店目标状态和租户内坐席/任务分配分别记录；配置/选择目标不自动办理、起呼或推进。",
+    "legacy": "仅新模板模型；存量沿原查询/处理，不初始化或迁移。",
+    "design_status": "纳入本轮已批准范围的S3方案；工程字段/接口/生产验证仍待G2及后续核验。",
+    "v12_origin_source_refs": [
+      "inputs/source-index.json#SRC-223",
+      "inputs/source-index.json#SRC-224"
+    ],
+    "source_refs": [
+      "inputs/source-index.json#SRC-2085",
+      "inputs/source-index.json#SRC-2086"
+    ]
+  },
+  "transition_conditions": {
+    "confirmed_user_intent": [
+      "固定单模板edge路径的通话状态及逐字段多选条件",
+      "ALL/ANY三值逻辑，单状态多值任一、标签包含任一/全部",
+      "通话取当前owner本轮最近已结束通话；每条字段规则取本记录对应字段当前有效已保存值",
+      "分类已有已添加且显示/启用multiselect按rule.fieldId及稳定optionIds直接引用，无单一标签来源"
+    ],
+    "product_design_status": "本方按已批准范围继续S3业务模型设计；源版accepted_risk不转为本版接受，ISSUE-2021/2022保持开放。",
+    "binding": "固定模板版本edgeId/fromNodeId/toNodeId；无条件边保留原准入；配置开启但空rules/values拒绝",
+    "field_identity": "逐规则使用自身fieldId/optionIds，必须属于分类已添加且显示/启用的multiselect；共享模板逐分类核定义/选项兼容，不按名称或首字段猜取。新记录固定全部conditionFieldDefinitions。",
+    "operators": [
+      "CALL_STATUS_IN",
+      "TAGS_CONTAINS_ANY",
+      "TAGS_CONTAINS_ALL"
+    ],
+    "runtime": "通话取当前ownerTenantId+roundId最近真实已结束通话归一终态，不能用节点生命周期/summary代替。每个rule.fieldId独立读取记录该字段有效已保存optionIds、原轮/段来源和定义/值版本；省略保留，显式[]只清本字段；旧轮/较旧段迟到归原段不覆盖较新值。",
+    "evaluation": "无附加条件沿原准入。ALL：任一明确false则未匹配，否则有unknown则待核，全部true才匹配；ANY：任一明确true则匹配，否则有unknown则待核，其余未匹配。可靠无结束通话/无已保存字段值为不满足；读取/终态/来源冲突为unknown，最新待核不回退旧命中。",
+    "selection": "多条路径明确匹配由人员选一条；不匹配/待核保持节点与归属，不默认首边或替代门店，不自动推进/呼叫/更换模板。",
+    "submission": "提交重核选中edge及条件/取值版本、owner/round/原节点和原准入，同次留边/规则/来源值/结果/操作者时间快照。条件满足不能替代执行结束且不再呼叫或门店目标规则。",
+    "versioning": "单模板及edge条件随保存版本固定，分类每字段定义和option身份随记录快照固定；各字段值来源/版本独立，后改配置不追改实例和历史。",
+    "legacy": "仅新模板机制，存量保留原查询处理。",
+    "contract_gap": "本方按已批准范围继续S3业务模型设计；源版accepted_risk不转为本版接受，ISSUE-2021/2022保持开放。",
+    "v12_origin_source_refs": [
+      "inputs/source-index.json#SRC-225",
+      "inputs/source-index.json#SRC-226",
+      "inputs/source-index.json#SRC-227",
+      "inputs/source-index.json#SRC-228"
+    ],
+    "source_refs": [
+      "inputs/source-index.json#SRC-2085",
+      "inputs/source-index.json#SRC-2086",
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ],
+    "design_status": "SRC2094已批准范围，S3结构已更新，正式图/工程接口/G2/G3未核验。",
+    "v12_origin_product_design_status": "SRC228字段/取值/三态/版本及界面细节待本轮整体评审；生产接口未验证",
+    "v12_origin_contract_gap": "ISSUE11225 formal契约仍未验证；SRC229已接受研发定义联调与发布前验证、保留missing/partial及条件待核不放行，允许设计继续，非G3冻结。",
+    "AI_business_field_write": "configuration_mapping_result_display_only_current_version_no_new_business_field_write；仅保原AI标签来源与既有映射，不将推荐/首项兜底写入业务字段或用作匹配依据。"
+  },
+  "category_routing_operation": {
+    "scenario_id": "SC-2037",
+    "design_status": "SRC2094已批准范围，S3结构已更新，正式图及工程/G2/G3未核验。",
+    "base": "分类新增/编辑只保存名称/编码名称、原字段显示/顺序/必填及取数接口配置；无独立标签来源控件、不提交tagFieldId，不混入模板关联。",
+    "route": "已有分类列表独立关联且只关联一个本品牌有效模板精确保存版本，逐rule.fieldId/optionId核分类已显示/启用多选字段兼容；路由字段单一写入口。",
+    "save_boundary": "ROUTE只保存选定模板版本及兼容依据并核BASE/字段与ROUTE版本，不改名称/字段/接口；BASE不清未提交ROUTE。取消/失败/冲突保原数据，unknown核同次请求，不半配或重复。",
+    "readiness": "基础可保存为未关联；只在有效兼容关联后接收未来新模板记录。字段变更破坏兼容时保引用、标需复核并阻未来新输入，不重配或清路由。",
+    "snapshot": "新记录固定BASE/全部字段定义、ROUTE、单模板/edge条件及起点，既有实例不追改；保存不启动或转交。",
+    "v12_origin_source_refs": [
+      "inputs/source-index.json#SRC-230",
+      "inputs/source-index.json#SRC-231"
+    ],
+    "source_refs": [
+      "inputs/source-index.json#SRC-2085",
+      "inputs/source-index.json#SRC-2086",
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ],
+    "v12_origin_function_id": "FUNC-11218",
+    "v12_origin_sequence_id": "SEQ-11216",
+    "v12_origin_page_id": "PAGE-11205",
+    "v12_origin_action_id": "ACTION-11220",
+    "node_explanation": "选择后立即只读显示模板名称/精确版本、明确起点、每节点职责/允许方式及后续路径与条件，不以列表顺序假定线性；未选择展示引导。"
+  },
+  "category_lifecycle_boundary": {
+    "legacy_AI": "公共分类停用仍只限制新选择和新关联；既有本租户AI场景保留原关联并按原规则建任务，后台已受理任务照旧。 未绑定品牌的存量租户仍可按原目录/原ID维护旧AI配置；品牌检查只属于新选品牌分类分支。",
+    "new_template_ingress": "新模型新记录须有效兼容的单模板路由；未关联/待核/需复核只阻这类新输入，不增加旧AI场景停用门槛。",
+    "scope_guard": "保原分类停用对新选择/关联的规则，品牌共享停用/删除具体映射继续ISSUE-2020核对；模板独立只读详情与未引用保护删除已纳范围，不新增发布或运行中任意改绑。",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2085",
+      "inputs/source-index.json#SRC-2086",
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ]
+  },
+  "current_increment": {
+    "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+    "at": "2026-10-24T12:26:36+08:00",
+    "status": "S3_structured_facts_updated_formal_diagrams_pending",
+    "approval_source": "SRC-2094",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ],
+    "active_counts": {
+      "stories": 38,
+      "acceptance": 134,
+      "scenarios": 36,
+      "business_rules": 53,
+      "business_flows": 13,
+      "states": 8,
+      "entities": 22
+    },
+    "retired_rule_ids": [
+      "BR-2044",
+      "BR-2050"
+    ],
+    "retired_flow_ids": [
+      "FLOW-2013"
+    ],
+    "retired_state_ids": [
+      "STATE-2006"
+    ],
+    "AI_business_field_write": "configuration_mapping_result_display_only_current_version_no_new_business_field_write",
+    "frozen_43_rule_subset_unchanged": true,
+    "prototype_changed": false,
+    "new_formal_FUNC_or_PAGE_ids": [],
+    "formal_diagrams_verified": false,
+    "source_contract_limits": "c847为需求冻结来源；源partial/missing、前序基底及production未验证限制继续保留，源风险接受不自动转为v2，G2/G3未完成。"
+  },
+  "minimum_customer_center": {
+    "kind": "existing_contact_view_reorganization_not_new_customer_model",
+    "source_page_id": "PAGE-2203",
+    "source_route": "customer-directory",
+    "original_permission": "cloud.directory.read",
+    "identity": "沿原租户、专业身份和规范号码范围归集；不新增统一客户ID，不宣称同号即同一自然人。",
+    "loop": [
+      "按原权查询号码联系档案",
+      "查看已有且有权的关联业务/批次、联系历史和话后资料",
+      "跳原作业/联系入口继续跟进并按原权限保存",
+      "原查询刷新后回看结果与历史；联系仍受原禁呼检查"
+    ],
+    "not_added": [
+      "独立新增/编辑/删除客户主档",
+      "客户生命周期状态机或自动成交/流失推断",
+      "统一待办或提醒",
+      "自动合并客户/线索/历史",
+      "customer-domain新角色或共享权限"
+    ],
+    "call_site": "原Cloud客户档案及作业页迁位后仍在原电话现场；客户中心的原公共名单管理仍保留原管理切离保护。",
+    "data_write_owner": "业务结果由原业务/话后页保存；客户中心不复制台账、分配流程或第二名单，关联不强行并表。",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2087",
+      "inputs/source-index.json#SRC-2088"
+    ]
+  },
+  "functional_integration_policy": {
+    "actual_direction_source": "SRC-2088",
+    "retained_counts": {
+      "stories": 38,
+      "acceptance": 134,
+      "scenarios": 36
+    },
+    "direct_reuse": "原页面、表格/卡片、筛选、表单、详情、任务/原控制与结果保存优先复用。",
+    "necessary_adaptation": "仅为已确认范围补导航/上下文、稳定ID关联、返回位置、原资格/电话保护识别及已确认禁呼/执行映射。适配不是另造业务模型。",
+    "gap_policy": "缺少可靠关联或已有承载证据时保留原来源入口/待核，不造数据、不新增功能补洞；确有必要新增须说明对象、触发、结果、来源及影响再另行决定。",
+    "reuse_does_not_prove_production": "当前静态原型与源包出处只证明可复用候选，不代表实现集成、真实接口或G3验收。",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2087",
+      "inputs/source-index.json#SRC-2088",
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ],
+    "scope_approval_source": "SRC-2094"
+  },
+  "retired_state_models": [
+    {
+      "id": "STATE-2006",
+      "name": "主动切换备用",
+      "states": [
+        "关联主模板运行",
+        "备用切换待确认",
+        "关联备用模板接续",
+        "切换结果待核"
+      ],
+      "transitions": [
+        "当前负责方有权人员选择：主模板运行→待确认",
+        "映射/资格/无在途等校验通过并保存：待确认→备用接续",
+        "提交结果不明：切换待核，不重复生成切换"
+      ],
+      "notes": [
+        "主→关联备用；不自动回主。原节点执行段及历史不改写，切换本身不改变归属。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ],
+      "status": "retired_by_confirmed_scope",
+      "retirement": {
+        "at": "2026-10-24T12:26:36+08:00",
+        "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+        "source_refs": [
+          "inputs/source-index.json#SRC-2090",
+          "inputs/source-index.json#SRC-2093",
+          "inputs/source-index.json#SRC-2094"
+        ],
+        "reason": "c847及SRC2094撤销主动备用切换；旧状态表达仅留历史，未初始化或迁移旧实例。",
+        "source_retired_ids": [
+          "US-11211",
+          "BR-11222",
+          "BR-11228",
+          "SC-11212"
+        ],
+        "replacement_ids": [],
+        "history_policy": "保留原对象、稳定ID、原来源和旧实例/历史；不继续作为当前配置或办理能力，不复用本ID。"
+      }
+    }
+  ],
+  "execution_and_result_contract": {
+    "serial_scope": "整条记录最近执行段，换owner/round不豁免；从未有段才无前段。",
+    "start": "由人主动启动且最近段结束并保存，另核原方式模块/人员/资源/禁呼；分配/条件匹配不等于启动。",
+    "transfer": "执行结束且确认该条不再呼叫及原目标/节点/条件准入；不全局要求原段结果已保存。成功同次清旧assignment/assignedAccountId，目标另分配。",
+    "late_manual_result": "原有权人员首次归档已结束未保存原段，锁原租户/轮次/段/表单定义，不读下游、不改归属/新轮或较新值；已保存不重写，停用限已确认有限收尾。",
+    "batch_assignment": "原批次多选逐条核记录/安排版本、归属/节点及共同目标资源，任一行失败全批不写；未知核同次结果，不半配或自动起呼。",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ]
+  },
+  "ai_label_source_boundary": {
+    "supplier_pool": "supplierId",
+    "enable_and_mapping": "supplierId+tenantType(headquarters/store)+AI标签sceneId",
+    "local_standard_set": "tenantType+AI标签sceneId",
+    "identity": "标签场景、具体AI执行场景与公共分类准确关联，各原ID/作用域及AI-only/平台专业资格保留，不因品牌共用强制共享。",
+    "business_field_write_status": "configuration_mapping_result_display_only_current_version_no_new_business_field_write",
+    "guard": "本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2092",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ]
+  },
+  "retained_fields_and_contact_history": {
+    "fields": "保原显示/顺序/必填、静态单/多选、接口单/多选、多源属性到多参数和手工属性参数。模板多选条件仍须有可核稳定字段/选项，不因接口多选类型存在而无依据扩大条件字典。",
+    "dictionary_scope": "共享品牌字段不扩大原租户私有接口；保取数接口字典独立资格和原可用来源。",
+    "human_result": "待继续跟进/已完成是原名单行/业务结果，和通话终态分离；原DCC仅完成沿原范围回传，不新增每轮出站。",
+    "contact_history": "按原tenantId+enterpriseId+规范号码及原权展示已有联系历史；不新增主客户ID或以号码合并业务记录/品牌线索。",
+    "assignment_repair": "仅原任务可靠缺失、无通话且未处理中，原有权管理员手动恢复待分配并保原任务编号历史；不扩为公海/自动回收。",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ]
+  },
+  "revision_history": [
+    {
+      "at": "2026-10-24T12:26:36+08:00",
+      "change_id": "CH-V200-FINAL-V120-REVIEW-20261024",
+      "previous_values": {
+        "project": {
+          "name": "D联络云 v2.0.0 AI外呼与云呼叫整合",
+          "version": "2.0.0",
+          "objective": "以AI生产身份为基准，统一多租户与六入口，复用AI/云呼叫全部已有可用功能；承接品牌共用业务分类、固定主备模板和人员办理节点，保持公共禁呼、专业执行及数据隔离。"
+        },
+        "scope": {
+          "in": [
+            "AI生产身份基准下的统一账号、多租户合法登录及租户独立模块/成员授权",
+            "工作台、业务中心、客户中心、呼叫中心、报表中心、系统管理六入口；无新增首页，复用原页面交互与电话边界",
+            "公共账号/租户/名单与品牌档案及唯一总部多门店关系，公共拒联拦AI/人工/预外呼/IVR",
+            "新模型品牌共用业务分类与原字段/取数接口承接；分类基础和路由独立保存，AI具体场景保持专业关联",
+            "固定配置/主备版本的通用业务记录、分类导入/批次/台账与详情、租户内分配和有权监管",
+            "节点由人确认、处理由人启动、主到备用预配接续、路径条件ALL/ANY与通话/多选标签三态",
+            "同品牌线索串行培育及总部/门店多轮接续，意向门店定向和无意向仅总部ADMIN同次指派",
+            "存量保留原查询/处理，不自动迁移或按手机号/同名分类合并；本方线索入站及既有出站回传责任保持",
+            "通过入口归位、可靠关联跳转和原作业回看形成现有业务/客户/呼叫链路，不新增业务场景、独立客户业务域或重复维护对象。"
+          ],
+          "out": [
+            "完整DCC CRM及通用业务规则引擎；不以有限人工模板机制扩为自动编排",
+            "自动条件推进/呼叫/租户转交、自动故障切备用/回主、任意跨节点或门店改派",
+            "新增独立模板删除/发布、批量转交、自动回收/撤回、门店直转门店",
+            "跨品牌共享、仅凭品牌/配置关系取得全品牌业务数据或跨租户录音",
+            "历史初始化/迁移/重绑、手机号归并或同名分类合并",
+            "新统一首页、跨AI/公共的常驻电话条、默认合并账务、补齐占位功能、AI拒联自动判定",
+            "新增其他业务分类开放入站、远端查店或新增逐轮出站回传、把外部模板ID作为必传",
+            "将Mock或接口文档当生产闭环；仍在变化的v1.1.1继承实现和源版失效final结论不作为当前验收证据",
+            "本轮不增加独立客户主档/客户ID体系、多号码身份管理、客户生命周期/评分/自动再激活引擎。",
+            "本轮不增加客户负责人/公海/回收、统一跨业务待办/下次维护提醒；原话后字段和待继续跟进含义保留。",
+            "本轮不增加客户自动合并、跨租户客户共享、全新经营漏斗或统计口径；原同号联系归集不合并业务身份。"
+          ]
+        },
+        "permission_matrix": [
+          {
+            "role": "平台超管",
+            "brand_configuration": "所管理品牌",
+            "regulatory_query": "所管理品牌/租户/分类",
+            "import_assign": "不因监管自动授予",
+            "process_advance_transfer_switch": "不因监管自动授予",
+            "status": "G1_scope_approved_S3_permission_model",
+            "manual_store_assignment": "不新增无意向补选门店权限",
+            "v12_origin_source_refs": [
+              "inputs/source-index.json#SRC-216",
+              "inputs/source-index.json#SRC-220",
+              "inputs/source-index.json#SRC-223",
+              "inputs/source-index.json#SRC-224"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          {
+            "role": "租户管理员",
+            "brand_configuration": "本品牌共用分类/模板",
+            "business_query": "本租户有权当前/历史",
+            "import_assign": "本租户，沿原有导入/分配资格",
+            "process_advance_transfer_switch": "本租户有权当前记录",
+            "status": "G1_scope_approved_S3_permission_model",
+            "manual_store_assignment": "仅当前负责总部租户管理员可在无意向分支选承接门店并确认转交",
+            "v12_origin_source_refs": [
+              "inputs/source-index.json#SRC-216",
+              "inputs/source-index.json#SRC-219",
+              "inputs/source-index.json#SRC-220",
+              "inputs/source-index.json#SRC-223",
+              "inputs/source-index.json#SRC-224"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          {
+            "role": "运营人员",
+            "brand_configuration": "未新增配置权",
+            "business_query": "本租户原有业务资格范围",
+            "import_assign": "未新增全租户导入/分配权",
+            "process_advance_transfer_switch": "本租户有权当前记录",
+            "status": "G1_scope_approved_S3_permission_model",
+            "manual_store_assignment": "不新增无意向补选门店权限",
+            "v12_origin_source_refs": [
+              "inputs/source-index.json#SRC-219",
+              "inputs/source-index.json#SRC-220",
+              "inputs/source-index.json#SRC-223",
+              "inputs/source-index.json#SRC-224"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          },
+          {
+            "role": "当前负责坐席",
+            "brand_configuration": "未新增配置权",
+            "business_query": "本人有权当前/历史记录",
+            "import_assign": "未新增全租户导入/分配权",
+            "process_advance_transfer_switch": "本人当前负责记录",
+            "status": "G1_scope_approved_S3_permission_model",
+            "manual_store_assignment": "不新增无意向补选门店权限",
+            "v12_origin_source_refs": [
+              "inputs/source-index.json#SRC-219",
+              "inputs/source-index.json#SRC-220",
+              "inputs/source-index.json#SRC-223",
+              "inputs/source-index.json#SRC-224"
+            ],
+            "source_refs": [
+              "inputs/source-index.json#SRC-2085",
+              "inputs/source-index.json#SRC-2086"
+            ]
+          }
+        ],
+        "transition_conditions": {
+          "confirmed_user_intent": [
+            "模板路径条件支持状态集合及标签集合",
+            "组ALL/ANY可配，单状态条件多值任一",
+            "当前负责租户本轮最近结束通话；本记录当前已保存标签",
+            "标签复用业务分类指定的multiselect字段，可包含任一/全部"
+          ],
+          "product_design_status": "本方按已批准范围继续S3业务模型设计；源版accepted_risk不转为本版接受，ISSUE-2021/2022保持开放。",
+          "binding": "固定模板版本edgeId/fromNodeId/toNodeId；无条件边保留原准入；配置开启但空rules/values拒绝",
+          "field_identity": "分类指定tagFieldId，模板条件引用稳定fieldId/optionIds；共享模板的分类须共用兼容定义及选项身份，不按名称自动映射",
+          "operators": [
+            "CALL_STATUS_IN",
+            "TAGS_CONTAINS_ANY",
+            "TAGS_CONTAINS_ALL"
+          ],
+          "runtime": "call取当前ownerTenantId+roundId最近实际已结束通话的归一化终态，TRANSFER节点从原段取，不能按本node查或用执行lifecycle/summary替代。tag取record当前有效已保存字段值，省略不清空/显式空集合清空/旧轮晚到不覆盖较新值。",
+          "evaluation": "ALL全明确true；ANY至少一项明确true。可靠无通话/无已保存标签不满足，读取/终态/来源冲突为待核，均不得当true。最新终态待核不回退更旧命中。",
+          "selection": "多路径符合由人员选一条；不满足留当前节点并给原因，不自动选择首边、替代门店或切备用。",
+          "submission": "提交重核选中edge及条件/取值版本、owner/round/原节点和原准入，同次留边/规则/来源值/结果/操作者时间快照。条件满足不能替代执行结束且不再呼叫或门店目标规则。",
+          "versioning": "条件随模板保存版本固定，分类字段和标签定义随记录快照固定；新配置不追改已有实例。主备用各自后续路径判断；备用切换自身仍按原规则。",
+          "legacy": "仅新模板机制，存量保留原查询处理。",
+          "contract_gap": "本方按已批准范围继续S3业务模型设计；源版accepted_risk不转为本版接受，ISSUE-2021/2022保持开放。",
+          "v12_origin_source_refs": [
+            "inputs/source-index.json#SRC-225",
+            "inputs/source-index.json#SRC-226",
+            "inputs/source-index.json#SRC-227",
+            "inputs/source-index.json#SRC-228"
+          ],
+          "source_refs": [
+            "inputs/source-index.json#SRC-2085",
+            "inputs/source-index.json#SRC-2086"
+          ],
+          "design_status": "纳入本轮已批准范围的S3方案；工程字段/接口/生产验证仍待G2及后续核验。",
+          "v12_origin_product_design_status": "SRC228字段/取值/三态/版本及界面细节待本轮整体评审；生产接口未验证",
+          "v12_origin_contract_gap": "ISSUE11225 formal契约仍未验证；SRC229已接受研发定义联调与发布前验证、保留missing/partial及条件待核不放行，允许设计继续，非G3冻结。"
+        },
+        "category_routing_operation": {
+          "scenario_id": "SC-2037",
+          "design_status": "纳入本轮已批准范围的S3方案；工程字段/接口/生产验证仍待G2及后续核验。",
+          "base": "原FUNC09/10新增编辑只基本资料、原字段/必填与取数接口；tagFieldId仍在分类字段配置维护，不显示或写主备模板/备用接续映射。",
+          "route": "已有分类列表独立路由配置，主模板必填、备用至多一个可空、接续映射；只读标签字段/字段版本，校主备条件同源兼容；路由字段单一写入口。",
+          "save_boundary": "路由只patch route并重核读取时分类字段版本+route版本，不改基础/tagFieldId/接口；基础保存不将未提交route当清空。取消/失败/冲突保留原数据，unknown核原请求，不半配或重复。",
+          "readiness": "分类可先保存为路由未配置；接收新数据前须有效主及兼容条件。基础字段变更致路由不兼容时保留route但标需复核、阻未来新输入并引导独立入口；不自动重配或清空。",
+          "snapshot": "新记录固定基础/字段版本、route版本、主备及条件快照；独立保存不启动/转交/切换实例，已实例不追改。",
+          "v12_origin_source_refs": [
+            "inputs/source-index.json#SRC-230",
+            "inputs/source-index.json#SRC-231"
+          ],
+          "source_refs": [
+            "inputs/source-index.json#SRC-2085",
+            "inputs/source-index.json#SRC-2086"
+          ],
+          "v12_origin_function_id": "FUNC-11218",
+          "v12_origin_sequence_id": "SEQ-11216",
+          "v12_origin_page_id": "PAGE-11205",
+          "v12_origin_action_id": "ACTION-11220"
+        },
+        "category_lifecycle_boundary": {
+          "legacy_AI": "公共分类停用仍只限制新选择和新关联；既有本租户AI场景保留原关联并按原规则建任务，后台已受理任务照旧。 未绑定品牌的存量租户仍可按原目录/原ID维护旧AI配置；品牌检查只属于新选品牌分类分支。",
+          "new_template_ingress": "新模型创建新记录须有效兼容主路由；未配置/待核/需复核只阻这种新输入，不当作额外停用旧AI场景。",
+          "scope_guard": "未新增品牌共享分类的独立停用/删除或模板发布/删除生命周期；保留已确认原停用能力，具体共享适用映射继续在ISSUE-2020核对。",
+          "source_refs": [
+            "inputs/source-index.json#SRC-2085",
+            "inputs/source-index.json#SRC-2086"
+          ]
+        },
+        "current_increment": {
+          "change_id": "CH-V200-DOMAIN-REUSE-NAV-20261023",
+          "actual_direction_source": "SRC-2088",
+          "same_39_US_133_AC_37_SC": true,
+          "new_business_capabilities": [],
+          "frozen_43_rule_subset_unchanged": true,
+          "prototype_changed": false,
+          "page_index_and_formal_feature_list_updated": false
+        }
+      },
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "reason": "保留旧主备/唯一标签来源及旧权限键等历史；当前活动事实统一为单模板、逐字段值及已批准详情/保护删除，未改历史冻结文件。"
+    }
+  ],
+  "scope_choice_update": {
+    "change_id": "CH-V200-AI-TAGS-CONFIG-ONLY-20261024",
+    "source_ref": "inputs/source-index.json#SRC-2096",
+    "version": "2.0.0",
+    "selected": "configuration_only",
+    "new_API_permission_business_field_or_scenario": false,
+    "at": "2026-10-24T13:43:27+08:00"
+  }
+}

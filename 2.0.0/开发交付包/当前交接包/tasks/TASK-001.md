@@ -1,0 +1,106 @@
+# TASK-001 统一登录与合法入口
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [登录并进入合法入口 · FUNC\-2001](../features/FUNC-2001.md)
+
+## 目标
+
+认证后按真实成员授权解析单租户直达、多租户选择及合法平台范围。；首次及恢复入口按现有意图选有权页面；无范围、读取失败、退出失效分别表达。
+
+## 产品依据
+
+- FUNC-2001 登录并进入合法入口：统一认证后按当前权威授权选择合法租户或独立平台范围，进入当前五入口中的有权原功能。；来源 documentation/input/functions.json#FUNC-2001
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+
+## 前置任务
+
+无前置任务。
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-PLAT-LOGIN](../local-logic/LOCAL-PLAT-LOGIN.md)
+
+字段：[FIELD-PLAT-CURRENT-TENANT](../field-specs.md#FIELD-PLAT-CURRENT-TENANT)、[FIELD-PLAT-LOGIN-NAME](../field-specs.md#FIELD-PLAT-LOGIN-NAME)、[FIELD-PLAT-PASSWORD](../field-specs.md#FIELD-PLAT-PASSWORD)、[FIELD-PLAT-POSITION](../field-specs.md#FIELD-PLAT-POSITION)、[FIELD-PLAT-SESSION](../field-specs.md#FIELD-PLAT-SESSION)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2001](../ui-pages/UI-PAGE-2001.md)
+
+## 实现要求
+
+- 认证后按真实成员授权解析单租户直达、多租户选择及合法平台范围。
+- 首次及恢复入口按现有意图选有权页面；无范围、读取失败、退出失效分别表达。
+- 同名或同手机号不能合并账号；角色不得由前端自选。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2001**：一次登录后，先按真实授权确定合法租户；单租户直接进入，多租户首次选择，后续恢复上次仍合法租户。当前租户有权AI/云呼叫功能共用认证，无需再次填写另一套系统凭证。
+  依据：docs/functional-spec.json#AC-2001
+
+- **AC-2002**：账号、租户和原供应商身份分别保留准确稳定标识并显式映射，不能按同名/手机号/品牌猜测；当前无旧v2模板或数据迁移需求，未来业务事实和快照正常留存。
+  依据：docs/functional-spec.json#AC-2002
+
+- **AC-2003**：首次登录按当前真实有权范围选择本人作业、监管或原Cloud合法入口；原综合概览默认且同时有导入分配与Cloud报表权者进入导入批次与业务名单。后续恢复同账号同租户仍合法位置；只有公共管理权时进入首个有权管理页，授权读取失败不得冒充无权。
+  依据：docs/functional-spec.json#AC-2003
+
+- **AC-2004**：本版不新增统一首页。取消独立运营概览，原入口按有权内容归位；没有业务入口但有公共管理权时，进入公共菜单顺序首个有权页。
+  依据：docs/functional-spec.json#AC-2004
+
+## 测试要求（尚未执行）
+
+### CHECK-PLAT-LOGIN / manual
+
+步骤：在准确有权范围触发“登录与选择合法入口”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：只建立真实有权会话；AI与Cloud共用身份，不重复填写另一套凭据；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2001, AC-2002, AC-2003, AC-2004
+
+## 完成条件
+
+- 认证后按真实成员授权解析单租户直达、多租户选择及合法平台范围。
+- 首次及恢复入口按现有意图选有权页面；无范围、读取失败、退出失效分别表达。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [login-screen.js](../../../prototype/js/components/login-screen.js) · 只读行为参考，非生产可写目标
+- [organization-store.js](../../../prototype/js/components/organization-store.js) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：EQ-PLAT-IDENTITY。

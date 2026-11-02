@@ -1,0 +1,120 @@
+# LOCAL-FLOW-RECLASSIFY 同业务受控转冷／转类
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](../features/FUNC-2036.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](../features/FUNC-2038.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2038, FUNC-2036
+
+触发：当前管理员选择同品牌目标线索分类并预检确认
+
+## 前置条件
+
+- 对准确业务有当前本租户办理权
+- 确认业务/run/node/owner及并发依据仍一致
+- 原run已结束/废弃完成，无执行unknown
+- 原分类与目标均同品牌LEAD，目标当前route可用
+
+## 必须遵守的全局规则
+
+- [GR-FIELDS](../global-logic.md#GR-FIELDS)
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-CONFIG](../global-logic.md#GR-CONFIG)
+- [GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-REASON](../field-specs.md#FIELD-FLOW-REASON)、[FIELD-FLOW-RECLASSIFY-TARGET](../field-specs.md#FIELD-FLOW-RECLASSIFY-TARGET)、[FIELD-FLOW-RECLASSIFY-TOKEN](../field-specs.md#FIELD-FLOW-RECLASSIFY-TOKEN)、[FIELD-FLOW-VALUE-SOURCES](../field-specs.md#FIELD-FLOW-VALUE-SOURCES)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+
+输出：[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-RUN-ID](../field-specs.md#FIELD-FLOW-RUN-ID)、[FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)
+
+## 处理步骤
+
+### STEP-FLOW-RECLASSIFY-1
+
+只按稳定字段身份复用，缺目标必填由管理员明确补充并预检
+
+读取：FIELD-FLOW-RECLASSIFY-TARGET, FIELD-FLOW-IMPORT-VALUES；写入：FIELD-FLOW-RECLASSIFY-TOKEN
+
+规则：GR-FIELDS, GR-SCOPE, GR-CONFIG, GR-DATA-FACTS, GR-UNKNOWN, GR-AUTH
+
+### STEP-FLOW-RECLASSIFY-2
+
+重核目标schema/route/原record依据，保持业务ID、brand、统一编码和原批次
+
+读取：FIELD-FLOW-RECLASSIFY-TOKEN, FIELD-FLOW-RECORD-REVISION, FIELD-FLOW-BUSINESS-CODE, FIELD-FLOW-BATCH-ID；写入：FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-IMPORT-VALUES, FIELD-FLOW-RUN-ID, FIELD-FLOW-EFFECTIVE-PLAN
+
+规则：GR-FIELDS, GR-SCOPE, GR-CONFIG, GR-DATA-FACTS, GR-UNKNOWN, GR-AUTH
+
+## 分支与异常
+
+### BRANCH-FLOW-RECLASSIFY-1
+
+条件：跨品牌/普通域/重复统一编码/缺字段或token过期
+
+结果：保输入拒，不合并或覆盖其他业务
+
+涉及字段：FIELD-FLOW-RECLASSIFY-TOKEN, FIELD-FLOW-CATEGORY-ID
+
+验证：CHECK-FLOW-RECLASSIFY
+
+### BRANCH-FLOW-RECLASSIFY-2
+
+条件：明确成功
+
+结果：记录转类原因和前后分类/当前值，原运行快照仍按其原分类可读
+
+涉及字段：FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-CORRECTIONS, FIELD-FLOW-CONTENT-SNAPSHOT
+
+验证：CHECK-FLOW-RECLASSIFY
+
+### BRANCH-FLOW-RECLASSIFY-DIRECT
+
+条件：当前业务为DIRECT
+
+结果：拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。
+
+涉及字段：FIELD-FLOW-HANDLING-MODE
+
+验证：CHECK-FLOW-RECLASSIFY
+
+## 完成后的状态
+
+- 同一业务新run而非重复导入，owner不自动变
+
+## 字段定义
+
+- [FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)
+- [FIELD-FLOW-REASON](../field-specs.md#FIELD-FLOW-REASON)
+- [FIELD-FLOW-RECLASSIFY-TARGET](../field-specs.md#FIELD-FLOW-RECLASSIFY-TARGET)
+- [FIELD-FLOW-RECLASSIFY-TOKEN](../field-specs.md#FIELD-FLOW-RECLASSIFY-TOKEN)
+- [FIELD-FLOW-VALUE-SOURCES](../field-specs.md#FIELD-FLOW-VALUE-SOURCES)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
+- [FIELD-FLOW-RUN-ID](../field-specs.md#FIELD-FLOW-RUN-ID)
+- [FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)
+- [FIELD-FLOW-RECORD-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)
+- [FIELD-FLOW-BUSINESS-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)
+- [FIELD-FLOW-BATCH-ID](../field-specs.md#FIELD-FLOW-BATCH-ID)
+- [FIELD-FLOW-CORRECTIONS](../field-specs.md#FIELD-FLOW-CORRECTIONS)
+- [FIELD-FLOW-CONTENT-SNAPSHOT](../field-specs.md#FIELD-FLOW-CONTENT-SNAPSHOT)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2108, acceptance:AC-2116, acceptance:AC-2122, acceptance:AC-2140, features:FUNC-2036, features:FUNC-2036/behavior_spec/3/branches/0, features:FUNC-2036/behavior_spec/3/branches/1, features:FUNC-2036/behavior_spec/3/branches/2, features:FUNC-2036/behavior_spec/3/postconditions/0, features:FUNC-2036/behavior_spec/3/preconditions/0, features:FUNC-2036/behavior_spec/3/preconditions/1, features:FUNC-2036/behavior_spec/3/preconditions/2, features:FUNC-2036/behavior_spec/3/preconditions/3, features:FUNC-2036/behavior_spec/3/steps/0, features:FUNC-2036/behavior_spec/3/steps/1, features:FUNC-2038, features:FUNC-2038/behavior_spec/4/branches/0, features:FUNC-2038/behavior_spec/4/branches/1, features:FUNC-2038/behavior_spec/4/branches/2, features:FUNC-2038/behavior_spec/4/postconditions/0, features:FUNC-2038/behavior_spec/4/preconditions/0, features:FUNC-2038/behavior_spec/4/preconditions/1, features:FUNC-2038/behavior_spec/4/preconditions/2, features:FUNC-2038/behavior_spec/4/preconditions/3, features:FUNC-2038/behavior_spec/4/steps/0, features:FUNC-2038/behavior_spec/4/steps/1, pages:PAGE-2006/fields/13, pages:PAGE-2006/fields/5, pages:PAGE-2103/fields/31, pages:PAGE-2103/fields/33, pages:PAGE-2103/fields/34, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/13, pages:PAGE-2203/fields/43, pages:PAGE-2203/fields/52, pages:PAGE-2203/fields/6, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/8, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/20, pages:PAGE-2204/fields/38, pages:PAGE-2204/fields/49, pages:PAGE-2204/fields/5, pages:PAGE-2204/fields/56, pages:PAGE-2204/fields/64, pages:PAGE-2204/fields/8, pages:PAGE-2204/fields/85, pages:PAGE-2205/fields/58, pages:PAGE-2205/fields/61, pages:PAGE-2205/fields/62, pages:PAGE-2223/fields/12, pages:PAGE-2223/fields/4, pages:PAGE-2223/fields/9, pages:PAGE-2226/fields/10, pages:PAGE-2226/fields/13, pages:PAGE-2226/fields/21, pages:PAGE-2226/fields/29, pages:PAGE-2226/fields/33, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/4, pages:PAGE-2226/fields/6, pages:PAGE-2226/fields/8, pages:PAGE-2226/fields/9, pages:PAGE-2227, pages:PAGE-2227/fields/10, pages:PAGE-2227/fields/116, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/14, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/21, pages:PAGE-2227/fields/22, pages:PAGE-2227/fields/32, pages:PAGE-2227/fields/50, pages:PAGE-2227/fields/75, pages:PAGE-2227/fields/77, pages:PAGE-2227/fields/78, pages:PAGE-2227/fields/80, pages:PAGE-2227/fields/97, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/6, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/115, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/116, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/118, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/119, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/144, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/51, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/56, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/61, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/65, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/73, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/75, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/91, scenarios:FLOW-CURRENT-CUSTOMER/steps/29
+
+验证：CHECK-FLOW-RECLASSIFY
+
+## 实施任务
+
+- [TASK-027](../tasks/TASK-027.md)

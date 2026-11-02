@@ -1,0 +1,386 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2011",
+  "scenario_id": "SC-2011",
+  "name": "在AI原场景配置中关联公共分类时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "原AI专业配置有权人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "原AI标签/场景配置界面",
+      "kind": "system"
+    },
+    {
+      "id": "ai",
+      "name": "原AI场景配置服务",
+      "kind": "system"
+    },
+    {
+      "id": "catalog",
+      "name": "唯一分类及关联责任服务",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "选定本租户具体AI执行场景；执行scene、标签场景及业务分类身份分开。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "ui",
+      "to": "ai",
+      "message": "核本次原AI专业配置权、当前租户及准确场景身份；目录权不授专业写权。",
+      "type": "request",
+      "api_id": "API-2004",
+      "condition": "条件目标｜本期实际调用语义/身份及对象关系已核，原准入通过；否则当前待核受阻。主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "ai",
+      "to": "ui",
+      "message": "无权、租户无效或场景不属本租户则拒绝，保原关系。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2011-AUTH｜未满足原资格；本次结束",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2011-AUTH"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "ai",
+      "to": "catalog",
+      "message": "按原租户ID/原场景关系读取存量目录及既有引用；无品牌仍沿旧模型。",
+      "type": "request",
+      "api_id": null,
+      "condition": "互斥旧模型｜仅保留原关系/原配置或沿旧目录；内部只读API2003责任",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 5,
+      "from": "ai",
+      "to": "catalog",
+      "message": "读取当前品牌有权分类及稳定目标；仅本次新选/换品牌类才验品牌和启用。",
+      "type": "request",
+      "api_id": null,
+      "condition": "互斥新模型｜新选/换品牌分类；内部只读API2026责任",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 6,
+      "from": "catalog",
+      "to": "ui",
+      "message": "读取失败/关系未知不伪造空目录或默认关联，保原配置。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2011-LOAD｜相应目录或原配置未可靠读出；本次结束",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2011-LOAD"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "catalog",
+      "to": "ui",
+      "message": "按实际引用模型给出可核目录和原关系；原已停用关联标状态、可保留，不强制换类。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜本次目录/归属与稳定ID可靠读出",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 8,
+      "from": "ui",
+      "to": "operator",
+      "message": "显示原供应商池/启用映射上下文；supplier、租户类型、标签场景与分类不混用。",
+      "type": "response",
+      "api_id": null,
+      "condition": "主线｜专业标签原操作委托SC-2017；此处不复制保存",
+      "source_step_refs": [
+        1,
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 9,
+      "from": "operator",
+      "to": "ui",
+      "message": "新选合法启用分类，或保留同一原关系；无关专业字段不强制替换旧停用类。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 10,
+      "from": "operator",
+      "to": "ui",
+      "message": "取消本次关联，不提交；原关系和专业参数保持。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2011-CANCEL｜取消；本次结束",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2011-CANCEL"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "ui",
+      "to": "ai",
+      "message": "提交本租户本执行场景的单层分类关联意图，复核实际模型与当前资格。",
+      "type": "request",
+      "api_id": "API-2004",
+      "condition": "条件目标｜本期实际调用语义/身份及对象关系已核，原准入通过；否则当前待核受阻。主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 12,
+      "from": "ai",
+      "to": "catalog",
+      "message": "重核旧目录原范围，或新品牌目标稳定身份/启用；不猜同名，不写供应商标签映射。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "catalog",
+      "to": "ui",
+      "message": "原范围/稳定目标或新选品牌资格不符则拒绝，保输入/旧关系；品牌缺失不阻旧配置。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2011-INVALID｜该实际模型校验不通过；本次结束",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2011-INVALID"
+      ]
+    },
+    {
+      "step": 14,
+      "from": "ai",
+      "to": "ui",
+      "message": "当前真实ID衔接或本方关系保存合同未核时受阻；原业务保留，不用原场景创建冒充关联成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2011-SAVEFAIL｜当前证据边界｜API2004为partial，缺必要真实关系或可靠保存证据",
+      "source_step_refs": [
+        5,
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2011-SAVEFAIL"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "ai",
+      "to": "catalog",
+      "message": "本方仅保存本租户本场景本次实际关联，不改原类型/标签/供应商参数和其他场景。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜真实ID、原权及本方保存合同经本期核实且全部校验通过",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 16,
+      "from": "catalog",
+      "to": "ui",
+      "message": "保存失败/未知保输入和原可确认关系；先核同次结果，不盲重提。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2011-SAVEFAIL｜实际保存失败/不明；本次结束",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2011-SAVEFAIL"
+      ]
+    },
+    {
+      "step": 17,
+      "from": "catalog",
+      "to": "ui",
+      "message": "返回可确认实际关联结果；旧停用关系、无品牌旧目录和历史保原规则。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜本方明确保存成功；不是当前已实现断言",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 18,
+      "from": "ui",
+      "to": "operator",
+      "message": "展示本次结果；不运行模板/起呼，不新增AI写字段，未匹配保原值不首项兜底。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜取得可信实际结果",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2017"
+  ],
+  "source_acceptance_ids": [
+    "AC-2045",
+    "AC-2046",
+    "AC-2047"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2026",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2058",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2092",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2096",
+    "inputs/source-index.json#SRC-2095",
+    "scenarios/SC-2011.json",
+    "interfaces/interface-index.json"
+  ],
+  "notes": [
+    "参与方表达当前业务责任，不选择生产部署架构；消息条件为互斥分支或条件目标，不表示所有消息在一次操作中依次发生。",
+    "G2仅批准分析推进。partial/missing均保真实身份、授权、稳定关联及技术契约待核；当前无可靠证据时明确受阻，不由文档/Mock或HTTP成功推定端到端成功。",
+    "真实跨内部服务的partial/missing合同可引用API能力族，内部参与方仍为system；7个not_required仅在notes登记内部责任，消息api_id=null，不伪造调用URL/参数/新回调。",
+    "本版AI标签仅整合原配置、映射和结果展示；不新增AI→业务字段写入或由此自动流转。保原人工保存、字段条件及其他流转，未匹配保原值不首项兜底，仅限本版。",
+    "内部责任（非接口调用）：API-2003 公共品牌租户及存量目录基础维护；API-2026 本方品牌共用分类及流转模板版本配置。对应内部消息api_id=null；原操作权及版本/事务责任保留，不表示已实现。"
+  ],
+  "internal_responsibility_refs": [
+    "API-2003",
+    "API-2026"
+  ],
+  "previous_revision": {
+    "sha256": "bf69ff651c72a70762e4210d68f9afcaaa5a765c9a40a123035742cbdbaea5d8",
+    "preserved_sequence_id": "SEQ-2011"
+  },
+  "main_step_coverage": {
+    "1": [
+      1,
+      8
+    ],
+    "2": [
+      2,
+      3
+    ],
+    "3": [
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "4": [
+      9,
+      10,
+      11
+    ],
+    "5": [
+      11,
+      12,
+      13,
+      14
+    ],
+    "6": [
+      14,
+      15,
+      16,
+      17,
+      18
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2011-AUTH": [
+      3
+    ],
+    "ALT-2011-CANCEL": [
+      10
+    ],
+    "ALT-2011-INVALID": [
+      13
+    ],
+    "ALT-2011-LOAD": [
+      6
+    ],
+    "ALT-2011-SAVEFAIL": [
+      14,
+      16
+    ]
+  },
+  "api_usage_boundaries": [
+    {
+      "api_id": "API-2004",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    }
+  ],
+  "source_scenario_sha256": "60b1d79fdb35a1228776cc0c2f97346276f69ebf0fde25e37a6e0a04922e4a64",
+  "source_interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

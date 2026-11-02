@@ -1,0 +1,89 @@
+{
+  "schema": "template-maintenance-repair@1",
+  "date": "2026-10-30T09:15:54.893068+08:00",
+  "step": "step-20",
+  "status": "affected-scope-pass",
+  "rootCauses": [
+    "normal editor methods applicability mismatch was already repaired by step-19",
+    "business execution unknown requests unnecessarily blocked a new current-template save",
+    "all historical references were treated as active delete blockers",
+    "old physical deletion could leave an unknown committed operation without the precise definition needed for reconciliation"
+  ],
+  "behavior": {
+    "edit": "authorized current config may be edited while business runs retain their original captured plans; unresolved same-template config mutations still protect edit",
+    "delete": "current classification bindings and unresolved config references protect removal; historical uses are retained rather than blocking forever",
+    "history": "explicit removal atomically copies complete exact template versions into existing snapshot storage and updates both existing indexes; no read-time migration or old-version rewrite"
+  },
+  "targetedCases": 143,
+  "checks": {
+    "lifecycle": {
+      "passed": 10,
+      "failed": 0,
+      "source": "memory/template-lifecycle-verification-20261030.json",
+      "evidence": "memory/template-lifecycle-verification-20261030.json"
+    },
+    "roundtrip": {
+      "passed": 9,
+      "failed": 0,
+      "source": "memory/template-lifecycle-roundtrip-20261030.json",
+      "evidence": "memory/template-lifecycle-roundtrip-20261030.json"
+    },
+    "fields": {
+      "passed": 31,
+      "failed": 0,
+      "source": "/tmp/template20-field-final.json",
+      "evidence": "memory/template-lifecycle-fields-regression-20261030.json"
+    },
+    "core": {
+      "passed": 27,
+      "failed": 0,
+      "source": "/tmp/template20-model-final.json",
+      "evidence": "memory/template-lifecycle-core-regression-20261030.json"
+    },
+    "businessRules": {
+      "passed": 18,
+      "failed": 0,
+      "source": "/tmp/template20-business-model-final.json",
+      "evidence": "memory/template-lifecycle-businessRules-regression-20261030.json"
+    },
+    "editor": {
+      "passed": 13,
+      "failed": 0,
+      "source": "/tmp/template20-new-editor.json",
+      "evidence": "memory/template-lifecycle-editor-regression-20261030.json"
+    },
+    "conditions": {
+      "passed": 35,
+      "failed": 0,
+      "source": "/tmp/template20-conditions.json",
+      "evidence": "memory/template-lifecycle-conditions-regression-20261030.json"
+    }
+  },
+  "existingEditor": "/tmp/template20-existing-editor.txt",
+  "uiVerification": {
+    "kind": "actual current built FlowConfiguration.openDelete + real Store, isolated VM",
+    "historyOnly": {
+      "canDelete": true,
+      "confirmEnabled": true,
+      "historyRetentionExplained": true,
+      "noVersionPicker": true
+    },
+    "currentCategory": {
+      "blocked": true,
+      "confirmDisabled": true,
+      "routeReplacementInstruction": true
+    }
+  },
+  "sourceSha256": {
+    "scripts/template_lifecycle_build.py": "699478d12fed840bf4ef4a02c7ac66a6e701a92cc157d76d389ce264f6cb6d4d",
+    "scripts/check-template-lifecycle.cjs": "fa707b1fc68c7e9ca47d82af8ca3cf57756f8a04d55a8997570e07b7a9a96de0",
+    "scripts/build-modules.py": "0f6b36f350685fa1808b1263f09a9802f8fe194cb503d18e0638a107c637b63a",
+    "js/modules/cloud.bundle.js": "2c0766f4b28bf7332adb636fcfdc39bd8cb3cc17d5e29bfe5e186f6dcb0e970f",
+    "index.html": "c3d474c4248719ef45ba308eedd7d8ca423609d94728cde3fc106f8dfa298c33"
+  },
+  "dataBoundary": "Only synthetic in-memory journals were mutated; user original file tab and saved data were untouched.",
+  "limits": [
+    "No original file-tab automatic interaction or real provider behavior exercised.",
+    "Scoped template-maintenance result does not promote formal S8/G3 or unrelated legacy fixture diagnostics."
+  ]
+}

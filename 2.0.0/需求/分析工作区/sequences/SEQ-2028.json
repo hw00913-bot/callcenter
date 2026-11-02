@@ -1,0 +1,357 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2028",
+  "scenario_id": "SC-2028",
+  "name": "接收方查看线索基本信息及历轮结果交互时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "design_status": "S5_current_G2_analysis_candidate_not_implementation",
+  "participants": [
+    {
+      "id": "person",
+      "name": "本线索有权查看人员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "D联络云原功能前端",
+      "kind": "system"
+    },
+    {
+      "id": "service",
+      "name": "本方业务办理职责",
+      "kind": "system"
+    },
+    {
+      "id": "records",
+      "name": "本方稳定对象、配置及历史职责",
+      "kind": "system"
+    }
+  ],
+  "messages": [
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "按品牌唯一编码选择本次有权线索资料",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 1
+    },
+    {
+      "from": "ui",
+      "to": "service",
+      "message": "请求当前/有权已转出身份及原快照",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        1,
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 2
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "核当前人员/租户、准确记录和本次当前/截止历史身份，品牌关系不授全量权",
+      "type": "request",
+      "api_id": null,
+      "condition": null,
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 3
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "当前有权接收方读取基本及历轮快照；再次收回以当前身份优先",
+      "type": "request",
+      "api_id": null,
+      "condition": "当前有权接收方",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 4
+    },
+    {
+      "from": "service",
+      "to": "records",
+      "message": "已转出方按原转出事件、实际发生时间及准确原段读取截止历史",
+      "type": "request",
+      "api_id": null,
+      "condition": "[ALT-2028-SOURCE] 已转出且尚未再次收回",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2028-SOURCE"
+      ],
+      "step": 5
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "过滤转出后结果及下游字段/条件/目标/录音，仍保原截止历史可见部分",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2028-FUTURE] 历史请求含后续结果",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2028-FUTURE"
+      ],
+      "step": 6
+    },
+    {
+      "from": "records",
+      "to": "service",
+      "message": "返回按保存字段/选项/值定义解释的真实快照，不拼同手机号其他线索",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次范围、截止与快照可靠",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 7
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "仅按核定当前或截止范围呈现资料，不用新字段定义重解释旧结果",
+      "type": "response",
+      "api_id": null,
+      "condition": "有权范围资料可靠完整",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 8
+    },
+    {
+      "from": "ui",
+      "to": "person",
+      "message": "阅读有权原结果，继续培育或原人工段补录另循SEQ2025原资格/固定表单guard",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次资料可靠展示",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "reused_sequence_ref": "SEQ-2025",
+      "step": 9
+    },
+    {
+      "from": "service",
+      "to": "service",
+      "message": "原段入口仅带原tenant/round/segment/固定表单身份，不带下游当前值或授结果改写权",
+      "type": "event",
+      "api_id": null,
+      "condition": "[ALT-2028-SOURCE] 历史方需另次原段补录入口",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2028-SOURCE"
+      ],
+      "step": 10
+    },
+    {
+      "from": "ui",
+      "to": "person",
+      "message": "本次只读结束，无接收确认、外部重试或新增出站回传",
+      "type": "response",
+      "api_id": null,
+      "condition": "查看完成",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": [],
+      "step": 11
+    },
+    {
+      "from": "person",
+      "to": "ui",
+      "message": "结束本次查看意图，不改变线索归属及已有结果。",
+      "type": "event",
+      "api_id": null,
+      "condition": "[ALT-2028-CANCEL] 查看者在提交查看前取消或离开。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2028-CANCEL"
+      ],
+      "step": 12
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "不通过本次请求展示线索资料。；具体查看权限沿现有平台权限及S4身份契约核对，转交授权不自动增加查看权；总部身份不提供品牌所有线索访问权。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2028-PERMISSION] 请求人员不属于本线索当前接收方或有权已转出方。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2028-PERMISSION"
+      ],
+      "step": 13
+    },
+    {
+      "from": "service",
+      "to": "ui",
+      "message": "明确本次未能完整取得有权范围内资料，不以空列表或成功提示替代未知结果。；字段、结果身份、转出截止及恢复方式继续核对，不在当前草案承诺自动补齐或外部接口重试。；截止、发生时间、原段或字段定义/值快照不可核时不按空或0补齐，不用最新字段定义重解释历史。",
+      "type": "response",
+      "api_id": null,
+      "condition": "[ALT-2028-LOAD] 本次有权范围内的资料无法完整取得，或身份/截止范围无法可靠判定。",
+      "source_step_refs": [],
+      "covered_alternate_flow_ids": [
+        "ALT-2028-LOAD"
+      ],
+      "step": 14
+    }
+  ],
+  "source_story_ids": [
+    "US-2031"
+  ],
+  "source_acceptance_ids": [
+    "AC-2093",
+    "AC-2094"
+  ],
+  "business_rule_ids": [
+    "BR-2030",
+    "BR-2031",
+    "BR-2032",
+    "BR-2034",
+    "BR-2035",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010"
+  ],
+  "source_refs": [
+    "scenarios/SC-2028.json",
+    "memory/normalized-user-stories.json",
+    "memory/business-rules.json",
+    "memory/project-facts.json",
+    "interfaces/interface-index.json",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "source_bindings": {
+    "scenario_sha256": "1f452e0f16360d2b18e915c1e9efb12d6afa08c163e690294703db0ec23f0bb7",
+    "interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+    "G2_basis": [
+      "SRC-2095",
+      "SRC-2096"
+    ]
+  },
+  "api_refs": [],
+  "internal_capability_refs": [
+    "API-2018",
+    "API-2027"
+  ],
+  "contract_dependency_refs": [
+    "API-2024"
+  ],
+  "reused_sequence_refs": [
+    "SEQ-2001",
+    "SEQ-2002",
+    "SEQ-2025"
+  ],
+  "main_step_coverage": [
+    {
+      "source_step": 1,
+      "message_steps": [
+        1,
+        2
+      ]
+    },
+    {
+      "source_step": 2,
+      "message_steps": [
+        2,
+        3
+      ]
+    },
+    {
+      "source_step": 3,
+      "message_steps": [
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "source_step": 4,
+      "message_steps": [
+        8
+      ]
+    },
+    {
+      "source_step": 5,
+      "message_steps": [
+        9,
+        10,
+        11
+      ]
+    }
+  ],
+  "alternate_flow_coverage": [
+    {
+      "id": "ALT-2028-CANCEL",
+      "condition": "查看者在提交查看前取消或离开。",
+      "message_steps": [
+        12
+      ]
+    },
+    {
+      "id": "ALT-2028-PERMISSION",
+      "condition": "请求人员不属于本线索当前接收方或有权已转出方。",
+      "message_steps": [
+        13
+      ]
+    },
+    {
+      "id": "ALT-2028-SOURCE",
+      "condition": "请求租户已转出该线索，且当前尚未再次收回。",
+      "message_steps": [
+        5,
+        10
+      ]
+    },
+    {
+      "id": "ALT-2028-FUTURE",
+      "condition": "已转出方的请求包含转出之后发生的后续结果。",
+      "message_steps": [
+        6
+      ]
+    },
+    {
+      "id": "ALT-2028-LOAD",
+      "condition": "本次有权范围内的资料无法完整取得，或身份/截止范围无法可靠判定。",
+      "message_steps": [
+        14
+      ]
+    }
+  ],
+  "notes": [
+    "SRC2095+2096仅批准按当前缺口继续分析；不是G3、原型实施或生产验收。成功消息仅为本次事实可核后的条件目标，partial/missing合同或真实身份/关联/结果未核则停留待核/受阻。",
+    "参与方为产品责任边界，不宣称已部署新服务；not_required能力仅列内部职责，这7族内部消息api_id均为null，不伪造URL、方法、字段、回调、时限、重试或补偿协议。",
+    "按condition阅读互斥分支，非所有消息一次必经。真实受理、执行结束、结果保存、归属及节点分别核定，不以HTTP成功或已发请求代替业务完成。",
+    "共同认证/原操作资格及切离返回保护复用SEQ2001/2002等，不强制每页重新登录、退出电话或调用公共API；原独立AI/专业资源/财务资格、电话现场和停用有限收尾保持。",
+    "SRC2096：本版AI标签仅配置/映射和原始/映射结果展示，不新增AI标准标签写业务字段或由此新增自动流转；未匹配保原值无首项兜底，既有业务字段条件、人工保存和其他原有流转不变。",
+    "源精确关联合同仍missing；只使用可靠已保存关系/快照，身份/截止/原段不可核不以空列表或0代替，不用手机号查询远端补历史。"
+  ],
+  "source_scenario_sha256": "1f452e0f16360d2b18e915c1e9efb12d6afa08c163e690294703db0ec23f0bb7",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

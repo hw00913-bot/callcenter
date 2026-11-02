@@ -1,0 +1,120 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/features/FUNC-2026.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/features/FUNC-2026.md">原始 Markdown</a></p><h1>当前交接包/features/FUNC-2026.md</h1><pre># 查询品牌内有权关联租户 · FUNC\-2026
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+取品牌关联与当前可读租户基础资料交集，不显示无权对象；进入维护另验归属维护权。
+
+来源业务域：系统管理；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [品牌管理 · UI\-PAGE\-2005](../ui-pages/UI-PAGE-2005.md) — 共用页面，另有 2 个功能
+
+## 局部逻辑
+
+- [查询品牌有权关联租户 · LOCAL\-PLAT\-BRAND\-TENANTS](../local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：品牌详情点击关联租户
+
+- 有品牌和租户基础资料读取权
+
+### 处理步骤
+
+1. **LOCAL\-PLAT\-BRAND\-TENANTS\-S1**：取该brandId关联租户与操作人可读租户的交集
+
+2. **LOCAL\-PLAT\-BRAND\-TENANTS\-S2**：无关联记录、交集空、查询失败、品牌失权分别反馈；维护入口再次验权
+
+### 分支与异常
+
+- **LOCAL\-PLAT\-BRAND\-TENANTS\-B1**：当前提、字段及对象修订校验通过且结果明确成功，仅显示有权基础资料，不能因同品牌进入其他租户业务或修改归属。
+
+- **LOCAL\-PLAT\-BRAND\-TENANTS\-B2**：当无权/字段不合法/对象失效/修订冲突，明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更。
+
+- **LOCAL\-PLAT\-BRAND\-TENANTS\-B3**：当提交失败或结果未知，失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功。
+
+### 完成后的状态
+
+- 仅显示有权基础资料，不能因同品牌进入其他租户业务或修改归属
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [品牌标识 · FIELD\-PLAT\-BRAND\-ID](../field-specs.md#FIELD-PLAT-BRAND-ID)；依据：[查询品牌有权关联租户 · LOCAL\-PLAT\-BRAND\-TENANTS](../local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
+
+- [模块开通状态 · FIELD\-PLAT\-MODULES](../field-specs.md#FIELD-PLAT-MODULES)；依据：[查询品牌有权关联租户 · LOCAL\-PLAT\-BRAND\-TENANTS](../local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
+
+- [分页与结果总量 · FIELD\-PLAT\-PAGING](../field-specs.md#FIELD-PLAT-PAGING)；依据：[查询品牌有权关联租户 · LOCAL\-PLAT\-BRAND\-TENANTS](../local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
+
+- [查询筛选 · FIELD\-PLAT\-QUERY](../field-specs.md#FIELD-PLAT-QUERY)；依据：[查询品牌有权关联租户 · LOCAL\-PLAT\-BRAND\-TENANTS](../local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
+
+- [登录会话与合法范围 · FIELD\-PLAT\-SESSION](../field-specs.md#FIELD-PLAT-SESSION)；依据：[查询品牌有权关联租户 · LOCAL\-PLAT\-BRAND\-TENANTS](../local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
+
+- [业务租户标识 · FIELD\-PLAT\-TENANT\-ID](../field-specs.md#FIELD-PLAT-TENANT-ID)；依据：[查询品牌有权关联租户 · LOCAL\-PLAT\-BRAND\-TENANTS](../local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
+
+- [租户名称 · FIELD\-PLAT\-TENANT\-NAME](../field-specs.md#FIELD-PLAT-TENANT-NAME)；依据：[查询品牌有权关联租户 · LOCAL\-PLAT\-BRAND\-TENANTS](../local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
+
+- [总部／门店身份 · FIELD\-PLAT\-TENANT\-TYPE](../field-specs.md#FIELD-PLAT-TENANT-TYPE)；依据：[查询品牌有权关联租户 · LOCAL\-PLAT\-BRAND\-TENANTS](../local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [变更审计 · FIELD\-PLAT\-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)；依据：[品牌管理 · UI\-PAGE\-2005](../ui-pages/UI-PAGE-2005.md)、[品牌档案和关联租户查询 · TASK\-003](../tasks/TASK-003.md)
+
+- [品牌名称 · FIELD\-PLAT\-BRAND\-NAME](../field-specs.md#FIELD-PLAT-BRAND-NAME)；依据：[品牌管理 · UI\-PAGE\-2005](../ui-pages/UI-PAGE-2005.md)、[品牌档案和关联租户查询 · TASK\-003](../tasks/TASK-003.md)
+
+- [品牌备注 · FIELD\-PLAT\-BRAND\-REMARK](../field-specs.md#FIELD-PLAT-BRAND-REMARK)；依据：[品牌管理 · UI\-PAGE\-2005](../ui-pages/UI-PAGE-2005.md)、[品牌档案和关联租户查询 · TASK\-003](../tasks/TASK-003.md)
+
+- [操作结果状态 · FIELD\-PLAT\-OP\-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)；依据：[品牌管理 · UI\-PAGE\-2005](../ui-pages/UI-PAGE-2005.md)、[品牌档案和关联租户查询 · TASK\-003](../tasks/TASK-003.md)
+
+- [操作请求标识 · FIELD\-PLAT\-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)；依据：[品牌管理 · UI\-PAGE\-2005](../ui-pages/UI-PAGE-2005.md)、[品牌档案和关联租户查询 · TASK\-003](../tasks/TASK-003.md)
+
+- [对象当前修订 · FIELD\-PLAT\-REVISION](../field-specs.md#FIELD-PLAT-REVISION)；依据：[品牌管理 · UI\-PAGE\-2005](../ui-pages/UI-PAGE-2005.md)、[品牌档案和关联租户查询 · TASK\-003](../tasks/TASK-003.md)
+
+- [最近更新时间 · FIELD\-PLAT\-UPDATED](../field-specs.md#FIELD-PLAT-UPDATED)；依据：[品牌管理 · UI\-PAGE\-2005](../ui-pages/UI-PAGE-2005.md)、[品牌档案和关联租户查询 · TASK\-003](../tasks/TASK-003.md)
+
+## 本功能验收
+
+- **AC\-2074**：在品牌管理提供关联租户列表，按当前品牌与操作人有权查看的租户基础资料范围取交集，只展示该范围内的基础资料。
+
+- **AC\-2075**：同品牌不授予其他租户的基础资料、业务、线索、任务或报表权限；无权租户不得因列表、直接请求或维护入口被展示或进入。
+
+- **AC\-2076**：查询列表不自动修改归属；需要维护时复用既有租户管理路径及品牌归属维护权限，列表查看权不包含归属修改权。
+
+- **AC\-2077**：区分无关联记录、可查看交集为空、查询失败及品牌或权限失效；失败保留查询上下文，不将缓存当最新结果，进入维护前再次核验实际权限。
+
+## 实施任务
+
+- [品牌档案和关联租户查询 · TASK\-003](../tasks/TASK-003.md) — 共同实施任务，包含其他功能
+
+先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-2026。产品：续接输入 / 2\.0\.0\-current\-20261102\-step54。
+
+来源类型：current；来源指纹：b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf。
+
+- documentation/input/functions\.json\#FUNC\-2026
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>

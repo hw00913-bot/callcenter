@@ -1,0 +1,157 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/features/FUNC-2042.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/features/FUNC-2042.md">原始 Markdown</a></p><h1>当前交接包/features/FUNC-2042.md</h1><pre># 删除当前未被使用的模板定义 · FUNC\-2042
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+当前分类仍绑定或配置操作待核则阻删；否则在对象/品牌/并发依据一致时移除当前定义，不建旧模板归档兼容索引，已开始run靠完整planSnapshot继续办理。
+
+来源业务域：业务&amp;amp;客户；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md) — 共用页面，另有 5 个功能
+
+## 局部逻辑
+
+- [移除当前未使用模板定义 · LOCAL\-FLOW\-TEMPLATE\-DELETE](../local-logic/LOCAL-FLOW-TEMPLATE-DELETE.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：在准确模板删除预检后确认
+
+- 当前品牌及配置管理资格真实有效
+- 提交来源与当前上下文一致
+
+### 处理步骤
+
+1. **STEP\-FLOW\-TEMPLATE\-DELETE\-1**：只核当前实际分类绑定与未核配置，读取前后使用指纹
+
+2. **STEP\-FLOW\-TEMPLATE\-DELETE\-2**：准确对象和并发依据一致时移除当前定义，记录本次请求结果
+
+### 分支与异常
+
+- **BRANCH\-FLOW\-TEMPLATE\-DELETE\-1**：当当前类别仍绑定或同模板配置待核，阻删并说明实际使用/核对入口；分类当前只支持更换路由模板，无解绑按钮。
+
+- **BRANCH\-FLOW\-TEMPLATE\-DELETE\-2**：当仅当前run捕获依赖且没有当前绑定，可以删除定义，run完整快照仍可继续。
+
+- **BRANCH\-FLOW\-TEMPLATE\-DELETE\-3**：当结果unknown，保原requestId核对，不重复删除。
+
+### 完成后的状态
+
+- 不维护旧模板归档兼容索引，不损已捕获业务事实
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [流转模板稳定身份 · FIELD\-FLOW\-TEMPLATE\-ID](../field-specs.md#FIELD-FLOW-TEMPLATE-ID)；依据：[移除当前未使用模板定义 · LOCAL\-FLOW\-TEMPLATE\-DELETE](../local-logic/LOCAL-FLOW-TEMPLATE-DELETE.md)
+
+- [模板当前配置修订依据 · FIELD\-FLOW\-TEMPLATE\-REVISION](../field-specs.md#FIELD-FLOW-TEMPLATE-REVISION)；依据：[移除当前未使用模板定义 · LOCAL\-FLOW\-TEMPLATE\-DELETE](../local-logic/LOCAL-FLOW-TEMPLATE-DELETE.md)
+
+- [实际分类单模板绑定 · FIELD\-FLOW\-ROUTE\-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)；依据：[移除当前未使用模板定义 · LOCAL\-FLOW\-TEMPLATE\-DELETE](../local-logic/LOCAL-FLOW-TEMPLATE-DELETE.md)
+
+- [请求确认状态 · FIELD\-FLOW\-REQUEST\-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)；依据：[移除当前未使用模板定义 · LOCAL\-FLOW\-TEMPLATE\-DELETE](../local-logic/LOCAL-FLOW-TEMPLATE-DELETE.md)
+
+- [同次业务请求身份 · FIELD\-FLOW\-REQUEST\-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)；依据：[移除当前未使用模板定义 · LOCAL\-FLOW\-TEMPLATE\-DELETE](../local-logic/LOCAL-FLOW-TEMPLATE-DELETE.md)
+
+- [实际分类有效方案 · FIELD\-FLOW\-EFFECTIVE\-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)；依据：[移除当前未使用模板定义 · LOCAL\-FLOW\-TEMPLATE\-DELETE](../local-logic/LOCAL-FLOW-TEMPLATE-DELETE.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [条件路径／默认路径 · FIELD\-FLOW\-BRANCH\-KIND](../field-specs.md#FIELD-FLOW-BRANCH-KIND)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [出口优先顺序 · FIELD\-FLOW\-BRANCH\-PRIORITY](../field-specs.md#FIELD-FLOW-BRANCH-PRIORITY)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [所属品牌 · FIELD\-FLOW\-BRAND\-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [实际业务分类身份 · FIELD\-FLOW\-CATEGORY\-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [出口路径稳定身份 · FIELD\-FLOW\-EDGE\-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [模板出口路径 · FIELD\-FLOW\-EDGES](../field-specs.md#FIELD-FLOW-EDGES)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [开始业务上下文 · FIELD\-FLOW\-ENTRY\-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [开始入口分流 · FIELD\-FLOW\-ENTRY\-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [组内条件组合 · FIELD\-FLOW\-GROUP\-MODE](../field-specs.md#FIELD-FLOW-GROUP-MODE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [本节点唯一呼叫方式 · FIELD\-FLOW\-METHOD](../field-specs.md#FIELD-FLOW-METHOD)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [后继节点 · FIELD\-FLOW\-NEXT\-NODE](../field-specs.md#FIELD-FLOW-NEXT-NODE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [节点稳定身份 · FIELD\-FLOW\-NODE\-ID](../field-specs.md#FIELD-FLOW-NODE-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [节点名称 · FIELD\-FLOW\-NODE\-NAME](../field-specs.md#FIELD-FLOW-NODE-NAME)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [节点组件类型 · FIELD\-FLOW\-NODE\-TYPE](../field-specs.md#FIELD-FLOW-NODE-TYPE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [模板业务节点 · FIELD\-FLOW\-NODES](../field-specs.md#FIELD-FLOW-NODES)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [节点或路径承接方 · FIELD\-FLOW\-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [结果依据与范围 · FIELD\-FLOW\-RESULT\-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [条件字段身份 · FIELD\-FLOW\-RULE\-FIELD](../field-specs.md#FIELD-FLOW-RULE-FIELD)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [规则身份 · FIELD\-FLOW\-RULE\-ID](../field-specs.md#FIELD-FLOW-RULE-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [判断运算符 · FIELD\-FLOW\-RULE\-OPERATOR](../field-specs.md#FIELD-FLOW-RULE-OPERATOR)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [条件来源 · FIELD\-FLOW\-RULE\-SOURCE](../field-specs.md#FIELD-FLOW-RULE-SOURCE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [比较值集合 · FIELD\-FLOW\-RULE\-VALUES](../field-specs.md#FIELD-FLOW-RULE-VALUES)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [判断规则组 · FIELD\-FLOW\-RULES](../field-specs.md#FIELD-FLOW-RULES)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [流转模板名称 · FIELD\-FLOW\-TEMPLATE\-NAME](../field-specs.md#FIELD-FLOW-TEMPLATE-NAME)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [字段参考分类 · FIELD\-FLOW\-TEMPLATE\-REF\-CATEGORY](../field-specs.md#FIELD-FLOW-TEMPLATE-REF-CATEGORY)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [当前工作队列状态 · FIELD\-FLOW\-WORK\-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)
+
+- [结束节点后续动作 · FIELD\-FLOW\-END\-ACTION](../field-specs.md#FIELD-FLOW-END-ACTION)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [呼叫节点默认执行优先级 · FIELD\-FLOW\-NODE\-EXECUTION\-PRIORITY](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-PRIORITY)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [呼叫节点分租户默认安排 · FIELD\-FLOW\-NODE\-EXECUTION\-DEFAULTS](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-DEFAULTS)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+- [节点默认人工分配方式 · FIELD\-FLOW\-NODE\-MANUAL\-ASSIGNMENT\-MODE](../field-specs.md#FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
+
+## 本功能验收
+
+- **AC\-2137**：未被当前分类绑定且无同模板待核配置请求时可删除当前定义；前后对象/品牌/版本/引用重核，unknown核同请求，已开run和字段引用依靠自身快照，不建旧归档兼容索引。
+
+## 实施任务
+
+- [四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md) — 共同实施任务，包含其他功能
+
+先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-2042。产品：续接输入 / 2\.0\.0\-current\-20261102\-step54。
+
+来源类型：current；来源指纹：b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf。
+
+- documentation/input/functions\.json\#FUNC\-2042
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>

@@ -1,0 +1,703 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2026",
+  "name": "总部向同品牌门店分发线索",
+  "summary": "有意向唯一锚定有效门店；无意向同记录仅总部管理员同次指派；异常映射待核。成功才同次切归属、清旧assignment/assignedAccountId并开新轮；接收方另按本租户资格分配，不带入旧坐席或自动起呼。",
+  "actors": [
+    "总部有权业务人员",
+    "D联络云"
+  ],
+  "trigger": "总部需要下发或再分发本条线索",
+  "preconditions": [
+    "发起者为本总部当前有权租户管理员、运营或该线索当前负责坐席；无意向选店并确认仅总部租户管理员可做。",
+    "按同品牌线索编码定位同一条当前负责线索和固定模板节点；存量继续原查询与原处理，不补建模板。",
+    "有意向按本品牌+意向门店编码唯一锚定有效STORE；无意向待指派；编码匹配异常或仅名称无法锚定时待核，不改为任意选店。",
+    "该条执行安排已结束并确认不再呼叫，真实证明能力继续S4核验；目标规则不替代原转交准入，也不额外要求前段结果先保存。",
+    "沿用 AI 生产身份和稳定租户/对象标识；直接访问与菜单采用同一当前操作授权校验，不按名称、手机号或品牌关系合并身份或授权。",
+    "转交不自动解禁、不复制禁呼到另租户，不以外呼模块、资源或双模块作为单独转交资格；目标实际执行时再核其执行准入和本租户公共禁呼。",
+    "该条须执行结束且不再呼叫；排队/重呼/已受理未拨或真实停止状态不明不算结束，不停止含其他客户的整个任务。",
+    "业务中心整合已确认的分类、规则、导入批次、业务台账、分配及记录处理入口，复用同一业务记录和原执行/详情跳转；不复制客户档案、任务或专业配置，不改变当前负责租户、原动作资格、固定版本和历史可见边界。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "总部有权业务人员",
+      "action": "选择本总部当前有权的同一条线索，发起本次下发。",
+      "system_response": "只建立本次转交上下文，不另建线索、轮次或独立指派记录。",
+      "rule_ids": [
+        "BR-2027",
+        "BR-2033",
+        "BR-2035",
+        "BR-2037",
+        "BR-2053"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "D联络云",
+      "action": "读取线索当前可核意向来源：有意向按品牌+编码解析唯一有效门店；无意向显示同条总部记录待指派；匹配异常显示待核。",
+      "system_response": "有意向目标只读核对；无意向仅向总部租户管理员展示同品牌有效门店候选，运营/坐席不获得任选权限；异常不提供改选兜底。 同时展示固定edgeId路径条件三态及来源，通话取当前负责租户本轮最近已结束call，标签取record有效已保存值；TRANSFER节点不要求自身有处理段。",
+      "rule_ids": [
+        "BR-2011",
+        "BR-2026",
+        "BR-2027",
+        "BR-2037"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "总部有权业务人员",
+      "action": "有意向时由有权人员核对锚定目标；无意向时由总部租户管理员选择同品牌有效门店，并在本次转交中一并确认，可取消。",
+      "system_response": "选店不单独生效；人工指派另记来源，不回填客户意向；无候选或未确认时原记录仍待指派。",
+      "rule_ids": [
+        "BR-2027",
+        "BR-2028",
+        "BR-2037"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "提交时重核当前owner、固定单模板/节点/路径、实际发起资格、合法同品牌目标及执行结束且确认不再呼叫；所选路径有条件时，读取当前owner/round最近已结束通话及每条fieldId当前可信保存值/版本，按ALL/ANY重新评估。 有意向只锚定原门店；无意向另核当前总部ADMIN同次指派及解析版本，异常不改选兜底。",
+      "system_response": "原目标、角色及执行准入与条件三态分别核验；不匹配或待核留原节点/归属，不用旧轮通话、同名/首字段或AI推荐值猜配。不统一要求转交前保存人工结果，未存原段可由原有权方沿SC-2025首次补录，下一执行仍核整条记录最近原段；停用只允许已确认有限收尾。",
+      "rule_ids": [
+        "BR-2027",
+        "BR-2033",
+        "BR-2037",
+        "BR-2049"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "D联络云",
+      "action": "以同次请求一致保存转交及来源轨迹；明确成功才切owner、清旧租户assignment/assignedAccountId、记录转出截止并新增目标接续轮次。",
+      "system_response": "保同条记录/线索编码、固定单模板版本、历轮结果及原意向；无意向人工指派另记目标/来源/人员/时间，不回填客户意向。接收轮执行安排为空，目标按本租户资格另分配，不带旧坐席、不自动起呼。失败不留半次切换，未知核同次实际归属与轮次，不盲目重发。",
+      "rule_ids": [
+        "BR-2028",
+        "BR-2032",
+        "BR-2043",
+        "BR-2053"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "D联络云",
+      "action": "反馈明确转交结果及有权的意向匹配或人工指派来源。",
+      "system_response": "目标看基本及历轮，源方仅转出前历史；再次回总部下发须重新核本轮目标规则，不默认原门店。",
+      "rule_ids": [
+        "BR-2028",
+        "BR-2030",
+        "BR-2034",
+        "BR-2027"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2026-CANCEL",
+      "condition": "源方在提交前取消本次转交",
+      "steps": [
+        "不提交本次操作，结束本次尝试，归属不因取消而切换"
+      ]
+    },
+    {
+      "id": "ALT-2026-INVALID",
+      "condition": "归属/权限/节点/目标/意向版本不符，或执行未结束及无法确认不再呼叫。",
+      "steps": [
+        "不办理归属切换，说明本次不满足的条件。",
+        "不靠停止其他客户整个任务替代该条处理；源/映射已变化须重新核对，不使用陈旧目标。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "id": "ALT-2026-SAVE-FAILED",
+      "condition": "本次办理未形成成功结果",
+      "steps": [
+        "不提示转交成功，保留失败或状态待核结论",
+        "核对实际归属后再决定重试；真实幂等/异常持久化合同待S4核验"
+      ]
+    },
+    {
+      "id": "ALT-2026-NO-INTENT",
+      "condition": "线索无客户意向门店，保留同条总部记录待指派。",
+      "steps": [
+        "仅总部租户管理员可从同品牌有效门店选择，并在本次转交一并确认；未选择、取消、无候选或非该角色则继续待指派。",
+        "选店不独立保存；不回填客户意向，不自动转交或起呼。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "id": "ALT-2026-TARGET-PENDING",
+      "condition": "有意向编码但匹配不到唯一有效同品牌门店，或仅有名称无编码/来源不可靠。",
+      "steps": [
+        "保持同条总部记录待核，展示编码/映射或目标不可用的原因。",
+        "不得退化为无意向任选门店，交有权人员核对原意向或超管维护关联后再另次确认。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "id": "ALT-2026-CONDITION-PENDING",
+      "condition": "原强制准入通过，但所选固定路径的通话事实或各fieldId/optionId定义、来源、当前保存值/版本待核。",
+      "steps": [
+        "留原节点及归属，显示待核原因；不按同名/首字段、旧轮通话或未确认AI映射猜配。",
+        "先核当前可信事实及版本再另次由有权人员确认；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。原人工段补录仍走SC-2025原guard，不自动转交/起呼或独立保存选店。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    }
+  ],
+  "postconditions": [
+    "转交成功：目标为当前负责租户，无需额外接收确认",
+    "同条线索再次进入目标时新增培育轮次且历轮结果保留",
+    "当前转出方只能查看转出前已经发生的历史结果",
+    "未完成目标核定时原总部同条记录保持待指派或待核，不新增门店副本、轮次或独立已生效指派。",
+    "成功轨迹可区分意向匹配与人工指派，客户意向原值未被人工指派回填。",
+    "转交不自动起呼或跨租户共享禁呼；后续执行另验对应方式模块、资源、操作权和目标租户禁呼。",
+    "转出后迟到结果归原段，不更新当前新段结果/标签，不向旧方开放截止后的新事实。",
+    "成功同次清旧租户执行分配，目标新增轮无旧坐席或任务安排；原段结果仍归原轮，不据接收新轮豁免前段保存或扩大旧方字段权。"
+  ],
+  "acceptance_points": [
+    "AC-2097：总部下发或再分发时，目标只由本条线索的意向门店唯一解析到同品牌有效门店租户；有权人员核对并确认，不能改选其他门店，解析本身不自动转交或呼叫。",
+    "AC-2098：总部当前线索缺失意向门店时，沿用同一记录标记目标门店待指派，保留原记录ID、品牌编码、批次和历史，总部继续负责；不复制线索、不新增模板实例、不将其等同于坐席或任务未分配。",
+    "AC-2099：目标门店待指派时，仅当前负责总部租户管理员可在本次转交中补选同品牌有效门店并确认提交；运营、当前坐席及超管监管身份不因此获得该补选资格，查看仍沿原有授权范围。 成功后保留客户原始意向，另行记录人工指派来源、目标、指派人和时间。",
+    "AC-2100：已有意向门店但缺少可靠身份、无对应租户、映射不唯一、跨品牌或目标停用等情况明确标记映射待核或不可办理；不能按门店名称、列表首店猜测，不能伪装无意向门店而开放任意补选。",
+    "AC-2101：提交下发时重新核对本条意向门店或无意向补选分支、目标映射与有效性、当前资格/归属/固定模板节点及不再呼叫条件；字段或映射变化、取消、失败和结果未知均不伪报转交成功，同次幂等不重复切换归属或建轮次。",
+    "AC-2123：条件通话状态取当前负责租户当前培育轮次最近一次已结束通话，不用其他租户或历史轮次任意命中；每条多选规则直接按自身fieldId/optionId读取本记录对应字段当前有效已保存值及来源/版本，各字段独立，不借同名或首字段代取。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "AC-2124：办理时分别显示匹配、未匹配、待核及原因；未满足或整体待核时保留原节点/归属，不自动推进、呼叫或更换模板。缺值/未知的单条规则不当作true；ALL为任一明确false则不匹配、否则有unknown则待核，ANY为任一明确true则匹配、否则有unknown则待核，其余按正常三值逻辑。多条路径明确符合时由人员选择一条，不默认首条或使用历史任意命中。",
+    "AC-2125：人员确认所选路径时，重新核对固定单模板版本/路径、当前负责租户本轮最近结束通话，以及各规则对应业务fieldId当前有效已保存值/来源/定义和值版本，同时满足原权限、节点、门店锚定/无意向HQ管理员同次指派与执行准入。配置或取值过期须重核；无附加条件不豁免原准入，只有条件实际引用的字段须已有可核值，不把所有转交统一加上先保存结果要求。",
+    "AC-2084：转交成功即把跟进归属从A切换给B，由B接续，无需B再确认接收；同次清除旧租户的assignment/assignedAccountId等执行安排，接收方另按本租户资格分配，不带入旧坐席、不自动发起呼叫。",
+    "AC-2085：本期跨租户线索转交发生在同一品牌关联范围内。",
+    "AC-2086：支持媒体来源线索经总部培育后，由人员确认向该线索意向门店所唯一对应的同品牌有效门店租户转交；没有意向门店时按总部待指派分支处理，不任意指定另一门店。",
+    "AC-2087：支持门店自有线索经门店培育后按既有流程上交总部；总部再培育后按意向门店锚定规则或无意向待指派分支确认下发，不因缺少意向门店自动改变门店原归属。",
+    "AC-2089：门店培育后需要再分给门店时，先按既有流程交总部；总部再按线索意向门店锚定下发，无意向门店时由总部管理员补选并确认，门店不能直接互转。"
+  ],
+  "source_story_ids": [
+    "US-2029",
+    "US-2036"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2081",
+    "inputs/source-index.json#SRC-2082",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2084",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "status": "proposed_flow",
+  "notes": "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "总部有权业务人员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "operator",
+        "type": "start",
+        "order": 1,
+        "label": "总部线索需下发门店"
+      },
+      {
+        "id": "N-OPEN",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 2,
+        "label": "选择同条有权线索并发起下发",
+        "step_ref": 1
+      },
+      {
+        "id": "N-CONTEXT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "解析客户意向三态：\n有意向唯一锚定／无意向待指派／异常待核",
+        "step_ref": 2
+      },
+      {
+        "id": "N-INTENT",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 4,
+        "label": "已锚定有效意向店，或无意向且\n本总部ADMIN有有效门店可补选？"
+      },
+      {
+        "id": "N-EDIT",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 5,
+        "label": "有意向：只读核对锚定目标\n无意向：仅本总部ADMIN选店同次确认",
+        "step_ref": 3
+      },
+      {
+        "id": "N-SUBMIT",
+        "lane_id": "operator",
+        "type": "decision",
+        "order": 6,
+        "label": "是否提交本次转交？"
+      },
+      {
+        "id": "N-CANCEL-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 7,
+        "label": "取消，不切归属或独立保存指派\n无意向仍为原总部记录待指派"
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 8,
+        "label": "本次转交已取消"
+      },
+      {
+        "id": "N-VALIDATE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 9,
+        "label": "核目标/角色/结束不再呼叫\n单模板路径及各fieldId版本重核\n转交不统一要求结果先保存",
+        "step_ref": 4
+      },
+      {
+        "id": "N-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 10,
+        "label": "原准入及所选路径条件结果？"
+      },
+      {
+        "id": "N-INVALID-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "原准入失败或条件UNMATCHED\n留原节点/归属，说明具体原因"
+      },
+      {
+        "id": "N-INVALID",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 12,
+        "label": "本次未转交，重新核对后再办"
+      },
+      {
+        "id": "N-SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 13,
+        "label": "同次保存转交及来源/截止\n成功才切owner并开新轮\n清旧assignment和assignedAccountId",
+        "step_ref": 5
+      },
+      {
+        "id": "N-SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 14,
+        "label": "转交办理明确成功？"
+      },
+      {
+        "id": "N-SAVE-FAILED-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 15,
+        "label": "反馈失败/待核，先核对同次实际结果"
+      },
+      {
+        "id": "N-SAVE-FAILED",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 16,
+        "label": "未确认成功，不盲目重发"
+      },
+      {
+        "id": "N-SUCCESS-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 17,
+        "label": "目标同条记录新轮接续\n旧方历史截止，目标另分配\n不带旧坐席，不自动起呼",
+        "step_ref": 6
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 18,
+        "label": "目标接续同条线索及历轮结果"
+      },
+      {
+        "id": "N-NO-INTENT",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 19,
+        "label": "客户确实无意向门店？"
+      },
+      {
+        "id": "N-WAIT-ASSIGN",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 20,
+        "label": "无意向且当前不可同次指派：\n非本总部ADMIN或暂无有效候选"
+      },
+      {
+        "id": "N-WAIT-END",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 21,
+        "label": "同条总部记录继续待指派\n不建副本，不独立保存指派"
+      },
+      {
+        "id": "N-TARGET-PENDING-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 22,
+        "label": "有意向但匹配异常／仅名称或来源不可靠\n不允许任意选店兜底"
+      },
+      {
+        "id": "N-TARGET-PENDING",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 23,
+        "label": "同条总部记录匹配待处理\n核对意向来源或关联后再办"
+      },
+      {
+        "id": "CONDITION-PENDING",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 24,
+        "label": "所选路径通话/逐字段事实待核\n不借旧轮或不可靠AI映射命中"
+      },
+      {
+        "id": "CONDITION-WAIT",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 25,
+        "label": "保留原节点/归属，说明条件待核\n原人工结果补录及其他合法动作仍按原准入"
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-OPEN"
+      },
+      {
+        "from": "N-OPEN",
+        "to": "N-CONTEXT"
+      },
+      {
+        "from": "N-CONTEXT",
+        "to": "N-INTENT"
+      },
+      {
+        "from": "N-INTENT",
+        "to": "N-EDIT",
+        "label": "锚定有效／无意向本总部ADMIN可同次选店"
+      },
+      {
+        "from": "N-INTENT",
+        "to": "N-NO-INTENT",
+        "label": "有意向匹配异常／无意向当前不可指派"
+      },
+      {
+        "from": "N-NO-INTENT",
+        "to": "N-WAIT-ASSIGN",
+        "label": "编码及名称均无客户意向",
+        "path_id": "ALT-2026-NO-INTENT"
+      },
+      {
+        "from": "N-WAIT-ASSIGN",
+        "to": "N-WAIT-END"
+      },
+      {
+        "from": "N-NO-INTENT",
+        "to": "N-TARGET-PENDING-RESPONSE",
+        "label": "有意向编码异常／仅名称或来源待核",
+        "path_id": "ALT-2026-TARGET-PENDING",
+        "type": "failure"
+      },
+      {
+        "from": "N-TARGET-PENDING-RESPONSE",
+        "to": "N-TARGET-PENDING"
+      },
+      {
+        "from": "N-EDIT",
+        "to": "N-SUBMIT"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-CANCEL-RESPONSE",
+        "label": "取消，不提交",
+        "path_id": "ALT-2026-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "N-CANCEL-RESPONSE",
+        "to": "N-CANCEL"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-VALIDATE",
+        "label": "确认同次转交"
+      },
+      {
+        "from": "N-VALIDATE",
+        "to": "N-VALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-INVALID-RESPONSE",
+        "label": "原准入失败或路径条件UNMATCHED",
+        "path_id": "ALT-2026-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "N-INVALID-RESPONSE",
+        "to": "N-INVALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-SAVE",
+        "label": "强制准入通过且路径MATCHED／无条件"
+      },
+      {
+        "from": "N-SAVE",
+        "to": "N-SAVED"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-SAVE-FAILED-RESPONSE",
+        "label": "失败／待核",
+        "path_id": "ALT-2026-SAVE-FAILED",
+        "type": "failure"
+      },
+      {
+        "from": "N-SAVE-FAILED-RESPONSE",
+        "to": "N-SAVE-FAILED"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-SUCCESS-RESPONSE",
+        "label": "明确成功"
+      },
+      {
+        "from": "N-SUCCESS-RESPONSE",
+        "to": "N-SUCCESS"
+      },
+      {
+        "from": "N-VALID",
+        "to": "CONDITION-PENDING",
+        "label": "原强制准入通过但所选路径PENDING",
+        "path_id": "ALT-2026-CONDITION-PENDING"
+      },
+      {
+        "from": "CONDITION-PENDING",
+        "to": "CONDITION-WAIT"
+      }
+    ]
+  },
+  "resolved_issue_ids": [
+    "本版接口/执行待核项"
+  ],
+  "scope_review_source_ref": "inputs/source-index.json#SRC-218",
+  "source_acceptance_ids": [
+    "AC-2097",
+    "AC-2098",
+    "AC-2099",
+    "AC-2100",
+    "AC-2101",
+    "AC-2123",
+    "AC-2124",
+    "AC-2125",
+    "AC-2084",
+    "AC-2085",
+    "AC-2086",
+    "AC-2087",
+    "AC-2089"
+  ],
+  "expected_outcome": "有意向唯一锚定有效门店；无意向同记录仅总部管理员同次指派；异常映射待核。成功才同次切归属、清旧assignment/assignedAccountId并开新轮；接收方另按本租户资格分配，不带入旧坐席或自动起呼。",
+  "exception_scope": "原结束且不再呼叫准入和所选路径条件分别核对；不统一强制转交前存结果。未保存人工结果由原有权方补录，未知核同次结果，不重复切归属/建轮。",
+  "scope": "in_scope",
+  "scope_status": "G1_approved_SRC2094",
+  "design_status": "S3_rebuilt_candidate_pending_global_verification",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [
+    "ISSUE-2013",
+    "ISSUE-2014",
+    "ISSUE-2022"
+  ],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-187",
+    "inputs/source-index.json#SRC-188",
+    "inputs/source-index.json#SRC-191",
+    "inputs/source-index.json#SRC-193",
+    "inputs/source-index.json#SRC-194",
+    "inputs/source-index.json#SRC-195",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-223",
+    "inputs/source-index.json#SRC-224",
+    "inputs/source-index.json#SRC-225",
+    "inputs/source-index.json#SRC-226",
+    "inputs/source-index.json#SRC-227",
+    "inputs/source-index.json#SRC-228"
+  ],
+  "v12_origin_scenario_id": "SC-11204",
+  "v12_origin_detail_sha256": "a84024b8cd59220e20d37c9fdf949e55c3b400789757a992ba3ca2015db76b8b",
+  "v12_origin_snapshot": "04ed3e3552872ccc863b05b9c0ec08c7d31b3f6d8806d9b86f054b83978db58d",
+  "business_rule_ids": [
+    "BR-2027",
+    "BR-2033",
+    "BR-2035",
+    "BR-2037",
+    "BR-2053",
+    "BR-2011",
+    "BR-2026",
+    "BR-2028",
+    "BR-2049",
+    "BR-2032",
+    "BR-2043",
+    "BR-2030",
+    "BR-2034",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2015",
+    "BR-2018"
+  ],
+  "rule_ids": [
+    "BR-2027",
+    "BR-2033",
+    "BR-2035",
+    "BR-2037",
+    "BR-2053",
+    "BR-2011",
+    "BR-2026",
+    "BR-2028",
+    "BR-2049",
+    "BR-2032",
+    "BR-2043",
+    "BR-2030",
+    "BR-2034",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2015",
+    "BR-2018"
+  ],
+  "acceptance_contributions": {},
+  "delegated_parent_acceptance": {
+    "note": "父故事其他验收不是本场景主结果；按相应独立场景办理，不作为本场景完整覆盖。",
+    "ids": [
+      "AC-2088"
+    ]
+  },
+  "analysis_notes": [
+    "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+    "六入口按实际原功能组织展示；原Cloud作业/号码档案/报表迁位继续保原电话现场和检查，原管理功能仍按SC-2002切离保护、同窗口返回和同次记忆。未核真实身份、供应商能力和持久化契约继续由S4核验，不把产品流程当生产证明。"
+  ],
+  "revision_history": [
+    {
+      "at": "2026-10-24T12:23:18+08:00",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_scope_metadata": {
+        "scope_status": "confirmed_G1",
+        "design_status": "S3_incremental_flow_design_pending_G2",
+        "v2_gate_status": "G1_approved_G2_G3_pending",
+        "scope_confirmation_source": null
+      },
+      "previous_notes": [
+        "发起岗位已确认；真实按品牌线索编码定位单条执行、停止/结束、幂等与结果回传待S4核验。",
+        "本场景按 SRC-2086 通过的 v2.0.0 G1 范围细化；v1.2.0 冻结包只作为继承来源，不代表本版 G2/G3 或真实执行能力已通过。",
+        "沿 D联络云六入口及原页面交互承载，不采用源版过渡外链；配置共享不产生跨租户业务数据权。"
+      ],
+      "reason": "当前G1后按最终c847和实际S1/S2重建S3；旧说明及源快照仅作历史，不改原始冻结包。",
+      "previous_analysis_notes": [
+        "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+      ]
+    }
+  ],
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_v12_baseline": "c84782225797ba928b75f4854640cde7ff34d07d33f951bb0985cafc61f2c1ac",
+  "diagram_revision": {
+    "at": "2026-10-24T12:23:18+08:00",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ],
+    "retained_node_ids": [
+      "CONDITION-PENDING",
+      "CONDITION-WAIT",
+      "N-CANCEL",
+      "N-CANCEL-RESPONSE",
+      "N-CONTEXT",
+      "N-EDIT",
+      "N-INTENT",
+      "N-INVALID",
+      "N-INVALID-RESPONSE",
+      "N-NO-INTENT",
+      "N-OPEN",
+      "N-SAVE",
+      "N-SAVE-FAILED",
+      "N-SAVE-FAILED-RESPONSE",
+      "N-SAVED",
+      "N-START",
+      "N-SUBMIT",
+      "N-SUCCESS",
+      "N-SUCCESS-RESPONSE",
+      "N-TARGET-PENDING",
+      "N-TARGET-PENDING-RESPONSE",
+      "N-VALID",
+      "N-VALIDATE",
+      "N-WAIT-ASSIGN",
+      "N-WAIT-END"
+    ],
+    "added_node_ids": [],
+    "retained_alternate_ids": [
+      "ALT-2026-CANCEL",
+      "ALT-2026-CONDITION-PENDING",
+      "ALT-2026-INVALID",
+      "ALT-2026-NO-INTENT",
+      "ALT-2026-SAVE-FAILED",
+      "ALT-2026-TARGET-PENDING"
+    ],
+    "added_alternate_ids": [],
+    "step_relation": "原main_flow step编号全部保留；新增原人工段补录分支复用原step5/6。",
+    "edge_relation": "原节点/边及ALT/step_ref保留；按已批准S1/S2更新动作和guard语义。"
+  },
+  "scope_choice_update": {
+    "change_id": "CH-V200-AI-TAGS-CONFIG-ONLY-20261024",
+    "source_ref": "inputs/source-index.json#SRC-2096",
+    "version": "2.0.0",
+    "selected": "configuration_only",
+    "new_API_permission_business_field_or_scenario": false,
+    "at": "2026-10-24T13:43:27+08:00"
+  }
+}

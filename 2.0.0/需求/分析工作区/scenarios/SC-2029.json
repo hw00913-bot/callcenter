@@ -1,0 +1,859 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2029",
+  "name": "维护品牌共用流转模板及只读详情和受保护删除",
+  "status": "proposed_flow",
+  "summary": "新建/修改形成不可变保存版本；独立详情只读展示精确版本名称、起始节点、职责、方式、路径和条件；独立删除仅在无当前/历史分类、记录/批次及待核配置引用时可靠完成。",
+  "actors": [
+    "平台超管或本品牌租户管理员",
+    "D联络云"
+  ],
+  "trigger": "有权管理人员发起模板创建/修改、只读详情或受保护删除中的一次独立原操作",
+  "preconditions": [
+    "有权平台超管或本品牌租户管理员按本次创建/修改、查看或删除操作分别核权限与品牌范围；不以模板配置权推得历史查看或删除权。",
+    "处理能力限当前已有AI、预外呼、人工；任务与坐席资源实际使用时仍须核对。",
+    "沿用 AI 生产身份和稳定租户/对象标识；直接访问与菜单采用同一当前操作授权校验，不按名称、手机号或品牌关系合并身份或授权。",
+    "按当前平台管理/品牌配置/监管职责及实际对象范围验权；不以业务租户成员、本人电话坐席或同时开通 AI 与云呼叫作为配置/监管前提，不因此获得代处理或其他数据访问权。",
+    "业务中心整合已确认的分类、规则、导入批次、业务台账、分配及记录处理入口，复用同一业务记录和原执行/详情跳转；不复制客户档案、任务或专业配置，不改变当前负责租户、原动作资格、固定版本和历史可见边界。",
+    "新建仅有空名称、未指定起点及零节点；新增节点为空，不预植业务内容或列表首项为起点。显式选定起始节点后才校验保存。",
+    "模板版本不可变；独立详情核当前有权精确保存版本，历史只读；独立删除需完整可靠证明无当前/历史分类、记录/批次及待核配置引用，不能清引用/删历史凑可删。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "平台超管或本品牌租户管理员",
+      "action": "从业务中心原模板入口独立选择新建/修改、只读详情或受保护删除中的一次操作。",
+      "system_response": "按此次操作分别读取资格、品牌与精确对象/版本；三个互斥分支各自形成结果，不因同一SC合成一次必须全做。",
+      "rule_ids": [
+        "BR-2042",
+        "BR-2043",
+        "BR-2045",
+        "BR-2047",
+        "BR-2049"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "D联络云",
+      "action": "新建/修改路径展示空白新模板或精确原版本及已有配置能力。",
+      "system_response": "新建为空名称/未定起点/零节点，新增节点空白；原版本和历史只读保留。配置不要求实际执行资源、本人坐席、业务成员或双模块。",
+      "rule_ids": [
+        "BR-2042",
+        "BR-2043",
+        "BR-2045",
+        "BR-2047",
+        "BR-2049"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "平台超管或本品牌租户管理员",
+      "action": "配置节点、明确起点、职责及允许方式、稳定edgeId路径和可选ALL/ANY条件。",
+      "system_response": "多选条件直接用各自fieldId/optionId及containsAny/containsAll，通话状态IN合法多选；无条件无额外门槛。线索仅原总部/门店方向，非线索仅租户内。编辑节点/路径/条件时保留原滚动、输入、展开及条件草稿，禁用再启用条件保留本次草稿，不新增草稿管理。",
+      "rule_ids": [
+        "BR-2042",
+        "BR-2043",
+        "BR-2045",
+        "BR-2047",
+        "BR-2049"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "核本次配置权、原版本、显式起点、结束可达、节点职责/已有方式能力、合法方向和每条路径条件。",
+      "system_response": "核edgeId稳定唯一、ALL/ANY、合法算子和非空候选；每字段定义/选项分别验证，不用单一标签来源。实际资源/成员资格仅实际执行时另核。总部下发不得任意门店兜底或店店直转，目标在本次真实转交时解析。",
+      "rule_ids": [
+        "BR-2042",
+        "BR-2043",
+        "BR-2045",
+        "BR-2047",
+        "BR-2049"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "D联络云",
+      "action": "仅为本次新建或修改可靠保存新版本。",
+      "system_response": "原版本、记录/批次快照及历史引用保持；没有发布、自动执行、备用切换；本保存不写任何分类ROUTE/BASE或tagFieldId。",
+      "rule_ids": [
+        "BR-2042",
+        "BR-2043",
+        "BR-2045",
+        "BR-2047",
+        "BR-2049"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "D联络云",
+      "action": "反馈新建/修改的实际保存版本及可供分类独立关联的节点路径。",
+      "system_response": "SC-2037另次关联一个模板保存版本；满足条件仍须人员选路确认，保存不自动转交/起呼。只读详情及保护删除走各自备选分支。",
+      "rule_ids": [
+        "BR-2042",
+        "BR-2043",
+        "BR-2045",
+        "BR-2047",
+        "BR-2049"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2029-CANCEL",
+      "condition": "提交前取消本次操作",
+      "steps": [
+        "不提交本次请求，不改变记录或配置。"
+      ]
+    },
+    {
+      "id": "ALT-2029-INVALID",
+      "condition": "资格、配置、当前版本或本次业务条件不满足",
+      "steps": [
+        "节点路径、职责或线索方向不合法\n不保存不可用版本",
+        "反馈具体原因；当前数据保持原实际状态。"
+      ]
+    },
+    {
+      "id": "ALT-2029-UNKNOWN",
+      "condition": "读写失败或本次结果不能确定",
+      "steps": [
+        "不展示成功；区分明确失败和结果待核。",
+        "结果待核先核对同次请求的实际结果，不能用新请求重复创建或推进。"
+      ]
+    },
+    {
+      "id": "ALT-2029-DETAIL",
+      "condition": "本次独立发起模板只读详情。",
+      "steps": [
+        "核查看权及精确保存版本；只读展示名称/版本、起始节点、节点职责、允许方式、路径及条件，历史辅助只读。",
+        "关闭只结束查看，不形成模板修改版本，不把列表次序当线性流程。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2029-DETAIL-FAIL",
+      "condition": "详情无权、精确版本不明、读取失败或不完整。",
+      "steps": [
+        "保留原版本及历史，不以空模板/旧缓存伪造本次成功，不改保存内容。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2029-DELETE",
+      "condition": "本次独立发起受保护模板删除。",
+      "steps": [
+        "只有有删除权、精确版本有效且完整可靠证明无当前/历史分类、记录/批次和待核配置引用才可确认。",
+        "提交再次核权、版本及全部必要引用，明确成功才反馈删除；不级联删历史或解除引用来达成可删除。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2029-DELETE-BLOCK",
+      "condition": "无删除权、版本冲突、存在任一种必要引用，或引用/资格读取失败未知。",
+      "steps": [
+        "拒绝删除并保持模板/引用/历史；不以部分查询无引用代替全部无引用。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2029-DELETE-FAIL",
+      "condition": "本次删除明确失败。",
+      "steps": [
+        "保持模板及引用，反馈实际失败；未知由ALT-2029-UNKNOWN先核同次结果，不盲目重发。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    }
+  ],
+  "postconditions": [
+    "创建/修改明确成功后形成新不可变版本，旧实例/历史固定引用保持；保存不写分类路由或执行。",
+    "独立详情仅只读精确有权保存版本；读取失败/未知不伪报成功。",
+    "独立删除仅完整无引用及当前删除资格满足时可靠完成；取消/失败/未知均不虚报删除，不清历史/引用凑资格。"
+  ],
+  "acceptance_points": [
+    "AC-2109：有权配置人员可创建模板，或修改模板并形成可识别的新版本；节点包含职责、处理方式及合法接续路径。 新建模板不预设节点，添加节点为空白，由有权人员逐个配置；起始节点明确选择。",
+    "AC-2110：业务实例记录使用的模板版本；后续修改模板不得静默改变已经执行的节点或历史资料。",
+    "AC-2111：模板保持品牌及目标资格校验；线索分类继续遵守总部与门店合法方向，模板不能绕过执行与归属准入。",
+    "AC-2112：有权超管或品牌租户管理员可在流转模板的后续路径上配置通话状态、线索标签等流转条件；只有所选路径条件符合才允许确认流转，条件配置不是自动呼叫或自动推进开关。",
+    "AC-2113：多条条件支持配置全部满足或任一满足；同一个通话状态条件可选择多个状态，实际状态命中任一所选值即符合该条条件。",
+    "AC-2114：后续路径可不配置附加条件并沿用原人工准入；开启条件则须有合法规则，条件组支持ALL/ANY，通话状态单规则多值命中任一，标签规则可配置包含任一或包含全部。字段须来自可核目录、类型及操作符相容、所选状态或标签选项身份有效；空规则、缺失/停用字段或非法值不得保存为可用条件。 普通配置操作局部更新并保留滚动位置、已有输入和展开状态；暂时关闭再开启条件保留组合及规则草稿，新增节点和保存校验可按意图定位。",
+    "AC-2136：流转模板列表提供独立查看详情入口；只读展示精确保存版本的名称、起始节点、各节点职责、允许方式、后续路径与条件，字段含义与新增/编辑一致；历史配置为辅助只读查看，不能修改已保存版本。",
+    "AC-2137：流转模板列表提供独立删除入口；有权人员核对后仅可删除没有分类当前/历史、记录/批次或待核配置引用的模板；提交复核品牌权限、模板版本与引用，取消/失败不删除，响应未知只核同次结果，引用保护不得被绕过，已有实例和历史不受影响。"
+  ],
+  "source_story_ids": [
+    "US-2033"
+  ],
+  "source_acceptance_ids": [
+    "AC-2109",
+    "AC-2110",
+    "AC-2111",
+    "AC-2112",
+    "AC-2113",
+    "AC-2114",
+    "AC-2136",
+    "AC-2137"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2084",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2092",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "business_rule_ids": [
+    "BR-2042",
+    "BR-2043",
+    "BR-2045",
+    "BR-2047",
+    "BR-2049",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2012",
+    "BR-2022"
+  ],
+  "notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "同一SC承载已批准的独立创建、修改、详情、保护删除操作，各有独立触发/结果；后续功能拆分保持独立操作，不按SC数量新增功能。",
+    "空新建/显式起点及局部输入/滚动/条件草稿保护是既有编辑明细，不新增草稿系统或生命周期引擎。",
+    "SRC-2096已确认本版AI标签只整合配置、映射和结果展示，不新增AI标准标签向业务字段写入及由此新增自动流转；原供应商池、启用和标准映射作用域、原始结果及未匹配不回退首项继续保留。既有字段条件、人工保存和其他原有流转不变；本次范围不作未来永久禁止。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "human",
+        "name": "平台超管或本品牌租户管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "human",
+        "type": "start",
+        "order": 1,
+        "label": "独立办理模板创建/修改/详情或删除"
+      },
+      {
+        "id": "N-OPEN",
+        "lane_id": "human",
+        "type": "action",
+        "order": 2,
+        "label": "选择本次独立模板操作",
+        "step_ref": 1
+      },
+      {
+        "id": "N-OP",
+        "lane_id": "human",
+        "type": "decision",
+        "label": "本次独立办理哪项操作？",
+        "order": 3
+      },
+      {
+        "id": "N-CONTEXT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 4,
+        "label": "新建空名称/未定起点/零节点\n编辑原版本，保留只读历史",
+        "step_ref": 2
+      },
+      {
+        "id": "N-CHOOSE",
+        "lane_id": "human",
+        "type": "action",
+        "order": 5,
+        "label": "显式起点/空白新节点/路径条件\n逐fieldId多选，保原局部编辑草稿",
+        "step_ref": 3
+      },
+      {
+        "id": "N-CONFIRM",
+        "lane_id": "human",
+        "type": "decision",
+        "order": 6,
+        "label": "是否确认本次办理？"
+      },
+      {
+        "id": "N-CANCEL-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 7,
+        "label": "取消本次办理，不保存本次变更"
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "human",
+        "type": "end",
+        "order": 8,
+        "label": "已取消"
+      },
+      {
+        "id": "N-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 9,
+        "label": "核配置权/版本/显式起点/可达结束\n方向职责及逐字段条件合法\n实际执行资源不作配置门槛",
+        "step_ref": 4
+      },
+      {
+        "id": "N-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 10,
+        "label": "本次校验通过？"
+      },
+      {
+        "id": "N-INVALID-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "节点路径、职责或线索方向不合法\n不保存不可用版本"
+      },
+      {
+        "id": "N-INVALID",
+        "lane_id": "human",
+        "type": "end",
+        "order": 12,
+        "label": "本次未办理，说明原因"
+      },
+      {
+        "id": "N-COMMIT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 13,
+        "label": "保存可识别的新版本\n原版本与实例保持",
+        "step_ref": 5
+      },
+      {
+        "id": "N-COMMITTED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 14,
+        "label": "取得明确成功结果？"
+      },
+      {
+        "id": "N-UNKNOWN-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 15,
+        "label": "反馈失败或待核\n待核先核对同次结果，不能盲目重试"
+      },
+      {
+        "id": "N-UNKNOWN",
+        "lane_id": "human",
+        "type": "end",
+        "order": 16,
+        "label": "本次未确认成功"
+      },
+      {
+        "id": "N-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 17,
+        "label": "反馈实际新版本与节点路径\n分类另次独立关联一个版本",
+        "step_ref": 6
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "human",
+        "type": "end",
+        "order": 18,
+        "label": "新模板版本已保存"
+      },
+      {
+        "id": "N-DETAIL-READ",
+        "lane_id": "platform",
+        "type": "action",
+        "label": "核只读查看范围与精确保存版本\n读取名称/起点/职责/方式/路径条件",
+        "order": 19
+      },
+      {
+        "id": "N-DETAIL-OK",
+        "lane_id": "platform",
+        "type": "decision",
+        "label": "本次有权且精确版本完整读出？",
+        "order": 20
+      },
+      {
+        "id": "N-DETAIL-FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "label": "无权/失败/未知不伪造详情\n原版本及历史不变",
+        "order": 21
+      },
+      {
+        "id": "N-DETAIL-SHOW",
+        "lane_id": "platform",
+        "type": "action",
+        "label": "只读展示精确保存版本\n历史辅助只读，不按列表顺序假定路径",
+        "order": 22
+      },
+      {
+        "id": "N-DETAIL-END",
+        "lane_id": "human",
+        "type": "end",
+        "label": "详情查看结束；未修改版本",
+        "order": 23
+      },
+      {
+        "id": "N-DELETE-READ",
+        "lane_id": "platform",
+        "type": "action",
+        "label": "核删除权/品牌/精确版本\n读取当前/历史分类、记录/批次及待核引用",
+        "order": 24
+      },
+      {
+        "id": "N-DELETE-ELIGIBLE",
+        "lane_id": "platform",
+        "type": "decision",
+        "label": "有权且全部必要引用明确为空？",
+        "order": 25
+      },
+      {
+        "id": "N-DELETE-BLOCK",
+        "lane_id": "platform",
+        "type": "end",
+        "label": "有引用/读取失败/未知或无权，禁止删除\n不清引用、不删历史来凑可删",
+        "order": 26
+      },
+      {
+        "id": "N-DELETE-CONFIRM",
+        "lane_id": "human",
+        "type": "decision",
+        "label": "明确确认本次删除？",
+        "order": 27
+      },
+      {
+        "id": "N-DELETE-CANCEL",
+        "lane_id": "human",
+        "type": "end",
+        "label": "取消删除；模板及引用不变",
+        "order": 28
+      },
+      {
+        "id": "N-DELETE-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "label": "提交重核删除权/品牌/原版本\n及全部当前、历史与待核引用",
+        "order": 29
+      },
+      {
+        "id": "N-DELETE-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "label": "本次删除资格及无引用条件仍明确？",
+        "order": 30
+      },
+      {
+        "id": "N-DELETE-CHANGED",
+        "lane_id": "platform",
+        "type": "end",
+        "label": "权限/版本/引用已变或待核\n拒绝删除，保持原模板",
+        "order": 31
+      },
+      {
+        "id": "N-DELETE-COMMIT",
+        "lane_id": "platform",
+        "type": "action",
+        "label": "同次请求删除合格模板\n不级联清除历史或关联",
+        "order": 32
+      },
+      {
+        "id": "N-DELETE-RESULT",
+        "lane_id": "platform",
+        "type": "decision",
+        "label": "本次删除实际结果？",
+        "order": 33
+      },
+      {
+        "id": "N-DELETE-FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "label": "明确失败保留模板及引用",
+        "order": 34
+      },
+      {
+        "id": "N-DELETE-UNKNOWN",
+        "lane_id": "platform",
+        "type": "end",
+        "label": "结果未知先核同次请求\n不盲目新请求重复删除",
+        "order": 35
+      },
+      {
+        "id": "N-DELETE-END",
+        "lane_id": "human",
+        "type": "end",
+        "label": "本次模板删除明确成功",
+        "order": 36
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-OPEN"
+      },
+      {
+        "from": "N-OPEN",
+        "to": "N-OP"
+      },
+      {
+        "from": "N-CONTEXT",
+        "to": "N-CHOOSE"
+      },
+      {
+        "from": "N-CHOOSE",
+        "to": "N-CONFIRM"
+      },
+      {
+        "from": "N-CONFIRM",
+        "to": "N-CANCEL-RESPONSE",
+        "label": "取消",
+        "path_id": "ALT-2029-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "N-CANCEL-RESPONSE",
+        "to": "N-CANCEL"
+      },
+      {
+        "from": "N-CONFIRM",
+        "to": "N-CHECK",
+        "label": "确认"
+      },
+      {
+        "from": "N-CHECK",
+        "to": "N-VALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-INVALID-RESPONSE",
+        "label": "不通过",
+        "path_id": "ALT-2029-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "N-INVALID-RESPONSE",
+        "to": "N-INVALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-COMMIT",
+        "label": "通过"
+      },
+      {
+        "from": "N-COMMIT",
+        "to": "N-COMMITTED"
+      },
+      {
+        "from": "N-COMMITTED",
+        "to": "N-UNKNOWN-RESPONSE",
+        "label": "失败或待核",
+        "path_id": "ALT-2029-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "N-UNKNOWN-RESPONSE",
+        "to": "N-UNKNOWN"
+      },
+      {
+        "from": "N-COMMITTED",
+        "to": "N-RESPONSE",
+        "label": "明确成功"
+      },
+      {
+        "from": "N-RESPONSE",
+        "to": "N-SUCCESS"
+      },
+      {
+        "from": "N-OP",
+        "to": "N-CONTEXT",
+        "label": "新建或修改"
+      },
+      {
+        "from": "N-OP",
+        "to": "N-DETAIL-READ",
+        "label": "独立只读详情",
+        "path_id": "ALT-2029-DETAIL"
+      },
+      {
+        "from": "N-DETAIL-READ",
+        "to": "N-DETAIL-OK"
+      },
+      {
+        "from": "N-DETAIL-OK",
+        "to": "N-DETAIL-FAIL",
+        "label": "无权/不完整/失败或未知",
+        "path_id": "ALT-2029-DETAIL-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-DETAIL-OK",
+        "to": "N-DETAIL-SHOW",
+        "label": "有权且完整"
+      },
+      {
+        "from": "N-DETAIL-SHOW",
+        "to": "N-DETAIL-END"
+      },
+      {
+        "from": "N-OP",
+        "to": "N-DELETE-READ",
+        "label": "独立受保护删除",
+        "path_id": "ALT-2029-DELETE"
+      },
+      {
+        "from": "N-DELETE-READ",
+        "to": "N-DELETE-ELIGIBLE"
+      },
+      {
+        "from": "N-DELETE-ELIGIBLE",
+        "to": "N-DELETE-BLOCK",
+        "label": "无权/存在引用/不完整或未知",
+        "path_id": "ALT-2029-DELETE-BLOCK",
+        "type": "failure"
+      },
+      {
+        "from": "N-DELETE-ELIGIBLE",
+        "to": "N-DELETE-CONFIRM",
+        "label": "有权且全部必要引用为空"
+      },
+      {
+        "from": "N-DELETE-CONFIRM",
+        "to": "N-DELETE-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-2029-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "N-DELETE-CONFIRM",
+        "to": "N-DELETE-CHECK",
+        "label": "确认"
+      },
+      {
+        "from": "N-DELETE-CHECK",
+        "to": "N-DELETE-VALID"
+      },
+      {
+        "from": "N-DELETE-VALID",
+        "to": "N-DELETE-CHANGED",
+        "label": "不满足或待核",
+        "path_id": "ALT-2029-DELETE-BLOCK",
+        "type": "failure"
+      },
+      {
+        "from": "N-DELETE-VALID",
+        "to": "N-DELETE-COMMIT",
+        "label": "明确满足"
+      },
+      {
+        "from": "N-DELETE-COMMIT",
+        "to": "N-DELETE-RESULT"
+      },
+      {
+        "from": "N-DELETE-RESULT",
+        "to": "N-DELETE-FAIL",
+        "label": "明确失败",
+        "path_id": "ALT-2029-DELETE-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-DELETE-RESULT",
+        "to": "N-DELETE-UNKNOWN",
+        "label": "结果未知",
+        "path_id": "ALT-2029-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "N-DELETE-RESULT",
+        "to": "N-DELETE-END",
+        "label": "明确成功"
+      }
+    ]
+  },
+  "expected_outcome": "新建/修改形成不可变保存版本；独立详情只读展示精确版本名称、起始节点、职责、方式、路径和条件；独立删除仅在无当前/历史分类、记录/批次及待核配置引用时可靠完成。",
+  "exception_scope": "删除提交重核品牌权限、版本和必要引用，取消/失败不删，未知核同次结果。配置直接逐fieldId多选条件，不增发布、自动执行、备用切换或无保护删除。",
+  "scope": "in_scope",
+  "scope_status": "confirmed_G1_SRC2094",
+  "design_status": "S3_revised_detail_structural_native_compile_checked_not_rendered",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [
+    "ISSUE-2019",
+    "ISSUE-2021"
+  ],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-213",
+    "inputs/source-index.json#SRC-214",
+    "inputs/source-index.json#SRC-215",
+    "inputs/source-index.json#SRC-216",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-223",
+    "inputs/source-index.json#SRC-224",
+    "inputs/source-index.json#SRC-225",
+    "inputs/source-index.json#SRC-226",
+    "inputs/source-index.json#SRC-227",
+    "inputs/source-index.json#SRC-228",
+    "inputs/source-index.json#SRC-230",
+    "inputs/source-index.json#SRC-231",
+    "inputs/source-index.json#SRC-233",
+    "inputs/source-index.json#SRC-234",
+    "inputs/source-index.json#SRC-235",
+    "inputs/source-index.json#SRC-236"
+  ],
+  "v12_origin_scenario_id": "SC-11208",
+  "v12_origin_detail_sha256": "19fe02363350142a36110481981897ed1b513cc5ff465ef2283fb63797128b5d",
+  "v12_origin_snapshot": "2f5f1906236eb99d8996a21ede36891051d7b69628dfda58a7060ce92ac125b7",
+  "rule_ids": [
+    "BR-2042",
+    "BR-2043",
+    "BR-2045",
+    "BR-2047",
+    "BR-2049",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2012",
+    "BR-2022"
+  ],
+  "acceptance_contributions": {
+    "AC-2136": "独立精确保存版本只读详情及历史只读，含读取/资格异常。",
+    "AC-2137": "独立保护删除，完整当前/历史/记录/批次/待核引用、提交重核、取消/失败/未知及同次核对。"
+  },
+  "analysis_notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "本轮只修订当前场景明细；旧SRC2086的37场景G1及SRC2088六入口采纳保历史来源，当前批准为SRC2094的36场景。原型/生产能力未据本次细化改写；不新增US/SC/功能或新统计。"
+  ],
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "pending_choice_ids": [],
+  "v12_origin_baseline": "c84782225797ba928b75f4854640cde7ff34d07d33f951bb0985cafc61f2c1ac",
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "change_id": "CH-V200-C847-S3-SRC2094",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_detail_sha256": "9151790da832f40c6b54140184f5829cb9d2039e3b233d7027de16706ea9798d",
+      "retained_node_ids": [
+        "N-START",
+        "N-OPEN",
+        "N-CONTEXT",
+        "N-CHOOSE",
+        "N-CONFIRM",
+        "N-CANCEL-RESPONSE",
+        "N-CANCEL",
+        "N-CHECK",
+        "N-VALID",
+        "N-INVALID-RESPONSE",
+        "N-INVALID",
+        "N-COMMIT",
+        "N-COMMITTED",
+        "N-UNKNOWN-RESPONSE",
+        "N-UNKNOWN",
+        "N-RESPONSE",
+        "N-SUCCESS"
+      ],
+      "retained_alternate_flow_ids": [
+        "ALT-2029-CANCEL",
+        "ALT-2029-INVALID",
+        "ALT-2029-UNKNOWN"
+      ],
+      "added_node_ids": [
+        "N-OP",
+        "N-DETAIL-READ",
+        "N-DETAIL-OK",
+        "N-DETAIL-FAIL",
+        "N-DETAIL-SHOW",
+        "N-DETAIL-END",
+        "N-DELETE-READ",
+        "N-DELETE-ELIGIBLE",
+        "N-DELETE-BLOCK",
+        "N-DELETE-CONFIRM",
+        "N-DELETE-CANCEL",
+        "N-DELETE-CHECK",
+        "N-DELETE-VALID",
+        "N-DELETE-CHANGED",
+        "N-DELETE-COMMIT",
+        "N-DELETE-RESULT",
+        "N-DELETE-FAIL",
+        "N-DELETE-UNKNOWN",
+        "N-DELETE-END"
+      ],
+      "added_alternate_flow_ids": [
+        "ALT-2029-DETAIL",
+        "ALT-2029-DETAIL-FAIL",
+        "ALT-2029-DELETE",
+        "ALT-2029-DELETE-BLOCK",
+        "ALT-2029-DELETE-FAIL"
+      ],
+      "semantic_replacement": "本条branch_semantics记本场景旧新关系；旧文件只按previous_detail_sha256及历史来源追溯，不作为当前分支。",
+      "branch_semantics": {
+        "retired": [
+          "主备模板及指定单标签来源描述"
+        ],
+        "added": [
+          "ALT-2029-DETAIL",
+          "ALT-2029-DETAIL-FAIL",
+          "ALT-2029-DELETE",
+          "ALT-2029-DELETE-BLOCK",
+          "ALT-2029-DELETE-FAIL"
+        ],
+        "retained": [
+          "原创建/修改step及ALT稳定ID",
+          "未发布、不自动执行"
+        ]
+      }
+    }
+  ],
+  "ai_label_scope_boundary": "AI标签原供应商池/作用域/可靠映射保留；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。名称推荐、首项兜底及不可靠映射不构成已保存业务值或路径匹配。",
+  "scope_choice_update": {
+    "change_id": "CH-V200-AI-TAGS-CONFIG-ONLY-20261024",
+    "source_ref": "inputs/source-index.json#SRC-2096",
+    "version": "2.0.0",
+    "selected": "configuration_only",
+    "new_API_permission_business_field_or_scenario": false,
+    "at": "2026-10-24T13:43:27+08:00"
+  },
+  "resolved_choice_ids": [
+    "AI-STANDARD-TAG-WRITE"
+  ]
+}

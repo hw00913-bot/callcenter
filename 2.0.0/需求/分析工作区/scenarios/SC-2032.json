@@ -1,0 +1,874 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2032",
+  "name": "人员按模板节点启动处理并确认推进",
+  "status": "proposed_flow",
+  "summary": "固定单模板路径按各规则实际fieldId/optionId当前有效已保存值分别评估匹配/未匹配/待核，多条符合人工选一条，提交重核。启动核整记录最近原段；转交另核结束且不再呼叫，不自动推进或起呼。",
+  "actors": [
+    "当前负责租户有权业务人员",
+    "D联络云"
+  ],
+  "trigger": "当前节点满足准入，需要确认路径或主动启动处理",
+  "preconditions": [
+    "新模板机制记录，版本和当前节点明确。",
+    "操作人员具备当前负责租户及本条记录资格。",
+    "沿用 AI 生产身份和稳定租户/对象标识；直接访问与菜单采用同一当前操作授权校验，不按名称、手机号或品牌关系合并身份或授权。",
+    "处理启动、人工推进/转交分别核所选动作准入。未来门店待指派或后续出口条件未匹配/待核，不阻当前节点原本合法的处理启动。",
+    "处理启动只要求当前方式模块/执行权/资源及本租户公共禁呼，不套双模块；配置/监管和单纯转交不因此取得或被要求实际起呼资格。",
+    "业务中心整合已确认的分类、规则、导入批次、业务台账、分配及记录处理入口，复用同一业务记录和原执行/详情跳转；不复制客户档案、任务或专业配置，不改变当前负责租户、原动作资格、固定版本和历史可见边界。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "当前负责租户有权业务人员",
+      "action": "从业务中心打开当前有权业务记录和明确的当前节点。",
+      "system_response": "定位同一记录及当前负责租户/轮次；配置共享不授记录访问，非线索不扩跨租户流转。",
+      "rule_ids": [
+        "BR-2041",
+        "BR-2052"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "D联络云",
+      "action": "展示记录固定BASE/字段、ROUTE及唯一模板版本、节点/edgeId路径，并区分受理、执行结束、结果保存、归属和节点状态。",
+      "system_response": "通话条件只取当前负责租户当前轮次最近实际结束call；每规则依自身fieldId/optionId取对应当前有效已保存值/来源/定义和值版本，conditionFieldDefinitions固定，各字段独立。逐路径显示MATCHED/UNMATCHED/PENDING及原因，后改分类/路由不追改实例。",
+      "rule_ids": [
+        "BR-2045",
+        "BR-2049"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "当前负责租户有权业务人员",
+      "action": "人员明确选择本次启动允许方式，或选择一条合法匹配路径确认推进/转交。",
+      "system_response": "多条匹配必须人工选一，不默认第一条。启动不提前要求未来门店已指定或出口条件匹配；只有实际总部下发才核意向锚定/无意向HQ ADMIN同次选有效门店。",
+      "rule_ids": [
+        "BR-2043",
+        "BR-2047"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "按实际动作重核当前归属/节点/资格。启动须整条记录最近执行段已结束且结果保存，跨owner/round不豁免，仅全记录从未执行无前段；另核本次方式模块/成员权/执行资源及本租户公共禁呼。",
+      "system_response": "推进/转交重核所选固定edgeId和各字段事实/来源/版本的ALL/ANY三态。转交独立核执行结束且确认不再呼叫，不额外套全前段结果保存；只有路径实际引用字段须有可靠已保存值。通话范围当前owner/round最近结束，绝不回退旧call；已核缺值为UNMATCHED，读取/定义/来源/终态冲突为PENDING。ALL任一false则未匹配，否则有unknown待核；ANY任一true则匹配，否则有unknown待核。配置/值过期重新核，不信预览。",
+      "rule_ids": [
+        "BR-2048",
+        "BR-2049"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "D联络云",
+      "action": "仅办理人员本次所选合法启动，或保存本次节点推进/转交。",
+      "system_response": "启动登记独立执行段并复用SC-2025；本租户分配SC-2031，线索转交SC-2026/27。成功转交才换归属并清旧assignedAccountId，目标按原权另分配；合法回流才增轮次，节点切换本身不增轮次，不自动起呼。",
+      "rule_ids": [
+        "BR-2043",
+        "BR-2051"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "D联络云",
+      "action": "反馈本次实际受理/执行段或推进结果；结束与结果保存仍按原段独立归档。",
+      "system_response": "受理成功不等于执行结束或结果已保存。迟到结果归原segment，逐字段省略保留、显式[]仅清本字段，旧段结果不盖较新值/已存人工结果；旧manual未存段仅有原权依原固定表单首次补录，不读下游字段。停用仅既有接通通话有限收尾。未知先核同次结果，后续动作仍由人员发起。",
+      "rule_ids": [
+        "BR-2049",
+        "BR-2051"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2032-CANCEL",
+      "condition": "人员取消本次办理",
+      "steps": [
+        "不启动、不推进。"
+      ]
+    },
+    {
+      "id": "ALT-2032-GUARD",
+      "condition": "本次所选启动、节点推进或转交不满足各自原条件。",
+      "steps": [
+        "启动核整记录最近执行段已结束且结果保存；跨owner/round仍核，仅全记录从未执行无前段。失权、在途、前段未存、资源不适用或禁呼失败/未知拒本次新启动。",
+        "推进/转交不通过留原节点/归属；转交只按执行结束且不再呼叫等原条件，不额外要求所有前段结果保存。未来门店目标或出口条件待核不阻当前节点原本合法启动。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2032-UNKNOWN",
+      "condition": "本次处理受理或节点推进结果失败/待核",
+      "steps": [
+        "保留原执行段关联并核对同次结果，不盲目重复启动。",
+        "推进结果待核先核对同次实际结果，不重复推进或追加轮次。"
+      ]
+    },
+    {
+      "id": "ALT-2032-ADVANCE",
+      "condition": "本次动作是人员确认推进",
+      "steps": [
+        "人员选择已配置的下一节点及合法目标。",
+        "平台复核当前归属、固定版本、节点路径及该次动作条件。",
+        "租户内分配复用SC-2031；租户转交复用SC-2026/2027的已确认约束。",
+        "转交仅校验执行结束且不再呼叫，不额外要求先保存结果。",
+        "通过后同次保存节点轨迹及必要的租户归属、轮次，后续仍由人主动启动。"
+      ]
+    },
+    {
+      "id": "ALT-2032-TARGET",
+      "condition": "本次确为固定单模板的线索总部下发节点，尚未核定合法目标。",
+      "steps": [
+        "有意向按品牌+编码唯一锚定，异常待核不能任意改选；无意向仅本总部ADMIN同次选有效店并确认，保原客户意向不回填。",
+        "待指派/待核保持同一原记录、节点与归属；不另存指派、造门店副本或自动推进，不作为无关处理启动的前置。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2032-CONDITION-PENDING",
+      "condition": "所选路径各规则实际依赖的通话/字段定义、来源或值版本冲突/未知，按三值计算整体PENDING。",
+      "steps": [
+        "留原节点与归属，显示待核原因；不按同名/首字段/不可靠AI映射取值，不回退上游旧租户/旧轮/较早call。",
+        "缺值明确未匹配不当true；ALL/ANY依各规则三态计算，多条明确匹配仍由人选。重核后另次确认，不自动起呼、转交或更换模板。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    }
+  ],
+  "postconditions": [
+    "本次启动受理、节点推进/转交、执行结束及结果保存分别确认，不互相冒充完成。",
+    "启动守整记录最近段结束且保存，owner/round变化不豁免；转交不误加统一结果保存门槛。",
+    "固定单模板/路径和每字段定义不追改；逐字段有效已保存值独立，缺值/未知不当true，不按首字段/同名/旧call兜底。",
+    "迟到归原段，旧值不盖新值；原manual首次补录沿原权及固定表单，不读下游；停用仅原既有接通通话有限收尾。"
+  ],
+  "acceptance_points": [
+    "AC-2120：节点由人员确认推进，处理方式也由人员主动启动；选择模板不自动发起呼叫或转交。",
+    "AC-2121：线索分类同一条记录串行执行。人员启动下一种方式时核整条记录最近执行段已结束且结果保存，换租户/换轮次不免除；仅整条记录从未有执行段时无前段。实际租户转交只按执行结束及确认不再呼叫等原准入，不额外要求所有前段结果已保存。",
+    "AC-2122：受理、结束、保存、归属与节点推进分别确认；办理状态待核先核对同次实际结果，不能重复推进或制造重复执行。",
+    "AC-2097：总部下发或再分发时，目标只由本条线索的意向门店唯一解析到同品牌有效门店租户；有权人员核对并确认，不能改选其他门店，解析本身不自动转交或呼叫。",
+    "AC-2098：总部当前线索缺失意向门店时，沿用同一记录标记目标门店待指派，保留原记录ID、品牌编码、批次和历史，总部继续负责；不复制线索、不新增模板实例、不将其等同于坐席或任务未分配。",
+    "AC-2099：目标门店待指派时，仅当前负责总部租户管理员可在本次转交中补选同品牌有效门店并确认提交；运营、当前坐席及超管监管身份不因此获得该补选资格，查看仍沿原有授权范围。 成功后保留客户原始意向，另行记录人工指派来源、目标、指派人和时间。",
+    "AC-2100：已有意向门店但缺少可靠身份、无对应租户、映射不唯一、跨品牌或目标停用等情况明确标记映射待核或不可办理；不能按门店名称、列表首店猜测，不能伪装无意向门店而开放任意补选。",
+    "AC-2101：提交下发时重新核对本条意向门店或无意向补选分支、目标映射与有效性、当前资格/归属/固定模板节点及不再呼叫条件；字段或映射变化、取消、失败和结果未知均不伪报转交成功，同次幂等不重复切换归属或建轮次。",
+    "AC-2113：多条条件支持配置全部满足或任一满足；同一个通话状态条件可选择多个状态，实际状态命中任一所选值即符合该条条件。",
+    "AC-2123：条件通话状态取当前负责租户当前培育轮次最近一次已结束通话，不用其他租户或历史轮次任意命中；每条多选规则直接按自身fieldId/optionId读取本记录对应字段当前有效已保存值及来源/版本，各字段独立，不借同名或首字段代取。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "AC-2124：办理时分别显示匹配、未匹配、待核及原因；未满足或整体待核时保留原节点/归属，不自动推进、呼叫或更换模板。缺值/未知的单条规则不当作true；ALL为任一明确false则不匹配、否则有unknown则待核，ANY为任一明确true则匹配、否则有unknown则待核，其余按正常三值逻辑。多条路径明确符合时由人员选择一条，不默认首条或使用历史任意命中。",
+    "AC-2125：人员确认所选路径时，重新核对固定单模板版本/路径、当前负责租户本轮最近结束通话，以及各规则对应业务fieldId当前有效已保存值/来源/定义和值版本，同时满足原权限、节点、门店锚定/无意向HQ管理员同次指派与执行准入。配置或取值过期须重核；无附加条件不豁免原准入，只有条件实际引用的字段须已有可核值，不把所有转交统一加上先保存结果要求。"
+  ],
+  "source_story_ids": [
+    "US-2036",
+    "US-2029",
+    "US-2033"
+  ],
+  "source_acceptance_ids": [
+    "AC-2120",
+    "AC-2121",
+    "AC-2122",
+    "AC-2097",
+    "AC-2098",
+    "AC-2099",
+    "AC-2100",
+    "AC-2101",
+    "AC-2113",
+    "AC-2123",
+    "AC-2124",
+    "AC-2125"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2084",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2092",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "business_rule_ids": [
+    "BR-2027",
+    "BR-2028",
+    "BR-2033",
+    "BR-2038",
+    "BR-2041",
+    "BR-2043",
+    "BR-2045",
+    "BR-2047",
+    "BR-2048",
+    "BR-2049",
+    "BR-2051",
+    "BR-2052",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2008",
+    "BR-2009",
+    "BR-2016",
+    "BR-2018"
+  ],
+  "notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "条件取值的当前owner/round/call范围与“启动前核整记录最近执行段”的范围分别独立，不能用当前轮首段绕过整记录保存guard。",
+    "仅本次真实转交核目标和不再呼叫；配置/监管不要求业务成员或起呼资源，不据此授代执行权。",
+    "SRC-2096已确认本版AI标签只整合配置、映射和结果展示，不新增AI标准标签向业务字段写入及由此新增自动流转；原供应商池、启用和标准映射作用域、原始结果及未匹配不回退首项继续保留。既有字段条件、人工保存和其他原有流转不变；本次范围不作未来永久禁止。",
+    "已配置回访边只表示合法下一节点执行实例，由人员另次发起，不自动循环或增加通用引擎。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "human",
+        "name": "当前负责租户有权业务人员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "START",
+        "lane_id": "human",
+        "type": "start",
+        "order": 1,
+        "label": "办理当前节点"
+      },
+      {
+        "id": "OPEN",
+        "lane_id": "human",
+        "type": "action",
+        "order": 2,
+        "label": "打开有权记录当前节点",
+        "step_ref": 1
+      },
+      {
+        "id": "CONTEXT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "展示固定单模板/路径及逐字段三态\n受理/执行/保存/归属分别呈现",
+        "step_ref": 2
+      },
+      {
+        "id": "CHOOSE",
+        "lane_id": "human",
+        "type": "action",
+        "order": 4,
+        "label": "选本次方式或人工推进路径\n多条匹配必须人选，不默认首条",
+        "step_ref": 3
+      },
+      {
+        "id": "CONFIRM",
+        "lane_id": "human",
+        "type": "decision",
+        "order": 5,
+        "label": "确认本次提交？"
+      },
+      {
+        "id": "CANCEL",
+        "lane_id": "human",
+        "type": "end",
+        "order": 6,
+        "label": "取消；不启动或推进"
+      },
+      {
+        "id": "ACTION",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "人员选择本次何种动作？"
+      },
+      {
+        "id": "EXEC-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 8,
+        "label": "核整记录最近段已结束且保存\n换owner/round不豁免；从未执行例外\n本次方式权/资源及本租户公共禁呼",
+        "step_ref": 4
+      },
+      {
+        "id": "EXEC-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 9,
+        "label": "启动准入明确通过？"
+      },
+      {
+        "id": "REJECT",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 10,
+        "label": "本次未办理；说明失败或未匹配\n不全局要求转交前先保存结果"
+      },
+      {
+        "id": "RUN",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 11,
+        "label": "本次登记独立执行段，复用SC-2025\n受理不等结束/结果保存，不自动推进",
+        "step_ref": 5
+      },
+      {
+        "id": "SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 12,
+        "label": "本次启动受理结果明确？"
+      },
+      {
+        "id": "UNKNOWN",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 13,
+        "label": "失败/待核先核同次结果\n不重复起呼、推进或增加轮次"
+      },
+      {
+        "id": "RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 14,
+        "label": "返回本次实际受理/段状态\n结束/逐字段结果另按原段归档",
+        "step_ref": 6
+      },
+      {
+        "id": "END",
+        "lane_id": "human",
+        "type": "end",
+        "order": 15,
+        "label": "本次完成；后续另由人发起"
+      },
+      {
+        "id": "TRANSFER-TARGET",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 16,
+        "label": "本次推进是否总部下发门店？"
+      },
+      {
+        "id": "TARGET",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 17,
+        "label": "有意向按品牌＋编码锚唯一店\n无意向仅总部 ADMIN 同次选店"
+      },
+      {
+        "id": "TARGET-READY",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 18,
+        "label": "本次合法目标明确？"
+      },
+      {
+        "id": "TARGET-WAIT",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 19,
+        "label": "留原记录/节点：待指派或待核\n不任选门店，不新建记录"
+      },
+      {
+        "id": "PATH-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 20,
+        "label": "核固定路径/各fieldId事实与版本\nALL/ANY三态；转交另核结束不再呼叫",
+        "step_ref": 4
+      },
+      {
+        "id": "PATH-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 21,
+        "label": "原准入及所选路径条件结果？"
+      },
+      {
+        "id": "PENDING",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 22,
+        "label": "事实/定义/来源待核，留原节点归属\n不借旧owner/round/call或首字段"
+      },
+      {
+        "id": "REJECT-B2",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 23,
+        "label": "本次未办理；说明失败或未匹配\n不全局要求转交前先保存结果"
+      },
+      {
+        "id": "ADVANCE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 24,
+        "label": "保存本次合法节点/转交轨迹\n成功才换归属清旧指派，不回填意向",
+        "step_ref": 5
+      },
+      {
+        "id": "SAVED-B2",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 25,
+        "label": "本次节点/转交办理结果明确？"
+      },
+      {
+        "id": "UNKNOWN-B2",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 26,
+        "label": "失败/待核先核同次结果\n不重复起呼、推进或增加轮次"
+      },
+      {
+        "id": "RESPONSE-B2",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 27,
+        "label": "返回本次实际推进/转交结果\n逐字段晚到归原段，不覆盖较新值",
+        "step_ref": 6
+      },
+      {
+        "id": "END-B2",
+        "lane_id": "human",
+        "type": "end",
+        "order": 28,
+        "label": "本次完成；后续另由人发起"
+      },
+      {
+        "id": "PATH-CHECK-B2",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 29,
+        "label": "核所选固定路径/各fieldId三态及版本\n本次若转交才核结束且不再呼叫",
+        "step_ref": 4
+      },
+      {
+        "id": "PATH-VALID-B2",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 30,
+        "label": "原准入及所选路径条件结果？"
+      },
+      {
+        "id": "PENDING-B2",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 31,
+        "label": "事实/定义/来源待核，留原节点归属\n不借旧owner/round/call或首字段"
+      },
+      {
+        "id": "REJECT-B3",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 32,
+        "label": "本次未办理；说明失败或未匹配\n不全局要求转交前先保存结果"
+      },
+      {
+        "id": "ADVANCE-B2",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 33,
+        "label": "仅保存本次合法推进/必要转交轨迹\n不自动执行、不改变原意向",
+        "step_ref": 5
+      },
+      {
+        "id": "SAVED-B3",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 34,
+        "label": "本次节点/转交办理结果明确？"
+      },
+      {
+        "id": "UNKNOWN-B3",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 35,
+        "label": "失败/待核先核同次结果\n不重复起呼、推进或增加轮次"
+      },
+      {
+        "id": "RESPONSE-B3",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 36,
+        "label": "返回本次实际推进结果\n逐字段晚到归原段，不覆盖较新值",
+        "step_ref": 6
+      },
+      {
+        "id": "END-B3",
+        "lane_id": "human",
+        "type": "end",
+        "order": 37,
+        "label": "本次完成；后续另由人发起"
+      }
+    ],
+    "edges": [
+      {
+        "from": "CONFIRM",
+        "to": "CANCEL",
+        "label": "取消",
+        "path_id": "ALT-2032-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "EXEC-VALID",
+        "to": "REJECT",
+        "label": "不通过或待核",
+        "path_id": "ALT-2032-GUARD",
+        "type": "failure"
+      },
+      {
+        "from": "SAVED",
+        "to": "UNKNOWN",
+        "label": "失败或待核",
+        "path_id": "ALT-2032-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "RESPONSE",
+        "to": "END"
+      },
+      {
+        "from": "SAVED",
+        "to": "RESPONSE",
+        "label": "明确成功"
+      },
+      {
+        "from": "RUN",
+        "to": "SAVED"
+      },
+      {
+        "from": "EXEC-VALID",
+        "to": "RUN",
+        "label": "明确通过"
+      },
+      {
+        "from": "EXEC-CHECK",
+        "to": "EXEC-VALID"
+      },
+      {
+        "from": "ACTION",
+        "to": "EXEC-CHECK",
+        "label": "本次启动处理"
+      },
+      {
+        "from": "TARGET-READY",
+        "to": "TARGET-WAIT",
+        "label": "未合法指定或匹配待核",
+        "path_id": "ALT-2032-TARGET",
+        "type": "failure"
+      },
+      {
+        "from": "PATH-VALID",
+        "to": "PENDING",
+        "label": "条件待核",
+        "path_id": "ALT-2032-CONDITION-PENDING",
+        "type": "failure"
+      },
+      {
+        "from": "PATH-VALID",
+        "to": "REJECT-B2",
+        "label": "原准入失败或条件未匹配",
+        "path_id": "ALT-2032-GUARD",
+        "type": "failure"
+      },
+      {
+        "from": "SAVED-B2",
+        "to": "UNKNOWN-B2",
+        "label": "失败或待核",
+        "path_id": "ALT-2032-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "RESPONSE-B2",
+        "to": "END-B2"
+      },
+      {
+        "from": "SAVED-B2",
+        "to": "RESPONSE-B2",
+        "label": "明确成功"
+      },
+      {
+        "from": "ADVANCE",
+        "to": "SAVED-B2"
+      },
+      {
+        "from": "PATH-VALID",
+        "to": "ADVANCE",
+        "label": "原准入通过且条件匹配/无条件"
+      },
+      {
+        "from": "PATH-CHECK",
+        "to": "PATH-VALID"
+      },
+      {
+        "from": "TARGET-READY",
+        "to": "PATH-CHECK",
+        "label": "目标明确"
+      },
+      {
+        "from": "TARGET",
+        "to": "TARGET-READY"
+      },
+      {
+        "from": "TRANSFER-TARGET",
+        "to": "TARGET",
+        "label": "是，本次总部下发"
+      },
+      {
+        "from": "PATH-VALID-B2",
+        "to": "PENDING-B2",
+        "label": "条件待核",
+        "path_id": "ALT-2032-CONDITION-PENDING",
+        "type": "failure"
+      },
+      {
+        "from": "PATH-VALID-B2",
+        "to": "REJECT-B3",
+        "label": "原准入失败或条件未匹配",
+        "path_id": "ALT-2032-GUARD",
+        "type": "failure"
+      },
+      {
+        "from": "SAVED-B3",
+        "to": "UNKNOWN-B3",
+        "label": "失败或待核",
+        "path_id": "ALT-2032-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "RESPONSE-B3",
+        "to": "END-B3"
+      },
+      {
+        "from": "SAVED-B3",
+        "to": "RESPONSE-B3",
+        "label": "明确成功"
+      },
+      {
+        "from": "ADVANCE-B2",
+        "to": "SAVED-B3"
+      },
+      {
+        "from": "PATH-VALID-B2",
+        "to": "ADVANCE-B2",
+        "label": "原准入通过且条件匹配/无条件"
+      },
+      {
+        "from": "PATH-CHECK-B2",
+        "to": "PATH-VALID-B2"
+      },
+      {
+        "from": "TRANSFER-TARGET",
+        "to": "PATH-CHECK-B2",
+        "label": "否"
+      },
+      {
+        "from": "ACTION",
+        "to": "TRANSFER-TARGET",
+        "label": "本次人工推进/转交",
+        "path_id": "ALT-2032-ADVANCE"
+      },
+      {
+        "from": "CONFIRM",
+        "to": "ACTION",
+        "label": "确认"
+      },
+      {
+        "from": "CHOOSE",
+        "to": "CONFIRM"
+      },
+      {
+        "from": "CONTEXT",
+        "to": "CHOOSE"
+      },
+      {
+        "from": "OPEN",
+        "to": "CONTEXT"
+      },
+      {
+        "from": "START",
+        "to": "OPEN"
+      }
+    ]
+  },
+  "expected_outcome": "固定单模板路径按各规则实际fieldId/optionId当前有效已保存值分别评估匹配/未匹配/待核，多条符合人工选一条，提交重核。启动核整记录最近原段；转交另核结束且不再呼叫，不自动推进或起呼。",
+  "exception_scope": "各字段定义/值/来源版本独立，不按同名、首字段或不可靠AI映射取值。缺值/未知不当true，过期重核；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。原段补录保原授权及固定表单，不读下游或重写已保存结果。",
+  "scope": "in_scope",
+  "scope_status": "confirmed_G1_SRC2094",
+  "design_status": "S3_revised_detail_structural_native_compile_checked_not_rendered",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [
+    "ISSUE-2021",
+    "ISSUE-2022",
+    "ISSUE-2013",
+    "ISSUE-2014",
+    "ISSUE-2019"
+  ],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-213",
+    "inputs/source-index.json#SRC-214",
+    "inputs/source-index.json#SRC-215",
+    "inputs/source-index.json#SRC-216",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-223",
+    "inputs/source-index.json#SRC-224",
+    "inputs/source-index.json#SRC-225",
+    "inputs/source-index.json#SRC-226",
+    "inputs/source-index.json#SRC-227",
+    "inputs/source-index.json#SRC-228",
+    "inputs/source-index.json#SRC-230",
+    "inputs/source-index.json#SRC-231",
+    "inputs/source-index.json#SRC-233",
+    "inputs/source-index.json#SRC-234"
+  ],
+  "v12_origin_scenario_id": "SC-11211",
+  "v12_origin_detail_sha256": "4f0151496174f82c0b6d6befd475865210cbe503b4842418250c20418d7e932d",
+  "v12_origin_snapshot": "2f5f1906236eb99d8996a21ede36891051d7b69628dfda58a7060ce92ac125b7",
+  "rule_ids": [
+    "BR-2027",
+    "BR-2028",
+    "BR-2033",
+    "BR-2038",
+    "BR-2041",
+    "BR-2043",
+    "BR-2045",
+    "BR-2047",
+    "BR-2048",
+    "BR-2049",
+    "BR-2051",
+    "BR-2052",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2008",
+    "BR-2009",
+    "BR-2016",
+    "BR-2018"
+  ],
+  "acceptance_contributions": {},
+  "delegated_parent_acceptance": {
+    "note": "父故事其他验收不是本场景主结果；按相应独立场景办理，不作为本场景完整覆盖。",
+    "ids": [
+      "AC-2084",
+      "AC-2085",
+      "AC-2086",
+      "AC-2087",
+      "AC-2088",
+      "AC-2089",
+      "AC-2109",
+      "AC-2110",
+      "AC-2111",
+      "AC-2112",
+      "AC-2114"
+    ]
+  },
+  "analysis_notes": [
+    "SRC-2094批准当前38US/134AC/36SC范围；本明细为S3细化，不代表G2/G3批准、生产实现或原型修改。本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+    "本轮只修订当前场景明细；旧SRC2086的37场景G1及SRC2088六入口采纳保历史来源，当前批准为SRC2094的36场景。原型/生产能力未据本次细化改写；不新增US/SC/功能或新统计。"
+  ],
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "pending_choice_ids": [],
+  "v12_origin_baseline": "c84782225797ba928b75f4854640cde7ff34d07d33f951bb0985cafc61f2c1ac",
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "change_id": "CH-V200-C847-S3-SRC2094",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2092",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_detail_sha256": "1c75dbdaca3bfefc40cf77f6a14b98d27cfcb3ad0b6ed67703db002b74aec56a",
+      "retained_node_ids": [
+        "START",
+        "OPEN",
+        "CONTEXT",
+        "CHOOSE",
+        "CONFIRM",
+        "CANCEL",
+        "ACTION",
+        "EXEC-CHECK",
+        "EXEC-VALID",
+        "REJECT",
+        "RUN",
+        "SAVED",
+        "UNKNOWN",
+        "RESPONSE",
+        "END",
+        "TRANSFER-TARGET",
+        "TARGET",
+        "TARGET-READY",
+        "TARGET-WAIT",
+        "PATH-CHECK",
+        "PATH-VALID",
+        "PENDING",
+        "REJECT-B2",
+        "ADVANCE",
+        "SAVED-B2",
+        "UNKNOWN-B2",
+        "RESPONSE-B2",
+        "END-B2",
+        "PATH-CHECK-B2",
+        "PATH-VALID-B2",
+        "PENDING-B2",
+        "REJECT-B3",
+        "ADVANCE-B2",
+        "SAVED-B3",
+        "UNKNOWN-B3",
+        "RESPONSE-B3",
+        "END-B3"
+      ],
+      "retained_alternate_flow_ids": [
+        "ALT-2032-CANCEL",
+        "ALT-2032-GUARD",
+        "ALT-2032-UNKNOWN",
+        "ALT-2032-ADVANCE",
+        "ALT-2032-TARGET",
+        "ALT-2032-CONDITION-PENDING"
+      ],
+      "added_node_ids": [],
+      "added_alternate_flow_ids": [],
+      "semantic_replacement": "本条branch_semantics记本场景旧新关系；旧文件只按previous_detail_sha256及历史来源追溯，不作为当前分支。",
+      "branch_semantics": {
+        "retired": [
+          "主备模板描述",
+          "启动guard仅取当前轮前段的歧义"
+        ],
+        "retained": [
+          "原启动与推进/转交互斥分支",
+          "转交不统加结果保存",
+          "原门店目标/禁呼/停用有限收尾"
+        ]
+      }
+    }
+  ],
+  "ai_label_scope_boundary": "AI标签原供应商池/作用域/可靠映射保留；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。名称推荐、首项兜底及不可靠映射不构成已保存业务值或路径匹配。",
+  "scope_choice_update": {
+    "change_id": "CH-V200-AI-TAGS-CONFIG-ONLY-20261024",
+    "source_ref": "inputs/source-index.json#SRC-2096",
+    "version": "2.0.0",
+    "selected": "configuration_only",
+    "new_API_permission_business_field_or_scenario": false,
+    "at": "2026-10-24T13:43:27+08:00"
+  },
+  "resolved_choice_ids": [
+    "AI-STANDARD-TAG-WRITE"
+  ]
+}

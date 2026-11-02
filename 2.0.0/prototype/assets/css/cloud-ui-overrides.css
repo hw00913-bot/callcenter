@@ -1,0 +1,214 @@
+/* Host integration of the effective readonly v1.2.0 UI.
+ * Common controls and aliases are generated from the complete source cascade.
+ * These rules only bridge the current workspace DOM and its retained five areas.
+ * Reference: v1.2.0 assets/css/app.css (desktop block 1279-1325),
+ * assets/css/secondary-navigation.css (right drawers / compact confirmations).
+ */
+:root {
+  --color-primary:var(--app-blue);
+  --color-primary-hover:#0958d9;
+  --color-bg-page:var(--app-bg);
+  --color-text-primary:var(--app-text);
+  --color-text-secondary:var(--app-muted);
+  --color-border:var(--app-border);
+  --font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+body { letter-spacing:normal; }
+
+/* The host retains 2.0 areas while taking the original topbar sizing and skin. */
+.d-topbar { flex:0 0 var(--app-topbar);gap:24px;white-space:nowrap; }
+.d-wordmark { flex-shrink:0; }
+#area-nav { gap:24px;flex:1; }
+#area-nav button { font-size:14px;font-weight:400;color:#666;padding:0 2px;border-bottom-width:2px; }
+#area-nav button.active { font-weight:600;color:#1677ff; }
+.d-user { margin-left:auto;flex-shrink:0; }
+.d-context-button { display:inline-flex;align-items:center;gap:7px;border:1px solid #e5e7eb;border-radius:6px;min-height:34px;padding:0 10px;background:#fafafa;font-family:inherit;white-space:nowrap; }
+.d-context-button small { color:#8c8c8c;font-size:11px; }
+.d-context-button strong { max-width:168px;overflow:hidden;text-overflow:ellipsis;color:#262626;font-size:12px;font-weight:500; }
+.d-context-button:hover { border-color:#1677ff; }
+.d-context-button select { max-width:168px;min-width:80px;border:0;background:transparent;color:#262626;font:inherit;font-size:12px;padding:4px 0;outline-offset:2px; }
+.d-role-chip { display:inline-flex;align-items:center;height:26px;padding:0 9px;border:1px solid #b7eb8f;border-radius:4px;background:#f6ffed;color:#389e0d;font-size:11px;white-space:nowrap; }
+.d-avatar { width:26px;height:26px; }
+.d-text-button { padding-left:10px;border-left:1px solid #eee;color:#595959;font-size:12px; }
+
+.d-sidebar { flex:0 0 var(--app-sidebar); }
+.d-sidebar-heading { flex-shrink:0; }
+.d-sidebar-heading svg { flex:0 0 22px;width:22px;height:22px; }
+#main-nav { width:auto;min-width:0;min-height:0;border:0;background:transparent; }
+.d-nav-item { flex:0 0 auto;line-height:1.6; }
+.d-nav-children[hidden] { display:none!important; }
+.d-nav-child { display:block; }
+.d-nav-group-trigger .d-nav-chevron { margin-left:auto; }
+.d-nav-group-block.open > .d-nav-group-trigger .d-nav-chevron { transform:rotate(180deg); }
+.d-sidebar-footnote { flex-shrink:0; }
+
+/* Shared source page-header geometry on the new public pages. */
+.d-page-heading { display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0; }
+.d-page-heading h1 { margin:0;font-weight:600; }
+.d-org-page,.d-contact-page { margin:0 auto; }
+#app[hidden] { display:none!important; }
+.d-org-page .filter-panel { min-height:66px; }
+.d-org-page .table-actions { gap:12px; }
+.d-org-create { align-self:flex-end; }
+.list-toolbar .d-org-create { margin-left:0;align-self:center; }
+.d-current-user { color:#595959;font-size:12px; }
+.d-org-create .btn-link { display:inline-flex;align-items:center;justify-content:center;height:34px;padding:0 16px;border:1px solid #1677ff;border-radius:6px;background:#1677ff;color:#fff;font-size:13px;line-height:32px; }
+.d-org-create .btn-link:hover { background:#0958d9;border-color:#0958d9;color:#fff; }
+/* Source link-action !important rules must never paint disabled operations blue. */
+.table-actions button:disabled,
+.platform-table .table-actions button:disabled,
+.platform-table .table-actions button:not(.btn):disabled,
+.d-org-create .btn-link:disabled { color:#bfbfbf!important;cursor:not-allowed!important; }
+.form-input,.form-select,.form-textarea { font-size:13px;border-color:#d9d9d9;border-radius:6px;color:#333; }
+.form-input,.form-select { height:34px; }
+
+/* DDialog aliases of the original layer-panel / secondary navigation patterns. */
+.d-overlay { background:rgba(0,0,0,.45); }
+.d-dialog { position:relative;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.2);max-height:calc(100dvh - var(--delivery-nav-height,0px) - 48px);display:flex;flex-direction:column;overflow:hidden; }
+.d-dialog h2 { flex-shrink:0;display:flex;align-items:center;margin:0;min-height:68px;padding:12px 66px 12px 22px;border-bottom:1px solid #e8e8e8;color:#1f1f1f;font-size:17px;line-height:1.6; }
+.d-dialog-body { flex:1;min-height:0;padding:22px;overflow:auto;overscroll-behavior:contain;background:#fafafa; }
+.d-dialog footer { flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;min-height:68px;padding:14px 22px;gap:10px;border-top:1px solid #e8e8e8;background:#fff; }
+.d-dialog-close { position:absolute;right:20px;top:16px;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;margin:0;padding:0;border:0;border-radius:6px;background:transparent;color:#667085;font-size:26px;line-height:1;cursor:pointer; }
+.d-dialog-close:hover { background:#f2f4f7;color:#1d2939; }
+.d-dialog-close:focus-visible { outline:2px solid #1677ff;outline-offset:2px; }
+.d-dialog [hidden] { display:none!important; }
+.d-overlay:has(.d-drawer) { justify-content:flex-end;align-items:stretch; }
+.d-dialog.d-drawer { top:0;right:0;bottom:0;width:min(760px,82vw);max-width:none;height:100dvh;max-height:100dvh;margin:0;border-radius:0;box-shadow:-8px 0 32px rgba(16,24,40,.16); }
+.d-dialog.d-drawer h2 { min-height:68px;padding-left:24px; }
+.d-dialog.d-drawer .d-dialog-body { max-height:none;padding:24px 32px 32px;background:#fff; }
+.d-dialog.d-drawer footer { padding:14px 32px; }
+.d-dialog.d-drawer .form-grid { gap:18px 24px; }
+.d-toast { font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.12); }
+
+/* Existing reading views keep their authored geometry. */
+.atlas-desktop>header { background:#fff;color:#1f1f1f;border-bottom:1px solid #e8e8e8;padding:24px; }
+.atlas-desktop>header h1 { color:#000;font-size:20px; }
+.atlas-desktop>header p { color:#666!important; }
+.atlas-desktop>header .reading-note { font-size:13px;color:#999!important; }
+.reading-page { max-width:1600px; }
+.reading-page h1 { font-size:20px;color:#000; }
+.reading-page h2 { font-size:16px; }
+.reading-card,.system-grid article { border:0;box-shadow:0 1px 4px rgba(0,0,0,.07);border-radius:8px; }
+
+/* The five-area toolbar has no v1.2 equivalent; retain its responsive overflow. */
+@media(max-width:1150px) {
+  .d-topbar { gap:16px; }
+  #area-nav { gap:16px; }
+  .d-user { gap:8px; }
+  .d-context-button strong { max-width:140px; }
+}
+@media(max-width:900px) {
+  .d-dialog.d-drawer { width:calc(100vw - 24px); }
+  .d-dialog.d-drawer .d-dialog-body { padding:22px 24px 28px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .d-dialog.d-drawer { animation:none; }
+}
+
+/* D_AI_THEME_BEGIN */
+/* Only this section is appended to the AI frame after original AI styles and
+ * the v1.2 shared-control section. No shell/drawer aliases enter native Cloud. */
+:root { --color-primary:#1677ff;--color-primary-hover:#0958d9;--color-bg-page:#f0f2f5;--color-text-primary:#262626;--color-text-secondary:#595959;--color-border:#e8e8e8;--font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; }
+[data-native-kind="ai"] .content-area { padding:22px 24px 32px; }
+[data-native-kind="ai"] .scene-page-header { padding:0 0 16px; }
+[data-native-kind="ai"] .scene-page-header h1 { color:#262626;font-size:20px;line-height:30px; }
+[data-native-kind="ai"] :is(.page-title,.scene-page-title,.clue-page-title) { color:#262626;font-size:20px;font-weight:600;line-height:30px; }
+[data-native-kind="ai"] .scene-card-grid { gap:16px;padding:0 0 24px; }
+[data-native-kind="ai"] .scene-card { border-radius:8px;padding:20px;border:0;box-shadow:0 1px 4px rgba(0,0,0,.07); }
+[data-native-kind="ai"] .scene-card:hover { transform:none; }
+[data-native-kind="ai"] .filter-bar { box-shadow:0 1px 4px rgba(0,0,0,.05); }
+[data-native-kind="ai"] :is(.filter-input,.filter-select,.block-form-input) { height:34px;border-color:#d9d9d9;border-radius:6px;font-size:13px; }
+[data-native-kind="ai"] .filter-item { height:34px; }
+[data-native-kind="ai"] :is(.data-table,.report-table) th { height:44px;padding:0 14px;font-weight:500;color:#595959;background:#fafafa; }
+[data-native-kind="ai"] :is(.data-table,.report-table) td { height:52px;padding:10px 14px;color:#595959; }
+[data-native-kind="ai"] .data-table tbody tr:hover { background:#f5f8ff; }
+[data-native-kind="ai"] :is(.block-modal-head,.import-modal-header,.tenant-pricing-modal-header) { min-height:68px;padding:12px 22px;border-bottom-color:#e8e8e8; }
+[data-native-kind="ai"] :is(.block-modal-title,.tenant-pricing-modal-title) { font-size:17px; }
+[data-native-kind="ai"] :is(.block-modal-body,.import-modal-body) { padding:22px; }
+[data-native-kind="ai"] :is(.block-modal-footer,.import-modal-footer) { min-height:68px;padding:14px 22px;border-top-color:#e8e8e8; }
+[data-native-kind="ai"] .table-actions button:disabled,
+[data-native-kind="ai"] .platform-table .table-actions button:not(.btn):disabled { color:#bfbfbf!important;cursor:not-allowed!important; }
+[data-native-kind="ai"] .scene-block-page .block-form-row.required label:has(input[type="checkbox"])::before { content:none; }
+/* D_AI_THEME_END */
+
+/* Organization forms use the same drawer, spacing and controls as tenant management. */
+.d-org-page .list-toolbar { display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:38px;margin:0 0 16px; }
+.d-org-filter-actions { display:flex;align-items:center;gap:8px;margin-left:auto; }
+.d-org-page .filter-panel .field input { min-width:200px; }
+.d-org-page .filter-panel .field select { min-width:150px; }
+.d-org-context { display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0 0 18px;padding:12px 16px;border:1px solid #e6f4ff;border-radius:6px;background:#f5f9ff;color:#595959;font-size:13px;line-height:22px; }
+.d-org-context strong { color:#262626; }
+.d-org-focus { display:inline-flex;align-items:center;gap:12px;color:#8c8c8c;font-size:12px; }
+.d-org-section { margin:0 0 24px; }
+.d-org-section h3 { margin:0 0 16px;padding:0 0 10px;border-bottom:1px solid #f0f0f0;font-size:14px;font-weight:600;color:#262626; }
+.d-org-section > .field-hint { margin:-5px 0 16px; }
+.d-org-form .field { min-width:0; }
+.d-org-form .field > span { color:#595959; }
+.d-org-form .field input,.d-org-form .field select,.d-org-form .field textarea { box-sizing:border-box; }
+.d-org-form > .checkbox-row { margin:0 0 18px;gap:8px;font-size:13px;line-height:22px; }
+.d-org-form .field-hint { color:#8c8c8c;font-size:12px;line-height:20px; }
+.d-org-module-states { display:flex;flex-wrap:wrap;gap:6px;min-width:150px; }
+.d-org-page .table-actions { flex-wrap:wrap;max-width:310px;gap:8px 12px;min-width:220px;line-height:22px; }
+.d-org-page .platform-table td { vertical-align:middle; }
+.d-org-lookup-action { display:flex;align-items:flex-end; }
+.d-org-lookup-message { padding:10px 14px;background:#f5f8ff;border:1px solid #e6efff;border-radius:6px;color:#595959;font-size:13px;line-height:22px;margin:-8px 0 20px; }
+.d-org-avatar { display:flex;align-items:center;gap:12px; }
+.d-org-avatar > span { display:flex;align-items:center;justify-content:center;flex:0 0 64px;width:64px;height:64px;border:1px dashed #d9d9d9;border-radius:8px;background:#fafafa;color:#999;font-size:12px;overflow:hidden; }
+.d-org-avatar img { width:100%;height:100%;object-fit:cover; }
+.d-org-avatar label.btn { display:inline-flex;align-items:center;cursor:pointer;box-sizing:border-box; }
+.d-org-details { display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px 20px;margin:0;font-size:13px;line-height:22px; }
+.d-org-details dt { color:#8c8c8c; }
+.d-org-details dd { margin:0;color:#333;overflow-wrap:anywhere;white-space:pre-wrap; }
+.d-org-detail-actions { display:flex;flex-wrap:wrap;gap:12px;margin:0 0 20px; }
+.d-org-form [hidden] { display:none!important; }
+@media(max-width:900px) {
+  .d-org-page .filter-panel .field input,.d-org-page .filter-panel .field select { min-width:0; }
+  .d-org-filter-actions { margin-left:0; }
+}
+
+/* Account management restores the v1.2 tenant-card / account-list layout. */
+.d-org-accounts .account-main-layout { display:flex;min-width:0;align-items:flex-start;gap:16px; }
+.d-org-accounts .account-tenant-panel { display:flex;flex-direction:column;flex:0 0 244px;width:244px;min-width:244px;max-height:calc(100dvh - 190px);overflow-y:auto;padding:0;gap:8px;position:sticky;top:0; }
+.d-org-accounts .account-tenant-panel-title { flex-shrink:0;min-height:46px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-radius:8px;background:#fff;color:#262626;box-shadow:0 1px 4px rgba(0,0,0,.05); }
+.d-org-accounts .account-tenant-panel-title strong { font-size:14px; }
+.d-org-accounts .account-tenant-panel-title span { color:#8c8c8c;font-size:12px; }
+.d-org-accounts .account-tenant-card { box-sizing:border-box;flex-shrink:0;width:100%;min-height:94px;display:block;padding:14px 16px;color:#333;text-align:left;font:inherit;border:1px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer; }
+.d-org-accounts .account-tenant-card:hover { border-color:#91caff; }
+.d-org-accounts .account-tenant-card.active { background:#e6f4ff;border-color:#1677ff; }
+.d-org-accounts .account-tenant-card:focus-visible { outline:2px solid #1677ff;outline-offset:-3px; }
+.d-org-accounts .account-tenant-card-header { display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px; }
+.d-org-accounts .account-tenant-name { min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.d-org-accounts .account-tenant-count { flex-shrink:0;color:#8c8c8c;font-size:12px; }
+.d-org-accounts .account-tenant-desc { margin:6px 0;color:#8c8c8c;font-size:12px;overflow-wrap:anywhere; }
+.d-org-accounts .account-tenant-status { display:flex;align-items:center;gap:6px;font-size:12px;line-height:18px; }
+.d-org-accounts .account-tenant-dot { width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:#bfbfbf; }
+.d-org-accounts .account-tenant-dot.healthy { background:#52c41a; }
+.d-org-accounts .account-content-panel { display:flex;flex:1;flex-direction:column;min-width:0;gap:12px; }
+.d-org-accounts .account-content-panel .filter-panel,.d-org-accounts .account-content-panel .list-toolbar,.d-org-accounts .account-content-panel .d-org-context { margin-bottom:0; }
+.d-org-accounts .account-content-panel .table-card { min-width:0;width:100%; }
+.d-org-accounts .account-content-panel .table-scroll { max-width:100%;overflow-x:auto; }
+.d-org-accounts .platform-table { min-width:1100px; }
+@media(max-width:980px) {
+  .d-org-accounts .account-main-layout { flex-direction:column; }
+  .d-org-accounts .account-tenant-panel { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));flex:auto;width:100%;min-width:0;max-height:none;position:static; }
+  .d-org-accounts .account-tenant-panel-title { grid-column:1 / -1; }
+  .d-org-accounts .account-content-panel { width:100%; }
+}
+
+/* Retained source-form helpers for account and tenant editing. */
+.d-org-form .d-org-password { position:relative;display:flex;width:100%;min-width:0; }
+.d-org-form .d-org-password input { padding-right:66px; }
+.d-org-password-toggle { position:absolute;top:1px;right:1px;bottom:1px;min-width:54px;padding:0 10px;border:0;border-left:1px solid #f0f0f0;border-radius:0 6px 6px 0;background:#fafafa;color:#1677ff;font:inherit;font-size:12px;cursor:pointer; }
+.d-org-password-toggle:hover { background:#e6f4ff; }
+.d-org-password-toggle:focus-visible { outline:2px solid #1677ff;outline-offset:-2px; }
+.d-org-form .d-org-input-count { position:relative;display:block;width:100%;min-width:0; }
+.d-org-input-count > input { padding-right:68px!important; }
+.d-org-counter { display:block;color:#8c8c8c;font-size:11px;font-weight:400;line-height:18px;text-align:right; }
+.d-org-input-count > .d-org-counter { position:absolute;top:50%;right:10px;transform:translateY(-50%);pointer-events:none; }
+.d-org-pagination { display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px;padding:12px 16px;background:#fff;border-radius:0 0 8px 8px;color:#8c8c8c;font-size:12px; }
+.d-org-pagination > span:first-child { margin-right:auto; }
+.d-org-pagination .btn { min-height:30px;padding:4px 12px; }
+.d-profile-trigger { border:0;background:transparent;padding:4px 0;font:inherit;cursor:pointer; }
+.d-profile-trigger:hover { color:#1677ff; }
+.d-profile-trigger:focus-visible { outline:2px solid #1677ff;outline-offset:3px; }
+.d-profile-avatar { margin-bottom:24px; }

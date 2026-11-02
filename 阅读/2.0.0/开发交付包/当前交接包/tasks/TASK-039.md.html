@@ -1,0 +1,171 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/tasks/TASK-039.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/tasks/TASK-039.md">原始 Markdown</a></p><h1>当前交接包/tasks/TASK-039.md</h1><pre># TASK-039 明确拒联入库、解除与所有外呼准入
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](../features/FUNC-2022.md)
+- [人工确认AI明确拒联并入库 · FUNC\-2023](../features/FUNC-2023.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](../features/FUNC-2024.md)
+- [管理员填原因解除准确拒联来源 · FUNC\-2025](../features/FUNC-2025.md)
+
+## 目标
+
+人工明确拒联随正式结果保存入库；AI明确拒联由有权人核实，不自动触发。；仅本租户管理员带原因解除准确拒联来源；首次/重呼/补交/已受理未拨均按全部有效来源重核。
+
+## 产品依据
+
+- FUNC-2022 人工明确拒联成功保存后自动入库：实际处理人成功保存明确拒联话后后，同请求幂等加入本租户长期公共禁呼；失败/未知不得虚报整体完成。；来源 documentation/input/functions.json#FUNC-2022
+- FUNC-2023 人工确认AI明确拒联并入库：有权租户管理员或获新增权运营在准确AI通话上明确确认后入库；超管只读，AI结果不自动当拒联，新增权不含解除。；来源 documentation/input/functions.json#FUNC-2023
+- FUNC-2024 统一检查所有新外呼、重呼和补提交：公共明确拒联阻止本租户AI/人工/PRED/IVR；每次新发起实时检查，失败/未知不放行；正常呼入继续接听，已在途电话不静默取消。；来源 documentation/input/functions.json#FUNC-2024
+- FUNC-2025 管理员填原因解除准确拒联来源：仅有权本租户管理员解除准确来源并留原因/人/时间，超管只读、运营无解除权；其他有效来源不清除，旧事件不复活。；来源 documentation/input/functions.json#FUNC-2025
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+
+## 前置任务
+
+- TASK-037
+- TASK-038
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-CONTACT](../global-logic.md#GR-CONTACT)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-SERIAL](../global-logic.md#GR-SERIAL)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-PLAT-BAN-HUMAN](../local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-BAN-AI](../local-logic/LOCAL-PLAT-BAN-AI.md)、[LOCAL-PLAT-CONTACT-CHECK](../local-logic/LOCAL-PLAT-CONTACT-CHECK.md)、[LOCAL-PLAT-BAN-RELEASE](../local-logic/LOCAL-PLAT-BAN-RELEASE.md)
+
+字段：[FIELD-PLAT-AI-TAG-RESULT](../field-specs.md#FIELD-PLAT-AI-TAG-RESULT)、[FIELD-PLAT-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)、[FIELD-PLAT-BAN-ID](../field-specs.md#FIELD-PLAT-BAN-ID)、[FIELD-PLAT-BAN-LIFETIME](../field-specs.md#FIELD-PLAT-BAN-LIFETIME)、[FIELD-PLAT-BAN-PHONE](../field-specs.md#FIELD-PLAT-BAN-PHONE)、[FIELD-PLAT-BAN-REASON](../field-specs.md#FIELD-PLAT-BAN-REASON)、[FIELD-PLAT-BAN-RELEASE](../field-specs.md#FIELD-PLAT-BAN-RELEASE)、[FIELD-PLAT-BAN-REMOTE](../field-specs.md#FIELD-PLAT-BAN-REMOTE)、[FIELD-PLAT-BAN-SOURCE](../field-specs.md#FIELD-PLAT-BAN-SOURCE)、[FIELD-PLAT-BAN-STATE](../field-specs.md#FIELD-PLAT-BAN-STATE)、[FIELD-PLAT-CALL-ACTOR](../field-specs.md#FIELD-PLAT-CALL-ACTOR)、[FIELD-PLAT-CALL-ID](../field-specs.md#FIELD-PLAT-CALL-ID)、[FIELD-PLAT-CONTACT-DECISION](../field-specs.md#FIELD-PLAT-CONTACT-DECISION)、[FIELD-PLAT-CURRENT-TENANT](../field-specs.md#FIELD-PLAT-CURRENT-TENANT)、[FIELD-PLAT-FOLLOW-NOTE](../field-specs.md#FIELD-PLAT-FOLLOW-NOTE)、[FIELD-PLAT-PHONE](../field-specs.md#FIELD-PLAT-PHONE)、[FIELD-PLAT-PRO-FILL](../field-specs.md#FIELD-PLAT-PRO-FILL)、[FIELD-PLAT-PRO-FOLLOW-STATE](../field-specs.md#FIELD-PLAT-PRO-FOLLOW-STATE)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)、[FIELD-PLAT-REVISION](../field-specs.md#FIELD-PLAT-REVISION)、[FIELD-PLAT-TASK-MODE](../field-specs.md#FIELD-PLAT-TASK-MODE)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2007](../ui-pages/UI-PAGE-2007.md)
+- [UI-PAGE-2103](../ui-pages/UI-PAGE-2103.md)
+- [UI-PAGE-2108](../ui-pages/UI-PAGE-2108.md)
+- [UI-PAGE-2202](../ui-pages/UI-PAGE-2202.md)
+- [UI-PAGE-2205](../ui-pages/UI-PAGE-2205.md)
+- [UI-PAGE-2206](../ui-pages/UI-PAGE-2206.md)
+- [UI-PAGE-2227](../ui-pages/UI-PAGE-2227.md)
+
+## 实现要求
+
+- 人工明确拒联随正式结果保存入库；AI明确拒联由有权人核实，不自动触发。
+- 仅本租户管理员带原因解除准确拒联来源；首次/重呼/补交/已受理未拨均按全部有效来源重核。
+- 正常呼入不被外呼限制拦；放行/解除某来源不能清其他有效来源。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2051**：坐席成功保存客户拒绝联系处理结果后，自动加入本租户公共禁呼，无需管理员再次确认。
+  依据：docs/functional-spec.json#AC-2051
+
+- **AC-2052**：保留来源通话、操作人和时间，四类外呼禁呼且长期有效，正常呼入继续接听。
+  依据：docs/functional-spec.json#AC-2052
+
+- **AC-2053**：仅选择而未保存成功不算完成入库；保存与入库一致性、失败恢复须在流程与接口阶段解决，不能虚报整体成功。
+  依据：docs/functional-spec.json#AC-2053
+
+- **AC-2054**：当前本租户有权管理员或单独获客户拒联新增权的运营，在有权准确AI来源通话上明确人工确认后入库；超级管理员黑名单仅只读。
+  依据：docs/functional-spec.json#AC-2054
+
+- **AC-2055**：保留来源及人工确认记录，长期有效、四类外呼拦截；运营新增权不包含解除权。
+  依据：docs/functional-spec.json#AC-2055
+
+- **AC-2056**：本版不自动按AI结果入库；无意向、拒接、挂机、混合意向等级及供应商拦截结果不直接认定明确拒联。
+  依据：docs/functional-spec.json#AC-2056
+
+- **AC-2057**：公共禁呼覆盖AI、人工、预外呼、IVR，正常呼入不因此被拒接。
+  依据：docs/functional-spec.json#AC-2057
+
+- **AC-2058**：首次外呼、重呼及异常补提交须接入禁呼检查，不能以供应商restrict tel补提交规则绕过客户明确拒联。
+  依据：docs/functional-spec.json#AC-2058
+
+- **AC-2059**：供应商已接收未拨号码的拦截/取消/删除能力逐供应商核验，能力不足须提交差异，不能降低已确认覆盖目标。
+  依据：docs/functional-spec.json#AC-2059
+
+- **AC-2060**：仅有权本租户管理员解除准确客户拒联来源，必填原因并留操作人/时间；超级管理员黑名单只读，运营新增或读取权均不包含解除。
+  依据：docs/functional-spec.json#AC-2060
+
+- **AC-2061**：只有业务运营或只有新增名单权限者不能解除；保留原入库来源和解除历史。
+  依据：docs/functional-spec.json#AC-2061
+
+- **AC-2062**：解除仅影响准确本来源，不清其他仍有效来源；已解除/到期不能被旧事件重放复活。新拒联使用新来源请求；本地与远端终态分开，未知先核对同请求，不伪造成功。
+  依据：docs/functional-spec.json#AC-2062
+
+- **AC-2069**：每次首次/重呼/异常补交均检查当前公共禁呼；仍保供应商明确失败分类及额度，不把预外呼策略套人工或IVR，未知旧请求不得当明确失败补交。
+  依据：docs/functional-spec.json#AC-2069
+
+## 测试要求（尚未执行）
+
+### CHECK-PLAT-BAN-HUMAN / manual
+
+步骤：在准确有权范围触发“保存人工明确拒联并入库”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：人工拒联成功保存后本租户长期禁呼，无需管理员二次确认；正常呼入不拦截；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2051, AC-2052, AC-2053
+
+### CHECK-PLAT-BAN-AI / manual
+
+步骤：在原AI列表及准确有权/无权详情分别查看原来源确认入口；构造标签/拒接但无明确拒联依据。
+
+预期：AI通话原列表每行仅保详情，不追加逐行确认拒联。原准确详情保录音/文本及有权原来源人工确认入口，准确通话、租户、供应商、联系号码和原权限再次校验；不按标签/状态自动拒联，不新增待审队列，不扩大解除权。
+
+覆盖：AC-2054, AC-2055, AC-2056
+
+### CHECK-PLAT-CONTACT-CHECK / manual
+
+步骤：在准确有权范围触发“新外呼、重呼及补交的公共禁呼检查”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：只有明确allow才提交本次新外呼；blocked或unknown不拨号且显示可处理原因；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2052, AC-2055, AC-2057, AC-2058, AC-2059, AC-2069
+
+### CHECK-PLAT-BAN-RELEASE / manual
+
+步骤：在准确有权范围触发“管理员填写原因解除准确拒联来源”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：仅本来源解除并留原因/操作人/时间，号码是否可呼须重新聚合其他有效来源；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2060, AC-2061, AC-2062
+
+## 完成条件
+
+- 人工明确拒联随正式结果保存入库；AI明确拒联由有权人核实，不自动触发。
+- 仅本租户管理员带原因解除准确拒联来源；首次/重呼/补交/已受理未拨均按全部有效来源重核。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [contact-policy.js](../../../prototype/js/components/contact-policy.js) · 只读行为参考，非生产可写目标
+- [module-host.js](../../../prototype/js/components/module-host.js) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：EQ-PLAT-CONTACT-STATE, EQ-PLAT-ACCEPTED-CALL, EQ-PLAT-REMOTE。
+</pre></body></html>

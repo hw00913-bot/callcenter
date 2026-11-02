@@ -1,0 +1,260 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/features/FUNC-2034.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/features/FUNC-2034.md">原始 Markdown</a></p><h1>当前交接包/features/FUNC-2034.md</h1><pre># 创建四节点流转模板 · FUNC\-2034
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+以字段参考分类读取条件来源，在唯一开始锚点编排转交、呼叫、结束；每CALL单方式、有序首命中路径。人工默认MANUAL可无seat先保存，SPECIFIC\_SEAT才必选有效seat；PRED默认只任务，AI默认任务\+scene，无默认责任人控件。CALL默认五档等级与分租户目标维护不扩大资源权，保存模板不绑定业务。
+
+来源业务域：业务&amp;amp;客户；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md) — 共用页面，另有 5 个功能
+
+## 局部逻辑
+
+- [新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：从流转模板新建／编辑当前配置
+
+- 当前品牌及配置管理资格真实有效
+- 提交来源与当前上下文一致
+- 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT\_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
+
+### 处理步骤
+
+1. **STEP\-FLOW\-TEMPLATE\-CREATE\-1**：选择字段参考分类读最新字段，唯一开始锚点与组件确定类型
+
+2. **STEP\-FLOW\-TEMPLATE\-CREATE\-2**：编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边
+
+3. **STEP\-FLOW\-TEMPLATE\-CREATE\-3**：核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL配置五档默认等级及当前有权执行tenant的任务/坐席默认；保存其他tenant映射不变，不展示私有候选。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT\_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT\_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
+
+### 分支与异常
+
+- **BRANCH\-FLOW\-TEMPLATE\-CREATE\-1**：当单模板配置请求尚待核、条件不合法或并发已变，保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认。
+
+- **BRANCH\-FLOW\-TEMPLATE\-CREATE\-2**：当合法明确保存，更新当前定义，不自动绑定任何分类、不起呼；已开run不追改。
+
+- **LOCAL\-FLOW\-TEMPLATE\-CREATE\-DRAFT\-FIRST**：当条件已填但目标未选，或选择/拖线构成循环，空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位。
+
+### 完成后的状态
+
+- 业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [条件路径／默认路径 · FIELD\-FLOW\-BRANCH\-KIND](../field-specs.md#FIELD-FLOW-BRANCH-KIND)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [出口优先顺序 · FIELD\-FLOW\-BRANCH\-PRIORITY](../field-specs.md#FIELD-FLOW-BRANCH-PRIORITY)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [所属品牌 · FIELD\-FLOW\-BRAND\-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [出口路径稳定身份 · FIELD\-FLOW\-EDGE\-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [模板出口路径 · FIELD\-FLOW\-EDGES](../field-specs.md#FIELD-FLOW-EDGES)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [开始业务上下文 · FIELD\-FLOW\-ENTRY\-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [开始入口分流 · FIELD\-FLOW\-ENTRY\-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [组内条件组合 · FIELD\-FLOW\-GROUP\-MODE](../field-specs.md#FIELD-FLOW-GROUP-MODE)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [本节点唯一呼叫方式 · FIELD\-FLOW\-METHOD](../field-specs.md#FIELD-FLOW-METHOD)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [后继节点 · FIELD\-FLOW\-NEXT\-NODE](../field-specs.md#FIELD-FLOW-NEXT-NODE)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [节点稳定身份 · FIELD\-FLOW\-NODE\-ID](../field-specs.md#FIELD-FLOW-NODE-ID)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [节点名称 · FIELD\-FLOW\-NODE\-NAME](../field-specs.md#FIELD-FLOW-NODE-NAME)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [节点组件类型 · FIELD\-FLOW\-NODE\-TYPE](../field-specs.md#FIELD-FLOW-NODE-TYPE)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [模板业务节点 · FIELD\-FLOW\-NODES](../field-specs.md#FIELD-FLOW-NODES)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [节点或路径承接方 · FIELD\-FLOW\-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [结果依据与范围 · FIELD\-FLOW\-RESULT\-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [条件字段身份 · FIELD\-FLOW\-RULE\-FIELD](../field-specs.md#FIELD-FLOW-RULE-FIELD)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [规则身份 · FIELD\-FLOW\-RULE\-ID](../field-specs.md#FIELD-FLOW-RULE-ID)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [判断运算符 · FIELD\-FLOW\-RULE\-OPERATOR](../field-specs.md#FIELD-FLOW-RULE-OPERATOR)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [条件来源 · FIELD\-FLOW\-RULE\-SOURCE](../field-specs.md#FIELD-FLOW-RULE-SOURCE)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [比较值集合 · FIELD\-FLOW\-RULE\-VALUES](../field-specs.md#FIELD-FLOW-RULE-VALUES)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [判断规则组 · FIELD\-FLOW\-RULES](../field-specs.md#FIELD-FLOW-RULES)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [流转模板名称 · FIELD\-FLOW\-TEMPLATE\-NAME](../field-specs.md#FIELD-FLOW-TEMPLATE-NAME)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [字段参考分类 · FIELD\-FLOW\-TEMPLATE\-REF\-CATEGORY](../field-specs.md#FIELD-FLOW-TEMPLATE-REF-CATEGORY)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [模板当前配置修订依据 · FIELD\-FLOW\-TEMPLATE\-REVISION](../field-specs.md#FIELD-FLOW-TEMPLATE-REVISION)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [呼叫节点默认执行优先级 · FIELD\-FLOW\-NODE\-EXECUTION\-PRIORITY](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-PRIORITY)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [呼叫节点分租户默认安排 · FIELD\-FLOW\-NODE\-EXECUTION\-DEFAULTS](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-DEFAULTS)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [节点默认人工分配方式 · FIELD\-FLOW\-NODE\-MANUAL\-ASSIGNMENT\-MODE](../field-specs.md#FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [流转模板稳定身份 · FIELD\-FLOW\-TEMPLATE\-ID](../field-specs.md#FIELD-FLOW-TEMPLATE-ID)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+- [结束节点后续动作 · FIELD\-FLOW\-END\-ACTION](../field-specs.md#FIELD-FLOW-END-ACTION)；依据：[新建四节点字段参考模板 · LOCAL\-FLOW\-TEMPLATE\-CREATE](../local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [实际业务分类身份 · FIELD\-FLOW\-CATEGORY\-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)、[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [实际分类有效方案 · FIELD\-FLOW\-EFFECTIVE\-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)、[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [同次业务请求身份 · FIELD\-FLOW\-REQUEST\-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [请求确认状态 · FIELD\-FLOW\-REQUEST\-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [实际分类单模板绑定 · FIELD\-FLOW\-ROUTE\-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [当前工作队列状态 · FIELD\-FLOW\-WORK\-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)
+
+- [本次AI呼叫场景 · FIELD\-FLOW\-AI\-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [历史分类直接跟进开关（当前不配置） · FIELD\-FLOW\-ALLOW\-DIRECT\-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [本次执行安排 · FIELD\-FLOW\-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [直接跟进周期身份 · FIELD\-FLOW\-DIRECT\-CYCLE\-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [直接跟进呼叫方式 · FIELD\-FLOW\-DIRECT\-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [直接跟进状态 · FIELD\-FLOW\-DIRECT\-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [END授权直接跟进的来源证明 · FIELD\-FLOW\-END\-FOLLOWUP\-ORIGIN](../field-specs.md#FIELD-FLOW-END-FOLLOWUP-ORIGIN)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [执行优先级 · FIELD\-FLOW\-EXECUTION\-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [同刻入队稳定顺序 · FIELD\-FLOW\-EXECUTION\-QUEUE\-SEQUENCE](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [当前安排入队时间 · FIELD\-FLOW\-EXECUTION\-QUEUED\-AT](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [当前具体任务或坐席 · FIELD\-FLOW\-EXECUTION\-RESOURCE](../field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [实际人工坐席分配及历史人员事实 · FIELD\-FLOW\-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [业务办理模式 · FIELD\-FLOW\-HANDLING\-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [当前人工分配方式 · FIELD\-FLOW\-MANUAL\-ASSIGNMENT\-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [当前负责租户 · FIELD\-FLOW\-OWNER\-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [业务记录身份 · FIELD\-FLOW\-RECORD\-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [记录并发修订依据 · FIELD\-FLOW\-RECORD\-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [实际执行场景及配置 · FIELD\-FLOW\-SCENE\-SNAPSHOT](../field-specs.md#FIELD-FLOW-SCENE-SNAPSHOT)；依据：[任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md)
+
+- [废弃缺失范围确认依据 · FIELD\-FLOW\-ABANDON\-CONFIRMATION](../field-specs.md#FIELD-FLOW-ABANDON-CONFIRMATION)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [运行废弃意图的原租户 · FIELD\-FLOW\-ABANDON\-TENANT](../field-specs.md#FIELD-FLOW-ABANDON-TENANT)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [原跟进的受控废弃收尾证据 · FIELD\-FLOW\-ABANDONMENT\-SETTLEMENT](../field-specs.md#FIELD-FLOW-ABANDONMENT-SETTLEMENT)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [跟进唯一归档状态 · FIELD\-FLOW\-ARCHIVE\-STATE](../field-specs.md#FIELD-FLOW-ARCHIVE-STATE)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [内容正式保存标记 · FIELD\-FLOW\-CONTENT\-SAVED](../field-specs.md#FIELD-FLOW-CONTENT-SAVED)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [正式跟进内容快照 · FIELD\-FLOW\-CONTENT\-SNAPSHOT](../field-specs.md#FIELD-FLOW-CONTENT-SNAPSHOT)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [入口判断依据 · FIELD\-FLOW\-ENTRY\-DECISION](../field-specs.md#FIELD-FLOW-ENTRY-DECISION)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [整业务当前执行事实 · FIELD\-FLOW\-EXECUTION\-STATE](../field-specs.md#FIELD-FLOW-EXECUTION-STATE)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [当前有效导入值 · FIELD\-FLOW\-IMPORT\-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [确认必要本人内容无法补齐 · FIELD\-FLOW\-MISSING\-CONTENT\-CONFIRM](../field-specs.md#FIELD-FLOW-MISSING-CONTENT-CONFIRM)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [业务维护原因 · FIELD\-FLOW\-REASON](../field-specs.md#FIELD-FLOW-REASON)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [本次流程运行身份 · FIELD\-FLOW\-RUN\-ID](../field-specs.md#FIELD-FLOW-RUN-ID)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)、[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [办理目的 · FIELD\-FLOW\-RUN\-PURPOSE](../field-specs.md#FIELD-FLOW-RUN-PURPOSE)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [流程运行状态 · FIELD\-FLOW\-RUN\-STATUS](../field-specs.md#FIELD-FLOW-RUN-STATUS)；依据：[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [直接跟进周期历史 · FIELD\-FLOW\-DIRECT\-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)；依据：[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [启用流程确认依据 · FIELD\-FLOW\-ENABLE\-FLOW\-TOKEN](../field-specs.md#FIELD-FLOW-ENABLE-FLOW-TOKEN)；依据：[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+- [本次节点办理身份 · FIELD\-FLOW\-NODE\-RUN\-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)；依据：[旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md)
+
+## 本功能验收
+
+- **AC\-2109**：新模板自带唯一开始锚点，拖入转交/呼叫/结束即定类型和默认名称；首个业务节点及合法有序入口明确，不再空白节点二次选类型。
+
+- **AC\-2110**：新run捕获完整有效plan并按实际分类记录，模板后续编辑/删除不追改已开run；导入成功定位即已开始。
+
+- **AC\-2111**：同品牌模板/实际分类字段与业务域兼容；CALL不隐式换owner，OTHER先转交，不允许普通业务或门店直转越权。
+
+- **AC\-2112**：条件支持独立IMPORT，AI状态/标签与人工/预外呼状态/填写；转交精确上游来源，条件配置不授自动呼叫/推进权。 按准确入口固定TASK/DIRECT或CATEGORY/TEMPLATE；DIRECT仍严守基础必填、类型、映射和唯一性，仅豁免路由附加资料，且不建run/node。
+
+- **AC\-2113**：组ALL/ANY明确且已知时计算，标量IN/NOT\_IN每行多个值，EQ/NE/大小比较单值；多选及AI标签包含任一/全部，空值独立。 TASK DIRECT由任务带入方式与必要场景，CATEGORY按首路径及分组确定方式/场景；仅旧无TASK来源历史的合法启用流程不重复导入。
+
+- **AC\-2114**：规则字段/选项/类型/作用域合法才可保存；未知不反向放行，逗号保文本，空白行忽略。普通交互保已有输入、比较值、滚动/展开；改变定义不静默丢值。
+
+- **AC\-2139**：所有有出口的当前新配置须有且仅有一个末位ELSE；IF/ELSE IF按优先级首命中，明确不匹配才到兜底，未知继续PENDING。保存/新导入/重开/启用均校验，不依赖DIRECT绕开分流。
+
+- **AC\-2142**：节点按命名→条件→下一节点→继续条件编辑，末位轻量“其他情况”；未选目标可留编辑草稿但不产生业务连线，保存仍逐项拒绝缺项并定位。
+
+- **AC\-2143**：条件修改直接进入当前草稿，不再显示待应用三按钮；兼容operator保值，字段/来源或不兼容类型/基数变化清不适用比较值，空判断清值。目标选择/拖线拒环并保原草稿，保存仍防绕过。
+
+- **AC\-2146**：普通及START比较值提示“多个值请换行填写/每行一个值”，保持IN/NOT\_IN类型含义；报错节点/START/提示区统一浅红，切换节点保留定位，编辑该节点清当前标记，保存重新判断，不改变原校验。
+
+- **AC\-2153**：CALL配置默认等级及按实际承接tenant的默认任务/坐席/场景；仅修改本有权tenant映射且保其他tenant原值，导入可明确覆盖；方式切换重核不兼容目标，已开运行和快照不追改。
+
+- **AC\-2155**：TEMPLATE与DIRECT人工均提供MANUAL人工分配（默认）和SPECIFIC\_SEAT指定坐席；前者可无seat先保存模板/导入待分配，后者才必选本租户有效seat。后继新人工节点MANUAL明确待分配，不继承前seat；SPECIFIC\_SEAT才可按本节点及原同tenant/method/有效资源规则沿用或确认。旧快照无策略按原解释，不迁移；原单条/批量分配可随后落实seat，实际拨打仅对应本人。
+
+- **AC\-2156**：预外呼只必选具体任务，坐席/队列/策略沿任务；AI仍必选任务和适配scene。模板默认、导入和分配均无独立责任跟进人选择，不因缺少该值阻合法任务安排/发起，也不伪填当前actor为负责人。
+
+## 实施任务
+
+- [四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md) — 共同实施任务，包含其他功能
+
+- [任务确认与人工分配方式/坐席 · TASK\-016](../tasks/TASK-016.md) — 共同实施任务，包含其他功能
+
+- [受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md) — 共同实施任务，包含其他功能
+
+- [旧无TASK直接业务的合法模板转换 · TASK\-028](../tasks/TASK-028.md) — 共同实施任务，包含其他功能
+
+先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-2034。产品：续接输入 / 2\.0\.0\-current\-20261102\-step54。
+
+来源类型：current；来源指纹：b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf。
+
+- documentation/input/functions\.json\#FUNC\-2034
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>

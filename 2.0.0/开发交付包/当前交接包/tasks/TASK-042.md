@@ -1,0 +1,189 @@
+# TASK-042 本人电话、话后及原坐席监管
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](../features/FUNC-2002.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](../features/FUNC-2022.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](../features/FUNC-2024.md)
+
+## 目标
+
+本人有效电话上线/拨接挂/话后与对他人坐席监管分权，振铃上下文按准确call身份。；原专业两态与新run终态分离，开始取最新schema，保存沿本轮已展示依据并由实际人完成。
+
+## 产品依据
+
+- FUNC-2002 进入有权工作位置与保留专业能力：当前五顶栏只负责功能归位。按稳定页面/动作身份保留AI与Cloud现行专业操作、状态、资源、报表和业务接口，分别校验模块、成员、对象、读写/导出权。；来源 documentation/input/functions.json#FUNC-2002
+- FUNC-2022 人工明确拒联成功保存后自动入库：实际处理人成功保存明确拒联话后后，同请求幂等加入本租户长期公共禁呼；失败/未知不得虚报整体完成。；来源 documentation/input/functions.json#FUNC-2022
+- FUNC-2024 统一检查所有新外呼、重呼和补提交：公共明确拒联阻止本租户AI/人工/PRED/IVR；每次新发起实时检查，失败/未知不放行；正常呼入继续接听，已在途电话不静默取消。；来源 documentation/input/functions.json#FUNC-2024
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+
+## 前置任务
+
+- TASK-005
+- TASK-006
+- TASK-039
+- TASK-049
+- TASK-056
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-CONTACT](../global-logic.md#GR-CONTACT)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-FIELDS](../global-logic.md#GR-FIELDS)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-SERIAL](../global-logic.md#GR-SERIAL)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-PLAT-PHONE-PREPARE](../local-logic/LOCAL-PLAT-PHONE-PREPARE.md)、[LOCAL-PLAT-PHONE-OUTBOUND](../local-logic/LOCAL-PLAT-PHONE-OUTBOUND.md)、[LOCAL-PLAT-PHONE-INBOUND](../local-logic/LOCAL-PLAT-PHONE-INBOUND.md)、[LOCAL-PLAT-PHONE-AFTERCALL](../local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-PHONE-CONTINUE](../local-logic/LOCAL-PLAT-PHONE-CONTINUE.md)、[LOCAL-PLAT-SEAT-SUPERVISE](../local-logic/LOCAL-PLAT-SEAT-SUPERVISE.md)
+
+字段：[FIELD-PLAT-API-RESULT](../field-specs.md#FIELD-PLAT-API-RESULT)、[FIELD-PLAT-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)、[FIELD-PLAT-CALL-ACTOR](../field-specs.md#FIELD-PLAT-CALL-ACTOR)、[FIELD-PLAT-CALL-ID](../field-specs.md#FIELD-PLAT-CALL-ID)、[FIELD-PLAT-CALL-STATE](../field-specs.md#FIELD-PLAT-CALL-STATE)、[FIELD-PLAT-CONTACT-DECISION](../field-specs.md#FIELD-PLAT-CONTACT-DECISION)、[FIELD-PLAT-CUSTOMER-ID](../field-specs.md#FIELD-PLAT-CUSTOMER-ID)、[FIELD-PLAT-DIAL-NUMBER](../field-specs.md#FIELD-PLAT-DIAL-NUMBER)、[FIELD-PLAT-FOLLOW-NOTE](../field-specs.md#FIELD-PLAT-FOLLOW-NOTE)、[FIELD-PLAT-FOLLOWER](../field-specs.md#FIELD-PLAT-FOLLOWER)、[FIELD-PLAT-INBOUND-PROPERTY](../field-specs.md#FIELD-PLAT-INBOUND-PROPERTY)、[FIELD-PLAT-INBOUND-TYPE](../field-specs.md#FIELD-PLAT-INBOUND-TYPE)、[FIELD-PLAT-MEMBER-GRANTS](../field-specs.md#FIELD-PLAT-MEMBER-GRANTS)、[FIELD-PLAT-MEMBER-STATE](../field-specs.md#FIELD-PLAT-MEMBER-STATE)、[FIELD-PLAT-MODULES](../field-specs.md#FIELD-PLAT-MODULES)、[FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)、[FIELD-PLAT-PHONE-STATE](../field-specs.md#FIELD-PLAT-PHONE-STATE)、[FIELD-PLAT-PRO-FILL](../field-specs.md#FIELD-PLAT-PRO-FILL)、[FIELD-PLAT-PRO-FOLLOW-STATE](../field-specs.md#FIELD-PLAT-PRO-FOLLOW-STATE)、[FIELD-PLAT-QUERY](../field-specs.md#FIELD-PLAT-QUERY)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)、[FIELD-PLAT-RESOURCE-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)、[FIELD-PLAT-REVISION](../field-specs.md#FIELD-PLAT-REVISION)、[FIELD-PLAT-SEAT-ACCOUNT](../field-specs.md#FIELD-PLAT-SEAT-ACCOUNT)、[FIELD-PLAT-SEAT-EVENT](../field-specs.md#FIELD-PLAT-SEAT-EVENT)、[FIELD-PLAT-SEAT-EXTENSION](../field-specs.md#FIELD-PLAT-SEAT-EXTENSION)、[FIELD-PLAT-SEAT-ID](../field-specs.md#FIELD-PLAT-SEAT-ID)、[FIELD-PLAT-SESSION](../field-specs.md#FIELD-PLAT-SESSION)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2202](../ui-pages/UI-PAGE-2202.md)
+- [UI-PAGE-2207](../ui-pages/UI-PAGE-2207.md)
+
+## 实现要求
+
+- 本人有效电话上线/拨接挂/话后与对他人坐席监管分权，振铃上下文按准确call身份。
+- 原专业两态与新run终态分离，开始取最新schema，保存沿本轮已展示依据并由实际人完成。
+- 不把监管状态当本人在线；切上下文保护不自动停止后台租户任务。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2012**：正常跨业务域、切租户及系统退出不因拨号/振铃/通话/话后/电话未知而拦截，也不强制先退出电话；身份、数据范围和普通未保存表单检查保留，撤权后的有限当前收尾是独立机制。
+  依据：docs/functional-spec.json#AC-2012
+
+- **AC-2015**：正常跨业务域、切租户及系统退出不因拨号/振铃/通话/话后/电话未知而拦截，也不强制先退出电话；身份、数据范围和普通未保存表单检查保留，撤权后的有限当前收尾是独立机制。
+  依据：docs/functional-spec.json#AC-2015
+
+- **AC-2051**：坐席成功保存客户拒绝联系处理结果后，自动加入本租户公共禁呼，无需管理员再次确认。
+  依据：docs/functional-spec.json#AC-2051
+
+- **AC-2052**：保留来源通话、操作人和时间，四类外呼禁呼且长期有效，正常呼入继续接听。
+  依据：docs/functional-spec.json#AC-2052
+
+- **AC-2053**：仅选择而未保存成功不算完成入库；保存与入库一致性、失败恢复须在流程与接口阶段解决，不能虚报整体成功。
+  依据：docs/functional-spec.json#AC-2053
+
+- **AC-2057**：公共禁呼覆盖AI、人工、预外呼、IVR，正常呼入不因此被拒接。
+  依据：docs/functional-spec.json#AC-2057
+
+- **AC-2058**：首次外呼、重呼及异常补提交须接入禁呼检查，不能以供应商restrict tel补提交规则绕过客户明确拒联。
+  依据：docs/functional-spec.json#AC-2058
+
+- **AC-2066**：保留原Cloud本人电话上线/离线、人工主动外呼、正常呼入、振铃填写和必要话后跟进；须当前有效成员、Cloud模块、作业权及本人有效坐席资源。谁实际接听谁填写，管理员配置/只读不以本人坐席为前提。
+  依据：docs/functional-spec.json#AC-2066
+
+- **AC-2067**：保留原接口客户任务指定坐席、振铃填写和后续人工跟进；原任务结果为待继续跟进/已完成，与新四节点运行终态不同。分配负责人和实际接听人分开，按准确业务ID归属，不用手机号合并任务。
+  依据：docs/functional-spec.json#AC-2067
+
+- **AC-2069**：每次首次/重呼/异常补交均检查当前公共禁呼；仍保供应商明确失败分类及额度，不把预外呼策略套人工或IVR，未知旧请求不得当明确失败补交。
+  依据：docs/functional-spec.json#AC-2069
+
+- **AC-2072**：保留坐席/技能/外呼组/队列/号码/号码池/分机/时间条件/账号资源、呼入规则、通话记录核对、七类Cloud报表、应用接入及必要DCC导入/回传。原专业字段和任务两态有独立语义；同号仅按tenant+enterprise+规范号码关联有权联系历史，不合并业务。确已缺失原任务且无通话/未处理中，仅原有权管理员可手工恢复待分配，不自动回收或增公海。五角色按读权播放/暂停/拖动有权录音。
+  依据：docs/functional-spec.json#AC-2072
+
+## 测试要求（尚未执行）
+
+### CHECK-PLAT-PHONE-PREPARE / manual
+
+步骤：在准确有权范围触发“本人电话上线、离线及就绪检查”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：本人电话状态可确认；管理者无坐席仍可访问合法配置/监管/只读；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2012, AC-2015, AC-2066, AC-2067, AC-2072
+
+### CHECK-PLAT-PHONE-OUTBOUND / manual
+
+步骤：在准确有权范围触发“人工主动外呼”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：人工呼叫事实准确形成，公共禁呼或未知阻止新拨；不套预外呼策略；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2057, AC-2058, AC-2066, AC-2067, AC-2069
+
+### CHECK-PLAT-PHONE-INBOUND / manual
+
+步骤：在准确有权范围触发“正常呼入接听与振铃填写”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：准确实际接听人取得本次填写资格，必要话后仍须独立保存；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2052, AC-2057, AC-2066, AC-2067
+
+### CHECK-PLAT-PHONE-AFTERCALL / manual
+
+步骤：在准确有权范围触发“原客户任务保存人工跟进结果”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。本轮展示后修改分类字段定义，再由原实际处理人保存；其他人员代填另测拒绝。
+
+预期：跟进成功后记录当时字段/值/处理人；必要入库/回传失败显示可恢复待处理，不假报完整完成；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。；保存不临时换schema或吸入未展示资料，保存快照为本轮依据；并发不安全保输入提示核对，非实际处理人拒绝。
+
+覆盖：AC-2051, AC-2053, AC-2066, AC-2067, AC-2072
+
+### CHECK-PLAT-PHONE-CONTINUE / manual
+
+步骤：在准确有权范围触发“继续原客户任务跟进”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：可开始合法待继续跟进作业，不重置已完成结果或自动回收给公海；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2066, AC-2067, AC-2072
+
+### CHECK-PLAT-SEAT-SUPERVISE / manual
+
+步骤：在准确有权范围触发“监管对目标准确坐席置忙、置闲或离线”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+
+预期：仅目标准许电话状态变更；读监管摘要不自动授监管操作权；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+
+覆盖：AC-2066, AC-2072
+
+## 完成条件
+
+- 本人有效电话上线/拨接挂/话后与对他人坐席监管分权，振铃上下文按准确call身份。
+- 原专业两态与新run终态分离，开始取最新schema，保存沿本轮已展示依据并由实际人完成。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [module-host.js](../../../prototype/js/components/module-host.js) · 只读行为参考，非生产可写目标
+- [four-node-execution.js](../../../prototype/js/adapters/four-node-execution.js) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：EQ-PLAT-PHONE, EQ-PLAT-PROFESSIONAL。
+
+原专业操作：
+
+- [cloud-seat-online](../原专业操作任务映射.md#cloud-seat-online)
+- [cloud-seat-offline](../原专业操作任务映射.md#cloud-seat-offline)
+- [cloud-manual-call](../原专业操作任务映射.md#cloud-manual-call)
+- [cloud-handle-incoming](../原专业操作任务映射.md#cloud-handle-incoming)
+- [cloud-save-followup](../原专业操作任务映射.md#cloud-save-followup)
+- [cloud-continue-followup](../原专业操作任务映射.md#cloud-continue-followup)
+- [retained-source-cloud-seat-unpause](../原专业操作任务映射.md#retained-source-cloud-seat-unpause)
+- [retained-source-cloud-supervise-seat-pause](../原专业操作任务映射.md#retained-source-cloud-supervise-seat-pause)
+- [retained-source-cloud-supervise-seat-unpause](../原专业操作任务映射.md#retained-source-cloud-supervise-seat-unpause)
+- [retained-source-cloud-supervise-seat-logout](../原专业操作任务映射.md#retained-source-cloud-supervise-seat-logout)

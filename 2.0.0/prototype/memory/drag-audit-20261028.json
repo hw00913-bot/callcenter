@@ -1,0 +1,4008 @@
+{
+  "schema": "drag-canvas-supplemental-audit@1",
+  "recordedAt": "2026-10-28T15:01:56.776465+08:00",
+  "result": "audit_complete_with_three_P2_findings",
+  "sourceStable": true,
+  "productionOrG3Approval": false,
+  "userReadyEvidence": {
+    "schema": "user-verification-scope@1",
+    "recordedAt": "2026-10-28T15:01:56.776465+08:00",
+    "source": "direct human message in current conversation",
+    "userText": "拖拉拽已经做好了，补审计这部分功能",
+    "interpretation": "Resume the held canvas/route supplemental audit against current implementation; earlier changing-source hold is lifted. This is not G3 or a global acceptance approval.",
+    "auditedBundleSha256": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb"
+  },
+  "findings": [
+    {
+      "id": "DRAG-01",
+      "priority": "P2",
+      "title": "分支标签缺少避让和顶边限制",
+      "file": "scripts/flow-canvas-ui.js",
+      "line": 14,
+      "observed": "1366及1600宽度均有IF/ELSE文字矩形重叠2px；实际拖至y=12后两条标签baseline=-3，完全位于viewport上方不可见。",
+      "impact": "拖动合法节点会使路径标签难以辨认，顶边无法通过向上滚动取回。",
+      "recommendation": "按边路径和节点包围盒分配标签位置，处理多出口避让并将文字完整限制在可访问画布范围；保持edgeId/条件不变。",
+      "evidence": [
+        "labels-ui.json",
+        "label-top-ui.json"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "DRAG-02",
+      "priority": "P2",
+      "title": "路由预览未明确显示职责和处理方式",
+      "file": "scripts/flow-editor.patch.json",
+      "line": 64,
+      "observed": "精确保存的HQ/MANUAL节点预览不显示总部，也无明确人工单选方式，仅显示笼统purpose和状态域来源。",
+      "impact": "不满足AC-2134/R196对精确版本职责/允许方式只读说明的要求，容易误读执行责任。",
+      "recommendation": "routeTemplateDescription逐节点读取该版本node.duty与node.methods，按当前单选解释显示，不从状态域推断；历史版保持其自身方法。",
+      "evidence": [
+        "route-preview-contract-detail.json",
+        "route-preview-contract.json"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "DRAG-03",
+      "priority": "P2",
+      "condition": "Only malformed/corrupted legacy ledger input",
+      "title": "一次清理前的历史引用完整性校验不足",
+      "file": "scripts/flow-template-cleanup.js",
+      "line": 5,
+      "observed": "构造缺失V999、null节点或冲突重复nodeId时仍持久化清理成功标记；随后detail失败或取歧义首项。原始集合与快照字节未丢失。",
+      "impact": "异常输入下在确认历史可读前就退出活动目录，不符合可核后再宣布清理成功的保护目标；不表示实际用户数据损坏。",
+      "recommendation": "清理写入前核验引用到的版本存在、节点对象/ID唯一及旧记录实际引用可精确解析；失败不写清理标记，不用当前单选规则改写旧多方式事实。",
+      "evidence": [
+        "persistence-corrupt-reference-results.json",
+        "persistence-independent-results.json"
+      ],
+      "status": "open"
+    }
+  ],
+  "coverage": {
+    "browserChecksPassed": 51,
+    "browserGroups": {
+      "canvas": 18,
+      "singleMethodAndVersion": 13,
+      "independentPanZoomLayout": 7,
+      "routeAndConcurrency": 13
+    },
+    "modelGroups": {
+      "canvas": 17,
+      "futureTemplateGuards": 5,
+      "independentPersistence": 34,
+      "firstMatchFullSave": 3,
+      "cleanupRegression": 15,
+      "singleMethodRegression": 25,
+      "fieldRegressionAndReview": 30,
+      "routingEngine": 55
+    },
+    "syntaxScripts": 208,
+    "protectedReferences": 190,
+    "lockedFiles": 90,
+    "fileDirectRetried": false,
+    "rebuiltProduct": false,
+    "realTransactions": false
+  },
+  "acceptanceChanges": {
+    "priorCanvasPartial": 19,
+    "newPass": 15,
+    "keptPartial": 4,
+    "keptPartialIds": [
+      "R-007",
+      "R-084",
+      "R-196",
+      "R-199"
+    ],
+    "overallCounts": {
+      "Pass": 204,
+      "Partial": 20
+    },
+    "rowResults": [
+      {
+        "id": "R-007",
+        "recommendation": "Partial",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/canvas-ui.json",
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/extra-ui.json",
+          "/tmp/v2-drag-audit-20261028/logic-model-results.json",
+          "/tmp/v2-drag-audit-20261028/route-ui.json",
+          "/tmp/v2-drag-audit-20261028/route-preview-contract-detail.json",
+          "/tmp/v2-drag-audit-20261028/logic-future-template-guards.json"
+        ],
+        "reason": "正常创建/连线/保存/只读通过，但标签避让/顶边可见性及路由预览内容存在P2（DRAG-01/02）。",
+        "applicabilityUpdate": "追加PROCESS单选顺序及仅一次现有旧模板清理；未来仍版本化。"
+      },
+      {
+        "id": "R-078",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/canvas-ui.json",
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/extra-ui.json",
+          "/tmp/v2-drag-audit-20261028/logic-model-results.json",
+          "/tmp/v2-drag-audit-20261028/route-ui.json"
+        ],
+        "reason": "当前原UI可创建V1，单选/非法条件校验与真实保存已核。",
+        "applicabilityUpdate": "新保存PROCESS恰好一种方式；开始为视觉锚点，不计业务节点。"
+      },
+      {
+        "id": "R-079",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/route-ui.json"
+        ],
+        "reason": "两个独立UI均确认新模板编辑形成V2，V1不改，刷新不再次清理。",
+        "applicabilityUpdate": "“旧版本保持”指清理后新建模板的未来版本；现有旧模板一次性退出活动目录，内部历史依赖保留。"
+      },
+      {
+        "id": "R-084",
+        "recommendation": "Partial",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/route-ui.json",
+          "/tmp/v2-drag-audit-20261028/route-detail.json",
+          "/tmp/v2-drag-audit-20261028/route-preview-contract-detail.json"
+        ],
+        "reason": "独立路由保存与版本/兼容/失败/unknown均已过；该FUNC关联AC2134/R196的说明展示未完整。",
+        "applicabilityUpdate": "旧模板清理后的分类原关联仍保留事实并提示需复核，不能当可用新路由。"
+      },
+      {
+        "id": "R-085",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/route-ui.json",
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/canvas-ui.json"
+        ],
+        "reason": "精确V1历史详情可见、只读且关闭台账不变；新版详情显示单选方式。",
+        "applicabilityUpdate": "已清理旧模板不再作为可新选的活动模板；内部历史仅供既有记录精确读取。"
+      },
+      {
+        "id": "R-086",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/logic-future-template-guards.json",
+          "/tmp/v2-drag-audit-20261028/canvas-ui.json"
+        ],
+        "reason": "未来新内存模板五类引用/权限/品牌/版本/fingerprint/fail/unknown/重放守卫通过；不以旧一次性对象代验。",
+        "applicabilityUpdate": "一次性旧模板清理是本轮特例；不替代以后普通模板的保护删除规则。"
+      },
+      {
+        "id": "R-192",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/route-ui.json",
+          "/tmp/v2-drag-audit-20261028/route-detail.json"
+        ],
+        "reason": "独立入口仅一个模板及精确版本，未来V2存在时仍可明确关联V1；当前字段版本不兼容拒绝。",
+        "applicabilityUpdate": "仅活动未来模板可新关联，已清理旧ID不可新选。"
+      },
+      {
+        "id": "R-193",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/route-ui.json"
+        ],
+        "reason": "基础与独立路由入口分离、路由只有单模板选择及只读说明，保存独立。",
+        "applicabilityUpdate": ""
+      },
+      {
+        "id": "R-194",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/route-ui.json",
+          "/tmp/v2-drag-audit-20261028/route-detail.json"
+        ],
+        "reason": "BASE/字段/ROUTE/context负例拒绝无写；双窗口冲突、取消、fail保输入；unknown核同请求只增一次路由版本。",
+        "applicabilityUpdate": ""
+      },
+      {
+        "id": "R-196",
+        "recommendation": "Partial",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/route-preview-contract.json",
+          "/tmp/v2-drag-audit-20261028/route-preview-contract-detail.json"
+        ],
+        "reason": "实际保存HQ/MANUAL节点，预览仅purpose/sourceLabel/paths，无“总部”职责和明确“处理方式：人工”；AC2134未满足。",
+        "applicabilityUpdate": "修复展示应读精确保存版本的node.duty/node.methods；不能用状态域标签推定职责或代替处理方式。"
+      },
+      {
+        "id": "R-197",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/logic-model-results.json",
+          "/tmp/v2-drag-audit-20261028/route-ui.json",
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/route-engine-current.json",
+          "/tmp/v2-drag-audit-20261028/route-field-current.txt",
+          "/tmp/v2-drag-audit-20261028/route-current-model-binding.json"
+        ],
+        "reason": "本轮当前生成saveResult/evaluate的23+7组真实函数及当前引擎55组通过：三态/来源/迟到/快照/存储失败，不沿用旧15组。",
+        "applicabilityUpdate": "保留FIRST_MATCH_V1已追加字段类型与原段来源规则，不回退旧仅多选口径。"
+      },
+      {
+        "id": "R-198",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/canvas-ui.json",
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/extra-ui.json",
+          "/tmp/v2-drag-audit-20261028/logic-model-results.json",
+          "/tmp/v2-drag-audit-20261028/route-ui.json"
+        ],
+        "reason": "空业务图、显式起点、实际拖入节点与单选处理方式、保存V1/V2通过。",
+        "applicabilityUpdate": "补充基本信息→一种处理方式→分支逻辑；原空白逐配原则适用于选定节点类型后的必填内容。"
+      },
+      {
+        "id": "R-199",
+        "recommendation": "Partial",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/route-ui.json",
+          "/tmp/v2-drag-audit-20261028/persistence-independent-results.json"
+        ],
+        "reason": "正常V1/V2、既有记录及快照保持通过；新增一次性清理尚缺损坏历史引用/节点身份的前置可核性保护（DRAG-03）。",
+        "applicabilityUpdate": "正常原始数据的保留已核；异常清理分支单列，不推断当前用户数据已损坏。"
+      },
+      {
+        "id": "R-200",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/logic-model-results.json",
+          "/tmp/v2-drag-audit-20261028/logic-future-template-guards.json",
+          "/tmp/v2-drag-audit-20261028/single-ui.json"
+        ],
+        "reason": "当前模型权限/品牌/合法处理方式及单选保存约束复验，画布不扩大运行或转交权限。",
+        "applicabilityUpdate": ""
+      },
+      {
+        "id": "R-201",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/logic-model-results.json",
+          "/tmp/v2-drag-audit-20261028/canvas-ui.json"
+        ],
+        "reason": "选择方式自动对应状态域，AI/Cloud条件源边界、切换后非法旧值阻保存及显式纠正通过。",
+        "applicabilityUpdate": "来源选择改为随单选方式自动对应；仅AI标签条件显示标签配置，仍无自动推进。"
+      },
+      {
+        "id": "R-202",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/logic-model-results.json",
+          "/tmp/v2-drag-audit-20261028/canvas-ui.json",
+          "/tmp/v2-drag-audit-20261028/route-engine-current.json",
+          "/tmp/v2-drag-audit-20261028/route-field-current.txt",
+          "/tmp/v2-drag-audit-20261028/route-current-model-binding.json"
+        ],
+        "reason": "当前引擎55组重新执行通过，包含ALL/ANY、状态多值、未知/冲突/跨范围待核；界面由本轮canvas/single补证。",
+        "applicabilityUpdate": ""
+      },
+      {
+        "id": "R-203",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/canvas-ui.json",
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/extra-ui.json",
+          "/tmp/v2-drag-audit-20261028/logic-model-results.json"
+        ],
+        "reason": "草稿/折叠/移动/平移/缩放/取消指针、IF转ELSE明确确认、切换不兼容条件阻保存及只读均通过。",
+        "applicabilityUpdate": "按FIRST_MATCH_V1解释IF/ELSEIF/ELSE；单选方式切换仍需明确处理不兼容原值。"
+      },
+      {
+        "id": "R-204",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/route-ui.json",
+          "/tmp/v2-drag-audit-20261028/single-ui.json",
+          "/tmp/v2-drag-audit-20261028/canvas-ui.json"
+        ],
+        "reason": "精确模板详情与历史V1只读、不能保存/连线/更改，关闭无账本写入；不把路由预览R196混同此独立详情。",
+        "applicabilityUpdate": "历史辅助查看指清理后新模板的V1/V2；原已清理版本只在既有业务记录内部快照保留。"
+      },
+      {
+        "id": "R-205",
+        "recommendation": "Pass",
+        "evidence": [
+          "/tmp/v2-drag-audit-20261028/logic-future-template-guards.json"
+        ],
+        "reason": "全新未来模板已测独立五类引用、无权/品牌/版本、失败及unknown同请求幂等；不重做原删除批准。",
+        "applicabilityUpdate": "一次性清理现有旧模板为已批准单次特例；不得泛化为以后绕过引用删除。"
+      }
+    ]
+  },
+  "evidence": {
+    "static.json": {
+      "at": "2026-10-28T14:56:02.708880+08:00",
+      "status": "passed",
+      "syntaxScripts": 208,
+      "sourceFiles": 43,
+      "inlineScripts": {
+        "ai": 28,
+        "cloud": 137
+      },
+      "generatedControllerReplayedInMemoryMatchesActual": true,
+      "intermediateTransformFingerprintCorrect": true,
+      "canvasAndNodeConfigTextPresent": true,
+      "entryMissing": [],
+      "cacheMismatch": [],
+      "lockedSourceFiles": 90,
+      "referenceFiles": 190,
+      "lockedOrReferenceChanges": [],
+      "productCodeChangedDuringAudit": [],
+      "rebuiltProduct": false,
+      "sourceSha256": {
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad",
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "scripts/flow-canvas-ui.js": "172935d136d081c9c8eb8cf60fb51c98dbc55e02a44cfcc51228bfe840cc6079",
+        "scripts/flow-node-config.js": "3ef16d4037c0b67bb778ed7945b977cd5d1be35dfd731cf3e534b600a2197a36",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "scripts/flow-template-cleanup.js": "da7bae3873304f30089bd61cbf6809496772f4f4be57f5870e9f9853f0901c2b"
+      }
+    },
+    "canvas-ui.json": {
+      "status": "passed",
+      "scope": "Fresh nonpersistent Chrome; actual current main-project HTTP and normal form actions; no user browser, no direct storage writes, no supplier calls",
+      "checks": [
+        {
+          "name": "New template has visual start and grouped library, no preset business nodes or start value"
+        },
+        {
+          "name": "Saving an invalid draft reopens the hidden inspector and focuses the missing node field"
+        },
+        {
+          "name": "Actual library drag creates typed blank nodes; END has no output; start remains explicit",
+          "detail": {
+            "first": "node-1",
+            "end": "node-2"
+          }
+        },
+        {
+          "name": "Dragging start and node ports creates explicit start and one stable route",
+          "detail": {
+            "edgeId": "EDGE-0ba934c4-1eff-4c45-b341-2babfb96f6f7"
+          }
+        },
+        {
+          "name": "Duplicate drag connection does not duplicate or replace existing route"
+        },
+        {
+          "name": "Dropping a connector in blank canvas cancels without graph mutation"
+        },
+        {
+          "name": "Escape cancels click and active-drag connections without closing the editor or mutating routes"
+        },
+        {
+          "name": "Closing and reopening inspector preserves rule identity and unsaved value"
+        },
+        {
+          "name": "Moving node updates connected SVG path while preserving draft condition"
+        },
+        {
+          "name": "Clicking output then input adds a second route and retains the existing route identity"
+        },
+        {
+          "name": "Zoomed library drag and movement use screen-to-canvas coordinates; process method survives movement"
+        },
+        {
+          "name": "130 percent zoom keeps node movement aligned with pointer coordinates"
+        },
+        {
+          "name": "At 50 percent zoom the library can collapse to expose and connect the start port"
+        },
+        {
+          "name": "Returning to basics and back preserves graph and clears in-progress connection state"
+        },
+        {
+          "name": "Original explicit confirmation still protects clearing a condition when setting ELSE"
+        },
+        {
+          "name": "1366 and 1600 layouts retain visible graph, scrollable inspector and reachable save footer",
+          "detail": {
+            "panel": {
+              "x": 1192,
+              "y": 157.578125,
+              "width": 390,
+              "height": 585.828125
+            },
+            "footer": {
+              "x": 0,
+              "y": 842,
+              "width": 1600,
+              "height": 58
+            }
+          }
+        },
+        {
+          "name": "Normal save persists graph and explicit start as V1 without changing business records",
+          "detail": {
+            "templateId": "TPL-1d4a9c80-864a-4a80-bf4f-4f9fb7a160e5",
+            "version": 1
+          }
+        },
+        {
+          "name": "Saved read-only detail restores graph and blocks ports, form writes and save"
+        }
+      ],
+      "errors": [],
+      "network": [],
+      "screenshots": [
+        "/tmp/v2-drag-audit-20261028/canvas-empty-1366.png",
+        "/tmp/v2-drag-audit-20261028/canvas-connected-1366.png",
+        "/tmp/v2-drag-audit-20261028/canvas-inspector-1600.png",
+        "/tmp/v2-drag-audit-20261028/canvas-readonly-1600.png"
+      ],
+      "fileDirectTested": false,
+      "productionExecuted": false,
+      "url": "http://127.0.0.1:57217/2.0.0/prototype/index.html",
+      "sourceSha256": {
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad",
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "js/modules/ai.bundle.js": "f2d40e8643175c5aca755d7fc3c4f8db25497867ca24c97d354174c6c8152091",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "scripts/flow-canvas-ui.js": "172935d136d081c9c8eb8cf60fb51c98dbc55e02a44cfcc51228bfe840cc6079",
+        "scripts/flow-canvas-ui.css": "b4a12f59260819f0cdb57c15c01832e22ca6fb6293b46f4504be6c7ae7c56079",
+        "scripts/flow-node-config.js": "3ef16d4037c0b67bb778ed7945b977cd5d1be35dfd731cf3e534b600a2197a36",
+        "scripts/flow-node-config.css": "0a27e8b54ed32869f7e0bddb416cad3952c1d1639a4cd05c535947c78a20f27e",
+        "scripts/flow-template-cleanup.js": "da7bae3873304f30089bd61cbf6809496772f4f4be57f5870e9f9853f0901c2b"
+      }
+    },
+    "single-ui.json": {
+      "status": "passed",
+      "scope": "Fresh nonpersistent Chrome; actual current main-project HTTP and normal form actions; no user browser, no direct storage writes, no supplier calls",
+      "checks": [
+        {
+          "name": "First read clears all four old active templates and excludes them from catalog; only internal snapshots and one-time marker remain",
+          "detail": {
+            "oldIds": [
+              "TPL-LEAD-MAIN",
+              "TPL-LEAD-BACKUP",
+              "TPL-ACTIVITY",
+              "TPL-AFTERSALES"
+            ],
+            "cleanup": {
+              "schema": 1,
+              "ids": [
+                "TPL-LEAD-MAIN",
+                "TPL-LEAD-BACKUP",
+                "TPL-ACTIVITY",
+                "TPL-AFTERSALES"
+              ],
+              "at": "2026-10-28T06:46:45.754Z"
+            }
+          }
+        },
+        {
+          "name": "Existing record resolves its original node snapshot while the old category route is not ready for new intake",
+          "detail": {
+            "recordId": "REC-MEDIA-001",
+            "node": "当前租户培育",
+            "route": {
+              "routeState": "REVIEW_REQUIRED",
+              "ready": false,
+              "issues": [
+                "原流转模板已清理，请重新关联当前可用模板"
+              ],
+              "pending": false
+            }
+          }
+        },
+        {
+          "name": "Original record details still visibly display the original node after template cleanup"
+        },
+        {
+          "name": "Basic node fields precede a mutually-exclusive method group; no condition-source block or branches before choosing a method",
+          "detail": [
+            {
+              "value": "AI",
+              "type": "radio",
+              "name": "fc-node-node-1-method-choice",
+              "checked": false
+            },
+            {
+              "value": "MANUAL",
+              "type": "radio",
+              "name": "fc-node-node-1-method-choice",
+              "checked": false
+            },
+            {
+              "value": "PREDICTIVE",
+              "type": "radio",
+              "name": "fc-node-node-1-method-choice",
+              "checked": false
+            }
+          ]
+        },
+        {
+          "name": "AI, manual and predictive selection stays single and reveals branch configuration only after selection"
+        },
+        {
+          "name": "Manual method automatically supplies manual-call status choices with current-node scope",
+          "detail": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ]
+        },
+        {
+          "name": "Method changes choose their own status domains; AI-tag setup is shown only for an AI_TAG condition"
+        },
+        {
+          "name": "Collapsing and reopening preserves the single method and configured IF condition"
+        },
+        {
+          "name": "Normal save persists one method and its derived domain as V1"
+        },
+        {
+          "name": "Switching manual to AI preserves incompatible original values and blocks save without changing V1"
+        },
+        {
+          "name": "Explicitly corrected AI condition saves V2, preserving V1 and business records"
+        },
+        {
+          "name": "Readonly saved detail displays the exact single method and blocks edits"
+        },
+        {
+          "name": "Reload retains new V1 and V2 without a second cleanup or old-template revival; records, requests and snapshots remain unchanged",
+          "detail": {
+            "templateId": "TPL-8bd3bcd2-029a-4ec2-9e82-f653e5a94bac",
+            "versions": [
+              1,
+              2
+            ]
+          }
+        }
+      ],
+      "errors": [],
+      "network": [],
+      "screenshots": [
+        "/tmp/v2-drag-audit-20261028/single-old-templates-cleared-1600.png",
+        "/tmp/v2-drag-audit-20261028/single-old-record-snapshot-1600.png",
+        "/tmp/v2-drag-audit-20261028/single-unselected-1600.png",
+        "/tmp/v2-drag-audit-20261028/single-unselected-1366.png",
+        "/tmp/v2-drag-audit-20261028/single-method-selected-1600.png",
+        "/tmp/v2-drag-audit-20261028/single-manual-condition-1600.png",
+        "/tmp/v2-drag-audit-20261028/single-manual-condition-1366.png",
+        "/tmp/v2-drag-audit-20261028/single-rule-details-1366.png",
+        "/tmp/v2-drag-audit-20261028/single-incompatible-blocked-1366.png",
+        "/tmp/v2-drag-audit-20261028/single-ai-readonly-1366.png",
+        "/tmp/v2-drag-audit-20261028/single-new-template-persists-1366.png"
+      ],
+      "fileDirectTested": false,
+      "productionExecuted": false,
+      "url": "http://127.0.0.1:57257/2.0.0/prototype/index.html",
+      "sourceSha256": {
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad",
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "js/modules/ai.bundle.js": "f2d40e8643175c5aca755d7fc3c4f8db25497867ca24c97d354174c6c8152091",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "scripts/flow-canvas-ui.js": "172935d136d081c9c8eb8cf60fb51c98dbc55e02a44cfcc51228bfe840cc6079",
+        "scripts/flow-canvas-ui.css": "b4a12f59260819f0cdb57c15c01832e22ca6fb6293b46f4504be6c7ae7c56079",
+        "scripts/flow-node-config.js": "3ef16d4037c0b67bb778ed7945b977cd5d1be35dfd731cf3e534b600a2197a36",
+        "scripts/flow-node-config.css": "0a27e8b54ed32869f7e0bddb416cad3952c1d1639a4cd05c535947c78a20f27e",
+        "scripts/flow-template-cleanup.js": "da7bae3873304f30089bd61cbf6809496772f4f4be57f5870e9f9853f0901c2b"
+      }
+    },
+    "extra-ui.json": {
+      "status": "passed",
+      "scope": "Fresh nonpersistent Chrome; actual current main-project HTTP and normal form actions; no user browser, no direct storage writes, no supplier calls",
+      "checks": [
+        {
+          "name": "Actual blank-canvas pan changes viewport only, preserving graph and node positions",
+          "detail": {
+            "before": {
+              "left": 150,
+              "top": 120,
+              "width": 1366,
+              "height": 538,
+              "z": 1.5,
+              "centerX": 555.3333333333334,
+              "centerY": 259.3333333333333,
+              "positions": [
+                {
+                  "id": "node-1",
+                  "x": "390px",
+                  "y": "116px"
+                },
+                {
+                  "id": "node-2",
+                  "x": "700px",
+                  "y": "256px"
+                }
+              ],
+              "edges": [
+                "EDGE-59bbb247-e357-47f6-9d6d-53cc5c36f814"
+              ]
+            },
+            "after": {
+              "left": 210,
+              "top": 155,
+              "width": 1366,
+              "height": 538,
+              "z": 1.5,
+              "centerX": 595.3333333333334,
+              "centerY": 282.6666666666667,
+              "positions": [
+                {
+                  "id": "node-1",
+                  "x": "390px",
+                  "y": "116px"
+                },
+                {
+                  "id": "node-2",
+                  "x": "700px",
+                  "y": "256px"
+                }
+              ],
+              "edges": [
+                "EDGE-59bbb247-e357-47f6-9d6d-53cc5c36f814"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Zoom retains connected viewport identity and logical center after pan",
+          "detail": {
+            "before": {
+              "left": 210,
+              "top": 155,
+              "width": 1366,
+              "height": 538,
+              "z": 1.5,
+              "centerX": 595.3333333333334,
+              "centerY": 282.6666666666667,
+              "positions": [
+                {
+                  "id": "node-1",
+                  "x": "390px",
+                  "y": "116px"
+                },
+                {
+                  "id": "node-2",
+                  "x": "700px",
+                  "y": "256px"
+                }
+              ],
+              "edges": [
+                "EDGE-59bbb247-e357-47f6-9d6d-53cc5c36f814"
+              ]
+            },
+            "after": {
+              "left": 150,
+              "top": 127,
+              "width": 1366,
+              "height": 538,
+              "z": 1.4,
+              "centerX": 595,
+              "centerY": 282.8571428571429,
+              "positions": [
+                {
+                  "id": "node-1",
+                  "x": "390px",
+                  "y": "116px"
+                },
+                {
+                  "id": "node-2",
+                  "x": "700px",
+                  "y": "256px"
+                }
+              ],
+              "edges": [
+                "EDGE-59bbb247-e357-47f6-9d6d-53cc5c36f814"
+              ]
+            },
+            "identity": {
+              "same": true,
+              "connected": true
+            }
+          }
+        },
+        {
+          "name": "Pointer cancellation restores original node position and route identities"
+        },
+        {
+          "name": "Click self-connection is refused without graph mutation"
+        },
+        {
+          "name": "Repeated zoom clamps at 50 and 150 percent without moving node data"
+        },
+        {
+          "name": "Saved layout reopens in the same session; layout remains outside execution payload and records are unchanged"
+        },
+        {
+          "name": "Read-only arrange and zoom remain view preferences with no ledger writes"
+        }
+      ],
+      "errors": [],
+      "network": [],
+      "screenshots": [
+        "/tmp/v2-drag-audit-20261028/extra-extra-final.png"
+      ],
+      "fileDirectTested": false,
+      "productionExecuted": false,
+      "url": "http://127.0.0.1:57900/2.0.0/prototype/index.html",
+      "sourceSha256": {
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad",
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "js/modules/ai.bundle.js": "f2d40e8643175c5aca755d7fc3c4f8db25497867ca24c97d354174c6c8152091",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "scripts/flow-canvas-ui.js": "172935d136d081c9c8eb8cf60fb51c98dbc55e02a44cfcc51228bfe840cc6079",
+        "scripts/flow-canvas-ui.css": "b4a12f59260819f0cdb57c15c01832e22ca6fb6293b46f4504be6c7ae7c56079",
+        "scripts/flow-node-config.js": "3ef16d4037c0b67bb778ed7945b977cd5d1be35dfd731cf3e534b600a2197a36",
+        "scripts/flow-node-config.css": "0a27e8b54ed32869f7e0bddb416cad3952c1d1639a4cd05c535947c78a20f27e",
+        "scripts/flow-template-cleanup.js": "da7bae3873304f30089bd61cbf6809496772f4f4be57f5870e9f9853f0901c2b"
+      }
+    },
+    "labels-ui.json": {
+      "status": "audit-observation-completed",
+      "scope": "Fresh nonpersistent Chrome; actual current main-project HTTP and normal form actions; no user browser, no direct storage writes, no supplier calls",
+      "checks": [],
+      "errors": [],
+      "network": [],
+      "screenshots": [],
+      "fileDirectTested": false,
+      "productionExecuted": false,
+      "observations": [
+        {
+          "viewport": 1366,
+          "labels": [
+            {
+              "text": "IF · 1",
+              "x": 613.828125,
+              "y": 230.578125,
+              "width": 22.34375,
+              "height": 12
+            },
+            {
+              "text": "ELSE · 兜底",
+              "x": 598.3046875,
+              "y": 240.578125,
+              "width": 53.390625,
+              "height": 12
+            }
+          ],
+          "overlap": {
+            "width": 22.34375,
+            "height": 2
+          },
+          "overlapConfirmed": true
+        },
+        {
+          "viewport": 1600,
+          "labels": [
+            {
+              "text": "IF · 1",
+              "x": 613.828125,
+              "y": 230.578125,
+              "width": 22.34375,
+              "height": 12
+            },
+            {
+              "text": "ELSE · 兜底",
+              "x": 598.3046875,
+              "y": 240.578125,
+              "width": 53.390625,
+              "height": 12
+            }
+          ],
+          "overlap": {
+            "width": 22.34375,
+            "height": 2
+          },
+          "overlapConfirmed": true
+        }
+      ],
+      "sourceSha256": {
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad",
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "js/modules/ai.bundle.js": "f2d40e8643175c5aca755d7fc3c4f8db25497867ca24c97d354174c6c8152091",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "scripts/flow-canvas-ui.js": "172935d136d081c9c8eb8cf60fb51c98dbc55e02a44cfcc51228bfe840cc6079",
+        "scripts/flow-canvas-ui.css": "b4a12f59260819f0cdb57c15c01832e22ca6fb6293b46f4504be6c7ae7c56079",
+        "scripts/flow-node-config.js": "3ef16d4037c0b67bb778ed7945b977cd5d1be35dfd731cf3e534b600a2197a36",
+        "scripts/flow-node-config.css": "0a27e8b54ed32869f7e0bddb416cad3952c1d1639a4cd05c535947c78a20f27e",
+        "scripts/flow-template-cleanup.js": "da7bae3873304f30089bd61cbf6809496772f4f4be57f5870e9f9853f0901c2b"
+      }
+    },
+    "label-top-ui.json": {
+      "status": "audit-observation-completed",
+      "scope": "Fresh nonpersistent Chrome; actual current main-project HTTP and normal form actions; no user browser, no direct storage writes, no supplier calls",
+      "checks": [],
+      "errors": [],
+      "network": [],
+      "screenshots": [],
+      "fileDirectTested": false,
+      "productionExecuted": false,
+      "observations": [
+        {
+          "viewport": 1366,
+          "labels": [
+            {
+              "text": "IF · 1",
+              "x": 613.828125,
+              "y": 230.578125,
+              "width": 22.34375,
+              "height": 12
+            },
+            {
+              "text": "ELSE · 兜底",
+              "x": 598.3046875,
+              "y": 240.578125,
+              "width": 53.390625,
+              "height": 12
+            }
+          ],
+          "overlap": {
+            "width": 22.34375,
+            "height": 2
+          },
+          "overlapConfirmed": true
+        },
+        {
+          "viewport": 1600,
+          "labels": [
+            {
+              "text": "IF · 1",
+              "x": 613.828125,
+              "y": 230.578125,
+              "width": 22.34375,
+              "height": 12
+            },
+            {
+              "text": "ELSE · 兜底",
+              "x": 598.3046875,
+              "y": 240.578125,
+              "width": 53.390625,
+              "height": 12
+            }
+          ],
+          "overlap": {
+            "width": 22.34375,
+            "height": 2
+          },
+          "overlapConfirmed": true
+        }
+      ],
+      "topEdgeObservation": {
+        "viewportTop": 139.578125,
+        "canvasTop": 139.578125,
+        "positions": [
+          {
+            "id": "node-1",
+            "y": "12px"
+          },
+          {
+            "id": "node-2",
+            "y": "12px"
+          },
+          {
+            "id": "node-3",
+            "y": "326px"
+          }
+        ],
+        "labels": [
+          {
+            "text": "IF · 1",
+            "baseline": "-3",
+            "top": 126.578125,
+            "bottom": 138.578125,
+            "fullyAboveViewport": true
+          },
+          {
+            "text": "ELSE · 兜底",
+            "baseline": "-3",
+            "top": 126.578125,
+            "bottom": 138.578125,
+            "fullyAboveViewport": true
+          }
+        ]
+      },
+      "sourceSha256": {
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad",
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "js/modules/ai.bundle.js": "f2d40e8643175c5aca755d7fc3c4f8db25497867ca24c97d354174c6c8152091",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "scripts/flow-canvas-ui.js": "172935d136d081c9c8eb8cf60fb51c98dbc55e02a44cfcc51228bfe840cc6079",
+        "scripts/flow-canvas-ui.css": "b4a12f59260819f0cdb57c15c01832e22ca6fb6293b46f4504be6c7ae7c56079",
+        "scripts/flow-node-config.js": "3ef16d4037c0b67bb778ed7945b977cd5d1be35dfd731cf3e534b600a2197a36",
+        "scripts/flow-node-config.css": "0a27e8b54ed32869f7e0bddb416cad3952c1d1639a4cd05c535947c78a20f27e",
+        "scripts/flow-template-cleanup.js": "da7bae3873304f30089bd61cbf6809496772f4f4be57f5870e9f9853f0901c2b"
+      }
+    },
+    "logic-model-results.json": {
+      "status": "passed",
+      "count": 17,
+      "checks": [
+        "drop坐标在0.5/1/1.5倍率正确换算并保边界",
+        "node拖动包含viewport滚动量并按zoom换算，pointercancel回滚位置",
+        "拖动仅改布局不改业务字段，成功释放记录layoutDirty",
+        "pan按屏幕位移改变scroll，不改模型/缩放/布局",
+        "zoom限制50%至150%，模型不变，固定viewport模型中心守恒",
+        "重复连线不改stable edge/条件/规则ID，自环/END出口拒绝",
+        "新增边保旧条件/ID，人工明确起点，不在连线时伪造合法条件",
+        "循环可留草稿但不得保存，非法END出口同样被权威校验拒绝",
+        "拖线pointercancel与空白落点取消都不写边并清监听",
+        "Esc在拖线期间仅取消连线，保留草稿和现有边",
+        "点击输出/输入建立新边，二次点击同输出取消",
+        "只读/pending/busy/basics/不兼容阻止节点/连接/方式模型变更",
+        "单选方式保所有旧edge/条件，旧多方式不自动取首项",
+        "预外呼旧AUTO_TASK域切换后回选仍保准确domain和原比较值",
+        "PROCESS改END再改回仍保原边条件，不自动删边绕过验证",
+        "有条件路径删除要求确认，取消不丢旧稳定边，确认才删除",
+        "保存payload只含业务数据，不含zoom/坐标/pan，延时提交再核权限"
+      ],
+      "bundleSha256": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+      "controllerSha256": "f05dc8c795acc34c0b29c5d5a1db1335e489c4ff8b2e53ec2714d2b9a8394b5f",
+      "scope": "current generated controller; real private actions/readValues/validation/save; rendering stub and explicit DOM/geometry fixtures, not browser pixel evidence"
+    },
+    "logic-future-template-guards.json": {
+      "status": "passed",
+      "count": 5,
+      "checks": [
+        "未来模板可正常建立且不再次清理，当前列表保留",
+        "当前/历史分类、record、batch和pending五类独立引用分别拒删",
+        "操作权/品牌/版本/引用fingerprint错误均拒绝且不删未来模板",
+        "失败不删；unknown原请求核对一次，重放不再写/多墓碑",
+        "新版本PROCESS零方式/多方式权威保存拒绝，单方式可保存"
+      ],
+      "bundleSha256": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+      "scope": "current generated BusinessFlowStore; fresh Map with explicit completed empty cleanup; only newly created future template; no old-object deletion or user storage"
+    },
+    "logic-integration.json": {
+      "bundleSha256": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+      "canvasUiVerbatimInGenerated": true,
+      "nodeConfigVerbatimInGenerated": true,
+      "scriptHashes": {
+        "scripts/flow-canvas-ui.js": "172935d136d081c9c8eb8cf60fb51c98dbc55e02a44cfcc51228bfe840cc6079",
+        "scripts/flow-node-config.js": "3ef16d4037c0b67bb778ed7945b977cd5d1be35dfd731cf3e534b600a2197a36",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb"
+      },
+      "flowStoreEqualsEarlier15GroupEvidence": false,
+      "flowStoreSha256": "15d5c491baf8f2dd7fe77df3d913a6cd93712fa59b9038151493411d18a1f526"
+    },
+    "persistence-independent-results.json": {
+      "status": "pass-for-asserted-cases",
+      "passed": 34,
+      "tests": [
+        "first read moves exact IDs/versions once and keeps every business collection unchanged",
+        "exact old version and multiple-method record snapshot remain readable and unchanged",
+        "history catalogs filter snapshots by authorized brand",
+        "retired template cannot receive new category binding/import or be recreated by edit",
+        "new V1/V2 survive another window and repeated reads; stale editor cannot overwrite V2",
+        "change before cleanup compare is rejected without overwriting newer raw",
+        "cleanup read-throw failure never claims success or replaces original ledger",
+        "cleanup write-throw failure never claims success or replaces original ledger",
+        "cleanup silent failure never claims success or replaces original ledger",
+        "post-write readback unknown is reconciled without a second cleanup",
+        "corrupt input invalid JSON blocks all cleanup writes",
+        "corrupt input invalid schema blocks all cleanup writes",
+        "corrupt input missing business rows blocks all cleanup writes",
+        "corrupt input duplicate IDs blocks all cleanup writes",
+        "corrupt input no versions blocks all cleanup writes",
+        "corrupt input invalid nodes shape blocks all cleanup writes",
+        "corrupt input orphan preexisting snapshots blocks all cleanup writes",
+        "corrupt marker missing snapshots cannot restart cleanup",
+        "corrupt marker unknown marker schema cannot restart cleanup",
+        "corrupt marker duplicate marker IDs cannot restart cleanup",
+        "corrupt marker retired active collision cannot restart cleanup",
+        "corrupt marker missing tombstone cannot restart cleanup",
+        "corrupt marker invalid date cannot restart cleanup",
+        "reader and stale native admin with parent revoked cannot save template or old record",
+        "authoritative new save rejects single-method violation []",
+        "authoritative new save rejects single-method violation [\"AI\",\"MANUAL\"]",
+        "authoritative new save rejects single-method violation [\"AI\",\"AI\"]",
+        "authoritative new save rejects single-method violation [\"IVR\"]",
+        "authoritative new save rejects single-method violation [\"OTHER\"]",
+        "authoritative new save rejects single-method violation \"AI\"",
+        "authoritative new save rejects single-method violation null",
+        "single supported method saves through actual cleaner AI",
+        "single supported method saves through actual cleaner MANUAL",
+        "single supported method saves through actual cleaner PREDICTIVE"
+      ],
+      "observations": [
+        {
+          "name": "latestVersion missing from versions",
+          "status": "success",
+          "error": null,
+          "writes": 1,
+          "unchangedBusiness": true,
+          "snapshotPreserved": true
+        },
+        {
+          "name": "null node inside exact historical version",
+          "status": "success",
+          "error": null,
+          "writes": 1,
+          "unchangedBusiness": true,
+          "snapshotPreserved": true
+        },
+        {
+          "name": "duplicate node identity",
+          "status": "success",
+          "error": null,
+          "writes": 1,
+          "unchangedBusiness": true,
+          "snapshotPreserved": true
+        }
+      ],
+      "sourceStable": true,
+      "sourceSha256": "15d5c491baf8f2dd7fe77df3d913a6cd93712fa59b9038151493411d18a1f526",
+      "cleanupSha256": "da7bae3873304f30089bd61cbf6809496772f4f4be57f5870e9f9853f0901c2b",
+      "boundaries": {
+        "actual": "current formal generated store, pure source cleanup helper, actual parent DBusinessLink",
+        "instrumentation": "private read/template lookup/cleaner exports only for observing exact persisted source; methods used for commits unchanged",
+        "storage": "Map-like raw string, fault/read hooks; no original browser/profile",
+        "twoWindows": "shared synchronous storage interleaving and stale save; not OS-process atomic CAS",
+        "authorization": "one-time migration authorized by recorded first-read decision; explicit mutations require actual parent guard"
+      }
+    },
+    "persistence-first-match-results.json": {
+      "status": "pass",
+      "passed": 3,
+      "tests": [
+        "AI current FIRST_MATCH cleaner V1/V2 retained; multi-method rejected without mutation",
+        "MANUAL current FIRST_MATCH cleaner V1/V2 retained; multi-method rejected without mutation",
+        "PREDICTIVE current FIRST_MATCH cleaner V1/V2 retained; multi-method rejected without mutation"
+      ],
+      "sourceSha256": "15d5c491baf8f2dd7fe77df3d913a6cd93712fa59b9038151493411d18a1f526",
+      "boundary": "actual current generated full store and actual routing engine; fixed in-memory category catalog stands in for directory lookup only"
+    },
+    "persistence-corrupt-reference-results.json": {
+      "status": "reproduced-conditional-validation-gap",
+      "results": [
+        {
+          "name": "control normal referenced legacy snapshot",
+          "recordId": "REC-MEDIA-001",
+          "templateRef": {
+            "templateId": "TPL-LEAD-MAIN",
+            "version": 1
+          },
+          "nodeId": "handle",
+          "catalogStatus": "success",
+          "cleanupWrites": 1,
+          "activeTemplates": 0,
+          "detailStatus": "success",
+          "detailError": null,
+          "displayedNode": {
+            "nodeId": "handle",
+            "name": "当前租户培育",
+            "type": "PROCESS",
+            "duty": "CURRENT",
+            "methods": [
+              "AI",
+              "PREDICTIVE",
+              "MANUAL"
+            ],
+            "next": [
+              "down",
+              "up",
+              "close"
+            ]
+          },
+          "originalNodeRun": {
+            "nodeRunId": "REC-MEDIA-001-N1",
+            "nodeId": "handle",
+            "templateRef": {
+              "templateId": "TPL-LEAD-MAIN",
+              "version": 1
+            },
+            "roundId": "REC-MEDIA-001-R1",
+            "tenantId": "TEN-NISSAN-HQ",
+            "enteredAt": "2026-10-23T00:10:00.000Z",
+            "status": "current"
+          },
+          "businessBytesUnchanged": true,
+          "snapshotBytesPreserved": true
+        },
+        {
+          "name": "referenced version absent",
+          "recordId": "REC-MEDIA-001",
+          "templateRef": {
+            "templateId": "TPL-LEAD-MAIN",
+            "version": 999
+          },
+          "nodeId": "handle",
+          "catalogStatus": "success",
+          "cleanupWrites": 1,
+          "activeTemplates": 0,
+          "detailStatus": "failed",
+          "detailError": {
+            "code": "VERSION_MISSING",
+            "message": "关联的模板保存版本无法核定"
+          },
+          "displayedNode": null,
+          "originalNodeRun": {
+            "nodeRunId": "REC-MEDIA-001-N1",
+            "nodeId": "handle",
+            "templateRef": {
+              "templateId": "TPL-LEAD-MAIN",
+              "version": 1
+            },
+            "roundId": "REC-MEDIA-001-R1",
+            "tenantId": "TEN-NISSAN-HQ",
+            "enteredAt": "2026-10-23T00:10:00.000Z",
+            "status": "current"
+          },
+          "businessBytesUnchanged": true,
+          "snapshotBytesPreserved": true
+        },
+        {
+          "name": "referenced template contains null before real node",
+          "recordId": "REC-MEDIA-001",
+          "templateRef": {
+            "templateId": "TPL-LEAD-MAIN",
+            "version": 1
+          },
+          "nodeId": "handle",
+          "catalogStatus": "success",
+          "cleanupWrites": 1,
+          "activeTemplates": 0,
+          "detailStatus": "failed",
+          "detailError": {
+            "code": "STORAGE_ERROR",
+            "message": "Cannot read properties of null (reading 'nodeId')"
+          },
+          "displayedNode": null,
+          "originalNodeRun": {
+            "nodeRunId": "REC-MEDIA-001-N1",
+            "nodeId": "handle",
+            "templateRef": {
+              "templateId": "TPL-LEAD-MAIN",
+              "version": 1
+            },
+            "roundId": "REC-MEDIA-001-R1",
+            "tenantId": "TEN-NISSAN-HQ",
+            "enteredAt": "2026-10-23T00:10:00.000Z",
+            "status": "current"
+          },
+          "businessBytesUnchanged": true,
+          "snapshotBytesPreserved": true
+        },
+        {
+          "name": "referenced node identity duplicated with conflicting first definition",
+          "recordId": "REC-MEDIA-001",
+          "templateRef": {
+            "templateId": "TPL-LEAD-MAIN",
+            "version": 1
+          },
+          "nodeId": "handle",
+          "catalogStatus": "success",
+          "cleanupWrites": 1,
+          "activeTemplates": 0,
+          "detailStatus": "success",
+          "detailError": null,
+          "displayedNode": {
+            "nodeId": "handle",
+            "name": "歧义首项，不是原节点",
+            "type": "PROCESS",
+            "duty": "CURRENT",
+            "methods": [
+              "AI",
+              "PREDICTIVE",
+              "MANUAL"
+            ],
+            "next": [
+              "down",
+              "up",
+              "close"
+            ]
+          },
+          "originalNodeRun": {
+            "nodeRunId": "REC-MEDIA-001-N1",
+            "nodeId": "handle",
+            "templateRef": {
+              "templateId": "TPL-LEAD-MAIN",
+              "version": 1
+            },
+            "roundId": "REC-MEDIA-001-R1",
+            "tenantId": "TEN-NISSAN-HQ",
+            "enteredAt": "2026-10-23T00:10:00.000Z",
+            "status": "current"
+          },
+          "businessBytesUnchanged": true,
+          "snapshotBytesPreserved": true
+        },
+        {
+          "name": "unreferenced malformed template kept as opaque snapshot",
+          "recordId": "REC-MEDIA-001",
+          "templateRef": {
+            "templateId": "TPL-LEAD-MAIN",
+            "version": 1
+          },
+          "nodeId": "handle",
+          "catalogStatus": "success",
+          "cleanupWrites": 1,
+          "activeTemplates": 0,
+          "detailStatus": "success",
+          "detailError": null,
+          "displayedNode": {
+            "nodeId": "handle",
+            "name": "当前租户培育",
+            "type": "PROCESS",
+            "duty": "CURRENT",
+            "methods": [
+              "AI",
+              "PREDICTIVE",
+              "MANUAL"
+            ],
+            "next": [
+              "down",
+              "up",
+              "close"
+            ]
+          },
+          "originalNodeRun": {
+            "nodeRunId": "REC-MEDIA-001-N1",
+            "nodeId": "handle",
+            "templateRef": {
+              "templateId": "TPL-LEAD-MAIN",
+              "version": 1
+            },
+            "roundId": "REC-MEDIA-001-R1",
+            "tenantId": "TEN-NISSAN-HQ",
+            "enteredAt": "2026-10-23T00:10:00.000Z",
+            "status": "current"
+          },
+          "businessBytesUnchanged": true,
+          "snapshotBytesPreserved": true
+        }
+      ],
+      "boundaries": "isolated intentionally malformed Map fixtures; all original stored business/snapshot bytes remain; no assertion existing real user data is corrupt",
+      "sourceSha256": "15d5c491baf8f2dd7fe77df3d913a6cd93712fa59b9038151493411d18a1f526"
+    },
+    "persistence-report.json": {
+      "verifiedAt": "2026-10-28T14:56:35.992621+08:00",
+      "normalPaths": "pass",
+      "finding": {
+        "severity": "P2",
+        "classification": "conditional migration-input validation gap; not observed data loss",
+        "file": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/scripts/flow-template-cleanup.js",
+        "line": 5,
+        "relatedLines": [
+          17,
+          20,
+          28
+        ],
+        "observed": "catalogs writes cleanup success before referenced version/node uniqueness can be established on damaged fixture; detail subsequently fails or chooses ambiguous first node",
+        "existingUserCorruptionClaim": false,
+        "originalBytesPreserved": true,
+        "evidence": "/tmp/v2-drag-audit-20261028/persistence-corrupt-reference-results.json"
+      },
+      "assertions": {
+        "independentPersistence": 34,
+        "actualFirstMatchStore": 3,
+        "replayedCleanup": 15,
+        "replayedSingleMethod": 25
+      },
+      "authorizationAssessment": "normal first-read one-time retirement and preserved future versions align with recorded approval; no original business collections cleared",
+      "sourceSha256": {
+        "generatedStore": "15d5c491baf8f2dd7fe77df3d913a6cd93712fa59b9038151493411d18a1f526",
+        "scripts/flow-template-cleanup.js": "da7bae3873304f30089bd61cbf6809496772f4f4be57f5870e9f9853f0901c2b",
+        "scripts/flow_template_cleanup_build.py": "f28f6597764629f1ba2a8f54bcee01e5fa3ba77616ac1b6e1a3dcc91ca3182e0",
+        "scripts/flow_routing_build.py": "c6b7c548cbfe10acccfa865932f9176f359b879bea155c2bf47703b2c40fba86",
+        "js/components/flow-routing.js": "ed4018adb5a401832e5010cf47f67c59af5dfeff4a4ac517547fea058d807aca",
+        "js/components/business-link.js": "0c995e3fc0a508583305885d7987cfdc3697e967c21bae8b2971e2c8ccd8c48c"
+      },
+      "sourceStable": true,
+      "productWrites": 0,
+      "buildExecuted": false,
+      "userBrowserAccess": false,
+      "report": "/tmp/v2-drag-audit-20261028/persistence-report.md"
+    },
+    "route-ui.json": {
+      "status": "passed",
+      "url": "http://127.0.0.1:57833",
+      "checks": [
+        "首次读取清理既有模板活动目录，新样例从空活动目录创建",
+        "原当前UI新建模板首版本V1，清理不妨碍新版本化保存",
+        "新模板编辑另存V2，V1内容逐字对象保持",
+        "历史V1只读浏览关闭不写入；刷新不会再次清理新建V1/V2",
+        "R192/193/196 独立路由入口只有单一模板版本选择，空态及精确V1名称/节点/路径预览只读（不含职责/允许方式完整性）",
+        "R194 原UI路由保存/回读只更新ROUTE，基础字段编码与接口配置保持",
+        "R194 当前真实saveRoute分别拒绝BASE/字段/ROUTE版本及上下文冲突，全部无写入",
+        "R194 取消确认保留输入、明确放弃不写路由",
+        "R194 跨窗口ROUTE变化使旧提交失败且保留选择，重读不清草稿",
+        "R194 明确失败保留原路由和当前输入",
+        "R194 响应未知冻结重复提交，核对同一请求不增版本且不覆盖新基础",
+        "R192/195 当前生成模型精确分类版本绑定；字段变化保留引用并标需复核/阻新输入，旧模板重绑失败（独立模型分支）",
+        "R195 原有权Cloud业务上下文真实previewImport拒绝不兼容路由且未新增/改写记录"
+      ],
+      "errors": [],
+      "network": [],
+      "sourceBefore": {
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "js/app.js": "b4b5318e51a8b8e48360d29b26e5d221303c03f42603a8ef91fac153db47e626",
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad"
+      },
+      "sourceAfter": {
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "js/app.js": "b4b5318e51a8b8e48360d29b26e5d221303c03f42603a8ef91fac153db47e626",
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad"
+      },
+      "scope": "new nonpersistent Chrome, actual project HTTP, original UI save/read; no real API, no file input/deletion",
+      "fileEvidence": "Separate user manual confirmation, not this browser",
+      "originalCheckLabels": [
+        "首次读取清理既有模板活动目录，新样例从空活动目录创建",
+        "原当前UI新建模板首版本V1，清理不妨碍新版本化保存",
+        "新模板编辑另存V2，V1内容逐字对象保持",
+        "历史V1只读浏览关闭不写入；刷新不会再次清理新建V1/V2",
+        "R192/193/196 独立路由入口只有单一模板版本选择，空态及精确V1节点/职责/路径预览只读",
+        "R194 原UI路由保存/回读只更新ROUTE，基础字段编码与接口配置保持",
+        "R194 当前真实saveRoute分别拒绝BASE/字段/ROUTE版本及上下文冲突，全部无写入",
+        "R194 取消确认保留输入、明确放弃不写路由",
+        "R194 跨窗口ROUTE变化使旧提交失败且保留选择，重读不清草稿",
+        "R194 明确失败保留原路由和当前输入",
+        "R194 响应未知冻结重复提交，核对同一请求不增版本且不覆盖新基础",
+        "R192/195 当前生成模型精确分类版本绑定；字段变化保留引用并标需复核/阻新输入，旧模板重绑失败（独立模型分支）",
+        "R195 原有权Cloud业务上下文真实previewImport拒绝不兼容路由且未新增/改写记录"
+      ],
+      "scopeCorrection": "Follow-up exact HQ/MANUAL probe found duty and explicit method missing. These 13 interaction checks do not certify all R196 content. See route-preview-contract-detail.json."
+    },
+    "route-preview-contract-detail.json": {
+      "id": "DRAG-ROUTE-01",
+      "requirement": "R-196 / AC-2134",
+      "expected": {
+        "duty": "总部",
+        "method": "人工"
+      },
+      "saved": {
+        "duty": "HQ",
+        "methods": [
+          "MANUAL"
+        ]
+      },
+      "observedNodeText": "1\n审核处理\n现有方式处理\n\n由人员选择允许的方式并主动启动，依次处理并保存结果。\n\n云呼叫 · 云 · 手动/预览外呼 status · 本节点本次结果\n\nELSE · 优先级 1 → 流程结束前方条件均不匹配时进入，无附加条件。",
+      "observedDescription": "路由说明审查样例\n\n售后类 · 分类V1 · 起始：审核处理\n\nV1\n\n按优先级从前到后择一匹配；ELSE为兜底，多出口不会并行执行。条件取明确范围的准确结果，未知或冲突时待核。\n\n1\n审核处理\n现有方式处理\n\n由人员选择允许的方式并主动启动，依次处理并保存结果。\n\n云呼叫 · 云 · 手动/预览外呼 status · 本节点本次结果\n\nELSE · 优先级 1 → 流程结束前方条件均不匹配时进入，无附加条件。\n2\n流程结束\n结束\n\n由人员确认本次业务办理结束。\n\n未选处理渠道 · 未选状态域 · 未选择范围\n\n无后续路径。",
+      "dutyVisible": false,
+      "methodExplicit": false,
+      "screenshot": "/tmp/v2-drag-audit-20261028/route-preview-duty-missing.png"
+    },
+    "route-preview-contract.json": {
+      "status": "confirmed_product_finding",
+      "url": "http://127.0.0.1:58199",
+      "checks": [
+        "Actual saved HQ/MANUAL fixture rendered from exact V1; no HQ duty text in its route node card"
+      ],
+      "errors": [],
+      "network": [],
+      "failure": {
+        "id": "DRAG-ROUTE-01",
+        "requirement": "R-196 / AC-2134",
+        "expected": {
+          "duty": "总部",
+          "method": "人工"
+        },
+        "saved": {
+          "duty": "HQ",
+          "methods": [
+            "MANUAL"
+          ]
+        },
+        "observedNodeText": "1\n审核处理\n现有方式处理\n\n由人员选择允许的方式并主动启动，依次处理并保存结果。\n\n云呼叫 · 云 · 手动/预览外呼 status · 本节点本次结果\n\nELSE · 优先级 1 → 流程结束前方条件均不匹配时进入，无附加条件。",
+        "observedDescription": "路由说明审查样例\n\n售后类 · 分类V1 · 起始：审核处理\n\nV1\n\n按优先级从前到后择一匹配；ELSE为兜底，多出口不会并行执行。条件取明确范围的准确结果，未知或冲突时待核。\n\n1\n审核处理\n现有方式处理\n\n由人员选择允许的方式并主动启动，依次处理并保存结果。\n\n云呼叫 · 云 · 手动/预览外呼 status · 本节点本次结果\n\nELSE · 优先级 1 → 流程结束前方条件均不匹配时进入，无附加条件。\n2\n流程结束\n结束\n\n由人员确认本次业务办理结束。\n\n未选处理渠道 · 未选状态域 · 未选择范围\n\n无后续路径。",
+        "dutyVisible": false,
+        "methodExplicit": false,
+        "screenshot": "/tmp/v2-drag-audit-20261028/route-preview-duty-missing.png"
+      },
+      "sourceBefore": {
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "js/app.js": "b4b5318e51a8b8e48360d29b26e5d221303c03f42603a8ef91fac153db47e626",
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad"
+      },
+      "sourceAfter": {
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+        "js/app.js": "b4b5318e51a8b8e48360d29b26e5d221303c03f42603a8ef91fac153db47e626",
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad"
+      },
+      "scope": "new nonpersistent Chrome, actual project HTTP, original UI save/read; no real API, no file input/deletion",
+      "fileEvidence": "Separate user manual confirmation, not this browser"
+    },
+    "route-detail.json": {
+      "initial": {
+        "brandId": "BRAND-NISSAN",
+        "categoryId": "aftersales",
+        "category": {
+          "id": "aftersales",
+          "label": "售后类",
+          "codeLabel": "售后单号",
+          "prefix": "AS",
+          "enabled": true,
+          "fields": [
+            {
+              "fieldId": "serviceConcern",
+              "enabled": true,
+              "required": false
+            },
+            {
+              "fieldId": "serviceSatisfaction",
+              "enabled": true,
+              "required": false
+            },
+            {
+              "fieldId": "nextServiceDate",
+              "enabled": true,
+              "required": false
+            }
+          ],
+          "configurationVersion": 1,
+          "flowBinding": {
+            "main": {
+              "templateId": "TPL-AFTERSALES",
+              "version": 1
+            },
+            "backup": null,
+            "mappings": []
+          }
+        },
+        "baseVersion": 1,
+        "fieldsVersion": "fields-6803e415",
+        "routeVersion": 1,
+        "conditionFields": [],
+        "flowBinding": {
+          "main": {
+            "templateId": "TPL-AFTERSALES",
+            "version": 1
+          },
+          "backup": null,
+          "mappings": []
+        },
+        "routeState": "REVIEW_REQUIRED",
+        "ready": false,
+        "issues": [
+          "原流转模板已清理，请重新关联当前可用模板"
+        ],
+        "templates": [
+          {
+            "templateId": "TPL-856b6831-4ed3-43f3-8775-2a30c2d9f171",
+            "brandId": "BRAND-NISSAN",
+            "name": "路由审计模板V2",
+            "latestVersion": 2,
+            "versions": [
+              {
+                "name": "路由审计模板V1",
+                "startNodeId": "node-1",
+                "nodes": [
+                  {
+                    "nodeId": "node-1",
+                    "name": "审计结束V1",
+                    "type": "END",
+                    "duty": "CURRENT",
+                    "methods": [],
+                    "next": [],
+                    "conditionSource": {
+                      "scope": "CURRENT_NODE"
+                    }
+                  }
+                ],
+                "edges": [],
+                "routingPolicy": "FIRST_MATCH_V1",
+                "categoryRef": {
+                  "brandId": "BRAND-NISSAN",
+                  "categoryId": "aftersales",
+                  "version": 1,
+                  "fieldsVersion": "fields-6803e415"
+                },
+                "routingCatalog": {
+                  "categoryRef": {
+                    "brandId": "BRAND-NISSAN",
+                    "categoryId": "aftersales",
+                    "version": 1,
+                    "fieldsVersion": "fields-6803e415"
+                  },
+                  "categoryLabel": "售后类",
+                  "fields": [
+                    {
+                      "key": "name",
+                      "label": "客户称呼",
+                      "type": "text",
+                      "required": true,
+                      "id": "name",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "phone",
+                      "label": "客户号码",
+                      "type": "text",
+                      "required": true,
+                      "id": "phone",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "note",
+                      "label": "联系备注",
+                      "type": "text",
+                      "required": false,
+                      "id": "note",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreCode",
+                      "label": "意向门店编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreName",
+                      "label": "意向门店名称",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreName",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeriesCode",
+                      "label": "意向车系编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeriesCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeries",
+                      "label": "意向车系",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeries",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "smartCode",
+                      "label": "Smartcode",
+                      "type": "text",
+                      "required": false,
+                      "id": "smartCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "leadCreatedAt",
+                      "label": "留资时间",
+                      "type": "text",
+                      "required": false,
+                      "id": "leadCreatedAt",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "id": "serviceConcern",
+                      "label": "服务反馈",
+                      "type": "textarea",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "serviceSatisfaction",
+                      "label": "服务满意度",
+                      "type": "select",
+                      "businessKey": "",
+                      "options": [
+                        {
+                          "id": "满意",
+                          "label": "满意",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "一般",
+                          "label": "一般",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "不满意",
+                          "label": "不满意",
+                          "businessKey": ""
+                        }
+                      ],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "nextServiceDate",
+                      "label": "计划保养日期",
+                      "type": "date",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    }
+                  ],
+                  "domains": [
+                    {
+                      "id": "DCC_LOCAL_LABEL",
+                      "channel": "AI",
+                      "label": "AI · 原DCC归并通话结果",
+                      "provider": "DCC",
+                      "field": "status",
+                      "statuses": [
+                        {
+                          "value": "已接通",
+                          "label": "已接通"
+                        },
+                        {
+                          "value": "秒挂",
+                          "label": "秒挂"
+                        },
+                        {
+                          "value": "伪接通",
+                          "label": "伪接通"
+                        },
+                        {
+                          "value": "无人接听",
+                          "label": "无人接听"
+                        },
+                        {
+                          "value": "占线",
+                          "label": "占线"
+                        },
+                        {
+                          "value": "拒接",
+                          "label": "拒接"
+                        },
+                        {
+                          "value": "空号",
+                          "label": "空号"
+                        },
+                        {
+                          "value": "关机",
+                          "label": "关机"
+                        },
+                        {
+                          "value": "停机",
+                          "label": "停机"
+                        },
+                        {
+                          "value": "欠费",
+                          "label": "欠费"
+                        },
+                        {
+                          "value": "无法接通",
+                          "label": "无法接通"
+                        },
+                        {
+                          "value": "黑名单过滤",
+                          "label": "黑名单过滤"
+                        },
+                        {
+                          "value": "拦截规则",
+                          "label": "拦截规则"
+                        },
+                        {
+                          "value": "分机号错误",
+                          "label": "分机号错误"
+                        },
+                        {
+                          "value": "呼叫受限",
+                          "label": "呼叫受限"
+                        },
+                        {
+                          "value": "主叫欠费",
+                          "label": "主叫欠费"
+                        },
+                        {
+                          "value": "呼损客户",
+                          "label": "呼损客户"
+                        },
+                        {
+                          "value": "外呼失败",
+                          "label": "外呼失败"
+                        },
+                        {
+                          "value": "转人工呼损",
+                          "label": "转人工呼损"
+                        },
+                        {
+                          "value": "线路拦截",
+                          "label": "线路拦截"
+                        },
+                        {
+                          "value": "号码故障",
+                          "label": "号码故障"
+                        },
+                        {
+                          "value": "线路故障",
+                          "label": "线路故障"
+                        }
+                      ],
+                      "excluded": [
+                        "等待呼叫",
+                        "等待重呼",
+                        "待呼叫去重"
+                      ],
+                      "note": "只判已结束且重试完成的最终节点结果；供应商原始code/label另行保留，未知映射待核。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_LIST_CDR_OB_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 手动/预览外呼 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_ob",
+                      "field": "status",
+                      "methods": [
+                        "MANUAL"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "1",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "2",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "3",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "4",
+                          "label": "坐席接听"
+                        }
+                      ],
+                      "note": "原始4仅表示坐席接听，不等同客户接通。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_PREDICTIVE_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 预外呼通话记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_predictive_call",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "双方接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_AUTO_TASK_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 自动任务记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_auto_task",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "转人工未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "转人工接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    }
+                  ],
+                  "aiContexts": [],
+                  "aiError": "AI配置未就绪"
+                },
+                "version": 1,
+                "savedAt": "2026-10-28T06:49:18.539Z",
+                "savedBy": "ACC-ADMIN-018"
+              },
+              {
+                "name": "路由审计模板V2",
+                "startNodeId": "node-1",
+                "nodes": [
+                  {
+                    "nodeId": "node-1",
+                    "name": "审计结束V1",
+                    "type": "END",
+                    "duty": "CURRENT",
+                    "methods": [],
+                    "next": [],
+                    "conditionSource": {
+                      "scope": "CURRENT_NODE"
+                    }
+                  }
+                ],
+                "edges": [],
+                "routingPolicy": "FIRST_MATCH_V1",
+                "categoryRef": {
+                  "brandId": "BRAND-NISSAN",
+                  "categoryId": "aftersales",
+                  "version": 1,
+                  "fieldsVersion": "fields-6803e415"
+                },
+                "routingCatalog": {
+                  "categoryRef": {
+                    "brandId": "BRAND-NISSAN",
+                    "categoryId": "aftersales",
+                    "version": 1,
+                    "fieldsVersion": "fields-6803e415"
+                  },
+                  "categoryLabel": "售后类",
+                  "fields": [
+                    {
+                      "key": "name",
+                      "label": "客户称呼",
+                      "type": "text",
+                      "required": true,
+                      "id": "name",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "phone",
+                      "label": "客户号码",
+                      "type": "text",
+                      "required": true,
+                      "id": "phone",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "note",
+                      "label": "联系备注",
+                      "type": "text",
+                      "required": false,
+                      "id": "note",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreCode",
+                      "label": "意向门店编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreName",
+                      "label": "意向门店名称",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreName",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeriesCode",
+                      "label": "意向车系编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeriesCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeries",
+                      "label": "意向车系",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeries",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "smartCode",
+                      "label": "Smartcode",
+                      "type": "text",
+                      "required": false,
+                      "id": "smartCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "leadCreatedAt",
+                      "label": "留资时间",
+                      "type": "text",
+                      "required": false,
+                      "id": "leadCreatedAt",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "id": "serviceConcern",
+                      "label": "服务反馈",
+                      "type": "textarea",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "serviceSatisfaction",
+                      "label": "服务满意度",
+                      "type": "select",
+                      "businessKey": "",
+                      "options": [
+                        {
+                          "id": "满意",
+                          "label": "满意",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "一般",
+                          "label": "一般",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "不满意",
+                          "label": "不满意",
+                          "businessKey": ""
+                        }
+                      ],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "nextServiceDate",
+                      "label": "计划保养日期",
+                      "type": "date",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    }
+                  ],
+                  "domains": [
+                    {
+                      "id": "DCC_LOCAL_LABEL",
+                      "channel": "AI",
+                      "label": "AI · 原DCC归并通话结果",
+                      "provider": "DCC",
+                      "field": "status",
+                      "statuses": [
+                        {
+                          "value": "已接通",
+                          "label": "已接通"
+                        },
+                        {
+                          "value": "秒挂",
+                          "label": "秒挂"
+                        },
+                        {
+                          "value": "伪接通",
+                          "label": "伪接通"
+                        },
+                        {
+                          "value": "无人接听",
+                          "label": "无人接听"
+                        },
+                        {
+                          "value": "占线",
+                          "label": "占线"
+                        },
+                        {
+                          "value": "拒接",
+                          "label": "拒接"
+                        },
+                        {
+                          "value": "空号",
+                          "label": "空号"
+                        },
+                        {
+                          "value": "关机",
+                          "label": "关机"
+                        },
+                        {
+                          "value": "停机",
+                          "label": "停机"
+                        },
+                        {
+                          "value": "欠费",
+                          "label": "欠费"
+                        },
+                        {
+                          "value": "无法接通",
+                          "label": "无法接通"
+                        },
+                        {
+                          "value": "黑名单过滤",
+                          "label": "黑名单过滤"
+                        },
+                        {
+                          "value": "拦截规则",
+                          "label": "拦截规则"
+                        },
+                        {
+                          "value": "分机号错误",
+                          "label": "分机号错误"
+                        },
+                        {
+                          "value": "呼叫受限",
+                          "label": "呼叫受限"
+                        },
+                        {
+                          "value": "主叫欠费",
+                          "label": "主叫欠费"
+                        },
+                        {
+                          "value": "呼损客户",
+                          "label": "呼损客户"
+                        },
+                        {
+                          "value": "外呼失败",
+                          "label": "外呼失败"
+                        },
+                        {
+                          "value": "转人工呼损",
+                          "label": "转人工呼损"
+                        },
+                        {
+                          "value": "线路拦截",
+                          "label": "线路拦截"
+                        },
+                        {
+                          "value": "号码故障",
+                          "label": "号码故障"
+                        },
+                        {
+                          "value": "线路故障",
+                          "label": "线路故障"
+                        }
+                      ],
+                      "excluded": [
+                        "等待呼叫",
+                        "等待重呼",
+                        "待呼叫去重"
+                      ],
+                      "note": "只判已结束且重试完成的最终节点结果；供应商原始code/label另行保留，未知映射待核。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_LIST_CDR_OB_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 手动/预览外呼 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_ob",
+                      "field": "status",
+                      "methods": [
+                        "MANUAL"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "1",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "2",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "3",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "4",
+                          "label": "坐席接听"
+                        }
+                      ],
+                      "note": "原始4仅表示坐席接听，不等同客户接通。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_PREDICTIVE_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 预外呼通话记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_predictive_call",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "双方接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_AUTO_TASK_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 自动任务记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_auto_task",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "转人工未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "转人工接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    }
+                  ],
+                  "aiContexts": [],
+                  "aiError": "AI配置未就绪"
+                },
+                "version": 2,
+                "savedAt": "2026-10-28T06:49:20.259Z",
+                "savedBy": "ACC-ADMIN-018"
+              }
+            ]
+          }
+        ],
+        "contextToken": "[\"ACC-ADMIN-018\",\"shared-config-ACC-ADMIN-018\",\"7522240\",\"TEN-NISSAN-HQ\",\"BUSINESS_CONFIG\",\"ADMIN\",true]"
+      },
+      "saved": {
+        "brandId": "BRAND-NISSAN",
+        "categoryId": "aftersales",
+        "category": {
+          "id": "aftersales",
+          "label": "售后类",
+          "codeLabel": "售后单号",
+          "prefix": "AS",
+          "enabled": true,
+          "fields": [
+            {
+              "fieldId": "serviceConcern",
+              "enabled": true,
+              "required": false
+            },
+            {
+              "fieldId": "serviceSatisfaction",
+              "enabled": true,
+              "required": false
+            },
+            {
+              "fieldId": "nextServiceDate",
+              "enabled": true,
+              "required": false
+            }
+          ],
+          "configurationVersion": 1,
+          "flowBinding": {
+            "main": {
+              "templateId": "TPL-856b6831-4ed3-43f3-8775-2a30c2d9f171",
+              "version": 1
+            },
+            "backup": null,
+            "mappings": [],
+            "version": 2,
+            "validatedBaseVersion": 1,
+            "validatedFieldsVersion": "fields-6803e415",
+            "savedAt": "2026-10-28T06:49:25.692Z",
+            "savedBy": "ACC-ADMIN-018"
+          },
+          "flowBindingHistory": [
+            {
+              "configurationVersion": 1,
+              "flowBinding": {
+                "main": {
+                  "templateId": "TPL-AFTERSALES",
+                  "version": 1
+                },
+                "backup": null,
+                "mappings": []
+              }
+            }
+          ]
+        },
+        "baseVersion": 1,
+        "fieldsVersion": "fields-6803e415",
+        "routeVersion": 2,
+        "conditionFields": [],
+        "flowBinding": {
+          "main": {
+            "templateId": "TPL-856b6831-4ed3-43f3-8775-2a30c2d9f171",
+            "version": 1
+          },
+          "backup": null,
+          "mappings": [],
+          "version": 2,
+          "validatedBaseVersion": 1,
+          "validatedFieldsVersion": "fields-6803e415",
+          "savedAt": "2026-10-28T06:49:25.692Z",
+          "savedBy": "ACC-ADMIN-018"
+        },
+        "routeState": "READY",
+        "ready": true,
+        "issues": [],
+        "templates": [
+          {
+            "templateId": "TPL-856b6831-4ed3-43f3-8775-2a30c2d9f171",
+            "brandId": "BRAND-NISSAN",
+            "name": "路由审计模板V2",
+            "latestVersion": 2,
+            "versions": [
+              {
+                "name": "路由审计模板V1",
+                "startNodeId": "node-1",
+                "nodes": [
+                  {
+                    "nodeId": "node-1",
+                    "name": "审计结束V1",
+                    "type": "END",
+                    "duty": "CURRENT",
+                    "methods": [],
+                    "next": [],
+                    "conditionSource": {
+                      "scope": "CURRENT_NODE"
+                    }
+                  }
+                ],
+                "edges": [],
+                "routingPolicy": "FIRST_MATCH_V1",
+                "categoryRef": {
+                  "brandId": "BRAND-NISSAN",
+                  "categoryId": "aftersales",
+                  "version": 1,
+                  "fieldsVersion": "fields-6803e415"
+                },
+                "routingCatalog": {
+                  "categoryRef": {
+                    "brandId": "BRAND-NISSAN",
+                    "categoryId": "aftersales",
+                    "version": 1,
+                    "fieldsVersion": "fields-6803e415"
+                  },
+                  "categoryLabel": "售后类",
+                  "fields": [
+                    {
+                      "key": "name",
+                      "label": "客户称呼",
+                      "type": "text",
+                      "required": true,
+                      "id": "name",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "phone",
+                      "label": "客户号码",
+                      "type": "text",
+                      "required": true,
+                      "id": "phone",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "note",
+                      "label": "联系备注",
+                      "type": "text",
+                      "required": false,
+                      "id": "note",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreCode",
+                      "label": "意向门店编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreName",
+                      "label": "意向门店名称",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreName",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeriesCode",
+                      "label": "意向车系编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeriesCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeries",
+                      "label": "意向车系",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeries",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "smartCode",
+                      "label": "Smartcode",
+                      "type": "text",
+                      "required": false,
+                      "id": "smartCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "leadCreatedAt",
+                      "label": "留资时间",
+                      "type": "text",
+                      "required": false,
+                      "id": "leadCreatedAt",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "id": "serviceConcern",
+                      "label": "服务反馈",
+                      "type": "textarea",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "serviceSatisfaction",
+                      "label": "服务满意度",
+                      "type": "select",
+                      "businessKey": "",
+                      "options": [
+                        {
+                          "id": "满意",
+                          "label": "满意",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "一般",
+                          "label": "一般",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "不满意",
+                          "label": "不满意",
+                          "businessKey": ""
+                        }
+                      ],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "nextServiceDate",
+                      "label": "计划保养日期",
+                      "type": "date",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    }
+                  ],
+                  "domains": [
+                    {
+                      "id": "DCC_LOCAL_LABEL",
+                      "channel": "AI",
+                      "label": "AI · 原DCC归并通话结果",
+                      "provider": "DCC",
+                      "field": "status",
+                      "statuses": [
+                        {
+                          "value": "已接通",
+                          "label": "已接通"
+                        },
+                        {
+                          "value": "秒挂",
+                          "label": "秒挂"
+                        },
+                        {
+                          "value": "伪接通",
+                          "label": "伪接通"
+                        },
+                        {
+                          "value": "无人接听",
+                          "label": "无人接听"
+                        },
+                        {
+                          "value": "占线",
+                          "label": "占线"
+                        },
+                        {
+                          "value": "拒接",
+                          "label": "拒接"
+                        },
+                        {
+                          "value": "空号",
+                          "label": "空号"
+                        },
+                        {
+                          "value": "关机",
+                          "label": "关机"
+                        },
+                        {
+                          "value": "停机",
+                          "label": "停机"
+                        },
+                        {
+                          "value": "欠费",
+                          "label": "欠费"
+                        },
+                        {
+                          "value": "无法接通",
+                          "label": "无法接通"
+                        },
+                        {
+                          "value": "黑名单过滤",
+                          "label": "黑名单过滤"
+                        },
+                        {
+                          "value": "拦截规则",
+                          "label": "拦截规则"
+                        },
+                        {
+                          "value": "分机号错误",
+                          "label": "分机号错误"
+                        },
+                        {
+                          "value": "呼叫受限",
+                          "label": "呼叫受限"
+                        },
+                        {
+                          "value": "主叫欠费",
+                          "label": "主叫欠费"
+                        },
+                        {
+                          "value": "呼损客户",
+                          "label": "呼损客户"
+                        },
+                        {
+                          "value": "外呼失败",
+                          "label": "外呼失败"
+                        },
+                        {
+                          "value": "转人工呼损",
+                          "label": "转人工呼损"
+                        },
+                        {
+                          "value": "线路拦截",
+                          "label": "线路拦截"
+                        },
+                        {
+                          "value": "号码故障",
+                          "label": "号码故障"
+                        },
+                        {
+                          "value": "线路故障",
+                          "label": "线路故障"
+                        }
+                      ],
+                      "excluded": [
+                        "等待呼叫",
+                        "等待重呼",
+                        "待呼叫去重"
+                      ],
+                      "note": "只判已结束且重试完成的最终节点结果；供应商原始code/label另行保留，未知映射待核。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_LIST_CDR_OB_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 手动/预览外呼 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_ob",
+                      "field": "status",
+                      "methods": [
+                        "MANUAL"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "1",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "2",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "3",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "4",
+                          "label": "坐席接听"
+                        }
+                      ],
+                      "note": "原始4仅表示坐席接听，不等同客户接通。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_PREDICTIVE_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 预外呼通话记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_predictive_call",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "双方接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_AUTO_TASK_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 自动任务记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_auto_task",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "转人工未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "转人工接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    }
+                  ],
+                  "aiContexts": [],
+                  "aiError": "AI配置未就绪"
+                },
+                "version": 1,
+                "savedAt": "2026-10-28T06:49:18.539Z",
+                "savedBy": "ACC-ADMIN-018"
+              },
+              {
+                "name": "路由审计模板V2",
+                "startNodeId": "node-1",
+                "nodes": [
+                  {
+                    "nodeId": "node-1",
+                    "name": "审计结束V1",
+                    "type": "END",
+                    "duty": "CURRENT",
+                    "methods": [],
+                    "next": [],
+                    "conditionSource": {
+                      "scope": "CURRENT_NODE"
+                    }
+                  }
+                ],
+                "edges": [],
+                "routingPolicy": "FIRST_MATCH_V1",
+                "categoryRef": {
+                  "brandId": "BRAND-NISSAN",
+                  "categoryId": "aftersales",
+                  "version": 1,
+                  "fieldsVersion": "fields-6803e415"
+                },
+                "routingCatalog": {
+                  "categoryRef": {
+                    "brandId": "BRAND-NISSAN",
+                    "categoryId": "aftersales",
+                    "version": 1,
+                    "fieldsVersion": "fields-6803e415"
+                  },
+                  "categoryLabel": "售后类",
+                  "fields": [
+                    {
+                      "key": "name",
+                      "label": "客户称呼",
+                      "type": "text",
+                      "required": true,
+                      "id": "name",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "phone",
+                      "label": "客户号码",
+                      "type": "text",
+                      "required": true,
+                      "id": "phone",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "note",
+                      "label": "联系备注",
+                      "type": "text",
+                      "required": false,
+                      "id": "note",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreCode",
+                      "label": "意向门店编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreName",
+                      "label": "意向门店名称",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreName",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeriesCode",
+                      "label": "意向车系编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeriesCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeries",
+                      "label": "意向车系",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeries",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "smartCode",
+                      "label": "Smartcode",
+                      "type": "text",
+                      "required": false,
+                      "id": "smartCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "leadCreatedAt",
+                      "label": "留资时间",
+                      "type": "text",
+                      "required": false,
+                      "id": "leadCreatedAt",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "id": "serviceConcern",
+                      "label": "服务反馈",
+                      "type": "textarea",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "serviceSatisfaction",
+                      "label": "服务满意度",
+                      "type": "select",
+                      "businessKey": "",
+                      "options": [
+                        {
+                          "id": "满意",
+                          "label": "满意",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "一般",
+                          "label": "一般",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "不满意",
+                          "label": "不满意",
+                          "businessKey": ""
+                        }
+                      ],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "nextServiceDate",
+                      "label": "计划保养日期",
+                      "type": "date",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    }
+                  ],
+                  "domains": [
+                    {
+                      "id": "DCC_LOCAL_LABEL",
+                      "channel": "AI",
+                      "label": "AI · 原DCC归并通话结果",
+                      "provider": "DCC",
+                      "field": "status",
+                      "statuses": [
+                        {
+                          "value": "已接通",
+                          "label": "已接通"
+                        },
+                        {
+                          "value": "秒挂",
+                          "label": "秒挂"
+                        },
+                        {
+                          "value": "伪接通",
+                          "label": "伪接通"
+                        },
+                        {
+                          "value": "无人接听",
+                          "label": "无人接听"
+                        },
+                        {
+                          "value": "占线",
+                          "label": "占线"
+                        },
+                        {
+                          "value": "拒接",
+                          "label": "拒接"
+                        },
+                        {
+                          "value": "空号",
+                          "label": "空号"
+                        },
+                        {
+                          "value": "关机",
+                          "label": "关机"
+                        },
+                        {
+                          "value": "停机",
+                          "label": "停机"
+                        },
+                        {
+                          "value": "欠费",
+                          "label": "欠费"
+                        },
+                        {
+                          "value": "无法接通",
+                          "label": "无法接通"
+                        },
+                        {
+                          "value": "黑名单过滤",
+                          "label": "黑名单过滤"
+                        },
+                        {
+                          "value": "拦截规则",
+                          "label": "拦截规则"
+                        },
+                        {
+                          "value": "分机号错误",
+                          "label": "分机号错误"
+                        },
+                        {
+                          "value": "呼叫受限",
+                          "label": "呼叫受限"
+                        },
+                        {
+                          "value": "主叫欠费",
+                          "label": "主叫欠费"
+                        },
+                        {
+                          "value": "呼损客户",
+                          "label": "呼损客户"
+                        },
+                        {
+                          "value": "外呼失败",
+                          "label": "外呼失败"
+                        },
+                        {
+                          "value": "转人工呼损",
+                          "label": "转人工呼损"
+                        },
+                        {
+                          "value": "线路拦截",
+                          "label": "线路拦截"
+                        },
+                        {
+                          "value": "号码故障",
+                          "label": "号码故障"
+                        },
+                        {
+                          "value": "线路故障",
+                          "label": "线路故障"
+                        }
+                      ],
+                      "excluded": [
+                        "等待呼叫",
+                        "等待重呼",
+                        "待呼叫去重"
+                      ],
+                      "note": "只判已结束且重试完成的最终节点结果；供应商原始code/label另行保留，未知映射待核。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_LIST_CDR_OB_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 手动/预览外呼 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_ob",
+                      "field": "status",
+                      "methods": [
+                        "MANUAL"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "1",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "2",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "3",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "4",
+                          "label": "坐席接听"
+                        }
+                      ],
+                      "note": "原始4仅表示坐席接听，不等同客户接通。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_PREDICTIVE_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 预外呼通话记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_predictive_call",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "双方接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_AUTO_TASK_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 自动任务记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_auto_task",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "转人工未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "转人工接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    }
+                  ],
+                  "aiContexts": [],
+                  "aiError": "AI配置未就绪"
+                },
+                "version": 2,
+                "savedAt": "2026-10-28T06:49:20.259Z",
+                "savedBy": "ACC-ADMIN-018"
+              }
+            ]
+          }
+        ],
+        "contextToken": "[\"ACC-ADMIN-018\",\"shared-config-ACC-ADMIN-018\",\"7522240\",\"TEN-NISSAN-HQ\",\"BUSINESS_CONFIG\",\"ADMIN\",true]"
+      },
+      "conflict": [
+        {
+          "key": "expectedBaseVersion",
+          "status": "failed",
+          "code": "STALE_VERSION",
+          "unchanged": true
+        },
+        {
+          "key": "expectedFieldsVersion",
+          "status": "failed",
+          "code": "STALE_VERSION",
+          "unchanged": true
+        },
+        {
+          "key": "expectedRouteVersion",
+          "status": "failed",
+          "code": "STALE_VERSION",
+          "unchanged": true
+        },
+        {
+          "key": "contextToken",
+          "status": "failed",
+          "code": "CONTEXT_CHANGED",
+          "unchanged": true
+        }
+      ],
+      "reconciled": {
+        "brandId": "BRAND-NISSAN",
+        "categoryId": "aftersales",
+        "category": {
+          "id": "aftersales",
+          "label": "售后类",
+          "codeLabel": "售后单号",
+          "prefix": "AS",
+          "enabled": true,
+          "fields": [
+            {
+              "fieldId": "serviceConcern",
+              "enabled": true,
+              "required": false
+            },
+            {
+              "fieldId": "serviceSatisfaction",
+              "enabled": true,
+              "required": false
+            },
+            {
+              "fieldId": "nextServiceDate",
+              "enabled": true,
+              "required": false
+            }
+          ],
+          "configurationVersion": 1,
+          "flowBinding": {
+            "main": {
+              "templateId": "TPL-856b6831-4ed3-43f3-8775-2a30c2d9f171",
+              "version": 1
+            },
+            "backup": null,
+            "mappings": [],
+            "version": 4,
+            "validatedBaseVersion": 1,
+            "validatedFieldsVersion": "fields-6803e415",
+            "savedAt": "2026-10-28T06:49:35.698Z",
+            "savedBy": "ACC-ADMIN-018"
+          },
+          "flowBindingHistory": [
+            {
+              "configurationVersion": 1,
+              "flowBinding": {
+                "main": {
+                  "templateId": "TPL-AFTERSALES",
+                  "version": 1
+                },
+                "backup": null,
+                "mappings": []
+              }
+            },
+            {
+              "configurationVersion": 1,
+              "flowBinding": {
+                "main": {
+                  "templateId": "TPL-856b6831-4ed3-43f3-8775-2a30c2d9f171",
+                  "version": 1
+                },
+                "backup": null,
+                "mappings": [],
+                "version": 2,
+                "validatedBaseVersion": 1,
+                "validatedFieldsVersion": "fields-6803e415",
+                "savedAt": "2026-10-28T06:49:25.692Z",
+                "savedBy": "ACC-ADMIN-018"
+              }
+            },
+            {
+              "configurationVersion": 1,
+              "flowBinding": {
+                "main": {
+                  "templateId": "TPL-856b6831-4ed3-43f3-8775-2a30c2d9f171",
+                  "version": 1
+                },
+                "backup": null,
+                "mappings": [],
+                "version": 3,
+                "validatedBaseVersion": 1,
+                "validatedFieldsVersion": "fields-6803e415",
+                "savedAt": "2026-10-28T06:49:31.541Z",
+                "savedBy": "ACC-ADMIN-018"
+              }
+            }
+          ]
+        },
+        "baseVersion": 1,
+        "fieldsVersion": "fields-6803e415",
+        "routeVersion": 4,
+        "conditionFields": [],
+        "flowBinding": {
+          "main": {
+            "templateId": "TPL-856b6831-4ed3-43f3-8775-2a30c2d9f171",
+            "version": 1
+          },
+          "backup": null,
+          "mappings": [],
+          "version": 4,
+          "validatedBaseVersion": 1,
+          "validatedFieldsVersion": "fields-6803e415",
+          "savedAt": "2026-10-28T06:49:35.698Z",
+          "savedBy": "ACC-ADMIN-018"
+        },
+        "routeState": "READY",
+        "ready": true,
+        "issues": [],
+        "templates": [
+          {
+            "templateId": "TPL-856b6831-4ed3-43f3-8775-2a30c2d9f171",
+            "brandId": "BRAND-NISSAN",
+            "name": "路由审计模板V2",
+            "latestVersion": 2,
+            "versions": [
+              {
+                "name": "路由审计模板V1",
+                "startNodeId": "node-1",
+                "nodes": [
+                  {
+                    "nodeId": "node-1",
+                    "name": "审计结束V1",
+                    "type": "END",
+                    "duty": "CURRENT",
+                    "methods": [],
+                    "next": [],
+                    "conditionSource": {
+                      "scope": "CURRENT_NODE"
+                    }
+                  }
+                ],
+                "edges": [],
+                "routingPolicy": "FIRST_MATCH_V1",
+                "categoryRef": {
+                  "brandId": "BRAND-NISSAN",
+                  "categoryId": "aftersales",
+                  "version": 1,
+                  "fieldsVersion": "fields-6803e415"
+                },
+                "routingCatalog": {
+                  "categoryRef": {
+                    "brandId": "BRAND-NISSAN",
+                    "categoryId": "aftersales",
+                    "version": 1,
+                    "fieldsVersion": "fields-6803e415"
+                  },
+                  "categoryLabel": "售后类",
+                  "fields": [
+                    {
+                      "key": "name",
+                      "label": "客户称呼",
+                      "type": "text",
+                      "required": true,
+                      "id": "name",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "phone",
+                      "label": "客户号码",
+                      "type": "text",
+                      "required": true,
+                      "id": "phone",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "note",
+                      "label": "联系备注",
+                      "type": "text",
+                      "required": false,
+                      "id": "note",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreCode",
+                      "label": "意向门店编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreName",
+                      "label": "意向门店名称",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreName",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeriesCode",
+                      "label": "意向车系编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeriesCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeries",
+                      "label": "意向车系",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeries",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "smartCode",
+                      "label": "Smartcode",
+                      "type": "text",
+                      "required": false,
+                      "id": "smartCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "leadCreatedAt",
+                      "label": "留资时间",
+                      "type": "text",
+                      "required": false,
+                      "id": "leadCreatedAt",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "id": "serviceConcern",
+                      "label": "服务反馈",
+                      "type": "textarea",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "serviceSatisfaction",
+                      "label": "服务满意度",
+                      "type": "select",
+                      "businessKey": "",
+                      "options": [
+                        {
+                          "id": "满意",
+                          "label": "满意",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "一般",
+                          "label": "一般",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "不满意",
+                          "label": "不满意",
+                          "businessKey": ""
+                        }
+                      ],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "nextServiceDate",
+                      "label": "计划保养日期",
+                      "type": "date",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    }
+                  ],
+                  "domains": [
+                    {
+                      "id": "DCC_LOCAL_LABEL",
+                      "channel": "AI",
+                      "label": "AI · 原DCC归并通话结果",
+                      "provider": "DCC",
+                      "field": "status",
+                      "statuses": [
+                        {
+                          "value": "已接通",
+                          "label": "已接通"
+                        },
+                        {
+                          "value": "秒挂",
+                          "label": "秒挂"
+                        },
+                        {
+                          "value": "伪接通",
+                          "label": "伪接通"
+                        },
+                        {
+                          "value": "无人接听",
+                          "label": "无人接听"
+                        },
+                        {
+                          "value": "占线",
+                          "label": "占线"
+                        },
+                        {
+                          "value": "拒接",
+                          "label": "拒接"
+                        },
+                        {
+                          "value": "空号",
+                          "label": "空号"
+                        },
+                        {
+                          "value": "关机",
+                          "label": "关机"
+                        },
+                        {
+                          "value": "停机",
+                          "label": "停机"
+                        },
+                        {
+                          "value": "欠费",
+                          "label": "欠费"
+                        },
+                        {
+                          "value": "无法接通",
+                          "label": "无法接通"
+                        },
+                        {
+                          "value": "黑名单过滤",
+                          "label": "黑名单过滤"
+                        },
+                        {
+                          "value": "拦截规则",
+                          "label": "拦截规则"
+                        },
+                        {
+                          "value": "分机号错误",
+                          "label": "分机号错误"
+                        },
+                        {
+                          "value": "呼叫受限",
+                          "label": "呼叫受限"
+                        },
+                        {
+                          "value": "主叫欠费",
+                          "label": "主叫欠费"
+                        },
+                        {
+                          "value": "呼损客户",
+                          "label": "呼损客户"
+                        },
+                        {
+                          "value": "外呼失败",
+                          "label": "外呼失败"
+                        },
+                        {
+                          "value": "转人工呼损",
+                          "label": "转人工呼损"
+                        },
+                        {
+                          "value": "线路拦截",
+                          "label": "线路拦截"
+                        },
+                        {
+                          "value": "号码故障",
+                          "label": "号码故障"
+                        },
+                        {
+                          "value": "线路故障",
+                          "label": "线路故障"
+                        }
+                      ],
+                      "excluded": [
+                        "等待呼叫",
+                        "等待重呼",
+                        "待呼叫去重"
+                      ],
+                      "note": "只判已结束且重试完成的最终节点结果；供应商原始code/label另行保留，未知映射待核。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_LIST_CDR_OB_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 手动/预览外呼 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_ob",
+                      "field": "status",
+                      "methods": [
+                        "MANUAL"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "1",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "2",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "3",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "4",
+                          "label": "坐席接听"
+                        }
+                      ],
+                      "note": "原始4仅表示坐席接听，不等同客户接通。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_PREDICTIVE_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 预外呼通话记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_predictive_call",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "双方接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_AUTO_TASK_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 自动任务记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_auto_task",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "转人工未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "转人工接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    }
+                  ],
+                  "aiContexts": [],
+                  "aiError": "AI配置未就绪"
+                },
+                "version": 1,
+                "savedAt": "2026-10-28T06:49:18.539Z",
+                "savedBy": "ACC-ADMIN-018"
+              },
+              {
+                "name": "路由审计模板V2",
+                "startNodeId": "node-1",
+                "nodes": [
+                  {
+                    "nodeId": "node-1",
+                    "name": "审计结束V1",
+                    "type": "END",
+                    "duty": "CURRENT",
+                    "methods": [],
+                    "next": [],
+                    "conditionSource": {
+                      "scope": "CURRENT_NODE"
+                    }
+                  }
+                ],
+                "edges": [],
+                "routingPolicy": "FIRST_MATCH_V1",
+                "categoryRef": {
+                  "brandId": "BRAND-NISSAN",
+                  "categoryId": "aftersales",
+                  "version": 1,
+                  "fieldsVersion": "fields-6803e415"
+                },
+                "routingCatalog": {
+                  "categoryRef": {
+                    "brandId": "BRAND-NISSAN",
+                    "categoryId": "aftersales",
+                    "version": 1,
+                    "fieldsVersion": "fields-6803e415"
+                  },
+                  "categoryLabel": "售后类",
+                  "fields": [
+                    {
+                      "key": "name",
+                      "label": "客户称呼",
+                      "type": "text",
+                      "required": true,
+                      "id": "name",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "phone",
+                      "label": "客户号码",
+                      "type": "text",
+                      "required": true,
+                      "id": "phone",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "note",
+                      "label": "联系备注",
+                      "type": "text",
+                      "required": false,
+                      "id": "note",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreCode",
+                      "label": "意向门店编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionStoreName",
+                      "label": "意向门店名称",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionStoreName",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeriesCode",
+                      "label": "意向车系编码",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeriesCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "intentionSeries",
+                      "label": "意向车系",
+                      "type": "text",
+                      "required": false,
+                      "id": "intentionSeries",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "smartCode",
+                      "label": "Smartcode",
+                      "type": "text",
+                      "required": false,
+                      "id": "smartCode",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "key": "leadCreatedAt",
+                      "label": "留资时间",
+                      "type": "text",
+                      "required": false,
+                      "id": "leadCreatedAt",
+                      "source": "IMPORT",
+                      "options": []
+                    },
+                    {
+                      "id": "serviceConcern",
+                      "label": "服务反馈",
+                      "type": "textarea",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "serviceSatisfaction",
+                      "label": "服务满意度",
+                      "type": "select",
+                      "businessKey": "",
+                      "options": [
+                        {
+                          "id": "满意",
+                          "label": "满意",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "一般",
+                          "label": "一般",
+                          "businessKey": ""
+                        },
+                        {
+                          "id": "不满意",
+                          "label": "不满意",
+                          "businessKey": ""
+                        }
+                      ],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    },
+                    {
+                      "id": "nextServiceDate",
+                      "label": "计划保养日期",
+                      "type": "date",
+                      "businessKey": "",
+                      "options": [],
+                      "enabled": true,
+                      "source": "FOLLOWUP"
+                    }
+                  ],
+                  "domains": [
+                    {
+                      "id": "DCC_LOCAL_LABEL",
+                      "channel": "AI",
+                      "label": "AI · 原DCC归并通话结果",
+                      "provider": "DCC",
+                      "field": "status",
+                      "statuses": [
+                        {
+                          "value": "已接通",
+                          "label": "已接通"
+                        },
+                        {
+                          "value": "秒挂",
+                          "label": "秒挂"
+                        },
+                        {
+                          "value": "伪接通",
+                          "label": "伪接通"
+                        },
+                        {
+                          "value": "无人接听",
+                          "label": "无人接听"
+                        },
+                        {
+                          "value": "占线",
+                          "label": "占线"
+                        },
+                        {
+                          "value": "拒接",
+                          "label": "拒接"
+                        },
+                        {
+                          "value": "空号",
+                          "label": "空号"
+                        },
+                        {
+                          "value": "关机",
+                          "label": "关机"
+                        },
+                        {
+                          "value": "停机",
+                          "label": "停机"
+                        },
+                        {
+                          "value": "欠费",
+                          "label": "欠费"
+                        },
+                        {
+                          "value": "无法接通",
+                          "label": "无法接通"
+                        },
+                        {
+                          "value": "黑名单过滤",
+                          "label": "黑名单过滤"
+                        },
+                        {
+                          "value": "拦截规则",
+                          "label": "拦截规则"
+                        },
+                        {
+                          "value": "分机号错误",
+                          "label": "分机号错误"
+                        },
+                        {
+                          "value": "呼叫受限",
+                          "label": "呼叫受限"
+                        },
+                        {
+                          "value": "主叫欠费",
+                          "label": "主叫欠费"
+                        },
+                        {
+                          "value": "呼损客户",
+                          "label": "呼损客户"
+                        },
+                        {
+                          "value": "外呼失败",
+                          "label": "外呼失败"
+                        },
+                        {
+                          "value": "转人工呼损",
+                          "label": "转人工呼损"
+                        },
+                        {
+                          "value": "线路拦截",
+                          "label": "线路拦截"
+                        },
+                        {
+                          "value": "号码故障",
+                          "label": "号码故障"
+                        },
+                        {
+                          "value": "线路故障",
+                          "label": "线路故障"
+                        }
+                      ],
+                      "excluded": [
+                        "等待呼叫",
+                        "等待重呼",
+                        "待呼叫去重"
+                      ],
+                      "note": "只判已结束且重试完成的最终节点结果；供应商原始code/label另行保留，未知映射待核。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_LIST_CDR_OB_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 手动/预览外呼 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_ob",
+                      "field": "status",
+                      "methods": [
+                        "MANUAL"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "1",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "2",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "3",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "4",
+                          "label": "坐席接听"
+                        }
+                      ],
+                      "note": "原始4仅表示坐席接听，不等同客户接通。",
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_PREDICTIVE_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 预外呼通话记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_predictive_call",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "坐席未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "双方接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    },
+                    {
+                      "id": "TIANRUN_AUTO_TASK_STATUS",
+                      "channel": "CLOUD",
+                      "label": "云 · 自动任务记录 status",
+                      "provider": "TIANRUN",
+                      "endpoint": "list_cdr_auto_task",
+                      "field": "status",
+                      "methods": [
+                        "PREDICTIVE"
+                      ],
+                      "statuses": [
+                        {
+                          "value": "40",
+                          "label": "客户未接听"
+                        },
+                        {
+                          "value": "41",
+                          "label": "客户接听"
+                        },
+                        {
+                          "value": "42",
+                          "label": "转人工未接听"
+                        },
+                        {
+                          "value": "43",
+                          "label": "转人工接听"
+                        }
+                      ],
+                      "rawVerification": true
+                    }
+                  ],
+                  "aiContexts": [],
+                  "aiError": "AI配置未就绪"
+                },
+                "version": 2,
+                "savedAt": "2026-10-28T06:49:20.259Z",
+                "savedBy": "ACC-ADMIN-018"
+              }
+            ]
+          }
+        ],
+        "contextToken": "[\"ACC-ADMIN-018\",\"shared-config-ACC-ADMIN-018\",\"7522240\",\"TEN-NISSAN-HQ\",\"BUSINESS_CONFIG\",\"ADMIN\",true]"
+      },
+      "model": {
+        "templateStatus": "success",
+        "boundStatus": "success",
+        "changed": true,
+        "readiness": {
+          "status": "success",
+          "message": "已取得实际结果",
+          "data": {
+            "routeState": "REVIEW_REQUIRED",
+            "ready": false,
+            "issues": [
+              "模板关联分类或字段版本已变化，请保存兼容新模板版本"
+            ],
+            "pending": false
+          }
+        },
+        "again": {
+          "status": "failed",
+          "ok": false,
+          "message": "模板关联分类或字段版本已变化，请保存兼容新模板版本",
+          "data": null,
+          "error": {
+            "code": "ROUTE_CATEGORY_STALE",
+            "message": "模板关联分类或字段版本已变化，请保存兼容新模板版本"
+          }
+        },
+        "referenceKept": true,
+        "templateUnchanged": true
+      },
+      "importCheck": {
+        "status": "failed",
+        "code": "ROUTE_NOT_READY",
+        "message": "分类路由未配置或需复核，不能接收新数据",
+        "unchanged": true
+      }
+    },
+    "route-current-model-binding.json": {
+      "status": "passed",
+      "engineCount": 55,
+      "fieldSaveAndIndependentReviewCount": 30,
+      "hashes": {
+        "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad",
+        "js/app.js": "b4b5318e51a8b8e48360d29b26e5d221303c03f42603a8ef91fac153db47e626",
+        "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+        "js/components/flow-routing.js": "ed4018adb5a401832e5010cf47f67c59af5dfeff4a4ac517547fea058d807aca",
+        "scripts/flow_routing_build.py": "c6b7c548cbfe10acccfa865932f9176f359b879bea155c2bf47703b2c40fba86",
+        "scripts/flow-routing-store.js": "8c3a69c4744fb000b73bd53907af3d0b20db1b40533de8dbbe76de75649765c6",
+        "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb"
+      },
+      "matchesTaskBefore": true,
+      "fixtures": "Field suite uses an explicit completed empty cleanup marker and future local template; no old-object cleanup bypass or user data operation. Current final-generated functions, Map storage."
+    },
+    "route-engine-current.json": {
+      "status": "passed",
+      "count": 55,
+      "checks": [
+        "合法新模板及单路IF命中",
+        "已知未匹配走唯一else",
+        "未知状态保留原code且不落else",
+        "状态缺失不落else",
+        "单次结果未结束重试不落else",
+        "未结束执行段不落else",
+        "通话证据必须同租户",
+        "通话证据必须同节点运行",
+        "通话证据必须同轮",
+        "裸数字不同域不能串用",
+        "字段版本变化待核",
+        "分类不一致待核",
+        "导入字段数值比较",
+        "缺失导入字段不当空",
+        "显式导入空值可匹配",
+        "导入无权限不能读取",
+        "字段类型不匹配禁止保存",
+        "未知字段禁止保存",
+        "培育字段取已保存本节点值",
+        "培育未保存不当空",
+        "培育历史需明确来源且仅本租户",
+        "未就绪与false组合仍阻止else",
+        "未就绪与true或组合仍暂停",
+        "来源channel与原段方式冲突待核",
+        "混合方式节点原执行段不能串用另一方式接口",
+        "未提供后段培育字段保持前已保存来源",
+        "历史无提供标记的培育空值待核",
+        "来源本轮显式选择前节点最终结果",
+        "来源历史只使用当前负责租户结果",
+        "较新来源未知禁止回退早期已知",
+        "只有else不要求通话证据",
+        "原code空值待核，label原始空仍保留",
+        "只读资格不开放selectable",
+        "AI节点拒绝导入字段",
+        "AI稳定标签精确上下文命中",
+        "AI待识别不会误落else",
+        "AI明确无标签与识别不匹配可落else",
+        "AI空文本标签不能冒充稳定ID",
+        "AI映射版本变更待核",
+        "AI配置缺少revision不默认匹配",
+        "AI跨供应商同标签ID不匹配",
+        "云节点拒绝AI标签",
+        "唯一else及顺序严格验证",
+        "else原条件必须显式移除",
+        "重复条件拒绝且合理交集提醒首命中",
+        "循环禁止且旧模板保持旧路由",
+        "无可达节点不允许保存",
+        "模型不改模板和记录",
+        "相同事实重复评估无副作用且只选一次",
+        "IF未匹配后只选首个合法ELSEIF且不走ELSE",
+        "旧多选规则必须明确重配而非静默共存",
+        "标签内租户/品牌/分类必须精确匹配",
+        "冲突证据不能用标签命中",
+        "证据必须绑定准确执行段",
+        "分数分层允许重叠且只取首命中"
+      ]
+    },
+    "route-field-current.txt": "{\n  \"status\": \"passed\",\n  \"checks\": 23,\n  \"items\": [\n    \"默认数字字段实际人工保存→数字条件命中\",\n    \"默认日期时间实际人工保存固定北京时间并命中\",\n    \"后段未操作单选沿用原已保存值，不将完整UI空字段当清空\",\n    \"首次未提供字段保持未知，不落ELSE\",\n    \"明确清空单选可匹配IS_EMPTY\",\n    \"明确空多选可匹配IS_EMPTY\",\n    \"零是已提供数值不是空\",\n    \"合法布尔false在类型规范器保留，字符串false拒绝\",\n    \"历史无提供标记的空字符串/空数组/空值全部待核\",\n    \"历史无时区datetime不推测为北京时间\",\n    \"历史非空数字字符串可按固定数字定义规范\",\n    \"非法日期时间、非法数字和Infinity不能保存\",\n    \"规范器拒绝无效带偏移日期并保合法闰年\",\n    \"缺失/重复/未知提供标记拒绝且不写入\",\n    \"明确保存失败不留下字段快照\",\n    \"同请求重放不新增快照/版本，异请求不能重写已保存段\",\n    \"未知已提交核对不重复写原段\",\n    \"当前节点/当前轮/同租户历史分别隔离\",\n    \"字段快照各归属键冲突均待核\",\n    \"跨租户不能保存原段\",\n    \"旧模板保留原保存语义且不加条件字段/时区契约\",\n    \"北京时间输入不受浏览器夏令时缺口影响\",\n    \"false是已保存布尔值可用于条件，非未提供\"\n  ],\n  \"sourceMode\": \"final generated bundle\",\n  \"scope\": \"VM real followupContext/validate/saveResult/evaluate; identity/resource/storage fixture; not UI/provider\"\n}\n{\"independentReview\":\"passed\",\"checks\":7,\"items\":[\"迟到补录只写原段且不覆盖更晚的有效值\",\"真正存储抛错不留下结果或字段快照\",\"旧段固定字段定义类型不匹配时不命中\",\"保存原段record/round/node身份不符时拒绝\",\"字段固定分类版本不符时不命中\",\"同一时刻不同合法偏移相等，非法偏移无效\",\"最新显式空压过旧非空值，不回退以求命中\"],\"sourceMode\":\"generated\",\"timezone\":\"America/New_York\"}\n"
+  },
+  "sourceSha256": {
+    "index.html": "651ec066290f4bffd1237ea0d39c73bb9225fd1a47b3f943031c32f3e80e5dad",
+    "js/modules/cloud.bundle.js": "1a6784ae6988cd0e48a571cbcd50fde8a78d99d68a888bbc14cf32e195e65dcb",
+    "scripts/flow-canvas-ui.js": "172935d136d081c9c8eb8cf60fb51c98dbc55e02a44cfcc51228bfe840cc6079",
+    "scripts/flow-node-config.js": "3ef16d4037c0b67bb778ed7945b977cd5d1be35dfd731cf3e534b600a2197a36",
+    "scripts/flow_editor_build.py": "7b4ecbc9bfd61a189b233a22cdd98ac11fd82c8d6fd87773f67cb29887f7eceb",
+    "scripts/flow-template-cleanup.js": "da7bae3873304f30089bd61cbf6809496772f4f4be57f5870e9f9853f0901c2b"
+  },
+  "auditNotes": [
+    "No product code was changed; only audit/acceptance records updated.",
+    "Normal UI tests do not certify the later exact-content and malformed-input counterexamples.",
+    "Initial route harness DOM argument error was corrected only in tmp; the initial result is retained separately.",
+    "An initial static assertion compared an intermediate transform hash to final output; in-memory replay including the later feedback transform proved exact equality; no product fault inferred.",
+    "S8 remains blocked by current findings, other Partial external/background rows and final full-package revalidation; no stage advance."
+  ]
+}

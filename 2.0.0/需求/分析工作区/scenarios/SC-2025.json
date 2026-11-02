@@ -1,0 +1,870 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2025",
+  "name": "当前负责租户开展一轮多方式培育",
+  "summary": "由人按原方式权限及本租户禁呼串行启动；核整条记录最近原段已结束且保存，换owner/round不豁免。原有权人可首次补录已结束未保存人工段，锁原段固定表单，不读下游字段或改新归属/当前值。",
+  "status": "proposed_flow",
+  "actors": [
+    "当前负责或原人工段有权人员",
+    "D联络云",
+    "AI/预外呼执行系统（能力待核）"
+  ],
+  "trigger": "当前负责租户主动启动一次跟进，或原有权人员补录已结束未保存的原人工段",
+  "preconditions": [
+    "主动新段要求记录当前归属本租户；原人工段补录只沿原租户/轮次/执行段及当前仍有效的原人员资格办理，不借补录取得新owner权限。",
+    "同一品牌内线索编码跨媒体及门店统一唯一，按编码识别同一条业务线索，不使用手机号判同。",
+    "下一方式检查整条记录最近执行段已结束且结果保存；换owner或round不豁免，只有整条记录从未有段才无前段。转交另按结束且不再呼叫，不统一追加结果先保存。",
+    "每次选择和启动均由当前负责租户业务人员完成，其他段由人员另次选择启动，不采用自动条件衔接。",
+    "具体执行权限沿现有平台权限及S4身份契约核对，转交授权不自动增加各方式执行权；真实模块、资源及执行完成/结果保存状态仍须核验。",
+    "AI/预外呼的真实进入、执行完成、回传及结果关联能力由S4核验，不将需求草案当作生产能力证明。",
+    "同条线索再次回到总部或同一门店时沿用原线索编码，新增培育轮次且保留历轮结果。",
+    "沿用 AI 生产身份和稳定租户/对象标识；直接访问与菜单采用同一当前操作授权校验，不按名称、手机号或品牌关系合并身份或授权。",
+    "新模板记录须固定节点允许该方式，旧记录走原处理。实际启动仅核本次方式模块、操作权、资源及本租户公共禁呼，不要求双模块。",
+    "业务中心整合已确认的分类、规则、导入批次、业务台账、分配及记录处理入口，复用同一业务记录和原执行/详情跳转；不复制客户档案、任务或专业配置，不改变当前负责租户、原动作资格、固定版本和历史可见边界。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "当前负责或原人工段有权人员",
+      "action": "根据本线索培育目标，按需安排本轮AI、预外呼、人工的组合及顺序，选择本次执行段方式。",
+      "system_response": "同条线索各段按顺序开展；每次选择由业务人员完成，其他段由人员另次选择启动，不增加独立发布或自动条件衔接。",
+      "rule_ids": [
+        "BR-2029",
+        "BR-2031",
+        "BR-2036",
+        "BR-2038"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "当前负责或原人工段有权人员",
+      "action": "由业务人员主动发起本次选定方式，进入本段启动条件核对。",
+      "system_response": "发起前可取消；发起请求不代表已执行，前段未结束或结果未保存不得进入下一段。",
+      "rule_ids": [
+        "BR-2029",
+        "BR-2036",
+        "BR-2038"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "D联络云",
+      "action": "按品牌唯一线索编码核对当前身份、资格、前段结束及保存状态，并反馈准入结论或未满足原因。",
+      "system_response": "核整条记录最近原执行段，换租户/轮次不豁免；仅整条记录从未有段才免前段。实际启动另核本次方式模块、成员执行权、资源、本租户公共禁呼及专项；未知或禁呼均不启动，不要求双模块。",
+      "rule_ids": [
+        "BR-2029",
+        "BR-2031",
+        "BR-2035",
+        "BR-2038"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "承接业务人员本次选定并主动启动的跟进方式。",
+      "system_response": "仅在前段结束并保存结果后承接本次人员主动启动；AI/预外呼由对应执行系统承担，人工由业务人员完成。后续段另次选择启动，不自动衔接，同条线索不并行执行。",
+      "rule_ids": [
+        "BR-2029",
+        "BR-2031",
+        "BR-2036",
+        "BR-2038"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "D联络云",
+      "action": "将已结束的本次或准确原人工段结果，保存到其原租户、原轮次、原节点和固定表单快照。",
+      "system_response": "原段身份/受理/实际结束及当前资格可靠才保存；首次补录锁原记录/轮/段/节点运行及固定表单，版本过期、已保存或原资格不符则拒绝。原始AI/预外呼结果与通话事实准确归原段；业务多选字段仅沿既有可信保存来源逐fieldId/optionId维护，省略保原值、显式空集合只清对应字段。旧轮/旧段或转出后补录不读下游字段、不改新owner/node/round及当前有效值；本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。",
+      "rule_ids": [
+        "BR-2029",
+        "BR-2030",
+        "BR-2032",
+        "BR-2035",
+        "BR-2038"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "当前负责或原人工段有权人员",
+      "action": "查看本段已结束且已保存的结果，作为下一次人员选择启动的前提。",
+      "system_response": "已结束且结果可靠保存才完成本段结果责任；后续新段仍由当前有权人员另次启动，检查整记录最近原段。补录不重新执行、转交或改接收方当前值。",
+      "rule_ids": [
+        "BR-2029",
+        "BR-2036",
+        "BR-2038"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2025-CANCEL",
+      "condition": "人员在主动新段发起前或原人工段补录提交前取消。",
+      "steps": [
+        "取消本次发起，不推定需要终止已运行的AI、预外呼或人工任务。"
+      ],
+      "status": "analysis_draft"
+    },
+    {
+      "id": "ALT-2025-CONDITION",
+      "condition": "整条记录最近原执行段未结束/未保存（含换租户或换轮后），或当前归属/执行资格/资源不满足。",
+      "steps": [
+        "平台在同一次准入校验中反馈不能启动及未满足原因。",
+        "人员收到原因后结束本次尝试，实际执行未启动；处理前段结束/保存等条件后可另次发起。"
+      ],
+      "status": "analysis_draft"
+    },
+    {
+      "id": "ALT-2025-MANUAL",
+      "condition": "当前执行段按有效安排使用人工。",
+      "steps": [
+        "当前负责租户按原人工资源/坐席和原电话条件开展本段跟进，通话期间固定本通业务表单。",
+        "实际结束后沿准确原段首次保存结果，后续原有权补录走独立原段guard，不换用最新表单。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2085",
+        "inputs/source-index.json#SRC-2086"
+      ]
+    },
+    {
+      "id": "ALT-2025-EXECUTION",
+      "condition": "当前执行未形成可记录结果，或执行失败/结果状态无法核实。",
+      "steps": [
+        "不得把该段记为已结束且已保存结果，不允许由此启动下一段。",
+        "保留待核对状态；等待、重试、停止与超时的真实契约仍由S4核验，不承诺自动补偿或自动条件衔接。"
+      ],
+      "status": "analysis_draft"
+    },
+    {
+      "id": "ALT-2025-RECORD",
+      "condition": "已取得结果，但平台未能记录成功。",
+      "steps": [
+        "不向业务人员宣称本段结果已保存，不允许启动下一段。",
+        "恢复、幂等及结果关联方式待接口核验；不新增独立重试功能。"
+      ],
+      "status": "analysis_draft"
+    },
+    {
+      "id": "ALT-2025-V2-EXECUTION-GUARD",
+      "condition": "本次方式未开通、无执行权、资源不可用、有效公共禁呼命中或检查待核。",
+      "steps": [
+        "不启动本次实际处理；说明原因，保留原记录、当前节点和已受理段。",
+        "公共禁呼按本租户外呼范围校验，正常呼入沿原规则。"
+      ]
+    },
+    {
+      "id": "ALT-2025-ORIGINAL-MANUAL",
+      "condition": "原有权人员选择首次补录已结束未保存的原人工段，记录可能已转交或换轮。",
+      "steps": [
+        "按稳定record/tenant/round/segment/nodeRun及模板版本定位原段固定表单；核实际受理、唯一关联及结束时间。",
+        "核原租户/品牌、当前原操作资格、原人工资源及合法转出关系，待核请求先核同次结果；停用仅既有已确认收尾。",
+        "仅展示原段表单及原值，不读取接收方当前业务字段；确认提交时重核记录/原段版本与尚未保存条件。",
+        "仅保存该原段结果及快照，不改新owner/node/round、不覆盖当前有效值，不重新呼叫或推进。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    },
+    {
+      "id": "ALT-2025-ORIGINAL-DENIED",
+      "condition": "原段身份/固定表单/资格/资源或结束事实不可核、已保存、版本过期、待核请求未解决，或停用不具合法收尾资格。",
+      "steps": [
+        "不展示下游当前字段，不用最新表单替代原快照；不保存或改写任何新旧结果。",
+        "保留可确认输入及原因；先核原事实或同次结果，再由仍有权人员另次办理，不授无限期补录权。"
+      ],
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功分支：执行段已实际结束，结果按准确原记录、原租户、原轮次及原固定表单保存；换owner/round不把结果归到新轮。下一方式仍检查整条记录最近原段结束且保存，补录不重跑执行或推进。",
+    "本场景不改变跨租户归属；总部下发和门店上交分别由SC-2026、SC-2027表达。",
+    "同条线索按顺序执行，前一方式未结束或结果未保存不得进入下一方式；其他段由业务人员另次选择启动，不采用自动条件衔接。",
+    "执行失败、结果未保存及发起前取消均不能标记为本段成功完成，不能据此开放下一段启动。",
+    "同条线索往返沿用同品牌统一唯一编码，每次回总部或同店新增轮次且保留历轮，手机号不作为同条线索判断键。",
+    "后续若需转交，先结束该条线索执行安排并确认不再呼叫，才允许进入SC-2026或SC-2027；不推定平台可自动停止真实任务，不停止含其他客户的整个任务。",
+    "转交由租户管理员、运营人员及当前负责坐席操作；转交授权不自动增加本场景执行资源或各方式操作权限。",
+    "人员停用前已受理的 AI/预外呼/IVR 租户任务仅原条件满足时继续；停用者不得新操作，其他有权人员按原权限管理。",
+    "人工成功保存明确拒联按公共规则入库及留痕；保存/入库未整体成功不得虚报，AI结果不自动转公共拒联。"
+  ],
+  "acceptance_points": [
+    "AC-2090：总部处理媒体线索及承接门店上交线索的培育阶段均支持选择AI、预外呼、人工跟进。",
+    "AC-2091：门店处理自有线索及承接总部下发线索的培育阶段均支持选择AI、预外呼、人工跟进。",
+    "AC-2092：每一轮由当前负责租户按需组合或先后使用AI、预外呼、人工。启动下一方式核整条记录最近执行段已结束且结果保存，换负责租户或换轮次不能豁免，只有整条记录从未有执行段才无前段；转交本身仍按结束且不再呼叫准入，不一律追加结果先保存。原有权人员可首次补录已结束未保存的原人工段，锁原租户/轮次/段及固定表单，不读取下游字段、不改新归属或覆盖当前值；已保存结果不可借补录重写，停用仍限已确认收尾。",
+    "AC-2121：线索分类同一条记录串行执行。人员启动下一种方式时核整条记录最近执行段已结束且结果保存，换租户/换轮次不免除；仅整条记录从未有执行段时无前段。实际租户转交只按执行结束及确认不再呼叫等原准入，不额外要求所有前段结果已保存。"
+  ],
+  "source_story_ids": [
+    "US-2030",
+    "US-2036"
+  ],
+  "source_acceptance_ids": [
+    "AC-2090",
+    "AC-2091",
+    "AC-2092",
+    "AC-2121"
+  ],
+  "business_rule_ids": [
+    "BR-2029",
+    "BR-2030",
+    "BR-2031",
+    "BR-2032",
+    "BR-2033",
+    "BR-2035",
+    "BR-2036",
+    "BR-2037",
+    "BR-2038",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2008",
+    "BR-2009",
+    "BR-2016",
+    "BR-2017",
+    "BR-2018",
+    "BR-2020"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2081",
+    "inputs/source-index.json#SRC-2082",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2084",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2092",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "analysis_notes": [
+    "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+    "六入口按实际原功能组织展示；原Cloud作业/号码档案/报表迁位继续保原电话现场和检查，原管理功能仍按SC-2002切离保护、同窗口返回和同次记忆。未核真实身份、供应商能力和持久化契约继续由S4核验，不把产品流程当生产证明。",
+    "本版AI标签仅整合配置、映射和结果展示；不新增AI标准标签向业务字段写入及由此新增自动流转。原供应商池/场景映射/标准关联、原始及映射结果保留，未匹配保原值且不回退首项；既有业务字段条件、人工保存和其他原有流转不变。仅限本版，不作未来永久限制。仅使用当前已有可信且有权保存的各fieldId值；供应商原始结果/推荐映射不伪造业务字段已保存或路径匹配，不默认新增写入或最终排除。",
+    "主动新段与原段补录为互斥意图；补录不经过新起呼/禁呼准入，也不豁免原身份、固定表单和当前原操作资格。保全部原节点、step和ALT，新分支承接已批准AC-2092而非新增结果修订功能。",
+    "新段启动与原段补录互斥支路按依赖顺序分别展开，order仅表达逻辑次序；补录不等待另一互斥支路执行，不产生两段并行或新的起呼动作。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "当前负责或原人工段有权人员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      },
+      {
+        "id": "executor",
+        "name": "AI/预外呼执行系统（能力待核）",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "operator",
+        "type": "start",
+        "order": 1,
+        "label": "本次主动跟进或原人工段补录"
+      },
+      {
+        "id": "N-PLAN",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 3,
+        "label": "安排本轮并选择本次方式",
+        "step_ref": 1
+      },
+      {
+        "id": "N-INITIATE",
+        "lane_id": "operator",
+        "type": "decision",
+        "order": 4,
+        "label": "人员主动启动本段？",
+        "step_ref": 2
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 5,
+        "label": "取消本次发起"
+      },
+      {
+        "id": "N-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "按编码核整记录最近执行段\n换owner/round不豁免结束保存\n本次方式/资源/本租户禁呼另核",
+        "step_ref": 3
+      },
+      {
+        "id": "N-ELIGIBLE",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 7,
+        "label": "整记录无前段\n或最近原段已结束且已保存？"
+      },
+      {
+        "id": "N-CONDITION-FAIL",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 8,
+        "label": "收到原因，结束本次尝试"
+      },
+      {
+        "id": "N-MODE",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 10,
+        "label": "人员本次选择的方式？",
+        "step_ref": 4
+      },
+      {
+        "id": "N-AUTO",
+        "lane_id": "executor",
+        "type": "action",
+        "order": 11,
+        "label": "AI/预外呼跟进；能力待核"
+      },
+      {
+        "id": "N-MANUAL",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 12,
+        "label": "人工跟进并填写结果"
+      },
+      {
+        "id": "N-RESULT",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 13,
+        "label": "准确本段已实际结束\n且取得可归档结果？"
+      },
+      {
+        "id": "N-EXECUTION-FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 14,
+        "label": "本段未形成可核实结果"
+      },
+      {
+        "id": "N-RECORD",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 15,
+        "label": "按准确原段归档结果快照\n业务字段沿既有可信保存来源\n旧段不覆盖当前较新值",
+        "step_ref": 5
+      },
+      {
+        "id": "N-RECORDED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 16,
+        "label": "本段结果已保存？"
+      },
+      {
+        "id": "N-RECORD-FAIL",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 17,
+        "label": "未记录成功；待核对"
+      },
+      {
+        "id": "N-VIEW",
+        "lane_id": "operator",
+        "type": "action",
+        "order": 18,
+        "label": "查看结果供下次人工启动",
+        "step_ref": 6
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "operator",
+        "type": "end",
+        "order": 19,
+        "label": "本段结束且结果保存"
+      },
+      {
+        "id": "V2-GUARD",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 9,
+        "label": "本次方式执行权/资源/模块\n及本租户禁呼均明确通过？"
+      },
+      {
+        "id": "V2-DENIED",
+        "lane_id": "platform",
+        "type": "end",
+        "order": 20,
+        "label": "本次不启动；保留原段及记录"
+      },
+      {
+        "id": "N-ENTRY-KIND",
+        "lane_id": "platform",
+        "type": "decision",
+        "label": "本次为新段启动\n还是原人工段首次补录？",
+        "order": 2
+      },
+      {
+        "id": "N-ORIGINAL-OPEN",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "定位已结束未保存原人工段\n打开原段固定表单",
+        "order": 21,
+        "step_ref": 5
+      },
+      {
+        "id": "N-ORIGINAL-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "label": "核原租户/轮/段/固定表单\n结束未存、原资格/资源及待核请求",
+        "order": 22
+      },
+      {
+        "id": "N-ORIGINAL-ALLOWED",
+        "lane_id": "platform",
+        "type": "decision",
+        "label": "原段及当前原操作资格\n均可靠且允许首次补录？",
+        "order": 23
+      },
+      {
+        "id": "N-ORIGINAL-DENIED",
+        "lane_id": "platform",
+        "type": "end",
+        "label": "拒绝原段补录\n不读下游值，不改原结果",
+        "order": 24
+      },
+      {
+        "id": "N-ORIGINAL-FILL",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "仅填写原固定表单\n不展示下游当前业务字段",
+        "order": 25
+      },
+      {
+        "id": "N-ORIGINAL-SUBMIT",
+        "lane_id": "operator",
+        "type": "decision",
+        "label": "确认本次原段补录？",
+        "order": 26
+      },
+      {
+        "id": "N-ORIGINAL-CANCEL",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "取消本次补录\n原段及当前归属不变",
+        "order": 27
+      },
+      {
+        "id": "N-ORIGINAL-RECHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "label": "提交复核原段/记录版本\n原资格/结束未存及同次状态",
+        "order": 28
+      },
+      {
+        "id": "N-ORIGINAL-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "label": "提交时仍合法且未保存？",
+        "order": 29
+      },
+      {
+        "id": "N-ORIGINAL-STALE",
+        "lane_id": "platform",
+        "type": "end",
+        "label": "拒绝过期/已保存或失权提交\n不重写已保存结果",
+        "order": 30
+      },
+      {
+        "id": "N-ORIGINAL-SAVE",
+        "lane_id": "platform",
+        "type": "action",
+        "label": "仅首次保存原段结果及快照\n不改新owner/轮/节点和当前值",
+        "order": 31,
+        "step_ref": 5
+      },
+      {
+        "id": "N-ORIGINAL-SAVED",
+        "lane_id": "platform",
+        "type": "decision",
+        "label": "原段保存明确成功？",
+        "order": 32
+      },
+      {
+        "id": "N-ORIGINAL-FAILED",
+        "lane_id": "platform",
+        "type": "end",
+        "label": "原段保存失败/未知\n保输入，先核同次结果",
+        "order": 33
+      },
+      {
+        "id": "N-ORIGINAL-VIEW",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "查看有权原段已保存快照",
+        "order": 34,
+        "step_ref": 6
+      },
+      {
+        "id": "N-ORIGINAL-DONE",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "本次原段补录完成\n未重新执行或推进",
+        "order": 35
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-PLAN",
+        "to": "N-INITIATE"
+      },
+      {
+        "from": "N-INITIATE",
+        "to": "N-CHECK",
+        "label": "确认发起"
+      },
+      {
+        "from": "N-INITIATE",
+        "to": "N-CANCEL",
+        "label": "发起前取消",
+        "path_id": "ALT-2025-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "N-CHECK",
+        "to": "N-ELIGIBLE"
+      },
+      {
+        "from": "N-ELIGIBLE",
+        "to": "N-CONDITION-FAIL",
+        "label": "前段未结束/未保存或其他条件不满足，告知原因",
+        "path_id": "ALT-2025-CONDITION",
+        "type": "failure"
+      },
+      {
+        "from": "N-ELIGIBLE",
+        "to": "V2-GUARD",
+        "label": "整记录无前段或最近原段已结束保存"
+      },
+      {
+        "from": "N-MODE",
+        "to": "N-AUTO",
+        "label": "AI或预外呼"
+      },
+      {
+        "from": "N-MODE",
+        "to": "N-MANUAL",
+        "label": "人工",
+        "path_id": "ALT-2025-MANUAL"
+      },
+      {
+        "from": "N-AUTO",
+        "to": "N-RESULT"
+      },
+      {
+        "from": "N-MANUAL",
+        "to": "N-RESULT"
+      },
+      {
+        "from": "N-RESULT",
+        "to": "N-RECORD",
+        "label": "已结束并取得结果"
+      },
+      {
+        "from": "N-RESULT",
+        "to": "N-EXECUTION-FAIL",
+        "label": "未结束、未取得或失败",
+        "path_id": "ALT-2025-EXECUTION",
+        "type": "failure"
+      },
+      {
+        "from": "N-RECORD",
+        "to": "N-RECORDED"
+      },
+      {
+        "from": "N-RECORDED",
+        "to": "N-VIEW",
+        "label": "成功"
+      },
+      {
+        "from": "N-RECORDED",
+        "to": "N-RECORD-FAIL",
+        "label": "失败",
+        "path_id": "ALT-2025-RECORD",
+        "type": "failure"
+      },
+      {
+        "from": "N-VIEW",
+        "to": "N-SUCCESS"
+      },
+      {
+        "from": "V2-GUARD",
+        "to": "V2-DENIED",
+        "label": "不通过或待核",
+        "path_id": "ALT-2025-V2-EXECUTION-GUARD",
+        "type": "failure"
+      },
+      {
+        "from": "V2-GUARD",
+        "to": "N-MODE",
+        "label": "明确通过"
+      },
+      {
+        "from": "N-START",
+        "to": "N-ENTRY-KIND"
+      },
+      {
+        "from": "N-ENTRY-KIND",
+        "to": "N-PLAN",
+        "label": "当前负责方主动新段"
+      },
+      {
+        "from": "N-ENTRY-KIND",
+        "to": "N-ORIGINAL-OPEN",
+        "label": "原有权方首次补录",
+        "path_id": "ALT-2025-ORIGINAL-MANUAL"
+      },
+      {
+        "from": "N-ORIGINAL-OPEN",
+        "to": "N-ORIGINAL-CHECK"
+      },
+      {
+        "from": "N-ORIGINAL-CHECK",
+        "to": "N-ORIGINAL-ALLOWED"
+      },
+      {
+        "from": "N-ORIGINAL-ALLOWED",
+        "to": "N-ORIGINAL-DENIED",
+        "label": "不符或不可核",
+        "path_id": "ALT-2025-ORIGINAL-DENIED",
+        "type": "failure"
+      },
+      {
+        "from": "N-ORIGINAL-ALLOWED",
+        "to": "N-ORIGINAL-FILL",
+        "label": "明确允许"
+      },
+      {
+        "from": "N-ORIGINAL-FILL",
+        "to": "N-ORIGINAL-SUBMIT"
+      },
+      {
+        "from": "N-ORIGINAL-SUBMIT",
+        "to": "N-ORIGINAL-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-2025-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "N-ORIGINAL-SUBMIT",
+        "to": "N-ORIGINAL-RECHECK",
+        "label": "确认"
+      },
+      {
+        "from": "N-ORIGINAL-RECHECK",
+        "to": "N-ORIGINAL-VALID"
+      },
+      {
+        "from": "N-ORIGINAL-VALID",
+        "to": "N-ORIGINAL-STALE",
+        "label": "过期/已存/失权或待核",
+        "path_id": "ALT-2025-ORIGINAL-DENIED",
+        "type": "failure"
+      },
+      {
+        "from": "N-ORIGINAL-VALID",
+        "to": "N-ORIGINAL-SAVE",
+        "label": "仍满足"
+      },
+      {
+        "from": "N-ORIGINAL-SAVE",
+        "to": "N-ORIGINAL-SAVED"
+      },
+      {
+        "from": "N-ORIGINAL-SAVED",
+        "to": "N-ORIGINAL-FAILED",
+        "label": "失败/未知",
+        "path_id": "ALT-2025-RECORD",
+        "type": "failure"
+      },
+      {
+        "from": "N-ORIGINAL-SAVED",
+        "to": "N-ORIGINAL-VIEW",
+        "label": "明确成功"
+      },
+      {
+        "from": "N-ORIGINAL-VIEW",
+        "to": "N-ORIGINAL-DONE"
+      }
+    ]
+  },
+  "diagram_review_notes": [
+    "同一次平台准入校验与反馈合为一个平台动作，否决出边及人员结束保留；避免主图回流连线穿过独立失败反馈标签。"
+  ],
+  "scope_review_source_ref": "inputs/source-index.json#SRC-218",
+  "notes": "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+  "expected_outcome": "由人按原方式权限及本租户禁呼串行启动；核整条记录最近原段已结束且保存，换owner/round不豁免。原有权人可首次补录已结束未保存人工段，锁原段固定表单，不读下游字段或改新归属/当前值。",
+  "exception_scope": "只有整条记录从未有执行段才无前段；转交不统一追加结果先保存。补录核原段/轮次/固定表单及当前资格，不重写已保存结果，停用仍限已确认收尾。",
+  "scope": "in_scope",
+  "scope_status": "G1_approved_SRC2094",
+  "design_status": "S3_rebuilt_candidate_pending_global_verification",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [
+    "ISSUE-2013",
+    "ISSUE-2015",
+    "ISSUE-2016"
+  ],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-185",
+    "inputs/source-index.json#SRC-188",
+    "inputs/raw/user-s3-rules-SRC-193.json",
+    "inputs/raw/user-s3-rules-SRC-194.json",
+    "inputs/raw/user-s3-rules-SRC-195.json",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-225",
+    "inputs/source-index.json#SRC-226",
+    "inputs/source-index.json#SRC-227",
+    "inputs/source-index.json#SRC-228"
+  ],
+  "v12_origin_scenario_id": "SC-11203",
+  "v12_origin_detail_sha256": "7ab87ae59a4913e10a70bd2e7d9d413090cf1edd7c692b752647054e2b768971",
+  "v12_origin_snapshot": "04ed3e3552872ccc863b05b9c0ec08c7d31b3f6d8806d9b86f054b83978db58d",
+  "rule_ids": [
+    "BR-2029",
+    "BR-2030",
+    "BR-2031",
+    "BR-2032",
+    "BR-2033",
+    "BR-2035",
+    "BR-2036",
+    "BR-2037",
+    "BR-2038",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2008",
+    "BR-2009",
+    "BR-2016",
+    "BR-2017",
+    "BR-2018",
+    "BR-2020"
+  ],
+  "acceptance_contributions": {},
+  "revision_history": [
+    {
+      "at": "2026-10-24T12:23:18+08:00",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_scope_metadata": {
+        "scope_status": "confirmed_G1",
+        "design_status": "S3_incremental_flow_design_pending_G2",
+        "v2_gate_status": "G1_approved_G2_G3_pending",
+        "scope_confirmation_source": null
+      },
+      "previous_notes": [
+        "本场景按 SRC-2086 通过的 v2.0.0 G1 范围细化；v1.2.0 冻结包只作为继承来源，不代表本版 G2/G3 或真实执行能力已通过。",
+        "沿 D联络云六入口及原页面交互承载，不采用源版过渡外链；配置共享不产生跨租户业务数据权。"
+      ],
+      "reason": "当前G1后按最终c847和实际S1/S2重建S3；旧说明及源快照仅作历史，不改原始冻结包。",
+      "previous_analysis_notes": [
+        "SRC-194确认每次由业务人员选择并启动，SRC-195进一步确认同条线索顺序执行且上一方式结束并保存结果后才可启动下一方式；本图保留一次人员发起目标，不存在自动条件衔接。",
+        "真实执行完成、回传、结果保存及资源状态的判断依据仍需S4核验，不将顺序业务规则冒充已验证的停止/回调能力。",
+        "执行前条件检查、执行失败、记录失败与发起前取消是供评审的必要异常契约草案，不是已确认生产行为。",
+        "外部系统泳道是待核验能力责任边界，未补写端点、回调时限、停止方式或已有模块能力。",
+        "SRC-193确认转交前结束该条线索执行安排并确认不再呼叫；本图未添加自动停止、取消API或整任务停用。",
+        "SRC-195确认同品牌线索编码跨媒体、门店统一唯一，不按手机号判同；跨系统映射、事务幂等及异常结果的真实契约仍需核验。",
+        "具体执行权限沿现有平台权限及S4身份契约核对；三类转交岗位不自动增加AI/预外呼资源或各方式执行权。",
+        "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+      ]
+    }
+  ],
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_v12_baseline": "c84782225797ba928b75f4854640cde7ff34d07d33f951bb0985cafc61f2c1ac",
+  "pending_choice_ids": [],
+  "diagram_revision": {
+    "at": "2026-10-24T12:23:18+08:00",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ],
+    "retained_node_ids": [
+      "N-AUTO",
+      "N-CANCEL",
+      "N-CHECK",
+      "N-CONDITION-FAIL",
+      "N-ELIGIBLE",
+      "N-EXECUTION-FAIL",
+      "N-INITIATE",
+      "N-MANUAL",
+      "N-MODE",
+      "N-PLAN",
+      "N-RECORD",
+      "N-RECORD-FAIL",
+      "N-RECORDED",
+      "N-RESULT",
+      "N-START",
+      "N-SUCCESS",
+      "N-VIEW",
+      "V2-DENIED",
+      "V2-GUARD"
+    ],
+    "added_node_ids": [
+      "N-ENTRY-KIND",
+      "N-ORIGINAL-ALLOWED",
+      "N-ORIGINAL-CANCEL",
+      "N-ORIGINAL-CHECK",
+      "N-ORIGINAL-DENIED",
+      "N-ORIGINAL-DONE",
+      "N-ORIGINAL-FAILED",
+      "N-ORIGINAL-FILL",
+      "N-ORIGINAL-OPEN",
+      "N-ORIGINAL-RECHECK",
+      "N-ORIGINAL-SAVE",
+      "N-ORIGINAL-SAVED",
+      "N-ORIGINAL-STALE",
+      "N-ORIGINAL-SUBMIT",
+      "N-ORIGINAL-VALID",
+      "N-ORIGINAL-VIEW"
+    ],
+    "retained_alternate_ids": [
+      "ALT-2025-CANCEL",
+      "ALT-2025-CONDITION",
+      "ALT-2025-EXECUTION",
+      "ALT-2025-MANUAL",
+      "ALT-2025-RECORD",
+      "ALT-2025-V2-EXECUTION-GUARD"
+    ],
+    "added_alternate_ids": [
+      "ALT-2025-ORIGINAL-DENIED",
+      "ALT-2025-ORIGINAL-MANUAL"
+    ],
+    "step_relation": "原main_flow step编号全部保留；新增原人工段补录分支复用原step5/6。",
+    "edge_relation": "SC-2025原N-START→N-PLAN改为N-START→N-ENTRY-KIND→N-PLAN；互斥补录支路独立终止，不改变原启动/异常guard。其他图保原拓扑，仅重建准确动作/条件标签。"
+  },
+  "scope_choice_update": {
+    "change_id": "CH-V200-AI-TAGS-CONFIG-ONLY-20261024",
+    "source_ref": "inputs/source-index.json#SRC-2096",
+    "version": "2.0.0",
+    "selected": "configuration_only",
+    "new_API_permission_business_field_or_scenario": false,
+    "at": "2026-10-24T13:43:27+08:00"
+  },
+  "resolved_choice_ids": [
+    "AI-STANDARD-TAG-WRITE"
+  ]
+}

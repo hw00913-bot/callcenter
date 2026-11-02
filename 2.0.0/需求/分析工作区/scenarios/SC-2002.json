@@ -1,0 +1,907 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2002",
+  "name": "切换有权区域及功能并安全返回工作位置",
+  "summary": "按模块/原电话现场保护导航，恢复合法位置并刷新；显式切租户独立校验",
+  "actors": [
+    "当前租户成员／本人电话坐席",
+    "区域/模块及租户切换控制",
+    "云呼叫电话与话后处理",
+    "当前页面表单",
+    "目标原业务入口"
+  ],
+  "trigger": "从六入口选择另一有权原功能或显式切换合法租户",
+  "preconditions": [
+    "账号保持登录；六入口仅组织菜单，来源/目标实际业务模块、租户与本人电话现场可辨。",
+    "电话状态与离线确认仍待ISSUE-2012真实契约核验；原Cloud页面间沿原电话范围和检查，不因顶层区域改变一律离线。",
+    "六入口只组织展示，不构成六套业务域或权限包；原公共管理功能迁位后仍保留原切离保护、同窗口返回和同次登录记忆，原Cloud页面则沿实际原电话现场范围保护。"
+  ],
+  "expected_outcome": "按模块/原电话现场保护导航，恢复合法位置并刷新；显式切租户独立校验",
+  "exception_scope": "电话未离线、在途通话/话后未保存、普通保存失败、旧页面失权",
+  "source_story_ids": [
+    "US-2003",
+    "US-2004",
+    "US-2005"
+  ],
+  "source_acceptance_ids": [
+    "AC-2007",
+    "AC-2008",
+    "AC-2009",
+    "AC-2010",
+    "AC-2011",
+    "AC-2012",
+    "AC-2013",
+    "AC-2014",
+    "AC-2015"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2037",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2039",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2081",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "G1范围确认、S3流程候选。电话状态枚举为待核验业务分支，未声称真实离线契约已验证；原页失效回退及状态保存细节待页面评审。无需常驻跨工作区电话控件，不扩大为云呼叫内部所有切页强制离线。 电话放行条件按在途、话后、离线同时满足设计，已离线不能绕过待保存话后；初始状态未知保留独立失败出口。 SRC-2040已确认沿原Cloud电话现场：同Cloud跨区域含云报表保留原电话条/检查；进入AI原功能或原公共管理功能、不能保留原现场的页面或显式换租户先收尾离线。只看监管且本人确无会话不按他人坐席状态阻拦。六入口不等于六个业务模块，真实电话契约仍未关闭；返回不自动上线。 结构化补核：先识别是否保留原Cloud电话现场，再有条件执行原内部检查或本人切离保护；无需切离分支经过共同判断不代表退出电话，只有确需切离且本人在线才执行offline。普通导航/显式换租户先各自确定目标范围，再共同复核授权后恢复其独立位置；失败终止本次，不撤销已完成保存或离线。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 新增分类/模板的配置查看、监管和本租户业务处理按各自动作资格区分；品牌配置或列表查看不要求同时开通两种业务模块，不冒用租户身份，不授予跨租户记录、拨号、转交或成员授权。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "当前租户成员／本人电话坐席",
+      "action": "选择目标原入口或显式切换租户",
+      "system_response": "识别来源/目标区域、实际模块、合法租户范围及本人原Cloud电话现场；普通区域导航保持租户，显式租户切换单独办理。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "区域/模块及租户切换控制",
+      "action": "核验目标可用性",
+      "system_response": "核验目标模块、成员及所选页面/操作权限；原公共管理功能和原平台资源权限分别校验，不由区域或模块角色自动赋予。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "当前租户成员／本人电话坐席",
+      "action": "按原电话现场边界处理导航保护",
+      "system_response": "同租户原Cloud现场页面间（含迁位后的客户档案、名单作业及云报表）保留原电话条和原检查，不因中心名称变化一律离线；进入AI原功能、原公共管理功能、不能保留原现场的页面或显式换租户前，先完成本人通话和必要话后并确认离线。保护按实际功能判断，同一新中心内换到AI或原管理功能仍适用。仅看监管且本人确无会话按查看权及表单规则，不以他人通话阻拦；状态未知不视为离线。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "当前页面表单",
+      "action": "处理普通未保存内容",
+      "system_response": "按原流程提供保存、放弃、取消切换；仅在无未处理输入时继续。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "区域/模块及租户切换控制",
+      "action": "记录离开位置",
+      "system_response": "按账号、来源租户及原业务入口隔离记录稳定PAGE、子视图和筛选；原公共管理功能即使分散至业务中心、客户中心和系统管理，仍沿同窗口返回来源功能、同次登录恢复上次合法管理页和筛选。显式换租户不携带原租户对象、筛选、草稿和电话在线状态。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "目标原业务入口",
+      "action": "恢复工作位置",
+      "system_response": "普通导航保持当前合法范围；显式换租户采用已选目标租户。重验对应范围与操作权限后，恢复该账号该租户自己的合法原页面和筛选；首次/失效的原公共管理页沿原管理入口顺序映射至首个有权页，其他失效位置按原合法入口意图回退，不借首次窄规则作历史兜底。 原PAGE迁位只改变展示归属，不按六入口排序重算原入口回退和记忆。",
+      "rule_ids": []
+    },
+    {
+      "step": 7,
+      "actor": "目标原业务入口",
+      "action": "复核访问并刷新业务数据",
+      "system_response": "目标权限与最新数据读取成功后展示对应区域菜单和原内容；普通导航账号租户不变，显式换租户仅在目标授权确认后改变。返回不自动电话上线或拨号；后台任务按原规则。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2002-01",
+      "condition": "目标模块未开通、原操作无权或目标租户访问失效",
+      "steps": [
+        "拒绝本次切换并保留仍有权的来源位置，不改变权限或静默切换其他租户。"
+      ]
+    },
+    {
+      "id": "ALT-2002-02",
+      "condition": "切离原Cloud电话现场且状态可确认，本人存在拨号、振铃或通话",
+      "steps": [
+        "本次切换不执行；先沿原电话流程处理在途呼叫、保存话后并离线，再由用户重新发起，不自动挂断。"
+      ]
+    },
+    {
+      "id": "ALT-2002-03",
+      "condition": "切离原Cloud电话现场且状态可确认、无在途通话，但话后未保存",
+      "steps": [
+        "先保存话后记录；成功后再次确认本人电话已离线或确无需电话坐席，在线时先退出电话坐席，状态不能确认时不切换。"
+      ]
+    },
+    {
+      "id": "ALT-2002-04",
+      "condition": "切离原Cloud电话现场且状态可确认、无在途通话和待保存话后，但本人电话在线",
+      "steps": [
+        "先退出本人电话坐席，系统登录保持。"
+      ]
+    },
+    {
+      "id": "ALT-2002-05",
+      "condition": "话后保存失败",
+      "steps": [
+        "保留输入及来源工作区，不继续切换。"
+      ]
+    },
+    {
+      "id": "ALT-2002-06",
+      "condition": "初始电话／话后状态不能确认，或保存话后后的电话状态不能确认，或电话离线失败",
+      "steps": [
+        "不把忙碌检查或已离线的单一标记当作全部可离开条件；状态不能确认时提示未完成并停留原工作区，保留话后输入。"
+      ]
+    },
+    {
+      "id": "ALT-2002-07",
+      "condition": "普通表单选择保存",
+      "steps": [
+        "沿原表单流程保存，成功后继续，失败进入保留输入分支。"
+      ]
+    },
+    {
+      "id": "ALT-2002-08",
+      "condition": "普通表单选择放弃",
+      "steps": [
+        "只丢弃用户明确放弃的未保存普通表单内容，继续切换。"
+      ]
+    },
+    {
+      "id": "ALT-2002-09",
+      "condition": "普通表单选择取消",
+      "steps": [
+        "结束本次切换，保留普通表单内容。"
+      ]
+    },
+    {
+      "id": "ALT-2002-10",
+      "condition": "普通表单保存失败",
+      "steps": [
+        "停留原页并保留输入，用户重新操作另算一次切换。"
+      ]
+    },
+    {
+      "id": "ALT-2002-11",
+      "condition": "目标没有历史位置或原位置失效",
+      "steps": [
+        "不给旧页面隐式权限，反馈失效位置并回退当前有权入口。"
+      ]
+    },
+    {
+      "id": "ALT-2002-12",
+      "condition": "切换时权限变化、无合法目标或数据读取失败",
+      "steps": [
+        "明确反馈未完成，保留仍可访问的原位置；已成功保存内容或已确认的电话离线不回滚成未保存／在线。"
+      ]
+    },
+    {
+      "id": "ALT-2002-13",
+      "condition": "同租户原Cloud页面间导航，包括迁位后的客户档案、名单作业及云呼叫报表",
+      "steps": [
+        "保留同一原电话条、电话现场和原检查；允许时继续本次导航，原检查未放行时保留原现场。不能保留原电话现场的目标按切离分支处理，不一律按顶层菜单强制离线。 原公共管理功能分散迁位不改变其切离保护；即使同一新中心内切到AI或原管理功能，也按实际目标功能核验。"
+      ]
+    },
+    {
+      "id": "ALT-2002-14",
+      "condition": "仅看监管/报表且本人确无电话会话",
+      "steps": [
+        "校验所选查看权限并按普通表单规则导航；不要求监督者有本人坐席，不依据被查看坐席在线/通话状态阻拦，也不因此授予监管权限。"
+      ]
+    },
+    {
+      "id": "ALT-2002-15",
+      "condition": "用户显式切换合法业务租户",
+      "steps": [
+        "先按本场景完成本人电话/必要话后离线及普通表单保护，再重验目标租户和操作权限，恢复目标租户自己的合法位置。",
+        "目标失权或读取失败时明确反馈，不带原租户对象、筛选、草稿或电话在线状态继续；不撤销已成功保存/离线事实。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功时展示目标区域内获授权原页面和最新内容；普通区域/模块导航保持账号与租户，显式换租户单独重验后只使用目标租户上下文。",
+    "同原Cloud现场内部导航保留原电话条与检查；成功切离原电话现场时本人通话/必要话后完成且已确认离线。返回原位置不自动上线。",
+    "后台AI、预外呼、IVR任务沿原规则运行，电话坐席退出引起的可用坐席变化沿原任务规则。",
+    "失败或取消只结束本次切换，不抹除已保存业务事实；输入按相应保护分支保留。"
+  ],
+  "acceptance_points": [
+    "AC-2007：统一界面采用工作台、业务中心、客户中心、呼叫中心、报表中心、系统管理六个顶层导航入口；进入已有权页面时保持当前账号与租户，侧栏及内容对应所在区域；AI和云呼叫仍为独立业务模块。",
+    "AC-2008：六入口不新增许可开关或统一业务成员门槛。AI/云呼叫业务操作按对应租户模块、成员及操作权校验，公共管理、报表、原摘要片段、专业财务和平台资源依各自真实权限判断，互不自动授予。",
+    "AC-2009：失效位置重新解析当前合法入口；仅原公共管理身份沿原管理入口顺序和稳定PAGE映射进入首个有权管理页；仍有独立财务／资源／报表权者按对应原入口处理；无任何合法入口提示受限，身份或租户读取失败提供失败反馈并重试，不当作无权。",
+    "AC-2010：同账号同租户返回时恢复其原合法业务位置、对应视图及列表筛选，重新校验权限并读取最新业务数据；原公共管理功能迁位后仍同窗口返回来源功能，同次登录内恢复其上次合法管理页和筛选。",
+    "AC-2011：位置按账号、租户与原业务域隔离；菜单区域只承接实际页面／视图。公共管理记忆限同次登录，其他位置时效沿既有规则；失权回退合法入口，不保存跨租户对象或未提交草稿，不恢复电话在线。",
+    "AC-2012：沿用原云呼叫电话现场范围：原Cloud页面之间（含迁位后的客户档案、名单作业及云报表）保留原电话条及原检查；本人电话在线时进入AI原功能、原公共管理功能或切换租户前，先完成当前通话和必要话后并确认本人电话坐席离线，系统账号可继续登录；保护按实际功能判断，不按中心名称判断。",
+    "AC-2013：普通未保存表单按原流程提示保存、放弃或取消切换；保存失败保留输入并停留原页。",
+    "AC-2014：AI、预外呼、IVR后台任务按原规则运行；电话坐席退出造成的可用坐席变化沿原任务规则。",
+    "AC-2015：拨号、振铃、通话、必要话后未保存、离线失败及状态未知均须保留保护分支。顶栏区域变化不自动扩大原Cloud内部离线要求；原名单联系客户等电话交互继续复用。仅看监管且本人无电话会话，不按他人坐席状态拦截；不新增跨AI／公共的常驻电话控件。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "user",
+        "name": "当前租户成员／本人电话坐席",
+        "kind": "actor"
+      },
+      {
+        "id": "shell",
+        "name": "区域/模块及租户切换控制",
+        "kind": "system"
+      },
+      {
+        "id": "phone",
+        "name": "云呼叫电话与话后处理",
+        "kind": "system"
+      },
+      {
+        "id": "form",
+        "name": "当前页面表单",
+        "kind": "system"
+      },
+      {
+        "id": "target",
+        "name": "目标原业务入口",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "user",
+        "type": "start",
+        "order": 1,
+        "label": "请求目标入口或显式切换租户"
+      },
+      {
+        "id": "choose",
+        "lane_id": "user",
+        "type": "action",
+        "order": 2,
+        "label": "选择目标原入口/租户",
+        "step_ref": 1
+      },
+      {
+        "id": "auth",
+        "lane_id": "shell",
+        "type": "decision",
+        "order": 3,
+        "label": "目标模块、原操作及租户授权有效？",
+        "step_ref": 2
+      },
+      {
+        "id": "denied",
+        "lane_id": "user",
+        "type": "end",
+        "order": 4,
+        "label": "拒绝无权目标，保留合法原位置"
+      },
+      {
+        "id": "phonecheck",
+        "lane_id": "phone",
+        "type": "decision",
+        "order": 10,
+        "label": "本次需切离时本人电话/话后状态可确认？",
+        "step_ref": 3
+      },
+      {
+        "id": "inflight",
+        "lane_id": "phone",
+        "type": "decision",
+        "order": 11,
+        "label": "本次需切离且本人存在在途呼叫？"
+      },
+      {
+        "id": "busyend",
+        "lane_id": "user",
+        "type": "end",
+        "order": 12,
+        "label": "先处理拨号／振铃／通话，再保存话后并离线后重新发起"
+      },
+      {
+        "id": "needswrap",
+        "lane_id": "phone",
+        "type": "decision",
+        "order": 13,
+        "label": "本次需切离且必要话后待保存？"
+      },
+      {
+        "id": "wrap",
+        "lane_id": "user",
+        "type": "action",
+        "order": 14,
+        "label": "保存本人话后记录"
+      },
+      {
+        "id": "wrapresult",
+        "lane_id": "phone",
+        "type": "decision",
+        "order": 15,
+        "label": "本次需保存的话后是否成功完成？"
+      },
+      {
+        "id": "wrapfail",
+        "lane_id": "user",
+        "type": "end",
+        "order": 16,
+        "label": "保留话后输入，本次不切换"
+      },
+      {
+        "id": "needsoffline",
+        "lane_id": "phone",
+        "type": "decision",
+        "order": 17,
+        "label": "本次需切离且本人电话需要退出？"
+      },
+      {
+        "id": "offline",
+        "lane_id": "user",
+        "type": "action",
+        "order": 18,
+        "label": "退出本人电话坐席"
+      },
+      {
+        "id": "off_unknown",
+        "lane_id": "phone",
+        "type": "action",
+        "order": 19,
+        "label": "保留电话状态无法确认的实际结果"
+      },
+      {
+        "id": "offresult",
+        "lane_id": "phone",
+        "type": "decision",
+        "order": 20,
+        "label": "本次无需切离，或本人切离条件已满足？"
+      },
+      {
+        "id": "offfail",
+        "lane_id": "user",
+        "type": "end",
+        "order": 21,
+        "label": "电话/话后状态未确认或离线失败，不切离"
+      },
+      {
+        "id": "dirty",
+        "lane_id": "form",
+        "type": "decision",
+        "order": 23,
+        "label": "普通表单未保存内容如何处理？",
+        "step_ref": 4
+      },
+      {
+        "id": "save",
+        "lane_id": "form",
+        "type": "action",
+        "order": 24,
+        "label": "按原流程保存普通表单"
+      },
+      {
+        "id": "discard",
+        "lane_id": "form",
+        "type": "action",
+        "order": 25,
+        "label": "按用户选择放弃本次未保存内容"
+      },
+      {
+        "id": "noform",
+        "lane_id": "form",
+        "type": "action",
+        "order": 26,
+        "label": "普通表单无未保存内容"
+      },
+      {
+        "id": "cancelchoice",
+        "lane_id": "user",
+        "type": "action",
+        "order": 27,
+        "label": "选择取消本次切换"
+      },
+      {
+        "id": "saveresult",
+        "lane_id": "form",
+        "type": "decision",
+        "order": 28,
+        "label": "普通表单处理结果？"
+      },
+      {
+        "id": "savefail",
+        "lane_id": "user",
+        "type": "end",
+        "order": 29,
+        "label": "保存失败，保留输入并停留原页"
+      },
+      {
+        "id": "cancel",
+        "lane_id": "user",
+        "type": "end",
+        "order": 30,
+        "label": "取消切换，保留未保存内容"
+      },
+      {
+        "id": "remember",
+        "lane_id": "shell",
+        "type": "action",
+        "order": 31,
+        "label": "按账号/租户/原入口记录位置筛选",
+        "step_ref": 5
+      },
+      {
+        "id": "restore",
+        "lane_id": "target",
+        "type": "decision",
+        "order": 37,
+        "label": "返回位置是否仍合法且可访问？",
+        "step_ref": 6
+      },
+      {
+        "id": "restoreok",
+        "lane_id": "target",
+        "type": "action",
+        "order": 38,
+        "label": "恢复合法子页面及列表筛选"
+      },
+      {
+        "id": "fallback",
+        "lane_id": "target",
+        "type": "action",
+        "order": 39,
+        "label": "失效位置给出反馈并回退当前合法入口"
+      },
+      {
+        "id": "refresh",
+        "lane_id": "target",
+        "type": "decision",
+        "order": 40,
+        "label": "目标授权复核与最新数据读取结果？",
+        "step_ref": 7
+      },
+      {
+        "id": "success",
+        "lane_id": "user",
+        "type": "end",
+        "order": 41,
+        "label": "展示目标原页面；仅显式切换才改变租户"
+      },
+      {
+        "id": "targetfail",
+        "lane_id": "user",
+        "type": "end",
+        "order": 42,
+        "label": "本次切换未完成，保留可用原位置并反馈原因"
+      },
+      {
+        "id": "initial_unknown",
+        "lane_id": "user",
+        "type": "end",
+        "order": 22,
+        "label": "电话/话后状态未知，保留本人现场"
+      },
+      {
+        "id": "telephone_boundary",
+        "lane_id": "shell",
+        "type": "decision",
+        "label": "目标是否保留原Cloud电话现场？",
+        "order": 5,
+        "step_ref": 3
+      },
+      {
+        "id": "native_cloud_guard",
+        "lane_id": "phone",
+        "type": "decision",
+        "label": "原Cloud内部检查是否放行（其他无需此项）？",
+        "order": 9,
+        "step_ref": 3
+      },
+      {
+        "id": "native_cloud_stop",
+        "lane_id": "user",
+        "type": "end",
+        "label": "原检查未放行，保留原电话及输入",
+        "order": 32,
+        "step_ref": 3
+      },
+      {
+        "id": "tenant_switch_kind",
+        "lane_id": "shell",
+        "type": "decision",
+        "label": "本次是否显式切换租户？",
+        "order": 33,
+        "step_ref": 6
+      },
+      {
+        "id": "tenant_switch_validate",
+        "lane_id": "shell",
+        "type": "decision",
+        "label": "本次目标租户/合法范围和操作授权仍有效？",
+        "order": 36,
+        "step_ref": 6
+      },
+      {
+        "id": "tenant_switch_denied",
+        "lane_id": "user",
+        "type": "end",
+        "label": "显式目标租户进入未完成，不带原上下文继续",
+        "order": 43,
+        "step_ref": 6
+      },
+      {
+        "id": "native_cloud_context",
+        "lane_id": "phone",
+        "type": "action",
+        "label": "保留同租户原Cloud电话条和原导航检查",
+        "order": 6,
+        "step_ref": 3
+      },
+      {
+        "id": "leaving_cloud_context",
+        "lane_id": "phone",
+        "type": "action",
+        "label": "本次需切离本人Cloud电话现场",
+        "order": 7,
+        "step_ref": 3
+      },
+      {
+        "id": "no_own_phone",
+        "lane_id": "phone",
+        "type": "action",
+        "label": "无需本人电话切离，不依据他人坐席状态阻拦",
+        "order": 8,
+        "step_ref": 3
+      },
+      {
+        "id": "tenant_keep",
+        "lane_id": "shell",
+        "type": "action",
+        "label": "普通导航保持当前合法租户/范围",
+        "order": 34,
+        "step_ref": 6
+      },
+      {
+        "id": "tenant_change",
+        "lane_id": "shell",
+        "type": "action",
+        "label": "显式切换使用已选目标租户及其独立记忆",
+        "order": 35,
+        "step_ref": 6
+      },
+      {
+        "id": "current_scope_denied",
+        "lane_id": "user",
+        "type": "end",
+        "label": "原合法范围权限已变化，本次导航未完成",
+        "order": 44,
+        "step_ref": 6
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "choose"
+      },
+      {
+        "from": "choose",
+        "to": "auth"
+      },
+      {
+        "from": "auth",
+        "to": "denied",
+        "label": "未开通、所选操作无权或目标租户失效",
+        "path_id": "ALT-2002-01",
+        "type": "exception"
+      },
+      {
+        "from": "auth",
+        "to": "telephone_boundary",
+        "label": "目标合法且所选操作获权"
+      },
+      {
+        "from": "telephone_boundary",
+        "to": "native_cloud_context",
+        "label": "同租户Cloud页面间且目标保留原电话现场",
+        "path_id": "ALT-2002-13"
+      },
+      {
+        "from": "telephone_boundary",
+        "to": "leaving_cloud_context",
+        "label": "离开原Cloud现场且本人有或可能有电话/必要话后"
+      },
+      {
+        "from": "telephone_boundary",
+        "to": "no_own_phone",
+        "label": "非Cloud来源，或离开Cloud且已确认本人无会话/待存话后",
+        "path_id": "ALT-2002-14"
+      },
+      {
+        "from": "native_cloud_context",
+        "to": "native_cloud_guard"
+      },
+      {
+        "from": "leaving_cloud_context",
+        "to": "native_cloud_guard"
+      },
+      {
+        "from": "no_own_phone",
+        "to": "native_cloud_guard"
+      },
+      {
+        "from": "native_cloud_guard",
+        "to": "native_cloud_stop",
+        "label": "同Cloud内部但原检查未放行",
+        "path_id": "ALT-2002-13",
+        "type": "exception"
+      },
+      {
+        "from": "native_cloud_guard",
+        "to": "phonecheck",
+        "label": "同Cloud原检查允许，或本次非内部无需此项"
+      },
+      {
+        "from": "phonecheck",
+        "to": "initial_unknown",
+        "label": "确需切离且本人电话/必要话后状态不可确认",
+        "path_id": "ALT-2002-06",
+        "type": "exception"
+      },
+      {
+        "from": "phonecheck",
+        "to": "inflight",
+        "label": "无需本人电话切离，或切离所需状态可确认"
+      },
+      {
+        "from": "inflight",
+        "to": "busyend",
+        "label": "确需切离且本人有拨号/振铃/通话",
+        "path_id": "ALT-2002-02",
+        "type": "exception"
+      },
+      {
+        "from": "inflight",
+        "to": "needswrap",
+        "label": "无需本人电话切离，或本人无在途呼叫"
+      },
+      {
+        "from": "needswrap",
+        "to": "wrap",
+        "label": "确需切离且本人必要话后未保存",
+        "path_id": "ALT-2002-03",
+        "type": "exception"
+      },
+      {
+        "from": "needswrap",
+        "to": "wrapresult",
+        "label": "无需本人电话切离，或本人无必要话后待保存"
+      },
+      {
+        "from": "wrap",
+        "to": "wrapresult"
+      },
+      {
+        "from": "wrapresult",
+        "to": "wrapfail",
+        "label": "本次要求保存但保存失败",
+        "path_id": "ALT-2002-05",
+        "type": "exception"
+      },
+      {
+        "from": "wrapresult",
+        "to": "needsoffline",
+        "label": "无需保存或本次必要话后已保存成功"
+      },
+      {
+        "from": "needsoffline",
+        "to": "offline",
+        "label": "确需切离且已确认本人电话在线",
+        "path_id": "ALT-2002-04",
+        "type": "exception"
+      },
+      {
+        "from": "needsoffline",
+        "to": "off_unknown",
+        "label": "确需切离但本人电话状态不能确认",
+        "path_id": "ALT-2002-06",
+        "type": "exception"
+      },
+      {
+        "from": "needsoffline",
+        "to": "offresult",
+        "label": "无需本人电话切离，或已确认离线/确无本人会话"
+      },
+      {
+        "from": "offline",
+        "to": "offresult"
+      },
+      {
+        "from": "off_unknown",
+        "to": "offresult"
+      },
+      {
+        "from": "offresult",
+        "to": "offfail",
+        "label": "确需切离但离线失败或本人电话/话后状态不明",
+        "path_id": "ALT-2002-06",
+        "type": "exception"
+      },
+      {
+        "from": "offresult",
+        "to": "dirty",
+        "label": "无需本人电话切离，或本人无在途/待存话后且已确认离线"
+      },
+      {
+        "from": "dirty",
+        "to": "noform",
+        "label": "无普通未保存内容"
+      },
+      {
+        "from": "dirty",
+        "to": "save",
+        "label": "有普通未保存内容且选择保存",
+        "path_id": "ALT-2002-07",
+        "type": "exception"
+      },
+      {
+        "from": "dirty",
+        "to": "discard",
+        "label": "有普通未保存内容且选择放弃",
+        "path_id": "ALT-2002-08",
+        "type": "exception"
+      },
+      {
+        "from": "dirty",
+        "to": "cancelchoice",
+        "label": "有普通未保存内容且选择取消",
+        "path_id": "ALT-2002-09",
+        "type": "exception"
+      },
+      {
+        "from": "noform",
+        "to": "saveresult"
+      },
+      {
+        "from": "save",
+        "to": "saveresult"
+      },
+      {
+        "from": "discard",
+        "to": "saveresult"
+      },
+      {
+        "from": "cancelchoice",
+        "to": "saveresult"
+      },
+      {
+        "from": "saveresult",
+        "to": "cancel",
+        "label": "用户取消本次切换"
+      },
+      {
+        "from": "saveresult",
+        "to": "savefail",
+        "label": "用户选择保存但保存失败",
+        "path_id": "ALT-2002-10",
+        "type": "exception"
+      },
+      {
+        "from": "saveresult",
+        "to": "remember",
+        "label": "无未保存内容、已保存成功或已明确放弃"
+      },
+      {
+        "from": "remember",
+        "to": "tenant_switch_kind"
+      },
+      {
+        "from": "tenant_switch_kind",
+        "to": "tenant_keep",
+        "label": "普通区域/模块导航，租户不变"
+      },
+      {
+        "from": "tenant_switch_kind",
+        "to": "tenant_change",
+        "label": "用户显式切换已选目标租户",
+        "path_id": "ALT-2002-15"
+      },
+      {
+        "from": "tenant_keep",
+        "to": "tenant_switch_validate"
+      },
+      {
+        "from": "tenant_change",
+        "to": "tenant_switch_validate"
+      },
+      {
+        "from": "tenant_switch_validate",
+        "to": "restore",
+        "label": "目标租户/合法范围仍有权，读取其独立位置"
+      },
+      {
+        "from": "tenant_switch_validate",
+        "to": "tenant_switch_denied",
+        "label": "显式目标租户失权或读取失败/未知",
+        "path_id": "ALT-2002-15",
+        "type": "exception"
+      },
+      {
+        "from": "tenant_switch_validate",
+        "to": "current_scope_denied",
+        "label": "普通导航的原范围/操作权已失效或读取失败",
+        "path_id": "ALT-2002-12",
+        "type": "exception"
+      },
+      {
+        "from": "restore",
+        "to": "restoreok",
+        "label": "目标租户有历史且页面/筛选仍合法"
+      },
+      {
+        "from": "restore",
+        "to": "fallback",
+        "label": "目标无历史、页面过期或已失权",
+        "path_id": "ALT-2002-11",
+        "type": "exception"
+      },
+      {
+        "from": "restoreok",
+        "to": "refresh"
+      },
+      {
+        "from": "fallback",
+        "to": "refresh"
+      },
+      {
+        "from": "refresh",
+        "to": "success",
+        "label": "目标访问仍有效且最新数据读取成功"
+      },
+      {
+        "from": "refresh",
+        "to": "targetfail",
+        "label": "权限变化、无合法落点或读取失败",
+        "path_id": "ALT-2002-12",
+        "type": "exception"
+      }
+    ]
+  },
+  "design_status": "S3_flow_draft",
+  "scope_status": "confirmed_G1",
+  "issue_ids": [
+    "ISSUE-2012",
+    "ISSUE-2009",
+    "ISSUE-2001"
+  ],
+  "rule_ids": [
+    "BR-2002",
+    "BR-2003",
+    "BR-2004",
+    "BR-2005",
+    "BR-2006",
+    "BR-2007",
+    "BR-2020",
+    "BR-2052"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

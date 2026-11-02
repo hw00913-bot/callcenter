@@ -1,0 +1,117 @@
+# TASK-023 有序强兜底条件与准确结果判断
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](../features/FUNC-2016.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](../features/FUNC-2030.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](../features/FUNC-2038.md)
+
+## 目标
+
+IMPORT/填写/通话/标签按准确来源/范围和类型判断，人工/预外呼使用客户侧SIP域。；当前所有有出口新方案均强制唯一末位ELSE，明确不匹配才到兜底；任何未知仍PENDING；新选填缺列null只在可靠schema输入捕获时产生。
+
+## 产品依据
+
+- FUNC-2016 创建品牌共用业务分类与字段基础：在有权品牌维护独立IMPORT/FOLLOWUP字段库及分类双Tab，明确业务域、字段与入口必填；当前无直接跟进开关；任务DIRECT/分类TEMPLATE由准确入口派生；保存基础不绑定模板或起呼。；来源 documentation/input/functions.json#FUNC-2016
+- FUNC-2030 按路径确认同品牌线索转交：按当前线索域配置确认CURRENT本租户继续或OTHER同品牌合法转交，分别保归属/阶段或新增截止接续，避免权限混用。；来源 documentation/input/functions.json#FUNC-2030
+- FUNC-2038 判断并确认本租户后继节点：按准确条件确认后继及END两动作；受控废弃保缺失/未完成，原执行真实收敛后异常结清与新run，不伪造正常archive。END历史结构与准确首MANUAL当期例外分开；旧run/内容/通话/来源保留。；来源 documentation/input/functions.json#FUNC-2038
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+
+## 前置任务
+
+- TASK-012
+- TASK-021
+- TASK-022
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-CUSTOMER-SIP](../global-logic.md#GR-CUSTOMER-SIP)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-FIELDS](../global-logic.md#GR-FIELDS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-SERIAL](../global-logic.md#GR-SERIAL)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-FLOW-EVALUATE](../local-logic/LOCAL-FLOW-EVALUATE.md)
+
+字段：[FIELD-FLOW-BRANCH-PRIORITY](../field-specs.md#FIELD-FLOW-BRANCH-PRIORITY)、[FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)、[FIELD-FLOW-EVALUATION](../field-specs.md#FIELD-FLOW-EVALUATION)、[FIELD-FLOW-EVALUATION-TOKEN](../field-specs.md#FIELD-FLOW-EVALUATION-TOKEN)、[FIELD-FLOW-FOLLOWUP-VALUES](../field-specs.md#FIELD-FLOW-FOLLOWUP-VALUES)、[FIELD-FLOW-GROUP-MODE](../field-specs.md#FIELD-FLOW-GROUP-MODE)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-INTENDED-STORE-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)、[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-RECORD-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)、[FIELD-FLOW-RESULT-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)、[FIELD-FLOW-ROUTING-EVIDENCE](../field-specs.md#FIELD-FLOW-ROUTING-EVIDENCE)、[FIELD-FLOW-ROUTING-FIELD-SNAPSHOT](../field-specs.md#FIELD-FLOW-ROUTING-FIELD-SNAPSHOT)、[FIELD-FLOW-RULE-FIELD](../field-specs.md#FIELD-FLOW-RULE-FIELD)、[FIELD-FLOW-RULE-OPERATOR](../field-specs.md#FIELD-FLOW-RULE-OPERATOR)、[FIELD-FLOW-RULE-SOURCE](../field-specs.md#FIELD-FLOW-RULE-SOURCE)、[FIELD-FLOW-RULE-VALUES](../field-specs.md#FIELD-FLOW-RULE-VALUES)、[FIELD-FLOW-TAG-EVIDENCE](../field-specs.md#FIELD-FLOW-TAG-EVIDENCE)、[FIELD-FLOW-WORK-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2227](../ui-pages/UI-PAGE-2227.md)
+
+## 实现要求
+
+- IMPORT/填写/通话/标签按准确来源/范围和类型判断，人工/预外呼使用客户侧SIP域。
+- 当前所有有出口新方案均强制唯一末位ELSE，明确不匹配才到兜底；任何未知仍PENDING；新选填缺列null只在可靠schema输入捕获时产生。
+- 不按同名、首字段或继承的SYSTEM旧值造匹配；DIRECT无模板判断入口。
+- 不恢复当前无ELSE配置或让NOT_IN把未知当匹配；不按label、首字段或旧接听标记猜值。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2105**：条件按IMPORT/FOLLOWUP稳定fieldId或准确通话/AI上下文取值，不设单一标签来源，不按同名或首字段替代。
+  依据：docs/functional-spec.json#AC-2105
+
+- **AC-2123**：IMPORT独立读取当前有效导入值；FOLLOWUP读取指定范围正式确认或授权更正，SYSTEM继承result不冒充新确认；通话/AI标签按准确run/stage/sourceNode/执行场景和版本，不借其他租户；CURRENT_NODE/CURRENT_ROUND不借旧run，显式HISTORY另按本租户准确历史范围核验。
+  依据：docs/functional-spec.json#AC-2123
+
+- **AC-2124**：路径按优先顺序只选首个命中；任何依赖事实待核都阻后续及ELSE，保留原节点/owner。所有有出口节点必须唯一末位ELSE，前序条件明确均不匹配才用ELSE；单一出口为ELSE，不存在多路径人工任选。
+  依据：docs/functional-spec.json#AC-2124
+
+- **AC-2125**：确认动作重核同一业务owner/run/node、selected edge及evaluationToken、精确当前事实和目标解析；过期保输入重判，不静默换路径；CALL必须真实拨打/必要归档。
+  依据：docs/functional-spec.json#AC-2125
+
+- **AC-2144**：流转判断分别使用TIANRUN_MANUAL_SIP_CAUSE和TIANRUN_PREDICTIVE_SIP_CAUSE客户侧结果：200已接通、710～724当前字典；不再用1～4接听标记推断，不改AI状态域或原专业记录的其他状态展示。新回执与实际方式/原段/场景准确关联，未知PENDING。
+  依据：docs/functional-spec.json#AC-2144
+
+## 测试要求（尚未执行）
+
+### CHECK-FLOW-EVALUATE / manual
+
+步骤：按当前续接版本执行：判断当前后续路径。前提：handlingMode=TEMPLATE且准确当前run/node可核；对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致。操作：按规则精确来源和声明scope读取已确认事实，IMPORT无需呼叫；计算类型允许单值/多值条件、组和优先路径，未知阻后序/default；记录一致事实与唯一selected边，生成确认token。分别构造：缺失、草稿、错租户/错run/错scene或冲突；已知空与非空；当前新方案缺唯一末位ELSE，或所有条件明确不匹配；首个合法条件或default命中；当前业务为DIRECT；当前新输入中合法启用选填IMPORT缺列。
+
+预期：本次判断不自动执行或改归属；SYSTEM不刷新也不抹除同scope先前有效人工确认；PENDING并解释来源，不反向当NOT_IN成功；空只用为空类命中，EQ/NE/集合不借空放行；缺ELSE的新方案在保存/新输入准入时拒绝；合法方案明确不匹配才用ELSE；未知不落兜底；只选一个，仍需人员确认动作；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。；在输入捕获时规范化null，按为空或ELSE判断；必填/目录异常和通话/填写未知不补空；不读改旧快照。
+
+覆盖：AC-2105, AC-2123, AC-2124, AC-2125, AC-2144
+
+## 完成条件
+
+- IMPORT/填写/通话/标签按准确来源/范围和类型判断，人工/预外呼使用客户侧SIP域。
+- 当前所有有出口新方案均强制唯一末位ELSE，明确不匹配才到兜底；任何未知仍PENDING；新选填缺列null只在可靠schema输入捕获时产生。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [flow-routing.js](../../../prototype/js/components/flow-routing.js) · 只读行为参考，非生产可写目标
+- [flow-routing-store.js](../../../prototype/scripts/flow-routing-store.js) · 只读行为参考，非生产可写目标
+- [four-node-model.js](../../../prototype/scripts/four-node-model.js) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：ENG-FLOW-PERSISTENCE。

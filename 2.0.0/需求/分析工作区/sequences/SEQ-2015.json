@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2015",
+  "scenario_id": "SC-2015",
+  "name": "四类外呼执行公共禁呼检查时序",
+  "status": "S5_current_design_for_review_not_implementation",
+  "participants": [
+    {
+      "id": "initiator",
+      "name": "发起人员或既有后台任务",
+      "kind": "actor"
+    },
+    {
+      "id": "exec",
+      "name": "四类外呼本方执行适配",
+      "kind": "system"
+    },
+    {
+      "id": "list",
+      "name": "当前租户有效限制服务",
+      "kind": "system"
+    },
+    {
+      "id": "vendor",
+      "name": "本次真实执行供应商",
+      "kind": "external_system"
+    }
+  ],
+  "messages": [
+    {
+      "step": 1,
+      "from": "initiator",
+      "to": "exec",
+      "message": "发起一次本方式处理；配置/选路径/分配不是电话尝试。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "exec",
+      "to": "exec",
+      "message": "区分方向，核本次合法租户、号码、方式原权、资源和准确任务/记录。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜当前已核定范围内本次操作",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 3,
+      "from": "exec",
+      "to": "initiator",
+      "message": "正常呼入回原呼入处理，不因公共外呼禁呼拒接。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2015-INBOUND｜本次结束，ref SC-2018",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2015-INBOUND"
+      ]
+    },
+    {
+      "step": 4,
+      "from": "exec",
+      "to": "initiator",
+      "message": "上下文/资源/方式授权无效或不明，不借其他租户或品牌配置权起呼。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2015-CONTEXT｜本次不新增提交",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2015-CONTEXT"
+      ]
+    },
+    {
+      "step": 5,
+      "from": "exec",
+      "to": "list",
+      "message": "按当前实际业务租户检查该号码有效公共禁呼及本方式专项原范围/期限。",
+      "type": "request",
+      "api_id": "API-2007",
+      "condition": "条件目标｜本期实际调用语义/身份及对象关系已核，原准入通过；否则当前待核受阻。主线｜当前上下文可靠；内部拨前合同仍须核验",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 6,
+      "from": "list",
+      "to": "exec",
+      "message": "检查失败/不可靠，不冒充未命中或阻断成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2015-CHECKFAIL｜当前整合合同/有效状态未核或实际读取失败",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2015-CHECKFAIL"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "exec",
+      "to": "initiator",
+      "message": "保既有任务和本次证据，停止本次新增外呼/重呼/异常补提交。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2015-CHECKFAIL｜本次结束",
+      "source_step_refs": [
+        3,
+        6
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2015-CHECKFAIL"
+      ]
+    },
+    {
+      "step": 8,
+      "from": "list",
+      "to": "exec",
+      "message": "返回可核命中或未命中及适用范围，不把AI专项扩大四种永久禁呼。",
+      "type": "response",
+      "api_id": "API-2007",
+      "condition": "条件目标｜API2007真实检查合同/租户范围已核且实际取得结果",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 9,
+      "from": "exec",
+      "to": "exec",
+      "message": "未命中仍沿原方式权、资源、频次/时段及其他限制；不保证起呼/接通或节点完成。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2015-NOMATCH｜本次回原合法执行子流程",
+      "source_step_refs": [
+        3,
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2015-NOMATCH"
+      ]
+    },
+    {
+      "step": 10,
+      "from": "exec",
+      "to": "exec",
+      "message": "命中且尚未向供应商提交时本方阻止本条新增提交，不停止无关客户任务。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜有效命中且本方尚未提交",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 11,
+      "from": "exec",
+      "to": "vendor",
+      "message": "仅在现网能力逐供应商核实后，对其已接收未拨的本条执行原精准阻断/取消。",
+      "type": "external_call",
+      "api_id": "API-2008",
+      "condition": "条件目标｜精确记录/号码关联与原取消语义可核；不新增未知取消端点",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 12,
+      "from": "vendor",
+      "to": "exec",
+      "message": "返回本条实际处理事实，包括未取消/进行中/未知；不能以请求已发替代成功。",
+      "type": "response",
+      "api_id": "API-2008",
+      "condition": "条件目标｜原供应商真实回执或已核查询事实",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 13,
+      "from": "exec",
+      "to": "initiator",
+      "message": "已收未拨阻断能力未核/本次失败或未知时不报已拦截、不绕禁呼补提交。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2015-BLOCKUNCONFIRMED｜当前API2008部分定义不足或真实结果不明",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2015-BLOCKUNCONFIRMED"
+      ]
+    },
+    {
+      "step": 14,
+      "from": "exec",
+      "to": "exec",
+      "message": "只记录本次可确认的本地/远端阻断事实，分别保留，不生成虚假拨出/接通。",
+      "type": "request",
+      "api_id": null,
+      "condition": "主线｜如实留痕，不新增补偿/回收动作",
+      "source_step_refs": [
+        5,
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 15,
+      "from": "exec",
+      "to": "initiator",
+      "message": "反馈本条受限及未核边界；不影响正常呼入/其他租户、不自动转交/推进。",
+      "type": "response",
+      "api_id": null,
+      "condition": "本次结束｜成功仅指已取得的真实阻断事实",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2021"
+  ],
+  "source_acceptance_ids": [
+    "AC-2057",
+    "AC-2058",
+    "AC-2059"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096",
+    "scenarios/SC-2015.json",
+    "interfaces/interface-index.json"
+  ],
+  "notes": [
+    "参与方表达当前业务责任，不选择生产部署架构；消息条件为互斥分支或条件目标，不表示所有消息在一次操作中依次发生。",
+    "G2仅批准分析推进。partial/missing均保真实身份、授权、稳定关联及技术契约待核；当前无可靠证据时明确受阻，不由文档/Mock或HTTP成功推定端到端成功。",
+    "真实跨内部服务的partial/missing合同可引用API能力族，内部参与方仍为system；7个not_required仅在notes登记内部责任，消息api_id=null，不伪造调用URL/参数/新回调。",
+    "本版AI标签仅整合原配置、映射和结果展示；不新增AI→业务字段写入或由此自动流转。保原人工保存、字段条件及其他流转，未匹配保原值不首项兜底，仅限本版。"
+  ],
+  "internal_responsibility_refs": [],
+  "previous_revision": {
+    "sha256": "8dbb4a8dd10adfda5e79749dc7643b777e46b7b2a359f2bd1b4d7ce0298ec9ef",
+    "preserved_sequence_id": "SEQ-2015"
+  },
+  "main_step_coverage": {
+    "1": [
+      1
+    ],
+    "2": [
+      2,
+      3,
+      4
+    ],
+    "3": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "4": [
+      9,
+      10,
+      11,
+      13
+    ],
+    "5": [
+      12,
+      13,
+      14
+    ],
+    "6": [
+      7,
+      14,
+      15
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2015-BLOCKUNCONFIRMED": [
+      13
+    ],
+    "ALT-2015-CHECKFAIL": [
+      6,
+      7
+    ],
+    "ALT-2015-CONTEXT": [
+      4
+    ],
+    "ALT-2015-INBOUND": [
+      3
+    ],
+    "ALT-2015-NOMATCH": [
+      9
+    ]
+  },
+  "api_usage_boundaries": [
+    {
+      "api_id": "API-2007",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    },
+    {
+      "api_id": "API-2008",
+      "verification_status": "partial",
+      "production_verified": false,
+      "usage": "按当前已批准S4能力族及本SC归属使用；缺真实合同/开通/身份/状态证明时受阻，成功分支仅为条件目标，不定义新端点或字段。"
+    }
+  ],
+  "source_scenario_sha256": "792847d6de28f880b80e01cb7b829d1f0edc245c16b24c1f67061e9291b1e477",
+  "source_interface_index_sha256": "e86ca9db1632f96708fb509605158bb1b10b427471ce980e18296a56acf8805a",
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

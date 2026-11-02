@@ -1,0 +1,124 @@
+# LOCAL-FLOW-ASSIGN 确认任务或人工分配方式及坐席
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](../features/FUNC-2037.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2037
+
+触发：在直接跟进业务或当前CALL记录点击安排
+
+## 前置条件
+
+- 当前owner租户管理员及task.assign动作权
+- DIRECT分类当前允许且方式明确，或TEMPLATE为ACTIVE run的CALL节点；无在途/排队/重试/未知执行及必要未归档内容
+- DIRECT须当前周期ACTIVE；COMPLETED须显式再次直接跟进，不能以旧安排直接起呼。
+
+## 必须遵守的全局规则
+
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-SERIAL](../global-logic.md#GR-SERIAL)
+- [GR-CONFIG](../global-logic.md#GR-CONFIG)
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+- [GR-EXECUTION-ARRANGEMENT](../global-logic.md#GR-EXECUTION-ARRANGEMENT)
+- [GR-ASSIGNMENT-SIMPLIFICATION](../global-logic.md#GR-ASSIGNMENT-SIMPLIFICATION)
+- [GR-LIFECYCLE-SETTLEMENT](../global-logic.md#GR-LIFECYCLE-SETTLEMENT)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-RECORD-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)、[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)、[FIELD-FLOW-EXECUTION-RESOURCE](../field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)、[FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)、[FIELD-FLOW-EXECUTION-QUEUED-AT](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)、[FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE)、[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)
+
+输出：[FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)、[FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)、[FIELD-FLOW-EXECUTION-RESOURCE](../field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)、[FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)、[FIELD-FLOW-EXECUTION-QUEUED-AT](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)、[FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE)
+
+## 处理步骤
+
+### STEP-FLOW-ASSIGN-1
+
+按当前模式/方式读取本租户有权任务/场景或坐席；不读取独立责任人候选作为必填
+
+读取：FIELD-FLOW-RECORD-ID, FIELD-FLOW-METHOD, FIELD-FLOW-RECIPIENT, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD；写入：FIELD-FLOW-FOLLOWER
+
+规则：GR-AUTH, GR-SCOPE, GR-SERIAL, GR-CONFIG, GR-HANDLING-MODE
+
+### STEP-FLOW-ASSIGN-2
+
+人工默认MANUAL可先待分配，SPECIFIC_SEAT才必选seat；PRED只任务，AI任务+scene，不选择独立责任人；保存五档等级，人员仅由seat或真实执行事实产生，不改owner/模板方式、不自动起呼 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。 导入与明确执行使用相同底层配置语义指纹；已知成功准入包装字段和对象键序不构成业务配置变化。旧schema2 TASK/DIRECT仅在完整准确身份及已知wrapper/basis证明等价时只读兼容；未知附加项或真实映射/来源/模板/状态变化继续拒绝，不回写旧快照，TEMPLATE标签依赖保完整指纹。 当前排队事实仅属于准确当前run/nodeRun/directCycle及有效资源安排；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。
+
+读取：FIELD-FLOW-AI-SCENE, FIELD-FLOW-METHOD, FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-END-FOLLOWUP-ORIGIN, FIELD-FLOW-EXECUTION-RESOURCE, FIELD-FLOW-EXECUTION-PRIORITY, FIELD-FLOW-EXECUTION-QUEUED-AT, FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE, FIELD-FLOW-MANUAL-ASSIGNMENT-MODE；写入：FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-RECORD-REVISION, FIELD-FLOW-EXECUTION-RESOURCE, FIELD-FLOW-EXECUTION-PRIORITY, FIELD-FLOW-EXECUTION-QUEUED-AT, FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE
+
+规则：GR-AUTH, GR-SCOPE, GR-SERIAL, GR-CONFIG, GR-HANDLING-MODE, GR-EXECUTION-ARRANGEMENT, GR-ASSIGNMENT-SIMPLIFICATION, GR-LIFECYCLE-SETTLEMENT
+
+## 分支与异常
+
+### BRANCH-FLOW-ASSIGN-1
+
+条件：人员失效、原安排不适配或源配置变更
+
+结果：具体说明并保选择，不能保存无权安排
+
+涉及字段：FIELD-FLOW-FOLLOWER, FIELD-FLOW-AI-SCENE
+
+验证：CHECK-FLOW-ASSIGN
+
+### BRANCH-FLOW-ASSIGN-2
+
+条件：合法保存
+
+结果：同次保存本方式任务或人工分配方式/坐席、场景及执行优先级，人员仅按坐席或真实执行事实产生，不改owner/方式、不起呼
+
+涉及字段：FIELD-FLOW-FOLLOWER, FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-OWNER-TENANT
+
+验证：CHECK-FLOW-ASSIGN
+
+### LOCAL-FLOW-ASSIGN-END-ORIGIN
+
+条件：当前周期恰为可靠END来源的首MANUAL，record/owner/origin directCycleId与当前cycle准确一致
+
+结果：历史END证明与当前周期例外分开：只有同record/owner/来源directCycleId的首MANUAL当前周期可豁免旧allowDirect标志；TASK的resume新周期须当前准确任务/场景/渠道有效，旧无TASK历史按原准入，旧来源只保历史。
+
+涉及字段：FIELD-FLOW-END-FOLLOWUP-ORIGIN
+
+验证：CHECK-FLOW-ASSIGN
+
+## 完成后的状态
+
+- 按钮、上下文和模型动作资格一致
+
+## 字段定义
+
+- [FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)
+- [FIELD-FLOW-RECORD-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)
+- [FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)
+- [FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)
+- [FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+- [FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+- [FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+- [FIELD-FLOW-EXECUTION-RESOURCE](../field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)
+- [FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)
+- [FIELD-FLOW-EXECUTION-QUEUED-AT](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)
+- [FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE)
+- [FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)
+- [FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)
+- [FIELD-FLOW-METHOD](../field-specs.md#FIELD-FLOW-METHOD)
+- [FIELD-FLOW-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)
+- [FIELD-FLOW-END-FOLLOWUP-ORIGIN](../field-specs.md#FIELD-FLOW-END-FOLLOWUP-ORIGIN)
+- [FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2118, acceptance:AC-2119, acceptance:AC-2150, acceptance:AC-2156, features:FUNC-2037, features:FUNC-2037/behavior_spec/0/branches/0, features:FUNC-2037/behavior_spec/0/branches/1, features:FUNC-2037/behavior_spec/0/branches/2, features:FUNC-2037/behavior_spec/0/postconditions/0, features:FUNC-2037/behavior_spec/0/preconditions/0, features:FUNC-2037/behavior_spec/0/preconditions/1, features:FUNC-2037/behavior_spec/0/preconditions/2, features:FUNC-2037/behavior_spec/0/steps/0, features:FUNC-2037/behavior_spec/0/steps/1, pages:PAGE-2006/fields/25, pages:PAGE-2006/fields/37, pages:PAGE-2006/fields/59, pages:PAGE-2103/fields/32, pages:PAGE-2103/fields/33, pages:PAGE-2203/fields/18, pages:PAGE-2203/fields/28, pages:PAGE-2203/fields/32, pages:PAGE-2203/fields/39, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2203/fields/66, pages:PAGE-2204, pages:PAGE-2204/fields/2, pages:PAGE-2204/fields/29, pages:PAGE-2204/fields/3, pages:PAGE-2204/fields/41, pages:PAGE-2204/fields/45, pages:PAGE-2204/fields/47, pages:PAGE-2204/fields/48, pages:PAGE-2204/fields/49, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2204/fields/87, pages:PAGE-2204/fields/91, pages:PAGE-2204/fields/92, pages:PAGE-2204/fields/93, pages:PAGE-2204/fields/94, pages:PAGE-2204/fields/95, pages:PAGE-2205/fields/60, pages:PAGE-2205/fields/61, pages:PAGE-2226/fields/16, pages:PAGE-2226/fields/2, pages:PAGE-2226/fields/23, pages:PAGE-2226/fields/26, pages:PAGE-2226/fields/28, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/37, pages:PAGE-2226/fields/39, pages:PAGE-2226/fields/40, pages:PAGE-2226/fields/41, pages:PAGE-2226/fields/42, pages:PAGE-2226/fields/43, pages:PAGE-2227, pages:PAGE-2227/actions/5, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/140, pages:PAGE-2227/fields/144, pages:PAGE-2227/fields/145, pages:PAGE-2227/fields/146, pages:PAGE-2227/fields/147, pages:PAGE-2227/fields/148, pages:PAGE-2227/fields/4, pages:PAGE-2227/fields/42, pages:PAGE-2227/fields/57, pages:PAGE-2227/fields/67, pages:PAGE-2227/fields/7, pages:PAGE-2227/fields/76, pages:PAGE-2227/fields/79, pages:PAGE-2227/fields/80, pages:PAGE-2228/fields/10, pages:PAGE-2228/fields/16, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/147, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/151, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/159, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/160, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/161, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/162, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/163, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/166, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/34, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/35, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/60, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/67, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/68, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/69, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/70, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/73, scenarios:FLOW-CURRENT-CUSTOMER/steps/15
+
+验证：CHECK-FLOW-ASSIGN, CHECK-FLOW-EXECUTION-TARGET, CHECK-FLOW-TASK-WITHOUT-FOLLOWER
+
+## 实施任务
+
+- [TASK-016](../tasks/TASK-016.md)

@@ -1,0 +1,390 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2015",
+  "name": "四类外呼执行公共禁呼检查",
+  "summary": "AI/人工/预外呼/IVR禁止呼出名单号码，正常呼入继续",
+  "actors": [
+    "发起呼叫的人员或后台任务",
+    "四类外呼执行模块",
+    "公共禁呼管理系统"
+  ],
+  "trigger": "一次首次外呼、重呼、异常补提交，或人员从模板当前节点启动本次方式，以及已提交未拨号码的拨前处置",
+  "preconditions": [
+    "本次呼叫按实际方式核验合法业务租户、操作者或已受理任务执行资格与专业资源；分类/模板配置、监管查看和条件匹配不能替代本次外呼授权。正常呼入仍按原接听资格办理，不因公共外呼禁呼拒接。",
+    "原公共名单主入口归客户中心“联系限制”，仍为同一份本租户名单及原操作资格；入口迁位不改变公共拒联和专项范围、期限、四类外呼检查或正常呼入规则，不在客户档案复制名单或增加禁呼豁免。进入该原管理功能仍沿SC-2002保护和记忆。"
+  ],
+  "expected_outcome": "AI/人工/预外呼/IVR禁止呼出名单号码，正常呼入继续",
+  "exception_scope": "远端已接收未拨能力待核，不能用异常补提交绕过",
+  "source_story_ids": [
+    "US-2021"
+  ],
+  "source_acceptance_ids": [
+    "AC-2057",
+    "AC-2058",
+    "AC-2059"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "G1已确认四类公共禁呼目标；本图是S3目标流程，不证明AI或供应商已实现该能力。对已接收未拨号码的阻断属于目标范围；具体检查时点、远端动态过滤/精准取消/删除是否可用及实际处理契约保留ISSUE-2005，回执保留ISSUE-2006。图中没有假设任何远端取消API，没有将能力待核变成产品新状态按钮；“结果不能确认”只是不虚报成功的失败出口。失败不默认终止全部任务或强行挂断已接通通话，恢复属新一次发起；不改写原供应商失败分类或异常补提交额度。 共享入口只是维护归属；四类执行接入与供应商已接收未拨号码仍待原ISSUE-2005/2006，不能以新前端筛选证明远端阻断已实现。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 本轮模板流程复用本检查，不另建一份名单或按模板快照冻结禁呼结果。品牌配置共享不改变名单租户范围；IVR仍承接原方式，不因新模板扩大可执行能力。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "发起呼叫的人员或后台任务",
+      "action": "发起本次呼叫处理",
+      "system_response": "首次外呼、重呼、异常补提交、模板节点发起的AI/人工/预外呼及原有IVR外呼，和已提交未拨的拨前处置，都受当前实际业务租户公共禁呼约束。配置模板、匹配路径、确认节点或切备用本身不发起电话。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "四类外呼执行模块",
+      "action": "识别呼叫方向，并解析本次号码与业务租户",
+      "system_response": "AI、人工、预外呼、IVR分别保持原模块授权、资源及执行规则；模板处理使用当前负责租户的合法本次执行范围，不借同品牌其他租户资源。正常呼入不进入公共外呼禁呼拦截。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "公共禁呼管理系统",
+      "action": "检查当前业务租户该号码的有效公共禁呼",
+      "system_response": "引用公共黑名单同一份逐条有效记录，不匹配其他租户或同品牌名单；AI专项仍依该记录原范围/期限处理，入口合并不把AI专项扩为四类永久禁呼。 模板条件匹配、节点确认、备用切换或已保存旧快照均不授禁呼豁免；新一次外呼按本次有效限制复核。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "四类外呼执行模块",
+      "action": "命中公共禁呼时阻止本次号码继续呼出",
+      "system_response": "目标同时覆盖中台尚未提交及供应商已接收未拨号码，不以异常补提交绕过明确拒联。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "四类外呼执行模块",
+      "action": "核对本次禁呼处理的实际结果",
+      "system_response": "未确认的远端结果不能被报告为成功拦截；不根据Mock推定远端动态过滤或取消能力。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "四类外呼执行模块",
+      "action": "记录本次可确认的禁呼拦截结果并结束本次外呼处置",
+      "system_response": "仅命中号码本次外呼受阻，正常呼入及其他租户业务不因此改变。 拦截不表示外呼成功或节点已完成，不自动启动后继、切换模板或转交租户。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2015-INBOUND",
+      "condition": "本次为正常呼入",
+      "steps": [
+        "转入原呼入处理，不因公共外呼禁呼拒接。"
+      ]
+    },
+    {
+      "id": "ALT-2015-CONTEXT",
+      "condition": "本次外呼缺有效业务租户、号码、相应方式授权或专业资源上下文",
+      "steps": [
+        "本次不发起外呼，不借其他租户名单或品牌配置/监管权限完成业务授权；保留原可确认任务和当前记录/节点事实。"
+      ]
+    },
+    {
+      "id": "ALT-2015-CHECKFAIL",
+      "condition": "公共禁呼检查未取得可靠结果",
+      "steps": [
+        "本次不继续新增外呼提交，不虚报未命中或拦截成功。",
+        "保留本次请求和既有任务事实；恢复后另一次发起。"
+      ]
+    },
+    {
+      "id": "ALT-2015-NOMATCH",
+      "condition": "当前租户没有命中有效公共禁呼",
+      "steps": [
+        "沿本次方式的模块、当前负责租户、人员/任务、资源、时段、频次、专项名单和供应商原规则继续；条件匹配或未命中公共禁呼均不保证拨出、接通或推进节点。"
+      ]
+    },
+    {
+      "id": "ALT-2015-BLOCKUNCONFIRMED",
+      "condition": "命中后本次禁呼阻断失败或结果不能确认",
+      "steps": [
+        "不报告已拦截成功，也不新增重呼或异常补提交绕过该禁呼。",
+        "保留实际处理事实，能力差距按ISSUE-2005/2006核验，不臆造远端取消接口。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "目标是公共禁呼号码在四类外呼方式中不再被本次拨出，包括已提交未拨；此为目标流程，不是现有供应商能力证明。",
+    "正常呼入继续按原服务处理；未命中公共禁呼仍须通过各模式原执行限制。",
+    "检查或阻断没有明确成功结果时不虚报成功、不以补提交绕过；具体远端能力及实施差距继续留在问题清单。",
+    "品牌共享配置、节点确认、所选路径匹配或切备用不得绕过当前实际业务租户的禁呼检查；命中/失败/未知不假报外呼成功或自动推进后续业务。"
+  ],
+  "acceptance_points": [
+    "AC-2057：公共禁呼覆盖AI、人工、预外呼、IVR，正常呼入不因此被拒接。",
+    "AC-2058：首次外呼、重呼及异常补提交须接入禁呼检查，不能以供应商restrict tel补提交规则绕过客户明确拒联。",
+    "AC-2059：供应商已接收未拨号码的拦截/取消/删除能力逐供应商核验，能力不足须提交差异，不能降低已确认覆盖目标。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "initiator",
+        "name": "发起呼叫的人员或后台任务",
+        "kind": "actor"
+      },
+      {
+        "id": "execution",
+        "name": "四类外呼执行模块",
+        "kind": "system"
+      },
+      {
+        "id": "blacklist",
+        "name": "公共禁呼管理系统",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "initiator",
+        "type": "start",
+        "label": "处理一次呼叫请求",
+        "order": 1
+      },
+      {
+        "id": "N-REQUEST",
+        "lane_id": "initiator",
+        "type": "action",
+        "label": "发起本次呼叫或拨前处置",
+        "step_ref": 1,
+        "order": 2
+      },
+      {
+        "id": "N-DIRECTION",
+        "lane_id": "execution",
+        "type": "decision",
+        "label": "本次呼叫方向？",
+        "step_ref": 2,
+        "order": 3
+      },
+      {
+        "id": "N-INBOUND",
+        "lane_id": "execution",
+        "type": "end",
+        "label": "正常呼入沿原规则接听",
+        "order": 4
+      },
+      {
+        "id": "N-CONTEXT",
+        "lane_id": "execution",
+        "type": "decision",
+        "label": "本次外呼租户、号码及资格有效？",
+        "step_ref": 2,
+        "order": 5
+      },
+      {
+        "id": "N-CONTEXTFAIL",
+        "lane_id": "execution",
+        "type": "end",
+        "label": "本次不发起；不借其他租户权限",
+        "order": 6
+      },
+      {
+        "id": "N-CHECK",
+        "lane_id": "blacklist",
+        "type": "action",
+        "label": "读取本租户号码有效公共禁呼",
+        "step_ref": 3,
+        "order": 7
+      },
+      {
+        "id": "N-CHECKOK",
+        "lane_id": "blacklist",
+        "type": "decision",
+        "label": "禁呼检查结果可靠？",
+        "order": 8
+      },
+      {
+        "id": "N-CHECKFAIL",
+        "lane_id": "execution",
+        "type": "end",
+        "label": "本次不新增提交；保留原请求事实",
+        "order": 9
+      },
+      {
+        "id": "N-MATCH",
+        "lane_id": "blacklist",
+        "type": "decision",
+        "label": "命中有效公共禁呼？",
+        "order": 10
+      },
+      {
+        "id": "N-ORIGINAL",
+        "lane_id": "execution",
+        "type": "action",
+        "label": "沿本模式原策略继续本次处理",
+        "order": 11
+      },
+      {
+        "id": "N-NOMATCH",
+        "lane_id": "execution",
+        "type": "end",
+        "label": "无公共禁呼命中；仍受原执行约束",
+        "order": 12
+      },
+      {
+        "id": "N-BLOCK",
+        "lane_id": "execution",
+        "type": "action",
+        "label": "阻止号码继续呼出，含已接收未拨",
+        "step_ref": 4,
+        "order": 13
+      },
+      {
+        "id": "N-RESULT",
+        "lane_id": "execution",
+        "type": "decision",
+        "label": "禁呼阻断结果明确成功？",
+        "step_ref": 5,
+        "order": 14
+      },
+      {
+        "id": "N-UNKNOWN",
+        "lane_id": "execution",
+        "type": "end",
+        "label": "不虚报拦截成功；不绕过禁呼补提交",
+        "order": 15
+      },
+      {
+        "id": "N-RECORD",
+        "lane_id": "execution",
+        "type": "action",
+        "label": "记录本次实际拦截结果",
+        "step_ref": 6,
+        "order": 16
+      },
+      {
+        "id": "N-END",
+        "lane_id": "initiator",
+        "type": "end",
+        "label": "本次命中外呼已阻止；不自动推进",
+        "order": 17
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-REQUEST"
+      },
+      {
+        "from": "N-REQUEST",
+        "to": "N-DIRECTION"
+      },
+      {
+        "from": "N-DIRECTION",
+        "to": "N-INBOUND",
+        "label": "呼入",
+        "path_id": "ALT-2015-INBOUND"
+      },
+      {
+        "from": "N-DIRECTION",
+        "to": "N-CONTEXT",
+        "label": "外呼"
+      },
+      {
+        "from": "N-CONTEXT",
+        "to": "N-CONTEXTFAIL",
+        "label": "否",
+        "path_id": "ALT-2015-CONTEXT",
+        "type": "failure"
+      },
+      {
+        "from": "N-CONTEXT",
+        "to": "N-CHECK",
+        "label": "是"
+      },
+      {
+        "from": "N-CHECK",
+        "to": "N-CHECKOK"
+      },
+      {
+        "from": "N-CHECKOK",
+        "to": "N-CHECKFAIL",
+        "label": "否",
+        "path_id": "ALT-2015-CHECKFAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-CHECKOK",
+        "to": "N-MATCH",
+        "label": "是"
+      },
+      {
+        "from": "N-MATCH",
+        "to": "N-ORIGINAL",
+        "label": "未命中",
+        "path_id": "ALT-2015-NOMATCH"
+      },
+      {
+        "from": "N-ORIGINAL",
+        "to": "N-NOMATCH"
+      },
+      {
+        "from": "N-MATCH",
+        "to": "N-BLOCK",
+        "label": "命中"
+      },
+      {
+        "from": "N-BLOCK",
+        "to": "N-RESULT"
+      },
+      {
+        "from": "N-RESULT",
+        "to": "N-UNKNOWN",
+        "label": "失败或不能确认",
+        "path_id": "ALT-2015-BLOCKUNCONFIRMED",
+        "type": "failure"
+      },
+      {
+        "from": "N-RESULT",
+        "to": "N-RECORD",
+        "label": "明确成功"
+      },
+      {
+        "from": "N-RECORD",
+        "to": "N-END"
+      }
+    ]
+  },
+  "issue_ids": [
+    "ISSUE-2005",
+    "ISSUE-2006"
+  ],
+  "scope_status": "confirmed_G1",
+  "design_status": "S3_flow_draft",
+  "rule_ids": [
+    "BR-2015",
+    "BR-2018",
+    "BR-2049"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

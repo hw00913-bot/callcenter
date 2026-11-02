@@ -1,0 +1,458 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2007",
+  "name": "创建本租户账号并分配工作区权限",
+  "summary": "本租户成员获得允许模块的分别授权",
+  "actors": [
+    "有成员管理权限的租户管理员",
+    "公共账号与本租户成员管理",
+    "AI／云呼叫授权控制"
+  ],
+  "trigger": "租户管理员增加/授权成员",
+  "preconditions": [
+    "租户管理员具本租户成员管理权限，所需工作区由超管开通。",
+    "本租户建号按AI已有能力承接，生产创建上限、成员关系及真实授权仍待 ISSUE-2001。",
+    "入口由系统管理承接原账号、成员、租户或品牌的相应功能，仍沿原对象权限、管理范围和稳定PAGE；该原管理功能的切离保护、同窗口返回及同次登录记忆继续按SC-2002，不因入口归位新增管理权。"
+  ],
+  "expected_outcome": "本租户成员获得允许模块的分别授权",
+  "exception_scope": "账号身份冲突、授权上限、越租户/越级授权、撤权时点待核",
+  "source_story_ids": [
+    "US-2008",
+    "US-2009"
+  ],
+  "source_acceptance_ids": [
+    "AC-2022",
+    "AC-2023",
+    "AC-2024",
+    "AC-2025",
+    "AC-2026"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "G1确认范围，S3流程候选。账号创建与授权不是已确认的原子事务，结果分别反馈；真实稳定ID、角色码、建号上限与权限撤销生效契约继续 ISSUE-2001/2002，未设计自动合并身份或新增权限码。 缺少生产资料或尚未完成设计核验不是业务运行时校验条件；创建规则的具体内容仅按 ISSUE-2001 核实后落实。 原电话坐席、分机和供应商账号是专业资源，不因公共系统账号统一而合并；原专业CRUD保留，仅全局账号/租户成员基础写入归公共。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 新增分类/模板的配置查看、监管和本租户业务处理按各自动作资格区分；品牌配置或列表查看不要求同时开通两种业务模块，不冒用租户身份，不授予跨租户记录、拨号、转交或成员授权。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "有成员管理权限的租户管理员",
+      "action": "从系统管理的原有权入口选择新建人员或已有本租户成员",
+      "system_response": "只处理当前租户访问关系，不扩展跨租户建号或超管身份。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "公共账号与本租户成员管理",
+      "action": "校验管理员与目标范围",
+      "system_response": "确认管理员有本租户成员操作权限，目标人员关系稳定且可核实。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "公共账号与本租户成员管理",
+      "action": "建立或使用本租户成员记录",
+      "system_response": "新增沿AI既有合法能力；已有成员复用以稳定标识和明确关系为前提，不按同名或手机号自动合并。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "有成员管理权限的租户管理员",
+      "action": "分别分配AI和云呼叫业务权限",
+      "system_response": "沿用AI生产既有授权，为云呼叫独立分配允许权限；两边权限可以不同。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "AI／云呼叫授权控制",
+      "action": "校验模块与角色范围",
+      "system_response": "仅允许本租户已开通模块及管理员可分配业务角色；不自动赋予公共管理或全局权限。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "AI／云呼叫授权控制",
+      "action": "保存授权并反馈结果",
+      "system_response": "公共账号与成员是唯一基础维护入口；原AI/Cloud内部创建/编辑/授权入口同样转本场景。AI/云呼叫仍分别授权，六入口只组织菜单，不把同区页面合成权限包；人员与授权结果分别反馈。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2007-01",
+      "condition": "管理员无权、目标越租户或要求全局身份",
+      "steps": [
+        "拒绝本次操作，不产生越权成员或角色。"
+      ]
+    },
+    {
+      "id": "ALT-2007-02",
+      "condition": "目标为已核实的本租户既有成员",
+      "steps": [
+        "使用稳定成员关系直接维护工作区授权，保留AI既有授权基准。"
+      ]
+    },
+    {
+      "id": "ALT-2007-03",
+      "condition": "已有账号拟复用但稳定身份／成员关系校验不通过",
+      "steps": [
+        "反馈实际身份关系校验结果，保留输入；不得因同名或同手机号自动合并及改写历史。"
+      ]
+    },
+    {
+      "id": "ALT-2007-04",
+      "condition": "新建身份冲突或实际创建规则校验不通过",
+      "steps": [
+        "反馈实际校验不符合项，保留输入，不创建新身份或越过既有规则。"
+      ]
+    },
+    {
+      "id": "ALT-2007-05",
+      "condition": "本租户建号失败",
+      "steps": [
+        "反馈创建失败，不继续向不存在或未确认成员写入权限。"
+      ]
+    },
+    {
+      "id": "ALT-2007-06",
+      "condition": "授权包含未开通模块或超出允许业务角色",
+      "steps": [
+        "反馈不符合项，保留原授权；已成功创建的账号与本次授权失败分别展示。"
+      ]
+    },
+    {
+      "id": "ALT-2007-07",
+      "condition": "账号已建立或既有成员可用，但权限保存失败",
+      "steps": [
+        "如实展示人员记录和授权各自结果；不声称已获全部工作区权限，不默认回滚已成功的建号。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功授权后同一成员在当前租户可取得不同的AI／云呼叫操作权限。",
+    "AI存量身份、历史关系及授权基准保留；失败不产生未经授权的使用权。"
+  ],
+  "acceptance_points": [
+    "AC-2022：公共账号管理按全已有功能原则承接AI文档所述的本租户建号能力；实际生产授权和上限仍待核验，不自动扩展为跨租户建号或授予超管身份。",
+    "AC-2023：身份冲突及已有账号复用须核对稳定标识后处理，不能因同名或同手机号自动合并、改写历史归属。",
+    "AC-2024：租户管理员只在本租户已开通模块及允许业务角色范围内维护成员使用和操作权限。",
+    "AC-2025：同一成员在AI和云呼叫可有不同操作权限，沿用AI生产既有授权并单独分配云呼叫权限。",
+    "AC-2026：菜单、直接路由和业务操作使用相应授权，具体生产权限码及撤权生效时间待核验。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "admin",
+        "name": "有成员管理权限的租户管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "account",
+        "name": "公共账号与本租户成员管理",
+        "kind": "system"
+      },
+      {
+        "id": "workspace",
+        "name": "AI／云呼叫授权控制",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "admin",
+        "type": "start",
+        "order": 1,
+        "label": "创建本租户账号或维护成员授权"
+      },
+      {
+        "id": "select",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 2,
+        "label": "选择本租户操作与目标人员",
+        "step_ref": 1
+      },
+      {
+        "id": "auth",
+        "lane_id": "account",
+        "type": "decision",
+        "order": 3,
+        "label": "管理员权限及目标租户范围是否合法？",
+        "step_ref": 2
+      },
+      {
+        "id": "denied",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 4,
+        "label": "拒绝越租户／越级操作"
+      },
+      {
+        "id": "type",
+        "lane_id": "account",
+        "type": "decision",
+        "order": 5,
+        "label": "新增账号还是使用既有本租户成员？",
+        "step_ref": 3
+      },
+      {
+        "id": "new",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 6,
+        "label": "沿AI既有建号能力填写账号资料"
+      },
+      {
+        "id": "existing",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 7,
+        "label": "选定既有本租户成员"
+      },
+      {
+        "id": "identity",
+        "lane_id": "account",
+        "type": "decision",
+        "order": 8,
+        "label": "本次身份关系及适用创建规则校验结果？"
+      },
+      {
+        "id": "conflict",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 9,
+        "label": "新建身份或创建规则校验失败，保留输入"
+      },
+      {
+        "id": "reuseconflict",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 10,
+        "label": "既有账号成员关系校验失败，不自动合并"
+      },
+      {
+        "id": "needscreate",
+        "lane_id": "account",
+        "type": "decision",
+        "order": 11,
+        "label": "本次是否需要新建账号／成员？"
+      },
+      {
+        "id": "createaction",
+        "lane_id": "account",
+        "type": "action",
+        "order": 12,
+        "label": "沿AI既有合法能力创建本租户账号／成员"
+      },
+      {
+        "id": "create",
+        "lane_id": "account",
+        "type": "decision",
+        "order": 13,
+        "label": "本次目标成员是否可用？"
+      },
+      {
+        "id": "createfail",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 14,
+        "label": "创建失败，不产生虚假成员记录"
+      },
+      {
+        "id": "roles",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 15,
+        "label": "分别配置已开通工作区的允许业务权限",
+        "step_ref": 4
+      },
+      {
+        "id": "check",
+        "lane_id": "workspace",
+        "type": "decision",
+        "order": 16,
+        "label": "所选权限是否在本租户允许范围？",
+        "step_ref": 5
+      },
+      {
+        "id": "invalid",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 17,
+        "label": "提示无效授权，不保存权限变更"
+      },
+      {
+        "id": "save",
+        "lane_id": "workspace",
+        "type": "decision",
+        "order": 18,
+        "label": "权限分配是否保存成功？",
+        "step_ref": 6
+      },
+      {
+        "id": "fail",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 19,
+        "label": "授权未完成；已成功建号与授权结果分别反馈"
+      },
+      {
+        "id": "end",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 20,
+        "label": "本租户成员取得分别配置的工作区权限"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "select"
+      },
+      {
+        "from": "select",
+        "to": "auth"
+      },
+      {
+        "from": "auth",
+        "to": "type",
+        "label": "操作与租户范围均合法"
+      },
+      {
+        "from": "auth",
+        "to": "denied",
+        "label": "权限不足或超出租户范围",
+        "path_id": "ALT-2007-01",
+        "type": "exception"
+      },
+      {
+        "from": "type",
+        "to": "new",
+        "label": "新增本租户账号"
+      },
+      {
+        "from": "type",
+        "to": "existing",
+        "label": "选用既有本租户成员",
+        "path_id": "ALT-2007-02",
+        "type": "exception"
+      },
+      {
+        "from": "new",
+        "to": "identity"
+      },
+      {
+        "from": "existing",
+        "to": "identity"
+      },
+      {
+        "from": "identity",
+        "to": "conflict",
+        "label": "新建身份冲突或适用创建规则未通过",
+        "path_id": "ALT-2007-04",
+        "type": "exception"
+      },
+      {
+        "from": "identity",
+        "to": "reuseconflict",
+        "label": "选用既有账号但成员关系未通过",
+        "path_id": "ALT-2007-03",
+        "type": "exception"
+      },
+      {
+        "from": "identity",
+        "to": "needscreate",
+        "label": "适用的身份关系及创建规则均校验通过"
+      },
+      {
+        "from": "needscreate",
+        "to": "createaction",
+        "label": "新建账号／成员"
+      },
+      {
+        "from": "needscreate",
+        "to": "create",
+        "label": "已有本租户成员无需创建"
+      },
+      {
+        "from": "createaction",
+        "to": "create"
+      },
+      {
+        "from": "create",
+        "to": "roles",
+        "label": "既有成员可用或本次创建成功"
+      },
+      {
+        "from": "create",
+        "to": "createfail",
+        "label": "本次需要创建但创建失败",
+        "path_id": "ALT-2007-05",
+        "type": "exception"
+      },
+      {
+        "from": "roles",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "to": "save",
+        "label": "全部在已开通模块和允许角色范围内"
+      },
+      {
+        "from": "check",
+        "to": "invalid",
+        "label": "含未开通模块或越级角色",
+        "path_id": "ALT-2007-06",
+        "type": "exception"
+      },
+      {
+        "from": "save",
+        "to": "end",
+        "label": "授权保存成功"
+      },
+      {
+        "from": "save",
+        "to": "fail",
+        "label": "授权保存失败",
+        "path_id": "ALT-2007-07",
+        "type": "exception"
+      }
+    ]
+  },
+  "design_status": "S3_flow_draft",
+  "scope_status": "confirmed_G1",
+  "issue_ids": [
+    "ISSUE-2001",
+    "ISSUE-2002"
+  ],
+  "rule_ids": [
+    "BR-2001",
+    "BR-2002",
+    "BR-2009",
+    "BR-2052"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

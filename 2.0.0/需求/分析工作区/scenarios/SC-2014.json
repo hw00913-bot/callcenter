@@ -1,0 +1,440 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2014",
+  "name": "人工核实AI拒联后加入公共禁呼",
+  "summary": "本租户形成有依据的长期公共禁呼",
+  "actors": [
+    "有权管理员或单独获新增权的运营",
+    "公共禁呼管理系统",
+    "AI通话记录模块"
+  ],
+  "trigger": "有权管理员或单独授权运营准备依据本租户来源通话确认AI拒联并新增公共禁呼",
+  "preconditions": [
+    "相应租户与主体权限合法，专业执行资源按原模块规则",
+    "原公共名单主入口归客户中心“联系限制”，仍为同一份本租户名单及原操作资格；入口迁位不改变公共拒联和专项范围、期限、四类外呼检查或正常呼入规则，不在客户档案复制名单或增加禁呼豁免。进入该原管理功能仍沿SC-2002保护和记忆。"
+  ],
+  "expected_outcome": "本租户形成有依据的长期公共禁呼",
+  "exception_scope": "无来源查看权不得操作，AI混合意向/挂机不自动触发，新增权不含解除",
+  "source_story_ids": [
+    "US-2020"
+  ],
+  "source_acceptance_ids": [
+    "AC-2054",
+    "AC-2055",
+    "AC-2056"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "G1已确认AI拒联仅人工确认入库及授权运营新增；本图是S3产品流程建议。来源查看权和名单新增权均独立校验，真实角色/操作码待ISSUE-2001；“运营新增权不含解除权”不排除同一人员另获合法公共管理员权限后按SC-2016办理。来源/历史证据及已有名单有效状态待ISSUE-2004核实，本图不迁入Mock。供应商回执按ISSUE-2006核验，本地成功不等于全部远端成功。失败/取消均终止本次，后续处理是另一次发起。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 品牌分类/模板共用不共享本租户公共禁呼或授予其他租户名单/来源通话权限；节点确认、条件命中、记录标签变化或切备用均不构成新增或解除公共禁呼的依据，也不赋予禁呼豁免。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "有权管理员或单独获新增权的运营",
+      "action": "从客户中心“联系限制”的原唯一名单入口发起本租户AI拒联人工确认",
+      "system_response": "本版不以AI意向等级、拒接或挂机自动新增公共拒联。 品牌记录标签、模板条件匹配或节点处理结果不能替代有权人员对来源通话中明确拒联的核实。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "公共禁呼管理系统",
+      "action": "校验本租户公共禁呼新增权及来源通话查看权",
+      "system_response": "管理员或运营均须具备对应权限，不因新增权自动获得来源查看权或解除权。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "AI通话记录模块",
+      "action": "读取有权查看的本租户来源通话",
+      "system_response": "保留实际来源关系，不以同名、意向等级或供应商失败状态替代拒联证据。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "有权管理员或单独获新增权的运营",
+      "action": "查看来源通话并人工确认客户拒绝后续联系",
+      "system_response": "不能明确拒联则本次不新增；可取消本次操作。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "有权管理员或单独获新增权的运营",
+      "action": "提交已人工确认的本租户号码及来源",
+      "system_response": "公共管理系统再次校验本次权限、租户、号码及来源关系。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "公共禁呼管理系统",
+      "action": "保存公共明确拒联及来源、人工确认记录",
+      "system_response": "长期有效并覆盖AI、人工、预外呼、IVR外呼；正常呼入继续。",
+      "rule_ids": []
+    },
+    {
+      "step": 7,
+      "actor": "公共禁呼管理系统",
+      "action": "返回本次实际保存结果",
+      "system_response": "只有记录明确生效才提示加入完成；供应商远端结果分别表达。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2014-AUTH",
+      "condition": "缺本租户新增权、来源查看权，或提交时权限已失效",
+      "steps": [
+        "拒绝本次操作；不泄露来源，不新增公共拒联。"
+      ]
+    },
+    {
+      "id": "ALT-2014-SOURCEFAIL",
+      "condition": "来源通话读取失败或来源不属于本租户",
+      "steps": [
+        "保留合法输入但不形成确认和入库成功结论。",
+        "本次结束，来源恢复后可另行发起。"
+      ]
+    },
+    {
+      "id": "ALT-2014-NOREFUSAL",
+      "condition": "未能确认客户明确拒绝后续联系",
+      "steps": [
+        "不将无意向、拒接、挂机、混合意向等级或供应商拦截结果转成公共拒联。",
+        "结束本次人工确认，不改变名单。"
+      ]
+    },
+    {
+      "id": "ALT-2014-CANCEL",
+      "condition": "已查看来源但取消本次新增",
+      "steps": [
+        "不保存本次公共拒联，保留原名单。"
+      ]
+    },
+    {
+      "id": "ALT-2014-INVALID",
+      "condition": "提交号码、租户或来源关系未通过校验",
+      "steps": [
+        "显示具体反馈，保留合法输入，名单不变。"
+      ]
+    },
+    {
+      "id": "ALT-2014-SAVEFAIL",
+      "condition": "公共拒联未明确保存生效",
+      "steps": [
+        "不提示加入完成，保留输入与来源引用及原可确认名单。",
+        "再次处理须先读取实际结果后新一次发起。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功形成当前租户有人工来源依据的长期公共拒联；本次新增权不扩展为来源查看权或公共解除权。",
+    "无权、无法确认、取消及失败均不触发AI结果自动入库，不虚报四类外呼远端拦截成功。"
+  ],
+  "acceptance_points": [
+    "AC-2054：有权管理员及单独获公共禁呼新增授权的运营，需有权查看本租户来源通话并确认拒联后从客户中心“联系限制”的原公共名单入口加入。",
+    "AC-2055：保留来源及人工确认记录，长期有效、四类外呼拦截；运营新增权不包含解除权。",
+    "AC-2056：本版不自动按AI结果入库；无意向、拒接、挂机、混合意向等级及供应商拦截结果不直接认定明确拒联。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "有权管理员或单独获新增权的运营",
+        "kind": "actor"
+      },
+      {
+        "id": "blacklist",
+        "name": "公共禁呼管理系统",
+        "kind": "system"
+      },
+      {
+        "id": "ai",
+        "name": "AI通话记录模块",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "operator",
+        "type": "start",
+        "label": "发起一次AI拒联人工确认",
+        "order": 1
+      },
+      {
+        "id": "N-ENTER",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "进入本租户公共名单新增入口",
+        "step_ref": 1,
+        "order": 2
+      },
+      {
+        "id": "N-AUTH",
+        "lane_id": "blacklist",
+        "type": "decision",
+        "label": "具备新增权及来源查看权？",
+        "step_ref": 2,
+        "order": 3
+      },
+      {
+        "id": "N-DENIED",
+        "lane_id": "blacklist",
+        "type": "end",
+        "label": "拒绝操作；不泄露来源",
+        "order": 4
+      },
+      {
+        "id": "N-LOAD",
+        "lane_id": "ai",
+        "type": "action",
+        "label": "读取本租户有权来源通话",
+        "step_ref": 3,
+        "order": 5
+      },
+      {
+        "id": "N-LOADED",
+        "lane_id": "ai",
+        "type": "decision",
+        "label": "来源有效且读取成功？",
+        "order": 6
+      },
+      {
+        "id": "N-SOURCEFAIL",
+        "lane_id": "ai",
+        "type": "end",
+        "label": "保留合法输入；不形成入库结论",
+        "order": 7
+      },
+      {
+        "id": "N-REVIEW",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "查看来源并核实拒联事实",
+        "step_ref": 4,
+        "order": 8
+      },
+      {
+        "id": "N-REFUSAL",
+        "lane_id": "operator",
+        "type": "decision",
+        "label": "能够明确确认拒绝后续联系？",
+        "order": 9
+      },
+      {
+        "id": "N-NOREFUSAL",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "不新增；保留原名单",
+        "order": 10
+      },
+      {
+        "id": "N-SUBMIT",
+        "lane_id": "operator",
+        "type": "decision",
+        "label": "确认新增还是取消？",
+        "step_ref": 5,
+        "order": 11
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "已取消；不保存本次新增",
+        "order": 12
+      },
+      {
+        "id": "N-RECHECK",
+        "lane_id": "blacklist",
+        "type": "action",
+        "label": "复核权限、租户及号码来源关系",
+        "step_ref": 5,
+        "order": 13
+      },
+      {
+        "id": "N-VALID",
+        "lane_id": "blacklist",
+        "type": "decision",
+        "label": "本次提交校验通过？",
+        "order": 14
+      },
+      {
+        "id": "N-INVALID",
+        "lane_id": "blacklist",
+        "type": "end",
+        "label": "保留合法输入；本次不入库",
+        "order": 15
+      },
+      {
+        "id": "N-SAVE",
+        "lane_id": "blacklist",
+        "type": "action",
+        "label": "保存长期公共拒联及人工确认记录",
+        "step_ref": 6,
+        "order": 16
+      },
+      {
+        "id": "N-SAVED",
+        "lane_id": "blacklist",
+        "type": "decision",
+        "label": "本地记录明确生效？",
+        "order": 17
+      },
+      {
+        "id": "N-FAILED",
+        "lane_id": "blacklist",
+        "type": "end",
+        "label": "保留输入；不提示加入成功",
+        "order": 18
+      },
+      {
+        "id": "N-RESULT",
+        "lane_id": "blacklist",
+        "type": "action",
+        "label": "返回实际本地保存及已有同步结果",
+        "step_ref": 7,
+        "order": 19
+      },
+      {
+        "id": "N-END",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "本次人工确认入库完成",
+        "order": 20
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-ENTER"
+      },
+      {
+        "from": "N-ENTER",
+        "to": "N-AUTH"
+      },
+      {
+        "from": "N-AUTH",
+        "to": "N-DENIED",
+        "label": "否",
+        "path_id": "ALT-2014-AUTH",
+        "type": "failure"
+      },
+      {
+        "from": "N-AUTH",
+        "to": "N-LOAD",
+        "label": "是"
+      },
+      {
+        "from": "N-LOAD",
+        "to": "N-LOADED"
+      },
+      {
+        "from": "N-LOADED",
+        "to": "N-SOURCEFAIL",
+        "label": "否",
+        "path_id": "ALT-2014-SOURCEFAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-LOADED",
+        "to": "N-REVIEW",
+        "label": "是"
+      },
+      {
+        "from": "N-REVIEW",
+        "to": "N-REFUSAL"
+      },
+      {
+        "from": "N-REFUSAL",
+        "to": "N-NOREFUSAL",
+        "label": "否",
+        "path_id": "ALT-2014-NOREFUSAL"
+      },
+      {
+        "from": "N-REFUSAL",
+        "to": "N-SUBMIT",
+        "label": "是"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-2014-CANCEL"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-RECHECK",
+        "label": "确认新增"
+      },
+      {
+        "from": "N-RECHECK",
+        "to": "N-VALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-INVALID",
+        "label": "否",
+        "path_id": "ALT-2014-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-SAVE",
+        "label": "是"
+      },
+      {
+        "from": "N-SAVE",
+        "to": "N-SAVED"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-FAILED",
+        "label": "否或结果不明",
+        "path_id": "ALT-2014-SAVEFAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-SAVED",
+        "to": "N-RESULT",
+        "label": "是"
+      },
+      {
+        "from": "N-RESULT",
+        "to": "N-END"
+      }
+    ]
+  },
+  "issue_ids": [
+    "ISSUE-2001",
+    "ISSUE-2004",
+    "ISSUE-2006"
+  ],
+  "scope_status": "confirmed_G1",
+  "design_status": "S3_flow_draft",
+  "rule_ids": [
+    "BR-2017",
+    "BR-2018",
+    "BR-2049"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

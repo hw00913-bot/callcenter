@@ -1,0 +1,134 @@
+# TASK-025 本租户路径与合法跨租户转交
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [按路径确认同品牌线索转交 · FUNC\-2030](../features/FUNC-2030.md)
+
+## 目标
+
+CURRENT保持owner/run/租户阶段和封存事实，当前执行安排先服从后继节点捕获策略。新MANUAL明确清前seat并待分配，SPECIFIC_SEAT才可按本节点、同tenant/method及有效资源沿用或确认。；OTHER仍按原合法目标转交后封截止、切归属并清当前安排；旧无策略快照按原解释，不读取时迁移。
+
+## 产品依据
+
+- FUNC-2030 按路径确认同品牌线索转交：按当前线索域配置确认CURRENT本租户继续或OTHER同品牌合法转交，分别保归属/阶段或新增截止接续，避免权限混用。；来源 documentation/input/functions.json#FUNC-2030
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+
+## 前置任务
+
+- TASK-023
+- TASK-024
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-LOCAL-ROUTE](../global-logic.md#GR-LOCAL-ROUTE)、[GR-PRIVACY](../global-logic.md#GR-PRIVACY)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-SERIAL](../global-logic.md#GR-SERIAL)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+
+局部逻辑：[LOCAL-FLOW-TRANSFER](../local-logic/LOCAL-FLOW-TRANSFER.md)
+
+字段：[FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)、[FIELD-FLOW-DEPARTURE-SNAPSHOT](../field-specs.md#FIELD-FLOW-DEPARTURE-SNAPSHOT)、[FIELD-FLOW-DESTINATION](../field-specs.md#FIELD-FLOW-DESTINATION)、[FIELD-FLOW-EDGE-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)、[FIELD-FLOW-EVALUATION-TOKEN](../field-specs.md#FIELD-FLOW-EVALUATION-TOKEN)、[FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-INTENDED-STORE](../field-specs.md#FIELD-FLOW-INTENDED-STORE)、[FIELD-FLOW-INTENDED-STORE-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)、[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)、[FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE)、[FIELD-FLOW-NODE-RUN-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)、[FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)、[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-REQUEST-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)、[FIELD-FLOW-REQUEST-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)、[FIELD-FLOW-RESOLUTION-TOKEN](../field-specs.md#FIELD-FLOW-RESOLUTION-TOKEN)、[FIELD-FLOW-STAGE-ID](../field-specs.md#FIELD-FLOW-STAGE-ID)、[FIELD-FLOW-STAGE-TRANSFER](../field-specs.md#FIELD-FLOW-STAGE-TRANSFER)、[FIELD-FLOW-TARGET-TENANT](../field-specs.md#FIELD-FLOW-TARGET-TENANT)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2204](../ui-pages/UI-PAGE-2204.md)
+- [UI-PAGE-2227](../ui-pages/UI-PAGE-2227.md)
+
+## 实现要求
+
+- CURRENT保持owner/run/租户阶段和封存事实，当前执行安排先服从后继节点捕获策略。新MANUAL明确清前seat并待分配，SPECIFIC_SEAT才可按本节点、同tenant/method及有效资源沿用或确认。
+- OTHER仍按原合法目标转交后封截止、切归属并清当前安排；旧无策略快照按原解释，不读取时迁移。
+- 不跨品牌/门店直转门店；未知先核实际归属，不重复转交；DIRECT不得借本任务绕过模式保护。
+- CURRENT不产生跨租户授权、不冒充OTHER，不因保留旧安排豁免后继CALL资格/场景重核；不扩普通业务域转交。
+- 不得用前节点已指定seat覆盖新MANUAL的待分配意图，也不因人工待分配擅自改变业务归属。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2084**：明确转交时owner、新阶段、后继节点、旧安排清除及本方截止快照同次生效；无需接收方二次确认，不自动分配或起呼。
+  依据：docs/functional-spec.json#AC-2084
+
+- **AC-2085**：仅同品牌LEAD业务可在合法有效HQ与STORE之间转交。
+  依据：docs/functional-spec.json#AC-2085
+
+- **AC-2086**：总部下发以客户意向门店稳定编码唯一定位并由人员确认；无意向只总部管理员同次指派，不按名称或首店猜。
+  依据：docs/functional-spec.json#AC-2086
+
+- **AC-2087**：门店自有及转入线索可按流程上交总部，总部再按意向锚定或无意向指派接续；初始归属不因意向空缺自动变化。
+  依据：docs/functional-spec.json#AC-2087
+
+- **AC-2088**：OTHER跨租户转交不允许门店直接转另一门店或转当前负责租户；CURRENT本租户路径是内部节点继续，保持owner、run与租户阶段，按AC-2145执行。
+  依据：docs/functional-spec.json#AC-2088
+
+- **AC-2089**：纠偏或再次分发在原run完成/废弃后新run从原负责方按入口办理，仍走门店→总部→合法门店，不插改原流程。
+  依据：docs/functional-spec.json#AC-2089
+
+- **AC-2097**：已有意向锁定唯一同品牌有效门店，不允许人为改另一门店；解析不等转交成功。
+  依据：docs/functional-spec.json#AC-2097
+
+- **AC-2098**：无意向保原record/brand/code/batch及当前HQ负责，目标待指派不是人员未分配，不复制业务或造新run。
+  依据：docs/functional-spec.json#AC-2098
+
+- **AC-2099**：只有当前负责总部管理员可在本次无意向转交补选目标；成功保原客户意向，另留人工目标/来源/人/时间。
+  依据：docs/functional-spec.json#AC-2099
+
+- **AC-2100**：意向映射缺失、多义、跨品牌或目标停用为待核/不可办，不能冒充无意向开放补选；后继AI依赖也须由目标租户实际执行。
+  依据：docs/functional-spec.json#AC-2100
+
+- **AC-2101**：转交重核当前owner/run/node、唯一selected边、判断与目标令牌、同品牌方向和终态；失败/取消不改，unknown核同请求。
+  依据：docs/functional-spec.json#AC-2101
+
+- **AC-2145**：线索域转交组件允许CURRENT本租户分支；命中后保持owner、run及tenant阶段，不新建跨租户截止/轮次，不清原安排与封存结果，并重核后继CALL资格。OTHER仍执行原意向锚定和跨租户保护；CURRENT不冒充OTHER，拒伪造目标或过期令牌。
+  依据：docs/functional-spec.json#AC-2145
+
+## 测试要求（尚未执行）
+
+### CHECK-FLOW-TRANSFER / manual
+
+步骤：按当前续接版本执行：在TRANSFER命中路径确认目标。前提：handlingMode=TEMPLATE且准确当前run/node可核；对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；线索域有效分支；CURRENT保持本租户，OTHER按同品牌HQ↔STORE；无在途/重试/unknown，已有前执行的必要内容/事实已归档。操作：先区分CURRENT与OTHER；CURRENT锚定准确当前负责方，不查任意门店目标；OTHER仍按意向唯一锚定或HQ ADMIN同次指派；重核selected/路径令牌和当前目标版本；CURRENT不能指定外租户或冒充OTHER承接，后继CALL仍核准确方式/AI上下文；CURRENT仅推进合法后继并记LOCAL_ROUTE，保持owner/run/租户阶段及已有安排和封存结果；OTHER才封截止/切owner建轮次并清旧安排。分别构造：跨品牌、OTHER非法同租户/门店直转/映射不明，或CURRENT伪造外目标/冒充OTHER资格；明确成功；失败或未知；当前业务为DIRECT。
+
+预期：转交不生成客户跟进，不自动呼叫；拒绝并保原事实；当前本租户路径本身不是非法跨租户转交；CURRENT不产生跨租户授权/截止/新轮次；OTHER按原准确目标接续，目标另行安排；原事实保留，未知按同请求核对，不重复owner切换；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。。
+
+覆盖：AC-2084, AC-2085, AC-2086, AC-2087, AC-2088, AC-2089, AC-2097, AC-2098, AC-2099, AC-2100, AC-2101, AC-2145
+
+## 完成条件
+
+- CURRENT保持owner/run/租户阶段和封存事实，当前执行安排先服从后继节点捕获策略。新MANUAL明确清前seat并待分配，SPECIFIC_SEAT才可按本节点、同tenant/method及有效资源沿用或确认。
+- OTHER仍按原合法目标转交后封截止、切归属并清当前安排；旧无策略快照按原解释，不读取时迁移。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [four-node-model.js](../../../prototype/scripts/four-node-model.js) · 只读行为参考，非生产可写目标
+- [four-node-workspace.js](../../../prototype/js/adapters/four-node-workspace.js) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：ENG-FLOW-PERSISTENCE。

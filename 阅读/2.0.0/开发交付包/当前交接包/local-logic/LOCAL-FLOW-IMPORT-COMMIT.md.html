@@ -1,0 +1,164 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/local-logic/LOCAL-FLOW-IMPORT-COMMIT.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/local-logic/LOCAL-FLOW-IMPORT-COMMIT.md">原始 Markdown</a></p><h1>当前交接包/local-logic/LOCAL-FLOW-IMPORT-COMMIT.md</h1><pre># LOCAL-FLOW-IMPORT-COMMIT 确认导入并创建实际运行
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](../features/FUNC-2036.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2036
+
+触发：点击确认导入
+
+## 前置条件
+
+- 当前管理员及准确入口/任务/渠道资格仍有效
+- 正式纳入范围逐行通过且token与当前重算一致；AI全行通过，PRED可确认合法有效子集，分类保持整批预检
+
+## 必须遵守的全局规则
+
+- [GR-CONFIG](../global-logic.md#GR-CONFIG)
+- [GR-FIELDS](../global-logic.md#GR-FIELDS)
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+- [GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)
+- [GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)
+- [GR-EXECUTION-ARRANGEMENT](../global-logic.md#GR-EXECUTION-ARRANGEMENT)
+- [GR-ASSIGNMENT-SIMPLIFICATION](../global-logic.md#GR-ASSIGNMENT-SIMPLIFICATION)
+- [GR-TASK-UNIFIED-IMPORT](../global-logic.md#GR-TASK-UNIFIED-IMPORT)
+
+## 输入与输出
+
+输入：[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-BATCH-NAME](../field-specs.md#FIELD-FLOW-BATCH-NAME)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-FILE-PENDING](../field-specs.md#FIELD-FLOW-FILE-PENDING)、[FIELD-FLOW-IMPORT-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)、[FIELD-FLOW-IMPORT-TOKEN](../field-specs.md#FIELD-FLOW-IMPORT-TOKEN)、[FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-INTENDED-STORE-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)、[FIELD-FLOW-EXECUTION-RESOURCE](../field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)、[FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)、[FIELD-FLOW-EXECUTION-QUEUED-AT](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)、[FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE)、[FIELD-FLOW-NODE-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-PRIORITY)、[FIELD-FLOW-NODE-EXECUTION-DEFAULTS](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-DEFAULTS)、[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)、[FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-FLOW-TASK-IMPORT-PARAMETERS](../field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS)、[FIELD-PLAT-TASK-BUSINESS-RECORD-ID](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-RECORD-ID)
+
+输出：[FIELD-FLOW-BATCH-ID](../field-specs.md#FIELD-FLOW-BATCH-ID)、[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-RUN-ID](../field-specs.md#FIELD-FLOW-RUN-ID)、[FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)、[FIELD-FLOW-ENTRY-DECISION](../field-specs.md#FIELD-FLOW-ENTRY-DECISION)、[FIELD-FLOW-IMPORT-ORIGINAL](../field-specs.md#FIELD-FLOW-IMPORT-ORIGINAL)、[FIELD-FLOW-NODE-RUN-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-EXECUTION-RESOURCE](../field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)、[FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)、[FIELD-FLOW-EXECUTION-QUEUED-AT](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)、[FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE)、[FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-FLOW-TASK-IMPORT-PARAMETERS](../field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+
+## 处理步骤
+
+### STEP-FLOW-IMPORT-COMMIT-1
+
+当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。 首次success/unknown响应显式requestId不符时保持本次原ID待核，不解锁或接受异请求产出。
+
+读取：FIELD-FLOW-IMPORT-TOKEN, FIELD-FLOW-IMPORT-VALUES, FIELD-FLOW-ROUTE-MAIN, FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD；写入：无
+
+规则：GR-CONFIG, GR-FIELDS, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-DATA-FACTS, GR-HANDLING-MODE
+
+### STEP-FLOW-IMPORT-COMMIT-2
+
+同请求建立批次/稳定record/初始负责租户及入口模式；CATEGORY捕获完整plan建run，TASK只建DIRECT周期不建run/node。统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。
+
+读取：FIELD-FLOW-BATCH-NAME, FIELD-FLOW-BUSINESS-CODE, FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-IMPORT-VALUES, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD；写入：FIELD-FLOW-BATCH-ID, FIELD-FLOW-RECORD-ID, FIELD-FLOW-OWNER-TENANT, FIELD-FLOW-IMPORT-ORIGINAL, FIELD-FLOW-RUN-ID, FIELD-FLOW-EFFECTIVE-PLAN, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD
+
+规则：GR-CONFIG, GR-FIELDS, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-DATA-FACTS, GR-HANDLING-MODE
+
+### STEP-FLOW-IMPORT-COMMIT-3
+
+AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。 保原单条/同组批量手动分配和明确起呼，不因保存导入自动呼叫。
+
+读取：FIELD-FLOW-ENTRY-RULES, FIELD-FLOW-ENTRY-CONTEXT, FIELD-FLOW-EFFECTIVE-PLAN, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-METHOD, FIELD-FLOW-EXECUTION-RESOURCE, FIELD-FLOW-EXECUTION-PRIORITY, FIELD-FLOW-EXECUTION-QUEUED-AT, FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE, FIELD-FLOW-NODE-EXECUTION-PRIORITY, FIELD-FLOW-NODE-EXECUTION-DEFAULTS, FIELD-FLOW-MANUAL-ASSIGNMENT-MODE, FIELD-FLOW-TASK-IMPORT-SOURCE, FIELD-FLOW-TASK-IMPORT-PARAMETERS, FIELD-PLAT-TASK-BUSINESS-RECORD-ID；写入：FIELD-FLOW-ENTRY-DECISION, FIELD-FLOW-NODE-RUN-ID, FIELD-FLOW-RUN-STATUS, FIELD-FLOW-OUTCOME, FIELD-FLOW-EXECUTION-RESOURCE, FIELD-FLOW-EXECUTION-PRIORITY, FIELD-FLOW-EXECUTION-QUEUED-AT, FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE, FIELD-FLOW-TASK-IMPORT-SOURCE, FIELD-FLOW-TASK-IMPORT-PARAMETERS, FIELD-FLOW-RECORD-ID, FIELD-FLOW-DIRECT-CYCLE-ID
+
+规则：GR-CONFIG, GR-FIELDS, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-DATA-FACTS, GR-HANDLING-MODE, GR-EXECUTION-ARRANGEMENT, GR-ASSIGNMENT-SIMPLIFICATION, GR-TASK-UNIFIED-IMPORT
+
+## 分支与异常
+
+### BRANCH-FLOW-IMPORT-COMMIT-1
+
+条件：正式纳入本次确认提交范围存在失败行或token过期
+
+结果：该正式范围不写且保名单重检；PRED可先明确确认检查通过的合法有效子集，封存成功行，失败草稿另请求重检续入；AI仍全部行通过。
+
+涉及字段：FIELD-FLOW-IMPORT-TOKEN, FIELD-FLOW-IMPORT-PREVIEW
+
+验证：CHECK-FLOW-IMPORT-COMMIT
+
+### BRANCH-FLOW-IMPORT-COMMIT-2
+
+条件：明确成功
+
+结果：同次台账/批次保持准确入口；CATEGORY按方案建run，TASK无run/node；保存本次准确安排或保持待安排，不自动起呼。
+
+涉及字段：FIELD-FLOW-RECORD-ID, FIELD-FLOW-BATCH-ID, FIELD-FLOW-RUN-ID
+
+验证：CHECK-FLOW-IMPORT-COMMIT
+
+### BRANCH-FLOW-IMPORT-COMMIT-3
+
+条件：响应未知
+
+结果：保持本次原请求ID待核；首次success/unknown若显式返回requestId不符也不解锁、不认领异请求产出、不另建批次。
+
+涉及字段：FIELD-FLOW-REQUEST-ID, FIELD-FLOW-REQUEST-STATUS
+
+验证：CHECK-FLOW-IMPORT-COMMIT
+
+### BRANCH-FLOW-IMPORT-COMMIT-MODE
+
+条件：准确入口固定模式/渠道资格不符，或正式纳入提交范围任一行失败
+
+结果：拒绝该范围，不自动改入口/模式重试；PRED合法有效子集须先明确二次确认，AI仍全行通过；未知核同请求。
+
+涉及字段：FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-IMPORT-TOKEN
+
+验证：CHECK-FLOW-IMPORT-COMMIT
+
+## 完成后的状态
+
+- 仅保存本次明确或模板有效默认的执行安排，不自行猜选任务/seat，不自动转交或起呼。
+
+## 字段定义
+
+- [FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)
+- [FIELD-FLOW-BATCH-NAME](../field-specs.md#FIELD-FLOW-BATCH-NAME)
+- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
+- [FIELD-FLOW-FILE-PENDING](../field-specs.md#FIELD-FLOW-FILE-PENDING)
+- [FIELD-FLOW-IMPORT-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)
+- [FIELD-FLOW-IMPORT-TOKEN](../field-specs.md#FIELD-FLOW-IMPORT-TOKEN)
+- [FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)
+- [FIELD-FLOW-INTENDED-STORE-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)
+- [FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+- [FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+- [FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+- [FIELD-FLOW-EXECUTION-RESOURCE](../field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)
+- [FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)
+- [FIELD-FLOW-EXECUTION-QUEUED-AT](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)
+- [FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE)
+- [FIELD-FLOW-NODE-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-PRIORITY)
+- [FIELD-FLOW-NODE-EXECUTION-DEFAULTS](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-DEFAULTS)
+- [FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)
+- [FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)
+- [FIELD-FLOW-TASK-IMPORT-PARAMETERS](../field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS)
+- [FIELD-PLAT-TASK-BUSINESS-RECORD-ID](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-RECORD-ID)
+- [FIELD-FLOW-BATCH-ID](../field-specs.md#FIELD-FLOW-BATCH-ID)
+- [FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)
+- [FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)
+- [FIELD-FLOW-RUN-ID](../field-specs.md#FIELD-FLOW-RUN-ID)
+- [FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)
+- [FIELD-FLOW-ENTRY-DECISION](../field-specs.md#FIELD-FLOW-ENTRY-DECISION)
+- [FIELD-FLOW-IMPORT-ORIGINAL](../field-specs.md#FIELD-FLOW-IMPORT-ORIGINAL)
+- [FIELD-FLOW-NODE-RUN-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)
+- [FIELD-FLOW-ROUTE-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)
+- [FIELD-FLOW-BUSINESS-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)
+- [FIELD-FLOW-ENTRY-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)
+- [FIELD-FLOW-ENTRY-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)
+- [FIELD-FLOW-RUN-STATUS](../field-specs.md#FIELD-FLOW-RUN-STATUS)
+- [FIELD-FLOW-OUTCOME](../field-specs.md#FIELD-FLOW-OUTCOME)
+- [FIELD-FLOW-REQUEST-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)
+- [FIELD-FLOW-REQUEST-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2115, acceptance:AC-2116, acceptance:AC-2117, acceptance:AC-2140, acceptance:AC-2161, features:FUNC-2036, features:FUNC-2036/behavior_spec/2/branches/0, features:FUNC-2036/behavior_spec/2/branches/1, features:FUNC-2036/behavior_spec/2/branches/2, features:FUNC-2036/behavior_spec/2/branches/3, features:FUNC-2036/behavior_spec/2/postconditions/0, features:FUNC-2036/behavior_spec/2/preconditions/0, features:FUNC-2036/behavior_spec/2/preconditions/1, features:FUNC-2036/behavior_spec/2/steps/0, features:FUNC-2036/behavior_spec/2/steps/1, features:FUNC-2036/behavior_spec/2/steps/2, pages:PAGE-2006/fields/13, pages:PAGE-2006/fields/14, pages:PAGE-2006/fields/15, pages:PAGE-2006/fields/38, pages:PAGE-2006/fields/39, pages:PAGE-2006/fields/41, pages:PAGE-2006/fields/5, pages:PAGE-2006/fields/59, pages:PAGE-2103, pages:PAGE-2103/fields/28, pages:PAGE-2103/fields/29, pages:PAGE-2103/fields/30, pages:PAGE-2103/fields/31, pages:PAGE-2103/fields/32, pages:PAGE-2103/fields/33, pages:PAGE-2103/fields/34, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/32, pages:PAGE-2203/fields/39, pages:PAGE-2203/fields/43, pages:PAGE-2203/fields/6, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2203/fields/66, pages:PAGE-2203/fields/8, pages:PAGE-2204, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/2, pages:PAGE-2204/fields/20, pages:PAGE-2204/fields/21, pages:PAGE-2204/fields/22, pages:PAGE-2204/fields/23, pages:PAGE-2204/fields/27, pages:PAGE-2204/fields/34, pages:PAGE-2204/fields/35, pages:PAGE-2204/fields/37, pages:PAGE-2204/fields/38, pages:PAGE-2204/fields/40, pages:PAGE-2204/fields/43, pages:PAGE-2204/fields/44, pages:PAGE-2204/fields/45, pages:PAGE-2204/fields/48, pages:PAGE-2204/fields/5, pages:PAGE-2204/fields/50, pages:PAGE-2204/fields/51, pages:PAGE-2204/fields/55, pages:PAGE-2204/fields/56, pages:PAGE-2204/fields/57, pages:PAGE-2204/fields/6, pages:PAGE-2204/fields/8, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2204/fields/87, pages:PAGE-2204/fields/91, pages:PAGE-2204/fields/92, pages:PAGE-2204/fields/93, pages:PAGE-2204/fields/94, pages:PAGE-2204/fields/95, pages:PAGE-2204/fields/96, pages:PAGE-2205, pages:PAGE-2205/fields/56, pages:PAGE-2205/fields/57, pages:PAGE-2205/fields/58, pages:PAGE-2205/fields/60, pages:PAGE-2205/fields/61, pages:PAGE-2205/fields/62, pages:PAGE-2223/fields/12, pages:PAGE-2223/fields/13, pages:PAGE-2223/fields/4, pages:PAGE-2226/fields/13, pages:PAGE-2226/fields/20, pages:PAGE-2226/fields/21, pages:PAGE-2226/fields/22, pages:PAGE-2226/fields/25, pages:PAGE-2226/fields/26, pages:PAGE-2226/fields/28, pages:PAGE-2226/fields/29, pages:PAGE-2226/fields/30, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/37, pages:PAGE-2226/fields/39, pages:PAGE-2226/fields/4, pages:PAGE-2226/fields/40, pages:PAGE-2226/fields/41, pages:PAGE-2226/fields/42, pages:PAGE-2226/fields/43, pages:PAGE-2226/fields/44, pages:PAGE-2226/fields/6, pages:PAGE-2226/fields/8, pages:PAGE-2227/fields/10, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/14, pages:PAGE-2227/fields/140, pages:PAGE-2227/fields/144, pages:PAGE-2227/fields/145, pages:PAGE-2227/fields/146, pages:PAGE-2227/fields/147, pages:PAGE-2227/fields/148, pages:PAGE-2227/fields/149, pages:PAGE-2227/fields/150, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/32, pages:PAGE-2227/fields/33, pages:PAGE-2227/fields/34, pages:PAGE-2227/fields/35, pages:PAGE-2227/fields/4, pages:PAGE-2227/fields/49, pages:PAGE-2227/fields/50, pages:PAGE-2227/fields/52, pages:PAGE-2227/fields/63, pages:PAGE-2227/fields/66, pages:PAGE-2227/fields/67, pages:PAGE-2227/fields/79, pages:PAGE-2227/fields/81, pages:PAGE-2227/fields/82, pages:PAGE-2227/fields/88, pages:PAGE-2227/fields/97, pages:PAGE-2227/fields/99, pages:PAGE-2228/fields/17, pages:PAGE-2228/fields/18, pages:PAGE-2228/fields/20, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/33, pages:PAGE-2228/fields/34, pages:PAGE-2228/fields/6, pages:PAGE-2228/fields/7, pages:PAGE-2228/fields/8, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/117, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/120, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/121, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/145, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/146, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/147, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/151, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/160, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/161, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/162, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/163, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/164, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/165, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/166, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/168, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/169, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/30, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/421, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/48, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/49, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/51, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/55, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/56, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/57, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/58, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/59, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/60, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/61, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/65, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/67, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/70, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/75, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/77, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/78, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/79, scenarios:FLOW-CURRENT-CUSTOMER/steps/14
+
+验证：CHECK-FLOW-IMPORT-COMMIT, CHECK-FLOW-TASK-IMPORT-REPLAY
+
+## 实施任务
+
+- [TASK-015](../tasks/TASK-015.md)
+</pre></body></html>

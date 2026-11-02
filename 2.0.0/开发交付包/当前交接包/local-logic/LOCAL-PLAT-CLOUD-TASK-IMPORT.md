@@ -1,0 +1,128 @@
+# LOCAL-PLAT-CLOUD-TASK-IMPORT 预外呼任务统一业务导入及原IVR名单边界
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](../features/FUNC-2002.md)
+
+## 职责与触发
+
+所属工程模块：未填写
+
+功能：FUNC-2002
+
+触发：准确专业任务选择名单并独立确认导入
+
+## 前置条件
+
+- PRED新统一导入须ADMIN+customer.import及原Cloud模块/准确任务/来源资格；分类从任务配置自动带入，无分类DIRECT开关
+- 接口来源任务不混手工；IVR仍原专业合同，不扩成本轮DIRECT
+
+## 必须遵守的全局规则
+
+- [GR-IDENTITY](../global-logic.md#GR-IDENTITY)
+- [GR-SCOPE](../global-logic.md#GR-SCOPE)
+- [GR-AUTH](../global-logic.md#GR-AUTH)
+- [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+- [GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)
+- [GR-TASK-UNIFIED-IMPORT](../global-logic.md#GR-TASK-UNIFIED-IMPORT)
+
+## 输入与输出
+
+输入：[FIELD-PLAT-TASK-ID](../field-specs.md#FIELD-PLAT-TASK-ID)、[FIELD-PLAT-TASK-MODE](../field-specs.md#FIELD-PLAT-TASK-MODE)、[FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)、[FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-PLAT-TASK-BUSINESS-RECORD-ID](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-RECORD-ID)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CATEGORY-IMPORT-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)、[FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-IMPORT-ORIGINAL](../field-specs.md#FIELD-FLOW-IMPORT-ORIGINAL)、[FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)
+
+输出：[FIELD-PLAT-IMPORT-BATCH](../field-specs.md#FIELD-PLAT-IMPORT-BATCH)、[FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)、[FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-FLOW-TASK-IMPORT-PARAMETERS](../field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS)、[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+
+## 处理步骤
+
+### LOCAL-PLAT-CLOUD-TASK-IMPORT-S1
+
+任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 PRED按本任务分类IMPORT+系统code/姓名/电话逐行校类型/映射/重复，FOLLOWUP排除；保准确context.importLimits：2000行/1MB，AI其他原容量不变，超限分批不截断。
+
+读取：FIELD-PLAT-TASK-ID, FIELD-PLAT-TASK-MODE, FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-REQUEST；写入：无
+
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+
+### LOCAL-PLAT-CLOUD-TASK-IMPORT-S2
+
+AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 PRED固定准确taskId/PREDICTIVE，不另选seat/person；合法配置且状态/来源允许的待分配任务可导入，flat/alictiCreateDraft不要求已有原生行/旧目录已发布；缺配/无权/在途拒绝，不伪造供应商发布。
+
+读取：FIELD-PLAT-TASK-ID, FIELD-PLAT-TASK-MODE, FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-REQUEST；写入：无
+
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+
+### LOCAL-PLAT-CLOUD-TASK-IMPORT-S3
+
+统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。 IVR及旧原生名单保持原独立专业结果。
+
+读取：FIELD-PLAT-TASK-ID, FIELD-PLAT-TASK-MODE, FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-REQUEST, FIELD-FLOW-TASK-IMPORT-SOURCE, FIELD-PLAT-TASK-BUSINESS-RECORD-ID, FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-CATEGORY-IMPORT-REFS, FIELD-FLOW-IMPORT-VALUES, FIELD-FLOW-IMPORT-ORIGINAL, FIELD-FLOW-EXECUTION-PRIORITY, FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-DIRECT-CYCLE-ID, FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP；写入：FIELD-PLAT-IMPORT-BATCH, FIELD-PLAT-OP-STATE, FIELD-FLOW-TASK-IMPORT-SOURCE, FIELD-FLOW-TASK-IMPORT-PARAMETERS, FIELD-FLOW-RECORD-ID, FIELD-FLOW-DIRECT-CYCLE-ID
+
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER, GR-TASK-UNIFIED-IMPORT
+
+## 分支与异常
+
+### LOCAL-PLAT-CLOUD-TASK-IMPORT-B1
+
+条件：前提、字段及对象修订校验通过且结果明确成功
+
+结果：预外呼创建当前准确任务的统一DIRECT业务/周期和完整IMPORT字段/快照/来源/等级，专业名单只读投影；原IVR/旧专业历史保留各自事实
+
+涉及字段：FIELD-PLAT-TASK-ID, FIELD-PLAT-TASK-MODE, FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-REQUEST, FIELD-PLAT-IMPORT-BATCH, FIELD-PLAT-OP-STATE
+
+验证：CHECK-PLAT-CLOUD-TASK-IMPORT
+
+### LOCAL-PLAT-CLOUD-TASK-IMPORT-B2
+
+条件：无权/字段不合法/对象失效/修订冲突
+
+结果：明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更
+
+涉及字段：FIELD-PLAT-TASK-ID, FIELD-PLAT-TASK-MODE, FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-REQUEST, FIELD-PLAT-IMPORT-BATCH, FIELD-PLAT-OP-STATE
+
+验证：CHECK-PLAT-CLOUD-TASK-IMPORT
+
+### LOCAL-PLAT-CLOUD-TASK-IMPORT-B3
+
+条件：提交失败或结果未知
+
+结果：失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功
+
+涉及字段：FIELD-PLAT-TASK-ID, FIELD-PLAT-TASK-MODE, FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-REQUEST, FIELD-PLAT-IMPORT-BATCH, FIELD-PLAT-OP-STATE
+
+验证：CHECK-PLAT-CLOUD-TASK-IMPORT
+
+## 完成后的状态
+
+- 预外呼创建当前准确任务的统一DIRECT业务/周期和完整IMPORT字段/快照/来源/等级，专业名单只读投影；原IVR/旧专业历史保留各自事实
+
+## 字段定义
+
+- [FIELD-PLAT-TASK-ID](../field-specs.md#FIELD-PLAT-TASK-ID)
+- [FIELD-PLAT-TASK-MODE](../field-specs.md#FIELD-PLAT-TASK-MODE)
+- [FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)
+- [FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)
+- [FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)
+- [FIELD-PLAT-TASK-BUSINESS-RECORD-ID](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-RECORD-ID)
+- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
+- [FIELD-FLOW-CATEGORY-IMPORT-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)
+- [FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)
+- [FIELD-FLOW-IMPORT-ORIGINAL](../field-specs.md#FIELD-FLOW-IMPORT-ORIGINAL)
+- [FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)
+- [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
+- [FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+- [FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)
+- [FIELD-PLAT-IMPORT-BATCH](../field-specs.md#FIELD-PLAT-IMPORT-BATCH)
+- [FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)
+- [FIELD-FLOW-TASK-IMPORT-PARAMETERS](../field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS)
+- [FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)
+
+## 来源与验证
+
+来源条目：acceptance:AC-2068, acceptance:AC-2070, acceptance:AC-2071, acceptance:AC-2160, acceptance:AC-2162, features:FUNC-2002, features:FUNC-2002/behavior_spec/36/branches/0, features:FUNC-2002/behavior_spec/36/branches/1, features:FUNC-2002/behavior_spec/36/branches/2, features:FUNC-2002/behavior_spec/36/postconditions/0, features:FUNC-2002/behavior_spec/36/preconditions/0, features:FUNC-2002/behavior_spec/36/preconditions/1, features:FUNC-2002/behavior_spec/36/steps/0, features:FUNC-2002/behavior_spec/36/steps/1, features:FUNC-2002/behavior_spec/36/steps/2, pages:PAGE-2003/fields/17, pages:PAGE-2003/fields/22, pages:PAGE-2004/fields/2, pages:PAGE-2004/fields/4, pages:PAGE-2005/fields/5, pages:PAGE-2005/fields/8, pages:PAGE-2006/fields/5, pages:PAGE-2006/fields/59, pages:PAGE-2006/fields/6, pages:PAGE-2007/fields/20, pages:PAGE-2007/fields/21, pages:PAGE-2007/fields/24, pages:PAGE-2103/fields/11, pages:PAGE-2103/fields/12, pages:PAGE-2103/fields/13, pages:PAGE-2103/fields/19, pages:PAGE-2103/fields/21, pages:PAGE-2103/fields/22, pages:PAGE-2103/fields/28, pages:PAGE-2103/fields/29, pages:PAGE-2103/fields/30, pages:PAGE-2103/fields/31, pages:PAGE-2103/fields/32, pages:PAGE-2103/fields/33, pages:PAGE-2103/fields/34, pages:PAGE-2108/fields/18, pages:PAGE-2110/fields/15, pages:PAGE-2110/fields/8, pages:PAGE-2112/fields/11, pages:PAGE-2112/fields/13, pages:PAGE-2202/fields/21, pages:PAGE-2202/fields/28, pages:PAGE-2202/fields/36, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/39, pages:PAGE-2203/fields/64, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/11, pages:PAGE-2204/fields/34, pages:PAGE-2204/fields/38, pages:PAGE-2204/fields/48, pages:PAGE-2204/fields/75, pages:PAGE-2204/fields/76, pages:PAGE-2204/fields/77, pages:PAGE-2204/fields/82, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/92, pages:PAGE-2204/fields/96, pages:PAGE-2205, pages:PAGE-2205/actions/2, pages:PAGE-2205/fields/10, pages:PAGE-2205/fields/15, pages:PAGE-2205/fields/35, pages:PAGE-2205/fields/39, pages:PAGE-2205/fields/56, pages:PAGE-2205/fields/57, pages:PAGE-2205/fields/58, pages:PAGE-2205/fields/59, pages:PAGE-2205/fields/60, pages:PAGE-2205/fields/61, pages:PAGE-2205/fields/62, pages:PAGE-2205/fields/8, pages:PAGE-2205/fields/9, pages:PAGE-2206, pages:PAGE-2206/actions/1, pages:PAGE-2206/fields/10, pages:PAGE-2206/fields/15, pages:PAGE-2206/fields/35, pages:PAGE-2206/fields/39, pages:PAGE-2206/fields/8, pages:PAGE-2206/fields/9, pages:PAGE-2207/fields/14, pages:PAGE-2207/fields/17, pages:PAGE-2209/fields/8, pages:PAGE-2210/fields/1, pages:PAGE-2210/fields/5, pages:PAGE-2211/fields/1, pages:PAGE-2211/fields/4, pages:PAGE-2212/fields/1, pages:PAGE-2212/fields/9, pages:PAGE-2213/fields/1, pages:PAGE-2213/fields/25, pages:PAGE-2214/fields/2, pages:PAGE-2214/fields/4, pages:PAGE-2215/fields/3, pages:PAGE-2215/fields/6, pages:PAGE-2216/fields/1, pages:PAGE-2216/fields/10, pages:PAGE-2217/fields/13, pages:PAGE-2217/fields/17, pages:PAGE-2218/fields/1, pages:PAGE-2218/fields/5, pages:PAGE-2219/fields/11, pages:PAGE-2219/fields/8, pages:PAGE-2220/fields/11, pages:PAGE-2220/fields/12, pages:PAGE-2220/fields/17, pages:PAGE-2221/fields/6, pages:PAGE-2223/fields/4, pages:PAGE-2223/fields/5, pages:PAGE-2226/fields/21, pages:PAGE-2226/fields/28, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/40, pages:PAGE-2226/fields/44, pages:PAGE-2226/fields/8, pages:PAGE-2227/fields/136, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/145, pages:PAGE-2227/fields/149, pages:PAGE-2227/fields/150, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/49, pages:PAGE-2227/fields/50, pages:PAGE-2227/fields/79, pages:PAGE-2228/fields/3, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/147, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/161, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/168, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/169, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/200, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/201, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/21, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/213, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/214, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/220, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/221, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/421, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/59, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/60, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/65, scenarios:FLOW-CURRENT-PLATFORM/steps/63
+
+验证：CHECK-PLAT-CLOUD-TASK-IMPORT, CHECK-FLOW-PRED-TASK-DIRECT-IMPORT
+
+## 实施任务
+
+- [TASK-045](../tasks/TASK-045.md)

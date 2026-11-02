@@ -1,0 +1,174 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/features/FUNC-2020.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/features/FUNC-2020.md">原始 Markdown</a></p><h1>当前交接包/features/FUNC-2020.md</h1><pre># 查询本租户黑名单分组及号码 · FUNC\-2020
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+沿原分组\+号码唯一主维护模型查询本租户名单及客户拒联来源；超管仅查看，租户管理员/运营各按既有操作资格。
+
+来源业务域：业务&amp;amp;客户；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md) — 共用页面，另有 4 个功能
+
+## 局部逻辑
+
+- [查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：黑名单页按分组/关键词/状态查询
+
+- 当前租户原黑名单读权；超管仅只读
+
+### 处理步骤
+
+1. **LOCAL\-PLAT\-BAN\-QUERY\-S1**：以原分组\+号码唯一主维护模型读取，拒联来源在系统组展示
+
+2. **LOCAL\-PLAT\-BAN\-QUERY\-S2**：仅显示当前租户有权记录及准确本地/远端状态；不跨品牌共享
+
+3. **LOCAL\-PLAT\-BAN\-QUERY\-S3**：更新时间倒序后分页；无结果、失败、无权分别反馈
+
+### 分支与异常
+
+- **LOCAL\-PLAT\-BAN\-QUERY\-B1**：当前提、字段及对象修订校验通过且结果明确成功，原分组、号码、来源和同步状态可查；未增加公共/专项两套名单。
+
+- **LOCAL\-PLAT\-BAN\-QUERY\-B2**：当无权/字段不合法/对象失效/修订冲突，明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更。
+
+- **LOCAL\-PLAT\-BAN\-QUERY\-B3**：当提交失败或结果未知，失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功。
+
+### 完成后的状态
+
+- 原分组、号码、来源和同步状态可查；未增加公共/专项两套名单
+
+- [创建或修改普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-SAVE](../local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [删除空的普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-DELETE](../local-logic/LOCAL-PLAT-BAN-GROUP-DELETE.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [移动普通分组号码 · LOCAL\-PLAT\-BAN\-MOVE](../local-logic/LOCAL-PLAT-BAN-MOVE.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [移除普通组号码 · LOCAL\-PLAT\-BAN\-REMOVE](../local-logic/LOCAL-PLAT-BAN-REMOVE.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [配置、启停或重试供应商黑名单同步 · LOCAL\-PLAT\-BAN\-SYNC](../local-logic/LOCAL-PLAT-BAN-SYNC.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [分组数量与有效数 · FIELD\-PLAT\-BAN\-COUNT](../field-specs.md#FIELD-PLAT-BAN-COUNT)；依据：[查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+- [黑名单分组标识 · FIELD\-PLAT\-BAN\-GROUP](../field-specs.md#FIELD-PLAT-BAN-GROUP)；依据：[查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+- [黑名单／拒联来源记录标识 · FIELD\-PLAT\-BAN\-ID](../field-specs.md#FIELD-PLAT-BAN-ID)；依据：[查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+- [黑名单分组名称 · FIELD\-PLAT\-BAN\-NAME](../field-specs.md#FIELD-PLAT-BAN-NAME)；依据：[查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+- [限制规范号码 · FIELD\-PLAT\-BAN\-PHONE](../field-specs.md#FIELD-PLAT-BAN-PHONE)；依据：[查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+- [本地限制状态 · FIELD\-PLAT\-BAN\-STATE](../field-specs.md#FIELD-PLAT-BAN-STATE)；依据：[查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+- [当前业务租户 · FIELD\-PLAT\-CURRENT\-TENANT](../field-specs.md#FIELD-PLAT-CURRENT-TENANT)；依据：[查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+- [分页与结果总量 · FIELD\-PLAT\-PAGING](../field-specs.md#FIELD-PLAT-PAGING)；依据：[查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+- [查询筛选 · FIELD\-PLAT\-QUERY](../field-specs.md#FIELD-PLAT-QUERY)；依据：[查询黑名单分组与号码 · LOCAL\-PLAT\-BAN\-QUERY](../local-logic/LOCAL-PLAT-BAN-QUERY.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [AI原始与映射标签结果 · FIELD\-PLAT\-AI\-TAG\-RESULT](../field-specs.md#FIELD-PLAT-AI-TAG-RESULT)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)
+
+- [变更审计 · FIELD\-PLAT\-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[创建或修改普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-SAVE](../local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)、[删除空的普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-DELETE](../local-logic/LOCAL-PLAT-BAN-GROUP-DELETE.md)、[新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[移动普通分组号码 · LOCAL\-PLAT\-BAN\-MOVE](../local-logic/LOCAL-PLAT-BAN-MOVE.md)、[移除普通组号码 · LOCAL\-PLAT\-BAN\-REMOVE](../local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[配置、启停或重试供应商黑名单同步 · LOCAL\-PLAT\-BAN\-SYNC](../local-logic/LOCAL-PLAT-BAN-SYNC.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)、[名单来源详情与供应商同步核对 · TASK\-038](../tasks/TASK-038.md)
+
+- [名单添加类型 · FIELD\-PLAT\-BAN\-ADD\-TYPE](../field-specs.md#FIELD-PLAT-BAN-ADD-TYPE)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)
+
+- [分组供应商同步绑定 · FIELD\-PLAT\-BAN\-BINDING](../field-specs.md#FIELD-PLAT-BAN-BINDING)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[配置、启停或重试供应商黑名单同步 · LOCAL\-PLAT\-BAN\-SYNC](../local-logic/LOCAL-PLAT-BAN-SYNC.md)、[名单来源详情与供应商同步核对 · TASK\-038](../tasks/TASK-038.md)
+
+- [普通名单客户姓名 · FIELD\-PLAT\-BAN\-CUSTOMER](../field-specs.md#FIELD-PLAT-BAN-CUSTOMER)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)
+
+- [分组说明 · FIELD\-PLAT\-BAN\-DESC](../field-specs.md#FIELD-PLAT-BAN-DESC)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[创建或修改普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-SAVE](../local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)
+
+- [普通组期限配置 · FIELD\-PLAT\-BAN\-EXPIRY](../field-specs.md#FIELD-PLAT-BAN-EXPIRY)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[创建或修改普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-SAVE](../local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)、[新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)
+
+- [限制有效时段 · FIELD\-PLAT\-BAN\-LIFETIME](../field-specs.md#FIELD-PLAT-BAN-LIFETIME)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)、[名单来源详情与供应商同步核对 · TASK\-038](../tasks/TASK-038.md)
+
+- [限制原因 · FIELD\-PLAT\-BAN\-REASON](../field-specs.md#FIELD-PLAT-BAN-REASON)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)
+
+- [解除本条来源的记录 · FIELD\-PLAT\-BAN\-RELEASE](../field-specs.md#FIELD-PLAT-BAN-RELEASE)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[名单来源详情与供应商同步核对 · TASK\-038](../tasks/TASK-038.md)
+
+- [远端来源足迹与同步状态 · FIELD\-PLAT\-BAN\-REMOTE](../field-specs.md#FIELD-PLAT-BAN-REMOTE)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[移除普通组号码 · LOCAL\-PLAT\-BAN\-REMOVE](../local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[配置、启停或重试供应商黑名单同步 · LOCAL\-PLAT\-BAN\-SYNC](../local-logic/LOCAL-PLAT-BAN-SYNC.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)、[名单来源详情与供应商同步核对 · TASK\-038](../tasks/TASK-038.md)
+
+- [拒联／名单来源证据 · FIELD\-PLAT\-BAN\-SOURCE](../field-specs.md#FIELD-PLAT-BAN-SOURCE)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[名单来源详情与供应商同步核对 · TASK\-038](../tasks/TASK-038.md)
+
+- [通话稳定标识 · FIELD\-PLAT\-CALL\-ID](../field-specs.md#FIELD-PLAT-CALL-ID)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)
+
+- [专业名单导入内容 · FIELD\-PLAT\-IMPORT\-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)
+
+- [操作结果状态 · FIELD\-PLAT\-OP\-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[删除空的普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-DELETE](../local-logic/LOCAL-PLAT-BAN-GROUP-DELETE.md)、[移动普通分组号码 · LOCAL\-PLAT\-BAN\-MOVE](../local-logic/LOCAL-PLAT-BAN-MOVE.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)
+
+- [操作请求标识 · FIELD\-PLAT\-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[新增或批量导入普通黑名单号码 · LOCAL\-PLAT\-BAN\-NUMBERS](../local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[移除普通组号码 · LOCAL\-PLAT\-BAN\-REMOVE](../local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[配置、启停或重试供应商黑名单同步 · LOCAL\-PLAT\-BAN\-SYNC](../local-logic/LOCAL-PLAT-BAN-SYNC.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)、[名单来源详情与供应商同步核对 · TASK\-038](../tasks/TASK-038.md)
+
+- [对象当前修订 · FIELD\-PLAT\-REVISION](../field-specs.md#FIELD-PLAT-REVISION)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[创建或修改普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-SAVE](../local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)、[删除空的普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-DELETE](../local-logic/LOCAL-PLAT-BAN-GROUP-DELETE.md)、[移动普通分组号码 · LOCAL\-PLAT\-BAN\-MOVE](../local-logic/LOCAL-PLAT-BAN-MOVE.md)、[移除普通组号码 · LOCAL\-PLAT\-BAN\-REMOVE](../local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[配置、启停或重试供应商黑名单同步 · LOCAL\-PLAT\-BAN\-SYNC](../local-logic/LOCAL-PLAT-BAN-SYNC.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)、[名单来源详情与供应商同步核对 · TASK\-038](../tasks/TASK-038.md)
+
+- [最近更新时间 · FIELD\-PLAT\-UPDATED](../field-specs.md#FIELD-PLAT-UPDATED)；依据：[呼叫拦截 · UI\-PAGE\-2007](../ui-pages/UI-PAGE-2007.md)、[创建或修改普通黑名单分组 · LOCAL\-PLAT\-BAN\-GROUP\-SAVE](../local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)、[原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md)
+
+## 本功能验收
+
+- **AC\-2048**：呼叫拦截沿当前租户原AI分组\+号码唯一主维护页面，客户拒联来源在同页展示；不设置公共/专项两套名单页签。超管只读，租户管理员/运营按原操作及来源权限维护，不跨租户/品牌共享。
+
+- **AC\-2049**：普通组有效期/用途、人工/AI确认拒联来源和当前本地有效状态分别判断；已解除/到期不生效、未知不补永久。只处理当前有效源及今后事件，取消旧历史名单迁移/对账范围。
+
+- **AC\-2050**：本地生效与已有供应商同步状态分开表达；没有实际回执不能显示远端已成功。
+
+- **AC\-2062**：解除仅影响准确本来源，不清其他仍有效来源；已解除/到期不能被旧事件重放复活。新拒联使用新来源请求；本地与远端终态分开，未知先核对同请求，不伪造成功。
+
+- **AC\-2059**：供应商已接收未拨号码的拦截/取消/删除能力逐供应商核验，能力不足须提交差异，不能降低已确认覆盖目标。
+
+## 实施任务
+
+- [原黑名单分组和号码维护 · TASK\-037](../tasks/TASK-037.md) — 共同实施任务，包含其他功能
+
+- [名单来源详情与供应商同步核对 · TASK\-038](../tasks/TASK-038.md) — 共同实施任务，包含其他功能
+
+先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-2020。产品：续接输入 / 2\.0\.0\-current\-20261102\-step54。
+
+来源类型：current；来源指纹：b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf。
+
+- documentation/input/functions\.json\#FUNC\-2020
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>

@@ -1,0 +1,721 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>当前交接包/features/FUNC-2032.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../../../index.html">返回资料索引</a> · <a href="../../../../../2.0.0/%E5%BC%80%E5%8F%91%E4%BA%A4%E4%BB%98%E5%8C%85/%E5%BD%93%E5%89%8D%E4%BA%A4%E6%8E%A5%E5%8C%85/features/FUNC-2032.md">原始 Markdown</a></p><h1>当前交接包/features/FUNC-2032.md</h1><pre># 保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回功能目录](README.md) · [返回开发包入口](../README.md)
+
+## 本功能做什么
+
+按准确实际办理/接听人保存本次内容、真实通话及定义/值快照，正常条件满足唯一归档。受控缺失废弃保未完成且与正常archive分开；可靠旧弃结清不永久阻后继DIRECT，但不贡献完成数或绕真实unknown/冲突。原受理迟到事实归原ID入账，内容更正/当前值按原规则。
+
+来源业务域：业务&amp;amp;客户；来源业务模块：未提供。
+
+本页是同一份规划的功能阅读视图，仅整理已声明的关联，不增加业务规则，也不代表本功能已通过完整性核验。
+
+## 推荐阅读顺序
+
+1. 看下面的相关页面，确认用户从哪里进入。
+2. 阅读局部逻辑，再按需打开字段定义。
+3. 对照本功能验收，查看实施任务及其前置依赖。
+
+[全局逻辑](../global-logic.md)和[通用 UI 规范](../ui-spec.md)供核对共同规则；无需每次从头通读。
+
+## 相关页面
+
+- [业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md) — 共用页面，另有 7 个功能
+
+- [导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md) — 共用页面，另有 7 个功能
+
+- [流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md) — 共用页面，另有 5 个功能
+
+- [客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md) — 共用页面，另有 3 个功能
+
+- [业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md) — 共用页面，另有 12 个功能
+
+## 局部逻辑
+
+- [登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：外部执行事实或本地明确模拟事件到达
+
+- 原执行段/尝试身份可唯一关联
+- 事实来源授权与原tenant/method一致
+- 停止请求不等真实停止；只登记原受理请求的可靠事实，不以入账授权新调用/重呼
+
+### 处理步骤
+
+1. **STEP\-FLOW\-CALL\-FACTS\-1**：按准确record/run/stage/nodeRun/followup/attempt归原事实，不凭号码或当前指针
+
+2. **STEP\-FLOW\-CALL\-FACTS\-2**：区分受理/排队/实际dial/接通/实际人工/重试收敛；新派发准入与入站事实分开；ACTIVE/ABANDONING原已受理且未可靠关闭的准确seg/attempt迟到拨打/接通/终态按原ID归账去重计数，不因非ACTIVE误标dialed=false/0或假冲突；不授新派发、不挂新run/当前身份、不提前释放。已闭段未知新attempt仍原EXECUTION\_CLOSED/冲突规则。
+
+3. **STEP\-FLOW\-CALL\-FACTS\-3**：标签事实只匹配实际sceneSnapshot七元组及合法命中子集，NONE准确空也是已知
+
+4. **STEP\-FLOW\-CALL\-FACTS\-4**：DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。
+
+### 分支与异常
+
+- **BRANCH\-FLOW\-CALL\-FACTS\-1**：当同事件同内容重复，读原结果，不重复拨打、接通、跟进计数。
+
+- **BRANCH\-FLOW\-CALL\-FACTS\-2**：当相反终态/身份或其他scene回调，保原事实，拒或冲突待核，不复活已结束通话。
+
+- **BRANCH\-FLOW\-CALL\-FACTS\-3**：当迟到原段准确信息，只补原段，不改新run/currentowner/已封内容。
+
+- **BRANCH\-FLOW\-CALL\-FACTS\-ANSWER\-PROOF**：当预外呼仅登记坐席接听、客户接通未知或明确未接通，或同call出现相反明确接通回执，未具同次真实客户接通和准确接听账号证据时不赋人工填写；未知不完成归档，明确未接通可系统事实归档；相反明确回执保原事实并标待核，阻止继续办理。。
+
+### 完成后的状态
+
+- 普通AI可记录本轮实际新标签版本，不能用run旧catalog误拒准确可选标签事实
+- 新派发准入与入站事实分开；ACTIVE/ABANDONING原已受理且未可靠关闭的准确seg/attempt迟到拨打/接通/终态按原ID归账去重计数，不因非ACTIVE误标dialed=false/0或假冲突；不授新派发、不挂新run/当前身份、不提前释放。已闭段未知新attempt仍原EXECUTION\_CLOSED/冲突规则。
+
+- [实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：实际拨打/接听人从准确原段表单正式保存
+
+- 原段已结束，仍未contentSaved
+- 提交者准确等于原实际办理/接听账号且tenant一致
+
+### 处理步骤
+
+1. **STEP\-FLOW\-SAVE\-CONTENT\-1**：使用本次basis实际展示定义，校必填/类型/选项和原businessType
+
+2. **STEP\-FLOW\-SAVE\-CONTENT\-2**：比较开始后当前有效值差异，未确认则保草稿等待核对
+
+3. **STEP\-FLOW\-SAVE\-CONTENT\-3**：同次封内容/修改/确认快照；仅准确当前owner/stage且同一办理模式身份的provided更新当前值；TEMPLATE另要求同run，DIRECT以准确直接段身份隔离
+
+4. **STEP\-FLOW\-SAVE\-CONTENT\-4**：DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。
+
+### 分支与异常
+
+- **BRANCH\-FLOW\-SAVE\-CONTENT\-1**：当管理员/责任人但非实际人，或已正式保存，拒代填/重写，原段快照不变。
+
+- **BRANCH\-FLOW\-SAVE\-CONTENT\-2**：当基础已知预填但未修改且正式确认，可纳confirmed用于条件，modified仍为空，不要求重输。
+
+- **BRANCH\-FLOW\-SAVE\-CONTENT\-3**：当基础absent默认空，不成为已知人工确认；显式provided清空才known empty。
+
+- **BRANCH\-FLOW\-SAVE\-CONTENT\-4**：当并发当前值改变且无准确确认令牌，保三方差异和输入，阻覆盖。
+
+### 完成后的状态
+
+- 内容保存成功不自动宣称整次执行完成
+
+- [唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：通话终态/人工保存/必要证据齐备后系统评估
+
+- 同followup准确身份
+- 真实所有拨打结束、重试完毕、实际人工事实和必要状态/下游tags可核
+
+### 处理步骤
+
+1. **STEP\-FLOW\-ARCHIVE\-1**：有人工必须由实际人先保存内容；纯AI/明确无人由系统保存事实摘要
+
+2. **STEP\-FLOW\-ARCHIVE\-2**：两模式必要真实终态、重试与本人内容明确后唯一归档；TEMPLATE另核配置下游依赖，DIRECT无模板路由依赖且归档后回同租户待跟进，不自动新起呼
+
+3. **STEP\-FLOW\-ARCHIVE\-3**：DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。
+
+### 分支与异常
+
+- **BRANCH\-FLOW\-ARCHIVE\-1**：当首通结束但重试或人/标签事实未知，保持待结果/待核，不计完成。
+
+- **BRANCH\-FLOW\-ARCHIVE\-2**：当SYSTEM未接听自动归档，只记录真实事实，不以继承旧result值造新人工confirmed。
+
+- **BRANCH\-FLOW\-ARCHIVE\-3**：当完成或同事件重复到达，不重复封内容或计完成；真实零拨失败只记异常。
+
+### 完成后的状态
+
+- 完成跟进与流程END及业务达成分开
+
+- [有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：更正当前资料并填写原因
+
+- 对准确业务有当前本租户办理权
+- 确认业务/run/node/owner及并发依据仍一致
+- 当前管理员有资料维护资格
+
+### 处理步骤
+
+1. **STEP\-FLOW\-CORRECT\-1**：仅显示当前启用可维护定义，分IMPORT/FOLLOWUP身份和类型校验；号码等允许清空为未知，后续实际起呼仍必须重校有效号码
+
+2. **STEP\-FLOW\-CORRECT\-2**：按明确字段直接更新当前值及别名一致性，留before/after/来源和原因
+
+3. **STEP\-FLOW\-CORRECT\-3**：DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。
+
+### 分支与异常
+
+- **BRANCH\-FLOW\-CORRECT\-1**：当无权、未知字段/非法值或并发变化，拒并保输入，不动原当前值。
+
+- **BRANCH\-FLOW\-CORRECT\-2**：当合法明确更正，当前判断可用此授权来源，原导入/跟进快照保持。
+
+### 完成后的状态
+
+- 更正不是重新提交原正式跟进，也不自动发起新run
+
+- [请求及受控完成运行废弃 · LOCAL\-FLOW\-ABANDON](../local-logic/LOCAL-FLOW-ABANDON.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [实际接听人最小原段待填写入口 · LOCAL\-FLOW\-HANDLER\-INBOX](../local-logic/LOCAL-FLOW-HANDLER-INBOX.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [核对同次未知请求 · LOCAL\-FLOW\-REVIEW](../local-logic/LOCAL-FLOW-REVIEW.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+- [管理员移交准确请求核对责任 · LOCAL\-FLOW\-HANDOFF](../local-logic/LOCAL-FLOW-HANDOFF.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：对准确未知request选择本租户核对人并说明原因
+
+- 当前owner租户有权管理员及该request存在本租户待核
+
+### 处理步骤
+
+1. **STEP\-FLOW\-HANDOFF\-1**：明确唯一请求和本租户有效账号，不按记录模糊移交所有权限
+
+2. **STEP\-FLOW\-HANDOFF\-2**：保存本次移交人/接收人/原因/时间，接收人只核该request
+
+### 分支与异常
+
+- **BRANCH\-FLOW\-HANDOFF\-1**：当请求不唯一、失效或人员无效，拒并保选择，不扩大原权限。
+
+- **BRANCH\-FLOW\-HANDOFF\-2**：当明确移交，myReviewWork可定位准确事项，不能读整档案、重放原操作、代填。
+
+### 完成后的状态
+
+- 不改变原业务owner和责任跟进人
+
+- [实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+本局部说明只声明关联当前功能，以下内容直接取自同一份规划。
+
+### 触发与前置条件
+
+触发：实际拨打/接听人从准确原段填写表单查询或选择接口结果
+
+- 本租户本账号有该准确原段待填写资格；不要求品牌字段/分类配置管理权
+- 原段已结束尚未contentSaved，所需接口在原段basis中允许显示
+- 当前本租户获该接口独立取数授权，能力启用且必要上游值准确可核
+
+### 处理步骤
+
+1. **STEP\-FLOW\-INTERFACE\-QUERY\-1**：从本次basis读取接口定义及选中方式，不把保存时的新分类字段拼入原表单
+
+2. **STEP\-FLOW\-INTERFACE\-QUERY\-2**：独立查询不带依赖；关联查询读取唯一上游字段明确属性并逐参数映射，按本租户能力授权查询
+
+3. **STEP\-FLOW\-INTERFACE\-QUERY\-3**：本人明确选择合法单/多选返回对象，仅更新原段草稿；正式内容另按SAVE\-CONTENT确认
+
+4. **STEP\-FLOW\-INTERFACE\-QUERY\-4**：DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。
+
+### 分支与异常
+
+- **BRANCH\-FLOW\-INTERFACE\-QUERY\-1**：当只有管理员/责任人身份但不是该原段实际办理/接听人，拒取该段表单，不能借配置权代填。
+
+- **BRANCH\-FLOW\-INTERFACE\-QUERY\-2**：当接口未获本租户取数授权/已停用、上游缺值或参数映射不明，保草稿并明确字段/能力/参数原因，不取首项、不跨租户补结果。
+
+- **BRANCH\-FLOW\-INTERFACE\-QUERY\-3**：当实际本人无字段配置权但原段及能力取数资格均满足，允许本次查询与明确选择，仍不能修改接口定义或分类。
+
+- **BRANCH\-FLOW\-INTERFACE\-QUERY\-4**：当查询及选择成功，只写草稿，不生成正式确认、当前有效值或流转证据。
+
+### 完成后的状态
+
+- 返回对象保准确属性与来源，接口结果草稿不参加流转；正式保存沿原段定义、本人权限及差异确认校验
+
+- [明确完成直接跟进周期并封业务结论 · LOCAL\-FLOW\-COMPLETE\-DIRECT](../local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)
+
+**共用说明，尚未按功能细分步骤。** 该说明同时包含其他功能；其中全部步骤、分支和字段不能直接当成本功能专属逻辑。
+
+## 本功能明确关联的字段
+
+这些关系来自已声明的页面／局部说明；字段仍可能被其他功能复用。
+
+- [预外呼实际接听账号 · FIELD\-FLOW\-ACTUAL\-ANSWER](../field-specs.md#FIELD-FLOW-ACTUAL-ANSWER)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [通话尝试身份 · FIELD\-FLOW\-ATTEMPT\-ID](../field-specs.md#FIELD-FLOW-ATTEMPT-ID)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [尝试执行状态 · FIELD\-FLOW\-CALL\-STATE](../field-specs.md#FIELD-FLOW-CALL-STATE)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [客户接通事实 · FIELD\-FLOW\-CUSTOMER\-ANSWERED](../field-specs.md#FIELD-FLOW-CUSTOMER-ANSWERED)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [真实拨打标记 · FIELD\-FLOW\-DIALED](../field-specs.md#FIELD-FLOW-DIALED)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [真实拨打时间 · FIELD\-FLOW\-DIALED\-AT](../field-specs.md#FIELD-FLOW-DIALED-AT)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [来源事件身份 · FIELD\-FLOW\-EVENT\-ID](../field-specs.md#FIELD-FLOW-EVENT-ID)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [本次业务跟进身份 · FIELD\-FLOW\-FOLLOWUP\-ID](../field-specs.md#FIELD-FLOW-FOLLOWUP-ID)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [人工接听事实 · FIELD\-FLOW\-HUMAN\-ANSWER](../field-specs.md#FIELD-FLOW-HUMAN-ANSWER)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [供应商通话标识 · FIELD\-FLOW\-PROVIDER\-CALL\-ID](../field-specs.md#FIELD-FLOW-PROVIDER-CALL-ID)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [重试计划收敛事实 · FIELD\-FLOW\-RETRIES\-COMPLETE](../field-specs.md#FIELD-FLOW-RETRIES-COMPLETE)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [通话状态判断证据 · FIELD\-FLOW\-ROUTING\-EVIDENCE](../field-specs.md#FIELD-FLOW-ROUTING-EVIDENCE)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [实际AI意向标签事实 · FIELD\-FLOW\-TAG\-EVIDENCE](../field-specs.md#FIELD-FLOW-TAG-EVIDENCE)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [业务办理模式 · FIELD\-FLOW\-HANDLING\-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [直接跟进周期身份 · FIELD\-FLOW\-DIRECT\-CYCLE\-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [直接跟进状态 · FIELD\-FLOW\-DIRECT\-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [实际通话尝试 · FIELD\-FLOW\-CALLS](../field-specs.md#FIELD-FLOW-CALLS)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [整业务当前执行事实 · FIELD\-FLOW\-EXECUTION\-STATE](../field-specs.md#FIELD-FLOW-EXECUTION-STATE)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [业务记录身份 · FIELD\-FLOW\-RECORD\-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [本次流程运行身份 · FIELD\-FLOW\-RUN\-ID](../field-specs.md#FIELD-FLOW-RUN-ID)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [租户承接阶段身份 · FIELD\-FLOW\-STAGE\-ID](../field-specs.md#FIELD-FLOW-STAGE-ID)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [本次节点办理身份 · FIELD\-FLOW\-NODE\-RUN\-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [实际执行场景及配置 · FIELD\-FLOW\-SCENE\-SNAPSHOT](../field-specs.md#FIELD-FLOW-SCENE-SNAPSHOT)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)
+
+- [业务跟进与通话统计 · FIELD\-FLOW\-STATISTICS](../field-specs.md#FIELD-FLOW-STATISTICS)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [正式跟进内容快照 · FIELD\-FLOW\-CONTENT\-SNAPSHOT](../field-specs.md#FIELD-FLOW-CONTENT-SNAPSHOT)；依据：[登记准确执行和通话回执 · LOCAL\-FLOW\-CALL\-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [参与意向 · FIELD\-FLOW\-ACTIVITY\-INTEREST](../field-specs.md#FIELD-FLOW-ACTIVITY-INTEREST)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [本次跟进摘要 · FIELD\-FLOW\-FOLLOWUP\-SUMMARY](../field-specs.md#FIELD-FLOW-FOLLOWUP-SUMMARY)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [本次填写草稿 · FIELD\-FLOW\-FORM\-VALUES](../field-specs.md#FIELD-FLOW-FORM-VALUES)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [意向等级 · FIELD\-FLOW\-INTENTION\-LEVEL](../field-specs.md#FIELD-FLOW-INTENTION-LEVEL)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [感兴趣的活动 · FIELD\-FLOW\-INTERESTED\-ITEMS](../field-specs.md#FIELD-FLOW-INTERESTED-ITEMS)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [线索等级 · FIELD\-FLOW\-LEAD\-LEVEL](../field-specs.md#FIELD-FLOW-LEAD-LEVEL)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [本次意向车系 · FIELD\-FLOW\-MAPPING\-SERIES](../field-specs.md#FIELD-FLOW-MAPPING-SERIES)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [本次显式修改字段 · FIELD\-FLOW\-MODIFIED\-FIELDS](../field-specs.md#FIELD-FLOW-MODIFIED-FIELDS)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)
+
+- [计划保养日期 · FIELD\-FLOW\-NEXT\-SERVICE](../field-specs.md#FIELD-FLOW-NEXT-SERVICE)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [参加人数 · FIELD\-FLOW\-PARTICIPANTS](../field-specs.md#FIELD-FLOW-PARTICIPANTS)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [计划到店门店 · FIELD\-FLOW\-PLANNED\-STORE](../field-specs.md#FIELD-FLOW-PLANNED-STORE)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [计划到店时间 · FIELD\-FLOW\-PLANNED\-VISIT](../field-specs.md#FIELD-FLOW-PLANNED-VISIT)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [服务反馈 · FIELD\-FLOW\-SERVICE\-CONCERN](../field-specs.md#FIELD-FLOW-SERVICE-CONCERN)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [服务满意度 · FIELD\-FLOW\-SERVICE\-SATISFACTION](../field-specs.md#FIELD-FLOW-SERVICE-SATISFACTION)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [试驾意向 · FIELD\-FLOW\-TESTDRIVE\-INTENTION](../field-specs.md#FIELD-FLOW-TESTDRIVE-INTENTION)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [当前值差异与确认 · FIELD\-FLOW\-VALUE\-CONFLICT](../field-specs.md#FIELD-FLOW-VALUE-CONFLICT)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)
+
+- [当前有效值来源 · FIELD\-FLOW\-VALUE\-SOURCES](../field-specs.md#FIELD-FLOW-VALUE-SOURCES)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [到店意向 · FIELD\-FLOW\-VISIT\-INTENTION](../field-specs.md#FIELD-FLOW-VISIT-INTENTION)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [内容正式保存标记 · FIELD\-FLOW\-CONTENT\-SAVED](../field-specs.md#FIELD-FLOW-CONTENT-SAVED)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [本次正式确认字段 · FIELD\-FLOW\-CONFIRMED\-FIELDS](../field-specs.md#FIELD-FLOW-CONFIRMED-FIELDS)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [本次字段判断证据 · FIELD\-FLOW\-ROUTING\-FIELD\-SNAPSHOT](../field-specs.md#FIELD-FLOW-ROUTING-FIELD-SNAPSHOT)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [当前有效填写值 · FIELD\-FLOW\-FOLLOWUP\-VALUES](../field-specs.md#FIELD-FLOW-FOLLOWUP-VALUES)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [本次跟进基础快照 · FIELD\-FLOW\-BASIS](../field-specs.md#FIELD-FLOW-BASIS)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [实际人工拨打账号 · FIELD\-FLOW\-ACTUAL\-HANDLER](../field-specs.md#FIELD-FLOW-ACTUAL-HANDLER)；依据：[实际办理人正式保存本轮内容 · LOCAL\-FLOW\-SAVE\-CONTENT](../local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)、[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [本轮事实归档标记 · FIELD\-FLOW\-ARCHIVED](../field-specs.md#FIELD-FLOW-ARCHIVED)；依据：[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [跟进唯一归档状态 · FIELD\-FLOW\-ARCHIVE\-STATE](../field-specs.md#FIELD-FLOW-ARCHIVE-STATE)；依据：[唯一完成跟进归档 · LOCAL\-FLOW\-ARCHIVE](../local-logic/LOCAL-FLOW-ARCHIVE.md)
+
+- [当前有效导入值 · FIELD\-FLOW\-IMPORT\-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)；依据：[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [客户原意向门店名称 · FIELD\-FLOW\-INTENDED\-STORE\-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)；依据：[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [业务维护原因 · FIELD\-FLOW\-REASON](../field-specs.md#FIELD-FLOW-REASON)；依据：[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)、[管理员移交准确请求核对责任 · LOCAL\-FLOW\-HANDOFF](../local-logic/LOCAL-FLOW-HANDOFF.md)
+
+- [记录并发修订依据 · FIELD\-FLOW\-RECORD\-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)；依据：[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [当前资料更正事实 · FIELD\-FLOW\-CORRECTIONS](../field-specs.md#FIELD-FLOW-CORRECTIONS)；依据：[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [实际业务分类身份 · FIELD\-FLOW\-CATEGORY\-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)；依据：[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [首次导入事实快照 · FIELD\-FLOW\-IMPORT\-ORIGINAL](../field-specs.md#FIELD-FLOW-IMPORT-ORIGINAL)；依据：[有权管理员更正当前有效资料 · LOCAL\-FLOW\-CORRECT](../local-logic/LOCAL-FLOW-CORRECT.md)
+
+- [同次业务请求身份 · FIELD\-FLOW\-REQUEST\-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)；依据：[管理员移交准确请求核对责任 · LOCAL\-FLOW\-HANDOFF](../local-logic/LOCAL-FLOW-HANDOFF.md)
+
+- [原请求核对责任人 · FIELD\-FLOW\-REVIEW\-ASSIGNEE](../field-specs.md#FIELD-FLOW-REVIEW-ASSIGNEE)；依据：[管理员移交准确请求核对责任 · LOCAL\-FLOW\-HANDOFF](../local-logic/LOCAL-FLOW-HANDOFF.md)
+
+- [请求确认状态 · FIELD\-FLOW\-REQUEST\-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)；依据：[管理员移交准确请求核对责任 · LOCAL\-FLOW\-HANDOFF](../local-logic/LOCAL-FLOW-HANDOFF.md)
+
+- [取数能力字典引用 · FIELD\-FLOW\-DICTIONARY\-ID](../field-specs.md#FIELD-FLOW-DICTIONARY-ID)；依据：[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [接口返回选择方式 · FIELD\-FLOW\-SELECTION\-MODE](../field-specs.md#FIELD-FLOW-SELECTION-MODE)；依据：[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [是否关联查询条件 · FIELD\-FLOW\-QUERY\-CONDITIONS](../field-specs.md#FIELD-FLOW-QUERY-CONDITIONS)；依据：[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [接口上游依赖 · FIELD\-FLOW\-FIELD\-DEPENDS](../field-specs.md#FIELD-FLOW-FIELD-DEPENDS)；依据：[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [上游属性到查询参数映射 · FIELD\-FLOW\-PARAM\-BINDINGS](../field-specs.md#FIELD-FLOW-PARAM-BINDINGS)；依据：[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+- [自定义字段稳定身份 · FIELD\-FLOW\-FIELD\-ID](../field-specs.md#FIELD-FLOW-FIELD-ID)；依据：[实际办理人按原段表单查询并选择接口结果 · LOCAL\-FLOW\-INTERFACE\-QUERY](../local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)
+
+## 共用说明中的字段上下文
+
+以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
+
+- [条件路径／默认路径 · FIELD\-FLOW\-BRANCH\-KIND](../field-specs.md#FIELD-FLOW-BRANCH-KIND)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [出口优先顺序 · FIELD\-FLOW\-BRANCH\-PRIORITY](../field-specs.md#FIELD-FLOW-BRANCH-PRIORITY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [所属品牌 · FIELD\-FLOW\-BRAND\-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [业务类型域 · FIELD\-FLOW\-BUSINESS\-FAMILY](../field-specs.md#FIELD-FLOW-BUSINESS-FAMILY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [分类填写字段引用 · FIELD\-FLOW\-CATEGORY\-FOLLOWUP\-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-FOLLOWUP-REFS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [分类导入字段引用 · FIELD\-FLOW\-CATEGORY\-IMPORT\-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [业务分类名称 · FIELD\-FLOW\-CATEGORY\-LABEL](../field-specs.md#FIELD-FLOW-CATEGORY-LABEL)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [分类基础／字段校验依据 · FIELD\-FLOW\-CATEGORY\-REVISION](../field-specs.md#FIELD-FLOW-CATEGORY-REVISION)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [业务记录编码列名 · FIELD\-FLOW\-CODE\-LABEL](../field-specs.md#FIELD-FLOW-CODE-LABEL)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [出口路径稳定身份 · FIELD\-FLOW\-EDGE\-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [模板出口路径 · FIELD\-FLOW\-EDGES](../field-specs.md#FIELD-FLOW-EDGES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [实际分类有效方案 · FIELD\-FLOW\-EFFECTIVE\-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[请求及受控完成运行废弃 · LOCAL\-FLOW\-ABANDON](../local-logic/LOCAL-FLOW-ABANDON.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [开始业务上下文 · FIELD\-FLOW\-ENTRY\-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [开始入口分流 · FIELD\-FLOW\-ENTRY\-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [字段启用状态 · FIELD\-FLOW\-FIELD\-ENABLED](../field-specs.md#FIELD-FLOW-FIELD-ENABLED)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段业务编码 · FIELD\-FLOW\-FIELD\-KEY](../field-specs.md#FIELD-FLOW-FIELD-KEY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段名称 · FIELD\-FLOW\-FIELD\-LABEL](../field-specs.md#FIELD-FLOW-FIELD-LABEL)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [选项定义顺序 · FIELD\-FLOW\-FIELD\-OPTIONS](../field-specs.md#FIELD-FLOW-FIELD-OPTIONS)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段类型 · FIELD\-FLOW\-FIELD\-TYPE](../field-specs.md#FIELD-FLOW-FIELD-TYPE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [字段用途 · FIELD\-FLOW\-FIELD\-USAGE](../field-specs.md#FIELD-FLOW-FIELD-USAGE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [组内条件组合 · FIELD\-FLOW\-GROUP\-MODE](../field-specs.md#FIELD-FLOW-GROUP-MODE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [本节点唯一呼叫方式 · FIELD\-FLOW\-METHOD](../field-specs.md#FIELD-FLOW-METHOD)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [后继节点 · FIELD\-FLOW\-NEXT\-NODE](../field-specs.md#FIELD-FLOW-NEXT-NODE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [节点稳定身份 · FIELD\-FLOW\-NODE\-ID](../field-specs.md#FIELD-FLOW-NODE-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [节点名称 · FIELD\-FLOW\-NODE\-NAME](../field-specs.md#FIELD-FLOW-NODE-NAME)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [节点组件类型 · FIELD\-FLOW\-NODE\-TYPE](../field-specs.md#FIELD-FLOW-NODE-TYPE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [模板业务节点 · FIELD\-FLOW\-NODES](../field-specs.md#FIELD-FLOW-NODES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [选项启用状态 · FIELD\-FLOW\-OPTION\-ENABLED](../field-specs.md#FIELD-FLOW-OPTION-ENABLED)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [选项稳定身份 · FIELD\-FLOW\-OPTION\-ID](../field-specs.md#FIELD-FLOW-OPTION-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [业务选项编码 · FIELD\-FLOW\-OPTION\-KEY](../field-specs.md#FIELD-FLOW-OPTION-KEY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [选项文案 · FIELD\-FLOW\-OPTION\-LABEL](../field-specs.md#FIELD-FLOW-OPTION-LABEL)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [节点或路径承接方 · FIELD\-FLOW\-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [结果依据与范围 · FIELD\-FLOW\-RESULT\-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [实际分类单模板绑定 · FIELD\-FLOW\-ROUTE\-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [路由并发校验依据 · FIELD\-FLOW\-ROUTE\-VERSION](../field-specs.md#FIELD-FLOW-ROUTE-VERSION)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [条件字段身份 · FIELD\-FLOW\-RULE\-FIELD](../field-specs.md#FIELD-FLOW-RULE-FIELD)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [规则身份 · FIELD\-FLOW\-RULE\-ID](../field-specs.md#FIELD-FLOW-RULE-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [判断运算符 · FIELD\-FLOW\-RULE\-OPERATOR](../field-specs.md#FIELD-FLOW-RULE-OPERATOR)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [条件来源 · FIELD\-FLOW\-RULE\-SOURCE](../field-specs.md#FIELD-FLOW-RULE-SOURCE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [比较值集合 · FIELD\-FLOW\-RULE\-VALUES](../field-specs.md#FIELD-FLOW-RULE-VALUES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [判断规则组 · FIELD\-FLOW\-RULES](../field-specs.md#FIELD-FLOW-RULES)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [流转模板稳定身份 · FIELD\-FLOW\-TEMPLATE\-ID](../field-specs.md#FIELD-FLOW-TEMPLATE-ID)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [流转模板名称 · FIELD\-FLOW\-TEMPLATE\-NAME](../field-specs.md#FIELD-FLOW-TEMPLATE-NAME)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [字段参考分类 · FIELD\-FLOW\-TEMPLATE\-REF\-CATEGORY](../field-specs.md#FIELD-FLOW-TEMPLATE-REF-CATEGORY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [模板当前配置修订依据 · FIELD\-FLOW\-TEMPLATE\-REVISION](../field-specs.md#FIELD-FLOW-TEMPLATE-REVISION)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [当前工作队列状态 · FIELD\-FLOW\-WORK\-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[核对同次未知请求 · LOCAL\-FLOW\-REVIEW](../local-logic/LOCAL-FLOW-REVIEW.md)、[未知请求核对与责任交接 · TASK\-029](../tasks/TASK-029.md)
+
+- [AI场景业务分类引用 · FIELD\-PLAT\-AI\-CATEGORY](../field-specs.md#FIELD-PLAT-AI-CATEGORY)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [变更审计 · FIELD\-PLAT\-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [业务引用判定 · FIELD\-PLAT\-REFERENCE\-STATE](../field-specs.md#FIELD-PLAT-REFERENCE-STATE)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)
+
+- [对象当前修订 · FIELD\-PLAT\-REVISION](../field-specs.md#FIELD-PLAT-REVISION)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [历史分类直接跟进开关（当前不配置） · FIELD\-FLOW\-ALLOW\-DIRECT\-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)
+
+- [结束节点后续动作 · FIELD\-FLOW\-END\-ACTION](../field-specs.md#FIELD-FLOW-END-ACTION)；依据：[业务分类 · UI\-PAGE\-2006](../ui-pages/UI-PAGE-2006.md)、[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)
+
+- [执行发起账号 · FIELD\-FLOW\-ACTOR](../field-specs.md#FIELD-FLOW-ACTOR)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [本次AI呼叫场景 · FIELD\-FLOW\-AI\-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)
+
+- [本次执行安排 · FIELD\-FLOW\-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [导入批次身份 · FIELD\-FLOW\-BATCH\-ID](../field-specs.md#FIELD-FLOW-BATCH-ID)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [导入批次名称 · FIELD\-FLOW\-BATCH\-NAME](../field-specs.md#FIELD-FLOW-BATCH-NAME)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [业务记录编码 · FIELD\-FLOW\-BUSINESS\-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [历史分类联系权重 · FIELD\-FLOW\-CATEGORY\-PRIORITY](../field-specs.md#FIELD-FLOW-CATEGORY-PRIORITY)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [每日真实拨打上限 · FIELD\-FLOW\-CONTACT\-DAILY\-LIMIT](../field-specs.md#FIELD-FLOW-CONTACT-DAILY-LIMIT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [最短联系间隔 · FIELD\-FLOW\-CONTACT\-INTERVAL](../field-specs.md#FIELD-FLOW-CONTACT-INTERVAL)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [本租户联系协调设置 · FIELD\-FLOW\-CONTACT\-POLICY](../field-specs.md#FIELD-FLOW-CONTACT-POLICY)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [客户称呼 · FIELD\-FLOW\-CUSTOMER\-NAME](../field-specs.md#FIELD-FLOW-CUSTOMER-NAME)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [本方转出截止快照 · FIELD\-FLOW\-DEPARTURE\-SNAPSHOT](../field-specs.md#FIELD-FLOW-DEPARTURE-SNAPSHOT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [转交目标定位 · FIELD\-FLOW\-DESTINATION](../field-specs.md#FIELD-FLOW-DESTINATION)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [入口判断依据 · FIELD\-FLOW\-ENTRY\-DECISION](../field-specs.md#FIELD-FLOW-ENTRY-DECISION)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [路径判断结果 · FIELD\-FLOW\-EVALUATION](../field-specs.md#FIELD-FLOW-EVALUATION)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [流转确认依据 · FIELD\-FLOW\-EVALUATION\-TOKEN](../field-specs.md#FIELD-FLOW-EVALUATION-TOKEN)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [当前文件读取中 · FIELD\-FLOW\-FILE\-PENDING](../field-specs.md#FIELD-FLOW-FILE-PENDING)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [文件读取请求序号 · FIELD\-FLOW\-FILE\-READ](../field-specs.md#FIELD-FLOW-FILE-READ)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [实际人工坐席分配及历史人员事实 · FIELD\-FLOW\-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)
+
+- [导入列映射 · FIELD\-FLOW\-IMPORT\-MAPPING](../field-specs.md#FIELD-FLOW-IMPORT-MAPPING)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [联系备注 · FIELD\-FLOW\-IMPORT\-NOTE](../field-specs.md#FIELD-FLOW-IMPORT-NOTE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [逐行导入检查结果 · FIELD\-FLOW\-IMPORT\-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [待导入名单文本 · FIELD\-FLOW\-IMPORT\-TEXT](../field-specs.md#FIELD-FLOW-IMPORT-TEXT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [导入确认依据 · FIELD\-FLOW\-IMPORT\-TOKEN](../field-specs.md#FIELD-FLOW-IMPORT-TOKEN)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [客户意向门店业务编码 · FIELD\-FLOW\-INTENDED\-STORE](../field-specs.md#FIELD-FLOW-INTENDED-STORE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [运行结束与后续动作摘要 · FIELD\-FLOW\-OUTCOME](../field-specs.md#FIELD-FLOW-OUTCOME)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [当前负责租户 · FIELD\-FLOW\-OWNER\-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [实际客户联系号码 · FIELD\-FLOW\-PHONE](../field-specs.md#FIELD-FLOW-PHONE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [门店定位确认依据 · FIELD\-FLOW\-RESOLUTION\-TOKEN](../field-specs.md#FIELD-FLOW-RESOLUTION-TOKEN)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [实际执行配置 · FIELD\-FLOW\-RESOURCE\-SNAPSHOT](../field-specs.md#FIELD-FLOW-RESOURCE-SNAPSHOT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [流程运行状态 · FIELD\-FLOW\-RUN\-STATUS](../field-specs.md#FIELD-FLOW-RUN-STATUS)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[请求及受控完成运行废弃 · LOCAL\-FLOW\-ABANDON](../local-logic/LOCAL-FLOW-ABANDON.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [本阶段转入依据 · FIELD\-FLOW\-STAGE\-TRANSFER](../field-specs.md#FIELD-FLOW-STAGE-TRANSFER)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [本次明确转交目标 · FIELD\-FLOW\-TARGET\-TENANT](../field-specs.md#FIELD-FLOW-TARGET-TENANT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [业务更新时间 · FIELD\-FLOW\-UPDATED\-AT](../field-specs.md#FIELD-FLOW-UPDATED-AT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [业务系统导入内容 · FIELD\-PLAT\-API\-PAYLOAD](../field-specs.md#FIELD-PLAT-API-PAYLOAD)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [业务结果回传 · FIELD\-PLAT\-API\-RESULT](../field-specs.md#FIELD-PLAT-API-RESULT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [业务回调地址 · FIELD\-PLAT\-APP\-CALLBACK](../field-specs.md#FIELD-PLAT-APP-CALLBACK)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [应用接入标识 · FIELD\-PLAT\-APP\-ID](../field-specs.md#FIELD-PLAT-APP-ID)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [应用授权租户 · FIELD\-PLAT\-APP\-TENANTS](../field-specs.md#FIELD-PLAT-APP-TENANTS)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [通话稳定标识 · FIELD\-PLAT\-CALL\-ID](../field-specs.md#FIELD-PLAT-CALL-ID)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [原客户任务业务标识 · FIELD\-PLAT\-CUSTOMER\-ID](../field-specs.md#FIELD-PLAT-CUSTOMER-ID)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)
+
+- [原任务分配及历史人员事实 · FIELD\-PLAT\-FOLLOWER](../field-specs.md#FIELD-PLAT-FOLLOWER)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [导入批次标识与统计 · FIELD\-PLAT\-IMPORT\-BATCH](../field-specs.md#FIELD-PLAT-IMPORT-BATCH)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [专业名单导入内容 · FIELD\-PLAT\-IMPORT\-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [操作结果状态 · FIELD\-PLAT\-OP\-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [分页与结果总量 · FIELD\-PLAT\-PAGING](../field-specs.md#FIELD-PLAT-PAGING)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [云呼叫专业字段定义 · FIELD\-PLAT\-PRO\-FIELD\-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)
+
+- [原客户任务跟进结果 · FIELD\-PLAT\-PRO\-FOLLOW\-STATE](../field-specs.md#FIELD-PLAT-PRO-FOLLOW-STATE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [查询筛选 · FIELD\-PLAT\-QUERY](../field-specs.md#FIELD-PLAT-QUERY)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [操作请求标识 · FIELD\-PLAT\-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [专业资源归属 · FIELD\-PLAT\-RESOURCE\-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [直接跟进呼叫方式 · FIELD\-FLOW\-DIRECT\-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)
+
+- [直接周期业务结论快照 · FIELD\-FLOW\-DIRECT\-OUTCOME](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[明确完成直接跟进周期并封业务结论 · LOCAL\-FLOW\-COMPLETE\-DIRECT](../local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)
+
+- [直接完成结论编码 · FIELD\-FLOW\-DIRECT\-OUTCOME\-CODE](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME-CODE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[明确完成直接跟进周期并封业务结论 · LOCAL\-FLOW\-COMPLETE\-DIRECT](../local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)
+
+- [直接完成结论文案 · FIELD\-FLOW\-DIRECT\-OUTCOME\-LABEL](../field-specs.md#FIELD-FLOW-DIRECT-OUTCOME-LABEL)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[明确完成直接跟进周期并封业务结论 · LOCAL\-FLOW\-COMPLETE\-DIRECT](../local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)
+
+- [当前具体任务或坐席 · FIELD\-FLOW\-EXECUTION\-RESOURCE](../field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [执行优先级 · FIELD\-FLOW\-EXECUTION\-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [当前安排入队时间 · FIELD\-FLOW\-EXECUTION\-QUEUED\-AT](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [同刻入队稳定顺序 · FIELD\-FLOW\-EXECUTION\-QUEUE\-SEQUENCE](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [当前人工分配方式 · FIELD\-FLOW\-MANUAL\-ASSIGNMENT\-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[实际接听人最小原段待填写入口 · LOCAL\-FLOW\-HANDLER\-INBOX](../local-logic/LOCAL-FLOW-HANDLER-INBOX.md)、[本人填写、独立取数和正式内容快照 · TASK\-020](../tasks/TASK-020.md)
+
+- [统一业务的准确任务导入来源 · FIELD\-FLOW\-TASK\-IMPORT\-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)；依据：[导入批次 · UI\-PAGE\-2204](../ui-pages/UI-PAGE-2204.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [呼叫节点默认执行优先级 · FIELD\-FLOW\-NODE\-EXECUTION\-PRIORITY](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-PRIORITY)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)
+
+- [呼叫节点分租户默认安排 · FIELD\-FLOW\-NODE\-EXECUTION\-DEFAULTS](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-DEFAULTS)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)
+
+- [节点默认人工分配方式 · FIELD\-FLOW\-NODE\-MANUAL\-ASSIGNMENT\-MODE](../field-specs.md#FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)
+
+- [客户称呼 · FIELD\-PLAT\-CUSTOMER\-NAME](../field-specs.md#FIELD-PLAT-CUSTOMER-NAME)；依据：[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)
+
+- [客户真实号码 · FIELD\-PLAT\-PHONE](../field-specs.md#FIELD-PLAT-PHONE)；依据：[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [录音访问引用 · FIELD\-PLAT\-RECORDING](../field-specs.md#FIELD-PLAT-RECORDING)；依据：[客户档案 · UI\-PAGE\-2203](../ui-pages/UI-PAGE-2203.md)、[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [目标线索分类 · FIELD\-FLOW\-RECLASSIFY\-TARGET](../field-specs.md#FIELD-FLOW-RECLASSIFY-TARGET)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [转类预检确认依据 · FIELD\-FLOW\-RECLASSIFY\-TOKEN](../field-specs.md#FIELD-FLOW-RECLASSIFY-TOKEN)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [办理目的 · FIELD\-FLOW\-RUN\-PURPOSE](../field-specs.md#FIELD-FLOW-RUN-PURPOSE)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [AI原始与映射标签结果 · FIELD\-PLAT\-AI\-TAG\-RESULT](../field-specs.md#FIELD-PLAT-AI-TAG-RESULT)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [黑名单／拒联来源记录标识 · FIELD\-PLAT\-BAN\-ID](../field-specs.md#FIELD-PLAT-BAN-ID)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [限制有效时段 · FIELD\-PLAT\-BAN\-LIFETIME](../field-specs.md#FIELD-PLAT-BAN-LIFETIME)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [拒联／名单来源证据 · FIELD\-PLAT\-BAN\-SOURCE](../field-specs.md#FIELD-PLAT-BAN-SOURCE)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [本地限制状态 · FIELD\-PLAT\-BAN\-STATE](../field-specs.md#FIELD-PLAT-BAN-STATE)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [实际拨打／接听人 · FIELD\-PLAT\-CALL\-ACTOR](../field-specs.md#FIELD-PLAT-CALL-ACTOR)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [通话事实状态 · FIELD\-PLAT\-CALL\-STATE](../field-specs.md#FIELD-PLAT-CALL-STATE)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [通话时间与时长 · FIELD\-PLAT\-CALL\-TIMES](../field-specs.md#FIELD-PLAT-CALL-TIMES)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [跟进备注 · FIELD\-PLAT\-FOLLOW\-NOTE](../field-specs.md#FIELD-PLAT-FOLLOW-NOTE)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [原客户任务填写值 · FIELD\-PLAT\-PRO\-FILL](../field-specs.md#FIELD-PLAT-PRO-FILL)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [任务导入单行供应商参数及专属列快照 · FIELD\-FLOW\-TASK\-IMPORT\-PARAMETERS](../field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)
+
+- [确认必要本人内容无法补齐 · FIELD\-FLOW\-MISSING\-CONTENT\-CONFIRM](../field-specs.md#FIELD-FLOW-MISSING-CONTENT-CONFIRM)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[请求及受控完成运行废弃 · LOCAL\-FLOW\-ABANDON](../local-logic/LOCAL-FLOW-ABANDON.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [废弃缺失范围确认依据 · FIELD\-FLOW\-ABANDON\-CONFIRMATION](../field-specs.md#FIELD-FLOW-ABANDON-CONFIRMATION)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[请求及受控完成运行废弃 · LOCAL\-FLOW\-ABANDON](../local-logic/LOCAL-FLOW-ABANDON.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [原跟进的受控废弃收尾证据 · FIELD\-FLOW\-ABANDONMENT\-SETTLEMENT](../field-specs.md#FIELD-FLOW-ABANDONMENT-SETTLEMENT)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[请求及受控完成运行废弃 · LOCAL\-FLOW\-ABANDON](../local-logic/LOCAL-FLOW-ABANDON.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [运行废弃意图的原租户 · FIELD\-FLOW\-ABANDON\-TENANT](../field-specs.md#FIELD-FLOW-ABANDON-TENANT)；依据：[业务记录详情 · UI\-PAGE\-2227](../ui-pages/UI-PAGE-2227.md)、[请求及受控完成运行废弃 · LOCAL\-FLOW\-ABANDON](../local-logic/LOCAL-FLOW-ABANDON.md)、[受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md)
+
+- [直接跟进周期历史 · FIELD\-FLOW\-DIRECT\-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)；依据：[明确完成直接跟进周期并封业务结论 · LOCAL\-FLOW\-COMPLETE\-DIRECT](../local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)
+
+- [END授权直接跟进的来源证明 · FIELD\-FLOW\-END\-FOLLOWUP\-ORIGIN](../field-specs.md#FIELD-FLOW-END-FOLLOWUP-ORIGIN)；依据：[TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md)
+
+- [标签映射及启用 · FIELD\-PLAT\-AI\-MAPPING](../field-specs.md#FIELD-PLAT-AI-MAPPING)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [具体AI执行场景 · FIELD\-PLAT\-AI\-SCENE\-ID](../field-specs.md#FIELD-PLAT-AI-SCENE-ID)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+- [执行段标签上下文 · FIELD\-PLAT\-AI\-TAG\-CONTEXT](../field-specs.md#FIELD-PLAT-AI-TAG-CONTEXT)；依据：[准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md)
+
+## 本功能验收
+
+- **AC\-2092**：每次实际办理独立followup，开始捕获最新实际分类资料，实际办理/接听人唯一正式提交；纯AI/无人时系统按真实事实唯一归档。正式内容不重写，更正直改当前有效值并留因，旧段迟到不覆盖新值。
+
+- **AC\-2121**：同业务串行，真实在途/排队/重试/unknown及冲突不放新执行。正常当前CALL仍依必要内容/事实归档；旧已废弃段可靠结清另判，不强求正常archive。转交仍原独立准入，初次纯IMPORT不先造呼叫/填写。
+
+- **AC\-2122**：受理、真实拨打、执行终态、内容保存、唯一归档、节点、owner及业务结论分别确认；未知核原请求而非新身份重发。
+
+- **AC\-2123**：IMPORT独立读取当前有效导入值；FOLLOWUP读取指定范围正式确认或授权更正，SYSTEM继承result不冒充新确认；通话/AI标签按准确run/stage/sourceNode/执行场景和版本，不借其他租户；CURRENT\_NODE/CURRENT\_ROUND不借旧run，显式HISTORY另按本租户准确历史范围核验。
+
+- **AC\-2135**：分类BASE、独立ROUTE、模板字段参考互不覆盖；实际绑定按所用稳定ID/用途/类型/选项/AI上下文校验，新跟进取最新资料而正式/运行快照不追改，未操作/缺失/明确清空分开。
+
+- **AC\-2144**：流转判断分别使用TIANRUN\_MANUAL\_SIP\_CAUSE和TIANRUN\_PREDICTIVE\_SIP\_CAUSE客户侧结果：200已接通、710～724当前字典；不再用1～4接听标记推断，不改AI状态域或原专业记录的其他状态展示。新回执与实际方式/原段/场景准确关联，未知PENDING。
+
+- **AC\-2163**：登记停止与完成废弃分开：EXECUTION\_ACTIVE/REQUEST\_UNKNOWN/FACT\_CONFLICT下ADMIN普通reason可先ABANDONING，不强未来内容确认，FOREIGN\_CONTENT不冒充在途。可靠停止后仍缺内容须当前ownerADMIN确认无法补填\+原因/准确run/本tenant指纹版本才可ABANDONED；保缺失未完成，不代填或假正常archive/completed。
+
+- **AC\-2164**：正常archive与可靠旧废弃结清分别判断；旧已弃段本人后来补齐或合法确认后可可靠收尾，不永久阻后继DIRECT完成/启用流程，也不贡献当前周期真实完成数或覆盖当前字段。当前必要内容/执行及实质冲突仍原准入。
+
+- **AC\-2166**：ABANDONING不准新派发，但原已受理且未可靠关闭的准确seg/attempt迟到真实拨打/接通/终态归原ID去重计数，不误标0或挂当前，不提前释放；已闭段未知新attempt仍拒/保冲突证据，停止请求不是真停止。
+
+## 实施任务
+
+- [TASK直接周期完成、再次办理与旧来源边界 · TASK\-017](../tasks/TASK-017.md) — 共同实施任务，包含其他功能
+
+- [准确通话回执、重试与AI标签事实 · TASK\-019](../tasks/TASK-019.md) — 共同实施任务，包含其他功能
+
+- [本人填写、独立取数和正式内容快照 · TASK\-020](../tasks/TASK-020.md) — 共同实施任务，包含其他功能
+
+- [唯一跟进归档与统计事实 · TASK\-021](../tasks/TASK-021.md) — 声明实施本功能
+
+- [当前有效资料更正与并发确认 · TASK\-022](../tasks/TASK-022.md) — 声明实施本功能
+
+- [受控缺内容废弃及历史异常结清 · TASK\-026](../tasks/TASK-026.md) — 共同实施任务，包含其他功能
+
+- [未知请求核对与责任交接 · TASK\-029](../tasks/TASK-029.md) — 共同实施任务，包含其他功能
+
+先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
+
+## 来源与范围边界
+
+本页仅整理本次范围内的 FUNC\-2032。产品：续接输入 / 2\.0\.0\-current\-20261102\-step54。
+
+来源类型：current；来源指纹：b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf。
+
+- documentation/input/functions\.json\#FUNC\-2032
+
+涉及来源变化、规则冲突或缺失时，回到产品事实和规划修订；[覆盖核对](../completeness-matrix.md)保留逐项追踪依据。
+</pre></body></html>

@@ -1,0 +1,404 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2016",
+  "name": "有权管理员解除公共禁呼",
+  "summary": "按有效解除决定保留来源及解除审计",
+  "actors": [
+    "本租户管理员或有该租户管理权限的平台管理员",
+    "公共禁呼管理系统"
+  ],
+  "trigger": "有权管理员准备解除本租户一条公共明确拒联记录",
+  "preconditions": [
+    "相应租户与主体权限合法，专业执行资源按原模块规则",
+    "原公共名单主入口归客户中心“联系限制”，仍为同一份本租户名单及原操作资格；入口迁位不改变公共拒联和专项范围、期限、四类外呼检查或正常呼入规则，不在客户档案复制名单或增加禁呼豁免。进入该原管理功能仍沿SC-2002保护和记忆。"
+  ],
+  "expected_outcome": "按有效解除决定保留来源及解除审计",
+  "exception_scope": "仅有工作区运营或名单新增权限、未获相应公共管理权限者不得解除；已解除/到期来源不因旧事件复活；真实旧记录终态、多来源及远端解除仍待核",
+  "source_story_ids": [
+    "US-2022"
+  ],
+  "source_acceptance_ids": [
+    "AC-2060",
+    "AC-2061",
+    "AC-2062"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2059",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "G1已确认管理员解除及审计；本图为S3产品流程建议，非生产实证。不得写成所有具有运营身份的人绝对无解除权：只有业务/新增授权而未获相应公共管理权者不得解除；真实角色与管理权限对应保留ISSUE-2001/2010。远端先解除还是其他生效次序、结果回执待ISSUE-2006核验，不臆造远端接口。多来源有效判定、旧解除历史防重建及存量证据保留ISSUE-2004，图中仅处理本条记录而不假定号码全部放行。失败保留可确认事实并结束本次，重试为读取当前状态后新一次发起。 入口统一不扩大解除权；原AI分组/期限/同步设置不得绕过公共长期记录的管理员解除及原因审计要求，且本条解除不能推导所有来源放行。 2026-10-19用户已确认历史承接原则：已解除/到期不复活，含义不明的旧记录保持原约束待核；此原则不等于真实旧数据及多来源最终状态已核验，也不触发真实迁移。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 品牌分类/模板共用不共享本租户公共禁呼或授予其他租户名单/来源通话权限；节点确认、条件命中、记录标签变化或切备用均不构成新增或解除公共禁呼的依据，也不赋予禁呼豁免。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "本租户管理员或有该租户管理权限的平台管理员",
+      "action": "打开当前租户拟解除的公共拒联记录",
+      "system_response": "公共主入口或原AI快捷筛选打开的是同一条有权记录；本次只解除所选公共记录，不删除其他来源、AI专项或其他租户限制。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "公共禁呼管理系统",
+      "action": "校验本租户公共禁呼解除管理权限",
+      "system_response": "仅工作区运营权或仅名单新增权不足以解除；不得将人员名称直接替代实际授权。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "公共禁呼管理系统",
+      "action": "读取本条入库来源及当前有效情况",
+      "system_response": "保留原来源、期限及已有解除/到期历史；旧事件或历史承接不得重新激活已解除/到期的来源；含义不明不改写原记录或清除原约束，先核对实际状态。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "本租户管理员或有该租户管理权限的平台管理员",
+      "action": "填写本次解除原因并确认提交",
+      "system_response": "可取消本次操作；未填写有效原因不提交解除。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "公共禁呼管理系统",
+      "action": "复核当前权限、目标租户、记录及解除原因",
+      "system_response": "按实际有效状态及经核对的生效规则处理，不以过期页面覆盖更新结果。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "公共禁呼管理系统",
+      "action": "执行本条解除并留存原因、操作人和时间",
+      "system_response": "保留入库来源和解除历史，不因本次解除清除其他有效来源，不因旧事件复活已解除/到期来源；实际本地/远端生效次序及真实多来源终态仍待核。",
+      "rule_ids": []
+    },
+    {
+      "step": 7,
+      "actor": "公共禁呼管理系统",
+      "action": "返回本条实际解除结果及当前可确认的限制情况",
+      "system_response": "本条解除不等于所有来源或供应商均已放行，无实际远端结果不提示远端解除成功。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2016-AUTH",
+      "condition": "缺当前租户公共禁呼解除权或提交时已失权",
+      "steps": [
+        "拒绝本次解除；仅有工作区运营/名单新增权者不能借此解除。",
+        "同一人员若另具合法管理员解除权，按实际权限办理，不因其还有运营身份一概拒绝。"
+      ]
+    },
+    {
+      "id": "ALT-2016-LOADFAIL",
+      "condition": "记录、来源或当前有效/解除/到期情况未能可靠读取",
+      "steps": [
+        "不修改本条禁呼，保留原名单事实及原约束；不因含义不明而永久化、解除或复活旧记录，结束本次读取。"
+      ]
+    },
+    {
+      "id": "ALT-2016-CANCEL",
+      "condition": "管理员取消本次解除",
+      "steps": [
+        "保持原有效记录及历史，结束本次操作。"
+      ]
+    },
+    {
+      "id": "ALT-2016-INVALID",
+      "condition": "解除原因缺失或目标租户/记录校验不通过",
+      "steps": [
+        "反馈具体原因，保留合法输入，不执行本次解除。"
+      ]
+    },
+    {
+      "id": "ALT-2016-RELEASEFAIL",
+      "condition": "解除失败或实际生效结果不明确",
+      "steps": [
+        "保留原入库来源、已确认状态及本次可确认处理事实，不虚报已解除或可正常外呼。",
+        "本地和远端结果分别表达；恢复需读取实际状态后另行发起。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功解除的本条记录留存原来源、解除原因、操作人、时间和历史，不进行物理删除；旧事件和历史承接不使已解除/已到期来源重新生效。",
+    "号码能否继续外呼仍取决于其他有效来源和各模式原限制；不能由本条解除直接推导全部放行。",
+    "无权、取消、校验失败或结果不明时不虚报成功，保留可确认的本地及远端事实。"
+  ],
+  "acceptance_points": [
+    "AC-2060：仅本租户管理员或有该租户管理权限的平台管理员解除，填写原因、保留操作人和时间。",
+    "AC-2061：只有业务运营或只有新增名单权限者不能解除；保留原入库来源和解除历史。",
+    "AC-2062：已解除或已到期的历史记录不因旧事件或历史承接重新生效；仅解除本条不自动清除其他来源限制。真实记录的来源/期限/解除含义、多来源有效判定、解除生效时点及远端处理结果仍按实际契约核验后细化。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "admin",
+        "name": "本租户管理员或有该租户管理权限的平台管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "blacklist",
+        "name": "公共禁呼管理系统",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "admin",
+        "type": "start",
+        "label": "发起一次公共禁呼解除",
+        "order": 1
+      },
+      {
+        "id": "N-OPEN",
+        "lane_id": "admin",
+        "type": "action",
+        "label": "打开本租户拟解除记录",
+        "step_ref": 1,
+        "order": 2
+      },
+      {
+        "id": "N-AUTH",
+        "lane_id": "blacklist",
+        "type": "decision",
+        "label": "具有本租户公共解除管理权？",
+        "step_ref": 2,
+        "order": 3
+      },
+      {
+        "id": "N-DENIED",
+        "lane_id": "blacklist",
+        "type": "end",
+        "label": "拒绝解除；不改有效记录",
+        "order": 4
+      },
+      {
+        "id": "N-LOAD",
+        "lane_id": "blacklist",
+        "type": "action",
+        "label": "读取本条来源及有效情况",
+        "step_ref": 3,
+        "order": 5
+      },
+      {
+        "id": "N-LOADED",
+        "lane_id": "blacklist",
+        "type": "decision",
+        "label": "记录及来源读取成功？",
+        "order": 6
+      },
+      {
+        "id": "N-LOADFAIL",
+        "lane_id": "blacklist",
+        "type": "end",
+        "label": "原名单保持；不执行解除",
+        "order": 7
+      },
+      {
+        "id": "N-REASON",
+        "lane_id": "admin",
+        "type": "action",
+        "label": "填写本次解除原因",
+        "step_ref": 4,
+        "order": 8
+      },
+      {
+        "id": "N-SUBMIT",
+        "lane_id": "admin",
+        "type": "decision",
+        "label": "本次确认解除还是取消？",
+        "order": 9
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "admin",
+        "type": "end",
+        "label": "已取消；记录及历史保持",
+        "order": 10
+      },
+      {
+        "id": "N-CHECK",
+        "lane_id": "blacklist",
+        "type": "action",
+        "label": "复核权限、记录及解除原因",
+        "step_ref": 5,
+        "order": 11
+      },
+      {
+        "id": "N-VALID",
+        "lane_id": "blacklist",
+        "type": "decision",
+        "label": "本次校验通过？",
+        "order": 12
+      },
+      {
+        "id": "N-INVALID",
+        "lane_id": "blacklist",
+        "type": "end",
+        "label": "保留合法输入；不执行解除",
+        "order": 13
+      },
+      {
+        "id": "N-RELEASE",
+        "lane_id": "blacklist",
+        "type": "action",
+        "label": "执行本条解除并留存审计",
+        "step_ref": 6,
+        "order": 14
+      },
+      {
+        "id": "N-EFFECTIVE",
+        "lane_id": "blacklist",
+        "type": "decision",
+        "label": "本条解除结果明确成功？",
+        "order": 15
+      },
+      {
+        "id": "N-FAILED",
+        "lane_id": "blacklist",
+        "type": "end",
+        "label": "保留实际事实；不虚报解除成功",
+        "order": 16
+      },
+      {
+        "id": "N-SHOW",
+        "lane_id": "blacklist",
+        "type": "action",
+        "label": "分别返回本条及已有远端实际结果",
+        "step_ref": 7,
+        "order": 17
+      },
+      {
+        "id": "N-END",
+        "lane_id": "admin",
+        "type": "end",
+        "label": "本次结果已记录；不推定全部放行",
+        "order": 18
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-OPEN"
+      },
+      {
+        "from": "N-OPEN",
+        "to": "N-AUTH"
+      },
+      {
+        "from": "N-AUTH",
+        "to": "N-DENIED",
+        "label": "否",
+        "path_id": "ALT-2016-AUTH",
+        "type": "failure"
+      },
+      {
+        "from": "N-AUTH",
+        "to": "N-LOAD",
+        "label": "是"
+      },
+      {
+        "from": "N-LOAD",
+        "to": "N-LOADED"
+      },
+      {
+        "from": "N-LOADED",
+        "to": "N-LOADFAIL",
+        "label": "否",
+        "path_id": "ALT-2016-LOADFAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-LOADED",
+        "to": "N-REASON",
+        "label": "是"
+      },
+      {
+        "from": "N-REASON",
+        "to": "N-SUBMIT"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-CANCEL",
+        "label": "取消",
+        "path_id": "ALT-2016-CANCEL"
+      },
+      {
+        "from": "N-SUBMIT",
+        "to": "N-CHECK",
+        "label": "确认解除"
+      },
+      {
+        "from": "N-CHECK",
+        "to": "N-VALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-INVALID",
+        "label": "否",
+        "path_id": "ALT-2016-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-RELEASE",
+        "label": "是"
+      },
+      {
+        "from": "N-RELEASE",
+        "to": "N-EFFECTIVE"
+      },
+      {
+        "from": "N-EFFECTIVE",
+        "to": "N-FAILED",
+        "label": "失败或结果不明",
+        "path_id": "ALT-2016-RELEASEFAIL",
+        "type": "failure"
+      },
+      {
+        "from": "N-EFFECTIVE",
+        "to": "N-SHOW",
+        "label": "明确成功"
+      },
+      {
+        "from": "N-SHOW",
+        "to": "N-END"
+      }
+    ]
+  },
+  "issue_ids": [
+    "ISSUE-2001",
+    "ISSUE-2010",
+    "ISSUE-2004",
+    "ISSUE-2006"
+  ],
+  "scope_status": "confirmed_G1",
+  "design_status": "S3_flow_draft",
+  "rule_ids": [
+    "BR-2015",
+    "BR-2019",
+    "BR-2049"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

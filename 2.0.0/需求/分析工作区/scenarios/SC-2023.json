@@ -1,0 +1,547 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2023",
+  "name": "仅在无业务引用时删除原账号",
+  "summary": "原账号删除按已确认无业务引用政策承接，原权和准确对象不变相扩张",
+  "actors": [
+    "具备原账号删除操作权及相应对象范围的人员",
+    "公共账号与成员页面",
+    "本方身份与删除适配"
+  ],
+  "trigger": "有原删除操作权的人员在PAGE-2003对准确账号发起原删除",
+  "preconditions": [
+    "以AI生产身份为存量基准，准确原实体与统一对象关系、原操作权及范围须核验；条件未知时不发起外部删除。",
+    "本方将已确认无业务引用资格及原保护与最终删除一致控制，现有服务不满足且可靠适配尚未实现时受阻。",
+    "同一次删除必要操作审计和主体追溯保留；不以审计本身阻断可删资格。",
+    "入口由系统管理承接原账号、成员、租户或品牌的相应功能，仍沿原对象权限、管理范围和稳定PAGE；该原管理功能的切离保护、同窗口返回及同次登录记忆继续按SC-2002，不因入口归位新增管理权。"
+  ],
+  "expected_outcome": "符合原权及无业务引用政策的准确账号得到可核对的最终删除结果；有业务历史或禁止条件时保留对象",
+  "exception_scope": "前置不足、无权、业务引用/原保护、取消、资格变化、明确失败、结果未知、旧响应分别处理",
+  "source_story_ids": [
+    "US-2023"
+  ],
+  "source_acceptance_ids": [
+    "AC-2079"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2077",
+    "inputs/source-index.json#SRC-2066",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2042",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "scope_status": "confirmed_G1",
+  "design_status": "S3_flow_draft",
+  "notes": "从SC-2017原已有AI删除操作范围包细化，非新业务领域或新角色/权限。SRC-2077只批准无业务引用资格；不要求独立未投入使用标志，不承认生产实现、不实际删除、不接受风险、不批准G3。三泳道为逻辑责任，API-2002既有DELETE只在准确实体及执行条件核符合后承接；若不能使资格与最终删除一致，保持本方受阻。未知的外部能力不画无条件成功调用。HTTP200或普通列表无记录不能单独证明删除成功。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 本轮仅细化已确认无业务引用政策覆盖的新业务对象，不新增删除资格、角色或操作。新记录/节点/轮次/执行安排/模板关联实际引用必须在最终删除时一并校验，纯粹品牌中存在无关模板不构成该主体引用。 绘图等价修正仅将共享收束检查/终态按互斥来路分别展开，同义节点表示同一业务结果，不新增检查要求、操作、状态或重复执行；原取消、失败、未知路径及ALT/step引用完整保留。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "具备原账号删除操作权及相应对象范围的人员",
+      "action": "从系统管理的原有权入口从原账号列表行选择删除准确对象",
+      "system_response": "复用原行操作，不新增页面、审批、恢复或独立删除入口。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "本方身份与删除适配",
+      "action": "确认准确实体对应及既有删除办理前置已落实",
+      "system_response": "本方准确身份映射、原权承接及最终提交一致校验由本方实现；已有DELETE只在实体和条件契约核符合时使用，缺能力/无法核对不发起外部成功调用。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "本方身份与删除适配",
+      "action": "核验原账号删除操作权及对象管理范围",
+      "system_response": "不新增角色或操作权，不以成员管理/全局停用/模块开通权代替删除权。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "本方身份与删除适配",
+      "action": "检查任务、通话、账务及新记录/节点/轮次/执行/模板关联等实际业务引用，账号没有其他租户关联",
+      "system_response": "仅无上述业务引用且满足原保护时允许继续；必要删除审计保留，不另要求独立“未投入使用”标志，不改成停用或成员移除。 本轮新增记录/流程中的实际主体引用及历史同属业务引用；仅品牌内存在无关模板不推定对象被引用。不得为满足可删条件清理记录、节点、轮次、模板关联或历史。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "具备原账号删除操作权及相应对象范围的人员",
+      "action": "核对准确账号及删除作用范围并确认",
+      "system_response": "复用原确认，仅说明本次对象和已明确作用范围，不写无依据不可恢复、级联清历史、自动清账；取消不提交。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "公共账号与成员页面",
+      "action": "固定本次准确对象和合法操作上下文",
+      "system_response": "提交中防重复发起；如同对象已有未知结果先核对，不将再次DELETE作为结果查询；不声明已有幂等字段。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    },
+    {
+      "step": 7,
+      "actor": "本方身份与删除适配",
+      "action": "将原权、当前对象及业务引用资格与最终删除一致控制",
+      "system_response": "并发新增引用、对象或授权变化时必须在最终提交中一致拒绝；原服务若不能满足且本方未具备可靠受控执行则受阻，不能只先查后无条件DELETE。 新业务引用和模板关联同样纳入最终一致检查，不先删引用换取可删资格。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    },
+    {
+      "step": 8,
+      "actor": "本方身份与删除适配",
+      "action": "只在实体与上述执行条件已核符合时承接原DELETE",
+      "system_response": "仅引用API-2002已有DELETE /base/user/del/{id}定义；不造独立引用校验、幂等字段或新端点，不以设计证明生产支持。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    },
+    {
+      "step": 9,
+      "actor": "本方身份与删除适配",
+      "action": "判断准确对象的最终删除结果及必要审计留存",
+      "system_response": "明确成功、未删除失败和未知分别处理；原始受理或HTTP200不等于删除完成。未知仅用已有可靠能力核对，不能据普通查询无记录推定成功；无法核对保留未知，不盲重试。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    },
+    {
+      "step": 10,
+      "actor": "公共账号与成员页面",
+      "action": "仅在本次上下文仍合法且最终成功已确认后刷新对象列表",
+      "system_response": "展示账号已删除并刷新真实计数/合法入口；保留必要操作审计和主体追溯，不改变其他主体或历史。旧响应不回填其他账号/租户；失败或未知不以本地移行模拟成功。",
+      "rule_ids": [
+        "BR-2024"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2023-CONTRACT",
+      "condition": "准确实体、原删除权映射或最终资格与删除一致校验能力尚未落实",
+      "steps": [
+        "本方保持受阻，不调用DELETE；页面只提示暂无法办理，不展示技术缺口、伪造删除成功或新增权限。"
+      ]
+    },
+    {
+      "id": "ALT-2023-AUTH",
+      "condition": "原删除权或对象管理范围明确无效",
+      "steps": [
+        "拒绝本次删除；不从超管、模块开通、成员维护或页面可见推导删除权。权限撤销后移除失效范围展示，按原合法入口。"
+      ]
+    },
+    {
+      "id": "ALT-2023-REF",
+      "condition": "存在任务、通话、账务或新记录/节点/轮次/执行/模板关联等实际业务引用，或账号另有关联租户",
+      "steps": [
+        "禁止删除并保留对象；有业务历史继续保留。必要删除操作审计保留且不是额外业务引用；不新增“未投入使用”资格字段。",
+        "新流程业务引用及历史不能以删除账号/租户为由级联清除；不新增模板删除或解除引用功能，不以无关模板存在推定引用。"
+      ]
+    },
+    {
+      "id": "ALT-2023-CANCEL",
+      "condition": "提交前取消原删除确认",
+      "steps": [
+        "不提交删除；不以停用、成员移除或其他操作代替，保留原合法位置和筛选。"
+      ]
+    },
+    {
+      "id": "ALT-2023-CHANGE",
+      "condition": "确认后对象、原权或引用变化，最终提交中一致检查明确拒绝",
+      "steps": [
+        "停止或拒绝本次删除，提示对象或关联已变化；按真实状态更新，无权时清除失效展示。预查结果不代替最终一致校验。"
+      ]
+    },
+    {
+      "id": "ALT-2023-FAIL",
+      "condition": "服务明确返回未删除的失败",
+      "steps": [
+        "保留可确认对象和筛选，显示失败原因；服务明确未执行且再次校验仍允许后，用户才可另行提交。"
+      ]
+    },
+    {
+      "id": "ALT-2023-UNKNOWN",
+      "condition": "本次或同一对象已有删除结果未知且无法取得最终证据",
+      "steps": [
+        "沿已有可靠能力核对准确对象/同次结果，不新造查询端点、请求字段、幂等键或重试额度；无可靠能力则保留未知。HTTP200、受理和普通列表查不到不能单独证明成功，不重发DELETE代替核对。"
+      ]
+    },
+    {
+      "id": "ALT-2023-STALE",
+      "condition": "处理结果时页面账号、租户或本次对象上下文已经变化",
+      "steps": [
+        "旧响应不回填新上下文、不误删新列表记录；保留准确操作结果事实，当前合法上下文重新按原规则读取。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "仅最终删除成功且当前合法上下文匹配才移除当前列表对象并更新计数。",
+    "有业务引用/历史、原权无效、资格变化或未知时不假报成功；必要审计和稳定主体追溯保留。",
+    "账号其他租户关联时禁止删除，不将账号删除改成仅移除本租户成员。",
+    "不新增停用、恢复、审批、清账、转交或供应商资源删除能力。",
+    "被新记录、节点、轮次、执行安排或模板关联实际引用的账号/租户继续保留及可追溯；不新增模板删除，也不级联清理上述业务及历史。"
+  ],
+  "acceptance_points": [
+    "AC-2079：原AI账号删除在PAGE-2003沿原删除权承接为准确账号主体删除，独立于本租户成员移除、停用和坐席删除；仅无任务、通话、账务等业务引用且没有其他租户关联时允许删除，有业务历史则禁止删除，必要删除审计及稳定身份追溯保留。复用原确认和反馈，提交前及最终提交时一致校验准确对象、原权和资格；未核实体/原权/一致执行能力时不调用DELETE，明确失败保留可确认状态，结果未知先按已有可靠能力核对、不盲重试，HTTP200或列表查不到不单独算成功，不因超管称谓授予删除权。 本轮“等业务引用”包括新记录、节点、轮次、执行安排及模板关联中的实际引用和历史；不得通过级联清理换取删除，也不新增模板删除。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "具备原账号删除操作权及相应对象范围的人员",
+        "kind": "actor"
+      },
+      {
+        "id": "ui",
+        "name": "公共账号与成员页面",
+        "kind": "system"
+      },
+      {
+        "id": "adapter",
+        "name": "本方身份与删除适配",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "operator",
+        "type": "start",
+        "label": "选择删除账号",
+        "order": 1
+      },
+      {
+        "id": "choose",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "定位原列表准确对象",
+        "order": 2,
+        "step_ref": 1
+      },
+      {
+        "id": "prerequisite",
+        "lane_id": "adapter",
+        "type": "decision",
+        "label": "准确实体与执行前置已落实？",
+        "order": 3,
+        "step_ref": 2
+      },
+      {
+        "id": "unready",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "暂无法办理，不发起删除",
+        "order": 4
+      },
+      {
+        "id": "auth",
+        "lane_id": "adapter",
+        "type": "decision",
+        "label": "原删除权及范围有效？",
+        "order": 5,
+        "step_ref": 3
+      },
+      {
+        "id": "denied",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "拒绝删除，按合法范围反馈",
+        "order": 6
+      },
+      {
+        "id": "refs",
+        "lane_id": "adapter",
+        "type": "decision",
+        "label": "无实际新旧业务引用且原保护满足？",
+        "order": 7,
+        "step_ref": 4
+      },
+      {
+        "id": "referenced",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "新旧业务引用或保护存在，保留主体",
+        "order": 8
+      },
+      {
+        "id": "confirm",
+        "lane_id": "operator",
+        "type": "decision",
+        "label": "确认准确对象及作用范围？",
+        "order": 9,
+        "step_ref": 5
+      },
+      {
+        "id": "cancel",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "取消，不提交删除",
+        "order": 10
+      },
+      {
+        "id": "prepare",
+        "lane_id": "ui",
+        "type": "action",
+        "label": "固定本次对象，防重复提交",
+        "order": 11,
+        "step_ref": 6
+      },
+      {
+        "id": "commitguard",
+        "lane_id": "adapter",
+        "type": "decision",
+        "label": "最终提交一致检查仍满足？",
+        "order": 12,
+        "step_ref": 7
+      },
+      {
+        "id": "invoke",
+        "lane_id": "adapter",
+        "type": "action",
+        "label": "条件核符合后承接原DELETE",
+        "order": 13,
+        "step_ref": 8
+      },
+      {
+        "id": "check",
+        "lane_id": "adapter",
+        "type": "action",
+        "label": "判定实际结果；未知可靠核对",
+        "order": 14,
+        "step_ref": 9
+      },
+      {
+        "id": "result",
+        "lane_id": "adapter",
+        "type": "decision",
+        "label": "准确对象的最终结果？",
+        "order": 15,
+        "step_ref": 9
+      },
+      {
+        "id": "changed",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "对象或资格已变，本次拒绝",
+        "order": 16
+      },
+      {
+        "id": "changed__equivalent_2",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "对象或资格已变，本次拒绝",
+        "order": 17
+      },
+      {
+        "id": "failed",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "明确失败，保留可确认状态",
+        "order": 18
+      },
+      {
+        "id": "unknown",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "结果未确认，不盲目重试",
+        "order": 19
+      },
+      {
+        "id": "current",
+        "lane_id": "ui",
+        "type": "decision",
+        "label": "响应仍属本次合法上下文？",
+        "order": 20,
+        "step_ref": 10
+      },
+      {
+        "id": "stale",
+        "lane_id": "ui",
+        "type": "end",
+        "label": "旧响应不回填当前新页面",
+        "order": 21
+      },
+      {
+        "id": "success",
+        "lane_id": "ui",
+        "type": "action",
+        "label": "确认成功后刷新并保留审计",
+        "order": 22,
+        "step_ref": 10
+      },
+      {
+        "id": "done",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "完成本次账号删除",
+        "order": 23
+      }
+    ],
+    "edges": [
+      {
+        "from": "prerequisite",
+        "to": "unready",
+        "label": "尚未落实",
+        "path_id": "ALT-2023-CONTRACT",
+        "type": "exception"
+      },
+      {
+        "from": "auth",
+        "to": "denied",
+        "label": "无权或范围无效",
+        "path_id": "ALT-2023-AUTH",
+        "type": "exception"
+      },
+      {
+        "from": "refs",
+        "to": "referenced",
+        "label": "存在业务引用/其他租户关联",
+        "path_id": "ALT-2023-REF",
+        "type": "exception"
+      },
+      {
+        "from": "confirm",
+        "to": "cancel",
+        "label": "取消",
+        "path_id": "ALT-2023-CANCEL",
+        "type": "exception"
+      },
+      {
+        "from": "commitguard",
+        "to": "changed",
+        "label": "对象、原权或资格变化",
+        "path_id": "ALT-2023-CHANGE",
+        "type": "exception"
+      },
+      {
+        "from": "result",
+        "to": "changed__equivalent_2",
+        "label": "明确并发拒绝",
+        "path_id": "ALT-2023-CHANGE",
+        "type": "exception"
+      },
+      {
+        "from": "result",
+        "to": "failed",
+        "label": "明确未删除失败",
+        "path_id": "ALT-2023-FAIL",
+        "type": "exception"
+      },
+      {
+        "from": "result",
+        "to": "unknown",
+        "label": "仍无最终证据",
+        "path_id": "ALT-2023-UNKNOWN",
+        "type": "exception"
+      },
+      {
+        "from": "current",
+        "to": "stale",
+        "label": "上下文已变",
+        "path_id": "ALT-2023-STALE",
+        "type": "exception"
+      },
+      {
+        "from": "success",
+        "to": "done"
+      },
+      {
+        "from": "current",
+        "to": "success",
+        "label": "仍匹配本次合法上下文"
+      },
+      {
+        "from": "result",
+        "to": "current",
+        "label": "最终成功且审计留存确认"
+      },
+      {
+        "from": "check",
+        "to": "result"
+      },
+      {
+        "from": "invoke",
+        "to": "check"
+      },
+      {
+        "from": "commitguard",
+        "to": "invoke",
+        "label": "最终一致校验成立"
+      },
+      {
+        "from": "prepare",
+        "to": "commitguard"
+      },
+      {
+        "from": "confirm",
+        "to": "prepare",
+        "label": "确认"
+      },
+      {
+        "from": "refs",
+        "to": "confirm",
+        "label": "无业务引用且原保护满足"
+      },
+      {
+        "from": "auth",
+        "to": "refs",
+        "label": "原权范围有效"
+      },
+      {
+        "from": "prerequisite",
+        "to": "auth",
+        "label": "已核符合"
+      },
+      {
+        "from": "choose",
+        "to": "prerequisite"
+      },
+      {
+        "from": "start",
+        "to": "choose"
+      }
+    ]
+  },
+  "issue_ids": [
+    "ISSUE-2001",
+    "ISSUE-2008",
+    "ISSUE-2011"
+  ],
+  "rule_ids": [
+    "BR-2024",
+    "BR-2054"
+  ],
+  "diagram_review_notes": [
+    "共享后继按原进入分支等价展开；带__equivalent_的节点与原节点表达同一业务检查/结果，不新增操作、状态或执行次数。所有原条件、ALT及step_ref保留。"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

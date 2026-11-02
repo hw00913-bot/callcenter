@@ -1,0 +1,493 @@
+{
+  "schema_version": "1.0",
+  "id": "SEQ-2022",
+  "scenario_id": "SC-2022",
+  "name": "查询品牌关联租户列表时序",
+  "participants": [
+    {
+      "id": "operator",
+      "name": "有品牌查询及租户资料范围权限的管理员",
+      "kind": "actor"
+    },
+    {
+      "id": "ui",
+      "name": "公共品牌列表前端",
+      "kind": "system"
+    },
+    {
+      "id": "data",
+      "name": "当前授权与品牌关联基础资料责任（内部目标）",
+      "kind": "system"
+    }
+  ],
+  "status": "S5_current_design_for_review_not_implementation",
+  "messages": [
+    {
+      "step": 1,
+      "from": "operator",
+      "to": "ui",
+      "message": "在原品牌管理入口选品牌并发起关联租户基础资料查询。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次只读查询请求",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 2,
+      "from": "operator",
+      "to": "ui",
+      "message": "选择后取消查询，不发起读取或归属写入，保原合法位置。",
+      "type": "request",
+      "api_id": null,
+      "condition": "ALT-2022-01｜提交前明确取消。",
+      "source_step_refs": [
+        1
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-01"
+      ]
+    },
+    {
+      "step": 3,
+      "from": "ui",
+      "to": "data",
+      "message": "按当前身份核品牌有效性和租户基础资料可见范围；不强制业务租户、成员、双模块或本人坐席。",
+      "type": "request",
+      "api_id": null,
+      "condition": "进入原管理功能的电话/表单保护已沿SC-2002完成。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 4,
+      "from": "data",
+      "to": "ui",
+      "message": "无查询权/范围或读取中撤权则拒绝/移除失效展示，不泄露旧记录或无权数量。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2022-02｜本次查询前或响应时原权限失效。",
+      "source_step_refs": [
+        2,
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-02"
+      ]
+    },
+    {
+      "step": 5,
+      "from": "data",
+      "to": "ui",
+      "message": "品牌已失效则明确不可查看，不显示旧缓存或伪装为无关联租户。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2022-03｜所选品牌查询前或读取期间失效。",
+      "source_step_refs": [
+        2,
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-03"
+      ]
+    },
+    {
+      "step": 6,
+      "from": "data",
+      "to": "ui",
+      "message": "授权或品牌检查不能完成则提示本次检查未完成，保条件，不把未知当有权/空结果。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2022-07｜本次有效性检查失败或未知。",
+      "source_step_refs": [
+        2
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-07"
+      ]
+    },
+    {
+      "step": 7,
+      "from": "data",
+      "to": "data",
+      "message": "仅查询所选品牌关联租户与当前有权资料范围的交集；不取无权数量或业务/任务/报表数据。",
+      "type": "request",
+      "api_id": null,
+      "condition": "条件目标｜品牌与当前资料范围已可靠确认；本方内部查询责任。",
+      "source_step_refs": [
+        3
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 8,
+      "from": "data",
+      "to": "ui",
+      "message": "基础资料读取失败则保查询条件并明确失败，不用缓存或空列表替代成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2022-04｜本次实际读取失败。",
+      "source_step_refs": [
+        3,
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-04"
+      ]
+    },
+    {
+      "step": 9,
+      "from": "operator",
+      "to": "ui",
+      "message": "读取中切品牌、取消查询或会话失效，结束旧查询的展示资格。",
+      "type": "event",
+      "api_id": null,
+      "condition": "ALT-2022-08｜本次尚未完成时上下文变化。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-08"
+      ]
+    },
+    {
+      "step": 10,
+      "from": "ui",
+      "to": "data",
+      "message": "标明旧查询不再回填；切品牌由新选择另次查询，失效会话沿原规则处理。",
+      "type": "event",
+      "api_id": null,
+      "condition": "ALT-2022-08｜原查询已取消/切品牌/会话失效。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-08"
+      ]
+    },
+    {
+      "step": 11,
+      "from": "data",
+      "to": "data",
+      "message": "响应前复核当前品牌、会话、查询与授权仍匹配，查询时已核不代响应时有效。",
+      "type": "request",
+      "api_id": null,
+      "condition": "取得本次读取结果时再次核对。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 12,
+      "from": "data",
+      "to": "ui",
+      "message": "旧查询结果不回填当前页面，不以旧缓存作成功；保准确结果事实及当前合法位置。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2022-08｜响应已不属于当前有效查询。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-08"
+      ]
+    },
+    {
+      "step": 13,
+      "from": "data",
+      "to": "ui",
+      "message": "响应时失权/品牌失效/有效性未知分别结束本次展示并保可辨原因，不显示无权基础资料。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2022-02、ALT-2022-03、ALT-2022-07｜响应时授权撤销、品牌失效或检查无法完成。",
+      "source_step_refs": [
+        4
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-02",
+        "ALT-2022-03",
+        "ALT-2022-07"
+      ]
+    },
+    {
+      "step": 14,
+      "from": "data",
+      "to": "ui",
+      "message": "有效授权交集确为空时显示“当前条件下无可查看的关联租户”，不推断该品牌总数或存在无权记录。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2022-05｜条件目标｜读取成功且当前品牌/查询/权限仍有效、授权交集为空。",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-05"
+      ]
+    },
+    {
+      "step": 15,
+      "from": "data",
+      "to": "ui",
+      "message": "仅返回本次有效授权交集内租户基础资料，按原字段范围只读。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜读取明确成功且响应时上下文/权限仍有效、有可见记录。",
+      "source_step_refs": [
+        4,
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 16,
+      "from": "ui",
+      "to": "operator",
+      "message": "展示本次有效结果或有权范围空态；列表不改归属，不切业务租户，不授业务/财务/监管权限。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜已接纳本次有效查询结果。",
+      "source_step_refs": [
+        5
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 17,
+      "from": "operator",
+      "to": "ui",
+      "message": "仅从本次可见记录选择前往既有归属维护，或停留只读列表；空列表无维护目标。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次人员另行选择已有维护入口时。",
+      "source_step_refs": [
+        6
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 18,
+      "from": "ui",
+      "to": "data",
+      "message": "重新核目标租户及SC-2004原独立归属维护权限；查询权不代修改权。",
+      "type": "request",
+      "api_id": null,
+      "condition": "本次请求前往维护。",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 19,
+      "from": "data",
+      "to": "ui",
+      "message": "目标或原维护权限无效则拒绝跳转并保查询条件；查询权也失效时移除失效展示。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2022-06｜当前目标/维护权不满足。",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-06"
+      ]
+    },
+    {
+      "step": 20,
+      "from": "data",
+      "to": "ui",
+      "message": "本次维护资格检查无法完成则保只读列表/条件，不导航或当检查成功。",
+      "type": "response",
+      "api_id": null,
+      "condition": "ALT-2022-07｜原权限或目标检查结果未知。",
+      "source_step_refs": [
+        7
+      ],
+      "covered_alternate_flow_ids": [
+        "ALT-2022-07"
+      ]
+    },
+    {
+      "step": 21,
+      "from": "data",
+      "to": "ui",
+      "message": "仅本次原维护权与准确目标可靠可用时给出既有维护入口；不保存任何归属变化。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜独立维护资格及目标已可靠核验。",
+      "source_step_refs": [
+        7,
+        8
+      ],
+      "covered_alternate_flow_ids": []
+    },
+    {
+      "step": 22,
+      "from": "ui",
+      "to": "operator",
+      "message": "导航同一SC-2004原维护流程并仅带已授权对象；实际变更由其再次控制，不新增维护库。",
+      "type": "response",
+      "api_id": null,
+      "condition": "条件目标｜本次有权跳转已确认；否则停留列表。",
+      "source_step_refs": [
+        8
+      ],
+      "covered_alternate_flow_ids": []
+    }
+  ],
+  "source_story_ids": [
+    "US-2028"
+  ],
+  "source_acceptance_ids": [
+    "AC-2074",
+    "AC-2075",
+    "AC-2076",
+    "AC-2077"
+  ],
+  "source_business_rule_ids": [
+    "BR-2022",
+    "BR-2012",
+    "BR-2052"
+  ],
+  "source_refs": [
+    "scenarios/SC-2022.json",
+    "inputs/source-index.json#SRC-2043",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094",
+    "inputs/source-index.json#SRC-2095",
+    "inputs/source-index.json#SRC-2096"
+  ],
+  "source_step_refs": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "covered_alternate_flow_ids": [
+    "ALT-2022-01",
+    "ALT-2022-02",
+    "ALT-2022-03",
+    "ALT-2022-04",
+    "ALT-2022-05",
+    "ALT-2022-06",
+    "ALT-2022-07",
+    "ALT-2022-08"
+  ],
+  "main_flow_coverage": {
+    "1": [
+      1,
+      2
+    ],
+    "2": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "3": [
+      7,
+      8
+    ],
+    "4": [
+      4,
+      5,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "5": [
+      14,
+      15,
+      16
+    ],
+    "6": [
+      17
+    ],
+    "7": [
+      18,
+      19,
+      20,
+      21
+    ],
+    "8": [
+      21,
+      22
+    ]
+  },
+  "alternate_flow_coverage": {
+    "ALT-2022-01": [
+      2
+    ],
+    "ALT-2022-02": [
+      4,
+      13
+    ],
+    "ALT-2022-03": [
+      5,
+      13
+    ],
+    "ALT-2022-04": [
+      8
+    ],
+    "ALT-2022-05": [
+      14
+    ],
+    "ALT-2022-06": [
+      19
+    ],
+    "ALT-2022-07": [
+      6,
+      13,
+      20
+    ],
+    "ALT-2022-08": [
+      9,
+      10,
+      12
+    ]
+  },
+  "source_scenario_sha256": "1243b7e1976d47473d8a261b884e9c5f5719977776d9c252dba648e72c4a99e9",
+  "interface_evidence_statuses": {},
+  "source_interface_fact_sha256": {},
+  "production_verified": false,
+  "execution_status": "not_executed_design_only",
+  "v2_gate_status": "G1_G2_analysis_approved_G3_pending",
+  "notes": [
+    "本文件消费当前SC/AC/BR及已批准G2接口事实，仅时序分析，不证明生产、原型或真实调用已完成。partial/missing能力保当前受阻/未知；标为条件目标的调用和成功仅在真实契约、稳定身份/对象映射、当次权限与实际结果均已落实时成立。未满足不执行后续成功分支。",
+    "消息按条件表达互斥主线/备选责任，不表示一次运行依次执行所有消息。source_step_refs为当前SC main_flow.step整数，covered_alternate_flow_ids为该消息明确覆盖的ALT稳定ID；顶层映射可逐项复核。",
+    "保AI生产身份和真实原多租户/模块/操作范围，六入口只组织展示；品牌配置/监管/独立AI财务或供应商资源资格不代业务执行权，也不统一要求业务租户成员、本人坐席或双模块。",
+    "not_required本方能力和普通内部责任消息api_id=null：位置记忆/表单提示由API-2014对应本方责任承接；公共品牌/租户基础查询由API-2003对应责任承接，API-2017只是其来源投影，不新增维护库。未直接调用的这些族不写成外部消息。",
+    "只引用所用API已登记能力族，不造URL、字段、权限码、主动撤销协议、幂等键、引用查询接口或超时重试次数。原普通表单/话后责任只作当前SC要求的复用，不用未知服务成功代证；必要话后与拒联一致结果沿原SC-2013/2018另有权责任。",
+    "本版AI标签configuration_only沿SRC-2096；仅原配置/映射/结果展示，不新增AI标签写业务字段及由此新增自动流转，不影响既有人工保存/条件与其他原流转，不作未来永久禁令。"
+  ],
+  "revision_history": [
+    {
+      "at": "2026-10-24",
+      "reason": "当前G2后S5，按当前SC压缩并补齐主线/全部ALT与条件目标，不改接口事实。",
+      "previous_detail_sha256": "c02fd46a1127a41ddd6f786da6847a822ccd812fa90973a3958040032089ed4e",
+      "previous_message_count": 27,
+      "stable_participant_ids_retained": [
+        "operator",
+        "ui",
+        "data"
+      ]
+    }
+  ],
+  "approved_G2_interface_fingerprint": "e7b3fb24a92a4b0126df07404ac38aac5caf9de951748709b44a31881ad595cd"
+}

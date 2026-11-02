@@ -1,0 +1,672 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2019",
+  "name": "在整合入口管理原云呼叫预外呼任务",
+  "summary": "原任务、导入、结果、重呼及补提交功能可用",
+  "actors": [
+    "有相应预外呼权限的人员",
+    "云呼叫预外呼模块",
+    "AliCti预外呼服务"
+  ],
+  "trigger": "运营执行批量预外呼",
+  "preconditions": [
+    "当前实际业务租户、所选呼叫方式权限及该方式专业执行资源合法；不要求同时开通或拥有另一模块权限。原方式的查询、配置及实际执行按各自操作资格区分。",
+    "六入口按功能职责承接原专业页面、任务、表单和资源；只重组入口并复用现有操作，实际方式权限、供应商规则、电话现场及原联系限制不随中心名称改变，不新增业务动作或自动执行。"
+  ],
+  "expected_outcome": "原任务、导入、结果、重呼及补提交功能可用",
+  "exception_scope": "原来源/坐席组/额度保留，接入公共禁呼",
+  "source_story_ids": [
+    "US-2025"
+  ],
+  "source_acceptance_ids": [
+    "AC-2068",
+    "AC-2069"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2008",
+    "inputs/source-index.json#SRC-2009",
+    "inputs/source-index.json#SRC-2011",
+    "inputs/source-index.json#SRC-2025",
+    "inputs/source-index.json#SRC-2035",
+    "inputs/source-index.json#SRC-2038",
+    "inputs/source-index.json#SRC-2040",
+    "inputs/source-index.json#SRC-2041",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "SRC-2086已确认本轮37场景范围；本文件仅为S3业务流程草案，未冻结、不证明生产能力已实现。每次发起一个已有业务操作，失败或取消可结束本次操作、保留原状态后重新发起；异步执行未确认不得据此终止真实在途任务。 承接最终v1.1.0预外呼范围；当前原型中的已演示重呼/异常补提交、失败下载与实际供应商规则仍须在ISSUE-2008按最终基线对账，不以此稿批准其生产契约。任务所用坐席/外呼组不同于呼入队列；人工与IVR不继承预测主子批或失败额度。已接收未拨禁呼待ISSUE-2005；供应商真实回执待ISSUE-2006。原来源接口及后台执行为既有子流程，未增加DCC完整业务。 技术资料缺证仅记录在本文件notes及既有ISSUE，不新增名为待核的产品状态；运行时按原实际成功/失败/未知结果表达。共享后继采用同义分支节点展开以保持原条件和步骤，不增加业务操作。 六入口仅重组入口，原任务页面/向导/详情/名单交互沿用；云呼叫原页面间含云报表保留原电话现场/检查，进入AI原功能或原公共管理功能或换租户前本人收尾离线沿SC-2002，后台任务不因区域导航自动停止。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 新模板引用已有处理方式时，必须先满足当前记录、节点、负责租户及本次动作资格，再沿本场景和SC-2015原专业规则办理；分配、条件命中、人工确认节点或切备用不自动启动电话，不改变当前负责租户，不绕过串行执行与公共禁呼。原独立任务/通话仍保留原处理，不强制迁为模板记录。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "有相应预外呼权限的人员",
+      "action": "选择当前租户既有任务的一次执行操作，或由该任务原规则触发一次尝试。",
+      "system_response": "新建/编辑、名单导入、执行控制、查询/下载分别是独立操作分支。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "云呼叫预外呼模块",
+      "action": "校验当前任务、来源锁定、授权及原任务坐席/外呼组资源。",
+      "system_response": "沿最终v1.1.0的准确供应商任务映射和归属，不用队列编号代替坐席/外呼组，不复用AI任务。 人员交互校验当前操作者；已受理租户任务不因创建人员停用自动停止，执行仍须满足本租户及原任务资源条件。 新模板安排另须对应可核对的当前记录、节点及负责租户，不按同手机号或最近任务猜配；分配安排不等于已启动。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "云呼叫预外呼模块",
+      "action": "对本次初呼、正常重呼或异常补提交引用SC-2015。",
+      "system_response": "公共禁呼命中不得以restrict tel补提交规则绕过；原失败分类及累计额度继续独立。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "AliCti预外呼服务",
+      "action": "处理经校验的本次预测任务尝试。",
+      "system_response": "按原配置分配接听坐席；本地提交不等于全部逐条受理或已完成呼叫。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "云呼叫预外呼模块",
+      "action": "关联本次准确任务、客户、批次与实际供应商结果。",
+      "system_response": "本地保存、供应商导入和实际呼叫分开；保留本次原来源、原业务类型和结果依据。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "云呼叫预外呼模块",
+      "action": "按原结果决定本次完成或后续原规则尝试。",
+      "system_response": "正常任务重呼和异常补提交分别处理；后续每次尝试重新进入SC-2015，不因换工作区停止后台任务。",
+      "rule_ids": []
+    },
+    {
+      "step": 7,
+      "actor": "有相应预外呼权限的人员",
+      "action": "从原任务记录入口查看本次结果。",
+      "system_response": "结果查询、失败下载按各自原权限和成功条件办理，不把本次查看变成新增提交。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2019-CONFIG",
+      "condition": "本次选择新建/编辑任务",
+      "steps": [
+        "按原向导保存任务配置，保留来源选择/锁定和实际供应商任务映射。",
+        "接听资源仍用任务所选坐席或外呼组；配置成功不自动证明电话执行成功。"
+      ]
+    },
+    {
+      "id": "ALT-2019-IMPORT",
+      "condition": "本次选择原任务客户导入",
+      "steps": [
+        "沿原手工或接口来源导入；保留单号批次、priority与原业务类型等最终规则。",
+        "本地校验/保存与供应商导入分别显示，部分失败或未知不归为全部成功；可供后续原失败下载。"
+      ]
+    },
+    {
+      "id": "ALT-2019-CONTROL",
+      "condition": "本次选择暂停/结束等原控制",
+      "steps": [
+        "按原状态和权限提交控制，准确展示回执；已发起通话按原规则继续，不由工作区切换代替任务控制。"
+      ]
+    },
+    {
+      "id": "ALT-2019-QUERY",
+      "condition": "本次选择任务/结果查询或下载",
+      "steps": [
+        "读取当前租户准确任务记录；列表、详情、导出和失败下载分别沿已有操作。",
+        "失败下载只沿最终v1.1.0的可信下载及对应清理规则，不以点击按钮当下载成功。"
+      ]
+    },
+    {
+      "id": "ALT-2019-CANCEL",
+      "condition": "本次提交前取消",
+      "steps": [
+        "保留或放弃本次未提交草稿，既有任务与后台执行不被自动终止。"
+      ]
+    },
+    {
+      "id": "ALT-2019-AUTH",
+      "condition": "任务/授权/资源/准确映射不满足原要求",
+      "steps": [
+        "不发起本次尝试；明确缺项，保留已存在任务。"
+      ]
+    },
+    {
+      "id": "ALT-2019-BLOCK",
+      "condition": "公共禁呼命中或本次检查失败/未知",
+      "steps": [
+        "引用SC-2015；命中时拦截，检查失败或未知时停止本次新增提交；已提交远端未拨的处理能力仍逐供应商核验。"
+      ]
+    },
+    {
+      "id": "ALT-2019-UNKNOWN",
+      "condition": "供应商受理/执行/逐条结果未知或关联不唯一",
+      "steps": [
+        "保留真实响应及实际失败/未知结果，不按最近同号猜配，也不自动重复提交。"
+      ]
+    },
+    {
+      "id": "ALT-2019-RETRY",
+      "condition": "原最终规则决定可重呼或异常补提交",
+      "steps": [
+        "区分正常重呼与异常补提交，保留原来源、触发批次和共享额度。",
+        "生成或保留原计划后结束本次处理，下一次独立尝试重新执行授权、资源和SC-2015检查。"
+      ]
+    },
+    {
+      "id": "ALT-2019-OP-FAIL",
+      "condition": "配置/导入/控制/查询或下载本次失败",
+      "steps": [
+        "沿该原操作的错误、部分成功与未知语义保留输入/证据；不把错误变成新任务或额外次数。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "任务配置、名单导入、任务执行/控制、结果查询和下载分别形成原有结果，不合成一个新增通用任务。",
+    "本次与后续尝试保留原业务来源、任务/批次关系和原失败额度；每次外呼受SC-2015约束。",
+    "本地/供应商状态及未知结果保持可分辨，切换工作区不等于暂停或结束任务。",
+    "人员停用前系统已受理的本租户任务仍在原任务条件满足时继续；停用者不能再操作，其他已有权人员可按原权限管理，不自动转交。业务政策已确认，已受理边界/执行主体与资源条件仍按真实契约核验。"
+  ],
+  "acceptance_points": [
+    "AC-2068：承接v1.1.0最终范围的预外呼任务、导入、任务所用坐席／外呼组及其他资源、正常重呼、异常补提交及结果查询/下载，原执行规则保留。",
+    "AC-2069：公共禁呼检查接入不改变原供应商失败分类及额度，不将预外呼策略套用于人工或IVR。"
+  ],
+  "scope_status": "confirmed_G1",
+  "design_status": "S3_flow_draft",
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "operator",
+        "name": "有相应预外呼权限的人员",
+        "kind": "actor"
+      },
+      {
+        "id": "cloud",
+        "name": "云呼叫预外呼模块",
+        "kind": "system"
+      },
+      {
+        "id": "provider",
+        "name": "AliCti预外呼服务",
+        "kind": "external_system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "operator",
+        "type": "start",
+        "label": "发起一次原任务操作/尝试",
+        "order": 1
+      },
+      {
+        "id": "choose",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "选择任务及本次操作",
+        "step_ref": 1,
+        "order": 2
+      },
+      {
+        "id": "kind",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "本次操作类型？",
+        "order": 3
+      },
+      {
+        "id": "config",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "沿原向导填写任务配置",
+        "order": 5
+      },
+      {
+        "id": "configsave",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "本次任务配置保存成功？",
+        "order": 12
+      },
+      {
+        "id": "configend",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "任务配置结果已保存",
+        "order": 18
+      },
+      {
+        "id": "import",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "沿锁定来源提交客户",
+        "order": 6
+      },
+      {
+        "id": "importprovider",
+        "lane_id": "provider",
+        "type": "action",
+        "label": "按原导入方式处理准确任务名单",
+        "order": 20
+      },
+      {
+        "id": "importresult",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "导入结果是否可准确表达？",
+        "order": 26
+      },
+      {
+        "id": "importend",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "显示本地/供应商分层结果",
+        "order": 31
+      },
+      {
+        "id": "control",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "发起原暂停/结束控制",
+        "order": 7
+      },
+      {
+        "id": "controlprovider",
+        "lane_id": "provider",
+        "type": "action",
+        "label": "处理原任务控制请求",
+        "order": 14
+      },
+      {
+        "id": "controlresult",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "控制结果是否明确？",
+        "order": 22
+      },
+      {
+        "id": "controlend",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "显示实际控制结果",
+        "order": 27
+      },
+      {
+        "id": "query",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "选择原列表/详情/下载操作",
+        "order": 8
+      },
+      {
+        "id": "queryresult",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "本次查询/下载是否成功？",
+        "order": 15
+      },
+      {
+        "id": "queryend",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "按原规则显示或完成下载",
+        "order": 23
+      },
+      {
+        "id": "opfail",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "本次失败/未知；保留证据与原状态",
+        "order": 19
+      },
+      {
+        "id": "cancel",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "本次取消，后台任务沿原规则",
+        "order": 9
+      },
+      {
+        "id": "check",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "任务归属、授权与原资源有效？",
+        "step_ref": 2,
+        "order": 4
+      },
+      {
+        "id": "deny",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "不执行本次，说明缺项",
+        "order": 11
+      },
+      {
+        "id": "guard",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "SC-2015允许本次外呼？",
+        "step_ref": 3,
+        "order": 10
+      },
+      {
+        "id": "block",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "命中拦截；失败/未知不新增提交",
+        "order": 17
+      },
+      {
+        "id": "execute",
+        "lane_id": "provider",
+        "type": "action",
+        "label": "处理本次预外呼尝试",
+        "step_ref": 4,
+        "order": 16
+      },
+      {
+        "id": "result",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "准确取得本次结果？",
+        "step_ref": 5,
+        "order": 25
+      },
+      {
+        "id": "unknown",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "保留实际失败/未知，不重复提交",
+        "order": 30
+      },
+      {
+        "id": "retry",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "原规则是否形成后续尝试？",
+        "step_ref": 6,
+        "order": 29
+      },
+      {
+        "id": "plan",
+        "lane_id": "cloud",
+        "type": "action",
+        "label": "保留原重呼/补提交计划与额度",
+        "order": 33
+      },
+      {
+        "id": "planend",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "下次独立尝试重新检查禁呼",
+        "order": 35
+      },
+      {
+        "id": "view",
+        "lane_id": "operator",
+        "type": "action",
+        "label": "查看原任务结果",
+        "step_ref": 7,
+        "order": 34
+      },
+      {
+        "id": "end",
+        "lane_id": "operator",
+        "type": "end",
+        "label": "本次任务处理结果可见",
+        "order": 36
+      },
+      {
+        "id": "importcheck",
+        "lane_id": "cloud",
+        "type": "decision",
+        "label": "原来源/名单/任务校验及本地保存通过？",
+        "order": 13
+      },
+      {
+        "id": "opfail__branch1_1",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "本次失败/未知；保留证据与原状态",
+        "order": 32
+      },
+      {
+        "id": "opfail__branch1_2",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "本次失败/未知；保留证据与原状态",
+        "order": 28
+      },
+      {
+        "id": "opfail__branch1_3",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "本次失败/未知；保留证据与原状态",
+        "order": 24
+      },
+      {
+        "id": "opfail__branch1_4",
+        "lane_id": "cloud",
+        "type": "end",
+        "label": "本次失败/未知；保留证据与原状态",
+        "order": 21
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "choose"
+      },
+      {
+        "from": "choose",
+        "to": "kind"
+      },
+      {
+        "from": "kind",
+        "to": "check",
+        "label": "执行一次初呼/原规则重试"
+      },
+      {
+        "from": "kind",
+        "to": "config",
+        "label": "新建/编辑配置",
+        "path_id": "ALT-2019-CONFIG"
+      },
+      {
+        "from": "kind",
+        "to": "import",
+        "label": "名单导入",
+        "path_id": "ALT-2019-IMPORT"
+      },
+      {
+        "from": "kind",
+        "to": "control",
+        "label": "暂停/结束等原控制",
+        "path_id": "ALT-2019-CONTROL"
+      },
+      {
+        "from": "kind",
+        "to": "query",
+        "label": "查询/下载",
+        "path_id": "ALT-2019-QUERY"
+      },
+      {
+        "from": "kind",
+        "to": "cancel",
+        "label": "提交前取消",
+        "path_id": "ALT-2019-CANCEL"
+      },
+      {
+        "from": "config",
+        "to": "configsave"
+      },
+      {
+        "from": "configsave",
+        "to": "configend",
+        "label": "成功"
+      },
+      {
+        "from": "configsave",
+        "to": "opfail",
+        "label": "失败/未知",
+        "path_id": "ALT-2019-OP-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "importprovider",
+        "to": "importresult"
+      },
+      {
+        "from": "importresult",
+        "to": "importend",
+        "label": "准确（包括部分失败）"
+      },
+      {
+        "from": "importresult",
+        "to": "opfail__branch1_1",
+        "label": "未知/无法准确关联",
+        "path_id": "ALT-2019-OP-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "control",
+        "to": "controlprovider"
+      },
+      {
+        "from": "controlprovider",
+        "to": "controlresult"
+      },
+      {
+        "from": "controlresult",
+        "to": "controlend",
+        "label": "明确"
+      },
+      {
+        "from": "controlresult",
+        "to": "opfail__branch1_2",
+        "label": "失败/未知",
+        "path_id": "ALT-2019-OP-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "query",
+        "to": "queryresult"
+      },
+      {
+        "from": "queryresult",
+        "to": "queryend",
+        "label": "成功"
+      },
+      {
+        "from": "queryresult",
+        "to": "opfail__branch1_3",
+        "label": "失败/未知",
+        "path_id": "ALT-2019-OP-FAIL",
+        "type": "failure"
+      },
+      {
+        "from": "check",
+        "to": "guard",
+        "label": "有效"
+      },
+      {
+        "from": "check",
+        "to": "deny",
+        "label": "无效或结果未知",
+        "path_id": "ALT-2019-AUTH",
+        "type": "failure"
+      },
+      {
+        "from": "guard",
+        "to": "execute",
+        "label": "允许"
+      },
+      {
+        "from": "guard",
+        "to": "block",
+        "label": "命中或检查失败/未知",
+        "path_id": "ALT-2019-BLOCK",
+        "type": "failure"
+      },
+      {
+        "from": "execute",
+        "to": "result"
+      },
+      {
+        "from": "result",
+        "to": "retry",
+        "label": "结果准确"
+      },
+      {
+        "from": "result",
+        "to": "unknown",
+        "label": "未知/关联不唯一",
+        "path_id": "ALT-2019-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "retry",
+        "to": "plan",
+        "label": "按原规则形成后续尝试",
+        "path_id": "ALT-2019-RETRY"
+      },
+      {
+        "from": "retry",
+        "to": "view",
+        "label": "本次不形成后续尝试"
+      },
+      {
+        "from": "plan",
+        "to": "planend"
+      },
+      {
+        "from": "view",
+        "to": "end"
+      },
+      {
+        "from": "import",
+        "to": "importcheck"
+      },
+      {
+        "from": "importcheck",
+        "to": "importprovider",
+        "label": "通过"
+      },
+      {
+        "from": "importcheck",
+        "to": "opfail__branch1_4",
+        "label": "未通过",
+        "path_id": "ALT-2019-OP-FAIL",
+        "type": "failure"
+      }
+    ]
+  },
+  "rule_ids": [
+    "BR-2018",
+    "BR-2020",
+    "BR-2021",
+    "BR-2049"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

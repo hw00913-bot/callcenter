@@ -1,0 +1,83 @@
+{
+  "schema": "reaudit-correct-behavior@1",
+  "at": "2026-11-01T02:28:08.910Z",
+  "scope": "actual current cloud bundle with synthetic VM storage; correct behavior expectations, not production integration",
+  "passed": 0,
+  "failed": 3,
+  "infrastructureErrors": 0,
+  "tests": [
+    {
+      "id": "AUD-01",
+      "name": "当前允许的废弃重开链不能在必要本人后来补齐后仍永久无法完成DIRECT",
+      "status": "fail",
+      "failureType": "correct-behavior-expectation",
+      "message": "old controlled terminal state plus original-person content must not leave the current completed DIRECT cycle irrecoverable\n+ actual - expected\n\n+ 'failed'\n- 'success'\n",
+      "observation": {
+        "old": {
+          "abandoned": true,
+          "contentSaved": true,
+          "archived": false,
+          "archiveState": "ABANDONED"
+        },
+        "currentMode": "DIRECT",
+        "completion": {
+          "status": "failed",
+          "code": "DIRECT_UNFINISHED"
+        },
+        "enableFlowAfterOriginalContentSaved": {
+          "status": "failed",
+          "code": "DIRECT_UNFINISHED"
+        }
+      }
+    },
+    {
+      "id": "AUD-02",
+      "name": "分类未允许DIRECT时，历史END人工来源不应授权新的AI或预外呼周期",
+      "status": "fail",
+      "failureType": "correct-behavior-expectation",
+      "message": "new cycles must recheck the current category allowDirectFollowup; both methods were accepted instead",
+      "observation": {
+        "methods": [
+          {
+            "method": "AI",
+            "categoryAllows": false,
+            "status": "success",
+            "originCycle": "DIRECT-CYCLE-837c309e-5bff-49d3-9d34-43c1f8d6d3d6",
+            "currentCycle": "DIRECT-CYCLE-8a183c1f-3a6a-4843-95b3-9b8af3f47593"
+          },
+          {
+            "method": "PREDICTIVE",
+            "categoryAllows": false,
+            "status": "success",
+            "originCycle": "DIRECT-CYCLE-db780ead-c296-4353-8aee-ced3f8346cd4",
+            "currentCycle": "DIRECT-CYCLE-d7bb07de-2634-4dc6-8e3f-8ee0a2a505a0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "AUD-03",
+      "name": "ABANDONING仍应准确记录原已受理排队attempt的真实拨打回执",
+      "status": "fail",
+      "failureType": "correct-behavior-expectation",
+      "message": "a stopping request is not proof that this already accepted attempt never dialed\n\nfalse !== true\n",
+      "observation": {
+        "runStatus": "ABANDONING",
+        "call": {
+          "attemptId": "QUEUED",
+          "callId": "",
+          "runId": "RUN-128d8ab8-3b92-4a3a-b0cb-de123dffe4db",
+          "followupId": "FOLLOWUP-459b0775-7d8c-46e4-a7ac-b60548fd9ab9",
+          "tenantId": "TEN-HQ",
+          "phone": "13800000001",
+          "startedAt": "2026-11-01T02:28:08.906Z",
+          "dialed": false,
+          "state": "QUEUED",
+          "simulation": true
+        },
+        "dials": 0,
+        "factConflict": true
+      }
+    }
+  ]
+}

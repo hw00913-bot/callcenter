@@ -1,0 +1,454 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2008",
+  "name": "停用本租户人员访问",
+  "summary": "本租户新操作立即停用，当前通话有限收尾，其他租户授权保留",
+  "actors": [
+    "有相应权限的租户管理员",
+    "公共账号与本租户成员管理",
+    "本租户AI／云呼叫访问控制"
+  ],
+  "trigger": "租户管理员停用人员",
+  "preconditions": [
+    "操作人具有本租户人员停用权限，目标为已核实的本租户成员。",
+    "入口由系统管理承接原账号、成员、租户或品牌的相应功能，仍沿原对象权限、管理范围和稳定PAGE；该原管理功能的切离保护、同窗口返回及同次登录记忆继续按SC-2002，不因入口归位新增管理权。"
+  ],
+  "expected_outcome": "本租户AI／云呼叫新增操作立即禁止；已接通的当前通话及必要话后仅有限收尾，完成后结束该范围使用；停用前系统已受理的AI／预外呼／IVR作为租户任务在原条件满足时继续，停用者不能操作，其他已有权人员仍按原权限管理，不自动转交。其他租户已有授权不受影响。",
+  "exception_scope": "越权或跨租户停用、状态保存失败、访问限制或有限收尾边界未确认；具体会话、电话及任务契约待核，历史保留",
+  "source_story_ids": [
+    "US-2010"
+  ],
+  "source_acceptance_ids": [
+    "AC-2027",
+    "AC-2028",
+    "AC-2029"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2002",
+    "inputs/source-index.json#SRC-2007",
+    "inputs/source-index.json#SRC-2024",
+    "inputs/source-index.json#SRC-2025",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "scope": "in_scope",
+  "status": "proposed_flow",
+  "notes": "G1确认范围，S3流程候选；SRC-2024／SRC-2025仅确认本次停用的通话收尾和已受理任务政策，不是G2整批批准。本租户停用范围与操作角色不变；新操作立即禁止，仅已接通的当前通话及必要话后有限收尾后结束该范围。图中收尾节点表示访问控制建立受限收尾边界，不表示新增电话执行角色或等待通话结束；管理员停用操作不强制阻塞到通话结束。停用前系统已受理任务作为租户任务沿原条件继续，停用者无操作权，其他已有权人员按原权限管理，不自动转交。生产会话失效点、已接通识别、有限收尾权限及结束、任务受理边界、原任务执行条件与失败恢复仍需ISSUE-2001／2002核验；不虚构未接通呼叫取消能力，不将接口候选当作协议已支持，不创建“待核影响”的产品状态或操作。本流程不新增重新启用、删除或移除成员能力。 本轮SRC-2086仅确认37场景及三项整合修订；当前为S3流程草案，不表示G2/G3批准、生产实现或原型修改。 模板节点待确认、备用切换和租户转交属于新的业务操作，停用人员不能借已受理后台任务继续操作；已有执行按原条件继续不等于自动确认节点、启动后继或转交。当前通话有限收尾仍只限既有已接通通话及必要话后。 绘图等价修正仅将共享收束检查/终态按互斥来路分别展开，同义节点表示同一业务结果，不新增检查要求、操作、状态或重复执行；原取消、失败、未知路径及ALT/step引用完整保留。",
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "有相应权限的租户管理员",
+      "action": "从系统管理的原有权入口选择人员并发起本租户停用",
+      "system_response": "公共账号入口定位本租户成员关系，不选择全局账号停用。",
+      "rule_ids": []
+    },
+    {
+      "step": 2,
+      "actor": "公共账号与本租户成员管理",
+      "action": "核验操作人和目标范围",
+      "system_response": "只允许有权管理员停用本租户人员，不改其他租户关系。",
+      "rule_ids": []
+    },
+    {
+      "step": 3,
+      "actor": "公共账号与本租户成员管理",
+      "action": "说明停用影响范围",
+      "system_response": "说明本租户AI／云呼叫新增操作立即停用；仅已接通的当前通话及必要话后允许有限收尾，随后结束该范围。历史任务、通话和操作记录保留。停用前系统已受理的AI／预外呼／IVR作为租户任务在原条件满足时继续，停用者不能操作，其他已有权人员按原权限管理，不自动转交。其他租户已有授权不受影响。",
+      "rule_ids": []
+    },
+    {
+      "step": 4,
+      "actor": "公共账号与本租户成员管理",
+      "action": "保存本租户停用状态",
+      "system_response": "结果明确标为本租户停用，不能显示整个账号已停用。",
+      "rule_ids": []
+    },
+    {
+      "step": 5,
+      "actor": "本租户AI／云呼叫访问控制",
+      "action": "立即限制本租户新增操作并建立有限收尾边界",
+      "system_response": "根据已保存停用状态，立即禁止本租户AI／云呼叫新增操作；若该范围已有已接通的当前通话，仅保留本次通话及必要话后保存所需的收尾访问，完成后结束该范围使用；若无已接通的当前通话，不保留收尾访问。有限收尾不恢复一般访问，既有已受理租户后台任务在原条件满足时继续；停用者无操作权，其他已有权人员仍按原权限管理，不自动转交。核对访问控制实际结果；仅隐藏菜单不表示成功，也不据此推定已取消未接通呼叫或电话平台已支持。",
+      "rule_ids": []
+    },
+    {
+      "step": 6,
+      "actor": "公共账号与本租户成员管理",
+      "action": "反馈停用状态及实际执行结果",
+      "system_response": "分别反馈已保存停用状态、新操作访问限制及当前通话有限收尾策略的可确认结果；管理员无需等待当前通话或后台任务完成。已接通通话随后按受限规则完成本次通话及必要话后，再结束该范围使用；无已接通通话则结束该范围使用。执行失败或结果未知时如实反馈，不宣称全部成功；已受理租户任务只在原条件满足时继续，其他已有权人员管理不等于自动转交。",
+      "rule_ids": []
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2008-01",
+      "condition": "操作越权或目标不属本租户",
+      "steps": [
+        "拒绝本次停用，不改任何全局或其他租户状态。"
+      ]
+    },
+    {
+      "id": "ALT-2008-02",
+      "condition": "停用状态保存失败",
+      "steps": [
+        "本次停用未完成，保留原已知状态并反馈；重新发起另算一次操作。"
+      ]
+    },
+    {
+      "id": "ALT-2008-03",
+      "condition": "停用状态已保存，但新操作限制、已接通状态或有限收尾访问边界未确认或失败",
+      "steps": [
+        "保留已保存停用事实，如实反馈新操作限制或有限收尾边界失败、结果未知；不据此自动恢复账号或成员。",
+        "不以隐藏菜单宣称会话失效，不将未知通话状态当作没有已接通通话，不假定已取消未接通呼叫；具体核对与失败恢复沿实际契约。",
+        "管理员结果反馈不强制等待通话结束；未确认的执行结果不能显示为全部成功，也不自动终止或转交已受理后台任务。"
+      ]
+    },
+    {
+      "id": "ALT-2008-04",
+      "condition": "停用范围内已有已接通的当前通话",
+      "steps": [
+        "立即禁止该范围新增操作，仅保留当前已接通通话及必要话后保存所需的有限收尾访问，不扩大为一般业务权限。",
+        "当前通话及必要话后收尾完成后结束该范围使用；此处是访问控制责任，不新增电话执行角色或控制能力，具体机制仍待研发核验。",
+        "管理员停用状态及访问限制结果按实际结果反馈，不等待当前通话结束。"
+      ]
+    },
+    {
+      "id": "ALT-2008-05",
+      "condition": "人员停用前系统已经受理AI／预外呼／IVR后台任务",
+      "steps": [
+        "既有任务作为租户任务，在原资源、执行条件满足时按原规则继续；原条件不满足时仍沿原任务规则处理。",
+        "停用人员不能再操作该范围任务；其他已有权限人员仍可按原权限管理，不自动新增管理权限或转交任务。",
+        "保留任务、通话及操作历史；不因人员停用推定终止全部任务，也不把通话有限收尾当作后台任务操作授权。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "成功时仅本租户AI／云呼叫新增操作立即受停用限制，整个登录账号不因本项被全局停用，其他租户已有授权保持不变。",
+    "仅停用范围内已接通的当前通话及必要话后允许有限收尾，完成后结束该范围使用；无已接通的当前通话不保留收尾访问。有限收尾不恢复一般权限，管理员操作不等待通话结束。",
+    "停用前系统已受理的AI／预外呼／IVR作为租户任务，仅在原执行条件满足时继续；停用人员不能操作，其他已有权人员仍按原权限管理，不自动转交。",
+    "历史任务、通话及操作记录保留；分别反馈状态保存及可确认的执行结果，失败或未知不冒充全部成功。具体会话、电话、任务受理边界与失败恢复契约仍待核验，G2未获整批批准。"
+  ],
+  "acceptance_points": [
+    "AC-2027：租户管理员停用本租户人员时限制该租户AI/云呼叫访问，其他租户已有授权不受影响。",
+    "AC-2028：保留历史任务、通话和操作记录；不把本租户停用显示为整个账号停用。",
+    "AC-2029：本租户人员停用后，禁止其在本租户新增操作；停用时已接通的当前电话及必要话后允许有限收尾，完成后结束该范围使用。停用前系统已受理的AI/预外呼/IVR租户任务在原条件满足时继续，停用者不能再操作，其他已有权人员依原权限管理，不自动转交。"
+  ],
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "admin",
+        "name": "有相应权限的租户管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "member",
+        "name": "公共账号与本租户成员管理",
+        "kind": "system"
+      },
+      {
+        "id": "access",
+        "name": "本租户AI／云呼叫访问控制",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "start",
+        "lane_id": "admin",
+        "type": "start",
+        "order": 1,
+        "label": "请求停用本租户人员"
+      },
+      {
+        "id": "choose",
+        "lane_id": "admin",
+        "type": "action",
+        "order": 2,
+        "label": "选定本租户成员并发起停用",
+        "step_ref": 1
+      },
+      {
+        "id": "auth",
+        "lane_id": "member",
+        "type": "decision",
+        "order": 3,
+        "label": "是否有本租户人员停用权限？",
+        "step_ref": 2
+      },
+      {
+        "id": "deny",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 4,
+        "label": "拒绝越权或跨租户停用"
+      },
+      {
+        "id": "scope",
+        "lane_id": "member",
+        "type": "action",
+        "order": 5,
+        "label": "明确本租户范围、当前通话有限收尾及已受理任务政策",
+        "step_ref": 3
+      },
+      {
+        "id": "save",
+        "lane_id": "member",
+        "type": "decision",
+        "order": 6,
+        "label": "本租户停用状态是否保存成功？",
+        "step_ref": 4
+      },
+      {
+        "id": "fail",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 7,
+        "label": "停用失败，保留原已知状态"
+      },
+      {
+        "id": "apply",
+        "lane_id": "access",
+        "type": "action",
+        "order": 8,
+        "label": "立即禁止本租户新增操作，有限收尾不恢复一般权限",
+        "step_ref": 5
+      },
+      {
+        "id": "task_policy",
+        "lane_id": "access",
+        "type": "action",
+        "order": 9,
+        "label": "已受理AI／预外呼／IVR任务原条件满足则继续；停用者禁操作，其他已有权人员按原权限管理，不自动转交",
+        "step_ref": 5
+      },
+      {
+        "id": "connected_call",
+        "lane_id": "access",
+        "type": "decision",
+        "order": 10,
+        "label": "停用范围内是否已有已接通的当前通话？",
+        "step_ref": 5
+      },
+      {
+        "id": "limited_wrapup",
+        "lane_id": "access",
+        "type": "action",
+        "order": 11,
+        "label": "仅保留当前通话及必要话后收尾访问，完成后结束该范围",
+        "step_ref": 5
+      },
+      {
+        "id": "end_scope",
+        "lane_id": "access",
+        "type": "action",
+        "order": 12,
+        "label": "无已接通通话，不保留收尾访问；结束该范围使用",
+        "step_ref": 5
+      },
+      {
+        "id": "enforce_result",
+        "lane_id": "access",
+        "type": "decision",
+        "order": 13,
+        "label": "新操作限制及有限收尾边界是否已确认？"
+      },
+      {
+        "id": "enforce_result__equivalent_2",
+        "lane_id": "access",
+        "type": "decision",
+        "order": 14,
+        "label": "新操作限制及有限收尾边界是否已确认？"
+      },
+      {
+        "id": "report",
+        "lane_id": "member",
+        "type": "action",
+        "order": 15,
+        "label": "反馈停用及可确认执行结果，管理员不等待通话结束",
+        "step_ref": 6
+      },
+      {
+        "id": "report__equivalent_2",
+        "lane_id": "member",
+        "type": "action",
+        "order": 16,
+        "label": "反馈停用及可确认执行结果，管理员不等待通话结束",
+        "step_ref": 6
+      },
+      {
+        "id": "end",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 17,
+        "label": "本租户停用已反馈，其他租户授权及历史保留"
+      },
+      {
+        "id": "end__equivalent_2",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 18,
+        "label": "本租户停用已反馈，其他租户授权及历史保留"
+      },
+      {
+        "id": "enforce_unknown",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 19,
+        "label": "停用状态已保存；访问限制或收尾边界失败／未知"
+      },
+      {
+        "id": "enforce_unknown__equivalent_2",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 20,
+        "label": "停用状态已保存；访问限制或收尾边界失败／未知"
+      },
+      {
+        "id": "enforce_unknown__equivalent_3",
+        "lane_id": "admin",
+        "type": "end",
+        "order": 21,
+        "label": "停用状态已保存；访问限制或收尾边界失败／未知"
+      }
+    ],
+    "edges": [
+      {
+        "from": "report",
+        "to": "end"
+      },
+      {
+        "from": "enforce_result",
+        "to": "report",
+        "label": "新操作受限，收尾边界可确认；无需等待通话结束"
+      },
+      {
+        "from": "enforce_result",
+        "to": "enforce_unknown",
+        "label": "限制或收尾边界失败／未确认",
+        "path_id": "ALT-2008-03",
+        "type": "exception"
+      },
+      {
+        "from": "limited_wrapup",
+        "to": "enforce_result",
+        "label": "建立有限收尾访问边界，不等待通话结束"
+      },
+      {
+        "from": "connected_call",
+        "to": "limited_wrapup",
+        "label": "已有已接通当前通话",
+        "path_id": "ALT-2008-04"
+      },
+      {
+        "from": "report__equivalent_2",
+        "to": "end__equivalent_2"
+      },
+      {
+        "from": "enforce_result__equivalent_2",
+        "to": "report__equivalent_2",
+        "label": "新操作受限，收尾边界可确认；无需等待通话结束"
+      },
+      {
+        "from": "enforce_result__equivalent_2",
+        "to": "enforce_unknown__equivalent_2",
+        "label": "限制或收尾边界失败／未确认",
+        "path_id": "ALT-2008-03",
+        "type": "exception"
+      },
+      {
+        "from": "end_scope",
+        "to": "enforce_result__equivalent_2"
+      },
+      {
+        "from": "connected_call",
+        "to": "end_scope",
+        "label": "无已接通当前通话"
+      },
+      {
+        "from": "connected_call",
+        "to": "enforce_unknown__equivalent_3",
+        "label": "已接通状态无法确认",
+        "path_id": "ALT-2008-03",
+        "type": "exception"
+      },
+      {
+        "from": "task_policy",
+        "to": "connected_call"
+      },
+      {
+        "from": "apply",
+        "to": "task_policy",
+        "path_id": "ALT-2008-05",
+        "label": "已受理租户任务按原条件继续"
+      },
+      {
+        "from": "save",
+        "to": "apply",
+        "label": "停用状态保存成功"
+      },
+      {
+        "from": "save",
+        "to": "fail",
+        "label": "停用状态保存失败",
+        "path_id": "ALT-2008-02",
+        "type": "exception"
+      },
+      {
+        "from": "scope",
+        "to": "save"
+      },
+      {
+        "from": "auth",
+        "to": "scope",
+        "label": "目标属于本租户且操作有权"
+      },
+      {
+        "from": "auth",
+        "to": "deny",
+        "label": "目标不属本租户或操作无权",
+        "path_id": "ALT-2008-01",
+        "type": "exception"
+      },
+      {
+        "from": "choose",
+        "to": "auth"
+      },
+      {
+        "from": "start",
+        "to": "choose"
+      }
+    ]
+  },
+  "design_status": "S3_flow_draft",
+  "scope_status": "confirmed_G1",
+  "issue_ids": [
+    "ISSUE-2001",
+    "ISSUE-2002",
+    "ISSUE-2011"
+  ],
+  "rule_ids": [
+    "BR-2001",
+    "BR-2010",
+    "BR-2020",
+    "BR-2049"
+  ],
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2086",
+  "diagram_review_notes": [
+    "共享后继按原进入分支等价展开；带__equivalent_的节点与原节点表达同一业务检查/结果，不新增操作、状态或执行次数。所有原条件、ALT及step_ref保留。"
+  ],
+  "analysis_notes": [
+    "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+  ],
+  "current_scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_design_status": "S3_current_c847_scope_design_G2_G3_pending",
+  "scope_revision_history": [
+    {
+      "at": "2026-10-24T12:24:37+08:00",
+      "reason": "本图不受单模板/逐字段业务变化影响，沿原六入口/权限/电话或专业功能；同步已批准范围引用，不更改节点/边。",
+      "source_ref": "inputs/source-index.json#SRC-2094"
+    }
+  ],
+  "production_verified": false
+}

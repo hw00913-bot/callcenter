@@ -1,0 +1,145 @@
+[
+  {
+    "id": "FIELD-FLOW-OUTCOME-CONFIG",
+    "name": "结束节点结论配置",
+    "entity": "FlowNode",
+    "key": "outcomeCode",
+    "source_refs": [
+      "docs/field-alignment.json#FIELD-FLOW-OUTCOME-CONFIG"
+    ],
+    "source_keys": [],
+    "type": "enum",
+    "format": "UNSPECIFIED/SUCCESS/UNSUCCESSFUL/INVALID/NO_CONTACT/NO_CALL/OTHER",
+    "nullable": false,
+    "required_when": "END保存时有配置",
+    "default": {
+      "kind": "literal",
+      "value": "UNSPECIFIED",
+      "rule": "新增END未设置业务结论"
+    },
+    "validation_rules": [
+      "结论显示名1～80字且保持所选口径；不能把END自动等同成功"
+    ],
+    "permissions": {
+      "read": [
+        "有本品牌当前模板查看资格者；查看不要求修改/删除权",
+        "有准确业务读取权者只读本run完整捕获方案；不因此取得当前模板配置权"
+      ],
+      "write": [
+        "获对应品牌配置权的超级管理员或本品牌租户管理员"
+      ]
+    },
+    "lifecycle": [
+      {
+        "state": "模板保存",
+        "behavior": "编排组件/路径/条件为草稿，合法确认后成为当前模板；当前分类应用另行独立保存，已开run快照不改。"
+      },
+      {
+        "state": "失败/未知或并发变化",
+        "behavior": "保留本次输入与已经明确生效的原事实，说明本字段对应原因；unknown沿准确原请求核对。"
+      },
+      {
+        "state": "后续读取/使用",
+        "behavior": "结论显示名1～80字且保持所选口径；不能把END自动等同成功"
+      }
+    ],
+    "derivation": {
+      "kind": "input",
+      "rule": "结论显示名1～80字且保持所选口径；不能把END自动等同成功",
+      "dependencies": []
+    },
+    "persistence": {
+      "kind": "stored",
+      "write_when": "流转模板当前配置明确保存成功时写入同一配置；新建草稿不供业务使用；后续编辑只影响新运行可用方案。"
+    },
+    "examples": {
+      "valid": [
+        "END outcomeCode=NO_CALL明确表示无需呼叫。"
+      ],
+      "invalid": [
+        "未设置结论却默认SUCCESS，禁止；保持UNSPECIFIED。"
+      ]
+    },
+    "test_refs": [
+      "CHECK-FLOW-ADVANCE",
+      "CHECK-FLOW-ROUTE-BIND",
+      "CHECK-FLOW-TEMPLATE-CREATE",
+      "CHECK-FLOW-TEMPLATE-EDIT",
+      "CHECK-FLOW-TEMPLATE-READ"
+    ],
+    "status": "not_adopted",
+    "retirement_reason": "当前END已移除此配置；仅保留原产品字段ID追溯，不能复用旧ID承担endAction新含义。"
+  },
+  {
+    "id": "FIELD-FLOW-OUTCOME-LABEL",
+    "name": "结束结论文案",
+    "entity": "FlowNode",
+    "key": "outcomeLabel",
+    "source_refs": [
+      "docs/field-alignment.json#FIELD-FLOW-OUTCOME-LABEL"
+    ],
+    "source_keys": [],
+    "type": "string",
+    "format": "非空1～80字",
+    "nullable": false,
+    "required_when": "END保存时明确或由所选编码给默认文案",
+    "default": {
+      "kind": "derived",
+      "value": null,
+      "rule": "新增或未填文案按明确所选结论编码取对应显示名"
+    },
+    "validation_rules": [
+      "绑定所选END outcomeCode显示；文案不覆盖独立统计编码，不以流程结束推业务成功"
+    ],
+    "permissions": {
+      "read": [
+        "有本品牌当前模板查看资格者；查看不要求修改/删除权",
+        "有准确业务读取权者只读本run完整捕获方案；不因此取得当前模板配置权"
+      ],
+      "write": [
+        "获对应品牌配置权的超级管理员或本品牌租户管理员"
+      ]
+    },
+    "lifecycle": [
+      {
+        "state": "模板保存",
+        "behavior": "编排组件/路径/条件为草稿，合法确认后成为当前模板；当前分类应用另行独立保存，已开run快照不改。"
+      },
+      {
+        "state": "失败/未知或并发变化",
+        "behavior": "保留本次输入与已经明确生效的原事实，说明本字段对应原因；unknown沿准确原请求核对。"
+      },
+      {
+        "state": "后续读取/使用",
+        "behavior": "绑定所选END outcomeCode显示；文案不覆盖独立统计编码，不以流程结束推业务成功"
+      }
+    ],
+    "derivation": {
+      "kind": "input",
+      "rule": "绑定所选END outcomeCode显示；文案不覆盖独立统计编码，不以流程结束推业务成功",
+      "dependencies": []
+    },
+    "persistence": {
+      "kind": "stored",
+      "write_when": "流转模板当前配置明确保存成功时写入同一配置；新建草稿不供业务使用；后续编辑只影响新运行可用方案。"
+    },
+    "examples": {
+      "valid": [
+        "NO_CONTACT显示“未联系成功”，长度6字。"
+      ],
+      "invalid": [
+        "空白且无法从编码生成、81字或文案代替统计编码，拒绝。"
+      ]
+    },
+    "test_refs": [
+      "CHECK-FLOW-ADVANCE",
+      "CHECK-FLOW-DETAIL",
+      "CHECK-FLOW-ROUTE-BIND",
+      "CHECK-FLOW-TEMPLATE-CREATE",
+      "CHECK-FLOW-TEMPLATE-EDIT",
+      "CHECK-FLOW-TEMPLATE-READ"
+    ],
+    "status": "not_adopted",
+    "retirement_reason": "当前END已移除此配置；仅保留原产品字段ID追溯，不能复用旧ID承担endAction新含义。"
+  }
+]

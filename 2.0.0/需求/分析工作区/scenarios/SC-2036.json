@@ -1,0 +1,504 @@
+{
+  "schema_version": "1.0",
+  "id": "SC-2036",
+  "name": "创建业务租户并同次关联品牌",
+  "status": "proposed_flow",
+  "summary": "选择品牌及总部/门店身份，同次可靠保存与查询恢复；唯一总部和既有引用受保护，异常不留半记录。",
+  "actors": [
+    "平台超级管理员",
+    "D联络云"
+  ],
+  "trigger": "超管创建新业务租户",
+  "preconditions": [
+    "超管有创建租户资格，品牌档案已存在。",
+    "沿用原租户字段、账号开通、唯一总部和历史引用保护。",
+    "沿用 AI 生产身份和稳定租户/对象标识；直接访问与菜单采用同一当前操作授权校验，不按名称、手机号或品牌关系合并身份或授权。",
+    "按当前平台管理/品牌配置/监管职责及实际对象范围验权；不以业务租户成员、本人电话坐席或同时开通 AI 与云呼叫作为配置/监管前提，不因此获得代处理或其他数据访问权。",
+    "入口由系统管理承接原账号、成员、租户或品牌的相应功能，仍沿原对象权限、管理范围和稳定PAGE；该原管理功能的切离保护、同窗口返回及同次登录记忆继续按SC-2002，不因入口归位新增管理权。"
+  ],
+  "main_flow": [
+    {
+      "step": 1,
+      "actor": "平台超级管理员",
+      "action": "从系统管理的原有权入口打开创建租户。",
+      "system_response": "不是创建后再补做品牌关联。",
+      "rule_ids": [
+        "BR-2025",
+        "BR-2011",
+        "BR-2026",
+        "BR-2039",
+        "BR-2055"
+      ]
+    },
+    {
+      "step": 2,
+      "actor": "D联络云",
+      "action": "展示租户必要字段和品牌、总部/门店身份选择。",
+      "system_response": "品牌/身份本次必填；门店可登记业务storeCode，逐步配置不伪造映射；填写后本品牌内唯一，名称不是路由键。",
+      "rule_ids": [
+        "BR-2025",
+        "BR-2011",
+        "BR-2026",
+        "BR-2039",
+        "BR-2055"
+      ]
+    },
+    {
+      "step": 3,
+      "actor": "平台超级管理员",
+      "action": "填写租户资料、品牌和总部/门店身份；门店按已有外部业务编码登记storeCode，确认同次提交。",
+      "system_response": "同次提交完整创建意图。",
+      "rule_ids": [
+        "BR-2025",
+        "BR-2011",
+        "BR-2026",
+        "BR-2039",
+        "BR-2055"
+      ]
+    },
+    {
+      "step": 4,
+      "actor": "D联络云",
+      "action": "核对权限、必填、租户ID可用性、单品牌及唯一总部约束。",
+      "system_response": "原账号/开通/历史引用ID保护保留；登记门店业务编码时另核本品牌内唯一及门店身份，不另建映射源。 按本操作管理/品牌/监管职责校验；不要求业务成员、电话坐席或双模块开通，不授代执行权。 总部停用不释放唯一关联；门店码保前导零，品牌内唯一及可靠映射版本。资格、历史引用或唯一性无法可靠核定时不创建。",
+      "rule_ids": [
+        "BR-2025",
+        "BR-2011",
+        "BR-2026",
+        "BR-2039",
+        "BR-2055"
+      ]
+    },
+    {
+      "step": 5,
+      "actor": "D联络云",
+      "action": "同次可靠保存租户及原品牌关联，门店填写的storeCode随该关联保存。",
+      "system_response": "失败不留半条租户或孤立关联；重试核对同次创建结果。",
+      "rule_ids": [
+        "BR-2025",
+        "BR-2011",
+        "BR-2026",
+        "BR-2039",
+        "BR-2055"
+      ]
+    },
+    {
+      "step": 6,
+      "actor": "D联络云",
+      "action": "展示成功记录并可从租户列表持续查询恢复。",
+      "system_response": "重新进入或打开页面仍为同一租户和品牌关联。 不自动开通模块、分配成员或创建坐席/任务；关联不共享品牌业务数据，storeCode来源仍唯一原关联，不回填客户意向或迁移历史。",
+      "rule_ids": [
+        "BR-2025",
+        "BR-2011",
+        "BR-2026",
+        "BR-2039",
+        "BR-2055"
+      ]
+    }
+  ],
+  "alternate_flows": [
+    {
+      "id": "ALT-2036-CANCEL",
+      "condition": "提交前取消本次操作",
+      "steps": [
+        "不提交本次请求，不改变记录或配置。"
+      ]
+    },
+    {
+      "id": "ALT-2036-INVALID",
+      "condition": "资格、配置、当前版本或本次业务条件不满足",
+      "steps": [
+        "必填缺失、ID冲突或唯一总部不符\n拒绝创建，保留历史引用",
+        "反馈具体原因；当前数据保持原实际状态。"
+      ]
+    },
+    {
+      "id": "ALT-2036-UNKNOWN",
+      "condition": "读写失败或本次结果不能确定",
+      "steps": [
+        "不展示成功；区分明确失败和结果待核。",
+        "结果待核先核对同次请求的实际结果，不能用新请求重复创建或推进。"
+      ]
+    }
+  ],
+  "postconditions": [
+    "新租户及品牌关联可持续查询",
+    "取消、校验不通过或未确认成功时，不伪造本次业务成功。"
+  ],
+  "acceptance_points": [
+    "AC-2016：两模块共用同一业务租户及基础资料，AI生产身份及历史关系优先延续。",
+    "AC-2017：各模块供应商资源、专属配置及业务数据按原规则管理；账号、电话坐席、供应商账号和机器人分别映射。",
+    "AC-2018：新建业务租户须关联品牌；存量未关联租户保留原有功能并标记待补关联。",
+    "AC-2035：关联成功的每个租户只对应一个接入品牌。",
+    "AC-2081：同一接入品牌可关联多个租户。",
+    "AC-2082：每品牌对应一个总部租户及多个独立门店租户。",
+    "AC-2095：超管创建业务租户时选择本平台品牌及总部/门店身份，租户和关联同次保存，遵守单品牌及唯一总部。",
+    "AC-2096：明确保存后能定位及持久查询记录；保存异常保留填写且无孤立租户或关联，旧会话与历史身份兼容不覆盖既有引用。"
+  ],
+  "source_story_ids": [
+    "US-2006",
+    "US-2013"
+  ],
+  "source_acceptance_ids": [
+    "AC-2016",
+    "AC-2017",
+    "AC-2018",
+    "AC-2035",
+    "AC-2081",
+    "AC-2082",
+    "AC-2095",
+    "AC-2096"
+  ],
+  "source_refs": [
+    "inputs/source-index.json#SRC-2085",
+    "inputs/source-index.json#SRC-2086",
+    "inputs/source-index.json#SRC-2088",
+    "inputs/source-index.json#SRC-2084",
+    "inputs/source-index.json#SRC-2093",
+    "inputs/source-index.json#SRC-2090",
+    "inputs/source-index.json#SRC-2094"
+  ],
+  "business_rule_ids": [
+    "BR-2025",
+    "BR-2011",
+    "BR-2026",
+    "BR-2039",
+    "BR-2055",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2012",
+    "BR-2022"
+  ],
+  "notes": "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+  "flow_diagram": {
+    "lanes": [
+      {
+        "id": "human",
+        "name": "平台超级管理员",
+        "kind": "actor"
+      },
+      {
+        "id": "platform",
+        "name": "D联络云",
+        "kind": "system"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "N-START",
+        "lane_id": "human",
+        "type": "start",
+        "order": 1,
+        "label": "新建业务租户并选择品牌与总部/门店身份"
+      },
+      {
+        "id": "N-OPEN",
+        "lane_id": "human",
+        "type": "action",
+        "order": 2,
+        "label": "发起创建租户",
+        "step_ref": 1
+      },
+      {
+        "id": "N-CONTEXT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 3,
+        "label": "展示原字段/品牌身份\n门店可登记业务storeCode",
+        "step_ref": 2
+      },
+      {
+        "id": "N-CHOOSE",
+        "lane_id": "human",
+        "type": "action",
+        "order": 4,
+        "label": "填写完整资料及品牌身份并提交",
+        "step_ref": 3
+      },
+      {
+        "id": "N-CONFIRM",
+        "lane_id": "human",
+        "type": "decision",
+        "order": 5,
+        "label": "是否确认本次办理？"
+      },
+      {
+        "id": "N-CANCEL-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 6,
+        "label": "取消本次办理，不保存本次变更"
+      },
+      {
+        "id": "N-CANCEL",
+        "lane_id": "human",
+        "type": "end",
+        "order": 7,
+        "label": "已取消"
+      },
+      {
+        "id": "N-CHECK",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 8,
+        "label": "核资格/ID/单品牌与唯一总部\n总部停用不释放、门店码唯一\n不要求双模块或本人坐席",
+        "step_ref": 4
+      },
+      {
+        "id": "N-VALID",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 9,
+        "label": "本次校验通过？"
+      },
+      {
+        "id": "N-INVALID-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 10,
+        "label": "必填缺失、ID冲突或唯一总部不符\n拒绝创建，保留历史引用"
+      },
+      {
+        "id": "N-INVALID",
+        "lane_id": "human",
+        "type": "end",
+        "order": 11,
+        "label": "本次未办理，说明原因"
+      },
+      {
+        "id": "N-COMMIT",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 12,
+        "label": "同次保存租户/身份及门店code关联\n失败不留半条记录",
+        "step_ref": 5
+      },
+      {
+        "id": "N-COMMITTED",
+        "lane_id": "platform",
+        "type": "decision",
+        "order": 13,
+        "label": "取得明确成功结果？"
+      },
+      {
+        "id": "N-UNKNOWN-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 14,
+        "label": "反馈失败或待核\n待核先核对同次结果，不能盲目重试"
+      },
+      {
+        "id": "N-UNKNOWN",
+        "lane_id": "human",
+        "type": "end",
+        "order": 15,
+        "label": "本次未确认成功"
+      },
+      {
+        "id": "N-RESPONSE",
+        "lane_id": "platform",
+        "type": "action",
+        "order": 16,
+        "label": "返回成功记录\n列表及重新打开均可查询",
+        "step_ref": 6
+      },
+      {
+        "id": "N-SUCCESS",
+        "lane_id": "human",
+        "type": "end",
+        "order": 17,
+        "label": "新租户及品牌关联可持续查询"
+      }
+    ],
+    "edges": [
+      {
+        "from": "N-START",
+        "to": "N-OPEN"
+      },
+      {
+        "from": "N-OPEN",
+        "to": "N-CONTEXT"
+      },
+      {
+        "from": "N-CONTEXT",
+        "to": "N-CHOOSE"
+      },
+      {
+        "from": "N-CHOOSE",
+        "to": "N-CONFIRM"
+      },
+      {
+        "from": "N-CONFIRM",
+        "to": "N-CANCEL-RESPONSE",
+        "label": "取消",
+        "path_id": "ALT-2036-CANCEL",
+        "type": "cancel"
+      },
+      {
+        "from": "N-CANCEL-RESPONSE",
+        "to": "N-CANCEL"
+      },
+      {
+        "from": "N-CONFIRM",
+        "to": "N-CHECK",
+        "label": "确认"
+      },
+      {
+        "from": "N-CHECK",
+        "to": "N-VALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-INVALID-RESPONSE",
+        "label": "不通过",
+        "path_id": "ALT-2036-INVALID",
+        "type": "failure"
+      },
+      {
+        "from": "N-INVALID-RESPONSE",
+        "to": "N-INVALID"
+      },
+      {
+        "from": "N-VALID",
+        "to": "N-COMMIT",
+        "label": "通过"
+      },
+      {
+        "from": "N-COMMIT",
+        "to": "N-COMMITTED"
+      },
+      {
+        "from": "N-COMMITTED",
+        "to": "N-UNKNOWN-RESPONSE",
+        "label": "失败或待核",
+        "path_id": "ALT-2036-UNKNOWN",
+        "type": "failure"
+      },
+      {
+        "from": "N-UNKNOWN-RESPONSE",
+        "to": "N-UNKNOWN"
+      },
+      {
+        "from": "N-COMMITTED",
+        "to": "N-RESPONSE",
+        "label": "明确成功"
+      },
+      {
+        "from": "N-RESPONSE",
+        "to": "N-SUCCESS"
+      }
+    ]
+  },
+  "expected_outcome": "选择品牌及总部/门店身份，同次可靠保存与查询恢复；唯一总部和既有引用受保护，异常不留半记录。",
+  "exception_scope": "无权、版本变化、校验不符、取消、读取/保存失败或同次结果待核。",
+  "scope": "in_scope",
+  "scope_status": "G1_approved_SRC2094",
+  "design_status": "S3_rebuilt_candidate_pending_global_verification",
+  "v2_gate_status": "G1_approved_G2_G3_pending",
+  "issue_ids": [],
+  "v12_origin_source_refs": [
+    "inputs/source-index.json#SRC-211",
+    "inputs/source-index.json#SRC-212",
+    "inputs/source-index.json#SRC-217",
+    "inputs/source-index.json#SRC-218",
+    "inputs/source-index.json#SRC-219",
+    "inputs/source-index.json#SRC-220",
+    "inputs/source-index.json#SRC-223",
+    "inputs/source-index.json#SRC-224"
+  ],
+  "v12_origin_scenario_id": "SC-11215",
+  "v12_origin_detail_sha256": "aa8358357c0be545d6d01f24100683627785a28a704cbf9167c3b3d58afde1bb",
+  "v12_origin_snapshot": "04ed3e3552872ccc863b05b9c0ec08c7d31b3f6d8806d9b86f054b83978db58d",
+  "rule_ids": [
+    "BR-2025",
+    "BR-2011",
+    "BR-2026",
+    "BR-2039",
+    "BR-2055",
+    "BR-2001",
+    "BR-2002",
+    "BR-2003",
+    "BR-2010",
+    "BR-2012",
+    "BR-2022"
+  ],
+  "acceptance_contributions": {
+    "AC-2018": "只承接新建业务租户本次品牌必选；存量未关联租户继续使用另由既有维护场景承接。"
+  },
+  "delegated_parent_acceptance": {
+    "note": "父故事其他验收不是本场景主结果；按相应独立场景办理，不作为本场景完整覆盖。",
+    "ids": [
+      "AC-2036",
+      "AC-2037",
+      "AC-2083"
+    ]
+  },
+  "analysis_notes": [
+    "SRC-2094实际G1已批准当前38US/134AC/36SC范围；本文件按SRC-2090最终c847及SRC-2093重建S3产品流程候选。仅做模型、原生几何及PlantUML源码编译，不表示G2/G3、真实接口/生产能力、原型实施或最终图形渲染通过。原稳定身份、当前授权、电话现场及已确认历史边界保持。",
+    "六入口按实际原功能组织展示；原Cloud作业/号码档案/报表迁位继续保原电话现场和检查，原管理功能仍按SC-2002切离保护、同窗口返回和同次记忆。未核真实身份、供应商能力和持久化契约继续由S4核验，不把产品流程当生产证明。"
+  ],
+  "revision_history": [
+    {
+      "at": "2026-10-24T12:23:18+08:00",
+      "source_refs": [
+        "inputs/source-index.json#SRC-2090",
+        "inputs/source-index.json#SRC-2093",
+        "inputs/source-index.json#SRC-2094"
+      ],
+      "previous_scope_metadata": {
+        "scope_status": "confirmed_G1",
+        "design_status": "S3_incremental_flow_design_pending_G2",
+        "v2_gate_status": "G1_approved_G2_G3_pending",
+        "scope_confirmation_source": null
+      },
+      "previous_notes": [
+        "本场景按 SRC-2086 通过的 v2.0.0 G1 范围细化；v1.2.0 冻结包只作为继承来源，不代表本版 G2/G3 或真实执行能力已通过。",
+        "沿 D联络云六入口及原页面交互承载，不采用源版过渡外链；配置共享不产生跨租户业务数据权。"
+      ],
+      "reason": "当前G1后按最终c847和实际S1/S2重建S3；旧说明及源快照仅作历史，不改原始冻结包。",
+      "previous_analysis_notes": [
+        "SRC-2088实际采纳六入口功能整合并优先复用，沿用SRC-2086既有37场景范围；本次仅更新S3入口与复用边界投影，保留原稳定PAGE、对象、操作资格和业务动作，不新增US/AC/SC或功能，不表示G2/G3批准、生产实现或原型修改。"
+      ]
+    }
+  ],
+  "scope_confirmation_source": "inputs/source-index.json#SRC-2094",
+  "current_v12_baseline": "c84782225797ba928b75f4854640cde7ff34d07d33f951bb0985cafc61f2c1ac",
+  "diagram_revision": {
+    "at": "2026-10-24T12:23:18+08:00",
+    "source_refs": [
+      "inputs/source-index.json#SRC-2090",
+      "inputs/source-index.json#SRC-2093",
+      "inputs/source-index.json#SRC-2094"
+    ],
+    "retained_node_ids": [
+      "N-CANCEL",
+      "N-CANCEL-RESPONSE",
+      "N-CHECK",
+      "N-CHOOSE",
+      "N-COMMIT",
+      "N-COMMITTED",
+      "N-CONFIRM",
+      "N-CONTEXT",
+      "N-INVALID",
+      "N-INVALID-RESPONSE",
+      "N-OPEN",
+      "N-RESPONSE",
+      "N-START",
+      "N-SUCCESS",
+      "N-UNKNOWN",
+      "N-UNKNOWN-RESPONSE",
+      "N-VALID"
+    ],
+    "added_node_ids": [],
+    "retained_alternate_ids": [
+      "ALT-2036-CANCEL",
+      "ALT-2036-INVALID",
+      "ALT-2036-UNKNOWN"
+    ],
+    "added_alternate_ids": [],
+    "step_relation": "原main_flow step编号全部保留；新增原人工段补录分支复用原step5/6。",
+    "edge_relation": "原节点/边及ALT/step_ref保留；按已批准S1/S2更新动作和guard语义。"
+  }
+}

@@ -1,0 +1,126 @@
+# TASK-009 分类双用途字段、业务域和入口资格
+
+**DRAFT — 供讨论与补充，尚未完成本阶段交接**
+
+[返回阅读入口](../README.md) · [功能目录](../features/README.md)
+
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](../features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](../features/FUNC-2017.md)
+
+## 目标
+
+分类独立维护IMPORT/FOLLOWUP、业务编码及业务域；基础配置和实际路由分别保存，引用后稳定身份保持保护。；分类列表添加导入名单，人工或接口均固定TEMPLATE；直接名单从准确AI/预外呼任务进入。旧allowDirectFollowup仅保原存量准入/历史解释，不恢复分类编辑切换开关。
+
+## 产品依据
+
+- FUNC-2016 创建品牌共用业务分类与字段基础：在有权品牌维护独立IMPORT/FOLLOWUP字段库及分类双Tab，明确业务域、字段与入口必填；当前无直接跟进开关；任务DIRECT/分类TEMPLATE由准确入口派生；保存基础不绑定模板或起呼。；来源 documentation/input/functions.json#FUNC-2016
+- FUNC-2017 维护品牌共用业务分类、字段及取数规则：按引用保护维护分类字段；当前不编辑历史allowDirectFollowup；关闭不删旧直接事实或阻必要收尾，不自动切换模式；新跟进读当前定义，旧运行及正式快照保持。；来源 documentation/input/functions.json#FUNC-2017
+
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+
+## 前置任务
+
+- TASK-008
+
+## 只读代码上下文
+
+未指定既有代码文件；从工程规范和产品依据读取上下文。
+
+## 允许修改的文件
+
+- 未填写
+
+代码库根：`None`。未列出的文件不属于本任务修改范围；扩大范围需回到计划。
+
+## 变更安排
+
+- 未填写
+
+## 逻辑与字段依据
+
+先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
+
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-CONFIG](../global-logic.md#GR-CONFIG)、[GR-FIELDS](../global-logic.md#GR-FIELDS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-SCOPE](../global-logic.md#GR-SCOPE)
+
+局部逻辑：[LOCAL-FLOW-CATEGORY-CREATE](../local-logic/LOCAL-FLOW-CATEGORY-CREATE.md)、[LOCAL-FLOW-CATEGORY-EDIT](../local-logic/LOCAL-FLOW-CATEGORY-EDIT.md)
+
+字段：[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-BRAND-ID](../field-specs.md#FIELD-FLOW-BRAND-ID)、[FIELD-FLOW-BUSINESS-FAMILY](../field-specs.md#FIELD-FLOW-BUSINESS-FAMILY)、[FIELD-FLOW-CATEGORY-FOLLOWUP-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-FOLLOWUP-REFS)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CATEGORY-IMPORT-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)、[FIELD-FLOW-CATEGORY-LABEL](../field-specs.md#FIELD-FLOW-CATEGORY-LABEL)、[FIELD-FLOW-CATEGORY-REVISION](../field-specs.md#FIELD-FLOW-CATEGORY-REVISION)、[FIELD-FLOW-CODE-LABEL](../field-specs.md#FIELD-FLOW-CODE-LABEL)、[FIELD-FLOW-DICTIONARY-ID](../field-specs.md#FIELD-FLOW-DICTIONARY-ID)、[FIELD-FLOW-FIELD-DEPENDS](../field-specs.md#FIELD-FLOW-FIELD-DEPENDS)、[FIELD-FLOW-FIELD-ENABLED](../field-specs.md#FIELD-FLOW-FIELD-ENABLED)、[FIELD-FLOW-FIELD-ID](../field-specs.md#FIELD-FLOW-FIELD-ID)、[FIELD-FLOW-FIELD-KEY](../field-specs.md#FIELD-FLOW-FIELD-KEY)、[FIELD-FLOW-FIELD-LABEL](../field-specs.md#FIELD-FLOW-FIELD-LABEL)、[FIELD-FLOW-FIELD-OPTIONS](../field-specs.md#FIELD-FLOW-FIELD-OPTIONS)、[FIELD-FLOW-FIELD-TYPE](../field-specs.md#FIELD-FLOW-FIELD-TYPE)、[FIELD-FLOW-FIELD-USAGE](../field-specs.md#FIELD-FLOW-FIELD-USAGE)、[FIELD-FLOW-PARAM-BINDINGS](../field-specs.md#FIELD-FLOW-PARAM-BINDINGS)、[FIELD-FLOW-QUERY-CONDITIONS](../field-specs.md#FIELD-FLOW-QUERY-CONDITIONS)、[FIELD-FLOW-SELECTION-MODE](../field-specs.md#FIELD-FLOW-SELECTION-MODE)
+
+## UI 依据
+
+[全局 UI 规范](../ui-spec.md)
+
+- [UI-PAGE-2006](../ui-pages/UI-PAGE-2006.md)
+
+## 实现要求
+
+- 分类独立维护IMPORT/FOLLOWUP、业务编码及业务域；基础配置和实际路由分别保存，引用后稳定身份保持保护。
+- 分类列表添加导入名单，人工或接口均固定TEMPLATE；直接名单从准确AI/预外呼任务进入。旧allowDirectFollowup仅保原存量准入/历史解释，不恢复分类编辑切换开关。
+- 任务DIRECT准入按准确当前合同重核，不因分类已有模板而强制走模板；共享分类不授跨租户业务数据权。
+- 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
+- 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
+- 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
+
+## 产品验收
+
+- **AC-2039**：同一品牌提供新线索、冷线索、督办、服务、回访、售后类、活动类七预置分类；新/冷线索属LEAD，其他默认ORDINARY；自定义显式业务域。
+  依据：docs/functional-spec.json#AC-2039
+
+- **AC-2040**：新增或配置业务分类不新增供应商执行能力；场景、接口与电话资源仍需专业授权且准确匹配。
+  依据：docs/functional-spec.json#AC-2040
+
+- **AC-2041**：修改分类基础仅更新名称、编码列名、业务域及导入/填写有序引用和校验规则，不提交或覆盖路由；已开run及正式快照保持。
+  依据：docs/functional-spec.json#AC-2041
+
+- **AC-2102**：配置人员只能在获权品牌内维护分类、字段与模板；共享配置不授全品牌业务或录音访问。
+  依据：docs/functional-spec.json#AC-2102
+
+- **AC-2103**：分类稳定身份、业务域及编码名称明确，导入/填写两个Tab分别维护同用途有序字段、显示及对应入口必填。
+  依据：docs/functional-spec.json#AC-2103
+
+- **AC-2135**：分类BASE、独立ROUTE、模板字段参考互不覆盖；实际绑定按所用稳定ID/用途/类型/选项/AI上下文校验，新跟进取最新资料而正式/运行快照不追改，未操作/缺失/明确清空分开。
+  依据：docs/functional-spec.json#AC-2135
+
+- **AC-2149**：业务分类行保导入名单、编辑、路由配置、预览、删除；不恢复AI标签快捷入口。业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。
+  依据：docs/functional-spec.json#AC-2149
+
+## 测试要求（尚未执行）
+
+### CHECK-FLOW-CATEGORY-CREATE / manual
+
+步骤：创建分类并保存名称/编码/域/IMPORT/FOLLOWUP，再从该行发起导入；尝试携带旧直接开关。
+
+预期：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 分类BASE不写ROUTE或旧直接开关；字段独立，当前TEMPLATE缺路由明确阻断。
+
+覆盖：AC-2039, AC-2040, AC-2102, AC-2103, AC-2135
+
+### CHECK-FLOW-CATEGORY-EDIT / manual
+
+步骤：编辑被引用分类名称/字段并取消或保存；尝试改业务域/用途及旧直接开关。
+
+预期：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 原引用保护保留，取消不污染已保存定义，不迁移旧历史。
+
+覆盖：AC-2103, AC-2041, AC-2135, AC-2149
+
+## 完成条件
+
+- 分类独立维护IMPORT/FOLLOWUP、业务编码及业务域；基础配置和实际路由分别保存，引用后稳定身份保持保护。
+- 分类列表添加导入名单，人工或接口均固定TEMPLATE；直接名单从准确AI/预外呼任务进入。旧allowDirectFollowup仅保原存量准入/历史解释，不恢复分类编辑切换开关。
+- 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
+- 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
+- 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
+
+需保留实际改动、测试结果和 Review 证据。仅修改完成不等于验收通过。
+
+
+## 本轮工程绑定边界
+
+本任务为可承接的业务实施分解，尚未绑定生产仓库/技术栈。开发确定真实文件后填写allowed_files、context_files、changes并复检共享文件依赖；不得把原型参考文件当作生产可写授权。
+
+只读原型行为参考：
+
+- [direct_followup_build.py](../../../prototype/scripts/direct_followup_build.py) · 只读行为参考，非生产可写目标
+- [business_family_build.py](../../../prototype/scripts/business_family_build.py) · 只读行为参考，非生产可写目标
+- [field_model_build.py](../../../prototype/scripts/field_model_build.py) · 只读行为参考，非生产可写目标
+
+需开发处理的问题：ENG-FLOW-PERSISTENCE。
