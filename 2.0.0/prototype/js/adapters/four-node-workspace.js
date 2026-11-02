@@ -665,6 +665,38 @@
   }
   function refreshDirectory(){return navigate('customer-directory',{fourNodeDirectoryView:directoryView,preserveFilters:true,customerId:''});}
 
+  // Profiles read projected facts; the native directory's write eligibility is unchanged.
+  function profileServices(){
+    const stable=value=>JSON.stringify(value,(_,item)=>item&&typeof item==='object'&&!Array.isArray(item)?Object.fromEntries(Object.keys(item).sort().map(key=>[key,item[key]])):item);
+    const scopeMetadata=c=>({kind:c?.scope?.kind,enterpriseId:c?.scope?.tenant?.enterpriseId,brandId:c?.scope?.tenant?.brandId,enabled:c?.scope?.tenant?.enabled});
+    const scopeValid=()=>{const owner=root.DNativeContext?.context,active=root.parent?.DSession?.context?.();return !owner||!!active&&owner.account?.id===active.account?.id&&owner.scope?.id===active.scope?.id&&stable(owner.scope?.grant||null)===stable(active.scope?.grant||null)&&stable(scopeMetadata(owner))===stable(scopeMetadata(active));};
+    const snapshot=()=>{
+      if(!scopeValid())return {status:'failed',message:'客户档案身份或授权已变化，请重新进入。',data:{customers:[],issues:[]}};
+      const grant=root.parent?.DSession?.context?.()?.scope?.grant;
+      if(grant?.moduleRoles&&!grant.moduleRoles.cloud&&!root.DBusinessRegulation?.current?.())return {status:'forbidden',data:{customers:[],issues:[]}};
+      return typeof root.CustomerDirectory?.readSnapshot==='function'?root.CustomerDirectory.readSnapshot():{status:'failed',message:'原联系档案只读接口尚未就绪。',data:{customers:[],issues:[]}};
+    };
+    const nativeCustomer=ref=>{const ret=snapshot();if(!['success','partial'].includes(ret.status))throw Error(ret.message||'原联系来源暂无法核对。');const matches=(ret.data?.customers||[]).filter(c=>c.id===ref.customerId);if(matches.length!==1)throw Error('原客户已不在当前有权范围，请重新打开档案。');return matches[0];};
+    return {
+      context(){sync();const a=actor(),s=state();return {accountId:currentAccount(),tenantId:a.tenantId||s.tenantId||'',enterpriseId:a.enterpriseId||s.enterpriseId||'',roleCode:a.roleCode||'',valid:a.valid===true};},
+      tenants:()=>clone(root.CloudCallData?.tenants||[]),accounts:()=>clone(root.CloudCallData?.accounts||[]),
+      records:()=>scopeValid()?call('query',{}):{status:'failed',message:'客户档案身份或授权已变化，请重新进入。'},timeline:id=>scopeValid()?call('timeline',id):{status:'failed',message:'客户档案身份或授权已变化，请重新进入。'},nativeSnapshot:snapshot,
+      openRecord:id=>scopeValid()?openRecord(id):false,openFollowup:(id,segmentId)=>scopeValid()?openFollowupSnapshot(id,segmentId):false,openBusinessCall:(id,callId)=>scopeValid()?openCall(id,callId):false,
+      openNative(ref){
+        try{
+          const customer=nativeCustomer(ref);
+          if(ref.kind==='NATIVE_CUSTOMER'){if(typeof old.directory?.openDetail!=='function')throw Error('原客户详情入口暂不可用。');return old.directory.openDetail(customer.id);}
+          if(ref.kind==='DCC_IMPORT'){if(!customer.batches?.some(row=>row.archiveLedgerRecord&&row.taskId===ref.taskId&&row.recordId===ref.recordId))throw Error('原导入记录与该客户关联已变化。');return root.DccRecords?.openDirectoryRecord?.(ref.taskId,ref.recordId);}
+          const matches=(customer.calls||[]).filter(row=>row.callId===ref.callId&&(ref.kind==='DCC_CALL'?row.directoryMeta?.ledgerResult===true&&row.directoryMeta.sourceTaskId===ref.taskId&&row.directoryMeta.sourceResultId===ref.resultId:row.directoryMeta?.ledgerResult!==true));
+          if(matches.length!==1)throw Error('原通话与该客户关联不唯一或已不可见。');
+          if(ref.kind==='DCC_CALL')return root.DccRecords?.openDirectoryCall?.(ref.taskId,ref.resultId);
+          if(ref.kind!=='NATIVE_CALL'||typeof old.directory?.openCall!=='function'||typeof old.directory?.openDetail!=='function')throw Error('原通话详情入口暂不可用。');
+          if(old.directory.openDetail(customer.id)===false)return false;return old.directory.openCall(ref.callId);
+        }catch(error){root.showToast?.(error.message||'当前来源无法可靠核对。','warning');return false;}
+      }
+    };
+  }
+
   function clearRecordEntryContext(newLaunch=false){const wasBatch=!!filters.batchId||workspaceSurface==='batch';delete filters.batchId;recordReturn=null;selectedId='';view='list';workspaceSurface='records';if(wasBatch||newLaunch){selected.clear();page=1;}}
   function recordEntryOptions(options={}){
     sync();const launch=!!(options.importCategoryId||options.importLaunchId),launchKey=contextKey()+'|'+String(options.importLaunchId||options.importCategoryId||''),primary=options.primaryNavigation===true&&!launch&&!options.batchDetail&&options.routeKey!=='business-record-detail';
@@ -683,6 +715,6 @@
     const records={render(options={}){options=recordEntryOptions(options);return options.recordId||options.view==='detail'||options.routeKey==='business-record-detail'?detail(options):recordList(options);},init(options={}){const launched=consumeCategoryImport(options);if(launched)return launched;return prepareWorkspaceDirectory(options);},captureNavigationState:workspaceNavigationState,restoreNavigationState:restoreWorkspaceNavigation};root.Pages['business-records']=records;root.Pages['business-record-detail']=records;
     if(old.directory)root.Pages['customer-directory']={...old.directory,render:renderDirectory,refresh:refreshDirectory,refreshSummary(){const node=root.document.querySelector('.fnw-directory-page');if(node)node.outerHTML=renderDirectory({preserveFilters:true,fourNodeDirectoryView:directoryView});},init(options){if(directoryView==='contacts')old.directory.init?.(options);if(directoryFocus){const key=directoryFocus;directoryFocus='';root.document.getElementById('fnw-directory-tab-'+key)?.focus?.();}},captureNavigationState(){sync();return {...(old.directory.captureNavigationState?.()||{}),fourNodeDirectoryView:directoryView,fourNodeDirectoryKeyword:directoryKeyword,fourNodeDirectoryPage:directoryPage,fourNodeDirectoryContext:identity};},restoreNavigationState(s){sync();if(!s||s.fourNodeDirectoryContext!==identity)return;old.directory.restoreNavigationState?.(s);if(['business','contacts'].includes(s.fourNodeDirectoryView))directoryView=s.fourNodeDirectoryView;directoryKeyword=typeof s.fourNodeDirectoryKeyword==='string'?s.fourNodeDirectoryKeyword:'';directoryPage=Number.isSafeInteger(s.fourNodeDirectoryPage)&&s.fourNodeDirectoryPage>0?s.fourNodeDirectoryPage:1;}};
   }
-  root.FourNodeWorkspace={importChannelChanged,openImportApplication,openAIImportData,aiImportDataChanged,refreshAIImportData,importGroupSceneChanged,openBatches,openBusinessRecords,queryBatches,resetBatches,openHistoricalSettlement,selectHistoricalSettlementRun,refreshHistoricalSettlementContext,abandonChanged,refreshAbandonContext,openAbandonFollowup,importAISceneChanged,openExecutionConfiguration,importExecutionMode,importExecutionChanged,importPriorityChanged,assignExecutionChanged,setQueue,openBatchStart,openReclassify,reclassifyTarget,reclassificationChanged,previewReclassify,openContactPolicy,query,reset,setPage,setBatchPage,setDirectoryPage,queryBusinessDirectory,setTimelinePage,selectRow,showBatch,clearBatch,openRecord,back,openImport,importCategory,importHandlingMode,importDirectMethod,configureImportMapping,changeImportMapping,invalidateImport,previewImport,readFile,downloadTemplate,fillSample,openAssign,openSelectedAssign,openStart,openCompleteDirect,openResumeDirect,resumeDirectMethod,openEnableFlow,enableFlowChanged,previewEnableFlow,openSaveResult,updateFollowup,confirmValueDifferences,loadValueDifferences,openTransition,showTransitionTarget,openCorrection,correctionChanged,openAbandon,openReopen,openHandoff,submit,closeDialog,reconcile,mockEvent,changeMockSegment,changeMockResult,changeMockTags,openFollowupSnapshot,openCall,closeHistory,callBusinessLink,customerTimeline,openBusinessTimeline,setDirectoryView,directoryTabKey,refreshDirectory,prepare,renderList:recordList,renderDetail:detail};
+  root.FourNodeWorkspace={profileServices,importChannelChanged,openImportApplication,openAIImportData,aiImportDataChanged,refreshAIImportData,importGroupSceneChanged,openBatches,openBusinessRecords,queryBatches,resetBatches,openHistoricalSettlement,selectHistoricalSettlementRun,refreshHistoricalSettlementContext,abandonChanged,refreshAbandonContext,openAbandonFollowup,importAISceneChanged,openExecutionConfiguration,importExecutionMode,importExecutionChanged,importPriorityChanged,assignExecutionChanged,setQueue,openBatchStart,openReclassify,reclassifyTarget,reclassificationChanged,previewReclassify,openContactPolicy,query,reset,setPage,setBatchPage,setDirectoryPage,queryBusinessDirectory,setTimelinePage,selectRow,showBatch,clearBatch,openRecord,back,openImport,importCategory,importHandlingMode,importDirectMethod,configureImportMapping,changeImportMapping,invalidateImport,previewImport,readFile,downloadTemplate,fillSample,openAssign,openSelectedAssign,openStart,openCompleteDirect,openResumeDirect,resumeDirectMethod,openEnableFlow,enableFlowChanged,previewEnableFlow,openSaveResult,updateFollowup,confirmValueDifferences,loadValueDifferences,openTransition,showTransitionTarget,openCorrection,correctionChanged,openAbandon,openReopen,openHandoff,submit,closeDialog,reconcile,mockEvent,changeMockSegment,changeMockResult,changeMockTags,openFollowupSnapshot,openCall,closeHistory,callBusinessLink,customerTimeline,openBusinessTimeline,setDirectoryView,directoryTabKey,refreshDirectory,prepare,renderList:recordList,renderDetail:detail};
   install();
 })(window);

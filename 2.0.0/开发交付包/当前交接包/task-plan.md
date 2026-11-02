@@ -26,7 +26,7 @@
 | [TASK-053 外呼组、号码与号码池](tasks/TASK-053.md) | FUNC-2002 | TASK-005, TASK-055 | 未填写 |
 | [TASK-054 分机与时间条件](tasks/TASK-054.md) | FUNC-2002 | TASK-005, TASK-055 | 未填写 |
 | [TASK-010 接口填写字段定义与依赖配置](tasks/TASK-010.md) | FUNC-2002, FUNC-2016, FUNC-2017, FUNC-2018 | TASK-008, TASK-009 | 未填写 |
-| [TASK-011 四节点模板、正常结束与分租户执行安排](tasks/TASK-011.md) | FUNC-2034, FUNC-2035, FUNC-2041, FUNC-2042 | TASK-009 | 未填写 |
+| [TASK-011 四节点模板、AI任务先选及分租户默认安排](tasks/TASK-011.md) | FUNC-2034, FUNC-2035, FUNC-2041, FUNC-2042 | TASK-009 | 未填写 |
 | [TASK-013 按准确方式与场景读取文件和列映射](tasks/TASK-013.md) | FUNC-2036 | TASK-009 | 未填写 |
 | [TASK-032 AI供应商参数弹窗、准确任务目录与草稿生命周期](tasks/TASK-032.md) | FUNC-2002, FUNC-2018, FUNC-2019 | TASK-005, TASK-009, TASK-055 | 未填写 |
 | [TASK-033 AI标签目录、池、标准集与准确映射](tasks/TASK-033.md) | FUNC-2002, FUNC-2019 | TASK-005, TASK-009, TASK-055 | 未填写 |
@@ -62,5 +62,5 @@
 | [TASK-024 确认后继及正常END关闭](tasks/TASK-024.md) | FUNC-2038 | TASK-023 | 未填写 |
 | [TASK-025 本租户路径与合法跨租户转交](tasks/TASK-025.md) | FUNC-2030 | TASK-023, TASK-024 | 未填写 |
 | [TASK-026 受控缺内容废弃及历史异常结清](tasks/TASK-026.md) | FUNC-2031, FUNC-2032, FUNC-2034, FUNC-2038, FUNC-2040 | TASK-024, TASK-025, TASK-029 | 未填写 |
-| [TASK-030 导入批次、独立业务名单与准确当前队列](tasks/TASK-030.md) | FUNC-2033, FUNC-2039 | TASK-015, TASK-017, TASK-021, TASK-022, TASK-025 | 未填写 |
+| [TASK-030 客户档案统一只读归集、业务名单与当前队列](tasks/TASK-030.md) | FUNC-2033, FUNC-2039 | TASK-015, TASK-017, TASK-021, TASK-022, TASK-025 | 未填写 |
 | [TASK-027 受控转冷和分类调整](tasks/TASK-027.md) | FUNC-2036, FUNC-2038, FUNC-2040 | TASK-026, TASK-014 | 未填写 |

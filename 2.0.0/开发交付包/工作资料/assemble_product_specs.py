@@ -352,6 +352,13 @@ def build_plan():
         plan['logic']['global']['overview']+=' Step47仅把既有AI字段配置呈现收口为主场景唯一添加字段→来源选择→导入字段或手工添加；手工沿线上添加场景信息布局及radio，类型次要行保留，不改schema2或业务规则。'
         plan['logic']['global']['shared_state_rules']+=['正常归档与异常废弃结清是不同判据，不用所有历史seg.archived=true一概阻后继；当前正常必要内容/执行仍满足原条件，缺失确认不贡献正常完成数或豁免实质冲突。','仅当前ownerADMIN可确认本tenant准确旧ABANDONED段缺失；runId/confirmationFingerprint/expectedRevision一起核，不要求当前mode=TEMPLATE，不修改当前DIRECT/运行/执行安排/字段；其它tenant欠项不代确认。','历史END来源合法不等本周期豁免：只有准确origin首MANUAL当前cycle可用，resume任何新cycle重核当前分类允许。','ABANDONING禁止新派发但接收原已受理未可靠关闭的准确seg/attempt真实事实；停止受理不是真停止，原事实去重计数不挂新run、不提前释放，已闭未知新attempt仍原拒/冲突规则。']
     current_entry_global_projection(plan, bs, rules, locals_)
+    if bs.get('profile_template_current_delta'):
+        from profile_template_current_delta import PROFILE, TEMPLATE, BOUNDARY
+        global_=plan['logic']['global']
+        global_['overview']+='\n\n'+PROFILE+'\n\n'+TEMPLATE+'\n\n'+BOUNDARY
+        global_['shared_state_rules']=uniq(global_['shared_state_rules']+[PROFILE,TEMPLATE])
+        global_['data_ownership']=uniq(global_['data_ownership']+[PROFILE])
+        global_['cross_module_note']+=' 客户档案只消费各原有权投影并以准确来源回原入口重核；业务/通话/专业客户写权不随归集授予，工程模块及物理接口仍由开发补证。'
     # Source inventory is mechanical; mappings below use explicit stable IDs and authored page/action/local relations.
     coverage=[]
     ac_to_checks=defaultdict(list)

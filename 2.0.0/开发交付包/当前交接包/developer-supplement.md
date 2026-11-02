@@ -252,7 +252,7 @@ AI场景与supplier/tenant/type/tagScene/category/brand/revision的最小只读�
 
 ## 仍需开发方完成
 
-开发侧另有 **1156** 项结构阻塞。共同依赖的产品缺口见上方摘要；不转派给开发方。
+开发侧另有 **1171** 项结构阻塞。共同依赖的产品缺口见上方摘要；不转派给开发方。
 
 逐条补回 engineering.json 或计划中的相应技术字段，再运行开发开工检查；不要只在本阅读文档中打勾。
 
@@ -909,6 +909,16 @@ AI场景与supplier/tenant/type/tagScene/category/brand/revision的最小只读�
 - `plan.logic.fields[FIELD-FLOW-ABANDONMENT-SETTLEMENT].persistence.mapping`：Provide an explicit nonempty statement.（logic.required.text）
 - `plan.logic.fields[FIELD-FLOW-ABANDON-TENANT].interface_note`：Provide an explicit nonempty statement.（logic.required.text）
 - `plan.logic.fields[FIELD-FLOW-ABANDON-TENANT].persistence.mapping`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-IDENTITY].interface_note`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-IDENTITY].persistence.mapping`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-SOURCE-REFS].interface_note`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-SOURCE-REFS].persistence.mapping`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-SOURCE-STATES].interface_note`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-SOURCE-STATES].persistence.mapping`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-AI-FOLLOWUPS].interface_note`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-AI-FOLLOWUPS].persistence.mapping`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-COUNTS].interface_note`：Provide an explicit nonempty statement.（logic.required.text）
+- `plan.logic.fields[FIELD-PROFILE-COUNTS].persistence.mapping`：Provide an explicit nonempty statement.（logic.required.text）
 - `plan.logic.fields[FIELD-PLAT-ACCOUNT-ID].interface_note`：Provide an explicit nonempty statement.（logic.required.text）
 - `plan.logic.fields[FIELD-PLAT-ACCOUNT-ID].persistence.mapping`：Provide an explicit nonempty statement.（logic.required.text）
 - `plan.logic.fields[FIELD-PLAT-LOGIN-NAME].interface_note`：Provide an explicit nonempty statement.（logic.required.text）
@@ -1408,6 +1418,11 @@ AI场景与supplier/tenant/type/tagScene/category/brand/revision的最小只读�
 - `plan.logic.units[FIELD-FLOW-FOLLOWER].test_refs`：Test CHECK-FLOW-START is not owned by a task referencing this logic unit.（logic.test.owner）
 - `plan.logic.units[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE].test_refs`：Test CHECK-FLOW-MANUAL-ASSIGNMENT-MODE is not owned by a task referencing this logic unit.（logic.test.owner）
 - `plan.logic.units[FIELD-FLOW-TASK-IMPORT-PARAMETERS].test_refs`：Test CHECK-PLAT-AI-IMPORT-FIELD-MAPPING is not owned by a task referencing this logic unit.（logic.test.owner）
+- `plan.logic.units[FIELD-PROFILE-IDENTITY].test_refs`：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.（logic.test.owner）
+- `plan.logic.units[FIELD-PROFILE-SOURCE-REFS].test_refs`：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.（logic.test.owner）
+- `plan.logic.units[FIELD-PROFILE-SOURCE-STATES].test_refs`：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.（logic.test.owner）
+- `plan.logic.units[FIELD-PROFILE-AI-FOLLOWUPS].test_refs`：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.（logic.test.owner）
+- `plan.logic.units[FIELD-PROFILE-COUNTS].test_refs`：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.（logic.test.owner）
 - `engineering.readiness.scaffold.status`：脚手架与代码库入口尚未补齐，由开发方完成后再检查开工门禁。（readiness.pending）
 - `engineering.readiness.stack.status`：技术栈与版本尚未补齐，由开发方完成后再检查开工门禁。（readiness.pending）
 - `engineering.readiness.backend.status`：后端框架与服务边界尚未补齐，由开发方完成后再检查开工门禁。（readiness.pending）

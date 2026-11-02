@@ -87,20 +87,23 @@ def package_check(folder,require_current_digest=True):
     return {'passed':not errors,'errors':errors,'manifest_files':len(m['files']),'relative_links_checked':links,'status':m['status'],'stage':m['stage'],'matches_current_product':same}
 
 def current_regression():
-    """Verify the latest Step54 result identity; never rerun or rebrand old tests."""
+    """Verify Step56 exact runtime identity while retaining the separate Step54 full HTTP checklist."""
     def local(ref):
         path=(PROJECT/ref).resolve()
         if not path.is_relative_to(PROJECT.resolve()):raise ValueError('原型证据路径越界 '+str(ref))
         return path
     errors=[];proof_path=PROJECT/'memory/http-e2e-acceptance-verification-20261101.json'
-    proof=read(proof_path);basis=proof['currentRegression'];summary_path=local(basis['summary'])
+    proof=read(proof_path)
+    latest=read(PROJECT/'memory/template-ai-task-entry-20261102/verification-proof.json')
+    basis={**latest['currentRegression'],'summary':'memory/template-ai-task-entry-20261102/regression-final/summary.json','stability':'memory/template-ai-task-entry-20261102/regression-final/source-stability.json'}
+    summary_path=local(basis['summary'])
     summary=read(summary_path);stability=read(local(basis['stability']))
     before=read(summary_path.parent/'source-build-test-hashes-before.json')
     expected=read(summary_path.parent/'source-build-test-hashes-after.json')
     actual={name:hashlib.sha256(local(name).read_bytes()).hexdigest() if local(name).is_file() else None for name in expected}
     mismatches=[name for name in expected if expected[name]!=actual[name]]
-    if not expected or before!=expected or not stability.get('stable') or stability.get('changed') or stability.get('runnerExitCode')!=0:errors.append('最新回归运行前后文件身份不稳定或缺证')
-    if stability.get('fileCountBefore')!=len(before) or stability.get('fileCountAfter')!=len(expected):errors.append('最新回归稳定性记录的文件计数不一致')
+    if not expected or before!=expected or stability.get('unchanged') is not True or stability.get('changed') or stability.get('runnerExitCode')!=0:errors.append('最新回归运行前后文件身份不稳定或缺证')
+    if stability.get('files')!=len(before) or len(before)!=len(expected):errors.append('最新回归稳定性记录的文件计数不一致')
     if mismatches:errors.append('当前源码/构建/测试与最新回归证据不符')
     rows=summary['results'];scripts=[row['script'] for row in rows]
     if len(set(scripts))!=len(scripts) or summary['suites']!=len(rows):errors.append('最新回归脚本身份或数量不一致')
@@ -120,8 +123,9 @@ def current_regression():
           'fully_accepted':proof['overallStatus']=='passed' and counts['passed']==len(cases),
           'partial_cases':[{'id':row['id'],'not_actually_verified':row.get('notActuallyVerified',[])} for row in cases if row['status']!='passed'],
           'limits':proof['limits'],'evidence':proof['actualChecklist'],'report':proof['report']}
-    report={'schema':'current-handoff-runtime-check@2','checked_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            'scope':'Latest Step54 bounded actual-built evidence and current file hashes; this check does not rerun tests, browse, approve or complete any stage',
+    http['local_updates']=[{'step':step,'proof':ref,'result':read(PROJECT/ref).get('functionalResult',read(PROJECT/ref).get('result'))} for step,ref in [('step-55','memory/customer-profile-integration-20261102/verification-proof.json'),('step-56','memory/template-ai-task-entry-20261102/verification-proof.json')]]
+    report={'schema':'current-handoff-runtime-check@3','checked_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'scope':'Latest Step56 bounded actual-built evidence and current file hashes, plus original Step54 HTTP coverage; this check does not rerun tests, browse, approve or complete any stage',
             'passed':not errors,'errors':errors,'not_reexecuted':True,'script_count':len(rows),'scripts':scripts,
             'passed_cases':passed,'failed_cases':failed,'changed_during_checks':stability.get('changed',[]),
             'mismatches':mismatches,'implementation_hashes':actual,'recorded_implementation_hashes':expected,
@@ -152,7 +156,7 @@ def run(scope='planning',out=OUT,formal_package=None):
     fresh=current_regression();http=fresh['actual_http'];mismatch=fresh['mismatches']
     original_review=read(WS/'product-review.json');reference_identity=current_reference_identity()
     source={'checked_runtime_and_scripts':len(fresh['implementation_hashes']),'mismatches':mismatch,'reference_run_passed_cases':fresh['passed_cases'],'reference_run_scope':fresh['scope'],'reference_run_evidence':fresh['evidence'],
-            'note':'读取最新Step54的66套/1102用例及当前178文件身份；本检查不重复执行、不用旧Step28或localTenant结果冒充当前通过。HTTP13组通过/9组部分已验与自动回归分列，不证明当前全量S8/final通过。',
+            'note':'读取最新Step56的70套/1241用例及当前191文件身份；本检查不重复执行。Step55/56局部HTTP与Step54全流程13组通过/9组部分已验分列，不证明全量S8/final通过。',
             'product_digest':product['result']['product_digest'],'product_review_digest':original_review['product_digest'],
             'current_readonly_sources':reference_identity,'superseded_exports_required':False}
     projection_file=Path(read(WS/'config.json')['source_root'])/'docs/exception-definitions.json'
@@ -217,7 +221,7 @@ def run(scope='planning',out=OUT,formal_package=None):
       {'id':'G-PRODUCT','name':'当前产品资料核对（非正式交接批准）','status':'passed' if product['result']['ready'] and product['result']['semantic_review']=='current' and not projection_mismatches else 'blocked','summary':'产品校验'+str(len(product['result']['errors']))+'错误；产品语义复核'+product['result']['semantic_review']+'；当前原型投影漂移'+str(len(projection_mismatches))+'项。DRAFT未声明正式语义交接门禁通过。','owner':'产品负责人','required_for':'planning'},
       {'id':'G-CONTRACTS','name':'本轮审计的当前规则与口径一致性','status':'passed' if contracts['passed'] else 'blocked','summary':str(len(contracts['checks']))+'项ELSE、AI准入、当前计数和草稿状态检查；发现相反的当前要求即阻断资料承接。','owner':'产品/交接复核','required_for':'planning'},
       {'id':'G-TASKS','name':'逻辑任务、验收与专业能力承接','status':'passed' if coverage['passed'] else 'blocked','summary':str(coverage['tasks'])+'任务覆盖'+str(coverage['locals'])+'动作、'+str(coverage['fields'])+'字段、'+str(coverage['pages'])+'页面、'+str(coverage['checks'])+' CHECK、'+str(coverage['acceptance'])+' AC及222专业key；依赖检查'+('通过' if coverage['passed'] else '失败')+'。','owner':'任务编制/产品复核','required_for':'planning'},
-      {'id':'G-REFERENCE','name':'当前原型回归证据及源码身份','status':'passed' if fresh['passed'] and reference_identity['passed'] else 'blocked','summary':'最新Step54记录'+str(fresh['script_count'])+'套/'+str(fresh['passed_cases'])+'用例，失败'+str(fresh['failed_cases'])+'；本次仅核'+str(len(fresh['implementation_hashes']))+'文件SHA，当前不符'+str(len(mismatch))+'项，未重复运行。实际HTTP'+str(http['passed_groups'])+'组通过/'+str(http['partial_groups'])+'组部分已验，不能作为全量浏览器或全局通过。','owner':'验证负责人','required_for':'planning'},
+      {'id':'G-REFERENCE','name':'当前原型回归证据及源码身份','status':'passed' if fresh['passed'] and reference_identity['passed'] else 'blocked','summary':'最新Step56记录'+str(fresh['script_count'])+'套/'+str(fresh['passed_cases'])+'用例，失败'+str(fresh['failed_cases'])+'；本次仅核'+str(len(fresh['implementation_hashes']))+'文件SHA，当前不符'+str(len(mismatch))+'项，未重复运行。实际HTTP'+str(http['passed_groups'])+'组通过/'+str(http['partial_groups'])+'组部分已验，不能作为全量浏览器或全局通过。','owner':'验证负责人','required_for':'planning'},
       {'id':'G-PACKAGE','name':'本次交接文件完整性','status':'passed' if pkg['passed'] else 'blocked','summary':'manifest/相对链接'+('核查通过' if pkg['passed'] else '生成后核查')+'，包内状态保留DRAFT。','owner':'交接整理','required_for':'planning'},
       {'id':'G-GLOBAL','name':'当前原型有限Mock全局与final制作门禁','status':('passed' if fresh['passed'] and proto['s8']['result']['passed'] and proto['final']['result']['passed'] and loop_status['stage']=='none' and not loop_status['finalDirty']['dirty'] else 'blocked') if http['fully_accepted'] else 'deferred-unverified','summary':'S7='+str(proto['s7']['result']['passed'])+'；S8='+str(proto['s8']['result']['passed'])+'；final='+str(proto['final']['result']['passed'])+'；阶段='+loop_status['stage']+'；快照干净='+str(not loop_status['finalDirty']['dirty'])+'。最新HTTP'+str(http['passed_groups'])+'组通过/'+str(http['partial_groups'])+'组部分已验，完整验收未授予；本项仅为formal门禁，不阻止当前资料完整的DRAFT查看包导出。回归绿不代替下载、真实音频、组合边界、file和真实接口补验。','owner':'原型验证负责人/产品范围责任人','required_for':'formal'},
       {'id':'G-ENGINEERING','name':'开发工程绑定与正式开发校验','status':'passed' if development['result']['ready'] and development['result']['semantic_review']=='current' else 'blocked','summary':'目标库/七项工程/物理映射/文件/自动化执行绑定由开发完成；当前'+str(len(dev_errors))+'条派生诊断不是同数量的产品缺陷；全量工程语义复核='+development['result']['semantic_review']+'。','owner':'开发负责人及服务对接负责人','required_for':'formal'},

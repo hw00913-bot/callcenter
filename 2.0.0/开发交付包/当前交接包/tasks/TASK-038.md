@@ -18,7 +18,7 @@
 - FUNC-2020 查询本租户黑名单分组及号码：沿原分组+号码唯一主维护模型查询本租户名单及客户拒联来源；超管仅查看，租户管理员/运营各按既有操作资格。；来源 documentation/input/functions.json#FUNC-2020
 - FUNC-2021 查看黑名单来源及远端同步详情：显示准确号码来源、通话、原因、有效期、解除和逐来源远端足迹；本地生效与供应商终态明确分开。；来源 documentation/input/functions.json#FUNC-2021
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`edc5225b5022e6100a5e5848c84fb590eba1e70c2a584fffa610b9133c191a29`
 
 ## 前置任务
 

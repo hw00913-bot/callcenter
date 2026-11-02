@@ -12,7 +12,7 @@ import json
 import sys
 
 ROOT = Path(__file__).resolve().parent
-VERSION = '2.0.0-current-20261102-step54'
+VERSION = '2.0.0-current-20261102-step56'
 RESOURCE = 'FIELD-FLOW-EXECUTION-RESOURCE'
 PRIORITY = 'FIELD-FLOW-EXECUTION-PRIORITY'
 QUEUED = 'FIELD-FLOW-EXECUTION-QUEUED-AT'
@@ -491,6 +491,8 @@ def apply():
     b,p,u,pf,rules=apply_ai_provider(b,p,u,pf,rules)
     from entry_import_current_delta import apply as apply_entry_current
     b,p,u,pf,rules=apply_entry_current(b,p,u,pf,rules)
+    from profile_template_current_delta import apply as apply_profile_template
+    b,p,u,pf,rules=apply_profile_template(b,p,u,pf,rules)
     for name, data in [('business.json', b), ('platform.json', p), ('ui.json', u), ('ui-page-facts.json', pf)]:
         write(ROOT / 'fragments' / name, data)
     write(ROOT / 'global-rule-drafts.json', rules)
@@ -517,7 +519,7 @@ def project():
         write(source / 'docs/field-alignment.json', alignment)
     previous = read(source / 'docs/exception-definitions.json')
     previous['version'] = VERSION
-    previous['scope'] = '当前原型步骤29～54的产品投影；以Step48～54的场景schema、两入口模式/渠道、统一轻导入、原历史同表、原请求/执行/队列及场景取消生命周期为现行规则。旧被替代配置只保历史，不提升13已验/9部分已验的HTTP结果或真实接口/正式审批。'
+    previous['scope'] = '当前原型步骤29～56的产品投影；保Step48～54入口/导入/执行合同，并同步Step55客户档案全来源只读归集及Step56模板AI任务先选/自动目录/准确场景联动。局部通过不提升Step54的13组已验/9组部分、file/真实接口或正式审批。'
     previous['changes'] = [c for c in previous.get('changes', []) if c['id'] != 'CHG-042-EXECUTION'] + [
         {'id': 'CHG-042-EXECUTION', 'title': '两模式具体执行安排与五档执行优先级',
          'acceptance_ids': ['AC-2150', 'AC-2151', 'AC-2152', 'AC-2153', 'AC-2154'],
@@ -533,7 +535,11 @@ def project():
     latest=read(ROOT/'fragments/business.json')['entry_import_current_delta']
     ids={c['id'] for c in latest['changes']}
     previous['changes']=[c for c in previous['changes'] if c['id'] not in ids]+latest['changes']
-    previous['current_verification_boundary']=latest['limits']
+    from profile_template_current_delta import BOUNDARY
+    current_delta=read(ROOT/'fragments/business.json')['profile_template_current_delta']
+    new_ids={row['id'] for row in current_delta['changes']}
+    previous['changes']=[row for row in previous['changes'] if row['id'] not in new_ids]+current_delta['changes']
+    previous['current_verification_boundary']=BOUNDARY
     # This is the current mutable documentation source, not a historical source snapshot.
     write(source / 'docs/exception-definitions.json', previous)
     for relative in ['docs/functional-spec.json', 'docs/change-log.json', 'documentation/input/consolidated-reviewed-facts.json']:
@@ -555,6 +561,9 @@ def project():
     latest_note='\n\n<!-- STEP54-CURRENT-ENTRY -->\n## Step48～54 当前入口与有限验收\n\n'+ENTRY+'\n\n'+AI_SCHEMA+'\n\n'+SIMPLE+'\n\n'+SOURCE+'\n\n'+CLOSE+'\n\n'+LIMITS+'\n<!-- /STEP54-CURRENT-ENTRY -->\n'
     import re
     text=re.sub(r'\n*<!-- STEP54-CURRENT-ENTRY -->.*?<!-- /STEP54-CURRENT-ENTRY -->\n*','\n',text,flags=re.S)+latest_note
+    from profile_template_current_delta import PROFILE, TEMPLATE, BOUNDARY
+    current_note='\n\n<!-- STEP55-56-CURRENT -->\n## Step55～56 当前客户档案与模板任务入口\n\n'+PROFILE+'\n\n'+TEMPLATE+'\n\n'+BOUNDARY+'\n<!-- /STEP55-56-CURRENT -->\n'
+    text=re.sub(r'\n*<!-- STEP55-56-CURRENT -->.*?<!-- /STEP55-56-CURRENT -->\n*','\n',text,flags=re.S)+current_note
     decisions.write_text(text)
     # Root current docs/readers are requested user deliverables, while root memory/control stays with orchestrator.
     relatives = ['docs/functional-spec.json', 'docs/functional-spec.md', 'docs/field-alignment.json', 'docs/field-alignment.md',
@@ -580,6 +589,12 @@ def capture():
     from entry_import_current_delta import AUTHS, PROOF
     tracked += [prototype/rel for rel in AUTHS]
     tracked += [prototype/PROOF, prototype/'memory/http-e2e-acceptance-20261101/actual-click-checklist.json', prototype/'memory/http-e2e-acceptance-20261101/regression-final-race/summary.json', prototype/'memory/http-e2e-acceptance-20261101/regression-final-race/source-stability.json', prototype/'memory/http-e2e-acceptance-20261101/scene-reopen-fix.json']
+    from profile_template_current_delta import AUTHS as PROFILE_AUTHS, PROOFS as PROFILE_PROOFS
+    tracked += [prototype/rel for rel in PROFILE_AUTHS+PROFILE_PROOFS]
+    tracked += [prototype/'inputs/development-package-and-dual-publish-authorization-20261102-step56.json',prototype/'docs/customer-profile-integration.md']
+    for directory in ['memory/customer-profile-integration-20261102','memory/template-ai-task-entry-20261102']:
+        base=prototype/directory
+        tracked += [base/name for name in ['browser-evidence.json','static-verification.json','report.html','browser-final-assets.json','browser-final-metadata.json','final-binding-dom.json'] if (base/name).is_file()]
     evidence = read(ROOT / '续接输入/docs/exception-definitions.json')
     evidence.update(version=VERSION, captured_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                     prototype_root=str(prototype),

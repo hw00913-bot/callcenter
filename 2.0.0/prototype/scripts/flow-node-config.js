@@ -1,5 +1,5 @@
   // Configure a processing node in the same order users describe it:
-  // basic information, one processing method, then branch conditions.
+  // basic information, one processing method, execution arrangement, then branches.
   const processMethodProfiles={
     AI:{label:'AI 外呼',channel:'AI',domainId:'DCC_LOCAL_LABEL'},
     MANUAL:{label:'人工外呼',channel:'CLOUD',domainId:'TIANRUN_MANUAL_SIP_CAUSE'},
@@ -35,12 +35,17 @@
       setMethodSource(node,method);node.conditionSource={...node.conditionSource,sourceNodeId,scope};
     }
   }
+  function drawNodeExecution(){
+    const document=window.document,panel=document?.querySelector?.('#flow-configuration-editor .fc-config-panel'),position=panel?.scrollTop;
+    draw();
+    const restored=document?.querySelector?.('#flow-configuration-editor .fc-config-panel');if(restored&&Number.isFinite(position))restored.scrollTop=position;
+  }
   function selectProcessMethod(nodeId,method){
     if(!editableRouting()||!processMethodProfiles[method])return;readValues();const node=nodeById(nodeId);if(!node||node.type!=='PROCESS')return;
     const changed=node.methods?.length!==1||node.methods[0]!==method,hasRules=nodeEdges(nodeId).some(edge=>edge.conditions?.rules?.length);
     node.methods=[method];if(changed&&method==='MANUAL')node.manualAssignmentMode='MANUAL';if(changed){const tenantId=nodeExecutionTenant();if(tenantId)node.executionDefaults=(Array.isArray(node.executionDefaults)?node.executionDefaults:[]).filter(item=>item.tenantId!==tenantId);}setMethodSource(node,method);touch();
     if(changed&&hasRules){editor.status='';editor.statusKind='';}
-    draw();
+    drawNodeExecution();
   }
   function selectBranchResultMethod(nodeId,method){
     if(!editableRouting()||method!=='IMPORT'&&!processMethodProfiles[method])return;readValues();const node=nodeById(nodeId);if(!node||node.type!=='TRANSFER')return;
@@ -52,31 +57,76 @@
     setMethodSource(node,method);if(node.conditionSource.scope==='CURRENT_NODE')node.conditionSource.scope='CURRENT_ROUND';touch();draw();
   }
   const nodeExecutionPriorities=[{value:5,label:'最高'},{value:4,label:'高'},{value:3,label:'中'},{value:2,label:'低'},{value:1,label:'最低'}];
+  const nodeExecutionAutoReads=new WeakMap();
   function nodePriorityValue(node){const value=Number(node?.executionPriority);return Number.isInteger(value)&&value>=1&&value<=5?value:3;}
   function nodePriorityLabel(node){return nodeExecutionPriorities.find(item=>item.value===nodePriorityValue(node))?.label||'中';}
   function nodeExecutionAccess(){const result=context(),a=result.status==='success'?(result.data?.access||result.data):{},live=window.AppState?.effectiveAccess?.()||{};return {...a,...live};}
   function nodeExecutionTenant(){const a=nodeExecutionAccess();try{const scope=parent.DSession?.context?.()?.scope;if(scope?.kind&&scope.kind!=='tenant')return '';if(scope?.id&&a.tenantId&&scope.id!==a.tenantId)return '';}catch(_){}return a.tenantId||'';}
   function nodeExecutionMutable(){const a=nodeExecutionAccess();return !editor.readOnly&&!!nodeExecutionTenant()&&a.roleCode==='ADMIN'&&window.AppState?.canAction?.('task.assign')===true;}
+  function nodeExecutionCategory(){return editor.values.categoryRef?.categoryId||editor.values.referenceCategoryRef?.categoryId||routingDirectory().data?.categoryId||'';}
   function nodeExecutionChoices(node){const tenantId=nodeExecutionTenant(),method=processMethodChoice(node);if(!tenantId||!method)return {ok:false,people:[],resources:[],scenes:[],message:'请切换到实际执行租户维护本租户默认任务或坐席。'};const categoryId=editor.values.categoryRef?.categoryId||editor.values.referenceCategoryRef?.categoryId||routingDirectory().data?.categoryId;try{return window.DFourNodeExecution?.choices?.({tenantId,brandId:editor.brandId,categoryId,method,node,handlingMode:'TEMPLATE'})||{ok:false,people:[],resources:[],scenes:[],message:'执行目录尚未就绪，请在导入或手动分配时明确安排。'};}catch(error){return {ok:false,people:[],resources:[],scenes:[],message:error.message};}}
   function nodeDefaultExecution(node){return (Array.isArray(node.executionDefaults)?node.executionDefaults:[]).find(item=>item.tenantId===nodeExecutionTenant()&&(!item.method||item.method===processMethodChoice(node)))||{};}
   function nodeManualAssignmentMode(node){const current=nodeDefaultExecution(node),mode=current.manualAssignmentMode||node.manualAssignmentMode;return ['MANUAL','SPECIFIC_SEAT'].includes(mode)?mode:current.resourceId?'SPECIFIC_SEAT':'MANUAL';}
   function nodeExecutionOptions(rows,id,idKey,labelKey,empty){const list=(rows||[]).map(row=>({value:row[idKey]??row.id,label:row[labelKey]||row.name||row[idKey]||row.id}));if(id&&!list.some(item=>String(item.value)===String(id)))list.unshift({value:id,label:'原选择已失效或不适配，请重新选择'});return options(list,id,empty);}
+  function nodeExecutionResources(directory,tenantId,method){return (directory.resources||[...(directory.tasks||[]),...(directory.seats||[])]).filter(row=>(!row.tenantId||row.tenantId===tenantId)&&(!row.method||row.method===method));}
+  function nodeAITaskScenes(task,scenes,exactOnly=false){
+    if(!task)return [];
+    const tenantId=nodeExecutionTenant(),categoryId=nodeExecutionCategory(),text=value=>value===undefined||value===null?'':String(value),explicit=[task.sceneId,task.nativeExplicitSceneId].map(text).filter(Boolean),remote=text(task.remoteTaskId);
+    return (scenes||[]).filter(scene=>{
+      if(scene.tenantId&&scene.tenantId!==tenantId||scene.categoryId&&categoryId&&scene.categoryId!==categoryId||scene.brandId&&editor.brandId&&scene.brandId!==editor.brandId)return false;
+      if(task.platform&&scene.platform&&text(task.platform)!==text(scene.platform)||task.supplierId&&scene.supplierId&&text(task.supplierId)!==text(scene.supplierId)||task.categoryId&&scene.categoryId&&task.categoryId!==scene.categoryId)return false;
+      const identities=[scene.id,scene.sceneId,scene.executionSceneId].map(text).filter(Boolean),professional=text(scene.professionalTaskId);
+      if(explicit.some(id=>!identities.includes(id))||professional&&(!remote||remote!==professional))return false;
+      return !exactOnly||!!text(task.platform)&&!!text(scene.platform)&&(explicit.length>0||!!remote&&[professional,text(scene.executionSceneId)].filter(Boolean).includes(remote));
+    });
+  }
+  function prepareNodeAIExecution(node,directory){
+    if(!nodeExecutionMutable()||processMethodChoice(node)!=='AI'||!nodeExecutionCategory()||typeof window.DFourNodeExecution?.prepare!=='function'||directory.ok!==false&&directory.directoryReady!==false&&directory.taskDirectoryReady!==false)return;
+    const owner=editor,tenantId=nodeExecutionTenant(),categoryId=nodeExecutionCategory(),nodeId=node.nodeId,key=JSON.stringify([nodeId,tenantId,categoryId]),attempted=nodeExecutionAutoReads.get(owner)||new Set();
+    if(attempted.has(key))return;attempted.add(key);nodeExecutionAutoReads.set(owner,attempted);
+    const current=()=>{try{return editor===owner&&editableRouting()&&nodeExecutionMutable()&&nodeExecutionTenant()===tenantId&&nodeExecutionCategory()===categoryId&&processMethodChoice(nodeById(nodeId))==='AI';}catch(_){return false;}};
+    Promise.resolve().then(()=>{if(current())return loadNodeExecution(nodeId,current);});
+  }
+  function nodeAIExecutionSection(node,directory,draft,change){
+    prepareNodeAIExecution(node,directory);
+    const tenantId=nodeExecutionTenant(),categoryId=nodeExecutionCategory(),mutable=nodeExecutionMutable(),scenes=directory.scenes||directory.aiScenes||[],directoryReady=directory.ok!==false&&directory.directoryReady!==false&&directory.taskDirectoryReady!==false,resources=tenantId&&categoryId&&directoryReady?nodeExecutionResources(directory,tenantId,'AI'):[],matches=resources.filter(row=>String(row.resourceId)===String(draft.resourceId||'')),task=matches.length===1?matches[0]:null,taskScenes=nodeAITaskScenes(task,scenes),canChoose=mutable&&!!categoryId,disabled=canChoose?'':' disabled';
+    let notice='';
+    if(!tenantId){let selected;try{selected=parent.DSession?.context?.()?.scope;}catch(_){}notice=selected?.kind==='tenant'&&selected.id?'当前账号的执行范围与所选租户不一致，请由该租户管理员维护任务安排。':'当前未确定执行租户；请在有权的业务租户中维护任务安排。';}
+    else if(!mutable)notice=editor.readOnly?'当前为只读查看，不能修改任务安排。':'当前账号没有本租户任务安排权限，请由有权的租户管理员维护。';
+    else if(!categoryId)notice='请先在模板基本信息中选择参照业务分类，再选择 AI 呼叫任务。';
+    else if(directory.ok===false)notice=directory.message||'AI任务与场景尚未可靠读取，请刷新后重试。';
+    else if(directory.directoryReady===false||directory.taskDirectoryReady===false)notice='AI任务与场景尚未读取完整；读取失败时可点击刷新重试。';
+    else if(draft.resourceId&&!task)notice='原AI任务已失效或不适配，请重新选择，或暂不指定、后续分配。';
+    else if(!resources.length)notice=directory.message||'本租户暂无适配当前分类的可分配AI任务，请先核对呼叫中心的任务配置。';
+    else if(task&&!taskScenes.length)notice='未读取到与所选任务准确适配的场景，请核对任务及场景配置。';
+    else if(task&&!draft.aiSceneId)notice=taskScenes.length>1?'所选任务关联多个场景，请明确选择对应场景。':'该任务尚无唯一准确的场景关联，请核对后选择对应场景。';
+    return (tenantId?'<div class="fc-execution-scope">当前执行租户：'+e(window.CloudCallRuntime?.tenant?.(tenantId)?.name||tenantId)+'</div>':'')+field('AI呼叫任务','<select aria-label="AI呼叫任务"'+disabled+' onchange="'+change('resourceId')+'">'+nodeExecutionOptions(resources,draft.resourceId,'resourceId','name','暂不指定，后续分配')+'</select>')+field('对应AI呼叫场景','<select aria-label="默认AI呼叫场景"'+(!canChoose||!task?' disabled':'')+' onchange="'+change('aiSceneId')+'">'+nodeExecutionOptions(taskScenes,draft.aiSceneId,'id','name',task?'请选择或核对对应场景':'选择任务后自动带出或确认场景')+'</select>')+(mutable&&categoryId?'<button type="button" class="btn" onclick="'+call('loadNodeExecution',node.nodeId)+'">刷新本租户任务与场景</button>':'')+(notice?'<small class="fc-execution-warning">'+e(notice)+'</small>':'')+'<small>可现在指定任务，也可选择“暂不指定，后续分配”。选择任务后，场景仅按准确关联带出；执行前仍需明确有效任务及场景。</small>';
+  }
   function changeNodeExecution(nodeId,key,value){
     if(!editableRouting()||!['executionPriority','resourceId','aiSceneId','manualAssignmentMode'].includes(key))return;readValues();const node=nodeById(nodeId);if(node?.type!=='PROCESS')return;
     if(key==='executionPriority'){const numeric=Number(value);if(!nodeExecutionPriorities.some(item=>item.value===numeric))return;node.executionPriority=numeric;touch();return;}
-    if(key==='manualAssignmentMode'){if(processMethodChoice(node)!=='MANUAL'||!['MANUAL','SPECIFIC_SEAT'].includes(value))return;node.manualAssignmentMode=value;if(nodeExecutionMutable()){const tenantId=nodeExecutionTenant(),next={...nodeDefaultExecution(node),tenantId,method:'MANUAL',manualAssignmentMode:value};delete next.accountId;delete next.followupAccountId;if(value==='MANUAL')delete next.resourceId;node.executionDefaults=[...(Array.isArray(node.executionDefaults)?node.executionDefaults:[]).filter(item=>item.tenantId!==tenantId),next];}touch();draw();return;}
-    if(!nodeExecutionMutable())return;const tenantId=nodeExecutionTenant(),prior=nodeDefaultExecution(node),next={...prior,tenantId,method:processMethodChoice(node)};delete next.accountId;delete next.followupAccountId;
+    if(key==='manualAssignmentMode'){if(processMethodChoice(node)!=='MANUAL'||!['MANUAL','SPECIFIC_SEAT'].includes(value))return;node.manualAssignmentMode=value;if(nodeExecutionMutable()){const tenantId=nodeExecutionTenant(),next={...nodeDefaultExecution(node),tenantId,method:'MANUAL',manualAssignmentMode:value};delete next.accountId;delete next.followupAccountId;if(value==='MANUAL')delete next.resourceId;node.executionDefaults=[...(Array.isArray(node.executionDefaults)?node.executionDefaults:[]).filter(item=>item.tenantId!==tenantId),next];}touch();drawNodeExecution();return;}
+    if(!nodeExecutionMutable())return;const tenantId=nodeExecutionTenant(),prior=nodeDefaultExecution(node),method=processMethodChoice(node),next={...prior,tenantId,method};delete next.accountId;delete next.followupAccountId;
+    if(method==='AI'){
+      if(key==='resourceId'&&!value){node.executionDefaults=(Array.isArray(node.executionDefaults)?node.executionDefaults:[]).filter(item=>item.tenantId!==tenantId);touch();drawNodeExecution();return;}
+      if(!nodeExecutionCategory())return;
+      const directory=nodeExecutionChoices(node),resources=nodeExecutionResources(directory,tenantId,'AI');
+      if(directory.ok===false||directory.directoryReady===false||directory.taskDirectoryReady===false)return;
+      if(key==='resourceId'){const matches=resources.filter(row=>String(row.resourceId)===String(value));if(matches.length!==1)return;next.resourceId=value;delete next.aiSceneId;const exact=nodeAITaskScenes(matches[0],directory.scenes||directory.aiScenes||[],true);if(exact.length===1)next.aiSceneId=String(exact[0].id||exact[0].sceneId);}
+      else if(key==='aiSceneId'){const matches=resources.filter(row=>String(row.resourceId)===String(prior.resourceId));if(matches.length!==1)return;const candidates=nodeAITaskScenes(matches[0],directory.scenes||directory.aiScenes||[]).filter(scene=>String(scene.id||scene.sceneId)===String(value));if(value&&candidates.length!==1)return;if(value)next.aiSceneId=value;else delete next.aiSceneId;}
+      node.executionDefaults=[...(Array.isArray(node.executionDefaults)?node.executionDefaults:[]).filter(item=>item.tenantId!==tenantId),next];touch();drawNodeExecution();return;
+    }
     if(key==='resourceId'&&!value)delete next.resourceId;else next[key]=value;
     if(processMethodChoice(node)==='MANUAL')next.manualAssignmentMode=nodeManualAssignmentMode(node);
-    node.executionDefaults=[...(Array.isArray(node.executionDefaults)?node.executionDefaults:[]).filter(item=>item.tenantId!==tenantId),next];touch();draw();
+    node.executionDefaults=[...(Array.isArray(node.executionDefaults)?node.executionDefaults:[]).filter(item=>item.tenantId!==tenantId),next];touch();drawNodeExecution();
   }
-  async function loadNodeExecution(nodeId){if(!editableRouting())return;const current=editor;try{const ret=await window.DFourNodeExecution?.prepare?.();if(editor!==current)return;if(ret?.ok===false){status(ret.message||'本租户执行目录尚未就绪','pending');return;}draw();}catch(error){if(editor===current)status(error.message||'执行目录未读取成功','pending');}}
+  async function loadNodeExecution(nodeId,guard){if(!editableRouting()||guard&&!guard())return;const current=editor;try{const ret=await window.DFourNodeExecution?.prepare?.();if(editor!==current||guard&&!guard())return;if(ret?.ok===false){status(ret.message||'本租户执行目录尚未就绪','pending');return;}readValues();drawNodeExecution();}catch(error){if(editor===current&&(!guard||guard()))status(error.message||'执行目录未读取成功','pending');}}
   function nodeExecutionSection(node){
-    const method=processMethodChoice(node),manual=method==='MANUAL',mode=nodeManualAssignmentMode(node),readonly=editor.readOnly,tenantId=nodeExecutionTenant(),mutable=nodeExecutionMutable(),directory=nodeExecutionChoices(node),draft=nodeDefaultExecution(node),change=key=>e('FlowConfiguration.changeNodeExecution('+JSON.stringify(node.nodeId)+','+JSON.stringify(key)+',this.value)'),disabled=mutable?'':' disabled',scenes=directory.scenes||directory.aiScenes||[];
-    const selectedScene=scenes.find(scene=>String(scene.id||scene.sceneId)===String(draft.aiSceneId)),resources=(directory.resources||[...(directory.tasks||[]),...(directory.seats||[])]).filter(resource=>(!resource.tenantId||resource.tenantId===tenantId)&&(!resource.method||resource.method===method)&&(method!=='AI'||selectedScene&&(!resource.categoryId||resource.categoryId===selectedScene.categoryId)&&(!resource.sceneId||[String(selectedScene.id),String(selectedScene.sceneId),String(selectedScene.executionSceneId)].includes(String(resource.sceneId)))&&(!resource.platform||!selectedScene.platform||String(resource.platform)===String(selectedScene.platform))&&(!resource.supplierId||!selectedScene.supplierId||String(resource.supplierId)===String(selectedScene.supplierId))));
+    const method=processMethodChoice(node),manual=method==='MANUAL',mode=nodeManualAssignmentMode(node),readonly=editor.readOnly,tenantId=nodeExecutionTenant(),mutable=nodeExecutionMutable(),directory=nodeExecutionChoices(node),draft=nodeDefaultExecution(node),change=key=>e('FlowConfiguration.changeNodeExecution('+JSON.stringify(node.nodeId)+','+JSON.stringify(key)+',this.value)'),disabled=mutable?'':' disabled',resources=nodeExecutionResources(directory,tenantId,method);
     const priority=field('默认执行优先级','<select data-node-execution-priority aria-label="默认执行优先级"'+(readonly?' disabled':' onchange="'+change('executionPriority')+'"')+'>'+options(nodeExecutionPriorities,nodePriorityValue(node))+'</select>','同一执行资源内先高后低；同级按待执行入队先后。'),manualControl=manual?field('坐席安排','<select aria-label="坐席安排"'+(readonly?' disabled':' onchange="'+change('manualAssignmentMode')+'"')+'>'+options([{value:'MANUAL',label:'人工分配'},{value:'SPECIFIC_SEAT',label:'指定坐席'}],mode)+'</select>'):'';
-    let target='';if(manual&&mode==='MANUAL')target='<p class="fc-muted">此节点先进入待分配，后续由有权人员通过原单条或批量手动分配指定坐席，再由坐席本人拨打。</p>';
-    else if(method&&tenantId){target='<div class="fc-execution-scope">当前执行租户：'+e(window.CloudCallRuntime?.tenant?.(tenantId)?.name||tenantId)+'</div>'+(method==='AI'?field('默认AI呼叫场景（手工或接口来源）','<select aria-label="默认AI呼叫场景"'+disabled+' onchange="'+change('aiSceneId')+'">'+nodeExecutionOptions(scenes,draft.aiSceneId,'id','name','选择本租户及当前分类适配场景')+'</select>'):'')+field(manual?'默认执行坐席 <em>*</em>':'默认执行任务','<select aria-label="默认执行对象"'+disabled+' onchange="'+change('resourceId')+'">'+nodeExecutionOptions(resources,draft.resourceId,'resourceId','name',manual?'请选择本租户有效坐席':'导入或分配时选择')+'</select>')+(method==='AI'&&mutable?'<button type="button" class="btn" onclick="'+call('loadNodeExecution',node.nodeId)+'">刷新本租户任务与场景</button>':'')+(!directory.ok||!resources.length?'<small class="fc-execution-warning">'+e(directory.message||(manual?'本租户暂无可分配的有效电话坐席，请先完成坐席配置。':method==='AI'&&!draft.aiSceneId?'先选择默认AI场景，再选择适配的执行任务；也可留待导入或手动分配时安排。':'本租户暂无可分配的具体任务，请先在呼叫中心创建任务。'))+'</small>':'')+(method==='PREDICTIVE'?'<small>坐席、队列及分配策略沿任务配置，不再额外选择人员；实际接听人填写结果。</small>':'');}
+    let target='';if(method==='AI')target=nodeAIExecutionSection(node,directory,draft,change);
+    else if(manual&&mode==='MANUAL')target='<p class="fc-muted">此节点先进入待分配，后续由有权人员通过原单条或批量手动分配指定坐席，再由坐席本人拨打。</p>';
+    else if(method&&tenantId){target='<div class="fc-execution-scope">当前执行租户：'+e(window.CloudCallRuntime?.tenant?.(tenantId)?.name||tenantId)+'</div>'+field(manual?'默认执行坐席 <em>*</em>':'默认执行任务','<select aria-label="默认执行对象"'+disabled+' onchange="'+change('resourceId')+'">'+nodeExecutionOptions(resources,draft.resourceId,'resourceId','name',manual?'请选择本租户有效坐席':'导入或分配时选择')+'</select>')+(!directory.ok||!resources.length?'<small class="fc-execution-warning">'+e(directory.message||(manual?'本租户暂无可分配的有效电话坐席，请先完成坐席配置。':'本租户暂无可分配的具体任务，请先在呼叫中心创建任务。'))+'</small>':'')+(method==='PREDICTIVE'?'<small>坐席、队列及分配策略沿任务配置，不再额外选择人员；实际接听人填写结果。</small>':'');}
     else target='<p class="fc-muted">'+e(method?'切换至实际执行租户后，可为本节点配置该租户的默认任务或坐席。':'选择呼叫方式后，可配置具体执行安排。')+'</p>';
     return '<section class="fc-node-config-section fc-node-execution" data-config-step="execution"><h4 class="fc-config-step-title"><span>03</span>默认执行安排</h4>'+priority+manualControl+target+'<small>任务与指定坐席按实际承接租户分别安排，本次导入可覆盖；人工分配保留原后续分配入口。</small></section>';
   }

@@ -97,3 +97,13 @@ Step51来源最新用户三截图及inputs/unified-task-import-roster-authorizat
 ## 2026-11-01 Step54 HTTP实际完整流程验收
 
 用户明确改用HTTP继续验收，原需求冻结和开发包保持，离线仍未验。仅本轮真实点击可作为HTTP路径通过证据，发现可靠问题精确修复并重走。授权 inputs/http-e2e-acceptance-authorization-20261101.json，清单 memory/http-e2e-acceptance-20261101/actual-click-checklist.json；本轮三条主流程实际闭环并修复，13组已验／9组部分已验，完整验收仍Pending。最新66套1102通过，102观察含2无效；总证明 memory/http-e2e-acceptance-verification-20261101.json，报告 http-e2e-acceptance-20261101/http-acceptance-report.html。开发包不变，下载落地/真实音频/部分组合/file未验均保留。
+
+
+## Step55 客户档案聚合修复
+
+用户明确授权修复统一业务与专业AI/PRED跟进未完整入档问题。仅只读聚合，不复制持久业务/通话；原来源与数据权限保持，Cua实点与定向检查均需新证据。开发包及远端本步不自动更新。当前进行中；授权inputs/customer-profile-integration-authorization-20261102.json。
+
+
+## Step56 AI任务选择入口
+
+依据本轮用户问题及既有具体执行任务授权，补模板节点任务入口/准确场景联动；范围见execution-steps.md Step56与inputs/template-ai-task-entry-authorization-20261102.json。当前待验，仅本地原型。

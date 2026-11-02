@@ -20,7 +20,7 @@ AI和Cloud模块分别开通，账号全局主体与租户成员关系分开。�
 - FUNC-2011 创建账号或显式关联已有账号为本租户成员：账号全局档案与租户成员关系分开；准确手机号查找仅返回候选，需明确账号ID后关联，不能同名同号自动合并。；来源 documentation/input/functions.json#FUNC-2011
 - FUNC-2012 配置本租户成员角色与模块权限：租户管理员只委派本租户已开通模块内本人允许子集；五生产角色固定，坐席能力和标签配置/财务/资源资格单独控制。；来源 documentation/input/functions.json#FUNC-2012
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`edc5225b5022e6100a5e5848c84fb590eba1e70c2a584fffa610b9133c191a29`
 
 ## 前置任务
 

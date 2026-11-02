@@ -6,7 +6,7 @@
 
 本次选择 `development` 阶段；下面先保留该阶段返回的完整诊断，再列出两阶段明细。两阶段门禁独立展示，工程缺口不自动否定产品交接。
 
-检查错误：1156 条；提醒：3 条。本报告为核对用明细，不要求从头顺序阅读。
+检查错误：1171 条；提醒：3 条。本报告为核对用明细，不要求从头顺序阅读。
 
 ## 检查类别
 
@@ -14,8 +14,8 @@
 | --- | --- |
 | `coverage.design` | 1 |
 | `logic.local.module` | 163 |
-| `logic.required.text` | 844 |
-| `logic.test.owner` | 3 |
+| `logic.required.text` | 854 |
+| `logic.test.owner` | 8 |
 | `question.blocking` | 12 |
 | `readiness.pending` | 7 |
 | `repository.root` | 1 |
@@ -1324,6 +1324,26 @@
 
 - `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-TENANT].persistence.mapping：Provide an explicit nonempty statement.
 
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-IDENTITY].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-IDENTITY].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-SOURCE-REFS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-SOURCE-REFS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-SOURCE-STATES].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-SOURCE-STATES].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-AI-FOLLOWUPS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-AI-FOLLOWUPS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-COUNTS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-COUNTS].persistence.mapping：Provide an explicit nonempty statement.
+
 - `logic.required.text` plan.logic.fields[FIELD-PLAT-ACCOUNT-ID].interface_note：Provide an explicit nonempty statement.
 
 - `logic.required.text` plan.logic.fields[FIELD-PLAT-ACCOUNT-ID].persistence.mapping：Provide an explicit nonempty statement.
@@ -2322,6 +2342,16 @@
 
 - `logic.test.owner` plan.logic.units[FIELD-FLOW-TASK-IMPORT-PARAMETERS].test_refs：Test CHECK-PLAT-AI-IMPORT-FIELD-MAPPING is not owned by a task referencing this logic unit.
 
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-IDENTITY].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-SOURCE-REFS].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-SOURCE-STATES].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-AI-FOLLOWUPS].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-COUNTS].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
 - `readiness.pending` engineering.readiness.scaffold.status：脚手架与代码库入口尚未补齐，由开发方完成后再检查开工门禁。
 
 - `readiness.pending` engineering.readiness.stack.status：技术栈与版本尚未补齐，由开发方完成后再检查开工门禁。
@@ -2368,7 +2398,7 @@
 
 ## 工程与实施阶段
 
-确定性检查：未通过；错误 1156 条；提醒 3 条。
+确定性检查：未通过；错误 1171 条；提醒 3 条。
 
 语义复核：草稿，未声明语义门禁通过
 
@@ -3674,6 +3704,26 @@
 
 - `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-TENANT].persistence.mapping：Provide an explicit nonempty statement.
 
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-IDENTITY].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-IDENTITY].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-SOURCE-REFS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-SOURCE-REFS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-SOURCE-STATES].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-SOURCE-STATES].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-AI-FOLLOWUPS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-AI-FOLLOWUPS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-COUNTS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PROFILE-COUNTS].persistence.mapping：Provide an explicit nonempty statement.
+
 - `logic.required.text` plan.logic.fields[FIELD-PLAT-ACCOUNT-ID].interface_note：Provide an explicit nonempty statement.
 
 - `logic.required.text` plan.logic.fields[FIELD-PLAT-ACCOUNT-ID].persistence.mapping：Provide an explicit nonempty statement.
@@ -4672,6 +4722,16 @@
 
 - `logic.test.owner` plan.logic.units[FIELD-FLOW-TASK-IMPORT-PARAMETERS].test_refs：Test CHECK-PLAT-AI-IMPORT-FIELD-MAPPING is not owned by a task referencing this logic unit.
 
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-IDENTITY].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-SOURCE-REFS].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-SOURCE-STATES].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-AI-FOLLOWUPS].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-PROFILE-COUNTS].test_refs：Test CHECK-PLAT-CUSTOMER-DIRECTORY is not owned by a task referencing this logic unit.
+
 - `readiness.pending` engineering.readiness.scaffold.status：脚手架与代码库入口尚未补齐，由开发方完成后再检查开工门禁。
 
 - `readiness.pending` engineering.readiness.stack.status：技术栈与版本尚未补齐，由开发方完成后再检查开工门禁。
@@ -4726,9 +4786,9 @@
 
 - 产品来源：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`
 - 来源类型：`current`
-- 来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+- 来源指纹：`edc5225b5022e6100a5e5848c84fb590eba1e70c2a584fffa610b9133c191a29`
 - 目标代码库：`None`
 - 代码快照：`4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`
-- 规划输入指纹：`3e70087cef793298edee7dae3b29666dab3be78c2e82531a79bda3399f5babdf`
+- 规划输入指纹：`9b685cd7277eaa93c3e06a301d5cbc76a74b2e26b5f236fd9ef7a722a5287f5b`
 
 包不复制完整产品原文或代码库。跨电脑交接时应提供对应版本资料，更新定位后重新核验。

@@ -1,0 +1,74 @@
+{
+  "schema": "customer-profile-integration-verification@1",
+  "at": "2026-11-02T18:23:41.327332+08:00",
+  "step": "step-55",
+  "functionalResult": "bounded-local-http-pass",
+  "summary": "客户档案统一归集有权业务、AI通话及独立回访、原云呼叫和预外呼历史；原业务与专业记录分别保留。",
+  "scope": "当前原型客户档案局部修复；本地有限Mock与隔离模型，非整版、离线或生产验收",
+  "fixes": [
+    "原业务跟进与联系档案分割为两套且原AI历史遗漏",
+    "原AI独立回访不在通话表时仍应入档",
+    "只读档案动作被旧点击白名单拦截",
+    "原AI来源延后回调缺少当前路由/页面/身份与读取权限复核",
+    "冷恢复有效或暂不可取客户id阻止异步更新，造成旧loading残留",
+    "旧专业话单纯读取保留最新已存事实，避免查询启动同步计时器或推进回执",
+    "跟进状态中文展示及通话时长不换行"
+  ],
+  "actualHttp": {
+    "browser": "CUA / existing HTTP server",
+    "url": "http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2203",
+    "observations": 32,
+    "validObservations": 31,
+    "beforeValid": 6,
+    "afterValid": 25,
+    "invalidObservations": [
+      "after-20-final-selected-detail-reload"
+    ],
+    "evidence": "browser-evidence.json",
+    "newCallsOrImportsDuringStep": 0,
+    "note": "原QA54合成记录复核；没有新增导入、拨打或业务结果保存。"
+  },
+  "regression": {
+    "suites": 70,
+    "structuredPassed": 1222,
+    "structuredFailed": 0,
+    "failedSuites": 0,
+    "targetedCustomerCases": 120,
+    "current": "regression-final/summary.json",
+    "sourceBuildTestFiles": 191,
+    "sourceUnchangedDuringRegression": true,
+    "syntaxAndAssets": "static-verification.json"
+  },
+  "coldStart": {
+    "red": "development-diagnostics/check-customer-profile-cold-before.json",
+    "redResult": "旧构建新增断言7项失败，保留原始结果；不把无效after20页面当通过",
+    "green": "regression-final/check-customer-profile-workspace.json",
+    "http": "cold-02-final-ai-only-restored",
+    "result": "完整浏览器刷新后AI-only客户及摘要自动恢复，不需手动再读取；打开详情与主列表原位同步，保未提交筛选、焦点和嵌套来源层。"
+  },
+  "preserved": {
+    "sourceReferenceFiles": 190,
+    "frozenRequirementFiles": 9,
+    "oldAuditFiles": 7,
+    "developmentPackageFilesIncludingManifest": 419,
+    "developmentPackageManifestSha256": "eaec624a0f5609d9ce9dbec2cf431f4f9a8f7ee895f6b0c4a1e274c0663c1d04",
+    "developmentPackageUpdated": false,
+    "remotePublished": false
+  },
+  "limits": [
+    "file协议未执行自动验收；不绕过原工具限制",
+    "真实供应商、CTI、媒体及生产接口未联调",
+    "权限、号码更正、镜像冲突、迟到/撤权和故障注入主要由当前编译代码隔离用例验证；本次GUI使用现有管理员及两个有权租户",
+    "本轮没有重新完成Step54全部未验组合或升级S8/G3、开发包及远端发布状态"
+  ],
+  "openDiagnostic": {
+    "id": "OBS-PROFILE-STARTUP-01",
+    "status": "unattributed-nonblocking-observation",
+    "evidence": "browser-final-console.json",
+    "message": "刷新观测期间保留MutationObserver.observe参数非Node日志。浏览器API未提供来源/栈；临时父/子error监听未接到对应事件，已全部撤回；没有据此猜改供应商代码。当前客户档案可见路径未因此阻断，不声称控制台零诊断。"
+  },
+  "bundleSha256": {
+    "ai": "fbc54f4f18d23e11874e12b7b4be39e16d8d6512645791bb09181e179a8b2ba5",
+    "cloud": "6350950601cc7c77ae687629396daf3115a59fc0d0eecb67ab819f9737984bf5"
+  }
+}

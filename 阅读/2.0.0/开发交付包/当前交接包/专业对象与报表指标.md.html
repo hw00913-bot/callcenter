@@ -263,4 +263,86 @@ return_columns：date统计时间/scene场景/importCount线索传入数/submitC
 summary_extra：callCount为0且明确无客户时百分比展示无基数—；缺失/未知均显未取得，不能沿旧静态renderer默认补0；意向levelCenter与levelBiz来源分别保留，不据标签自动写业务字段或自动下发；统计聚合不改变业务记录身份，不以同号/同名合并业务
 
 drill：明细行保准确来源线索/场景/通话标识；原不可用导出明确不可用，不因统计可见授跨租户数据
+&lt;a id=&quot;FIELD-PROFILE-SOURCE-REFS&quot;&gt;&lt;/a&gt;
+## FIELD-PROFILE-SOURCE-REFS 档案准确原来源引用
+
+[基本规则](field-specs.md#FIELD-PROFILE-SOURCE-REFS)
+
+| 子键 | 具体规则 |
+|---|---|
+| [].kind | type=enum&lt;string&gt;；nullable=False；meaning=原引用类型：BUSINESS/BUSINESS_FOLLOWUP/BUSINESS_CALL/AI_NATIVE/AI_FOLLOWUP/NATIVE_CUSTOMER/NATIVE_CALL/DCC_CALL/DCC_IMPORT；决定必要身份成员及原入口，不互换。 |
+| [].recordId | type=string；nullable=True；meaning=原业务或原导入记录ID；对应kind需要时必须非空。 |
+| [].segmentId | type=string；nullable=True；meaning=原业务跟进段稳定身份；不能按当前段或第一段替代。 |
+| [].callId | type=string；nullable=True；meaning=准确原通话身份；只在原来源范围内解释。 |
+| [].attemptId | type=string；nullable=True；meaning=原业务尝试稳定身份；未拨尝试可有此引用，不证明已拨打。 |
+| [].taskId | type=string；nullable=True；meaning=原专业任务身份，DCC来源与其result/record共同定位。 |
+| [].resultId | type=string；nullable=True；meaning=原DCC结果稳定身份，与taskId共同定位。 |
+| [].customerId | type=string；nullable=True；meaning=原专业客户稳定ID，区别于FIELD-PROFILE-IDENTITY。 |
+| [].sessionId | type=string；nullable=True；meaning=原AI通话会话身份，AI_NATIVE与platform及范围共同定位。 |
+| [].platform | type=string；nullable=True；meaning=原供应商平台身份，不能只据同call字符串跨平台合并。 |
+| [].phone | type=string；nullable=True；meaning=原来源定位文本，可能完整或脱敏；仅保原引用，不据脱敏值建立客户。 |
+| [].fingerprint | type=string；nullable=True；meaning=原内容及读取权版本依据；变化后旧引用失效，不开放原默认首项。 |
+| [].scopeToken | type=string；nullable=True；meaning=原读取上下文不透明标识；不是新增授权，点击仍重核当前范围。 |
+&lt;a id=&quot;FIELD-PROFILE-SOURCE-STATES&quot;&gt;&lt;/a&gt;
+## FIELD-PROFILE-SOURCE-STATES 档案来源读取与待核状态
+
+[基本规则](field-specs.md#FIELD-PROFILE-SOURCE-STATES)
+
+| 子键 | 具体规则 |
+|---|---|
+| sources | type=array&lt;object&gt;；nullable=False；meaning=各原来源本次读取状态，保业务/Cloud-DCC/AI通话/独立AI回访边界。 |
+| sources[].source | type=enum&lt;string&gt;；nullable=False；meaning=BUSINESS/CLOUD_DCC/AI_CALL/AI_FOLLOWUP来源标识。 |
+| sources[].status | type=enum&lt;string&gt;；nullable=False；meaning=success/partial/loading/unknown/failed/forbidden/not-applicable；partial保可靠子集，不当完整。 |
+| sources[].authorized | type=boolean；nullable=True；meaning=true为已确认有原读取权，false为无权/不适用，null为尚未可靠核对；值不能授新权限。 |
+| sources[].issues | type=array&lt;object&gt;；nullable=False；meaning=有问题逐项保message及可用的准确sourceRef；已知无问题可[]。 |
+| sources[].issues[].message | type=string；nullable=False；meaning=实际失败、待核或不适配原因，不把未知写成无记录。 |
+| sources[].issues[].sourceRef | type=typed source reference；nullable=True；meaning=有准确原来源时保引用；无依据时省略，不造默认引用。 |
+| sourcesResolved | type=boolean；nullable=False；meaning=只有所有来源处于success/forbidden/not-applicable时为true；其他状态为false，true仍不等于unlinked全能关联。 |
+| unlinked | type=array&lt;object&gt;；nullable=False；meaning=当前可读但不能确认客户身份的原记录；按原来源稳定身份保序。 |
+| unlinked[].sourceKind | type=string；nullable=False；meaning=原来源类别，不推测客户或业务归属。 |
+| unlinked[].phoneLabel | type=string；nullable=True；meaning=原完整/脱敏/缺失号码资料，仅呈现，不用于补全客户。 |
+| unlinked[].label | type=string；nullable=True；meaning=原称呼资料；未提供显示未记录，不拿同名认领。 |
+| unlinked[].sourceRef | type=typed source reference；nullable=True；meaning=该待核原记录的准确原引用；缺准确引用为null或省略，仅呈现待核原因，不开放首项跳转。 |
+| unlinked[].reason | type=string；nullable=False；meaning=号码不完整、来源冲突、身份待核等可解释原因。 |
+&lt;a id=&quot;FIELD-PROFILE-AI-FOLLOWUPS&quot;&gt;&lt;/a&gt;
+## FIELD-PROFILE-AI-FOLLOWUPS 原AI回访真实资料投影
+
+[基本规则](field-specs.md#FIELD-PROFILE-AI-FOLLOWUPS)
+
+| 子键 | 具体规则 |
+|---|---|
+| [].sourceRef | type=AI_FOLLOWUP typed reference；nullable=False；meaning=独立AI回访原引用；自己的读取权不由同号已拥有通话推导。 |
+| [].sceneName | type=string；nullable=True；meaning=原回访场景名称，缺失不按当前配置或同名补齐。 |
+| [].taskName | type=string；nullable=True；meaning=原任务显示资料，缺失保未记录。 |
+| [].resultLabel | type=string；nullable=True；meaning=原回访结果，不将其已接通文字转换为新的通话事实。 |
+| [].reportedVisitCount | type=nonnegative integer ／ decimal-integer string；nullable=True；meaning=仅原平台汇总；0为已知0，缺失/字面「-」/非法为未知，不能生成同数明细、拨打或归档。；unit=原平台汇总次数 |
+| [].visits | type=array&lt;object&gt;；nullable=False；meaning=仅原来源实际提供的明细，保给定顺序；[]仅表示无可确认明细，不等于平台回访次数0。 |
+| [].visits[].followupAt | type=date/datetime string；nullable=True；meaning=原日期或时间，日期-only注明具体时间未记录，非法日期待核。；unit=原日期时间 |
+| [].visits[].summary | type=string；nullable=True；meaning=原实际内容，缺失未记录，不调用模拟默认内容。 |
+| [].visits[].actorName | type=string；nullable=True；meaning=原实际办理人；未知不以当前账号、发起人或责任人补填。 |
+| [].latestFollowup | type=object；nullable=True；meaning=原来源仅给最近资料时单列摘要；有实际visits不把同一最近摘要再算一条明细。 |
+| [].latestFollowup.followupAt | type=date/datetime string；nullable=True；meaning=原最近回访时间，未提供不补当前时间。；unit=原日期时间 |
+| [].latestFollowup.summary | type=string；nullable=True；meaning=最近一次实际摘要，不能冒完整明细。 |
+| [].latestFollowup.actorName | type=string；nullable=True；meaning=原最近实际办理人，未知保持未记录。 |
+| [].latestFollowup.summaryOnly | type=boolean；nullable=False；meaning=true明确这只是最近摘要；不据此声明完整回访历史或业务归档。 |
+&lt;a id=&quot;FIELD-PROFILE-COUNTS&quot;&gt;&lt;/a&gt;
+## FIELD-PROFILE-COUNTS 客户档案分项统计与已知时长
+
+[基本规则](field-specs.md#FIELD-PROFILE-COUNTS)
+
+| 子键 | 具体规则 |
+|---|---|
+| businessCount | type=nonnegative integer；nullable=False；meaning=按当前可读独立recordId计数，同号多业务不合并。；unit=条独立业务 |
+| followupCount | type=nonnegative integer；nullable=False；meaning=按原跟进稳定ID计数，不等于完成或拨打。；unit=段业务跟进 |
+| archivedFollowupCount | type=nonnegative integer；nullable=False；meaning=仅明确正常归档且非废弃的业务段，不等于业务达成。；unit=段正常归档 |
+| aiFollowupCount | type=nonnegative integer；nullable=False；meaning=按独立原回访资料计，不按reportedVisitCount展开。；unit=条原AI回访资料 |
+| aiVisitDetailCount | type=nonnegative integer；nullable=False；meaning=仅实际visits长度的合计。；unit=条原实际明细 |
+| aiLatestSummaryCount | type=nonnegative integer；nullable=False；meaning=仅无实际visits且确有latestFollowup的资料条数。；unit=条仅最近摘要资料 |
+| callRecordCount | type=nonnegative integer；nullable=False；meaning=有权原记录或业务尝试，明确镜像才去重，不等于确认拨打。；unit=条联系/通话尝试记录 |
+| actualDialCount | type=nonnegative integer；nullable=False；meaning=仅dialed=true且无待核镜像关系，不由受理、排队或回访汇总派生。；unit=次可确认拨打 |
+| pendingCallCount | type=nonnegative integer；nullable=False；meaning=原记录未实际拨打或拨打/镜像关联尚待核，不计确认拨打。；unit=条未拨或待核记录 |
+| unknownDurationCount | type=nonnegative integer；nullable=False；meaning=缺失、非法、镜像冲突或关联待核时长；不是0秒。；unit=条时长未知记录 |
+| totalDurationSeconds | type=nonnegative finite number；nullable=False；meaning=仅已知时长之和；已知0参与合计。无通话或全部时长未知时，依据callRecordCount/unknownDurationCount显示未记录，不把这个合计0当已知0秒。源不完整时只称当前可见已知合计。；unit=秒 |
+| lastContactAt | type=date/datetime string；nullable=True；meaning=仅确认拨打的原实际时间之最近值；缺失不借受理、接收或当前时间，日期-only注明具体时间未记录。；unit=原日期时间 |
+| updatedAt | type=date/datetime string；nullable=True；meaning=当前可见原资料的有效原更新时间，未知稳定置后，读取不补时间。；unit=原日期时间 |
 </pre></body></html>

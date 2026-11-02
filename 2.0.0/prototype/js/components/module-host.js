@@ -564,13 +564,75 @@
       return importClone({...result,...(result.ok?{fingerprint:JSON.stringify([scene.executionConfigurationFingerprint,result.fingerprint,...(sourceResolution?[sourceResolution]:[])]),...(sourceResolution?{sourceResolution}:{})}:{})});
     }catch(error){return {ok:false,message:error.message};}
   }
+  function customerProfileAccess(){
+    const c=DSession.context();
+    if(c?.scope.kind!=='tenant'||!c.scope.tenant?.enabled||DApp.currentPage()!=='PAGE-2203'||!DSession.allowed('PAGE-2203'))throw Error('当前客户档案范围已变化，请重新进入。');
+    const aiModule=c.scope.tenant.modules?.ai===true&&c.scope.grant.modules?.includes('ai')===true;
+    const callsAllowed=aiModule&&DSession.allowed('PAGE-2108'),followupsAllowed=aiModule&&DSession.allowed('PAGE-2109');
+    const identity=JSON.stringify([c.account.id,c.scope.id,c.scope.tenant.enterpriseId,c.scope.tenant.brandId||'',c.scope.grant,callsAllowed,followupsAllowed]);
+    return {context:c,identity,aiAllowed:callsAllowed||followupsAllowed,callsAllowed,followupsAllowed};
+  }
+  function currentCustomerProfileAI(){
+    try{
+      const before=customerProfileAccess();
+      if(!before.aiAllowed)return {status:'success',data:{authorized:false,rows:[],issues:[]},scopeToken:before.identity};
+      const w=frames.ai?.contentWindow,o=w?.DNativeContext?.context;
+      if(!w||!readyKinds.has('ai'))return {status:'unknown',message:'AI记录正在读取。',scopeToken:before.identity};
+      if(o?.account.id!==before.context.account.id||o?.scope.kind!=='tenant'||o?.scope.id!==before.context.scope.id||String(o.scope.tenant?.enterpriseId||'')!==String(before.context.scope.tenant.enterpriseId||'')||String(o.scope.tenant?.brandId||'')!==String(before.context.scope.tenant.brandId||'')||JSON.stringify(o.scope.grant)!==JSON.stringify(before.context.scope.grant))throw Error('AI记录的当前租户绑定已变化，请刷新后重试。');
+      if(typeof w.DCustomerProfileAI?.read!=='function')throw Error('AI客户记录读取模块尚未就绪，请刷新原型。');
+      const result=w.DCustomerProfileAI.read(),after=customerProfileAccess();
+      if(before.identity!==after.identity||!after.aiAllowed)throw Error('读取期间客户档案权限或范围已变化。');
+      if(result?.status==='failed'&&result.code==='PROFILE_AI_FORBIDDEN')return {status:'success',data:{authorized:false,rows:[],issues:[]},scopeToken:before.identity};
+      if(result?.status!=='success')return importClone({...result,scopeToken:before.identity});
+      if(!Array.isArray(result.data?.rows))throw Error('AI客户来源没有返回可靠记录结构。');
+      if(result.data.rows.some(row=>!['AI_NATIVE','AI_FOLLOWUP'].includes(row?.sourceRef?.kind)||row.tenantId!==after.context.scope.id||String(row.enterpriseId)!==String(after.context.scope.tenant.enterpriseId)||row.sourceRef.tenantId!==after.context.scope.id||String(row.sourceRef.enterpriseId)!==String(after.context.scope.tenant.enterpriseId)))throw Error('AI来源身份或客户范围无法核定，请重新读取。');
+      const permitted=kind=>kind==='AI_NATIVE'?after.callsAllowed:kind==='AI_FOLLOWUP'?after.followupsAllowed:false;
+      const rows=result.data.authorized===false?[]:result.data.rows.filter(row=>permitted(row?.sourceRef?.kind));
+      const issues=(Array.isArray(result.data.issues)?result.data.issues:[]).filter(issue=>!issue?.sourceRef||permitted(issue.sourceRef.kind));
+      return importClone({...result,scopeToken:before.identity,data:{...result.data,authorized:result.data.authorized!==false,rows,issues}});
+    }catch(error){return {status:'failed',code:'CONTEXT_CHANGED',message:error.message||'AI记录暂时无法读取。'};}
+  }
+  async function readCustomerProfileAI(){
+    try{
+      const before=customerProfileAccess();if(!before.aiAllowed)return {status:'success',data:{authorized:false,rows:[],issues:[]},scopeToken:before.identity};
+      if(!frames.ai)create('ai','');
+      if(!readyKinds.has('ai'))await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('AI历史记录读取超时，请重试。')),8000);aiWaiters.push(()=>{clearTimeout(timer);resolve();});});
+      const after=customerProfileAccess();if(before.identity!==after.identity||!after.aiAllowed)throw Error('读取期间客户档案权限或范围已变化。');
+      return currentCustomerProfileAI();
+    }catch(error){return {status:'failed',code:'CONTEXT_CHANGED',message:error.message||'AI记录暂时无法读取。'};}
+  }
+  async function openCustomerProfileAI(reference){
+    try{
+      const before=customerProfileAccess();if(!before.aiAllowed)throw Error('当前没有该AI通话记录的读取权限。');
+      const loaded=await readCustomerProfileAI();if(loaded.status!=='success'||loaded.data?.authorized!==true)throw Error(loaded.message||'AI原始记录尚无法核对。');
+      const after=customerProfileAccess();if(before.identity!==after.identity||!after.aiAllowed)throw Error('打开期间使用范围已变化。');
+      const referenceKey=value=>JSON.stringify(value,(_,item)=>item&&typeof item==='object'&&!Array.isArray(item)?Object.fromEntries(Object.keys(item).sort().map(key=>[key,item[key]])):item);
+      if(loaded.data.rows.filter(row=>referenceKey(row.sourceRef)===referenceKey(reference)).length!==1)throw Error('原AI来源已变化、不可见或无法唯一核定，请刷新档案。');
+      const w=frames.ai?.contentWindow;if(typeof w?.DCustomerProfileAI?.resolve!=='function')throw Error('AI原记录定位模块尚未就绪。');
+      const resolved=w.DCustomerProfileAI.resolve(importClone(reference)),native=resolved?.nativeReference||resolved?.data?.nativeReference;
+      if(resolved?.status!=='success'||!native)throw Error(resolved?.message||'当前来源记录无法唯一定位。');
+      const expectedPage=reference?.kind==='AI_FOLLOWUP'?'PAGE-2109':reference?.kind==='AI_NATIVE'?'PAGE-2108':'';
+      if(!expectedPage||(native.pageId||expectedPage)!==expectedPage||!DSession.allowed(expectedPage))throw Error('原AI记录来源或读取权限已变化。');
+      if(before.identity!==customerProfileAccess().identity)throw Error('原通话读取权限已变化。');
+      if(expectedPage==='PAGE-2109')return DApp.openPage('PAGE-2109',{nativeOptions:{sourceCustomerProfileRef:importClone(reference)}})!==false;
+      const id=native.id||native.sessionId,platform=native.platform;if(typeof id!=='string'||!id||typeof platform!=='string'||!platform)throw Error('原通话准确身份尚未核定。');
+      if(id!==reference.sessionId||platform!==reference.platform)throw Error('原通话定位与客户档案来源不一致，请重新读取。');
+      return DApp.openPage('PAGE-2108',{nativeOptions:{sourceCallRef:{id,platform}}})!==false;
+    }catch(error){DUI.toast(error.message||'当前AI原始记录不可读取。','warning');return false;}
+  }
+  function customerProfileFilters(adapter,frame){
+    const filters=adapter.getFilters();if(DApp.currentPage()!=='PAGE-2203')return filters;
+    const state=frame.contentWindow.Pages?.['customer-directory']?.captureNavigationState?.()?.customerProfileState;
+    if(state&&typeof state==='object')filters.customerProfileState=Object.fromEntries(['scope','keyword','page','customerId','sourceFilter'].filter(key=>['string','number'].includes(typeof state[key])).map(key=>[key,state[key]]));
+    return filters;
+  }
   async function prepareSeatCapabilities(){const c=DSession.context();if(!c||!c.scope.tenant?.modules.cloud||!c.scope.grant.modules?.includes('cloud')||!DSession.roleKey(c))return false;await prepareIntegration();return DSession.boundSeat();}
   DSession.setSeatResolver(c=>{const w=frames.cloud?.contentWindow,o=w?.DNativeContext?.context;if(!readyKinds.has('cloud')||!o||o.account.id!==c.account.id||o.scope.id!==c.scope.id)return false;return w.DProductionAccess?.boundSeat()===true;});
   if(window.DOrganization){DOrganization.setReferenceResolver(referenceStatus);DOrganization.setIntegrationResolver(integration);}
   DSession.setPageAvailability((id)=>{if(id==='PAGE-2207'&&DSession.roleKey().endsWith('_ops'))return DSession.boundSeat();const target=map[id],frame=target&&frames[target.kind];if(target?.kind==='cloud'&&!['PAGE-2006','PAGE-2223','PAGE-2228'].includes(id)&&frame&&readyKinds.has('cloud'))return frame.contentWindow.RouteRuntime?.canRoute(target.route)!==false;return true;});
   window.DModuleHost={setTemplateEditorFullscreen,isReady:kind=>readyKinds.has(kind),isActive:kind=>currentKind===kind||kind==='cloud'&&!!seatLink,isSeatLinkActive:()=>!!seatLink,supports:id=>!!map[id],open,hide,ready(kind,source){if(!frames[kind]||source&&frames[kind].contentWindow!==source)return false;readyKinds.add(kind);if(kind==='ai')aiWaiters.splice(0).forEach(resolve=>resolve());if(kind==='cloud')waiters.splice(0).forEach(resolve=>resolve());if(kind==='cloud'&&seatLink){frames.cloud.contentWindow.DAdapter.openSeatLink(seatLink.accountId,seatLink.tenantId);return;}const item=pending[kind];if(item&&frames[kind])frames[kind].contentWindow.DAdapter.navigate(item.route,{preserveFilters:true,...item.filters,...item.options});DApp.recheckNavigation();},
     openInline(kind,route,slot,options={}){if(kind!=='ai'||route!=='scene-block'||!DContactPolicy.canSpecial(DContactPolicy.specialScope()))return false;hide();inlineSlot=slot;currentKind=kind;pending[kind]={id:'PAGE-2007',route,options};const frame=frames[kind]||create(kind,route);frame.classList.add('d-native-inline');const host=document.getElementById('page-host');host.scrollTop=0;const top=slot.getBoundingClientRect().top-host.getBoundingClientRect().top;frame.style.top=top+'px';frame.style.height='calc(100% - '+(top+16)+'px)';frame.hidden=false;if(readyKinds.has(kind))frame.contentWindow.DAdapter.navigate(route,options);return true;},
-    canImportCategory,openCategoryImport,prepareIntegration,prepareContactCoordination,prepareSeatCapabilities,readAccountSeatSummaries,readCloudTenantSummary,readWorkflowScenes,currentWorkflowScenes,readWorkflowTasks,currentWorkflowTasks,readSceneImportFields,currentSceneImportFields,reviewAIImportParameters,
+    canImportCategory,openCategoryImport,prepareIntegration,prepareContactCoordination,prepareSeatCapabilities,readCustomerProfileAI,currentCustomerProfileAI,openCustomerProfileAI,readAccountSeatSummaries,readCloudTenantSummary,readWorkflowScenes,currentWorkflowScenes,readWorkflowTasks,currentWorkflowTasks,readSceneImportFields,currentSceneImportFields,reviewAIImportParameters,
     taskImportContext:spec=>taskBusinessCall('taskImportContext',spec),previewTaskImport:input=>taskBusinessCall('previewTaskImport',input),importTaskRecords:(input,options)=>taskBusinessCall('importTaskRecords',input,options),taskImportRecords:spec=>taskBusinessCall('taskImportRecords',spec,undefined,false),taskRosterRecords:spec=>taskBusinessCall('taskRosterRecords',spec,undefined,false),readTaskImportDirectory,openTaskImportConfiguration,reconcileTaskImport,
     readContactExecutionFacts,readContactCoordination,contactCoordinationActive,canService,openService(tenantId){if(!canService(tenantId))return DUI.toast('没有此租户的AI服务管理权限。');return DApp.openPage('PAGE-2112',{nativeOptions:{serviceTenantId:tenantId}});},
     currentCatalog(options){if(!readyKinds.has('cloud'))throw Error('分类目录未就绪');return frames.cloud.contentWindow.DAdapter.readCatalog(options);},
@@ -584,7 +646,7 @@
       const taskImportGuard=frame.contentWindow.DTaskBusinessImport?.guard?.();
       if(taskImportGuard?.isDirty()){DApp.setDraftGuard(taskImportGuard);proceed();return;}
       const adapter=frame.contentWindow.DAdapter;
-      adapter.beforeLeave(next,()=>{try{DApp.saveFilters(adapter.getFilters());proceed();}catch(error){DUI.toast(error.message);}});
+      adapter.beforeLeave(next,()=>{try{DApp.saveFilters(customerProfileFilters(adapter,frame));proceed();}catch(error){DUI.toast(error.message);}});
     },dispose(){setTemplateEditorFullscreen(false);Object.values(frames).forEach(frame=>frame.remove());Object.keys(frames).forEach(k=>delete frames[k]);readyKinds.clear();currentKind='';pending={};seatLink=null;inlineSlot=null;}
   };
 })();

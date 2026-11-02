@@ -33,6 +33,8 @@ from ai_import_field_mapping_build import transform as ai_import_field_mapping_t
 from category_import_entry_build import transform as category_import_entry_transform
 from task_roster_build import transform as task_roster_transform, runtime_source as task_roster_source, style_source as task_roster_style
 from ai_task_directory_build import transform as ai_task_directory_transform, runtime_source as ai_task_directory_source
+from ai_customer_profile_build import transform as ai_customer_profile_transform, runtime_source as ai_customer_profile_source
+from customer_profile_build import transform as customer_profile_transform, model_source as customer_profile_model, runtime_source as customer_profile_source, style_source as customer_profile_style
 ROOT=Path(__file__).resolve().parents[1]
 PROJECT=ROOT.parents[2]
 SOURCES={'ai':PROJECT/'DCC&AI 外呼/AI 外呼','cloud':ROOT.parents[1]/'1.2.0/prototype-class-flow'}
@@ -963,6 +965,8 @@ def build(kind,source):
         code=task_business_import_transform(kind,path,code)
         code=task_roster_transform(kind,path,code)
         code=ai_task_directory_transform(kind,path,code)
+        code=ai_customer_profile_transform(kind,path,code)
+        code=customer_profile_transform(kind,path,code)
         code=category_import_entry_transform(kind,path,code)
         code=menu_presentation(kind,path,code)
         codes.append(code)
@@ -984,10 +988,15 @@ def build(kind,source):
         codes.append((ROOT/'js/adapters/ai-finance.js').read_text())
         codes.append((ROOT/'js/adapters/unified-ai.js').read_text())
         codes.append(ai_import_field_mapping_source())
+        codes.append(ai_customer_profile_source())
     codes.append(task_business_import_source())
     css.append(task_business_import_style())
     codes.append(task_roster_source())
     css.append(task_roster_style())
+    if kind=='cloud':
+        codes.append(customer_profile_model())
+        codes.append(customer_profile_source())
+        css.append(customer_profile_style())
     subprocess.run(['node','-e',"const fs=require('fs'),vm=require('vm');for(const code of JSON.parse(fs.readFileSync(0,'utf8')))new vm.Script(code);"],input=json.dumps(codes),text=True,check=True)
     if kind=='ai':
         css.append(shared_source.read_text())
@@ -1043,6 +1052,7 @@ provenance['localTransforms']['aiTaskDirectory']={'schema':'confirmed-ai-task-di
 provenance['localAdapters']={str(path.relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest() for path in (ROOT/'js/adapters').glob('*.js')}
 provenance['localTransforms']['taskBusinessImport']={'schema':'task-direct-shared-import-fields@1','authorization':'inputs/task-business-import-authorization-20261101.json','resources':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['scripts/task-business-import-model.js','scripts/four_node_model_build.py','scripts/task_business_import_build.py','scripts/ai_import_field_mapping_build.py','scripts/ai-import-field-ui.js','js/adapters/task-business-import.js','js/adapters/task-business-import.css','js/adapters/task-business-access.js','js/adapters/ai-import-field-mapping.js','js/adapters/four-node-execution.js','js/components/module-host.js','js/components/business-link.js']},'scope':'AI tasks follow exact native source and scene with independent import eligibility; PRED restores native import layout and row review, inherits locked task category from wizard/editor and confirms a freshly checked valid subset; one DIRECT ledger, TASK/channel/source snapshots and five priorities; API readonly requirements view, old professional histories retained','execution':'new imports never write supplier receipts or auto-start; one business ledger, native task list is a scoped read projection; AI-only shared business invocation never grants Cloud capability, menus or configuration writes'}
 for out,payload in generated:out.write_text(payload)
+provenance['localTransforms']['customerProfileAggregation']={'schema':'authorized-readonly-customer-profile@1','authorization':'inputs/customer-profile-integration-authorization-20261102.json','resources':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['js/components/customer-profile.js','js/adapters/customer-profile-workspace.js','js/adapters/customer-profile-workspace.css','js/adapters/ai-customer-profile.js','scripts/ai_customer_profile_build.py','scripts/customer_profile_build.py','js/adapters/four-node-workspace.js','js/components/module-host.js']},'data':'read-only projection of authorized business timelines and original native contact/AI sources; no copied business/customer/call store','identity':'tenant, enterprise and complete original actual phone; no masked/name/first-row guess; explicit mirror references only','facts':'accepted/queued, actual dial, content archive and business outcome remain separate; old actual phone and authorized history cutoff retained','media':'exact original detail and current permissions; no media URL in AI DTO; finite Mock only'}
 (ROOT/'memory/reuse-provenance.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2)+'\n')
 
 # Refresh local cache revisions after producing artifacts; still works when opened directly.

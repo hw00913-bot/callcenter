@@ -525,3 +525,7 @@ R-006／R-007导入分流提示增量通过：合法数据依赖不提前红，�
 | R-273 | 导入阻断反馈可见 | 底部禁用原因与表外错误摘要，编辑需重检，唯一性/待核/部分有效/草稿不弱化 | memory/task-import-feedback-verification-20261101.json；5套119／HTTP重复与重检／576包保护 | Pass | 用户实页点击无反应 | FUNC2036/2037；PAGE2103/2205 | step-53 |
 
 | R-274 | HTTP完整实点与修复 | AI/PRED/分类当前冻结需求实际完整操作、失败复现修复重走，明确未验与离线边界 | memory/http-e2e-acceptance-verification-20261101.json；三条主链实际闭环，13组已验／9组部分已验；66套1102通过；全量仍待未验子项 | Pending | 用户改用HTTP明确授权 | FUNC2002/2019/2031/2036/2037/2038/2039；PAGE2006/2103/2110/2204/2205/2228 | step-54 |
+
+| R-275 | 客户档案全来源只读归集 | 准确身份/计数/来源与历史权限，AI/PRED新旧记录可见且不写新业务或通话 | Step55本地HTTP实点及当前70套1222；见customer-profile-integration-20261102/verification-proof.json | Pass（局部） | 用户明确修复档案遗漏 | FUNC2038/2039；PAGE2203/2108/2208 | step-55 |
+
+| R-276 | 模板AI具体任务选择入口 | 任务先选、准确场景联动、权限禁用与明确后续安排，保存/重开及执行前校验保持 | Step56当前70套1241／built48及实际HTTP；template-ai-task-entry-20261102/verification-proof.json | Pass（局部） | 既有具体任务规则的交互修复 | FUNC2031/2038；PAGE2228 | step-56 |

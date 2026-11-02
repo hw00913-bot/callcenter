@@ -18,7 +18,7 @@
 - FUNC-2009 修改品牌档案：超级管理员修改准确品牌名称/备注并保留变更审计；不改变租户与业务归属。；来源 documentation/input/functions.json#FUNC-2009
 - FUNC-2026 查询品牌内有权关联租户：取品牌关联与当前可读租户基础资料交集，不显示无权对象；进入维护另验归属维护权。；来源 documentation/input/functions.json#FUNC-2026
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`edc5225b5022e6100a5e5848c84fb590eba1e70c2a584fffa610b9133c191a29`
 
 ## 前置任务
 

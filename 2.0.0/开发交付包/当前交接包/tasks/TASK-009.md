@@ -16,7 +16,7 @@
 - FUNC-2016 创建品牌共用业务分类与字段基础：在有权品牌维护独立IMPORT/FOLLOWUP字段库及分类双Tab，明确业务域、字段与入口必填；当前无直接跟进开关；任务DIRECT/分类TEMPLATE由准确入口派生；保存基础不绑定模板或起呼。；来源 documentation/input/functions.json#FUNC-2016
 - FUNC-2017 维护品牌共用业务分类、字段及取数规则：按引用保护维护分类字段；当前不编辑历史allowDirectFollowup；关闭不删旧直接事实或阻必要收尾，不自动切换模式；新跟进读当前定义，旧运行及正式快照保持。；来源 documentation/input/functions.json#FUNC-2017
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`edc5225b5022e6100a5e5848c84fb590eba1e70c2a584fffa610b9133c191a29`
 
 ## 前置任务
 

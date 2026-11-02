@@ -69,7 +69,15 @@
     if(['sys-scene','sys-tags','scene-list'].includes(route)&&window.DAIConfigStore&&!DAIConfigStore.ready()){document.getElementById('page-content').textContent=DAIConfigStore.error();DAIConfigStore.banner();activeRoute=route;return true;}
     if(route==='scene-block'&&(options?.blacklistPosition||options?.specialPosition))Pages['scene-block'].integrationRestorePosition(options.blacklistPosition||options.specialPosition);original(route,route);activeRoute=route;
     if(route==='scene-block'&&options?.blacklistPrefill)Pages['scene-block'].integrationPrefill(options.blacklistPrefill);
-    if(route==='result-records'&&options?.sourceCallRef)requestAnimationFrame(()=>Pages['result-records'].openByReference(options.sourceCallRef.id,options.sourceCallRef.platform));
+    if(route==='result-records'&&options?.sourceCallRef)requestAnimationFrame(()=>{
+      if(!contextValid()||activeRoute!=='result-records'||parent.DApp.currentPage()!=='PAGE-2108'||!parent.DSession.allowed('PAGE-2108'))return;
+      Pages['result-records'].openByReference(options.sourceCallRef.id,options.sourceCallRef.platform);
+    });
+    if(route==='result-clue'&&options?.sourceCustomerProfileRef)requestAnimationFrame(()=>{
+      if(!contextValid()||activeRoute!=='result-clue'||parent.DApp.currentPage()!=='PAGE-2109'||!parent.DSession.allowed('PAGE-2109'))return;
+      const result=window.DCustomerProfileAI?.openOriginal?.(options.sourceCustomerProfileRef);
+      if(result===false||result?.status==='failed')showToast(result?.message||'原AI回访记录暂时无法准确定位，请刷新档案。','warning');
+    });
     if(false&&route==='sys-tags'&&options?.commonCategoryId)requestAnimationFrame(()=>Pages['sys-tags'].openSceneModal({categoryId:options.commonCategoryId,categoryScope:options.categoryScope,sceneIds:options.sceneIds||[]}));
     if(options?.nativeFilterValues){document.querySelectorAll('#page-content .filter-bar input,#page-content .filter-bar select').forEach((input,index)=>{if(Object.hasOwn(options.nativeFilterValues,index))input.value=options.nativeFilterValues[index];});if(Pages[route]?.doQuery)Pages[route].doQuery();else if(route==='report-billing')Pages[route]?.query?.();}
     return true;

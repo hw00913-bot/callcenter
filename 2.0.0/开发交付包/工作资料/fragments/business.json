@@ -1,6 +1,6 @@
 {
   "schema": "product-business-fragment@1",
-  "version": "2.0.0-current-20261102-step54",
+  "version": "2.0.0-current-20261102-step56",
   "features": [
     {
       "id": "FUNC-2016",
@@ -200,7 +200,7 @@
       "bounds": {
         "included_scope": [
           "读取当前业务与本方截止详情",
-          "客户档案业务跟进与联系档案分视图",
+          "客户档案全来源统一只读归集",
           "实际接听人最小原段待填写入口"
         ],
         "excluded_scope": [
@@ -425,7 +425,7 @@
         "included_scope": [
           "查询统一台账及工作队列",
           "读取有权导入批次和逐行结果",
-          "客户档案业务跟进与联系档案分视图",
+          "客户档案全来源统一只读归集",
           "维护本租户同号联系协调",
           "在原业务显式启用当前分类流程",
           "明确完成直接跟进周期并封业务结论",
@@ -831,7 +831,7 @@
     },
     {
       "id": "AC-2132",
-      "statement": "当前负责、有权本方截止历史和超管管理范围监管分别投影；辅助运行API不泄露接收方后续节点/场景。",
+      "statement": "当前负责、有权本方截止历史和超管管理范围监管分别投影；辅助运行API不泄露接收方后续节点/场景。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。",
       "source_refs": [
         "docs/functional-spec.json#AC-2132"
       ],
@@ -971,7 +971,7 @@
     },
     {
       "id": "AC-2130",
-      "statement": "所有监管和办理读同权威业务事实，不造第二份线索账本或冒用目标身份。",
+      "statement": "所有监管和办理读同权威业务事实，不造第二份线索账本或冒用目标身份。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。",
       "source_refs": [
         "docs/functional-spec.json#AC-2130"
       ],
@@ -1051,12 +1051,13 @@
     },
     {
       "id": "AC-2147",
-      "statement": "业务跟进/联系档案统一页签与tabpanel，键盘方向/Home/End可用；同身份切换保各自查询/分页，跨身份不恢复旧状态，显式客户详情与原摘要刷新仍定位正确。",
+      "statement": "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。 同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。",
       "source_refs": [
         "docs/functional-spec.json#AC-2147"
       ],
       "decision_refs": [
-        "docs/exception-definitions.json#CHG-030-DIRECTORY"
+        "docs/exception-definitions.json#CHG-030-DIRECTORY",
+        "CHG-055-CUSTOMER-PROFILE"
       ]
     },
     {
@@ -1181,7 +1182,7 @@
     },
     {
       "id": "AC-2153",
-      "statement": "CALL配置默认等级及按实际承接tenant的默认任务/坐席/场景；仅修改本有权tenant映射且保其他tenant原值，导入可明确覆盖；方式切换重核不兼容目标，已开运行和快照不追改。",
+      "statement": "CALL配置默认等级及按实际承接tenant的默认任务/坐席/场景；仅修改本有权tenant映射且保其他tenant原值，导入可明确覆盖；方式切换重核不兼容目标，已开运行和快照不追改。 模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
       "source_refs": [
         "docs/exception-definitions.json#CHG-042-EXECUTION"
       ],
@@ -2758,7 +2759,7 @@
         },
         {
           "id": "STEP-FLOW-TEMPLATE-CREATE-3",
-          "action": "核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL配置五档默认等级及当前有权执行tenant的任务/坐席默认；保存其他tenant映射不变，不展示私有候选。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。",
+          "action": "核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL配置五档默认等级及当前有权执行tenant的任务/坐席默认；保存其他tenant映射不变，不展示私有候选。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。 模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
           "reads": [
             "FIELD-FLOW-TEMPLATE-ID",
             "FIELD-FLOW-BRAND-ID",
@@ -3147,7 +3148,7 @@
         },
         {
           "id": "STEP-FLOW-TEMPLATE-EDIT-3",
-          "action": "核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL默认等级及当前有权tenant映射可改，换方式重核目标，保其他tenant映射；仅新运行捕获新默认。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。",
+          "action": "核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL默认等级及当前有权tenant映射可改，换方式重核目标，保其他tenant映射；仅新运行捕获新默认。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。 模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
           "reads": [
             "FIELD-FLOW-TEMPLATE-ID",
             "FIELD-FLOW-BRAND-ID",
@@ -3424,7 +3425,7 @@
         },
         {
           "id": "STEP-FLOW-TEMPLATE-READ-2",
-          "action": "分开显示字段参考和实际应用、入口、方式、承接方、条件及业务结论 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。",
+          "action": "分开显示字段参考和实际应用、入口、方式、承接方、条件及业务结论 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。 只读模板详情和业务运行捕获方案展示原节点、已保存任务/场景身份及当前可读来源信息；当前目录不可核对不替换原选择，不要求查看者选择、清除或保存任务默认。无安排权和只读态控件禁用并说明，当前配置不追改原运行快照。",
           "reads": [
             "FIELD-FLOW-TEMPLATE-ID",
             "FIELD-FLOW-BRAND-ID",
@@ -5013,7 +5014,7 @@
         },
         {
           "id": "STEP-FLOW-AI-SCENE-2",
-          "action": "DIRECT仅核本租户/分类准确启用场景及专业执行配置；TEMPLATE额外汇总本CALL及下游AI_TAG依赖并核准确上下文",
+          "action": "DIRECT仅核本租户/分类准确启用场景及专业执行配置；TEMPLATE额外汇总本CALL及下游AI_TAG依赖并核准确上下文 模板节点默认采用先选准确任务、再按唯一绑定带出或确认场景；TASK内导入的任务/场景锁定及后续安排原动作合同不因节点UX放宽。",
           "reads": [
             "FIELD-FLOW-EFFECTIVE-PLAN",
             "FIELD-FLOW-RESULT-SOURCE",
@@ -7378,7 +7379,7 @@
         },
         {
           "id": "STEP-FLOW-QUERY-4",
-          "action": "按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。；列表/详情展示mode、具体任务/坐席及等级；待执行视图以资源内等级降序、入队时间和稳定序号升序推荐，普通历史查询仍更新时间倒序；长期等待提示处理。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。",
+          "action": "按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。；列表/详情展示mode、具体任务/坐席及等级；待执行视图以资源内等级降序、入队时间和稳定序号升序推荐，普通历史查询仍更新时间倒序；长期等待提示处理。 业务分类列表提供导入名单并锁定准确分类；原旧导入菜单改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。",
           "reads": [
             "FIELD-FLOW-HANDLING-MODE",
             "FIELD-FLOW-DIRECT-METHOD",
@@ -7575,7 +7576,7 @@
         },
         {
           "id": "STEP-FLOW-BATCH-READ-3",
-          "action": "按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。",
+          "action": "按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原旧导入菜单改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。",
           "reads": [
             "FIELD-FLOW-HANDLING-MODE",
             "FIELD-FLOW-DIRECT-METHOD",
@@ -7760,7 +7761,7 @@
         },
         {
           "id": "STEP-FLOW-DETAIL-3",
-          "action": "按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。",
+          "action": "按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原旧导入菜单改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。",
           "reads": [
             "FIELD-FLOW-HANDLING-MODE",
             "FIELD-FLOW-DIRECT-METHOD",
@@ -7888,17 +7889,19 @@
     },
     {
       "id": "LOCAL-FLOW-CUSTOMER-TIMELINE",
-      "title": "客户档案业务跟进与联系档案分视图",
+      "title": "客户档案全来源统一只读归集",
       "feature_ids": [
         "FUNC-2033",
         "FUNC-2039"
       ],
-      "trigger": "客户档案切换业务跟进或联系档案、打开关联业务",
+      "trigger": "查询统一客户列表、打开客户详情及准确原来源",
       "preconditions": [
-        "各来源本来有权读取，不因归集新增授权"
+        "客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。",
+        "原AI录音播放继续核PAGE-2108与F31；归集DTO不传媒体URL，不以档案读取权代替录音权。"
       ],
       "postconditions": [
-        "档案归集不是第二套可变业务账本"
+        "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。",
+        "各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。"
       ],
       "inputs": [
         "FIELD-FLOW-ACTIVITY-INTEREST",
@@ -7941,12 +7944,17 @@
         "FIELD-FLOW-HANDLING-MODE",
         "FIELD-FLOW-DIRECT-METHOD",
         "FIELD-FLOW-DIRECT-CYCLES",
-        "FIELD-FLOW-DIRECT-OUTCOME"
+        "FIELD-FLOW-DIRECT-OUTCOME",
+        "FIELD-PROFILE-IDENTITY",
+        "FIELD-PROFILE-SOURCE-REFS",
+        "FIELD-PROFILE-SOURCE-STATES",
+        "FIELD-PROFILE-AI-FOLLOWUPS",
+        "FIELD-PROFILE-COUNTS"
       ],
       "steps": [
         {
           "id": "STEP-FLOW-CUSTOMER-TIMELINE-1",
-          "action": "同租户规范号码仅展示归集有权业务，不合并身份/编码/结果",
+          "action": "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。 展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。",
           "reads": [
             "FIELD-FLOW-BATCH-ID",
             "FIELD-FLOW-BRAND-ID",
@@ -7960,20 +7968,9 @@
             "FIELD-FLOW-PHONE",
             "FIELD-FLOW-RECORD-ID",
             "FIELD-FLOW-RUN-ID",
-            "FIELD-FLOW-UPDATED-AT"
-          ],
-          "writes": [],
-          "rule_ids": [
-            "GR-SCOPE",
-            "GR-PRIVACY",
-            "GR-DATA-FACTS"
-          ]
-        },
-        {
-          "id": "STEP-FLOW-CUSTOMER-TIMELINE-2",
-          "action": "保原联系档案/独立呼入临时通话，业务followup按准确关联展示",
-          "reads": [
-            "FIELD-FLOW-CONTENT-SNAPSHOT",
+            "FIELD-FLOW-UPDATED-AT",
+            "FIELD-PLAT-RESOURCE-SCOPE",
+            "FIELD-PLAT-PHONE",
             "FIELD-FLOW-CALLS"
           ],
           "writes": [],
@@ -7984,16 +7981,43 @@
           ]
         },
         {
+          "id": "STEP-FLOW-CUSTOMER-TIMELINE-2",
+          "action": "各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。 客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。",
+          "reads": [
+            "FIELD-FLOW-CONTENT-SNAPSHOT",
+            "FIELD-FLOW-CALLS",
+            "FIELD-PLAT-RESOURCE-SCOPE",
+            "FIELD-PLAT-PHONE",
+            "FIELD-FLOW-PHONE"
+          ],
+          "writes": [],
+          "rule_ids": [
+            "GR-SCOPE",
+            "GR-PRIVACY",
+            "GR-DATA-FACTS"
+          ]
+        },
+        {
           "id": "STEP-FLOW-CUSTOMER-TIMELINE-3",
-          "action": "按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。",
+          "action": "同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。 详情保各独立业务、原跟进快照和原通话；DIRECT不造模板run/node，历史按本方已授权截止投影。",
           "reads": [
             "FIELD-FLOW-HANDLING-MODE",
             "FIELD-FLOW-DIRECT-METHOD",
             "FIELD-FLOW-RUN-END-ACTION",
             "FIELD-FLOW-END-FOLLOWUP-ORIGIN",
-            "FIELD-FLOW-MANUAL-ASSIGNMENT-MODE"
+            "FIELD-FLOW-MANUAL-ASSIGNMENT-MODE",
+            "FIELD-PLAT-RESOURCE-SCOPE",
+            "FIELD-PLAT-PHONE",
+            "FIELD-FLOW-PHONE",
+            "FIELD-FLOW-CALLS"
           ],
-          "writes": [],
+          "writes": [
+            "FIELD-PROFILE-IDENTITY",
+            "FIELD-PROFILE-SOURCE-REFS",
+            "FIELD-PROFILE-SOURCE-STATES",
+            "FIELD-PROFILE-AI-FOLLOWUPS",
+            "FIELD-PROFILE-COUNTS"
+          ],
           "rule_ids": [
             "GR-SCOPE",
             "GR-PRIVACY",
@@ -8006,9 +8030,14 @@
         {
           "id": "BRANCH-FLOW-CUSTOMER-TIMELINE-1",
           "condition": "独立来电或临时通话无业务关联",
-          "result": "显示有权联系历史，不猜挂某条业务",
+          "result": "显示有权联系历史，不猜挂某条业务 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。",
           "field_ids": [
-            "FIELD-FLOW-CALLS"
+            "FIELD-FLOW-CALLS",
+            "FIELD-PROFILE-IDENTITY",
+            "FIELD-PROFILE-SOURCE-REFS",
+            "FIELD-PROFILE-SOURCE-STATES",
+            "FIELD-PROFILE-AI-FOLLOWUPS",
+            "FIELD-PROFILE-COUNTS"
           ],
           "test_refs": [
             "CHECK-FLOW-CUSTOMER-TIMELINE"
@@ -8017,10 +8046,15 @@
         {
           "id": "BRANCH-FLOW-CUSTOMER-TIMELINE-2",
           "condition": "同号多业务",
-          "result": "各自可打开有权记录及跟进，仍有独立run和联系策略",
+          "result": "各自可打开有权记录及跟进，仍有独立run和联系策略 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。",
           "field_ids": [
             "FIELD-FLOW-RECORD-ID",
-            "FIELD-FLOW-RUN-ID"
+            "FIELD-FLOW-RUN-ID",
+            "FIELD-PROFILE-IDENTITY",
+            "FIELD-PROFILE-SOURCE-REFS",
+            "FIELD-PROFILE-SOURCE-STATES",
+            "FIELD-PROFILE-AI-FOLLOWUPS",
+            "FIELD-PROFILE-COUNTS"
           ],
           "test_refs": [
             "CHECK-FLOW-CUSTOMER-TIMELINE"
@@ -8072,6 +8106,13 @@
         "FIELD-FLOW-DIRECT-METHOD",
         "FIELD-FLOW-DIRECT-CYCLES",
         "FIELD-FLOW-DIRECT-OUTCOME",
+        "FIELD-PROFILE-IDENTITY",
+        "FIELD-PROFILE-SOURCE-REFS",
+        "FIELD-PROFILE-SOURCE-STATES",
+        "FIELD-PROFILE-AI-FOLLOWUPS",
+        "FIELD-PROFILE-COUNTS",
+        "FIELD-PLAT-RESOURCE-SCOPE",
+        "FIELD-PLAT-PHONE",
         "FIELD-FLOW-RUN-END-ACTION",
         "FIELD-FLOW-END-FOLLOWUP-ORIGIN"
       ],
@@ -14754,7 +14795,9 @@
       "validation_rules": [
         "任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。",
         "先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。",
-        "AI场景是执行/参数/结果来源的准确稳定身份；TEMPLATE按当前执行租户和实际组显式确认，TASK不在导入重复选择。旧历史保原sceneSnapshot不按当前目录重写。"
+        "AI场景是执行/参数/结果来源的准确稳定身份；TEMPLATE按当前执行租户和实际组显式确认，TASK不在导入重复选择。旧历史保原sceneSnapshot不按当前目录重写。",
+        "模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。",
+        "无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。"
       ],
       "permissions": {
         "read": [
@@ -14783,7 +14826,7 @@
       ],
       "derivation": {
         "kind": "input",
-        "rule": "TASK从已保存准确任务/场景关联派生；CATEGORY按实际路径/分组及本租户执行安排明确，不猜首项。",
+        "rule": "TASK从已保存准确任务/场景关联派生；CATEGORY按实际路径/分组及本租户执行安排明确，不猜首项。 仅模板节点默认交互先选具体AI任务，再按准确唯一关联派生或明确核对场景；不改TASK内导入场景锁定或其他原安排合同。",
         "dependencies": []
       },
       "persistence": {
@@ -21255,7 +21298,9 @@
         "rule": "可带出本租户有效节点默认；无明确安排时保待安排，不造资源ID。"
       },
       "validation_rules": [
-        "只选本租户合法目标：PRED只任务，AI任务+适配场景；人工MANUAL可先无seat保存/导入待分配，SPECIFIC_SEAT才必选有效seat；真正起呼前人工必须落实seat且本人办理。取消独立责任人不放宽任务/模块授权。"
+        "只选本租户合法目标：PRED只任务，AI任务+适配场景；人工MANUAL可先无seat保存/导入待分配，SPECIFIC_SEAT才必选有效seat；真正起呼前人工必须落实seat且本人办理。取消独立责任人不放宽任务/模块授权。",
+        "模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。",
+        "无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。"
       ],
       "permissions": {
         "read": [
@@ -21284,7 +21329,7 @@
       ],
       "derivation": {
         "kind": "input",
-        "rule": "只选本租户合法目标：PRED只任务，AI任务+适配场景；人工MANUAL可先无seat保存/导入待分配，SPECIFIC_SEAT才必选有效seat；真正起呼前人工必须落实seat且本人办理。取消独立责任人不放宽任务/模块授权。",
+        "rule": "只选本租户合法目标：PRED只任务，AI任务+适配场景；人工MANUAL可先无seat保存/导入待分配，SPECIFIC_SEAT才必选有效seat；真正起呼前人工必须落实seat且本人办理。取消独立责任人不放宽任务/模块授权。 仅模板节点默认交互先选具体AI任务，再按准确唯一关联派生或明确核对场景；不改TASK内导入场景锁定或其他原安排合同。",
         "dependencies": [
           "FIELD-FLOW-OWNER-TENANT",
           "FIELD-FLOW-METHOD",
@@ -21600,7 +21645,10 @@
         "rule": "没有明确映射时由导入或手动分配补齐，不按首项代填。"
       },
       "validation_rules": [
-        "节点/当前有权tenant默认无独立责任人控件。人工默认MANUAL可无seat保存；SPECIFIC_SEAT才核有效seat；PRED只任务、AI任务+scene。其他tenant映射保原值且不暴露私有候选。"
+        "节点/当前有权tenant默认无独立责任人控件。人工默认MANUAL可无seat保存；SPECIFIC_SEAT才核有效seat；PRED只任务、AI任务+scene。其他tenant映射保原值且不暴露私有候选。",
+        "模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。",
+        "无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
+        "明确暂不指定时移除本执行tenant的AI默认条目（任务/场景一起清），不是保存缺resourceId的半条AI默认；其他tenant条目和已开运行快照不改。"
       ],
       "permissions": {
         "read": [
@@ -21629,7 +21677,7 @@
       ],
       "derivation": {
         "kind": "input",
-        "rule": "节点/当前有权tenant默认无独立责任人控件。人工默认MANUAL可无seat保存；SPECIFIC_SEAT才核有效seat；PRED只任务、AI任务+scene。其他tenant映射保原值且不暴露私有候选。",
+        "rule": "节点/当前有权tenant默认无独立责任人控件。人工默认MANUAL可无seat保存；SPECIFIC_SEAT才核有效seat；PRED只任务、AI任务+scene。其他tenant映射保原值且不暴露私有候选。 仅模板节点默认交互先选具体AI任务，再按准确唯一关联派生或明确核对场景；不改TASK内导入场景锁定或其他原安排合同。",
         "dependencies": [
           "FIELD-FLOW-OWNER-TENANT",
           "FIELD-FLOW-METHOD",
@@ -22226,6 +22274,716 @@
         "CHECK-FLOW-CONTROLLED-ABANDON",
         "CHECK-FLOW-ABANDON-DIRECT-SETTLEMENT"
       ]
+    },
+    {
+      "id": "FIELD-PROFILE-IDENTITY",
+      "name": "客户档案只读展示身份",
+      "entity": "CustomerProfileProjection",
+      "key": "id",
+      "source_refs": [
+        "docs/field-alignment.json#FIELD-PROFILE-IDENTITY"
+      ],
+      "source_keys": [],
+      "type": "string",
+      "format": "JSON tuple [tenantId:string非空, enterpriseId:string非空, normalizedPhone:string完整7～15位数字]；仅展示分组身份，不是原professionalCustomer.id或业务recordId。",
+      "nullable": false,
+      "required_when": "只在当前有权来源构建可确认的档案投影时提供；无可靠客户身份的原记录进入待核来源，不生成虚假客户行。",
+      "default": {
+        "kind": "none",
+        "value": null,
+        "rule": "读取实际有权事实派生；已知空、合法0和缺失/读取失败分开，不以默认值补事实。"
+      },
+      "validation_rules": [
+        "展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。",
+        "仅移除明确号码格式空白/括号/分隔符及有效+86或0086前缀；脱敏、非法长度、空号码不构造客户身份。原源tenant/enterprise由权威授权投影取得，不由当前owner猜补。"
+      ],
+      "permissions": {
+        "read": [
+          "客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。"
+        ],
+        "write": [
+          "系统构建本次瞬态只读投影；用户不编辑，不新增业务、原客户或通话写权。"
+        ]
+      },
+      "lifecycle": [
+        {
+          "state": "授权读取或刷新",
+          "behavior": "按当前有权投影构建；原源身份及各来源自身范围分别校验。"
+        },
+        {
+          "state": "源失败或未知",
+          "behavior": "保其他有权来源并明确不完整，不用旧成功快照冒当前完整结果；不补时间、号码或统计。"
+        },
+        {
+          "state": "上下文变化或离开",
+          "behavior": "旧异步结果不能回填，原业务和原专业记录不随投影销毁或改变。"
+        }
+      ],
+      "derivation": {
+        "kind": "calculated",
+        "rule": "展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。；仅移除明确号码格式空白/括号/分隔符及有效+86或0086前缀；脱敏、非法长度、空号码不构造客户身份。原源tenant/enterprise由权威授权投影取得，不由当前owner猜补。",
+        "dependencies": [
+          "FIELD-PLAT-RESOURCE-SCOPE",
+          "FIELD-PLAT-PHONE",
+          "FIELD-FLOW-PHONE"
+        ]
+      },
+      "persistence": {
+        "kind": "transient",
+        "write_when": "仅读取/刷新时构建瞬态DTO，不持久复制客户、业务、通话或原回访记录；导航偏好与原详情控制器既有缓存沿原合同，均不属于此投影字段。"
+      },
+      "examples": {
+        "valid": [
+          "[\"TEN-A\",\"ENT-A\",\"13800000001\"]只分组当前可读联系资料；另一企业相同号码仍为不同投影。"
+        ],
+        "invalid": [
+          "按同名/脱敏/首项猜关联、以受理造拨打、用投影身份取得原编辑资格、失败当完整0或跨租户复用旧结果。"
+        ]
+      },
+      "test_refs": [
+        "CHECK-FLOW-CUSTOMER-TIMELINE",
+        "CHECK-PLAT-CUSTOMER-DIRECTORY"
+      ],
+      "interfaces": []
+    },
+    {
+      "id": "FIELD-PROFILE-SOURCE-REFS",
+      "name": "档案准确原来源引用",
+      "entity": "CustomerProfileProjection",
+      "key": "sourceRefs",
+      "source_refs": [
+        "docs/field-alignment.json#FIELD-PROFILE-SOURCE-REFS"
+      ],
+      "source_keys": [],
+      "type": "array",
+      "format": "array<object>；kind为BUSINESS/BUSINESS_FOLLOWUP/BUSINESS_CALL/AI_NATIVE/AI_FOLLOWUP/NATIVE_CUSTOMER/NATIVE_CALL/DCC_CALL/DCC_IMPORT。按kind保必要非空原稳定ID字符串：recordId/segmentId/callId/attemptId/taskId/resultId/customerId/sessionId/platform/fingerprint/scopeToken；不适用成员省略。phone仅保原来源定位文本（可能脱敏），不据此拼客户身份。必要tenant/enterprise/account/授权上下文由外层有权快照或该类型原引用携带，不要求各供应商物理同构。禁止录音URL和可变业务值。",
+      "nullable": false,
+      "required_when": "只在当前有权来源构建可确认的档案投影时提供；无可靠客户身份的原记录进入待核来源，不生成虚假客户行。",
+      "default": {
+        "kind": "none",
+        "value": null,
+        "rule": "读取实际有权事实派生；已知空、合法0和缺失/读取失败分开，不以默认值补事实。"
+      },
+      "validation_rules": [
+        "客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。",
+        "引用与准确客户/来源上下文一起再次校验；只有唯一当前可见原行才打开其原控制器，身份、供应商、号码或内容指纹不符拒绝，不回退第一行。仅保明确同源/镜像的多引用，数组按原来源顺序稳定，不因姓名或时间合并。"
+      ],
+      "permissions": {
+        "read": [
+          "客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。"
+        ],
+        "write": [
+          "系统构建本次瞬态只读投影；用户不编辑，不新增业务、原客户或通话写权。"
+        ]
+      },
+      "lifecycle": [
+        {
+          "state": "授权读取或刷新",
+          "behavior": "按当前有权投影构建；原源身份及各来源自身范围分别校验。"
+        },
+        {
+          "state": "源失败或未知",
+          "behavior": "保其他有权来源并明确不完整，不用旧成功快照冒当前完整结果；不补时间、号码或统计。"
+        },
+        {
+          "state": "上下文变化或离开",
+          "behavior": "旧异步结果不能回填，原业务和原专业记录不随投影销毁或改变。"
+        }
+      ],
+      "derivation": {
+        "kind": "calculated",
+        "rule": "客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。；引用与准确客户/来源上下文一起再次校验；只有唯一当前可见原行才打开其原控制器，身份、供应商、号码或内容指纹不符拒绝，不回退第一行。仅保明确同源/镜像的多引用，数组按原来源顺序稳定，不因姓名或时间合并。",
+        "dependencies": [
+          "FIELD-PROFILE-IDENTITY",
+          "FIELD-FLOW-RECORD-ID",
+          "FIELD-FLOW-FOLLOWUP-ID",
+          "FIELD-PLAT-CALL-ID",
+          "FIELD-PLAT-CUSTOMER-ID"
+        ]
+      },
+      "persistence": {
+        "kind": "transient",
+        "write_when": "仅读取/刷新时构建瞬态DTO，不持久复制客户、业务、通话或原回访记录；导航偏好与原详情控制器既有缓存沿原合同，均不属于此投影字段。"
+      },
+      "examples": {
+        "valid": [
+          "同一准确通话的业务引用与原专业引用可并列入口；只读查看该引用不授F31媒体权或原记录编辑权。"
+        ],
+        "invalid": [
+          "按同名/脱敏/首项猜关联、以受理造拨打、用投影身份取得原编辑资格、失败当完整0或跨租户复用旧结果。"
+        ]
+      },
+      "test_refs": [
+        "CHECK-FLOW-CUSTOMER-TIMELINE",
+        "CHECK-PLAT-CUSTOMER-DIRECTORY"
+      ],
+      "interfaces": [],
+      "object_members": [
+        {
+          "key": "[].kind",
+          "type": "enum<string>",
+          "nullable": false,
+          "meaning": "原引用类型：BUSINESS/BUSINESS_FOLLOWUP/BUSINESS_CALL/AI_NATIVE/AI_FOLLOWUP/NATIVE_CUSTOMER/NATIVE_CALL/DCC_CALL/DCC_IMPORT；决定必要身份成员及原入口，不互换。"
+        },
+        {
+          "key": "[].recordId",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原业务或原导入记录ID；对应kind需要时必须非空。"
+        },
+        {
+          "key": "[].segmentId",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原业务跟进段稳定身份；不能按当前段或第一段替代。"
+        },
+        {
+          "key": "[].callId",
+          "type": "string",
+          "nullable": true,
+          "meaning": "准确原通话身份；只在原来源范围内解释。"
+        },
+        {
+          "key": "[].attemptId",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原业务尝试稳定身份；未拨尝试可有此引用，不证明已拨打。"
+        },
+        {
+          "key": "[].taskId",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原专业任务身份，DCC来源与其result/record共同定位。"
+        },
+        {
+          "key": "[].resultId",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原DCC结果稳定身份，与taskId共同定位。"
+        },
+        {
+          "key": "[].customerId",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原专业客户稳定ID，区别于FIELD-PROFILE-IDENTITY。"
+        },
+        {
+          "key": "[].sessionId",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原AI通话会话身份，AI_NATIVE与platform及范围共同定位。"
+        },
+        {
+          "key": "[].platform",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原供应商平台身份，不能只据同call字符串跨平台合并。"
+        },
+        {
+          "key": "[].phone",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原来源定位文本，可能完整或脱敏；仅保原引用，不据脱敏值建立客户。"
+        },
+        {
+          "key": "[].fingerprint",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原内容及读取权版本依据；变化后旧引用失效，不开放原默认首项。"
+        },
+        {
+          "key": "[].scopeToken",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原读取上下文不透明标识；不是新增授权，点击仍重核当前范围。"
+        }
+      ]
+    },
+    {
+      "id": "FIELD-PROFILE-SOURCE-STATES",
+      "name": "档案来源读取与待核状态",
+      "entity": "CustomerProfileProjection",
+      "key": "sourceStates",
+      "source_refs": [
+        "docs/field-alignment.json#FIELD-PROFILE-SOURCE-STATES"
+      ],
+      "source_keys": [],
+      "type": "object",
+      "format": "{sources:array<{source:string(BUSINESS/CLOUD_DCC/AI_CALL/AI_FOLLOWUP),status:success/partial/loading/unknown/failed/forbidden/not-applicable,authorized:boolean|null,issues:array<{message:string,sourceRef?:原引用}>}>,sourcesResolved:boolean,unlinked:array<{sourceKind:string,phoneLabel:string|null,label:string|null,sourceRef:原引用|null,reason:string}>}。null表示未核，不同于false；sourcesResolved仅在各原读取为success/forbidden/not-applicable时为true，partial/loading/unknown/failed时为false；true不等于所有原记录已可关联或生产验收。",
+      "nullable": false,
+      "required_when": "只在当前有权来源构建可确认的档案投影时提供；无可靠客户身份的原记录进入待核来源，不生成虚假客户行。",
+      "default": {
+        "kind": "none",
+        "value": null,
+        "rule": "读取实际有权事实派生；已知空、合法0和缺失/读取失败分开，不以默认值补事实。"
+      },
+      "validation_rules": [
+        "各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。",
+        "同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。",
+        "success且原集合已知空才可空；partial保已确认子集及原因但不称完整，forbidden/not-applicable不得继续读取，unknown/loading/failed显示不完整。unlinked按原来源稳定身份保序展示，phoneLabel可为脱敏文本但不能用作客户ID；同身份冲突两侧均待核，不首行取胜。"
+      ],
+      "permissions": {
+        "read": [
+          "客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。"
+        ],
+        "write": [
+          "系统构建本次瞬态只读投影；用户不编辑，不新增业务、原客户或通话写权。"
+        ]
+      },
+      "lifecycle": [
+        {
+          "state": "授权读取或刷新",
+          "behavior": "按当前有权投影构建；原源身份及各来源自身范围分别校验。"
+        },
+        {
+          "state": "源失败或未知",
+          "behavior": "保其他有权来源并明确不完整，不用旧成功快照冒当前完整结果；不补时间、号码或统计。"
+        },
+        {
+          "state": "上下文变化或离开",
+          "behavior": "旧异步结果不能回填，原业务和原专业记录不随投影销毁或改变。"
+        }
+      ],
+      "derivation": {
+        "kind": "calculated",
+        "rule": "各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。；同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。；success且原集合已知空才可空；partial保已确认子集及原因但不称完整，forbidden/not-applicable不得继续读取，unknown/loading/failed显示不完整。unlinked按原来源稳定身份保序展示，phoneLabel可为脱敏文本但不能用作客户ID；同身份冲突两侧均待核，不首行取胜。",
+        "dependencies": [
+          "FIELD-PLAT-RESOURCE-SCOPE",
+          "FIELD-PLAT-QUERY"
+        ]
+      },
+      "persistence": {
+        "kind": "transient",
+        "write_when": "仅读取/刷新时构建瞬态DTO，不持久复制客户、业务、通话或原回访记录；导航偏好与原详情控制器既有缓存沿原合同，均不属于此投影字段。"
+      },
+      "examples": {
+        "valid": [
+          "AI读取失败而原PRED可读：保PRED行，来源标failed；无AI原读权标not-applicable且不启动AI读取，不显示伪造的完整全来源0。"
+        ],
+        "invalid": [
+          "按同名/脱敏/首项猜关联、以受理造拨打、用投影身份取得原编辑资格、失败当完整0或跨租户复用旧结果。"
+        ]
+      },
+      "test_refs": [
+        "CHECK-FLOW-CUSTOMER-TIMELINE",
+        "CHECK-PLAT-CUSTOMER-DIRECTORY"
+      ],
+      "interfaces": [],
+      "object_members": [
+        {
+          "key": "sources",
+          "type": "array<object>",
+          "nullable": false,
+          "meaning": "各原来源本次读取状态，保业务/Cloud-DCC/AI通话/独立AI回访边界。"
+        },
+        {
+          "key": "sources[].source",
+          "type": "enum<string>",
+          "nullable": false,
+          "meaning": "BUSINESS/CLOUD_DCC/AI_CALL/AI_FOLLOWUP来源标识。"
+        },
+        {
+          "key": "sources[].status",
+          "type": "enum<string>",
+          "nullable": false,
+          "meaning": "success/partial/loading/unknown/failed/forbidden/not-applicable；partial保可靠子集，不当完整。"
+        },
+        {
+          "key": "sources[].authorized",
+          "type": "boolean",
+          "nullable": true,
+          "meaning": "true为已确认有原读取权，false为无权/不适用，null为尚未可靠核对；值不能授新权限。"
+        },
+        {
+          "key": "sources[].issues",
+          "type": "array<object>",
+          "nullable": false,
+          "meaning": "有问题逐项保message及可用的准确sourceRef；已知无问题可[]。"
+        },
+        {
+          "key": "sources[].issues[].message",
+          "type": "string",
+          "nullable": false,
+          "meaning": "实际失败、待核或不适配原因，不把未知写成无记录。"
+        },
+        {
+          "key": "sources[].issues[].sourceRef",
+          "type": "typed source reference",
+          "nullable": true,
+          "meaning": "有准确原来源时保引用；无依据时省略，不造默认引用。"
+        },
+        {
+          "key": "sourcesResolved",
+          "type": "boolean",
+          "nullable": false,
+          "meaning": "只有所有来源处于success/forbidden/not-applicable时为true；其他状态为false，true仍不等于unlinked全能关联。"
+        },
+        {
+          "key": "unlinked",
+          "type": "array<object>",
+          "nullable": false,
+          "meaning": "当前可读但不能确认客户身份的原记录；按原来源稳定身份保序。"
+        },
+        {
+          "key": "unlinked[].sourceKind",
+          "type": "string",
+          "nullable": false,
+          "meaning": "原来源类别，不推测客户或业务归属。"
+        },
+        {
+          "key": "unlinked[].phoneLabel",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原完整/脱敏/缺失号码资料，仅呈现，不用于补全客户。"
+        },
+        {
+          "key": "unlinked[].label",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原称呼资料；未提供显示未记录，不拿同名认领。"
+        },
+        {
+          "key": "unlinked[].sourceRef",
+          "type": "typed source reference",
+          "nullable": true,
+          "meaning": "该待核原记录的准确原引用；缺准确引用为null或省略，仅呈现待核原因，不开放首项跳转。"
+        },
+        {
+          "key": "unlinked[].reason",
+          "type": "string",
+          "nullable": false,
+          "meaning": "号码不完整、来源冲突、身份待核等可解释原因。"
+        }
+      ]
+    },
+    {
+      "id": "FIELD-PROFILE-AI-FOLLOWUPS",
+      "name": "原AI回访真实资料投影",
+      "entity": "CustomerProfileProjection",
+      "key": "aiFollowups",
+      "source_refs": [
+        "docs/field-alignment.json#FIELD-PROFILE-AI-FOLLOWUPS"
+      ],
+      "source_keys": [],
+      "type": "array",
+      "format": "array<{sourceRef:AI_FOLLOWUP准确原引用,sceneName:string|null,taskName:string|null,resultLabel:string|null,reportedVisitCount:非负整数|仅十进制整数数字字符串|null,visits:array<{followupAt:原日期时间字符串|null,summary:string|null,actorName:string|null}>,latestFollowup:{followupAt:string|null,summary:string|null,actorName:string|null,summaryOnly:boolean}|null}>。visits保原实际明细及原给定顺序；仅最近摘要不构造完整明细，reportedVisitCount仅保原平台汇总，不与本系统通话/归档同义。",
+      "nullable": false,
+      "required_when": "只在当前有权来源构建可确认的档案投影时提供；无可靠客户身份的原记录进入待核来源，不生成虚假客户行。",
+      "default": {
+        "kind": "none",
+        "value": null,
+        "rule": "读取实际有权事实派生；已知空、合法0和缺失/读取失败分开，不以默认值补事实。"
+      },
+      "validation_rules": [
+        "独立AI回访即使不在原通话表也可作为有权来源入档；真实visits或真实最近摘要/时间分别保留，无时间/姓名/内容保持null或未记录，原来源以字面「-」表示缺失时不转默认模拟内容。只显示原明细时不再把最近摘要重复当另一条明细；原汇总0为已知0，缺失/非法或字面「-」为未知，不按汇总生成记录。",
+        "客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。",
+        "来源日期仅给日期时保日期并提示具体时间未记录；非法日历日期待核，不用当前时间、首次默认回访或通话标识补手机号。原回访资料不增加业务跟进段、正常归档数或实际拨打次数。"
+      ],
+      "permissions": {
+        "read": [
+          "客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。"
+        ],
+        "write": [
+          "系统构建本次瞬态只读投影；用户不编辑，不新增业务、原客户或通话写权。"
+        ]
+      },
+      "lifecycle": [
+        {
+          "state": "授权读取或刷新",
+          "behavior": "按当前有权投影构建；原源身份及各来源自身范围分别校验。"
+        },
+        {
+          "state": "源失败或未知",
+          "behavior": "保其他有权来源并明确不完整，不用旧成功快照冒当前完整结果；不补时间、号码或统计。"
+        },
+        {
+          "state": "上下文变化或离开",
+          "behavior": "旧异步结果不能回填，原业务和原专业记录不随投影销毁或改变。"
+        }
+      ],
+      "derivation": {
+        "kind": "calculated",
+        "rule": "独立AI回访即使不在原通话表也可作为有权来源入档；真实visits或真实最近摘要/时间分别保留，无时间/姓名/内容保持null或未记录，原来源以字面「-」表示缺失时不转默认模拟内容。只显示原明细时不再把最近摘要重复当另一条明细；原汇总0为已知0，缺失/非法或字面「-」为未知，不按汇总生成记录。；客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。；来源日期仅给日期时保日期并提示具体时间未记录；非法日历日期待核，不用当前时间、首次默认回访或通话标识补手机号。原回访资料不增加业务跟进段、正常归档数或实际拨打次数。",
+        "dependencies": [
+          "FIELD-PROFILE-SOURCE-REFS",
+          "FIELD-PROFILE-SOURCE-STATES"
+        ]
+      },
+      "persistence": {
+        "kind": "transient",
+        "write_when": "仅读取/刷新时构建瞬态DTO，不持久复制客户、业务、通话或原回访记录；导航偏好与原详情控制器既有缓存沿原合同，均不属于此投影字段。"
+      },
+      "examples": {
+        "valid": [
+          "原平台汇总2但只提供最近摘要：保reportedVisitCount=2、visits=[]、latestFollowup.summaryOnly=true；不造2条明细、2次通话或正式业务归档。"
+        ],
+        "invalid": [
+          "按同名/脱敏/首项猜关联、以受理造拨打、用投影身份取得原编辑资格、失败当完整0或跨租户复用旧结果。"
+        ]
+      },
+      "test_refs": [
+        "CHECK-FLOW-CUSTOMER-TIMELINE",
+        "CHECK-PLAT-CUSTOMER-DIRECTORY"
+      ],
+      "interfaces": [],
+      "object_members": [
+        {
+          "key": "[].sourceRef",
+          "type": "AI_FOLLOWUP typed reference",
+          "nullable": false,
+          "meaning": "独立AI回访原引用；自己的读取权不由同号已拥有通话推导。"
+        },
+        {
+          "key": "[].sceneName",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原回访场景名称，缺失不按当前配置或同名补齐。"
+        },
+        {
+          "key": "[].taskName",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原任务显示资料，缺失保未记录。"
+        },
+        {
+          "key": "[].resultLabel",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原回访结果，不将其已接通文字转换为新的通话事实。"
+        },
+        {
+          "key": "[].reportedVisitCount",
+          "type": "nonnegative integer | decimal-integer string",
+          "nullable": true,
+          "meaning": "仅原平台汇总；0为已知0，缺失/字面「-」/非法为未知，不能生成同数明细、拨打或归档。",
+          "unit": "原平台汇总次数"
+        },
+        {
+          "key": "[].visits",
+          "type": "array<object>",
+          "nullable": false,
+          "meaning": "仅原来源实际提供的明细，保给定顺序；[]仅表示无可确认明细，不等于平台回访次数0。"
+        },
+        {
+          "key": "[].visits[].followupAt",
+          "type": "date/datetime string",
+          "nullable": true,
+          "meaning": "原日期或时间，日期-only注明具体时间未记录，非法日期待核。",
+          "unit": "原日期时间"
+        },
+        {
+          "key": "[].visits[].summary",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原实际内容，缺失未记录，不调用模拟默认内容。"
+        },
+        {
+          "key": "[].visits[].actorName",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原实际办理人；未知不以当前账号、发起人或责任人补填。"
+        },
+        {
+          "key": "[].latestFollowup",
+          "type": "object",
+          "nullable": true,
+          "meaning": "原来源仅给最近资料时单列摘要；有实际visits不把同一最近摘要再算一条明细。"
+        },
+        {
+          "key": "[].latestFollowup.followupAt",
+          "type": "date/datetime string",
+          "nullable": true,
+          "meaning": "原最近回访时间，未提供不补当前时间。",
+          "unit": "原日期时间"
+        },
+        {
+          "key": "[].latestFollowup.summary",
+          "type": "string",
+          "nullable": true,
+          "meaning": "最近一次实际摘要，不能冒完整明细。"
+        },
+        {
+          "key": "[].latestFollowup.actorName",
+          "type": "string",
+          "nullable": true,
+          "meaning": "原最近实际办理人，未知保持未记录。"
+        },
+        {
+          "key": "[].latestFollowup.summaryOnly",
+          "type": "boolean",
+          "nullable": false,
+          "meaning": "true明确这只是最近摘要；不据此声明完整回访历史或业务归档。"
+        }
+      ]
+    },
+    {
+      "id": "FIELD-PROFILE-COUNTS",
+      "name": "客户档案分项统计与已知时长",
+      "entity": "CustomerProfileProjection",
+      "key": "counts",
+      "source_refs": [
+        "docs/field-alignment.json#FIELD-PROFILE-COUNTS"
+      ],
+      "source_keys": [],
+      "type": "object",
+      "format": "{businessCount,followupCount,archivedFollowupCount,aiFollowupCount,aiVisitDetailCount,aiLatestSummaryCount,callRecordCount,actualDialCount,pendingCallCount,unknownDurationCount:均为非负整数;totalDurationSeconds:非负有限数(秒，仅已知时长之和);lastContactAt:string原日期时间|null;updatedAt:string原资料时间|null}。数量是当前可见集合的派生数；某来源failed/unknown时不能称全来源完整总量。totalDurationSeconds=0与时长未知由callRecordCount/unknownDurationCount共同区分，单位秒，显示可格式化分:秒。",
+      "nullable": false,
+      "required_when": "只在当前有权来源构建可确认的档案投影时提供；无可靠客户身份的原记录进入待核来源，不生成虚假客户行。",
+      "default": {
+        "kind": "none",
+        "value": null,
+        "rule": "读取实际有权事实派生；已知空、合法0和缺失/读取失败分开，不以默认值补事实。"
+      },
+      "validation_rules": [
+        "客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。",
+        "businessCount按独立有权recordId；followupCount按原段稳定ID；archivedFollowupCount仅明确正常归档且非废弃段，不等于业务达成。aiFollowupCount按独立原回访资料，aiVisitDetailCount仅实际visits长度，aiLatestSummaryCount仅无实际visits而确有最近摘要的资料条数。",
+        "callRecordCount计有权实际来源记录/尝试，明确镜像才去重；actualDialCount仅dialed=true且无待核镜像关系，pendingCallCount记录未实际拨打或事实/镜像关联待核，二者不得由受理或reportedVisitCount推断。相同供应商call字符串跨平台不自动去重。",
+        "unknownDurationCount计缺失/非法/镜像冲突/关联待核时长；已知0秒参与已知总和。无通话或全部时长未知时显示未记录，不显示0秒；有部分已知时长显示已知合计并分别提示未知条数。lastContactAt只取确认拨打的原实际时间；updatedAt只取原有效资料时间，读取不补Date.now。"
+      ],
+      "permissions": {
+        "read": [
+          "客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。"
+        ],
+        "write": [
+          "系统构建本次瞬态只读投影；用户不编辑，不新增业务、原客户或通话写权。"
+        ]
+      },
+      "lifecycle": [
+        {
+          "state": "授权读取或刷新",
+          "behavior": "按当前有权投影构建；原源身份及各来源自身范围分别校验。"
+        },
+        {
+          "state": "源失败或未知",
+          "behavior": "保其他有权来源并明确不完整，不用旧成功快照冒当前完整结果；不补时间、号码或统计。"
+        },
+        {
+          "state": "上下文变化或离开",
+          "behavior": "旧异步结果不能回填，原业务和原专业记录不随投影销毁或改变。"
+        }
+      ],
+      "derivation": {
+        "kind": "calculated",
+        "rule": "客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。；businessCount按独立有权recordId；followupCount按原段稳定ID；archivedFollowupCount仅明确正常归档且非废弃段，不等于业务达成。aiFollowupCount按独立原回访资料，aiVisitDetailCount仅实际visits长度，aiLatestSummaryCount仅无实际visits而确有最近摘要的资料条数。；callRecordCount计有权实际来源记录/尝试，明确镜像才去重；actualDialCount仅dialed=true且无待核镜像关系，pendingCallCount记录未实际拨打或事实/镜像关联待核，二者不得由受理或reportedVisitCount推断。相同供应商call字符串跨平台不自动去重。；unknownDurationCount计缺失/非法/镜像冲突/关联待核时长；已知0秒参与已知总和。无通话或全部时长未知时显示未记录，不显示0秒；有部分已知时长显示已知合计并分别提示未知条数。lastContactAt只取确认拨打的原实际时间；updatedAt只取原有效资料时间，读取不补Date.now。",
+        "dependencies": [
+          "FIELD-PROFILE-SOURCE-REFS",
+          "FIELD-PROFILE-SOURCE-STATES",
+          "FIELD-PROFILE-AI-FOLLOWUPS",
+          "FIELD-FLOW-CALLS",
+          "FIELD-FLOW-ARCHIVED",
+          "FIELD-PLAT-CALL-TIMES"
+        ]
+      },
+      "persistence": {
+        "kind": "transient",
+        "write_when": "仅读取/刷新时构建瞬态DTO，不持久复制客户、业务、通话或原回访记录；导航偏好与原详情控制器既有缓存沿原合同，均不属于此投影字段。"
+      },
+      "examples": {
+        "valid": [
+          "1条业务、1段正常归档、原AI回访汇总3但只有摘要、1次确认拨打且时长缺失：business1/followup1/archive1/AI资料1/call1/dial1/unknownDuration1；时长显示未记录，汇总3不增加call或archive。"
+        ],
+        "invalid": [
+          "按同名/脱敏/首项猜关联、以受理造拨打、用投影身份取得原编辑资格、失败当完整0或跨租户复用旧结果。"
+        ]
+      },
+      "test_refs": [
+        "CHECK-FLOW-CUSTOMER-TIMELINE",
+        "CHECK-PLAT-CUSTOMER-DIRECTORY"
+      ],
+      "interfaces": [],
+      "object_members": [
+        {
+          "key": "businessCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "按当前可读独立recordId计数，同号多业务不合并。",
+          "unit": "条独立业务"
+        },
+        {
+          "key": "followupCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "按原跟进稳定ID计数，不等于完成或拨打。",
+          "unit": "段业务跟进"
+        },
+        {
+          "key": "archivedFollowupCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "仅明确正常归档且非废弃的业务段，不等于业务达成。",
+          "unit": "段正常归档"
+        },
+        {
+          "key": "aiFollowupCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "按独立原回访资料计，不按reportedVisitCount展开。",
+          "unit": "条原AI回访资料"
+        },
+        {
+          "key": "aiVisitDetailCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "仅实际visits长度的合计。",
+          "unit": "条原实际明细"
+        },
+        {
+          "key": "aiLatestSummaryCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "仅无实际visits且确有latestFollowup的资料条数。",
+          "unit": "条仅最近摘要资料"
+        },
+        {
+          "key": "callRecordCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "有权原记录或业务尝试，明确镜像才去重，不等于确认拨打。",
+          "unit": "条联系/通话尝试记录"
+        },
+        {
+          "key": "actualDialCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "仅dialed=true且无待核镜像关系，不由受理、排队或回访汇总派生。",
+          "unit": "次可确认拨打"
+        },
+        {
+          "key": "pendingCallCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "原记录未实际拨打或拨打/镜像关联尚待核，不计确认拨打。",
+          "unit": "条未拨或待核记录"
+        },
+        {
+          "key": "unknownDurationCount",
+          "type": "nonnegative integer",
+          "nullable": false,
+          "meaning": "缺失、非法、镜像冲突或关联待核时长；不是0秒。",
+          "unit": "条时长未知记录"
+        },
+        {
+          "key": "totalDurationSeconds",
+          "type": "nonnegative finite number",
+          "nullable": false,
+          "meaning": "仅已知时长之和；已知0参与合计。无通话或全部时长未知时，依据callRecordCount/unknownDurationCount显示未记录，不把这个合计0当已知0秒。源不完整时只称当前可见已知合计。",
+          "unit": "秒"
+        },
+        {
+          "key": "lastContactAt",
+          "type": "date/datetime string",
+          "nullable": true,
+          "meaning": "仅确认拨打的原实际时间之最近值；缺失不借受理、接收或当前时间，日期-only注明具体时间未记录。",
+          "unit": "原日期时间"
+        },
+        {
+          "key": "updatedAt",
+          "type": "date/datetime string",
+          "nullable": true,
+          "meaning": "当前可见原资料的有效原更新时间，未知稳定置后，读取不补时间。",
+          "unit": "原日期时间"
+        }
+      ]
     }
   ],
   "checks": [
@@ -22325,8 +23083,8 @@
         "AC-2143",
         "AC-2146"
       ],
-      "procedure": "按当前Step43安排规则：从流转模板新建／编辑当前配置；选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL配置五档默认等级及当前有权执行tenant的任务/坐席默认；保存其他tenant映射不变，不展示私有候选。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。",
-      "expected": "业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。",
+      "procedure": "按当前Step43安排规则：从流转模板新建／编辑当前配置；选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL配置五档默认等级及当前有权执行tenant的任务/坐席默认；保存其他tenant映射不变，不展示私有候选。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。 选择AI后不先选场景或手动刷新，核冷目录、准确唯一绑定、多匹配/冲突、无权/范围/参照分类缺失、明确后续分配、保存重开及滚动/草稿保持。",
+      "expected": "业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。 模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
       "history": {
         "pre_resume_check": {
           "id": "CHECK-FLOW-TEMPLATE-CREATE",
@@ -22347,7 +23105,8 @@
         }
       },
       "resume_check_revision": "2.0.0-current-20261030-step39",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56",
+      "profile_template_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-TEMPLATE-EDIT",
@@ -22364,8 +23123,8 @@
         "AC-2145",
         "AC-2146"
       ],
-      "procedure": "按当前Step43安排规则：从流转模板新建／编辑当前配置；选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL默认等级及当前有权tenant映射可改，换方式重核目标，保其他tenant映射；仅新运行捕获新默认。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。",
-      "expected": "业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。",
+      "procedure": "按当前Step43安排规则：从流转模板新建／编辑当前配置；选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL默认等级及当前有权tenant映射可改，换方式重核目标，保其他tenant映射；仅新运行捕获新默认。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。 选择AI后不先选场景或手动刷新，核冷目录、准确唯一绑定、多匹配/冲突、无权/范围/参照分类缺失、明确后续分配、保存重开及滚动/草稿保持。",
+      "expected": "业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。 模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
       "history": {
         "pre_resume_check": {
           "id": "CHECK-FLOW-TEMPLATE-EDIT",
@@ -22387,15 +23146,16 @@
         }
       },
       "resume_check_revision": "2.0.0-current-20261030-step39",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56",
+      "profile_template_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-TEMPLATE-READ",
       "acceptance_ids": [
         "AC-2136"
       ],
-      "procedure": "按当前两模式安排版本执行：从列表、分类路由或业务方案查看模板说明。操作：读取准确当前模板或业务run捕获方案；分开显示字段参考和实际应用、入口、方式、承接方、条件及业务结论 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。分别构造：无权或读取失败；可读配置。",
-      "expected": "只读不暴露无权业务/其他租户场景；明确无权/失败，不伪装没有配置；只读呈现，不生成运行或改变分类绑定。",
+      "procedure": "分别构造无查看权、配置读取失败及可读配置；以只有查看资格的账号打开当前模板及业务运行捕获方案，核原任务/场景身份、来源信息和只读禁用原因；不选择、清除或保存任务默认，不追改原快照。",
+      "expected": "只读模板详情和业务运行捕获方案展示原节点、已保存任务/场景身份及当前可读来源信息；当前目录不可核对不替换原选择，不要求查看者选择、清除或保存任务默认。无安排权和只读态控件禁用并说明，当前配置不追改原运行快照。 无查看权明确拒绝，不泄露无权业务或其他租户场景；读取失败保原引用并说明失败，不伪装没有配置。",
       "history": {
         "pre_resume_check": {
           "id": "CHECK-FLOW-TEMPLATE-READ",
@@ -22407,7 +23167,8 @@
         }
       },
       "resume_check_revision": "2.0.0-current-20261030-step39",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56",
+      "profile_template_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-TEMPLATE-DELETE",
@@ -22484,7 +23245,7 @@
         }
       },
       "resume_check_revision": "2.0.0-current-20261030-step39",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-IMPORT-COMMIT",
@@ -22510,7 +23271,7 @@
         }
       },
       "resume_check_revision": "2.0.0-current-20261030-step39",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-ASSIGN",
@@ -22532,7 +23293,7 @@
         }
       },
       "resume_check_revision": "2.0.0-current-20261030-step39",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-ASSIGN-BATCH",
@@ -22541,7 +23302,7 @@
       ],
       "procedure": "按当前Step43安排规则：勾选同组记录后分配跟进人；逐条读取实际可安排上下文并求共同有效候选；同组按方式确认任务或人工分配方式/坐席、必要scene及五档等级，不选择独立责任人；任一资源无权或失效全组不写；DIRECT按模式/分类/方式/场景等当前权威安排分组，TEMPLATE另按run捕获方案和CALL身份分组；混组拒绝，不以空nodeId误合直接业务；同组共同候选中选择本方式具体任务或人工分配方式/坐席、必要AI场景及五档等级，逐条重核后同次写入；任一行失败全组不写，保原手动分配入口。；。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。",
       "expected": "不按相同nodeId误合不同模板组；全组不写，提示分组或具体不合格原因；同次保存组内安排，不自动批起呼；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-AI-SCENE",
@@ -22579,7 +23340,7 @@
         }
       },
       "resume_check_revision": "2.0.0-current-20261030-step39",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-START-BATCH",
@@ -22590,7 +23351,7 @@
       ],
       "procedure": "按当前Step43安排规则：勾选同组AI/预外呼并明确确认发起；同资源可办理待执行项按五档执行优先级降序、同级入队时间及稳定序号升序逐条重核；不同资源独立办理，不抢占已受理执行；每记录独立建立跟进/受理结果，仍对同号执行协调；DIRECT同方式同有效安排组也可明确批量发起AI/预外呼；逐条重核模式、串行占用及联系限制，人工仍逐条本人办理 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。",
       "expected": "分配批次与执行批次不是同一成功口径；逐行准确反馈和身份，已受理不回滚成未发生，失败不自动续拨；阻批发起，人工本人逐条处理；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-CALL-FACTS",
@@ -22806,7 +23567,7 @@
       ],
       "procedure": "分别从主菜单/批次/record详情查询并刷新，改变账号/租户/权限；回读原历史和新TASK行。",
       "expected": "业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-BATCH-READ",
@@ -22814,7 +23575,7 @@
         "AC-2131",
         "AC-2132"
       ],
-      "procedure": "按当前三入口统一导入规则：从当前台账打开批次查看业务；按实际可见记录裁剪批次及私有行，准确表明部分可见；可见集按真实更新时间倒序分页，关联到准确业务；按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
+      "procedure": "按当前三入口统一导入规则：从当前台账打开批次查看业务；按实际可见记录裁剪批次及私有行，准确表明部分可见；可见集按真实更新时间倒序分页，关联到准确业务；按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原旧导入菜单改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
       "expected": "不通过批次扩大跨租户字段或电话读取；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。"
     },
     {
@@ -22826,9 +23587,9 @@
         "AC-2132",
         "AC-2133"
       ],
-      "procedure": "按当前三入口统一导入规则：打开准确业务详情或辅助run/timeline接口；分别投影当前负责、超管管理只读、本方转出截止三身份；按各自快照显示当前资料、实际run、原段内容和通话，辅助接口同样裁剪；按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
+      "procedure": "按当前三入口统一导入规则：打开准确业务详情或辅助run/timeline接口；分别投影当前负责、超管管理只读、本方转出截止三身份；按各自快照显示当前资料、实际run、原段内容和通话，辅助接口同样裁剪；按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原旧导入菜单改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
       "expected": "查看不创建跟进或运行；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-CUSTOMER-TIMELINE",
@@ -22838,8 +23599,8 @@
         "AC-2132",
         "AC-2147"
       ],
-      "procedure": "按当前续接版本执行：客户档案切换业务跟进或联系档案、打开关联业务。前提：各来源本来有权读取，不因归集新增授权。操作：同租户规范号码仅展示归集有权业务，不合并身份/编码/结果；保原联系档案/独立呼入临时通话，业务followup按准确关联展示；按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。。分别构造：独立来电或临时通话无业务关联；同号多业务。",
-      "expected": "档案归集不是第二套可变业务账本；显示有权联系历史，不猜挂某条业务；各自可打开有权记录及跟进，仍有独立run和联系策略。",
+      "procedure": "当前统一列表分别核AI/PRED/人工新业务、原AI通话、独立AI回访及原Cloud/PRED；核完整号码/来源引用、分项计数、原快照/详情、返回筛选分页、冷恢复有效PRED及AI-only选择、源成功/失败、上下文切换、号码更正、镜像冲突和原接听者。",
+      "expected": "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。 展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。 各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。 客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。 同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。",
       "history": {
         "pre_resume_check": {
           "id": "CHECK-FLOW-CUSTOMER-TIMELINE",
@@ -22853,7 +23614,8 @@
           "expected": "显示有权联系历史，不猜挂某条业务；各自可打开有权记录及跟进，仍有独立run和联系策略；档案归集不是第二套可变业务账本；按本次续接规则执行，不恢复已移除的旧限制或控件。"
         }
       },
-      "resume_check_revision": "2.0.0-current-20261030-step39"
+      "resume_check_revision": "2.0.0-current-20261030-step39",
+      "profile_template_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-HANDLER-INBOX",
@@ -22888,7 +23650,7 @@
       ],
       "procedure": "按当前两模式安排版本执行：管理员从导入批次与业务名单维护联系协调设置。操作：校0禁用额外频控及有效范围；旧分类权重仅有值时只读保留，当前界面不再编辑，五档等级从当前执行安排维护；起呼按完整规范号、准确原专业及本账本事实协调占用与频次；同号码及同资源使用五档降序、queuedAt/queueSequence入队FIFO和稳定业务ID的统一总序，避免交叉等待；旧分类0～999仅保历史/原专业兼容，不参与新排序，当前UI只读，不抢占在途。。分别构造：已在途/排队/重试/unknown或频次/高优先条件不允；明确终止且事实完整/策略允许。",
       "expected": "不靠掩码猜号码，不因维护策略放松公共拒联或供应商边界；阻新呼叫并给原因及可核最早时间，不自动续拨；仅解除原占用，人员仍须明确发起。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-INTERFACE-QUERY",
@@ -22983,7 +23745,7 @@
       ],
       "procedure": "按当前Step45生命周期规则：在直接跟进业务或当前CALL记录点击安排；按当前模式/方式读取本租户有权任务/场景或坐席；不读取独立责任人候选作为必填；人工默认MANUAL可先待分配，SPECIFIC_SEAT才必选seat；PRED只任务，AI任务+scene，不选择独立责任人；保存五档等级，人员仅由seat或真实执行事实产生，不改owner/模板方式、不自动起呼；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。",
       "expected": "按钮、上下文和模型动作资格一致；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-IMPORT-ARRANGEMENT",
@@ -22992,7 +23754,7 @@
       ],
       "procedure": "按当前三入口统一导入规则：点击检查名单； ；共享读取/预检采用准确目标context.importLimits而非任意调用参数：保AI大众100行、厚朴150000行、其他2000行及16MB文件，预外呼2000行/1MB；超限明示分批且不截断，旧AI parser只作历史兼容不成第二新写入口；CATEGORY按真实行IMPORT条件定位首路径/首CALL并分组；AI取该组实际场景参数，TRANSFER按当前/目标租户合法路径办理，未知PENDING不假落ELSE。未配置模板精确引导业务分类→路由配置，失效/删除另报，不虚构空名单1条。 仅首组识别/discovery用于决定方式和所需场景，不生成正式token、不建record；待各组必要场景及正式schema齐全后才正式逐行检查。； 预检成功才显示实际组数，名单/映射/分类/路由/场景/执行安排改变清旧token/数量；保五档及人工MANUAL/指定seat、PRED仅任务、AI任务+scene的合法安排。；按本批实际首CALL分组显示方式/数量、具体任务或坐席、必要场景及五档等级；导入安排可覆盖本租户节点默认，也可保留稍后手动分配；目标/等级变化失效旧预览。；客户维护与AI/PRED任务三入口共用IMPORT及code等系统必需校验；任务内默认DIRECT且固定准确task/scene、ADMIN+customer.import和原模块/来源准入，分类已绑模板也不建run/node；统一记录一次保存，专业视图只读投影。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
       "expected": "预览不转交、不起呼、不写正式业务；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-EXECUTION-PRIORITY",
@@ -23001,16 +23763,17 @@
       ],
       "procedure": "按当前Step43安排规则：勾选同组AI/预外呼并明确确认发起；同资源可办理待执行项按五档执行优先级降序、同级入队时间及稳定序号升序逐条重核；不同资源独立办理，不抢占已受理执行；每记录独立建立跟进/受理结果，仍对同号执行协调；DIRECT同方式同有效安排组也可明确批量发起AI/预外呼；逐条重核模式、串行占用及联系限制，人工仍逐条本人办理 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。",
       "expected": "分配批次与执行批次不是同一成功口径；逐行准确反馈和身份，已受理不回滚成未发生，失败不自动续拨；阻批发起，人工本人逐条处理；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-EXECUTION-DEFAULTS",
       "acceptance_ids": [
         "AC-2153"
       ],
-      "procedure": "按当前Step43安排规则：从流转模板新建／编辑当前配置；选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL默认等级及当前有权tenant映射可改，换方式重核目标，保其他tenant映射；仅新运行捕获新默认。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。",
-      "expected": "业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "procedure": "按当前Step43安排规则：从流转模板新建／编辑当前配置；选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL默认等级及当前有权tenant映射可改，换方式重核目标，保其他tenant映射；仅新运行捕获新默认。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。 选择AI后不先选场景或手动刷新，核冷目录、准确唯一绑定、多匹配/冲突、无权/范围/参照分类缺失、明确后续分配、保存重开及滚动/草稿保持。",
+      "expected": "业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。 模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56",
+      "profile_template_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-EXECUTION-HISTORY",
@@ -23019,7 +23782,7 @@
       ],
       "procedure": "受控废弃后建立新RUN但不安排，再分配相同资源；比较同RUN重存和新RUN的新队列事实，回读旧跟进。",
       "expected": "当前排队事实仅属于准确当前run/nodeRun/directCycle及有效资源安排；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。",
-      "execution_arrangement_revision": "2.0.0-current-20261102-step54"
+      "execution_arrangement_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-MANUAL-ASSIGNMENT-MODE",
@@ -23028,7 +23791,7 @@
       ],
       "procedure": "两模式人工分别MANUAL无seat保存模板/导入，再原单条/批量分配；SPECIFIC_SEAT缺seat及有合法seat两例；前节点已指定seat后进入新MANUAL/SPECIFIC_SEAT后继及旧无策略快照，刷新回读并由目标本人起呼。",
       "expected": "MANUAL缺省无seat可先待分配，新MANUAL后继不继承前seat；SPECIFIC_SEAT缺seat拒绝，仅按本节点及原同tenant/method/有效资源规则沿用或确认。旧快照无策略保原解释，不读取时迁移；有效分配后仅本人办理，五档与原守卫不变。",
-      "assignment_simplification_revision": "2.0.0-current-20261102-step54"
+      "assignment_simplification_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-TASK-WITHOUT-FOLLOWER",
@@ -23037,7 +23800,7 @@
       ],
       "procedure": "按当前Step45生命周期规则：在直接跟进业务或当前CALL记录点击安排；按当前模式/方式读取本租户有权任务/场景或坐席；不读取独立责任人候选作为必填；人工默认MANUAL可先待分配，SPECIFIC_SEAT才必选seat；PRED只任务，AI任务+scene，不选择独立责任人；保存五档等级，人员仅由seat或真实执行事实产生，不改owner/模板方式、不自动起呼；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。",
       "expected": "按钮、上下文和模型动作资格一致；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。",
-      "assignment_simplification_revision": "2.0.0-current-20261102-step54"
+      "assignment_simplification_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-DERIVED-PEOPLE-HISTORY",
@@ -23046,7 +23809,7 @@
       ],
       "procedure": "按当前Step45生命周期规则：确认开始本次办理；重核当前人/owner/模式、准确TASK来源/渠道/方式（旧无TASK历史另核原准入）或TEMPLATE准确run/node、场景与唯一资源、所有联系限制和号码协调；人工须已明确有效seat且仅其本人办理；AI/PRED不要求独立assignedAccountId或followupAccountId，真实actor/拨打/接听事实分别写入；两模式均产生准确唯一跟进并封最新分类定义/值和真实方式/场景；DIRECT不生成run/node，TEMPLATE绑定准确当前run/node，受理不当拨打；按准确保存resourceId及场景重新核资源；manual仅所选坐席本人起呼。同资源高等级的可办理待办优先，既有执行不被抢占；所有原联系/资格限制先检查。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。",
       "expected": "不自动推进节点或改变owner；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。",
-      "assignment_simplification_revision": "2.0.0-current-20261102-step54"
+      "assignment_simplification_revision": "2.0.0-current-20261102-step56"
     },
     {
       "id": "CHECK-FLOW-TASK-IMPORT-SCHEMA",
@@ -23681,14 +24444,20 @@
         "FIELD-FLOW-DIRECT-CYCLE-ID",
         "FIELD-FLOW-DIRECT-STATUS",
         "FIELD-FLOW-DIRECT-CYCLES",
-        "FIELD-FLOW-DIRECT-OUTCOME"
+        "FIELD-FLOW-DIRECT-OUTCOME",
+        "FIELD-PROFILE-IDENTITY",
+        "FIELD-PROFILE-SOURCE-REFS",
+        "FIELD-PROFILE-SOURCE-STATES",
+        "FIELD-PROFILE-AI-FOLLOWUPS",
+        "FIELD-PROFILE-COUNTS"
       ],
       "test_refs": [
         "CHECK-FLOW-ARCHIVE",
         "CHECK-FLOW-CUSTOMER-TIMELINE",
         "CHECK-FLOW-HANDLER-INBOX",
         "CHECK-FLOW-INTERFACE-QUERY",
-        "CHECK-FLOW-SAVE-CONTENT"
+        "CHECK-FLOW-SAVE-CONTENT",
+        "CHECK-PLAT-CUSTOMER-DIRECTORY"
       ],
       "origin_field_groups": [],
       "mapping_scope": "related_business_fields",
@@ -23881,7 +24650,7 @@
     {
       "id": "CHG-030-DIRECTORY",
       "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
-      "current": "业务跟进/联系档案统一页签与tabpanel，键盘方向/Home/End可用；同身份切换保各自查询/分页，跨身份不恢复旧状态，显式客户详情与原摘要刷新仍定位正确。",
+      "current": "客户档案已统一为一个客户列表，来源分别只读归集；保当前范围筛选/分页/选中客户及冷恢复，原双主视图页签不再作为当前交互。",
       "evidence_refs": [
         "docs/exception-definitions.json#CHG-030-DIRECTORY"
       ]
@@ -24116,6 +24885,49 @@
       "evidence_refs": [
         "docs/exception-definitions.json#CHG-054-CURRENT-HTTP-FIXES"
       ]
+    },
+    {
+      "id": "CHG-055-CUSTOMER-PROFILE",
+      "title": "客户档案全来源统一只读归集",
+      "old": "业务跟进与原联系档案分视图，原AI通话及独立AI回访未完整归集。",
+      "current": "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。 展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。 各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。 客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。 同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。",
+      "acceptance_ids": [
+        "AC-2130",
+        "AC-2131",
+        "AC-2132",
+        "AC-2147"
+      ],
+      "local_ids": [
+        "LOCAL-FLOW-CUSTOMER-TIMELINE",
+        "LOCAL-PLAT-CUSTOMER-DIRECTORY",
+        "LOCAL-PLAT-CALL-QUERY",
+        "LOCAL-PLAT-LEAD-QUERY"
+      ],
+      "authorization": "inputs/customer-profile-integration-authorization-20261102.json",
+      "evidence_refs": [
+        "memory/customer-profile-integration-20261102/verification-proof.json"
+      ],
+      "statement": "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。 展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。 各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。 客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。 同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。"
+    },
+    {
+      "id": "CHG-056-TEMPLATE-AI-TASK",
+      "title": "模板AI任务先选、自动目录及准确场景联动",
+      "old": "先选场景再出现默认任务，部分范围整块隐藏；冷目录依赖手动刷新，重绘回顶部。",
+      "current": "模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
+      "acceptance_ids": [
+        "AC-2153"
+      ],
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT",
+        "LOCAL-FLOW-TEMPLATE-READ",
+        "LOCAL-FLOW-AI-SCENE"
+      ],
+      "authorization": "inputs/template-ai-task-entry-authorization-20261102.json",
+      "evidence_refs": [
+        "memory/template-ai-task-entry-20261102/verification-proof.json"
+      ],
+      "statement": "模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。"
     }
   ],
   "engineering_questions": [
@@ -24210,14 +25022,16 @@
     "自定义字段值以元定义约束，不能为每个用户建的示例字段创造产品永久字段；预置统计字段另明确实际业务口径",
     "参与分流字段不等于每列全局必填：按实际路径资料判断，缺依据/全不匹配仍不可导入",
     "2026-10-30直接跟进/按模板流转为用户授权业务增量；43个原FUNC及原FIELD身份保留，新增3字段和独立启用流程动作。",
-    "当前Step54证据仅有限本地Mock/合成名单与获准HTTP；三条主流程有实际闭环，22组中13组已验、9组部分已验，66套1102结构化用例通过只是补充。下载落地、真实音频、未知回执/停止/新周期及其他列明子项、file协议、真实供应商/API/CTI未全部验证；产品资料更新不授全量验收、S8/final、G3或工程执行批准，DRAFT继续保留。"
+    "当前Step54证据仅有限本地Mock/合成名单与获准HTTP；三条主流程有实际闭环，22组中13组已验、9组部分已验，66套1102结构化用例通过只是补充。下载落地、真实音频、未知回执/停止/新周期及其他列明子项、file协议、真实供应商/API/CTI未全部验证；产品资料更新不授全量验收、S8/final、G3或工程执行批准，DRAFT继续保留。",
+    "原Step54证据仅有限本地Mock/合成名单与获准HTTP；三条主流程有实际闭环，22组中13组已验、9组部分已验，66套1102结构化用例通过只是补充。下载落地、真实音频、未知回执/停止/新周期及其他列明子项、file协议、真实供应商/API/CTI未全部验证；产品资料更新不授全量验收、S8/final、G3或工程执行批准，DRAFT继续保留。",
+    "本次Step55/56为有限本地Mock和获准HTTP局部修复证据：Step55为70套1222与25条有效修后观察，Step56最终70套1241、适用built48及11条有效最终观察。原Step54的13组已验/9组部分及下载、真实音频、未知回执/停止等组合、file和真实供应商/API/CTI未验边界保留。OBS-PROFILE-STARTUP-01的Observer日志仍未归因，不声明零诊断；DRAFT不升S8/G3、正式工程/业务/运营批准。"
   ],
   "direct_followup_delta": "20261030-1",
   "direct_cycle_delta": "20261030-1",
   "prototype_resume_delta": "2.0.0-current-20261030-step39",
   "audit_corrections": "audit-20261030-step40",
   "execution_arrangement_delta": {
-    "version": "2.0.0-current-20261102-step54",
+    "version": "2.0.0-current-20261102-step56",
     "authorization": "inputs/execution-arrangement-authorization-20261031.json",
     "acceptance_ids": [
       "AC-2150",
@@ -24238,7 +25052,7 @@
     "production_verified": false
   },
   "execution_assignment_simplification": {
-    "version": "2.0.0-current-20261102-step54",
+    "version": "2.0.0-current-20261102-step56",
     "authorization": "inputs/execution-assignment-simplification-20261031.json",
     "field_ids": [
       "FIELD-FLOW-MANUAL-ASSIGNMENT-MODE",
@@ -24426,6 +25240,74 @@
     },
     "formal_approval": false,
     "production_verified": false,
-    "limits": "当前Step54证据仅有限本地Mock/合成名单与获准HTTP；三条主流程有实际闭环，22组中13组已验、9组部分已验，66套1102结构化用例通过只是补充。下载落地、真实音频、未知回执/停止/新周期及其他列明子项、file协议、真实供应商/API/CTI未全部验证；产品资料更新不授全量验收、S8/final、G3或工程执行批准，DRAFT继续保留。"
+    "limits": "原Step54证据仅有限本地Mock/合成名单与获准HTTP；三条主流程有实际闭环，22组中13组已验、9组部分已验，66套1102结构化用例通过只是补充。下载落地、真实音频、未知回执/停止/新周期及其他列明子项、file协议、真实供应商/API/CTI未全部验证；产品资料更新不授全量验收、S8/final、G3或工程执行批准，DRAFT继续保留。"
+  },
+  "profile_template_current_delta": {
+    "version": "2.0.0-current-20261102-step56",
+    "authorization_refs": [
+      "inputs/customer-profile-integration-authorization-20261102.json",
+      "inputs/template-ai-task-entry-authorization-20261102.json",
+      "inputs/execution-arrangement-authorization-20261031.json"
+    ],
+    "prototype_proof_refs": [
+      "memory/customer-profile-integration-20261102/verification-proof.json",
+      "memory/template-ai-task-entry-20261102/verification-proof.json"
+    ],
+    "changes": [
+      {
+        "id": "CHG-055-CUSTOMER-PROFILE",
+        "title": "客户档案全来源统一只读归集",
+        "old": "业务跟进与原联系档案分视图，原AI通话及独立AI回访未完整归集。",
+        "current": "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。 展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。 各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。 客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。 同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。",
+        "acceptance_ids": [
+          "AC-2130",
+          "AC-2131",
+          "AC-2132",
+          "AC-2147"
+        ],
+        "local_ids": [
+          "LOCAL-FLOW-CUSTOMER-TIMELINE",
+          "LOCAL-PLAT-CUSTOMER-DIRECTORY",
+          "LOCAL-PLAT-CALL-QUERY",
+          "LOCAL-PLAT-LEAD-QUERY"
+        ],
+        "authorization": "inputs/customer-profile-integration-authorization-20261102.json",
+        "evidence_refs": [
+          "memory/customer-profile-integration-20261102/verification-proof.json"
+        ],
+        "statement": "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。 展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。 各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。 客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。 同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。"
+      },
+      {
+        "id": "CHG-056-TEMPLATE-AI-TASK",
+        "title": "模板AI任务先选、自动目录及准确场景联动",
+        "old": "先选场景再出现默认任务，部分范围整块隐藏；冷目录依赖手动刷新，重绘回顶部。",
+        "current": "模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
+        "acceptance_ids": [
+          "AC-2153"
+        ],
+        "local_ids": [
+          "LOCAL-FLOW-TEMPLATE-CREATE",
+          "LOCAL-FLOW-TEMPLATE-EDIT",
+          "LOCAL-FLOW-TEMPLATE-READ",
+          "LOCAL-FLOW-AI-SCENE"
+        ],
+        "authorization": "inputs/template-ai-task-entry-authorization-20261102.json",
+        "evidence_refs": [
+          "memory/template-ai-task-entry-20261102/verification-proof.json"
+        ],
+        "statement": "模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。"
+      }
+    ],
+    "field_ids": [
+      "FIELD-PROFILE-IDENTITY",
+      "FIELD-PROFILE-SOURCE-REFS",
+      "FIELD-PROFILE-SOURCE-STATES",
+      "FIELD-PROFILE-AI-FOLLOWUPS",
+      "FIELD-PROFILE-COUNTS"
+    ],
+    "stable_product_ids": true,
+    "formal_approval": false,
+    "production_verified": false,
+    "limits": "本次Step55/56为有限本地Mock和获准HTTP局部修复证据：Step55为70套1222与25条有效修后观察，Step56最终70套1241、适用built48及11条有效最终观察。原Step54的13组已验/9组部分及下载、真实音频、未知回执/停止等组合、file和真实供应商/API/CTI未验边界保留。OBS-PROFILE-STARTUP-01的Observer日志仍未归因，不声明零诊断；DRAFT不升S8/G3、正式工程/业务/运营批准。"
   }
 }

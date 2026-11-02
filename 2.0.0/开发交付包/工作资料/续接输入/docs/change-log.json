@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-current-20261102-step54",
+  "version": "2.0.0-current-20261102-step56",
   "changes": [
     {
       "id": "SUP-FLOW-NODES",
@@ -128,7 +128,7 @@
     {
       "id": "CHG-030-DIRECTORY",
       "old": "步骤28产品整理时的相关规则/入口，原版本保留追溯",
-      "current": "业务跟进/联系档案统一页签与tabpanel，键盘方向/Home/End可用；同身份切换保各自查询/分页，跨身份不恢复旧状态，显式客户详情与原摘要刷新仍定位正确。",
+      "current": "客户档案已统一为一个客户列表，来源分别只读归集；保当前范围筛选/分页/选中客户及冷恢复，原双主视图页签不再作为当前交互。",
       "evidence_refs": [
         "docs/exception-definitions.json#CHG-030-DIRECTORY"
       ]
@@ -365,46 +365,89 @@
       ]
     },
     {
+      "id": "CHG-055-CUSTOMER-PROFILE",
+      "title": "客户档案全来源统一只读归集",
+      "old": "业务跟进与原联系档案分视图，原AI通话及独立AI回访未完整归集。",
+      "current": "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。 展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。 各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。 客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。 同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。",
+      "acceptance_ids": [
+        "AC-2130",
+        "AC-2131",
+        "AC-2132",
+        "AC-2147"
+      ],
+      "local_ids": [
+        "LOCAL-FLOW-CUSTOMER-TIMELINE",
+        "LOCAL-PLAT-CUSTOMER-DIRECTORY",
+        "LOCAL-PLAT-CALL-QUERY",
+        "LOCAL-PLAT-LEAD-QUERY"
+      ],
+      "authorization": "inputs/customer-profile-integration-authorization-20261102.json",
+      "evidence_refs": [
+        "memory/customer-profile-integration-20261102/verification-proof.json"
+      ],
+      "statement": "客户档案使用一个当前有权客户列表，统一只读归集统一业务的AI/预外呼/人工跟进、原AI通话及独立AI线索回访、原Cloud/PRED联系与导入历史；业务、跟进、回访资料、通话和实际拨打分别保留，不复制持久客户/业务/通话记录，不按同号合并业务身份。 展示身份为tenantId+enterpriseId+完整规范号码；只消除号码的明确格式差异，不从脱敏、姓名、时间、城市或首项推测客户。同源身份落在不同号码或归属冲突时双方待核，不首行胜出；号码更正后旧实际通话仍留原号码，新号码只关联当前业务而不继承旧通话。 客户档案原入口权限与各来源原模块/对象/人员范围分别满足；AI通话核PAGE-2108，独立AI回访核PAGE-2109，不要求同时拥有两者。运营同号不取得他人记录；监管和转出截止沿权威已授权投影，不以当前owner再次猜测过滤。聚合身份不授CustomerDirectory.find或原编辑/再次联系资格；详情和录音重核准确原来源及原媒体权限。 各来源成功、加载、失败、无权不适用分别表达；无权来源不扩大为读取许可，已知空与未可靠取得不同。脱敏/归属待核记录保准确原引用单列，不虚建客户。查询只构建瞬态投影，原已存话单只读hydrate不启动同步定时器、推进回执或覆盖业务备注；导航偏好和原详情控制器既有缓存仍按原合同保存，不声称浏览器绝对零写入。 客户维度业务数、业务跟进段、正常归档段、原AI回访资料、通话记录及可确认拨打分别统计。原AI汇总回访次数不生成明细、通话或正式归档；受理/排队/未拨/事实待核不计确认拨打。仅同租户企业且明确record/segment/原call或providerCall关联的镜像去重；冲突事实保待核，不能仅同号/同名/同时间或跨供应商同call字符串合并。未知时长不补0，已知0保持0，时间缺失不以受理/接收/当前时间补拨打时间。 同账号和准确租户范围保查询、来源筛选、分页与选中客户；账号/tenant/enterprise/brand/授权变化及离页后的旧异步结果不能回填。来源完成或失败原位更新列表和自身只读详情，保未提交筛选、焦点/caret、滚动及嵌套来源层；冷恢复的AI-only客户等待可靠来源，源失败不误判撤权，可靠完整后仍不可见才清选中并提示。失败不自动循环重试，明确刷新可重试，接口消失不复用旧成功快照。"
+    },
+    {
+      "id": "CHG-056-TEMPLATE-AI-TASK",
+      "title": "模板AI任务先选、自动目录及准确场景联动",
+      "old": "先选场景再出现默认任务，部分范围整块隐藏；冷目录依赖手动刷新，重绘回顶部。",
+      "current": "模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。",
+      "acceptance_ids": [
+        "AC-2153"
+      ],
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT",
+        "LOCAL-FLOW-TEMPLATE-READ",
+        "LOCAL-FLOW-AI-SCENE"
+      ],
+      "authorization": "inputs/template-ai-task-entry-authorization-20261102.json",
+      "evidence_refs": [
+        "memory/template-ai-task-entry-20261102/verification-proof.json"
+      ],
+      "statement": "模板AI呼叫节点直接显示AI呼叫任务，任务先于对应场景；候选仍按原实际执行tenant、分类、供应商/平台、任务状态和对象权筛选。选择准确任务后仅唯一明确sceneId或专业任务关联带出场景，多匹配/冲突/缺证不选首项；可明确暂不指定、后续分配，清本租户任务及场景默认并保其他tenant映射，执行前有效具体任务/场景准入不变。 冷打开已选AI的节点或切换AI时，在合法tenant/category和原ADMIN+task.assign资格下每editor/node/tenant/category自动读取一次目录；异步前后重核编辑器、方式、范围与权限，旧回调不落新草稿。失败明确且不因重绘循环，原刷新按钮允许重试；选择方式/任务和目录完成重绘保右侧配置区滚动，异步返回前读取当前草稿，不丢未提交输入。 无执行tenant、范围不一致、无参照分类或无任务安排权时仍显示禁用AI任务入口及准确原因，不把顶部已选tenant误称未切换，不授SUPER或运营新task.assign权。模板品牌配置权不授其他租户私有资源，原人工MANUAL/SPECIFIC_SEAT、PRED仅任务、五档及已捕获运行快照保持。"
+    },
+    {
       "topic": "六顶栏旧口径",
       "replaces": "工作台/业务中心/客户中心/呼叫中心/报表中心/系统管理六区",
       "current": "坐席工作台/业务&客户/呼叫中心/报表中心/系统管理五区；稳定专业PAGE/ACTION保留",
       "reason": "当前nav配置与已确认UI归位",
-      "id": "SUP-CURRENT-37"
+      "id": "SUP-CURRENT-39"
     },
     {
       "topic": "旧v2历史兼容",
       "replaces": "旧未绑定租户补品牌、旧目录同名迁移、旧模板v1/v2升级与旧历史名单迁移对账",
       "current": "当前无旧v2模板/业务数据迁移；今后新发生运行/跟进/通话/审计快照留存。专业域现行目录能力及222原操作仍有独立身份",
       "reason": "用户明确没有历史负担；不能误删当前专业能力",
-      "id": "SUP-CURRENT-38"
+      "id": "SUP-CURRENT-40"
     },
     {
       "topic": "黑名单结构及超管权限",
       "replaces": "公共/专项两页签及超管可代办新增/解除/同步",
       "current": "唯一原分组+号码模型；超管只读；拒联源解除仅有权本租户管理员填原因；天润沿当前enterprise+号码",
       "reason": "当前role-permissions及contact-policy",
-      "id": "SUP-CURRENT-39"
+      "id": "SUP-CURRENT-41"
     },
     {
       "topic": "AI标签与场景使用",
       "replaces": "标签仅展示不得作为路径条件；或运营使用场景必须有标签维护权",
       "current": "准确执行段快照映射标签可供人工确认路径判断，不写业务字段/不自动推进；运营可用场景/已有标签而无标签维护权",
       "reason": "当前四节点执行和权限已确认",
-      "id": "SUP-CURRENT-40"
+      "id": "SUP-CURRENT-42"
     },
     {
       "topic": "财务及录音权限",
       "replaces": "财务读取等同充值调整；录音播放依赖编辑权",
       "current": "五角色有权服务/流水只读；服务办理、调账、核对和8列汇总导出仅超管；有权录音按读权播放/暂停/seek",
       "reason": "当前role-permissions及bridge修复",
-      "id": "SUP-CURRENT-41"
+      "id": "SUP-CURRENT-43"
     },
     {
       "topic": "专业客户任务和新运行终态",
       "replaces": "把原待继续跟进/已完成直接映成四节点运行结束或废弃",
       "current": "原专业两态与新四节点run/执行段/跟进事实分开，按准确业务ID连接；谁接听谁填写，分配负责人不等于实际处理人",
       "reason": "当前业务闭环已确认",
-      "id": "SUP-CURRENT-42"
+      "id": "SUP-CURRENT-44"
     },
     {
       "source_page_id": "PAGE-2101",
@@ -416,7 +459,7 @@
       "source_refs": [
         "documentation/input/pages.json#PAGE-2101"
       ],
-      "id": "SUP-CURRENT-43",
+      "id": "SUP-CURRENT-45",
       "old": "独立来源页面 PAGE-2101",
       "current": "不再作为独立页面；相关有效能力归位 PAGE-2002"
     },
@@ -430,7 +473,7 @@
       "source_refs": [
         "documentation/input/pages.json#PAGE-2104"
       ],
-      "id": "SUP-CURRENT-44",
+      "id": "SUP-CURRENT-46",
       "old": "独立来源页面 PAGE-2104",
       "current": "不再作为独立页面；相关有效能力归位 PAGE-2007"
     },
@@ -444,7 +487,7 @@
       "source_refs": [
         "documentation/input/pages.json#PAGE-2201"
       ],
-      "id": "SUP-CURRENT-45",
+      "id": "SUP-CURRENT-47",
       "old": "独立来源页面 PAGE-2201",
       "current": "不再作为独立页面；相关有效能力归位 PAGE-2002"
     }

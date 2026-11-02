@@ -2382,3 +2382,73 @@ Cua唯一browser owner实际HTTP操作；Node等回归仅补充受影响守卫�
 ### Verification Skill
 
 prototype-verifier
+
+
+## Step 55: 客户档案统一只读归集AI与预外呼跟进
+
+### Expected Change
+
+update
+
+### Goal
+
+修复客户档案新业务跟进与旧联系档案割裂，以及原AI历史未完整归集；统一可读客户和时间线，保原专业模型/动作/权限及历史。
+
+### Files
+
+`js/components/customer-profile.js`、`js/adapters/customer-profile-workspace.js`、`js/adapters/customer-profile-workspace.css`、`js/adapters/ai-customer-profile.js`、`js/adapters/ai.js`、`js/adapters/cloud.js`、`scripts/ai_customer_profile_build.py`、`scripts/customer_profile_build.py`、`scripts/check-ai-customer-profile.cjs`、`scripts/check-customer-profile.cjs`、`scripts/check-customer-profile-workspace.cjs`、`scripts/check-customer-profile-chain.cjs`、`js/adapters/four-node-workspace.js`、`js/components/module-host.js`、`scripts/build-modules.py`、`js/modules/ai.bundle.js`、`js/modules/cloud.bundle.js`、`index.html`、`memory/reuse-provenance.json`、`inputs/customer-profile-integration-authorization-20261102.json`、`docs/customer-profile-integration.md`、`README.md`、`memory/change-log.md`、`memory/open-items.md`、`memory/acceptance-map.md`；本步验证证据在memory/customer-profile-integration-20261102/，不改原参考/冻结分析/业务存储/开发包或远端。
+
+### Inputs
+
+inputs/customer-profile-integration-authorization-20261102.json；当前FUNC2038/2039与PAGE2203、2108/2208、原客户档案/电话/业务授权；当前实际built两类统一任务链及原CustomerDirectory取源诊断。
+
+### Work
+
+新增只读客户聚合及档案UI，现有客户入口直接使用全部有权来源。统一业务按授权投影/原号码、原AI通话/线索回访分别按准确绑定frame及原2108/2109读权、原Cloud/PRED按原对象范围。保稳定来源ID，不按masked号码/同名/电话时间猜关联；明确镜像身份才去重，不把受理计拨打。旧实际号码不随更正迁到新号码。缺源/读取中明确显示，异步旧上下文不回填当前页；原详情/录音/快照入口点击重核。
+
+### Acceptance
+
+AI/PRED新业务和旧专业记录能按客户查到，通话/归档/业务结果分别展示；同源重复及可证镜像不重复计数；无拨打事实不计通话，缺时长不造0；跨租户、企业、账号/模块/对象及转出截止不扩大，运营不能借同号看到他人记录；查询不持久复制新来源，不改原业务/通话/客户写权限。准确详情及返回刷新可用。
+
+### Verification
+
+先保存当前缺口复现及baseline，再正确行为红绿/当前built定向源/权限/计数/号码更正/迟到/未知源测试，必要回归和资源指纹；Cua唯一browser owner实际HTTP核AI/PRED/原专业、统一列表/详情/返回/刷新/筛选及源入口。file及真实媒体不冒通过，本步不升全局S8/G3或发布状态。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 56: 流转模板AI呼叫任务入口修复
+
+### Expected Change
+
+update
+
+### Goal
+
+呼叫节点选AI后直接可见并可选具体AI任务，任务先选并带出准确场景，保留明确后续分配及原权限/执行合同。
+
+### Files
+
+`scripts/flow-node-config.js`、`scripts/check-execution-arrangement-workspace.cjs`、`js/modules/cloud.bundle.js`、`js/modules/ai.bundle.js`（仅原构建校验字节不变）、`index.html`、`memory/reuse-provenance.json`、`inputs/template-ai-task-entry-authorization-20261102.json`、`README.md`、`memory/execution-steps.md`、`memory/task-plan.md`、`memory/source-materials.md`、`memory/acceptance-map.md`、`memory/open-items.md`、`memory/change-log.md`；验证证据在memory/template-ai-task-entry-20261102/。不改参考源、冻结需求、核心执行模型、开发包和远端。
+
+### Inputs
+
+inputs/template-ai-task-entry-authorization-20261102.json；execution-arrangement-authorization-20261031.json；现行节点tenant默认映射及DFourNodeExecution choices/保存/执行校验。
+
+### Work
+
+AI任务显式放在场景前，未选场景也可从原已核目录选择任务；只按准确关联与租户/分类/供应商/平台唯一匹配带出场景，冲突不首项猜测。未指定明确后续分配；无上下文/权限显示禁用入口及准确原因，不扩大SUPER或任何角色task.assign权。人工/PRED、优先级/原已捕获历史和tenant映射保持。
+
+### Acceptance
+
+选AI后任务入口可见；有效准确任务可选择/带出已绑定场景/保存/重开；失效、多匹配、跨租户、未授task.assign继续拒绝；未指定可保存待安排但不能绕执行前落实任务。旧UI合同保护，AI/PRED/人工切换及原默认不漂移。
+
+### Verification
+
+当前compiled编辑器正确行为红绿/定向回归、源复用与资源指纹；CUA实际HTTP编辑流程草稿、任务选择/已关联场景/取消或保存重开，缺少可用资源如实说明；不清浏览器数据或改审批。开发包/冻结输入与模型hash核对。本步不代表整版/离线/真实接口验收。
+
+### Verification Skill
+
+prototype-verifier
