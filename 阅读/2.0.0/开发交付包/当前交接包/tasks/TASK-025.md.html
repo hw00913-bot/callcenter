@@ -8,13 +8,13 @@
 
 ## 目标
 
-线索域转交组件先区分CURRENT/OTHER；CURRENT锚定当前负责方并确认合法后继，保owner/run/租户阶段/既有安排及封存结果。；OTHER按原意向唯一映射或HQ管理员同次指定，才封截止/改归属/建接续轮次并清旧安排。
+CURRENT保持owner/run/租户阶段和封存事实，当前执行安排先服从后继节点捕获策略。新MANUAL明确清前seat并待分配，SPECIFIC_SEAT才可按本节点、同tenant/method及有效资源沿用或确认。；OTHER仍按原合法目标转交后封截止、切归属并清当前安排；旧无策略快照按原解释，不读取时迁移。
 
 ## 产品依据
 
 - FUNC-2030 按路径确认同品牌线索转交：按当前线索域配置确认CURRENT本租户继续或OTHER同品牌合法转交，分别保归属/阶段或新增截止接续，避免权限混用。；来源 documentation/input/functions.json#FUNC-2030
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 
@@ -43,7 +43,7 @@
 
 局部逻辑：[LOCAL-FLOW-TRANSFER](../local-logic/LOCAL-FLOW-TRANSFER.md)
 
-字段：[FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)、[FIELD-FLOW-DEPARTURE-SNAPSHOT](../field-specs.md#FIELD-FLOW-DEPARTURE-SNAPSHOT)、[FIELD-FLOW-DESTINATION](../field-specs.md#FIELD-FLOW-DESTINATION)、[FIELD-FLOW-EDGE-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)、[FIELD-FLOW-EVALUATION-TOKEN](../field-specs.md#FIELD-FLOW-EVALUATION-TOKEN)、[FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-INTENDED-STORE](../field-specs.md#FIELD-FLOW-INTENDED-STORE)、[FIELD-FLOW-INTENDED-STORE-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)、[FIELD-FLOW-NODE-RUN-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)、[FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)、[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-REQUEST-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)、[FIELD-FLOW-REQUEST-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)、[FIELD-FLOW-RESOLUTION-TOKEN](../field-specs.md#FIELD-FLOW-RESOLUTION-TOKEN)、[FIELD-FLOW-STAGE-ID](../field-specs.md#FIELD-FLOW-STAGE-ID)、[FIELD-FLOW-STAGE-TRANSFER](../field-specs.md#FIELD-FLOW-STAGE-TRANSFER)、[FIELD-FLOW-TARGET-TENANT](../field-specs.md#FIELD-FLOW-TARGET-TENANT)
+字段：[FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)、[FIELD-FLOW-DEPARTURE-SNAPSHOT](../field-specs.md#FIELD-FLOW-DEPARTURE-SNAPSHOT)、[FIELD-FLOW-DESTINATION](../field-specs.md#FIELD-FLOW-DESTINATION)、[FIELD-FLOW-EDGE-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)、[FIELD-FLOW-EVALUATION-TOKEN](../field-specs.md#FIELD-FLOW-EVALUATION-TOKEN)、[FIELD-FLOW-FOLLOWER](../field-specs.md#FIELD-FLOW-FOLLOWER)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-INTENDED-STORE](../field-specs.md#FIELD-FLOW-INTENDED-STORE)、[FIELD-FLOW-INTENDED-STORE-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)、[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)、[FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE)、[FIELD-FLOW-NODE-RUN-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)、[FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)、[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-REQUEST-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)、[FIELD-FLOW-REQUEST-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)、[FIELD-FLOW-RESOLUTION-TOKEN](../field-specs.md#FIELD-FLOW-RESOLUTION-TOKEN)、[FIELD-FLOW-STAGE-ID](../field-specs.md#FIELD-FLOW-STAGE-ID)、[FIELD-FLOW-STAGE-TRANSFER](../field-specs.md#FIELD-FLOW-STAGE-TRANSFER)、[FIELD-FLOW-TARGET-TENANT](../field-specs.md#FIELD-FLOW-TARGET-TENANT)
 
 ## UI 依据
 
@@ -54,10 +54,11 @@
 
 ## 实现要求
 
-- 线索域转交组件先区分CURRENT/OTHER；CURRENT锚定当前负责方并确认合法后继，保owner/run/租户阶段/既有安排及封存结果。
-- OTHER按原意向唯一映射或HQ管理员同次指定，才封截止/改归属/建接续轮次并清旧安排。
+- CURRENT保持owner/run/租户阶段和封存事实，当前执行安排先服从后继节点捕获策略。新MANUAL明确清前seat并待分配，SPECIFIC_SEAT才可按本节点、同tenant/method及有效资源沿用或确认。
+- OTHER仍按原合法目标转交后封截止、切归属并清当前安排；旧无策略快照按原解释，不读取时迁移。
 - 不跨品牌/门店直转门店；未知先核实际归属，不重复转交；DIRECT不得借本任务绕过模式保护。
 - CURRENT不产生跨租户授权、不冒充OTHER，不因保留旧安排豁免后继CALL资格/场景重核；不扩普通业务域转交。
+- 不得用前节点已指定seat覆盖新MANUAL的待分配意图，也不因人工待分配擅自改变业务归属。
 - 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
 - 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
 - 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
@@ -106,14 +107,14 @@
 
 步骤：按当前续接版本执行：在TRANSFER命中路径确认目标。前提：handlingMode=TEMPLATE且准确当前run/node可核；对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；线索域有效分支；CURRENT保持本租户，OTHER按同品牌HQ↔STORE；无在途/重试/unknown，已有前执行的必要内容/事实已归档。操作：先区分CURRENT与OTHER；CURRENT锚定准确当前负责方，不查任意门店目标；OTHER仍按意向唯一锚定或HQ ADMIN同次指派；重核selected/路径令牌和当前目标版本；CURRENT不能指定外租户或冒充OTHER承接，后继CALL仍核准确方式/AI上下文；CURRENT仅推进合法后继并记LOCAL_ROUTE，保持owner/run/租户阶段及已有安排和封存结果；OTHER才封截止/切owner建轮次并清旧安排。分别构造：跨品牌、OTHER非法同租户/门店直转/映射不明，或CURRENT伪造外目标/冒充OTHER资格；明确成功；失败或未知；当前业务为DIRECT。
 
-预期：转交不生成客户跟进，不自动呼叫；拒绝并保原事实；当前本租户路径本身不是非法跨租户转交；CURRENT不产生跨租户授权/截止/新轮次；OTHER按原准确目标接续，目标另行安排；原事实保留，未知按同请求核对，不重复owner切换；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，后续流程走独立“启用流程”预检。。
+预期：转交不生成客户跟进，不自动呼叫；拒绝并保原事实；当前本租户路径本身不是非法跨租户转交；CURRENT不产生跨租户授权/截止/新轮次；OTHER按原准确目标接续，目标另行安排；原事实保留，未知按同请求核对，不重复owner切换；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。。
 
 覆盖：AC-2084, AC-2085, AC-2086, AC-2087, AC-2088, AC-2089, AC-2097, AC-2098, AC-2099, AC-2100, AC-2101, AC-2145
 
 ## 完成条件
 
-- 线索域转交组件先区分CURRENT/OTHER；CURRENT锚定当前负责方并确认合法后继，保owner/run/租户阶段/既有安排及封存结果。
-- OTHER按原意向唯一映射或HQ管理员同次指定，才封截止/改归属/建接续轮次并清旧安排。
+- CURRENT保持owner/run/租户阶段和封存事实，当前执行安排先服从后继节点捕获策略。新MANUAL明确清前seat并待分配，SPECIFIC_SEAT才可按本节点、同tenant/method及有效资源沿用或确认。
+- OTHER仍按原合法目标转交后封截止、切归属并清当前安排；旧无策略快照按原解释，不读取时迁移。
 - 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
 - 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
 - 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。

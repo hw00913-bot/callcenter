@@ -32,6 +32,8 @@ def io_source(code):
     code = one(code, "if(bytes.length>MAX_BYTES)throw Error('文件不能超过1 MB');", "if(bytes.length>limits.maxBytes)throw Error(sizeMessage);")
     code = one(code, 'else rows=await readXlsx(bytes);', 'else rows=await readXlsx(bytes,options);')
     code = one(code, "if(rows.length>MAX_ROWS+1)throw Error('每次导入最多2000条客户');", "if(rows.length>limits.maxRows+1)throw Error('每次导入最多'+limits.maxRows+'条客户');")
+    code = one(code, "  function inspect(table,schema,{duplicatePhone='warn',codeKey='leadCode'}={}){", "  function inspect(table,schema,{duplicatePhone='warn',codeKey='leadCode',maxRows=MAX_ROWS}={}){\n    const inspectionLimit=readLimits({maxRows}).maxRows;")
+    code = one(code, "if(!entries.length||entries.length>MAX_ROWS)throw Error('请填写1至2000条客户，空模板不能提交');", "if(!entries.length||entries.length>inspectionLimit)throw Error('请填写1至'+inspectionLimit+'条客户，空模板不能提交');")
     return code
 
 

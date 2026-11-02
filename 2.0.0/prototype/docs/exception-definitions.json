@@ -1,0 +1,1317 @@
+{
+  "schema": "current-prototype-projection@1",
+  "version": "2.0.0-current-20261102-step54",
+  "captured_at": "2026-11-02T05:58:56.073953+00:00",
+  "prototype_root": "/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype",
+  "scope": "当前原型步骤29～54的产品投影；以Step48～54的场景schema、两入口模式/渠道、统一轻导入、原历史同表、原请求/执行/队列及场景取消生命周期为现行规则。旧被替代配置只保历史，不提升13已验/9部分已验的HTTP结果或真实接口/正式审批。",
+  "audit_corrections": {
+    "id": "AUDIT-040",
+    "statement": "AI-only准入共享只读模型及异步失效检查；ELSE正文与验收统一，继承测试/入口/状态及统计修复"
+  },
+  "changes": [
+    {
+      "id": "CHG-029-NAV",
+      "title": "普通导航不再以电话状态拦截",
+      "acceptance_id": "AC-2138",
+      "statement": "正常跨业务域、切租户及系统退出不因拨号/振铃/通话/话后/电话未知而拦截，也不强制先退出电话；身份、数据范围和普通未保存表单检查保留，撤权后的有限当前收尾是独立机制。",
+      "local_ids": [
+        "LOCAL-PLAT-NAVIGATE",
+        "LOCAL-PLAT-CONTEXT-SWITCH",
+        "LOCAL-PLAT-LOGOUT"
+      ]
+    },
+    {
+      "id": "CHG-030-DIRECTORY",
+      "title": "客户档案页签与筛选记忆",
+      "acceptance_id": "AC-2147",
+      "statement": "业务跟进/联系档案统一页签与tabpanel，键盘方向/Home/End可用；同身份切换保各自查询/分页，跨身份不恢复旧状态，显式客户详情与原摘要刷新仍定位正确。",
+      "local_ids": [
+        "LOCAL-FLOW-CUSTOMER-TIMELINE",
+        "LOCAL-PLAT-CUSTOMER-DIRECTORY"
+      ]
+    },
+    {
+      "id": "CHG-031-ELSE",
+      "title": "当前方案强制唯一末位ELSE",
+      "acceptance_id": "AC-2139",
+      "statement": "所有有出口的当前新配置须有且仅有一个末位ELSE；IF/ELSE IF按优先级首命中，明确不匹配才到兜底，未知继续PENDING。保存/新导入/重开/启用均校验，不依赖DIRECT绕开分流。",
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT",
+        "LOCAL-FLOW-ROUTE-BIND",
+        "LOCAL-FLOW-IMPORT-PREVIEW"
+      ]
+    },
+    {
+      "id": "CHG-031-NULL",
+      "title": "当前选填导入缺列按空捕获",
+      "acceptance_id": "AC-2140",
+      "statement": "对当前可可靠读取schema内、启用且支持条件的非必填IMPORT字段，新导入/新run准备时缺列规范化为null用于判断；必填缺失或schema读取失败仍拒绝，通话/填写未知及已捕获历史缺失不在读取时补空。",
+      "local_ids": [
+        "LOCAL-FLOW-IMPORT-PREVIEW",
+        "LOCAL-FLOW-IMPORT-COMMIT",
+        "LOCAL-FLOW-REOPEN",
+        "LOCAL-FLOW-ENABLE-TEMPLATE",
+        "LOCAL-FLOW-RECLASSIFY"
+      ]
+    },
+    {
+      "id": "CHG-032-EDITOR",
+      "title": "条件优先与未选目标草稿",
+      "acceptance_id": "AC-2142",
+      "statement": "节点按命名→条件→下一节点→继续条件编辑，末位轻量“其他情况”；未选目标可留编辑草稿但不产生业务连线，保存仍逐项拒绝缺项并定位。",
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT"
+      ]
+    },
+    {
+      "id": "CHG-032-END",
+      "title": "END两种动作及真实接续",
+      "acceptance_id": "AC-2141",
+      "statement": "END只配置名称和DIRECT_FOLLOWUP/CLOSE两种后续动作。先结束原run；CLOSE不再跟进，DIRECT_FOLLOWUP同record/当前tenant生成无模板人工周期，不自动起呼。合法END来源可授权此接续，即使分类没有开放普通DIRECT导入；原run/节点/call/快照保留，原人员仅当前仍有效且具电话资格时沿用。",
+      "local_ids": [
+        "LOCAL-FLOW-END-HANDOFF"
+      ]
+    },
+    {
+      "id": "CHG-033-TASK",
+      "title": "任务页移除额外统计模块",
+      "acceptance_id": "AC-2148",
+      "statement": "预外呼及IVR页不额外显示“今日任务名单分布”，保原任务查询/筛选/空态/重置和专业报表口径；不因此删除底层任务状态或统计能力。",
+      "local_ids": [
+        "LOCAL-PLAT-CLOUD-TASK-QUERY"
+      ]
+    },
+    {
+      "id": "CHG-034-RULE",
+      "title": "条件即时修改与防环",
+      "acceptance_id": "AC-2143",
+      "statement": "条件修改直接进入当前草稿，不再显示待应用三按钮；兼容operator保值，字段/来源或不兼容类型/基数变化清不适用比较值，空判断清值。目标选择/拖线拒环并保原草稿，保存仍防绕过。",
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT"
+      ]
+    },
+    {
+      "id": "CHG-035-SIP",
+      "title": "人工/预外呼客户侧SIP判断",
+      "acceptance_id": "AC-2144",
+      "statement": "流转判断分别使用TIANRUN_MANUAL_SIP_CAUSE和TIANRUN_PREDICTIVE_SIP_CAUSE客户侧结果：200已接通、710～724当前字典；不再用1～4接听标记推断，不改AI状态域或原专业记录的其他状态展示。新回执与实际方式/原段/场景准确关联，未知PENDING。",
+      "local_ids": [
+        "LOCAL-FLOW-CALL-FACTS",
+        "LOCAL-FLOW-EVALUATE"
+      ]
+    },
+    {
+      "id": "CHG-036-LOCAL",
+      "title": "本租户路径继续办理",
+      "acceptance_id": "AC-2145",
+      "statement": "线索域转交组件允许CURRENT本租户分支；命中后保持owner、run及tenant阶段，不新建跨租户截止/轮次，不清原安排与封存结果，并重核后继CALL资格。OTHER仍执行原意向锚定和跨租户保护；CURRENT不冒充OTHER，拒伪造目标或过期令牌。",
+      "local_ids": [
+        "LOCAL-FLOW-TRANSFER",
+        "LOCAL-FLOW-IMPORT-PREVIEW",
+        "LOCAL-FLOW-TEMPLATE-EDIT"
+      ]
+    },
+    {
+      "id": "CHG-037-038-FEEDBACK",
+      "title": "多值提示及错误定位",
+      "acceptance_id": "AC-2146",
+      "statement": "普通及START比较值提示“多个值请换行填写/每行一个值”，保持IN/NOT_IN类型含义；报错节点/START/提示区统一浅红，切换节点保留定位，编辑该节点清当前标记，保存重新判断，不改变原校验。",
+      "local_ids": [
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT"
+      ]
+    },
+    {
+      "id": "CHG-039-ENTRY",
+      "title": "移除分类行AI标签快捷入口",
+      "acceptance_id": "AC-2149",
+      "statement": "业务分类行只保编辑/路由配置/预览/删除；不恢复AI标签配置快捷按钮。标签维护仍在呼叫中心AI配置的独立有权入口，原具体AI场景分类引用及其稳定身份保留。",
+      "local_ids": [
+        "LOCAL-FLOW-CATEGORY-EDIT",
+        "LOCAL-PLAT-AI-CATEGORY-BIND",
+        "LOCAL-PLAT-AI-TAG-CONFIG"
+      ]
+    },
+    {
+      "id": "CHG-042-EXECUTION",
+      "title": "两模式具体执行安排与五档执行优先级",
+      "acceptance_ids": [
+        "AC-2150",
+        "AC-2151",
+        "AC-2152",
+        "AC-2153",
+        "AC-2154"
+      ],
+      "statement": "TEMPLATE与DIRECT共用本租户具体任务/坐席与五档执行优先级，模板分租户默认和导入覆盖均按当前实际执行权复核；同资源可办理待办先高后低、同级入队FIFO，不抢占既有执行，手动分配入口保留。",
+      "authorization": "inputs/execution-arrangement-authorization-20261031.json",
+      "local_ids": [
+        "LOCAL-FLOW-ASSIGN",
+        "LOCAL-FLOW-ASSIGN-BATCH",
+        "LOCAL-FLOW-IMPORT-PREVIEW",
+        "LOCAL-FLOW-IMPORT-COMMIT",
+        "LOCAL-FLOW-START",
+        "LOCAL-FLOW-START-BATCH",
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT",
+        "LOCAL-FLOW-QUERY"
+      ]
+    },
+    {
+      "id": "CHG-043-ASSIGNMENT",
+      "title": "人工分配可选及删除冗余责任人",
+      "acceptance_ids": [
+        "AC-2155",
+        "AC-2156",
+        "AC-2157"
+      ],
+      "statement": "人工默认MANUAL人工分配，可无seat先保存/导入待分配，SPECIFIC_SEAT才必选seat；PRED只任务、AI任务+scene，模板/导入/分配无独立责任人。真实人员由坐席分配及实际执行/接听事实记录，历史不迁移，原权限与五档/FIFO/在途继续。",
+      "authorization": "inputs/execution-assignment-simplification-20261031.json",
+      "local_ids": [
+        "LOCAL-FLOW-ASSIGN",
+        "LOCAL-FLOW-ASSIGN-BATCH",
+        "LOCAL-FLOW-TEMPLATE-CREATE",
+        "LOCAL-FLOW-TEMPLATE-EDIT",
+        "LOCAL-FLOW-IMPORT-PREVIEW",
+        "LOCAL-FLOW-IMPORT-COMMIT",
+        "LOCAL-FLOW-START"
+      ]
+    },
+    {
+      "id": "CHG-044-TASK-IMPORT",
+      "title": "三入口IMPORT同源与任务DIRECT统一账本",
+      "acceptance_ids": [
+        "AC-2158",
+        "AC-2159",
+        "AC-2160",
+        "AC-2161",
+        "AC-2162"
+      ],
+      "statement": "当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。",
+      "authorization": "inputs/task-business-import-authorization-20261101.json",
+      "local_ids": [
+        "LOCAL-FLOW-IMPORT-PREVIEW",
+        "LOCAL-FLOW-IMPORT-COMMIT",
+        "LOCAL-PLAT-AI-SCENE-SAVE",
+        "LOCAL-PLAT-AI-LIST-IMPORT",
+        "LOCAL-PLAT-CLOUD-TASK-IMPORT"
+      ]
+    },
+    {
+      "id": "CHG-045-LIFECYCLE",
+      "title": "受控废弃结清与当前END例外/停止事实",
+      "acceptance_ids": [
+        "AC-2163",
+        "AC-2164",
+        "AC-2165",
+        "AC-2166"
+      ],
+      "statement": "受控缺内容废弃仅当前ownerADMIN确认无法补填+原因/准确范围，真实执行收敛后异常结清，保缺失未完成不假archive；旧弃原人补齐/合法结清不永久卡后继DIRECT。END历史合法与首MANUAL当期例外分开，resume新周期核分类；停止中原受理事实按原ID入账不授新派发或提前解锁。",
+      "authorization": "inputs/lifecycle-audit-fix-authorization-20261101.json",
+      "local_ids": [
+        "LOCAL-FLOW-ABANDON",
+        "LOCAL-FLOW-COMPLETE-DIRECT",
+        "LOCAL-FLOW-ENABLE-TEMPLATE",
+        "LOCAL-FLOW-RESUME-DIRECT",
+        "LOCAL-FLOW-CALL-FACTS"
+      ]
+    },
+    {
+      "id": "CHG-046-AI-PROVIDER-DIALOG",
+      "title": "AI场景供应商独立参数与弹窗配置",
+      "acceptance_ids": [
+        "AC-2158",
+        "AC-2159"
+      ],
+      "statement": "先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。",
+      "authorization": "inputs/ai-provider-field-dialog-authorization-20261101.json",
+      "local_ids": [
+        "LOCAL-PLAT-AI-SCENE-SAVE",
+        "LOCAL-PLAT-AI-IMPORT-TEMPLATE",
+        "LOCAL-PLAT-AI-LIST-IMPORT",
+        "LOCAL-FLOW-IMPORT-PREVIEW",
+        "LOCAL-FLOW-IMPORT-COMMIT"
+      ]
+    },
+    {
+      "id": "CHG-047-AI-ADD-FIELD-UX",
+      "title": "保留添加字段单入口与线上弹窗呈现",
+      "acceptance_ids": [
+        "AC-2159"
+      ],
+      "statement": "原AI场景“添加字段”为主场景唯一新增入口，点击后才选“选择导入字段”/“手工添加供应商字段”；手工“添加场景信息”使用业务信息只读、字段名称、参数名、必填/选填radio及取消/确定，类型次要行保留。仅UI表现修正，不增字段/功能/LOCAL/AC/CHECK，不改schema2、供应商隔离、80/64约束、权限、值与快照、子取消及父主保存。",
+      "authorization": "inputs/ai-add-field-entry-authorization-20261101.json",
+      "local_ids": [
+        "LOCAL-PLAT-AI-SCENE-SAVE"
+      ]
+    },
+    {
+      "id": "CHG-048-SCENE-SCHEMA",
+      "title": "场景驱动实际导入字段",
+      "acceptance_ids": [
+        "AC-2158",
+        "AC-2159"
+      ],
+      "statement": "先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。"
+    },
+    {
+      "id": "CHG-049-ENTRY-MODE",
+      "title": "由两入口决定模式及渠道",
+      "acceptance_ids": [
+        "AC-2160",
+        "AC-2162",
+        "AC-2141"
+      ],
+      "statement": "当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。"
+    },
+    {
+      "id": "CHG-050-IMPORT-REQUEST",
+      "title": "导入原请求及准确快照边界",
+      "acceptance_ids": [
+        "AC-2161",
+        "AC-2162"
+      ],
+      "statement": "未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。"
+    },
+    {
+      "id": "CHG-051-SIMPLE-IMPORT",
+      "title": "任务轻量导入与原历史同表",
+      "acceptance_ids": [
+        "AC-2160",
+        "AC-2161"
+      ],
+      "statement": "AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。"
+    },
+    {
+      "id": "CHG-052-DETAIL-REFUSAL",
+      "title": "原AI列表仅详情",
+      "acceptance_ids": [
+        "AC-2162"
+      ],
+      "statement": "AI通话原列表每行仅保详情，不追加逐行确认拒联。原准确详情保录音/文本及有权原来源人工确认入口，准确通话、租户、供应商、联系号码和原权限再次校验；不按标签/状态自动拒联，不新增待审队列，不扩大解除权。"
+    },
+    {
+      "id": "CHG-053-IMPORT-FEEDBACK",
+      "title": "不可提交反馈与重检",
+      "acceptance_ids": [
+        "AC-2161"
+      ],
+      "statement": "AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。"
+    },
+    {
+      "id": "CHG-054-CURRENT-HTTP-FIXES",
+      "title": "HTTP实际链与最小修复",
+      "acceptance_ids": [
+        "AC-2154",
+        "AC-2159",
+        "AC-2160"
+      ],
+      "statement": "厚朴场景查询并保存已有准确供应商任务后，只读投影到同一任务目录和导入/执行入口，按tenant/brand/account/taskId/唯一scene稳定关联，不创建供应商任务、不按名称猜；实时读取准确任务状态，未知供应商计数显示待核。已知权威taskStatusCode使用准确可执行枚举，原status='unknown'仅属兼容状态文本，不覆盖权威taskStatusCode明确枚举；权威code为null或未知仍拒绝。 导入与明确执行使用相同底层配置语义指纹；已知成功准入包装字段和对象键序不构成业务配置变化。旧schema2 TASK/DIRECT仅在完整准确身份及已知wrapper/basis证明等价时只读兼容；未知附加项或真实映射/来源/模板/状态变化继续拒绝，不回写旧快照，TEMPLATE标签依赖保完整指纹。 当前排队事实仅属于准确当前run/nodeRun/directCycle及有效资源安排；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。 主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。 取消/放弃后关闭动画期间立即重开场景时，仅清除已获授权标记closing的旧层再初始化，活动未保存层拒绝重复打开；延时关闭只删除捕获的旧层，有新层不解锁其背景滚动，旧异步字段返回按sequence/owner不能覆盖新草稿。取消不保存、不删除原映射或误报新表单脏状态。"
+    }
+  ],
+  "files": [
+    {
+      "path": "assets/css/app.css",
+      "bytes": 6255,
+      "sha256": "cd2cf76f68c7e0e8035317a48c1eeac5fd46e0f4d64dbebbd2d795be836ad7e6"
+    },
+    {
+      "path": "assets/css/cloud-ui-overrides.css",
+      "bytes": 16757,
+      "sha256": "ea06900bd6886ed20f96b0bc0ce6aea5ab9c9f0a3be05c7d81d10fe578bac6c5"
+    },
+    {
+      "path": "assets/css/cloud-ui.css",
+      "bytes": 26951,
+      "sha256": "47e190e97dbe8d25870ae57f6bd579826c8070ae8cff3dd8ee2189b63eb77a96"
+    },
+    {
+      "path": "assets/css/delivery-diagrams.css",
+      "bytes": 4708,
+      "sha256": "13441c07d23e01ed7f1e6b8906db43ff3a0056c1f6f5cf0dd3fb10659e3c7168"
+    },
+    {
+      "path": "assets/css/diagram-reading.css",
+      "bytes": 246,
+      "sha256": "274a80ffd69ba13576674f8cc911a0d53dec54ccbfc8480d496d1b7774d8e2c6"
+    },
+    {
+      "path": "assets/css/global.css",
+      "bytes": 6888,
+      "sha256": "a7b1e5f265b1793d167d1263e7d69408373ae5e59099f2abe34797a3a4ac235e"
+    },
+    {
+      "path": "assets/css/login.css",
+      "bytes": 26120,
+      "sha256": "5237af49c8b8859e1dc243b84eaa01a7f5512e898cc134058cfa5f322c01c414"
+    },
+    {
+      "path": "assets/css/reading-views.css",
+      "bytes": 958,
+      "sha256": "aa92a3b701246095d67ddfcd29dea8f7fbace6323f0f0801bf9d581dd8fea957"
+    },
+    {
+      "path": "assets/css/shared-forms.css",
+      "bytes": 17394,
+      "sha256": "cd2247fa5742d9617356a6075404efb062b259b74d93b8f820c2cd6c23f487f2"
+    },
+    {
+      "path": "assets/css/version-history.css",
+      "bytes": 6386,
+      "sha256": "5d128357bb4b0750d3fd64a150a736c8704c76617874d4b465c9adc5a42756bd"
+    },
+    {
+      "path": "config/nav.json",
+      "bytes": 9873,
+      "sha256": "a00ff73e10cab05c492970d948276a8e44a5d8248e0c0fa95b78a833edbaa679"
+    },
+    {
+      "path": "config/project.json",
+      "bytes": 96,
+      "sha256": "8a13a751bfd26c81fded080cd451d889af6c7105d1ebcbce22f0ac583aa883b6"
+    },
+    {
+      "path": "config/requirement-analysis.json",
+      "bytes": 603,
+      "sha256": "7a29f5520a7905cf1a264ad70daab912f3d4a302a6c9aa8532d10b326e69ad24"
+    },
+    {
+      "path": "index.html",
+      "bytes": 2310,
+      "sha256": "fdaec0b78e95f1548e9ccc52e38babd06a8d88ed65f652ef7707ae65bc4c859e"
+    },
+    {
+      "path": "inputs/ai-add-field-entry-authorization-20261101.json",
+      "bytes": 713,
+      "sha256": "d49029135b3738607cc17b4a1080c9fcbf5b96ae6a79217986d90653f406b6bb"
+    },
+    {
+      "path": "inputs/ai-call-refusal-entry-authorization-20261101.json",
+      "bytes": 787,
+      "sha256": "f11b93b7ef6c5796c99ddc00328108525b879f8e54d214a86cb7598acaf6776f"
+    },
+    {
+      "path": "inputs/ai-provider-field-dialog-authorization-20261101.json",
+      "bytes": 988,
+      "sha256": "022c6e98e5fefd0edd4eb2b1e13c74fa65457691d1f041382e490a618e0c8c0c"
+    },
+    {
+      "path": "inputs/business-logic-audit-authorization-20261101.json",
+      "bytes": 695,
+      "sha256": "be2350f5b34e935aa4ff0dc47adea998b4ac58a73d07dcd22b2025c9b74747ee"
+    },
+    {
+      "path": "inputs/development-package-and-gitlab-publish-authorization-20261102.json",
+      "bytes": 1153,
+      "sha256": "f94eebb212b6ea1ee47dda87260a65bb9774d63899fad1af1268bba1db0b0404"
+    },
+    {
+      "path": "inputs/entry-based-import-authorization-20261101.json",
+      "bytes": 2532,
+      "sha256": "5bdc34a955bc2b309ed38d95453bfd6a1873aa728dc7899fe7904c96566a5048"
+    },
+    {
+      "path": "inputs/execution-arrangement-authorization-20261031.json",
+      "bytes": 1891,
+      "sha256": "e73c6efd6e219c74a26e63b7f0c34d0a1f8d4fd9d1579f133daf9ef340960a0c"
+    },
+    {
+      "path": "inputs/execution-assignment-simplification-20261031.json",
+      "bytes": 1947,
+      "sha256": "dc2b687cffc39a7adebebb4fc20650e2c6bc70ef4d5944fa127cfcb3bbd47466"
+    },
+    {
+      "path": "inputs/http-e2e-acceptance-authorization-20261101.json",
+      "bytes": 737,
+      "sha256": "213f1012f133e5cde2f1a24a94ba2a90c44dbc59ca6801265fc1f0822cdee186"
+    },
+    {
+      "path": "inputs/lifecycle-audit-fix-authorization-20261101.json",
+      "bytes": 2841,
+      "sha256": "eaba0ff066ab55e0a29ce045d140a2bc0a8f148677bfc89ae33200ec687530b3"
+    },
+    {
+      "path": "inputs/scene-driven-import-prototype-authorization-20261101.json",
+      "bytes": 1336,
+      "sha256": "a89d9e5b1ab7a63da5d2a1d5f6defeb3e9b593d7671717a0bec65140705285f8"
+    },
+    {
+      "path": "inputs/task-business-import-authorization-20261101.json",
+      "bytes": 2085,
+      "sha256": "6eb0d5b119f384df232d784bdef76d4541025225b4fc894c7efa6f69a7a2f6e6"
+    },
+    {
+      "path": "inputs/task-import-feedback-authorization-20261101.json",
+      "bytes": 585,
+      "sha256": "e416f4634ed133a419077fef627e5fb57aca454b869257c0cebf59a9f182d2e1"
+    },
+    {
+      "path": "inputs/unified-task-import-roster-authorization-20261101.json",
+      "bytes": 1744,
+      "sha256": "1a14522cf8530807a7ef33f48ad5b56a7f18f988c4908a57ad3dd33ef75793bf"
+    },
+    {
+      "path": "js/adapters/ai-assignment-identity.js",
+      "bytes": 1469,
+      "sha256": "6f24dec0ec456a9439ab6a7b6e60bbe4a26a41ca7e10a701e67e6275a97e836f"
+    },
+    {
+      "path": "js/adapters/ai-config-store.js",
+      "bytes": 11271,
+      "sha256": "c012f346157ded36775a5e3c80c73952aea27e9f9ebfe8c0a67f4d6e37cf09a7"
+    },
+    {
+      "path": "js/adapters/ai-finance.js",
+      "bytes": 25457,
+      "sha256": "8db509dd6a40de780ac56eeec0e1a5b73128273a38e330d8f89aa6a8e5401769"
+    },
+    {
+      "path": "js/adapters/ai-import-field-mapping.js",
+      "bytes": 13008,
+      "sha256": "554233c2f38bc0338099d4647e35afce231f8bf84ebbd9709d345783e7ca6289"
+    },
+    {
+      "path": "js/adapters/ai-scene-import-source.js",
+      "bytes": 2494,
+      "sha256": "c1cee0e99f02445b3d2ad4cb1607a1499fa3f4628e5add22dd9f6e911d1a248a"
+    },
+    {
+      "path": "js/adapters/ai-special.js",
+      "bytes": 45486,
+      "sha256": "27c84905b53af3adf0293264a72f48b160f38a193b1d5e8d7eff4cec224629af"
+    },
+    {
+      "path": "js/adapters/ai-task-directory.js",
+      "bytes": 5558,
+      "sha256": "da290a257cb0d90b70c8fd20591c37b01adaf4ebb1424b81f5b22ff5e7e7cf7d"
+    },
+    {
+      "path": "js/adapters/ai.js",
+      "bytes": 17338,
+      "sha256": "f91bf0166cefccd04d81baeb278bde2b709a076e8576f50d82b838db12bc98cd"
+    },
+    {
+      "path": "js/adapters/cloud-resources.js",
+      "bytes": 5097,
+      "sha256": "0423a52bda658dbad46138e02a240e0ed655e93bbac576c3f6af3d9994a687b6"
+    },
+    {
+      "path": "js/adapters/cloud.js",
+      "bytes": 47091,
+      "sha256": "c89a2753e81a5833291d261995087b40db3741ad38caced287c523da804357be"
+    },
+    {
+      "path": "js/adapters/customer-import-enhancements.js",
+      "bytes": 5573,
+      "sha256": "6c1ee275369259c66c3ce3fd7a6ebd15179943abb62674a438366dcc5cb9196c"
+    },
+    {
+      "path": "js/adapters/dcc-import-enhancements.js",
+      "bytes": 7929,
+      "sha256": "5e4098c14e352ccbe49ccb5c6735601862ec38289c4b0cd813d476a8edac6d2f"
+    },
+    {
+      "path": "js/adapters/four-node-execution.js",
+      "bytes": 32789,
+      "sha256": "92538d255555e953fa59401790ec47511443a34eff3cbd1e406933caa4eedc53"
+    },
+    {
+      "path": "js/adapters/four-node-workspace.css",
+      "bytes": 8911,
+      "sha256": "7b07e5bc7834554d46349362316b6e0a89b670ddae4192c53a39939a4e561117"
+    },
+    {
+      "path": "js/adapters/four-node-workspace.js",
+      "bytes": 202884,
+      "sha256": "f6809f4a5dcff8d8597e58ac65b96a8b428fc33cbbba706150b288b83ade3a97"
+    },
+    {
+      "path": "js/adapters/task-business-access.js",
+      "bytes": 3986,
+      "sha256": "a3dfac958f495e395d279cc3fc37e8ed5520562f8051312841c27ea41d485055"
+    },
+    {
+      "path": "js/adapters/task-business-import.css",
+      "bytes": 12002,
+      "sha256": "7517e06ef5b75c36e787b3d3c7bf648fcc256348535344d55b31a7e5817076ad"
+    },
+    {
+      "path": "js/adapters/task-business-import.js",
+      "bytes": 59327,
+      "sha256": "c04888dc37ffb1f09c05907962b2f25c79509fa7f1518e43cbe2cfffdfd46c01"
+    },
+    {
+      "path": "js/adapters/task-roster-view.css",
+      "bytes": 2378,
+      "sha256": "9a0b81609c1be5b17d74fec44e247ca7fa7dbc831e003e5b12bcada88b512011"
+    },
+    {
+      "path": "js/adapters/task-roster-view.js",
+      "bytes": 21446,
+      "sha256": "9b851f7363deda88cd1934426f8f1c6001da4a3d98aa6555741655902ed025e3"
+    },
+    {
+      "path": "js/adapters/unified-ai.js",
+      "bytes": 6964,
+      "sha256": "42ab4e72dde8aaccd7bcd136c9abdaf0e71b6f1518dbf2b6640ec39126318232"
+    },
+    {
+      "path": "js/app.js",
+      "bytes": 16011,
+      "sha256": "49e51b41265372da7aa93ed238eaf0ac2b724adfe6a9883e2c2520b085feb5b2"
+    },
+    {
+      "path": "js/common.js",
+      "bytes": 2166,
+      "sha256": "aa971481d217e7e54b8b3fa32cd1a2f643ac55c81d9141a608693df47285a798"
+    },
+    {
+      "path": "js/components/business-link.js",
+      "bytes": 2786,
+      "sha256": "1b6a052b3260016b4731dc31c6b938f8cfc67aa1613590024b2c9807a79af5a7"
+    },
+    {
+      "path": "js/components/catalog-store.js",
+      "bytes": 4510,
+      "sha256": "4bd7d8018152f34105e506fbbf84b1ca62b918f14516772777e5a093f14d5d3b"
+    },
+    {
+      "path": "js/components/category-links.js",
+      "bytes": 12973,
+      "sha256": "38e4099f6d56798e3e8dde68a76e8dc4a0fca592a889ccadab32b487d68d2ced"
+    },
+    {
+      "path": "js/components/contact-policy.js",
+      "bytes": 38394,
+      "sha256": "e00b1a63c2ceb8a2c4dae343a9715b87ab8a3ff59ab2e145bb0d6d4e8b9d1575"
+    },
+    {
+      "path": "js/components/current-diagram-guide.js",
+      "bytes": 6876,
+      "sha256": "5e4248c5fdaed6179adfbe6aa74d67b4a51e48b61b2cd3500351ff855d6c8189"
+    },
+    {
+      "path": "js/components/flow-routing.js",
+      "bytes": 35829,
+      "sha256": "b75fea5c392f4644c58d6953cafc6ba226434ced9d34a8c8b1d4b23ac0330a59"
+    },
+    {
+      "path": "js/components/flow-status-domains.js",
+      "bytes": 3299,
+      "sha256": "48cd960894b6ea5a7b8919c2feced7c9c9cfa37e8507e6d354407a9641dc119a"
+    },
+    {
+      "path": "js/components/import-workbook.js",
+      "bytes": 18302,
+      "sha256": "9ba4563cc805c3755b415ef49d3bda2079b38ec5ff3f838251bbd2f29ebd2812"
+    },
+    {
+      "path": "js/components/list-order.js",
+      "bytes": 3340,
+      "sha256": "895073218d1c3efb0476678601dead5a0c717ab7d6ffc5ea8f714e85c10a5260"
+    },
+    {
+      "path": "js/components/login-screen.js",
+      "bytes": 15282,
+      "sha256": "26690c6c5ddd534bc5a0f98685a0313cb4752b5ca003bb7ebb9cfaf6da7eb0a0"
+    },
+    {
+      "path": "js/components/module-host.js",
+      "bytes": 81006,
+      "sha256": "3ebc3cb7ce3c9a48f5efbbd8100951c2b1609abde958478c5b6cdeb61dd7fdd5"
+    },
+    {
+      "path": "js/components/organization-store.js",
+      "bytes": 28642,
+      "sha256": "ecb13f753e099ce98ca2eb767d7e466281ab491f0962d70955b1083fb4f6a8d7"
+    },
+    {
+      "path": "js/components/role-permissions.js",
+      "bytes": 14951,
+      "sha256": "21d6e43deea2257dbcb47e471a558584b03ba182c2577de653b6bf78018513c6"
+    },
+    {
+      "path": "js/components/session-store.js",
+      "bytes": 22962,
+      "sha256": "80e546714eef39e9ec1397743b426271ada87236722eee53639e01c3765b176a"
+    },
+    {
+      "path": "js/components/unified-categories.js",
+      "bytes": 2434,
+      "sha256": "b288af4a275aafcef301717e428576f77952524925c9bd350a4af8264907cdf8"
+    },
+    {
+      "path": "js/delivery-nav.js",
+      "bytes": 8644,
+      "sha256": "dbbd29af01bc107960726720784e26c7863a9a0a284bd2b217533c28d0cb6f9c"
+    },
+    {
+      "path": "js/modules/ai.bundle.js",
+      "bytes": 1613112,
+      "sha256": "7d87f3647a6e1525562c0e4da789a6f2302ffc6b5c2aa1d9ac9ee16c5a0ff098"
+    },
+    {
+      "path": "js/modules/cloud.bundle.js",
+      "bytes": 4731484,
+      "sha256": "4e0bf158158fc09c65cc9df0445245d4f1ad576a76d3e4c1d5a1d7f08f415313"
+    },
+    {
+      "path": "js/nav.js",
+      "bytes": 9888,
+      "sha256": "ce982f7468c6ac3fcc468585effc4a8a05dd8095333aa778d227646c8899f8c8"
+    },
+    {
+      "path": "js/pages/business.js",
+      "bytes": 287,
+      "sha256": "46d19e99d505ebe835d2e9408cb23926fa46a47f03d53dd724c66cf2996b8acd"
+    },
+    {
+      "path": "js/pages/catalog.js",
+      "bytes": 293,
+      "sha256": "a1011642eb048a9667ad705743797ed57bab0cd7d295c565d738872cdf72ec31"
+    },
+    {
+      "path": "js/pages/contacts.js",
+      "bytes": 3092,
+      "sha256": "bcb0036f7a142d622324b641959342be634ad5035cb93504103cdd7c1aba4974"
+    },
+    {
+      "path": "js/pages/organization.js",
+      "bytes": 46852,
+      "sha256": "ed5ecfaccf9853ba1405bdb83df0f511d466a404a357a7cee33d35fe416585c0"
+    },
+    {
+      "path": "js/version-nav.js",
+      "bytes": 27812,
+      "sha256": "e5213e6d5f22659a2c09ded2b330dfa5d9bd8297387ec369ed68ec2a382c5117"
+    },
+    {
+      "path": "memory/change-log.md",
+      "bytes": 186420,
+      "sha256": "45e49ab74eacd043fd66c914996e5cbd4e2174646ee31fdd6509bd9a1fd9c076"
+    },
+    {
+      "path": "memory/execution-steps.md",
+      "bytes": 134450,
+      "sha256": "86f4e8b2e4783d7d75448ae97874e35bbcbe1da1c7b3e2aaf77c86c9146b6b69"
+    },
+    {
+      "path": "memory/http-e2e-acceptance-20261101/actual-click-checklist.json",
+      "bytes": 214031,
+      "sha256": "6cf488242bc931a7c340ca3ac988bf2da1d75fd25809847107ee519ee4d7e39c"
+    },
+    {
+      "path": "memory/http-e2e-acceptance-20261101/regression-final-race/source-stability.json",
+      "bytes": 663,
+      "sha256": "02ef09383c7ee7ac77dd5104ccf378f4894bb11a0ad6862510a088681e66bd35"
+    },
+    {
+      "path": "memory/http-e2e-acceptance-20261101/regression-final-race/summary.json",
+      "bytes": 14910,
+      "sha256": "c74bc8d1102d96fec0dd0c00270d232a99765de6aef607441596ef99def38cd1"
+    },
+    {
+      "path": "memory/http-e2e-acceptance-20261101/scene-reopen-fix.json",
+      "bytes": 4226,
+      "sha256": "04a252ac4d692ee98fac8efd16732682ada57f0739f57883e709e442bb74194b"
+    },
+    {
+      "path": "memory/http-e2e-acceptance-verification-20261101.json",
+      "bytes": 6383,
+      "sha256": "e31f2e248ed3cb16492925c11adb410f0223ed102135f39ce620376a0c14124b"
+    },
+    {
+      "path": "memory/reuse-provenance.json",
+      "bytes": 102160,
+      "sha256": "190e08a2717bd1df7f01ff13b663757fb20f2d92cf5652744f1365a164a93fef"
+    },
+    {
+      "path": "scripts/ai-import-field-ui.css",
+      "bytes": 6828,
+      "sha256": "1bec4329c87d03487ed4cfb7969b53af5ec4ffd9537e4ace3d43074a940d2877"
+    },
+    {
+      "path": "scripts/ai-import-field-ui.js",
+      "bytes": 39863,
+      "sha256": "9a5f477e64d6b0c7c2453073236e2cad65d7eec2175700e459ff0c0ad5ff6032"
+    },
+    {
+      "path": "scripts/ai_import_field_mapping_build.py",
+      "bytes": 7911,
+      "sha256": "dadaec2ce5cd124425176ed1eaf32129ce15d5e2de074eda51e49d4d9be5bd0b"
+    },
+    {
+      "path": "scripts/ai_import_parse_build.py",
+      "bytes": 10840,
+      "sha256": "524ce8fc96f06b1e945f7a3e4d86750f033d9c0673550d0ef05fce51e3427c6d"
+    },
+    {
+      "path": "scripts/ai_import_result_build.py",
+      "bytes": 6324,
+      "sha256": "bba0334a06c2ecc5f58e4890ece4e22f9b95e6dbe2165d52229e6a4a9eb0e8ef"
+    },
+    {
+      "path": "scripts/ai_parity_build.py",
+      "bytes": 13290,
+      "sha256": "540b0cd8f331a018b76faa4c03a0937db854efb04f60c455fcb2cafff5e2b1f3"
+    },
+    {
+      "path": "scripts/ai_task_directory_build.py",
+      "bytes": 5046,
+      "sha256": "f6753323f34c2d135b7d8102d31546a82d8be4247894fa79b450296dac45035a"
+    },
+    {
+      "path": "scripts/build-modules.py",
+      "bytes": 147883,
+      "sha256": "faee252607efbded428b64adfabe33d35011d43e96ded763d1772852b1e35b24"
+    },
+    {
+      "path": "scripts/business_family_build.py",
+      "bytes": 7105,
+      "sha256": "d98aeebcfdfd6e9e3ed1cb821e51b7c328e5692e5d29bdf6dc8f1a3f280969b7"
+    },
+    {
+      "path": "scripts/category_build.py",
+      "bytes": 12038,
+      "sha256": "a6ced2caab5ce75ea1811efd7663f6e65323f456c78b772755fb53d7d01b92cd"
+    },
+    {
+      "path": "scripts/category_import_entry_build.py",
+      "bytes": 1396,
+      "sha256": "dda3107e02b294dd72be67014aaac7a58a1591372d2e860451caac9f2c8bfdd6"
+    },
+    {
+      "path": "scripts/check-ai-import-field-dialogs.cjs",
+      "bytes": 44127,
+      "sha256": "51f060898ee48e3a19c6780d8f7596f3818601a61cd039551b01a33f0830095f"
+    },
+    {
+      "path": "scripts/check-ai-import-field-mapping.cjs",
+      "bytes": 10307,
+      "sha256": "cef54728a5016db99c04c7a3819485936c1dcd015896e2c06d5a061584ca4313"
+    },
+    {
+      "path": "scripts/check-ai-only-coordination.cjs",
+      "bytes": 13213,
+      "sha256": "8b80aa102608f9a0e97f47368b223b1f56285f0e9a9a1dcf45781bfbd72aa38e"
+    },
+    {
+      "path": "scripts/check-ai-scene-import-source.cjs",
+      "bytes": 20670,
+      "sha256": "20e21658cd13d115d1cc74dd834037c6b6a44fa3f6c46c64c8e2a0274da07576"
+    },
+    {
+      "path": "scripts/check-ai-supplier-custom-import.cjs",
+      "bytes": 10663,
+      "sha256": "3cdfe99fb04426831d8a97ead74851489ab7b4dd1fed63655ba050076dd34e8b"
+    },
+    {
+      "path": "scripts/check-ai-task-directory.cjs",
+      "bytes": 14148,
+      "sha256": "f21e2c6c29a416c23faf1aa0f581a5da1c7035e2894f5047a712e3f26e9b15f2"
+    },
+    {
+      "path": "scripts/check-assignment-simplification.cjs",
+      "bytes": 17181,
+      "sha256": "323b88a72ebf2b90fb6cf9af82b4146babf5a798ac5e9f53b8b951c51d516373"
+    },
+    {
+      "path": "scripts/check-branch-editor-ux.cjs",
+      "bytes": 8875,
+      "sha256": "68a9b2c173b8ef7ba665323af1dc11da3381ff922c0823328feb937c4263afa9"
+    },
+    {
+      "path": "scripts/check-business-audit-import-ui.cjs",
+      "bytes": 15636,
+      "sha256": "e78ecbdbf44d24b78d9457f8c23312c2f386fd4ec3c877203a5c811b19da4743"
+    },
+    {
+      "path": "scripts/check-business-audit-model.cjs",
+      "bytes": 21361,
+      "sha256": "20eb8844d5e081b4e60c57230df4a324839b45ca3f683b9a7f7321795f152383"
+    },
+    {
+      "path": "scripts/check-business-audit-native.cjs",
+      "bytes": 11707,
+      "sha256": "dab8b0b9635f577378880723bef3153f5bfab7fedb485f95313a1a2363d45a23"
+    },
+    {
+      "path": "scripts/check-business-rules-editor.cjs",
+      "bytes": 14035,
+      "sha256": "f79578e8eebec77fa220abe2e77c94dc14533ada5142a55eccc3f48e2ad82a5e"
+    },
+    {
+      "path": "scripts/check-business-rules-integration.cjs",
+      "bytes": 12915,
+      "sha256": "3cf6762ff7093f5c8aa311d920e3c2de950f907d297cd0be732c96b20d01a28f"
+    },
+    {
+      "path": "scripts/check-business-rules-model.cjs",
+      "bytes": 18444,
+      "sha256": "6fbb569d473da3e15edeeb5c348891c32822ff9c02d7efd38e842ab5846b8180"
+    },
+    {
+      "path": "scripts/check-business-rules-post-audit-model.cjs",
+      "bytes": 8112,
+      "sha256": "445c313908dd78c2d3a93528ec5d1ddeb0497eacf46a105199cf33b7b5dd191d"
+    },
+    {
+      "path": "scripts/check-business-rules-workspace.cjs",
+      "bytes": 21586,
+      "sha256": "5c44ed95b6bf9b856d9004470ce0cbbe1e07736e4721c64b1451ec47374e6b4b"
+    },
+    {
+      "path": "scripts/check-category-import-launch.cjs",
+      "bytes": 6141,
+      "sha256": "98e906a3140ba7ac37c10367895589d3275df582184b04bae3140bcdd89901e6"
+    },
+    {
+      "path": "scripts/check-cloud-sip-status.cjs",
+      "bytes": 9709,
+      "sha256": "7a3871d1a3a06af951ab6c1b37c21b7635e7bbd9cfad247473c1f5cb5a466741"
+    },
+    {
+      "path": "scripts/check-conditional-paths.cjs",
+      "bytes": 14801,
+      "sha256": "ef0d69cd33c54975445d9e5c5e30416d04bbdc143bec43527aac0d7b58e29133"
+    },
+    {
+      "path": "scripts/check-controlled-abandon-workspace.cjs",
+      "bytes": 21438,
+      "sha256": "f4ab7ccee136f0e99dc447cbb7de0a873f8e91510ec9766f1a92b28a3718abec"
+    },
+    {
+      "path": "scripts/check-current-planning-data.cjs",
+      "bytes": 12839,
+      "sha256": "99b586b98c6848a3a889c550ac8b154ada1829e2f7f322fb6e7e96a7483668c7"
+    },
+    {
+      "path": "scripts/check-direct-category.cjs",
+      "bytes": 4252,
+      "sha256": "7bbd742afd3ec7bb054849a55fbbc9bf0e7ab071ce94d4a703ede1fab78c6750"
+    },
+    {
+      "path": "scripts/check-direct-followup-model.cjs",
+      "bytes": 28201,
+      "sha256": "4b2654e772b3dffd9862491757319955be0d0ef96eb6aa115630c7924698bb3c"
+    },
+    {
+      "path": "scripts/check-direct-followup-workspace.cjs",
+      "bytes": 18882,
+      "sha256": "d2756e6817f20bd384758b34e3c3f249c393089fe82d31d244103b0e235715b0"
+    },
+    {
+      "path": "scripts/check-end-action.cjs",
+      "bytes": 10089,
+      "sha256": "1a09e08130e18814301f8d5481c7d8d0cb944b5b3c239a2f05d470109dad1250"
+    },
+    {
+      "path": "scripts/check-entry-import-model.cjs",
+      "bytes": 25133,
+      "sha256": "9c4325da2d7f8288ff131c393d03500ffebc62d72aba2ca59db211ee486dfc5d"
+    },
+    {
+      "path": "scripts/check-entry-import-workspace.cjs",
+      "bytes": 19277,
+      "sha256": "0c9a4d7884a0e3dad9ce460a2b56d711992d5aee3dca82943099ab3da0e98141"
+    },
+    {
+      "path": "scripts/check-execution-arrangement-workspace.cjs",
+      "bytes": 34406,
+      "sha256": "773ee359c243b269ad494e331e4ddbaf4e1e65905befca74ef16e9de724c175b"
+    },
+    {
+      "path": "scripts/check-execution-arrangement.cjs",
+      "bytes": 28160,
+      "sha256": "69cafcd2d54ee091d2d69ba9775cb83227fc5023d98e675502ffc8279ee632bd"
+    },
+    {
+      "path": "scripts/check-field-configuration.cjs",
+      "bytes": 28727,
+      "sha256": "81474935f65e26c6a5f0ede5ee325e4ddcd9f3611359437421b94006fa6e875a"
+    },
+    {
+      "path": "scripts/check-flow-condition-sources.cjs",
+      "bytes": 25781,
+      "sha256": "9f6f63824ccb62085f8eda6b921757ddc13f964db0c392c3560017998014bfa4"
+    },
+    {
+      "path": "scripts/check-followup-chain-audit.cjs",
+      "bytes": 11519,
+      "sha256": "d861901045e051edce0921f8fb94f970606d0a65c0469b8a764771b4f7613073"
+    },
+    {
+      "path": "scripts/check-four-node-audit-model.cjs",
+      "bytes": 10657,
+      "sha256": "f733b502798ca6248d5c1e68912c3a8e0907fe61eba96299d7cdb552cb90f27d"
+    },
+    {
+      "path": "scripts/check-four-node-audit-workspace.cjs",
+      "bytes": 9078,
+      "sha256": "9e15b61879a39d356750ba638f8455f4bb15a3a77b5f9d0dfe786be2bfe62113"
+    },
+    {
+      "path": "scripts/check-four-node-execution.cjs",
+      "bytes": 15386,
+      "sha256": "c795fb0d0b80752a47fc861830cd8dc87858ef5d487f5a7545cac6ccd73792a0"
+    },
+    {
+      "path": "scripts/check-four-node-model.cjs",
+      "bytes": 39356,
+      "sha256": "de4636f4ee0b6132e0495e0d1fa828348fb1966cd3a596fc7789de6c457491d2"
+    },
+    {
+      "path": "scripts/check-four-node-ui.cjs",
+      "bytes": 10046,
+      "sha256": "cc0624a899285562f06d211efa253e4085882bcae2a580913b1e4451216d138a"
+    },
+    {
+      "path": "scripts/check-four-node-workspace.cjs",
+      "bytes": 14963,
+      "sha256": "92c7fb8371e30bf3d29662c0ead34e1ab1f2d7a1c7264543a41d409b8d182efb"
+    },
+    {
+      "path": "scripts/check-import-chain-audit.cjs",
+      "bytes": 18884,
+      "sha256": "741903266c5ab8005c159ef3135f647f093183d8a118b4096ab4773d28e3a7cb"
+    },
+    {
+      "path": "scripts/check-import-routing-guidance.cjs",
+      "bytes": 15875,
+      "sha256": "176b51bec4e2ad4ffed96a375156e8a39563509f890325058add20d10cf70b35"
+    },
+    {
+      "path": "scripts/check-inheritance.cjs",
+      "bytes": 11495,
+      "sha256": "ff0989f03adc56f4ee79950cfc51389721df23c1c444b505ebe46e1efce6fbf8"
+    },
+    {
+      "path": "scripts/check-lifecycle-settlement.cjs",
+      "bytes": 23945,
+      "sha256": "96cafdc9292ba1a87e2e080e4d1a6ca918268c27ca26c08ec7a52cf6f619eb53"
+    },
+    {
+      "path": "scripts/check-list-order.cjs",
+      "bytes": 38324,
+      "sha256": "6e35a7d742d7c4c8ef986508b412af80a533e40ce5a044b8abcb551b34e11db8"
+    },
+    {
+      "path": "scripts/check-local-tenant-flow.cjs",
+      "bytes": 11273,
+      "sha256": "a0b90e0c226b8df9eb33a3f99fc849b8c477c99ac4e1a7269efd325e23ec68ce"
+    },
+    {
+      "path": "scripts/check-multiple-values.cjs",
+      "bytes": 22653,
+      "sha256": "9dfd519ea92fc34d352c1f7e5245efafcb4639d4a0af253be27bbc1705ad8c0f"
+    },
+    {
+      "path": "scripts/check-predictive-task-category.cjs",
+      "bytes": 17368,
+      "sha256": "c6e351f576a7440add9f593d49e3a807e63c06e49b11099abff56ab377b67e03"
+    },
+    {
+      "path": "scripts/check-product-chain-audit.cjs",
+      "bytes": 4646,
+      "sha256": "bd92d3fed811dc50bfc199981c58fafc14c3f4fb752bea374866fff3b75760d3"
+    },
+    {
+      "path": "scripts/check-reference-audit.cjs",
+      "bytes": 20657,
+      "sha256": "853ca73c6345efb9a0b26f9e5f1e12f3ca3a4101d1989e37a22894512af149c1"
+    },
+    {
+      "path": "scripts/check-reference-category.cjs",
+      "bytes": 20110,
+      "sha256": "afe3dc851f53e106646b4cf7cd2c4ad6deea8bf3b22ff146c56b2411b1fd4315"
+    },
+    {
+      "path": "scripts/check-rule-change-cycle-ux.cjs",
+      "bytes": 10996,
+      "sha256": "8567e3f14592534c22e1c3a2bed9163764e64fcb2b1c14411f6f5a8687905a7d"
+    },
+    {
+      "path": "scripts/check-scene-driven-import-workspace.cjs",
+      "bytes": 33681,
+      "sha256": "2726ce842438a00ac4410828b776cd030f5d2715e25a1226a8b54f873d4e3164"
+    },
+    {
+      "path": "scripts/check-scene-driven-import.cjs",
+      "bytes": 24668,
+      "sha256": "d91588e68f89fa7c63b78866e2231e128b8b4afde7809248d6d7b96ca66ccc43"
+    },
+    {
+      "path": "scripts/check-simple-task-import-ui.cjs",
+      "bytes": 18919,
+      "sha256": "3a8b6507c9b9651eba7187d3eb9f44bbca8f01e82edd99f48f389c8de41ccba2"
+    },
+    {
+      "path": "scripts/check-simulation-selection.cjs",
+      "bytes": 4639,
+      "sha256": "37b0fd223597266571a380a526bdca6348d44cfb943ee81c9509f435af2fb534"
+    },
+    {
+      "path": "scripts/check-task-business-access.cjs",
+      "bytes": 15290,
+      "sha256": "5301fc3c5d2bc790e6b266726d84eef7ec5d63a82b41a6f5d49b2a943009f0a5"
+    },
+    {
+      "path": "scripts/check-task-business-import-ui.cjs",
+      "bytes": 34563,
+      "sha256": "188a2ee315e156bd26e59244fa79533381a65012793ab564ec7db9981fb2aa18"
+    },
+    {
+      "path": "scripts/check-task-business-import.cjs",
+      "bytes": 27904,
+      "sha256": "bab4279852d3cac4fa1aecd0083f8ee6afe203625fc9ef38393d24801aff922d"
+    },
+    {
+      "path": "scripts/check-task-import-execution-chain.cjs",
+      "bytes": 11749,
+      "sha256": "3586d095303a133d535f708d35e4d0d565517f57717fa916347eb9bdcecaebff"
+    },
+    {
+      "path": "scripts/check-task-import-host.cjs",
+      "bytes": 15314,
+      "sha256": "2079a87e933de209ab27994046dfa707c5c2b7572652bb01ec2341e4e5f695bf"
+    },
+    {
+      "path": "scripts/check-task-roster-model.cjs",
+      "bytes": 20835,
+      "sha256": "bfd948f19340e8fa3dd42723f78d106fb6e9cf025a68e8cbd4c1bc62d2052cba"
+    },
+    {
+      "path": "scripts/check-task-roster-view.cjs",
+      "bytes": 16705,
+      "sha256": "af0217224d915f6f4ec2f44484ea460fe99bd8340d2694df3d0e1fca008f5b7e"
+    },
+    {
+      "path": "scripts/check-task-supplier-custom-import.cjs",
+      "bytes": 12949,
+      "sha256": "770c942f75ae8eda87b5304787f2a717ef9c4af612991dea8d53bdc279c15ba4"
+    },
+    {
+      "path": "scripts/check-template-lifecycle.cjs",
+      "bytes": 9563,
+      "sha256": "43092d34307e3e46412130a29494bbaec1361eba0ab6cb599b487c6157738379"
+    },
+    {
+      "path": "scripts/check-template-roundtrip.cjs",
+      "bytes": 7144,
+      "sha256": "fb0930307a0977d8342626ae0b0e3e87c4cc4199cc65fff5ae9ffa16a7b8cbe2"
+    },
+    {
+      "path": "scripts/check-workflow-task-directory.cjs",
+      "bytes": 9017,
+      "sha256": "651b5f5b800b999584036f5e10701eb13ebc26ad0b0f6db1c814633a2093c4fd"
+    },
+    {
+      "path": "scripts/check-workspace-position.cjs",
+      "bytes": 7241,
+      "sha256": "4252b3d666eba50e424916596991878c1108ae527cf831c116bc60e802c39a91"
+    },
+    {
+      "path": "scripts/current_catalog_build.py",
+      "bytes": 4803,
+      "sha256": "678a359691a8324e656e300caf7675d60caf607cec9fb38707e82965fd1d4173"
+    },
+    {
+      "path": "scripts/current_planning_build.py",
+      "bytes": 12436,
+      "sha256": "bc5ac1608765f96843dd9305e619d03682bc780f4b0585ce966fc9b298ecf734"
+    },
+    {
+      "path": "scripts/direct_followup_build.py",
+      "bytes": 1541,
+      "sha256": "33f212ef8e1a8df450f5f5bbe8179b7538d03b508b336a4b311d63e30e9a2243"
+    },
+    {
+      "path": "scripts/entry-asset-contracts.cjs",
+      "bytes": 1768,
+      "sha256": "241dbe082b5e83ad7fc4355f5bd36f9fe254816733aa20d3185482fcca9aaef0"
+    },
+    {
+      "path": "scripts/field-import-store.js",
+      "bytes": 5100,
+      "sha256": "4f0c417b691b77875fb745f9c8f6f5a03d2a60970b9837d644daa2de0dcba9b1"
+    },
+    {
+      "path": "scripts/field-import-ui.js",
+      "bytes": 3514,
+      "sha256": "d1c9f76cb36f015231cc19fc728e2aeaa90acf0485710f3f84cb8aed33e8f03b"
+    },
+    {
+      "path": "scripts/field_import_build.py",
+      "bytes": 7993,
+      "sha256": "cbeec71f68c1743919494f0eb7bb07f4d572d1aa37ee4745c5954e07763f7b33"
+    },
+    {
+      "path": "scripts/field_model_build.py",
+      "bytes": 25034,
+      "sha256": "3e75cedea89a975884604edcdba4814ecfd259d4ae6698356d1f60b1d6f742d3"
+    },
+    {
+      "path": "scripts/field_ui_build.py",
+      "bytes": 27796,
+      "sha256": "ac3f96845bd4028199b28c84f2bfc290690085ee59b82c05a34751da47036ad0"
+    },
+    {
+      "path": "scripts/flow-canvas-ui.css",
+      "bytes": 16516,
+      "sha256": "41cae141d4f09d3cef266c2414977ae8fdbb46f496e3f98c3b9a46f3653394bd"
+    },
+    {
+      "path": "scripts/flow-canvas-ui.js",
+      "bytes": 25309,
+      "sha256": "d2933cd96b6b48a47c9f877b1a4fd968060f601d117d7ca386a898e67e144ec1"
+    },
+    {
+      "path": "scripts/flow-condition-feedback.js",
+      "bytes": 4373,
+      "sha256": "1a7efe1c99e28abc860a25e191d80c453404759822c6852bb2edca28b38913de"
+    },
+    {
+      "path": "scripts/flow-node-config.css",
+      "bytes": 14978,
+      "sha256": "94e05ce2d0b9b0930f0b7e0e8e002318eb0618b706be94478f7858fc593d85a7"
+    },
+    {
+      "path": "scripts/flow-node-config.js",
+      "bytes": 19353,
+      "sha256": "ee7cd4546c50fc002053ea2cad549bd03edcb904504dcbe016605bd54431a709"
+    },
+    {
+      "path": "scripts/flow-routing-store.js",
+      "bytes": 10696,
+      "sha256": "be5fc5d93731b9c09733fa95e9fa143ed2af871e3de1a6ed5cb0b593b56dbb47"
+    },
+    {
+      "path": "scripts/flow-runtime-store.js",
+      "bytes": 1524,
+      "sha256": "405fff30bf52f942074edf356da88996ba6dbded37eb0b34b8e36a5930130007"
+    },
+    {
+      "path": "scripts/flow-runtime-ui.js",
+      "bytes": 10459,
+      "sha256": "1b291eb87fadf4d4ae7003b734bdcda1fe7d000bf943b4e4882de42e1ad00444"
+    },
+    {
+      "path": "scripts/flow-warning-feedback.js",
+      "bytes": 1893,
+      "sha256": "d43690db889bef5eebd83234c025e65a1e4ef93711f7d91b79b0c6f819c1f2f6"
+    },
+    {
+      "path": "scripts/flow_condition_ui_build.py",
+      "bytes": 11628,
+      "sha256": "cad7f038bec43e232d1f7caea39c824e6d68830a23f3b515fdccf5f49a756e77"
+    },
+    {
+      "path": "scripts/flow_editor_build.py",
+      "bytes": 6820,
+      "sha256": "866d7fca9ad917b4277977d14a9c2f108c9cbf7433d178542b2cc270adaf8e4b"
+    },
+    {
+      "path": "scripts/flow_feedback_build.py",
+      "bytes": 3755,
+      "sha256": "f011b8fe5497941416ea55768cd073aa5ae1d683fcd8fc479a4d3b4f47e46d7f"
+    },
+    {
+      "path": "scripts/flow_routing_build.py",
+      "bytes": 7723,
+      "sha256": "c6b7c548cbfe10acccfa865932f9176f359b879bea155c2bf47703b2c40fba86"
+    },
+    {
+      "path": "scripts/flow_runtime_build.py",
+      "bytes": 1802,
+      "sha256": "e380f8a345674a46d0822a2acf5dc47182ca7f9a34ba1eccd54f9439ba0d7467"
+    },
+    {
+      "path": "scripts/four-node-model.js",
+      "bytes": 214875,
+      "sha256": "e403863bf527279283cfe7d5c599ede3f8b8418e2111f2a3324d6bba8ed84bd6"
+    },
+    {
+      "path": "scripts/four_node_model_build.py",
+      "bytes": 5650,
+      "sha256": "ffa586b794554e85403649f44016520f9ecd59b6b8b8e930ea177631e2494f97"
+    },
+    {
+      "path": "scripts/four_node_ui_build.py",
+      "bytes": 61118,
+      "sha256": "d7fceb1ac29b1088e227fa0f6c96005efe10495343c590e3db0c6b550eff0d42"
+    },
+    {
+      "path": "scripts/four_node_workspace_build.py",
+      "bytes": 2395,
+      "sha256": "8050246c27e9a3095ee9d481944f0f87c7e26d0319bac46fe04fc62ef5f109d8"
+    },
+    {
+      "path": "scripts/import_build.py",
+      "bytes": 9074,
+      "sha256": "446d7658de366cfccb51c70c5c2510711af0693983f20240249eff631467e913"
+    },
+    {
+      "path": "scripts/list_sort_ai_build.py",
+      "bytes": 10821,
+      "sha256": "794889736d0ed22b0c078fc4e3a13f2a9abc219967f02af1b06a9f4b0ce8342b"
+    },
+    {
+      "path": "scripts/list_sort_build.py",
+      "bytes": 759,
+      "sha256": "e91adee36288637c51fb263c5261f822f6876da17a63445a2b1ec494b09d8710"
+    },
+    {
+      "path": "scripts/list_sort_cloud_build.py",
+      "bytes": 15288,
+      "sha256": "26745e7ccf12f7b9b2cd128a8fb56c76293f1d813c1f099710041ba71501deb6"
+    },
+    {
+      "path": "scripts/multiple_values_ui_build.py",
+      "bytes": 11612,
+      "sha256": "c9ef6d296b1003857d782e59becd49c099a310b5d4d9c873d85b7295a2a69bcd"
+    },
+    {
+      "path": "scripts/publish-views.py",
+      "bytes": 6454,
+      "sha256": "1d17985ff811cff800577e0cf9bb1a84772335d321ef86e5433ef6f27984f0a4"
+    },
+    {
+      "path": "scripts/task-business-import-model.js",
+      "bytes": 38208,
+      "sha256": "e726a9440dcdcd663480bec88bddef3db3cb47e60b8f880e179c287b565c7ce9"
+    },
+    {
+      "path": "scripts/task_business_import_build.py",
+      "bytes": 25293,
+      "sha256": "0a7b5b0418b561287d495f74629c445a897bd37524c5cc52d2ea52985fa9f96b"
+    },
+    {
+      "path": "scripts/task_roster_build.py",
+      "bytes": 10011,
+      "sha256": "d4e601a1ae0f3aa46c624ddce79216912b785ca9f904a156a0852d6c7333f642"
+    },
+    {
+      "path": "scripts/template-list-ui.css",
+      "bytes": 1207,
+      "sha256": "454851bbcc8f67a60a741ed1566a048882ebc69cd12763b269659977e1f5d0e5"
+    },
+    {
+      "path": "scripts/template_lifecycle_build.py",
+      "bytes": 7311,
+      "sha256": "209dbb81a942c7b1d7bacc7e54960f7494ccd472f6cd39fbc804c9a3f6a99122"
+    },
+    {
+      "path": "scripts/template_list_ui_build.py",
+      "bytes": 1589,
+      "sha256": "a327c65c8666c02a96f5b467b72a7b4b44baaec5efc9ae18ec9025ff1a03550c"
+    },
+    {
+      "path": "version-history.html",
+      "bytes": 2332,
+      "sha256": "a8abb5753cf75bd4c3fa4a3940ea56ccda874cce34066e0599c4072a74fb49a4"
+    }
+  ],
+  "current_verification_boundary": "当前Step54证据仅有限本地Mock/合成名单与获准HTTP；三条主流程有实际闭环，22组中13组已验、9组部分已验，66套1102结构化用例通过只是补充。下载落地、真实音频、未知回执/停止/新周期及其他列明子项、file协议、真实供应商/API/CTI未全部验证；产品资料更新不授全量验收、S8/final、G3或工程执行批准，DRAFT继续保留。"
+}

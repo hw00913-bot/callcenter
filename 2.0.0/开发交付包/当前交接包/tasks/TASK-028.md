@@ -1,24 +1,24 @@
-# TASK-028 原直接业务显式启用当前流程
+# TASK-028 旧无TASK直接业务的合法模板转换
 
 **DRAFT — 供讨论与补充，尚未完成本阶段交接**
 
 [返回阅读入口](../README.md) · [功能目录](../features/README.md)
 
 - [创建四节点流转模板 · FUNC\-2034](../features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](../features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](../features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](../features/FUNC-2039.md)
 
 ## 目标
 
-在同record上重新预检当前路由、实际入口、资料及AI场景；旧执行、重试、待核及必要归档必须收敛。；成功才建新run并封直接转换事件；不强制先完成直接周期，已完成周期结论保留。
+先核准确entrySource；新TASK DIRECT拒绝启用模板且不展示入口、不生成转换预检token，保持任务直接跟进。；仅旧无TASK标记的历史DIRECT沿原合法路由/资料/权限及执行/必要归档收敛条件显式转换，同record新run保旧周期快照及结论，不重导、不伪造TASK来源。
 
 ## 产品依据
 
-- FUNC-2034 创建四节点流转模板：以字段参考分类读取条件来源，在唯一开始锚点编排转交、呼叫、结束，组件定类型、每CALL单方式、有序首命中路径，保存模板不绑定业务。；来源 documentation/input/functions.json#FUNC-2034
-- FUNC-2036 按实际分类严格预检并导入业务：整批明确DIRECT或TEMPLATE后严格预检及导入：DIRECT须分类显式允许、方式明确且AI场景必选，仅豁免路由附加资料，不建run/node；TEMPLATE沿当前路由建run。已有直接业务后续显式启用流程，在旧执行与必要归档收敛且当前路由资料通过后于原业务建新run，不重复导入。；来源 documentation/input/functions.json#FUNC-2036
-- FUNC-2039 查询业务、批次和工作队列：查询模式、批次、队列和下一步；DIRECT显示同租户待安排/起呼/结果/本人填写/待核及再次跟进，允许有权人经独立预检显式启用流程。；来源 documentation/input/functions.json#FUNC-2039
+- FUNC-2034 创建四节点流转模板：以字段参考分类读取条件来源，在唯一开始锚点编排转交、呼叫、结束；每CALL单方式、有序首命中路径。人工默认MANUAL可无seat先保存，SPECIFIC_SEAT才必选有效seat；PRED默认只任务，AI默认任务+scene，无默认责任人控件。CALL默认五档等级与分租户目标维护不扩大资源权，保存模板不绑定业务。；来源 documentation/input/functions.json#FUNC-2034
+- FUNC-2036 按共同分类字段预检并导入统一业务：客户维护与AI/预外呼任务三入口共用分类IMPORT和code等系统必需校验。客户维护按原DIRECT/TEMPLATE；任务内固定准确任务/必要scene并默认DIRECT，须ADMIN+customer.import、原模块/任务/来源及分类允许，保存完整值/快照/taskImportSource/等级和直接周期。专业名单只读recordId投影，不写第二账本/原生行或重复提交供应商，旧历史不迁移。；来源 documentation/input/functions.json#FUNC-2036
+- FUNC-2039 查询业务、批次和工作队列：查询模式、批次、队列和下一步；DIRECT显示同租户待安排/起呼/结果/本人填写/待核及再次跟进，允许有权人经独立预检显式启用流程。 列表和详情展示具体目标与五档等级；待执行视图按资源内等级与入队先后，普通历史列表仍更新时间倒序，长期等待可提示。；来源 documentation/input/functions.json#FUNC-2039
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 
@@ -45,7 +45,7 @@
 
 先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
 
-全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-CONFIG](../global-logic.md#GR-CONFIG)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-FIELDS](../global-logic.md#GR-FIELDS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-SERIAL](../global-logic.md#GR-SERIAL)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-CONFIG](../global-logic.md#GR-CONFIG)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-FIELDS](../global-logic.md#GR-FIELDS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-LIFECYCLE-SETTLEMENT](../global-logic.md#GR-LIFECYCLE-SETTLEMENT)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-SERIAL](../global-logic.md#GR-SERIAL)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
 
 局部逻辑：[LOCAL-FLOW-ENABLE-TEMPLATE](../local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)
 
@@ -60,19 +60,19 @@
 
 ## 实现要求
 
-- 在同record上重新预检当前路由、实际入口、资料及AI场景；旧执行、重试、待核及必要归档必须收敛。
-- 成功才建新run并封直接转换事件；不强制先完成直接周期，已完成周期结论保留。
-- 并发schema变化按稳定字段保输入并重检；不复制业务、不让旧DIRECT事实完成新CALL或留下双执行入口。
+- 先核准确entrySource；新TASK DIRECT拒绝启用模板且不展示入口、不生成转换预检token，保持任务直接跟进。
+- 仅旧无TASK标记的历史DIRECT沿原合法路由/资料/权限及执行/必要归档收敛条件显式转换，同record新run保旧周期快照及结论，不重导、不伪造TASK来源。
+- 旧历史转换不能变成新TASK业务模板入口；旧周期事实不完成新CALL，不迁移来源或留下双执行入口。
 - 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
 - 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
 - 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
 
 ## 产品验收
 
-- **AC-2112**：条件支持独立IMPORT，AI状态/标签与人工/预外呼状态/填写；转交精确上游来源，条件配置不授自动呼叫/推进权。 整批明确DIRECT/TEMPLATE；DIRECT仍严守基础必填、类型、映射和唯一性，仅豁免路由附加资料，且不建run/node。
+- **AC-2112**：条件支持独立IMPORT，AI状态/标签与人工/预外呼状态/填写；转交精确上游来源，条件配置不授自动呼叫/推进权。 按准确入口固定TASK/DIRECT或CATEGORY/TEMPLATE；DIRECT仍严守基础必填、类型、映射和唯一性，仅豁免路由附加资料，且不建run/node。
   依据：docs/functional-spec.json#AC-2112
 
-- **AC-2113**：组ALL/ANY明确且已知时计算，标量IN/NOT_IN每行多个值，EQ/NE/大小比较单值；多选及AI标签包含任一/全部，空值独立。 DIRECT显式选择AI/MANUAL/PREDICTIVE，AI场景必选；已有业务启用流程不重复导入。
+- **AC-2113**：组ALL/ANY明确且已知时计算，标量IN/NOT_IN每行多个值，EQ/NE/大小比较单值；多选及AI标签包含任一/全部，空值独立。 TASK DIRECT由任务带入方式与必要场景，CATEGORY按首路径及分组确定方式/场景；仅旧无TASK来源历史的合法启用流程不重复导入。
   依据：docs/functional-spec.json#AC-2113
 
 - **AC-2129**：超管在管理范围仅监管查询，列表/详情/直接访问一致，不代分配、起呼、填结果或转交。
@@ -85,16 +85,16 @@
 
 ### CHECK-FLOW-ENABLE-TEMPLATE / manual
 
-步骤：按当前续接版本执行：当前有权管理员在DIRECT业务详情明确选择“启用流程”并预检确认。前提：当前负责租户管理员具有本条业务维护与流程启用动作资格；当前业务为DIRECT且同一稳定record、brand、category、owner及修订依据明确；全部旧直接执行、排队、重试和未知请求可靠收敛；实际办理人必要内容与归档均完成；当前实际分类存在明确生效的兼容路由；所有基础必填、类型/映射/唯一性及本次路由必要资料已按受控入口补齐；当前DIRECT周期可以ACTIVE或COMPLETED；不强制先“完成直接跟进”，只要求全部旧执行与必要归档可靠收敛。。操作：在准确原业务检查当前路由、首路径及必需资料；只按稳定字段身份复用当前值，缺资料经有权维护补齐后重新预检，不重复导入 输出enableFlowContext的逐项issues及validationToken；本租户首CALL为AI时显式重新选场景。；提交前重核全部旧执行及必要归档收敛、owner和当前配置；未满足或预览过期均不改模式、不建run validationToken必须绑定准确record/revision/directCycleId/owner、当前字段/值/plan及必要场景；任一变化即保输入重新检查。；同次记录启用事件、DIRECT→TEMPLATE、新run及当前完整方案，按当前负责方定位首节点并清旧人/场景安排；旧事实只归旧直接段 当前directStatus封FLOW_ENABLED；原ACTIVE周期转FLOW_ENABLED，原COMPLETED周期保完成历史结论。。分别构造：路由无效、必需资料不齐、旧执行未知/在途、必要本人归档未完成或并发冲突；明确成功；同次启用结果未知或重复确认。
+步骤：对新TASK DIRECT与旧无TASK来源历史DIRECT分别打开办理；测试旧段未结清/未知和合法旧转换。
 
-预期：原业务与原批次保持；明确成功后模式变为TEMPLATE，创建新的run并封当前方案及首节点，清旧安排；不自动转交或起呼；全部旧DIRECT事实与快照保持原身份，不能完成新run的CURRENT_NODE/CURRENT_ROUND节点要求；显式HISTORY仍只按准确授权读取；启用流程不要求先完成直接周期；已完成周期结论保持，未完成但收敛周期按启用事件结束；新run与旧directCycle严格隔离。；保原业务DIRECT及全部输入，具体显示缺口与合法处理入口，不创建run或假归档。；原record同owner创建新run；后续按模板分配、转交及实际新呼叫规则办理，旧直接通话/标签/内容不能完成新节点。；按准确原请求核对或返回同次已创建run，不另建第二run、不重新导入业务。。
+预期：当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。
 
 覆盖：AC-2112, AC-2113, AC-2129, AC-2140
 
 ## 完成条件
 
-- 在同record上重新预检当前路由、实际入口、资料及AI场景；旧执行、重试、待核及必要归档必须收敛。
-- 成功才建新run并封直接转换事件；不强制先完成直接周期，已完成周期结论保留。
+- 先核准确entrySource；新TASK DIRECT拒绝启用模板且不展示入口、不生成转换预检token，保持任务直接跟进。
+- 仅旧无TASK标记的历史DIRECT沿原合法路由/资料/权限及执行/必要归档收敛条件显式转换，同record新run保旧周期快照及结论，不重导、不伪造TASK来源。
 - 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
 - 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
 - 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。

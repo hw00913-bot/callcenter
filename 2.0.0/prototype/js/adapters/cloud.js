@@ -129,6 +129,7 @@ window.applyDOrganizationBinding=function(ledger){
     CloudCallRecords:new Set(['reviewTab','returnTask','switchView']),
     DccRecords:new Set(['switchTab','openCalls','openDetail','openResultDetail','openDeletionDetail','openArchive','openDirectoryRecord','openDirectoryCall','closeManual']),
     CloudTaskWorkspace:new Set(['setTaskTab']),
+    DTaskRosterView:new Set(['refresh','setPage','openDetails','closeDetails']),
     PlatformUI:new Set(['closeLayer','closeLayerFromBackdrop','showHelp','hideHelp','showCapabilityDetail','openCapabilityCenter']),
     RouteRuntime:new Set(['back','openSecondary','refreshCurrent'])
   };

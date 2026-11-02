@@ -18,7 +18,7 @@
 - FUNC-2003 切换合法上下文并保护普通草稿：正常跨业务域、切租户及系统退出不因拨号/振铃/通话/话后/电话未知而拦截，也不强制先退出电话；身份、数据范围和普通未保存表单检查保留，撤权后的有限当前收尾是独立机制。；来源 documentation/input/functions.json#FUNC-2003
 - FUNC-2004 统一退出登录：处理本人电话和必要话后及未保存表单后统一退出两模块会话；后台已受理租户任务不因此取消。；来源 documentation/input/functions.json#FUNC-2004
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 

@@ -476,3 +476,52 @@ R-006／R-007导入分流提示增量通过：合法数据依赖不提前红，�
 | Requirement ID | Requirement | Acceptance Criteria | Verification | Status | Decision / Reason | Source IDs | Step IDs |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | R-241 | 交付入口及当前全局复验 | 视图/版本可读，当前代码重新取证，原型与生产验收分层，产品/原型缺陷修复后复验 | 当前本轮：memory/global-acceptance-20261030/step-reverification-results.json；按本行Step IDs核对应步骤，完整结论见global-verification.json；原证据仅在历史对照保留 | Pass | 当前产品/原型步骤复验及交付修复已实际执行；S8全局结论另在前置通过后记录。工程和真实接口由开发承接。 | 当前产品43功能及146 AC；本次用户请求 | step-41 |
+
+| R-242 | 两模式具体执行安排 / FUNC-2036/2037 | TEMPLATE及DIRECT导入可安排具体任务/坐席并回读，也可先导入后手动单条/批量分配 | memory/execution-arrangement-verification-20261031.json；39套567条本地用例及实际HTTP UI | Pass | 用户2026-10-31明确授权；原专业路径保留 | AC-2150/2151/2153；PAGE-2204/2227；FIELD-FLOW-EXECUTION-RESOURCE | step-42 |
+| R-243 | 节点默认安排 / FUNC-2034 | 节点默认优先级及按实际执行tenant的目标安排，导入显式覆盖；失效/异租户阻断不猜首项 | memory/execution-arrangement-verification-20261031.json；39套567条本地用例及实际HTTP UI | Pass | 历史快照不追改 | AC-2152；PAGE-2228；FIELD-FLOW-NODE-EXECUTION-DEFAULTS | step-42 |
+| R-244 | 五档优先级 / FUNC-2031/2039 | 最高/高/中/低/最低，默认中；同资源可执行项先高后低、同级入队FIFO，人工待办建议排序 | memory/execution-arrangement-verification-20261031.json；39套567条本地用例及实际HTTP UI | Pass | 不抢占在途，不绕联系/资格限制 | AC-2154；FIELD-FLOW-EXECUTION-PRIORITY/QUEUED-AT | step-42 |
+
+| R-245 | 人工坐席安排策略 | 两模式默认人工分配可先导入待分配；指定坐席才必选资源；原单条/批量分配后实际本人办理 | memory/assignment-simplification-verification-20261031.json；当前built40套592用例；解锁后同一build真实HTTP补验通过 | Pass | 用户明确确认两项反馈及截图一起修复 | FUNC-2034/2036/2037；PAGE-2204/2228 | step-43 |
+| R-246 | 预外呼仅选任务及去独立责任人 | 预外呼只任务，AI任务/场景，不再提交责任人；模板/导入/分配无独立责任跟进人输入 | memory/assignment-simplification-verification-20261031.json；当前built40套592用例；解锁后同一build真实HTTP补验通过 | Pass | 人员事实由系统及实际接听产生 | FUNC-2031/2037；PAGE-2204/2227/2228 | step-43 |
+| R-247 | 实际人员与资格守卫 | 坐席本人、任务有权操作者、谁接听谁填写、租户隔离、未知和FIFO及历史快照均保持 | memory/assignment-simplification-verification-20261031.json；当前built40套592用例；解锁后同一build真实HTTP补验通过 | Pass | 不把取消责任人当成扩大数据或资源使用权 | FUNC-2031/2032/2039 | step-43 |
+
+
+| R-248 | 任务内共用分类导入字段 | AI/PRED下载、列映射、必填/类型/选项和全值快照同源；AI场景引用及供应商参数保存回读 | memory/task-business-import-verification-20261101.json；45套673用例/AI实际HTTP | Pass | 任务导入局部实页全部补验通过；生命周期审计另在Step45 | FUNC-2002/2019/2036；FLD-TASK-IMPORT-FIELD-REFERENCE/PARAMETER-MAPPING | step-44 |
+| R-249 | 统一DIRECT业务及场景独立导入 | 准确任务内导入创建统一记录及直接周期，无run/node；任务来源投影/五档/刷新可回读；已关联模板仍可DIRECT | memory/task-business-import-verification-20261101.json；当前模型及AI独立DIRECT实页 | Pass | AI/PRED统一任务导入与终版刷新回读通过；不代表生命周期闭环通过 | FUNC-2036/2037/2039；FLD-TASK-IMPORT-SOURCE | step-44 |
+| R-250 | 导入资格/一致性/历史 | 来源锁定、跨租户/无权/失效目标/变化预检/重复编码/未知同请求拒绝；旧专业历史/模板路径和联系守卫保持 | memory/task-business-import-verification-20261101.json；45套673用例及AI数字反例 | Pass | 原权限/来源/未知/FIFO/历史反例通过，仅本地Mock，非生产验收 | FUNC-2002/2019/2036；PAGE-2103/2111/2204/2227 | step-44 |
+
+
+| R-251 | 受控废弃与后继结算 | ADMIN准确上下文显式确认，保缺失未完成/不代填；实际停止后独立结清，旧废弃补录与后继DIRECT不死锁 | memory/lifecycle-audit-fix-verification-20261101.json；47套709用例+独立编辑器断言；新19模型/17已构建UI；真实HTTP受控废弃/旧欠项恢复 | Pass | 用户已明确允许受控废弃 | FUNC-2032/2033/2036/2038；FLD-ABANDONMENT-SETTLEMENT/MISSING-CONTENT-CONFIRMATION | step-45 |
+| R-252 | END当前周期准入 | 首MANUAL精确来源例外，历史合法保留；resume三方式当前分类开关仍强制 | memory/lifecycle-audit-fix-verification-20261101.json；47套709用例+独立编辑器断言；新19模型/17已构建UI；真实HTTP受控废弃/旧欠项恢复 | Pass | 不让历史origin成为永久准入 | FUNC-2031/2038；FLD-END-CURRENT-CYCLE-ADMISSION | step-45 |
+| R-253 | 停止期间事实入账 | 原accepted未可靠终止的准确段/尝试真实事实仍记，重复/乱序不多计；不新派发/误挂/提前释放/越权 | memory/lifecycle-audit-fix-verification-20261101.json；47套709用例+独立编辑器断言；新19模型/17已构建UI；真实HTTP受控废弃/旧欠项恢复 | Pass | 真实供应商验签/逐次调度仍工程待核 | FUNC-2031/2032；FLD-STOPPING-RECEIPT | step-45 |
+
+| R-254 | AI供应商独立映射及场景列 | 冰兰/中科金各自映射及自定义列，分类字段不污染、历史/预检/资格守卫保持 | memory/ai-provider-field-dialog-verification-20261101.json；50套756及真实HTTP双供应商弹窗/导入/刷新 | Pass | 本轮直接用户授权 | FUNC-2002/2019/2036；PAGE-2006/2103 | step-46 |
+| R-255 | AI字段弹窗交互 | 主场景摘要、选择与配置弹窗、取消隔离、主保存/重开/平台切换 | memory/ai-provider-field-dialog-verification-20261101.json；50套756及真实HTTP双供应商弹窗/导入/刷新 | Pass | 不再单页铺开所有字段 | FUNC-2002/2019；PAGE-2006 | step-46 |
+
+| R-256 | 原添加字段入口与线上式弹窗 | 单添加入口→来源选择，两路径、原布局radio/取消/主保存，保模型与类型/隔离 | memory/ai-add-field-entry-verification-20261101.json；50套756例及HTTP单入口/双路径/取消/保存刷新 | Pass | 本轮用户明确纠正原型UX | FUNC-2002/2019/2036；PAGE-2110/2103 | step-47 |
+
+| R-257 | AI统一场景导入契约 | 场景投影/必需/类型/默认优先级/后续补资料/快照/token同源，路由分组保持 | memory/scene-driven-import-verification-20261101.json；54套827/关键HTTP；开发包576文件保护 | Pass | 先方式再场景再字段，保护身份/必要路由列 | FUNC-2002/2019/2031/2036/2038；PAGE2110/2226/2103 | step-48 |
+| R-258 | 来源与场景资格 | FLOW单选及模板仅FLOW/独立手动仅MANUAL，当前租户分类资格与陈旧引用拒绝 | memory/scene-driven-import-verification-20261101.json；54套827/关键HTTP；开发包576文件保护 | Pass | 未知不推定，旧source不迁移 | FUNC-2002/2019/2031；PAGE2110/2228 | step-48 |
+| R-259 | 分类导入与批次查看 | 分类导入名单，原2204改批次，名单保单批分配及任务内独立导入 | memory/scene-driven-import-verification-20261101.json；54套827/关键HTTP；开发包576文件保护 | Pass | 分类精确锁定和真实权限 | FUNC-2036/2037/2039；PAGE2006/2204/2226 | step-48 |
+| R-260 | 开发包保持待确认 | 整个开发交付包文件集合/576文件哈希不变，不capture/export | memory/scene-driven-import-verification-20261101.json；54套827/关键HTTP；开发包576文件保护 | Pass | 用户明确暂不更新 | FUNC-2036；PAGE2204 | step-48 |
+
+| R-261 | 入口决定办理模式 | 分类人工/接口只TEMPLATE，任务按手工/API固定DIRECT及准确来源；不再分类开关 | memory/entry-based-import-verification-20261101.json；57套915/实页回读/576开发包保护 | Pass | 最新用户授权 | FUNC-2036/2037/2039；PAGE2006/2103/2205 | step-49 |
+| R-262 | 场景来源与字段合同 | 去FLOW单选/过滤，模板MANUAL/AUTO，任务匹配渠道；场景字段快照/历史保持 | memory/entry-based-import-verification-20261101.json；57套915/实页回读/576开发包保护 | Pass | 旧FLOW不暗迁移 | FUNC-2002/2019/2031；PAGE2110/2228 | step-49 |
+| R-263 | 原型审阅与开发包冻结 | UI/模型本地验证，开发包576文件与集合不变 | memory/entry-based-import-verification-20261101.json；57套915/实页回读/576开发包保护 | Pass | 待用户原型确认 | FUNC-2036；PAGE2204/2226 | step-49 |
+
+| R-264 | 原AI任务独立导入资格 | Task24运行中可导、准确HP任务/场景绑定与ABSENT只读来源依据，不放宽新起呼/未知和终态 | memory/entry-based-import-verification-20261101.json；22模型/37来源/实际Task24导入回读 | Pass | 原专业task.source明确；不按名称猜、不改旧场景 | FUNC-2019/2031/2036；PAGE2103 | step-49 |
+| R-265 | 预外呼原UI及任务配置分类 | 新/编辑任务关联准确分类，导入自动锁定读取，原步骤/文件/逐行编辑校验/有效子集二次检查及五档保；类单独保存不混vendor | memory/entry-based-import-verification-20261101.json；12配置/实际保存2行及冷回读 | Pass | 用户明确确认分类放任务配置 | FUNC-2036/2037；PAGE2205 | step-49 |
+| R-266 | 接口说明与草稿关闭 | 可读字段/传入要求、不暴露内部编码JSON，纯API浏览可直接关闭，人工草稿与未知在途守卫保持 | memory/entry-based-import-verification-20261101.json；16入口及真实API关闭0dialog | Pass | 无真实接口接入声明 | FUNC-2036；PAGE2226 | step-49 |
+
+| R-267 | 当前业务组合审计修复 | 覆盖入口/配置/字段/执行/权限/周期与回执组合，可靠缺陷红绿修复并当前全量重验 | memory/business-logic-audit-verification-20261101.json；60套978/新增63/实页草稿恢复 | Pass | 用户授权直接修已确认逻辑缺陷 | FUNC2002/2019/2031/2032/2036/2037/2038/2039 | step-50 |
+| R-268 | 审计证据及包冻结 | 修前失败/修后正负例及当前hash/真实页面证据，开发包576文件和旧audit7不改 | memory/business-logic-audit-verification-20261101.json；60套978/新增63/实页草稿恢复 | Pass | 仅本地Mock审计 | FUNC2036/2039 | step-50 |
+
+| R-269 | 同一轻量任务导入 | 配置自动带入、同窗task选择、无重复选择；自动派生name/选填5档，原unknown/draft/typed保 | memory/unified-task-import-roster-verification-20261101.json；63套1042／HTTP自动字段与原表旧空新实 | Pass | 最新用户纠正 | FUNC2002/2019/2036；PAGE2103/2205 | step-51 |
+| R-270 | 原表新旧融合 | 历史原数据/动作保、新字段缺失空，stable去重、不假统计、scope/隐私/未知保 | memory/unified-task-import-roster-verification-20261101.json；63套1042／HTTP自动字段与原表旧空新实 | Pass | 无存储迁移 | FUNC2036/2037/2039；PAGE2103/2205 | step-51 |
+| R-271 | 版本与包冻结 | 当前source/built/回归/实页证据，开发包576和旧audit7不变 | memory/unified-task-import-roster-verification-20261101.json；63套1042／HTTP自动字段与原表旧空新实 | Pass | 等用户确认 | FUNC2036 | step-51 |
+
+| R-272 | AI通话列表入口收敛 | 列表只详情，原确认在准确详情并保权限来源／历史／包冻结 | memory/ai-call-refusal-entry-verification-20261101.json；6套113／HTTP列表与详情／576包保护 | Pass | 最新截图反馈；既有FUNC2023保持 | FUNC-2020/2023/2024/2025；PAGE2108/2007 | step-52 |
+
+| R-273 | 导入阻断反馈可见 | 底部禁用原因与表外错误摘要，编辑需重检，唯一性/待核/部分有效/草稿不弱化 | memory/task-import-feedback-verification-20261101.json；5套119／HTTP重复与重检／576包保护 | Pass | 用户实页点击无反应 | FUNC2036/2037；PAGE2103/2205 | step-53 |
+
+| R-274 | HTTP完整实点与修复 | AI/PRED/分类当前冻结需求实际完整操作、失败复现修复重走，明确未验与离线边界 | memory/http-e2e-acceptance-verification-20261101.json；三条主链实际闭环，13组已验／9组部分已验；66套1102通过；全量仍待未验子项 | Pending | 用户改用HTTP明确授权 | FUNC2002/2019/2031/2036/2037/2038/2039；PAGE2006/2103/2110/2204/2205/2228 | step-54 |

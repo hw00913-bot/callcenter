@@ -5,7 +5,7 @@
 [返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
 
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](../features/FUNC-2031.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](../features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](../features/FUNC-2037.md)
 
 ## 职责与触发
 
@@ -90,18 +90,18 @@ DIRECT仅核本租户/分类准确启用场景及专业执行配置；TEMPLATE�
 
 ## 字段定义
 
-- [FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)
 - [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
-- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
+- [FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)
+- [FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)
+- [FIELD-FLOW-RESULT-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)
 - [FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)
 - [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
-- [FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)
-- [FIELD-FLOW-RESULT-SOURCE](../field-specs.md#FIELD-FLOW-RESULT-SOURCE)
+- [FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)
 - [FIELD-FLOW-SCENE-SNAPSHOT](../field-specs.md#FIELD-FLOW-SCENE-SNAPSHOT)
 
 ## 来源与验证
 
-来源条目：acceptance:AC-2111, acceptance:AC-2118, acceptance:AC-2119, features:FUNC-2031, features:FUNC-2031/behavior_spec/0/branches/0, features:FUNC-2031/behavior_spec/0/branches/1, features:FUNC-2031/behavior_spec/0/branches/2, features:FUNC-2031/behavior_spec/0/postconditions/0, features:FUNC-2031/behavior_spec/0/preconditions/0, features:FUNC-2031/behavior_spec/0/preconditions/1, features:FUNC-2031/behavior_spec/0/steps/0, features:FUNC-2031/behavior_spec/0/steps/1, features:FUNC-2037, features:FUNC-2037/behavior_spec/2/branches/0, features:FUNC-2037/behavior_spec/2/branches/1, features:FUNC-2037/behavior_spec/2/branches/2, features:FUNC-2037/behavior_spec/2/postconditions/0, features:FUNC-2037/behavior_spec/2/preconditions/0, features:FUNC-2037/behavior_spec/2/preconditions/1, features:FUNC-2037/behavior_spec/2/steps/0, features:FUNC-2037/behavior_spec/2/steps/1, pages:PAGE-2006/fields/13, pages:PAGE-2006/fields/40, pages:PAGE-2006/fields/5, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/32, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2204, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/2, pages:PAGE-2204/fields/20, pages:PAGE-2204/fields/45, pages:PAGE-2204/fields/54, pages:PAGE-2204/fields/58, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2223/fields/12, pages:PAGE-2223/fields/4, pages:PAGE-2226/fields/13, pages:PAGE-2226/fields/26, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/8, pages:PAGE-2227, pages:PAGE-2227/actions/5, pages:PAGE-2227/fields/100, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/32, pages:PAGE-2227/fields/4, pages:PAGE-2227/fields/67, pages:PAGE-2227/fields/85, pages:PAGE-2228/fields/19, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/6, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/47, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/51, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/67, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/70, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/71, scenarios:FLOW-CURRENT-CUSTOMER/steps/17
+来源条目：acceptance:AC-2111, acceptance:AC-2118, acceptance:AC-2119, features:FUNC-2031, features:FUNC-2031/behavior_spec/0/branches/0, features:FUNC-2031/behavior_spec/0/branches/1, features:FUNC-2031/behavior_spec/0/branches/2, features:FUNC-2031/behavior_spec/0/postconditions/0, features:FUNC-2031/behavior_spec/0/preconditions/0, features:FUNC-2031/behavior_spec/0/preconditions/1, features:FUNC-2031/behavior_spec/0/steps/0, features:FUNC-2031/behavior_spec/0/steps/1, features:FUNC-2037, features:FUNC-2037/behavior_spec/2/branches/0, features:FUNC-2037/behavior_spec/2/branches/1, features:FUNC-2037/behavior_spec/2/branches/2, features:FUNC-2037/behavior_spec/2/postconditions/0, features:FUNC-2037/behavior_spec/2/preconditions/0, features:FUNC-2037/behavior_spec/2/preconditions/1, features:FUNC-2037/behavior_spec/2/steps/0, features:FUNC-2037/behavior_spec/2/steps/1, pages:PAGE-2006/fields/13, pages:PAGE-2006/fields/40, pages:PAGE-2006/fields/5, pages:PAGE-2103/fields/31, pages:PAGE-2103/fields/33, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/32, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/65, pages:PAGE-2204, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/2, pages:PAGE-2204/fields/20, pages:PAGE-2204/fields/45, pages:PAGE-2204/fields/54, pages:PAGE-2204/fields/58, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/86, pages:PAGE-2205/fields/58, pages:PAGE-2205/fields/61, pages:PAGE-2223/fields/12, pages:PAGE-2223/fields/4, pages:PAGE-2226/fields/13, pages:PAGE-2226/fields/26, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/36, pages:PAGE-2226/fields/8, pages:PAGE-2227, pages:PAGE-2227/actions/5, pages:PAGE-2227/fields/100, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/139, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/32, pages:PAGE-2227/fields/4, pages:PAGE-2227/fields/67, pages:PAGE-2227/fields/85, pages:PAGE-2228/fields/19, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/6, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/47, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/51, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/67, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/70, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/71, scenarios:FLOW-CURRENT-CUSTOMER/steps/17
 
 验证：CHECK-FLOW-AI-SCENE
 

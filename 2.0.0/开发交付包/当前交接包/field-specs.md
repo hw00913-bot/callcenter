@@ -76,7 +76,7 @@
 - [FIELD-FLOW-BATCH-ID](field-specs.md#FIELD-FLOW-BATCH-ID) BusinessImportBatch.batchId — 导入批次身份
 - [FIELD-FLOW-IMPORT-PREVIEW](field-specs.md#FIELD-FLOW-IMPORT-PREVIEW) ImportDraft.preview — 逐行导入检查结果
 - [FIELD-FLOW-IMPORT-TOKEN](field-specs.md#FIELD-FLOW-IMPORT-TOKEN) ImportDraft.importBasisToken — 导入确认依据
-- [FIELD-FLOW-IMPORT-ORIGINAL](field-specs.md#FIELD-FLOW-IMPORT-ORIGINAL) BusinessRecord.originalImportSnapshot — 原始导入证据
+- [FIELD-FLOW-IMPORT-ORIGINAL](field-specs.md#FIELD-FLOW-IMPORT-ORIGINAL) BusinessRecord.originalImportSnapshot — 首次导入事实快照
 - [FIELD-FLOW-RECORD-ID](field-specs.md#FIELD-FLOW-RECORD-ID) BusinessRecord.recordId — 业务记录身份
 - [FIELD-FLOW-BUSINESS-CODE](field-specs.md#FIELD-FLOW-BUSINESS-CODE) BusinessRecord.businessCode — 业务记录编码
 - [FIELD-FLOW-CUSTOMER-NAME](field-specs.md#FIELD-FLOW-CUSTOMER-NAME) BusinessRecordCurrentImport.name — 客户称呼
@@ -85,7 +85,7 @@
 - [FIELD-FLOW-IMPORT-VALUES](field-specs.md#FIELD-FLOW-IMPORT-VALUES) BusinessRecord.fields — 当前有效导入值
 - [FIELD-FLOW-FOLLOWUP-VALUES](field-specs.md#FIELD-FLOW-FOLLOWUP-VALUES) BusinessRecord.followupValues — 当前有效填写值
 - [FIELD-FLOW-OWNER-TENANT](field-specs.md#FIELD-FLOW-OWNER-TENANT) BusinessRecord.ownerTenantId — 当前负责租户
-- [FIELD-FLOW-FOLLOWER](field-specs.md#FIELD-FLOW-FOLLOWER) BusinessRecord.assignedAccountId — 责任跟进人
+- [FIELD-FLOW-FOLLOWER](field-specs.md#FIELD-FLOW-FOLLOWER) BusinessRecord.assignedAccountId — 实际人工坐席分配及历史人员事实
 - [FIELD-FLOW-ARRANGEMENT](field-specs.md#FIELD-FLOW-ARRANGEMENT) BusinessRecord.arrangement — 本次执行安排
 - [FIELD-FLOW-AI-SCENE](field-specs.md#FIELD-FLOW-AI-SCENE) ExecutionArrangement.aiSceneId — 本次AI呼叫场景
 - [FIELD-FLOW-SCENE-SNAPSHOT](field-specs.md#FIELD-FLOW-SCENE-SNAPSHOT) Followup.sceneSnapshot — 实际执行场景及配置
@@ -145,7 +145,7 @@
 - [FIELD-FLOW-CONTACT-POLICY](field-specs.md#FIELD-FLOW-CONTACT-POLICY) TenantContactPolicy.policy — 本租户联系协调设置
 - [FIELD-FLOW-CONTACT-INTERVAL](field-specs.md#FIELD-FLOW-CONTACT-INTERVAL) TenantContactPolicy.minimumIntervalMinutes — 最短联系间隔
 - [FIELD-FLOW-CONTACT-DAILY-LIMIT](field-specs.md#FIELD-FLOW-CONTACT-DAILY-LIMIT) TenantContactPolicy.dailyDialLimit — 每日真实拨打上限
-- [FIELD-FLOW-CATEGORY-PRIORITY](field-specs.md#FIELD-FLOW-CATEGORY-PRIORITY) TenantContactPolicy.categoryPriorities — 分类联系优先级
+- [FIELD-FLOW-CATEGORY-PRIORITY](field-specs.md#FIELD-FLOW-CATEGORY-PRIORITY) TenantContactPolicy.categoryPriorities — 历史分类联系权重
 - [FIELD-FLOW-LEAD-LEVEL](field-specs.md#FIELD-FLOW-LEAD-LEVEL) CurrentFollowupValues.leadLevel — 线索等级
 - [FIELD-FLOW-INTENTION-LEVEL](field-specs.md#FIELD-FLOW-INTENTION-LEVEL) CurrentFollowupValues.intentionLevel — 意向等级
 - [FIELD-FLOW-VISIT-INTENTION](field-specs.md#FIELD-FLOW-VISIT-INTENTION) CurrentFollowupValues.visitIntention — 到店意向
@@ -164,7 +164,7 @@
 - [FIELD-FLOW-VALUE-SOURCES](field-specs.md#FIELD-FLOW-VALUE-SOURCES) BusinessRecord.currentValueSources — 当前有效值来源
 - [FIELD-FLOW-FILE-PENDING](field-specs.md#FIELD-FLOW-FILE-PENDING) ImportDraft.fileReadPending — 当前文件读取中
 - [FIELD-FLOW-INTENDED-STORE-NAME](field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME) BusinessRecordCurrentImport.intentionStoreName — 客户原意向门店名称
-- [FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP) BusinessCategory.allowDirectFollowup — 允许直接跟进
+- [FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP) BusinessCategory.allowDirectFollowup — 历史分类直接跟进开关（当前不配置）
 - [FIELD-FLOW-HANDLING-MODE](field-specs.md#FIELD-FLOW-HANDLING-MODE) BusinessRecord.handlingMode — 业务办理模式
 - [FIELD-FLOW-DIRECT-METHOD](field-specs.md#FIELD-FLOW-DIRECT-METHOD) BusinessRecord.directMethod — 直接跟进呼叫方式
 - [FIELD-FLOW-DIRECT-CYCLE-ID](field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID) DirectFollowupCycle.directCycleId — 直接跟进周期身份
@@ -177,6 +177,20 @@
 - [FIELD-FLOW-END-ACTION](field-specs.md#FIELD-FLOW-END-ACTION) FlowNode.endAction — 结束节点后续动作
 - [FIELD-FLOW-RUN-END-ACTION](field-specs.md#FIELD-FLOW-RUN-END-ACTION) FlowRun.endAction — 原运行已执行的结束动作
 - [FIELD-FLOW-END-FOLLOWUP-ORIGIN](field-specs.md#FIELD-FLOW-END-FOLLOWUP-ORIGIN) BusinessRecord.endFollowupOrigin — END授权直接跟进的来源证明
+- [FIELD-FLOW-EXECUTION-RESOURCE](field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE) ExecutionArrangement.resourceId — 当前具体任务或坐席
+- [FIELD-FLOW-EXECUTION-PRIORITY](field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY) ExecutionArrangement.executionPriority — 执行优先级
+- [FIELD-FLOW-EXECUTION-QUEUED-AT](field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT) ExecutionArrangement.queuedAt — 当前安排入队时间
+- [FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE](field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE) ExecutionArrangement.queueSequence — 同刻入队稳定顺序
+- [FIELD-FLOW-NODE-EXECUTION-PRIORITY](field-specs.md#FIELD-FLOW-NODE-EXECUTION-PRIORITY) FlowNode.executionPriority — 呼叫节点默认执行优先级
+- [FIELD-FLOW-NODE-EXECUTION-DEFAULTS](field-specs.md#FIELD-FLOW-NODE-EXECUTION-DEFAULTS) FlowNode.executionDefaults — 呼叫节点分租户默认安排
+- [FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE) ExecutionArrangement.manualAssignmentMode — 当前人工分配方式
+- [FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE](field-specs.md#FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE) FlowNode.manualAssignmentMode — 节点默认人工分配方式
+- [FIELD-FLOW-TASK-IMPORT-SOURCE](field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE) BusinessRecord.taskImportSource — 统一业务的准确任务导入来源
+- [FIELD-FLOW-TASK-IMPORT-PARAMETERS](field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS) BusinessRecord.taskImportParameterSnapshot — 任务导入单行供应商参数及专属列快照
+- [FIELD-FLOW-MISSING-CONTENT-CONFIRM](field-specs.md#FIELD-FLOW-MISSING-CONTENT-CONFIRM) AbandonInput.confirmMissingContent — 确认必要本人内容无法补齐
+- [FIELD-FLOW-ABANDON-CONFIRMATION](field-specs.md#FIELD-FLOW-ABANDON-CONFIRMATION) AbandonContext.confirmationFingerprint — 废弃缺失范围确认依据
+- [FIELD-FLOW-ABANDONMENT-SETTLEMENT](field-specs.md#FIELD-FLOW-ABANDONMENT-SETTLEMENT) Followup.abandonmentSettlement — 原跟进的受控废弃收尾证据
+- [FIELD-FLOW-ABANDON-TENANT](field-specs.md#FIELD-FLOW-ABANDON-TENANT) FlowRun.abandonTenantId — 运行废弃意图的原租户
 - [FIELD-PLAT-ACCOUNT-ID](field-specs.md#FIELD-PLAT-ACCOUNT-ID) account.id — 账号稳定标识
 - [FIELD-PLAT-LOGIN-NAME](field-specs.md#FIELD-PLAT-LOGIN-NAME) account.loginName — 登录账号
 - [FIELD-PLAT-NICKNAME](field-specs.md#FIELD-PLAT-NICKNAME) account.nickname — 姓名／昵称
@@ -228,7 +242,7 @@
 - [FIELD-PLAT-CUSTOMER-ID](field-specs.md#FIELD-PLAT-CUSTOMER-ID) professionalCustomer.id — 原客户任务业务标识
 - [FIELD-PLAT-CUSTOMER-NAME](field-specs.md#FIELD-PLAT-CUSTOMER-NAME) professionalCustomer.name — 客户称呼
 - [FIELD-PLAT-PHONE](field-specs.md#FIELD-PLAT-PHONE) professionalCustomer.phone — 客户真实号码
-- [FIELD-PLAT-FOLLOWER](field-specs.md#FIELD-PLAT-FOLLOWER) professionalCustomer.assignedAccountId — 原任务负责人／分配跟进人
+- [FIELD-PLAT-FOLLOWER](field-specs.md#FIELD-PLAT-FOLLOWER) professionalCustomer.assignedAccountId — 原任务分配及历史人员事实
 - [FIELD-PLAT-PRO-FOLLOW-STATE](field-specs.md#FIELD-PLAT-PRO-FOLLOW-STATE) professionalFollowup.state — 原客户任务跟进结果
 - [FIELD-PLAT-PRO-FILL](field-specs.md#FIELD-PLAT-PRO-FILL) professionalFollowup.fieldValues — 原客户任务填写值
 - [FIELD-PLAT-FOLLOW-NOTE](field-specs.md#FIELD-PLAT-FOLLOW-NOTE) professionalFollowup.remark — 跟进备注
@@ -422,6 +436,9 @@
 - [FIELD-PLAT-TAG-SUPPLIER-CODE](field-specs.md#FIELD-PLAT-TAG-SUPPLIER-CODE) aiTagSupplier.localCode — 标签供应商本地编码
 - [FIELD-PLAT-TAG-SUPPLIER-NAME](field-specs.md#FIELD-PLAT-TAG-SUPPLIER-NAME) aiTagSupplier.name — 标签供应商名称
 - [FIELD-PLAT-TAG-SUPPLIER-STATE](field-specs.md#FIELD-PLAT-TAG-SUPPLIER-STATE) aiTagSupplier.status — 标签供应商状态
+- [FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY](field-specs.md#FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY) aiScene.importFieldCategoryId — AI参数映射关联的实际分类
+- [FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS](field-specs.md#FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS) aiScene.importFieldMappings — AI场景供应商参数与专属导入列配置
+- [FIELD-PLAT-TASK-BUSINESS-RECORD-ID](field-specs.md#FIELD-PLAT-TASK-BUSINESS-RECORD-ID) ProfessionalTaskListRow.recordId — 专业任务视图的统一业务回链
 
 <a id="FIELD-FLOW-BRAND-ID"></a>
 
@@ -447,8 +464,8 @@
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
 
@@ -563,8 +580,8 @@
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -1722,8 +1739,8 @@
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -1836,8 +1853,8 @@
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -1950,8 +1967,8 @@
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -2064,8 +2081,8 @@
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -2178,8 +2195,8 @@
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -2279,28 +2296,30 @@
 
 单功能页面／局部明确关联：
 
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
-- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [停用当前专业域目录分类 · FUNC\-2018](features/FUNC-2018.md)
 - [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
+- [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`BusinessCategory`
 
@@ -2379,17 +2398,19 @@
 
 来源条目：
 - pages:PAGE-2006/fields/5
+- pages:PAGE-2103/fields/31
 - pages:PAGE-2203/fields/10
 - pages:PAGE-2204/fields/10
+- pages:PAGE-2205/fields/58
 - pages:PAGE-2223/fields/4
 - pages:PAGE-2226/fields/8
 - pages:PAGE-2227/fields/17
 - pages:PAGE-2228/fields/3
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17
 
-局部说明：[LOCAL-FLOW-FIELD-DELETE](local-logic/LOCAL-FLOW-FIELD-DELETE.md)、[LOCAL-FLOW-CATEGORY-CREATE](local-logic/LOCAL-FLOW-CATEGORY-CREATE.md)、[LOCAL-FLOW-CATEGORY-EDIT](local-logic/LOCAL-FLOW-CATEGORY-EDIT.md)、[LOCAL-FLOW-TEMPLATE-READ](local-logic/LOCAL-FLOW-TEMPLATE-READ.md)、[LOCAL-FLOW-ROUTE-BIND](local-logic/LOCAL-FLOW-ROUTE-BIND.md)、[LOCAL-FLOW-IMPORT-MAP](local-logic/LOCAL-FLOW-IMPORT-MAP.md)、[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-AI-SCENE](local-logic/LOCAL-FLOW-AI-SCENE.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)
+局部说明：[LOCAL-FLOW-FIELD-DELETE](local-logic/LOCAL-FLOW-FIELD-DELETE.md)、[LOCAL-FLOW-CATEGORY-CREATE](local-logic/LOCAL-FLOW-CATEGORY-CREATE.md)、[LOCAL-FLOW-CATEGORY-EDIT](local-logic/LOCAL-FLOW-CATEGORY-EDIT.md)、[LOCAL-FLOW-TEMPLATE-READ](local-logic/LOCAL-FLOW-TEMPLATE-READ.md)、[LOCAL-FLOW-ROUTE-BIND](local-logic/LOCAL-FLOW-ROUTE-BIND.md)、[LOCAL-FLOW-IMPORT-MAP](local-logic/LOCAL-FLOW-IMPORT-MAP.md)、[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-AI-SCENE](local-logic/LOCAL-FLOW-AI-SCENE.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
 
-任务：[TASK-008](tasks/TASK-008.md)、[TASK-009](tasks/TASK-009.md)、[TASK-011](tasks/TASK-011.md)、[TASK-012](tasks/TASK-012.md)、[TASK-013](tasks/TASK-013.md)、[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-018](tasks/TASK-018.md)、[TASK-022](tasks/TASK-022.md)、[TASK-026](tasks/TASK-026.md)、[TASK-027](tasks/TASK-027.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)
+任务：[TASK-008](tasks/TASK-008.md)、[TASK-009](tasks/TASK-009.md)、[TASK-011](tasks/TASK-011.md)、[TASK-012](tasks/TASK-012.md)、[TASK-013](tasks/TASK-013.md)、[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-018](tasks/TASK-018.md)、[TASK-022](tasks/TASK-022.md)、[TASK-026](tasks/TASK-026.md)、[TASK-027](tasks/TASK-027.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
 
 测试：CHECK-FLOW-FIELD-DELETE, CHECK-FLOW-CATEGORY-CREATE, CHECK-FLOW-CATEGORY-EDIT, CHECK-FLOW-TEMPLATE-READ, CHECK-FLOW-ROUTE-BIND, CHECK-FLOW-IMPORT-MAP, CHECK-FLOW-IMPORT-PREVIEW, CHECK-FLOW-IMPORT-COMMIT, CHECK-FLOW-AI-SCENE, CHECK-FLOW-START, CHECK-FLOW-CORRECT, CHECK-FLOW-REOPEN, CHECK-FLOW-RECLASSIFY, CHECK-FLOW-QUERY, CHECK-FLOW-BATCH-READ, CHECK-FLOW-DETAIL, CHECK-FLOW-CUSTOMER-TIMELINE, CHECK-FLOW-ENABLE-TEMPLATE
 
@@ -2714,23 +2735,25 @@
 
 单功能页面／局部明确关联：
 
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
-- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [停用当前专业域目录分类 · FUNC\-2018](features/FUNC-2018.md)
 - [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+- [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`BusinessCategory`
 
@@ -2809,13 +2832,15 @@
 
 来源条目：
 - pages:PAGE-2006/fields/6
+- pages:PAGE-2110/fields/15
 - pages:PAGE-2204/fields/11
+- pages:PAGE-2205/fields/59
 - pages:PAGE-2223/fields/5
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/21
 
-局部说明：[LOCAL-FLOW-FIELD-DELETE](local-logic/LOCAL-FLOW-FIELD-DELETE.md)、[LOCAL-FLOW-CATEGORY-CREATE](local-logic/LOCAL-FLOW-CATEGORY-CREATE.md)、[LOCAL-FLOW-CATEGORY-EDIT](local-logic/LOCAL-FLOW-CATEGORY-EDIT.md)、[LOCAL-FLOW-IMPORT-MAP](local-logic/LOCAL-FLOW-IMPORT-MAP.md)
+局部说明：[LOCAL-FLOW-FIELD-DELETE](local-logic/LOCAL-FLOW-FIELD-DELETE.md)、[LOCAL-FLOW-CATEGORY-CREATE](local-logic/LOCAL-FLOW-CATEGORY-CREATE.md)、[LOCAL-FLOW-CATEGORY-EDIT](local-logic/LOCAL-FLOW-CATEGORY-EDIT.md)、[LOCAL-FLOW-IMPORT-MAP](local-logic/LOCAL-FLOW-IMPORT-MAP.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)、[LOCAL-PLAT-AI-IMPORT-TEMPLATE](local-logic/LOCAL-PLAT-AI-IMPORT-TEMPLATE.md)
 
-任务：[TASK-008](tasks/TASK-008.md)、[TASK-009](tasks/TASK-009.md)、[TASK-013](tasks/TASK-013.md)
+任务：[TASK-008](tasks/TASK-008.md)、[TASK-009](tasks/TASK-009.md)、[TASK-013](tasks/TASK-013.md)、[TASK-032](tasks/TASK-032.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
 
 测试：CHECK-FLOW-FIELD-DELETE, CHECK-FLOW-CATEGORY-CREATE, CHECK-FLOW-CATEGORY-EDIT, CHECK-FLOW-IMPORT-MAP
 
@@ -3049,8 +3074,8 @@
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -3162,8 +3187,8 @@
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -3276,8 +3301,8 @@
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -3391,8 +3416,8 @@
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -3504,8 +3529,8 @@
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -3618,8 +3643,8 @@
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -3718,7 +3743,7 @@
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -3733,7 +3758,7 @@
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -3849,8 +3874,8 @@
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
 
 业务对象：`FlowNode`
@@ -3963,8 +3988,8 @@
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -4076,8 +4101,8 @@
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -4175,8 +4200,8 @@
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -4291,7 +4316,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -4306,7 +4331,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
 
@@ -4422,8 +4447,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
 
@@ -4535,8 +4560,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
 
@@ -4648,8 +4673,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -4761,8 +4786,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -4874,8 +4899,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -4987,8 +5012,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -5101,8 +5126,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -5214,8 +5239,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -5327,8 +5352,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -5440,8 +5465,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -5553,8 +5578,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -5668,8 +5693,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -5767,7 +5792,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -5783,7 +5808,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -5882,7 +5907,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
 
@@ -5900,7 +5925,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -6100,7 +6125,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -6118,7 +6143,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 业务对象：`FlowRun`
@@ -6216,7 +6241,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -6224,7 +6249,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -6315,7 +6340,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -6323,7 +6348,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -6348,6 +6373,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 ### 校验与关联约束
 
 - 一目标仅一列，必填目标必须映射，不能映射FOLLOWUP或未知键；变更名单表头/分类/字段使原预览失效
+- 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+- AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。
 
 ### 读写权限
 
@@ -6414,7 +6441,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -6422,7 +6449,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -6513,7 +6540,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -6521,7 +6548,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -6613,7 +6640,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 单功能页面／局部明确关联：
 
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
@@ -6625,7 +6652,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -6723,7 +6750,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
@@ -6733,7 +6760,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 
 业务对象：`ImportDraft`
@@ -6757,6 +6784,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 ### 校验与关联约束
 
 - 未提供首次分流资料为数据待输入，预录不假红；实际行未命中或缺依据不发token；不匹配指出节点/字段与条件
+- 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+- AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。
 
 ### 读写权限
 
@@ -6824,7 +6853,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -6832,7 +6861,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -6856,8 +6885,10 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 ### 校验与关联约束
 
-- 绑定所选整批handlingMode、DIRECT显式方式、分类开关/字段、原名单、映射及必要场景；TEMPLATE另绑定实际路由/方案。
+- 绑定准确入口固定handlingMode、DIRECT显式方式、旧allowDirect标志/字段、原名单、映射及必要场景；TEMPLATE另绑定实际路由/方案。
 - 正式提交逐行重算一致且全部通过才写；模式/方式/分类/开关/字段/名单/映射/场景及身份变化使旧token失效，不自动降级。
+- 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+- AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。
 
 ### 读写权限
 
@@ -6920,23 +6951,23 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 <a id="FIELD-FLOW-IMPORT-ORIGINAL"></a>
 
-## FIELD-FLOW-IMPORT-ORIGINAL 原始导入证据
+## FIELD-FLOW-IMPORT-ORIGINAL 首次导入事实快照
 
 单功能页面／局部明确关联：
 
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
-- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -6947,7 +6978,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 类型：object
 
-格式/枚举/单位/精度：批次/原字段及原值/映射依据/发生时间
+格式/枚举/单位/精度：批次/首次规范字段值/当时字段定义/准确来源与任务参数快照/发生时间
 
 允许 null：False
 
@@ -6963,6 +6994,9 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - 资料更正或同步只能更改当前值，不能覆盖最初来源证据；同次来源身份可复验
 - 对当前可可靠读取schema内、启用且支持条件的非必填IMPORT字段，新导入/新run准备时缺列规范化为null用于判断；必填缺失或schema读取失败仍拒绝，通话/填写未知及已捕获历史缺失不在读取时补空。
+- 三入口保存规范值及本次字段定义/来源/参数快照；UI列映射仅在导入前校验，不承诺CSV/Excel列原文或UI映射作为业务字段持久化。taskImportSource及taskImportParameterSnapshot按实际键同次封存，旧专业行不按手机号认领。
+- 统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。
+- 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。
 
 ### 读写权限
 
@@ -6983,11 +7017,11 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 ### 来源与计算
 
-来源类型：input
+来源类型：system
 
-规则：资料更正或同步只能更改当前值，不能覆盖最初来源证据；同次来源身份可复验
+规则：共同预检后的规范值、字段定义/来源/任务参数事实同次封存；不把UI映射或源列原文存为业务字段。
 
-依赖字段：无
+依赖字段：[FIELD-FLOW-IMPORT-VALUES](field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-CATEGORY-ID](field-specs.md#FIELD-FLOW-CATEGORY-ID)
 
 ### 保存与更新
 
@@ -7006,10 +7040,10 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 ### 边界示例
 
 合法：
-- 导入保存sc=1及原映射；更正sc=2后原始快照仍为1。
+- 首次规范sc=1及当时字段定义封存；当前更正sc=2后首次事实仍为1。
 
 非法/拒绝：
-- 更正当前值时把originalImportSnapshot改成2，禁止覆盖来源。
+- 更正时覆盖首次快照，或把未保存的原CSV列原文/UI映射当作已持久事实。
 
 ### 依据、使用位置与验证
 
@@ -7021,9 +7055,9 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - pages:PAGE-2227/fields/49
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/59
 
-局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)
+局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
 
-任务：[TASK-015](tasks/TASK-015.md)、[TASK-022](tasks/TASK-022.md)
+任务：[TASK-015](tasks/TASK-015.md)、[TASK-022](tasks/TASK-022.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
 
 测试：CHECK-FLOW-IMPORT-COMMIT, CHECK-FLOW-CORRECT
 
@@ -7033,18 +7067,18 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
-- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
@@ -7134,9 +7168,9 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - pages:PAGE-2227/fields/79
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/60
 
-局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-EVALUATE](local-logic/LOCAL-FLOW-EVALUATE.md)、[LOCAL-FLOW-ADVANCE](local-logic/LOCAL-FLOW-ADVANCE.md)、[LOCAL-FLOW-TRANSFER](local-logic/LOCAL-FLOW-TRANSFER.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-END-HANDOFF](local-logic/LOCAL-FLOW-END-HANDOFF.md)
+局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-EVALUATE](local-logic/LOCAL-FLOW-EVALUATE.md)、[LOCAL-FLOW-ADVANCE](local-logic/LOCAL-FLOW-ADVANCE.md)、[LOCAL-FLOW-TRANSFER](local-logic/LOCAL-FLOW-TRANSFER.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-END-HANDOFF](local-logic/LOCAL-FLOW-END-HANDOFF.md)、[LOCAL-FLOW-ABANDONED-SETTLEMENT](local-logic/LOCAL-FLOW-ABANDONED-SETTLEMENT.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
 
-任务：[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-018](tasks/TASK-018.md)、[TASK-019](tasks/TASK-019.md)、[TASK-022](tasks/TASK-022.md)、[TASK-023](tasks/TASK-023.md)、[TASK-024](tasks/TASK-024.md)、[TASK-025](tasks/TASK-025.md)、[TASK-026](tasks/TASK-026.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)
+任务：[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-018](tasks/TASK-018.md)、[TASK-019](tasks/TASK-019.md)、[TASK-022](tasks/TASK-022.md)、[TASK-023](tasks/TASK-023.md)、[TASK-024](tasks/TASK-024.md)、[TASK-025](tasks/TASK-025.md)、[TASK-026](tasks/TASK-026.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
 
 测试：CHECK-FLOW-IMPORT-COMMIT, CHECK-FLOW-ASSIGN, CHECK-FLOW-ASSIGN-BATCH, CHECK-FLOW-START, CHECK-FLOW-START-BATCH, CHECK-FLOW-CALL-FACTS, CHECK-FLOW-CORRECT, CHECK-FLOW-EVALUATE, CHECK-FLOW-ADVANCE, CHECK-FLOW-TRANSFER, CHECK-FLOW-REOPEN, CHECK-FLOW-QUERY, CHECK-FLOW-BATCH-READ, CHECK-FLOW-DETAIL, CHECK-FLOW-CUSTOMER-TIMELINE, CHECK-FLOW-ENABLE-TEMPLATE, CHECK-FLOW-END-HANDOFF
 
@@ -7147,7 +7181,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 单功能页面／局部明确关联：
 
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
@@ -7159,7 +7193,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -7258,7 +7292,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 单功能页面／局部明确关联：
 
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
@@ -7270,7 +7304,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -7369,7 +7403,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
@@ -7380,7 +7414,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -7478,7 +7512,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -7486,7 +7520,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -7580,24 +7614,26 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
-- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+- [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`BusinessRecord`
 
@@ -7621,6 +7657,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - 正式导入先规范类型/选项/别名一致性；后续仅有权更正或明确生效同步更新，填写同名字段不能替代
 - 对当前可可靠读取schema内、启用且支持条件的非必填IMPORT字段，新导入/新run准备时缺列规范化为null用于判断；必填缺失或schema读取失败仍拒绝，通话/填写未知及已捕获历史缺失不在读取时补空。
+- 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+- AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。
 
 ### 读写权限
 
@@ -7675,14 +7713,16 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - docs/field-alignment.json#FIELD-FLOW-IMPORT-VALUES
 
 来源条目：
+- pages:PAGE-2103/fields/34
 - pages:PAGE-2204/fields/38
+- pages:PAGE-2205/fields/62
 - pages:PAGE-2226/fields/21
 - pages:PAGE-2227/fields/50
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/65
 
-局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-EVALUATE](local-logic/LOCAL-FLOW-EVALUATE.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-EVALUATE](local-logic/LOCAL-FLOW-EVALUATE.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
 
-任务：[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-018](tasks/TASK-018.md)、[TASK-022](tasks/TASK-022.md)、[TASK-023](tasks/TASK-023.md)、[TASK-026](tasks/TASK-026.md)、[TASK-027](tasks/TASK-027.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-018](tasks/TASK-018.md)、[TASK-022](tasks/TASK-022.md)、[TASK-023](tasks/TASK-023.md)、[TASK-026](tasks/TASK-026.md)、[TASK-027](tasks/TASK-027.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
 
 测试：CHECK-FLOW-IMPORT-PREVIEW, CHECK-FLOW-IMPORT-COMMIT, CHECK-FLOW-START, CHECK-FLOW-CORRECT, CHECK-FLOW-EVALUATE, CHECK-FLOW-REOPEN, CHECK-FLOW-RECLASSIFY, CHECK-FLOW-DETAIL, CHECK-FLOW-ENABLE-TEMPLATE
 
@@ -7703,8 +7743,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -7805,8 +7845,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -7911,14 +7951,13 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 <a id="FIELD-FLOW-FOLLOWER"></a>
 
-## FIELD-FLOW-FOLLOWER 责任跟进人
+## FIELD-FLOW-FOLLOWER 实际人工坐席分配及历史人员事实
 
 单功能页面／局部明确关联：
 
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
-- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
@@ -7927,9 +7966,10 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -7943,7 +7983,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 允许 null：True
 
-必填条件：CALL办理前必需；TRANSFER/END无需
+必填条件：新人工指定/后续坐席分配后由有效seat关联账号产生；AI/PRED无独立责任人必填
 
 ### 默认与初始化
 
@@ -7953,7 +7993,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 ### 校验与关联约束
 
-- 仅当前管理员安排；人工候选须当前电话资格，AI/预外呼责任人不强有坐席；转交/新run清安排
+- 新安排没有独立责任人输入；人工从有效seat.accountId派生，AI/PRED不伪填操作者为责任人，空值不阻合法任务安排/发起；历史原人员事实只读保留。
 
 ### 读写权限
 
@@ -7964,21 +8004,20 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - 转出方按已封存本方截止范围只读
 
 可写：
-- 当前负责租户管理员，具有相应动作权且当前状态允许
+- 系统按合法人工坐席分配或原实际执行事实写入；当前配置、导入和分配无独立责任人编辑。
 
 ### 各状态行为
 
-- 产生/当前阶段：候选依方式核资格；人工责任人不自动成为实际拨打人，管理员可本人执行但不换责任身份。
-- 提交失败/未知：保留已经明确事实和本次输入；沿同一准确身份核对，不另造成功或新业务。
-- 后续使用：仅当前管理员安排；人工候选须当前电话资格，AI/预外呼责任人不强有坐席；转交/新run清安排
+- 新安排：人工MANUAL未分配时为空；SPECIFIC_SEAT从seat派生；AI/PRED不依赖此值。
+- 实际执行与历史：真实发起/拨打/接听及旧人员分别记录；已受理段与封存历史不回改。
 
 ### 来源与计算
 
-来源类型：input
+来源类型：system
 
-规则：仅当前管理员安排；人工候选须当前电话资格，AI/预外呼责任人不强有坐席；转交/新run清安排
+规则：新安排没有独立责任人输入；人工从有效seat.accountId派生，AI/PRED不伪填操作者为责任人，空值不阻合法任务安排/发起；历史原人员事实只读保留。
 
-依赖字段：无
+依赖字段：[FIELD-FLOW-EXECUTION-RESOURCE](field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)、[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)
 
 ### 保存与更新
 
@@ -7986,7 +8025,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 物理映射：未填写
 
-业务保存或更新时机：当前租户管理员安排成功时更新责任账号；合法转交或新run清空；原段followupAccountId快照不追改。
+业务保存或更新时机：合法人工坐席分配时派生保存；AI/PRED新安排保持空，原已保存人员不清理。
 
 ### 接口映射
 
@@ -7997,10 +8036,10 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 ### 边界示例
 
 合法：
-- 管理员在当前CALL安排本租户合法账号ACCOUNT-A。
+- PRED仅TASK-A无follower可保存；MANUAL待分配为空，指定SEAT-A后记录其accountId。
 
 非法/拒绝：
-- 跨租户账号或人工缺本人电话资格的候选，拒绝；不选底层任务。
+- 把当前操作者伪填为AI/PRED责任人，或以旧follower代替当前指定seat资格。
 
 ### 依据、使用位置与验证
 
@@ -8014,9 +8053,9 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - pages:PAGE-2227/fields/42
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/68
 
-局部说明：[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-TRANSFER](local-logic/LOCAL-FLOW-TRANSFER.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)
+局部说明：[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-TRANSFER](local-logic/LOCAL-FLOW-TRANSFER.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)
 
-任务：[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)、[TASK-025](tasks/TASK-025.md)、[TASK-030](tasks/TASK-030.md)
+任务：[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-025](tasks/TASK-025.md)、[TASK-030](tasks/TASK-030.md)
 
 测试：CHECK-FLOW-ASSIGN, CHECK-FLOW-ASSIGN-BATCH, CHECK-FLOW-START, CHECK-FLOW-TRANSFER, CHECK-FLOW-QUERY, CHECK-FLOW-BATCH-READ, CHECK-FLOW-DETAIL, CHECK-FLOW-CUSTOMER-TIMELINE, CHECK-FLOW-RESUME-DIRECT
 
@@ -8028,7 +8067,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
@@ -8040,7 +8079,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -8051,7 +8090,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 类型：object
 
-格式/枚举/单位/精度：run/nodeRun/tenant/method/follower及AI scene快照
+格式/枚举/单位/精度：mode/run/nodeRun或directCycle/tenant/method/manualAssignmentMode/resourceId?/resourceSnapshot?/AI scene/executionPriority/queuedAt/queueSequence；人员由seat/真实事实派生
 
 允许 null：True
 
@@ -8066,6 +8105,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 ### 校验与关联约束
 
 - 同一权威安排，导入/分配读取同一份；跨租户、新run或不适配方式清除；执行中不更换
+- 到后继新人工节点先按其本次策略：MANUAL清前seat并待分配，SPECIFIC_SEAT仅按本节点及原同tenant/method/有效资源规则沿用或确认；旧快照无新策略时保原解释，不读取时迁移。
 
 ### 读写权限
 
@@ -8098,7 +8138,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 物理映射：未填写
 
-业务保存或更新时机：直接AI首呼正式导入可只捕获已选场景而责任人空；之后管理员安排成功保存准确run/node/tenant/方式/人/场景；转交/新run清空。
+业务保存或更新时机：导入同次或原单条/批量安排明确成功时，保存准确模式/周期或节点、tenant、方式、manualAssignmentMode及本方式必要任务/seat/scene/五档等级；MANUAL可先无seat待分配，人工落实seat时派生账号，AI/PRED无独立责任人。
 
 ### 接口映射
 
@@ -8138,8 +8178,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 单功能页面／局部明确关联：
 
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -8165,7 +8205,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 允许 null：True
 
-必填条件：DIRECT+AI导入必选；TEMPLATE本租户直接AI入口及当前AI安排必选；非AI不使用
+必填条件：AI TASK从准确任务配置自动带入锁定；CATEGORY实际AI分组及后续安排需准确有效场景
 
 ### 默认与初始化
 
@@ -8175,8 +8215,9 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 ### 校验与关联约束
 
-- 直接本租户AI在导入明确选，分配可重新确认；先转交不代选目标私有场景，目标租户后选，不选首项
-- DIRECT按本租户/分类及真实专业能力校场景，不要求不存在的模板节点或下游标签路由依赖；启用流程后清旧安排并按新节点重新核。
+- 任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。
+- 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+- AI场景是执行/参数/结果来源的准确稳定身份；TEMPLATE按当前执行租户和实际组显式确认，TASK不在导入重复选择。旧历史保原sceneSnapshot不按当前目录重写。
 
 ### 读写权限
 
@@ -8191,15 +8232,15 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 ### 各状态行为
 
-- 产生/当前阶段：场景随当前run/node/owner安排生效，不是客户永久属性；转交后接收方重新明确。
-- 提交失败/未知：保留已经明确事实和本次输入；沿同一准确身份核对，不另造成功或新业务。
-- 后续使用：直接本租户AI在导入明确选，分配可重新确认；先转交不代选目标私有场景，目标租户后选，不选首项
+- 当前输入/使用：TASK从已保存准确任务/场景关联派生；CATEGORY按实际路径/分组及本租户执行安排明确，不猜首项。
+- 历史：按准确原身份及原捕获快照只读，不在读取时补值、迁移或回写。
+- 失败或未知：保原事实和可继续输入，未知核原请求，不虚报成功或重复副作用。
 
 ### 来源与计算
 
 来源类型：input
 
-规则：直接本租户AI在导入明确选，分配可重新确认；先转交不代选目标私有场景，目标租户后选，不选首项
+规则：TASK从已保存准确任务/场景关联派生；CATEGORY按实际路径/分组及本租户执行安排明确，不猜首项。
 
 依赖字段：无
 
@@ -8209,7 +8250,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 物理映射：未填写
 
-业务保存或更新时机：直接AI首呼正式导入成功或当前AI安排成功时保存所选scene ID；实际受理再捕获准确sceneSnapshot；其他租户私有场景不由原方选择。
+业务保存或更新时机：准确导入或安排明确成功时，与本次schema、执行安排/参数快照同次保存；旧受理/归档保当时场景，不在读取时迁移。
 
 ### 接口映射
 
@@ -8220,10 +8261,10 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 ### 边界示例
 
 合法：
-- 直接AI首呼导入明确选择本租户本实际分类的SCENE-A。
+- 任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。
 
 非法/拒绝：
-- 导入仅填AI方式而无场景，拒绝；先转交时不强迫原方选目标私有场景。
+- 无准确来源/权限、失效依据或伪造历史事实，拒绝并保原值。
 
 ### 依据、使用位置与验证
 
@@ -8260,8 +8301,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -8368,8 +8409,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -8380,7 +8421,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 类型：object
 
-格式/枚举/单位/精度：已唯一解析的本租户有效执行方案/本人坐席及来源
+格式/枚举/单位/精度：已明确选择并在实际受理时复核的本租户具体任务/本人坐席及来源
 
 允许 null：False
 
@@ -8394,7 +8435,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 ### 校验与关联约束
 
-- 导入分配不提供底层任务/资源选择；解析失败/多个冲突不选首项，人工不能借他人坐席
+- 导入或手动分配明确本租户具体任务/坐席；起呼按保存resourceId复核范围、方式、有效状态及AI场景，不按首项猜测；人工须为所选坐席准确关联的本人
 
 ### 读写权限
 
@@ -8411,13 +8452,13 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - 开始本次办理：起呼前重核身份/资源/场景；明确受理后本段身份和已捕获依据固定；受理不代表真实拨打。
 - 失败/未知或并发变化：保留本次输入与已经明确生效的原事实，说明本字段对应原因；unknown沿准确原请求核对。
-- 后续读取/使用：导入分配不提供底层任务/资源选择；解析失败/多个冲突不选首项，人工不能借他人坐席
+- 后续读取/使用：导入或手动分配明确本租户具体任务/坐席；起呼按保存resourceId复核范围、方式、有效状态及AI场景，不按首项猜测；人工须为所选坐席准确关联的本人
 
 ### 来源与计算
 
 来源类型：calculated
 
-规则：导入分配不提供底层任务/资源选择；解析失败/多个冲突不选首项，人工不能借他人坐席
+规则：导入或手动分配明确本租户具体任务/坐席；起呼按保存resourceId复核范围、方式、有效状态及AI场景，不按首项猜测；人工须为所选坐席准确关联的本人
 
 依赖字段：[FIELD-FLOW-OWNER-TENANT](field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-METHOD](field-specs.md#FIELD-FLOW-METHOD)、[FIELD-FLOW-ACTOR](field-specs.md#FIELD-FLOW-ACTOR)、[FIELD-FLOW-ARRANGEMENT](field-specs.md#FIELD-FLOW-ARRANGEMENT)
 
@@ -8467,7 +8508,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -8478,8 +8520,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -8563,9 +8604,9 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - pages:PAGE-2227/fields/80
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/73
 
-局部说明：[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-EVALUATE](local-logic/LOCAL-FLOW-EVALUATE.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-COMPLETE-DIRECT](local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)
+局部说明：[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-EVALUATE](local-logic/LOCAL-FLOW-EVALUATE.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-COMPLETE-DIRECT](local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)、[LOCAL-FLOW-ABANDONED-SETTLEMENT](local-logic/LOCAL-FLOW-ABANDONED-SETTLEMENT.md)
 
-任务：[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)、[TASK-022](tasks/TASK-022.md)、[TASK-023](tasks/TASK-023.md)、[TASK-027](tasks/TASK-027.md)、[TASK-028](tasks/TASK-028.md)
+任务：[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)、[TASK-022](tasks/TASK-022.md)、[TASK-023](tasks/TASK-023.md)、[TASK-026](tasks/TASK-026.md)、[TASK-027](tasks/TASK-027.md)、[TASK-028](tasks/TASK-028.md)
 
 测试：CHECK-FLOW-ASSIGN, CHECK-FLOW-ASSIGN-BATCH, CHECK-FLOW-START, CHECK-FLOW-CORRECT, CHECK-FLOW-EVALUATE, CHECK-FLOW-RECLASSIFY, CHECK-FLOW-ENABLE-TEMPLATE, CHECK-FLOW-COMPLETE-DIRECT, CHECK-FLOW-RESUME-DIRECT
 
@@ -8587,8 +8628,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -8687,7 +8728,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -8701,7 +8742,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -8786,7 +8827,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - pages:PAGE-2227/fields/97
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/75
 
-局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-END-HANDOFF](local-logic/LOCAL-FLOW-END-HANDOFF.md)
+局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-END-HANDOFF](local-logic/LOCAL-FLOW-END-HANDOFF.md)、[LOCAL-FLOW-ABANDONED-SETTLEMENT](local-logic/LOCAL-FLOW-ABANDONED-SETTLEMENT.md)
 
 任务：[TASK-015](tasks/TASK-015.md)、[TASK-019](tasks/TASK-019.md)、[TASK-024](tasks/TASK-024.md)、[TASK-026](tasks/TASK-026.md)、[TASK-027](tasks/TASK-027.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)
 
@@ -8807,8 +8848,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -8903,7 +8944,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -8918,7 +8959,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -8942,7 +8983,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 ### 校验与关联约束
 
-- 正常结束或废弃完成后才可新run；废弃请求遇在途/排队/重试/未知先ABANDONING，不宣称已废弃
+- ACTIVE/ABANDONING/ABANDONED/ENDED各按真实状态；停止意图不是终态，必要缺内容须合法受控确认且执行真实收敛才完成废弃。
 
 ### 读写权限
 
@@ -8964,7 +9005,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 来源类型：input
 
-规则：正常结束或废弃完成后才可新run；废弃请求遇在途/排队/重试/未知先ABANDONING，不宣称已废弃
+规则：ACTIVE/ABANDONING/ABANDONED/ENDED各按真实状态；停止意图不是终态，必要缺内容须合法受控确认且执行真实收敛才完成废弃。
 
 依赖字段：无
 
@@ -8974,7 +9015,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 物理映射：未填写
 
-业务保存或更新时机：新run ACTIVE；进入END明确成功变ENDED；废弃意图先ABANDONING，全部执行/unknown收敛后ABANDONED；保状态事实及原因。
+业务保存或更新时机：新run ACTIVE，END正常结束为ENDED；废弃意图可ABANDONING，真实执行及正常归档/合法缺失收尾都满足才ABANDONED，保原因/确认与未完成事实。
 
 ### 接口映射
 
@@ -9013,7 +9054,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -9026,7 +9067,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -9125,7 +9166,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
@@ -9138,7 +9179,7 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -9245,8 +9286,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -9352,8 +9393,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -9460,8 +9501,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -9568,8 +9609,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -9678,8 +9719,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -9786,8 +9827,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -9897,8 +9938,8 @@ CALL默认当前负责租户；TRANSFER默认其他租户，均不默认选择�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -10006,8 +10047,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [停用当前专业域目录分类 · FUNC\-2018](features/FUNC-2018.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -10117,8 +10158,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -10222,8 +10263,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -10330,8 +10371,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -10441,8 +10482,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -10553,10 +10594,12 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+- [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
 业务对象：`Followup`
@@ -10580,6 +10623,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 ### 校验与关联约束
 
 - 内容保存与整体归档独立；保存失败不撤销已发生通话，已保存内容不能再次提交重写
+- 受控缺失确认不生成本人内容；旧已弃段本人首次合法后补仍归原段、不改较新值，也不自动计其正常完成。
 
 ### 读写权限
 
@@ -10597,12 +10641,13 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - 正式内容提交：按原basis展示填写；保存校原段身份/必填/类型/并发差异；成功后保持原貌且与整体执行归档分开。
 - 失败/未知或并发变化：保留本次输入与已经明确生效的原事实，说明本字段对应原因；unknown沿准确原请求核对。
 - 后续读取/使用：内容保存与整体归档独立；保存失败不撤销已发生通话，已保存内容不能再次提交重写
+- 受控废弃/旧段后补：按原弃证据保缺失未完成；旧本人后补属于原段，原异常收尾与正常archive/completed分开，不回写新run/当前字段。
 
 ### 来源与计算
 
 来源类型：system
 
-规则：内容保存与整体归档独立；保存失败不撤销已发生通话，已保存内容不能再次提交重写
+规则：内容保存与整体归档独立；保存失败不撤销已发生通话，已保存内容不能再次提交重写；受控缺失确认不生成本人内容；旧已弃段本人首次合法后补仍归原段、不改较新值，也不自动计其正常完成。
 
 依赖字段：无
 
@@ -10638,9 +10683,9 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - pages:PAGE-2227/fields/20
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/92
 
-局部说明：[LOCAL-FLOW-SAVE-CONTENT](local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[LOCAL-FLOW-ARCHIVE](local-logic/LOCAL-FLOW-ARCHIVE.md)、[LOCAL-FLOW-HANDLER-INBOX](local-logic/LOCAL-FLOW-HANDLER-INBOX.md)
+局部说明：[LOCAL-FLOW-SAVE-CONTENT](local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[LOCAL-FLOW-ARCHIVE](local-logic/LOCAL-FLOW-ARCHIVE.md)、[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-HANDLER-INBOX](local-logic/LOCAL-FLOW-HANDLER-INBOX.md)
 
-任务：[TASK-020](tasks/TASK-020.md)、[TASK-021](tasks/TASK-021.md)
+任务：[TASK-020](tasks/TASK-020.md)、[TASK-021](tasks/TASK-021.md)、[TASK-026](tasks/TASK-026.md)
 
 测试：CHECK-FLOW-SAVE-CONTENT, CHECK-FLOW-ARCHIVE, CHECK-FLOW-HANDLER-INBOX
 
@@ -10662,8 +10707,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -10690,6 +10735,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 ### 校验与关联约束
 
 - 实际执行终态、重试结束、必要状态/下游标签、人工事实和内容全明确才COMPLETE；归档只计一次
+- ABANDONED是异常收尾，不等正常COMPLETE；合法缺失结清保必要内容缺失及未完成，不增正常完成数。
 
 ### 读写权限
 
@@ -10707,12 +10753,13 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - 本轮归档：内容保存与真实终态各自等待；全部必要事实明确才COMPLETE，冲突WAITING_REVIEW，废弃ABANDONED。
 - 失败/未知或并发变化：保留本次输入与已经明确生效的原事实，说明本字段对应原因；unknown沿准确原请求核对。
 - 后续读取/使用：实际执行终态、重试结束、必要状态/下游标签、人工事实和内容全明确才COMPLETE；归档只计一次
+- 受控废弃/旧段后补：按原弃证据保缺失未完成；旧本人后补属于原段，原异常收尾与正常archive/completed分开，不回写新run/当前字段。
 
 ### 来源与计算
 
 来源类型：system
 
-规则：实际执行终态、重试结束、必要状态/下游标签、人工事实和内容全明确才COMPLETE；归档只计一次
+规则：实际执行终态、重试结束、必要状态/下游标签、人工事实和内容全明确才COMPLETE；归档只计一次；ABANDONED是异常收尾，不等正常COMPLETE；合法缺失结清保必要内容缺失及未完成，不增正常完成数。
 
 依赖字段：无
 
@@ -10722,7 +10769,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 物理映射：未填写
 
-业务保存或更新时机：精确followup的事实、内容和必要下游依据齐备后只封存一次；已归档不重复计数；零拨可封异常事实但completed必须false。
+业务保存或更新时机：正常COMPLETE按原必要事实/内容/下游依据齐备后唯一保存；受控废弃的ABANDONED状态与原运行废弃/旧段收尾一起保存，不要求缺内容被伪补为正常归档。
 
 ### 接口映射
 
@@ -10771,8 +10818,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -10798,6 +10845,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 ### 校验与关联约束
 
 - 必要事实/内容齐备后可唯一封存；是否计completed另看真实dial，零拨打启动失败可封事实但不计完成跟进
+- 可靠废弃收尾不要求archived=true，不能为消除后继结算阻塞伪造正常归档；旧弃原人后来补齐也不改写其正常完成性质。
 
 ### 读写权限
 
@@ -10815,12 +10863,13 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - 本轮归档：内容保存与真实终态各自等待；全部必要事实明确才COMPLETE，冲突WAITING_REVIEW，废弃ABANDONED。
 - 失败/未知或并发变化：保留本次输入与已经明确生效的原事实，说明本字段对应原因；unknown沿准确原请求核对。
 - 后续读取/使用：必要事实/内容齐备后可唯一封存；是否计completed另看真实dial，零拨打启动失败可封事实但不计完成跟进
+- 受控废弃/旧段后补：按原弃证据保缺失未完成；旧本人后补属于原段，原异常收尾与正常archive/completed分开，不回写新run/当前字段。
 
 ### 来源与计算
 
 来源类型：system
 
-规则：必要事实/内容齐备后可唯一封存；是否计completed另看真实dial，零拨打启动失败可封事实但不计完成跟进
+规则：必要事实/内容齐备后可唯一封存；是否计completed另看真实dial，零拨打启动失败可封事实但不计完成跟进；可靠废弃收尾不要求archived=true，不能为消除后继结算阻塞伪造正常归档；旧弃原人后来补齐也不改写其正常完成性质。
 
 依赖字段：无
 
@@ -10879,8 +10928,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -10987,8 +11036,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -11094,8 +11143,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -11205,8 +11254,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -11313,8 +11362,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -11421,8 +11470,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -11529,8 +11578,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -11637,8 +11686,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -11745,8 +11794,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -11853,8 +11902,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -11880,6 +11929,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 ### 校验与关联约束
 
 - 首通终态不能代表所有重试结束；真实无后续重呼才释放并准入后续办理
+- 停止请求/受理不代表无后续尝试；原已受理迟到真实拨打仍记录，可靠结束且不会再呼叫前不解锁。
 
 ### 读写权限
 
@@ -11902,7 +11952,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 来源类型：external
 
-规则：首通终态不能代表所有重试结束；真实无后续重呼才释放并准入后续办理
+规则：首通终态不能代表所有重试结束；真实无后续重呼才释放并准入后续办理；停止请求/受理不代表无后续尝试；原已受理迟到真实拨打仍记录，可靠结束且不会再呼叫前不解锁。
 
 依赖字段：无
 
@@ -11952,6 +12002,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
@@ -11964,9 +12015,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
-- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -12050,7 +12100,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - pages:PAGE-2227/fields/39
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/105
 
-局部说明：[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-CONTACT-POLICY](local-logic/LOCAL-FLOW-CONTACT-POLICY.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)
+局部说明：[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-CONTACT-POLICY](local-logic/LOCAL-FLOW-CONTACT-POLICY.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-ABANDONED-SETTLEMENT](local-logic/LOCAL-FLOW-ABANDONED-SETTLEMENT.md)
 
 任务：[TASK-018](tasks/TASK-018.md)、[TASK-019](tasks/TASK-019.md)、[TASK-026](tasks/TASK-026.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)、[TASK-031](tasks/TASK-031.md)
 
@@ -12074,8 +12124,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -12184,8 +12234,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -12293,8 +12343,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -12401,8 +12451,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -12509,8 +12559,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -12615,8 +12665,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -12723,8 +12773,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -12830,8 +12880,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -12937,8 +12987,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -13044,8 +13094,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -13143,6 +13193,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 单功能页面／局部明确关联：
 
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -13154,9 +13205,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
-- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -13236,7 +13286,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - pages:PAGE-2227/fields/75
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/116
 
-局部说明：[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-HANDOFF](local-logic/LOCAL-FLOW-HANDOFF.md)、[LOCAL-FLOW-COMPLETE-DIRECT](local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)
+局部说明：[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-HANDOFF](local-logic/LOCAL-FLOW-HANDOFF.md)、[LOCAL-FLOW-COMPLETE-DIRECT](local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[LOCAL-FLOW-ABANDONED-SETTLEMENT](local-logic/LOCAL-FLOW-ABANDONED-SETTLEMENT.md)
 
 任务：[TASK-017](tasks/TASK-017.md)、[TASK-022](tasks/TASK-022.md)、[TASK-026](tasks/TASK-026.md)、[TASK-027](tasks/TASK-027.md)、[TASK-029](tasks/TASK-029.md)
 
@@ -13249,7 +13299,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 单功能页面／局部明确关联：
 
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -13262,7 +13312,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
 业务对象：`FlowRun`
@@ -13285,8 +13335,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 ### 校验与关联约束
 
-- 当前END仅生成FLOW_CLOSED/FLOW_TO_DIRECT，分别对应CLOSE/DIRECT_FOLLOWUP，不是成交判断。
-- 直接周期的人工业务结论在其独立周期字段中保存；原run结束摘要不可重写成后续周期结论。
+- 当前新END仅封存FLOW_CLOSED/业务结束不跟进，不把流程结束当成交；FLOW_TO_DIRECT仅保旧已捕获历史摘要。
 
 ### 读写权限
 
@@ -13300,15 +13349,15 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 ### 各状态行为
 
-- 产生/当前阶段：归档、接通、流程结束、业务达成各自口径，废弃不自动给成功结论。
-- 提交失败/未知：保留已经明确事实和本次输入；沿同一准确身份核对，不另造成功或新业务。
-- 后续使用：END按捕获配置明确封存；未配置不推成功；跟进完成/客户接通/流程结束/达成分别表达
+- 当前输入/使用：当前按准确CLOSE结束事实生成；历史原动作及原摘要不回写。
+- 历史：按准确原身份及原捕获快照只读，不在读取时补值、迁移或回写。
+- 失败或未知：保原事实和可继续输入，未知核原请求，不虚报成功或重复副作用。
 
 ### 来源与计算
 
 来源类型：calculated
 
-规则：按捕获END的endAction写FLOW_CLOSED/FLOW_TO_DIRECT运行摘要，不推定业务成交。
+规则：当前按准确CLOSE结束事实生成；历史原动作及原摘要不回写。
 
 依赖字段：[FIELD-FLOW-END-ACTION](field-specs.md#FIELD-FLOW-END-ACTION)、[FIELD-FLOW-RUN-END-ACTION](field-specs.md#FIELD-FLOW-RUN-END-ACTION)
 
@@ -13329,10 +13378,10 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 ### 边界示例
 
 合法：
-- END=CLOSE封存业务结束不跟进；END=DIRECT_FOLLOWUP封存转无模板摘要。
+- 当前新END仅封存FLOW_CLOSED/业务结束不跟进，不把流程结束当成交；FLOW_TO_DIRECT仅保旧已捕获历史摘要。
 
 非法/拒绝：
-- 把FLOW_CLOSED统计成SUCCESS成交，或用后续直接结果覆盖原run摘要。
+- 无准确来源/权限、失效依据或伪造历史事实，拒绝并保原值。
 
 ### 依据、使用位置与验证
 
@@ -13365,8 +13414,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -13467,8 +13516,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -13564,7 +13613,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -13580,7 +13629,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -13678,7 +13727,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
@@ -13694,7 +13743,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -13800,8 +13849,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -13910,8 +13959,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -14024,8 +14073,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -14132,8 +14181,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -14230,8 +14279,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -14326,8 +14375,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -14414,7 +14463,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 <a id="FIELD-FLOW-CATEGORY-PRIORITY"></a>
 
-## FIELD-FLOW-CATEGORY-PRIORITY 分类联系优先级
+## FIELD-FLOW-CATEGORY-PRIORITY 历史分类联系权重
 
 单功能页面／局部明确关联：
 
@@ -14425,8 +14474,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -14440,17 +14489,17 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 允许 null：False
 
-必填条件：配置优先级时提供，可空
+必填条件：仅原专业兼容或旧保存值存在时保留，当前执行安排不新增此配置
 
 ### 默认与初始化
 
 模式：literal；值：`[]`
 
-未设置分类同级，按先后顺序协调
+没有旧配置时保持空；当前执行安排使用五档默认中，不在此新增数字配置。
 
 ### 校验与关联约束
 
-- 已安排同号码高优先级先，等优先FIFO；完成待流转/待核不发起新呼叫的沿原协调跳过，已知无匹配仍可跟进者仍参与
+- 仅保留原0～999分类权重供历史及原专业兼容；当前UI只读，不迁移为五档，也不参与当前同号或同资源排序。
 
 ### 读写权限
 
@@ -14458,19 +14507,18 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - 当前负责租户管理员，具有相应动作权且当前状态允许
 
 可写：
-- 当前负责租户管理员，具有相应动作权且当前状态允许
+- 原专业兼容路径按原独立权限处理；当前两模式执行优先级入口不可编辑此历史字段。
 
 ### 各状态行为
 
-- 联系协调保存：新增默认额外频次关闭；编辑校边界及分类唯一性；起呼前使用当前有效策略计算是否允许。
-- 失败/未知或并发变化：保留本次输入与已经明确生效的原事实，说明本字段对应原因；unknown沿准确原请求核对。
-- 后续读取/使用：已安排同号码高优先级先，等优先FIFO；完成待流转/待核不发起新呼叫的沿原协调跳过，已知无匹配仍可跟进者仍参与
+- 当前读取：有原值时只读展示历史含义并引导五档执行安排；没有值不新增数字编辑。
+- 新执行协调：五档降序、queuedAt/queueSequence FIFO和稳定业务ID；同号/同资源同一总序，不读取此旧权重。
 
 ### 来源与计算
 
 来源类型：input
 
-规则：已安排同号码高优先级先，等优先FIFO；完成待流转/待核不发起新呼叫的沿原协调跳过，已知无匹配仍可跟进者仍参与
+规则：仅保留原0～999分类权重供历史及原专业兼容；当前UI只读，不迁移为五档，也不参与当前同号或同资源排序。
 
 依赖字段：无
 
@@ -14480,7 +14528,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 物理映射：未填写
 
-业务保存或更新时机：本租户管理员明确保存联系协调成功时写当前策略；既有实际受理/排队/重试/unknown占用继续有效；不自动发起或续拨。
+业务保存或更新时机：保留既有历史值和原专业兼容写回，当前两模式新安排不写旧分类权重。
 
 ### 接口映射
 
@@ -14491,10 +14539,10 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 ### 边界示例
 
 合法：
-- categoryId lead优先级10、lxs为2；同级按等待先后。
+- 原保存lead=10/lxs=2只读保留，不影响当前同档FIFO。
 
 非法/拒绝：
-- 同一分类重复两项、1000或抢占已在执行安排，拒绝。
+- 把旧权重插在五档与FIFO之间改变当前顺序，或在当前UI编辑旧值。
 
 ### 依据、使用位置与验证
 
@@ -14528,8 +14576,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -14637,8 +14685,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -14746,8 +14794,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -14855,8 +14903,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -14964,8 +15012,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -15073,8 +15121,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -15182,8 +15230,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -15291,8 +15339,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -15400,8 +15448,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -15509,8 +15557,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -15618,8 +15666,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -15727,8 +15775,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -15836,8 +15884,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -15946,8 +15994,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -16056,8 +16104,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -16166,8 +16214,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -16266,7 +16314,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 单功能页面／局部明确关联：
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -16274,7 +16322,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -16368,7 +16416,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -16377,7 +16425,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -16470,15 +16518,16 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 <a id="FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP"></a>
 
-## FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP 允许直接跟进
+## FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP 历史分类直接跟进开关（当前不配置）
 
 单功能页面／局部明确关联：
 
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -16497,23 +16546,22 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 类型：boolean
 
-格式/枚举/单位/精度：true / false
+格式/枚举/单位/精度：历史boolean；当前UI无编辑/准入开关
 
-允许 null：False
+允许 null：True
 
-必填条件：分类新建与编辑明确保存；缺省为false
+必填条件：当前动作不要求此值；仅旧无TASK来源历史按其原合同读取
 
 ### 默认与初始化
 
-模式：literal；值：`false`
+模式：none；值：`null`
 
-仅显式true开放DIRECT新导入；缺省、缺失或未知均不授直接跟进资格。
+当前任务DIRECT与分类TEMPLATE由准确入口派生，不读此旧开关授新资格。
 
 ### 校验与关联约束
 
-- true仅开放直接跟进选项，不代替导入/呼叫/本人填写/资料维护权限，也不代替AI、人工或预外呼能力。
-- 关闭后禁止新增DIRECT业务及新增直接执行安排；已受理执行、必要本人填写与归档继续准确收尾，已有快照不删。
-- 不自动把既有DIRECT改为TEMPLATE，不创建run；启用流程须单独预检并明确确认。
+- 当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
+- 旧字段不删除历史值；无TASK标识的历史DIRECT若原合同要求此值仍按原范围核验，不能借此新导入。
 
 ### 读写权限
 
@@ -16525,20 +16573,19 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - 转出方按已封存本方截止范围只读
 
 可写：
-- 获对应品牌配置权的超级管理员或本品牌租户管理员
+- 当前没有此字段编辑入口；只保历史原捕获事实。
 
 ### 各状态行为
 
-- 输入与预检：依据准确分类、当前办理模式及授权逐项校验；变更后旧预览和确认依据失效。
-- 明确成功：分类BASE明确保存成功时，与基础配置及修订依据同次保存；不改独立ROUTE及已存在业务的实际办理模式。
-- 失败或未知：失败保留原值和输入；未知沿同次请求核对，不新建副本或静默切换办理模式。
-- 后续使用：当前配置只控制新选择；旧执行与快照按其实际模式、方式和来源保留。
+- 当前输入/使用：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
+- 历史：按准确原身份及原捕获快照只读，不在读取时补值、迁移或回写。
+- 失败或未知：保原事实和可继续输入，未知核原请求，不虚报成功或重复副作用。
 
 ### 来源与计算
 
 来源类型：input
 
-规则：true仅开放直接跟进选项，不代替导入/呼叫/本人填写/资料维护权限，也不代替AI、人工或预外呼能力。；关闭后禁止新增DIRECT业务及新增直接执行安排；已受理执行、必要本人填写与归档继续准确收尾，已有快照不删。；不自动把既有DIRECT改为TEMPLATE，不创建run；启用流程须单独预检并明确确认。
+规则：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
 
 依赖字段：无
 
@@ -16548,7 +16595,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 物理映射：未填写
 
-业务保存或更新时机：分类BASE明确保存成功时，与基础配置及修订依据同次保存；不改独立ROUTE及已存在业务的实际办理模式。
+业务保存或更新时机：当前业务配置不新增或修改此历史开关；既有快照保持原样。
 
 ### 接口映射
 
@@ -16559,10 +16606,10 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 ### 边界示例
 
 合法：
-- 分类显式保存true后，导入抽屉显示“直接跟进”可选。
+- 当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
 
 非法/拒绝：
-- 旧分类未含此值即视为false，不能因有字段或AI场景自动开放DIRECT。
+- 无准确来源/权限、失效依据或伪造历史事实，拒绝并保原值。
 
 ### 依据、使用位置与验证
 
@@ -16573,9 +16620,9 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - pages:PAGE-2006/fields/59
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/147
 
-局部说明：[LOCAL-FLOW-CATEGORY-CREATE](local-logic/LOCAL-FLOW-CATEGORY-CREATE.md)、[LOCAL-FLOW-CATEGORY-EDIT](local-logic/LOCAL-FLOW-CATEGORY-EDIT.md)、[LOCAL-FLOW-IMPORT-MAP](local-logic/LOCAL-FLOW-IMPORT-MAP.md)、[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)
+局部说明：[LOCAL-FLOW-CATEGORY-CREATE](local-logic/LOCAL-FLOW-CATEGORY-CREATE.md)、[LOCAL-FLOW-CATEGORY-EDIT](local-logic/LOCAL-FLOW-CATEGORY-EDIT.md)、[LOCAL-FLOW-IMPORT-MAP](local-logic/LOCAL-FLOW-IMPORT-MAP.md)、[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
 
-任务：[TASK-009](tasks/TASK-009.md)、[TASK-013](tasks/TASK-013.md)、[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)
+任务：[TASK-009](tasks/TASK-009.md)、[TASK-013](tasks/TASK-013.md)、[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
 
 测试：CHECK-FLOW-CATEGORY-CREATE, CHECK-FLOW-CATEGORY-EDIT, CHECK-FLOW-IMPORT-MAP, CHECK-FLOW-IMPORT-PREVIEW, CHECK-FLOW-IMPORT-COMMIT, CHECK-FLOW-ASSIGN, CHECK-FLOW-ASSIGN-BATCH, CHECK-FLOW-START, CHECK-FLOW-START-BATCH, CHECK-FLOW-RESUME-DIRECT
 
@@ -16585,25 +16632,27 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 单功能页面／局部明确关联：
 
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
-- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
 - [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
 - [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+- [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`BusinessRecord`
 
@@ -16615,20 +16664,18 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 允许 null：False
 
-必填条件：整批导入必须明确确认一种；业务正式保存后持有实际模式
+必填条件：正式导入及后续办理记录均按准确入口/历史合法转换确定
 
 ### 默认与初始化
 
-模式：literal；值：`"TEMPLATE"`
+模式：derived；值：`null`
 
-沿现有模板流转入口初始展示TEMPLATE；用户提交时明确确认，预检失败不得自动降级DIRECT。
+当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
 
 ### 校验与关联约束
 
-- 同批所有纳入行使用同一模式，逐行仍独立校验唯一身份；不同模式分批办理。
-- 普通DIRECT导入要求分类开关；合法END来源是独立接续许可。DIRECT无当前run/节点引用；END来源可保已结束runs/nodeRuns历史，不形成新模板节点。
-- TEMPLATE要求实际分类当前有效路由、必要分流资料及兼容模板；按原规则捕获run和首节点。
-- DIRECT与TEMPLATE的转换须由有权人明确执行“启用流程”并成功后变为TEMPLATE；不能在普通分配/起呼时切换。
+- 当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
+- 同一批次按入口固定模式和渠道，不混；TASK DIRECT无run/node，CATEGORY TEMPLATE须实际路由/当前完整方案；任务SOURCE不能伪造改类启用模板。
 
 ### 读写权限
 
@@ -16643,16 +16690,15 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 ### 各状态行为
 
-- 输入与预检：依据准确分类、当前办理模式及授权逐项校验；变更后旧预览和确认依据失效。
-- 明确成功：正式导入成功时随批次证据与每条业务同次保存；后续启用流程明确成功时在同一业务上记录DIRECT→TEMPLATE及新run，保留原直接跟进事实。
-- 失败或未知：失败保留原值和输入；未知沿同次请求核对，不新建副本或静默切换办理模式。
-- 后续使用：当前配置只控制新选择；旧执行与快照按其实际模式、方式和来源保留。
+- 当前输入/使用：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
+- 历史：按准确原身份及原捕获快照只读，不在读取时补值、迁移或回写。
+- 失败或未知：保原事实和可继续输入，未知核原请求，不虚报成功或重复副作用。
 
 ### 来源与计算
 
-来源类型：input
+来源类型：system
 
-规则：同批所有纳入行使用同一模式，逐行仍独立校验唯一身份；不同模式分批办理。；DIRECT要求所选分类allowDirectFollowup显式true；无run、无当前节点、无planSnapshot，不虚造直接呼叫节点。；TEMPLATE要求实际分类当前有效路由、必要分流资料及兼容模板；按原规则捕获run和首节点。；DIRECT与TEMPLATE的转换须由有权人明确执行“启用流程”并成功后变为TEMPLATE；不能在普通分配/起呼时切换。
+规则：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
 
 依赖字段：无
 
@@ -16662,7 +16708,7 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 物理映射：未填写
 
-业务保存或更新时机：正式导入成功时随批次证据与每条业务同次保存；后续启用流程明确成功时在同一业务上记录DIRECT→TEMPLATE及新run，保留原直接跟进事实。；当前捕获END=DIRECT_FOLLOWUP结束原run后同次转为DIRECT并存可靠来源；保已结束历史但清当前run/节点引用。
+业务保存或更新时机：同一原请求成功时由入口派生，与业务/批次/entrySource及首次快照同次保存；旧无TASK历史的合法明确转换单独记录，不回写旧周期。
 
 ### 接口映射
 
@@ -16673,10 +16719,10 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 ### 边界示例
 
 合法：
-- 同批选择DIRECT+MANUAL，两条业务各自建立身份且没有run。
+- 当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
 
 非法/拒绝：
-- TEMPLATE缺路由后自动改为DIRECT继续导入，禁止。
+- 无准确来源/权限、失效依据或伪造历史事实，拒绝并保原值。
 
 ### 依据、使用位置与验证
 
@@ -16684,15 +16730,17 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 - docs/field-alignment.json#FIELD-FLOW-HANDLING-MODE
 
 来源条目：
+- pages:PAGE-2103/fields/33
 - pages:PAGE-2203/fields/64
 - pages:PAGE-2204/fields/85
+- pages:PAGE-2205/fields/61
 - pages:PAGE-2226/fields/35
 - pages:PAGE-2227/fields/138
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148
 
-局部说明：[LOCAL-FLOW-IMPORT-MAP](local-logic/LOCAL-FLOW-IMPORT-MAP.md)、[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-AI-SCENE](local-logic/LOCAL-FLOW-AI-SCENE.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-SAVE-CONTENT](local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[LOCAL-FLOW-ARCHIVE](local-logic/LOCAL-FLOW-ARCHIVE.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-EVALUATE](local-logic/LOCAL-FLOW-EVALUATE.md)、[LOCAL-FLOW-ADVANCE](local-logic/LOCAL-FLOW-ADVANCE.md)、[LOCAL-FLOW-TRANSFER](local-logic/LOCAL-FLOW-TRANSFER.md)、[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-HANDLER-INBOX](local-logic/LOCAL-FLOW-HANDLER-INBOX.md)、[LOCAL-FLOW-INTERFACE-QUERY](local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-COMPLETE-DIRECT](local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)、[LOCAL-FLOW-END-HANDOFF](local-logic/LOCAL-FLOW-END-HANDOFF.md)
+局部说明：[LOCAL-FLOW-IMPORT-MAP](local-logic/LOCAL-FLOW-IMPORT-MAP.md)、[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-AI-SCENE](local-logic/LOCAL-FLOW-AI-SCENE.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-SAVE-CONTENT](local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[LOCAL-FLOW-ARCHIVE](local-logic/LOCAL-FLOW-ARCHIVE.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-EVALUATE](local-logic/LOCAL-FLOW-EVALUATE.md)、[LOCAL-FLOW-ADVANCE](local-logic/LOCAL-FLOW-ADVANCE.md)、[LOCAL-FLOW-TRANSFER](local-logic/LOCAL-FLOW-TRANSFER.md)、[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-REOPEN](local-logic/LOCAL-FLOW-REOPEN.md)、[LOCAL-FLOW-RECLASSIFY](local-logic/LOCAL-FLOW-RECLASSIFY.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-HANDLER-INBOX](local-logic/LOCAL-FLOW-HANDLER-INBOX.md)、[LOCAL-FLOW-INTERFACE-QUERY](local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-COMPLETE-DIRECT](local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)、[LOCAL-FLOW-END-HANDOFF](local-logic/LOCAL-FLOW-END-HANDOFF.md)、[LOCAL-FLOW-ABANDONED-SETTLEMENT](local-logic/LOCAL-FLOW-ABANDONED-SETTLEMENT.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
 
-任务：[TASK-013](tasks/TASK-013.md)、[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)、[TASK-019](tasks/TASK-019.md)、[TASK-020](tasks/TASK-020.md)、[TASK-021](tasks/TASK-021.md)、[TASK-022](tasks/TASK-022.md)、[TASK-023](tasks/TASK-023.md)、[TASK-024](tasks/TASK-024.md)、[TASK-025](tasks/TASK-025.md)、[TASK-026](tasks/TASK-026.md)、[TASK-027](tasks/TASK-027.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)
+任务：[TASK-013](tasks/TASK-013.md)、[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)、[TASK-019](tasks/TASK-019.md)、[TASK-020](tasks/TASK-020.md)、[TASK-021](tasks/TASK-021.md)、[TASK-022](tasks/TASK-022.md)、[TASK-023](tasks/TASK-023.md)、[TASK-024](tasks/TASK-024.md)、[TASK-025](tasks/TASK-025.md)、[TASK-026](tasks/TASK-026.md)、[TASK-027](tasks/TASK-027.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
 
 测试：CHECK-FLOW-IMPORT-MAP, CHECK-FLOW-IMPORT-PREVIEW, CHECK-FLOW-IMPORT-COMMIT, CHECK-FLOW-ASSIGN, CHECK-FLOW-ASSIGN-BATCH, CHECK-FLOW-AI-SCENE, CHECK-FLOW-START, CHECK-FLOW-START-BATCH, CHECK-FLOW-CALL-FACTS, CHECK-FLOW-SAVE-CONTENT, CHECK-FLOW-ARCHIVE, CHECK-FLOW-CORRECT, CHECK-FLOW-EVALUATE, CHECK-FLOW-ADVANCE, CHECK-FLOW-TRANSFER, CHECK-FLOW-ABANDON, CHECK-FLOW-REOPEN, CHECK-FLOW-RECLASSIFY, CHECK-FLOW-QUERY, CHECK-FLOW-BATCH-READ, CHECK-FLOW-DETAIL, CHECK-FLOW-CUSTOMER-TIMELINE, CHECK-FLOW-HANDLER-INBOX, CHECK-FLOW-INTERFACE-QUERY, CHECK-FLOW-ENABLE-TEMPLATE, CHECK-FLOW-COMPLETE-DIRECT, CHECK-FLOW-RESUME-DIRECT, CHECK-FLOW-END-HANDOFF
 
@@ -16704,8 +16752,8 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -16730,20 +16778,19 @@ AI无人工路径标NONE；预外呼先UNKNOWN；人工办理身份按真实本�
 
 允许 null：True
 
-必填条件：DIRECT导入和再次直接跟进明确确认AI/MANUAL/PREDICTIVE；TEMPLATE不使用此值
+必填条件：TASK初始导入由准确任务方式自动带入锁定；后续合法调整/再次周期及旧无TASK历史按各自当前动作资格明确确认
 
 ### 默认与初始化
 
-模式：none；值：`null`
+模式：derived；值：`null`
 
-DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首项/旧通话猜测。
+TASK初始导入从准确AI/预外呼任务派生方式和必要场景，不在导入重选；后续动作仅在自身合同允许时明确确认。
 
 ### 校验与关联约束
 
-- DIRECT整批明确一种方式；AI必须在导入与分配选定本租户有效且分类适配的AI场景。
-- MANUAL仍核实际本人电话资格；PREDICTIVE仍核唯一有效专业执行方案；不在人员分配中选择任务/线路/队列。
-- 直接安排的方式只供DIRECT执行；启用流程后按新run节点方式重新安排，不借旧方式完成新节点。
-- 再次直接跟进在已COMPLETED业务追加新直接周期，允许明确下一次方式；清旧责任安排并重核当前必要AI场景，不在原已受理执行中改方式。
+- TASK初始DIRECT导入固定当前准确任务method及必要AI场景；不以旧allowDirect标志或中央模式选择决定，不重复选场景。
+- 后续合法执行调整或再次直接周期按本次方式/场景/资源与来源资格明确确认；若当前动作固定方式则不得绕过，不把初始来源事实改写为所有未来动作的无条件许可或永久硬锁。
+- 旧无TASK来源DIRECT及旧已捕获END历史按原独立准入；所有新执行仍核准确权限、当前周期、联系限制、原未知/在途与必要归档收敛。
 
 ### 读写权限
 
@@ -16758,16 +16805,15 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 ### 各状态行为
 
-- 输入与预检：依据准确分类、当前办理模式及授权逐项校验；变更后旧预览和确认依据失效。
-- 明确成功：DIRECT正式导入时与模式和必要AI场景同次保存，实际受理再捕获真实方式、场景和资源；TEMPLATE保留历史直接方式但不作为当前执行方式。
-- 失败或未知：失败保留原值和输入；未知沿同次请求核对，不新建副本或静默切换办理模式。
-- 后续使用：当前配置只控制新选择；旧执行与快照按其实际模式、方式和来源保留。
+- 当前输入/使用：TASK初始由准确任务配置派生；其后按该合法调整/再次周期动作明确选择并重核，不修改原始任务来源/旧周期方式快照。
+- 历史：按准确原身份及原捕获快照只读，不在读取时补值、迁移或回写。
+- 失败或未知：保原事实和可继续输入，未知核原请求，不虚报成功或重复副作用。
 
 ### 来源与计算
 
 来源类型：input
 
-规则：DIRECT整批明确一种方式；AI必须在导入与分配选定本租户有效且分类适配的AI场景。；MANUAL仍核实际本人电话资格；PREDICTIVE仍核唯一有效专业执行方案；不在人员分配中选择任务/线路/队列。；直接安排的方式只供DIRECT执行；启用流程后按新run节点方式重新安排，不借旧方式完成新节点。
+规则：TASK初始由准确任务配置派生；其后按该合法调整/再次周期动作明确选择并重核，不修改原始任务来源/旧周期方式快照。
 
 依赖字段：无
 
@@ -16777,7 +16823,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 物理映射：未填写
 
-业务保存或更新时机：DIRECT正式导入时与模式和必要AI场景同次保存，实际受理再捕获真实方式、场景和资源；TEMPLATE保留历史直接方式但不作为当前执行方式。
+业务保存或更新时机：统一导入明确成功随准确入口/任务上下文同次保存；其后合法动作成功只改本次当前安排/新周期，旧周期及原始来源快照不回写。
 
 ### 接口映射
 
@@ -16788,10 +16834,10 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 ### 边界示例
 
 合法：
-- DIRECT+AI选本租户SCENE-A并通过名单预检后保存。
+- TASK初始DIRECT导入固定当前准确任务method及必要AI场景；不以旧allowDirect标志或中央模式选择决定，不重复选场景。
 
 非法/拒绝：
-- DIRECT未选方式、AI无场景、或以IVR充当直接跟进方式，均拒绝。
+- 无准确来源/权限、失效依据或伪造历史事实，拒绝并保原值。
 
 ### 依据、使用位置与验证
 
@@ -16817,17 +16863,17 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 单功能页面／局部明确关联：
 
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
-- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
 
@@ -16910,9 +16956,9 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150
 
-局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-SAVE-CONTENT](local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[LOCAL-FLOW-ARCHIVE](local-logic/LOCAL-FLOW-ARCHIVE.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-HANDLER-INBOX](local-logic/LOCAL-FLOW-HANDLER-INBOX.md)、[LOCAL-FLOW-INTERFACE-QUERY](local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-COMPLETE-DIRECT](local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)、[LOCAL-FLOW-END-HANDOFF](local-logic/LOCAL-FLOW-END-HANDOFF.md)
+局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-CALL-FACTS](local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-FLOW-SAVE-CONTENT](local-logic/LOCAL-FLOW-SAVE-CONTENT.md)、[LOCAL-FLOW-ARCHIVE](local-logic/LOCAL-FLOW-ARCHIVE.md)、[LOCAL-FLOW-CORRECT](local-logic/LOCAL-FLOW-CORRECT.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-HANDLER-INBOX](local-logic/LOCAL-FLOW-HANDLER-INBOX.md)、[LOCAL-FLOW-INTERFACE-QUERY](local-logic/LOCAL-FLOW-INTERFACE-QUERY.md)、[LOCAL-FLOW-ENABLE-TEMPLATE](local-logic/LOCAL-FLOW-ENABLE-TEMPLATE.md)、[LOCAL-FLOW-COMPLETE-DIRECT](local-logic/LOCAL-FLOW-COMPLETE-DIRECT.md)、[LOCAL-FLOW-RESUME-DIRECT](local-logic/LOCAL-FLOW-RESUME-DIRECT.md)、[LOCAL-FLOW-END-HANDOFF](local-logic/LOCAL-FLOW-END-HANDOFF.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
 
-任务：[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)、[TASK-019](tasks/TASK-019.md)、[TASK-020](tasks/TASK-020.md)、[TASK-021](tasks/TASK-021.md)、[TASK-022](tasks/TASK-022.md)、[TASK-024](tasks/TASK-024.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)
+任务：[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)、[TASK-019](tasks/TASK-019.md)、[TASK-020](tasks/TASK-020.md)、[TASK-021](tasks/TASK-021.md)、[TASK-022](tasks/TASK-022.md)、[TASK-024](tasks/TASK-024.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
 
 测试：CHECK-FLOW-IMPORT-COMMIT, CHECK-FLOW-ASSIGN, CHECK-FLOW-ASSIGN-BATCH, CHECK-FLOW-START, CHECK-FLOW-START-BATCH, CHECK-FLOW-CALL-FACTS, CHECK-FLOW-SAVE-CONTENT, CHECK-FLOW-ARCHIVE, CHECK-FLOW-CORRECT, CHECK-FLOW-QUERY, CHECK-FLOW-DETAIL, CHECK-FLOW-CUSTOMER-TIMELINE, CHECK-FLOW-HANDLER-INBOX, CHECK-FLOW-INTERFACE-QUERY, CHECK-FLOW-ENABLE-TEMPLATE, CHECK-FLOW-COMPLETE-DIRECT, CHECK-FLOW-RESUME-DIRECT, CHECK-FLOW-END-HANDOFF
 
@@ -16925,8 +16971,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -17046,8 +17092,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 
 业务对象：`BusinessRecord`
 
@@ -17154,8 +17200,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
 
@@ -17263,8 +17309,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -17369,8 +17415,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -17468,7 +17514,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 业务对象：`EnableFlowPreview`
@@ -17584,22 +17630,21 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 类型：enum
 
-格式/枚举/单位/精度：DIRECT_FOLLOWUP（按照无模板跟进）/ CLOSE（业务结束不跟进）
+格式/枚举/单位/精度：当前CLOSE；历史已捕获DIRECT_FOLLOWUP只读保留
 
 允许 null：False
 
-必填条件：当前END保存或执行前必须明确二选一
+必填条件：当前END固定CLOSE；历史run按原捕获值读取
 
 ### 默认与初始化
 
 模式：literal；值：`"CLOSE"`
 
-当前新增END组件初始为业务结束不跟进，可明确改为DIRECT_FOLLOWUP；缺失/非法值仍拒绝保存。
+当前模板固定业务结束不跟进，无二选一控件。
 
 ### 校验与关联约束
 
-- 仅END配置此值；不增加承接角色、呼叫方式或业务达成等额外配置。
-- 执行先结束原run；CLOSE关闭，DIRECT_FOLLOWUP建立同业务/当前租户的独立人工周期，不能自动起呼。
+- 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 ### 读写权限
 
@@ -17608,18 +17653,19 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - 有准确业务读取权者只读本run完整捕获方案；不因此取得当前模板配置权
 
 可写：
-- 获对应品牌配置权的超级管理员或本品牌租户管理员
+- 系统按合法当前模板CLOSE或准确旧run原方案产生；用户无当前END动作切换。
 
 ### 各状态行为
 
-- 编辑草稿：新增组件初始CLOSE，允许在当前草稿改选另一动作；不增加额外配置。
-- 保存/执行：随模板及实际run方案封存；按准确END动作执行，不能在运行中改写原方案。
+- 当前输入/使用：当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
+- 历史：按准确原身份及原捕获快照只读，不在读取时补值、迁移或回写。
+- 失败或未知：保原事实和可继续输入，未知核原请求，不虚报成功或重复副作用。
 
 ### 来源与计算
 
-来源类型：input
+来源类型：system
 
-规则：有权配置人对当前END明确选择，系统按该节点捕获值执行。
+规则：当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 依赖字段：无
 
@@ -17629,7 +17675,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 物理映射：未填写
 
-业务保存或更新时机：合法模板保存时进入配置，创建run时随完整planSnapshot封存。
+业务保存或更新时机：当前合法模板保存/新run捕获CLOSE；旧run的endAction与来源证明不迁移或重写。
 
 ### 接口映射
 
@@ -17640,10 +17686,10 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 ### 边界示例
 
 合法：
-- END选择DIRECT_FOLLOWUP，原run结束后产生人工直接周期且没有自动拨打。
+- 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 非法/拒绝：
-- 以旧outcomeCode=SUCCESS代替endAction，保存拒绝。
+- 无准确来源/权限、失效依据或伪造历史事实，拒绝并保原值。
 
 ### 依据、使用位置与验证
 
@@ -17680,22 +17726,21 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 类型：enum
 
-格式/枚举/单位/精度：DIRECT_FOLLOWUP（按照无模板跟进）/ CLOSE（业务结束不跟进）
+格式/枚举/单位/精度：当前CLOSE；历史已捕获DIRECT_FOLLOWUP只读保留
 
 允许 null：False
 
-必填条件：run到达END并结束时必须有准确结束动作
+必填条件：当前END固定CLOSE；历史run按原捕获值读取
 
 ### 默认与初始化
 
-模式：none；值：`null`
+模式：literal；值：`"CLOSE"`
 
-未选择保留草稿，不推定成交或任意后续动作；保存须明确选择。
+当前模板固定业务结束不跟进，无二选一控件。
 
 ### 校验与关联约束
 
-- 仅END配置此值；不增加承接角色、呼叫方式或业务达成等额外配置。
-- 执行先结束原run；CLOSE关闭，DIRECT_FOLLOWUP建立同业务/当前租户的独立人工周期，不能自动起呼。
+- 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 ### 读写权限
 
@@ -17704,18 +17749,19 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - 有准确业务读取权者只读本run完整捕获方案；不因此取得当前模板配置权
 
 可写：
-- 系统按已捕获END及最后有权办理动作写入；用户不可直接编辑。
+- 系统按合法当前模板CLOSE或准确旧run原方案产生；用户无当前END动作切换。
 
 ### 各状态行为
 
-- 编辑草稿：二选一单选，未选可编辑但不能保存。
-- 保存/执行：随模板及实际run方案封存；按准确END动作执行，不能在运行中改写原方案。
+- 当前输入/使用：当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
+- 历史：按准确原身份及原捕获快照只读，不在读取时补值、迁移或回写。
+- 失败或未知：保原事实和可继续输入，未知核原请求，不虚报成功或重复副作用。
 
 ### 来源与计算
 
 来源类型：system
 
-规则：与endedAt/endNodeId/endedTenantId及原捕获END一致封存。
+规则：当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 依赖字段：[FIELD-FLOW-END-ACTION](field-specs.md#FIELD-FLOW-END-ACTION)
 
@@ -17725,7 +17771,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 物理映射：未填写
 
-业务保存或更新时机：到达END结束原run时，与结束事实/后续周期或关闭结果一致保存。
+业务保存或更新时机：当前合法模板保存/新run捕获CLOSE；旧run的endAction与来源证明不迁移或重写。
 
 ### 接口映射
 
@@ -17736,10 +17782,10 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 ### 边界示例
 
 合法：
-- END选择DIRECT_FOLLOWUP，原run结束后产生人工直接周期且没有自动拨打。
+- 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 非法/拒绝：
-- 以旧outcomeCode=SUCCESS代替endAction，保存拒绝。
+- 无准确来源/权限、失效依据或伪造历史事实，拒绝并保原值。
 
 ### 依据、使用位置与验证
 
@@ -17763,14 +17809,14 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
 业务对象：`BusinessRecord`
@@ -17783,7 +17829,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 允许 null：True
 
-必填条件：仅由已结束END=DIRECT_FOLLOWUP接续的业务持有；普通DIRECT导入没有此证明
+必填条件：仅旧已捕获END直接周期保准确来源；当前新CLOSE模板/TASK导入不产生此证明
 
 ### 默认与初始化
 
@@ -17793,9 +17839,11 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 ### 校验与关联约束
 
-- 逐项与同record/当前owner、已结束原run、捕获END动作、结束时间及来源END周期一致；不信前端自报。
-- 仅此可靠来源可绕分类普通DIRECT准入开关；人员、资源、联系限制、真实本人填写及归档仍检查。
-- 可保留已结束runs/nodeRuns历史，不能保留当前runId/templateRef/nodeId冒充运行中模板。
+- 按同record、原已结束run/END动作/tenant、首MANUAL来源周期证明历史结构；后来周期身份不同不删除合法历史或判整个记录非法。
+- 历史END证明与当前周期例外分开：只有同record/owner/来源directCycleId的首MANUAL当前周期可豁免旧allowDirect标志；TASK的resume新周期须当前准确任务/场景/渠道有效，旧无TASK历史按原准入，旧来源只保历史。
+- 例外不豁免原模块/本人/资源/真实事实与必要正常归档；不能前端自报、跨owner或改originCycleId续权。
+- 可保已结束runs/nodeRuns历史；DIRECT不能保当前runId/templateRef/nodeId冒充运行中模板。
+- 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 ### 读写权限
 
@@ -17815,7 +17863,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源类型：system
 
-规则：原END动作明确执行时生成并准确关联新周期，不从普通导入或人工改值产生。
+规则：合法END建立首MANUAL周期时封存真实来源；历史合法性与当前周期是否享有开关例外分别计算，不从普通导入或人改值生成。
 
 依赖字段：[FIELD-FLOW-RUN-END-ACTION](field-specs.md#FIELD-FLOW-RUN-END-ACTION)、[FIELD-FLOW-RECORD-ID](field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-OWNER-TENANT](field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-DIRECT-CYCLE-ID](field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
 
@@ -17839,7 +17887,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - 原run在本租户以DIRECT_FOLLOWUP结束，来源证明一致且无自动呼叫。
 
 非法/拒绝：
-- 普通DIRECT请求伪造origin绕分类开关，或转出方借旧owner来源办理，拒绝。
+- 普通DIRECT请求伪造origin绕旧allowDirect标志，或转出方借旧owner来源办理，拒绝。
 
 ### 依据、使用位置与验证
 
@@ -17854,6 +17902,1511 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 任务：[TASK-016](tasks/TASK-016.md)、[TASK-017](tasks/TASK-017.md)、[TASK-018](tasks/TASK-018.md)、[TASK-024](tasks/TASK-024.md)、[TASK-028](tasks/TASK-028.md)、[TASK-030](tasks/TASK-030.md)
 
 测试：CHECK-FLOW-ASSIGN, CHECK-FLOW-START, CHECK-FLOW-DETAIL, CHECK-FLOW-CUSTOMER-TIMELINE, CHECK-FLOW-ENABLE-TEMPLATE, CHECK-FLOW-RESUME-DIRECT, CHECK-FLOW-END-HANDOFF
+
+<a id="FIELD-FLOW-EXECUTION-RESOURCE"></a>
+
+## FIELD-FLOW-EXECUTION-RESOURCE 当前具体任务或坐席
+
+单功能页面／局部明确关联：
+
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+业务对象：`ExecutionArrangement`
+
+字段：`resourceId`
+
+类型：string
+
+格式/枚举/单位/精度：当前负责租户资源稳定ID；AI/预外呼为任务，MANUAL为坐席
+
+允许 null：True
+
+必填条件：AI/PRED明确实际安排时须有任务；人工SPECIFIC_SEAT或实际拨打前须有seat，MANUAL待分配可空
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+可带出本租户有效节点默认；无明确安排时保待安排，不造资源ID。
+
+### 校验与关联约束
+
+- 只选本租户合法目标：PRED只任务，AI任务+适配场景；人工MANUAL可先无seat保存/导入待分配，SPECIFIC_SEAT才必选有效seat；真正起呼前人工必须落实seat且本人办理。取消独立责任人不放宽任务/模块授权。
+
+### 读写权限
+
+可读：
+- 当前负责租户中有此业务读取资格的管理员或运营
+- 本租户准确原段实际办理／接听人的最小表单读取
+- 管理范围内超级管理员只读监管
+- 转出方按已封存本方截止范围只读
+
+可写：
+- 当前负责租户管理员，具有相应动作权且当前状态允许
+
+### 各状态行为
+
+- 草稿与明确保存：按当前tenant、方式、分类及必要AI场景取合法候选；明确选具体resourceId，提交和实际起呼复核；多个候选不猜首项。
+- 失败、未知或并发冲突：保原选择和输入，重验或核对同次请求；不部分写入、猜首项或自动再次起呼。
+- 历史读取：当前配置或改派不追改已受理执行的原值/快照。
+
+### 来源与计算
+
+来源类型：input
+
+规则：只选本租户合法目标：PRED只任务，AI任务+适配场景；人工MANUAL可先无seat保存/导入待分配，SPECIFIC_SEAT才必选有效seat；真正起呼前人工必须落实seat且本人办理。取消独立责任人不放宽任务/模块授权。
+
+依赖字段：[FIELD-FLOW-OWNER-TENANT](field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-METHOD](field-specs.md#FIELD-FLOW-METHOD)、[FIELD-FLOW-AI-SCENE](field-specs.md#FIELD-FLOW-AI-SCENE)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：合法安排/节点保存时产生；当前执行受理后封存于原跟进快照，跨租户不沿用旧安排；普通读取不写。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 按当前tenant、方式、分类及必要AI场景取合法候选；明确选具体resourceId，提交和实际起呼复核；多个候选不猜首项。
+
+非法/拒绝：
+- 非法等级、异租户资源、失效目标或伪造入队时间，拒绝且保输入。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-EXECUTION-RESOURCE
+
+来源条目：
+- pages:PAGE-2204/fields/91
+- pages:PAGE-2226/fields/39
+- pages:PAGE-2227/fields/144
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/160
+
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)
+
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-018](tasks/TASK-018.md)、[TASK-030](tasks/TASK-030.md)
+
+测试：CHECK-FLOW-EXECUTION-TARGET, CHECK-FLOW-IMPORT-ARRANGEMENT
+
+<a id="FIELD-FLOW-EXECUTION-PRIORITY"></a>
+
+## FIELD-FLOW-EXECUTION-PRIORITY 执行优先级
+
+单功能页面／局部明确关联：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+- [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
+
+业务对象：`ExecutionArrangement`
+
+字段：`executionPriority`
+
+类型：integer
+
+格式/枚举/单位/精度：5最高 / 4高 / 3中 / 2低 / 1最低
+
+允许 null：False
+
+必填条件：本次明确安排或节点配置生效时必需；尚未安排可没有该当前安排
+
+### 默认与初始化
+
+模式：literal；值：`3`
+
+未显式覆盖时采用有效节点默认，否则中；旧分类数值不是五档来源。
+
+### 校验与关联约束
+
+- 仅整数1～5，缺省3；当前明确安排覆盖模板节点默认；同资源可办理待执行项高先，同级按queuedAt和queueSequence先后。旧分类0～999不静默转档。
+
+### 读写权限
+
+可读：
+- 当前负责租户中有此业务读取资格的管理员或运营
+- 本租户准确原段实际办理／接听人的最小表单读取
+- 管理范围内超级管理员只读监管
+- 转出方按已封存本方截止范围只读
+
+可写：
+- 当前负责租户管理员，具有相应动作权且当前状态允许
+
+### 各状态行为
+
+- 草稿与明确保存：仅整数1～5，缺省3；当前明确安排覆盖模板节点默认；同资源可办理待执行项高先，同级按queuedAt和queueSequence先后。旧分类0～999不静默转档。
+- 失败、未知或并发冲突：保原选择和输入，重验或核对同次请求；不部分写入、猜首项或自动再次起呼。
+- 历史读取：当前配置或改派不追改已受理执行的原值/快照。
+
+### 来源与计算
+
+来源类型：input
+
+规则：仅整数1～5，缺省3；当前明确安排覆盖模板节点默认；同资源可办理待执行项高先，同级按queuedAt和queueSequence先后。旧分类0～999不静默转档。
+
+依赖字段：[FIELD-FLOW-NODE-EXECUTION-PRIORITY](field-specs.md#FIELD-FLOW-NODE-EXECUTION-PRIORITY)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：合法安排/节点保存时产生；当前执行受理后封存于原跟进快照，跨租户不沿用旧安排；普通读取不写。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 仅整数1～5，缺省3；当前明确安排覆盖模板节点默认；同资源可办理待执行项高先，同级按queuedAt和queueSequence先后。旧分类0～999不静默转档。
+
+非法/拒绝：
+- 非法等级、异租户资源、失效目标或伪造入队时间，拒绝且保输入。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-EXECUTION-PRIORITY
+
+来源条目：
+- pages:PAGE-2103/fields/32
+- pages:PAGE-2204/fields/92
+- pages:PAGE-2205/fields/60
+- pages:PAGE-2226/fields/40
+- pages:PAGE-2227/fields/145
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/161
+
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CONTACT-POLICY](local-logic/LOCAL-FLOW-CONTACT-POLICY.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
+
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-018](tasks/TASK-018.md)、[TASK-030](tasks/TASK-030.md)、[TASK-031](tasks/TASK-031.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
+
+测试：CHECK-FLOW-EXECUTION-PRIORITY
+
+<a id="FIELD-FLOW-EXECUTION-QUEUED-AT"></a>
+
+## FIELD-FLOW-EXECUTION-QUEUED-AT 当前安排入队时间
+
+单功能页面／局部明确关联：
+
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+业务对象：`ExecutionArrangement`
+
+字段：`queuedAt`
+
+类型：datetime
+
+格式/枚举/单位/精度：带时区时间戳，界面按北京时间展示
+
+允许 null：True
+
+必填条件：本次明确安排或节点配置生效时必需；尚未安排可没有该当前安排
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+尚无当前安排不伪造入队时间。
+
+### 校验与关联约束
+
+- 当前安排首次进入待执行队列时由系统记录；同一安排仅改等级、查询或普通编辑不刷新时间；新节点/阶段或显式新安排形成新的入队事实。
+- 当前排队事实仅属于准确当前run/nodeRun/directCycle及有效资源安排；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。
+
+### 读写权限
+
+可读：
+- 当前负责租户中有此业务读取资格的管理员或运营
+- 本租户准确原段实际办理／接听人的最小表单读取
+- 管理范围内超级管理员只读监管
+- 转出方按已封存本方截止范围只读
+
+可写：
+- 系统依据当前合法安排和队列事实生成；用户不可直接编辑。
+
+### 各状态行为
+
+- 草稿与明确保存：当前安排首次进入待执行队列时由系统记录；同一安排仅改等级、查询或普通编辑不刷新时间；新节点/阶段或显式新安排形成新的入队事实。
+- 失败、未知或并发冲突：保原选择和输入，重验或核对同次请求；不部分写入、猜首项或自动再次起呼。
+- 历史读取：当前配置或改派不追改已受理执行的原值/快照。
+
+### 来源与计算
+
+来源类型：system
+
+规则：当前排队事实仅属于准确当前run/nodeRun/directCycle及有效资源安排；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。
+
+依赖字段：[FIELD-FLOW-EXECUTION-RESOURCE](field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：本次准确当前运行/节点/直接周期的有效资源安排首次入队或显式新安排生成；同身份同资源重存保原FIFO。旧执行事实独立封存，读取不回落旧队列别名。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 当前安排首次进入待执行队列时由系统记录；同一安排仅改等级、查询或普通编辑不刷新时间；新节点/阶段或显式新安排形成新的入队事实。
+
+非法/拒绝：
+- 非法等级、异租户资源、失效目标或伪造入队时间，拒绝且保输入。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-EXECUTION-QUEUED-AT
+
+来源条目：
+- pages:PAGE-2204/fields/93
+- pages:PAGE-2226/fields/41
+- pages:PAGE-2227/fields/146
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/162
+
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CONTACT-POLICY](local-logic/LOCAL-FLOW-CONTACT-POLICY.md)
+
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-018](tasks/TASK-018.md)、[TASK-030](tasks/TASK-030.md)、[TASK-031](tasks/TASK-031.md)
+
+测试：CHECK-FLOW-EXECUTION-PRIORITY
+
+<a id="FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE"></a>
+
+## FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE 同刻入队稳定顺序
+
+单功能页面／局部明确关联：
+
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+业务对象：`ExecutionArrangement`
+
+字段：`queueSequence`
+
+类型：integer
+
+格式/枚举/单位/精度：系统生成非负整数；同毫秒等优先队列的稳定顺序
+
+允许 null：True
+
+必填条件：本次明确安排或节点配置生效时必需；尚未安排可没有该当前安排
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+建立当前合法安排时与入队时间同次产生。
+
+### 校验与关联约束
+
+- 同优先且queuedAt相同的记录按系统既有入队序号升序；读取和仅调优先级不重建序号，不按列表更新时间代替入队顺序。
+- 当前排队事实仅属于准确当前run/nodeRun/directCycle及有效资源安排；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。
+
+### 读写权限
+
+可读：
+- 当前负责租户中有此业务读取资格的管理员或运营
+- 本租户准确原段实际办理／接听人的最小表单读取
+- 管理范围内超级管理员只读监管
+- 转出方按已封存本方截止范围只读
+
+可写：
+- 系统依据当前合法安排和队列事实生成；用户不可直接编辑。
+
+### 各状态行为
+
+- 草稿与明确保存：同优先且queuedAt相同的记录按系统既有入队序号升序；读取和仅调优先级不重建序号，不按列表更新时间代替入队顺序。
+- 失败、未知或并发冲突：保原选择和输入，重验或核对同次请求；不部分写入、猜首项或自动再次起呼。
+- 历史读取：当前配置或改派不追改已受理执行的原值/快照。
+
+### 来源与计算
+
+来源类型：system
+
+规则：当前排队事实仅属于准确当前run/nodeRun/directCycle及有效资源安排；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。
+
+依赖字段：[FIELD-FLOW-EXECUTION-QUEUED-AT](field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：本次准确当前运行/节点/直接周期的有效资源安排首次入队或显式新安排生成；同身份同资源重存保原FIFO。旧执行事实独立封存，读取不回落旧队列别名。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 同优先且queuedAt相同的记录按系统既有入队序号升序；读取和仅调优先级不重建序号，不按列表更新时间代替入队顺序。
+
+非法/拒绝：
+- 非法等级、异租户资源、失效目标或伪造入队时间，拒绝且保输入。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE
+
+来源条目：
+- pages:PAGE-2204/fields/94
+- pages:PAGE-2226/fields/42
+- pages:PAGE-2227/fields/147
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/163
+
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CONTACT-POLICY](local-logic/LOCAL-FLOW-CONTACT-POLICY.md)
+
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-018](tasks/TASK-018.md)、[TASK-030](tasks/TASK-030.md)、[TASK-031](tasks/TASK-031.md)
+
+测试：CHECK-FLOW-EXECUTION-PRIORITY
+
+<a id="FIELD-FLOW-NODE-EXECUTION-PRIORITY"></a>
+
+## FIELD-FLOW-NODE-EXECUTION-PRIORITY 呼叫节点默认执行优先级
+
+单功能页面／局部明确关联：
+
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
+
+业务对象：`FlowNode`
+
+字段：`executionPriority`
+
+类型：integer
+
+格式/枚举/单位/精度：5最高 / 4高 / 3中 / 2低 / 1最低
+
+允许 null：False
+
+必填条件：本次明确安排或节点配置生效时必需；尚未安排可没有该当前安排
+
+### 默认与初始化
+
+模式：literal；值：`3`
+
+新CALL节点默认中。
+
+### 校验与关联约束
+
+- CALL节点配置默认等级，缺省中；导入或手动安排可明确覆盖；新运行捕获模板当时值，历史运行不追改。
+
+### 读写权限
+
+可读：
+- 具有本品牌模板读取资格的配置管理人；业务运行按原对象权限读取自身捕获快照。
+
+可写：
+- 具有本品牌模板维护动作权的超级管理员或租户管理员；仅改公共节点配置，不因此获得租户任务/坐席使用权。
+
+### 各状态行为
+
+- 草稿与明确保存：CALL节点配置默认等级，缺省中；导入或手动安排可明确覆盖；新运行捕获模板当时值，历史运行不追改。
+- 失败、未知或并发冲突：保原选择和输入，重验或核对同次请求；不部分写入、猜首项或自动再次起呼。
+- 历史读取：当前配置或改派不追改已受理执行的原值/快照。
+
+### 来源与计算
+
+来源类型：input
+
+规则：CALL节点配置默认等级，缺省中；导入或手动安排可明确覆盖；新运行捕获模板当时值，历史运行不追改。
+
+依赖字段：无
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：合法安排/节点保存时产生；当前执行受理后封存于原跟进快照，跨租户不沿用旧安排；普通读取不写。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- CALL节点配置默认等级，缺省中；导入或手动安排可明确覆盖；新运行捕获模板当时值，历史运行不追改。
+
+非法/拒绝：
+- 非法等级、异租户资源、失效目标或伪造入队时间，拒绝且保输入。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-NODE-EXECUTION-PRIORITY
+
+来源条目：
+- pages:PAGE-2228/fields/33
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/164
+
+局部说明：[LOCAL-FLOW-TEMPLATE-CREATE](local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)、[LOCAL-FLOW-TEMPLATE-EDIT](local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)、[LOCAL-FLOW-TEMPLATE-READ](local-logic/LOCAL-FLOW-TEMPLATE-READ.md)、[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)
+
+任务：[TASK-011](tasks/TASK-011.md)、[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)
+
+测试：CHECK-FLOW-EXECUTION-DEFAULTS
+
+<a id="FIELD-FLOW-NODE-EXECUTION-DEFAULTS"></a>
+
+## FIELD-FLOW-NODE-EXECUTION-DEFAULTS 呼叫节点分租户默认安排
+
+单功能页面／局部明确关联：
+
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
+
+业务对象：`FlowNode`
+
+字段：`executionDefaults`
+
+类型：array
+
+格式/枚举/单位/精度：[{tenantId,method?,manualAssignmentMode?,resourceId?,aiSceneId?}]；人工seat账号由合法seat派生，旧人员事实只读
+
+允许 null：False
+
+必填条件：本次明确安排或节点配置生效时必需；尚未安排可没有该当前安排
+
+### 默认与初始化
+
+模式：literal；值：`[]`
+
+没有明确映射时由导入或手动分配补齐，不按首项代填。
+
+### 校验与关联约束
+
+- 节点/当前有权tenant默认无独立责任人控件。人工默认MANUAL可无seat保存；SPECIFIC_SEAT才核有效seat；PRED只任务、AI任务+scene。其他tenant映射保原值且不暴露私有候选。
+
+### 读写权限
+
+可读：
+- 当前负责租户中有此业务读取资格的管理员或运营
+- 本租户准确原段实际办理／接听人的最小表单读取
+- 管理范围内超级管理员只读监管
+- 转出方按已封存本方截止范围只读
+
+可写：
+- 当前负责租户管理员，具有相应动作权且当前状态允许
+
+### 各状态行为
+
+- 草稿与明确保存：仅可维护当前实际有权执行租户的映射；不展示其他租户私有候选，保存保留其他租户原映射。资源与节点单方式/场景适配；换方式不得沿用不兼容目标。
+- 失败、未知或并发冲突：保原选择和输入，重验或核对同次请求；不部分写入、猜首项或自动再次起呼。
+- 历史读取：当前配置或改派不追改已受理执行的原值/快照。
+
+### 来源与计算
+
+来源类型：input
+
+规则：节点/当前有权tenant默认无独立责任人控件。人工默认MANUAL可无seat保存；SPECIFIC_SEAT才核有效seat；PRED只任务、AI任务+scene。其他tenant映射保原值且不暴露私有候选。
+
+依赖字段：[FIELD-FLOW-OWNER-TENANT](field-specs.md#FIELD-FLOW-OWNER-TENANT)、[FIELD-FLOW-METHOD](field-specs.md#FIELD-FLOW-METHOD)、[FIELD-FLOW-EXECUTION-RESOURCE](field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)、[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)、[FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE](field-specs.md#FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：合法安排/节点保存时产生；当前执行受理后封存于原跟进快照，跨租户不沿用旧安排；普通读取不写。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 仅可维护当前实际有权执行租户的映射；不展示其他租户私有候选，保存保留其他租户原映射。资源与节点单方式/场景适配；换方式不得沿用不兼容目标。
+
+非法/拒绝：
+- 非法等级、异租户资源、失效目标或伪造入队时间，拒绝且保输入。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-NODE-EXECUTION-DEFAULTS
+
+来源条目：
+- pages:PAGE-2228/fields/34
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/165
+
+局部说明：[LOCAL-FLOW-TEMPLATE-CREATE](local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)、[LOCAL-FLOW-TEMPLATE-EDIT](local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)、[LOCAL-FLOW-TEMPLATE-READ](local-logic/LOCAL-FLOW-TEMPLATE-READ.md)、[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)
+
+任务：[TASK-011](tasks/TASK-011.md)、[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)
+
+测试：CHECK-FLOW-EXECUTION-DEFAULTS
+
+<a id="FIELD-FLOW-MANUAL-ASSIGNMENT-MODE"></a>
+
+## FIELD-FLOW-MANUAL-ASSIGNMENT-MODE 当前人工分配方式
+
+单功能页面／局部明确关联：
+
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+业务对象：`ExecutionArrangement`
+
+字段：`manualAssignmentMode`
+
+类型：enum
+
+格式/枚举/单位/精度：MANUAL（人工分配） / SPECIFIC_SEAT（指定坐席）
+
+允许 null：False
+
+必填条件：仅人工方式适用，缺省MANUAL；AI/PRED不要求此字段
+
+### 默认与初始化
+
+模式：literal；值：`"MANUAL"`
+
+人工默认人工分配，可先保存/导入待分配；不默认选seat。
+
+### 校验与关联约束
+
+- 人工仅MANUAL/SPECIFIC_SEAT；MANUAL无seat可保存及导入待分配，SPECIFIC_SEAT须当前有效seat；实际拨打前必须分配有效seat并核本人。AI/PRED不沿用人工seat或要求独立责任人。
+- 新后继人工节点MANUAL明确进入待分配，不继承前seat；SPECIFIC_SEAT才可在本节点、同tenant/method和有效资源下沿用或确认。旧快照无策略时按原解释，不读取时迁移。
+
+### 读写权限
+
+可读：
+- 当前负责租户中有此业务读取资格的管理员或运营
+- 本租户准确原段实际办理／接听人的最小表单读取
+- 管理范围内超级管理员只读监管
+- 转出方按已封存本方截止范围只读
+
+可写：
+- 当前负责租户管理员，具有相应动作权且当前状态允许
+
+### 各状态行为
+
+- 草稿/保存：人工仅MANUAL/SPECIFIC_SEAT；MANUAL无seat可保存及导入待分配，SPECIFIC_SEAT须当前有效seat；实际拨打前必须分配有效seat并核本人。AI/PRED不沿用人工seat或要求独立责任人。
+- 真实发起：人工必须已落实seat且仅其本人发起；mode自身不授资源权。
+- 历史：不迁移已受理段或封存旧值。
+
+### 来源与计算
+
+来源类型：input
+
+规则：节点默认带出，导入或当前人工安排可明确覆盖；不伪造实际拨打。
+
+依赖字段：[FIELD-FLOW-EXECUTION-RESOURCE](field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：当前人工安排保存或导入时与本次准确对象同次保存；已受理执行及原历史不追改。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- MANUAL不选seat先保存或导入待分配；SPECIFIC_SEAT选择SEAT-A。
+
+非法/拒绝：
+- SPECIFIC_SEAT无seat，或AI/PRED借manual mode绕任务/场景校验。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE
+
+来源条目：
+- pages:PAGE-2204/fields/95
+- pages:PAGE-2226/fields/43
+- pages:PAGE-2227/fields/148
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/166
+
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-ASSIGN](local-logic/LOCAL-FLOW-ASSIGN.md)、[LOCAL-FLOW-ASSIGN-BATCH](local-logic/LOCAL-FLOW-ASSIGN-BATCH.md)、[LOCAL-FLOW-START](local-logic/LOCAL-FLOW-START.md)、[LOCAL-FLOW-START-BATCH](local-logic/LOCAL-FLOW-START-BATCH.md)、[LOCAL-FLOW-ADVANCE](local-logic/LOCAL-FLOW-ADVANCE.md)、[LOCAL-FLOW-TRANSFER](local-logic/LOCAL-FLOW-TRANSFER.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-FLOW-CUSTOMER-TIMELINE](local-logic/LOCAL-FLOW-CUSTOMER-TIMELINE.md)、[LOCAL-FLOW-HANDLER-INBOX](local-logic/LOCAL-FLOW-HANDLER-INBOX.md)
+
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-016](tasks/TASK-016.md)、[TASK-018](tasks/TASK-018.md)、[TASK-020](tasks/TASK-020.md)、[TASK-024](tasks/TASK-024.md)、[TASK-025](tasks/TASK-025.md)、[TASK-030](tasks/TASK-030.md)
+
+测试：CHECK-FLOW-MANUAL-ASSIGNMENT-MODE
+
+<a id="FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE"></a>
+
+## FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE 节点默认人工分配方式
+
+单功能页面／局部明确关联：
+
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [编辑流转模板当前配置 · FUNC\-2035](features/FUNC-2035.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [删除当前未被使用的模板定义 · FUNC\-2042](features/FUNC-2042.md)
+
+业务对象：`FlowNode`
+
+字段：`manualAssignmentMode`
+
+类型：enum
+
+格式/枚举/单位/精度：MANUAL（人工分配） / SPECIFIC_SEAT（指定坐席）
+
+允许 null：False
+
+必填条件：仅人工方式适用，缺省MANUAL；AI/PRED不要求此字段
+
+### 默认与初始化
+
+模式：literal；值：`"MANUAL"`
+
+人工默认人工分配，可先保存/导入待分配；不默认选seat。
+
+### 校验与关联约束
+
+- 人工仅MANUAL/SPECIFIC_SEAT；MANUAL无seat可保存及导入待分配，SPECIFIC_SEAT须当前有效seat；实际拨打前必须分配有效seat并核本人。AI/PRED不沿用人工seat或要求独立责任人。
+- 新后继人工节点MANUAL明确进入待分配，不继承前seat；SPECIFIC_SEAT才可在本节点、同tenant/method和有效资源下沿用或确认。旧快照无策略时按原解释，不读取时迁移。
+
+### 读写权限
+
+可读：
+- 具有本品牌模板读取资格的配置管理人；业务运行按原对象权限读取自身捕获快照。
+
+可写：
+- 具有本品牌模板维护动作权的超级管理员或租户管理员；仅改公共节点配置，不因此获得租户任务/坐席使用权。
+
+### 各状态行为
+
+- 草稿/保存：人工仅MANUAL/SPECIFIC_SEAT；MANUAL无seat可保存及导入待分配，SPECIFIC_SEAT须当前有效seat；实际拨打前必须分配有效seat并核本人。AI/PRED不沿用人工seat或要求独立责任人。
+- 真实发起：人工必须已落实seat且仅其本人发起；mode自身不授资源权。
+- 历史：不迁移已受理段或封存旧值。
+
+### 来源与计算
+
+来源类型：input
+
+规则：节点默认带出，导入或当前人工安排可明确覆盖；不伪造实际拨打。
+
+依赖字段：[FIELD-FLOW-EXECUTION-RESOURCE](field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：当前人工CALL节点保存时与本次准确对象同次保存；已受理执行及原历史不追改。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- MANUAL不选seat先保存或导入待分配；SPECIFIC_SEAT选择SEAT-A。
+
+非法/拒绝：
+- SPECIFIC_SEAT无seat，或AI/PRED借manual mode绕任务/场景校验。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE
+
+来源条目：
+- pages:PAGE-2228/fields/35
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/167
+
+局部说明：[LOCAL-FLOW-TEMPLATE-CREATE](local-logic/LOCAL-FLOW-TEMPLATE-CREATE.md)、[LOCAL-FLOW-TEMPLATE-EDIT](local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)、[LOCAL-FLOW-TEMPLATE-READ](local-logic/LOCAL-FLOW-TEMPLATE-READ.md)、[LOCAL-FLOW-ADVANCE](local-logic/LOCAL-FLOW-ADVANCE.md)、[LOCAL-FLOW-TRANSFER](local-logic/LOCAL-FLOW-TRANSFER.md)
+
+任务：[TASK-011](tasks/TASK-011.md)、[TASK-024](tasks/TASK-024.md)、[TASK-025](tasks/TASK-025.md)
+
+测试：CHECK-FLOW-MANUAL-ASSIGNMENT-MODE
+
+<a id="FIELD-FLOW-TASK-IMPORT-SOURCE"></a>
+
+## FIELD-FLOW-TASK-IMPORT-SOURCE 统一业务的准确任务导入来源
+
+单功能页面／局部明确关联：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+- [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
+
+业务对象：`BusinessRecord`
+
+字段：`taskImportSource`
+
+类型：object
+
+格式/枚举/单位/精度：{schema:2,method,taskId,aiSceneId?,categoryId,tenantId,brandId,batchId,importChannel:MANUAL/API,dataImportSource,targetFingerprint,parameterMappingFingerprint}；entrySource另存kind=TASK/CATEGORY与渠道/模式
+
+允许 null：True
+
+必填条件：新TASK DIRECT必须准确来源；CATEGORY/旧历史不伪造TASK标记
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+没有准确来源时不生成、不以首项/同名/同手机号猜测；旧历史保持原事实。
+
+### 校验与关联约束
+
+- 统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。
+- 任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。
+- 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。
+- 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。
+
+### 读写权限
+
+可读：
+- 按原任务/场景/统一业务对象读取资格及当前租户范围；任务读权不授任意统一业务或其他任务查看权。
+
+可写：
+- 系统依据当前有权动作的准确任务/分类/请求结果写入；用户不能直接修改来源或回链。
+
+### 各状态行为
+
+- 当前输入/使用：统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。
+- 历史：按准确原身份及原捕获快照只读，不在读取时补值、迁移或回写。
+- 失败或未知：保原事实和可继续输入，未知核原请求，不虚报成功或重复副作用。
+
+### 来源与计算
+
+来源类型：system
+
+规则：统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。
+
+依赖字段：[FIELD-FLOW-RECORD-ID](field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-CATEGORY-ID](field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-IMPORT-ORIGINAL](field-specs.md#FIELD-FLOW-IMPORT-ORIGINAL)、[FIELD-FLOW-EXECUTION-PRIORITY](field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)、[FIELD-PLAT-TASK-ID](field-specs.md#FIELD-PLAT-TASK-ID)、[FIELD-PLAT-AI-SCENE-ID](field-specs.md#FIELD-PLAT-AI-SCENE-ID)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：同一明确成功请求与record、batch、DIRECT周期、entrySource及originalImportSnapshot同次保存；未知沿原请求核对，读取不迁移旧来源。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。
+
+非法/拒绝：
+- 无准确来源/权限、失效依据或伪造历史事实，拒绝并保原值。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-TASK-IMPORT-SOURCE
+
+来源条目：
+- pages:PAGE-2103/fields/28
+- pages:PAGE-2204/fields/96
+- pages:PAGE-2205/fields/56
+- pages:PAGE-2226/fields/44
+- pages:PAGE-2227/fields/149
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/168
+
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-QUERY](local-logic/LOCAL-FLOW-QUERY.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-IMPORT-HISTORY](local-logic/LOCAL-PLAT-AI-IMPORT-HISTORY.md)、[LOCAL-PLAT-CUSTOMER-IMPORT](local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
+
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-015](tasks/TASK-015.md)、[TASK-030](tasks/TASK-030.md)、[TASK-034](tasks/TASK-034.md)、[TASK-043](tasks/TASK-043.md)、[TASK-045](tasks/TASK-045.md)
+
+测试：CHECK-FLOW-AI-TASK-DIRECT-IMPORT, CHECK-FLOW-PRED-TASK-DIRECT-IMPORT, CHECK-FLOW-TASK-IMPORT-REPLAY
+
+<a id="FIELD-FLOW-TASK-IMPORT-PARAMETERS"></a>
+
+## FIELD-FLOW-TASK-IMPORT-PARAMETERS 任务导入单行供应商参数及专属列快照
+
+单功能页面／局部明确关联：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+业务对象：`BusinessRecord`
+
+字段：`taskImportParameterSnapshot`
+
+类型：object
+
+格式/枚举/单位/精度：{fingerprint,mappings,parameters,customFields,customValues}；按本行规范业务值及独立供应商列值生成，保存不代表供应商已接收
+
+允许 null：True
+
+必填条件：任务导入存在当前参数映射时形成准确单行快照；不从其他行/手机号借值
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+没有准确来源时不生成、不以首项/同名/同手机号猜测；旧历史保持原事实。
+
+### 校验与关联约束
+
+- task context.fields=businessFields+customFields供模板/列映射；businessFields.required合并供应商需值约束，businessRequired保原分类基础必填，只改本次上下文不改字段库。归一行拆fields业务与customValues独立字典，record.fields永不混供应商值；专属列不进入分类IMPORT/FOLLOWUP或路由条件。
+- customFields仅本scene/platform派生，key='__AI_CUSTOM__'+encode(platform)+'__'+encode(sceneId)+'__'+encode(mapping.id)，usage=SUPPLIER_PARAMETER/source=AI_CUSTOM；key编码连下划线也转义，避免platform/scene/id分隔碰撞；旧opaque key快照不回写。保本次label/type/required及专业fixed/system标志，专属text/number/date依定义校验，不从其他行借值。
+- 从本行规范值和准确scene/platform/category映射产生parameters，保0/false及空值语义；fingerprint绑定本次映射/字段定义，不跨行、不按当前配置重绘历史。
+- record.taskImportParameterSnapshot及originalImportSnapshot.taskImportParameterSnapshot同封customFields/customValues/mappings/parameters/fingerprint，originalImportSnapshot.taskImportSource同源；批次映射快照扩customFields，供应商专属定义/值不写业务字段库。
+- 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+- 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。
+- 导入与明确执行使用相同底层配置语义指纹；已知成功准入包装字段和对象键序不构成业务配置变化。旧schema2 TASK/DIRECT仅在完整准确身份及已知wrapper/basis证明等价时只读兼容；未知附加项或真实映射/来源/模板/状态变化继续拒绝，不回写旧快照，TEMPLATE标签依赖保完整指纹。
+
+### 读写权限
+
+可读：
+- 按原任务/场景/统一业务对象读取资格及当前租户范围；任务读权不授任意统一业务或其他任务查看权。
+
+可写：
+- 系统依据当前有权动作的准确任务/分类/请求结果写入；用户不能直接修改来源或回链。
+
+### 各状态行为
+
+- 读取/预检：按准确AI任务/场景/平台读取共同业务schema及派生customFields，列映射预检拆业务值和供应商专属值。
+- 明确成功：统一导入同次成功时保存本行record.taskImportParameterSnapshot及originalImportSnapshot.taskImportParameterSnapshot；批次保本次映射及customFields。独立供应商值只在此快照，不混record.fields，不重复新建原生供应商行/提交供应商。
+- 失败/未知/上下文变化：保输入和已生效事实，旧预检失效；同请求核对，不重复写业务、原生行或提交供应商。
+- 历史：旧专业行及业务快照不迁移，不因同手机号认领旧业务或按当前字段重绘历史。
+
+### 来源与计算
+
+来源类型：system
+
+规则：task context.fields=businessFields+customFields供模板/列映射；businessFields.required合并供应商需值约束，businessRequired保原分类基础必填，只改本次上下文不改字段库。归一行拆fields业务与customValues独立字典，record.fields永不混供应商值；专属列不进入分类IMPORT/FOLLOWUP或路由条件。；customFields仅本scene/platform派生，key='__AI_CUSTOM__'+encode(platform)+'__'+encode(sceneId)+'__'+encode(mapping.id)，usage=SUPPLIER_PARAMETER/source=AI_CUSTOM；key编码连下划线也转义，避免platform/scene/id分隔碰撞；旧opaque key快照不回写。保本次label/type/required及专业fixed/system标志，专属text/number/date依定义校验，不从其他行借值。；从本行规范值和准确scene/platform/category映射产生parameters，保0/false及空值语义；fingerprint绑定本次映射/字段定义，不跨行、不按当前配置重绘历史。；record.taskImportParameterSnapshot及originalImportSnapshot.taskImportParameterSnapshot同封customFields/customValues/mappings/parameters/fingerprint，originalImportSnapshot.taskImportSource同源；批次映射快照扩customFields，供应商专属定义/值不写业务字段库。
+
+依赖字段：[FIELD-FLOW-TASK-IMPORT-SOURCE](field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS](field-specs.md#FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS)、[FIELD-FLOW-IMPORT-VALUES](field-specs.md#FIELD-FLOW-IMPORT-VALUES)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：统一导入同次成功时保存本行record.taskImportParameterSnapshot及originalImportSnapshot.taskImportParameterSnapshot；批次保本次映射及customFields。独立供应商值只在此快照，不混record.fields，不重复新建原生供应商行/提交供应商。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 使用准确分类IMPORT fieldId、taskId及recordId形成可核引用，字段值完整且来源只写一次。
+
+非法/拒绝：
+- FOLLOWUP/异分类/失效fieldId、同手机号猜关联、伪造任务来源或用无权任务提交，拒绝。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-TASK-IMPORT-PARAMETERS
+- docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG
+
+来源条目：
+- pages:PAGE-2103/fields/29
+- pages:PAGE-2227/fields/150
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/169
+
+局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-FLOW-BATCH-READ](local-logic/LOCAL-FLOW-BATCH-READ.md)、[LOCAL-FLOW-DETAIL](local-logic/LOCAL-FLOW-DETAIL.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
+
+任务：[TASK-015](tasks/TASK-015.md)、[TASK-030](tasks/TASK-030.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)
+
+测试：CHECK-PLAT-AI-IMPORT-FIELD-MAPPING, CHECK-FLOW-AI-TASK-DIRECT-IMPORT, CHECK-FLOW-TASK-IMPORT-REPLAY
+
+<a id="FIELD-FLOW-MISSING-CONTENT-CONFIRM"></a>
+
+## FIELD-FLOW-MISSING-CONTENT-CONFIRM 确认必要本人内容无法补齐
+
+单功能页面／局部明确关联：
+
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+- [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+业务对象：`AbandonInput`
+
+字段：`confirmMissingContent`
+
+类型：boolean
+
+格式/枚举/单位/精度：true/false；缺省false
+
+允许 null：False
+
+必填条件：可靠停止后要完成缺内容废弃，或确认旧ABANDONED本tenant缺失时需要；真实执行/核对阻塞仅登记停止时不强求未来确认
+
+### 默认与初始化
+
+模式：literal；值：`false`
+
+默认不勾选；只在当前确有缺失范围且ADMIN复核后明确选择。
+
+### 校验与关联约束
+
+- 这是无法补填的确认，不是本人填写、正常归档或真实停止证明；当前缺失范围/实际人/字段及接通calls变化须重新核对。
+
+### 读写权限
+
+可读：
+- 当前负责租户有本业务废弃资格的ADMIN读取确认概要；已保存审计沿原业务/原段读取范围，不授跨租户私有字段值。
+
+可写：
+- 仅当前负责租户且有本业务废弃资格的ADMIN在对应确认窗口明确勾选；不代填本人业务内容。
+
+### 各状态行为
+
+- 读取/草稿：这是无法补填的确认，不是本人填写、正常归档或真实停止证明；当前缺失范围/实际人/字段及接通calls变化须重新核对。
+- 确认缺失/历史收尾：完成缺内容废弃/历史确认时携runId、confirmationFingerprint和expectedRevision重核；真实执行/核对阻塞中仅登记停止不先强未来确认。
+- 真实终结/历史：当前确认窗口暂存输入；通过提交时由系统封入原seg的abandonmentSettlement证据，输入本身不修改内容/执行状态。
+
+### 来源与计算
+
+来源类型：input
+
+规则：这是无法补填的确认，不是本人填写、正常归档或真实停止证明；当前缺失范围/实际人/字段及接通calls变化须重新核对。
+
+依赖字段：[FIELD-FLOW-RUN-ID](field-specs.md#FIELD-FLOW-RUN-ID)、[FIELD-FLOW-RECORD-REVISION](field-specs.md#FIELD-FLOW-RECORD-REVISION)、[FIELD-FLOW-REASON](field-specs.md#FIELD-FLOW-REASON)
+
+### 保存与更新
+
+方式：transient
+
+物理映射：未填写
+
+业务保存或更新时机：当前确认窗口暂存输入；通过提交时由系统封入原seg的abandonmentSettlement证据，输入本身不修改内容/执行状态。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 当前ownerADMIN确认本tenant原段无法补填、原因与准确指纹/版本一致，真实执行停止后异常结清不计正常完成。
+
+非法/拒绝：
+- 无确认、无原因、外租户段、过期指纹或用确认代替真实停止，拒绝。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-MISSING-CONTENT-CONFIRM
+
+来源条目：
+- pages:PAGE-2227/fields/151
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/170
+
+局部说明：[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-ABANDONED-SETTLEMENT](local-logic/LOCAL-FLOW-ABANDONED-SETTLEMENT.md)
+
+任务：[TASK-026](tasks/TASK-026.md)
+
+测试：CHECK-FLOW-CONTROLLED-ABANDON, CHECK-FLOW-ABANDON-DIRECT-SETTLEMENT
+
+<a id="FIELD-FLOW-ABANDON-CONFIRMATION"></a>
+
+## FIELD-FLOW-ABANDON-CONFIRMATION 废弃缺失范围确认依据
+
+单功能页面／局部明确关联：
+
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+- [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+业务对象：`AbandonContext`
+
+字段：`confirmationFingerprint`
+
+类型：string
+
+格式/枚举/单位/精度：系统生成ABANDON-指纹；用户不可编辑
+
+允许 null：False
+
+必填条件：受控缺内容确认适用时按准确对象/当前缺失范围提供；旧历史不静默补写
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+由abandonContext或abandonedSettlementContext读取准确run及缺失上下文后生成，不人工构造。
+
+### 校验与关联约束
+
+- 绑定record/run/本tenant缺失seg、实际人或UNKNOWN、冻结字段scope及接通calls等当前上下文；与expectedRevision一起提交，过期不可复用。
+
+### 读写权限
+
+可读：
+- 当前负责租户有本业务废弃资格的ADMIN读取确认概要；已保存审计沿原业务/原段读取范围，不授跨租户私有字段值。
+
+可写：
+- 系统按已核当前ownerADMIN、准确run/本tenant旧seg、指纹/版本和原因写；用户不可直接改审计身份或终态。
+
+### 各状态行为
+
+- 读取/草稿：绑定record/run/本tenant缺失seg、实际人或UNKNOWN、冻结字段scope及接通calls等当前上下文；与expectedRevision一起提交，过期不可复用。
+- 确认缺失/历史收尾：完成缺内容废弃/历史确认时携runId、confirmationFingerprint和expectedRevision重核；真实执行/核对阻塞中仅登记停止不先强未来确认。
+- 真实终结/历史：每次准确上下文读取生成本次确认依据，相关事实/缺失范围变化使旧值失效；成功后对应缺失指纹仅作为seg审计保存。
+
+### 来源与计算
+
+来源类型：system
+
+规则：绑定record/run/本tenant缺失seg、实际人或UNKNOWN、冻结字段scope及接通calls等当前上下文；与expectedRevision一起提交，过期不可复用。
+
+依赖字段：[FIELD-FLOW-RUN-ID](field-specs.md#FIELD-FLOW-RUN-ID)、[FIELD-FLOW-RECORD-REVISION](field-specs.md#FIELD-FLOW-RECORD-REVISION)、[FIELD-FLOW-REASON](field-specs.md#FIELD-FLOW-REASON)
+
+### 保存与更新
+
+方式：transient
+
+物理映射：未填写
+
+业务保存或更新时机：每次准确上下文读取生成本次确认依据，相关事实/缺失范围变化使旧值失效；成功后对应缺失指纹仅作为seg审计保存。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 当前ownerADMIN确认本tenant原段无法补填、原因与准确指纹/版本一致，真实执行停止后异常结清不计正常完成。
+
+非法/拒绝：
+- 无确认、无原因、外租户段、过期指纹或用确认代替真实停止，拒绝。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-ABANDON-CONFIRMATION
+
+来源条目：
+- pages:PAGE-2227/fields/152
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/171
+
+局部说明：[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-ABANDONED-SETTLEMENT](local-logic/LOCAL-FLOW-ABANDONED-SETTLEMENT.md)
+
+任务：[TASK-026](tasks/TASK-026.md)
+
+测试：CHECK-FLOW-CONTROLLED-ABANDON, CHECK-FLOW-ABANDON-DIRECT-SETTLEMENT
+
+<a id="FIELD-FLOW-ABANDONMENT-SETTLEMENT"></a>
+
+## FIELD-FLOW-ABANDONMENT-SETTLEMENT 原跟进的受控废弃收尾证据
+
+单功能页面／局部明确关联：
+
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+- [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+业务对象：`Followup`
+
+字段：`abandonmentSettlement`
+
+类型：object
+
+格式/枚举/单位/精度：{schema:1,recordId,runId,segmentId,confirmMissingContent,confirmedRole,confirmedBy,confirmedTenantId,confirmedAt,reason,missingContextFingerprint,missingContext,confirmationHistory,settledAt?,contentState?,contentSavedLaterAt?}
+
+允许 null：True
+
+必填条件：受控缺内容确认适用时按准确对象/当前缺失范围提供；旧历史不静默补写
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+只有合法弃/收尾操作生成，不为旧记录读时补造确认。
+
+### 校验与关联约束
+
+- 缺内容确认含当前ownerADMIN/原因及准确record-run-seg、本tenant和缺失指纹；missingContext仅实际人或UNKNOWN、冻结字段scope/接通calls，不含私有字段值。
+- settledAt不独自证明可重开，仍核原执行停止/重试/unknown/冲突及内容收尾；contentState为CONFIRMED_MISSING、SAVED_BY_ORIGINAL_PERSON或NO_HUMAN_CONTENT_REQUIRED。
+- 正常archived/completed不伪写；旧原人后补仍归原段且未正常完成。确认变更留confirmationHistory；历史确认只改本tenant旧seg该对象及事件/修订，不改当前run/direct/exec/arrangement/字段。
+
+### 读写权限
+
+可读：
+- 当前负责租户有本业务废弃资格的ADMIN读取确认概要；已保存审计沿原业务/原段读取范围，不授跨租户私有字段值。
+
+可写：
+- 系统按已核当前ownerADMIN、准确run/本tenant旧seg、指纹/版本和原因写；用户不可直接改审计身份或终态。
+
+### 各状态行为
+
+- 读取/草稿：缺内容确认含当前ownerADMIN/原因及准确record-run-seg、本tenant和缺失指纹；missingContext仅实际人或UNKNOWN、冻结字段scope/接通calls，不含私有字段值。
+- 确认缺失/历史收尾：完成缺内容废弃/历史确认时携runId、confirmationFingerprint和expectedRevision重核；真实执行/核对阻塞中仅登记停止不先强未来确认。
+- 真实终结/历史：合法弃确认/历史收尾时封存原seg确认元数据；真实执行可靠停止且内容条件满足时记settledAt/contentState，旧本人后补记contentSavedLaterAt，不回写正常完成。
+
+### 来源与计算
+
+来源类型：system
+
+规则：缺内容确认含当前ownerADMIN/原因及准确record-run-seg、本tenant和缺失指纹；missingContext仅实际人或UNKNOWN、冻结字段scope/接通calls，不含私有字段值。；settledAt不独自证明可重开，仍核原执行停止/重试/unknown/冲突及内容收尾；contentState为CONFIRMED_MISSING、SAVED_BY_ORIGINAL_PERSON或NO_HUMAN_CONTENT_REQUIRED。；正常archived/completed不伪写；旧原人后补仍归原段且未正常完成。确认变更留confirmationHistory；历史确认只改本tenant旧seg该对象及事件/修订，不改当前run/direct/exec/arrangement/字段。
+
+依赖字段：[FIELD-FLOW-RUN-ID](field-specs.md#FIELD-FLOW-RUN-ID)、[FIELD-FLOW-RECORD-REVISION](field-specs.md#FIELD-FLOW-RECORD-REVISION)、[FIELD-FLOW-REASON](field-specs.md#FIELD-FLOW-REASON)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：合法弃确认/历史收尾时封存原seg确认元数据；真实执行可靠停止且内容条件满足时记settledAt/contentState，旧本人后补记contentSavedLaterAt，不回写正常完成。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 当前ownerADMIN确认本tenant原段无法补填、原因与准确指纹/版本一致，真实执行停止后异常结清不计正常完成。
+
+非法/拒绝：
+- 无确认、无原因、外租户段、过期指纹或用确认代替真实停止，拒绝。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-ABANDONMENT-SETTLEMENT
+
+来源条目：
+- pages:PAGE-2227/fields/153
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/172
+
+局部说明：[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)、[LOCAL-FLOW-ABANDONED-SETTLEMENT](local-logic/LOCAL-FLOW-ABANDONED-SETTLEMENT.md)
+
+任务：[TASK-026](tasks/TASK-026.md)
+
+测试：CHECK-FLOW-CONTROLLED-ABANDON, CHECK-FLOW-ABANDON-DIRECT-SETTLEMENT
+
+<a id="FIELD-FLOW-ABANDON-TENANT"></a>
+
+## FIELD-FLOW-ABANDON-TENANT 运行废弃意图的原租户
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [创建品牌共用业务分类与字段基础 · FUNC\-2016](features/FUNC-2016.md)
+- [维护品牌共用业务分类、字段及取数规则 · FUNC\-2017](features/FUNC-2017.md)
+- [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
+- [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
+- [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
+- [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
+- [创建四节点流转模板 · FUNC\-2034](features/FUNC-2034.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
+- [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
+- [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
+- [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
+
+业务对象：`FlowRun`
+
+字段：`abandonTenantId`
+
+类型：string
+
+格式/枚举/单位/精度：原废弃发起时准确tenantId，旧数据可缺
+
+允许 null：True
+
+必填条件：受控缺内容确认适用时按准确对象/当前缺失范围提供；旧历史不静默补写
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+新废弃操作按真实当前owner租户捕获；旧历史不读时迁移/猜补。
+
+### 校验与关联约束
+
+- 与原abandonReason/account/time一起保留废弃意图来源，不随新owner或新run改写；不能作为代其他tenant确认旧段的权限。
+
+### 读写权限
+
+可读：
+- 当前负责租户有本业务废弃资格的ADMIN读取确认概要；已保存审计沿原业务/原段读取范围，不授跨租户私有字段值。
+
+可写：
+- 系统按已核当前ownerADMIN、准确run/本tenant旧seg、指纹/版本和原因写；用户不可直接改审计身份或终态。
+
+### 各状态行为
+
+- 读取/草稿：与原abandonReason/account/time一起保留废弃意图来源，不随新owner或新run改写；不能作为代其他tenant确认旧段的权限。
+- 确认缺失/历史收尾：完成缺内容废弃/历史确认时携runId、confirmationFingerprint和expectedRevision重核；真实执行/核对阻塞中仅登记停止不先强未来确认。
+- 真实终结/历史：新废弃请求合法确认时由系统记录当前负责租户，保原原因/账号/请求时间；后续历史收尾不更改当前租户归属。
+
+### 来源与计算
+
+来源类型：system
+
+规则：与原abandonReason/account/time一起保留废弃意图来源，不随新owner或新run改写；不能作为代其他tenant确认旧段的权限。
+
+依赖字段：[FIELD-FLOW-RUN-ID](field-specs.md#FIELD-FLOW-RUN-ID)、[FIELD-FLOW-RECORD-REVISION](field-specs.md#FIELD-FLOW-RECORD-REVISION)、[FIELD-FLOW-REASON](field-specs.md#FIELD-FLOW-REASON)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：新废弃请求合法确认时由系统记录当前负责租户，保原原因/账号/请求时间；后续历史收尾不更改当前租户归属。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 当前ownerADMIN确认本tenant原段无法补填、原因与准确指纹/版本一致，真实执行停止后异常结清不计正常完成。
+
+非法/拒绝：
+- 无确认、无原因、外租户段、过期指纹或用确认代替真实停止，拒绝。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-FLOW-ABANDON-TENANT
+
+来源条目：
+- pages:PAGE-2227/fields/154
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/173
+
+局部说明：[LOCAL-FLOW-ABANDON](local-logic/LOCAL-FLOW-ABANDON.md)
+
+任务：[TASK-026](tasks/TASK-026.md)
+
+测试：CHECK-FLOW-CONTROLLED-ABANDON, CHECK-FLOW-ABANDON-DIRECT-SETTLEMENT
 
 <a id="FIELD-PLAT-ACCOUNT-ID"></a>
 
@@ -17949,7 +19502,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2003/fields/0
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/160
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/174
 
 局部说明：[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)、[LOCAL-PLAT-ACCOUNT-PROFILE](local-logic/LOCAL-PLAT-ACCOUNT-PROFILE.md)、[LOCAL-PLAT-ACCOUNT-STOP](local-logic/LOCAL-PLAT-ACCOUNT-STOP.md)、[LOCAL-PLAT-ACCOUNT-DELETE](local-logic/LOCAL-PLAT-ACCOUNT-DELETE.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -18054,7 +19607,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2001/fields/2
 - pages:PAGE-2003/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/161
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/175
 
 局部说明：[LOCAL-PLAT-LOGIN](local-logic/LOCAL-PLAT-LOGIN.md)、[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -18156,7 +19709,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2003/fields/16
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/162
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/176
 
 局部说明：[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-PROFILE](local-logic/LOCAL-PLAT-ACCOUNT-PROFILE.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -18258,7 +19811,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2003/fields/14
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/163
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/177
 
 局部说明：[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)、[LOCAL-PLAT-ACCOUNT-PROFILE](local-logic/LOCAL-PLAT-ACCOUNT-PROFILE.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -18362,7 +19915,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2001/fields/3
 - pages:PAGE-2003/fields/19
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/164
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/178
 
 局部说明：[LOCAL-PLAT-LOGIN](local-logic/LOCAL-PLAT-LOGIN.md)、[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)
 
@@ -18464,7 +20017,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2003/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/165
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/179
 
 局部说明：[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-PROFILE](local-logic/LOCAL-PLAT-ACCOUNT-PROFILE.md)
 
@@ -18565,7 +20118,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2003/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/166
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/180
 
 局部说明：[LOCAL-PLAT-ACCOUNT-STOP](local-logic/LOCAL-PLAT-ACCOUNT-STOP.md)
 
@@ -18675,7 +20228,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2106/fields/14
 - pages:PAGE-2112/fields/27
 - pages:PAGE-2202/fields/35
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/167
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/181
 
 局部说明：[LOCAL-PLAT-LOGIN](local-logic/LOCAL-PLAT-LOGIN.md)、[LOCAL-PLAT-NAVIGATE](local-logic/LOCAL-PLAT-NAVIGATE.md)、[LOCAL-PLAT-CONTEXT-SWITCH](local-logic/LOCAL-PLAT-CONTEXT-SWITCH.md)、[LOCAL-PLAT-LOGOUT](local-logic/LOCAL-PLAT-LOGOUT.md)、[LOCAL-PLAT-BRAND-QUERY](local-logic/LOCAL-PLAT-BRAND-QUERY.md)、[LOCAL-PLAT-BRAND-TENANTS](local-logic/LOCAL-PLAT-BRAND-TENANTS.md)、[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)、[LOCAL-PLAT-PHONE-PREPARE](local-logic/LOCAL-PLAT-PHONE-PREPARE.md)
 
@@ -18709,6 +20262,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [人工确认AI明确拒联并入库 · FUNC\-2023](features/FUNC-2023.md)
 - [管理员填原因解除准确拒联来源 · FUNC\-2025](features/FUNC-2025.md)
 - [删除无引用且无其他租户关联的准确账号 · FUNC\-2028](features/FUNC-2028.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`session`
@@ -18794,7 +20349,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2202/fields/10
 - pages:PAGE-2205/fields/7
 - pages:PAGE-2206/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/168
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/182
 
 局部说明：[LOCAL-PLAT-LOGIN](local-logic/LOCAL-PLAT-LOGIN.md)、[LOCAL-PLAT-NAVIGATE](local-logic/LOCAL-PLAT-NAVIGATE.md)、[LOCAL-PLAT-CONTEXT-SWITCH](local-logic/LOCAL-PLAT-CONTEXT-SWITCH.md)、[LOCAL-PLAT-BAN-QUERY](local-logic/LOCAL-PLAT-BAN-QUERY.md)、[LOCAL-PLAT-CONTACT-CHECK](local-logic/LOCAL-PLAT-CONTACT-CHECK.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -18890,7 +20445,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2001/fields/4
 - pages:PAGE-2002/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/169
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/183
 
 局部说明：[LOCAL-PLAT-LOGIN](local-logic/LOCAL-PLAT-LOGIN.md)、[LOCAL-PLAT-NAVIGATE](local-logic/LOCAL-PLAT-NAVIGATE.md)、[LOCAL-PLAT-CONTEXT-SWITCH](local-logic/LOCAL-PLAT-CONTEXT-SWITCH.md)、[LOCAL-PLAT-LOGOUT](local-logic/LOCAL-PLAT-LOGOUT.md)
 
@@ -18996,7 +20551,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2001/fields/1
 - pages:PAGE-2002/fields/1
 - pages:PAGE-2003/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/170
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/184
 
 局部说明：[LOCAL-PLAT-CONTEXT-SWITCH](local-logic/LOCAL-PLAT-CONTEXT-SWITCH.md)、[LOCAL-PLAT-LOGOUT](local-logic/LOCAL-PLAT-LOGOUT.md)、[LOCAL-PLAT-MEMBER-STOP](local-logic/LOCAL-PLAT-MEMBER-STOP.md)、[LOCAL-PLAT-ACCOUNT-STOP](local-logic/LOCAL-PLAT-ACCOUNT-STOP.md)
 
@@ -19093,7 +20648,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2005/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/171
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/185
 
 局部说明：[LOCAL-PLAT-BRAND-QUERY](local-logic/LOCAL-PLAT-BRAND-QUERY.md)、[LOCAL-PLAT-BRAND-SAVE](local-logic/LOCAL-PLAT-BRAND-SAVE.md)、[LOCAL-PLAT-BRAND-TENANTS](local-logic/LOCAL-PLAT-BRAND-TENANTS.md)
 
@@ -19186,7 +20741,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2005/fields/2
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/172
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/186
 
 局部说明：[LOCAL-PLAT-BRAND-QUERY](local-logic/LOCAL-PLAT-BRAND-QUERY.md)、[LOCAL-PLAT-BRAND-SAVE](local-logic/LOCAL-PLAT-BRAND-SAVE.md)
 
@@ -19280,7 +20835,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2005/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/173
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/187
 
 局部说明：[LOCAL-PLAT-BRAND-QUERY](local-logic/LOCAL-PLAT-BRAND-QUERY.md)、[LOCAL-PLAT-BRAND-SAVE](local-logic/LOCAL-PLAT-BRAND-SAVE.md)
 
@@ -19390,7 +20945,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2005/fields/11
 - pages:PAGE-2102/fields/11
 - pages:PAGE-2112/fields/28
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/174
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/188
 
 局部说明：[LOCAL-PLAT-BRAND-TENANTS](local-logic/LOCAL-PLAT-BRAND-TENANTS.md)、[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-BIND](local-logic/LOCAL-PLAT-TENANT-BIND.md)、[LOCAL-PLAT-TENANT-MODULE](local-logic/LOCAL-PLAT-TENANT-MODULE.md)、[LOCAL-PLAT-TENANT-DELETE](local-logic/LOCAL-PLAT-TENANT-DELETE.md)、[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)
 
@@ -19495,7 +21050,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2004/fields/13
 - pages:PAGE-2005/fields/12
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/175
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/189
 
 局部说明：[LOCAL-PLAT-BRAND-TENANTS](local-logic/LOCAL-PLAT-BRAND-TENANTS.md)、[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)
 
@@ -19594,7 +21149,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2004/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/176
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/190
 
 局部说明：[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)
 
@@ -19692,7 +21247,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2004/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/177
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/191
 
 局部说明：[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)
 
@@ -19788,7 +21343,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2004/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/178
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/192
 
 局部说明：[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)
 
@@ -19888,7 +21443,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2004/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/179
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/193
 
 局部说明：[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-BIND](local-logic/LOCAL-PLAT-TENANT-BIND.md)
 
@@ -19992,7 +21547,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2004/fields/14
 - pages:PAGE-2005/fields/13
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/180
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/194
 
 局部说明：[LOCAL-PLAT-BRAND-TENANTS](local-logic/LOCAL-PLAT-BRAND-TENANTS.md)、[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-BIND](local-logic/LOCAL-PLAT-TENANT-BIND.md)
 
@@ -20091,7 +21646,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2004/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/181
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/195
 
 局部说明：[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-BIND](local-logic/LOCAL-PLAT-TENANT-BIND.md)
 
@@ -20206,7 +21761,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2004/fields/1
 - pages:PAGE-2005/fields/4
 - pages:PAGE-2202/fields/20
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/182
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/196
 
 局部说明：[LOCAL-PLAT-BRAND-TENANTS](local-logic/LOCAL-PLAT-BRAND-TENANTS.md)、[LOCAL-PLAT-TENANT-MODULE](local-logic/LOCAL-PLAT-TENANT-MODULE.md)、[LOCAL-PLAT-MEMBER-GRANT](local-logic/LOCAL-PLAT-MEMBER-GRANT.md)、[LOCAL-PLAT-PHONE-PREPARE](local-logic/LOCAL-PLAT-PHONE-PREPARE.md)
 
@@ -20309,7 +21864,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2004/fields/11
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/183
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/197
 
 局部说明：[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-MODULE](local-logic/LOCAL-PLAT-TENANT-MODULE.md)
 
@@ -20432,7 +21987,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2218/fields/4
 - pages:PAGE-2220/fields/16
 - pages:PAGE-2223/fields/38
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/184
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/198
 
 局部说明：[LOCAL-PLAT-TENANT-BIND](local-logic/LOCAL-PLAT-TENANT-BIND.md)、[LOCAL-PLAT-ACCOUNT-DELETE](local-logic/LOCAL-PLAT-ACCOUNT-DELETE.md)、[LOCAL-PLAT-TENANT-DELETE](local-logic/LOCAL-PLAT-TENANT-DELETE.md)、[LOCAL-PLAT-AI-CATEGORY-STOP](local-logic/LOCAL-PLAT-AI-CATEGORY-STOP.md)、[LOCAL-PLAT-AI-SCENE-DELETE](local-logic/LOCAL-PLAT-AI-SCENE-DELETE.md)、[LOCAL-PLAT-PRO-FIELD](local-logic/LOCAL-PLAT-PRO-FIELD.md)、[LOCAL-PLAT-RESOURCE-AGENT-DELETE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-DELETE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)、[LOCAL-PLAT-RESOURCE-TIME-DELETE](local-logic/LOCAL-PLAT-RESOURCE-TIME-DELETE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-DELETE.md)
 
@@ -20478,8 +22033,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -20587,7 +22142,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2219/fields/14
 - pages:PAGE-2220/fields/20
 - pages:PAGE-2223/fields/39
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/185
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/199
 
 局部说明：[LOCAL-PLAT-BRAND-SAVE](local-logic/LOCAL-PLAT-BRAND-SAVE.md)、[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-BIND](local-logic/LOCAL-PLAT-TENANT-BIND.md)、[LOCAL-PLAT-TENANT-MODULE](local-logic/LOCAL-PLAT-TENANT-MODULE.md)、[LOCAL-PLAT-ACCOUNT-PROFILE](local-logic/LOCAL-PLAT-ACCOUNT-PROFILE.md)、[LOCAL-PLAT-MEMBER-GRANT](local-logic/LOCAL-PLAT-MEMBER-GRANT.md)、[LOCAL-PLAT-ACCOUNT-DELETE](local-logic/LOCAL-PLAT-ACCOUNT-DELETE.md)、[LOCAL-PLAT-TENANT-DELETE](local-logic/LOCAL-PLAT-TENANT-DELETE.md)、[LOCAL-PLAT-AI-CATEGORY-STOP](local-logic/LOCAL-PLAT-AI-CATEGORY-STOP.md)、[LOCAL-PLAT-AI-CATEGORY-BIND](local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[LOCAL-PLAT-AI-SCENE-DELETE](local-logic/LOCAL-PLAT-AI-SCENE-DELETE.md)、[LOCAL-PLAT-AI-TAG-CONFIG](local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)、[LOCAL-PLAT-AI-LIST-REMOVE](local-logic/LOCAL-PLAT-AI-LIST-REMOVE.md)、[LOCAL-PLAT-LEAD-CALLBACK](local-logic/LOCAL-PLAT-LEAD-CALLBACK.md)、[LOCAL-PLAT-BAN-GROUP-SAVE](local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)、[LOCAL-PLAT-BAN-GROUP-DELETE](local-logic/LOCAL-PLAT-BAN-GROUP-DELETE.md)、[LOCAL-PLAT-BAN-MOVE](local-logic/LOCAL-PLAT-BAN-MOVE.md)、[LOCAL-PLAT-BAN-REMOVE](local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[LOCAL-PLAT-BAN-SYNC](local-logic/LOCAL-PLAT-BAN-SYNC.md)、[LOCAL-PLAT-BAN-RELEASE](local-logic/LOCAL-PLAT-BAN-RELEASE.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-CUSTOMER-ASSIGN](local-logic/LOCAL-PLAT-CUSTOMER-ASSIGN.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)、[LOCAL-PLAT-PRO-FIELD](local-logic/LOCAL-PLAT-PRO-FIELD.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-RESOURCE-AGENT-DELETE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-DELETE.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBER-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)、[LOCAL-PLAT-RESOURCE-TIME-DELETE](local-logic/LOCAL-PLAT-RESOURCE-TIME-DELETE.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-DELETE.md)、[LOCAL-PLAT-SEAT-BIND](local-logic/LOCAL-PLAT-SEAT-BIND.md)、[LOCAL-PLAT-SKILL-MEMBER](local-logic/LOCAL-PLAT-SKILL-MEMBER.md)、[LOCAL-PLAT-QUEUE-ASSOCIATE](local-logic/LOCAL-PLAT-QUEUE-ASSOCIATE.md)、[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)、[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
@@ -20633,8 +22188,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -20740,7 +22295,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2220/fields/17
 - pages:PAGE-2221/fields/6
 - pages:PAGE-2227/fields/136
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/186
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/200
 
 局部说明：[LOCAL-PLAT-BRAND-SAVE](local-logic/LOCAL-PLAT-BRAND-SAVE.md)、[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-MODULE](local-logic/LOCAL-PLAT-TENANT-MODULE.md)、[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)、[LOCAL-PLAT-MEMBER-STOP](local-logic/LOCAL-PLAT-MEMBER-STOP.md)、[LOCAL-PLAT-ACCOUNT-STOP](local-logic/LOCAL-PLAT-ACCOUNT-STOP.md)、[LOCAL-PLAT-ACCOUNT-DELETE](local-logic/LOCAL-PLAT-ACCOUNT-DELETE.md)、[LOCAL-PLAT-TENANT-DELETE](local-logic/LOCAL-PLAT-TENANT-DELETE.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-BAN-REMOVE](local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[LOCAL-PLAT-BAN-SYNC](local-logic/LOCAL-PLAT-BAN-SYNC.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)、[LOCAL-PLAT-BAN-RELEASE](local-logic/LOCAL-PLAT-BAN-RELEASE.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)、[LOCAL-PLAT-FINANCE-RECONCILE](local-logic/LOCAL-PLAT-FINANCE-RECONCILE.md)、[LOCAL-PLAT-PHONE-OUTBOUND](local-logic/LOCAL-PLAT-PHONE-OUTBOUND.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-SEAT-SUPERVISE](local-logic/LOCAL-PLAT-SEAT-SUPERVISE.md)、[LOCAL-PLAT-CUSTOMER-IMPORT](local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)、[LOCAL-PLAT-CLOUD-TASK-RESUBMIT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESUBMIT.md)、[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)、[LOCAL-PLAT-BUSINESS-API-RESULT](local-logic/LOCAL-PLAT-BUSINESS-API-RESULT.md)、[LOCAL-PLAT-CALL-RECONCILE](local-logic/LOCAL-PLAT-CALL-RECONCILE.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBER-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)、[LOCAL-PLAT-SEAT-BATCH-CREATE](local-logic/LOCAL-PLAT-SEAT-BATCH-CREATE.md)、[LOCAL-PLAT-SEAT-BATCH-VERIFY](local-logic/LOCAL-PLAT-SEAT-BATCH-VERIFY.md)、[LOCAL-PLAT-SEAT-CORRECT](local-logic/LOCAL-PLAT-SEAT-CORRECT.md)、[LOCAL-PLAT-SEAT-SYNC](local-logic/LOCAL-PLAT-SEAT-SYNC.md)、[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -20784,8 +22339,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
@@ -20888,7 +22443,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2218/fields/1
 - pages:PAGE-2219/fields/8
 - pages:PAGE-2220/fields/12
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/187
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/201
 
 局部说明：[LOCAL-PLAT-BRAND-SAVE](local-logic/LOCAL-PLAT-BRAND-SAVE.md)、[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-MODULE](local-logic/LOCAL-PLAT-TENANT-MODULE.md)、[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)、[LOCAL-PLAT-MEMBER-GRANT](local-logic/LOCAL-PLAT-MEMBER-GRANT.md)、[LOCAL-PLAT-ACCOUNT-DELETE](local-logic/LOCAL-PLAT-ACCOUNT-DELETE.md)、[LOCAL-PLAT-TENANT-DELETE](local-logic/LOCAL-PLAT-TENANT-DELETE.md)、[LOCAL-PLAT-AI-SCENE-DELETE](local-logic/LOCAL-PLAT-AI-SCENE-DELETE.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-LIST-REMOVE](local-logic/LOCAL-PLAT-AI-LIST-REMOVE.md)、[LOCAL-PLAT-BAN-GROUP-DELETE](local-logic/LOCAL-PLAT-BAN-GROUP-DELETE.md)、[LOCAL-PLAT-BAN-MOVE](local-logic/LOCAL-PLAT-BAN-MOVE.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)、[LOCAL-PLAT-FINANCE-RECONCILE](local-logic/LOCAL-PLAT-FINANCE-RECONCILE.md)、[LOCAL-PLAT-SEAT-SUPERVISE](local-logic/LOCAL-PLAT-SEAT-SUPERVISE.md)、[LOCAL-PLAT-CUSTOMER-IMPORT](local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)、[LOCAL-PLAT-CLOUD-TASK-RESUBMIT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESUBMIT.md)、[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)、[LOCAL-PLAT-RESOURCE-AUDIT](local-logic/LOCAL-PLAT-RESOURCE-AUDIT.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-RESOURCE-AGENT-DELETE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-DELETE.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBER-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)、[LOCAL-PLAT-RESOURCE-TIME-DELETE](local-logic/LOCAL-PLAT-RESOURCE-TIME-DELETE.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-DELETE.md)、[LOCAL-PLAT-SEAT-CORRECT](local-logic/LOCAL-PLAT-SEAT-CORRECT.md)、[LOCAL-PLAT-SEAT-BIND](local-logic/LOCAL-PLAT-SEAT-BIND.md)、[LOCAL-PLAT-SKILL-MEMBER](local-logic/LOCAL-PLAT-SKILL-MEMBER.md)、[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -20935,8 +22490,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](features/FUNC-2040.md)
@@ -21049,7 +22604,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2222/fields/0
 - pages:PAGE-2223/fields/35
 - pages:PAGE-2227/fields/120
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/188
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/202
 
 局部说明：[LOCAL-PLAT-BRAND-SAVE](local-logic/LOCAL-PLAT-BRAND-SAVE.md)、[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-BIND](local-logic/LOCAL-PLAT-TENANT-BIND.md)、[LOCAL-PLAT-TENANT-MODULE](local-logic/LOCAL-PLAT-TENANT-MODULE.md)、[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)、[LOCAL-PLAT-ACCOUNT-PROFILE](local-logic/LOCAL-PLAT-ACCOUNT-PROFILE.md)、[LOCAL-PLAT-MEMBER-GRANT](local-logic/LOCAL-PLAT-MEMBER-GRANT.md)、[LOCAL-PLAT-MEMBER-STOP](local-logic/LOCAL-PLAT-MEMBER-STOP.md)、[LOCAL-PLAT-ACCOUNT-STOP](local-logic/LOCAL-PLAT-ACCOUNT-STOP.md)、[LOCAL-PLAT-LIMITED-FINISH](local-logic/LOCAL-PLAT-LIMITED-FINISH.md)、[LOCAL-PLAT-ACCOUNT-DELETE](local-logic/LOCAL-PLAT-ACCOUNT-DELETE.md)、[LOCAL-PLAT-TENANT-DELETE](local-logic/LOCAL-PLAT-TENANT-DELETE.md)、[LOCAL-PLAT-AI-CATEGORY-STOP](local-logic/LOCAL-PLAT-AI-CATEGORY-STOP.md)、[LOCAL-PLAT-AI-CATEGORY-BIND](local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[LOCAL-PLAT-AI-SCENE-DELETE](local-logic/LOCAL-PLAT-AI-SCENE-DELETE.md)、[LOCAL-PLAT-AI-TAG-CONFIG](local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)、[LOCAL-PLAT-AI-LIST-REMOVE](local-logic/LOCAL-PLAT-AI-LIST-REMOVE.md)、[LOCAL-PLAT-LEAD-CALLBACK](local-logic/LOCAL-PLAT-LEAD-CALLBACK.md)、[LOCAL-PLAT-BAN-GROUP-SAVE](local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)、[LOCAL-PLAT-BAN-GROUP-DELETE](local-logic/LOCAL-PLAT-BAN-GROUP-DELETE.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-BAN-MOVE](local-logic/LOCAL-PLAT-BAN-MOVE.md)、[LOCAL-PLAT-BAN-REMOVE](local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[LOCAL-PLAT-BAN-SYNC](local-logic/LOCAL-PLAT-BAN-SYNC.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)、[LOCAL-PLAT-BAN-RELEASE](local-logic/LOCAL-PLAT-BAN-RELEASE.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)、[LOCAL-PLAT-FINANCE-RECONCILE](local-logic/LOCAL-PLAT-FINANCE-RECONCILE.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-CUSTOMER-ASSIGN](local-logic/LOCAL-PLAT-CUSTOMER-ASSIGN.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)、[LOCAL-PLAT-CLOUD-TASK-RESUBMIT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESUBMIT.md)、[LOCAL-PLAT-CLOUD-TASK-RESULT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESULT.md)、[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)、[LOCAL-PLAT-BUSINESS-API-RESULT](local-logic/LOCAL-PLAT-BUSINESS-API-RESULT.md)、[LOCAL-PLAT-PRO-FIELD](local-logic/LOCAL-PLAT-PRO-FIELD.md)、[LOCAL-PLAT-RESOURCE-AUDIT](local-logic/LOCAL-PLAT-RESOURCE-AUDIT.md)、[LOCAL-PLAT-OPERATION-AUDIT](local-logic/LOCAL-PLAT-OPERATION-AUDIT.md)、[LOCAL-PLAT-CALL-RECONCILE](local-logic/LOCAL-PLAT-CALL-RECONCILE.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-RESOURCE-AGENT-DELETE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-DELETE.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBER-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)、[LOCAL-PLAT-RESOURCE-TIME-DELETE](local-logic/LOCAL-PLAT-RESOURCE-TIME-DELETE.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-DELETE.md)、[LOCAL-PLAT-SEAT-BATCH-CREATE](local-logic/LOCAL-PLAT-SEAT-BATCH-CREATE.md)、[LOCAL-PLAT-SEAT-BATCH-VERIFY](local-logic/LOCAL-PLAT-SEAT-BATCH-VERIFY.md)、[LOCAL-PLAT-SEAT-CORRECT](local-logic/LOCAL-PLAT-SEAT-CORRECT.md)、[LOCAL-PLAT-SEAT-SYNC](local-logic/LOCAL-PLAT-SEAT-SYNC.md)、[LOCAL-PLAT-SEAT-BIND](local-logic/LOCAL-PLAT-SEAT-BIND.md)、[LOCAL-PLAT-SKILL-MEMBER](local-logic/LOCAL-PLAT-SKILL-MEMBER.md)、[LOCAL-PLAT-QUEUE-ASSOCIATE](local-logic/LOCAL-PLAT-QUEUE-ASSOCIATE.md)、[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)、[LOCAL-PLAT-AI-TAG-RESULT](local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)、[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
@@ -21158,7 +22713,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2004/fields/15
 - pages:PAGE-2005/fields/14
 - pages:PAGE-2007/fields/26
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/189
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/203
 
 局部说明：[LOCAL-PLAT-BRAND-SAVE](local-logic/LOCAL-PLAT-BRAND-SAVE.md)、[LOCAL-PLAT-TENANT-SAVE](local-logic/LOCAL-PLAT-TENANT-SAVE.md)、[LOCAL-PLAT-TENANT-BIND](local-logic/LOCAL-PLAT-TENANT-BIND.md)、[LOCAL-PLAT-BAN-GROUP-SAVE](local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)
 
@@ -21260,7 +22815,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2003/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/190
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/204
 
 局部说明：[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)、[LOCAL-PLAT-MEMBER-GRANT](local-logic/LOCAL-PLAT-MEMBER-GRANT.md)、[LOCAL-PLAT-MEMBER-STOP](local-logic/LOCAL-PLAT-MEMBER-STOP.md)、[LOCAL-PLAT-SEAT-BIND](local-logic/LOCAL-PLAT-SEAT-BIND.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -21363,7 +22918,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2003/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/191
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/205
 
 局部说明：[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)
 
@@ -21466,7 +23021,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2003/fields/13
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/192
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/206
 
 局部说明：[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)
 
@@ -21569,7 +23124,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2003/fields/11
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/193
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/207
 
 局部说明：[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)、[LOCAL-PLAT-MEMBER-GRANT](local-logic/LOCAL-PLAT-MEMBER-GRANT.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -21677,7 +23232,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2003/fields/9
 - pages:PAGE-2202/fields/18
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/194
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/208
 
 局部说明：[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-ACCOUNT-LINK](local-logic/LOCAL-PLAT-ACCOUNT-LINK.md)、[LOCAL-PLAT-MEMBER-GRANT](local-logic/LOCAL-PLAT-MEMBER-GRANT.md)、[LOCAL-PLAT-PHONE-PREPARE](local-logic/LOCAL-PLAT-PHONE-PREPARE.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -21784,7 +23339,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2003/fields/12
 - pages:PAGE-2202/fields/19
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/195
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/209
 
 局部说明：[LOCAL-PLAT-ACCOUNT-CREATE](local-logic/LOCAL-PLAT-ACCOUNT-CREATE.md)、[LOCAL-PLAT-MEMBER-STOP](local-logic/LOCAL-PLAT-MEMBER-STOP.md)、[LOCAL-PLAT-PHONE-PREPARE](local-logic/LOCAL-PLAT-PHONE-PREPARE.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -21888,7 +23443,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2003/fields/6
 - pages:PAGE-2202/fields/17
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/196
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/210
 
 局部说明：[LOCAL-PLAT-MEMBER-STOP](local-logic/LOCAL-PLAT-MEMBER-STOP.md)、[LOCAL-PLAT-ACCOUNT-STOP](local-logic/LOCAL-PLAT-ACCOUNT-STOP.md)、[LOCAL-PLAT-LIMITED-FINISH](local-logic/LOCAL-PLAT-LIMITED-FINISH.md)
 
@@ -21934,8 +23489,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -22048,7 +23603,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2220/fields/15
 - pages:PAGE-2225/fields/1
 - pages:PAGE-2227/fields/134
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/197
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/211
 
 局部说明：[LOCAL-PLAT-NAVIGATE](local-logic/LOCAL-PLAT-NAVIGATE.md)、[LOCAL-PLAT-BRAND-QUERY](local-logic/LOCAL-PLAT-BRAND-QUERY.md)、[LOCAL-PLAT-BRAND-TENANTS](local-logic/LOCAL-PLAT-BRAND-TENANTS.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-AI-IMPORT-HISTORY](local-logic/LOCAL-PLAT-AI-IMPORT-HISTORY.md)、[LOCAL-PLAT-CALL-QUERY](local-logic/LOCAL-PLAT-CALL-QUERY.md)、[LOCAL-PLAT-CALL-EXPORT](local-logic/LOCAL-PLAT-CALL-EXPORT.md)、[LOCAL-PLAT-LEAD-QUERY](local-logic/LOCAL-PLAT-LEAD-QUERY.md)、[LOCAL-PLAT-BAN-QUERY](local-logic/LOCAL-PLAT-BAN-QUERY.md)、[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-PHONE-CONTINUE](local-logic/LOCAL-PLAT-PHONE-CONTINUE.md)、[LOCAL-PLAT-CUSTOMER-DIRECTORY](local-logic/LOCAL-PLAT-CUSTOMER-DIRECTORY.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-TASK-EXPORT](local-logic/LOCAL-PLAT-TASK-EXPORT.md)、[LOCAL-PLAT-EXPORT-CUSTOMERS](local-logic/LOCAL-PLAT-EXPORT-CUSTOMERS.md)、[LOCAL-PLAT-IMPORT-BATCH](local-logic/LOCAL-PLAT-IMPORT-BATCH.md)、[LOCAL-PLAT-REPORT-QUERY](local-logic/LOCAL-PLAT-REPORT-QUERY.md)、[LOCAL-PLAT-REPORT-DRILL](local-logic/LOCAL-PLAT-REPORT-DRILL.md)、[LOCAL-PLAT-REPORT-EXPORT](local-logic/LOCAL-PLAT-REPORT-EXPORT.md)、[LOCAL-PLAT-SEAT-EVENT-QUERY](local-logic/LOCAL-PLAT-SEAT-EVENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-SKILL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-SKILL-QUERY.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBER-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-TIME-QUERY](local-logic/LOCAL-PLAT-RESOURCE-TIME-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-QUERY.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -22092,8 +23647,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -22207,7 +23762,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2222/fields/2
 - pages:PAGE-2225/fields/0
 - pages:PAGE-2227/fields/130
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/198
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/212
 
 局部说明：[LOCAL-PLAT-NAVIGATE](local-logic/LOCAL-PLAT-NAVIGATE.md)、[LOCAL-PLAT-BRAND-QUERY](local-logic/LOCAL-PLAT-BRAND-QUERY.md)、[LOCAL-PLAT-BRAND-TENANTS](local-logic/LOCAL-PLAT-BRAND-TENANTS.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-AI-IMPORT-HISTORY](local-logic/LOCAL-PLAT-AI-IMPORT-HISTORY.md)、[LOCAL-PLAT-CALL-QUERY](local-logic/LOCAL-PLAT-CALL-QUERY.md)、[LOCAL-PLAT-LEAD-QUERY](local-logic/LOCAL-PLAT-LEAD-QUERY.md)、[LOCAL-PLAT-BAN-QUERY](local-logic/LOCAL-PLAT-BAN-QUERY.md)、[LOCAL-PLAT-CUSTOMER-DIRECTORY](local-logic/LOCAL-PLAT-CUSTOMER-DIRECTORY.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-IMPORT-BATCH](local-logic/LOCAL-PLAT-IMPORT-BATCH.md)、[LOCAL-PLAT-REPORT-QUERY](local-logic/LOCAL-PLAT-REPORT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AUDIT](local-logic/LOCAL-PLAT-RESOURCE-AUDIT.md)、[LOCAL-PLAT-OPERATION-AUDIT](local-logic/LOCAL-PLAT-OPERATION-AUDIT.md)、[LOCAL-PLAT-CALL-RECONCILE](local-logic/LOCAL-PLAT-CALL-RECONCILE.md)、[LOCAL-PLAT-SEAT-EVENT-QUERY](local-logic/LOCAL-PLAT-SEAT-EVENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-SKILL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-SKILL-QUERY.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBER-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-TIME-QUERY](local-logic/LOCAL-PLAT-RESOURCE-TIME-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-QUERY.md)、[LOCAL-PLAT-ACCOUNT-QUERY](local-logic/LOCAL-PLAT-ACCOUNT-QUERY.md)
 
@@ -22222,11 +23777,13 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 单功能页面／局部明确关联：
 
 - [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 
 业务对象：`professionalTask`
 
@@ -22307,11 +23864,11 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2205/fields/35
 - pages:PAGE-2206/fields/35
 - pages:PAGE-2209/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/199
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/213
 
-局部说明：[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-LIST-REMOVE](local-logic/LOCAL-PLAT-AI-LIST-REMOVE.md)、[LOCAL-PLAT-AI-IMPORT-HISTORY](local-logic/LOCAL-PLAT-AI-IMPORT-HISTORY.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)、[LOCAL-PLAT-CLOUD-TASK-RESUBMIT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESUBMIT.md)、[LOCAL-PLAT-CLOUD-TASK-RESULT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESULT.md)、[LOCAL-PLAT-EXPORT-CUSTOMERS](local-logic/LOCAL-PLAT-EXPORT-CUSTOMERS.md)、[LOCAL-PLAT-REPORT-DRILL](local-logic/LOCAL-PLAT-REPORT-DRILL.md)、[LOCAL-PLAT-AI-IMPORT-TEMPLATE](local-logic/LOCAL-PLAT-AI-IMPORT-TEMPLATE.md)
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-LIST-REMOVE](local-logic/LOCAL-PLAT-AI-LIST-REMOVE.md)、[LOCAL-PLAT-AI-IMPORT-HISTORY](local-logic/LOCAL-PLAT-AI-IMPORT-HISTORY.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)、[LOCAL-PLAT-CLOUD-TASK-RESUBMIT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESUBMIT.md)、[LOCAL-PLAT-CLOUD-TASK-RESULT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESULT.md)、[LOCAL-PLAT-EXPORT-CUSTOMERS](local-logic/LOCAL-PLAT-EXPORT-CUSTOMERS.md)、[LOCAL-PLAT-REPORT-DRILL](local-logic/LOCAL-PLAT-REPORT-DRILL.md)、[LOCAL-PLAT-AI-IMPORT-TEMPLATE](local-logic/LOCAL-PLAT-AI-IMPORT-TEMPLATE.md)
 
-任务：[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)、[TASK-046](tasks/TASK-046.md)、[TASK-047](tasks/TASK-047.md)
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-034](tasks/TASK-034.md)、[TASK-045](tasks/TASK-045.md)、[TASK-046](tasks/TASK-046.md)、[TASK-047](tasks/TASK-047.md)
 
 测试：CHECK-PLAT-AI-TASK-QUERY, CHECK-PLAT-AI-LIST-IMPORT, CHECK-PLAT-AI-LIST-REMOVE, CHECK-PLAT-AI-IMPORT-HISTORY, CHECK-PLAT-CLOUD-TASK-QUERY, CHECK-PLAT-CLOUD-TASK-SAVE, CHECK-PLAT-CLOUD-TASK-IMPORT, CHECK-PLAT-CLOUD-TASK-CONTROL, CHECK-PLAT-CLOUD-TASK-RECALL, CHECK-PLAT-CLOUD-TASK-RESUBMIT, CHECK-PLAT-CLOUD-TASK-RESULT, CHECK-PLAT-EXPORT-CUSTOMERS, CHECK-PLAT-REPORT-DRILL, CHECK-PLAT-AI-IMPORT-TEMPLATE
 
@@ -22331,6 +23888,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [人工确认AI明确拒联并入库 · FUNC\-2023](features/FUNC-2023.md)
 - [管理员填原因解除准确拒联来源 · FUNC\-2025](features/FUNC-2025.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 
 业务对象：`professionalTask`
 
@@ -22411,7 +23970,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2202/fields/36
 - pages:PAGE-2205/fields/39
 - pages:PAGE-2206/fields/39
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/200
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/214
 
 局部说明：[LOCAL-PLAT-CONTACT-CHECK](local-logic/LOCAL-PLAT-CONTACT-CHECK.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)、[LOCAL-PLAT-CLOUD-TASK-RESULT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESULT.md)、[LOCAL-PLAT-TASK-EXPORT](local-logic/LOCAL-PLAT-TASK-EXPORT.md)、[LOCAL-PLAT-EXPORT-CUSTOMERS](local-logic/LOCAL-PLAT-EXPORT-CUSTOMERS.md)
 
@@ -22430,6 +23989,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -22513,7 +24074,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2103/fields/23
 - pages:PAGE-2205/fields/40
 - pages:PAGE-2206/fields/40
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/201
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/215
 
 局部说明：[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)
 
@@ -22532,6 +24093,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -22613,7 +24176,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2103/fields/25
 - pages:PAGE-2205/fields/51
 - pages:PAGE-2206/fields/51
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/202
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/216
 
 局部说明：[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)、[LOCAL-PLAT-CLOUD-TASK-RESULT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESULT.md)
 
@@ -22632,6 +24195,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -22711,7 +24276,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/48
 - pages:PAGE-2206/fields/48
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/203
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/217
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)
 
@@ -22730,6 +24295,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -22811,7 +24378,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2103/fields/24
 - pages:PAGE-2205/fields/44
 - pages:PAGE-2206/fields/44
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/204
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/218
 
 局部说明：[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)、[LOCAL-PLAT-CLOUD-TASK-RESUBMIT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESUBMIT.md)
 
@@ -22830,6 +24397,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -22909,7 +24478,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/32
 - pages:PAGE-2206/fields/32
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/205
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/219
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)、[LOCAL-PLAT-CLOUD-TASK-RESUBMIT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESUBMIT.md)、[LOCAL-PLAT-CLOUD-TASK-RESULT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESULT.md)
 
@@ -22935,8 +24504,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
@@ -22964,6 +24533,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - 全行按当前目录/映射校验；重复、冲突、缺必填逐行报错
 - 掩码号不可导入；禁止猜测缺失业务值
 - 正式提交范围所有行通过；导入按真实确认逐项回执，不虚报整批原子性
+- AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。
+- 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。
 
 ### 读写权限
 
@@ -23025,7 +24596,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2204/fields/76
 - pages:PAGE-2205/fields/9
 - pages:PAGE-2206/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/206
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/220
 
 局部说明：[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-CUSTOMER-IMPORT](local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
 
@@ -23047,8 +24618,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
@@ -23133,7 +24704,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2205/fields/8
 - pages:PAGE-2206/fields/8
 - pages:PAGE-2220/fields/11
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/207
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/221
 
 局部说明：[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-IMPORT-HISTORY](local-logic/LOCAL-PLAT-AI-IMPORT-HISTORY.md)、[LOCAL-PLAT-CUSTOMER-IMPORT](local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)、[LOCAL-PLAT-IMPORT-BATCH](local-logic/LOCAL-PLAT-IMPORT-BATCH.md)、[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)
 
@@ -23158,8 +24729,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -23244,7 +24815,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2204/fields/73
 - pages:PAGE-2209/fields/1
 - pages:PAGE-2220/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/208
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/222
 
 局部说明：[LOCAL-PLAT-AI-LIST-REMOVE](local-logic/LOCAL-PLAT-AI-LIST-REMOVE.md)、[LOCAL-PLAT-PHONE-OUTBOUND](local-logic/LOCAL-PLAT-PHONE-OUTBOUND.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-PHONE-CONTINUE](local-logic/LOCAL-PLAT-PHONE-CONTINUE.md)、[LOCAL-PLAT-CUSTOMER-DIRECTORY](local-logic/LOCAL-PLAT-CUSTOMER-DIRECTORY.md)、[LOCAL-PLAT-CUSTOMER-IMPORT](local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-CUSTOMER-ASSIGN](local-logic/LOCAL-PLAT-CUSTOMER-ASSIGN.md)、[LOCAL-PLAT-IMPORT-BATCH](local-logic/LOCAL-PLAT-IMPORT-BATCH.md)、[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)、[LOCAL-PLAT-BUSINESS-API-RESULT](local-logic/LOCAL-PLAT-BUSINESS-API-RESULT.md)、[LOCAL-PLAT-REPORT-DRILL](local-logic/LOCAL-PLAT-REPORT-DRILL.md)
 
@@ -23345,7 +24916,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2203/fields/57
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/209
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/223
 
 局部说明：[LOCAL-PLAT-CUSTOMER-DIRECTORY](local-logic/LOCAL-PLAT-CUSTOMER-DIRECTORY.md)
 
@@ -23374,8 +24945,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -23464,7 +25035,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2205/fields/12
 - pages:PAGE-2206/fields/12
 - pages:PAGE-2227/fields/131
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/210
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/224
 
 局部说明：[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-CONTACT-CHECK](local-logic/LOCAL-PLAT-CONTACT-CHECK.md)、[LOCAL-PLAT-CUSTOMER-DIRECTORY](local-logic/LOCAL-PLAT-CUSTOMER-DIRECTORY.md)
 
@@ -23474,7 +25045,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 <a id="FIELD-PLAT-FOLLOWER"></a>
 
-## FIELD-PLAT-FOLLOWER 原任务负责人／分配跟进人
+## FIELD-PLAT-FOLLOWER 原任务分配及历史人员事实
 
 单功能页面／局部明确关联：
 
@@ -23488,8 +25059,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -23503,7 +25074,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 允许 null：True
 
-必填条件：原任务要求分配时必填；未分配可空
+必填条件：仅按原专业坐席分配/实际人员事实形成，不是新两模式独立必填
 
 ### 默认与初始化
 
@@ -23513,8 +25084,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 ### 校验与关联约束
 
-- 只能选本任务有权且有效成员/所需坐席能力者
-- 负责人不等于实际接听人；不能借分配修改已确认外呼方式或业务归属
+- 新两模式模板、导入、分配无独立责任人选择；人工由有效坐席分配派生，原专业/历史人员按其真实事实保留。
 
 ### 读写权限
 
@@ -23538,7 +25108,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源类型：input
 
-规则：由有权用户明确提交，编辑不静默清空
+规则：新两模式模板、导入、分配无独立责任人选择；人工由有效坐席分配派生，原专业/历史人员按其真实事实保留。
 
 依赖字段：无
 
@@ -23574,7 +25144,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2202/fields/14
 - pages:PAGE-2204/fields/74
 - pages:PAGE-2220/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/211
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/225
 
 局部说明：[LOCAL-PLAT-PHONE-CONTINUE](local-logic/LOCAL-PLAT-PHONE-CONTINUE.md)、[LOCAL-PLAT-CUSTOMER-ASSIGN](local-logic/LOCAL-PLAT-CUSTOMER-ASSIGN.md)、[LOCAL-PLAT-IMPORT-BATCH](local-logic/LOCAL-PLAT-IMPORT-BATCH.md)、[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)
 
@@ -23605,8 +25175,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -23691,7 +25261,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2204/fields/80
 - pages:PAGE-2220/fields/14
 - pages:PAGE-2227/fields/133
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/212
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/226
 
 局部说明：[LOCAL-PLAT-LIMITED-FINISH](local-logic/LOCAL-PLAT-LIMITED-FINISH.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-PHONE-CONTINUE](local-logic/LOCAL-PLAT-PHONE-CONTINUE.md)、[LOCAL-PLAT-CUSTOMER-DIRECTORY](local-logic/LOCAL-PLAT-CUSTOMER-DIRECTORY.md)、[LOCAL-PLAT-IMPORT-BATCH](local-logic/LOCAL-PLAT-IMPORT-BATCH.md)、[LOCAL-PLAT-BUSINESS-API-RESULT](local-logic/LOCAL-PLAT-BUSINESS-API-RESULT.md)
 
@@ -23722,8 +25292,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -23807,7 +25377,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2202/fields/24
 - pages:PAGE-2207/fields/16
 - pages:PAGE-2227/fields/132
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/213
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/227
 
 局部说明：[LOCAL-PLAT-LIMITED-FINISH](local-logic/LOCAL-PLAT-LIMITED-FINISH.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-PHONE-INBOUND](local-logic/LOCAL-PLAT-PHONE-INBOUND.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-PHONE-CONTINUE](local-logic/LOCAL-PLAT-PHONE-CONTINUE.md)
 
@@ -23838,8 +25408,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -23923,7 +25493,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2109/fields/5
 - pages:PAGE-2202/fields/13
 - pages:PAGE-2227/fields/129
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/214
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/228
 
 局部说明：[LOCAL-PLAT-LIMITED-FINISH](local-logic/LOCAL-PLAT-LIMITED-FINISH.md)、[LOCAL-PLAT-LEAD-CALLBACK](local-logic/LOCAL-PLAT-LEAD-CALLBACK.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)
 
@@ -23957,8 +25527,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -24054,7 +25624,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2220/fields/8
 - pages:PAGE-2221/fields/2
 - pages:PAGE-2227/fields/126
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/215
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/229
 
 局部说明：[LOCAL-PLAT-LIMITED-FINISH](local-logic/LOCAL-PLAT-LIMITED-FINISH.md)、[LOCAL-PLAT-CALL-QUERY](local-logic/LOCAL-PLAT-CALL-QUERY.md)、[LOCAL-PLAT-RECORDING-READ](local-logic/LOCAL-PLAT-RECORDING-READ.md)、[LOCAL-PLAT-LEAD-QUERY](local-logic/LOCAL-PLAT-LEAD-QUERY.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)、[LOCAL-PLAT-PHONE-OUTBOUND](local-logic/LOCAL-PLAT-PHONE-OUTBOUND.md)、[LOCAL-PLAT-PHONE-INBOUND](local-logic/LOCAL-PLAT-PHONE-INBOUND.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-CUSTOMER-DIRECTORY](local-logic/LOCAL-PLAT-CUSTOMER-DIRECTORY.md)、[LOCAL-PLAT-CLOUD-TASK-RESULT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESULT.md)、[LOCAL-PLAT-BUSINESS-API-RESULT](local-logic/LOCAL-PLAT-BUSINESS-API-RESULT.md)、[LOCAL-PLAT-REPORT-DRILL](local-logic/LOCAL-PLAT-REPORT-DRILL.md)、[LOCAL-PLAT-CALL-RECONCILE](local-logic/LOCAL-PLAT-CALL-RECONCILE.md)、[LOCAL-PLAT-AI-TAG-RESULT](local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)
 
@@ -24085,8 +25655,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -24175,7 +25745,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2208/fields/3
 - pages:PAGE-2221/fields/3
 - pages:PAGE-2227/fields/127
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/216
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/230
 
 局部说明：[LOCAL-PLAT-LIMITED-FINISH](local-logic/LOCAL-PLAT-LIMITED-FINISH.md)、[LOCAL-PLAT-CALL-QUERY](local-logic/LOCAL-PLAT-CALL-QUERY.md)、[LOCAL-PLAT-PHONE-OUTBOUND](local-logic/LOCAL-PLAT-PHONE-OUTBOUND.md)、[LOCAL-PLAT-PHONE-INBOUND](local-logic/LOCAL-PLAT-PHONE-INBOUND.md)、[LOCAL-PLAT-CLOUD-TASK-RESULT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESULT.md)、[LOCAL-PLAT-CALL-RECONCILE](local-logic/LOCAL-PLAT-CALL-RECONCILE.md)
 
@@ -24205,8 +25775,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -24291,7 +25861,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2207/fields/1
 - pages:PAGE-2208/fields/1
 - pages:PAGE-2227/fields/125
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/217
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/231
 
 局部说明：[LOCAL-PLAT-CALL-QUERY](local-logic/LOCAL-PLAT-CALL-QUERY.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-PHONE-OUTBOUND](local-logic/LOCAL-PLAT-PHONE-OUTBOUND.md)、[LOCAL-PLAT-PHONE-INBOUND](local-logic/LOCAL-PLAT-PHONE-INBOUND.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)
 
@@ -24318,8 +25888,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -24402,7 +25972,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2108/fields/14
 - pages:PAGE-2208/fields/4
 - pages:PAGE-2227/fields/128
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/218
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/232
 
 局部说明：[LOCAL-PLAT-CALL-QUERY](local-logic/LOCAL-PLAT-CALL-QUERY.md)
 
@@ -24431,8 +26001,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -24519,7 +26089,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2203/fields/62
 - pages:PAGE-2208/fields/7
 - pages:PAGE-2227/fields/135
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/219
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/233
 
 局部说明：[LOCAL-PLAT-CALL-QUERY](local-logic/LOCAL-PLAT-CALL-QUERY.md)、[LOCAL-PLAT-RECORDING-READ](local-logic/LOCAL-PLAT-RECORDING-READ.md)
 
@@ -24611,7 +26181,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2221/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/220
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/234
 
 局部说明：[LOCAL-PLAT-CALL-RECONCILE](local-logic/LOCAL-PLAT-CALL-RECONCILE.md)
 
@@ -24703,7 +26273,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2221/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/221
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/235
 
 局部说明：[LOCAL-PLAT-CALL-RECONCILE](local-logic/LOCAL-PLAT-CALL-RECONCILE.md)
 
@@ -24805,7 +26375,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2202/fields/23
 - pages:PAGE-2207/fields/15
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/222
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/236
 
 局部说明：[LOCAL-PLAT-LIMITED-FINISH](local-logic/LOCAL-PLAT-LIMITED-FINISH.md)、[LOCAL-PLAT-PHONE-PREPARE](local-logic/LOCAL-PLAT-PHONE-PREPARE.md)、[LOCAL-PLAT-PHONE-OUTBOUND](local-logic/LOCAL-PLAT-PHONE-OUTBOUND.md)、[LOCAL-PLAT-PHONE-INBOUND](local-logic/LOCAL-PLAT-PHONE-INBOUND.md)、[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-PHONE-CONTINUE](local-logic/LOCAL-PLAT-PHONE-CONTINUE.md)、[LOCAL-PLAT-SEAT-SUPERVISE](local-logic/LOCAL-PLAT-SEAT-SUPERVISE.md)
 
@@ -24900,7 +26470,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2202/fields/12
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/223
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/237
 
 局部说明：[LOCAL-PLAT-PHONE-OUTBOUND](local-logic/LOCAL-PLAT-PHONE-OUTBOUND.md)
 
@@ -24922,6 +26492,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [停用当前专业域目录分类 · FUNC\-2018](features/FUNC-2018.md)
 - [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 
 业务对象：`aiScope`
 
@@ -25005,7 +26577,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2110/fields/5
 - pages:PAGE-2111/fields/10
 - pages:PAGE-2112/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/224
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/238
 
 局部说明：[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-LEAD-QUERY](local-logic/LOCAL-PLAT-LEAD-QUERY.md)、[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)、[LOCAL-PLAT-FINANCE-RECONCILE](local-logic/LOCAL-PLAT-FINANCE-RECONCILE.md)、[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)
 
@@ -25021,6 +26593,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 - [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
 - [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
 
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
@@ -25028,6 +26601,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [人工确认AI明确拒联并入库 · FUNC\-2023](features/FUNC-2023.md)
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 
 业务对象：`aiScene`
 
@@ -25108,11 +26682,11 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2108/fields/1
 - pages:PAGE-2110/fields/2
 - pages:PAGE-2111/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/225
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/239
 
-局部说明：[LOCAL-PLAT-AI-CATEGORY-BIND](local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[LOCAL-PLAT-AI-SCENE-DELETE](local-logic/LOCAL-PLAT-AI-SCENE-DELETE.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-IMPORT-TEMPLATE](local-logic/LOCAL-PLAT-AI-IMPORT-TEMPLATE.md)、[LOCAL-PLAT-AI-TAG-RESULT](local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-PLAT-AI-CATEGORY-BIND](local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[LOCAL-PLAT-AI-SCENE-DELETE](local-logic/LOCAL-PLAT-AI-SCENE-DELETE.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-IMPORT-TEMPLATE](local-logic/LOCAL-PLAT-AI-IMPORT-TEMPLATE.md)、[LOCAL-PLAT-AI-TAG-RESULT](local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)
 
-任务：[TASK-019](tasks/TASK-019.md)、[TASK-032](tasks/TASK-032.md)、[TASK-034](tasks/TASK-034.md)
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-019](tasks/TASK-019.md)、[TASK-032](tasks/TASK-032.md)、[TASK-034](tasks/TASK-034.md)
 
 测试：CHECK-PLAT-AI-CATEGORY-BIND, CHECK-PLAT-AI-SCENE-QUERY, CHECK-PLAT-AI-SCENE-SAVE, CHECK-PLAT-AI-SCENE-DELETE, CHECK-PLAT-AI-LIST-IMPORT, CHECK-PLAT-AI-IMPORT-TEMPLATE, CHECK-PLAT-AI-TAG-RESULT
 
@@ -25207,7 +26781,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2110/fields/3
 - pages:PAGE-2111/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/226
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/240
 
 局部说明：[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)
 
@@ -25310,7 +26884,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2110/fields/4
 - pages:PAGE-2111/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/227
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/241
 
 局部说明：[LOCAL-PLAT-AI-CATEGORY-BIND](local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[LOCAL-PLAT-AI-TAG-CONFIG](local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)、[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
@@ -25413,7 +26987,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2110/fields/6
 - pages:PAGE-2111/fields/11
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/228
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/242
 
 局部说明：[LOCAL-PLAT-AI-CATEGORY-BIND](local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[LOCAL-PLAT-AI-SCENE-DELETE](local-logic/LOCAL-PLAT-AI-SCENE-DELETE.md)、[LOCAL-PLAT-AI-TAG-CONFIG](local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)
 
@@ -25453,6 +27027,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 - 只允许供应商/具体场景真实可用参数与机器人
 - 品牌分类维护不能新增机器人或AI专业配置权
+- 当前场景schema=2按scene/platform配置IMPORT_FIELD引用及CUSTOM_COLUMN专属导入列；分类业务定义仍权威，供应商列/值独立快照；固定专业项保各自来源。
 
 ### 读写权限
 
@@ -25477,7 +27052,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源类型：input
 
-规则：由有权用户明确提交，编辑不静默清空
+规则：只允许供应商/具体场景真实可用参数与机器人；品牌分类维护不能新增机器人或AI专业配置权；当前场景schema=2按scene/platform配置IMPORT_FIELD引用及CUSTOM_COLUMN专属导入列；分类业务定义仍权威，供应商列/值独立快照；固定专业项保各自来源。
 
 依赖字段：无
 
@@ -25511,7 +27086,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2110/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/229
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/243
 
 局部说明：[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)
 
@@ -25561,6 +27136,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - 关联具体场景ID与当前品牌有权分类ID
 - 仅专业业务归类，不等于模板实际路由绑定；路由以业务分类路由配置为准
 - 停用分类禁止新选/新关联，不改已受理任务事实
+- 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+- 主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。
 
 ### 读写权限
 
@@ -25620,7 +27197,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2110/fields/0
 - pages:PAGE-2111/fields/0
 - pages:PAGE-2223/fields/34
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/230
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/244
 
 局部说明：[LOCAL-PLAT-AI-CATEGORY-STOP](local-logic/LOCAL-PLAT-AI-CATEGORY-STOP.md)、[LOCAL-PLAT-AI-CATEGORY-BIND](local-logic/LOCAL-PLAT-AI-CATEGORY-BIND.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)
 
@@ -25718,7 +27295,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2111/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/231
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/245
 
 局部说明：[LOCAL-PLAT-AI-TAG-CONFIG](local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)、[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
@@ -25814,7 +27391,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2111/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/232
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/246
 
 局部说明：[LOCAL-PLAT-AI-TAG-CONFIG](local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)
 
@@ -25910,7 +27487,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2111/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/233
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/247
 
 局部说明：[LOCAL-PLAT-AI-TAG-CONFIG](local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)
 
@@ -26009,7 +27586,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2108/fields/0
 - pages:PAGE-2111/fields/2
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/234
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/248
 
 局部说明：[LOCAL-PLAT-AI-TAG-CONFIG](local-logic/LOCAL-PLAT-AI-TAG-CONFIG.md)、[LOCAL-PLAT-AI-TAG-RESULT](local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)
 
@@ -26106,7 +27683,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2108/fields/2
 - pages:PAGE-2111/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/235
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/249
 
 局部说明：[LOCAL-PLAT-AI-TAG-RESULT](local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)
 
@@ -26137,8 +27714,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -26225,7 +27802,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2111/fields/8
 - pages:PAGE-2208/fields/0
 - pages:PAGE-2227/fields/119
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/236
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/250
 
 局部说明：[LOCAL-PLAT-CALL-QUERY](local-logic/LOCAL-PLAT-CALL-QUERY.md)、[LOCAL-PLAT-LEAD-QUERY](local-logic/LOCAL-PLAT-LEAD-QUERY.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)、[LOCAL-PLAT-AI-TAG-RESULT](local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)
 
@@ -26244,6 +27821,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 
 业务对象：`aiLead`
 
@@ -26322,7 +27901,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2103/fields/0
 - pages:PAGE-2109/fields/0
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/237
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/251
 
 局部说明：[LOCAL-PLAT-LEAD-QUERY](local-logic/LOCAL-PLAT-LEAD-QUERY.md)、[LOCAL-PLAT-LEAD-CALLBACK](local-logic/LOCAL-PLAT-LEAD-CALLBACK.md)
 
@@ -26421,7 +28000,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/238
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/252
 
 局部说明：[LOCAL-PLAT-BAN-QUERY](local-logic/LOCAL-PLAT-BAN-QUERY.md)、[LOCAL-PLAT-BAN-DETAIL](local-logic/LOCAL-PLAT-BAN-DETAIL.md)、[LOCAL-PLAT-BAN-GROUP-SAVE](local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)、[LOCAL-PLAT-BAN-GROUP-DELETE](local-logic/LOCAL-PLAT-BAN-GROUP-DELETE.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-BAN-MOVE](local-logic/LOCAL-PLAT-BAN-MOVE.md)、[LOCAL-PLAT-BAN-REMOVE](local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[LOCAL-PLAT-BAN-SYNC](local-logic/LOCAL-PLAT-BAN-SYNC.md)
 
@@ -26520,7 +28099,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/11
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/239
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/253
 
 局部说明：[LOCAL-PLAT-BAN-QUERY](local-logic/LOCAL-PLAT-BAN-QUERY.md)、[LOCAL-PLAT-BAN-GROUP-SAVE](local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)
 
@@ -26616,7 +28195,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/240
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/254
 
 局部说明：[LOCAL-PLAT-BAN-GROUP-SAVE](local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)
 
@@ -26712,7 +28291,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/241
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/255
 
 局部说明：[LOCAL-PLAT-BAN-GROUP-SAVE](local-logic/LOCAL-PLAT-BAN-GROUP-SAVE.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)
 
@@ -26811,7 +28390,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/242
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/256
 
 局部说明：[LOCAL-PLAT-BAN-QUERY](local-logic/LOCAL-PLAT-BAN-QUERY.md)、[LOCAL-PLAT-BAN-GROUP-DELETE](local-logic/LOCAL-PLAT-BAN-GROUP-DELETE.md)
 
@@ -26843,8 +28422,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -26928,7 +28507,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2108/fields/5
 - pages:PAGE-2202/fields/2
 - pages:PAGE-2227/fields/121
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/243
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/257
 
 局部说明：[LOCAL-PLAT-BAN-QUERY](local-logic/LOCAL-PLAT-BAN-QUERY.md)、[LOCAL-PLAT-BAN-DETAIL](local-logic/LOCAL-PLAT-BAN-DETAIL.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-BAN-MOVE](local-logic/LOCAL-PLAT-BAN-MOVE.md)、[LOCAL-PLAT-BAN-REMOVE](local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)、[LOCAL-PLAT-BAN-RELEASE](local-logic/LOCAL-PLAT-BAN-RELEASE.md)
 
@@ -27031,7 +28610,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2007/fields/12
 - pages:PAGE-2108/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/244
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/258
 
 局部说明：[LOCAL-PLAT-BAN-QUERY](local-logic/LOCAL-PLAT-BAN-QUERY.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)
 
@@ -27127,7 +28706,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/245
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/259
 
 局部说明：[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)
 
@@ -27223,7 +28802,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/2
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/246
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/260
 
 局部说明：[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)
 
@@ -27255,8 +28834,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -27344,7 +28923,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2205/fields/2
 - pages:PAGE-2206/fields/2
 - pages:PAGE-2227/fields/123
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/247
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/261
 
 局部说明：[LOCAL-PLAT-BAN-DETAIL](local-logic/LOCAL-PLAT-BAN-DETAIL.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)、[LOCAL-PLAT-CONTACT-CHECK](local-logic/LOCAL-PLAT-CONTACT-CHECK.md)、[LOCAL-PLAT-BAN-RELEASE](local-logic/LOCAL-PLAT-BAN-RELEASE.md)
 
@@ -27447,7 +29026,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2007/fields/13
 - pages:PAGE-2108/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/248
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/262
 
 局部说明：[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)
 
@@ -27479,8 +29058,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -27568,7 +29147,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2205/fields/1
 - pages:PAGE-2206/fields/1
 - pages:PAGE-2227/fields/122
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/249
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/263
 
 局部说明：[LOCAL-PLAT-BAN-DETAIL](local-logic/LOCAL-PLAT-BAN-DETAIL.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)、[LOCAL-PLAT-CONTACT-CHECK](local-logic/LOCAL-PLAT-CONTACT-CHECK.md)
 
@@ -27600,8 +29179,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -27689,7 +29268,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2205/fields/3
 - pages:PAGE-2206/fields/3
 - pages:PAGE-2227/fields/124
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/250
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/264
 
 局部说明：[LOCAL-PLAT-BAN-QUERY](local-logic/LOCAL-PLAT-BAN-QUERY.md)、[LOCAL-PLAT-BAN-DETAIL](local-logic/LOCAL-PLAT-BAN-DETAIL.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-BAN-REMOVE](local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[LOCAL-PLAT-BAN-HUMAN](local-logic/LOCAL-PLAT-BAN-HUMAN.md)、[LOCAL-PLAT-BAN-AI](local-logic/LOCAL-PLAT-BAN-AI.md)、[LOCAL-PLAT-CONTACT-CHECK](local-logic/LOCAL-PLAT-CONTACT-CHECK.md)、[LOCAL-PLAT-BAN-RELEASE](local-logic/LOCAL-PLAT-BAN-RELEASE.md)
 
@@ -27791,7 +29370,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/14
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/251
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/265
 
 局部说明：[LOCAL-PLAT-BAN-DETAIL](local-logic/LOCAL-PLAT-BAN-DETAIL.md)、[LOCAL-PLAT-BAN-RELEASE](local-logic/LOCAL-PLAT-BAN-RELEASE.md)
 
@@ -27888,7 +29467,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/252
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/266
 
 局部说明：[LOCAL-PLAT-BAN-SYNC](local-logic/LOCAL-PLAT-BAN-SYNC.md)
 
@@ -27989,7 +29568,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2007/fields/15
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/253
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/267
 
 局部说明：[LOCAL-PLAT-BAN-DETAIL](local-logic/LOCAL-PLAT-BAN-DETAIL.md)、[LOCAL-PLAT-BAN-NUMBERS](local-logic/LOCAL-PLAT-BAN-NUMBERS.md)、[LOCAL-PLAT-BAN-REMOVE](local-logic/LOCAL-PLAT-BAN-REMOVE.md)、[LOCAL-PLAT-BAN-SYNC](local-logic/LOCAL-PLAT-BAN-SYNC.md)、[LOCAL-PLAT-BAN-RELEASE](local-logic/LOCAL-PLAT-BAN-RELEASE.md)
 
@@ -28012,6 +29591,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [人工明确拒联成功保存后自动入库 · FUNC\-2022](features/FUNC-2022.md)
 - [人工确认AI明确拒联并入库 · FUNC\-2023](features/FUNC-2023.md)
 - [管理员填原因解除准确拒联来源 · FUNC\-2025](features/FUNC-2025.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`contactCheck`
@@ -28094,7 +29675,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2202/fields/9
 - pages:PAGE-2205/fields/6
 - pages:PAGE-2206/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/254
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/268
 
 局部说明：[LOCAL-PLAT-CONTACT-CHECK](local-logic/LOCAL-PLAT-CONTACT-CHECK.md)、[LOCAL-PLAT-PHONE-OUTBOUND](local-logic/LOCAL-PLAT-PHONE-OUTBOUND.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)、[LOCAL-PLAT-CLOUD-TASK-RESUBMIT](local-logic/LOCAL-PLAT-CLOUD-TASK-RESUBMIT.md)
 
@@ -28189,7 +29770,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2102/fields/9
 - pages:PAGE-2106/fields/12
 - pages:PAGE-2112/fields/25
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/255
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/269
 
 局部说明：[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-RECONCILE](local-logic/LOCAL-PLAT-FINANCE-RECONCILE.md)、[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)
 
@@ -28284,7 +29865,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2102/fields/10
 - pages:PAGE-2106/fields/13
 - pages:PAGE-2112/fields/26
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/256
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/270
 
 局部说明：[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)、[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)
 
@@ -28379,7 +29960,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2102/fields/1
 - pages:PAGE-2106/fields/2
 - pages:PAGE-2112/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/257
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/271
 
 局部说明：[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)、[LOCAL-PLAT-FINANCE-RECONCILE](local-logic/LOCAL-PLAT-FINANCE-RECONCILE.md)、[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)
 
@@ -28474,7 +30055,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2102/fields/3
 - pages:PAGE-2106/fields/4
 - pages:PAGE-2112/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/258
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/272
 
 局部说明：[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)
 
@@ -28569,7 +30150,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2102/fields/2
 - pages:PAGE-2106/fields/3
 - pages:PAGE-2112/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/259
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/273
 
 局部说明：[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)
 
@@ -28664,7 +30245,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2102/fields/6
 - pages:PAGE-2106/fields/10
 - pages:PAGE-2112/fields/15
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/260
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/274
 
 局部说明：[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)
 
@@ -28760,7 +30341,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/21
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/261
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/275
 
 局部说明：[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)
 
@@ -28857,7 +30438,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2102/fields/7
 - pages:PAGE-2112/fields/19
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/262
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/276
 
 局部说明：[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)、[LOCAL-PLAT-FINANCE-RECONCILE](local-logic/LOCAL-PLAT-FINANCE-RECONCILE.md)
 
@@ -28955,7 +30536,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2106/fields/1
 - pages:PAGE-2112/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/263
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/277
 
 局部说明：[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)
 
@@ -28991,8 +30572,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
 - [查看业务、运行和有权跟进通话详情 · FUNC\-2033](features/FUNC-2033.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 - [查看当前模板及绑定方案说明 · FUNC\-2041](features/FUNC-2041.md)
@@ -29100,7 +30681,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2222/fields/4
 - pages:PAGE-2225/fields/2
 - pages:PAGE-2227/fields/137
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/264
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/278
 
 局部说明：[LOCAL-PLAT-CALL-QUERY](local-logic/LOCAL-PLAT-CALL-QUERY.md)、[LOCAL-PLAT-CALL-EXPORT](local-logic/LOCAL-PLAT-CALL-EXPORT.md)、[LOCAL-PLAT-SEAT-SUPERVISE](local-logic/LOCAL-PLAT-SEAT-SUPERVISE.md)、[LOCAL-PLAT-CUSTOMER-DIRECTORY](local-logic/LOCAL-PLAT-CUSTOMER-DIRECTORY.md)、[LOCAL-PLAT-CUSTOMER-IMPORT](local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-TASK-EXPORT](local-logic/LOCAL-PLAT-TASK-EXPORT.md)、[LOCAL-PLAT-EXPORT-CUSTOMERS](local-logic/LOCAL-PLAT-EXPORT-CUSTOMERS.md)、[LOCAL-PLAT-IMPORT-BATCH](local-logic/LOCAL-PLAT-IMPORT-BATCH.md)、[LOCAL-PLAT-REPORT-QUERY](local-logic/LOCAL-PLAT-REPORT-QUERY.md)、[LOCAL-PLAT-REPORT-EXPORT](local-logic/LOCAL-PLAT-REPORT-EXPORT.md)、[LOCAL-PLAT-RESOURCE-AUDIT](local-logic/LOCAL-PLAT-RESOURCE-AUDIT.md)、[LOCAL-PLAT-OPERATION-AUDIT](local-logic/LOCAL-PLAT-OPERATION-AUDIT.md)、[LOCAL-PLAT-CALL-RECONCILE](local-logic/LOCAL-PLAT-CALL-RECONCILE.md)、[LOCAL-PLAT-SEAT-EVENT-QUERY](local-logic/LOCAL-PLAT-SEAT-EVENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-RESOURCE-AGENT-DELETE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-DELETE.md)、[LOCAL-PLAT-RESOURCE-SKILL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-SKILL-QUERY.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE.md)、[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBER-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBER-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)、[LOCAL-PLAT-RESOURCE-TIME-QUERY](local-logic/LOCAL-PLAT-RESOURCE-TIME-QUERY.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)、[LOCAL-PLAT-RESOURCE-TIME-DELETE](local-logic/LOCAL-PLAT-RESOURCE-TIME-DELETE.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-QUERY.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-DELETE.md)、[LOCAL-PLAT-SEAT-BATCH-CREATE](local-logic/LOCAL-PLAT-SEAT-BATCH-CREATE.md)、[LOCAL-PLAT-SEAT-BATCH-VERIFY](local-logic/LOCAL-PLAT-SEAT-BATCH-VERIFY.md)、[LOCAL-PLAT-SEAT-CORRECT](local-logic/LOCAL-PLAT-SEAT-CORRECT.md)、[LOCAL-PLAT-SEAT-SYNC](local-logic/LOCAL-PLAT-SEAT-SYNC.md)、[LOCAL-PLAT-SEAT-BIND](local-logic/LOCAL-PLAT-SEAT-BIND.md)、[LOCAL-PLAT-SKILL-MEMBER](local-logic/LOCAL-PLAT-SKILL-MEMBER.md)、[LOCAL-PLAT-QUEUE-ASSOCIATE](local-logic/LOCAL-PLAT-QUEUE-ASSOCIATE.md)
 
@@ -29201,7 +30782,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2218/fields/7
 - pages:PAGE-2219/fields/13
 - pages:PAGE-2220/fields/19
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/265
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/279
 
 局部说明：[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-RESOURCE-AGENT-DELETE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-DELETE.md)、[LOCAL-PLAT-RESOURCE-SKILL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-SKILL-QUERY.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE.md)、[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBER-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBER-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)、[LOCAL-PLAT-RESOURCE-TIME-QUERY](local-logic/LOCAL-PLAT-RESOURCE-TIME-QUERY.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)、[LOCAL-PLAT-RESOURCE-TIME-DELETE](local-logic/LOCAL-PLAT-RESOURCE-TIME-DELETE.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-QUERY.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-DELETE.md)、[LOCAL-PLAT-SEAT-BATCH-CREATE](local-logic/LOCAL-PLAT-SEAT-BATCH-CREATE.md)、[LOCAL-PLAT-SEAT-BATCH-VERIFY](local-logic/LOCAL-PLAT-SEAT-BATCH-VERIFY.md)、[LOCAL-PLAT-QUEUE-ASSOCIATE](local-logic/LOCAL-PLAT-QUEUE-ASSOCIATE.md)
 
@@ -29308,7 +30889,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2210/fields/14
 - pages:PAGE-2211/fields/8
 - pages:PAGE-2214/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/266
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/280
 
 局部说明：[LOCAL-PLAT-PHONE-PREPARE](local-logic/LOCAL-PLAT-PHONE-PREPARE.md)、[LOCAL-PLAT-SEAT-SUPERVISE](local-logic/LOCAL-PLAT-SEAT-SUPERVISE.md)、[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-RESOURCE-AGENT-DELETE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-DELETE.md)、[LOCAL-PLAT-SEAT-CORRECT](local-logic/LOCAL-PLAT-SEAT-CORRECT.md)、[LOCAL-PLAT-SEAT-SYNC](local-logic/LOCAL-PLAT-SEAT-SYNC.md)、[LOCAL-PLAT-SEAT-BIND](local-logic/LOCAL-PLAT-SEAT-BIND.md)、[LOCAL-PLAT-SKILL-MEMBER](local-logic/LOCAL-PLAT-SKILL-MEMBER.md)
 
@@ -29403,7 +30984,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2210/fields/15
 - pages:PAGE-2214/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/267
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/281
 
 局部说明：[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-SEAT-CORRECT](local-logic/LOCAL-PLAT-SEAT-CORRECT.md)
 
@@ -29497,7 +31078,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2210/fields/12
 - pages:PAGE-2214/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/268
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/282
 
 局部说明：[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-SEAT-CORRECT](local-logic/LOCAL-PLAT-SEAT-CORRECT.md)
 
@@ -29592,7 +31173,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2210/fields/10
 - pages:PAGE-2214/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/269
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/283
 
 局部说明：[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-SEAT-CORRECT](local-logic/LOCAL-PLAT-SEAT-CORRECT.md)
 
@@ -29693,7 +31274,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2202/fields/33
 - pages:PAGE-2210/fields/13
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/270
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/284
 
 局部说明：[LOCAL-PLAT-PHONE-PREPARE](local-logic/LOCAL-PLAT-PHONE-PREPARE.md)、[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)
 
@@ -29800,7 +31381,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2003/fields/25
 - pages:PAGE-2202/fields/31
 - pages:PAGE-2210/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/271
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/285
 
 局部说明：[LOCAL-PLAT-PHONE-PREPARE](local-logic/LOCAL-PLAT-PHONE-PREPARE.md)、[LOCAL-PLAT-RESOURCE-AGENT-QUERY](local-logic/LOCAL-PLAT-RESOURCE-AGENT-QUERY.md)、[LOCAL-PLAT-RESOURCE-AGENT-SAVE](local-logic/LOCAL-PLAT-RESOURCE-AGENT-SAVE.md)、[LOCAL-PLAT-SEAT-BIND](local-logic/LOCAL-PLAT-SEAT-BIND.md)
 
@@ -29895,7 +31476,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2210/fields/11
 - pages:PAGE-2214/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/272
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/286
 
 局部说明：[LOCAL-PLAT-RESOURCE-AUDIT](local-logic/LOCAL-PLAT-RESOURCE-AUDIT.md)、[LOCAL-PLAT-SEAT-BATCH-CREATE](local-logic/LOCAL-PLAT-SEAT-BATCH-CREATE.md)、[LOCAL-PLAT-SEAT-BATCH-VERIFY](local-logic/LOCAL-PLAT-SEAT-BATCH-VERIFY.md)、[LOCAL-PLAT-SEAT-SYNC](local-logic/LOCAL-PLAT-SEAT-SYNC.md)
 
@@ -29987,7 +31568,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2211/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/273
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/287
 
 局部说明：[LOCAL-PLAT-RESOURCE-SKILL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-SKILL-QUERY.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)、[LOCAL-PLAT-SKILL-MEMBER](local-logic/LOCAL-PLAT-SKILL-MEMBER.md)
 
@@ -30081,7 +31662,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2211/fields/12
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/274
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/288
 
 局部说明：[LOCAL-PLAT-RESOURCE-SKILL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-SKILL-QUERY.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)
 
@@ -30176,7 +31757,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2211/fields/11
 - pages:PAGE-2213/fields/29
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/275
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/289
 
 局部说明：[LOCAL-PLAT-RESOURCE-SKILL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-SKILL-QUERY.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)、[LOCAL-PLAT-SKILL-MEMBER](local-logic/LOCAL-PLAT-SKILL-MEMBER.md)、[LOCAL-PLAT-QUEUE-ASSOCIATE](local-logic/LOCAL-PLAT-QUEUE-ASSOCIATE.md)
 
@@ -30269,7 +31850,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2211/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/276
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/290
 
 局部说明：[LOCAL-PLAT-RESOURCE-SKILL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-SKILL-QUERY.md)、[LOCAL-PLAT-RESOURCE-SKILL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-SKILL-SAVE.md)、[LOCAL-PLAT-SKILL-MEMBER](local-logic/LOCAL-PLAT-SKILL-MEMBER.md)
 
@@ -30364,7 +31945,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2212/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/277
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/291
 
 局部说明：[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE.md)
 
@@ -30458,7 +32039,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2212/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/278
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/292
 
 局部说明：[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)
 
@@ -30552,7 +32133,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/11
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/279
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/293
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)、[LOCAL-PLAT-QUEUE-ASSOCIATE](local-logic/LOCAL-PLAT-QUEUE-ASSOCIATE.md)
 
@@ -30646,7 +32227,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/19
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/280
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/294
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)、[LOCAL-PLAT-QUEUE-ASSOCIATE](local-logic/LOCAL-PLAT-QUEUE-ASSOCIATE.md)
 
@@ -30738,7 +32319,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2215/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/281
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/295
 
 局部说明：[LOCAL-PLAT-RESOURCE-NUMBER-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBER-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-SAVE.md)
 
@@ -30830,7 +32411,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2215/fields/2
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/282
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/296
 
 局部说明：[LOCAL-PLAT-RESOURCE-NUMBER-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBER-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBER-SAVE.md)
 
@@ -30924,7 +32505,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2216/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/283
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/297
 
 局部说明：[LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE.md)
 
@@ -31018,7 +32599,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2216/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/284
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/298
 
 局部说明：[LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)
 
@@ -31112,7 +32693,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2216/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/285
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/299
 
 局部说明：[LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)
 
@@ -31206,7 +32787,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2216/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/286
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/300
 
 局部说明：[LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)
 
@@ -31301,7 +32882,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/287
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/301
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -31395,7 +32976,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2218/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/288
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/302
 
 局部说明：[LOCAL-PLAT-RESOURCE-TIME-QUERY](local-logic/LOCAL-PLAT-RESOURCE-TIME-QUERY.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)、[LOCAL-PLAT-RESOURCE-TIME-DELETE](local-logic/LOCAL-PLAT-RESOURCE-TIME-DELETE.md)
 
@@ -31489,7 +33070,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2218/fields/12
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/289
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/303
 
 局部说明：[LOCAL-PLAT-RESOURCE-TIME-QUERY](local-logic/LOCAL-PLAT-RESOURCE-TIME-QUERY.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)
 
@@ -31583,7 +33164,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2218/fields/11
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/290
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/304
 
 局部说明：[LOCAL-PLAT-RESOURCE-TIME-QUERY](local-logic/LOCAL-PLAT-RESOURCE-TIME-QUERY.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)
 
@@ -31677,7 +33258,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2218/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/291
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/305
 
 局部说明：[LOCAL-PLAT-RESOURCE-TIME-QUERY](local-logic/LOCAL-PLAT-RESOURCE-TIME-QUERY.md)、[LOCAL-PLAT-RESOURCE-TIME-SAVE](local-logic/LOCAL-PLAT-RESOURCE-TIME-SAVE.md)
 
@@ -31698,8 +33279,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -31780,7 +33361,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2204/fields/69
 - pages:PAGE-2220/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/292
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/306
 
 局部说明：[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)、[LOCAL-PLAT-BUSINESS-API-RESULT](local-logic/LOCAL-PLAT-BUSINESS-API-RESULT.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-QUERY.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-DELETE.md)
 
@@ -31872,7 +33453,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2220/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/293
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/307
 
 局部说明：[LOCAL-PLAT-RESOURCE-APPLICATION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-QUERY.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)
 
@@ -31893,8 +33474,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -31976,7 +33557,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2204/fields/70
 - pages:PAGE-2220/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/294
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/308
 
 局部说明：[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-QUERY.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)
 
@@ -31997,8 +33578,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -32080,7 +33661,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2204/fields/68
 - pages:PAGE-2220/fields/2
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/295
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/309
 
 局部说明：[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)、[LOCAL-PLAT-BUSINESS-API-RESULT](local-logic/LOCAL-PLAT-BUSINESS-API-RESULT.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-QUERY.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)
 
@@ -32172,7 +33753,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2220/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/296
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/310
 
 局部说明：[LOCAL-PLAT-RESOURCE-APPLICATION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-QUERY.md)、[LOCAL-PLAT-RESOURCE-APPLICATION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-APPLICATION-SAVE.md)
 
@@ -32193,8 +33774,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -32276,7 +33857,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2204/fields/66
 - pages:PAGE-2220/fields/0
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/297
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/311
 
 局部说明：[LOCAL-PLAT-BUSINESS-API-IMPORT](local-logic/LOCAL-PLAT-BUSINESS-API-IMPORT.md)
 
@@ -32300,8 +33881,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -32383,7 +33964,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2202/fields/0
 - pages:PAGE-2204/fields/67
 - pages:PAGE-2220/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/298
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/312
 
 局部说明：[LOCAL-PLAT-PHONE-AFTERCALL](local-logic/LOCAL-PLAT-PHONE-AFTERCALL.md)、[LOCAL-PLAT-BUSINESS-API-RESULT](local-logic/LOCAL-PLAT-BUSINESS-API-RESULT.md)
 
@@ -32478,7 +34059,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2223/fields/37
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/299
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/313
 
 局部说明：[LOCAL-PLAT-PRO-FIELD](local-logic/LOCAL-PLAT-PRO-FIELD.md)
 
@@ -32503,8 +34084,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - [按路径确认同品牌线索转交 · FUNC\-2030](features/FUNC-2030.md)
 - [明确发起当前呼叫及同组批呼叫 · FUNC\-2031](features/FUNC-2031.md)
 - [保存本轮跟进、准确通话事实并唯一归档 · FUNC\-2032](features/FUNC-2032.md)
-- [按实际分类严格预检并导入业务 · FUNC\-2036](features/FUNC-2036.md)
-- [分配本租户责任跟进人与AI安排 · FUNC\-2037](features/FUNC-2037.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](features/FUNC-2038.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](features/FUNC-2039.md)
 
@@ -32588,7 +34169,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2103/fields/16
 - pages:PAGE-2204/fields/79
 - pages:PAGE-2223/fields/36
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/300
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/314
 
 局部说明：[LOCAL-PLAT-CUSTOMER-IMPORT](local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-PRO-FIELD](local-logic/LOCAL-PLAT-PRO-FIELD.md)、[LOCAL-PLAT-AI-IMPORT-TEMPLATE](local-logic/LOCAL-PLAT-AI-IMPORT-TEMPLATE.md)
 
@@ -32680,7 +34261,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2207/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/301
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/315
 
 局部说明：[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -32774,7 +34355,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2207/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/302
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/316
 
 局部说明：[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -32867,7 +34448,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2207/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/303
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/317
 
 局部说明：[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -32966,7 +34547,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2106/fields/8
 - pages:PAGE-2107/fields/3
 - pages:PAGE-2209/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/304
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/318
 
 局部说明：[LOCAL-PLAT-REPORT-QUERY](local-logic/LOCAL-PLAT-REPORT-QUERY.md)、[LOCAL-PLAT-REPORT-DRILL](local-logic/LOCAL-PLAT-REPORT-DRILL.md)、[LOCAL-PLAT-REPORT-EXPORT](local-logic/LOCAL-PLAT-REPORT-EXPORT.md)
 
@@ -33070,7 +34651,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2106/fields/7
 - pages:PAGE-2107/fields/2
 - pages:PAGE-2209/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/305
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/319
 
 局部说明：[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-REPORT-QUERY](local-logic/LOCAL-PLAT-REPORT-QUERY.md)、[LOCAL-PLAT-REPORT-DRILL](local-logic/LOCAL-PLAT-REPORT-DRILL.md)、[LOCAL-PLAT-REPORT-EXPORT](local-logic/LOCAL-PLAT-REPORT-EXPORT.md)
 
@@ -33090,6 +34671,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 
 业务对象：`professionalReport`
 
@@ -33172,7 +34755,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2208/fields/8
 - pages:PAGE-2209/fields/5
 - pages:PAGE-2222/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/306
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/320
 
 局部说明：[LOCAL-PLAT-CALL-EXPORT](local-logic/LOCAL-PLAT-CALL-EXPORT.md)、[LOCAL-PLAT-TASK-EXPORT](local-logic/LOCAL-PLAT-TASK-EXPORT.md)、[LOCAL-PLAT-EXPORT-CUSTOMERS](local-logic/LOCAL-PLAT-EXPORT-CUSTOMERS.md)、[LOCAL-PLAT-REPORT-EXPORT](local-logic/LOCAL-PLAT-REPORT-EXPORT.md)、[LOCAL-PLAT-OPERATION-AUDIT](local-logic/LOCAL-PLAT-OPERATION-AUDIT.md)、[LOCAL-PLAT-AI-IMPORT-TEMPLATE](local-logic/LOCAL-PLAT-AI-IMPORT-TEMPLATE.md)
 
@@ -33265,7 +34848,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2214/fields/1
 - pages:PAGE-2222/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/307
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/321
 
 局部说明：[LOCAL-PLAT-RESOURCE-AUDIT](local-logic/LOCAL-PLAT-RESOURCE-AUDIT.md)、[LOCAL-PLAT-OPERATION-AUDIT](local-logic/LOCAL-PLAT-OPERATION-AUDIT.md)
 
@@ -33364,7 +34947,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2202/fields/32
 - pages:PAGE-2225/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/308
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/322
 
 局部说明：[LOCAL-PLAT-PHONE-PREPARE](local-logic/LOCAL-PLAT-PHONE-PREPARE.md)、[LOCAL-PLAT-SEAT-SUPERVISE](local-logic/LOCAL-PLAT-SEAT-SUPERVISE.md)、[LOCAL-PLAT-SEAT-EVENT-QUERY](local-logic/LOCAL-PLAT-SEAT-EVENT-QUERY.md)
 
@@ -33459,7 +35042,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2212/fields/2
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/309
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/323
 
 局部说明：[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE.md)
 
@@ -33552,7 +35135,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2212/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/310
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/324
 
 局部说明：[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-QUERY.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-SAVE.md)、[LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE](local-logic/LOCAL-PLAT-RESOURCE-OUTBOUNDGROUP-DELETE.md)
 
@@ -33645,7 +35228,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2216/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/311
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/325
 
 局部说明：[LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-QUERY.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-SAVE.md)、[LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE](local-logic/LOCAL-PLAT-RESOURCE-NUMBERPOOL-DELETE.md)
 
@@ -33738,7 +35321,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/23
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/312
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/326
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -33831,7 +35414,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/21
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/313
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/327
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -33924,7 +35507,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/16
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/314
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/328
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34017,7 +35600,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/15
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/315
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/329
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34110,7 +35693,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/24
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/316
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/330
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34203,7 +35786,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/317
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/331
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34296,7 +35879,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/18
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/318
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/332
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34389,7 +35972,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/319
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/333
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34482,7 +36065,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/13
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/320
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/334
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34575,7 +36158,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/14
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/321
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/335
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34669,7 +36252,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/322
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/336
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34762,7 +36345,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/20
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/323
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/337
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34856,7 +36439,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/324
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/338
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -34949,7 +36532,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/17
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/325
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/339
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -35042,7 +36625,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/326
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/340
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -35136,7 +36719,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/327
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/341
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -35229,7 +36812,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/12
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/328
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/342
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -35322,7 +36905,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/22
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/329
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/343
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -35416,7 +36999,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2213/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/330
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/344
 
 局部说明：[LOCAL-PLAT-RESOURCE-QUEUE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-QUERY.md)、[LOCAL-PLAT-RESOURCE-QUEUE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-QUEUE-SAVE.md)
 
@@ -35510,7 +37093,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/11
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/331
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/345
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -35603,7 +37186,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/2
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/332
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/346
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -35697,7 +37280,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/333
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/347
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -35791,7 +37374,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/10
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/334
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/348
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -35885,7 +37468,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/335
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/349
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -35979,7 +37562,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/336
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/350
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -36073,7 +37656,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/337
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/351
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -36167,7 +37750,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/338
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/352
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -36261,7 +37844,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/339
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/353
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -36354,7 +37937,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/12
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/340
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/354
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -36447,7 +38030,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2217/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/341
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/355
 
 局部说明：[LOCAL-PLAT-RESOURCE-EXTENSION-QUERY](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-QUERY.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-SAVE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-SAVE.md)、[LOCAL-PLAT-RESOURCE-EXTENSION-DELETE](local-logic/LOCAL-PLAT-RESOURCE-EXTENSION-DELETE.md)
 
@@ -36466,6 +38049,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -36547,7 +38132,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/31
 - pages:PAGE-2206/fields/31
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/342
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/356
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -36566,6 +38151,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -36647,7 +38234,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/20
 - pages:PAGE-2206/fields/20
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/343
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/357
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -36666,6 +38253,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -36748,7 +38337,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/30
 - pages:PAGE-2206/fields/30
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/344
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/358
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -36767,6 +38356,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -36849,7 +38440,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/38
 - pages:PAGE-2206/fields/38
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/345
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/359
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -36868,6 +38459,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -36950,7 +38543,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/18
 - pages:PAGE-2206/fields/18
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/346
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/360
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -36969,6 +38562,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -37051,7 +38646,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/55
 - pages:PAGE-2206/fields/55
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/347
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/361
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -37070,6 +38665,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -37152,7 +38749,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/37
 - pages:PAGE-2206/fields/37
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/348
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/362
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -37171,6 +38768,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -37253,7 +38852,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/43
 - pages:PAGE-2206/fields/43
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/349
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/363
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -37272,6 +38871,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -37354,7 +38955,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/42
 - pages:PAGE-2206/fields/42
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/350
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/364
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -37373,6 +38974,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -37455,7 +39058,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/19
 - pages:PAGE-2206/fields/19
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/351
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/365
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -37474,6 +39077,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -37556,7 +39161,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/54
 - pages:PAGE-2206/fields/54
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/352
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/366
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -37575,6 +39180,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -37657,7 +39264,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/47
 - pages:PAGE-2206/fields/47
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/353
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/367
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -37676,6 +39283,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -37758,7 +39367,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/25
 - pages:PAGE-2206/fields/25
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/354
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/368
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-RECALL](local-logic/LOCAL-PLAT-CLOUD-TASK-RECALL.md)
 
@@ -37852,7 +39461,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2207/fields/9
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/355
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/369
 
 局部说明：[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -37945,7 +39554,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2207/fields/8
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/356
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/370
 
 局部说明：[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -38046,7 +39655,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2202/fields/16
 - pages:PAGE-2207/fields/13
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/357
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/371
 
 局部说明：[LOCAL-PLAT-PHONE-INBOUND](local-logic/LOCAL-PLAT-PHONE-INBOUND.md)、[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -38147,7 +39756,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2202/fields/15
 - pages:PAGE-2207/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/358
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/372
 
 局部说明：[LOCAL-PLAT-PHONE-INBOUND](local-logic/LOCAL-PLAT-PHONE-INBOUND.md)、[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -38241,7 +39850,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2207/fields/12
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/359
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/373
 
 局部说明：[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -38335,7 +39944,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2207/fields/11
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/360
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/374
 
 局部说明：[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -38429,7 +40038,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2207/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/361
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/375
 
 局部说明：[LOCAL-PLAT-INBOUND-RULE](local-logic/LOCAL-PLAT-INBOUND-RULE.md)
 
@@ -38448,6 +40057,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -38530,7 +40141,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/28
 - pages:PAGE-2206/fields/28
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/362
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/376
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)
 
@@ -38549,6 +40160,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -38631,7 +40244,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/27
 - pages:PAGE-2206/fields/27
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/363
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/377
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)
 
@@ -38650,6 +40263,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -38732,7 +40347,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/33
 - pages:PAGE-2206/fields/33
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/364
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/378
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)
 
@@ -38751,6 +40366,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -38833,7 +40450,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/46
 - pages:PAGE-2206/fields/46
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/365
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/379
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)
 
@@ -38852,6 +40469,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -38934,7 +40553,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/24
 - pages:PAGE-2206/fields/24
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/366
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/380
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)
 
@@ -39030,7 +40649,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/16
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/367
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/381
 
 局部说明：[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)
 
@@ -39126,7 +40745,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/22
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/368
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/382
 
 局部说明：[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)
 
@@ -39221,7 +40840,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/17
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/369
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/383
 
 局部说明：[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)
 
@@ -39316,7 +40935,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/24
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/370
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/384
 
 局部说明：[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)
 
@@ -39411,7 +41030,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/18
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/371
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/385
 
 局部说明：[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)
 
@@ -39506,7 +41125,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/23
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/372
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/386
 
 局部说明：[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)
 
@@ -39602,7 +41221,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/373
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/387
 
 局部说明：[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)
 
@@ -39698,7 +41317,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/0
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/374
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/388
 
 局部说明：[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)
 
@@ -39794,7 +41413,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/375
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/389
 
 局部说明：[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)
 
@@ -39890,7 +41509,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/376
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/390
 
 局部说明：[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)
 
@@ -39986,7 +41605,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2112/fields/2
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/377
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/391
 
 局部说明：[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)
 
@@ -40078,7 +41697,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2219/fields/4
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/378
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/392
 
 局部说明：[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)
 
@@ -40170,7 +41789,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2219/fields/3
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/379
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/393
 
 局部说明：[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)
 
@@ -40262,7 +41881,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2219/fields/1
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/380
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/394
 
 局部说明：[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)
 
@@ -40354,7 +41973,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2219/fields/2
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/381
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/395
 
 局部说明：[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)
 
@@ -40446,7 +42065,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2219/fields/5
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/382
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/396
 
 局部说明：[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)
 
@@ -40538,7 +42157,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2219/fields/6
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/383
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/397
 
 局部说明：[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)
 
@@ -40630,7 +42249,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2219/fields/7
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/384
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/398
 
 局部说明：[LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-QUERY.md)、[LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE](local-logic/LOCAL-PLAT-RESOURCE-ENTERPRISE-SAVE.md)
 
@@ -40725,7 +42344,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 - pages:PAGE-2102/fields/8
 - pages:PAGE-2106/fields/11
 - pages:PAGE-2112/fields/20
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/385
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/399
 
 局部说明：[LOCAL-PLAT-FINANCE-QUERY](local-logic/LOCAL-PLAT-FINANCE-QUERY.md)、[LOCAL-PLAT-FINANCE-VIEW](local-logic/LOCAL-PLAT-FINANCE-VIEW.md)、[LOCAL-PLAT-FINANCE-RECHARGE](local-logic/LOCAL-PLAT-FINANCE-RECHARGE.md)、[LOCAL-PLAT-FINANCE-ADJUST](local-logic/LOCAL-PLAT-FINANCE-ADJUST.md)、[LOCAL-PLAT-FINANCE-RECONCILE](local-logic/LOCAL-PLAT-FINANCE-RECONCILE.md)、[LOCAL-PLAT-FINANCE-EXPORT](local-logic/LOCAL-PLAT-FINANCE-EXPORT.md)
 
@@ -40744,6 +42363,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -40766,7 +42387,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 ### 校验与关联约束
 
-- 只允许1/2；不与导入与分配只分配业务跟进人的规则混用
+- 只允许1/2；不与导入批次与业务名单只分配业务跟进人的规则混用
 - 编辑只可改当前模式内接听人员；不能切换已创建方式
 
 ### 读写权限
@@ -40783,7 +42404,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 ### 各状态行为
 
 - creating：预外呼创建必选；创建后方式只读；新建默认仅本次初始化，编辑载入现值
-- validating：只允许1/2；不与导入与分配只分配业务跟进人的规则混用；编辑只可改当前模式内接听人员；不能切换已创建方式
+- validating：只允许1/2；不与导入批次与业务名单只分配业务跟进人的规则混用；编辑只可改当前模式内接听人员；不能切换已创建方式
 - confirmed：准确专业任务创建或允许编辑确认成功时保存本字段到该任务当前配置，启动冻结所需计划；失败保已确认值，未知保同请求待核
 - execution_started：按原任务状态限制编辑；本次已受理/已发生事实不回写；资源每次启动/继续复验
 
@@ -40826,7 +42447,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/34
 - pages:PAGE-2206/fields/34
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/386
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/400
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -40845,6 +42466,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -40926,7 +42549,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/26
 - pages:PAGE-2206/fields/26
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/387
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/401
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -40945,6 +42568,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41026,7 +42651,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/41
 - pages:PAGE-2206/fields/41
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/388
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/402
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41045,6 +42670,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41126,7 +42753,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/21
 - pages:PAGE-2206/fields/21
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/389
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/403
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41145,6 +42772,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41226,7 +42855,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/36
 - pages:PAGE-2206/fields/36
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/390
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/404
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41245,6 +42874,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41326,7 +42957,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/29
 - pages:PAGE-2206/fields/29
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/391
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/405
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41345,6 +42976,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41426,7 +43059,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/22
 - pages:PAGE-2206/fields/22
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/392
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/406
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41445,6 +43078,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41527,7 +43162,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/23
 - pages:PAGE-2206/fields/23
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/393
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/407
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41546,6 +43181,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41627,7 +43264,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/50
 - pages:PAGE-2206/fields/50
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/394
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/408
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41646,6 +43283,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41727,7 +43366,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/49
 - pages:PAGE-2206/fields/49
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/395
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/409
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41746,6 +43385,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41827,7 +43468,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/53
 - pages:PAGE-2206/fields/53
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/396
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/410
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41846,6 +43487,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -41927,7 +43570,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/52
 - pages:PAGE-2206/fields/52
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/397
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/411
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -41946,6 +43589,8 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 共享页面／局部／任务上下文（不等于字段专属归属）：
 
 - [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
 - [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
 
 业务对象：`professionalTask`
@@ -42029,7 +43674,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 来源条目：
 - pages:PAGE-2205/fields/45
 - pages:PAGE-2206/fields/45
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/398
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/412
 
 局部说明：[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-CONTROL](local-logic/LOCAL-PLAT-CLOUD-TASK-CONTROL.md)
 
@@ -42123,7 +43768,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2111/fields/17
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/399
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/413
 
 局部说明：[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
@@ -42219,7 +43864,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2111/fields/18
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/400
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/414
 
 局部说明：[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
@@ -42315,7 +43960,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2111/fields/19
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/401
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/415
 
 局部说明：[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
@@ -42409,7 +44054,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2111/fields/20
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/402
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/416
 
 局部说明：[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
@@ -42505,7 +44150,7 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2111/fields/21
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/403
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/417
 
 局部说明：[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
@@ -42601,10 +44246,317 @@ DIRECT不预选方式；必须明确AI、人工或预外呼，不从模板/首�
 
 来源条目：
 - pages:PAGE-2111/fields/22
-- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/404
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/418
 
 局部说明：[LOCAL-PLAT-AI-TAXONOMY](local-logic/LOCAL-PLAT-AI-TAXONOMY.md)
 
 任务：[TASK-033](tasks/TASK-033.md)
 
 测试：CHECK-PLAT-AI-TAXONOMY
+
+<a id="FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY"></a>
+
+## FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY AI参数映射关联的实际分类
+
+单功能页面／局部明确关联：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [停用当前专业域目录分类 · FUNC\-2018](features/FUNC-2018.md)
+- [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+
+业务对象：`aiScene`
+
+字段：`importFieldCategoryId`
+
+类型：string
+
+格式/枚举/单位/精度：与当前场景实际业务分类相同的稳定categoryId
+
+允许 null：False
+
+必填条件：本次保存受控业务参数映射时必需；不是另一个用户可选分类
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+没有准确来源时不生成、不以首项/同名/同手机号猜测；旧历史保持原事实。
+
+### 校验与关联约束
+
+- 由场景实际关联分类派生，与importFieldMappingSchema=2及当前scene/platform配置同次保存；不能另选分类绕开实际关联。
+- IMPORT_FIELD只引用当前分类有效IMPORT；CUSTOM_COLUMN仅本scene/platform额外供应商列，均不能改写分类定义；分类变化重核引用，不迁移历史。
+
+### 读写权限
+
+可读：
+- 按原任务/场景/统一业务对象读取资格及当前租户范围；任务读权不授任意统一业务或其他任务查看权。
+
+可写：
+- 系统依据当前有权动作的准确任务/分类/请求结果写入；用户不能直接修改来源或回链。
+
+### 各状态行为
+
+- 读取/预检：只读取当前实际分类IMPORT及准确任务/场景，FOLLOWUP不进入导入；未知来源保待核。
+- 明确成功：本场景分类/参数映射明确保存成功时与同次场景修订保存；导入预检捕获该依据。
+- 失败/未知/上下文变化：保输入和已生效事实，旧预检失效；同请求核对，不重复写业务、原生行或提交供应商。
+- 历史：旧专业行及业务快照不迁移，不因同手机号认领旧业务或按当前字段重绘历史。
+
+### 来源与计算
+
+来源类型：system
+
+规则：由场景实际关联分类派生，与importFieldMappingSchema=2及当前scene/platform配置同次保存；不能另选分类绕开实际关联。；IMPORT_FIELD只引用当前分类有效IMPORT；CUSTOM_COLUMN仅本scene/platform额外供应商列，均不能改写分类定义；分类变化重核引用，不迁移历史。
+
+依赖字段：[FIELD-PLAT-AI-CATEGORY](field-specs.md#FIELD-PLAT-AI-CATEGORY)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：主场景明确保存并通过当前权限/修订/分类/平台校验时同次保存；子弹窗确认仅更新父草稿。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 使用准确分类IMPORT fieldId、taskId及recordId形成可核引用，字段值完整且来源只写一次。
+
+非法/拒绝：
+- FOLLOWUP/异分类/失效fieldId、同手机号猜关联、伪造任务来源或用无权任务提交，拒绝。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY
+- docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG
+
+来源条目：
+- pages:PAGE-2103/fields/26
+- pages:PAGE-2110/fields/13
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/419
+
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-IMPORT-TEMPLATE](local-logic/LOCAL-PLAT-AI-IMPORT-TEMPLATE.md)
+
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-032](tasks/TASK-032.md)、[TASK-034](tasks/TASK-034.md)
+
+测试：CHECK-PLAT-AI-IMPORT-FIELD-MAPPING
+
+<a id="FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS"></a>
+
+## FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS AI场景供应商参数与专属导入列配置
+
+单功能页面／局部明确关联：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [停用当前专业域目录分类 · FUNC\-2018](features/FUNC-2018.md)
+- [为具体AI执行场景维护业务分类引用 · FUNC\-2019](features/FUNC-2019.md)
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+
+业务对象：`aiScene`
+
+字段：`importFieldMappings`
+
+类型：array
+
+格式/枚举/单位/精度：schema=2；importFieldMappings[{id,source:IMPORT_FIELD|CUSTOM_COLUMN,fieldId?(仅引用),parameter,label,type:text|number|date,required}]，与importFieldCategoryId/importFieldPlatform及当前scene/platform绑定
+
+允许 null：False
+
+必填条件：本次场景参数配置提供；新AI导入只投影实际引用的分类业务字段与专属列，系统必需/条件字段和供应商必需项分别满足
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+没有准确来源时不生成、不以首项/同名/同手机号猜测；旧历史保持原事实。
+
+### 校验与关联约束
+
+- IMPORT_FIELD.fieldId只引用实际分类有效IMPORT，排除FOLLOWUP、异分类、失效及同名猜配；业务名称/类型/选项/编码/分类必填从分类读取，不自由复制分类业务字段。
+- 配置按准确scene/platform独立，保存时系统写importFieldPlatform；其存在且不等当前platform时拒绝，用户不能手改绕过。parameter在本场景平台内唯一，允许相同fieldId映射多个不同parameter；平台切换不沿用另一供应商草稿或固定项。
+- IMPORT_FIELD类型随源number/date，其余源类型包括datetime/phone/enum按text保完整规范值；label/type为本次映射元数据，不另立分类业务定义。CUSTOM_COLUMN独立定义label、text/number/date、required，提供稳定id，不增加固定值配置。
+- required只增加本参数需值约束，不能取消本次实际引用业务字段的分类必填；未引用的分类额外必填不进入AI schema；参数格式/保留名/重复及原固定必需项按当前供应商校验，原platformInputRows、厚朴只读定义及必要冰兰固定项保留。
+- 协议固定参数未显式映射时，name/customerName/calleeNo/remark按精确协议名绑定系统值；其余成为当前scene/platform默认专业导入列，customFields保fixed/system标志，required不减；不要求把旧固定项重复手录。
+- 旧schema=1只读兼容；legacy customInputFields未被显式parameter覆盖时，以legacy-custom-<code>确定性CUSTOM_COLUMN读取，保原名称/类型/必填。只有父场景明确保存升级schema=2才清旧重复定义，取消不改旧配置。
+- 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+- 主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。
+
+### 读写权限
+
+可读：
+- 按原任务/场景/统一业务对象读取资格及当前租户范围；任务读权不授任意统一业务或其他任务查看权。
+
+可写：
+- 仅原AI场景专业配置权限内保存；业务分类维护或任务导入资格不自动授参数配置权。
+
+### 各状态行为
+
+- 读取/草稿：场景主表仅摘要/入口；选择IMPORT和参数/专属列配置分别打开弹窗，均不直接写场景。
+- 子弹窗确认/取消：确认校验通过才回填父草稿；取消/关闭不改父草稿及已保存配置，不能用旧弹窗回填已切换平台/分类。
+- 主场景保存：选择和配置在子弹窗独立草稿；确认通过才更新父草稿，取消/关闭不改父草稿。主场景明确保存并重核权限/修订/scene/platform/category后，schema=2/importFieldPlatform与当前映射同次持久化；旧导入快照不追改。
+- 历史：schema=1/legacy原事实只读兼容；历史导入继续使用当时定义/规范值和参数快照，不读取时升级。
+
+### 来源与计算
+
+来源类型：input
+
+规则：IMPORT_FIELD.fieldId只引用实际分类有效IMPORT，排除FOLLOWUP、异分类、失效及同名猜配；业务名称/类型/选项/编码/分类必填从分类读取，不自由复制分类业务字段。；配置按准确scene/platform独立，保存时系统写importFieldPlatform；其存在且不等当前platform时拒绝，用户不能手改绕过。parameter在本场景平台内唯一，允许相同fieldId映射多个不同parameter；平台切换不沿用另一供应商草稿或固定项。；IMPORT_FIELD类型随源number/date，其余源类型包括datetime/phone/enum按text保完整规范值；label/type为本次映射元数据，不另立分类业务定义。CUSTOM_COLUMN独立定义label、text/number/date、required，提供稳定id，不增加固定值配置。；required只增加本参数需值约束，不能取消本次实际引用业务字段的分类必填；未引用的分类额外必填不进入AI schema；参数格式/保留名/重复及原固定必需项按当前供应商校验，原platformInputRows、厚朴只读定义及必要冰兰固定项保留。；协议固定参数未显式映射时，name/customerName/calleeNo/remark按精确协议名绑定系统值；其余成为当前scene/platform默认专业导入列，customFields保fixed/system标志，required不减；不要求把旧固定项重复手录。；旧schema=1只读兼容；legacy customInputFields未被显式parameter覆盖时，以legacy-custom-<code>确定性CUSTOM_COLUMN读取，保原名称/类型/必填。只有父场景明确保存升级schema=2才清旧重复定义，取消不改旧配置。
+
+依赖字段：[FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY](field-specs.md#FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY)、[FIELD-PLAT-AI-SUPPLIER](field-specs.md#FIELD-PLAT-AI-SUPPLIER)、[FIELD-FLOW-CATEGORY-IMPORT-REFS](field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)
+
+### 保存与更新
+
+方式：stored
+
+物理映射：未填写
+
+业务保存或更新时机：选择和配置在子弹窗独立草稿；确认通过才更新父草稿，取消/关闭不改父草稿。主场景明确保存并重核权限/修订/scene/platform/category后，schema=2/importFieldPlatform与当前映射同次持久化；旧导入快照不追改。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 同一预算fieldId在冰兰映射budget、在另一场景/平台映射amount，或本场景映射多个不同参数；专属visitDate列按date导入。
+
+非法/拒绝：
+- 切平台带入另一家的参数、重复parameter、FOLLOWUP引用、取消弹窗仍改父草稿，或专属值写入record.fields。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS
+- docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG
+
+来源条目：
+- pages:PAGE-2103/fields/27
+- pages:PAGE-2110/fields/14
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/420
+
+局部说明：[LOCAL-FLOW-IMPORT-PREVIEW](local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)、[LOCAL-PLAT-AI-SCENE-QUERY](local-logic/LOCAL-PLAT-AI-SCENE-QUERY.md)、[LOCAL-PLAT-AI-SCENE-SAVE](local-logic/LOCAL-PLAT-AI-SCENE-SAVE.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-IMPORT-TEMPLATE](local-logic/LOCAL-PLAT-AI-IMPORT-TEMPLATE.md)
+
+任务：[TASK-014](tasks/TASK-014.md)、[TASK-032](tasks/TASK-032.md)、[TASK-034](tasks/TASK-034.md)
+
+测试：CHECK-PLAT-AI-IMPORT-FIELD-MAPPING
+
+<a id="FIELD-PLAT-TASK-BUSINESS-RECORD-ID"></a>
+
+## FIELD-PLAT-TASK-BUSINESS-RECORD-ID 专业任务视图的统一业务回链
+
+单功能页面／局部明确关联：
+
+- [进入有权工作位置与保留专业能力 · FUNC\-2002](features/FUNC-2002.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](features/FUNC-2036.md)
+
+共享页面／局部／任务上下文（不等于字段专属归属）：
+
+- [统一检查所有新外呼、重呼和补提交 · FUNC\-2024](features/FUNC-2024.md)
+- [分配本租户具体任务或坐席及执行优先级 · FUNC\-2037](features/FUNC-2037.md)
+- [导出当前专业任务客户明细 · FUNC\-2043](features/FUNC-2043.md)
+
+业务对象：`ProfessionalTaskListRow`
+
+字段：`recordId`
+
+类型：string
+
+格式/枚举/单位/精度：来自本任务准确来源统一记录的稳定recordId；旧原生行可没有
+
+允许 null：True
+
+必填条件：本轮新统一业务投影行必有；旧行无可靠引用时保留其原历史身份
+
+### 默认与初始化
+
+模式：none；值：`null`
+
+没有准确来源时不生成、不以首项/同名/同手机号猜测；旧历史保持原事实。
+
+### 校验与关联约束
+
+- 只读按record.taskImportSource和原任务/对象读权投影；不从手机号、姓名或最近一次通话猜回链。
+- 只读投影不新持久专业行/第二账本、不改业务更新时间或供应商受理/拨打计数；旧专业数据继续按其原身份查询。
+
+### 读写权限
+
+可读：
+- 按原任务/场景/统一业务对象读取资格及当前租户范围；任务读权不授任意统一业务或其他任务查看权。
+
+可写：
+- 系统依据当前有权动作的准确任务/分类/请求结果写入；用户不能直接修改来源或回链。
+
+### 各状态行为
+
+- 读取/预检：只读取当前实际分类IMPORT及准确任务/场景，FOLLOWUP不进入导入；未知来源保待核。
+- 明确成功：进入准确有权任务视图时从统一账本只读派生，recordId回到同一统一记录；不落第二份专业业务行或持久businessRef。
+- 失败/未知/上下文变化：保输入和已生效事实，旧预检失效；同请求核对，不重复写业务、原生行或提交供应商。
+- 历史：旧专业行及业务快照不迁移，不因同手机号认领旧业务或按当前字段重绘历史。
+
+### 来源与计算
+
+来源类型：calculated
+
+规则：只读按record.taskImportSource和原任务/对象读权投影；不从手机号、姓名或最近一次通话猜回链。；只读投影不新持久专业行/第二账本、不改业务更新时间或供应商受理/拨打计数；旧专业数据继续按其原身份查询。
+
+依赖字段：[FIELD-FLOW-TASK-IMPORT-SOURCE](field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-FLOW-RECORD-ID](field-specs.md#FIELD-FLOW-RECORD-ID)
+
+### 保存与更新
+
+方式：transient
+
+物理映射：未填写
+
+业务保存或更新时机：进入准确有权任务视图时从统一账本只读派生，recordId回到同一统一记录；不落第二份专业业务行或持久businessRef。
+
+### 接口映射
+
+未填写
+
+未声明；请结合范围说明核对。
+
+### 边界示例
+
+合法：
+- 使用准确分类IMPORT fieldId、taskId及recordId形成可核引用，字段值完整且来源只写一次。
+
+非法/拒绝：
+- FOLLOWUP/异分类/失效fieldId、同手机号猜关联、伪造任务来源或用无权任务提交，拒绝。
+
+### 依据、使用位置与验证
+
+来源：
+- docs/field-alignment.json#FIELD-PLAT-TASK-BUSINESS-RECORD-ID
+
+来源条目：
+- pages:PAGE-2103/fields/30
+- pages:PAGE-2205/fields/57
+- project_facts:FIELD-ALIGNMENT-CURRENT/mappings/421
+
+局部说明：[LOCAL-FLOW-IMPORT-COMMIT](local-logic/LOCAL-FLOW-IMPORT-COMMIT.md)、[LOCAL-PLAT-AI-TASK-QUERY](local-logic/LOCAL-PLAT-AI-TASK-QUERY.md)、[LOCAL-PLAT-AI-LIST-IMPORT](local-logic/LOCAL-PLAT-AI-LIST-IMPORT.md)、[LOCAL-PLAT-AI-IMPORT-HISTORY](local-logic/LOCAL-PLAT-AI-IMPORT-HISTORY.md)、[LOCAL-PLAT-CUSTOMER-IMPORT](local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-CLOUD-TASK-QUERY](local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
+
+任务：[TASK-015](tasks/TASK-015.md)、[TASK-034](tasks/TASK-034.md)、[TASK-043](tasks/TASK-043.md)、[TASK-045](tasks/TASK-045.md)
+
+测试：CHECK-FLOW-AI-TASK-DIRECT-IMPORT, CHECK-FLOW-PRED-TASK-DIRECT-IMPORT, CHECK-FLOW-TASK-IMPORT-REPLAY

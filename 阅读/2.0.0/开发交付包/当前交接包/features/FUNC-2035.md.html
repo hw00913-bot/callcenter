@@ -6,7 +6,7 @@
 
 ## 本功能做什么
 
-有权修改最新模板配置，保规则身份与输入；配置待核先核同请求，业务执行待核不冻结独立配置维护，已开始run沿自身捕获方案。
+有权修改最新模板配置，保规则身份与输入；配置待核先核同请求，业务执行待核不冻结独立配置维护，已开始run沿自身捕获方案。 修改CALL默认安排仅影响新运行，其他租户映射保留且本租户不可越权修改；已受理执行快照不追改。
 
 来源业务域：业务&amp;amp;客户；来源业务模块：未提供。
 
@@ -36,14 +36,15 @@
 
 - 当前品牌及配置管理资格真实有效
 - 提交来源与当前上下文一致
+- 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT\_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 ### 处理步骤
 
 1. **STEP\-FLOW\-TEMPLATE\-EDIT\-1**：选择字段参考分类读最新字段，唯一开始锚点与组件确定类型
 
-2. **STEP\-FLOW\-TEMPLATE\-EDIT\-2**：编排条件优先的入口/路径和单方式CALL，END仅选后续两动作；当前草稿可未选目标但不形成业务边
+2. **STEP\-FLOW\-TEMPLATE\-EDIT\-2**：编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边
 
-3. **STEP\-FLOW\-TEMPLATE\-EDIT\-3**：核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点
+3. **STEP\-FLOW\-TEMPLATE\-EDIT\-3**：核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL默认等级及当前有权tenant映射可改，换方式重核目标，保其他tenant映射；仅新运行捕获新默认。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT\_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT\_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 ### 分支与异常
 
@@ -70,8 +71,6 @@
 - [出口路径稳定身份 · FIELD\-FLOW\-EDGE\-ID](../field-specs.md#FIELD-FLOW-EDGE-ID)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
 
 - [模板出口路径 · FIELD\-FLOW\-EDGES](../field-specs.md#FIELD-FLOW-EDGES)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
-
-- [结束节点后续动作 · FIELD\-FLOW\-END\-ACTION](../field-specs.md#FIELD-FLOW-END-ACTION)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
 
 - [开始业务上下文 · FIELD\-FLOW\-ENTRY\-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
 
@@ -107,27 +106,35 @@
 
 - [判断规则组 · FIELD\-FLOW\-RULES](../field-specs.md#FIELD-FLOW-RULES)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
 
-- [流转模板稳定身份 · FIELD\-FLOW\-TEMPLATE\-ID](../field-specs.md#FIELD-FLOW-TEMPLATE-ID)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
-
 - [流转模板名称 · FIELD\-FLOW\-TEMPLATE\-NAME](../field-specs.md#FIELD-FLOW-TEMPLATE-NAME)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
 
 - [字段参考分类 · FIELD\-FLOW\-TEMPLATE\-REF\-CATEGORY](../field-specs.md#FIELD-FLOW-TEMPLATE-REF-CATEGORY)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
 
 - [模板当前配置修订依据 · FIELD\-FLOW\-TEMPLATE\-REVISION](../field-specs.md#FIELD-FLOW-TEMPLATE-REVISION)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
 
+- [呼叫节点默认执行优先级 · FIELD\-FLOW\-NODE\-EXECUTION\-PRIORITY](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-PRIORITY)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [呼叫节点分租户默认安排 · FIELD\-FLOW\-NODE\-EXECUTION\-DEFAULTS](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-DEFAULTS)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [节点默认人工分配方式 · FIELD\-FLOW\-NODE\-MANUAL\-ASSIGNMENT\-MODE](../field-specs.md#FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [流转模板稳定身份 · FIELD\-FLOW\-TEMPLATE\-ID](../field-specs.md#FIELD-FLOW-TEMPLATE-ID)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
+- [结束节点后续动作 · FIELD\-FLOW\-END\-ACTION](../field-specs.md#FIELD-FLOW-END-ACTION)；依据：[维护模板当前配置 · LOCAL\-FLOW\-TEMPLATE\-EDIT](../local-logic/LOCAL-FLOW-TEMPLATE-EDIT.md)
+
 ## 共用说明中的字段上下文
 
 以下字段来自共用页面、局部说明或任务，用于定位上下文；不等于本功能都需要实现。
 
-- [实际业务分类身份 · FIELD\-FLOW\-CATEGORY\-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+- [实际业务分类身份 · FIELD\-FLOW\-CATEGORY\-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
 
-- [实际分类有效方案 · FIELD\-FLOW\-EFFECTIVE\-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+- [实际分类有效方案 · FIELD\-FLOW\-EFFECTIVE\-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
 
-- [同次业务请求身份 · FIELD\-FLOW\-REQUEST\-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+- [同次业务请求身份 · FIELD\-FLOW\-REQUEST\-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
 
-- [请求确认状态 · FIELD\-FLOW\-REQUEST\-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+- [请求确认状态 · FIELD\-FLOW\-REQUEST\-STATUS](../field-specs.md#FIELD-FLOW-REQUEST-STATUS)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
 
-- [实际分类单模板绑定 · FIELD\-FLOW\-ROUTE\-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md)
+- [实际分类单模板绑定 · FIELD\-FLOW\-ROUTE\-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)、[四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md)
 
 - [当前工作队列状态 · FIELD\-FLOW\-WORK\-STATE](../field-specs.md#FIELD-FLOW-WORK-STATE)；依据：[流转模板 · UI\-PAGE\-2228](../ui-pages/UI-PAGE-2228.md)
 
@@ -139,9 +146,9 @@
 
 - **AC\-2111**：同品牌模板/实际分类字段与业务域兼容；CALL不隐式换owner，OTHER先转交，不允许普通业务或门店直转越权。
 
-- **AC\-2112**：条件支持独立IMPORT，AI状态/标签与人工/预外呼状态/填写；转交精确上游来源，条件配置不授自动呼叫/推进权。 整批明确DIRECT/TEMPLATE；DIRECT仍严守基础必填、类型、映射和唯一性，仅豁免路由附加资料，且不建run/node。
+- **AC\-2112**：条件支持独立IMPORT，AI状态/标签与人工/预外呼状态/填写；转交精确上游来源，条件配置不授自动呼叫/推进权。 按准确入口固定TASK/DIRECT或CATEGORY/TEMPLATE；DIRECT仍严守基础必填、类型、映射和唯一性，仅豁免路由附加资料，且不建run/node。
 
-- **AC\-2113**：组ALL/ANY明确且已知时计算，标量IN/NOT\_IN每行多个值，EQ/NE/大小比较单值；多选及AI标签包含任一/全部，空值独立。 DIRECT显式选择AI/MANUAL/PREDICTIVE，AI场景必选；已有业务启用流程不重复导入。
+- **AC\-2113**：组ALL/ANY明确且已知时计算，标量IN/NOT\_IN每行多个值，EQ/NE/大小比较单值；多选及AI标签包含任一/全部，空值独立。 TASK DIRECT由任务带入方式与必要场景，CATEGORY按首路径及分组确定方式/场景；仅旧无TASK来源历史的合法启用流程不重复导入。
 
 - **AC\-2114**：规则字段/选项/类型/作用域合法才可保存；未知不反向放行，逗号保文本，空白行忽略。普通交互保已有输入、比较值、滚动/展开；改变定义不静默丢值。
 
@@ -155,17 +162,23 @@
 
 - **AC\-2146**：普通及START比较值提示“多个值请换行填写/每行一个值”，保持IN/NOT\_IN类型含义；报错节点/START/提示区统一浅红，切换节点保留定位，编辑该节点清当前标记，保存重新判断，不改变原校验。
 
+- **AC\-2153**：CALL配置默认等级及按实际承接tenant的默认任务/坐席/场景；仅修改本有权tenant映射且保其他tenant原值，导入可明确覆盖；方式切换重核不兼容目标，已开运行和快照不追改。
+
+- **AC\-2155**：TEMPLATE与DIRECT人工均提供MANUAL人工分配（默认）和SPECIFIC\_SEAT指定坐席；前者可无seat先保存模板/导入待分配，后者才必选本租户有效seat。后继新人工节点MANUAL明确待分配，不继承前seat；SPECIFIC\_SEAT才可按本节点及原同tenant/method/有效资源规则沿用或确认。旧快照无策略按原解释，不迁移；原单条/批量分配可随后落实seat，实际拨打仅对应本人。
+
+- **AC\-2156**：预外呼只必选具体任务，坐席/队列/策略沿任务；AI仍必选任务和适配scene。模板默认、导入和分配均无独立责任跟进人选择，不因缺少该值阻合法任务安排/发起，也不伪填当前actor为负责人。
+
 ## 实施任务
 
-- [条件优先的四节点参考模板维护 · TASK\-011](../tasks/TASK-011.md) — 共同实施任务，包含其他功能
+- [四节点模板、正常结束与分租户执行安排 · TASK\-011](../tasks/TASK-011.md) — 共同实施任务，包含其他功能
 
 先在[任务计划](../task-plan.md)核对依赖和允许修改范围；功能阅读页不改变任务执行顺序。
 
 ## 来源与范围边界
 
-本页仅整理本次范围内的 FUNC\-2035。产品：续接输入 / 2\.0\.0\-current\-20261030\-step41。
+本页仅整理本次范围内的 FUNC\-2035。产品：续接输入 / 2\.0\.0\-current\-20261102\-step54。
 
-来源类型：current；来源指纹：0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe。
+来源类型：current；来源指纹：b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf。
 
 - documentation/input/functions\.json\#FUNC\-2035
 

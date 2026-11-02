@@ -1920,3 +1920,465 @@ update
 ### Verification Skill
 
 prototype-verifier
+
+
+## Step 42: 两模式具体执行安排与五档优先级
+
+### Expected Change
+
+update
+
+### Goal
+
+按用户2026-10-31明确授权，将TEMPLATE及DIRECT的当前CALL安排落到本租户具体AI/预外呼任务或人工坐席，并以统一五档执行优先级协调可办理的待执行记录，保留先导入后手动分配。
+
+### Files
+
+`scripts/four-node-model.js`、`js/adapters/four-node-execution.js`、`js/adapters/four-node-workspace.js`、`js/adapters/four-node-workspace.css`、`scripts/flow-node-config.js`、必要的现有构建转换、`scripts/check-execution-arrangement.cjs`、当前需求记录/产品规格与阅读入口；生成包由现有构建器刷新。
+
+### Inputs
+
+`inputs/execution-arrangement-authorization-20261031.json`；现有两模式、FUNC-2031/2034/2036/2037/2039、PAGE-2204/2227/2228，FLD-EXECUTION-TARGET、FLD-EXECUTION-PRIORITY、FLD-EXECUTION-QUEUED-AT。
+
+### Work
+
+同一步内分别实现模型与执行桥、工作区/模板交互、需求与产品规格投影，统一具体resourceId和1～5优先级合同。模板默认按实际承接tenant保存，当前批次可覆盖；导入未安排仍合法待分配，有明确安排则与导入同次验证保存。手动单条/同组批量分配保留。候选、提交、实际启动均核租户/方式/场景/资源及版本，目标失效保输入提示，不按首项猜测。队列优先级只比较同资源可办理待办，同级按入队时间；既有执行不抢占。跨租户清原安排，历史执行保持固定事实。
+
+### Acceptance
+
+两模式覆盖AI/PREDICTIVE/MANUAL：导入及手动安排可选择具体目标并回读；两个同方式任务可明确选其一并启动正确对象；五档默认中、可调整，非法值/跨租户/失效资源拒绝；同资源高优先先、同级先来先办，独立资源和在途执行不被抢占；模板租户默认及导入覆盖生效；先导入后分配、直接跟进分类门槛、未知同请求和原专业入口保持。
+
+### Verification
+
+实际构建模型/执行桥与UI专项回归，既有两模式/模板/权限/联系协调回归，JS语法/资源哈希，真实获准HTTP下两模式任务/坐席与优先级选择保存回读及桌面布局。仅核本地模拟，不替代file自动复验或真实供应商/全版工程验收。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 43: 人工坐席安排可选与取消独立责任人
+
+### Expected Change
+
+update
+
+### Goal
+
+按用户截图和明确修复授权，在TEMPLATE和DIRECT中将人工外呼坐席安排分为指定坐席与人工分配（默认），预外呼只选具体任务，移除所有独立责任跟进人配置并保持真实人员留痕。
+
+### Files
+
+`scripts/four-node-model.js`、`scripts/four_node_model_build.py`、`js/adapters/four-node-execution.js`、`js/adapters/four-node-workspace.js`、`scripts/flow-node-config.js`、必要现有UI构建源及相关专项回归；既有需求记录、当前规格及DRAFT投影，原型运行包和入口由现有构建器刷新。
+
+### Inputs
+
+`inputs/execution-assignment-simplification-20261031.json`，用户前述两项反馈和截图中默认责任跟进人问题。FUNC-2031/2034/2036/2037/2039，PAGE-2204/2227/2228；FIELD-FLOW-EXECUTION-RESOURCE、FIELD-FLOW-EXECUTION-PRIORITY、人工坐席安排策略及系统实际人员事实。
+
+### Work
+
+人工分配分支不要求resourceId或人工责任人，保存为待分配，原单条/批量入口明确坐席后实际本人才能发起；指定坐席分支必须选择有效本租户坐席，实际承接由坐席绑定账号派生。AI/预外呼只配置其必要任务/场景，人员从合法任务资格及真实办理/接听事实确定，不凭空代填当前操作者为责任人。模板、导入及分配弹窗移除独立责任人输入；修复模型、权限可见性、工作状态、排队候选与批量起呼对旧必选责任人的依赖，保原租户/模块/对象动作授权。保旧历史只读，不自动迁移或清台账。
+
+### Acceptance
+
+新人工节点默认人工分配且无坐席/责任人必填；指定坐席才显示必填坐席。两模式导入均可人工分配而无具体坐席，后续原单条/批量分配有效。AI/预外呼不提交accountId也能保存并由有权任务操作者办理；预外呼无额外坐席字段，实际接听人填写及隔离保持。模板/导入/分配不显示独立责任跟进人；失效坐席/异租户任务拒绝，原优先级FIFO/未知幂等/在途守卫与历史快照保持。
+
+### Verification
+
+实际built两模式三方式专项、新旧模型/工作区/模板/任务目录回归；真实HTTP人工两策略、预外呼只任务、移除责任人、先导入后批量分配及保存刷新回读，检查源与运行包一致、权限和实际接听留痕。仅本地Mock增量，不继承旧S8/final或真实接口通过。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 44: AI与预外呼任务内统一业务导入
+
+### Expected Change
+
+create/update
+
+### Goal
+
+任务内手工导入共用业务分类IMPORT字段，建立统一DIRECT业务及独立周期、完整字段快照和准确任务来源；保留AI场景独立导入而不创建模板运行。
+
+### Files
+
+`scripts/task-business-import-model.js`（新增：在既有事务闭包复用导入）、`scripts/four_node_model_build.py`、`js/adapters/four-node-execution.js`、`js/components/module-host.js`、`js/adapters/task-business-import.js`（新增：两模块共享导入UI）、`js/adapters/task-business-access.js`（新增：AI-only任务同步业务作用域，不授Cloud菜单）、`js/components/business-link.js`、`scripts/task_business_import_build.py`（新增：只读原页的有限转换）、`js/adapters/ai-import-field-mapping.js`（新增：场景引用/供应商参数映射）、`scripts/build-modules.py`及必要专项；既有需求/产品规格/DRAFT由同源维护链更新，运行bundle由原构建器刷新。
+
+### Inputs
+
+inputs/task-business-import-authorization-20261101.json；FUNC-2002/2019/2036/2037/2039；PAGE-2103/2111/2204/2227及预外呼任务页；FLD-TASK-IMPORT-SOURCE、FLD-TASK-IMPORT-FIELD-REFERENCE、FLD-TASK-IMPORT-PARAMETER-MAPPING、FLD-EXECUTION-TARGET、FLD-EXECUTION-PRIORITY。
+
+### Work
+
+共享模型复用当前分类DIRECT导入、基础必填/类型/枚举/编码唯一性、同请求幂等和五档安排，只新增准确来源。AI读取实际适配场景分类，预外呼本次选分类，显式带入任务；分类未允许DIRECT不能旁路。共同UI生成模板/映射/校验及保存全字段，AI场景引用共享IMPORT稳定ID并保供应商参数，不复制第二套业务定义。新统一记录只写权威业务账本，任务显示来源投影，原专业台账和旧记录不改；不自动提交供应商/起呼或伪造受理。不按手机号合并业务，接口/手工来源锁定与当前任务权限/版本/未知检查保持。
+
+### Acceptance
+
+AI与PRED任务内使用同分类schema及全部值/快照，下载模板和预检反例一致；AI已绑模板的分类仍能显式DIRECT且无run/node；新记录在统一业务列表及准确任务详情可读，五档回读。场景引用字段及供应商映射保存回读，缺必需映射/失效字段报实错。分类关闭DIRECT、异租户/无权/失效任务、接口源混入手工、字段变化/异步换范围、重复编码/未知重试不能写入错误对象。旧模板流程、人工分配、真实人员/历史与联系限制保持。
+
+### Verification
+
+新增模型/桥/共享UI/AI映射专项与既有40套适用回归、构建JS语法/资源闭包，真实获准HTTP的AI/预外呼自定义字段导入→统一详情/任务投影→刷新、模板关联分类独立AI及拒绝路径。仅局部本地Mock，不自动补盖旧S8/final或file/真实供应商通过。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 45: 受控废弃结算与END/停止回执边界
+
+### Expected Change
+
+update/create
+
+### Goal
+
+修复当前3项生命周期组合缺陷，按用户明确选择的受控废弃规则保留缺失事实与未完成、不代填、不伪正常归档，可靠收尾后能继续同业务新运行或后继DIRECT。
+
+### Files
+
+`scripts/four-node-model.js`、`scripts/four_node_model_build.py`、`js/adapters/four-node-workspace.js`及必要同名CSS；新增`scripts/check-lifecycle-settlement.cjs`与工作区专项，必要既有fixture仅按新确认规则补前置，不删守卫；`scripts/build-modules.py`仅现有构建/溯源接入，现有需求/规格/同源DRAFT与当前图集说明。原审计目录只读。
+
+### Inputs
+
+inputs/lifecycle-audit-fix-authorization-20261101.json；用户报告AUD-01/02/03及A01原问题，原报告脚本当前复现/tmp/step45-reaudit-before.json。FUNC-2031/2032/2033/2036/2038/2039、PAGE-2227/2204；FLD-ABANDONMENT-SETTLEMENT、FLD-MISSING-CONTENT-CONFIRMATION、FLD-STOPPING-RECEIPT、FLD-END-CURRENT-CYCLE-ADMISSION。
+
+### Work
+
+受控缺内容废弃仅当前owner ADMIN在准确run/seg/实际人或UNKNOWN/冻结字段及接通范围上下文显式确认+原因，旧确认不能跨变化复用。无未知请求/事实冲突且真实执行/重试/attempt可靠停止后独立标记废弃收尾，不改正常archived/completed计数；保旧已废弃段本人后来补齐可收尾，后续DIRECT不扫描旧废弃archive真假形成死锁。END历史结构证明与首MANUAL当前周期例外分开，再次三方式周期强核当前分类开关。原accepted且未可靠结束的ACTIVE/ABANDONING跟进登记准确迟到拨打/接听/终态事实，含停止确认前首次到达attemptId；不新派发、不误挂当前run、不提前释放；closed未知新attempt原守卫保。UI显示缺失/阻塞/确认与原本人补录，不伪正常归档。
+
+### Acceptance
+
+普通reason不能绕人工缺失；仅owner ADMIN按准确run+expectedRevision确认。真实在途/未知/冲突仍ABANDONING，迟到身份/缺失变化需重核；可靠收尾后ABANDONED及重开，保缺失/未完成。旧存量弃置后本人补齐、多个旧run→END DIRECT→完成/启用流程均不永久死锁；废弃不能算当前正常完成。首END人工例外正常，resume MANUAL/AI/PRED均重验分类，历史合法不丢；停止原attempt真实回执顺序/乱序/重复计数准确，外来/跨run识别、closed新尝试/原权限与占用守卫保持。
+
+### Verification
+
+当前生成包新模型/工作区专项、原AUD02/AUD03正确断言原样转绿；AUD01旧普通reason前置与新策略冲突单独说明，用当前明确确认及旧存量补录的语义对照证明死锁解除，原审计目录不改。适用旧回归、源码/包/资源核验，真实HTTP控弃确认/禁止代填与新起呼、旧段收尾及后继直接周期；单步范围不冒充整版S8/final或供应商执行。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 46: AI供应商独立字段及弹窗配置
+
+### Expected Change
+
+update/create
+
+### Goal
+
+按用户明确纠正，分类IMPORT共享业务事实，AI供应商传入参数及自定义列按场景和供应商各自配置，不强制所有参数仅来自分类；使用选择/配置弹窗代替单页全字段展开。
+
+### Files
+
+js/adapters/ai-import-field-mapping.js、scripts/ai-import-field-ui.js、scripts/ai_import_field_mapping_build.py、scripts/task-business-import-model.js、必要four-node-execution/task-business-import适配与专项；scripts/build-modules.py溯源；当前需求/同源DRAFT。生成包由root统一构建。
+
+### Inputs
+
+inputs/ai-provider-field-dialog-authorization-20261101.json；FUNC-2002/2019/2036、PAGE-2006/2103；现有分类字段、原AI供应商场景和任务导入链。
+
+### Work
+
+按scene+platform保存schema2映射，source IMPORT_FIELD引用稳定字段或CUSTOM_COLUMN场景专属列；冰兰/中科金可以不同参数名、类型和必需，固定专业参数仍核验。schema1/旧参数保可回读，不静默套用或删旧数据。父场景只摘要和动作，导入字段弹窗搜索/选择后弹窗配置，自定义参数也弹窗；子取消不改父草稿，父取消不保存，主保存事务统一持久。供应商切换隔离草稿，分类变化重验引用与异步范围。任务导入模板、映射、必填/类型/供应商参数及逐行快照同源，自定义列不自动变成业务分类字段，unknown/幂等/预检变化/权限守卫继续保持。
+
+### Acceptance
+
+两个不同供应商场景各自映射同一业务字段到不同参数且互不污染；自定义供应商列可下载导入、校验并留参数及定义/值快照；无效引用/重复参数/非法类型/缺必填/映射变化拒绝。场景页无全字段铺开，选择与配置均弹窗；新增/编辑/取消/保存/重开/平台切换隔离及授权正确。业务记录只收分类字段，历史快照不变。
+
+### Verification
+
+模型及实际构建UI专项、原AI映射和任务导入适用回归；当前全部脚本回归及S7预检；真实HTTP冰兰与中科金弹窗配置/取消/保存重开，以及场景自定义列导入及参数快照回读。本轮不升整版S8/final或真实供应商通过。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 47: 原添加字段单入口及线上式配置弹窗
+
+### Expected Change
+
+update
+
+### Goal
+
+恢复AI场景原添加字段入口，点击后才选择导入字段或手工添加供应商字段，采用用户线上截图的原弹窗布局和文案，不另设主场景双入口/大配置面板。
+
+### Files
+
+scripts/ai-import-field-ui.js/.css、scripts/ai_import_field_mapping_build.py、scripts/check-ai-import-field-dialogs.cjs及旧mapping UI fixture、scripts/build-modules.py溯源；现行需求/同源DRAFT。
+
+### Inputs
+
+inputs/ai-add-field-entry-authorization-20261101.json；本轮用户截图仅视觉依据；FUNC-2002/2019/2036、PAGE-2110/2103、现行Step46模型。
+
+### Work
+
+原表格下保+添加字段单入口→来源选择弹窗→IMPORT搜索选择/配置或手工添加场景信息。手工弹窗左标签右输入，业务信息只读场景传入信息、字段名称、参数名、必填/选填radio及取消/确定，保已支持类型作为次要设置。已有参数紧凑原表，不设独立新增大面板。保schema2、供应商/场景隔离、类型/必填验证、固定协议约束、子取消不改父/父放弃不落库及权限/异步守卫。截图的50计数不擅自改变现有64/80模型上限。
+
+### Acceptance
+
+主场景仅一个原添加字段入口，双路径在点击后显示；两路径均能完成/取消，手工及编辑弹窗接近截图布局和文案，业务信息不可改、必填/选填radio可核，原表信息不丢。原参数与类型/固定必需、导入/快照/隔离守卫无回归。
+
+### Verification
+
+实际built弹窗及原映射UI专项，pure供应商13/真实任务模型8、共享UI/原适用回归；真实HTTP单入口→两选择、手工配置/取消/确认与父保存重开、既有导入字段路径及截图排版。S7定向，不重盖整版S8/G3/工程/真实供应商。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 48: 场景驱动导入、来源资格和分类入口/批次查看
+
+### Expected Change
+
+update/create
+
+### Goal
+
+落实用户确认的AI场景字段驱动/来源选择/模板FLOW候选及分类列表导入名单与批次查看；本轮只更新原型，开发交付包完全不动，待用户确认。
+
+### Files
+
+scripts/four-node-model.js/task-business-import-model.js及模型构建，ai-import-field-mapping/source helper，four-node-workspace/.css、AI场景配置转换/来源UI，four-node-execution、module-host、config/nav、业务分类入口转换，当前专项与必要fixture；root统一build。仅prototype内部文件。
+
+### Inputs
+
+inputs/scene-driven-import-prototype-authorization-20261101.json；只读审计/tmp/ai-scene-import-audit-20261101；已确认FUNC-2002/2019/2031/2036/2037/2038/2039、PAGE2006/2110/2228/2226/2204/2103；既有有限Mock例外。
+
+### Work
+
+统一importContext(options aiSceneId/executionArrangements/rows)，返fields/customFields/schemaReady/discoverySchema/needsGroupDiscovery/fieldBasisToken。AI投影core+场景已选引用/专属，非AI保原分类导入规则；混合实际首组按行核required。模板方式由真实入口定位，分流需先用core+IMPORT路由列检查组（不创建记录/不发正式token），再按组确定场景/正式字段，保输入。正式模板下载、列映射、校验、入库及参数/专属值快照同源；场景切换重取并失效旧预检。显式scene优先于模板默认。后续AI缺资料有当前owner ADMIN受控补充API/UI，类型/协议必需校验，不能无参start或改旧快照。
+
+AI场景dataImportSource=MANUAL/AUTO/FLOW及旧importType精确兼容；未知/冲突不作FLOW。新增流转模板传入单选；模板配置/导入/分配/新起呼只读有效FLOW，独立手工只MANUAL，自动原锁保；分类/租户/权限继续匹配。旧手动场景不暗转FLOW；新增明确本地流程例子，不迁移用户存储。业务分类原表新增导入名单锁定当前准确分类，名单PAGE2226消费host带importLaunchId一次后打开；PAGE2204导入批次查看，名单/待分配保原单批分配，任务内导入保留。修中央download artifact调用错误及后续参数漏校验、默认场景覆盖。
+
+### Acceptance
+
+AI导入仅核心+路由需用+场景所需字段；未用分类optional/required不照搬；场景必需IMPORT/CUSTOM缺失拒绝，字段/场景/token变化拒绝，snapshot完整不污染分类。TEMPLATE条件分流、转交/END与混合首组保持，默认不盖明确选择，后续AI缺参有补充后才start。只FLOW可用于模板且MANUAL/AUTO不漏入，独立不读FLOW；未知来源fail-closed，旧运行/已发生事实保历史。分类列表可正确导入，批次入口只查结果/名单详情，原单批分配保持。开发交付包576文件全哈希及文件集合保持原样。
+
+### Verification
+
+新统一字段/来源/入口专项、原适用回归（旧fixture显式适应来源和新字段口径，不弱化负例），source===built/语法及S7预检；真实HTTP业务分类发起/模式方式场景/模板下载成功/场景必需值拒绝与完整导入/批次名单回读、FLOW配置选择及独立入口筛选、补资料和原分配。原开发包基线/tmp/step48-development-package-before.json终核不变。不capture/authoring/review/export、不更开发包状态。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 49: 按入口区分任务直接导入与分类模板导入
+
+### Expected Change
+
+update/create
+
+### Goal
+
+用户最新决定以导入入口确定办理方式，撤销Step48的AI FLOW来源；开发包继续不更新。
+
+### Files
+
+scripts/four-node-model.js、task-business-import-model.js与模型构建；AI场景来源helper/配置构建/原配置UI、four-node-execution；four-node-workspace.js/.css、flow-node-config.js、direct_followup_build.py、task_business_import_build.py、task-business-import.js；module-host/business-link及相关当前专项；prototype内部memory/docs。root统一build-modules，开发交付包/冻结材料只读。
+
+### Inputs
+
+inputs/entry-based-import-authorization-20261101.json，用户最新规则替代旧来源/入口条款；FUNC-2002/2019/2031/2036/2037/2039、PAGE2006/2110/2228/2226/2204/2103/2205及原有限Mock例外。
+
+### Work
+
+任务内手工/接口入口按任务或场景准确配置获取字段，创建同一台账DIRECT记录、无run/node，捕获不可变入口/渠道/任务/场景标识及参数快照；手工不可混入接口任务，接口仅静态Mock演示合同与本地回执，不伪报真实接入。分类入口保人工或接口导入到TEMPLATE，按实际入口/路由/场景投影字段与参数，无中央DIRECT模式选择。删除AI第三FLOW来源/新种子；MANUAL/AUTO均可用于模板选择，UNKNOWN/冲突不能猜，旧FLOW配置提示重新选择而不暗转；已发生历史保持。移除分类或模板是否直接跟进开关；任务DIRECT不依赖旧分类开关；旧DIRECT/结束节点合法后继/本人归档和串行守卫沿既有获准边界核验。批次/名单详情展示准确来源标识，原手动分配、任务坐席目标、五档与FIFO保持。
+
+### Acceptance
+
+分类只有人工/接口模板导入、无DIRECT选项及配置；任务MANUAL/AUTO按配置入口不能混入，成功记录DIRECT+稳定入口渠道标识且无run/node、跨租户/失效/陈旧token/未知/重复不可绕过。模板场景MANUAL/AUTO均候选、未知/旧FLOW不混入；场景字段/必需/类型/供应商快照同源。原DIRECT历史及受控废弃、后续结算、END和停止回执规则保持（旧分类开关不再限制新任务及合法续跟）。开发包全部576文件及集合不变。
+
+### Verification
+
+当前实际built模型/来源/场景/两入口UI专项与全量适用回归；旧fixture显式适应入口合同，不删除权限/串行/未知/历史负例。真实获准HTTP浏览器查看AI来源2选项、分类无开关、分类模板人工/接口入口、任务直接入口与名单来源/批次回读。source===built、语法/S7预检；开发包原哈希集终核。file自动/生产接口仍未验，不做开发包capture/authoring/export。
+
+### Verification Skill
+
+prototype-verifier
+
+
+### 2026-11-01 Step49实页反馈修正（继续同一步）
+
+用户截图AI任务24被导入执行目录挡成不存在；预外呼不接受替换成通用业务导入弹窗。用户明确确认在预外呼任务配置关联准确业务分类，导入沿原界面自动带入分类和IMPORT字段、不临时重选。任务分类保存为本地业务关联，不混供应商payload；M/API同源锁定，缺/冲突/失效时明确去编辑任务补齐，旧记录只读不因现配置失效而丢失。AI导入按原任务来源/导入资格独立读取，起呼可用资源目录不能误作导入目录；未知/终态/权限守卫保留并显示准确原因。入口模式、来源标识、五档、手动分配及开发包冻结保持。原56套/876结果是本次追加前候选证据，不替代修正后的重新验证。
+
+
+## Step 50: 当前业务逻辑独立审计与可复现缺陷修复
+
+### Expected Change
+
+update/create
+
+### Goal
+
+按用户明确授权，审计现有已确认业务逻辑和组合边界，发现可靠逻辑缺陷直接修复；保持原型与开发包等待确认的边界。
+
+### Files
+
+scripts/four-node-model.js、task-business-import-model.js、模型构建及必要现有配置构建；js/adapters/four-node-execution.js、four-node-workspace.js、task-business-import.js、AI字段/来源、js/components/module-host.js/business-link.js及精确相关native转换；新audit专项脚本/原适用回归；memory/docs局部记录与报告。仅prototype内已授权业务文件，不修改开发交付包/冻结分析/旧审计证据。root统一build。
+
+### Inputs
+
+inputs/business-logic-audit-authorization-20261101.json，当前用户决定和entry-based-import-authorization及Step42～49适用规则，既有有限Mock边界，FUNC2002/2019/2031/2032/2033/2036/2037/2038/2039及当前页面。
+
+### Work
+
+先独立读源并做当前built基线；三路审计入口/字段契约、native配置/权限桥、生命周期/优先级/回执，root跨链和真实HTTP。每一问题须最小复现和正确行为断言，分类严重度/触发/实际与预期/根因；原始失败保留后精确修复，不删除旧负例、不给未知或缺配置自动成功。核TASK/CATEGORY模式与来源、任务分类/场景/字段/供应商参数FP一致，私有事务不可伪造，旧历史快照与本人归档、受控废弃/结算/停止回执、同资源FIFO及跨资源串行、切租户/授权撤回/陈旧配置与同次未知结果。发现规则未定义只记录待确认，不凭审计扩功能；已明确实现缺陷在本步修完。
+
+### Acceptance
+
+当前确认的入口/模式/渠道/任务分类/场景及字段在所有声明入口一致；任务不能隐式转模板或错误复用起呼目录，权限及源锁不能借调用链绕过；导入请求/未知回执/重复/失败/历史/执行收敛不丢失或假成功；运行与直接周期、办理人和租户/业务类别变更遵循同一约束。所有本次可靠缺陷均有修前失败与修后通过证据，当前适用全量与新增组合回归0失败。开发包576文件/集合与旧audit7哈希保持。
+
+### Verification
+
+实际built模型/native controller/host/共享UI独立组合用例，根因定位后定向红绿、原适用全量（source===built/语法/模块资源和S7预检）；影响可见行为的修复用获准HTTP真实页面核验并保截图/DOM。报告说明覆盖、可靠缺陷/修复、复现证据和未验边界；file自动/真实API/供应商/CTI不伪判通过，不升整版S8/G3，不更新开发包。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 51: 任务导入交互收敛与原列表新旧名单融合
+
+### Expected Change
+
+update/create
+
+### Goal
+
+按用户最新截图纠正重复任务导入配置及新旧名单分块：任务已关联配置自动读取，同一轻量导入；历史直接在原表，新字段缺失空。开发包继续不更新。
+
+### Files
+
+js/adapters/task-business-import.js/.css；新增task-roster-view.js/.css和scripts/task_roster_build.py；task-business-import-model.js、four-node-model.js、four_node_model_build.py、four-node-execution.js；module-host.js、task-business-access.js；root精确task_business_import_build.py原入口与build-modules.py注册；新独立专项和现有UI fixture必要口径适应；prototype内部memory/docs。
+
+### Inputs
+
+inputs/unified-task-import-roster-authorization-20261101.json，最新用户规则优先Step49/50‘单独统一业务名单’展示口径；原TASK DIRECT/CATEGORY TEMPLATE、五档、fields/typed/FP、未知回执、隐私及旧事实约束均保持。
+
+### Work
+
+AI/PRED一份共享任务导入renderer，自动任务关联场景/分类/字段，无临时重选；缺/冲突关联去配置维护，不能靠名称/首项猜。主流程文件或粘贴→检查编辑→确认，批次名从文件名或任务+本次时间派生、选填覆盖，优先级中默认可折叠5档；顶部task选择与同窗内容联动，移除空白继续中间层。新只读taskRosterRecords覆盖有权原导入、当前有效task安排和本租户实际task执行历史，独立原API来源语义；历史native数据从原model读取、不迁移。原AI/PRED表合并显示，只有稳定业务record引用且同scope去重，历史缺新字段空，原状态/时间/动作/号码脱敏保持；不能把新biz行伪喂旧原生controller。去recordsPanel分块/‘原专业’分界/独立原历史按钮，保原正常历史入口；合并列表总数来自确认集合，任一源未知保已知旧数据并明确待核，不造0或供应商受理/拨打事实。
+
+### Acceptance
+
+关联配置task点开即可读正确动态模板；AI/PRED同流程，无场景/分类重选或额外空窗；默认可直接检查提交，选填批次/五档能覆盖且server规则不弱化。已有未知回执/原requestID/typed/FP/失败草稿续入scope等全部保。任务原table显示旧native和新business，旧缺新字段空、不改原保存或call事实；稳定去重/跨tenant/权限/截止私有过滤、native与biz操作不可混用；配置变化/异步切scope/读取失败/旧data无配置只读保持。开发包576及原audit7文件hash/集合不变。
+
+### Verification
+
+当前built model/context/roster/newUI/native原table独立正负与原适用全量；原fixture按最新已配置任务前提适应，不删除旧故障/权限断言；source===built/JS语法/模块资源/S7预检；实际HTTP配置task自动fields、顶部选择即填、AI/PRED同主流程、合并原列表旧空新实及唯一去重、草稿/回读。只本地Mock，不伪报file/生产/整版验收，不开发包capture/authoring/export。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 52: AI通话列表移除逐行拒联入口
+
+### Expected Change
+
+update
+
+### Goal
+
+按最新截图收敛AI通话记录列表操作，列表只保留详情；原有权人工核实能力放在准确通话详情内，开发包保持冻结。
+
+### Files
+
+scripts/build-modules.py、生成的AI模块及复用指纹；prototype内部授权、memory/docs及本步验证证据。原参考、contact-policy、contacts、专业存储和开发包均不改。
+
+### Inputs
+
+inputs/ai-call-refusal-entry-authorization-20261101.json；FUNC-2023/2020/2024/2025、PAGE-2108/2007、原来源与人工核实规则及有限Mock边界。
+
+### Work
+
+删除列表操作列追加确认拒联，详情保原录音／文本后可由原权限确认；准确行引用、租户、来源电话及供应商校验继续由原方法执行，不凭通话状态或标签自动拒联，不新增待审队列或保存操作。
+
+### Acceptance
+
+当前AI列表所有行只有原详情入口，无确认拒联；准确详情存在原有权确认入口，权限或来源变化仍拒绝；客户限制与旧记录无改写，Cloud运行包和开发包保持原样。
+
+### Verification
+
+比较当前构建前后原生script差异仅result-records目标段；JS语法、原来源/权限/list-order及AI协调适用回归；实际获准HTTP列表无逐行按钮、原详情可看录音／文本且保确认入口，不提交限制；开发包576文件及旧audit7哈希集保持。file自动及真实接口、整版S8/G3不作通过声明。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 53: 任务导入不可提交原因可见反馈
+
+### Expected Change
+
+update
+
+### Goal
+
+修复用户截图0有效行时点击确认没有明确反馈；保持重复业务编码正确拦截和开发包冻结。
+
+### Files
+
+js/adapters/task-business-import.js/.css、必要原UI回归及生成模块/复用指纹；本步prototype内部授权、memory/docs和验证证据。原业务模型、参考与开发包不改。
+
+### Inputs
+
+inputs/task-import-feedback-authorization-20261101.json；FUNC-2036/2037，PAGE-2103/2205；原TASK直接导入、权限/类型/唯一编码/token、未知回执及部分成功草稿合同。
+
+### Work
+
+底部固定状态说明确认禁用原因并aria关联；预览表外显示有限错误行号/业务编码/原因。0有效行仍禁用；编辑行变待重检，不显示陈旧重复原因；待核优先同次回执，PRED合法有效子集仍可确认、AI全通过约束保留。按钮区域可换行，不挤压操作，不新增步骤。
+
+### Acceptance
+
+0有效行在底部与表外清楚显示阻断原因；修改编码后明确重新检查、当前检查通过方可确认；未知原请求、部分有效行、权限和失败草稿行为不变；动态文案转义，开发包及旧审计不改。
+
+### Verification
+
+当前built共享UI原回归与定向正确性反例；语法/资源指纹/S7；实际HTTP0有效重复阻断、编辑待重检、唯一编码预检可确认但不实际提交；AI共享界面及未知/部分成功由当前UI回归验证。仅本地Mock，不重试file自动或更新开发包，不升全局S8/G3。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 54: 冻结需求下HTTP完整实际点击验收与修复
+
+### Expected Change
+
+verify/update
+
+### Goal
+
+用户明确改用HTTP继续实际点击AI、预外呼和业务分类完整流程；可靠问题直接修复并实页重验，不用脚本替代实际结果，开发包不更新、离线不判通过。
+
+### Files
+
+`inputs/http-e2e-acceptance-authorization-20261101.json`、`memory/http-e2e-acceptance-20261101/actual-click-checklist.json`、`js/adapters/ai.js`、`js/adapters/ai-task-directory.js`、`scripts/ai_task_directory_build.py`、`scripts/check-ai-task-directory.cjs`、`scripts/check-task-import-execution-chain.cjs`、`scripts/check-four-node-execution.cjs`、`scripts/check-reference-audit.cjs`、`scripts/check-business-rules-workspace.cjs`、`scripts/ai-import-field-ui.js`、`scripts/ai_parity_build.py`、`scripts/check-ai-import-field-dialogs.cjs`、`js/adapters/cloud.js`、`js/components/module-host.js`、`js/components/session-store.js`、`scripts/check-workspace-position.cjs`、`js/adapters/task-business-import.js`、`js/adapters/task-business-import.css`、`js/adapters/four-node-workspace.js`、`js/adapters/four-node-execution.js`、`scripts/four-node-model.js`、`scripts/task-business-import-model.js`、`scripts/task_business_import_build.py`、`scripts/build-modules.py`、`scripts/check-simple-task-import-ui.cjs`、`scripts/check-execution-arrangement-workspace.cjs`、`scripts/check-execution-arrangement.cjs`、`js/modules/ai.bundle.js`、`js/modules/cloud.bundle.js`、`memory/reuse-provenance.json`、`memory/change-log.md`、`memory/open-items.md`、`docs/decisions.md`、`docs/四节点与客户跟进闭环需求记录.md`；仅在实际复现后精确修改有关文件并记对应证据。原始参考/冻结分析/开发包均不改。
+
+### Inputs
+
+inputs/http-e2e-acceptance-authorization-20261101.json；当前需求冻结memory/offline-e2e-audit-20261101/freeze-baseline.json；FUNC2002/2019/2023/2031/2036/2037/2038/2039及PAGE2006/2103/2108/2110/2204/2205/2223/2226/2228，既有有限Mock例外。
+
+### Work
+
+先真实HTTP操作保存证据，再按最小范围定位修复。AI覆盖场景字段弹窗/任务绑定/动态导入/原表/实际明确执行/通话详情；PRED覆盖4步任务配置/自动分类导入/重复编辑重检/有效子集/原表/明确发起及执行记录；分类覆盖字段/分类/流转模板节点与安排/人工和API导入/批次/手动分配/执行后继与结束，穿插取消、保存刷新、权限/租户和历史。仅本地合成数据，不清空旧存储，不实际供应商请求。每路径写真实动作和结果，不可到达或未知明确列未验，不把源码推理或旧pass当实点通过。
+
+### Acceptance
+
+当前范围每一实际通过项有本轮URL/动作/观察/截图DOM；发现可靠缺陷有修前复现、修后实际重走和必要回归。当前需求不扩张，开发包576及旧audit7不变。HTTP范围、未验项、离线限制与真实接口边界准确，不伪报整版或生产通过。
+
+### Verification
+
+Cua唯一browser owner实际HTTP操作；Node等回归仅补充受影响守卫，语法/资源/指纹和S7核对；修复后当前构建重走涉及路径，最终产品/证据hash稳定与开发包hash集合核对。file不重试，不起新服务、不Python GET/ps、不改通道。
+
+### Verification Skill
+
+prototype-verifier

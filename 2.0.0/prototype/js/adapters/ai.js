@@ -148,6 +148,8 @@
     if(!parts.length)return false;
     return parts.every(part=>{
       if(/^event\.(preventDefault|stopPropagation)\(\)$/.test(part))return true;
+      const roster=/^(?:return\s+)?(?:window\.)?DTaskRosterView\.(refresh|setPage|openDetails|closeDetails)\(([\s\S]*)\)$/.exec(part);
+      if(roster){const args=roster[2].replace(/__str\d+__/g,'0').replace(/\b(?:this|event|true|false|null|undefined)\b/g,'0').replace(/\b[A-Za-z_]\w*\s*:/g,':');return /^[\s\d.,:+\-\[\]{}]*$/.test(args);}
       const match=/^(?:return\s+)?(?:window\.)?Pages(?:\[__str(\d+)__\]|\.(\w+))\.(\w+)\(([\s\S]*)\)$/.exec(part);
       if(!match)return part==='doRefresh()';
       const route=match[1]===undefined?match[2]:strings[Number(match[1])]?.slice(1,-1),method=match[3];

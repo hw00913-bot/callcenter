@@ -102,7 +102,7 @@
         },
         {
           "id": "SOURCE-LOCAL-FLOW-IMPORT-MAP",
-          "action": "在导入与分配粘贴CSV/TSV或选择CSV/XLSX并配置映射",
+          "action": "在导入批次与业务名单粘贴CSV/TSV或选择CSV/XLSX并配置映射",
           "local_id": "LOCAL-FLOW-IMPORT-MAP",
           "description": [
             "格式示例只示格式，不保证满足分流"
@@ -121,7 +121,7 @@
           "action": "点击确认导入",
           "local_id": "LOCAL-FLOW-IMPORT-COMMIT",
           "description": [
-            "不自动分配、转交或呼叫"
+            "仅保存本次明确或模板有效默认的执行安排，不自行猜选任务/seat，不自动转交或起呼。"
           ]
         },
         {
@@ -169,7 +169,8 @@
           "action": "外部执行事实或本地明确模拟事件到达",
           "local_id": "LOCAL-FLOW-CALL-FACTS",
           "description": [
-            "普通AI可记录本轮实际新标签版本，不能用run旧catalog误拒准确可选标签事实"
+            "普通AI可记录本轮实际新标签版本，不能用run旧catalog误拒准确可选标签事实",
+            "新派发准入与入站事实分开；ACTIVE/ABANDONING原已受理且未可靠关闭的准确seg/attempt迟到拨打/接通/终态按原ID归账去重计数，不因非ACTIVE误标dialed=false/0或假冲突；不授新派发、不挂新run/当前身份、不提前释放。已闭段未知新attempt仍原EXECUTION_CLOSED/冲突规则。"
           ]
         },
         {
@@ -225,7 +226,7 @@
           "action": "当前管理员确认废弃并写原因",
           "local_id": "LOCAL-FLOW-ABANDON",
           "description": [
-            "不把废弃当业务达成或删除真实通话"
+            "正常归档与可靠废弃结清分开，保缺失及未完成；不代填、不造archived/completedFollowup或正常完成计数；不删除真实通话/内容/历史"
           ]
         },
         {
@@ -246,7 +247,7 @@
         },
         {
           "id": "SOURCE-LOCAL-FLOW-QUERY",
-          "action": "进入导入与分配／业务列表并筛选队列",
+          "action": "进入导入批次与业务名单／业务列表并筛选队列",
           "local_id": "LOCAL-FLOW-QUERY",
           "description": [
             "读取不改变业务更新时间或状态"
@@ -302,7 +303,7 @@
         },
         {
           "id": "SOURCE-LOCAL-FLOW-CONTACT-POLICY",
-          "action": "管理员从导入与分配维护联系协调设置",
+          "action": "管理员从导入批次与业务名单维护联系协调设置",
           "local_id": "LOCAL-FLOW-CONTACT-POLICY",
           "description": [
             "不靠掩码猜号码，不因维护策略放松公共拒联或供应商边界"
@@ -347,8 +348,17 @@
           "action": "有权导入或路径确认可靠定位到当前捕获END后由系统执行",
           "local_id": "LOCAL-FLOW-END-HANDOFF",
           "description": [
-            "原run明确结束且保原计划/节点/通话/快照",
-            "CLOSE关闭不再跟进；DIRECT_FOLLOWUP建立当前租户MANUAL直接周期但不自动起呼"
+            "当前准确run以CLOSE正常结束，保内容/通话/运行事实，不自动起呼。",
+            "旧已捕获END来源及旧独立直接周期按原合同只读或合法收尾，不生成新配置能力。"
+          ]
+        },
+        {
+          "id": "SOURCE-LOCAL-FLOW-ABANDONED-SETTLEMENT",
+          "action": "当前业务详情核对旧ABANDONED运行，当前ownerADMIN选择准确历史运行并确认无法补填",
+          "local_id": "LOCAL-FLOW-ABANDONED-SETTLEMENT",
+          "description": [
+            "只更新本tenant旧seg.abandonmentSettlement、r.events的ABANDONED_SETTLEMENT及record revision；当前run/direct/exec/arrangement/字段不变",
+            "缺失/未完成及旧本人内容保事实，不伪archived/completed；后续完成DIRECT/启用流程重新按正常及可靠弃收尾判据核验"
           ]
         }
       ]
@@ -538,7 +548,7 @@
           "action": "有AI专业配置权者保存场景或类型",
           "local_id": "LOCAL-PLAT-AI-SCENE-SAVE",
           "description": [
-            "专业场景/类型准确配置；执行能力以供应商真实资源为准"
+            "本场景/供应商schema=2配置准确保存，分类IMPORT保持权威；专属列定义和值独立，固定专业项/原来源权及历史保留；子弹窗确认不等主场景保存"
           ]
         },
         {
@@ -570,7 +580,7 @@
           "action": "AI任务详情导入名单",
           "local_id": "LOCAL-PLAT-AI-LIST-IMPORT",
           "description": [
-            "准确任务联系人及导入批次形成，冲突/失败行不虚报成功"
+            "本次准确场景投影的规范业务值、独立供应商值及来源/定义快照同请求保存为DIRECT，不创建模板run/node；原专业历史不迁移。"
           ]
         },
         {
@@ -831,10 +841,10 @@
         },
         {
           "id": "SOURCE-LOCAL-PLAT-CUSTOMER-IMPORT",
-          "action": "原人工/专业客户任务入口选择文件或原接口来源导入",
+          "action": "业务分类行发起人工/接口模板导入，或读取原专业历史来源",
           "local_id": "LOCAL-PLAT-CUSTOMER-IMPORT",
           "description": [
-            "合法专业名单入库并可分配；原专业导入不是新四节点模板自动启动"
+            "新写统一进入准确CATEGORY/TEMPLATE或TASK/DIRECT链；原专业历史只读按原身份保留，不重复提交。"
           ]
         },
         {
@@ -866,7 +876,7 @@
           "action": "准确专业任务选择名单并独立确认导入",
           "local_id": "LOCAL-PLAT-CLOUD-TASK-IMPORT",
           "description": [
-            "准确任务合法名单导入；异常行有定位和可恢复结果"
+            "预外呼创建当前准确任务的统一DIRECT业务/周期和完整IMPORT字段/快照/来源/等级，专业名单只读投影；原IVR/旧专业历史保留各自事实"
           ]
         },
         {

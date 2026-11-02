@@ -14,7 +14,7 @@
 
 - FUNC-2040 在实际业务分类独立绑定单模板路由：分类路由是唯一实际应用绑定处；同品牌不同字段参考分类可复用，按实际所用字段、AI准确上下文及业务域校验，确认保存不覆盖BASE。；来源 documentation/input/functions.json#FUNC-2040
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 
@@ -67,7 +67,7 @@
 - **AC-2106**：分类列表独立路由入口和独立保存，基础表单不嵌模板；预览区分字段参考分类与实际应用分类，用目标目录显示条件。
   依据：docs/functional-spec.json#AC-2106
 
-- **AC-2107**：路由仅更新本次单模板应用及兼容依据，提交核基础/字段/路由并发，不覆盖BASE；unknown配置不进入新业务。 DIRECT只由分类显式allowDirectFollowup开放；TEMPLATE路由缺失/待核不能自动降级DIRECT。
+- **AC-2107**：路由只更新本次单模板应用及兼容依据，不覆盖BASE；unknown不进入新业务。当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
   依据：docs/functional-spec.json#AC-2107
 
 - **AC-2108**：新运行使用当前明确确认的分类/模板；已定位首业务节点的run保持原方案，只可完成或废弃后新run，不运行中换绑。

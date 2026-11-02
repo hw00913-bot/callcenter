@@ -52,7 +52,7 @@
 
 ### LOCAL-PLAT-LOGIN-S3
 
-首次按本人作业/监管/原Cloud合法意图落点；原综合概览默认且同时有导入分配与Cloud报表权者到导入与分配；没有业务但有公共管理权到首个合法管理页
+首次按本人作业/监管/原Cloud合法意图落点；原综合概览默认且同时有导入分配与Cloud报表权者到导入批次与业务名单；没有业务但有公共管理权到首个合法管理页
 
 读取：FIELD-PLAT-LOGIN-NAME, FIELD-PLAT-PASSWORD；写入：FIELD-PLAT-SESSION, FIELD-PLAT-CURRENT-TENANT, FIELD-PLAT-POSITION
 
@@ -104,7 +104,7 @@
 
 ## 来源与验证
 
-来源条目：acceptance:AC-2001, acceptance:AC-2002, acceptance:AC-2003, acceptance:AC-2004, features:FUNC-2001, features:FUNC-2001/behavior_spec/0/branches/0, features:FUNC-2001/behavior_spec/0/branches/1, features:FUNC-2001/behavior_spec/0/branches/2, features:FUNC-2001/behavior_spec/0/postconditions/0, features:FUNC-2001/behavior_spec/0/preconditions/0, features:FUNC-2001/behavior_spec/0/steps/0, features:FUNC-2001/behavior_spec/0/steps/1, features:FUNC-2001/behavior_spec/0/steps/2, pages:PAGE-2001, pages:PAGE-2001/actions/0, pages:PAGE-2001/actions/1, pages:PAGE-2001/fields/0, pages:PAGE-2001/fields/2, pages:PAGE-2001/fields/3, pages:PAGE-2001/fields/4, pages:PAGE-2001/fields/5, pages:PAGE-2002/fields/0, pages:PAGE-2002/fields/3, pages:PAGE-2002/fields/5, pages:PAGE-2003/fields/19, pages:PAGE-2003/fields/4, pages:PAGE-2003/fields/7, pages:PAGE-2005/fields/10, pages:PAGE-2007/fields/19, pages:PAGE-2103/fields/8, pages:PAGE-2106/fields/14, pages:PAGE-2112/fields/27, pages:PAGE-2202/fields/10, pages:PAGE-2202/fields/35, pages:PAGE-2205/fields/7, pages:PAGE-2206/fields/7, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/161, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/164, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/167, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/168, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/169, scenarios:FLOW-CURRENT-PLATFORM/steps/0
+来源条目：acceptance:AC-2001, acceptance:AC-2002, acceptance:AC-2003, acceptance:AC-2004, features:FUNC-2001, features:FUNC-2001/behavior_spec/0/branches/0, features:FUNC-2001/behavior_spec/0/branches/1, features:FUNC-2001/behavior_spec/0/branches/2, features:FUNC-2001/behavior_spec/0/postconditions/0, features:FUNC-2001/behavior_spec/0/preconditions/0, features:FUNC-2001/behavior_spec/0/steps/0, features:FUNC-2001/behavior_spec/0/steps/1, features:FUNC-2001/behavior_spec/0/steps/2, pages:PAGE-2001, pages:PAGE-2001/actions/0, pages:PAGE-2001/actions/1, pages:PAGE-2001/fields/0, pages:PAGE-2001/fields/2, pages:PAGE-2001/fields/3, pages:PAGE-2001/fields/4, pages:PAGE-2001/fields/5, pages:PAGE-2002/fields/0, pages:PAGE-2002/fields/3, pages:PAGE-2002/fields/5, pages:PAGE-2003/fields/19, pages:PAGE-2003/fields/4, pages:PAGE-2003/fields/7, pages:PAGE-2005/fields/10, pages:PAGE-2007/fields/19, pages:PAGE-2103/fields/8, pages:PAGE-2106/fields/14, pages:PAGE-2112/fields/27, pages:PAGE-2202/fields/10, pages:PAGE-2202/fields/35, pages:PAGE-2205/fields/7, pages:PAGE-2206/fields/7, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/175, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/178, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/181, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/182, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/183, scenarios:FLOW-CURRENT-PLATFORM/steps/0
 
 验证：CHECK-PLAT-LOGIN
 

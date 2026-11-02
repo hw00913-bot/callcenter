@@ -1,20 +1,20 @@
-# TASK-014 DIRECT/TEMPLATE整批严格预检
+# TASK-014 任务DIRECT与分类TEMPLATE两类入口预检
 
 **DRAFT — 供讨论与补充，尚未完成本阶段交接**
 
 [返回阅读入口](../README.md) · [功能目录](../features/README.md)
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](../features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](../features/FUNC-2036.md)
 
 ## 目标
 
-两模式均严格校系统/分类必填、类型/选项、映射及唯一性；当前schema启用可判断的选填IMPORT缺列在新输入捕获为null。；TEMPLATE检当前ELSE完整方案及首次真实分流，DIRECT不读路由；未知目录、必填缺失、通话/填写待核不借ELSE放行。
+任务内固定准确任务、已关联分类/AI场景及原手工/API来源，派生DIRECT；分类入口只人工/API进TEMPLATE，不再让导入时切办理模式。；同源schema校必需/必填、类型/选项、唯一性、原模块/任务/分类资格及当前任务/scene配置依据；TEMPLATE重算条件首组后确定各组场景字段。；AI纳入行须全部通过；PRED可仅确认已检查的有效子集，失败行继续原草稿；任何编辑/范围/字段/目标变化均需重新检查。
 
 ## 产品依据
 
-- FUNC-2036 按实际分类严格预检并导入业务：整批明确DIRECT或TEMPLATE后严格预检及导入：DIRECT须分类显式允许、方式明确且AI场景必选，仅豁免路由附加资料，不建run/node；TEMPLATE沿当前路由建run。已有直接业务后续显式启用流程，在旧执行与必要归档收敛且当前路由资料通过后于原业务建新run，不重复导入。；来源 documentation/input/functions.json#FUNC-2036
+- FUNC-2036 按共同分类字段预检并导入统一业务：客户维护与AI/预外呼任务三入口共用分类IMPORT和code等系统必需校验。客户维护按原DIRECT/TEMPLATE；任务内固定准确任务/必要scene并默认DIRECT，须ADMIN+customer.import、原模块/任务/来源及分类允许，保存完整值/快照/taskImportSource/等级和直接周期。专业名单只读recordId投影，不写第二账本/原生行或重复提交供应商，旧历史不迁移。；来源 documentation/input/functions.json#FUNC-2036
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 
@@ -39,24 +39,26 @@
 
 先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
 
-全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-CONFIG](../global-logic.md#GR-CONFIG)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-FIELDS](../global-logic.md#GR-FIELDS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+全局规则：[GR-ASSIGNMENT-SIMPLIFICATION](../global-logic.md#GR-ASSIGNMENT-SIMPLIFICATION)、[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-CONFIG](../global-logic.md#GR-CONFIG)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-EXECUTION-ARRANGEMENT](../global-logic.md#GR-EXECUTION-ARRANGEMENT)、[GR-FIELDS](../global-logic.md#GR-FIELDS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-TASK-UNIFIED-IMPORT](../global-logic.md#GR-TASK-UNIFIED-IMPORT)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
 
 局部逻辑：[LOCAL-FLOW-IMPORT-PREVIEW](../local-logic/LOCAL-FLOW-IMPORT-PREVIEW.md)
 
-字段：[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-BATCH-NAME](../field-specs.md#FIELD-FLOW-BATCH-NAME)、[FIELD-FLOW-BUSINESS-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CUSTOMER-NAME](../field-specs.md#FIELD-FLOW-CUSTOMER-NAME)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-ENTRY-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)、[FIELD-FLOW-ENTRY-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)、[FIELD-FLOW-FILE-PENDING](../field-specs.md#FIELD-FLOW-FILE-PENDING)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-IMPORT-MAPPING](../field-specs.md#FIELD-FLOW-IMPORT-MAPPING)、[FIELD-FLOW-IMPORT-NOTE](../field-specs.md#FIELD-FLOW-IMPORT-NOTE)、[FIELD-FLOW-IMPORT-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)、[FIELD-FLOW-IMPORT-TEXT](../field-specs.md#FIELD-FLOW-IMPORT-TEXT)、[FIELD-FLOW-IMPORT-TOKEN](../field-specs.md#FIELD-FLOW-IMPORT-TOKEN)、[FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-INTENDED-STORE-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)、[FIELD-FLOW-PHONE](../field-specs.md#FIELD-FLOW-PHONE)、[FIELD-FLOW-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)
+字段：[FIELD-FLOW-AI-SCENE](../field-specs.md#FIELD-FLOW-AI-SCENE)、[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-BATCH-NAME](../field-specs.md#FIELD-FLOW-BATCH-NAME)、[FIELD-FLOW-BUSINESS-CODE](../field-specs.md#FIELD-FLOW-BUSINESS-CODE)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CUSTOMER-NAME](../field-specs.md#FIELD-FLOW-CUSTOMER-NAME)、[FIELD-FLOW-DIRECT-METHOD](../field-specs.md#FIELD-FLOW-DIRECT-METHOD)、[FIELD-FLOW-ENTRY-CONTEXT](../field-specs.md#FIELD-FLOW-ENTRY-CONTEXT)、[FIELD-FLOW-ENTRY-RULES](../field-specs.md#FIELD-FLOW-ENTRY-RULES)、[FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)、[FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE)、[FIELD-FLOW-EXECUTION-QUEUED-AT](../field-specs.md#FIELD-FLOW-EXECUTION-QUEUED-AT)、[FIELD-FLOW-EXECUTION-RESOURCE](../field-specs.md#FIELD-FLOW-EXECUTION-RESOURCE)、[FIELD-FLOW-FILE-PENDING](../field-specs.md#FIELD-FLOW-FILE-PENDING)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-IMPORT-MAPPING](../field-specs.md#FIELD-FLOW-IMPORT-MAPPING)、[FIELD-FLOW-IMPORT-NOTE](../field-specs.md#FIELD-FLOW-IMPORT-NOTE)、[FIELD-FLOW-IMPORT-PREVIEW](../field-specs.md#FIELD-FLOW-IMPORT-PREVIEW)、[FIELD-FLOW-IMPORT-TEXT](../field-specs.md#FIELD-FLOW-IMPORT-TEXT)、[FIELD-FLOW-IMPORT-TOKEN](../field-specs.md#FIELD-FLOW-IMPORT-TOKEN)、[FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-INTENDED-STORE-NAME](../field-specs.md#FIELD-FLOW-INTENDED-STORE-NAME)、[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE](../field-specs.md#FIELD-FLOW-MANUAL-ASSIGNMENT-MODE)、[FIELD-FLOW-NODE-EXECUTION-DEFAULTS](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-DEFAULTS)、[FIELD-FLOW-NODE-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-NODE-EXECUTION-PRIORITY)、[FIELD-FLOW-PHONE](../field-specs.md#FIELD-FLOW-PHONE)、[FIELD-FLOW-RECIPIENT](../field-specs.md#FIELD-FLOW-RECIPIENT)、[FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS](../field-specs.md#FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS)、[FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY](../field-specs.md#FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY)、[FIELD-PLAT-AI-SCENE-ID](../field-specs.md#FIELD-PLAT-AI-SCENE-ID)、[FIELD-PLAT-TASK-ID](../field-specs.md#FIELD-PLAT-TASK-ID)
 
 ## UI 依据
 
 [全局 UI 规范](../ui-spec.md)
 
+- [UI-PAGE-2103](../ui-pages/UI-PAGE-2103.md)
 - [UI-PAGE-2204](../ui-pages/UI-PAGE-2204.md)
+- [UI-PAGE-2205](../ui-pages/UI-PAGE-2205.md)
 
 ## 实现要求
 
-- 两模式均严格校系统/分类必填、类型/选项、映射及唯一性；当前schema启用可判断的选填IMPORT缺列在新输入捕获为null。
-- TEMPLATE检当前ELSE完整方案及首次真实分流，DIRECT不读路由；未知目录、必填缺失、通话/填写待核不借ELSE放行。
-- 依赖模板能力的实施完成不增加DIRECT运行时模板门槛；无模板DIRECT正例必须验收。
-- 不将新输入补null扩成历史读取迁移，不靠普通DIRECT绕过不完整模板。
+- 任务内固定准确任务、已关联分类/AI场景及原手工/API来源，派生DIRECT；分类入口只人工/API进TEMPLATE，不再让导入时切办理模式。
+- 同源schema校必需/必填、类型/选项、唯一性、原模块/任务/分类资格及当前任务/scene配置依据；TEMPLATE重算条件首组后确定各组场景字段。
+- AI纳入行须全部通过；PRED可仅确认已检查的有效子集，失败行继续原草稿；任何编辑/范围/字段/目标变化均需重新检查。
+- 未知目录/原请求待核不当空或未发生；AI不借PRED的有效子集规则放行，不按首项/名称猜场景和任务。
 - 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
 - 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
 - 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
@@ -81,20 +83,43 @@
 - **AC-2145**：线索域转交组件允许CURRENT本租户分支；命中后保持owner、run及tenant阶段，不新建跨租户截止/轮次，不清原安排与封存结果，并重核后继CALL资格。OTHER仍执行原意向锚定和跨租户保护；CURRENT不冒充OTHER，拒伪造目标或过期令牌。
   依据：docs/functional-spec.json#AC-2145
 
+- **AC-2151**：两模式均保留原手动单条/同组批量分配，可导入时安排或先导入后安排；TEMPLATE按实际首CALL分组确认，目标/人员/场景/等级变化失效旧预检，同次纳入行失败不部分写入。
+  依据：docs/functional-spec.json#AC-2151
+
+- **AC-2158**：先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+  依据：docs/functional-spec.json#AC-2158
+
 ## 测试要求（尚未执行）
 
 ### CHECK-FLOW-IMPORT-PREVIEW / manual
 
-步骤：按当前续接版本执行：点击检查名单。前提：管理员导入资格有效；整批明确办理模式；DIRECT分类显式允许且方式明确，TEMPLATE实际分类绑定已确认有效流程。操作：两模式均校系统必需、分类导入必填、IMPORT类型/选项/编码映射及同品牌业务唯一性；TEMPLATE按真实行数据判断首路径/首CALL及场景；DIRECT只豁免路由分流所需的附加资料，不读取路由或生成节点，校显式方式与AI必要场景；仅全部行通过才生成绑定模式、方式、数据、字段、分类开关和必要场景的token；TEMPLATE额外绑定路由及方案。分别构造：TEMPLATE且尚未输入可影响路由的IMPORT资料；TEMPLATE且实际行空/不匹配/首次依赖未来通话或填写；存在重复或类型/选项错误；所有行通过；DIRECT缺基础必填、类型/映射/唯一性失败、分类未显式允许、方式未选或AI无有效场景。
+步骤：分别从分类人工/接口和准确任务手工/接口入口准备导入；CATEGORY首组discovery后选必要AI场景；TASK自动带入；改变资料/场景/字段/安排后重检。
 
-预期：预览不转交、不起呼、不写正式业务；中性列所需分流字段，不提前标配置错误；具体报节点、字段和条件，无token不创建业务；给逐行原因，不覆盖已有业务；展示每行当前模式及DIRECT显式方式或TEMPLATE首CALL/无需呼叫和确认依据。；逐行具体报错，保名单且无有效token；不因仅绕过路由而放宽任何基础校验，也不静默转TEMPLATE。。
+预期：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 只有首组识别尚无正式token/record，必要场景和正式schema齐备后才正式预检。
 
 覆盖：AC-2115, AC-2116, AC-2117, AC-2139, AC-2140, AC-2145
 
+### CHECK-FLOW-IMPORT-ARRANGEMENT / manual
+
+步骤：按当前三入口统一导入规则：点击检查名单； ；共享读取/预检采用准确目标context.importLimits而非任意调用参数：保AI大众100行、厚朴150000行、其他2000行及16MB文件，预外呼2000行/1MB；超限明示分批且不截断，旧AI parser只作历史兼容不成第二新写入口；CATEGORY按真实行IMPORT条件定位首路径/首CALL并分组；AI取该组实际场景参数，TRANSFER按当前/目标租户合法路径办理，未知PENDING不假落ELSE。未配置模板精确引导业务分类→路由配置，失效/删除另报，不虚构空名单1条。 仅首组识别/discovery用于决定方式和所需场景，不生成正式token、不建record；待各组必要场景及正式schema齐全后才正式逐行检查。； 预检成功才显示实际组数，名单/映射/分类/路由/场景/执行安排改变清旧token/数量；保五档及人工MANUAL/指定seat、PRED仅任务、AI任务+scene的合法安排。；按本批实际首CALL分组显示方式/数量、具体任务或坐席、必要场景及五档等级；导入安排可覆盖本租户节点默认，也可保留稍后手动分配；目标/等级变化失效旧预览。；客户维护与AI/PRED任务三入口共用IMPORT及code等系统必需校验；任务内默认DIRECT且固定准确task/scene、ADMIN+customer.import和原模块/来源准入，分类已绑模板也不建run/node；统一记录一次保存，专业视图只读投影。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
+
+预期：预览不转交、不起呼、不写正式业务；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
+
+覆盖：AC-2151
+
+### CHECK-FLOW-TASK-IMPORT-SCHEMA / manual
+
+步骤：先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+
+预期：任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+
+覆盖：AC-2158
+
 ## 完成条件
 
-- 两模式均严格校系统/分类必填、类型/选项、映射及唯一性；当前schema启用可判断的选填IMPORT缺列在新输入捕获为null。
-- TEMPLATE检当前ELSE完整方案及首次真实分流，DIRECT不读路由；未知目录、必填缺失、通话/填写待核不借ELSE放行。
+- 任务内固定准确任务、已关联分类/AI场景及原手工/API来源，派生DIRECT；分类入口只人工/API进TEMPLATE，不再让导入时切办理模式。
+- 同源schema校必需/必填、类型/选项、唯一性、原模块/任务/分类资格及当前任务/scene配置依据；TEMPLATE重算条件首组后确定各组场景字段。
+- AI纳入行须全部通过；PRED可仅确认已检查的有效子集，失败行继续原草稿；任何编辑/范围/字段/目标变化均需重新检查。
 - 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
 - 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
 - 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。

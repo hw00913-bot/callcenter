@@ -72,6 +72,17 @@
     if(readyKinds.has(target.kind)){const ok=frame.contentWindow.DAdapter.navigate(target.route,{preserveFilters:true,...filters,...options});if(ok===false)DUI.toast('原页面的权限或状态检查未通过，请核对当前使用范围。');}
     return true;
   }
+  function canImportCategory(categoryId,brandId){
+    try{
+      const c=DSession.context(),w=frames.cloud?.contentWindow;
+      if(c?.scope.kind!=='tenant'||c.scope.grant?.role!=='admin'||!c.scope.tenant?.enabled||brandId!==c.scope.tenant.brandId||!DSession.allowed('PAGE-2006')||!DSession.allowed('PAGE-2226')||!DSession.canWrite('PAGE-2226')||!DSession.can('F24')||!readyKinds.has('cloud')||w?.DNativeContext?.context?.account.id!==c.account.id||w?.DNativeContext?.context?.scope.id!==c.scope.id||w.AppState?.canAction?.('customer.import')!==true)return false;
+      const ret=w.BusinessFlowStore.categories();return ret?.status==='success'&&(Array.isArray(ret.data)?ret.data:ret.data?.rows||[]).some(row=>String(row.categoryId||row.id)===String(categoryId)&&row.enabled!==false&&row.brandId===brandId);
+    }catch(_){return false;}
+  }
+  function openCategoryImport(categoryId,brandId){
+    if(DApp.currentPage()!=='PAGE-2006'||!canImportCategory(categoryId,brandId)){DUI.toast('当前分类或租户没有导入名单资格，请重新核对。');return false;}
+    return DApp.openPage('PAGE-2226',{nativeOptions:{recordId:'',batchId:'',batchKey:'',originBatch:null,batchDetail:false,primaryNavigation:true,importCategoryId:String(categoryId),importLaunchId:'CATEGORY-IMPORT-'+(window.crypto?.randomUUID?.()||Date.now().toString(36)),importBrandId:brandId}});
+  }
   // Read-only source-derived shape checks; CRUD permissions and business guards remain separate.
   function validateCloudReferenceValue(name,v){
     const obj=x=>!!x&&typeof x==='object'&&!Array.isArray(x), str=x=>typeof x==='string', id=x=>str(x)&&x.length>0,
@@ -353,10 +364,11 @@
   // Business arrangement reads a minimal scene projection, independently of tag-maintenance rights.
   function workflowSceneContext(){
     const c=DSession.context();
-    if(!c||c.scope.kind!=='tenant'||DSession.roleKey(c)==='super'||!c.scope.tenant?.enabled||!DSession.allowed('PAGE-2204')||!DSession.canWrite('PAGE-2204')||!c.scope.tenant.modules?.ai||!c.scope.grant?.modules?.includes('ai'))throw Error('当前租户或成员没有AI呼叫使用权限');
+    const businessEntry=DSession.allowed('PAGE-2204')&&DSession.canWrite('PAGE-2204'),taskEntry=!businessEntry&&typeof DApp!=='undefined'&&DApp.currentPage()==='PAGE-2103'&&DSession.allowed('PAGE-2103')&&DSession.canWrite('PAGE-2103');
+    if(!c||c.scope.kind!=='tenant'||DSession.roleKey(c)==='super'||!c.scope.tenant?.enabled||!businessEntry&&!taskEntry||!c.scope.tenant.modules?.ai||!c.scope.grant?.modules?.includes('ai'))throw Error('当前租户或成员没有AI呼叫使用权限');
     return c;
   }
-  function currentWorkflowScenes(){
+  function currentWorkflowScenes(options={}){
     const c=workflowSceneContext(),w=frames.ai?.contentWindow,identity=c.account.id+'|'+c.scope.id;
     if(!readyKinds.has('ai')||identity!==w?.DNativeContext?.context?.account.id+'|'+w?.DNativeContext?.context?.scope.id)throw Error('当前租户AI场景尚未就绪');
     const review=w.DAIConfigStore?.reviewCurrent();if(!review?.ok)throw Error(review?.reason||'AI场景配置待核');
@@ -374,25 +386,183 @@
     };
     for(const row of data.sceneRows||[]){
       if(row.enabled===false||['disabled','stopped','停用','已停用'].includes(row.status))continue;
-      const relation=relations.find(r=>String(r.sceneId)===String(row.id)&&r.executionSceneId===row.sceneId&&r.platform===row.platform);
+      const relation=relations.find(r=>String(r.sceneId)===String(row.id)&&r.executionSceneId===row.sceneId&&r.platform===row.platform&&(!r.professionalTaskId||r.professionalTaskId===String(row.taskId??row.task_id??'')));
       // New configurations carry stable category and tenant IDs. Legacy labels alone are insufficient.
       const own=(row.tenantIds||[]).includes(c.scope.id)||row.tenantId===c.scope.id||row.integrationTenantId===c.scope.id;
       const associated=links.rows.filter(r=>r.tenantId===c.scope.id&&String(r.sceneId)===String(row.id)&&(r.categoryScope||'brand')==='brand'&&r.brandId===c.scope.tenant.brandId);
       if(associated.length>1)throw Error('AI场景存在多个分类关联，请先核对');
-      const categoryId=associated[0]?.categoryId||row.unifiedCategoryId||(relation&&definitions.find(d=>d.tagId===relation.tagSceneId)?.id);
+      const categoryId=associated[0]?.categoryId||row.unifiedCategoryId||(relation?.categoryId&&definitions.some(d=>d.id===relation.categoryId)?relation.categoryId:relation&&definitions.find(d=>d.tagId===relation.tagSceneId)?.id);
       if(!categoryId||(!relation&&!own)||!row.sceneId)continue;
       const supplierId=relation?.supplierId||row.supplierId||'',tagSceneId=relation?.tagSceneId||row.tagSceneId||'',tenantType=relation?.tenantType||row.tenantType||'',context=tagContext(categoryId,supplierId,tenantType,tagSceneId),aiContexts=context?[context]:[];
       const executionConfigurationFingerprint=JSON.stringify({row,categoryId,tenantId:c.scope.id,brandId:c.scope.tenant.brandId,supplierId,tagSceneId,tenantType,association:associated[0]||null});
-      out.push({id:String(row.id),sceneId:String(row.id),executionSceneId:row.sceneId,name:row.name,categoryId,tenantId:c.scope.id,brandId:c.scope.tenant.brandId,platform:row.platform,supplierId,tagSceneId,tenantType,enabled:true,updatedAt:row.updatedAt||row.updateTime||'',aiContexts,executionConfigurationFingerprint,configurationFingerprint:JSON.stringify({executionConfigurationFingerprint,aiContexts})});
+      const dataImportSource=window.DAISceneImportSource?.mode(row)||'UNKNOWN';
+      out.push({dataImportSource,importType:row.importType,sourceConfigurationState:!Object.hasOwn(row,'dataImportSource')&&(row.importType===undefined||row.importType===null||row.importType==='')?'ABSENT':'CONFIGURED',professionalTaskId:String(row.taskId??row.task_id??''),id:String(row.id),sceneId:String(row.id),executionSceneId:row.sceneId,name:row.name,categoryId,tenantId:c.scope.id,brandId:c.scope.tenant.brandId,platform:row.platform,supplierId,tagSceneId,tenantType,enabled:true,updatedAt:row.updatedAt||row.updateTime||'',aiContexts,executionConfigurationFingerprint,configurationFingerprint:JSON.stringify({executionConfigurationFingerprint,aiContexts})});
     }
-    return {tenantId:c.scope.id,brandId:c.scope.tenant.brandId,identity,scenes:out};
+    return {tenantId:c.scope.id,brandId:c.scope.tenant.brandId,identity,scenes:options.dataImportSource?out.filter(row=>row.dataImportSource===options.dataImportSource):out};
   }
-  async function readWorkflowScenes(){
+  async function readWorkflowScenes(options={}){
     const c=workflowSceneContext(),identity=c.account.id+'|'+c.scope.id;
     if(!frames.ai)create('ai','');
     if(!readyKinds.has('ai'))await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('AI场景尚未就绪，请重试')),8000);aiWaiters.push(()=>{clearTimeout(timer);resolve();});});
     if(identity!==DSession.context()?.account.id+'|'+DSession.context()?.scope.id)throw Error('操作范围已变化，请重新读取场景');
-    return currentWorkflowScenes();
+    return currentWorkflowScenes(options);
+  }
+  // A task is an existing professional task, independently of a reusable scene.
+  // This projection contains no customer rows and never creates or starts tasks.
+  function currentNativeAITasks(w){return typeof w?.DAITaskDirectory?.rows==='function'?w.DAITaskDirectory.rows():w?.MockSceneList;}
+  function currentWorkflowTasks(options={}){
+    if(options.readOnly===true){
+      const c=DSession.context(),w=frames.ai?.contentWindow,taskId=String(options.taskId||''),identity=c?.account.id+'|'+c?.scope.id;
+      if(!c||c.scope.kind!=='tenant'||c.account.enabled===false||!c.scope.tenant?.enabled||!c.scope.tenant.modules?.ai||!c.scope.grant.modules?.includes('ai')||!DSession.allowed('PAGE-2103')||!taskId||!readyKinds.has('ai')||w?.DNativeContext?.context?.account.id!==c.account.id||w?.DNativeContext?.context?.scope.id!==c.scope.id)throw Error('当前租户AI任务读取范围已变化。');
+      const rows=currentNativeAITasks(w);if(!Array.isArray(rows))throw Error('当前AI任务目录尚未就绪。');
+      const matches=rows.filter(row=>String(row.id)===taskId&&row.integrationTenantId===c.scope.id&&row.deleted!==true);
+      if(matches.length!==1)throw Error('当前有权AI任务不存在或身份不唯一。');
+      const row=matches[0],target={resourceId:taskId,taskId,kind:'TASK',method:'AI',name:row.name||row.taskName||taskId,tenantId:c.scope.id,brandId:c.scope.tenant.brandId,remoteTaskId:String(row.task_id||row.taskId||row.uuid||row.taskUuid||row.taskCode||''),nativeExplicitSceneId:String(row.workflowSceneId??row.aiSceneId??row.sceneId??''),platform:row.platform||'',status:row.status,taskStatusCode:w.Pages?.['scene-list']?.integrationTaskStatus?.(row)?.code??null,dataImportSource:window.DAISceneImportSource?.mode({importType:row.source})||'UNKNOWN',importType:row.source,enabled:row.enabled!==false,readOnly:true};
+      return {identity,tenantId:c.scope.id,brandId:c.scope.tenant.brandId,tasks:[target]};
+    }
+    const c=workflowSceneContext(),directory=currentWorkflowScenes(),w=frames.ai?.contentWindow,forImport=options.forImport===true;
+    const scenes=directory.scenes,raw=currentNativeAITasks(w);
+    if(!Array.isArray(raw))throw Error('当前租户AI任务目录尚未就绪');
+    const tasks=[],seen=new Set();
+    for(const row of raw){
+      if(!row||row.integrationTenantId!==c.scope.id||!forImport&&(row.deleted===true||row.enabled===false))continue;
+      const taskId=String(row.id??''),platform=String(row.platform||'');
+      if(!taskId||!platform||seen.has(taskId))throw Error('AI任务身份重复或缺少平台，请先核对任务目录');
+      seen.add(taskId);
+      // The existing task page owns the supplier status mappings, including
+      // unknown raw statuses. A legacy display label cannot override them.
+      const status=w.Pages?.['scene-list']?.integrationTaskStatus?.(row);
+      if(!forImport){if(!status||!Number.isSafeInteger(status.code))continue;if(![1,3,6].includes(status.code))continue;if(row.autoStartOnAdd||row.autoStart||row.startOnAssign||row.running)continue;}
+      const candidates=scenes.filter(scene=>scene.platform===platform),explicitScene=row.workflowSceneId??row.aiSceneId??row.sceneId;
+      let linked=[];
+      if(explicitScene!=null&&String(explicitScene)!=='')linked=candidates.filter(scene=>scene.sceneId===String(explicitScene)||scene.executionSceneId===String(explicitScene));
+      else {
+        const remoteIds=[row.task_id,row.taskId,row.uuid,row.taskUuid,row.taskCode].filter(value=>value!=null&&String(value)!=='').map(String);
+        linked=candidates.filter(scene=>remoteIds.includes(String(scene.executionSceneId))||scene.professionalTaskId&&remoteIds.includes(String(scene.professionalTaskId)));
+      }
+      if(forImport){
+        const source=window.DAISceneImportSource?.mode({importType:row.source})||'UNKNOWN';
+        let reason='';
+        if(row.deleted===true||row.enabled===false)reason='当前AI任务已删除或停用，不能接收新名单';
+        else if(!status||!Number.isSafeInteger(status.code))reason='当前AI任务状态待核，请先在任务详情核对后导入';
+        else if([4,5,12].includes(status.code))reason='当前AI任务已终止、完成或归档，不能接收新名单';
+        else if(!['MANUAL','AUTO'].includes(source))reason='当前AI任务的手工或接口导入方式待核，请先核对任务配置';
+        else if(row.autoStartOnAdd||row.autoStart||row.startOnAssign)reason='当前任务新增名单会自动启动，需先核对导入与执行配置';
+        else if(explicitScene!=null&&String(explicitScene)!==''&&linked.length!==1||linked.length>1)reason='当前AI任务关联场景缺失或不唯一，请先核对准确任务关联';
+        const linkedScene=linked.length===1?linked[0]:null,categoryId=row.unifiedCategoryId||row.categoryId||linkedScene?.categoryId||'';
+        const basis={taskId,remoteTaskId:String(row.task_id||row.taskId||row.uuid||row.taskUuid||row.taskCode||''),platform,status:row.status,taskStatusCode:status?.code??null,taskStatus:row.taskStatus??null,remoteStatus:row.remoteStatus??null,statusType:row.statusType??null,dataImportSource:source,importType:row.source,sceneId:linkedScene?.sceneId||'',categoryId,tenantId:c.scope.id,brandId:c.scope.tenant.brandId,revision:row.revision??row._revision??null,updatedAt:row.updatedAt||row.updateTime||'',autoStart:!!(row.autoStartOnAdd||row.autoStart||row.startOnAssign),importEligibility:{known:true,allowed:!reason,reason}};
+        tasks.push({...basis,resourceId:taskId,kind:'TASK',method:'AI',name:row.name||row.taskName||taskId,enabled:row.enabled!==false&&row.deleted!==true,configurationFingerprint:JSON.stringify(basis)});continue;
+      }
+      if(explicitScene!=null&&String(explicitScene)!==''&&linked.length!==1)continue;
+      if(linked.length>1)throw Error('AI任务对应多个场景，请先核对任务关联');
+      const linkedScene=linked[0],categoryId=row.unifiedCategoryId||row.categoryId||linkedScene?.categoryId||'';
+      if(!candidates.some(scene=>(!categoryId||scene.categoryId===categoryId)&&(!linkedScene||scene.sceneId===linkedScene.sceneId)))continue;
+      const basis={taskId,dataImportSource:window.DAISceneImportSource?.mode({importType:row.source})||'UNKNOWN',importType:row.source,remoteTaskId:String(row.task_id||row.taskId||row.uuid||row.taskUuid||row.taskCode||''),platform,status:row.status,taskStatusCode:status.code,taskStatus:row.taskStatus??null,remoteStatus:row.remoteStatus??null,statusType:row.statusType??null,sceneId:linkedScene?.sceneId||'',categoryId,tenantId:c.scope.id,brandId:c.scope.tenant.brandId,revision:row.revision??row._revision??null,updatedAt:row.updatedAt||row.updateTime||'',autoStart:!!(row.autoStartOnAdd||row.autoStart||row.startOnAssign)};
+      tasks.push({...basis,resourceId:taskId,kind:'TASK',method:'AI',name:row.name||row.taskName||taskId,enabled:true,configurationFingerprint:JSON.stringify(basis)});
+    }
+    return {identity:directory.identity,tenantId:c.scope.id,brandId:c.scope.tenant.brandId,tasks};
+  }
+  async function readWorkflowTasks(){await readWorkflowScenes();return currentWorkflowTasks();}
+  // Task imports share the existing business ledger; these bridges never append a supplier list.
+  const importClone=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
+  function taskBusinessAccess(spec={},write=true){
+    DOrganization.load();const c=DSession.context(),page=DApp.currentPage(),kind=spec.method==='AI'?'ai':spec.method==='PREDICTIVE'?'cloud':'';
+    const pages=kind==='ai'?['PAGE-2103']:['PAGE-2205','PAGE-2225'];
+    if(!kind||!c||c.scope.kind!=='tenant'||c.account.enabled===false||!c.scope.tenant?.enabled||!pages.includes(page)||!DSession.allowed(page)||write&&!DSession.canWrite(page)||!c.scope.tenant.modules?.[kind]||!c.scope.grant.modules?.includes(kind)||write&&DSession.roleKey(c)==='super')throw Error('当前任务入口、模块或导入权限已变化，请重新打开。');
+    return {context:c,identity:c.account.id+'|'+c.scope.id,page,kind};
+  }
+  async function readTaskImportDirectory(spec={}){
+    try{
+      const before=taskBusinessAccess(spec,true);await prepareIntegration();if(spec.method==='AI')await readWorkflowScenes();
+      const now=taskBusinessAccess(spec,true),w=frames.cloud?.contentWindow;
+      if(before.identity!==now.identity||before.page!==now.page||now.context.scope.grant.role!=='admin'||!DSession.can('F24')||w?.DNativeContext?.context?.account.id!==now.context.account.id||w?.DNativeContext?.context?.scope.id!==now.context.scope.id)throw Error('任务目录读取期间范围或导入权限已变化。');
+      let tasks=[];
+      if(spec.method==='AI')tasks=currentWorkflowTasks({forImport:true}).tasks.map(row=>({method:'AI',taskId:row.taskId,name:row.name,importChannel:row.dataImportSource==='MANUAL'?'MANUAL':row.dataImportSource==='AUTO'?'API':'UNKNOWN',configurationReady:!!row.sceneId&&!!row.categoryId,disabledReason:row.importEligibility?.allowed===true?'':row.importEligibility?.reason||'任务导入资格待核'}));
+      else{
+        const rows=(w.CloudCallData?.tasks||[]).concat(w.CloudCallData?.predictiveTasks||[]),seen=new Map();
+        for(const row of rows){if(row?.callType!=='预外呼'||row.isWizardDraft||row.status==='已删除'||row.tenantId!==now.context.scope.id||String(row.enterpriseId)!==String(now.context.scope.tenant.enterpriseId)||w.AppState?.authorizeObject?.('',row)!==true)continue;
+          const id=String(row.taskId||'');if(!id)throw Error('预外呼任务身份待核。');
+          const item={method:'PREDICTIVE',taskId:id,name:row.name||id,importChannel:row.dccImportSource==='api'?'API':'MANUAL',configurationReady:typeof(row.unifiedCategoryId??row.categoryId)==='string'&&!!String(row.unifiedCategoryId??row.categoryId).trim(),disabledReason:w.CloudTaskWorkspace?.customerImportReason?.(row)||''};
+          const prior=seen.get(id);if(prior&&JSON.stringify(prior)!==JSON.stringify(item))throw Error('预外呼任务身份不唯一，请先核对。');seen.set(id,item);
+        }tasks=[...seen.values()];
+      }
+      tasks.sort((a,b)=>Number(!!a.disabledReason)-Number(!!b.disabledReason)||Number(b.configurationReady)-Number(a.configurationReady));
+      return {status:'success',data:{tasks,tenantId:now.context.scope.id,identity:now.identity}};
+    }catch(error){return {status:'failed',message:error.message||'任务目录暂不可读取，请重试。'};}
+  }
+  async function openTaskImportConfiguration(spec={}){
+    try{
+      const before=taskBusinessAccess(spec,true);if(spec.method!=='AI')throw Error('请从当前预外呼任务的编辑配置维护分类。');
+      if(!DSession.allowed('PAGE-2110')||!DSession.canWrite('PAGE-2110'))throw Error('当前没有任务关联配置权限，请联系有权管理员。');
+      await readWorkflowScenes();const now=taskBusinessAccess(spec,true);if(before.identity!==now.identity||before.page!==now.page)throw Error('维护范围已变化，请重新打开。');
+      const task=currentWorkflowTasks({forImport:true}).tasks.find(row=>String(row.taskId)===String(spec.taskId));if(!task)throw Error('当前任务身份已变化，请重新读取。');
+      return DApp.openPage('PAGE-2110',{nativeOptions:{taskId:String(spec.taskId),sceneId:task.sceneId||''}})!==false;
+    }catch(error){DUI.toast(error.message||'请在AI业务场景中维护当前任务的准确关联。','warning');return false;}
+  }
+  async function taskBusinessCall(name,spec,extra,write=true){
+    try{
+      const before=taskBusinessAccess(spec,write),input=importClone(spec);
+      await prepareIntegration();
+      const w=frames.cloud?.contentWindow;
+      if(input.method==='AI'&&write)await readWorkflowScenes(); // Task import prepares its own scoped directory, independently of startable resources.
+      const now=taskBusinessAccess(input,write);
+      if(before.identity!==now.identity||before.page!==now.page||w?.DNativeContext?.context?.account.id!==now.context.account.id||w?.DNativeContext?.context?.scope.id!==now.context.scope.id)throw Error('读取期间账号、租户或任务入口已变化，本次未提交。');
+      if(typeof w.BusinessFlowStore?.[name]!=='function')throw Error('统一业务导入暂未就绪，请重新打开。');
+      const result=input.method==='AI'&&w.DTaskBusinessAccess?w.DTaskBusinessAccess.invoke(name,input,importClone(extra),write):w.BusinessFlowStore[name](input,importClone(extra));
+      if(name==='taskImportContext'&&result?.status!=='success'){
+        let target;
+        if(input.method==='AI')target=currentWorkflowTasks({readOnly:true,taskId:String(input.taskId)}).tasks[0];
+        else target=(w.CloudCallData?.tasks||[]).concat(w.CloudCallData?.predictiveTasks||[]).find(row=>String(row.taskId)===String(input.taskId)&&row.tenantId===now.context.scope.id&&String(row.enterpriseId)===String(now.context.scope.tenant.enterpriseId)&&w.AppState?.authorizeObject?.('',row)===true);
+        if(target)return importClone({...result,data:{taskName:target.name||target.taskName||String(input.taskId),taskId:String(input.taskId),method:input.method}});
+      }
+      return importClone(result);
+    }catch(error){return {status:'failed',message:error.message||'统一业务导入暂时无法核对。'};}
+  }
+  async function reconcileTaskImport(requestId,spec){
+    try{
+      const before=taskBusinessAccess(spec,true);await prepareIntegration();const now=taskBusinessAccess(spec,true);
+      if(before.identity!==now.identity||before.page!==now.page)throw Error('核对期间范围已变化，请回原入口核对。');
+      const w=frames.cloud.contentWindow,input={...importClone(spec),requestId};
+      return importClone(input.method==='AI'&&w.DTaskBusinessAccess?w.DTaskBusinessAccess.invoke('reconcileTaskImport',input,undefined,true):w.BusinessFlowStore.reconcileTaskImport(requestId,importClone(spec)));
+    }catch(error){return {status:'failed',message:error.message};}
+  }
+  async function readSceneImportFields(categoryId){
+    try{
+      const before=DSession.context(),identity=before?.account.id+'|'+before?.scope.id;
+      if(before?.scope.kind!=='tenant'||DApp.currentPage()!=='PAGE-2110'||!DSession.allowed('PAGE-2110'))throw Error('当前没有本租户AI场景配置读取权限。');
+      await prepareIntegration();const c=DSession.context(),w=frames.cloud?.contentWindow;
+      if(identity!==c?.account.id+'|'+c?.scope.id||DApp.currentPage()!=='PAGE-2110'||!DSession.allowed('PAGE-2110')||w?.DNativeContext?.context?.account.id!==c.account.id||w?.DNativeContext?.context?.scope.id!==c.scope.id)throw Error('使用范围已变化，请重新读取分类字段。');
+      return currentSceneImportFields(categoryId);
+    }catch(error){return {ok:false,message:error.message};}
+  }
+  function currentSceneImportFields(categoryId){
+    try{
+      const c=DSession.context(),w=frames.cloud?.contentWindow;
+      if(c?.scope.kind!=='tenant'||DApp.currentPage()!=='PAGE-2110'||!DSession.allowed('PAGE-2110')||!readyKinds.has('cloud')||w?.DNativeContext?.context?.account.id!==c.account.id||w?.DNativeContext?.context?.scope.id!==c.scope.id)throw Error('当前分类字段读取范围已变化。');
+      const result=w.BusinessFlowStore.importContext(categoryId,{handlingMode:'DIRECT',directMethod:'AI',catalogOnly:true});if(result.status!=='success')throw Error(result.message||'分类字段无法读取。');
+      const data=result.data;return {ok:true,categoryId:data.categoryId,fields:[{key:'code',id:'code',label:data.codeLabel||'业务编码',type:'text',required:true},...importClone(data.importSchema||data.fields||[])],version:data.version};
+    }catch(error){return {ok:false,message:error.message};}
+  }
+  function reviewAIImportParameters(spec,fields,values,customValues){
+    try{
+      const c=workflowSceneContext(),w=frames.ai?.contentWindow,scenes=currentWorkflowScenes().scenes;
+      const scene=scenes.find(row=>row.sceneId===String(spec.aiSceneId||''));
+      if(!scene||scene.categoryId!==spec.categoryId||scene.tenantId!==c.scope.id)throw Error('AI参数映射与当前场景或分类不一致。');
+      const proof=w.DAIConfigStore.reviewCurrent();if(!proof.ok)throw Error(proof.reason||'AI场景配置待核。');
+      const rows=w.DAIConfigStore.snapshot().sceneRows.filter(row=>String(row.id)===scene.sceneId);
+      if(rows.length!==1||!w.DAIImportFieldMapping)throw Error('场景参数定义无法唯一核对。');
+      let source=window.DAISceneImportSource?.mode(rows[0])||'UNKNOWN',sourceResolution=null;
+      const absent=!Object.hasOwn(rows[0],'dataImportSource')&&(rows[0].importType===undefined||rows[0].importType===null||rows[0].importType==='');
+      if(source==='UNKNOWN'&&absent&&spec.handlingMode!=='TEMPLATE'&&spec.taskId){
+        const tasks=currentWorkflowTasks({forImport:true}).tasks,task=tasks.find(item=>String(item.taskId)===String(spec.taskId));
+        const sameRemote=task?.remoteTaskId&&[scene.professionalTaskId,scene.executionSceneId].filter(Boolean).includes(String(task.remoteTaskId));
+        if(task?.importEligibility?.allowed===true&&task.sceneId===scene.sceneId&&sameRemote&&['MANUAL','AUTO'].includes(task.dataImportSource)){source=task.dataImportSource;sourceResolution={authority:'TASK_SOURCE',taskId:task.taskId,sceneId:scene.sceneId,remoteTaskId:task.remoteTaskId,configurationFingerprint:task.configurationFingerprint};}
+      }
+      if(!['MANUAL','AUTO'].includes(spec.dataImportSource)||source!==spec.dataImportSource||!sourceResolution&&scene.dataImportSource!==source)throw Error('AI场景传入方式已变化或待修正，请重新选择。');
+      if(spec.importChannel&&spec.handlingMode!=='TEMPLATE'&&source!==(spec.importChannel==='MANUAL'?'MANUAL':spec.importChannel==='API'?'AUTO':'UNKNOWN'))throw Error('任务导入入口与场景的手工或接口配置不匹配。');
+      const result=w.DAIImportFieldMapping.review({scene:rows[0],categoryId:spec.categoryId,fields:importClone(fields),values:importClone(values),customValues:importClone(customValues)});
+      return importClone({...result,...(result.ok?{fingerprint:JSON.stringify([scene.executionConfigurationFingerprint,result.fingerprint,...(sourceResolution?[sourceResolution]:[])]),...(sourceResolution?{sourceResolution}:{})}:{})});
+    }catch(error){return {ok:false,message:error.message};}
   }
   async function prepareSeatCapabilities(){const c=DSession.context();if(!c||!c.scope.tenant?.modules.cloud||!c.scope.grant.modules?.includes('cloud')||!DSession.roleKey(c))return false;await prepareIntegration();return DSession.boundSeat();}
   DSession.setSeatResolver(c=>{const w=frames.cloud?.contentWindow,o=w?.DNativeContext?.context;if(!readyKinds.has('cloud')||!o||o.account.id!==c.account.id||o.scope.id!==c.scope.id)return false;return w.DProductionAccess?.boundSeat()===true;});
@@ -400,7 +570,9 @@
   DSession.setPageAvailability((id)=>{if(id==='PAGE-2207'&&DSession.roleKey().endsWith('_ops'))return DSession.boundSeat();const target=map[id],frame=target&&frames[target.kind];if(target?.kind==='cloud'&&!['PAGE-2006','PAGE-2223','PAGE-2228'].includes(id)&&frame&&readyKinds.has('cloud'))return frame.contentWindow.RouteRuntime?.canRoute(target.route)!==false;return true;});
   window.DModuleHost={setTemplateEditorFullscreen,isReady:kind=>readyKinds.has(kind),isActive:kind=>currentKind===kind||kind==='cloud'&&!!seatLink,isSeatLinkActive:()=>!!seatLink,supports:id=>!!map[id],open,hide,ready(kind,source){if(!frames[kind]||source&&frames[kind].contentWindow!==source)return false;readyKinds.add(kind);if(kind==='ai')aiWaiters.splice(0).forEach(resolve=>resolve());if(kind==='cloud')waiters.splice(0).forEach(resolve=>resolve());if(kind==='cloud'&&seatLink){frames.cloud.contentWindow.DAdapter.openSeatLink(seatLink.accountId,seatLink.tenantId);return;}const item=pending[kind];if(item&&frames[kind])frames[kind].contentWindow.DAdapter.navigate(item.route,{preserveFilters:true,...item.filters,...item.options});DApp.recheckNavigation();},
     openInline(kind,route,slot,options={}){if(kind!=='ai'||route!=='scene-block'||!DContactPolicy.canSpecial(DContactPolicy.specialScope()))return false;hide();inlineSlot=slot;currentKind=kind;pending[kind]={id:'PAGE-2007',route,options};const frame=frames[kind]||create(kind,route);frame.classList.add('d-native-inline');const host=document.getElementById('page-host');host.scrollTop=0;const top=slot.getBoundingClientRect().top-host.getBoundingClientRect().top;frame.style.top=top+'px';frame.style.height='calc(100% - '+(top+16)+'px)';frame.hidden=false;if(readyKinds.has(kind))frame.contentWindow.DAdapter.navigate(route,options);return true;},
-    prepareIntegration,prepareContactCoordination,prepareSeatCapabilities,readAccountSeatSummaries,readCloudTenantSummary,readWorkflowScenes,currentWorkflowScenes,readContactExecutionFacts,readContactCoordination,contactCoordinationActive,canService,openService(tenantId){if(!canService(tenantId))return DUI.toast('没有此租户的AI服务管理权限。');return DApp.openPage('PAGE-2112',{nativeOptions:{serviceTenantId:tenantId}});},
+    canImportCategory,openCategoryImport,prepareIntegration,prepareContactCoordination,prepareSeatCapabilities,readAccountSeatSummaries,readCloudTenantSummary,readWorkflowScenes,currentWorkflowScenes,readWorkflowTasks,currentWorkflowTasks,readSceneImportFields,currentSceneImportFields,reviewAIImportParameters,
+    taskImportContext:spec=>taskBusinessCall('taskImportContext',spec),previewTaskImport:input=>taskBusinessCall('previewTaskImport',input),importTaskRecords:(input,options)=>taskBusinessCall('importTaskRecords',input,options),taskImportRecords:spec=>taskBusinessCall('taskImportRecords',spec,undefined,false),taskRosterRecords:spec=>taskBusinessCall('taskRosterRecords',spec,undefined,false),readTaskImportDirectory,openTaskImportConfiguration,reconcileTaskImport,
+    readContactExecutionFacts,readContactCoordination,contactCoordinationActive,canService,openService(tenantId){if(!canService(tenantId))return DUI.toast('没有此租户的AI服务管理权限。');return DApp.openPage('PAGE-2112',{nativeOptions:{serviceTenantId:tenantId}});},
     currentCatalog(options){if(!readyKinds.has('cloud'))throw Error('分类目录未就绪');return frames.cloud.contentWindow.DAdapter.readCatalog(options);},
     currentAIConfiguration(){if(!readyKinds.has('ai'))throw Error('AI配置未就绪');return frames.ai.contentWindow.DUnifiedAI.configuration();},
     async readAIConfiguration(){const c=DSession.context(),identity=c?.account.id+'|'+c?.scope.id;if(!DSession.allowed('PAGE-2111'))throw Error('没有AI标签配置权限');if(!frames.ai)create('ai','');if(!readyKinds.has('ai'))await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('AI标签配置尚未就绪')),8000);aiWaiters.push(()=>{clearTimeout(timer);resolve();});});if(identity!==DSession.context()?.account.id+'|'+DSession.context()?.scope.id)throw Error('范围已变化');return frames.ai.contentWindow.DUnifiedAI.configuration();},
@@ -409,6 +581,8 @@
     finishRevokedCall(){const frame=frames.cloud;if(!frame||!readyKinds.has('cloud'))return false;const ok=frame.contentWindow.DAdapter.restrictToCurrentCall?.();if(ok){hide();currentKind='cloud';frame.hidden=false;document.getElementById('app').hidden=true;}return !!ok;},
     closeSeatLink(){const frame=frames.cloud;if(frame){frame.classList.remove('d-seat-link');frame.hidden=currentKind!=='cloud';}seatLink=null;DApp.recheckNavigation();},
     beforeLeave(next,proceed){if(seatLink){DUI.toast('请先完成或关闭坐席关联窗口。');return;}const frame=frames[currentKind];if(!frame||!readyKinds.has(currentKind)){proceed();return;}
+      const taskImportGuard=frame.contentWindow.DTaskBusinessImport?.guard?.();
+      if(taskImportGuard?.isDirty()){DApp.setDraftGuard(taskImportGuard);proceed();return;}
       const adapter=frame.contentWindow.DAdapter;
       adapter.beforeLeave(next,()=>{try{DApp.saveFilters(adapter.getFilters());proceed();}catch(error){DUI.toast(error.message);}});
     },dispose(){setTemplateEditorFullscreen(false);Object.values(frames).forEach(frame=>frame.remove());Object.keys(frames).forEach(k=>delete frames[k]);readyKinds.clear();currentKind='';pending={};seatLink=null;inlineSlot=null;}

@@ -1,4 +1,4 @@
-# TASK-043 原客户任务、联系档案和批次
+# TASK-043 原客户任务与统一业务批次阅读
 
 **DRAFT — 供讨论与补充，尚未完成本阶段交接**
 
@@ -8,13 +8,13 @@
 
 ## 目标
 
-原professionalCustomer任务/批次、导入、分配与联系档案按稳定原身份保持。；原客户任务待继续跟进/已完成仍独立；同号联系归集不合并新业务身份。
+原人工/接口客户任务、批次及联系档案保稳定原身份、字段和合法原操作，不自动迁移、认领或覆盖。；新AI/PRED任务入口建立统一DIRECT并显示准确入口标识；客户维护导入批次只查看，分类行添加名单走模板。
 
 ## 产品依据
 
 - FUNC-2002 进入有权工作位置与保留专业能力：当前五顶栏只负责功能归位。按稳定页面/动作身份保留AI与Cloud现行专业操作、状态、资源、报表和业务接口，分别校验模块、成员、对象、读写/导出权。；来源 documentation/input/functions.json#FUNC-2002
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 
@@ -40,11 +40,11 @@
 
 先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
 
-全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-TASK-UNIFIED-IMPORT](../global-logic.md#GR-TASK-UNIFIED-IMPORT)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
 
 局部逻辑：[LOCAL-PLAT-CUSTOMER-DIRECTORY](../local-logic/LOCAL-PLAT-CUSTOMER-DIRECTORY.md)、[LOCAL-PLAT-CUSTOMER-IMPORT](../local-logic/LOCAL-PLAT-CUSTOMER-IMPORT.md)、[LOCAL-PLAT-CUSTOMER-ASSIGN](../local-logic/LOCAL-PLAT-CUSTOMER-ASSIGN.md)、[LOCAL-PLAT-IMPORT-BATCH](../local-logic/LOCAL-PLAT-IMPORT-BATCH.md)
 
-字段：[FIELD-PLAT-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)、[FIELD-PLAT-CALL-ID](../field-specs.md#FIELD-PLAT-CALL-ID)、[FIELD-PLAT-CUSTOMER-ID](../field-specs.md#FIELD-PLAT-CUSTOMER-ID)、[FIELD-PLAT-CUSTOMER-NAME](../field-specs.md#FIELD-PLAT-CUSTOMER-NAME)、[FIELD-PLAT-FOLLOWER](../field-specs.md#FIELD-PLAT-FOLLOWER)、[FIELD-PLAT-IMPORT-BATCH](../field-specs.md#FIELD-PLAT-IMPORT-BATCH)、[FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)、[FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)、[FIELD-PLAT-PAGING](../field-specs.md#FIELD-PLAT-PAGING)、[FIELD-PLAT-PHONE](../field-specs.md#FIELD-PLAT-PHONE)、[FIELD-PLAT-PRO-FIELD-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)、[FIELD-PLAT-PRO-FOLLOW-STATE](../field-specs.md#FIELD-PLAT-PRO-FOLLOW-STATE)、[FIELD-PLAT-QUERY](../field-specs.md#FIELD-PLAT-QUERY)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)、[FIELD-PLAT-RESOURCE-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)、[FIELD-PLAT-REVISION](../field-specs.md#FIELD-PLAT-REVISION)
+字段：[FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-PLAT-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)、[FIELD-PLAT-CALL-ID](../field-specs.md#FIELD-PLAT-CALL-ID)、[FIELD-PLAT-CUSTOMER-ID](../field-specs.md#FIELD-PLAT-CUSTOMER-ID)、[FIELD-PLAT-CUSTOMER-NAME](../field-specs.md#FIELD-PLAT-CUSTOMER-NAME)、[FIELD-PLAT-FOLLOWER](../field-specs.md#FIELD-PLAT-FOLLOWER)、[FIELD-PLAT-IMPORT-BATCH](../field-specs.md#FIELD-PLAT-IMPORT-BATCH)、[FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)、[FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)、[FIELD-PLAT-PAGING](../field-specs.md#FIELD-PLAT-PAGING)、[FIELD-PLAT-PHONE](../field-specs.md#FIELD-PLAT-PHONE)、[FIELD-PLAT-PRO-FIELD-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)、[FIELD-PLAT-PRO-FOLLOW-STATE](../field-specs.md#FIELD-PLAT-PRO-FOLLOW-STATE)、[FIELD-PLAT-QUERY](../field-specs.md#FIELD-PLAT-QUERY)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)、[FIELD-PLAT-RESOURCE-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)、[FIELD-PLAT-REVISION](../field-specs.md#FIELD-PLAT-REVISION)、[FIELD-PLAT-TASK-BUSINESS-RECORD-ID](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-RECORD-ID)
 
 ## UI 依据
 
@@ -55,9 +55,9 @@
 
 ## 实现要求
 
-- 原professionalCustomer任务/批次、导入、分配与联系档案按稳定原身份保持。
-- 原客户任务待继续跟进/已完成仍独立；同号联系归集不合并新业务身份。
-- 原专业坐席/任务分配不能替代新业务责任跟进人安排；不删除原能力。
+- 原人工/接口客户任务、批次及联系档案保稳定原身份、字段和合法原操作，不自动迁移、认领或覆盖。
+- 新AI/PRED任务入口建立统一DIRECT并显示准确入口标识；客户维护导入批次只查看，分类行添加名单走模板。
+- 原专业历史和新统一业务不能各自再写一份；品牌共享不授私有名单读取权。
 - 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
 - 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
 - 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
@@ -91,9 +91,9 @@
 
 ### CHECK-PLAT-CUSTOMER-IMPORT / manual
 
-步骤：在准确有权范围触发“原客户任务导入与字段映射校验”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+步骤：按当前三入口统一导入规则：业务分类行发起人工/接口模板导入，或读取原专业历史来源； 新写按LOCAL-FLOW-IMPORT-PREVIEW/COMMIT的准确CATEGORY/TEMPLATE办理，不构造第三个中央DIRECT导入。； ；保原人工/接口及其他专业名单的准确实体、来源锁定与批次；本轮AI/预外呼任务新统一导入按对应任务入口写统一账本并投影，不把旧专业名单自动迁入或按同手机号回链。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：合法专业名单入库并可分配；原专业导入不是新四节点模板自动启动；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：原人工/接口专业历史保原事实；本轮AI/PRED任务新导入采用共同分类IMPORT并形成DIRECT业务，不自动模板启动或迁移旧名单；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2067, AC-2072, AC-2073
 
@@ -115,8 +115,8 @@
 
 ## 完成条件
 
-- 原professionalCustomer任务/批次、导入、分配与联系档案按稳定原身份保持。
-- 原客户任务待继续跟进/已完成仍独立；同号联系归集不合并新业务身份。
+- 原人工/接口客户任务、批次及联系档案保稳定原身份、字段和合法原操作，不自动迁移、认领或覆盖。
+- 新AI/PRED任务入口建立统一DIRECT并显示准确入口标识；客户维护导入批次只查看，分类行添加名单走模板。
 - 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
 - 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
 - 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。

@@ -18,7 +18,7 @@
 - FUNC-2022 人工明确拒联成功保存后自动入库：实际处理人成功保存明确拒联话后后，同请求幂等加入本租户长期公共禁呼；失败/未知不得虚报整体完成。；来源 documentation/input/functions.json#FUNC-2022
 - FUNC-2024 统一检查所有新外呼、重呼和补提交：公共明确拒联阻止本租户AI/人工/PRED/IVR；每次新发起实时检查，失败/未知不放行；正常呼入继续接听，已在途电话不静默取消。；来源 documentation/input/functions.json#FUNC-2024
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 

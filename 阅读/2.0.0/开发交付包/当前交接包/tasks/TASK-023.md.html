@@ -14,11 +14,11 @@ IMPORT/填写/通话/标签按准确来源/范围和类型判断，人工/预外
 
 ## 产品依据
 
-- FUNC-2016 创建品牌共用业务分类与字段基础：在有权品牌维护独立IMPORT/FOLLOWUP字段库及分类双Tab，明确业务域、字段与入口必填；分类显式allowDirectFollowup控制直接跟进可选，缺省false；保存基础不绑定模板或起呼。；来源 documentation/input/functions.json#FUNC-2016
+- FUNC-2016 创建品牌共用业务分类与字段基础：在有权品牌维护独立IMPORT/FOLLOWUP字段库及分类双Tab，明确业务域、字段与入口必填；当前无直接跟进开关；任务DIRECT/分类TEMPLATE由准确入口派生；保存基础不绑定模板或起呼。；来源 documentation/input/functions.json#FUNC-2016
 - FUNC-2030 按路径确认同品牌线索转交：按当前线索域配置确认CURRENT本租户继续或OTHER同品牌合法转交，分别保归属/阶段或新增截止接续，避免权限混用。；来源 documentation/input/functions.json#FUNC-2030
-- FUNC-2038 判断并确认本租户后继节点：按准确条件确认后继，END执行无模板跟进/业务结束两动作；原run先结束，原业务与事实保留。；来源 documentation/input/functions.json#FUNC-2038
+- FUNC-2038 判断并确认本租户后继节点：按准确条件确认后继及END两动作；受控废弃保缺失/未完成，原执行真实收敛后异常结清与新run，不伪造正常archive。END历史结构与准确首MANUAL当期例外分开；旧run/内容/通话/来源保留。；来源 documentation/input/functions.json#FUNC-2038
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 
@@ -89,7 +89,7 @@ IMPORT/填写/通话/标签按准确来源/范围和类型判断，人工/预外
 
 步骤：按当前续接版本执行：判断当前后续路径。前提：handlingMode=TEMPLATE且准确当前run/node可核；对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致。操作：按规则精确来源和声明scope读取已确认事实，IMPORT无需呼叫；计算类型允许单值/多值条件、组和优先路径，未知阻后序/default；记录一致事实与唯一selected边，生成确认token。分别构造：缺失、草稿、错租户/错run/错scene或冲突；已知空与非空；当前新方案缺唯一末位ELSE，或所有条件明确不匹配；首个合法条件或default命中；当前业务为DIRECT；当前新输入中合法启用选填IMPORT缺列。
 
-预期：本次判断不自动执行或改归属；SYSTEM不刷新也不抹除同scope先前有效人工确认；PENDING并解释来源，不反向当NOT_IN成功；空只用为空类命中，EQ/NE/集合不借空放行；缺ELSE的新方案在保存/新输入准入时拒绝；合法方案明确不匹配才用ELSE；未知不落兜底；只选一个，仍需人员确认动作；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，后续流程走独立“启用流程”预检。；在输入捕获时规范化null，按为空或ELSE判断；必填/目录异常和通话/填写未知不补空；不读改旧快照。
+预期：本次判断不自动执行或改归属；SYSTEM不刷新也不抹除同scope先前有效人工确认；PENDING并解释来源，不反向当NOT_IN成功；空只用为空类命中，EQ/NE/集合不借空放行；缺ELSE的新方案在保存/新输入准入时拒绝；合法方案明确不匹配才用ELSE；未知不落兜底；只选一个，仍需人员确认动作；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。；在输入捕获时规范化null，按为空或ELSE判断；必填/目录异常和通话/填写未知不补空；不读改旧快照。
 
 覆盖：AC-2105, AC-2123, AC-2124, AC-2125, AC-2144
 

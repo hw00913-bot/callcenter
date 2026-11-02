@@ -10,15 +10,15 @@
 
 ## 目标
 
-按请求/attempt/call/实际办理人和周期或run登记真实拨打、接通、结束、重试收敛；重复乱序不覆写事实。；AI标签只取实际场景快照映射；坐席接听不替代同call客户接通，矛盾明确终态保原事实待核。
+按准确record/run/stage/followup/attempt记录真实拨打/接通/终态，停止请求不等真实停止。；ACTIVE/ABANDONING原已受理且未可靠关闭的事实照常登记去重计数；已闭段未知新attempt仍按EXECUTION_CLOSED/冲突，不抹真实事实或授权新派发。
 
 ## 产品依据
 
 - FUNC-2002 进入有权工作位置与保留专业能力：当前五顶栏只负责功能归位。按稳定页面/动作身份保留AI与Cloud现行专业操作、状态、资源、报表和业务接口，分别校验模块、成员、对象、读写/导出权。；来源 documentation/input/functions.json#FUNC-2002
-- FUNC-2019 为具体AI执行场景维护业务分类引用：在AI标签管理→场景配置按具体场景ID关联当前品牌有权分类，保原AI细分和供应商参数；业务引用不等于模板实际路由绑定。；来源 documentation/input/functions.json#FUNC-2019
-- FUNC-2032 保存本轮跟进、准确通话事实并唯一归档：DIRECT与TEMPLATE均按准确实际办理/接听人保存必要内容、真实通话及当时定义和值快照，重试可靠收敛后唯一归档；当前更正独立留痕，不借旧事实完成新节点。 直接周期完成须明确业务结论、全部执行与必要归档收敛，并有真实完成跟进或NO_CALL+原因；不能自动从归档完成。；来源 documentation/input/functions.json#FUNC-2032
+- FUNC-2019 为具体AI执行场景维护业务分类引用：有权AI场景按准确scene/platform通过弹窗选择实际分类IMPORT引用及配置专属供应商列/参数；分类业务定义权威、供应商列和值独立，主场景保存才持久，固定专业项/权限/历史保留，不授任务导入或分类维护权。；来源 documentation/input/functions.json#FUNC-2019
+- FUNC-2032 保存本轮跟进、准确通话事实并唯一归档：按准确实际办理/接听人保存本次内容、真实通话及定义/值快照，正常条件满足唯一归档。受控缺失废弃保未完成且与正常archive分开；可靠旧弃结清不永久阻后继DIRECT，但不贡献完成数或绕真实unknown/冲突。原受理迟到事实归原ID入账，内容更正/当前值按原规则。；来源 documentation/input/functions.json#FUNC-2032
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 
@@ -43,7 +43,7 @@
 
 先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
 
-全局规则：[GR-CONFIG](../global-logic.md#GR-CONFIG)、[GR-CUSTOMER-SIP](../global-logic.md#GR-CUSTOMER-SIP)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-PRIVACY](../global-logic.md#GR-PRIVACY)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-SERIAL](../global-logic.md#GR-SERIAL)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+全局规则：[GR-CONFIG](../global-logic.md#GR-CONFIG)、[GR-CUSTOMER-SIP](../global-logic.md#GR-CUSTOMER-SIP)、[GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)、[GR-HANDLING-MODE](../global-logic.md#GR-HANDLING-MODE)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-LIFECYCLE-SETTLEMENT](../global-logic.md#GR-LIFECYCLE-SETTLEMENT)、[GR-PRIVACY](../global-logic.md#GR-PRIVACY)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-SERIAL](../global-logic.md#GR-SERIAL)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
 
 局部逻辑：[LOCAL-FLOW-CALL-FACTS](../local-logic/LOCAL-FLOW-CALL-FACTS.md)、[LOCAL-PLAT-AI-TAG-RESULT](../local-logic/LOCAL-PLAT-AI-TAG-RESULT.md)
 
@@ -59,8 +59,8 @@
 
 ## 实现要求
 
-- 按请求/attempt/call/实际办理人和周期或run登记真实拨打、接通、结束、重试收敛；重复乱序不覆写事实。
-- AI标签只取实际场景快照映射；坐席接听不替代同call客户接通，矛盾明确终态保原事实待核。
+- 按准确record/run/stage/followup/attempt记录真实拨打/接通/终态，停止请求不等真实停止。
+- ACTIVE/ABANDONING原已受理且未可靠关闭的事实照常登记去重计数；已闭段未知新attempt仍按EXECUTION_CLOSED/冲突，不抹真实事实或授权新派发。
 - 旧DIRECT回执不推进新run或改新值；跨attempt身份、未核human事实不能开放代填。
 - 人工/预外呼路由回执分别用TIANRUN_MANUAL_SIP_CAUSE/TIANRUN_PREDICTIVE_SIP_CAUSE客户侧200/710～724，不从旧1～4接听标记推算；AI域和其他专业显示字段不强改。
 - 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
@@ -87,15 +87,26 @@
 - **AC-2144**：流转判断分别使用TIANRUN_MANUAL_SIP_CAUSE和TIANRUN_PREDICTIVE_SIP_CAUSE客户侧结果：200已接通、710～724当前字典；不再用1～4接听标记推断，不改AI状态域或原专业记录的其他状态展示。新回执与实际方式/原段/场景准确关联，未知PENDING。
   依据：docs/functional-spec.json#AC-2144
 
+- **AC-2166**：ABANDONING不准新派发，但原已受理且未可靠关闭的准确seg/attempt迟到真实拨打/接通/终态归原ID去重计数，不误标0或挂当前，不提前释放；已闭段未知新attempt仍拒/保冲突证据，停止请求不是真停止。
+  依据：docs/functional-spec.json#AC-2166
+
 ## 测试要求（尚未执行）
 
 ### CHECK-FLOW-CALL-FACTS / manual
 
-步骤：按当前续接版本执行：外部执行事实或本地明确模拟事件到达。前提：原执行段/尝试身份可唯一关联；事实来源授权与原tenant/method一致。操作：按准确record/run/stage/nodeRun/followup/attempt归原事实，不凭号码或当前指针；区分受理/排队/实际dial/客户接通/实际人工身份/重试收敛；标签事实只匹配实际sceneSnapshot七元组及合法命中子集，NONE准确空也是已知；DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。。分别构造：同事件同内容重复；相反终态/身份或其他scene回调；迟到原段准确信息；预外呼仅登记坐席接听、客户接通未知或明确未接通，或同call出现相反明确接通回执。
+步骤：按当前Step45生命周期规则：外部执行事实或本地明确模拟事件到达；按准确record/run/stage/nodeRun/followup/attempt归原事实，不凭号码或当前指针；区分受理/排队/实际dial/接通/实际人工/重试收敛；新派发准入与入站事实分开；ACTIVE/ABANDONING原已受理且未可靠关闭的准确seg/attempt迟到拨打/接通/终态按原ID归账去重计数，不因非ACTIVE误标dialed=false/0或假冲突；不授新派发、不挂新run/当前身份、不提前释放。已闭段未知新attempt仍原EXECUTION_CLOSED/冲突规则。；标签事实只匹配实际sceneSnapshot七元组及合法命中子集，NONE准确空也是已知；DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
 
-预期：普通AI可记录本轮实际新标签版本，不能用run旧catalog误拒准确可选标签事实；读原结果，不重复拨打、接通、跟进计数；保原事实，拒或冲突待核，不复活已结束通话；只补原段，不改新run/currentowner/已封内容；未具同次真实客户接通和准确接听账号证据时不赋人工填写；未知不完成归档，明确未接通可系统事实归档；相反明确回执保原事实并标待核，阻止继续办理。。
+预期：普通AI可记录本轮实际新标签版本，不能用run旧catalog误拒准确可选标签事实；新派发准入与入站事实分开；ACTIVE/ABANDONING原已受理且未可靠关闭的准确seg/attempt迟到拨打/接通/终态按原ID归账去重计数，不因非ACTIVE误标dialed=false/0或假冲突；不授新派发、不挂新run/当前身份、不提前释放。已闭段未知新attempt仍原EXECUTION_CLOSED/冲突规则。；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
 
 覆盖：AC-2092, AC-2122, AC-2123, AC-2144
+
+### CHECK-FLOW-STOPPING-RECEIPTS / manual
+
+步骤：原受理排队→请求停止/ABANDONING→原attempt迟到拨打/接通/结束，含乱序/重复及新run隔离；核已闭段未知新attempt、停止仅受理而未实际结束。
+
+预期：真实原事实按原seg/attempt入账计数去重，禁止新派发/误挂当前；不提前释放，不抹拨打/伪冲突；已闭未知新attempt依原拒绝/冲突规则。
+
+覆盖：AC-2166
 
 ### CHECK-PLAT-AI-TAG-RESULT / manual
 
@@ -107,8 +118,8 @@
 
 ## 完成条件
 
-- 按请求/attempt/call/实际办理人和周期或run登记真实拨打、接通、结束、重试收敛；重复乱序不覆写事实。
-- AI标签只取实际场景快照映射；坐席接听不替代同call客户接通，矛盾明确终态保原事实待核。
+- 按准确record/run/stage/followup/attempt记录真实拨打/接通/终态，停止请求不等真实停止。
+- ACTIVE/ABANDONING原已受理且未可靠关闭的事实照常登记去重计数；已闭段未知新attempt仍按EXECUTION_CLOSED/冲突，不抹真实事实或授权新派发。
 - 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
 - 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
 - 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。

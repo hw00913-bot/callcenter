@@ -423,7 +423,12 @@
         "FIELD-PLAT-TAG-SUPPLIER-NAME",
         "FIELD-PLAT-TAG-SUPPLIER-STATE",
         "FIELD-PLAT-TAG-SCENE-CODE",
-        "FIELD-PLAT-TAG-SUPPLIER-CODE"
+        "FIELD-PLAT-TAG-SUPPLIER-CODE",
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-FLOW-TASK-IMPORT-PARAMETERS",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
       ],
       "test_refs": [
         "CHECK-PLAT-NAVIGATE",
@@ -519,7 +524,9 @@
         "CHECK-PLAT-AI-TAXONOMY"
       ],
       "source_refs": [
-        "documentation/input/functions.json#FUNC-2002"
+        "documentation/input/functions.json#FUNC-2002",
+        "docs/exception-definitions.json#CHG-044-TASK-IMPORT",
+        "docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG"
       ],
       "production_evidence": "current_product_rule_defined; real_auth/vendor/physical_mapping_not_verified_by_Mock",
       "boundary_note": "专业保留操作逐stable key见retained_capability_specs；其原能力由FUNC-2002归位与统一权限承接，不新增差异FUNC。",
@@ -566,7 +573,12 @@
         "AC-2138",
         "AC-2147",
         "AC-2148",
-        "AC-2149"
+        "AC-2149",
+        "AC-2158",
+        "AC-2159",
+        "AC-2160",
+        "AC-2161",
+        "AC-2162"
       ]
     },
     {
@@ -1220,7 +1232,7 @@
       "id": "FUNC-2019",
       "operation_key": "associate-scene-classification",
       "name": "为具体AI执行场景维护业务分类引用",
-      "description": "在AI标签管理→场景配置按具体场景ID关联当前品牌有权分类，保原AI细分和供应商参数；业务引用不等于模板实际路由绑定。",
+      "description": "有权AI场景按准确scene/platform通过弹窗选择实际分类IMPORT引用及配置专属供应商列/参数；分类业务定义权威、供应商列和值独立，主场景保存才持久，固定专业项/权限/历史保留，不授任务导入或分类维护权。",
       "source_acceptance_ids": [
         "AC-2045",
         "AC-2046",
@@ -1231,7 +1243,8 @@
       ],
       "source_page_ids": [
         "PAGE-2006",
-        "PAGE-2111"
+        "PAGE-2111",
+        "PAGE-2110"
       ],
       "source_action_ids": [
         "ACTION-2022",
@@ -1262,7 +1275,10 @@
         "FIELD-PLAT-AI-MAPPING",
         "FIELD-PLAT-AI-TAG-CONTEXT",
         "FIELD-PLAT-AI-TAG-RESULT",
-        "FIELD-PLAT-CALL-ID"
+        "FIELD-PLAT-CALL-ID",
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-CATEGORY-IMPORT-REFS"
       ],
       "test_refs": [
         "CHECK-PLAT-AI-CATEGORY-BIND",
@@ -1272,7 +1288,9 @@
         "CHECK-PLAT-AI-TAG-RESULT"
       ],
       "source_refs": [
-        "documentation/input/functions.json#FUNC-2019"
+        "documentation/input/functions.json#FUNC-2019",
+        "docs/exception-definitions.json#CHG-044-TASK-IMPORT",
+        "docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG"
       ],
       "production_evidence": "current_product_rule_defined; real_auth/vendor/physical_mapping_not_verified_by_Mock",
       "boundary_note": "本条仅当前产品语义；取消旧v2数据兼容，不取消今后运行/跟进/通话的快照与审计。",
@@ -1282,7 +1300,8 @@
         "AC-2047",
         "AC-2063",
         "AC-2064",
-        "AC-2149"
+        "AC-2149",
+        "AC-2159"
       ]
     },
     {
@@ -1865,7 +1884,7 @@
     },
     {
       "id": "AC-2003",
-      "statement": "首次登录按当前真实有权范围选择本人作业、监管或原Cloud合法入口；原综合概览默认且同时有导入分配与Cloud报表权者进入导入与分配。后续恢复同账号同租户仍合法位置；只有公共管理权时进入首个有权管理页，授权读取失败不得冒充无权。",
+      "statement": "首次登录按当前真实有权范围选择本人作业、监管或原Cloud合法入口；原综合概览默认且同时有导入分配与Cloud报表权者进入导入批次与业务名单。后续恢复同账号同租户仍合法位置；只有公共管理权时进入首个有权管理页，授权读取失败不得冒充无权。",
       "story_id": "US-2001",
       "source_refs": [
         "docs/functional-spec.json#AC-2003"
@@ -2720,7 +2739,7 @@
         },
         {
           "id": "LOCAL-PLAT-LOGIN-S3",
-          "action": "首次按本人作业/监管/原Cloud合法意图落点；原综合概览默认且同时有导入分配与Cloud报表权者到导入与分配；没有业务但有公共管理权到首个合法管理页",
+          "action": "首次按本人作业/监管/原Cloud合法意图落点；原综合概览默认且同时有导入分配与Cloud报表权者到导入批次与业务名单；没有业务但有公共管理权到首个合法管理页",
           "reads": [
             "FIELD-PLAT-LOGIN-NAME",
             "FIELD-PLAT-PASSWORD"
@@ -2868,7 +2887,7 @@
         },
         {
           "id": "LOCAL-PLAT-NAVIGATE-S3",
-          "action": "恢复同账号租户专业域筛选并刷新；失权回合法入口，无入口显示受限",
+          "action": "恢复同账号租户专业域筛选并刷新；失权回合法入口，无入口显示受限 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。",
           "reads": [
             "FIELD-PLAT-SESSION",
             "FIELD-PLAT-CURRENT-TENANT",
@@ -5979,7 +5998,10 @@
       ],
       "inputs": [
         "FIELD-PLAT-QUERY",
-        "FIELD-PLAT-AI-TENANT"
+        "FIELD-PLAT-AI-TENANT",
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-CATEGORY-IMPORT-REFS"
       ],
       "outputs": [
         "FIELD-PLAT-AI-SCENE-ID",
@@ -6008,10 +6030,13 @@
         },
         {
           "id": "LOCAL-PLAT-AI-SCENE-QUERY-S2",
-          "action": "准确显示启停/分类/参数可用性，未知不能用首项代替",
+          "action": "准确显示启停/分类/参数可用性，未知不能用首项代替 厚朴场景查询并保存已有准确供应商任务后，只读投影到同一任务目录和导入/执行入口，按tenant/brand/account/taskId/唯一scene稳定关联，不创建供应商任务、不按名称猜；实时读取准确任务状态，未知供应商计数显示待核。已知权威taskStatusCode使用准确可执行枚举，原status='unknown'仅属兼容状态文本，不覆盖权威taskStatusCode明确枚举；权威code为null或未知仍拒绝。 主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。 取消/放弃后关闭动画期间立即重开场景时，仅清除已获授权标记closing的旧层再初始化，活动未保存层拒绝重复打开；延时关闭只删除捕获的旧层，有新层不解锁其背景滚动，旧异步字段返回按sequence/owner不能覆盖新草稿。取消不保存、不删除原映射或误报新表单脏状态。 数据导入方式仅MANUAL/AUTO（手工/接口），模板可选其有效场景但须分类/供应商/执行租户资格；旧FLOW配置提示重新选择，不静默暗转。",
           "reads": [
             "FIELD-PLAT-QUERY",
-            "FIELD-PLAT-AI-TENANT"
+            "FIELD-PLAT-AI-TENANT",
+            "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+            "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+            "FIELD-FLOW-CATEGORY-IMPORT-REFS"
           ],
           "writes": [
             "FIELD-PLAT-AI-SCENE-ID",
@@ -6026,7 +6051,8 @@
             "GR-SCOPE",
             "GR-AUTH",
             "GR-UNKNOWN",
-            "GR-LIST-ORDER"
+            "GR-LIST-ORDER",
+            "GR-TASK-UNIFIED-IMPORT"
           ]
         }
       ],
@@ -6091,17 +6117,21 @@
         "GR-SCOPE",
         "GR-AUTH",
         "GR-UNKNOWN",
-        "GR-LIST-ORDER"
+        "GR-LIST-ORDER",
+        "GR-TASK-UNIFIED-IMPORT"
       ],
       "field_ids": [
-        "FIELD-PLAT-AI-CATEGORY",
+        "FIELD-PLAT-QUERY",
+        "FIELD-PLAT-AI-TENANT",
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-CATEGORY-IMPORT-REFS",
         "FIELD-PLAT-AI-SCENE-ID",
         "FIELD-PLAT-AI-SCENE-NAME",
-        "FIELD-PLAT-AI-SUPPLIER",
-        "FIELD-PLAT-AI-TENANT",
         "FIELD-PLAT-AI-TYPE",
-        "FIELD-PLAT-PAGING",
-        "FIELD-PLAT-QUERY"
+        "FIELD-PLAT-AI-SUPPLIER",
+        "FIELD-PLAT-AI-CATEGORY",
+        "FIELD-PLAT-PAGING"
       ],
       "source_keys": [],
       "test_refs": [
@@ -6110,7 +6140,7 @@
     },
     {
       "id": "LOCAL-PLAT-AI-SCENE-SAVE",
-      "title": "创建或编辑AI业务场景与场景类型",
+      "title": "弹窗配置并保存AI场景的供应商参数与导入列",
       "feature_ids": [
         "FUNC-2002",
         "FUNC-2019"
@@ -6120,7 +6150,7 @@
         "准确租户/供应商专业配置权"
       ],
       "postconditions": [
-        "专业场景/类型准确配置；执行能力以供应商真实资源为准"
+        "本场景/供应商schema=2配置准确保存，分类IMPORT保持权威；专属列定义和值独立，固定专业项/原来源权及历史保留；子弹窗确认不等主场景保存"
       ],
       "inputs": [
         "FIELD-PLAT-AI-SCENE-ID",
@@ -6129,17 +6159,22 @@
         "FIELD-PLAT-AI-SUPPLIER",
         "FIELD-PLAT-AI-PARAMS",
         "FIELD-PLAT-AI-CATEGORY",
-        "FIELD-PLAT-REVISION"
+        "FIELD-PLAT-REVISION",
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-CATEGORY-IMPORT-REFS"
       ],
       "outputs": [
         "FIELD-PLAT-AI-SCENE-ID",
         "FIELD-PLAT-AI-PARAMS",
-        "FIELD-PLAT-AUDIT"
+        "FIELD-PLAT-AUDIT",
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS"
       ],
       "steps": [
         {
           "id": "LOCAL-PLAT-AI-SCENE-SAVE-S1",
-          "action": "新建/修改分开校验原必填与供应商允许参数；启停类型只影响允许的新选",
+          "action": "新建/修改分开校验原必填、准确scene/platform及AI专业配置权；主场景保留原字段表、已配置摘要与唯一新增入口“添加字段”，不单页展开全部业务候选和新增参数编辑面板，不保两个主新增入口或大面板；已配置项的原配置/移除继续",
           "reads": [
             "FIELD-PLAT-AI-SCENE-ID",
             "FIELD-PLAT-AI-SCENE-NAME",
@@ -6160,7 +6195,7 @@
         },
         {
           "id": "LOCAL-PLAT-AI-SCENE-SAVE-S2",
-          "action": "若绑定业务分类执行准确分类引用规则，不修改实际分类路由",
+          "action": "点击“添加字段”后才打开来源选择，二选一“选择导入字段”/“手工添加供应商字段”；导入字段进入原选择与下一步配置，手工弹窗用“添加场景信息”布局：业务信息只读=场景传入信息、字段名称、参数名、是否必填radio（必填/选填）、取消/确定，类型次要行保text/number/date，原80/64约束不改为截图50。弹窗独立草稿，选择来源本身不回填；IMPORT_FIELD/CUSTOM_COLUMN及一字段多参数沿原合同，最终配置确认合法才更新父草稿，取消/关闭无副作用，切平台不混用另一家草稿",
           "reads": [
             "FIELD-PLAT-AI-SCENE-ID",
             "FIELD-PLAT-AI-SCENE-NAME",
@@ -6181,7 +6216,7 @@
         },
         {
           "id": "LOCAL-PLAT-AI-SCENE-SAVE-S3",
-          "action": "当前修订成功确认才刷新，失败保留输入",
+          "action": "主场景明确保存时重核权限/修订/当前平台分类、参数唯一/原固定项与引用有效性，schema=2及importFieldCategoryId/importFieldPlatform/importFieldMappings同次保存；label/type引用源规则，FOLLOWUP/异分类/重复参数拒绝并保草稿。旧schema1和legacy customInputFields只读兼容，显式保存升级才清旧重复定义；不改分类字段/路由、已导入值/历史或触发任务导入 厚朴场景查询并保存已有准确供应商任务后，只读投影到同一任务目录和导入/执行入口，按tenant/brand/account/taskId/唯一scene稳定关联，不创建供应商任务、不按名称猜；实时读取准确任务状态，未知供应商计数显示待核。已知权威taskStatusCode使用准确可执行枚举，原status='unknown'仅属兼容状态文本，不覆盖权威taskStatusCode明确枚举；权威code为null或未知仍拒绝。 主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。 取消/放弃后关闭动画期间立即重开场景时，仅清除已获授权标记closing的旧层再初始化，活动未保存层拒绝重复打开；延时关闭只删除捕获的旧层，有新层不解锁其背景滚动，旧异步字段返回按sequence/owner不能覆盖新草稿。取消不保存、不删除原映射或误报新表单脏状态。 数据导入方式仅MANUAL/AUTO（手工/接口），模板可选其有效场景但须分类/供应商/执行租户资格；旧FLOW配置提示重新选择，不静默暗转。",
           "reads": [
             "FIELD-PLAT-AI-SCENE-ID",
             "FIELD-PLAT-AI-SCENE-NAME",
@@ -6189,19 +6224,25 @@
             "FIELD-PLAT-AI-SUPPLIER",
             "FIELD-PLAT-AI-PARAMS",
             "FIELD-PLAT-AI-CATEGORY",
-            "FIELD-PLAT-REVISION"
+            "FIELD-PLAT-REVISION",
+            "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+            "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+            "FIELD-FLOW-CATEGORY-IMPORT-REFS"
           ],
           "writes": [
             "FIELD-PLAT-AI-SCENE-ID",
             "FIELD-PLAT-AI-PARAMS",
-            "FIELD-PLAT-AUDIT"
+            "FIELD-PLAT-AUDIT",
+            "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+            "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS"
           ],
           "rule_ids": [
             "GR-IDENTITY",
             "GR-SCOPE",
             "GR-AUTH",
             "GR-UNKNOWN",
-            "GR-LIST-ORDER"
+            "GR-LIST-ORDER",
+            "GR-TASK-UNIFIED-IMPORT"
           ]
         }
       ],
@@ -6209,7 +6250,7 @@
         {
           "id": "LOCAL-PLAT-AI-SCENE-SAVE-B1",
           "condition": "前提、字段及对象修订校验通过且结果明确成功",
-          "result": "专业场景/类型准确配置；执行能力以供应商真实资源为准",
+          "result": "本场景/供应商schema=2配置准确保存，分类IMPORT保持权威；专属列定义和值独立，固定专业项/原来源权及历史保留；子弹窗确认不等主场景保存",
           "field_ids": [
             "FIELD-PLAT-AI-SCENE-ID",
             "FIELD-PLAT-AI-SCENE-NAME",
@@ -6259,6 +6300,19 @@
           "test_refs": [
             "CHECK-PLAT-AI-SCENE-SAVE"
           ]
+        },
+        {
+          "id": "LOCAL-PLAT-AI-SCENE-SAVE-B-DIALOG-CANCEL",
+          "condition": "取消或关闭选择/配置弹窗，或取消主场景编辑",
+          "result": "子取消不改父草稿；父取消不改已保存场景，旧schema1/legacy定义不升级或清除；不产生配置保存/导入副作用",
+          "field_ids": [
+            "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+            "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+            "FIELD-PLAT-AI-SUPPLIER"
+          ],
+          "test_refs": [
+            "CHECK-PLAT-AI-IMPORT-FIELD-MAPPING"
+          ]
         }
       ],
       "global_rule_ids": [
@@ -6266,22 +6320,32 @@
         "GR-SCOPE",
         "GR-AUTH",
         "GR-UNKNOWN",
-        "GR-LIST-ORDER"
+        "GR-LIST-ORDER",
+        "GR-TASK-UNIFIED-IMPORT"
       ],
       "field_ids": [
-        "FIELD-PLAT-AI-CATEGORY",
-        "FIELD-PLAT-AI-PARAMS",
         "FIELD-PLAT-AI-SCENE-ID",
         "FIELD-PLAT-AI-SCENE-NAME",
-        "FIELD-PLAT-AI-SUPPLIER",
         "FIELD-PLAT-AI-TYPE",
-        "FIELD-PLAT-AUDIT",
-        "FIELD-PLAT-REVISION"
+        "FIELD-PLAT-AI-SUPPLIER",
+        "FIELD-PLAT-AI-PARAMS",
+        "FIELD-PLAT-AI-CATEGORY",
+        "FIELD-PLAT-REVISION",
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-CATEGORY-IMPORT-REFS",
+        "FIELD-PLAT-AUDIT"
       ],
       "source_keys": [],
       "test_refs": [
-        "CHECK-PLAT-AI-SCENE-SAVE"
-      ]
+        "CHECK-PLAT-AI-SCENE-SAVE",
+        "CHECK-PLAT-AI-IMPORT-FIELD-MAPPING"
+      ],
+      "source_refs": [
+        "docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG",
+        "docs/exception-definitions.json#CHG-047-AI-ADD-FIELD-UX"
+      ],
+      "ai_provider_revision": "2.0.0-current-20261101-step46"
     },
     {
       "id": "LOCAL-PLAT-AI-SCENE-DELETE",
@@ -6624,14 +6688,18 @@
       "inputs": [
         "FIELD-PLAT-QUERY",
         "FIELD-PLAT-AI-TENANT",
-        "FIELD-PLAT-TASK-ID"
+        "FIELD-PLAT-TASK-ID",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+        "FIELD-FLOW-IMPORT-VALUES"
       ],
       "outputs": [
         "FIELD-PLAT-TASK-ID",
         "FIELD-PLAT-TASK-NAME",
         "FIELD-PLAT-TASK-STATE",
         "FIELD-PLAT-TASK-RESOURCES",
-        "FIELD-PLAT-PAGING"
+        "FIELD-PLAT-PAGING",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
       ],
       "steps": [
         {
@@ -6670,25 +6738,30 @@
         },
         {
           "id": "LOCAL-PLAT-AI-TASK-QUERY-S3",
-          "action": "原启动/暂停/终止/删除仅有界面但未实现控件保持明确不可用，不显示假成功",
+          "action": "原启动/暂停/终止/删除仅有界面但未实现控件保持明确不可用，不显示假成功；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。； ； ； ； ； ； ； ； ； ； 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。",
           "reads": [
             "FIELD-PLAT-QUERY",
             "FIELD-PLAT-AI-TENANT",
-            "FIELD-PLAT-TASK-ID"
+            "FIELD-PLAT-TASK-ID",
+            "FIELD-FLOW-TASK-IMPORT-SOURCE",
+            "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+            "FIELD-FLOW-IMPORT-VALUES"
           ],
           "writes": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-TASK-NAME",
             "FIELD-PLAT-TASK-STATE",
             "FIELD-PLAT-TASK-RESOURCES",
-            "FIELD-PLAT-PAGING"
+            "FIELD-PLAT-PAGING",
+            "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
           ],
           "rule_ids": [
             "GR-IDENTITY",
             "GR-SCOPE",
             "GR-AUTH",
             "GR-UNKNOWN",
-            "GR-LIST-ORDER"
+            "GR-LIST-ORDER",
+            "GR-TASK-UNIFIED-IMPORT"
           ]
         }
       ],
@@ -6750,16 +6823,20 @@
         "GR-SCOPE",
         "GR-AUTH",
         "GR-UNKNOWN",
-        "GR-LIST-ORDER"
+        "GR-LIST-ORDER",
+        "GR-TASK-UNIFIED-IMPORT"
       ],
       "field_ids": [
-        "FIELD-PLAT-AI-TENANT",
-        "FIELD-PLAT-PAGING",
         "FIELD-PLAT-QUERY",
+        "FIELD-PLAT-AI-TENANT",
         "FIELD-PLAT-TASK-ID",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+        "FIELD-FLOW-IMPORT-VALUES",
         "FIELD-PLAT-TASK-NAME",
+        "FIELD-PLAT-TASK-STATE",
         "FIELD-PLAT-TASK-RESOURCES",
-        "FIELD-PLAT-TASK-STATE"
+        "FIELD-PLAT-PAGING"
       ],
       "source_keys": [],
       "test_refs": [
@@ -6768,31 +6845,50 @@
     },
     {
       "id": "LOCAL-PLAT-AI-LIST-IMPORT",
-      "title": "向准确AI任务导入联系人",
+      "title": "AI任务内按分类字段导入统一DIRECT业务",
       "feature_ids": [
-        "FUNC-2002"
+        "FUNC-2002",
+        "FUNC-2036",
+        "FUNC-2037"
       ],
       "trigger": "AI任务详情导入名单",
       "preconditions": [
-        "有该AI任务导入权；场景及任务允许导入"
+        "当前有效租户ADMIN+customer.import及实际AI模块/准确任务/来源/渠道资格；AI-only管理员无需Cloud菜单或Cloud授权",
+        "任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。"
       ],
       "postconditions": [
-        "准确任务联系人及导入批次形成，冲突/失败行不虚报成功"
+        "本次准确场景投影的规范业务值、独立供应商值及来源/定义快照同请求保存为DIRECT，不创建模板run/node；原专业历史不迁移。"
       ],
       "inputs": [
         "FIELD-PLAT-TASK-ID",
         "FIELD-PLAT-IMPORT-ROWS",
         "FIELD-PLAT-AI-SCENE-ID",
-        "FIELD-PLAT-REQUEST"
+        "FIELD-PLAT-REQUEST",
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-FLOW-TASK-IMPORT-PARAMETERS",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+        "FIELD-FLOW-CATEGORY-ID",
+        "FIELD-FLOW-IMPORT-VALUES",
+        "FIELD-FLOW-IMPORT-ORIGINAL",
+        "FIELD-FLOW-EXECUTION-PRIORITY",
+        "FIELD-FLOW-HANDLING-MODE",
+        "FIELD-FLOW-DIRECT-CYCLE-ID",
+        "FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP"
       ],
       "outputs": [
         "FIELD-PLAT-IMPORT-BATCH",
-        "FIELD-PLAT-OP-STATE"
+        "FIELD-PLAT-OP-STATE",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-FLOW-TASK-IMPORT-PARAMETERS",
+        "FIELD-FLOW-RECORD-ID",
+        "FIELD-FLOW-DIRECT-CYCLE-ID"
       ],
       "steps": [
         {
           "id": "LOCAL-PLAT-AI-LIST-IMPORT-S1",
-          "action": "只读查看任务概览不物化默认意向配置；按当前场景读取字段/参数并校验文件映射、号码与重复；只有打开配置编辑才建立可取消草稿",
+          "action": "任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。",
           "reads": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-IMPORT-ROWS",
@@ -6828,23 +6924,40 @@
         },
         {
           "id": "LOCAL-PLAT-AI-LIST-IMPORT-S3",
-          "action": "异步完成后重核账号、租户、任务、AI配置修订、文件及同一导入窗口；失效不得提交，失败保文件并允许明确重试；成功保存准确任务/批次、原始联系号码及实际操作人；列表仍脱敏，原始号码用于共享占用，不宣称供应商已拨打",
+          "action": "未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。 统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。 导入与明确执行使用相同底层配置语义指纹；已知成功准入包装字段和对象键序不构成业务配置变化。旧schema2 TASK/DIRECT仅在完整准确身份及已知wrapper/basis证明等价时只读兼容；未知附加项或真实映射/来源/模板/状态变化继续拒绝，不回写旧快照，TEMPLATE标签依赖保完整指纹。 异步文件/目录/检查返回按序号和准确账号/tenant/task/窗口复核，上下文变化立即失效，旧返回不覆盖新输入。共享读取/预检严格使用准确context.importLimits：AI大众100行、厚朴150000行、其他2000行及16MB；PRED2000行/1MB，超限分批不截断。保存原始联系号码及实际操作人，规范明文用于联系协调，不保存一份CSV列原文副本。AI-only沿精确账号/tenant/task的窄共享上下文，schema只读，不持久授Cloudcap/成员/菜单，不借导入授配置/起呼权；成功、失败或异常均恢复原访问。保存仅业务事实，不说供应商已受理/拨打。 首次success/unknown响应显式requestId不符同样保本次原ID待核，不解锁或新请求重试。",
           "reads": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-IMPORT-ROWS",
             "FIELD-PLAT-AI-SCENE-ID",
-            "FIELD-PLAT-REQUEST"
+            "FIELD-PLAT-REQUEST",
+            "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+            "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+            "FIELD-FLOW-TASK-IMPORT-SOURCE",
+            "FIELD-FLOW-TASK-IMPORT-PARAMETERS",
+            "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+            "FIELD-FLOW-CATEGORY-ID",
+            "FIELD-FLOW-IMPORT-VALUES",
+            "FIELD-FLOW-IMPORT-ORIGINAL",
+            "FIELD-FLOW-EXECUTION-PRIORITY",
+            "FIELD-FLOW-HANDLING-MODE",
+            "FIELD-FLOW-DIRECT-CYCLE-ID",
+            "FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP"
           ],
           "writes": [
             "FIELD-PLAT-IMPORT-BATCH",
-            "FIELD-PLAT-OP-STATE"
+            "FIELD-PLAT-OP-STATE",
+            "FIELD-FLOW-TASK-IMPORT-SOURCE",
+            "FIELD-FLOW-TASK-IMPORT-PARAMETERS",
+            "FIELD-FLOW-RECORD-ID",
+            "FIELD-FLOW-DIRECT-CYCLE-ID"
           ],
           "rule_ids": [
             "GR-IDENTITY",
             "GR-SCOPE",
             "GR-AUTH",
             "GR-UNKNOWN",
-            "GR-LIST-ORDER"
+            "GR-LIST-ORDER",
+            "GR-TASK-UNIFIED-IMPORT"
           ]
         }
       ],
@@ -6852,7 +6965,7 @@
         {
           "id": "LOCAL-PLAT-AI-LIST-IMPORT-B1",
           "condition": "前提、字段及对象修订校验通过且结果明确成功",
-          "result": "准确任务联系人及导入批次形成，冲突/失败行不虚报成功",
+          "result": "当前准确任务+场景的新DIRECT业务/周期及完整IMPORT值/快照/来源/等级形成；专业视图按recordId只读投影，无新原生行或重复供应商提交",
           "field_ids": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-IMPORT-ROWS",
@@ -6903,20 +7016,39 @@
         "GR-SCOPE",
         "GR-AUTH",
         "GR-UNKNOWN",
-        "GR-LIST-ORDER"
+        "GR-LIST-ORDER",
+        "GR-TASK-UNIFIED-IMPORT"
       ],
       "field_ids": [
-        "FIELD-PLAT-AI-SCENE-ID",
-        "FIELD-PLAT-IMPORT-BATCH",
+        "FIELD-PLAT-TASK-ID",
         "FIELD-PLAT-IMPORT-ROWS",
-        "FIELD-PLAT-OP-STATE",
+        "FIELD-PLAT-AI-SCENE-ID",
         "FIELD-PLAT-REQUEST",
-        "FIELD-PLAT-TASK-ID"
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-FLOW-TASK-IMPORT-PARAMETERS",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+        "FIELD-FLOW-CATEGORY-ID",
+        "FIELD-FLOW-IMPORT-VALUES",
+        "FIELD-FLOW-IMPORT-ORIGINAL",
+        "FIELD-FLOW-EXECUTION-PRIORITY",
+        "FIELD-FLOW-HANDLING-MODE",
+        "FIELD-FLOW-DIRECT-CYCLE-ID",
+        "FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP",
+        "FIELD-PLAT-IMPORT-BATCH",
+        "FIELD-PLAT-OP-STATE",
+        "FIELD-FLOW-RECORD-ID"
       ],
       "source_keys": [],
       "test_refs": [
-        "CHECK-PLAT-AI-LIST-IMPORT"
-      ]
+        "CHECK-PLAT-AI-LIST-IMPORT",
+        "CHECK-FLOW-AI-TASK-DIRECT-IMPORT"
+      ],
+      "source_refs": [
+        "docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG"
+      ],
+      "ai_provider_revision": "2.0.0-current-20261101-step46"
     },
     {
       "id": "LOCAL-PLAT-AI-LIST-REMOVE",
@@ -7060,11 +7192,14 @@
       ],
       "inputs": [
         "FIELD-PLAT-TASK-ID",
-        "FIELD-PLAT-QUERY"
+        "FIELD-PLAT-QUERY",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
       ],
       "outputs": [
         "FIELD-PLAT-IMPORT-BATCH",
-        "FIELD-PLAT-PAGING"
+        "FIELD-PLAT-PAGING",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
       ],
       "steps": [
         {
@@ -7085,21 +7220,25 @@
         },
         {
           "id": "LOCAL-PLAT-AI-IMPORT-HISTORY-S2",
-          "action": "展示原文件/条数/提交人/时间/结果，未知与失败区分",
+          "action": "展示原文件/条数/提交人/时间/结果，未知与失败区分；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史；；",
           "reads": [
             "FIELD-PLAT-TASK-ID",
-            "FIELD-PLAT-QUERY"
+            "FIELD-PLAT-QUERY",
+            "FIELD-FLOW-TASK-IMPORT-SOURCE",
+            "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
           ],
           "writes": [
             "FIELD-PLAT-IMPORT-BATCH",
-            "FIELD-PLAT-PAGING"
+            "FIELD-PLAT-PAGING",
+            "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
           ],
           "rule_ids": [
             "GR-IDENTITY",
             "GR-SCOPE",
             "GR-AUTH",
             "GR-UNKNOWN",
-            "GR-LIST-ORDER"
+            "GR-LIST-ORDER",
+            "GR-TASK-UNIFIED-IMPORT"
           ]
         }
       ],
@@ -7152,13 +7291,16 @@
         "GR-SCOPE",
         "GR-AUTH",
         "GR-UNKNOWN",
-        "GR-LIST-ORDER"
+        "GR-LIST-ORDER",
+        "GR-TASK-UNIFIED-IMPORT"
       ],
       "field_ids": [
-        "FIELD-PLAT-IMPORT-BATCH",
-        "FIELD-PLAT-PAGING",
+        "FIELD-PLAT-TASK-ID",
         "FIELD-PLAT-QUERY",
-        "FIELD-PLAT-TASK-ID"
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+        "FIELD-PLAT-IMPORT-BATCH",
+        "FIELD-PLAT-PAGING"
       ],
       "source_keys": [],
       "test_refs": [
@@ -9268,7 +9410,7 @@
       "steps": [
         {
           "id": "LOCAL-PLAT-BAN-AI-S1",
-          "action": "展示准确通话、原始结果和来源，要求人工明确确认而非自动按标签判拒联",
+          "action": "AI通话原列表每行仅保详情，不追加逐行确认拒联。原准确详情保录音/文本及有权原来源人工确认入口，准确通话、租户、供应商、联系号码和原权限再次校验；不按标签/状态自动拒联，不新增待审队列，不扩大解除权。 展示准确通话、原始结果和来源，要求人工明确确认而非自动按标签判拒联",
           "reads": [
             "FIELD-PLAT-CALL-ID",
             "FIELD-PLAT-AI-TAG-RESULT",
@@ -12026,22 +12168,24 @@
     },
     {
       "id": "LOCAL-PLAT-CUSTOMER-IMPORT",
-      "title": "原客户任务导入与字段映射校验",
+      "title": "分类导入发起与原专业历史边界",
       "feature_ids": [
         "FUNC-2002"
       ],
-      "trigger": "原人工/专业客户任务入口选择文件或原接口来源导入",
+      "trigger": "业务分类行发起人工/接口模板导入，或读取原专业历史来源",
       "preconditions": [
         "该原任务类型导入权和当前企业/字段目录可确认"
       ],
       "postconditions": [
-        "合法专业名单入库并可分配；原专业导入不是新四节点模板自动启动"
+        "新写统一进入准确CATEGORY/TEMPLATE或TASK/DIRECT链；原专业历史只读按原身份保留，不重复提交。"
       ],
       "inputs": [
         "FIELD-PLAT-IMPORT-ROWS",
         "FIELD-PLAT-PRO-FIELD-DEF",
         "FIELD-PLAT-RESOURCE-SCOPE",
-        "FIELD-PLAT-REQUEST"
+        "FIELD-PLAT-REQUEST",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
       ],
       "outputs": [
         "FIELD-PLAT-CUSTOMER-ID",
@@ -12051,7 +12195,7 @@
       "steps": [
         {
           "id": "LOCAL-PLAT-CUSTOMER-IMPORT-S1",
-          "action": "按当前准确字段ID及业务编码映射校验必填、号码、重复和冲突",
+          "action": "业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 新写按LOCAL-FLOW-IMPORT-PREVIEW/COMMIT的准确CATEGORY/TEMPLATE办理，不构造第三个中央DIRECT导入。",
           "reads": [
             "FIELD-PLAT-IMPORT-ROWS",
             "FIELD-PLAT-PRO-FIELD-DEF",
@@ -12069,7 +12213,7 @@
         },
         {
           "id": "LOCAL-PLAT-CUSTOMER-IMPORT-S2",
-          "action": "正式导入范围逐行通过；已存在业务标识不以手机号覆盖",
+          "action": "先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。",
           "reads": [
             "FIELD-PLAT-IMPORT-ROWS",
             "FIELD-PLAT-PRO-FIELD-DEF",
@@ -12087,12 +12231,14 @@
         },
         {
           "id": "LOCAL-PLAT-CUSTOMER-IMPORT-S3",
-          "action": "记录真实批次和逐项结果，与新业务分类入口导入按各自准确实体分开",
+          "action": "原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 TASK新写从准确任务入口，IVR及其他原专业能力仍按各自原权限合同，不能借批次页开启新入口。",
           "reads": [
             "FIELD-PLAT-IMPORT-ROWS",
             "FIELD-PLAT-PRO-FIELD-DEF",
             "FIELD-PLAT-RESOURCE-SCOPE",
-            "FIELD-PLAT-REQUEST"
+            "FIELD-PLAT-REQUEST",
+            "FIELD-FLOW-TASK-IMPORT-SOURCE",
+            "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
           ],
           "writes": [
             "FIELD-PLAT-CUSTOMER-ID",
@@ -12104,7 +12250,8 @@
             "GR-SCOPE",
             "GR-AUTH",
             "GR-UNKNOWN",
-            "GR-LIST-ORDER"
+            "GR-LIST-ORDER",
+            "GR-TASK-UNIFIED-IMPORT"
           ]
         }
       ],
@@ -12112,7 +12259,7 @@
         {
           "id": "LOCAL-PLAT-CUSTOMER-IMPORT-B1",
           "condition": "前提、字段及对象修订校验通过且结果明确成功",
-          "result": "合法专业名单入库并可分配；原专业导入不是新四节点模板自动启动",
+          "result": "原人工/接口专业历史保原事实；本轮AI/PRED任务新导入采用共同分类IMPORT并形成DIRECT业务，不自动模板启动或迁移旧名单",
           "field_ids": [
             "FIELD-PLAT-IMPORT-ROWS",
             "FIELD-PLAT-PRO-FIELD-DEF",
@@ -12166,16 +12313,19 @@
         "GR-SCOPE",
         "GR-AUTH",
         "GR-UNKNOWN",
-        "GR-LIST-ORDER"
+        "GR-LIST-ORDER",
+        "GR-TASK-UNIFIED-IMPORT"
       ],
       "field_ids": [
+        "FIELD-PLAT-IMPORT-ROWS",
+        "FIELD-PLAT-PRO-FIELD-DEF",
+        "FIELD-PLAT-RESOURCE-SCOPE",
+        "FIELD-PLAT-REQUEST",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
         "FIELD-PLAT-CUSTOMER-ID",
         "FIELD-PLAT-IMPORT-BATCH",
-        "FIELD-PLAT-IMPORT-ROWS",
-        "FIELD-PLAT-OP-STATE",
-        "FIELD-PLAT-PRO-FIELD-DEF",
-        "FIELD-PLAT-REQUEST",
-        "FIELD-PLAT-RESOURCE-SCOPE"
+        "FIELD-PLAT-OP-STATE"
       ],
       "source_keys": [],
       "test_refs": [
@@ -12352,7 +12502,10 @@
         "FIELD-PLAT-TASK-SCHEDULE-AT",
         "FIELD-PLAT-TASK-STOP-SCHEDULED",
         "FIELD-PLAT-TASK-STOP-AT",
-        "FIELD-PLAT-TASK-RETRY-POLICY"
+        "FIELD-PLAT-TASK-RETRY-POLICY",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+        "FIELD-FLOW-IMPORT-VALUES"
       ],
       "outputs": [
         "FIELD-PLAT-TASK-ID",
@@ -12365,7 +12518,8 @@
         "FIELD-PLAT-TASK-COMPLETE",
         "FIELD-PLAT-TASK-FORCEEND",
         "FIELD-PLAT-TASK-RETRYTODAY",
-        "FIELD-PLAT-TASK-CALLPRIORITY"
+        "FIELD-PLAT-TASK-CALLPRIORITY",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
       ],
       "steps": [
         {
@@ -12419,12 +12573,15 @@
         },
         {
           "id": "LOCAL-PLAT-CLOUD-TASK-QUERY-S3",
-          "action": "列表更新时间倒序后分页，任务ID及当前scope进入详情复核",
+          "action": "列表更新时间倒序后分页，任务ID及当前scope进入详情复核；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。； ； ； ； ； ； ； ； ； ； 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。",
           "reads": [
             "FIELD-PLAT-QUERY",
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-RESOURCE-SCOPE",
-            "FIELD-PLAT-TASK-MODE"
+            "FIELD-PLAT-TASK-MODE",
+            "FIELD-FLOW-TASK-IMPORT-SOURCE",
+            "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+            "FIELD-FLOW-IMPORT-VALUES"
           ],
           "writes": [
             "FIELD-PLAT-TASK-ID",
@@ -12437,14 +12594,16 @@
             "FIELD-PLAT-TASK-COMPLETE",
             "FIELD-PLAT-TASK-FORCEEND",
             "FIELD-PLAT-TASK-RETRYTODAY",
-            "FIELD-PLAT-TASK-CALLPRIORITY"
+            "FIELD-PLAT-TASK-CALLPRIORITY",
+            "FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
           ],
           "rule_ids": [
             "GR-IDENTITY",
             "GR-SCOPE",
             "GR-AUTH",
             "GR-UNKNOWN",
-            "GR-LIST-ORDER"
+            "GR-LIST-ORDER",
+            "GR-TASK-UNIFIED-IMPORT"
           ]
         }
       ],
@@ -12512,36 +12671,40 @@
         "GR-SCOPE",
         "GR-AUTH",
         "GR-UNKNOWN",
-        "GR-LIST-ORDER"
+        "GR-LIST-ORDER",
+        "GR-TASK-UNIFIED-IMPORT"
       ],
       "field_ids": [
-        "FIELD-PLAT-PAGING",
         "FIELD-PLAT-QUERY",
+        "FIELD-PLAT-TASK-ID",
         "FIELD-PLAT-RESOURCE-SCOPE",
+        "FIELD-PLAT-TASK-MODE",
+        "FIELD-PLAT-TASK-GROUP-TYPE",
+        "FIELD-PLAT-TASK-CNOS",
+        "FIELD-PLAT-TASK-OUTBOUND-GROUP",
         "FIELD-PLAT-TASK-CALL-STRATEGY",
+        "FIELD-PLAT-TASK-IVR-ID",
+        "FIELD-PLAT-TASK-CONTACT-FLOW",
         "FIELD-PLAT-TASK-CALLER-NAV",
         "FIELD-PLAT-TASK-CALLER-POOLS",
-        "FIELD-PLAT-TASK-CALLPRIORITY",
-        "FIELD-PLAT-TASK-CNOS",
-        "FIELD-PLAT-TASK-COMPLETE",
-        "FIELD-PLAT-TASK-CONCURRENCY",
-        "FIELD-PLAT-TASK-CONTACT-FLOW",
-        "FIELD-PLAT-TASK-FAILURES",
-        "FIELD-PLAT-TASK-FORCEEND",
-        "FIELD-PLAT-TASK-GROUP-TYPE",
-        "FIELD-PLAT-TASK-ID",
-        "FIELD-PLAT-TASK-IVR-ID",
-        "FIELD-PLAT-TASK-MODE",
-        "FIELD-PLAT-TASK-NAME",
-        "FIELD-PLAT-TASK-OUTBOUND-GROUP",
-        "FIELD-PLAT-TASK-RESOURCES",
-        "FIELD-PLAT-TASK-RETRY-POLICY",
-        "FIELD-PLAT-TASK-RETRYTODAY",
-        "FIELD-PLAT-TASK-SCHEDULE-AT",
         "FIELD-PLAT-TASK-SCHEDULE-MODE",
-        "FIELD-PLAT-TASK-STATE",
+        "FIELD-PLAT-TASK-SCHEDULE-AT",
+        "FIELD-PLAT-TASK-STOP-SCHEDULED",
         "FIELD-PLAT-TASK-STOP-AT",
-        "FIELD-PLAT-TASK-STOP-SCHEDULED"
+        "FIELD-PLAT-TASK-RETRY-POLICY",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+        "FIELD-FLOW-IMPORT-VALUES",
+        "FIELD-PLAT-TASK-NAME",
+        "FIELD-PLAT-TASK-STATE",
+        "FIELD-PLAT-TASK-RESOURCES",
+        "FIELD-PLAT-TASK-FAILURES",
+        "FIELD-PLAT-PAGING",
+        "FIELD-PLAT-TASK-CONCURRENCY",
+        "FIELD-PLAT-TASK-COMPLETE",
+        "FIELD-PLAT-TASK-FORCEEND",
+        "FIELD-PLAT-TASK-RETRYTODAY",
+        "FIELD-PLAT-TASK-CALLPRIORITY"
       ],
       "source_keys": [],
       "test_refs": [
@@ -12691,7 +12854,7 @@
         },
         {
           "id": "LOCAL-PLAT-CLOUD-TASK-SAVE-S3",
-          "action": "最终比较当前修订后确认保存，本地/远端受理结果区分",
+          "action": "最终比较当前修订后确认保存，本地/远端受理结果区分 预外呼任务4步配置中保存准确业务分类和手工/接口来源，分类与来源按记录/状态原锁定规则维护；导入只自动读取，不临时补选。",
           "reads": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-TASK-MODE",
@@ -12892,31 +13055,46 @@
     },
     {
       "id": "LOCAL-PLAT-CLOUD-TASK-IMPORT",
-      "title": "向预外呼／IVR任务导入名单",
+      "title": "预外呼任务统一业务导入及原IVR名单边界",
       "feature_ids": [
         "FUNC-2002"
       ],
       "trigger": "准确专业任务选择名单并独立确认导入",
       "preconditions": [
-        "该方式导入权及任务允许名单变更"
+        "PRED新统一导入须ADMIN+customer.import及原Cloud模块/准确任务/来源资格；分类从任务配置自动带入，无分类DIRECT开关",
+        "接口来源任务不混手工；IVR仍原专业合同，不扩成本轮DIRECT"
       ],
       "postconditions": [
-        "准确任务合法名单导入；异常行有定位和可恢复结果"
+        "预外呼创建当前准确任务的统一DIRECT业务/周期和完整IMPORT字段/快照/来源/等级，专业名单只读投影；原IVR/旧专业历史保留各自事实"
       ],
       "inputs": [
         "FIELD-PLAT-TASK-ID",
         "FIELD-PLAT-TASK-MODE",
         "FIELD-PLAT-IMPORT-ROWS",
-        "FIELD-PLAT-REQUEST"
+        "FIELD-PLAT-REQUEST",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+        "FIELD-FLOW-CATEGORY-ID",
+        "FIELD-FLOW-CATEGORY-IMPORT-REFS",
+        "FIELD-FLOW-IMPORT-VALUES",
+        "FIELD-FLOW-IMPORT-ORIGINAL",
+        "FIELD-FLOW-EXECUTION-PRIORITY",
+        "FIELD-FLOW-HANDLING-MODE",
+        "FIELD-FLOW-DIRECT-CYCLE-ID",
+        "FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP"
       ],
       "outputs": [
         "FIELD-PLAT-IMPORT-BATCH",
-        "FIELD-PLAT-OP-STATE"
+        "FIELD-PLAT-OP-STATE",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-FLOW-TASK-IMPORT-PARAMETERS",
+        "FIELD-FLOW-RECORD-ID",
+        "FIELD-FLOW-DIRECT-CYCLE-ID"
       ],
       "steps": [
         {
           "id": "LOCAL-PLAT-CLOUD-TASK-IMPORT-S1",
-          "action": "按当前方式必需字段、规范号码和重复规则逐行校验",
+          "action": "任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 PRED按本任务分类IMPORT+系统code/姓名/电话逐行校类型/映射/重复，FOLLOWUP排除；保准确context.importLimits：2000行/1MB，AI其他原容量不变，超限分批不截断。",
           "reads": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-TASK-MODE",
@@ -12934,7 +13112,7 @@
         },
         {
           "id": "LOCAL-PLAT-CLOUD-TASK-IMPORT-S2",
-          "action": "保留选中任务/范围/修订，不导到其他任务",
+          "action": "AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 PRED固定准确taskId/PREDICTIVE，不另选seat/person；合法配置且状态/来源允许的待分配任务可导入，flat/alictiCreateDraft不要求已有原生行/旧目录已发布；缺配/无权/在途拒绝，不伪造供应商发布。",
           "reads": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-TASK-MODE",
@@ -12952,23 +13130,38 @@
         },
         {
           "id": "LOCAL-PLAT-CLOUD-TASK-IMPORT-S3",
-          "action": "各行确认/失败/未知保留，不把保存名单当已拨号",
+          "action": "统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。 IVR及旧原生名单保持原独立专业结果。",
           "reads": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-TASK-MODE",
             "FIELD-PLAT-IMPORT-ROWS",
-            "FIELD-PLAT-REQUEST"
+            "FIELD-PLAT-REQUEST",
+            "FIELD-FLOW-TASK-IMPORT-SOURCE",
+            "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+            "FIELD-FLOW-CATEGORY-ID",
+            "FIELD-FLOW-CATEGORY-IMPORT-REFS",
+            "FIELD-FLOW-IMPORT-VALUES",
+            "FIELD-FLOW-IMPORT-ORIGINAL",
+            "FIELD-FLOW-EXECUTION-PRIORITY",
+            "FIELD-FLOW-HANDLING-MODE",
+            "FIELD-FLOW-DIRECT-CYCLE-ID",
+            "FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP"
           ],
           "writes": [
             "FIELD-PLAT-IMPORT-BATCH",
-            "FIELD-PLAT-OP-STATE"
+            "FIELD-PLAT-OP-STATE",
+            "FIELD-FLOW-TASK-IMPORT-SOURCE",
+            "FIELD-FLOW-TASK-IMPORT-PARAMETERS",
+            "FIELD-FLOW-RECORD-ID",
+            "FIELD-FLOW-DIRECT-CYCLE-ID"
           ],
           "rule_ids": [
             "GR-IDENTITY",
             "GR-SCOPE",
             "GR-AUTH",
             "GR-UNKNOWN",
-            "GR-LIST-ORDER"
+            "GR-LIST-ORDER",
+            "GR-TASK-UNIFIED-IMPORT"
           ]
         }
       ],
@@ -12976,7 +13169,7 @@
         {
           "id": "LOCAL-PLAT-CLOUD-TASK-IMPORT-B1",
           "condition": "前提、字段及对象修订校验通过且结果明确成功",
-          "result": "准确任务合法名单导入；异常行有定位和可恢复结果",
+          "result": "预外呼创建当前准确任务的统一DIRECT业务/周期和完整IMPORT字段/快照/来源/等级，专业名单只读投影；原IVR/旧专业历史保留各自事实",
           "field_ids": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-TASK-MODE",
@@ -13027,19 +13220,33 @@
         "GR-SCOPE",
         "GR-AUTH",
         "GR-UNKNOWN",
-        "GR-LIST-ORDER"
+        "GR-LIST-ORDER",
+        "GR-TASK-UNIFIED-IMPORT"
       ],
       "field_ids": [
-        "FIELD-PLAT-IMPORT-BATCH",
-        "FIELD-PLAT-IMPORT-ROWS",
-        "FIELD-PLAT-OP-STATE",
-        "FIELD-PLAT-REQUEST",
         "FIELD-PLAT-TASK-ID",
-        "FIELD-PLAT-TASK-MODE"
+        "FIELD-PLAT-TASK-MODE",
+        "FIELD-PLAT-IMPORT-ROWS",
+        "FIELD-PLAT-REQUEST",
+        "FIELD-FLOW-TASK-IMPORT-SOURCE",
+        "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+        "FIELD-FLOW-CATEGORY-ID",
+        "FIELD-FLOW-CATEGORY-IMPORT-REFS",
+        "FIELD-FLOW-IMPORT-VALUES",
+        "FIELD-FLOW-IMPORT-ORIGINAL",
+        "FIELD-FLOW-EXECUTION-PRIORITY",
+        "FIELD-FLOW-HANDLING-MODE",
+        "FIELD-FLOW-DIRECT-CYCLE-ID",
+        "FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP",
+        "FIELD-PLAT-IMPORT-BATCH",
+        "FIELD-PLAT-OP-STATE",
+        "FIELD-FLOW-TASK-IMPORT-PARAMETERS",
+        "FIELD-FLOW-RECORD-ID"
       ],
       "source_keys": [],
       "test_refs": [
-        "CHECK-PLAT-CLOUD-TASK-IMPORT"
+        "CHECK-PLAT-CLOUD-TASK-IMPORT",
+        "CHECK-FLOW-PRED-TASK-DIRECT-IMPORT"
       ]
     },
     {
@@ -21973,7 +22180,7 @@
       ],
       "trigger": "AI任务导入弹层点击原下载模板",
       "preconditions": [
-        "当前准确AI任务/场景读取及导入资格"
+        "当前准确AI任务/场景读取及原导入资格，分类/供应商映射可可靠取得"
       ],
       "postconditions": [
         "该具体场景导入模板可下载，不把其他AI导出仅有界面但未实现当可用"
@@ -21981,7 +22188,10 @@
       "inputs": [
         "FIELD-PLAT-TASK-ID",
         "FIELD-PLAT-AI-SCENE-ID",
-        "FIELD-PLAT-PRO-FIELD-DEF"
+        "FIELD-PLAT-PRO-FIELD-DEF",
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-CATEGORY-IMPORT-REFS"
       ],
       "outputs": [
         "FIELD-PLAT-REPORT-EXPORT"
@@ -21989,7 +22199,7 @@
       "steps": [
         {
           "id": "LOCAL-PLAT-AI-IMPORT-TEMPLATE-S1",
-          "action": "取当前场景允许字段/必需项形成准确表头模板",
+          "action": "先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。",
           "reads": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-AI-SCENE-ID",
@@ -22006,11 +22216,14 @@
         },
         {
           "id": "LOCAL-PLAT-AI-IMPORT-TEMPLATE-S2",
-          "action": "无当前定义/无权/生成失败不给空白假模板；下载不执行导入",
+          "action": "schema1/legacy只读兼容、schema2按本场景准确映射；无准确平台/分类/定义或供应商必需参数待核时不给假空模板。下载本身不导入、不改分类或升级场景；实际下载落地验收仍单列未验。",
           "reads": [
             "FIELD-PLAT-TASK-ID",
             "FIELD-PLAT-AI-SCENE-ID",
-            "FIELD-PLAT-PRO-FIELD-DEF"
+            "FIELD-PLAT-PRO-FIELD-DEF",
+            "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+            "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+            "FIELD-FLOW-CATEGORY-IMPORT-REFS"
           ],
           "writes": [
             "FIELD-PLAT-REPORT-EXPORT"
@@ -22020,7 +22233,8 @@
             "GR-SCOPE",
             "GR-AUTH",
             "GR-UNKNOWN",
-            "GR-LIST-ORDER"
+            "GR-LIST-ORDER",
+            "GR-TASK-UNIFIED-IMPORT"
           ]
         }
       ],
@@ -22073,18 +22287,26 @@
         "GR-SCOPE",
         "GR-AUTH",
         "GR-UNKNOWN",
-        "GR-LIST-ORDER"
+        "GR-LIST-ORDER",
+        "GR-TASK-UNIFIED-IMPORT"
       ],
       "field_ids": [
+        "FIELD-PLAT-TASK-ID",
         "FIELD-PLAT-AI-SCENE-ID",
         "FIELD-PLAT-PRO-FIELD-DEF",
-        "FIELD-PLAT-REPORT-EXPORT",
-        "FIELD-PLAT-TASK-ID"
+        "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "FIELD-FLOW-CATEGORY-IMPORT-REFS",
+        "FIELD-PLAT-REPORT-EXPORT"
       ],
       "source_keys": [],
       "test_refs": [
         "CHECK-PLAT-AI-IMPORT-TEMPLATE"
-      ]
+      ],
+      "source_refs": [
+        "docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG"
+      ],
+      "ai_provider_revision": "2.0.0-current-20261101-step46"
     },
     {
       "id": "LOCAL-PLAT-AI-TAG-RESULT",
@@ -26112,7 +26334,9 @@
       "validation_rules": [
         "全行按当前目录/映射校验；重复、冲突、缺必填逐行报错",
         "掩码号不可导入；禁止猜测缺失业务值",
-        "正式提交范围所有行通过；导入按真实确认逐项回执，不虚报整批原子性"
+        "正式提交范围所有行通过；导入按真实确认逐项回执，不虚报整批原子性",
+        "AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。",
+        "原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。"
       ],
       "permissions": {
         "read": [
@@ -26472,7 +26696,7 @@
     },
     {
       "id": "FIELD-PLAT-FOLLOWER",
-      "name": "原任务负责人／分配跟进人",
+      "name": "原任务分配及历史人员事实",
       "entity": "professionalCustomer",
       "key": "assignedAccountId",
       "source_refs": [
@@ -26482,15 +26706,14 @@
       "type": "string",
       "format": "UTF-8文本；保留稳定标识原值",
       "nullable": true,
-      "required_when": "原任务要求分配时必填；未分配可空",
+      "required_when": "仅按原专业坐席分配/实际人员事实形成，不是新两模式独立必填",
       "default": {
         "kind": "none",
         "value": null,
         "rule": "无自动默认；编辑载入当前已确认值；省略不等于清空"
       },
       "validation_rules": [
-        "只能选本任务有权且有效成员/所需坐席能力者",
-        "负责人不等于实际接听人；不能借分配修改已确认外呼方式或业务归属"
+        "新两模式模板、导入、分配无独立责任人选择；人工由有效坐席分配派生，原专业/历史人员按其真实事实保留。"
       ],
       "permissions": {
         "read": [
@@ -26523,7 +26746,7 @@
       ],
       "derivation": {
         "kind": "input",
-        "rule": "由有权用户明确提交，编辑不静默清空",
+        "rule": "新两模式模板、导入、分配无独立责任人选择；人工由有效坐席分配派生，原专业/历史人员按其真实事实保留。",
         "dependencies": []
       },
       "persistence": {
@@ -27839,7 +28062,8 @@
       },
       "validation_rules": [
         "只允许供应商/具体场景真实可用参数与机器人",
-        "品牌分类维护不能新增机器人或AI专业配置权"
+        "品牌分类维护不能新增机器人或AI专业配置权",
+        "当前场景schema=2按scene/platform配置IMPORT_FIELD引用及CUSTOM_COLUMN专属导入列；分类业务定义仍权威，供应商列/值独立快照；固定专业项保各自来源。"
       ],
       "permissions": {
         "read": [
@@ -27873,7 +28097,7 @@
       ],
       "derivation": {
         "kind": "input",
-        "rule": "由有权用户明确提交，编辑不静默清空",
+        "rule": "只允许供应商/具体场景真实可用参数与机器人；品牌分类维护不能新增机器人或AI专业配置权；当前场景schema=2按scene/platform配置IMPORT_FIELD引用及CUSTOM_COLUMN专属导入列；分类业务定义仍权威，供应商列/值独立快照；固定专业项保各自来源。",
         "dependencies": []
       },
       "persistence": {
@@ -27914,7 +28138,9 @@
       "validation_rules": [
         "关联具体场景ID与当前品牌有权分类ID",
         "仅专业业务归类，不等于模板实际路由绑定；路由以业务分类路由配置为准",
-        "停用分类禁止新选/新关联，不改已受理任务事实"
+        "停用分类禁止新选/新关联，不改已受理任务事实",
+        "先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。",
+        "主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。"
       ],
       "permissions": {
         "read": [
@@ -40263,7 +40489,7 @@
         "rule": "仅新建初始化；编辑不覆盖现值"
       },
       "validation_rules": [
-        "只允许1/2；不与导入与分配只分配业务跟进人的规则混用",
+        "只允许1/2；不与导入批次与业务名单只分配业务跟进人的规则混用",
         "编辑只可改当前模式内接听人员；不能切换已创建方式"
       ],
       "permissions": {
@@ -40284,7 +40510,7 @@
         },
         {
           "state": "validating",
-          "behavior": "只允许1/2；不与导入与分配只分配业务跟进人的规则混用；编辑只可改当前模式内接听人员；不能切换已创建方式"
+          "behavior": "只允许1/2；不与导入批次与业务名单只分配业务跟进人的规则混用；编辑只可改当前模式内接听人员；不能切换已创建方式"
         },
         {
           "state": "confirmed",
@@ -41607,6 +41833,234 @@
       "test_refs": [
         "CHECK-PLAT-AI-TAXONOMY"
       ]
+    },
+    {
+      "id": "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+      "name": "AI参数映射关联的实际分类",
+      "entity": "aiScene",
+      "key": "importFieldCategoryId",
+      "source_refs": [
+        "docs/field-alignment.json#FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+        "docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG"
+      ],
+      "source_keys": [],
+      "type": "string",
+      "format": "与当前场景实际业务分类相同的稳定categoryId",
+      "nullable": false,
+      "required_when": "本次保存受控业务参数映射时必需；不是另一个用户可选分类",
+      "default": {
+        "kind": "none",
+        "value": null,
+        "rule": "没有准确来源时不生成、不以首项/同名/同手机号猜测；旧历史保持原事实。"
+      },
+      "validation_rules": [
+        "由场景实际关联分类派生，与importFieldMappingSchema=2及当前scene/platform配置同次保存；不能另选分类绕开实际关联。",
+        "IMPORT_FIELD只引用当前分类有效IMPORT；CUSTOM_COLUMN仅本scene/platform额外供应商列，均不能改写分类定义；分类变化重核引用，不迁移历史。"
+      ],
+      "permissions": {
+        "read": [
+          "按原任务/场景/统一业务对象读取资格及当前租户范围；任务读权不授任意统一业务或其他任务查看权。"
+        ],
+        "write": [
+          "系统依据当前有权动作的准确任务/分类/请求结果写入；用户不能直接修改来源或回链。"
+        ]
+      },
+      "lifecycle": [
+        {
+          "state": "读取/预检",
+          "behavior": "只读取当前实际分类IMPORT及准确任务/场景，FOLLOWUP不进入导入；未知来源保待核。"
+        },
+        {
+          "state": "明确成功",
+          "behavior": "本场景分类/参数映射明确保存成功时与同次场景修订保存；导入预检捕获该依据。"
+        },
+        {
+          "state": "失败/未知/上下文变化",
+          "behavior": "保输入和已生效事实，旧预检失效；同请求核对，不重复写业务、原生行或提交供应商。"
+        },
+        {
+          "state": "历史",
+          "behavior": "旧专业行及业务快照不迁移，不因同手机号认领旧业务或按当前字段重绘历史。"
+        }
+      ],
+      "derivation": {
+        "kind": "system",
+        "rule": "由场景实际关联分类派生，与importFieldMappingSchema=2及当前scene/platform配置同次保存；不能另选分类绕开实际关联。；IMPORT_FIELD只引用当前分类有效IMPORT；CUSTOM_COLUMN仅本scene/platform额外供应商列，均不能改写分类定义；分类变化重核引用，不迁移历史。",
+        "dependencies": [
+          "FIELD-PLAT-AI-CATEGORY"
+        ]
+      },
+      "persistence": {
+        "kind": "stored",
+        "write_when": "主场景明确保存并通过当前权限/修订/分类/平台校验时同次保存；子弹窗确认仅更新父草稿。"
+      },
+      "examples": {
+        "valid": [
+          "使用准确分类IMPORT fieldId、taskId及recordId形成可核引用，字段值完整且来源只写一次。"
+        ],
+        "invalid": [
+          "FOLLOWUP/异分类/失效fieldId、同手机号猜关联、伪造任务来源或用无权任务提交，拒绝。"
+        ]
+      },
+      "test_refs": [
+        "CHECK-PLAT-AI-IMPORT-FIELD-MAPPING"
+      ],
+      "ai_provider_revision": "2.0.0-current-20261101-step46"
+    },
+    {
+      "id": "FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+      "name": "AI场景供应商参数与专属导入列配置",
+      "entity": "aiScene",
+      "key": "importFieldMappings",
+      "source_refs": [
+        "docs/field-alignment.json#FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS",
+        "docs/exception-definitions.json#CHG-046-AI-PROVIDER-DIALOG"
+      ],
+      "source_keys": [],
+      "type": "array",
+      "format": "schema=2；importFieldMappings[{id,source:IMPORT_FIELD|CUSTOM_COLUMN,fieldId?(仅引用),parameter,label,type:text|number|date,required}]，与importFieldCategoryId/importFieldPlatform及当前scene/platform绑定",
+      "nullable": false,
+      "required_when": "本次场景参数配置提供；新AI导入只投影实际引用的分类业务字段与专属列，系统必需/条件字段和供应商必需项分别满足",
+      "default": {
+        "kind": "none",
+        "value": null,
+        "rule": "没有准确来源时不生成、不以首项/同名/同手机号猜测；旧历史保持原事实。"
+      },
+      "validation_rules": [
+        "IMPORT_FIELD.fieldId只引用实际分类有效IMPORT，排除FOLLOWUP、异分类、失效及同名猜配；业务名称/类型/选项/编码/分类必填从分类读取，不自由复制分类业务字段。",
+        "配置按准确scene/platform独立，保存时系统写importFieldPlatform；其存在且不等当前platform时拒绝，用户不能手改绕过。parameter在本场景平台内唯一，允许相同fieldId映射多个不同parameter；平台切换不沿用另一供应商草稿或固定项。",
+        "IMPORT_FIELD类型随源number/date，其余源类型包括datetime/phone/enum按text保完整规范值；label/type为本次映射元数据，不另立分类业务定义。CUSTOM_COLUMN独立定义label、text/number/date、required，提供稳定id，不增加固定值配置。",
+        "required只增加本参数需值约束，不能取消本次实际引用业务字段的分类必填；未引用的分类额外必填不进入AI schema；参数格式/保留名/重复及原固定必需项按当前供应商校验，原platformInputRows、厚朴只读定义及必要冰兰固定项保留。",
+        "协议固定参数未显式映射时，name/customerName/calleeNo/remark按精确协议名绑定系统值；其余成为当前scene/platform默认专业导入列，customFields保fixed/system标志，required不减；不要求把旧固定项重复手录。",
+        "旧schema=1只读兼容；legacy customInputFields未被显式parameter覆盖时，以legacy-custom-<code>确定性CUSTOM_COLUMN读取，保原名称/类型/必填。只有父场景明确保存升级schema=2才清旧重复定义，取消不改旧配置。",
+        "先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。",
+        "主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。"
+      ],
+      "permissions": {
+        "read": [
+          "按原任务/场景/统一业务对象读取资格及当前租户范围；任务读权不授任意统一业务或其他任务查看权。"
+        ],
+        "write": [
+          "仅原AI场景专业配置权限内保存；业务分类维护或任务导入资格不自动授参数配置权。"
+        ]
+      },
+      "lifecycle": [
+        {
+          "state": "读取/草稿",
+          "behavior": "场景主表仅摘要/入口；选择IMPORT和参数/专属列配置分别打开弹窗，均不直接写场景。"
+        },
+        {
+          "state": "子弹窗确认/取消",
+          "behavior": "确认校验通过才回填父草稿；取消/关闭不改父草稿及已保存配置，不能用旧弹窗回填已切换平台/分类。"
+        },
+        {
+          "state": "主场景保存",
+          "behavior": "选择和配置在子弹窗独立草稿；确认通过才更新父草稿，取消/关闭不改父草稿。主场景明确保存并重核权限/修订/scene/platform/category后，schema=2/importFieldPlatform与当前映射同次持久化；旧导入快照不追改。"
+        },
+        {
+          "state": "历史",
+          "behavior": "schema=1/legacy原事实只读兼容；历史导入继续使用当时定义/规范值和参数快照，不读取时升级。"
+        }
+      ],
+      "derivation": {
+        "kind": "input",
+        "rule": "IMPORT_FIELD.fieldId只引用实际分类有效IMPORT，排除FOLLOWUP、异分类、失效及同名猜配；业务名称/类型/选项/编码/分类必填从分类读取，不自由复制分类业务字段。；配置按准确scene/platform独立，保存时系统写importFieldPlatform；其存在且不等当前platform时拒绝，用户不能手改绕过。parameter在本场景平台内唯一，允许相同fieldId映射多个不同parameter；平台切换不沿用另一供应商草稿或固定项。；IMPORT_FIELD类型随源number/date，其余源类型包括datetime/phone/enum按text保完整规范值；label/type为本次映射元数据，不另立分类业务定义。CUSTOM_COLUMN独立定义label、text/number/date、required，提供稳定id，不增加固定值配置。；required只增加本参数需值约束，不能取消本次实际引用业务字段的分类必填；未引用的分类额外必填不进入AI schema；参数格式/保留名/重复及原固定必需项按当前供应商校验，原platformInputRows、厚朴只读定义及必要冰兰固定项保留。；协议固定参数未显式映射时，name/customerName/calleeNo/remark按精确协议名绑定系统值；其余成为当前scene/platform默认专业导入列，customFields保fixed/system标志，required不减；不要求把旧固定项重复手录。；旧schema=1只读兼容；legacy customInputFields未被显式parameter覆盖时，以legacy-custom-<code>确定性CUSTOM_COLUMN读取，保原名称/类型/必填。只有父场景明确保存升级schema=2才清旧重复定义，取消不改旧配置。",
+        "dependencies": [
+          "FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY",
+          "FIELD-PLAT-AI-SUPPLIER",
+          "FIELD-FLOW-CATEGORY-IMPORT-REFS"
+        ]
+      },
+      "persistence": {
+        "kind": "stored",
+        "write_when": "选择和配置在子弹窗独立草稿；确认通过才更新父草稿，取消/关闭不改父草稿。主场景明确保存并重核权限/修订/scene/platform/category后，schema=2/importFieldPlatform与当前映射同次持久化；旧导入快照不追改。"
+      },
+      "examples": {
+        "valid": [
+          "同一预算fieldId在冰兰映射budget、在另一场景/平台映射amount，或本场景映射多个不同参数；专属visitDate列按date导入。"
+        ],
+        "invalid": [
+          "切平台带入另一家的参数、重复parameter、FOLLOWUP引用、取消弹窗仍改父草稿，或专属值写入record.fields。"
+        ]
+      },
+      "test_refs": [
+        "CHECK-PLAT-AI-IMPORT-FIELD-MAPPING"
+      ],
+      "ai_provider_revision": "2.0.0-current-20261101-step46"
+    },
+    {
+      "id": "FIELD-PLAT-TASK-BUSINESS-RECORD-ID",
+      "name": "专业任务视图的统一业务回链",
+      "entity": "ProfessionalTaskListRow",
+      "key": "recordId",
+      "source_refs": [
+        "docs/field-alignment.json#FIELD-PLAT-TASK-BUSINESS-RECORD-ID"
+      ],
+      "source_keys": [],
+      "type": "string",
+      "format": "来自本任务准确来源统一记录的稳定recordId；旧原生行可没有",
+      "nullable": true,
+      "required_when": "本轮新统一业务投影行必有；旧行无可靠引用时保留其原历史身份",
+      "default": {
+        "kind": "none",
+        "value": null,
+        "rule": "没有准确来源时不生成、不以首项/同名/同手机号猜测；旧历史保持原事实。"
+      },
+      "validation_rules": [
+        "只读按record.taskImportSource和原任务/对象读权投影；不从手机号、姓名或最近一次通话猜回链。",
+        "只读投影不新持久专业行/第二账本、不改业务更新时间或供应商受理/拨打计数；旧专业数据继续按其原身份查询。"
+      ],
+      "permissions": {
+        "read": [
+          "按原任务/场景/统一业务对象读取资格及当前租户范围；任务读权不授任意统一业务或其他任务查看权。"
+        ],
+        "write": [
+          "系统依据当前有权动作的准确任务/分类/请求结果写入；用户不能直接修改来源或回链。"
+        ]
+      },
+      "lifecycle": [
+        {
+          "state": "读取/预检",
+          "behavior": "只读取当前实际分类IMPORT及准确任务/场景，FOLLOWUP不进入导入；未知来源保待核。"
+        },
+        {
+          "state": "明确成功",
+          "behavior": "进入准确有权任务视图时从统一账本只读派生，recordId回到同一统一记录；不落第二份专业业务行或持久businessRef。"
+        },
+        {
+          "state": "失败/未知/上下文变化",
+          "behavior": "保输入和已生效事实，旧预检失效；同请求核对，不重复写业务、原生行或提交供应商。"
+        },
+        {
+          "state": "历史",
+          "behavior": "旧专业行及业务快照不迁移，不因同手机号认领旧业务或按当前字段重绘历史。"
+        }
+      ],
+      "derivation": {
+        "kind": "calculated",
+        "rule": "只读按record.taskImportSource和原任务/对象读权投影；不从手机号、姓名或最近一次通话猜回链。；只读投影不新持久专业行/第二账本、不改业务更新时间或供应商受理/拨打计数；旧专业数据继续按其原身份查询。",
+        "dependencies": [
+          "FIELD-FLOW-TASK-IMPORT-SOURCE",
+          "FIELD-FLOW-RECORD-ID"
+        ]
+      },
+      "persistence": {
+        "kind": "transient",
+        "write_when": "进入准确有权任务视图时从统一账本只读派生，recordId回到同一统一记录；不落第二份专业业务行或持久businessRef。"
+      },
+      "examples": {
+        "valid": [
+          "使用准确分类IMPORT fieldId、taskId及recordId形成可核引用，字段值完整且来源只写一次。"
+        ],
+        "invalid": [
+          "FOLLOWUP/异分类/失效fieldId、同手机号猜关联、伪造任务来源或用无权任务提交，拒绝。"
+        ]
+      },
+      "test_refs": [
+        "CHECK-FLOW-AI-TASK-DIRECT-IMPORT",
+        "CHECK-FLOW-PRED-TASK-DIRECT-IMPORT",
+        "CHECK-FLOW-TASK-IMPORT-REPLAY"
+      ]
     }
   ],
   "checks": [
@@ -41911,8 +42365,8 @@
         "AC-2063",
         "AC-2064"
       ],
-      "procedure": "在准确有权范围触发“查询AI场景及原类型”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
-      "expected": "显示当前合法场景；仅有使用权可使用但不可维护标签；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+      "procedure": "按当前三入口统一导入规则：打开AI业务场景/场景配置或当前场景选择器；按租户和供应商执行资格过滤场景/类型；准确显示启停/分类/参数可用性，未知不能用首项代替 。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
+      "expected": "显示当前合法场景；仅有使用权可使用但不可维护标签；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。"
     },
     {
       "id": "CHECK-PLAT-AI-SCENE-SAVE",
@@ -41923,8 +42377,8 @@
         "AC-2063",
         "AC-2064"
       ],
-      "procedure": "在准确有权范围触发“创建或编辑AI业务场景与场景类型”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
-      "expected": "专业场景/类型准确配置；执行能力以供应商真实资源为准；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+      "procedure": "编辑准确已有HP任务场景，配置两来源/有效必填；修改后取消并放弃，在关闭动画中立即重开，再触发旧timer/迟到字段结果。",
+      "expected": "主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。 取消/放弃后关闭动画期间立即重开场景时，仅清除已获授权标记closing的旧层再初始化，活动未保存层拒绝重复打开；延时关闭只删除捕获的旧层，有新层不解锁其背景滚动，旧异步字段返回按sequence/owner不能覆盖新草稿。取消不保存、不删除原映射或误报新表单脏状态。 厚朴场景查询并保存已有准确供应商任务后，只读投影到同一任务目录和导入/执行入口，按tenant/brand/account/taskId/唯一scene稳定关联，不创建供应商任务、不按名称猜；实时读取准确任务状态，未知供应商计数显示待核。已知权威taskStatusCode使用准确可执行枚举，原status='unknown'仅属兼容状态文本，不覆盖权威taskStatusCode明确枚举；权威code为null或未知仍拒绝。"
     },
     {
       "id": "CHECK-PLAT-AI-SCENE-DELETE",
@@ -41966,8 +42420,8 @@
         "AC-2063",
         "AC-2064"
       ],
-      "procedure": "在准确有权范围触发“查询AI任务及任务名单”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
-      "expected": "当前AI专业任务/名单可读；不重建专业任务或宣称未实现控制已受理；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+      "procedure": "按当前三入口统一导入规则：AI外呼页查询、查看任务或名单；按当前筛选/平台/场景和任务ID读取任务、已呼/未呼名单及状态计数；更新时间倒序后分页；进入任务详情再次验对象范围；原启动/暂停/终止/删除仅有界面但未实现控件保持明确不可用，不显示假成功；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。； ； ； ； ； ； ； ； ； ；。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
+      "expected": "当前AI专业任务/名单可读；不重建专业任务或宣称未实现控制已受理；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。"
     },
     {
       "id": "CHECK-PLAT-AI-LIST-IMPORT",
@@ -41975,8 +42429,8 @@
         "AC-2063",
         "AC-2064"
       ],
-      "procedure": "在准确有权范围触发“向准确AI任务导入联系人”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。；以仅授权AI的总部/门店管理员及运营冷启动后直接导入完整号码，测试共享模型等待、公共限制、活动占用和联系频控；在等待时撤权/换账号租户/修改AI修订/关闭换文件，及损坏/缺失已初始化台账、读取失败后同文件重试。",
-      "expected": "准确任务联系人及导入批次形成，冲突/失败行不虚报成功；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。；正常AI-only导入成功且未获Cloud权限；所有限制仍拒绝，未知不放行、不清台账，过期异步结果不写入；可可靠重试，失败保原文件。",
+      "procedure": "按当前准确场景/平台：只读任务概览不物化意向草稿；任务内导入从准确scene实际分类读取共同IMPORT schema、code/姓名/号码等系统必需列，校必填/类型/选项/映射及统一重复编码；排除FOLLOWUP，业务定义不自由复制；当前scene/platform专属customFields附加于模板和列映射，按text/number/date/required逐行校验，rows拆fields与customValues独立字典；共享读取/预检采用准确目标context.importLimits而非任意调用参数：保AI大众100行、厚朴150000行、其他2000行及16MB文件，预外呼2000行/1MB；超限明示分批且不截断，旧AI parser只作历史兼容不成第二新写入口；显式准备并等待本租户共享联系只读模型，再逐号码核对公共禁呼、专业/业务占用、间隔及当日频控；AI-only成员不依赖Cloud页面或Cloud授权，不增加Cloud权利；模型/台账未知保持待核；异步返回后重核账号/tenant/ADMIN+customer.import、AI模块、任务/场景/分类/映射/文件及原来源锁定；当前上下文与预检一致才同请求写一次统一业务账本/DIRECT周期，保存原始联系号码（联系协调用规范明文，非源CSV列原文副本）、实际操作人、全部规范字段及taskImportSource；只读专业投影recordId，不新写原生名单或再提交供应商；不把保存说成已受理/拨打；AI-only使用共享业务服务的精确账号/tenant/task导入及同源请求核对范围，schema只读，完成/异常恢复原访问，不持久授Cloudcap/成员/菜单，不能借此配置/起呼或访问其他Cloud动作；本行record.fields仅业务值，专属列规范值及customFields在taskImportParameterSnapshot和originalImportSnapshot.taskImportParameterSnapshot独立封存，保parameters/mappings/fingerprint；批次映射快照保customFields，后改平台/配置不追改；构造无权、平台/分类切换、旧修订及取消/失败/未知。",
+      "expected": "当前准确任务+场景的新DIRECT业务/周期及完整IMPORT值/快照/来源/等级形成；专业视图按recordId只读投影，无新原生行或重复供应商提交；失败保输入，未知核同请求，原权限/联系/来源守卫继续。",
       "history": {
         "pre_audit_check": {
           "id": "CHECK-PLAT-AI-LIST-IMPORT",
@@ -42005,8 +42459,8 @@
         "AC-2063",
         "AC-2064"
       ],
-      "procedure": "在准确有权范围触发“查询AI导入记录”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
-      "expected": "仅显示该任务授权导入历史，不连带文件下载或任务控制权；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+      "procedure": "按当前三入口统一导入规则：AI任务查看导入历史；按任务稳定ID过滤本租户批次；展示原文件/条数/提交人/时间/结果，未知与失败区分；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史；；。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
+      "expected": "仅显示该任务授权导入历史，不连带文件下载或任务控制权；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。"
     },
     {
       "id": "CHECK-PLAT-CALL-QUERY",
@@ -42016,8 +42470,8 @@
         "AC-2066",
         "AC-2072"
       ],
-      "procedure": "在准确有权范围触发“查询和查看AI／Cloud通话记录”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
-      "expected": "显示准确授权通话事实、录音可用性及标签，不改人工跟进或路由；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+      "procedure": "原AI通话列表打开准确详情并切文本/信息页签；核列表与详情动作，按实际可用音频另验。",
+      "expected": "AI通话原列表每行仅保详情，不追加逐行确认拒联。原准确详情保录音/文本及有权原来源人工确认入口，准确通话、租户、供应商、联系号码和原权限再次校验；不按标签/状态自动拒联，不新增待审队列，不扩大解除权。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 录音真实可听不能由按钮存在冒充。"
     },
     {
       "id": "CHECK-PLAT-RECORDING-READ",
@@ -42153,8 +42607,8 @@
         "AC-2055",
         "AC-2056"
       ],
-      "procedure": "在准确有权范围触发“人工确认AI明确拒联后入库”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
-      "expected": "准确人工确认的AI拒联来源入库；不因AI标签自动入库；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+      "procedure": "在原AI列表及准确有权/无权详情分别查看原来源确认入口；构造标签/拒接但无明确拒联依据。",
+      "expected": "AI通话原列表每行仅保详情，不追加逐行确认拒联。原准确详情保录音/文本及有权原来源人工确认入口，准确通话、租户、供应商、联系号码和原权限再次校验；不按标签/状态自动拒联，不新增待审队列，不扩大解除权。"
     },
     {
       "id": "CHECK-PLAT-CONTACT-CHECK",
@@ -42333,8 +42787,8 @@
         "AC-2072",
         "AC-2073"
       ],
-      "procedure": "在准确有权范围触发“原客户任务导入与字段映射校验”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
-      "expected": "合法专业名单入库并可分配；原专业导入不是新四节点模板自动启动；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+      "procedure": "按当前三入口统一导入规则：业务分类行发起人工/接口模板导入，或读取原专业历史来源； 新写按LOCAL-FLOW-IMPORT-PREVIEW/COMMIT的准确CATEGORY/TEMPLATE办理，不构造第三个中央DIRECT导入。； ；保原人工/接口及其他专业名单的准确实体、来源锁定与批次；本轮AI/预外呼任务新统一导入按对应任务入口写统一账本并投影，不把旧专业名单自动迁入或按同手机号回链。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
+      "expected": "原人工/接口专业历史保原事实；本轮AI/PRED任务新导入采用共同分类IMPORT并形成DIRECT业务，不自动模板启动或迁移旧名单；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。"
     },
     {
       "id": "CHECK-PLAT-CUSTOMER-ASSIGN",
@@ -42354,8 +42808,8 @@
         "AC-2071",
         "AC-2148"
       ],
-      "procedure": "按当前续接版本执行：预外呼或IVR任务页查询/查看。前提：相应方式原任务读权。操作：按mode分别读取准确任务，不混淆IVR与预外呼资源/状态；任务详情显示已受理与远端终态、名单及失败分类；列表更新时间倒序后分页，任务ID及当前scope进入详情复核。分别构造：前提、字段及对象修订校验通过且结果明确成功；无权/字段不合法/对象失效/修订冲突；提交失败或结果未知。",
-      "expected": "准确原专业任务可查；查看不授控制、导入或导出；准确原专业任务可查；查看不授控制、导入或导出；明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更；失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功。",
+      "procedure": "按当前三入口统一导入规则：预外呼或IVR任务页查询/查看；按mode分别读取准确任务，不混淆IVR与预外呼资源/状态；任务详情显示已受理与远端终态、名单及失败分类；列表更新时间倒序后分页，任务ID及当前scope进入详情复核；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。； ； ； ； ； ； ； ； ； ；。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
+      "expected": "准确原专业任务可查；查看不授控制、导入或导出；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。",
       "history": {
         "pre_resume_check": {
           "id": "CHECK-PLAT-CLOUD-TASK-QUERY",
@@ -42390,8 +42844,8 @@
         "AC-2070",
         "AC-2071"
       ],
-      "procedure": "在准确有权范围触发“向预外呼／IVR任务导入名单”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
-      "expected": "准确任务合法名单导入；异常行有定位和可恢复结果；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+      "procedure": "按当前三入口统一导入规则：准确专业任务选择名单并独立确认导入；预外呼明确本次有效且任务配置关联分类，按共同IMPORT+code/姓名/号码基础schema逐行校类型/选项/必填/映射/重复编码；FOLLOWUP排除；任务及接口/手工来源锁定继续。IVR仍原专业校验，不创建本轮DIRECT；共享读取/预检采用准确目标context.importLimits而非任意调用参数：保AI大众100行、厚朴150000行、其他2000行及16MB文件，预外呼2000行/1MB；超限明示分批且不截断，旧AI parser只作历史兼容不成第二新写入口；预外呼默认DIRECT/PREDICTIVE并固定当前准确taskId与租户/修订，五档默认中；不另选seat/person，不建run/node；相关字段/任务/来源变化使旧确认失效；原配置校验完整且状态/来源允许的待分配客户任务可导入，包括既有flat/alictiCreateDraft配置型任务，不要求先有原生名单或旧目录已发布方案；缺配置/无权/停用/在途仍拒绝，不伪造供应商发布/受理；预外呼同请求只写一次统一业务及直接周期，完整值/快照/taskImportSource保存；当前专业名单按recordId只读投影，不新建原生行或重提供应商；未知核原请求。IVR及旧数据维持原独立专业结果。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。",
+      "expected": "预外呼创建当前准确任务的统一DIRECT业务/周期和完整IMPORT字段/快照/来源/等级，专业名单只读投影；原IVR/旧专业历史保留各自事实；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。"
     },
     {
       "id": "CHECK-PLAT-CLOUD-TASK-CONTROL",
@@ -42877,8 +43331,8 @@
         "AC-2063",
         "AC-2064"
       ],
-      "procedure": "在准确有权范围触发“下载具体AI任务导入模板”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
-      "expected": "该具体场景导入模板可下载，不把其他AI导出仅有界面但未实现当可用；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+      "procedure": "同分类配置两个供应商/场景的不同IMPORT_FIELD及CUSTOM_COLUMN，分别从任务和模板入口选择场景后准备下载/映射。",
+      "expected": "先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 下载生成与实际文件落地验收分开。"
     },
     {
       "id": "CHECK-PLAT-AI-TAG-RESULT",
@@ -42898,6 +43352,35 @@
       ],
       "procedure": "在准确有权范围触发“维护标签场景和标签供应商目录”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。",
       "expected": "准确标签场景或供应商目录确认维护，场景使用权不会获得标签维护权；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。"
+    },
+    {
+      "id": "CHECK-PLAT-AI-IMPORT-FIELD-MAPPING",
+      "acceptance_ids": [
+        "AC-2159"
+      ],
+      "procedure": "冰兰、中科金各场景引用同一业务字段映不同参数；同字段两参数；弹窗选择/配置确认、取消、父取消及父保存重开；平台切换；自定义text/number/date、重复参数、FOLLOWUP/异分类、原固定项及schema1/legacy重开/显式升级。；核主场景只保“添加字段”新增入口，点击再二选来源；手工“添加场景信息”只读业务信息/字段名称/参数名/是否必填radio与取消/确定、类型次要行。",
+      "expected": "scene/platform隔离，schema2准确回读；主场景无全字段展开，子取消不改父草稿，主保存才生效；合法一字段多参数，专属列不改分类；非法项拒绝保输入，旧配置读不迁移且取消不清旧定义。；无两个主新增入口/大面板，线上布局文案准确，80/64原限制及schema2、权限/类型/历史/快照不变。",
+      "task_import_revision": "2.0.0-current-20261101-step44"
+    },
+    {
+      "id": "CHECK-FLOW-AI-TASK-DIRECT-IMPORT",
+      "acceptance_ids": [
+        "AC-2160",
+        "AC-2162"
+      ],
+      "procedure": "准确AI任务打开共享导入，不重选分类/场景；检查缺专属必填、typed错误、重复及合法名单；确认后从原列表/业务详情明确开始。",
+      "expected": "任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。 厚朴场景查询并保存已有准确供应商任务后，只读投影到同一任务目录和导入/执行入口，按tenant/brand/account/taskId/唯一scene稳定关联，不创建供应商任务、不按名称猜；实时读取准确任务状态，未知供应商计数显示待核。已知权威taskStatusCode使用准确可执行枚举，原status='unknown'仅属兼容状态文本，不覆盖权威taskStatusCode明确枚举；权威code为null或未知仍拒绝。 导入与明确执行使用相同底层配置语义指纹；已知成功准入包装字段和对象键序不构成业务配置变化。旧schema2 TASK/DIRECT仅在完整准确身份及已知wrapper/basis证明等价时只读兼容；未知附加项或真实映射/来源/模板/状态变化继续拒绝，不回写旧快照，TEMPLATE标签依赖保完整指纹。",
+      "task_import_revision": "2.0.0-current-20261101-step44"
+    },
+    {
+      "id": "CHECK-FLOW-PRED-TASK-DIRECT-IMPORT",
+      "acceptance_ids": [
+        "AC-2160",
+        "AC-2162"
+      ],
+      "procedure": "预外呼4步配置保存分类；从行内/顶部选同任务导入，实际CSV有空行/前导零及1有效1错误，保存有效子集再恢复失败草稿续入。",
+      "expected": "任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。",
+      "task_import_revision": "2.0.0-current-20261101-step44"
     }
   ],
   "page_mappings": {
@@ -61619,7 +62102,7 @@
       ],
       "decision_owner": "AI/Cloud原专业服务与接入工程负责人",
       "blocks": "真实服务接入和生产验收，不重开产品范围",
-      "question": "每专业动作真实授权码/路由/供应商取数、状态枚举、资源用途与导出字段映射需核证；本地Mock不能证明部署或远端成功。；另保留ISSUE-2018：核源ISSUE-11214的前序v1.1.1正式专业基底契约，v1.2冻结/本地Mock既有证据不重复核验，前序正式来源缺证未完成。",
+      "question": "每专业动作真实授权码/路由/供应商取数、状态枚举、资源用途与导出字段映射需核证；本地Mock不能证明部署或远端成功。；另保留ISSUE-2018：核源ISSUE-11214的前序v1.1.1正式专业基底契约，v1.2冻结/本地Mock既有证据不重复核验，前序正式来源缺证未完成。 Step44供应商固定导入项/参数映射/各目标容量与配置型待分配客户任务的真实适配、后续执行证据继续待工程核证，统一账本/投影不是供应商导入受理证明。",
       "blocking": true,
       "owner": "development",
       "engineering_category": "verification",
@@ -61895,7 +62378,7 @@
       "legacy_issue_id": "ISSUE-2017",
       "status": "open_engineering_evidence_required",
       "product_status": "business_rule_defined_not_reopened",
-      "product_rule": "本方业务正式导入必须满足当前分类导入字段、明确首呼方式与本租户AI场景；分配只安排合法责任人。",
+      "product_rule": "本方业务正式导入必须满足当前分类导入字段、明确首呼方式与本租户AI场景；按方式安排任务或人工分配方式/坐席，无独立责任人输入；任务三入口同源IMPORT及DIRECT资格继续。",
       "engineering_gap": "正式入站导入契约、应用鉴权与授权租户、稳定业务编码/列映射/原始值和重复幂等的生产字段。",
       "current_question_ids": [
         "ENG-FLOW-PERSISTENCE",
@@ -62119,5 +62602,8 @@
     "action_id_mappings": 71,
     "validation": "JSON field/ID/union refs audited; no prototype build, browser, real auth/vendor/financial evidence asserted"
   },
-  "audit_corrections": "audit-20261030-step40"
+  "audit_corrections": "audit-20261030-step40",
+  "review_notes": [
+    "当前Step54证据仅有限本地Mock/合成名单与获准HTTP；三条主流程有实际闭环，22组中13组已验、9组部分已验，66套1102结构化用例通过只是补充。下载落地、真实音频、未知回执/停止/新周期及其他列明子项、file协议、真实供应商/API/CTI未全部验证；产品资料更新不授全量验收、S8/final、G3或工程执行批准，DRAFT继续保留。"
+  ]
 }

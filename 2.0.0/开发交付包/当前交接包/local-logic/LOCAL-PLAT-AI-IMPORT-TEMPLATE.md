@@ -16,7 +16,7 @@
 
 ## 前置条件
 
-- 当前准确AI任务/场景读取及导入资格
+- 当前准确AI任务/场景读取及原导入资格，分类/供应商映射可可靠取得
 
 ## 必须遵守的全局规则
 
@@ -25,10 +25,11 @@
 - [GR-AUTH](../global-logic.md#GR-AUTH)
 - [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
 - [GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)
+- [GR-TASK-UNIFIED-IMPORT](../global-logic.md#GR-TASK-UNIFIED-IMPORT)
 
 ## 输入与输出
 
-输入：[FIELD-PLAT-TASK-ID](../field-specs.md#FIELD-PLAT-TASK-ID)、[FIELD-PLAT-AI-SCENE-ID](../field-specs.md#FIELD-PLAT-AI-SCENE-ID)、[FIELD-PLAT-PRO-FIELD-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)
+输入：[FIELD-PLAT-TASK-ID](../field-specs.md#FIELD-PLAT-TASK-ID)、[FIELD-PLAT-AI-SCENE-ID](../field-specs.md#FIELD-PLAT-AI-SCENE-ID)、[FIELD-PLAT-PRO-FIELD-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)、[FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY](../field-specs.md#FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY)、[FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS](../field-specs.md#FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS)、[FIELD-FLOW-CATEGORY-IMPORT-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)
 
 输出：[FIELD-PLAT-REPORT-EXPORT](../field-specs.md#FIELD-PLAT-REPORT-EXPORT)
 
@@ -36,7 +37,7 @@
 
 ### LOCAL-PLAT-AI-IMPORT-TEMPLATE-S1
 
-取当前场景允许字段/必需项形成准确表头模板
+先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。
 
 读取：FIELD-PLAT-TASK-ID, FIELD-PLAT-AI-SCENE-ID, FIELD-PLAT-PRO-FIELD-DEF；写入：无
 
@@ -44,11 +45,11 @@
 
 ### LOCAL-PLAT-AI-IMPORT-TEMPLATE-S2
 
-无当前定义/无权/生成失败不给空白假模板；下载不执行导入
+schema1/legacy只读兼容、schema2按本场景准确映射；无准确平台/分类/定义或供应商必需参数待核时不给假空模板。下载本身不导入、不改分类或升级场景；实际下载落地验收仍单列未验。
 
-读取：FIELD-PLAT-TASK-ID, FIELD-PLAT-AI-SCENE-ID, FIELD-PLAT-PRO-FIELD-DEF；写入：FIELD-PLAT-REPORT-EXPORT
+读取：FIELD-PLAT-TASK-ID, FIELD-PLAT-AI-SCENE-ID, FIELD-PLAT-PRO-FIELD-DEF, FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY, FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS, FIELD-FLOW-CATEGORY-IMPORT-REFS；写入：FIELD-PLAT-REPORT-EXPORT
 
-规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER, GR-TASK-UNIFIED-IMPORT
 
 ## 分支与异常
 
@@ -88,14 +89,17 @@
 
 ## 字段定义
 
+- [FIELD-PLAT-TASK-ID](../field-specs.md#FIELD-PLAT-TASK-ID)
 - [FIELD-PLAT-AI-SCENE-ID](../field-specs.md#FIELD-PLAT-AI-SCENE-ID)
 - [FIELD-PLAT-PRO-FIELD-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)
+- [FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY](../field-specs.md#FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY)
+- [FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS](../field-specs.md#FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS)
+- [FIELD-FLOW-CATEGORY-IMPORT-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)
 - [FIELD-PLAT-REPORT-EXPORT](../field-specs.md#FIELD-PLAT-REPORT-EXPORT)
-- [FIELD-PLAT-TASK-ID](../field-specs.md#FIELD-PLAT-TASK-ID)
 
 ## 来源与验证
 
-来源条目：acceptance:AC-2063, acceptance:AC-2064, features:FUNC-2002, features:FUNC-2002/behavior_spec/88/branches/0, features:FUNC-2002/behavior_spec/88/branches/1, features:FUNC-2002/behavior_spec/88/branches/2, features:FUNC-2002/behavior_spec/88/postconditions/0, features:FUNC-2002/behavior_spec/88/preconditions/0, features:FUNC-2002/behavior_spec/88/steps/0, features:FUNC-2002/behavior_spec/88/steps/1, pages:PAGE-2103, pages:PAGE-2103/actions/1, pages:PAGE-2103/fields/1, pages:PAGE-2103/fields/16, pages:PAGE-2103/fields/18, pages:PAGE-2103/fields/21, pages:PAGE-2108/fields/1, pages:PAGE-2110/fields/2, pages:PAGE-2111/fields/3, pages:PAGE-2204/fields/79, pages:PAGE-2205/fields/14, pages:PAGE-2205/fields/35, pages:PAGE-2206/fields/14, pages:PAGE-2206/fields/35, pages:PAGE-2208/fields/8, pages:PAGE-2209/fields/5, pages:PAGE-2209/fields/8, pages:PAGE-2222/fields/3, pages:PAGE-2223/fields/36, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/199, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/225, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/300, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/306, scenarios:FLOW-CURRENT-PLATFORM/steps/116
+来源条目：acceptance:AC-2063, acceptance:AC-2064, features:FUNC-2002, features:FUNC-2002/behavior_spec/88/branches/0, features:FUNC-2002/behavior_spec/88/branches/1, features:FUNC-2002/behavior_spec/88/branches/2, features:FUNC-2002/behavior_spec/88/postconditions/0, features:FUNC-2002/behavior_spec/88/preconditions/0, features:FUNC-2002/behavior_spec/88/steps/0, features:FUNC-2002/behavior_spec/88/steps/1, pages:PAGE-2006/fields/6, pages:PAGE-2103, pages:PAGE-2103/actions/1, pages:PAGE-2103/fields/1, pages:PAGE-2103/fields/16, pages:PAGE-2103/fields/18, pages:PAGE-2103/fields/21, pages:PAGE-2103/fields/26, pages:PAGE-2103/fields/27, pages:PAGE-2108/fields/1, pages:PAGE-2110/fields/13, pages:PAGE-2110/fields/14, pages:PAGE-2110/fields/15, pages:PAGE-2110/fields/2, pages:PAGE-2111/fields/3, pages:PAGE-2204/fields/11, pages:PAGE-2204/fields/79, pages:PAGE-2205/fields/14, pages:PAGE-2205/fields/35, pages:PAGE-2205/fields/59, pages:PAGE-2206/fields/14, pages:PAGE-2206/fields/35, pages:PAGE-2208/fields/8, pages:PAGE-2209/fields/5, pages:PAGE-2209/fields/8, pages:PAGE-2222/fields/3, pages:PAGE-2223/fields/36, pages:PAGE-2223/fields/5, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/21, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/213, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/239, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/314, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/320, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/419, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/420, scenarios:FLOW-CURRENT-PLATFORM/steps/116
 
 验证：CHECK-PLAT-AI-IMPORT-TEMPLATE
 

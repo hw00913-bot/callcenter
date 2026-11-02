@@ -1,4 +1,4 @@
-# LOCAL-PLAT-CUSTOMER-IMPORT 原客户任务导入与字段映射校验
+# LOCAL-PLAT-CUSTOMER-IMPORT 分类导入发起与原专业历史边界
 
 **DRAFT — 供讨论与补充，尚未完成本阶段交接**
 
@@ -12,7 +12,7 @@
 
 功能：FUNC-2002
 
-触发：原人工/专业客户任务入口选择文件或原接口来源导入
+触发：业务分类行发起人工/接口模板导入，或读取原专业历史来源
 
 ## 前置条件
 
@@ -25,10 +25,11 @@
 - [GR-AUTH](../global-logic.md#GR-AUTH)
 - [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
 - [GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)
+- [GR-TASK-UNIFIED-IMPORT](../global-logic.md#GR-TASK-UNIFIED-IMPORT)
 
 ## 输入与输出
 
-输入：[FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)、[FIELD-PLAT-PRO-FIELD-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)、[FIELD-PLAT-RESOURCE-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)
+输入：[FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)、[FIELD-PLAT-PRO-FIELD-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)、[FIELD-PLAT-RESOURCE-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)、[FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-PLAT-TASK-BUSINESS-RECORD-ID](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-RECORD-ID)
 
 输出：[FIELD-PLAT-CUSTOMER-ID](../field-specs.md#FIELD-PLAT-CUSTOMER-ID)、[FIELD-PLAT-IMPORT-BATCH](../field-specs.md#FIELD-PLAT-IMPORT-BATCH)、[FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)
 
@@ -36,7 +37,7 @@
 
 ### LOCAL-PLAT-CUSTOMER-IMPORT-S1
 
-按当前准确字段ID及业务编码映射校验必填、号码、重复和冲突
+业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 新写按LOCAL-FLOW-IMPORT-PREVIEW/COMMIT的准确CATEGORY/TEMPLATE办理，不构造第三个中央DIRECT导入。
 
 读取：FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-PRO-FIELD-DEF, FIELD-PLAT-RESOURCE-SCOPE, FIELD-PLAT-REQUEST；写入：无
 
@@ -44,7 +45,7 @@
 
 ### LOCAL-PLAT-CUSTOMER-IMPORT-S2
 
-正式导入范围逐行通过；已存在业务标识不以手机号覆盖
+先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。
 
 读取：FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-PRO-FIELD-DEF, FIELD-PLAT-RESOURCE-SCOPE, FIELD-PLAT-REQUEST；写入：无
 
@@ -52,11 +53,11 @@
 
 ### LOCAL-PLAT-CUSTOMER-IMPORT-S3
 
-记录真实批次和逐项结果，与新业务分类入口导入按各自准确实体分开
+原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 TASK新写从准确任务入口，IVR及其他原专业能力仍按各自原权限合同，不能借批次页开启新入口。
 
-读取：FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-PRO-FIELD-DEF, FIELD-PLAT-RESOURCE-SCOPE, FIELD-PLAT-REQUEST；写入：FIELD-PLAT-CUSTOMER-ID, FIELD-PLAT-IMPORT-BATCH, FIELD-PLAT-OP-STATE
+读取：FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-PRO-FIELD-DEF, FIELD-PLAT-RESOURCE-SCOPE, FIELD-PLAT-REQUEST, FIELD-FLOW-TASK-IMPORT-SOURCE, FIELD-PLAT-TASK-BUSINESS-RECORD-ID；写入：FIELD-PLAT-CUSTOMER-ID, FIELD-PLAT-IMPORT-BATCH, FIELD-PLAT-OP-STATE
 
-规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER
+规则：GR-IDENTITY, GR-SCOPE, GR-AUTH, GR-UNKNOWN, GR-LIST-ORDER, GR-TASK-UNIFIED-IMPORT
 
 ## 分支与异常
 
@@ -64,7 +65,7 @@
 
 条件：前提、字段及对象修订校验通过且结果明确成功
 
-结果：合法专业名单入库并可分配；原专业导入不是新四节点模板自动启动
+结果：原人工/接口专业历史保原事实；本轮AI/PRED任务新导入采用共同分类IMPORT并形成DIRECT业务，不自动模板启动或迁移旧名单
 
 涉及字段：FIELD-PLAT-IMPORT-ROWS, FIELD-PLAT-PRO-FIELD-DEF, FIELD-PLAT-RESOURCE-SCOPE, FIELD-PLAT-REQUEST, FIELD-PLAT-CUSTOMER-ID, FIELD-PLAT-IMPORT-BATCH, FIELD-PLAT-OP-STATE
 
@@ -92,21 +93,23 @@
 
 ## 完成后的状态
 
-- 合法专业名单入库并可分配；原专业导入不是新四节点模板自动启动
+- 新写统一进入准确CATEGORY/TEMPLATE或TASK/DIRECT链；原专业历史只读按原身份保留，不重复提交。
 
 ## 字段定义
 
+- [FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)
+- [FIELD-PLAT-PRO-FIELD-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)
+- [FIELD-PLAT-RESOURCE-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)
+- [FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)
+- [FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)
+- [FIELD-PLAT-TASK-BUSINESS-RECORD-ID](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-RECORD-ID)
 - [FIELD-PLAT-CUSTOMER-ID](../field-specs.md#FIELD-PLAT-CUSTOMER-ID)
 - [FIELD-PLAT-IMPORT-BATCH](../field-specs.md#FIELD-PLAT-IMPORT-BATCH)
-- [FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)
 - [FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)
-- [FIELD-PLAT-PRO-FIELD-DEF](../field-specs.md#FIELD-PLAT-PRO-FIELD-DEF)
-- [FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)
-- [FIELD-PLAT-RESOURCE-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)
 
 ## 来源与验证
 
-来源条目：acceptance:AC-2067, acceptance:AC-2072, acceptance:AC-2073, features:FUNC-2002, features:FUNC-2002/behavior_spec/32/branches/0, features:FUNC-2002/behavior_spec/32/branches/1, features:FUNC-2002/behavior_spec/32/branches/2, features:FUNC-2002/behavior_spec/32/postconditions/0, features:FUNC-2002/behavior_spec/32/preconditions/0, features:FUNC-2002/behavior_spec/32/steps/0, features:FUNC-2002/behavior_spec/32/steps/1, features:FUNC-2002/behavior_spec/32/steps/2, pages:PAGE-2003/fields/17, pages:PAGE-2003/fields/22, pages:PAGE-2003/fields/23, pages:PAGE-2004/fields/2, pages:PAGE-2004/fields/4, pages:PAGE-2005/fields/5, pages:PAGE-2005/fields/8, pages:PAGE-2007/fields/20, pages:PAGE-2007/fields/21, pages:PAGE-2007/fields/24, pages:PAGE-2103/fields/11, pages:PAGE-2103/fields/12, pages:PAGE-2103/fields/13, pages:PAGE-2103/fields/16, pages:PAGE-2103/fields/19, pages:PAGE-2103/fields/9, pages:PAGE-2105/fields/4, pages:PAGE-2106/fields/9, pages:PAGE-2107/fields/4, pages:PAGE-2108/fields/18, pages:PAGE-2108/fields/19, pages:PAGE-2110/fields/8, pages:PAGE-2112/fields/11, pages:PAGE-2112/fields/13, pages:PAGE-2202/fields/11, pages:PAGE-2202/fields/21, pages:PAGE-2202/fields/28, pages:PAGE-2202/fields/29, pages:PAGE-2203/fields/56, pages:PAGE-2203/fields/63, pages:PAGE-2204, pages:PAGE-2204/actions/0, pages:PAGE-2204/fields/73, pages:PAGE-2204/fields/75, pages:PAGE-2204/fields/76, pages:PAGE-2204/fields/77, pages:PAGE-2204/fields/79, pages:PAGE-2204/fields/82, pages:PAGE-2204/fields/83, pages:PAGE-2205/fields/10, pages:PAGE-2205/fields/15, pages:PAGE-2205/fields/16, pages:PAGE-2205/fields/8, pages:PAGE-2205/fields/9, pages:PAGE-2206/fields/10, pages:PAGE-2206/fields/15, pages:PAGE-2206/fields/16, pages:PAGE-2206/fields/8, pages:PAGE-2206/fields/9, pages:PAGE-2207/fields/14, pages:PAGE-2207/fields/17, pages:PAGE-2208/fields/9, pages:PAGE-2209/fields/1, pages:PAGE-2209/fields/7, pages:PAGE-2210/fields/1, pages:PAGE-2210/fields/5, pages:PAGE-2210/fields/6, pages:PAGE-2211/fields/1, pages:PAGE-2211/fields/4, pages:PAGE-2211/fields/5, pages:PAGE-2212/fields/1, pages:PAGE-2212/fields/10, pages:PAGE-2212/fields/9, pages:PAGE-2213/fields/1, pages:PAGE-2213/fields/25, pages:PAGE-2213/fields/26, pages:PAGE-2214/fields/2, pages:PAGE-2214/fields/4, pages:PAGE-2214/fields/5, pages:PAGE-2215/fields/3, pages:PAGE-2215/fields/6, pages:PAGE-2215/fields/7, pages:PAGE-2216/fields/1, pages:PAGE-2216/fields/10, pages:PAGE-2216/fields/11, pages:PAGE-2217/fields/13, pages:PAGE-2217/fields/17, pages:PAGE-2217/fields/18, pages:PAGE-2218/fields/1, pages:PAGE-2218/fields/5, pages:PAGE-2218/fields/6, pages:PAGE-2219/fields/11, pages:PAGE-2219/fields/12, pages:PAGE-2219/fields/8, pages:PAGE-2220/fields/11, pages:PAGE-2220/fields/12, pages:PAGE-2220/fields/17, pages:PAGE-2220/fields/18, pages:PAGE-2220/fields/9, pages:PAGE-2221/fields/6, pages:PAGE-2221/fields/7, pages:PAGE-2222/fields/4, pages:PAGE-2223/fields/36, pages:PAGE-2225/fields/2, pages:PAGE-2227/fields/136, pages:PAGE-2227/fields/137, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/186, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/187, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/206, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/207, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/208, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/264, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/300, scenarios:FLOW-CURRENT-PLATFORM/steps/59
+来源条目：acceptance:AC-2067, acceptance:AC-2072, acceptance:AC-2073, features:FUNC-2002, features:FUNC-2002/behavior_spec/32/branches/0, features:FUNC-2002/behavior_spec/32/branches/1, features:FUNC-2002/behavior_spec/32/branches/2, features:FUNC-2002/behavior_spec/32/postconditions/0, features:FUNC-2002/behavior_spec/32/preconditions/0, features:FUNC-2002/behavior_spec/32/steps/0, features:FUNC-2002/behavior_spec/32/steps/1, features:FUNC-2002/behavior_spec/32/steps/2, pages:PAGE-2003/fields/17, pages:PAGE-2003/fields/22, pages:PAGE-2003/fields/23, pages:PAGE-2004/fields/2, pages:PAGE-2004/fields/4, pages:PAGE-2005/fields/5, pages:PAGE-2005/fields/8, pages:PAGE-2007/fields/20, pages:PAGE-2007/fields/21, pages:PAGE-2007/fields/24, pages:PAGE-2103/fields/11, pages:PAGE-2103/fields/12, pages:PAGE-2103/fields/13, pages:PAGE-2103/fields/16, pages:PAGE-2103/fields/19, pages:PAGE-2103/fields/28, pages:PAGE-2103/fields/30, pages:PAGE-2103/fields/9, pages:PAGE-2105/fields/4, pages:PAGE-2106/fields/9, pages:PAGE-2107/fields/4, pages:PAGE-2108/fields/18, pages:PAGE-2108/fields/19, pages:PAGE-2110/fields/8, pages:PAGE-2112/fields/11, pages:PAGE-2112/fields/13, pages:PAGE-2202/fields/11, pages:PAGE-2202/fields/21, pages:PAGE-2202/fields/28, pages:PAGE-2202/fields/29, pages:PAGE-2203/fields/56, pages:PAGE-2203/fields/63, pages:PAGE-2204, pages:PAGE-2204/actions/0, pages:PAGE-2204/fields/73, pages:PAGE-2204/fields/75, pages:PAGE-2204/fields/76, pages:PAGE-2204/fields/77, pages:PAGE-2204/fields/79, pages:PAGE-2204/fields/82, pages:PAGE-2204/fields/83, pages:PAGE-2204/fields/96, pages:PAGE-2205/fields/10, pages:PAGE-2205/fields/15, pages:PAGE-2205/fields/16, pages:PAGE-2205/fields/56, pages:PAGE-2205/fields/57, pages:PAGE-2205/fields/8, pages:PAGE-2205/fields/9, pages:PAGE-2206/fields/10, pages:PAGE-2206/fields/15, pages:PAGE-2206/fields/16, pages:PAGE-2206/fields/8, pages:PAGE-2206/fields/9, pages:PAGE-2207/fields/14, pages:PAGE-2207/fields/17, pages:PAGE-2208/fields/9, pages:PAGE-2209/fields/1, pages:PAGE-2209/fields/7, pages:PAGE-2210/fields/1, pages:PAGE-2210/fields/5, pages:PAGE-2210/fields/6, pages:PAGE-2211/fields/1, pages:PAGE-2211/fields/4, pages:PAGE-2211/fields/5, pages:PAGE-2212/fields/1, pages:PAGE-2212/fields/10, pages:PAGE-2212/fields/9, pages:PAGE-2213/fields/1, pages:PAGE-2213/fields/25, pages:PAGE-2213/fields/26, pages:PAGE-2214/fields/2, pages:PAGE-2214/fields/4, pages:PAGE-2214/fields/5, pages:PAGE-2215/fields/3, pages:PAGE-2215/fields/6, pages:PAGE-2215/fields/7, pages:PAGE-2216/fields/1, pages:PAGE-2216/fields/10, pages:PAGE-2216/fields/11, pages:PAGE-2217/fields/13, pages:PAGE-2217/fields/17, pages:PAGE-2217/fields/18, pages:PAGE-2218/fields/1, pages:PAGE-2218/fields/5, pages:PAGE-2218/fields/6, pages:PAGE-2219/fields/11, pages:PAGE-2219/fields/12, pages:PAGE-2219/fields/8, pages:PAGE-2220/fields/11, pages:PAGE-2220/fields/12, pages:PAGE-2220/fields/17, pages:PAGE-2220/fields/18, pages:PAGE-2220/fields/9, pages:PAGE-2221/fields/6, pages:PAGE-2221/fields/7, pages:PAGE-2222/fields/4, pages:PAGE-2223/fields/36, pages:PAGE-2225/fields/2, pages:PAGE-2226/fields/44, pages:PAGE-2227/fields/136, pages:PAGE-2227/fields/137, pages:PAGE-2227/fields/149, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/168, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/200, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/201, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/220, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/221, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/222, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/278, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/314, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/421, scenarios:FLOW-CURRENT-PLATFORM/steps/59
 
 验证：CHECK-PLAT-CUSTOMER-IMPORT
 

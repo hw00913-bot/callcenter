@@ -4144,3 +4144,301 @@ Next Action:
 - Scope Boundary: Current finite local Mock/HTTP only. Developer-owned engineering and real interfaces remain separate; source reference diagrams and manual file scope explicitly recorded.
 - Content Digest: 55da3db95ab5d1b583fc484dd3d3921548488378becd2a673d6105b7e3a66d7e
 - Verification Epoch: 21a86d69c42f8fac
+
+## Fresh verification assertion
+- Step: step-42
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html
+- Tool: Node built VM/adapter regressions and CUA local HTTP browser
+- Command / Check: 39 current scripts in evidence plus actual two-mode import, task/seat selection, manual single/bulk assignment, saved default and priority order readback
+- Passed: 39 suites; 567 reported cases; original UI assertion script; actual HTTP workflows
+- Failed: 0
+- Evidence: memory/execution-arrangement-verification-20261031.json
+- Consecutive Failures: 0
+- Notes: Scoped local Mock completion. Startup browser diagnostics retained in evidence; no real provider/file/global or formal G3 claim.
+- Content Digest: b3e61845b7f5692693a4541754d89dd35f08b9a693740304a0859f5aa7c13333
+- Verification Epoch: 09c14539f0a108bd
+
+## Fresh verification assertion
+- Step: step-43
+- Scope: step
+- Result: fail
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html
+- Tool: Node current-built model/DOM regressions and CUA read-only DOM
+- Command / Check: 40 current scripts named in evidence; interactive browser input attempted and stopped after Mac-lock confirmation
+- Passed: 40 suites; 592 reported cases; original editor assertions; product content/manifest checks
+- Failed: 0 code cases; live form click verification unavailable because Mac is locked
+- Evidence: memory/assignment-simplification-verification-20261031.json
+- Consecutive Failures: 3
+- Failure Class: environment-mac-locked
+- Notes: Code/document fixes implemented. Overall step not marked pass because current live interactions remain unverified; user unlock requested asynchronously.
+- Content Digest: 3766e96f7e06749e1b4d804114b1ebcdb26b59d7751ab49f65519e64937e4357
+- Verification Epoch: 9726a7ecfe716e16
+
+## Fresh verification assertion
+- Step: step-43
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html
+- Tool: CUA real HTTP UI plus unchanged current-built model/DOM regression evidence
+- Command / Check: User-unlocked current build: real two-mode manual allocation/specific-seat, conditional required seat, task-only predictive, AI scene/task without follower, template save/edit, original single/bulk allocation and final reload
+- Passed: Current target GUI workflows; runtime hashes unchanged from40 suites592 reported cases and editor assertions
+- Failed: 0 target workflow failures; startup/locator diagnostics retained separately
+- Evidence: memory/assignment-simplification-verification-20261031.json
+- Consecutive Failures: 0
+- Notes: Appended fresh pass after real current UI verification; earlier locked-Mac failure retained. Scoped local Mock, no full-version/real-provider/formal-approval claim.
+- Content Digest: 16f8b421d01e3e7c85d8c61738bbdb1788a236cad2ec70b13e75e1da589fd830
+- Verification Epoch: 9726a7ecfe716e16
+
+## Fresh verification assertion
+- Step: step-43
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html
+- Tool: CUA real HTTP UI plus unchanged current-built model/DOM regression evidence
+- Command / Check: Current GUI proof and unchanged implementation hashes, resolved browser circuit, R245-R247 pass, final documentation and current DRAFT review/export checked
+- Passed: Current target GUI workflows; runtime hashes unchanged from40 suites592 reported cases and editor assertions
+- Failed: 0 target workflow failures; startup/locator diagnostics retained separately
+- Evidence: memory/assignment-simplification-verification-20261031.json
+- Consecutive Failures: 0
+- Notes: Scoped current local Mock GUI verification and final documentation consistency. Historical lock failure retained; no global or production approval.
+- Content Digest: 16f8b421d01e3e7c85d8c61738bbdb1788a236cad2ec70b13e75e1da589fd830
+- Verification Epoch: 9726a7ecfe716e16
+
+## Fresh verification assertion
+- Step: step-44
+- Scope: step
+- Result: fail
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html
+- Tool: prototype-verifier; current built isolated regressions and actual CUA candidate HTTP observations
+- Command / Check: 45 current suites and673 reported cases passed, fresh final AI-only wrapper6/6; actual scene mapping/AI imports observed; remaining predictive and final reload UI blocked by Mac lock
+- Passed: All current implementation/model/bridge/shared UI/field/permission regressions; observed candidate AI direct import and saved field mapping
+- Failed: Remaining final-build predictive import and central/task reload UI are unverified because Mac is locked; not claimed as a product pass
+- Consecutive Failures: 1 environment checkpoint
+- Evidence: memory/task-business-import-verification-20261101.json
+- Notes: Implementation pass; interactive browser partial. User unlock question pending. No S8/final, file or production/provider approval.
+- Content Digest: db5d845a06151a4b3b88aa60652512711235fca9ba2ff14828d0273dc5d128ba
+- Verification Epoch: de439d36c3ab2ec2
+
+## Fresh verification assertion
+- Step: step-44
+- Scope: step
+- Result: fail
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html
+- Tool: prototype-verifier; current built isolated regressions and actual CUA candidate HTTP observations
+- Command / Check: Final45 suites673 reported cases and source hashes match; controlled current DRAFT export exit0,398 files62326 relative links155 sources all validated; final predictive/reload GUI remains Mac-locked
+- Passed: All current implementation/model/bridge/shared UI/field/permission regressions; observed candidate AI direct import and saved field mapping
+- Failed: Remaining final-build predictive import and central/task reload UI are unverified because Mac is locked; not claimed as a product pass
+- Consecutive Failures: 1 environment checkpoint
+- Evidence: memory/task-business-import-verification-20261101.json
+- Notes: Code and requirements/current DRAFT synchronized; source proof91e74145...460b0c7 exact; candidate GUI observations are not promoted to current final GUI/global/provider approval.
+- Content Digest: 842ad0eb91d1532bed655b153029ff177cb51dd1d30a41672cbe54f66f7ac00f
+- Verification Epoch: de439d36c3ab2ec2
+
+## Fresh verification assertion
+- Step: step-44
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html
+- Tool: prototype-verifier; CUA actual frozen-build HTTP UI and unchanged45-suite673-case evidence
+- Command / Check: User unlock; actual predictive import with all custom fields and highest priority; final reload central and AI/PRED task projections; current source hashes unchanged
+- Passed: Task imports and schema/mapping/readback scope;3 unique QA44 businesses, correct fields/targets/grades, no import-time seat/follower, no duplicate provider row
+- Failed: 0 Step44 target failures; separate lifecycle AUD01-03 remain open for Step45
+- Consecutive Failures: 0
+- Evidence: memory/task-business-import-verification-20261101.json
+- Notes: Step44 only, not whole lifecycle/S8/final or provider approval; old locked/candidate failures retained.
+- Content Digest: b81e89325354b2a2ef1d41655ccd06d3812751972c6ea083b1afca4bca5cd408
+- Verification Epoch: de439d36c3ab2ec2
+
+## Fresh verification assertion
+- Step: step-45
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2227
+- Tool: prototype-verifier; CUA real HTTP plus actual built-model/workspace regressions
+- Command / Check: 47 affected scripts all exit0; 709 structured cases + standalone editor; 19 lifecycle/17 built UI; unchanged original AUD02/AUD03; historical recovery+controlled stop/confirm/reopen+reload HTTP; S7 preflight
+- Passed: R251/252/253 affected rules; original audit7 artifact hashes unchanged; original AUD01 now rejects obsolete reason-only setup and new semantic equivalents pass
+- Failed: 0 affected current-policy failures; original AUD01 unchanged has policy-incompatible setup rejection, not counted as pass; two inherited unattributed startup MutationObserver diagnostics retained
+- Consecutive Failures: 0
+- Evidence: memory/lifecycle-audit-fix-verification-20261101.json
+- Notes: New epoch scoped Step45 only, no whole S8/final/G3/provider approval; first failures retained. Runtime and source hashes in proof.
+- Content Digest: d48afd65a3ac13cfc4332b3da8607dbddd1ead41b045cd7ea2c433ff6c26cdfc
+- Verification Epoch: 0a0c3ba46b7c43b5
+
+## Fresh verification assertion
+- Step: step-45
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2227
+- Tool: prototype-verifier; CUA real HTTP plus actual built-model/workspace regressions
+- Command / Check: 47 affected scripts all exit0; 709 structured cases + standalone editor; 19 lifecycle/17 built UI; unchanged original AUD02/AUD03; historical recovery+controlled stop/confirm/reopen+reload HTTP; S7 preflight
+- Passed: R251/252/253 affected rules; original audit7 artifact hashes unchanged; original AUD01 now rejects obsolete reason-only setup and new semantic equivalents pass
+- Failed: 0
+- Consecutive Failures: 0
+- Evidence: memory/lifecycle-audit-fix-verification-20261101.json
+- Notes: Scoped current-policy checks only. Original AUD01 unchanged rejects its obsolete reason-only prerequisite and is not counted as pass; two known startup MutationObserver diagnostics retained. No whole S8/final/G3/provider approval; first failures preserved in proof. Record field normalized to numeric affected-failure count; source/tests unchanged.
+- Content Digest: d48afd65a3ac13cfc4332b3da8607dbddd1ead41b045cd7ea2c433ff6c26cdfc
+- Verification Epoch: 0a0c3ba46b7c43b5
+
+## Fresh verification assertion
+- Step: step-46
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2110
+- Tool: prototype-verifier; CUA real local UI and exact built model/modal tests
+- Command / Check: 50 current check scripts;756 structured pass plus standalone editor; new13 supplier/8 built task/24 built modal, legacy19/shared23; exact final source and bundle; real create/choice/config/cancel/discard/restore/import/reload; S7 preflight
+- Passed: R254 andR255 affected behavior; business fields separate from supplier columns; scene and platform independent; old import snapshots and guards preserved
+- Failed: 0
+- Consecutive Failures: 0
+- Evidence: memory/ai-provider-field-dialog-verification-20261101.json
+- Notes: S7 local finite Mock only; original diagnostic/failing fixture history retained; no zero-console, global S8/final/G3 or real provider approval claim.
+- Content Digest: c4eb3ddb6545b1589b8aab9bd3be356a033423de4391625d62ffa5ac1aa66007
+- Verification Epoch: 250f68731d5eb640
+
+## Fresh verification assertion
+- Step: step-47
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2110
+- Tool: prototype-verifier; actual CUA UI and exact built regression
+- Command / Check: 50 current suites756 structured + standalone editor; built modal24/mapping19, pure13/task8; actual original add link/two choices/manual radios/cancel/parent save/reload;5 unchanged model/bridge hashes; S7 preflight
+- Passed: R256 original entry and requested screenshot-style modal, import/manual paths and existing data guards
+- Failed: 0
+- Consecutive Failures: 0
+- Evidence: memory/ai-add-field-entry-verification-20261101.json
+- Notes: UI-only finite local Mock; known startup observer retained, not zero-console or whole S8/final/G3/provider approval.
+- Content Digest: 7176fbd360a1a5a586e055fb0bb734aa27dd1c2c3ad26e974e1ec851d0a76021
+- Verification Epoch: 250f68731d5eb640
+
+## Fresh verification assertion
+- Step: step-48
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2204
+- Tool: prototype-verifier; exact built regression and CUA real local HTTP
+- Command / Check: 54 current suites827 structured + standalone editor; actual category/scene source/schema/required-type/Template andDirect imports/assignment/batch/snapshot reload/Flow-only template/menu vsbatch;576 development-package hashes and file set held;S7 preflight
+- Passed: R257-R260 current local prototype and development-package hold
+- Failed: 0
+- Consecutive Failures: 0
+- Evidence: memory/scene-driven-import-verification-20261101.json
+- Notes: Prototype awaiting user review. IAB download event unavailable: generated artifact/save invocation verified, filesystem landing not claimed. No global S8/final/G3/engineering/provider approval.
+- Content Digest: f6ef516a6b19126e1c2573359e3d1bae6ef5919293dc9caf71fc07c6828ff5b6
+- Verification Epoch: b8ec6376052aa5cc
+
+## Fresh verification assertion
+- Step: step-49
+- Scope: step
+- Result: fail
+- Local URL / File: index.html; memory/entry-based-import-verification-20261101/regression-first/summary.json
+- Tool: prototype-verifier; current built 56 suite matrix
+- Command / Check: python3 /tmp/run-step49-regression.py /tmp/step49-regression-final
+- Passed: 862 structured cases; 52 suites
+- Failed: 13 retired-entry/END fixture assertions across4 suites; no infrastructure errors
+- Consecutive Failures: 1
+- Evidence: memory/entry-based-import-verification-20261101/regression-first/summary.json
+- Notes: Implementation/checkpoint not accepted yet. Adapt obsolete assertions to latest authorized entry contract, retain original permissions/priority/history/serial/unknown negatives. No stage advance or developer package mutation.
+- Content Digest: 445d3171e3c6acdc0424fc66377774f033b9f7418fdbaf2788ceaaa5d90fa210
+- Verification Epoch: b90420abfbffc3f5
+
+## Fresh verification assertion
+- Step: step-49
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2205
+- Tool: prototype-verifier; current built57 suite matrix; CUA real local HTTP and cold readback
+- Command / Check: 57 current suites915 structured passed plus standalone editor exit0; exact source/built, original native PRED wizard/import, AI24 running import, readonly waiting status and API close; package576/all audit7 hashes; S7 preflight
+- Passed: R261-R266; task15/category entry sources; AI24 saved and cold read waiting without calls; PRED task class save/native row check/edit/2 records/cold category; two-channel category and pure API close
+- Failed: 0
+- Consecutive Failures: 0
+- Evidence: memory/entry-based-import-verification-20261101.json
+- Notes: Prototype awaiting user review. Entire development package unchanged, no authoring/capture/export. Finite Mock only; no real API/provider/CTI or global/G3 approval. Prior file:// automatic-validation restriction remains; open index manually to review two entries.
+- Content Digest: 8e1e4414fef12781f6213b62ad48d34d24ef43dabe9fb8cbb6a8c9cb3bbaccdf
+- Verification Epoch: 6adf79881eec4154
+
+## Fresh verification assertion
+- Step: step-50
+- Scope: step
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2205; memory/business-logic-audit-20261101/业务逻辑审计报告.html
+- Tool: prototype-verifier; systematic-debugging; current exact-built VM/native/controller tests; CUA actual HTTP and cold readback
+- Command / Check: baseline57/915; independent before repro; current60 scripts978 structured0failed incl new63 audit cases; exact source/built and S7 preflight; source/check/evidence hashes; package576 and original audit7 exact
+- Passed: R267-R268;9 findings repaired(4high4medium1low),8 logic+1 count scope; actual partial save retain-close/reopen/correct/resume with both codes1 row, original native call counts unchanged
+- Failed: 0
+- Consecutive Failures: 0
+- Evidence: memory/business-logic-audit-verification-20261101.json
+- Notes: Finite local S7 Mock audit only, no global/S8/G3 or real API/provider/CTI approval. file:// automatic validation not performed under prior restriction; manually open index to review two entries. Development package fully held until user confirms prototype. Intermediate one process exit-11 retained as infrastructure history, current full matrix green.
+- Content Digest: 75612e3dced7307c2098c1b8d5def1a05481bbb371abff472bd021350007a722
+- Verification Epoch: 70045200efd41188
+
+## Fresh verification assertion
+- Step: step-51
+- Scope: step
+- Date: 2026-11-01T21:02:52.897750+08:00
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2205; memory/unified-task-import-roster-verification-20261101.json
+- Tool: prototype-verifier + verification-before-completion; current built isolated model/UI/native/host suites and actual authorized HTTP DOM/screenshots
+- Command / Check: Final build-modules; 63 current check scripts as recorded in regression-final/summary.json; node --check9 affected runtime files; current provenance/source hashes; package576 and original audit7 exact hash sets; S7 preflight
+- Passed: ['63 suites exit0;1042 structured assertions passed0failed; one no-count editor script not inflated', 'Shared automatic-context AI/PRED form; minimal PRED import saved and read in original table with correct actual batch/date/name', 'Original history/native2 rows retain original fields/actions and have four added fields blank; stable join/privacy/fault cases built tests pass', 'Development package576 exact unchanged, original audit7 unchanged; no new call']
+- Failed: []
+- Evidence: ['memory/unified-task-import-roster-verification-20261101.json', 'memory/unified-task-import-roster-verification-20261101/pred-simple-import.png', 'memory/unified-task-import-roster-verification-20261101/history-original-table.png']
+- Consecutive Failures: 0
+- Checkpoint: unified-task-import-original-rosters
+- Limits: Local finite Mock Step51 only; file automatic, real providers/CTI/API, globalS8/G3 and development package update remain outside. See proof limits.
+- Retained Diagnostics: Some browser CDP action replies timed out after successful UI action; fresh DOM established state before next action. No repeated commit. Prior startup MutationObserver diagnostic is not asserted resolved; no console-zero claim.
+- Content Digest: 8b4346ba5c6edf503302475adbcc7cb183d42da358eff98127a44ce8818dae6c
+- Verification Epoch: e2e9c4f32b5e4d55
+
+## Fresh verification assertion
+- Step: step-52
+- Scope: step
+- Date: 2026-11-01T21:24:11.162862+08:00
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2108; memory/ai-call-refusal-entry-verification-20261101.json
+- Tool: prototype-verifier + verification-before-completion; current built controller/hash/Node guards and authorized HTTP DOM/screenshots
+- Command / Check: S7 preflight; deterministic build; only1 native controller changed, other native scripts/CSS/fixtures/Cloud and policy stable;6 relevant suites; node --check5; HTTP list/detail; developer576 and originalaudit7 hashes
+- Passed: ['List only original details,37 rows and0 refusal buttons', 'Accurate detail retains recording/text and1 authorized original-source confirmation action; no restriction saved', '6 suites113 passed0failed; five syntax files passed', 'Developer package576 exact unchanged, originalaudit7 unchanged']
+- Failed: []
+- Evidence: ['memory/ai-call-refusal-entry-verification-20261101.json', 'memory/ai-call-refusal-entry-verification-20261101/ai-call-list-actions.png', 'memory/ai-call-refusal-entry-verification-20261101/ai-call-detail.png']
+- Consecutive Failures: 0
+- Checkpoint: ai-call-refusal-entry
+- Limits: Finite local Mock step only; file automatic and real interfaces unverified; no development package update.
+- Retained Diagnostics: Temporary regex extraction diagnostics retained as obsolete harness; exact HTMLParser check passed. See proof/build-scope. Browser mouse action initially had no visible result, keyboard activation verified detail.
+- Content Digest: 783cc4531ee9674cdcdc962f7cf937d58ed12b1ef6449a0e80ed88d5fb306c8c
+- Verification Epoch: a9e2e9a35927f7e9
+
+## Fresh verification assertion
+- Step: step-53
+- Scope: step
+- Date: 2026-11-01T21:59:45.862395+08:00
+- Result: pass
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2205; memory/task-import-feedback-verification-20261101.json
+- Tool: prototype-verifier + verification-before-completion; actual built UI suites, source hashes, syntax and authorized HTTP DOM/screenshots
+- Command / Check: S7 preflight; build-modules;5 built UI suites119;node --check3; current model/provenance and package576/audit7 hashes; HTTP duplicate→edit→recheck without commit
+- Passed: ['0valid duplicate remains disabled with visible footer and external row/code/reason summary', 'Edit invalidates old result and preserves focus; only fresh valid check enables confirmation', 'Unknown original request, PRED valid subset, AI all-valid, drafts and typed/scope guards retained in119 current built cases', 'No new business record or call; original task6 unchanged; developer576 and audit7 unchanged']
+- Failed: []
+- Evidence: ['memory/task-import-feedback-verification-20261101.json', 'memory/task-import-feedback-verification-20261101/after-duplicate.png', 'memory/task-import-feedback-verification-20261101/after-valid-recheck.png']
+- Consecutive Failures: 0
+- Checkpoint: task-import-visible-blocked-feedback
+- Limits: Finite local Mock step only; file automatic, real interfaces and globalS8/G3 not verified; developer package held.
+- Retained Diagnostics: Previous tab unavailable, fresh tab from same IAB used. One menu CDP reply timed out; fresh DOM showed successful navigation before next action. No browser storage reset or protocol bypass.
+- Content Digest: 9a5ba8356b26b7ca6dcd41db4ad4369c3a67561ad79fac19bdbd1b1ae172ccb9
+- Verification Epoch: 302d5909dd1ecbcc
+
+## Fresh verification assertion
+- Step: step-54
+- Scope: step
+- Date: 2026-11-02T13:08:59.871853+08:00
+- Result: fail
+- Local URL / File: http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2226; memory/http-e2e-acceptance-20261101/http-acceptance-report.html
+- Tool: prototype-verifier; verification-before-completion; CUA actual HTTP, independent evidence review and frozen current built regression
+- Command / Check: Actual AI/PRED/category main local Mock lifecycle plus102 tagged DOM/screenshots;66 suites1102 structured passed0failed;178 source/build/test SHA stable; frozen9/audit7/DevPack576+set unchanged; provenance/source-built/index hash and S7 preflight
+- Passed: ['Three main local Mock chains actually completed, exact sources and values retained; original history four new fields blank', 'Nine root-cause/view themes repaired; actual rapid scene reopen now one initialized drawer; old negative evidence retained', '13 complete actual case groups; current66 scripts1102 structured passed,0 failed,0 infrastructure errors', 'DevPack576 files and set unchanged; frozen9 and originalaudit7 unchanged']
+- Failed: ['Full acceptance not granted:9 actual case groups remain partial, including download landing, actual audio, unknown receipt/stop/cycle and other explicitly listed subcases']
+- Evidence: ['memory/http-e2e-acceptance-verification-20261101.json', 'memory/http-e2e-acceptance-20261101/http-acceptance-report.html', 'memory/http-e2e-acceptance-20261101/regression-final-race/summary.json', 'memory/http-e2e-acceptance-20261101/final-integrity-current-build.json']
+- Consecutive Failures: 0
+- Checkpoint: complete-http-acceptance
+- Limits: HTTP finite local Mock only; file, real providers/API/CTI/audio unverified; no developer package update; S7 retained without S8/G3 or production acceptance
+- Retained Diagnostics: Two invalid observations ai18/ai23 excluded; candidate ordering regression and fixture dependency errors retained; actual clicks sometimes timed out after successful action, fresh DOM read before any next commit.
+- Content Digest: 77a3c48c4eab6e94d8f00d999ef11d91a448876b7d6399229ebf338c63310fdf
+- Verification Epoch: 2350a40e4119a0fd

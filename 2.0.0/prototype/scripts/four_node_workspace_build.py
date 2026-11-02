@@ -13,6 +13,22 @@ def one(code, before, after):
 def transform(kind, path, code):
     if kind != 'cloud':
         return code
+    if path == 'js/nav.js':
+        code = one(
+            code,
+            """    // Old workspace bookmarks now land on the complete import-batch workflow.
+    if (key === 'business-records' && !options?.batchKey) {
+      key = 'customer-tasks';
+      if (options?.historyNavigation) history.replaceState({routeKey:key},'',`#${key}`);
+    }
+""",
+            "    // Business records and import batches are distinct current workspace routes.\n",
+        )
+        code = one(
+            code,
+            "['batchKey','batchId','mechanism','assignmentView','originBatch']",
+            "['batchKey','batchId','batchDetail','mechanism','assignmentView','originBatch']",
+        )
     if path == 'js/pages/customer-directory.js':
         # The current workspace owns the shared title and tabs around both views.
         code = one(code, '<section class="platform-page customer-directory-page">', '<section class="customer-directory-page">')

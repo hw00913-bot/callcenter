@@ -4,7 +4,7 @@
 
 [返回阅读入口](../README.md) · [功能目录](../features/README.md) · [全局逻辑](../global-logic.md)
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](../features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](../features/FUNC-2036.md)
 - [查询业务、批次和工作队列 · FUNC\-2039](../features/FUNC-2039.md)
 
 ## 职责与触发
@@ -17,11 +17,12 @@
 
 ## 前置条件
 
+- 仅旧无TASK来源标记的历史DIRECT可使用此独立转换；新TASK来源明确拒绝，UI不显示启用流程
 - 当前负责租户管理员具有本条业务维护与流程启用动作资格
-- 当前业务为DIRECT且同一稳定record、brand、category、owner及修订依据明确
-- 全部旧直接执行、排队、重试和未知请求可靠收敛；实际办理人必要内容与归档均完成
-- 当前实际分类存在明确生效的兼容路由；所有基础必填、类型/映射/唯一性及本次路由必要资料已按受控入口补齐
-- 当前DIRECT周期可以ACTIVE或COMPLETED；不强制先“完成直接跟进”，只要求全部旧执行与必要归档可靠收敛。
+- 全部旧真实执行/排队/重试/unknown/冲突可靠收敛；正常段必要本人内容与归档满足，旧废弃段按可靠结清分别判断
+- 当前DIRECT可ACTIVE/COMPLETED，不强制先完成周期；只核全部真实执行收敛、正常必要归档及旧废弃可靠结清，不新增分类DIRECT开关前置
+- 正常段必要内容/事实正常归档；已可靠废弃结清的旧段另判，不强制archived=true。旧已弃段原人后来补齐或合法确认后可可靠收尾，不永久阻本次后继办理；旧弃不贡献正常完成数。各当前动作仍按自己的独立前置，不能把完成DIRECT周期强加到重开或启用流程。
+- 新entrySource.kind=TASK的DIRECT不启用模板；再次直接跟进须沿准确当前任务/场景/分类/渠道资格。旧无TASK来源历史按原独立前置办理，不迁移来源。
 
 ## 必须遵守的全局规则
 
@@ -33,6 +34,7 @@
 - [GR-AUTH](../global-logic.md#GR-AUTH)
 - [GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
 - [GR-DATA-FACTS](../global-logic.md#GR-DATA-FACTS)
+- [GR-LIFECYCLE-SETTLEMENT](../global-logic.md#GR-LIFECYCLE-SETTLEMENT)
 
 ## 输入与输出
 
@@ -44,7 +46,7 @@
 
 ### STEP-FLOW-ENABLE-TEMPLATE-1
 
-在准确原业务检查当前路由、首路径及必需资料；只按稳定字段身份复用当前值，缺资料经有权维护补齐后重新预检，不重复导入 输出enableFlowContext的逐项issues及validationToken；本租户首CALL为AI时显式重新选场景。
+先查准确entrySource；TASK拒绝且不生成预检token。旧无TASK历史才按原合法路由/资料和执行结清条件检查，不重导、不伪造来源。
 
 读取：FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-IMPORT-VALUES, FIELD-FLOW-ROUTE-MAIN, FIELD-FLOW-RECORD-REVISION；写入：FIELD-FLOW-ENABLE-FLOW-TOKEN
 
@@ -64,13 +66,13 @@
 
 读取：FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-RECORD-ID, FIELD-FLOW-CATEGORY-ID, FIELD-FLOW-OWNER-TENANT, FIELD-FLOW-ROUTE-MAIN, FIELD-FLOW-END-FOLLOWUP-ORIGIN；写入：FIELD-FLOW-HANDLING-MODE, FIELD-FLOW-RUN-ID, FIELD-FLOW-EFFECTIVE-PLAN, FIELD-FLOW-NODE-RUN-ID, FIELD-FLOW-ENTRY-DECISION, FIELD-FLOW-ARRANGEMENT, FIELD-FLOW-DIRECT-STATUS, FIELD-FLOW-DIRECT-CYCLES
 
-规则：GR-HANDLING-MODE, GR-CONFIG, GR-DATA-FACTS, GR-UNKNOWN
+规则：GR-HANDLING-MODE, GR-CONFIG, GR-DATA-FACTS, GR-UNKNOWN, GR-LIFECYCLE-SETTLEMENT
 
 ## 分支与异常
 
 ### BRANCH-FLOW-ENABLE-TEMPLATE-1
 
-条件：路由无效、必需资料不齐、旧执行未知/在途、必要本人归档未完成或并发冲突
+条件：路由无效、必需资料不齐、旧执行未知/在途、正常必要归档及旧废弃结清未满足或并发冲突
 
 结果：保原业务DIRECT及全部输入，具体显示缺口与合法处理入口，不创建run或假归档。
 
@@ -106,30 +108,30 @@
 
 ## 字段定义
 
-- [FIELD-FLOW-ARCHIVE-STATE](../field-specs.md#FIELD-FLOW-ARCHIVE-STATE)
-- [FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)
-- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
-- [FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
-- [FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)
-- [FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
-- [FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)
-- [FIELD-FLOW-ENABLE-FLOW-TOKEN](../field-specs.md#FIELD-FLOW-ENABLE-FLOW-TOKEN)
-- [FIELD-FLOW-END-FOLLOWUP-ORIGIN](../field-specs.md#FIELD-FLOW-END-FOLLOWUP-ORIGIN)
-- [FIELD-FLOW-ENTRY-DECISION](../field-specs.md#FIELD-FLOW-ENTRY-DECISION)
-- [FIELD-FLOW-EXECUTION-STATE](../field-specs.md#FIELD-FLOW-EXECUTION-STATE)
 - [FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)
-- [FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)
-- [FIELD-FLOW-NODE-RUN-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)
-- [FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)
 - [FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)
 - [FIELD-FLOW-RECORD-REVISION](../field-specs.md#FIELD-FLOW-RECORD-REVISION)
-- [FIELD-FLOW-REQUEST-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)
+- [FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)
+- [FIELD-FLOW-OWNER-TENANT](../field-specs.md#FIELD-FLOW-OWNER-TENANT)
+- [FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)
 - [FIELD-FLOW-ROUTE-MAIN](../field-specs.md#FIELD-FLOW-ROUTE-MAIN)
+- [FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)
+- [FIELD-FLOW-DIRECT-STATUS](../field-specs.md#FIELD-FLOW-DIRECT-STATUS)
+- [FIELD-FLOW-DIRECT-CYCLES](../field-specs.md#FIELD-FLOW-DIRECT-CYCLES)
+- [FIELD-FLOW-ENABLE-FLOW-TOKEN](../field-specs.md#FIELD-FLOW-ENABLE-FLOW-TOKEN)
 - [FIELD-FLOW-RUN-ID](../field-specs.md#FIELD-FLOW-RUN-ID)
+- [FIELD-FLOW-EFFECTIVE-PLAN](../field-specs.md#FIELD-FLOW-EFFECTIVE-PLAN)
+- [FIELD-FLOW-NODE-RUN-ID](../field-specs.md#FIELD-FLOW-NODE-RUN-ID)
+- [FIELD-FLOW-ARRANGEMENT](../field-specs.md#FIELD-FLOW-ARRANGEMENT)
+- [FIELD-FLOW-ENTRY-DECISION](../field-specs.md#FIELD-FLOW-ENTRY-DECISION)
+- [FIELD-FLOW-EXECUTION-STATE](../field-specs.md#FIELD-FLOW-EXECUTION-STATE)
+- [FIELD-FLOW-ARCHIVE-STATE](../field-specs.md#FIELD-FLOW-ARCHIVE-STATE)
+- [FIELD-FLOW-END-FOLLOWUP-ORIGIN](../field-specs.md#FIELD-FLOW-END-FOLLOWUP-ORIGIN)
+- [FIELD-FLOW-REQUEST-ID](../field-specs.md#FIELD-FLOW-REQUEST-ID)
 
 ## 来源与验证
 
-来源条目：acceptance:AC-2112, acceptance:AC-2113, acceptance:AC-2129, acceptance:AC-2140, features:FUNC-2036, features:FUNC-2036/behavior_spec/4/branches/0, features:FUNC-2036/behavior_spec/4/branches/1, features:FUNC-2036/behavior_spec/4/branches/2, features:FUNC-2036/behavior_spec/4/postconditions/0, features:FUNC-2036/behavior_spec/4/postconditions/1, features:FUNC-2036/behavior_spec/4/postconditions/2, features:FUNC-2036/behavior_spec/4/preconditions/0, features:FUNC-2036/behavior_spec/4/preconditions/1, features:FUNC-2036/behavior_spec/4/preconditions/2, features:FUNC-2036/behavior_spec/4/preconditions/3, features:FUNC-2036/behavior_spec/4/preconditions/4, features:FUNC-2036/behavior_spec/4/steps/0, features:FUNC-2036/behavior_spec/4/steps/1, features:FUNC-2036/behavior_spec/4/steps/2, features:FUNC-2039, features:FUNC-2039/behavior_spec/4/branches/0, features:FUNC-2039/behavior_spec/4/branches/1, features:FUNC-2039/behavior_spec/4/branches/2, features:FUNC-2039/behavior_spec/4/postconditions/0, features:FUNC-2039/behavior_spec/4/postconditions/1, features:FUNC-2039/behavior_spec/4/postconditions/2, features:FUNC-2039/behavior_spec/4/preconditions/0, features:FUNC-2039/behavior_spec/4/preconditions/1, features:FUNC-2039/behavior_spec/4/preconditions/2, features:FUNC-2039/behavior_spec/4/preconditions/3, features:FUNC-2039/behavior_spec/4/preconditions/4, features:FUNC-2039/behavior_spec/4/steps/0, features:FUNC-2039/behavior_spec/4/steps/1, features:FUNC-2039/behavior_spec/4/steps/2, pages:PAGE-2006/fields/13, pages:PAGE-2006/fields/38, pages:PAGE-2006/fields/41, pages:PAGE-2006/fields/5, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/3, pages:PAGE-2203/fields/32, pages:PAGE-2203/fields/39, pages:PAGE-2203/fields/43, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/66, pages:PAGE-2204, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/20, pages:PAGE-2204/fields/22, pages:PAGE-2204/fields/26, pages:PAGE-2204/fields/3, pages:PAGE-2204/fields/38, pages:PAGE-2204/fields/43, pages:PAGE-2204/fields/45, pages:PAGE-2204/fields/48, pages:PAGE-2204/fields/49, pages:PAGE-2204/fields/50, pages:PAGE-2204/fields/55, pages:PAGE-2204/fields/56, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/87, pages:PAGE-2223/fields/12, pages:PAGE-2223/fields/4, pages:PAGE-2226/fields/13, pages:PAGE-2226/fields/15, pages:PAGE-2226/fields/2, pages:PAGE-2226/fields/21, pages:PAGE-2226/fields/26, pages:PAGE-2226/fields/28, pages:PAGE-2226/fields/29, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/37, pages:PAGE-2226/fields/8, pages:PAGE-2227, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/140, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/32, pages:PAGE-2227/fields/34, pages:PAGE-2227/fields/39, pages:PAGE-2227/fields/5, pages:PAGE-2227/fields/50, pages:PAGE-2227/fields/63, pages:PAGE-2227/fields/67, pages:PAGE-2227/fields/7, pages:PAGE-2227/fields/79, pages:PAGE-2227/fields/80, pages:PAGE-2227/fields/81, pages:PAGE-2227/fields/88, pages:PAGE-2227/fields/97, pages:PAGE-2228/fields/17, pages:PAGE-2228/fields/20, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/6, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/105, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/120, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/151, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/152, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/156, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/159, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/49, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/51, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/60, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/65, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/67, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/69, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/73, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/75, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/78, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/79, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/93, scenarios:FLOW-CURRENT-CUSTOMER/steps/39
+来源条目：acceptance:AC-2112, acceptance:AC-2113, acceptance:AC-2129, acceptance:AC-2140, features:FUNC-2036, features:FUNC-2036/behavior_spec/4/branches/0, features:FUNC-2036/behavior_spec/4/branches/1, features:FUNC-2036/behavior_spec/4/branches/2, features:FUNC-2036/behavior_spec/4/postconditions/0, features:FUNC-2036/behavior_spec/4/postconditions/1, features:FUNC-2036/behavior_spec/4/postconditions/2, features:FUNC-2036/behavior_spec/4/preconditions/0, features:FUNC-2036/behavior_spec/4/preconditions/1, features:FUNC-2036/behavior_spec/4/preconditions/2, features:FUNC-2036/behavior_spec/4/preconditions/3, features:FUNC-2036/behavior_spec/4/preconditions/4, features:FUNC-2036/behavior_spec/4/preconditions/5, features:FUNC-2036/behavior_spec/4/steps/0, features:FUNC-2036/behavior_spec/4/steps/1, features:FUNC-2036/behavior_spec/4/steps/2, features:FUNC-2039, features:FUNC-2039/behavior_spec/4/branches/0, features:FUNC-2039/behavior_spec/4/branches/1, features:FUNC-2039/behavior_spec/4/branches/2, features:FUNC-2039/behavior_spec/4/postconditions/0, features:FUNC-2039/behavior_spec/4/postconditions/1, features:FUNC-2039/behavior_spec/4/postconditions/2, features:FUNC-2039/behavior_spec/4/preconditions/0, features:FUNC-2039/behavior_spec/4/preconditions/1, features:FUNC-2039/behavior_spec/4/preconditions/2, features:FUNC-2039/behavior_spec/4/preconditions/3, features:FUNC-2039/behavior_spec/4/preconditions/4, features:FUNC-2039/behavior_spec/4/preconditions/5, features:FUNC-2039/behavior_spec/4/steps/0, features:FUNC-2039/behavior_spec/4/steps/1, features:FUNC-2039/behavior_spec/4/steps/2, pages:PAGE-2006/fields/13, pages:PAGE-2006/fields/38, pages:PAGE-2006/fields/41, pages:PAGE-2006/fields/5, pages:PAGE-2103/fields/31, pages:PAGE-2103/fields/33, pages:PAGE-2103/fields/34, pages:PAGE-2203/fields/10, pages:PAGE-2203/fields/3, pages:PAGE-2203/fields/32, pages:PAGE-2203/fields/39, pages:PAGE-2203/fields/43, pages:PAGE-2203/fields/64, pages:PAGE-2203/fields/66, pages:PAGE-2204, pages:PAGE-2204/fields/10, pages:PAGE-2204/fields/20, pages:PAGE-2204/fields/22, pages:PAGE-2204/fields/26, pages:PAGE-2204/fields/3, pages:PAGE-2204/fields/38, pages:PAGE-2204/fields/43, pages:PAGE-2204/fields/45, pages:PAGE-2204/fields/48, pages:PAGE-2204/fields/49, pages:PAGE-2204/fields/50, pages:PAGE-2204/fields/55, pages:PAGE-2204/fields/56, pages:PAGE-2204/fields/85, pages:PAGE-2204/fields/87, pages:PAGE-2205/fields/58, pages:PAGE-2205/fields/61, pages:PAGE-2205/fields/62, pages:PAGE-2223/fields/12, pages:PAGE-2223/fields/4, pages:PAGE-2226/fields/13, pages:PAGE-2226/fields/15, pages:PAGE-2226/fields/2, pages:PAGE-2226/fields/21, pages:PAGE-2226/fields/26, pages:PAGE-2226/fields/28, pages:PAGE-2226/fields/29, pages:PAGE-2226/fields/35, pages:PAGE-2226/fields/37, pages:PAGE-2226/fields/8, pages:PAGE-2227, pages:PAGE-2227/fields/138, pages:PAGE-2227/fields/140, pages:PAGE-2227/fields/17, pages:PAGE-2227/fields/32, pages:PAGE-2227/fields/34, pages:PAGE-2227/fields/39, pages:PAGE-2227/fields/5, pages:PAGE-2227/fields/50, pages:PAGE-2227/fields/63, pages:PAGE-2227/fields/67, pages:PAGE-2227/fields/7, pages:PAGE-2227/fields/79, pages:PAGE-2227/fields/80, pages:PAGE-2227/fields/81, pages:PAGE-2227/fields/88, pages:PAGE-2227/fields/97, pages:PAGE-2228/fields/17, pages:PAGE-2228/fields/20, pages:PAGE-2228/fields/3, pages:PAGE-2228/fields/6, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/105, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/120, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/148, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/150, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/151, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/152, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/156, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/159, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/17, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/49, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/51, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/60, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/65, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/67, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/69, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/73, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/75, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/78, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/79, project_facts:FIELD-ALIGNMENT-CURRENT/mappings/93, scenarios:FLOW-CURRENT-CUSTOMER/steps/39
 
 验证：CHECK-FLOW-ENABLE-TEMPLATE
 

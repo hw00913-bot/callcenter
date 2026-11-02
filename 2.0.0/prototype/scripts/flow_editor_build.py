@@ -54,7 +54,7 @@ def apply_controller(code):
     config_path=Path(__file__).with_name('flow-node-config.js')
     config_style_path=Path(__file__).with_name('flow-node-config.css')
     one("function nodeCard(node,index,nodes){let html=legacyNodeCard(node,index,nodes);if(v2())html=html.replace(/(<div class=\"fc-node-body\"[^>]*>)/,'$1'+routingSourcePanel(node));return html;}",config_path.read_text().strip())
-    one('window.FlowConfiguration={','window.FlowConfiguration={selectProcessMethod,selectBranchResultMethod,')
+    one('window.FlowConfiguration={','window.FlowConfiguration={changeNodeExecution,loadNodeExecution,selectProcessMethod,selectBranchResultMethod,')
     one("if(type==='PROCESS'&&card.querySelector('[data-node-method]')?.disabled===false)","if(type==='PROCESS'&&!card.querySelector('[data-single-method]')&&card.querySelector('[data-node-method]')?.disabled===false)")
     one("source:'',operator:'',values:[],scope:''", "source:'',operator:'',values:[],scope:nodeById(edge.fromNodeId)?.conditionSource?.scope||'CURRENT_NODE'")
     one("if(!v2())return legacyValidateConditions();if(Object.keys(editor.ruleChanges||{}).length)",

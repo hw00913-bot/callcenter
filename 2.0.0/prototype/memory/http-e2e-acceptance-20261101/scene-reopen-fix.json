@@ -1,0 +1,88 @@
+{
+  "schema": "step54-scene-reopen-fix@1",
+  "groupId": "SCENE-CLOSE-REOPEN-LIFECYCLE",
+  "groupOrdinal": 9,
+  "classification": "confirmed-product-interaction-race",
+  "severity": null,
+  "title": "关闭动画期间快速重开使新AI场景初始化命中旧抽屉",
+  "rootCause": "原关闭延迟320ms删除旧backdrop，新showAdd/Edit立即插入同ID节点；ID选择器和字段状态指向旧节点，新抽屉HP区/映射未初始化，旧层移除后显半空并出现错误脏状态。旧timer也无条件恢复body滚动。不是已保存mapping被删除，也不是旧timer直接清空持久配置。",
+  "fix": "打开前只清除已获关闭授权并标记closing的旧场景层；有活动层则拒绝重复打开。关闭延时只持有并删除该旧节点；存在当前新场景层时不恢复body滚动。原字段sequence/owner守卫保持。",
+  "sourceFiles": {
+    "scripts/ai_parity_build.py": "540b0cd8f331a018b76faa4c03a0937db854efb04f60c455fcb2cafff5e2b1f3",
+    "scripts/check-ai-import-field-dialogs.cjs": "51f060898ee48e3a19c6780d8f7596f3818601a61cd039551b01a33f0830095f"
+  },
+  "beforeEvidence": [
+    "memory/http-e2e-acceptance-20261101/ai-35-cancel-dirty-readback.txt",
+    "memory/http-e2e-acceptance-20261101/ai-36-fast-reopen-before.txt",
+    "memory/http-e2e-acceptance-20261101/ai-36-fast-reopen-before.png",
+    "memory/http-e2e-acceptance-20261101/scene-reopen-fix/source-before.json"
+  ],
+  "afterAutomatedEvidence": [
+    "memory/http-e2e-acceptance-20261101/scene-reopen-fix/source-after.json",
+    "memory/http-e2e-acceptance-20261101/regression-final-race/check-ai-import-field-dialogs.json",
+    "memory/http-e2e-acceptance-20261101/regression-final-race/summary.json"
+  ],
+  "redGreen": {
+    "beforePassed": 27,
+    "beforeFailed": 3,
+    "afterPassed": 30,
+    "afterFailed": 0,
+    "newChecks": [
+      "discard立即reopen先后只有一个初始化正确的抽屉、旧320ms回调不解锁新层",
+      "活动未保存场景不能被第二次编辑/新建替换",
+      "旧关闭场景迟到字段返回不能覆盖新drawer/映射"
+    ]
+  },
+  "preservedGuards": [
+    "原27条测试保留",
+    "无保存写入、草稿库与父签名/参数FP语义不改",
+    "字段序号/owner与保存待核、来源、权限、schema守卫不改",
+    "不加任意等待时间来掩盖竞态、不删除活动用户草稿"
+  ],
+  "actualBrowserAfter": {
+    "status": "observed-correct-current-build",
+    "evidenceTags": [
+      "ai-37-fast-reopen-after",
+      "ai-38-reopen-clean-close"
+    ],
+    "observed": "同样取消/放弃/立即重开；仅一个场景抽屉，HP004任务和4参数映射完整，旧timer后不丢字段，再次正常关闭无脏guard，原保存配置未改。"
+  },
+  "currentRelevantBrowserLog": [
+    {
+      "tag": "ai-35-cancel-dirty-readback",
+      "url": "http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2110",
+      "observed": "改名取消后选择放弃修改，关闭完成再重开，原名/HP004/预算与备注映射完整；未保存草稿未写入配置",
+      "checks": [
+        {
+          "text": "HP-TASK-20260828-004",
+          "present": true
+        },
+        {
+          "text": "QA54供应商备注",
+          "present": true
+        },
+        {
+          "text": "QA54验收预算",
+          "present": true
+        }
+      ],
+      "observationValid": true
+    },
+    {
+      "tag": "ai-36-fast-reopen-before",
+      "url": "http://127.0.0.1:56331/Demo_Protype_2/2.0.0/prototype/index.html#PAGE-2110",
+      "observed": "取消场景后在关闭动画期间立即键盘重开，仍原名平台分类但当前场景传入字段误空且HP任务区不见；未点击保存",
+      "checks": [
+        {
+          "text": "暂无场景传入字段，可点击“+ 添加字段”配置。",
+          "present": true
+        }
+      ],
+      "observationValid": true
+    }
+  ],
+  "scope": "该JSON仅增加本组，不覆盖主fixes-and-diagnostics；自动回归不代替root最终真实HTTP复验。",
+  "finalRegression": "memory/http-e2e-acceptance-20261101/regression-final-race/summary.json",
+  "previousStableFinalRetained": true,
+  "date": "2026-11-02T13:02:46.631129+08:00"
+}

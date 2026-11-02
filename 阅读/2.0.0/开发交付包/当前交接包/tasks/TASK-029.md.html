@@ -13,10 +13,10 @@
 
 ## 产品依据
 
-- FUNC-2032 保存本轮跟进、准确通话事实并唯一归档：DIRECT与TEMPLATE均按准确实际办理/接听人保存必要内容、真实通话及当时定义和值快照，重试可靠收敛后唯一归档；当前更正独立留痕，不借旧事实完成新节点。 直接周期完成须明确业务结论、全部执行与必要归档收敛，并有真实完成跟进或NO_CALL+原因；不能自动从归档完成。；来源 documentation/input/functions.json#FUNC-2032
-- FUNC-2038 判断并确认本租户后继节点：按准确条件确认后继，END执行无模板跟进/业务结束两动作；原run先结束，原业务与事实保留。；来源 documentation/input/functions.json#FUNC-2038
+- FUNC-2032 保存本轮跟进、准确通话事实并唯一归档：按准确实际办理/接听人保存本次内容、真实通话及定义/值快照，正常条件满足唯一归档。受控缺失废弃保未完成且与正常archive分开；可靠旧弃结清不永久阻后继DIRECT，但不贡献完成数或绕真实unknown/冲突。原受理迟到事实归原ID入账，内容更正/当前值按原规则。；来源 documentation/input/functions.json#FUNC-2032
+- FUNC-2038 判断并确认本租户后继节点：按准确条件确认后继及END两动作；受控废弃保缺失/未完成，原执行真实收敛后异常结清与新run，不伪造正常archive。END历史结构与准确首MANUAL当期例外分开；旧run/内容/通话/来源保留。；来源 documentation/input/functions.json#FUNC-2038
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 

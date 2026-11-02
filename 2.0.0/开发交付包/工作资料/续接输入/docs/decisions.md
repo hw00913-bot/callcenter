@@ -392,6 +392,48 @@ PAGE-2007 统一复用原AI左侧分组、右侧号码及原表单。已有客�
 本轮修改双模式业务运行代码、需求与产品规格，原型工作流和冻结审批记录不变；验收范围为当前本地Mock，实际生产服务不调用。产品语义复核由Codex执行，不代表用户业务运营批准或真实生产接口验证。
 
 
-## step-40 重新审计整改
+## 2026-10-31 Step42具体执行安排
 
-当前ELSE正文、AC-2124/AC-2139及字段生命周期/推导/示例统一为所有有出口节点唯一末位ELSE，未知保PENDING。AI-only名单导入主动等待共享联系只读模型，不取得Cloud权利；查看概览不写意向草稿，新导入保存准确号码供联系协调且界面脱敏，记录实际操作人。异步失效不提交、未知不放行、不清台账。继承测试按现行五角色；最新任务包为当前交接包，DRAFT未声明正式语义交接门禁通过，工程/真实审批另行完成。
+当前两模式任务/坐席与五档执行优先级取代旧“只选跟进人、不选任务/坐席”限制；当前事实以本版规范JSON及CHG-042-EXECUTION为准。用户授权inputs/execution-arrangement-authorization-20261031.json；历史口径只作追溯，不声明正式G3、真实调度接口或业务/运营批准。
+
+
+## 2026-10-31 Step43人工分配及人员事实修正
+
+人工默认MANUAL人工分配可先保存/导入待分配，SPECIFIC_SEAT才必选有效seat；PRED只任务，AI任务+scene，不再选择独立责任人。人员由seat分配或真实发起/拨打/接听事实记录，旧历史不改；权限、联系、五档/FIFO和在途守卫继续。来源inputs/execution-assignment-simplification-20261031.json；当前规则取代Step42人工总必选seat与独立责任人输入，不改变正式审批。
+
+
+## 2026-11-01 Step44三入口同源业务导入
+
+客户维护、AI任务及预外呼任务统一分类IMPORT和code等系统必需schema；场景引用字段并保存供应商参数映射，不复制定义。任务新导入ADMIN+customer.import并叠原模块/任务/来源准入，默认DIRECT；统一账本保存taskImportSource及逐行参数快照，专业视图只读recordId，不新增原生行或重复供应商提交。分类允许DIRECT时独立于模板，旧历史不迁移、不按手机号认领。来源inputs/task-business-import-authorization-20261101.json；原专业容量按exact context.importLimits保留，超限提示分批不截断，不提升真实接口/G3。
+
+
+## 2026-11-01 Step45生命周期审计收口
+
+缺必要本人内容仅当前ownerADMIN确认无法补填+原因/准确范围，在真实执行收敛后可受控废弃结清；保缺失未完成，不假正常archive，旧弃可靠收尾不永久卡DIRECT。历史END证明与当期首MANUAL例外分开，resume新周期核分类；停止中原受理迟到事实仍归原ID计数，不授新派发/提前释放。来源inputs/lifecycle-audit-fix-authorization-20261101.json；旧审计/冻结不改，新证据另核，不继承前轮通过。
+
+
+## 2026-11-01 Step46供应商场景参数与弹窗
+
+当前AI场景schema2按scene/platform独立配置IMPORT_FIELD引用和CUSTOM_COLUMN专属列；允许一字段多参数，分类定义仍权威，专属定义/规范值和参数快照独立。选择/配置均弹窗，子确认只入父草稿，主保存才持久，取消不升级旧配置。来源inputs/ai-provider-field-dialog-authorization-20261101.json；取代Step44仅fieldId限制，不提升供应商接口或正式批准。
+
+
+## 2026-11-01 Step47添加字段入口及线上布局
+
+原添加字段为主场景唯一新增入口，点击后二选来源；手工添加场景信息按线上业务信息只读、字段名称、参数名、必填/选填radio和取消/确定呈现，类型次要行保留。来源inputs/ai-add-field-entry-authorization-20261101.json；只是原功能UI表现修正，schema2/80与64约束/权限/历史/快照不变，不增产品字段或编号。
+
+
+<!-- STEP54-CURRENT-ENTRY -->
+## Step48～54 当前入口与有限验收
+
+当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。
+
+先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+
+AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。
+
+统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。
+
+当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
+
+当前Step54证据仅有限本地Mock/合成名单与获准HTTP；三条主流程有实际闭环，22组中13组已验、9组部分已验，66套1102结构化用例通过只是补充。下载落地、真实音频、未知回执/停止/新周期及其他列明子项、file协议、真实供应商/API/CTI未全部验证；产品资料更新不授全量验收、S8/final、G3或工程执行批准，DRAFT继续保留。
+<!-- /STEP54-CURRENT-ENTRY -->

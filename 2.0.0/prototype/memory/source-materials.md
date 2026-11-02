@@ -32,3 +32,68 @@
 ## 本轮直接授权
 
 inputs/four-node-implementation-authorization-20261029.json记录用户开始修改原型及中途推荐决策执行授权，绑定docs/四节点与客户跟进闭环需求记录.md当时摘要。该本地授权不替代上游冻结分析、G3或真实供应商核验。
+
+
+## 2026-10-31 Step42 用户确认来源
+
+`inputs/execution-arrangement-authorization-20261031.json`记录本聊天直接指令及已确认方案，授权2.0两种模式的具体执行对象、五档等级、原手动分配和现有需求/原型同步。此增量取代原当前“分配不选任务/坐席”和分类数字权重参与新执行排序的限制；不重写历史输入或原正式批准状态。
+
+
+## Step43 本聊天修正来源
+
+inputs/execution-assignment-simplification-20261031.json记录用户两项反馈、默认责任跟进人截图问题及“和上面的问题一起修复”的直接授权。截图只用来定位当前模板控件，未作为供应商合同、审批或额外业务范围来源；正式历史输入不改。
+
+
+## SRC-TASK-IMPORT-20261101
+
+用户本聊天明确要求按已讨论方案同步修改2.0需求与原型。授权原文与确认规则见inputs/task-business-import-authorization-20261101.json。原生AI场景自定义传入参数、固定三列下载/只取手机号的当前缺口，及预外呼DCC/非DCC手工入口由现有只读源与当前生成器核对；不新增外部接口结论或G3。
+
+
+## SRC-LIFECYCLE-AUDIT-20261101
+
+用户提供Demo_Protype_2/分析输出/2.0.0重新审计-20261101的报告和失败脚本。原审计Step43/40套592用例，当前Step44/45套673基础用例虽过，root实际重跑AUD01/02/03仍三项失败且无infraerror。原57hash有11项被已授权Step44改变，生命周期模型主体未改；不得用旧报告SHA当当前包。用户本聊天明确选择受控废弃，原始策略问答见inputs/lifecycle-audit-fix-authorization-20261101.json。审计文件只读不改写历史结论。
+
+
+## Step46 用户纠正
+
+SRC-AI-PROVIDER-FIELD-DIALOG-20261101：用户本聊天明确指出冰兰/中科金独立映射及自定义供应商传入字段需求、弹窗选择与配置交互，见inputs/ai-provider-field-dialog-authorization-20261101.json，不是供应商接口规格确认。
+
+
+## Step47原添加字段交互
+
+SRC-AI-ADD-FIELD-ENTRY-20261101：用户明确要求保原添加字段按钮，点击后才选择两路径；线上截图只提供布局文案参考，见inputs/ai-add-field-entry-authorization-20261101.json。
+
+
+## Step48已确认原型修改
+
+SRC-SCENE-DRIVEN-IMPORT-20261101：用户本聊天确认字段/来源/入口整体修改原型，开发包暂不更新，见inputs/scene-driven-import-prototype-authorization-20261101.json；只读审计证据/tmp/ai-scene-import-audit-20261101明确5项问题，本轮逐项覆盖，不改原审计与旧proof。
+
+
+## 2026-11-01 按入口区分导入（Step49）
+
+Step49来源inputs/entry-based-import-authorization-20261101.json，用户最新修正取代Step48的FLOW来源与原分类DIRECT开关；开发包暂停更新指令持续有效。
+
+
+## 2026-11-01 Step50业务审计
+
+Step50来源inputs/business-logic-audit-authorization-20261101.json；上一轮57套915是本次基线，不替代新审计或修复后验证。
+
+
+## 2026-11-01 Step51交互与名单展示修正
+
+Step51来源最新用户三截图及inputs/unified-task-import-roster-authorization-20261101.json，取消Step49/50独立统一表展示解释，不更开发包。
+
+
+## 2026-11-01 Step52 AI通话记录入口收敛
+
+依据 inputs/ai-call-refusal-entry-authorization-20261101.json，只移除列表逐行确认拒联并保留在准确通话详情，既有人工核实／来源／权限／客户限制历史保持；不更新开发包。本步已验证：6套113用例、原列表37条和详情HTTP核验通过；证据 memory/ai-call-refusal-entry-verification-20261101.json。
+
+
+## 2026-11-01 Step53导入反馈修复
+
+用户点击无反应来自正确的0有效行阻断与原因不可见；按 inputs/task-import-feedback-authorization-20261101.json 增加固定底部状态和表外错误摘要，保唯一编码/未知请求/有效子集；开发包不变。本步已验证：5套119用例／重复与编辑重检HTTP／原名单未新增，证据 memory/task-import-feedback-verification-20261101.json。
+
+
+## 2026-11-01 Step54 HTTP实际完整流程验收
+
+用户明确改用HTTP继续验收，原需求冻结和开发包保持，离线仍未验。仅本轮真实点击可作为HTTP路径通过证据，发现可靠问题精确修复并重走。授权 inputs/http-e2e-acceptance-authorization-20261101.json，清单 memory/http-e2e-acceptance-20261101/actual-click-checklist.json；本轮三条主流程实际闭环并修复，13组已验／9组部分已验，完整验收仍Pending。最新66套1102通过，102观察含2无效；总证明 memory/http-e2e-acceptance-verification-20261101.json，报告 http-e2e-acceptance-20261101/http-acceptance-report.html。开发包不变，下载落地/真实音频/部分组合/file未验均保留。

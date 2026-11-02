@@ -4,7 +4,7 @@
 
 [返回阅读入口](../README.md) · [功能目录](../features/README.md)
 
-- [按实际分类严格预检并导入业务 · FUNC\-2036](../features/FUNC-2036.md)
+- [按共同分类字段预检并导入统一业务 · FUNC\-2036](../features/FUNC-2036.md)
 - [判断并确认本租户后继节点 · FUNC\-2038](../features/FUNC-2038.md)
 - [在实际业务分类独立绑定单模板路由 · FUNC\-2040](../features/FUNC-2040.md)
 
@@ -14,11 +14,11 @@
 
 ## 产品依据
 
-- FUNC-2036 按实际分类严格预检并导入业务：整批明确DIRECT或TEMPLATE后严格预检及导入：DIRECT须分类显式允许、方式明确且AI场景必选，仅豁免路由附加资料，不建run/node；TEMPLATE沿当前路由建run。已有直接业务后续显式启用流程，在旧执行与必要归档收敛且当前路由资料通过后于原业务建新run，不重复导入。；来源 documentation/input/functions.json#FUNC-2036
-- FUNC-2038 判断并确认本租户后继节点：按准确条件确认后继，END执行无模板跟进/业务结束两动作；原run先结束，原业务与事实保留。；来源 documentation/input/functions.json#FUNC-2038
+- FUNC-2036 按共同分类字段预检并导入统一业务：客户维护与AI/预外呼任务三入口共用分类IMPORT和code等系统必需校验。客户维护按原DIRECT/TEMPLATE；任务内固定准确任务/必要scene并默认DIRECT，须ADMIN+customer.import、原模块/任务/来源及分类允许，保存完整值/快照/taskImportSource/等级和直接周期。专业名单只读recordId投影，不写第二账本/原生行或重复提交供应商，旧历史不迁移。；来源 documentation/input/functions.json#FUNC-2036
+- FUNC-2038 判断并确认本租户后继节点：按准确条件确认后继及END两动作；受控废弃保缺失/未完成，原执行真实收敛后异常结清与新run，不伪造正常archive。END历史结构与准确首MANUAL当期例外分开；旧run/内容/通话/来源保留。；来源 documentation/input/functions.json#FUNC-2038
 - FUNC-2040 在实际业务分类独立绑定单模板路由：分类路由是唯一实际应用绑定处；同品牌不同字段参考分类可复用，按实际所用字段、AI准确上下文及业务域校验，确认保存不覆盖BASE。；来源 documentation/input/functions.json#FUNC-2040
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 
@@ -84,7 +84,7 @@
 
 步骤：按当前续接版本执行：当前管理员选择同品牌目标线索分类并预检确认。前提：对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；原run已结束/废弃完成，无执行unknown；原分类与目标均同品牌LEAD，目标当前route可用。操作：只按稳定字段身份复用，缺目标必填由管理员明确补充并预检；重核目标schema/route/原record依据，保持业务ID、brand、统一编码和原批次。分别构造：跨品牌/普通域/重复统一编码/缺字段或token过期；明确成功；当前业务为DIRECT。
 
-预期：同一业务新run而非重复导入，owner不自动变；保输入拒，不合并或覆盖其他业务；记录转类原因和前后分类/当前值，原运行快照仍按其原分类可读；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，后续流程走独立“启用流程”预检。。
+预期：同一业务新run而非重复导入，owner不自动变；保输入拒，不合并或覆盖其他业务；记录转类原因和前后分类/当前值，原运行快照仍按其原分类可读；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。。
 
 覆盖：AC-2108, AC-2116, AC-2122, AC-2140
 

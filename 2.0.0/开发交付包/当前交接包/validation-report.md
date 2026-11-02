@@ -6,15 +6,16 @@
 
 本次选择 `development` 阶段；下面先保留该阶段返回的完整诊断，再列出两阶段明细。两阶段门禁独立展示，工程缺口不自动否定产品交接。
 
-检查错误：1118 条；提醒：3 条。本报告为核对用明细，不要求从头顺序阅读。
+检查错误：1156 条；提醒：3 条。本报告为核对用明细，不要求从头顺序阅读。
 
 ## 检查类别
 
 | 检查代码 | 条数 |
 | --- | --- |
 | `coverage.design` | 1 |
-| `logic.local.module` | 162 |
-| `logic.required.text` | 810 |
+| `logic.local.module` | 163 |
+| `logic.required.text` | 844 |
+| `logic.test.owner` | 3 |
 | `question.blocking` | 12 |
 | `readiness.pending` | 7 |
 | `repository.root` | 1 |
@@ -387,6 +388,8 @@
 
 - `logic.local.module` plan.logic.locals[LOCAL-FLOW-END-HANDOFF].module：Local logic must name an engineering module.
 
+- `logic.local.module` plan.logic.locals[LOCAL-FLOW-ABANDONED-SETTLEMENT].module：Local logic must name an engineering module.
+
 - `logic.local.module` plan.logic.locals[LOCAL-PLAT-LOGIN].module：Local logic must name an engineering module.
 
 - `logic.local.module` plan.logic.locals[LOCAL-PLAT-NAVIGATE].module：Local logic must name an engineering module.
@@ -1264,6 +1267,62 @@
 - `logic.required.text` plan.logic.fields[FIELD-FLOW-END-FOLLOWUP-ORIGIN].interface_note：Provide an explicit nonempty statement.
 
 - `logic.required.text` plan.logic.fields[FIELD-FLOW-END-FOLLOWUP-ORIGIN].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-RESOURCE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-RESOURCE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-PRIORITY].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-PRIORITY].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-QUEUED-AT].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-QUEUED-AT].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-EXECUTION-PRIORITY].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-EXECUTION-PRIORITY].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-EXECUTION-DEFAULTS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-EXECUTION-DEFAULTS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-TASK-IMPORT-SOURCE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-TASK-IMPORT-SOURCE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-TASK-IMPORT-PARAMETERS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-TASK-IMPORT-PARAMETERS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-MISSING-CONTENT-CONFIRM].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-MISSING-CONTENT-CONFIRM].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-CONFIRMATION].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-CONFIRMATION].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDONMENT-SETTLEMENT].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDONMENT-SETTLEMENT].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-TENANT].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-TENANT].persistence.mapping：Provide an explicit nonempty statement.
 
 - `logic.required.text` plan.logic.fields[FIELD-PLAT-ACCOUNT-ID].interface_note：Provide an explicit nonempty statement.
 
@@ -2245,6 +2304,24 @@
 
 - `logic.required.text` plan.logic.fields[FIELD-PLAT-TAG-SUPPLIER-STATE].persistence.mapping：Provide an explicit nonempty statement.
 
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-TASK-BUSINESS-RECORD-ID].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-TASK-BUSINESS-RECORD-ID].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.test.owner` plan.logic.units[FIELD-FLOW-FOLLOWER].test_refs：Test CHECK-FLOW-START is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE].test_refs：Test CHECK-FLOW-MANUAL-ASSIGNMENT-MODE is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-FLOW-TASK-IMPORT-PARAMETERS].test_refs：Test CHECK-PLAT-AI-IMPORT-FIELD-MAPPING is not owned by a task referencing this logic unit.
+
 - `readiness.pending` engineering.readiness.scaffold.status：脚手架与代码库入口尚未补齐，由开发方完成后再检查开工门禁。
 
 - `readiness.pending` engineering.readiness.stack.status：技术栈与版本尚未补齐，由开发方完成后再检查开工门禁。
@@ -2291,7 +2368,7 @@
 
 ## 工程与实施阶段
 
-确定性检查：未通过；错误 1118 条；提醒 3 条。
+确定性检查：未通过；错误 1156 条；提醒 3 条。
 
 语义复核：草稿，未声明语义门禁通过
 
@@ -2661,6 +2738,8 @@
 
 - `logic.local.module` plan.logic.locals[LOCAL-FLOW-END-HANDOFF].module：Local logic must name an engineering module.
 
+- `logic.local.module` plan.logic.locals[LOCAL-FLOW-ABANDONED-SETTLEMENT].module：Local logic must name an engineering module.
+
 - `logic.local.module` plan.logic.locals[LOCAL-PLAT-LOGIN].module：Local logic must name an engineering module.
 
 - `logic.local.module` plan.logic.locals[LOCAL-PLAT-NAVIGATE].module：Local logic must name an engineering module.
@@ -3538,6 +3617,62 @@
 - `logic.required.text` plan.logic.fields[FIELD-FLOW-END-FOLLOWUP-ORIGIN].interface_note：Provide an explicit nonempty statement.
 
 - `logic.required.text` plan.logic.fields[FIELD-FLOW-END-FOLLOWUP-ORIGIN].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-RESOURCE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-RESOURCE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-PRIORITY].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-PRIORITY].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-QUEUED-AT].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-QUEUED-AT].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-EXECUTION-QUEUE-SEQUENCE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-EXECUTION-PRIORITY].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-EXECUTION-PRIORITY].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-EXECUTION-DEFAULTS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-EXECUTION-DEFAULTS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-NODE-MANUAL-ASSIGNMENT-MODE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-TASK-IMPORT-SOURCE].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-TASK-IMPORT-SOURCE].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-TASK-IMPORT-PARAMETERS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-TASK-IMPORT-PARAMETERS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-MISSING-CONTENT-CONFIRM].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-MISSING-CONTENT-CONFIRM].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-CONFIRMATION].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-CONFIRMATION].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDONMENT-SETTLEMENT].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDONMENT-SETTLEMENT].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-TENANT].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-FLOW-ABANDON-TENANT].persistence.mapping：Provide an explicit nonempty statement.
 
 - `logic.required.text` plan.logic.fields[FIELD-PLAT-ACCOUNT-ID].interface_note：Provide an explicit nonempty statement.
 
@@ -4519,6 +4654,24 @@
 
 - `logic.required.text` plan.logic.fields[FIELD-PLAT-TAG-SUPPLIER-STATE].persistence.mapping：Provide an explicit nonempty statement.
 
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-AI-IMPORT-MAPPING-CATEGORY].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-AI-IMPORT-FIELD-MAPPINGS].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-TASK-BUSINESS-RECORD-ID].interface_note：Provide an explicit nonempty statement.
+
+- `logic.required.text` plan.logic.fields[FIELD-PLAT-TASK-BUSINESS-RECORD-ID].persistence.mapping：Provide an explicit nonempty statement.
+
+- `logic.test.owner` plan.logic.units[FIELD-FLOW-FOLLOWER].test_refs：Test CHECK-FLOW-START is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-FLOW-MANUAL-ASSIGNMENT-MODE].test_refs：Test CHECK-FLOW-MANUAL-ASSIGNMENT-MODE is not owned by a task referencing this logic unit.
+
+- `logic.test.owner` plan.logic.units[FIELD-FLOW-TASK-IMPORT-PARAMETERS].test_refs：Test CHECK-PLAT-AI-IMPORT-FIELD-MAPPING is not owned by a task referencing this logic unit.
+
 - `readiness.pending` engineering.readiness.scaffold.status：脚手架与代码库入口尚未补齐，由开发方完成后再检查开工门禁。
 
 - `readiness.pending` engineering.readiness.stack.status：技术栈与版本尚未补齐，由开发方完成后再检查开工门禁。
@@ -4543,9 +4696,9 @@
 
 ## 待确认问题
 
-- **ENG-FLOW-PERSISTENCE**（阻塞）：生产业务/运行/跟进/通话/请求的物理模型、事务与唯一约束如何映射当前产品字段及同次结果？
+- **ENG-FLOW-PERSISTENCE**（阻塞）：生产业务/运行/跟进/通话/请求的物理模型、事务与唯一约束如何映射当前产品字段及同次结果？ Step44统一taskImportSource/逐行参数快照/原始与批次依据及只读recordId投影的真实事务、隔离和同请求唯一约束须工程映射，不持久第二份专业业务行。
 
-- **ENG-FLOW-EXECUTION**（阻塞）：真实AI/预外呼/人工执行的请求ID、供应商callId、事件身份与最终重试收敛怎样准确关联？
+- **ENG-FLOW-EXECUTION**（阻塞）：真实AI/预外呼/人工执行的请求ID、供应商callId、事件身份与最终重试收敛怎样准确关联？ 本次具体resourceId与真实供应商任务/坐席的准确映射、五档及入队FIFO的真实派发顺序/容量约束需工程证据；本地模拟顺序不证明供应商已支持优先级。
 
 - **ENG-FLOW-SCENE**（阻塞）：AI场景与supplier/tenant/type/tagScene/category/brand/revision的最小只读投影由哪个生产服务提供？
 
@@ -4559,7 +4712,7 @@
 
 - **EQ-PLAT-REMOTE**（阻塞）：真实天润type/useRange参数、source footprints、共享来源解除、幂等重试及终态回执字段/安全验证需对接证据。
 
-- **EQ-PLAT-PROFESSIONAL**（阻塞）：每专业动作真实授权码/路由/供应商取数、状态枚举、资源用途与导出字段映射需核证；本地Mock不能证明部署或远端成功。；另保留ISSUE-2018：核源ISSUE-11214的前序v1.1.1正式专业基底契约，v1.2冻结/本地Mock既有证据不重复核验，前序正式来源缺证未完成。
+- **EQ-PLAT-PROFESSIONAL**（阻塞）：每专业动作真实授权码/路由/供应商取数、状态枚举、资源用途与导出字段映射需核证；本地Mock不能证明部署或远端成功。；另保留ISSUE-2018：核源ISSUE-11214的前序v1.1.1正式专业基底契约，v1.2冻结/本地Mock既有证据不重复核验，前序正式来源缺证未完成。 Step44供应商固定导入项/参数映射/各目标容量与配置型待分配客户任务的真实适配、后续执行证据继续待工程核证，统一账本/投影不是供应商导入受理证明。
 
 - **EQ-PLAT-DELETE**（阻塞）：真实删除实体、引用解析与最终并发资格校验、幂等请求及可靠读回终态接口需证据，HTTP200/列表消失不能单独证明删除。
 
@@ -4573,9 +4726,9 @@
 
 - 产品来源：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`
 - 来源类型：`current`
-- 来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+- 来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 - 目标代码库：`None`
 - 代码快照：`4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`
-- 规划输入指纹：`4f1017fede2f44f03b8bfffe49ef6f24ad639272ca5b20edcfa6b84d5acae157`
+- 规划输入指纹：`3e70087cef793298edee7dae3b29666dab3be78c2e82531a79bda3399f5babdf`
 
 包不复制完整产品原文或代码库。跨电脑交接时应提供对应版本资料，更新定位后重新核验。

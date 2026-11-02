@@ -1,0 +1,179 @@
+{
+  "summary": {
+    "findings": 9,
+    "logicDefects": 8,
+    "presentationScope": 1,
+    "high": 4,
+    "medium": 4,
+    "low": 1,
+    "fixed": 9,
+    "remainingConfirmedDefects": 0,
+    "baselineSuites": 57,
+    "baselinePassed": 915,
+    "currentSuites": 60,
+    "currentPassed": 978,
+    "currentFailed": 0,
+    "newAuditCases": 63
+  },
+  "issues": [
+    {
+      "id": "AUD-01",
+      "severity": "高",
+      "title": "未知导入漏掉记录锁",
+      "before": "导入已提交但回执仍待核时，请求未关联新生成的记录，仍可分配、起呼。",
+      "fix": "仅从服务端真实落地结果封存记录ID，准确关联原请求；待核期间拦住后续办理，原次核对后恢复。",
+      "files": [
+        "scripts/four-node-model.js",
+        "scripts/four_node_model_build.py"
+      ],
+      "evidence": [
+        "repro/lifecycle/repro-results.json",
+        "repaired-regression-final/check-business-audit-model.json"
+      ],
+      "status": "已修复"
+    },
+    {
+      "id": "AUD-02",
+      "severity": "高",
+      "title": "核对读取失败丢失原请求身份",
+      "before": "任务导入和通用业务窗口把核对调用失败当成原请求失败，清待核状态、生成新请求；异步读取也可能误解状态。",
+      "fix": "异常、格式不明、错误请求ID和异步未知均保原请求及输入；仅可信原请求终态可解除待核。",
+      "files": [
+        "js/adapters/task-business-import.js",
+        "js/adapters/four-node-workspace.js"
+      ],
+      "evidence": [
+        "repro/entries/unknown-reconcile-failure.json",
+        "repaired-regression-final/check-business-audit-import-ui.json"
+      ],
+      "status": "已修复"
+    },
+    {
+      "id": "AUD-03",
+      "severity": "高",
+      "title": "旧周期事实冲突仍能新起呼",
+      "before": "界面显示旧回执冲突待核，但权限和后端只查当前周期，仍允许新增执行段。",
+      "fix": "全记录未收敛事实冲突与串行守卫、权限和状态一致；保留停止过程的原回执及合法受控收尾。",
+      "files": [
+        "scripts/four-node-model.js"
+      ],
+      "evidence": [
+        "repro/lifecycle/repro-late-conflict.json",
+        "repaired-regression-final/check-business-audit-model.json"
+      ],
+      "status": "已修复"
+    },
+    {
+      "id": "AUD-04",
+      "severity": "高",
+      "title": "旧供应商专属快照跨租户暴露",
+      "before": "旧任务记录合法转交后，接收方仍见原租户的专属参数、原始副本及指纹；非TASK旧CATEGORY批次的单条快照raw路径也需覆盖。",
+      "fix": "按可信原始任务/批次租户净化所有返回副本，覆盖详情、批次、原请求结果与重放、核对、嵌套原始数据和指纹；来源方及共用业务字段保留，读取不改台账。",
+      "files": [
+        "scripts/four-node-model.js",
+        "scripts/four_node_model_build.py"
+      ],
+      "evidence": [
+        "repro/lifecycle/repro-legacy-private.json",
+        "repro/lifecycle/generic-private-before.json",
+        "repaired-regression-final/check-business-audit-model.json"
+      ],
+      "status": "已修复"
+    },
+    {
+      "id": "AUD-05",
+      "severity": "中",
+      "title": "预外呼已配置分类被分配执行路径绕过",
+      "before": "导入端锁定类别，但普通选择、分配和起呼仍可使用另一类别的预外呼任务。",
+      "fix": "当前已明确配置的任务在所有执行资源路径核对类别、品牌、稳定别名和指纹，旧资源兜底也不能绕过；历史读取保留。",
+      "files": [
+        "js/adapters/four-node-execution.js"
+      ],
+      "evidence": [
+        "repro/lifecycle/repro-pred-bridge.json",
+        "repaired-regression-final/check-business-audit-native.json"
+      ],
+      "status": "已修复"
+    },
+    {
+      "id": "AUD-06",
+      "severity": "中",
+      "title": "统一名单历史未知仍允许首次补分类",
+      "before": "统一历史读取失败或success但结构异常，被当作没有旧统一名单，从而可任意首次关联分类。",
+      "fix": "区分统一与原专业历史的已知状态；统一历史未知不能首次补类或换类，已配置类不变的原平台维护不受阻。",
+      "files": [
+        "scripts/task_business_import_build.py"
+      ],
+      "evidence": [
+        "repro/native/expected-pred-category-history.json",
+        "repaired-regression-final/check-business-audit-native.json"
+      ],
+      "status": "已修复"
+    },
+    {
+      "id": "AUD-07",
+      "severity": "中",
+      "title": "基础输入校验和预检身份绑定不足",
+      "before": "API可把对象或数组当编码、数组当号码、无名/超长/对象当批次名、布尔或数组当优先级；冲突编码别名可被静默取舍。",
+      "fix": "新写入严格校验文本身份、电话、批次长度及别名一致性，保前导零；优先级只接受支持的标量值，批次名进入预检身份；旧已捕获请求按原签名安全核对，不允许客户端伪装旧策略。",
+      "files": [
+        "scripts/four-node-model.js",
+        "scripts/task-business-import-model.js"
+      ],
+      "evidence": [
+        "repro/entries/model-input-probe.json",
+        "repro/entries/field-types-probe.json",
+        "repro/entries/batch-name-probe.json",
+        "root-priority-types.json",
+        "repaired-regression-final/check-business-audit-model.json"
+      ],
+      "status": "已修复"
+    },
+    {
+      "id": "AUD-08",
+      "severity": "中",
+      "title": "部分成功后失败草稿丢失",
+      "before": "有效子集提交成功后，整窗锁定；失败行不能继续编辑，关闭重开草稿为空。",
+      "fix": "成功行封存，失败行按身份、租户、任务、渠道、分类和字段结构隔离保留；可重开修正、重检续入或明确放弃，续入不重导成功行。",
+      "files": [
+        "js/adapters/task-business-import.js"
+      ],
+      "evidence": [
+        "repro/entries/partial-retention.json",
+        "repaired-regression-final/check-business-audit-import-ui.json",
+        "failed-draft-restored-dom.txt",
+        "failed-draft-resumed-saved-dom.txt"
+      ],
+      "status": "已修复"
+    },
+    {
+      "id": "AUD-09",
+      "severity": "低",
+      "title": "保存名单数量与呼叫执行数量口径不清",
+      "before": "原专业任务仍显示0条，详情已有新统一业务名单，原占位文案容易被理解成导入未保存。",
+      "fix": "明确呼叫执行统计/呼叫名单口径，统一名单显示可靠读取后的数量及原始来源；未知不造0，不回填专业总数或冒充供应商已受理。",
+      "files": [
+        "scripts/build-modules.py",
+        "js/adapters/task-business-import.js"
+      ],
+      "evidence": [
+        "task-business-count-final-dom.txt",
+        "audit-repaired-task-list.png"
+      ],
+      "status": "已修复"
+    }
+  ],
+  "policyDecisions": [
+    "后续通过既有明确操作调整同类任务或直接跟进方式，本身不计缺陷；原始导入来源保留，当前执行目标另行核权。新TASK仍不能启用模板。",
+    "旧任务尚无分类、统一历史已知为空而仅原专业历史未知时，保留首次关联后续新业务的原政策，不重解释旧专业事实；统一历史未知则必须先核。",
+    "未配置类别的旧执行资源保原专业兼容资格；已明确配置的资源必须匹配当前业务类别，冲突或非法配置不按缺省猜。",
+    "读取私有快照只做投影过滤，不清空原保存数据，不修改来源方历史。"
+  ],
+  "limits": [
+    "本次为2.0.0当前有限静态Mock业务逻辑审计及修复，未代替正式S8/G3或真实生产验收。",
+    "真实供应商/CTI/业务系统接口、鉴权签名、网络回执及生产调度没有通过本次验证。",
+    "故障和跨租户权限反例在当前实际构建的模型及控制器隔离环境验证；真实浏览器另验证了失败草稿关闭重开和独立续入、数量口径、正常字段回读。",
+    "file://自动验收沿既有拒绝未执行。离线请双击prototype/index.html人工检查任务导入与业务分类导入；本地HTTP通过不代表该打开方式已自动验收。",
+    "候选首轮一项旧workspace脚本进程退出-11且没有结构化结果，未计为业务断言失败；当前冻结构建完整重验60套978通过。详情见repaired-regression-infra-first.json。"
+  ]
+}

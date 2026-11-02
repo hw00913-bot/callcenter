@@ -18,7 +18,7 @@
 - FUNC-2014 全局停用登录账号：独立超管权限停用准确账号，所有租户禁新增；当前接通电话必要话后有限收尾，任务不自动转交/取消。；来源 documentation/input/functions.json#FUNC-2014
 - FUNC-2015 结束停用范围有限收尾：停用者只完成停用时已接通电话及必要话后，结束后离线并退出该范围；不是重新启用。；来源 documentation/input/functions.json#FUNC-2015
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 

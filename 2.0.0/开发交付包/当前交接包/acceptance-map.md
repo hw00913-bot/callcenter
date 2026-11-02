@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | AC-2001 | 一次登录后，先按真实授权确定合法租户；单租户直接进入，多租户首次选择，后续恢复上次仍合法租户。当前租户有权AI/云呼叫功能共用认证，无需再次填写另一套系统凭证。 | CHECK-PLAT-LOGIN; TASK-001 / CHECK-PLAT-LOGIN |
 | AC-2002 | 账号、租户和原供应商身份分别保留准确稳定标识并显式映射，不能按同名/手机号/品牌猜测；当前无旧v2模板或数据迁移需求，未来业务事实和快照正常留存。 | CHECK-PLAT-LOGIN; TASK-001 / CHECK-PLAT-LOGIN |
-| AC-2003 | 首次登录按当前真实有权范围选择本人作业、监管或原Cloud合法入口；原综合概览默认且同时有导入分配与Cloud报表权者进入导入与分配。后续恢复同账号同租户仍合法位置；只有公共管理权时进入首个有权管理页，授权读取失败不得冒充无权。 | CHECK-PLAT-LOGIN; TASK-001 / CHECK-PLAT-LOGIN |
+| AC-2003 | 首次登录按当前真实有权范围选择本人作业、监管或原Cloud合法入口；原综合概览默认且同时有导入分配与Cloud报表权者进入导入批次与业务名单。后续恢复同账号同租户仍合法位置；只有公共管理权时进入首个有权管理页，授权读取失败不得冒充无权。 | CHECK-PLAT-LOGIN; TASK-001 / CHECK-PLAT-LOGIN |
 | AC-2004 | 本版不新增统一首页。取消独立运营概览，原入口按有权内容归位；没有业务入口但有公共管理权时，进入公共菜单顺序首个有权页。 | CHECK-PLAT-LOGIN; TASK-001 / CHECK-PLAT-LOGIN |
 | AC-2005 | 统一退出系统身份及两模块会话，再次访问受保护页面需要登录；实际会话失效机制待核验。 | CHECK-PLAT-LOGOUT; TASK-002 / CHECK-PLAT-LOGOUT |
 | AC-2006 | 正常跨业务域、切租户及系统退出不因拨号/振铃/通话/话后/电话未知而拦截，也不强制先退出电话；身份、数据范围和普通未保存表单检查保留，撤权后的有限当前收尾是独立机制。 | CHECK-PLAT-LOGOUT; TASK-002 / CHECK-PLAT-LOGOUT |
@@ -110,21 +110,21 @@
 | AC-2104 | 实际应用绑定唯一在分类路由；同品牌不同字段参考分类模板可选，校实际所需字段及AI上下文，只有一个当前模板，无主备/接续映射。 | CHECK-FLOW-ROUTE-BIND; TASK-012 / CHECK-FLOW-ROUTE-BIND |
 | AC-2105 | 条件按IMPORT/FOLLOWUP稳定fieldId或准确通话/AI上下文取值，不设单一标签来源，不按同名或首字段替代。 | CHECK-FLOW-EVALUATE; TASK-023 / CHECK-FLOW-EVALUATE |
 | AC-2106 | 分类列表独立路由入口和独立保存，基础表单不嵌模板；预览区分字段参考分类与实际应用分类，用目标目录显示条件。 | CHECK-FLOW-ROUTE-BIND; TASK-012 / CHECK-FLOW-ROUTE-BIND |
-| AC-2107 | 路由仅更新本次单模板应用及兼容依据，提交核基础/字段/路由并发，不覆盖BASE；unknown配置不进入新业务。 DIRECT只由分类显式allowDirectFollowup开放；TEMPLATE路由缺失/待核不能自动降级DIRECT。 | CHECK-FLOW-ROUTE-BIND; TASK-012 / CHECK-FLOW-ROUTE-BIND |
+| AC-2107 | 路由只更新本次单模板应用及兼容依据，不覆盖BASE；unknown不进入新业务。当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 | CHECK-FLOW-ROUTE-BIND; TASK-012 / CHECK-FLOW-ROUTE-BIND |
 | AC-2108 | 新运行使用当前明确确认的分类/模板；已定位首业务节点的run保持原方案，只可完成或废弃后新run，不运行中换绑。 | CHECK-FLOW-ROUTE-BIND; CHECK-FLOW-REOPEN; CHECK-FLOW-RECLASSIFY; TASK-012 / CHECK-FLOW-ROUTE-BIND; TASK-026 / CHECK-FLOW-REOPEN; TASK-027 / CHECK-FLOW-RECLASSIFY |
 | AC-2109 | 新模板自带唯一开始锚点，拖入转交/呼叫/结束即定类型和默认名称；首个业务节点及合法有序入口明确，不再空白节点二次选类型。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT |
 | AC-2110 | 新run捕获完整有效plan并按实际分类记录，模板后续编辑/删除不追改已开run；导入成功定位即已开始。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; CHECK-FLOW-ABANDON; CHECK-FLOW-REOPEN; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT; TASK-026 / CHECK-FLOW-ABANDON; TASK-026 / CHECK-FLOW-REOPEN |
 | AC-2111 | 同品牌模板/实际分类字段与业务域兼容；CALL不隐式换owner，OTHER先转交，不允许普通业务或门店直转越权。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; CHECK-FLOW-AI-SCENE; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT; TASK-016 / CHECK-FLOW-AI-SCENE |
-| AC-2112 | 条件支持独立IMPORT，AI状态/标签与人工/预外呼状态/填写；转交精确上游来源，条件配置不授自动呼叫/推进权。 整批明确DIRECT/TEMPLATE；DIRECT仍严守基础必填、类型、映射和唯一性，仅豁免路由附加资料，且不建run/node。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; CHECK-FLOW-ENABLE-TEMPLATE; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT; TASK-028 / CHECK-FLOW-ENABLE-TEMPLATE |
-| AC-2113 | 组ALL/ANY明确且已知时计算，标量IN/NOT_IN每行多个值，EQ/NE/大小比较单值；多选及AI标签包含任一/全部，空值独立。 DIRECT显式选择AI/MANUAL/PREDICTIVE，AI场景必选；已有业务启用流程不重复导入。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; CHECK-FLOW-ENABLE-TEMPLATE; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT; TASK-028 / CHECK-FLOW-ENABLE-TEMPLATE |
+| AC-2112 | 条件支持独立IMPORT，AI状态/标签与人工/预外呼状态/填写；转交精确上游来源，条件配置不授自动呼叫/推进权。 按准确入口固定TASK/DIRECT或CATEGORY/TEMPLATE；DIRECT仍严守基础必填、类型、映射和唯一性，仅豁免路由附加资料，且不建run/node。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; CHECK-FLOW-ENABLE-TEMPLATE; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT; TASK-028 / CHECK-FLOW-ENABLE-TEMPLATE |
+| AC-2113 | 组ALL/ANY明确且已知时计算，标量IN/NOT_IN每行多个值，EQ/NE/大小比较单值；多选及AI标签包含任一/全部，空值独立。 TASK DIRECT由任务带入方式与必要场景，CATEGORY按首路径及分组确定方式/场景；仅旧无TASK来源历史的合法启用流程不重复导入。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; CHECK-FLOW-ENABLE-TEMPLATE; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT; TASK-028 / CHECK-FLOW-ENABLE-TEMPLATE |
 | AC-2114 | 规则字段/选项/类型/作用域合法才可保存；未知不反向放行，逗号保文本，空白行忽略。普通交互保已有输入、比较值、滚动/展开；改变定义不静默丢值。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT |
 | AC-2115 | 按实际分类生成系统必需和IMPORT列及必填校验；合法等待名单数据中性提示，检查后具体报字段/节点/条件；正式提交所有行通过且token一致。 | CHECK-FLOW-IMPORT-MAP; CHECK-FLOW-IMPORT-PREVIEW; CHECK-FLOW-IMPORT-COMMIT; CHECK-FLOW-RESUME-DIRECT; TASK-013 / CHECK-FLOW-IMPORT-MAP; TASK-014 / CHECK-FLOW-IMPORT-PREVIEW; TASK-015 / CHECK-FLOW-IMPORT-COMMIT; TASK-017 / CHECK-FLOW-RESUME-DIRECT |
 | AC-2116 | LEAD同品牌统一编码跨分类/来源唯一，ORDINARY同品牌同分类唯一；不凭手机号合并，不覆盖重复业务或自动重开。 | CHECK-FLOW-IMPORT-PREVIEW; CHECK-FLOW-IMPORT-COMMIT; CHECK-FLOW-RECLASSIFY; CHECK-FLOW-RESUME-DIRECT; TASK-014 / CHECK-FLOW-IMPORT-PREVIEW; TASK-015 / CHECK-FLOW-IMPORT-COMMIT; TASK-017 / CHECK-FLOW-RESUME-DIRECT; TASK-027 / CHECK-FLOW-RECLASSIFY |
 | AC-2117 | 导入失败保名单可重检；确认全部通过才同次创建批次/记录/实际run及首节点；重复/冲突不改原owner/值/结果。 | CHECK-FLOW-IMPORT-PREVIEW; CHECK-FLOW-IMPORT-COMMIT; TASK-014 / CHECK-FLOW-IMPORT-PREVIEW; TASK-015 / CHECK-FLOW-IMPORT-COMMIT |
-| AC-2118 | 分配只确定当前租户责任跟进人和必要AI场景，方式已由节点明确，不选择坐席/任务，不改owner、不自动起呼。 | CHECK-FLOW-ASSIGN; CHECK-FLOW-AI-SCENE; CHECK-FLOW-COMPLETE-DIRECT; TASK-016 / CHECK-FLOW-ASSIGN; TASK-016 / CHECK-FLOW-AI-SCENE; TASK-017 / CHECK-FLOW-COMPLETE-DIRECT |
+| AC-2118 | 两模式按方式安排任务或人工分配方式/坐席、必要scene及五档等级；模板、导入、分配不再选择独立责任人。人工MANUAL可先待分配，PRED只任务，AI任务+scene，不改owner或自动起呼。 | CHECK-FLOW-ASSIGN; CHECK-FLOW-AI-SCENE; CHECK-FLOW-COMPLETE-DIRECT; CHECK-FLOW-EXECUTION-TARGET; TASK-016 / CHECK-FLOW-ASSIGN; TASK-016 / CHECK-FLOW-EXECUTION-TARGET; TASK-016 / CHECK-FLOW-AI-SCENE; TASK-017 / CHECK-FLOW-COMPLETE-DIRECT |
 | AC-2119 | 仅当前管理员及分配动作权；核active run/本租户/节点/无在途执行/人员与场景。批量同权威组任一不满足全组不写；普通运营仍可按资格AI/预外呼起呼。 | CHECK-FLOW-ASSIGN; CHECK-FLOW-ASSIGN-BATCH; CHECK-FLOW-AI-SCENE; TASK-016 / CHECK-FLOW-ASSIGN; TASK-016 / CHECK-FLOW-ASSIGN-BATCH; TASK-016 / CHECK-FLOW-AI-SCENE |
 | AC-2120 | 开始/转交/呼叫/结束组件直接定类型；人员明确发起实际CALL或确认后续动作，配置/分配/条件命中不自动执行。 | CHECK-FLOW-START; CHECK-FLOW-START-BATCH; CHECK-FLOW-ADVANCE; TASK-018 / CHECK-FLOW-START; TASK-018 / CHECK-FLOW-START-BATCH; TASK-024 / CHECK-FLOW-ADVANCE |
-| AC-2121 | 同业务本run执行串行；排队/重试/unknown不放行。新起呼、CALL退出及有前执行的转交核最近必要内容与事实已归档；初次纯IMPORT转交无先填表/先呼叫要求。 | CHECK-FLOW-START; CHECK-FLOW-START-BATCH; CHECK-FLOW-ARCHIVE; CHECK-FLOW-CONTACT-POLICY; TASK-018 / CHECK-FLOW-START; TASK-018 / CHECK-FLOW-START-BATCH; TASK-021 / CHECK-FLOW-ARCHIVE; TASK-031 / CHECK-FLOW-CONTACT-POLICY |
+| AC-2121 | 同业务串行，真实在途/排队/重试/unknown及冲突不放新执行。正常当前CALL仍依必要内容/事实归档；旧已废弃段可靠结清另判，不强求正常archive。转交仍原独立准入，初次纯IMPORT不先造呼叫/填写。 | CHECK-FLOW-START; CHECK-FLOW-START-BATCH; CHECK-FLOW-ARCHIVE; CHECK-FLOW-CONTACT-POLICY; TASK-018 / CHECK-FLOW-START; TASK-018 / CHECK-FLOW-START-BATCH; TASK-021 / CHECK-FLOW-ARCHIVE; TASK-031 / CHECK-FLOW-CONTACT-POLICY |
 | AC-2122 | 受理、真实拨打、执行终态、内容保存、唯一归档、节点、owner及业务结论分别确认；未知核原请求而非新身份重发。 | CHECK-FLOW-START; CHECK-FLOW-START-BATCH; CHECK-FLOW-CALL-FACTS; CHECK-FLOW-ARCHIVE; CHECK-FLOW-ADVANCE; CHECK-FLOW-ABANDON; CHECK-FLOW-REOPEN; CHECK-FLOW-RECLASSIFY; CHECK-FLOW-REVIEW; CHECK-FLOW-HANDOFF; CHECK-FLOW-CONTACT-POLICY; CHECK-FLOW-COMPLETE-DIRECT; TASK-017 / CHECK-FLOW-COMPLETE-DIRECT; TASK-018 / CHECK-FLOW-START; TASK-018 / CHECK-FLOW-START-BATCH; TASK-019 / CHECK-FLOW-CALL-FACTS; TASK-021 / CHECK-FLOW-ARCHIVE; TASK-024 / CHECK-FLOW-ADVANCE; TASK-026 / CHECK-FLOW-ABANDON; TASK-026 / CHECK-FLOW-REOPEN; TASK-027 / CHECK-FLOW-RECLASSIFY; TASK-029 / CHECK-FLOW-REVIEW; TASK-029 / CHECK-FLOW-HANDOFF; TASK-031 / CHECK-FLOW-CONTACT-POLICY |
 | AC-2123 | IMPORT独立读取当前有效导入值；FOLLOWUP读取指定范围正式确认或授权更正，SYSTEM继承result不冒充新确认；通话/AI标签按准确run/stage/sourceNode/执行场景和版本，不借其他租户；CURRENT_NODE/CURRENT_ROUND不借旧run，显式HISTORY另按本租户准确历史范围核验。 | CHECK-FLOW-CALL-FACTS; CHECK-FLOW-SAVE-CONTENT; CHECK-FLOW-EVALUATE; TASK-019 / CHECK-FLOW-CALL-FACTS; TASK-020 / CHECK-FLOW-SAVE-CONTENT; TASK-023 / CHECK-FLOW-EVALUATE |
 | AC-2124 | 路径按优先顺序只选首个命中；任何依赖事实待核都阻后续及ELSE，保留原节点/owner。所有有出口节点必须唯一末位ELSE，前序条件明确均不匹配才用ELSE；单一出口为ELSE，不存在多路径人工任选。 | CHECK-FLOW-EVALUATE; TASK-023 / CHECK-FLOW-EVALUATE |
@@ -136,12 +136,12 @@
 | AC-2133 | 本轮无旧规划数据迁移或旧模板适配；未来本版业务/运行/跟进/通话快照按发生时保存，名称/配置更改不重画已开run或正式内容。 | CHECK-FLOW-DETAIL; TASK-030 / CHECK-FLOW-DETAIL |
 | AC-2134 | 路由保存需当前配置资格、同品牌、真实兼容目标字段与类型/用途/选项、AI准确配置，失败/过期/unknown均有明确反馈并保本次草稿。 | CHECK-FLOW-ROUTE-BIND; TASK-012 / CHECK-FLOW-ROUTE-BIND |
 | AC-2135 | 分类BASE、独立ROUTE、模板字段参考互不覆盖；实际绑定按所用稳定ID/用途/类型/选项/AI上下文校验，新跟进取最新资料而正式/运行快照不追改，未操作/缺失/明确清空分开。 | CHECK-FLOW-FIELD-EDIT; CHECK-FLOW-FIELD-DELETE; CHECK-FLOW-CATEGORY-CREATE; CHECK-FLOW-CATEGORY-EDIT; CHECK-FLOW-ROUTE-BIND; CHECK-FLOW-SAVE-CONTENT; CHECK-FLOW-CORRECT; TASK-008 / CHECK-FLOW-FIELD-EDIT; TASK-008 / CHECK-FLOW-FIELD-DELETE; TASK-009 / CHECK-FLOW-CATEGORY-CREATE; TASK-009 / CHECK-FLOW-CATEGORY-EDIT; TASK-012 / CHECK-FLOW-ROUTE-BIND; TASK-020 / CHECK-FLOW-SAVE-CONTENT; TASK-022 / CHECK-FLOW-CORRECT |
-| AC-2136 | 模板/实际路由只读说明展示当前四节点与入口、有序条件、承接方、方式和END后续动作（CLOSE或DIRECT_FOLLOWUP），参考与应用分明；记录内历史按其捕获方案只读，不提供V1/V2分类选择。 | CHECK-FLOW-TEMPLATE-READ; TASK-011 / CHECK-FLOW-TEMPLATE-READ |
+| AC-2136 | 当前模板/路由只读展示四节点与入口、有序条件、承接方及方式；当前END固定CLOSE，旧已运行历史只读按原完整方案，参考与实际应用分明。 | CHECK-FLOW-TEMPLATE-READ; TASK-011 / CHECK-FLOW-TEMPLATE-READ |
 | AC-2137 | 未被当前分类绑定且无同模板待核配置请求时可删除当前定义；前后对象/品牌/版本/引用重核，unknown核同请求，已开run和字段引用依靠自身快照，不建旧归档兼容索引。 | CHECK-FLOW-TEMPLATE-DELETE; TASK-011 / CHECK-FLOW-TEMPLATE-DELETE |
 | AC-2138 | 正常跨业务域、切租户及系统退出不因拨号/振铃/通话/话后/电话未知而拦截，也不强制先退出电话；身份、数据范围和普通未保存表单检查保留，撤权后的有限当前收尾是独立机制。 | CHECK-PLAT-NAVIGATE; CHECK-PLAT-CONTEXT-SWITCH; CHECK-PLAT-LOGOUT; TASK-002 / CHECK-PLAT-NAVIGATE; TASK-002 / CHECK-PLAT-CONTEXT-SWITCH; TASK-002 / CHECK-PLAT-LOGOUT |
 | AC-2139 | 所有有出口的当前新配置须有且仅有一个末位ELSE；IF/ELSE IF按优先级首命中，明确不匹配才到兜底，未知继续PENDING。保存/新导入/重开/启用均校验，不依赖DIRECT绕开分流。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; CHECK-FLOW-ROUTE-BIND; CHECK-FLOW-IMPORT-PREVIEW; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT; TASK-012 / CHECK-FLOW-ROUTE-BIND; TASK-014 / CHECK-FLOW-IMPORT-PREVIEW |
 | AC-2140 | 对当前可可靠读取schema内、启用且支持条件的非必填IMPORT字段，新导入/新run准备时缺列规范化为null用于判断；必填缺失或schema读取失败仍拒绝，通话/填写未知及已捕获历史缺失不在读取时补空。 | CHECK-FLOW-IMPORT-PREVIEW; CHECK-FLOW-IMPORT-COMMIT; CHECK-FLOW-REOPEN; CHECK-FLOW-RECLASSIFY; CHECK-FLOW-ENABLE-TEMPLATE; TASK-014 / CHECK-FLOW-IMPORT-PREVIEW; TASK-015 / CHECK-FLOW-IMPORT-COMMIT; TASK-026 / CHECK-FLOW-REOPEN; TASK-027 / CHECK-FLOW-RECLASSIFY; TASK-028 / CHECK-FLOW-ENABLE-TEMPLATE |
-| AC-2141 | END只配置名称和DIRECT_FOLLOWUP/CLOSE两种后续动作。先结束原run；CLOSE不再跟进，DIRECT_FOLLOWUP同record/当前tenant生成无模板人工周期，不自动起呼。合法END来源可授权此接续，即使分类没有开放普通DIRECT导入；原run/节点/call/快照保留，原人员仅当前仍有效且具电话资格时沿用。 | CHECK-FLOW-END-HANDOFF; TASK-024 / CHECK-FLOW-END-HANDOFF |
+| AC-2141 | 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。 | CHECK-FLOW-END-HANDOFF; TASK-024 / CHECK-FLOW-END-HANDOFF |
 | AC-2142 | 节点按命名→条件→下一节点→继续条件编辑，末位轻量“其他情况”；未选目标可留编辑草稿但不产生业务连线，保存仍逐项拒绝缺项并定位。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT |
 | AC-2143 | 条件修改直接进入当前草稿，不再显示待应用三按钮；兼容operator保值，字段/来源或不兼容类型/基数变化清不适用比较值，空判断清值。目标选择/拖线拒环并保原草稿，保存仍防绕过。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT |
 | AC-2144 | 流转判断分别使用TIANRUN_MANUAL_SIP_CAUSE和TIANRUN_PREDICTIVE_SIP_CAUSE客户侧结果：200已接通、710～724当前字典；不再用1～4接听标记推断，不改AI状态域或原专业记录的其他状态展示。新回执与实际方式/原段/场景准确关联，未知PENDING。 | CHECK-FLOW-CALL-FACTS; CHECK-FLOW-EVALUATE; TASK-019 / CHECK-FLOW-CALL-FACTS; TASK-023 / CHECK-FLOW-EVALUATE |
@@ -149,7 +149,24 @@
 | AC-2146 | 普通及START比较值提示“多个值请换行填写/每行一个值”，保持IN/NOT_IN类型含义；报错节点/START/提示区统一浅红，切换节点保留定位，编辑该节点清当前标记，保存重新判断，不改变原校验。 | CHECK-FLOW-TEMPLATE-CREATE; CHECK-FLOW-TEMPLATE-EDIT; TASK-011 / CHECK-FLOW-TEMPLATE-CREATE; TASK-011 / CHECK-FLOW-TEMPLATE-EDIT |
 | AC-2147 | 业务跟进/联系档案统一页签与tabpanel，键盘方向/Home/End可用；同身份切换保各自查询/分页，跨身份不恢复旧状态，显式客户详情与原摘要刷新仍定位正确。 | CHECK-FLOW-CUSTOMER-TIMELINE; CHECK-PLAT-CUSTOMER-DIRECTORY; TASK-030 / CHECK-FLOW-CUSTOMER-TIMELINE; TASK-043 / CHECK-PLAT-CUSTOMER-DIRECTORY |
 | AC-2148 | 预外呼及IVR页不额外显示“今日任务名单分布”，保原任务查询/筛选/空态/重置和专业报表口径；不因此删除底层任务状态或统计能力。 | CHECK-PLAT-CLOUD-TASK-QUERY; TASK-045 / CHECK-PLAT-CLOUD-TASK-QUERY |
-| AC-2149 | 业务分类行只保编辑/路由配置/预览/删除；不恢复AI标签配置快捷按钮。标签维护仍在呼叫中心AI配置的独立有权入口，原具体AI场景分类引用及其稳定身份保留。 | CHECK-FLOW-CATEGORY-EDIT; CHECK-PLAT-AI-CATEGORY-BIND; CHECK-PLAT-AI-TAG-CONFIG; TASK-009 / CHECK-FLOW-CATEGORY-EDIT; TASK-032 / CHECK-PLAT-AI-CATEGORY-BIND; TASK-033 / CHECK-PLAT-AI-TAG-CONFIG |
+| AC-2149 | 业务分类行保导入名单、编辑、路由配置、预览、删除；不恢复AI标签快捷入口。业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 | CHECK-FLOW-CATEGORY-EDIT; CHECK-PLAT-AI-CATEGORY-BIND; CHECK-PLAT-AI-TAG-CONFIG; TASK-009 / CHECK-FLOW-CATEGORY-EDIT; TASK-032 / CHECK-PLAT-AI-CATEGORY-BIND; TASK-033 / CHECK-PLAT-AI-TAG-CONFIG |
+| AC-2150 | 两模式AI任务+scene、PRED仅任务，人工MANUAL待分配或SPECIFIC_SEAT才必选seat；实际发起复核准确资源，人工须已分配且本人办理，不选择独立责任人。 | CHECK-FLOW-EXECUTION-TARGET; TASK-016 / CHECK-FLOW-EXECUTION-TARGET |
+| AC-2151 | 两模式均保留原手动单条/同组批量分配，可导入时安排或先导入后安排；TEMPLATE按实际首CALL分组确认，目标/人员/场景/等级变化失效旧预检，同次纳入行失败不部分写入。 | CHECK-FLOW-IMPORT-ARRANGEMENT; TASK-014 / CHECK-FLOW-IMPORT-ARRANGEMENT |
+| AC-2152 | 执行优先级为最高5、高4、中3、低2、最低1，缺省中；同资源可办理待办按等级降序、同档入队时间及稳定序号升序，人工推荐与AI/预外呼显式派发一致。独立资源可办理、不抢占在途、不绕联系限制，长期等待可提示。 | CHECK-FLOW-EXECUTION-PRIORITY; TASK-018 / CHECK-FLOW-EXECUTION-PRIORITY |
+| AC-2153 | CALL配置默认等级及按实际承接tenant的默认任务/坐席/场景；仅修改本有权tenant映射且保其他tenant原值，导入可明确覆盖；方式切换重核不兼容目标，已开运行和快照不追改。 | CHECK-FLOW-EXECUTION-DEFAULTS; TASK-011 / CHECK-FLOW-EXECUTION-DEFAULTS |
+| AC-2154 | 当前排队事实仅属于准确当前run/nodeRun/directCycle及有效资源安排；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。 | CHECK-FLOW-EXECUTION-HISTORY; TASK-030 / CHECK-FLOW-EXECUTION-HISTORY |
+| AC-2155 | TEMPLATE与DIRECT人工均提供MANUAL人工分配（默认）和SPECIFIC_SEAT指定坐席；前者可无seat先保存模板/导入待分配，后者才必选本租户有效seat。后继新人工节点MANUAL明确待分配，不继承前seat；SPECIFIC_SEAT才可按本节点及原同tenant/method/有效资源规则沿用或确认。旧快照无策略按原解释，不迁移；原单条/批量分配可随后落实seat，实际拨打仅对应本人。 | CHECK-FLOW-MANUAL-ASSIGNMENT-MODE; TASK-011 / CHECK-FLOW-MANUAL-ASSIGNMENT-MODE |
+| AC-2156 | 预外呼只必选具体任务，坐席/队列/策略沿任务；AI仍必选任务和适配scene。模板默认、导入和分配均无独立责任跟进人选择，不因缺少该值阻合法任务安排/发起，也不伪填当前actor为负责人。 | CHECK-FLOW-TASK-WITHOUT-FOLLOWER; TASK-016 / CHECK-FLOW-TASK-WITHOUT-FOLLOWER |
+| AC-2157 | 人工分配责任从有效seat账号派生，真实发起/拨打/接听/填写及旧人员事实分别保存；谁接听谁填写，已受理段及封存历史不迁移。取消独立person必填不扩大任务、租户、模块权限或绕五档/FIFO、联系、手工启动、在途/未知准入。 | CHECK-FLOW-DERIVED-PEOPLE-HISTORY; TASK-018 / CHECK-FLOW-DERIVED-PEOPLE-HISTORY |
+| AC-2158 | 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 | CHECK-FLOW-TASK-IMPORT-SCHEMA; TASK-014 / CHECK-FLOW-TASK-IMPORT-SCHEMA |
+| AC-2159 | AI场景schema=2按scene/platform分别保存IMPORT_FIELD/CUSTOM_COLUMN映射（id/source/fieldId?/parameter/label/type/required）；同fieldId可映不同参数而参数名唯一，专属列text/number/date无固定值。主场景唯一新增入口“添加字段”，点击再选“选择导入字段”/“手工添加供应商字段”；手工“添加场景信息”按只读业务信息、字段名称、参数名、必填/选填radio、取消/确定呈现，类型保次要行，子确认只入父草稿，取消无副作用，主保存才持久。业务定义仍从分类读取；固定专业项保留。schema1/legacy只读兼容，父保存升级才清旧重复定义，旧历史不迁移。 | CHECK-PLAT-AI-IMPORT-FIELD-MAPPING; TASK-032 / CHECK-PLAT-AI-IMPORT-FIELD-MAPPING |
+| AC-2160 | 当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。 | CHECK-FLOW-AI-TASK-DIRECT-IMPORT; CHECK-FLOW-PRED-TASK-DIRECT-IMPORT; TASK-034 / CHECK-FLOW-AI-TASK-DIRECT-IMPORT; TASK-045 / CHECK-FLOW-PRED-TASK-DIRECT-IMPORT |
+| AC-2161 | 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。 | CHECK-FLOW-TASK-IMPORT-REPLAY; TASK-015 / CHECK-FLOW-TASK-IMPORT-REPLAY |
+| AC-2162 | 当前TASK导入ADMIN+customer.import叠原模块/准确任务/渠道资格，AI-only不需Cloud菜单，不增Cloud授权；API仅可读字段/要求与已有记录，接口接入待开发。AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 | CHECK-FLOW-AI-TASK-DIRECT-IMPORT; CHECK-FLOW-PRED-TASK-DIRECT-IMPORT; TASK-034 / CHECK-FLOW-AI-TASK-DIRECT-IMPORT; TASK-045 / CHECK-FLOW-PRED-TASK-DIRECT-IMPORT |
+| AC-2163 | 登记停止与完成废弃分开：EXECUTION_ACTIVE/REQUEST_UNKNOWN/FACT_CONFLICT下ADMIN普通reason可先ABANDONING，不强未来内容确认，FOREIGN_CONTENT不冒充在途。可靠停止后仍缺内容须当前ownerADMIN确认无法补填+原因/准确run/本tenant指纹版本才可ABANDONED；保缺失未完成，不代填或假正常archive/completed。 | CHECK-FLOW-CONTROLLED-ABANDON; TASK-026 / CHECK-FLOW-CONTROLLED-ABANDON |
+| AC-2164 | 正常archive与可靠旧废弃结清分别判断；旧已弃段本人后来补齐或合法确认后可可靠收尾，不永久阻后继DIRECT完成/启用流程，也不贡献当前周期真实完成数或覆盖当前字段。当前必要内容/执行及实质冲突仍原准入。 | CHECK-FLOW-ABANDON-DIRECT-SETTLEMENT; TASK-026 / CHECK-FLOW-ABANDON-DIRECT-SETTLEMENT |
+| AC-2165 | 当前模板END固定CLOSE，旧已捕获END来源及其受控首周期历史合法性单独保留；新TASK来源再次直接跟进核准确任务/渠道，不依赖已移除旧allowDirect标志；旧来源不授新TASK周期资格。 | CHECK-FLOW-END-CURRENT-CYCLE; TASK-017 / CHECK-FLOW-END-CURRENT-CYCLE |
+| AC-2166 | ABANDONING不准新派发，但原已受理且未可靠关闭的准确seg/attempt迟到真实拨打/接通/终态归原ID去重计数，不误标0或挂当前，不提前释放；已闭段未知新attempt仍拒/保冲突证据，停止请求不是真停止。 | CHECK-FLOW-STOPPING-RECEIPTS; TASK-019 / CHECK-FLOW-STOPPING-RECEIPTS |
 
 ## 业务验收场景（尚未执行）
 
@@ -195,39 +212,39 @@
 
 ### CHECK-FLOW-CATEGORY-CREATE
 
-操作：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。在业务分类基础表单保存。当前品牌及配置管理资格真实有效；提交来源与当前上下文一致。依次执行：校名称、编码列名、业务域和两用途字段的显示/顺序/必填及依赖；仅同次保存BASE与字段，不提交ROUTE或AI专业设置。分别构造：类型/用途错配、依赖不满足或已用业务域被改；合法基础及字段配置。权限与能力复现：品牌A配置管理员新建自定义LEAD分类后，读取品牌B配置、同品牌另租户业务/录音；在本租户尚无AI使用资格、未授权接口能力或无本人电话资源时尝试取数/起呼。
+操作：创建分类并保存名称/编码/域/IMPORT/FOLLOWUP，再从该行发起导入；尝试携带旧直接开关。
 
-预期：保输入拒绝，不动原基础及路由；基础成功，尚未绑定路由可保存，提示独立路由入口；新跟进读最新定义，已开run/正式内容保持原貌。分类可合法新建不代表新供应商类型/机器人/线路/电话能力已经产生；缺专业授权/资源仍拒绝；品牌B配置拒绝，同品牌共享配置不开放其他租户业务或录音。
+预期：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 分类BASE不写ROUTE或旧直接开关；字段独立，当前TEMPLATE缺路由明确阻断。
 
 覆盖：AC-2039, AC-2040, AC-2102, AC-2103, AC-2135
 
 ### CHECK-FLOW-CATEGORY-EDIT
 
-操作：按当前续接版本执行：在业务分类基础表单保存。前提：当前品牌及配置管理资格真实有效；提交来源与当前上下文一致。操作：校名称、编码列名、业务域和两用途字段；显式保存允许直接跟进开关，缺省false；同次保存BASE、字段及allowDirectFollowup，不提交ROUTE；配置开关不重写既有业务模式。分别构造：类型/用途错配、依赖不满足或已用业务域被改；合法基础及字段配置；开关缺失、false或读取未知。
+操作：编辑被引用分类名称/字段并取消或保存；尝试改业务域/用途及旧直接开关。
 
-预期：新跟进读最新定义，已开run/正式内容保持原貌；保输入拒绝，不动原基础及路由；基础成功，尚未绑定路由可保存，提示独立路由入口；新DIRECT导入和新增直接执行安排不可用；原受理执行及必要本人填写、归档保准确收尾。。
+预期：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 原引用保护保留，取消不污染已保存定义，不迁移旧历史。
 
 覆盖：AC-2103, AC-2041, AC-2135, AC-2149
 
 ### CHECK-FLOW-TEMPLATE-CREATE
 
-操作：按当前续接版本执行：从流转模板新建／编辑当前配置。前提：当前品牌及配置管理资格真实有效；提交来源与当前上下文一致。操作：选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，END仅选后续两动作；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点。分别构造：单模板配置请求尚待核、条件不合法或并发已变；合法明确保存；条件已填但目标未选，或选择/拖线构成循环。
+操作：按当前Step43安排规则：从流转模板新建／编辑当前配置；选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL配置五档默认等级及当前有权执行tenant的任务/坐席默认；保存其他tenant映射不变，不展示私有候选。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。
 
-预期：业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位。
+预期：业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。
 
 覆盖：AC-2109, AC-2110, AC-2111, AC-2112, AC-2113, AC-2114, AC-2139, AC-2142, AC-2143, AC-2146
 
 ### CHECK-FLOW-TEMPLATE-EDIT
 
-操作：按当前续接版本执行：从流转模板新建／编辑当前配置。前提：当前品牌及配置管理资格真实有效；提交来源与当前上下文一致。操作：选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，END仅选后续两动作；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点。分别构造：单模板配置请求尚待核、条件不合法或并发已变；合法明确保存；条件已填但目标未选，或选择/拖线构成循环。
+操作：按当前Step43安排规则：从流转模板新建／编辑当前配置；选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL默认等级及当前有权tenant映射可改，换方式重核目标，保其他tenant映射；仅新运行捕获新默认。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。
 
-预期：业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位。
+预期：业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。
 
 覆盖：AC-2109, AC-2110, AC-2111, AC-2112, AC-2113, AC-2114, AC-2139, AC-2142, AC-2143, AC-2145, AC-2146
 
 ### CHECK-FLOW-TEMPLATE-READ
 
-操作：按当前续接版本执行：从列表、分类路由或业务方案查看模板说明。前提：有本品牌模板查看资格；不要求修改/删除权；读取业务run捕获方案时须有该业务准确读取权，不因此取得当前模板配置权。操作：读取准确当前模板或业务run捕获方案；分开显示字段参考和实际应用、入口、方式、承接方、条件及业务结论。分别构造：无权或读取失败；可读配置。
+操作：按当前两模式安排版本执行：从列表、分类路由或业务方案查看模板说明。操作：读取准确当前模板或业务run捕获方案；分开显示字段参考和实际应用、入口、方式、承接方、条件及业务结论 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。分别构造：无权或读取失败；可读配置。
 
 预期：只读不暴露无权业务/其他租户场景；明确无权/失败，不伪装没有配置；只读呈现，不生成运行或改变分类绑定。
 
@@ -251,41 +268,41 @@
 
 ### CHECK-FLOW-IMPORT-MAP
 
-操作：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。在导入与分配粘贴CSV/TSV或选择CSV/XLSX并配置映射。当前租户管理员有customer.import资格。依次执行：按实际分类导入schema识别表头，非标准列明确目标或忽略；核一目标一列、必填列和未知数据列；映射/表头/字段变化使预览失效；读取期间锁检查/提交，仅最新窗口/身份/序号结果可应用。分别构造：重复目标、未映必填或FOLLOWUP/未知目标；旧文件迟到/读取失败/用户手改；映射合法
+操作：先确定入口/方式/实际AI场景，下载本次schema或上传/粘贴并映射；切场景后检查旧映射和token。
 
-预期：保原文本具体报错，不静默丢行；不覆盖新文本或新窗口，旧预览不可提交；生成规范字段输入，但尚未创建业务；格式示例只示格式，不保证满足分流
+预期：先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 不出现未引用分类列强制AI导入；格式或映射改变重新检查。
 
 覆盖：AC-2115
 
 ### CHECK-FLOW-IMPORT-PREVIEW
 
-操作：按当前续接版本执行：点击检查名单。前提：管理员导入资格有效；整批明确办理模式；DIRECT分类显式允许且方式明确，TEMPLATE实际分类绑定已确认有效流程。操作：两模式均校系统必需、分类导入必填、IMPORT类型/选项/编码映射及同品牌业务唯一性；TEMPLATE按真实行数据判断首路径/首CALL及场景；DIRECT只豁免路由分流所需的附加资料，不读取路由或生成节点，校显式方式与AI必要场景；仅全部行通过才生成绑定模式、方式、数据、字段、分类开关和必要场景的token；TEMPLATE额外绑定路由及方案。分别构造：TEMPLATE且尚未输入可影响路由的IMPORT资料；TEMPLATE且实际行空/不匹配/首次依赖未来通话或填写；存在重复或类型/选项错误；所有行通过；DIRECT缺基础必填、类型/映射/唯一性失败、分类未显式允许、方式未选或AI无有效场景。
+操作：分别从分类人工/接口和准确任务手工/接口入口准备导入；CATEGORY首组discovery后选必要AI场景；TASK自动带入；改变资料/场景/字段/安排后重检。
 
-预期：预览不转交、不起呼、不写正式业务；中性列所需分流字段，不提前标配置错误；具体报节点、字段和条件，无token不创建业务；给逐行原因，不覆盖已有业务；展示每行当前模式及DIRECT显式方式或TEMPLATE首CALL/无需呼叫和确认依据。；逐行具体报错，保名单且无有效token；不因仅绕过路由而放宽任何基础校验，也不静默转TEMPLATE。。
+预期：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 只有首组识别尚无正式token/record，必要场景和正式schema齐备后才正式预检。
 
 覆盖：AC-2115, AC-2116, AC-2117, AC-2139, AC-2140, AC-2145
 
 ### CHECK-FLOW-IMPORT-COMMIT
 
-操作：按当前续接版本执行：点击确认导入。前提：当前管理员资格及实际分类关系仍有效；本次正式范围所有行通过且token与重算完全一致。操作：按确认模式重核每行与最新配置；模式/方式/分类开关/字段/名单/映射/必要场景变化则拒旧token，TEMPLATE另核路由；同次建立批次、稳定业务、原始来源、初始负责租户和模式；仅TEMPLATE捕获完整plan并创建run，DIRECT保存显式方式及必要场景，不创建run或节点；TEMPLATE定位首业务节点；DIRECT进入同租户待安排队列并显示“直接跟进”，无模板推进/转交入口。分别构造：任何行失败或token过期；明确成功；响应未知；所选模式不可用或任一行失败。
+操作：分别确认合法TASK DIRECT及CATEGORY TEMPLATE；构造重复、缺必填、API/手工混用、旧token、原请求未知与有效子集。
 
-预期：不自动分配、转交或呼叫；整个提交不建部分业务，保名单重检；台账定位同次记录/批次；TEMPLATE导入定位即开始run，DIRECT无run/node且等待分配，不自动呼叫。；保同请求核对，不另建重复批次；整批不创建部分业务，不自动改模式重试；未知沿同请求核对。。
+预期：统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。 AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。
 
 覆盖：AC-2115, AC-2116, AC-2117, AC-2140
 
 ### CHECK-FLOW-ASSIGN
 
-操作：按当前续接版本执行：在直接跟进业务或当前CALL记录点击安排。前提：当前owner租户管理员及task.assign动作权；DIRECT分类当前允许且方式明确，或TEMPLATE为ACTIVE run的CALL节点；无在途/排队/重试/未知执行及必要未归档内容；DIRECT须当前周期ACTIVE；COMPLETED须显式再次直接跟进，不能以旧安排直接起呼。。操作：按DIRECT显式方式或TEMPLATE节点方式读取同源候选；人工核电话资格，AI/预外呼责任人不强坐席；仅选择本租户跟进人；AI场景在同一导入与分配安排入口明确且有效，DIRECT不要求节点标签路由依赖；保存不改方式或owner。分别构造：人员失效、原安排不适配或源配置变更；合法保存；当前直接周期具有可靠END接续来源。
+操作：按当前Step45生命周期规则：在直接跟进业务或当前CALL记录点击安排；按当前模式/方式读取本租户有权任务/场景或坐席；不读取独立责任人候选作为必填；人工默认MANUAL可先待分配，SPECIFIC_SEAT才必选seat；PRED只任务，AI任务+scene，不选择独立责任人；保存五档等级，人员仅由seat或真实执行事实产生，不改owner/模板方式、不自动起呼；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
 
-预期：按钮、上下文和模型动作资格一致；具体说明并保选择，不能保存无权安排；只改责任及场景安排，不改owner/方式、不起呼；可以按已确认END继续人工跟进；普通DIRECT开关不替代此来源，但当前分类/本人/资源/联系/必要归档照常核验。
+预期：按钮、上下文和模型动作资格一致；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
 
 覆盖：AC-2118, AC-2119
 
 ### CHECK-FLOW-ASSIGN-BATCH
 
-操作：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。勾选同组记录后分配跟进人。管理员对每行有当前assign资格；分组含owner/分类/捕获模板/节点/方式/场景一致。依次执行：逐条读取实际可安排上下文并求共同有效候选；同组选择人及必要AI场景，提交前每行重核。分别构造：跨组或任一记录/候选不合法；全部合法
+操作：按当前Step43安排规则：勾选同组记录后分配跟进人；逐条读取实际可安排上下文并求共同有效候选；同组按方式确认任务或人工分配方式/坐席、必要scene及五档等级，不选择独立责任人；任一资源无权或失效全组不写；DIRECT按模式/分类/方式/场景等当前权威安排分组，TEMPLATE另按run捕获方案和CALL身份分组；混组拒绝，不以空nodeId误合直接业务；同组共同候选中选择本方式具体任务或人工分配方式/坐席、必要AI场景及五档等级，逐条重核后同次写入；任一行失败全组不写，保原手动分配入口。；。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。
 
-预期：全组不写，提示分组或具体不合格原因；同次保存组内安排，不自动批起呼；不按相同nodeId误合不同模板组
+预期：不按相同nodeId误合不同模板组；全组不写，提示分组或具体不合格原因；同次保存组内安排，不自动批起呼；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。
 
 覆盖：AC-2119
 
@@ -299,25 +316,25 @@
 
 ### CHECK-FLOW-START
 
-操作：按当前续接版本执行：确认开始本次办理。前提：对准确业务有当前本租户办理权；确认业务/owner/模式及并发依据一致；TEMPLATE另核准确run/node；已安排责任人，DIRECT分类当前允许且显式方式明确；必要AI场景当前有效；前次所需内容和事实已归档，所有在途/重试/未知已收敛，联系限制与号码协调允许；DIRECT须当前周期ACTIVE；COMPLETED须显式再次直接跟进，不能以旧安排直接起呼。。操作：重核当前人/owner/模式、DIRECT开关/显式方式或TEMPLATE准确run/node、场景与唯一资源、所有联系限制和号码协调；人工本人拨打，管理员可用本人已有效坐席，明确实际人与责任人不同；两模式均产生准确唯一跟进并封最新分类定义/值和真实方式/场景；DIRECT不生成run/node，TEMPLATE绑定准确当前run/node，受理不当拨打。分别构造：资格/资源/场景/频次失败；明确受理；受理结果未知；当前直接周期具有可靠END接续来源。
+操作：按当前Step45生命周期规则：确认开始本次办理；重核当前人/owner/模式、准确TASK来源/渠道/方式（旧无TASK历史另核原准入）或TEMPLATE准确run/node、场景与唯一资源、所有联系限制和号码协调；人工须已明确有效seat且仅其本人办理；AI/PRED不要求独立assignedAccountId或followupAccountId，真实actor/拨打/接听事实分别写入；两模式均产生准确唯一跟进并封最新分类定义/值和真实方式/场景；DIRECT不生成run/node，TEMPLATE绑定准确当前run/node，受理不当拨打；按准确保存resourceId及场景重新核资源；manual仅所选坐席本人起呼。同资源高等级的可办理待办优先，既有执行不被抢占；所有原联系/资格限制先检查。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
 
-预期：不自动推进节点或改变owner；无新执行段，保原安排并准确原因；执行中但calls可为空，等待真实事实；持同请求核对，不再起第二次；可以按已确认END继续人工跟进；普通DIRECT开关不替代此来源，但当前分类/本人/资源/联系/必要归档照常核验。
+预期：不自动推进节点或改变owner；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
 
 覆盖：AC-2090, AC-2091, AC-2120, AC-2121, AC-2122
 
 ### CHECK-FLOW-START-BATCH
 
-操作：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。勾选同组AI/预外呼并明确确认发起。对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；每行有startMany资格，分类/模板/节点/方式/场景同组。依次执行：按分类优先及同级先后逐条重核，不抢占已有执行；每记录独立建立跟进/受理结果，仍对同号执行协调。分别构造：部分受理/失败/未知；人工或跨组混选
+操作：按当前Step43安排规则：勾选同组AI/预外呼并明确确认发起；同资源可办理待执行项按五档执行优先级降序、同级入队时间及稳定序号升序逐条重核；不同资源独立办理，不抢占已受理执行；每记录独立建立跟进/受理结果，仍对同号执行协调；DIRECT同方式同有效安排组也可明确批量发起AI/预外呼；逐条重核模式、串行占用及联系限制，人工仍逐条本人办理 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。
 
-预期：逐行准确反馈和身份，已受理不回滚成未发生，失败不自动续拨；阻批发起，人工本人逐条处理；分配批次与执行批次不是同一成功口径
+预期：分配批次与执行批次不是同一成功口径；逐行准确反馈和身份，已受理不回滚成未发生，失败不自动续拨；阻批发起，人工本人逐条处理；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。
 
 覆盖：AC-2120, AC-2121, AC-2122
 
 ### CHECK-FLOW-CALL-FACTS
 
-操作：按当前续接版本执行：外部执行事实或本地明确模拟事件到达。前提：原执行段/尝试身份可唯一关联；事实来源授权与原tenant/method一致。操作：按准确record/run/stage/nodeRun/followup/attempt归原事实，不凭号码或当前指针；区分受理/排队/实际dial/客户接通/实际人工身份/重试收敛；标签事实只匹配实际sceneSnapshot七元组及合法命中子集，NONE准确空也是已知；DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。。分别构造：同事件同内容重复；相反终态/身份或其他scene回调；迟到原段准确信息；预外呼仅登记坐席接听、客户接通未知或明确未接通，或同call出现相反明确接通回执。
+操作：按当前Step45生命周期规则：外部执行事实或本地明确模拟事件到达；按准确record/run/stage/nodeRun/followup/attempt归原事实，不凭号码或当前指针；区分受理/排队/实际dial/接通/实际人工/重试收敛；新派发准入与入站事实分开；ACTIVE/ABANDONING原已受理且未可靠关闭的准确seg/attempt迟到拨打/接通/终态按原ID归账去重计数，不因非ACTIVE误标dialed=false/0或假冲突；不授新派发、不挂新run/当前身份、不提前释放。已闭段未知新attempt仍原EXECUTION_CLOSED/冲突规则。；标签事实只匹配实际sceneSnapshot七元组及合法命中子集，NONE准确空也是已知；DIRECT沿准确record/owner/followup/attempt和实际办理人处理，同样保本人填写、正式快照、当前值权限及迟到隔离；无run/node不构造假模板身份。TEMPLATE仍核原准确run/node。；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
 
-预期：普通AI可记录本轮实际新标签版本，不能用run旧catalog误拒准确可选标签事实；读原结果，不重复拨打、接通、跟进计数；保原事实，拒或冲突待核，不复活已结束通话；只补原段，不改新run/currentowner/已封内容；未具同次真实客户接通和准确接听账号证据时不赋人工填写；未知不完成归档，明确未接通可系统事实归档；相反明确回执保原事实并标待核，阻止继续办理。。
+预期：普通AI可记录本轮实际新标签版本，不能用run旧catalog误拒准确可选标签事实；新派发准入与入站事实分开；ACTIVE/ABANDONING原已受理且未可靠关闭的准确seg/attempt迟到拨打/接通/终态按原ID归账去重计数，不因非ACTIVE误标dialed=false/0或假冲突；不授新派发、不挂新run/当前身份、不提前释放。已闭段未知新attempt仍原EXECUTION_CLOSED/冲突规则。；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
 
 覆盖：AC-2092, AC-2122, AC-2123, AC-2144
 
@@ -349,15 +366,15 @@
 
 操作：按当前续接版本执行：判断当前后续路径。前提：handlingMode=TEMPLATE且准确当前run/node可核；对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致。操作：按规则精确来源和声明scope读取已确认事实，IMPORT无需呼叫；计算类型允许单值/多值条件、组和优先路径，未知阻后序/default；记录一致事实与唯一selected边，生成确认token。分别构造：缺失、草稿、错租户/错run/错scene或冲突；已知空与非空；当前新方案缺唯一末位ELSE，或所有条件明确不匹配；首个合法条件或default命中；当前业务为DIRECT；当前新输入中合法启用选填IMPORT缺列。
 
-预期：本次判断不自动执行或改归属；SYSTEM不刷新也不抹除同scope先前有效人工确认；PENDING并解释来源，不反向当NOT_IN成功；空只用为空类命中，EQ/NE/集合不借空放行；缺ELSE的新方案在保存/新输入准入时拒绝；合法方案明确不匹配才用ELSE；未知不落兜底；只选一个，仍需人员确认动作；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，后续流程走独立“启用流程”预检。；在输入捕获时规范化null，按为空或ELSE判断；必填/目录异常和通话/填写未知不补空；不读改旧快照。
+预期：本次判断不自动执行或改归属；SYSTEM不刷新也不抹除同scope先前有效人工确认；PENDING并解释来源，不反向当NOT_IN成功；空只用为空类命中，EQ/NE/集合不借空放行；缺ELSE的新方案在保存/新输入准入时拒绝；合法方案明确不匹配才用ELSE；未知不落兜底；只选一个，仍需人员确认动作；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。；在输入捕获时规范化null，按为空或ELSE判断；必填/目录异常和通话/填写未知不补空；不读改旧快照。
 
 覆盖：AC-2105, AC-2123, AC-2124, AC-2125, AC-2144
 
 ### CHECK-FLOW-ADVANCE
 
-操作：按当前续接版本执行：人员确认唯一已满足后继路径。前提：handlingMode=TEMPLATE且准确当前run/node可核；对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；当前CALL实际拨打及必要跟进已归档；无执行/重试/unknown占用。操作：重算同一selected边、token及后继承接范围，不静默改选；进入准确后继；到END由系统按endAction先结束原run，再接续无模板人工周期或关闭，不把运行结束等同业务成交。分别构造：未做实际CALL或未归档/旧确认过期；明确成功；请求未知；当前业务为DIRECT。
+操作：按当前续接版本执行：人员确认唯一已满足后继路径。前提：handlingMode=TEMPLATE且准确当前run/node可核；对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；当前CALL实际拨打及必要跟进已归档；无执行/重试/unknown占用。操作：重算同一selected边、token及后继承接范围，不静默改选；进入准确后继；到END由系统按endAction先结束原run，当前新END只正常CLOSE；旧已捕获历史按原动作接续或关闭，不把运行结束等同业务成交。分别构造：未做实际CALL或未归档/旧确认过期；明确成功；请求未知；当前业务为DIRECT。
 
-预期：无需呼叫业务应在START直接END，不能默认出口绕CALL；拒推进并保原node/owner；只推进节点，不自动起呼、不隐式转交；核同request，不重复进入节点；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，后续流程走独立“启用流程”预检。。
+预期：无需呼叫业务应在START直接END，不能默认出口绕CALL；拒推进并保原node/owner；只推进节点，不自动起呼、不隐式转交；核同request，不重复进入节点；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。。
 
 覆盖：AC-2120, AC-2122, AC-2125
 
@@ -365,23 +382,23 @@
 
 操作：按当前续接版本执行：在TRANSFER命中路径确认目标。前提：handlingMode=TEMPLATE且准确当前run/node可核；对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；线索域有效分支；CURRENT保持本租户，OTHER按同品牌HQ↔STORE；无在途/重试/unknown，已有前执行的必要内容/事实已归档。操作：先区分CURRENT与OTHER；CURRENT锚定准确当前负责方，不查任意门店目标；OTHER仍按意向唯一锚定或HQ ADMIN同次指派；重核selected/路径令牌和当前目标版本；CURRENT不能指定外租户或冒充OTHER承接，后继CALL仍核准确方式/AI上下文；CURRENT仅推进合法后继并记LOCAL_ROUTE，保持owner/run/租户阶段及已有安排和封存结果；OTHER才封截止/切owner建轮次并清旧安排。分别构造：跨品牌、OTHER非法同租户/门店直转/映射不明，或CURRENT伪造外目标/冒充OTHER资格；明确成功；失败或未知；当前业务为DIRECT。
 
-预期：转交不生成客户跟进，不自动呼叫；拒绝并保原事实；当前本租户路径本身不是非法跨租户转交；CURRENT不产生跨租户授权/截止/新轮次；OTHER按原准确目标接续，目标另行安排；原事实保留，未知按同请求核对，不重复owner切换；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，后续流程走独立“启用流程”预检。。
+预期：转交不生成客户跟进，不自动呼叫；拒绝并保原事实；当前本租户路径本身不是非法跨租户转交；CURRENT不产生跨租户授权/截止/新轮次；OTHER按原准确目标接续，目标另行安排；原事实保留，未知按同请求核对，不重复owner切换；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。。
 
 覆盖：AC-2084, AC-2085, AC-2086, AC-2087, AC-2088, AC-2089, AC-2097, AC-2098, AC-2099, AC-2100, AC-2101, AC-2145
 
 ### CHECK-FLOW-ABANDON
 
-操作：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。当前管理员确认废弃并写原因。对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；有废弃资格且run ACTIVE或ABANDONING。依次执行：登记本次废弃意图及原因，保实际已发生事实；核所有执行/重试及同业务unknown已收敛，才能标废弃完成。分别构造：仍在途/排队/重试/unknown；已准确终止并核结果
+操作：按当前Step45生命周期规则：当前管理员确认废弃并写原因；当前run有EXECUTION_ACTIVE/REQUEST_UNKNOWN/FACT_CONFLICT时，ADMIN普通reason可先登记停止→ABANDONING，不先强求未来内容确认；derived canRegisterStopping只指这些真实执行/核对阻塞，FOREIGN_CONTENT不冒充在途；原执行/排队/重试/unknown/冲突可靠收敛，正常必要内容已归档或缺内容已有合法受控确认时，才ABANDONED；保archiveState=ABANDONED及未正常完成，不把废弃结清写成archived=true；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
 
-预期：ABANDONING，不能另起或宣称完成；ABANDONED，保旧plan/内容/通话；可经受控新run入口；不把废弃当业务达成或删除真实通话
+预期：正常归档与可靠废弃结清分开，保缺失及未完成；不代填、不造archived/completedFollowup或正常完成计数；不删除真实通话/内容/历史；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
 
 覆盖：AC-2122, AC-2110
 
 ### CHECK-FLOW-REOPEN
 
-操作：按当前续接版本执行：原流程完成或废弃完成后管理员开始再次办理。前提：handlingMode=TEMPLATE且准确当前run/node可核；对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；原run ENDED/ABANDONED且无未核执行；实际分类当前路由及模板保存均明确确认可用。操作：再次跟进或带原因纠偏，从实际当前owner/目的重核入口和首呼合法性；读取实际分类最新字段/确认模板，建新run并清旧安排，保旧run/seg。分别构造：路由或模板结果待核、无合法入口、仍在执行；明确创建；当前业务为DIRECT。
+操作：按当前Step45生命周期规则：原流程完成或废弃完成后管理员开始再次办理；再次跟进或带原因纠偏，从实际当前owner/目的重核入口和首呼合法性；正常段必要内容/事实正常归档；已可靠废弃结清的旧段另判，不强制archived=true。旧已弃段原人后来补齐或合法确认后可可靠收尾，不永久阻本次后继办理；旧弃不贡献正常完成数。各当前动作仍按自己的独立前置，不能把完成DIRECT周期强加到重开或启用流程。；读取实际分类最新字段/确认模板，建新run并清旧安排，保旧run/seg ；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
 
-预期：纠偏不直接改owner或门店互转，不在原流程插节点；拒新run且原业务不变；同record/owner新run，重核分配/场景；CURRENT_NODE/CURRENT_ROUND不借旧run结果，显式HISTORY仅沿其准确本租户历史资格；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，后续流程走独立“启用流程”预检。。
+预期：纠偏不直接改owner或门店互转，不在原流程插节点；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
 
 覆盖：AC-2108, AC-2110, AC-2122, AC-2140
 
@@ -389,31 +406,31 @@
 
 操作：按当前续接版本执行：当前管理员选择同品牌目标线索分类并预检确认。前提：对准确业务有当前本租户办理权；确认业务/run/node/owner及并发依据仍一致；原run已结束/废弃完成，无执行unknown；原分类与目标均同品牌LEAD，目标当前route可用。操作：只按稳定字段身份复用，缺目标必填由管理员明确补充并预检；重核目标schema/route/原record依据，保持业务ID、brand、统一编码和原批次。分别构造：跨品牌/普通域/重复统一编码/缺字段或token过期；明确成功；当前业务为DIRECT。
 
-预期：同一业务新run而非重复导入，owner不自动变；保输入拒，不合并或覆盖其他业务；记录转类原因和前后分类/当前值，原运行快照仍按其原分类可读；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，后续流程走独立“启用流程”预检。。
+预期：同一业务新run而非重复导入，owner不自动变；保输入拒，不合并或覆盖其他业务；记录转类原因和前后分类/当前值，原运行快照仍按其原分类可读；拒绝模板判断、推进、转交、废弃运行或模板重开；同租户再次直接跟进沿直接起呼入口，新TASK来源不得启用模板；仅旧无TASK来源历史的后续流程可走独立“启用流程”预检。。
 
 覆盖：AC-2108, AC-2116, AC-2122, AC-2140
 
 ### CHECK-FLOW-QUERY
 
-操作：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。进入导入与分配／业务列表并筛选队列。当前身份及租户范围可核。依次执行：从同权威账本按当前/截止历史/管理监管资格投影，不用品牌配置权扩范围；算工作状态、下一步和阻塞原因，先更新时间倒序全量过滤再分页；入口按钮按行实际动作资格，普通运营可起呼但不导入/分配。分别构造：确定空记录；范围或读取失败；当前记录可办。具体复现：准备更新时间为10:00、12:00、11:00的三条有权业务和一条无权业务；每页两条，查询后重复打开详情。
+操作：分别从主菜单/批次/record详情查询并刷新，改变账号/租户/权限；回读原历史和新TASK行。
 
-预期：显示空态及有权下一步，不假造条数；显示错误/无权而非空成功；队列可定位待转交/待安排/待起呼/待结果/待填写/待流转/条件未满足/待核等；读取不改变业务更新时间或状态。该例预期：过滤后先按12:00、11:00、10:00倒序再分页；无权行不计入可见集；只读不改变时间，分支/字段业务顺序不被排序规则打乱。
+预期：业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。
 
 覆盖：AC-2129, AC-2130, AC-2131, AC-2132
 
 ### CHECK-FLOW-BATCH-READ
 
-操作：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。从当前台账打开批次查看业务。本次批次可见范围有效。依次执行：按实际可见记录裁剪批次及私有行，准确表明部分可见；可见集按真实更新时间倒序分页，关联到准确业务。分别构造：本范围无可见内容；有可见行
+操作：按当前三入口统一导入规则：从当前台账打开批次查看业务；按实际可见记录裁剪批次及私有行，准确表明部分可见；可见集按真实更新时间倒序分页，关联到准确业务；按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：明确无权/不可读，不暴露其他租户名单；展示真实逐行结果和当前办理入口，不按手机号猜记录；不通过批次扩大跨租户字段或电话读取
+预期：不通过批次扩大跨租户字段或电话读取；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2131, AC-2132
 
 ### CHECK-FLOW-DETAIL
 
-操作：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。打开准确业务详情或辅助run/timeline接口。当前读取资格和准确业务身份可核。依次执行：分别投影当前负责、超管管理只读、本方转出截止三身份；按各自快照显示当前资料、实际run、原段内容和通话，辅助接口同样裁剪。分别构造：实际接听人只有原段资格；转出方历史；超管监管。具体复现：总部向门店成功转交后，门店更正字段并选私有AI场景；分别以原总部、门店、超管和仅有原段待填权实际接听人读取详情与辅助timeline/runContext。
+操作：按当前三入口统一导入规则：打开准确业务详情或辅助run/timeline接口；分别投影当前负责、超管管理只读、本方转出截止三身份；按各自快照显示当前资料、实际run、原段内容和通话，辅助接口同样裁剪；按准确身份展示模式与方式；DIRECT无当前run/节点显示“直接跟进”，保完整有权跟进/通话/快照及当前资料更正入口，不显示可办理模板转交或推进。 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。 。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：只通过最小待填写入口，不由detail获得整档案；不返回接收方当前run/node/arrangement/后续值；只读真实数据，不出现代办按钮；查看不创建跟进或运行。该例预期：总部只见本方截止；门店按当前业务资格；超管管理范围只读；最小待填人不能用辅助接口取整档案或门店后续私有资料。
+预期：查看不创建跟进或运行；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2093, AC-2094, AC-2131, AC-2132, AC-2133
 
@@ -451,9 +468,9 @@
 
 ### CHECK-FLOW-CONTACT-POLICY
 
-操作：本动作适用模式以当前前置条件为准；原模板例仅用于TEMPLATE。管理员从导入与分配维护联系协调设置。仅当前实际租户管理员维护。依次执行：校0禁用额外频控、有效范围和分类优先唯一；起呼按完整规范号、准确原专业及本账本事实协调占用与频次。分别构造：已在途/排队/重试/unknown或频次/高优先条件不允；明确终止且事实完整/策略允许
+操作：按当前两模式安排版本执行：管理员从导入批次与业务名单维护联系协调设置。操作：校0禁用额外频控及有效范围；旧分类权重仅有值时只读保留，当前界面不再编辑，五档等级从当前执行安排维护；起呼按完整规范号、准确原专业及本账本事实协调占用与频次；同号码及同资源使用五档降序、queuedAt/queueSequence入队FIFO和稳定业务ID的统一总序，避免交叉等待；旧分类0～999仅保历史/原专业兼容，不参与新排序，当前UI只读，不抢占在途。。分别构造：已在途/排队/重试/unknown或频次/高优先条件不允；明确终止且事实完整/策略允许。
 
-预期：阻新呼叫并给原因及可核最早时间，不自动续拨；仅解除原占用，人员仍须明确发起；不靠掩码猜号码，不因维护策略放松公共拒联或供应商边界
+预期：不靠掩码猜号码，不因维护策略放松公共拒联或供应商边界；阻新呼叫并给原因及可核最早时间，不自动续拨；仅解除原占用，人员仍须明确发起。
 
 覆盖：AC-2121, AC-2122
 
@@ -467,35 +484,147 @@
 
 ### CHECK-FLOW-ENABLE-TEMPLATE
 
-操作：按当前续接版本执行：当前有权管理员在DIRECT业务详情明确选择“启用流程”并预检确认。前提：当前负责租户管理员具有本条业务维护与流程启用动作资格；当前业务为DIRECT且同一稳定record、brand、category、owner及修订依据明确；全部旧直接执行、排队、重试和未知请求可靠收敛；实际办理人必要内容与归档均完成；当前实际分类存在明确生效的兼容路由；所有基础必填、类型/映射/唯一性及本次路由必要资料已按受控入口补齐；当前DIRECT周期可以ACTIVE或COMPLETED；不强制先“完成直接跟进”，只要求全部旧执行与必要归档可靠收敛。。操作：在准确原业务检查当前路由、首路径及必需资料；只按稳定字段身份复用当前值，缺资料经有权维护补齐后重新预检，不重复导入 输出enableFlowContext的逐项issues及validationToken；本租户首CALL为AI时显式重新选场景。；提交前重核全部旧执行及必要归档收敛、owner和当前配置；未满足或预览过期均不改模式、不建run validationToken必须绑定准确record/revision/directCycleId/owner、当前字段/值/plan及必要场景；任一变化即保输入重新检查。；同次记录启用事件、DIRECT→TEMPLATE、新run及当前完整方案，按当前负责方定位首节点并清旧人/场景安排；旧事实只归旧直接段 当前directStatus封FLOW_ENABLED；原ACTIVE周期转FLOW_ENABLED，原COMPLETED周期保完成历史结论。。分别构造：路由无效、必需资料不齐、旧执行未知/在途、必要本人归档未完成或并发冲突；明确成功；同次启用结果未知或重复确认。
+操作：对新TASK DIRECT与旧无TASK来源历史DIRECT分别打开办理；测试旧段未结清/未知和合法旧转换。
 
-预期：原业务与原批次保持；明确成功后模式变为TEMPLATE，创建新的run并封当前方案及首节点，清旧安排；不自动转交或起呼；全部旧DIRECT事实与快照保持原身份，不能完成新run的CURRENT_NODE/CURRENT_ROUND节点要求；显式HISTORY仍只按准确授权读取；启用流程不要求先完成直接周期；已完成周期结论保持，未完成但收敛周期按启用事件结束；新run与旧directCycle严格隔离。；保原业务DIRECT及全部输入，具体显示缺口与合法处理入口，不创建run或假归档。；原record同owner创建新run；后续按模板分配、转交及实际新呼叫规则办理，旧直接通话/标签/内容不能完成新节点。；按准确原请求核对或返回同次已创建run，不另建第二run、不重新导入业务。。
+预期：当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。 未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。
 
 覆盖：AC-2112, AC-2113, AC-2129, AC-2140
 
 ### CHECK-FLOW-COMPLETE-DIRECT
 
-操作：DIRECT新业务无拨打尝试完成SUCCESS、无原因NO_CALL、带原因NO_CALL；另有真实已归档完成跟进的当前周期选择明确结论。分别置旧请求未知、重试未收敛、本人内容未归档；最后全部满足后重复同请求并查看原段。
+操作：按当前Step45生命周期规则：有当前直接业务办理资格者明确选择“完成直接跟进”并确认业务结论；重新核准确直接周期、当前资格及全部旧执行/必要归档收敛；不以最后单条结束或超时作为全收敛。；正常段必要内容/事实正常归档；已可靠废弃结清的旧段另判，不强制archived=true。旧已弃段原人后来补齐或合法确认后可可靠收尾，不永久阻本次后继办理；旧弃不贡献正常完成数。各当前动作仍按自己的独立前置，不能把完成DIRECT周期强加到重开或启用流程。；校明确结论编码非UNSPECIFIED，显示名1～80字；无真实完成跟进时只允许NO_CALL+明确原因。；同次封当前业务结论、原周期结论、COMPLETED状态、结束时刻和有权操作者事件；不制造通话、跟进完成数或模板END。；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
 
-预期：无真实完成跟进仅NO_CALL+原因合法，且全部旧执行及必要归档须收敛；合法时只封一个COMPLETED周期/业务结论，不造通话或跟进完成数；原段保持，失败保输入，未知沿同请求核对。
+预期：完成直接周期与跟进归档、实际拨打和业务成功分开；原段/周期快照不被当前结论改写。；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
 
 覆盖：AC-2118, AC-2122, AC-2129
 
 ### CHECK-FLOW-RESUME-DIRECT
 
-操作：按当前续接版本执行：有再次直接办理资格者在COMPLETED业务选择下一次方式后确认“再次直接跟进”。前提：当前业务为DIRECT且当前周期COMPLETED，具本业务再次直接跟进资格；分类当前仍显式允许直接跟进；全部旧执行、未知及必要归档已可靠收敛；明确下一次AI/MANUAL/PREDICTIVE；AI明确有效本租户/分类场景，实际专业能力仍可核。操作：按当前分类开关和准确业务/owner/周期重验；下一次方式须明确确认，AI重核当前准确场景，不把旧结果当新输入。；同业务追加新directCycleId并设ACTIVE，保存本次明确方式/必要场景；原周期COMPLETED及结论快照保留。；清旧责任跟进人及旧执行安排，清当前业务结论但保周期历史；新周期重新分配和明确起呼，不建run/node或自动续拨。。分别构造：周期未完成、分类关闭、旧执行未收敛或必要场景不可用；明确成功或重复同请求；结果未知；当前直接周期具有可靠END接续来源。
+操作：当前TASK DIRECT完成后明确再次直接跟进；改变准确任务/场景/渠道或保留旧未知，再测旧无TASK/END历史来源。
 
-预期：再次直接跟进与同周期内真实重拨分开；新周期不能借旧完成结论或通话充当本次跟进。；保旧COMPLETED及全部输入，指出具体原因；不建新周期，不自动启用模板。；同record/owner只新增一个DIRECT周期，旧段仍归旧周期，当前安排待重新分人。；沿准确原请求核对，不重放新周期。；可以按已确认END继续人工跟进；普通DIRECT开关不替代此来源，但当前分类/本人/资源/联系/必要归档照常核验。
+预期：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。 旧执行/必要归档不收敛时拒绝新周期。
 
 覆盖：AC-2115, AC-2116, AC-2129
 
 ### CHECK-FLOW-END-HANDOFF
 
-操作：按当前续接版本执行：有权导入或路径确认可靠定位到当前捕获END后由系统执行。前提：原动作权限、准确业务/负责方/运行/节点及并发依据已核；原执行/重试/未知与必要归档门槛满足；纯无呼叫路径不制造跟进事实。操作：先封原run结束时间/节点/租户和准确endAction；系统摘要是结束/转无模板，不配置业务达成；DIRECT_FOLLOWUP保同record/owner和已结束历史，清当前run/节点引用，新建MANUAL周期及可信END来源；原责任人仅当前仍有效且具电话资格才沿用，否则待安排。分别构造：捕获动作CLOSE；捕获动作DIRECT_FOLLOWUP且来源可核；未选动作、伪造来源/旧租户请求或原执行未收敛。
+操作：创建当前CLOSE模板至END明确推进；对历史捕获DIRECT_FOLLOWUP只读追溯并按原合同收尾。
 
-预期：原run明确结束且保原计划/节点/通话/快照；CLOSE关闭不再跟进；DIRECT_FOLLOWUP建立当前租户MANUAL直接周期但不自动起呼；原run结束且不建直接周期/不再跟进，不虚构成交或通话；合法END来源可授权无模板接续，不要求分类允许普通DIRECT导入；原角色/资源/联系/实际本人保存仍检查，人工起呼仍须明确发起；拒绝或待核，不写半次结束/新周期，不泄露目标方后续资料。
+预期：当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。
 
 覆盖：AC-2141
+
+### CHECK-FLOW-EXECUTION-TARGET
+
+操作：按当前Step45生命周期规则：在直接跟进业务或当前CALL记录点击安排；按当前模式/方式读取本租户有权任务/场景或坐席；不读取独立责任人候选作为必填；人工默认MANUAL可先待分配，SPECIFIC_SEAT才必选seat；PRED只任务，AI任务+scene，不选择独立责任人；保存五档等级，人员仅由seat或真实执行事实产生，不改owner/模板方式、不自动起呼；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
+
+预期：按钮、上下文和模型动作资格一致；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
+
+覆盖：AC-2118, AC-2150
+
+### CHECK-FLOW-IMPORT-ARRANGEMENT
+
+操作：按当前三入口统一导入规则：点击检查名单； ；共享读取/预检采用准确目标context.importLimits而非任意调用参数：保AI大众100行、厚朴150000行、其他2000行及16MB文件，预外呼2000行/1MB；超限明示分批且不截断，旧AI parser只作历史兼容不成第二新写入口；CATEGORY按真实行IMPORT条件定位首路径/首CALL并分组；AI取该组实际场景参数，TRANSFER按当前/目标租户合法路径办理，未知PENDING不假落ELSE。未配置模板精确引导业务分类→路由配置，失效/删除另报，不虚构空名单1条。 仅首组识别/discovery用于决定方式和所需场景，不生成正式token、不建record；待各组必要场景及正式schema齐全后才正式逐行检查。； 预检成功才显示实际组数，名单/映射/分类/路由/场景/执行安排改变清旧token/数量；保五档及人工MANUAL/指定seat、PRED仅任务、AI任务+scene的合法安排。；按本批实际首CALL分组显示方式/数量、具体任务或坐席、必要场景及五档等级；导入安排可覆盖本租户节点默认，也可保留稍后手动分配；目标/等级变化失效旧预览。；客户维护与AI/PRED任务三入口共用IMPORT及code等系统必需校验；任务内默认DIRECT且固定准确task/scene、ADMIN+customer.import和原模块/来源准入，分类已绑模板也不建run/node；统一记录一次保存，专业视图只读投影。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
+
+预期：预览不转交、不起呼、不写正式业务；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
+
+覆盖：AC-2151
+
+### CHECK-FLOW-EXECUTION-PRIORITY
+
+操作：按当前Step43安排规则：勾选同组AI/预外呼并明确确认发起；同资源可办理待执行项按五档执行优先级降序、同级入队时间及稳定序号升序逐条重核；不同资源独立办理，不抢占已受理执行；每记录独立建立跟进/受理结果，仍对同号执行协调；DIRECT同方式同有效安排组也可明确批量发起AI/预外呼；逐条重核模式、串行占用及联系限制，人工仍逐条本人办理 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。
+
+预期：分配批次与执行批次不是同一成功口径；逐行准确反馈和身份，已受理不回滚成未发生，失败不自动续拨；阻批发起，人工本人逐条处理；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。
+
+覆盖：AC-2152
+
+### CHECK-FLOW-EXECUTION-DEFAULTS
+
+操作：按当前Step43安排规则：从流转模板新建／编辑当前配置；选择字段参考分类读最新字段，唯一开始锚点与组件确定类型；编排条件优先的入口/路径和单方式CALL，当前END固定正常结束CLOSE；当前草稿可未选目标但不形成业务边；核稳定字段/类型/值/准确来源、唯一末位ELSE、合法目标/无环及并发后保存；报错定位当前节点；CALL默认等级及当前有权tenant映射可改，换方式重核目标，保其他tenant映射；仅新运行捕获新默认。 当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；旧无TASK来源DIRECT仅保原合法转换能力。 。同时构造资源失效、异租户、未知/在途及人工SPECIFIC缺seat反例。
+
+预期：业务执行待核不无必要冻结独立模板编辑，配置待核仍核原请求；保当前草稿并阻非法保存；字段/来源或不兼容类型/基数变化清不适用值，兼容operator保值，不再额外待应用确认；更新当前定义，不自动绑定任何分类、不起呼；已开run不追改；空目标仅留编辑草稿不生成虚连线；循环选择即时拒绝并保原目标；保存缺项/绕过仍拒绝并统一浅红定位；人工MANUAL可先待分配；PRED只任务/AI任务+scene无独立人员必填，权限/五档/FIFO与历史继续。
+
+覆盖：AC-2153
+
+### CHECK-FLOW-EXECUTION-HISTORY
+
+操作：受控废弃后建立新RUN但不安排，再分配相同资源；比较同RUN重存和新RUN的新队列事实，回读旧跟进。
+
+预期：当前排队事实仅属于准确当前run/nodeRun/directCycle及有效资源安排；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。
+
+覆盖：AC-2154
+
+### CHECK-FLOW-MANUAL-ASSIGNMENT-MODE
+
+操作：两模式人工分别MANUAL无seat保存模板/导入，再原单条/批量分配；SPECIFIC_SEAT缺seat及有合法seat两例；前节点已指定seat后进入新MANUAL/SPECIFIC_SEAT后继及旧无策略快照，刷新回读并由目标本人起呼。
+
+预期：MANUAL缺省无seat可先待分配，新MANUAL后继不继承前seat；SPECIFIC_SEAT缺seat拒绝，仅按本节点及原同tenant/method/有效资源规则沿用或确认。旧快照无策略保原解释，不读取时迁移；有效分配后仅本人办理，五档与原守卫不变。
+
+覆盖：AC-2155
+
+### CHECK-FLOW-TASK-WITHOUT-FOLLOWER
+
+操作：按当前Step45生命周期规则：在直接跟进业务或当前CALL记录点击安排；按当前模式/方式读取本租户有权任务/场景或坐席；不读取独立责任人候选作为必填；人工默认MANUAL可先待分配，SPECIFIC_SEAT才必选seat；PRED只任务，AI任务+scene，不选择独立责任人；保存五档等级，人员仅由seat或真实执行事实产生，不改owner/模板方式、不自动起呼；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
+
+预期：按钮、上下文和模型动作资格一致；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
+
+覆盖：AC-2156
+
+### CHECK-FLOW-DERIVED-PEOPLE-HISTORY
+
+操作：按当前Step45生命周期规则：确认开始本次办理；重核当前人/owner/模式、准确TASK来源/渠道/方式（旧无TASK历史另核原准入）或TEMPLATE准确run/node、场景与唯一资源、所有联系限制和号码协调；人工须已明确有效seat且仅其本人办理；AI/PRED不要求独立assignedAccountId或followupAccountId，真实actor/拨打/接听事实分别写入；两模式均产生准确唯一跟进并封最新分类定义/值和真实方式/场景；DIRECT不生成run/node，TEMPLATE绑定准确当前run/node，受理不当拨打；按准确保存resourceId及场景重新核资源；manual仅所选坐席本人起呼。同资源高等级的可办理待办优先，既有执行不被抢占；所有原联系/资格限制先检查。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；新运行未安排清当前queue别名，显示未记录，不能借旧运行队列时间或业务createdAt抢队。相同当前运行/资源仅重存或调等级保原FIFO，新运行重新分配同资源才产生新queuedAt/queueSequence。未安排待办排序与队列时间展示分开，按当前节点进入/当前周期开始的可信时间，身份未知保持未知。；构造无权/缺确认/过期/真实在途或unknown/事实冲突对照。
+
+预期：不自动推进节点或改变owner；保原身份/当前值/未完成事实及真实统计，不代填、不借历史END给新周期续权、不提前释放。
+
+覆盖：AC-2157
+
+### CHECK-FLOW-TASK-IMPORT-SCHEMA
+
+操作：先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+
+预期：任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。
+
+覆盖：AC-2158
+
+### CHECK-FLOW-TASK-IMPORT-REPLAY
+
+操作：原请求返回未知后核对同次；首次success/unknown显式requestId不符、服务端已有产出、读取故障、跨租户/generic副本、旧周期冲突及typed伪报分别核验。
+
+预期：未知导入先核对原请求；服务端产出的记录必须按原请求/准确任务/租户/渠道关联，读取故障不解除请求身份，不允许以新请求重试产生重复副作用。基础名称/编码/手机号/优先级按原类型和别名严格校验，旧已捕获请求只读重放不接受客户端伪报。 当前/旧/generic供应商专属快照与兼容副本只按可信原始任务/批次租户及品牌投影，所有值和配置指纹均受同一范围约束，不泄露给来源方或另一租户；公共业务资料及原截止历史保持。预外呼新安排/执行同核已配置分类和品牌，统一历史未知不在读取时首次补类或换类。 首次异requestId保持本次原ID待核，不解锁或接受异请求产出，不重复写成功行。
+
+覆盖：AC-2161
+
+### CHECK-FLOW-CONTROLLED-ABANDON
+
+操作：在途/REQUEST_UNKNOWN/FACT_CONFLICT时ADMIN普通reason先登记停止；原执行可靠停止后仍缺必要本人内容，核reason-only/非ownerADMIN/未确认/无原因/过期范围，再合法确认；FOREIGN_CONTENT单独反例。
+
+预期：真实执行/核对阻塞可先ABANDONING不强未来确认；FOREIGN_CONTENT不是停止借口。完成缺失废弃须停止可靠且本tenant缺失合法确认，保缺失未完成、正常archived/completed不造；不提前释放，历史收尾不放宽。
+
+覆盖：AC-2163
+
+### CHECK-FLOW-ABANDON-DIRECT-SETTLEMENT
+
+操作：旧run受控废弃→重开正常完成→END首MANUAL→当前真实直接跟进归档；原本人后来补齐，或当前ownerADMIN用准确旧run/指纹/revision确认本tenant旧欠项，再完成当前DIRECT/启用流程。另含跨tenant/非ADMIN/过期/多个旧run/真实旧冲突。
+
+预期：可靠旧弃收尾不要求正常archived=true，不永久卡DIRECT；只改本tenant旧seg证据/事件/revision，当前状态/字段不变。当前周期凭自身真实完成或合法NO_CALL，旧弃不计正常完成；外tenant/无权/旧unknown冲突仍原守卫。
+
+覆盖：AC-2164
+
+### CHECK-FLOW-END-CURRENT-CYCLE
+
+操作：当前模板新配置/换绑/重开时试用旧DIRECT_FOLLOWUP；读取已捕获旧END历史，再分别创建当前新周期。
+
+预期：当前新建/修改模板的END固定正常结束CLOSE，不提供是否直接跟进配置，当前新导入/路由/重开不得接纳旧DIRECT_FOLLOWUP配置；已运行历史按原捕获方案和原合法来源收尾，不改历史为CLOSE，不借旧END来源授权当前新周期。新TASK/DIRECT始终直接跟进，不显示启用流程；旧无TASK来源DIRECT仅保原合法转换能力。 旧已捕获证明保持原样，不授新输入例外。
+
+覆盖：AC-2165
+
+### CHECK-FLOW-STOPPING-RECEIPTS
+
+操作：原受理排队→请求停止/ABANDONING→原attempt迟到拨打/接通/结束，含乱序/重复及新run隔离；核已闭段未知新attempt、停止仅受理而未实际结束。
+
+预期：真实原事实按原seg/attempt入账计数去重，禁止新派发/误挂当前；不提前释放，不抹拨打/伪冲突；已闭未知新attempt依原拒绝/冲突规则。
+
+覆盖：AC-2166
 
 ### CHECK-PLAT-LOGIN
 
@@ -667,17 +796,17 @@
 
 ### CHECK-PLAT-AI-SCENE-QUERY
 
-操作：在准确有权范围触发“查询AI场景及原类型”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+操作：按当前三入口统一导入规则：打开AI业务场景/场景配置或当前场景选择器；按租户和供应商执行资格过滤场景/类型；准确显示启停/分类/参数可用性，未知不能用首项代替 。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：显示当前合法场景；仅有使用权可使用但不可维护标签；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：显示当前合法场景；仅有使用权可使用但不可维护标签；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2045, AC-2046, AC-2047, AC-2063, AC-2064
 
 ### CHECK-PLAT-AI-SCENE-SAVE
 
-操作：在准确有权范围触发“创建或编辑AI业务场景与场景类型”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+操作：编辑准确已有HP任务场景，配置两来源/有效必填；修改后取消并放弃，在关闭动画中立即重开，再触发旧timer/迟到字段结果。
 
-预期：专业场景/类型准确配置；执行能力以供应商真实资源为准；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：主场景只保原添加字段唯一入口→来源二选一→独立选择/配置弹窗→子确认入父草稿→主场景明确保存。下方有效必填按准确参数唯一映射、供应商必填及所引用当前分类字段合并；CUSTOM只取自身要求，失效/重复/未读显示待核，上方供应商原模板仍保raw。空AI责任人不画旧责任行，历史明确人员仍原名保留。 取消/放弃后关闭动画期间立即重开场景时，仅清除已获授权标记closing的旧层再初始化，活动未保存层拒绝重复打开；延时关闭只删除捕获的旧层，有新层不解锁其背景滚动，旧异步字段返回按sequence/owner不能覆盖新草稿。取消不保存、不删除原映射或误报新表单脏状态。 厚朴场景查询并保存已有准确供应商任务后，只读投影到同一任务目录和导入/执行入口，按tenant/brand/account/taskId/唯一scene稳定关联，不创建供应商任务、不按名称猜；实时读取准确任务状态，未知供应商计数显示待核。已知权威taskStatusCode使用准确可执行枚举，原status='unknown'仅属兼容状态文本，不覆盖权威taskStatusCode明确枚举；权威code为null或未知仍拒绝。
 
 覆盖：AC-2045, AC-2046, AC-2047, AC-2063, AC-2064
 
@@ -699,17 +828,17 @@
 
 ### CHECK-PLAT-AI-TASK-QUERY
 
-操作：在准确有权范围触发“查询AI任务及任务名单”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+操作：按当前三入口统一导入规则：AI外呼页查询、查看任务或名单；按当前筛选/平台/场景和任务ID读取任务、已呼/未呼名单及状态计数；更新时间倒序后分页；进入任务详情再次验对象范围；原启动/暂停/终止/删除仅有界面但未实现控件保持明确不可用，不显示假成功；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。； ； ； ； ； ； ； ； ； ；。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：当前AI专业任务/名单可读；不重建专业任务或宣称未实现控制已受理；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：当前AI专业任务/名单可读；不重建专业任务或宣称未实现控制已受理；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2063, AC-2064
 
 ### CHECK-PLAT-AI-LIST-IMPORT
 
-操作：在准确有权范围触发“向准确AI任务导入联系人”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。；以仅授权AI的总部/门店管理员及运营冷启动后直接导入完整号码，测试共享模型等待、公共限制、活动占用和联系频控；在等待时撤权/换账号租户/修改AI修订/关闭换文件，及损坏/缺失已初始化台账、读取失败后同文件重试。
+操作：按当前准确场景/平台：只读任务概览不物化意向草稿；任务内导入从准确scene实际分类读取共同IMPORT schema、code/姓名/号码等系统必需列，校必填/类型/选项/映射及统一重复编码；排除FOLLOWUP，业务定义不自由复制；当前scene/platform专属customFields附加于模板和列映射，按text/number/date/required逐行校验，rows拆fields与customValues独立字典；共享读取/预检采用准确目标context.importLimits而非任意调用参数：保AI大众100行、厚朴150000行、其他2000行及16MB文件，预外呼2000行/1MB；超限明示分批且不截断，旧AI parser只作历史兼容不成第二新写入口；显式准备并等待本租户共享联系只读模型，再逐号码核对公共禁呼、专业/业务占用、间隔及当日频控；AI-only成员不依赖Cloud页面或Cloud授权，不增加Cloud权利；模型/台账未知保持待核；异步返回后重核账号/tenant/ADMIN+customer.import、AI模块、任务/场景/分类/映射/文件及原来源锁定；当前上下文与预检一致才同请求写一次统一业务账本/DIRECT周期，保存原始联系号码（联系协调用规范明文，非源CSV列原文副本）、实际操作人、全部规范字段及taskImportSource；只读专业投影recordId，不新写原生名单或再提交供应商；不把保存说成已受理/拨打；AI-only使用共享业务服务的精确账号/tenant/task导入及同源请求核对范围，schema只读，完成/异常恢复原访问，不持久授Cloudcap/成员/菜单，不能借此配置/起呼或访问其他Cloud动作；本行record.fields仅业务值，专属列规范值及customFields在taskImportParameterSnapshot和originalImportSnapshot.taskImportParameterSnapshot独立封存，保parameters/mappings/fingerprint；批次映射快照保customFields，后改平台/配置不追改；构造无权、平台/分类切换、旧修订及取消/失败/未知。
 
-预期：准确任务联系人及导入批次形成，冲突/失败行不虚报成功；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。；正常AI-only导入成功且未获Cloud权限；所有限制仍拒绝，未知不放行、不清台账，过期异步结果不写入；可可靠重试，失败保原文件。
+预期：当前准确任务+场景的新DIRECT业务/周期及完整IMPORT值/快照/来源/等级形成；专业视图按recordId只读投影，无新原生行或重复供应商提交；失败保输入，未知核同请求，原权限/联系/来源守卫继续。
 
 覆盖：AC-2063, AC-2064
 
@@ -723,17 +852,17 @@
 
 ### CHECK-PLAT-AI-IMPORT-HISTORY
 
-操作：在准确有权范围触发“查询AI导入记录”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+操作：按当前三入口统一导入规则：AI任务查看导入历史；按任务稳定ID过滤本租户批次；展示原文件/条数/提交人/时间/结果，未知与失败区分；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史；；。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：仅显示该任务授权导入历史，不连带文件下载或任务控制权；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：仅显示该任务授权导入历史，不连带文件下载或任务控制权；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2063, AC-2064
 
 ### CHECK-PLAT-CALL-QUERY
 
-操作：在准确有权范围触发“查询和查看AI／Cloud通话记录”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+操作：原AI通话列表打开准确详情并切文本/信息页签；核列表与详情动作，按实际可用音频另验。
 
-预期：显示准确授权通话事实、录音可用性及标签，不改人工跟进或路由；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：AI通话原列表每行仅保详情，不追加逐行确认拒联。原准确详情保录音/文本及有权原来源人工确认入口，准确通话、租户、供应商、联系号码和原权限再次校验；不按标签/状态自动拒联，不新增待审队列，不扩大解除权。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。 录音真实可听不能由按钮存在冒充。
 
 覆盖：AC-2063, AC-2064, AC-2066, AC-2072
 
@@ -843,9 +972,9 @@
 
 ### CHECK-PLAT-BAN-AI
 
-操作：在准确有权范围触发“人工确认AI明确拒联后入库”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+操作：在原AI列表及准确有权/无权详情分别查看原来源确认入口；构造标签/拒接但无明确拒联依据。
 
-预期：准确人工确认的AI拒联来源入库；不因AI标签自动入库；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：AI通话原列表每行仅保详情，不追加逐行确认拒联。原准确详情保录音/文本及有权原来源人工确认入口，准确通话、租户、供应商、联系号码和原权限再次校验；不按标签/状态自动拒联，不新增待审队列，不扩大解除权。
 
 覆盖：AC-2054, AC-2055, AC-2056
 
@@ -971,9 +1100,9 @@
 
 ### CHECK-PLAT-CUSTOMER-IMPORT
 
-操作：在准确有权范围触发“原客户任务导入与字段映射校验”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+操作：按当前三入口统一导入规则：业务分类行发起人工/接口模板导入，或读取原专业历史来源； 新写按LOCAL-FLOW-IMPORT-PREVIEW/COMMIT的准确CATEGORY/TEMPLATE办理，不构造第三个中央DIRECT导入。； ；保原人工/接口及其他专业名单的准确实体、来源锁定与批次；本轮AI/预外呼任务新统一导入按对应任务入口写统一账本并投影，不把旧专业名单自动迁入或按同手机号回链。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：合法专业名单入库并可分配；原专业导入不是新四节点模板自动启动；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：原人工/接口专业历史保原事实；本轮AI/PRED任务新导入采用共同分类IMPORT并形成DIRECT业务，不自动模板启动或迁移旧名单；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2067, AC-2072, AC-2073
 
@@ -987,9 +1116,9 @@
 
 ### CHECK-PLAT-CLOUD-TASK-QUERY
 
-操作：按当前续接版本执行：预外呼或IVR任务页查询/查看。前提：相应方式原任务读权。操作：按mode分别读取准确任务，不混淆IVR与预外呼资源/状态；任务详情显示已受理与远端终态、名单及失败分类；列表更新时间倒序后分页，任务ID及当前scope进入详情复核。分别构造：前提、字段及对象修订校验通过且结果明确成功；无权/字段不合法/对象失效/修订冲突；提交失败或结果未知。
+操作：按当前三入口统一导入规则：预外呼或IVR任务页查询/查看；按mode分别读取准确任务，不混淆IVR与预外呼资源/状态；任务详情显示已受理与远端终态、名单及失败分类；列表更新时间倒序后分页，任务ID及当前scope进入详情复核；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。； ； ； ； ； ； ； ； ； ；。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：准确原专业任务可查；查看不授控制、导入或导出；准确原专业任务可查；查看不授控制、导入或导出；明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更；失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功。
+预期：准确原专业任务可查；查看不授控制、导入或导出；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2068, AC-2069, AC-2070, AC-2071, AC-2148
 
@@ -1003,9 +1132,9 @@
 
 ### CHECK-PLAT-CLOUD-TASK-IMPORT
 
-操作：在准确有权范围触发“向预外呼／IVR任务导入名单”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+操作：按当前三入口统一导入规则：准确专业任务选择名单并独立确认导入；预外呼明确本次有效且任务配置关联分类，按共同IMPORT+code/姓名/号码基础schema逐行校类型/选项/必填/映射/重复编码；FOLLOWUP排除；任务及接口/手工来源锁定继续。IVR仍原专业校验，不创建本轮DIRECT；共享读取/预检采用准确目标context.importLimits而非任意调用参数：保AI大众100行、厚朴150000行、其他2000行及16MB文件，预外呼2000行/1MB；超限明示分批且不截断，旧AI parser只作历史兼容不成第二新写入口；预外呼默认DIRECT/PREDICTIVE并固定当前准确taskId与租户/修订，五档默认中；不另选seat/person，不建run/node；相关字段/任务/来源变化使旧确认失效；原配置校验完整且状态/来源允许的待分配客户任务可导入，包括既有flat/alictiCreateDraft配置型任务，不要求先有原生名单或旧目录已发布方案；缺配置/无权/停用/在途仍拒绝，不伪造供应商发布/受理；预外呼同请求只写一次统一业务及直接周期，完整值/快照/taskImportSource保存；当前专业名单按recordId只读投影，不新建原生行或重提供应商；未知核原请求。IVR及旧数据维持原独立专业结果。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：准确任务合法名单导入；异常行有定位和可恢复结果；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：预外呼创建当前准确任务的统一DIRECT业务/周期和完整IMPORT字段/快照/来源/等级，专业名单只读投影；原IVR/旧专业历史保留各自事实；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2068, AC-2070, AC-2071
 
@@ -1427,9 +1556,9 @@
 
 ### CHECK-PLAT-AI-IMPORT-TEMPLATE
 
-操作：在准确有权范围触发“下载具体AI任务导入模板”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+操作：同分类配置两个供应商/场景的不同IMPORT_FIELD及CUSTOM_COLUMN，分别从任务和模板入口选择场景后准备下载/映射。
 
-预期：该具体场景导入模板可下载，不把其他AI导出仅有界面但未实现当可用；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：先确定实际呼叫方式、条件首路径和必要AI场景，再生成本次schema：系统业务编码/客户称呼/客户号码必需；TEMPLATE保留本次IMPORT条件分流字段，其余只取该scene/platform实际IMPORT_FIELD引用及CUSTOM_COLUMN专属列，未引用的分类额外必填不阻AI导入。非AI仍按实际分类IMPORT。FOLLOWUP不混入；下载CSV/XLSX、列映射、逐行校验、参数生成与规范值/定义快照使用同一准确schema。场景/字段/资料/目标变化失效旧预检。 下载生成与实际文件落地验收分开。
 
 覆盖：AC-2063, AC-2064
 
@@ -1448,4 +1577,28 @@
 预期：准确标签场景或供应商目录确认维护，场景使用权不会获得标签维护权；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
 
 覆盖：AC-2046, AC-2063, AC-2064
+
+### CHECK-PLAT-AI-IMPORT-FIELD-MAPPING
+
+操作：冰兰、中科金各场景引用同一业务字段映不同参数；同字段两参数；弹窗选择/配置确认、取消、父取消及父保存重开；平台切换；自定义text/number/date、重复参数、FOLLOWUP/异分类、原固定项及schema1/legacy重开/显式升级。；核主场景只保“添加字段”新增入口，点击再二选来源；手工“添加场景信息”只读业务信息/字段名称/参数名/是否必填radio与取消/确定、类型次要行。
+
+预期：scene/platform隔离，schema2准确回读；主场景无全字段展开，子取消不改父草稿，主保存才生效；合法一字段多参数，专属列不改分类；非法项拒绝保输入，旧配置读不迁移且取消不清旧定义。；无两个主新增入口/大面板，线上布局文案准确，80/64原限制及schema2、权限/类型/历史/快照不变。
+
+覆盖：AC-2159
+
+### CHECK-FLOW-AI-TASK-DIRECT-IMPORT
+
+操作：准确AI任务打开共享导入，不重选分类/场景；检查缺专属必填、typed错误、重复及合法名单；确认后从原列表/业务详情明确开始。
+
+预期：任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。 厚朴场景查询并保存已有准确供应商任务后，只读投影到同一任务目录和导入/执行入口，按tenant/brand/account/taskId/唯一scene稳定关联，不创建供应商任务、不按名称猜；实时读取准确任务状态，未知供应商计数显示待核。已知权威taskStatusCode使用准确可执行枚举，原status='unknown'仅属兼容状态文本，不覆盖权威taskStatusCode明确枚举；权威code为null或未知仍拒绝。 导入与明确执行使用相同底层配置语义指纹；已知成功准入包装字段和对象键序不构成业务配置变化。旧schema2 TASK/DIRECT仅在完整准确身份及已知wrapper/basis证明等价时只读兼容；未知附加项或真实映射/来源/模板/状态变化继续拒绝，不回写旧快照，TEMPLATE标签依赖保完整指纹。
+
+覆盖：AC-2160, AC-2162
+
+### CHECK-FLOW-PRED-TASK-DIRECT-IMPORT
+
+操作：预外呼4步配置保存分类；从行内/顶部选同任务导入，实际CSV有空行/前导零及1有效1错误，保存有效子集再恢复失败草稿续入。
+
+预期：任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。
+
+覆盖：AC-2160, AC-2162
 

@@ -49,7 +49,7 @@ window.DNav = {
     },
     {
       "id": "PAGE-2204",
-      "name": "导入与分配",
+      "name": "导入批次",
       "area": "业务&客户",
       "group": "客户维护",
       "menu": true,
@@ -399,10 +399,10 @@ window.DNav = {
     },
     {
       "id": "PAGE-2226",
-      "name": "业务线索",
+      "name": "业务名单",
       "area": "业务&客户",
-      "group": "",
-      "menu": false,
+      "group": "客户维护",
+      "menu": true,
       "module": "public",
       "route": "",
       "phoneDomain": "cloud"

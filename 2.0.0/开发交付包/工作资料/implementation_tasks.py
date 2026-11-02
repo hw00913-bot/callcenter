@@ -161,6 +161,224 @@ for number,(title,deliverables,risks) in CURRENT_TASK_CHANGES.items():
     if risks:group['risks']+=risks
 next(x for x in GROUPS if x['id']==tid(24))['local_ids'].append('LOCAL-FLOW-END-HANDOFF')
 
+# User-authorized Step42 changes keep task identities and replace obsolete assignment prose.
+EXECUTION_TASK_CHANGES={
+  11:('四节点模板与分租户默认执行安排',[
+      '四组件、条件优先与唯一末位ELSE按现行规格；CALL提供五档默认优先级及当前有权执行租户的具体任务/坐席、人员和必要场景默认。',
+      '同品牌模板保其他租户映射，不展示其私有候选；新run捕获当前方案，旧run和已受理执行不追改。'],[
+      '换方式时重核不兼容目标；品牌配置权不授跨租户资源使用权；END仍只配置原两动作。']),
+  14:(None,[
+      '两模式严格校基础必填、类型/选项、映射及唯一性；TEMPLATE核实际首CALL并分组显示目标/等级，DIRECT不读模板。',
+      '支持导入同次安排或稍后手动分配；明确的任务/坐席、人员、场景、等级及节点默认与预检绑定，变化使旧确认失效。'],[
+      '同次纳入行失败不部分导入；目标停用、异租户或场景冲突保输入，不按首项猜测。']),
+  15:(None,[
+      '同次重核业务身份、名单、字段、模式及安排依据；明确选择的具体目标/人员/场景/五档等级与业务和批次一致保存。',
+      '选择稍后安排时保原待安排入口；DIRECT只建直接周期，TEMPLATE建捕获run及首节点，导入不自动起呼。'],None),
+  16:('两模式手动分配具体任务或坐席及五档优先级',[
+      'TEMPLATE与DIRECT共用本租户具体任务/坐席、责任跟进人、必要AI场景及1～5五档执行优先级；默认中。',
+      '导入后原单条/同组批量手动分配保留；共同候选逐条重核，整组失败不部分写；选定resourceId保存回读，不按首项推断。'],[
+      '实际人工起呼须为所选坐席对应本人，责任跟进人单独保留；任务内线路/队列参数沿专业配置，不自动授电话权或起呼。']),
+  18:('按具体安排与执行优先级明确起呼',[
+      '按保存resourceId、必要场景及准确业务/周期/节点重核本人与资源；人工仅所选坐席本人办理。',
+      '同资源可办理待办按五档降序、同档入队时间和稳定序号升序派发；独立资源可办理，不抢占已受理执行。',
+      '每业务独立跟进、受理及失败/未知反馈；禁呼、频控、同号占用和必要归档等原限制照常检查。'],None),
+  30:(None,[
+      '业务列表/详情展示模式、具体任务或坐席、五档等级和当前待办状态，责任跟进人与实际办理人分列。',
+      '待执行推荐视图按同资源等级及同级入队FIFO，普通业务/历史仍更新时间倒序；长期等待提示有权人员处理。'],None),
+  31:(None,[
+      '同号码继续唯一有效呼出、联系间隔和每日次数控制；同号与同资源使用五档降序、queuedAt/queueSequence FIFO及稳定业务ID的同一总序，避免循环等待。',
+      '旧0～999分类配置仅保历史/原专业兼容，当前UI只读且不参与新排序；不抢占在途、不自动续拨。'],None)
+}
+for number,(title,deliverables,risks) in EXECUTION_TASK_CHANGES.items():
+    group=next(x for x in GROUPS if x['id']==tid(number))
+    if title:group['title']=title
+    if deliverables:group['deliverables']=deliverables
+    if risks:group['risks']=[r for r in group['risks'] if '不新增坐席/任务/线路选择' not in r]+risks
+
+ASSIGNMENT_SIMPLIFICATION_CHANGES={
+  11:('四节点模板与分租户执行安排',[
+      'CALL人工提供MANUAL人工分配（默认）/SPECIFIC_SEAT指定坐席；MANUAL可无seat先保存，SPECIFIC_SEAT才核有效seat。',
+      'PRED默认仅任务、AI默认任务+scene，模板默认责任跟进人控件移除；分租户映射保权限与历史。'],[
+      '删除独立person输入不授无权任务/资源；旧人员事实及已受理快照不清理。']),
+  14:(None,[
+      '两模式保持基础导入及路由校验；人工MANUAL可无seat导入为待分配，SPECIFIC_SEAT才必选合法seat。',
+      'PRED安排只任务、AI任务+scene，不要求独立责任人；目标/人工分配方式/scene/等级变更失效旧预检。'],None),
+  15:(None,[
+      '与名单/模式同次保存当前人工分配方式或准确任务安排及五档等级，无独立person输入。',
+      '人工MANUAL待分配保持原单条/批量分配入口；实际发起前再落实有效seat，不自动起呼。'],None),
+  16:('任务确认与人工分配方式/坐席',[
+      '人工默认MANUAL待分配，可随后原单条/批量分配seat；SPECIFIC_SEAT才必选seat。PRED只任务，AI任务+scene。',
+      '模板、导入及分配独立责任人控件全部移除；人工责任由有效seat.accountId派生，AI/PRED不伪填actor为负责人。'],[
+      '实际发起/拨打/接听及填写事实分别记录，谁接听谁填写；取消person必填不扩大任务/租户/模块权。']),
+  18:('按方式与具体安排明确起呼',[
+      '人工只有已落实有效seat且当前为其本人才能发起；MANUAL pending保待分配，不以临时当前actor替填。',
+      'PRED合法任务、AI合法任务+scene在无独立责任人值时可发起；真实actor/拨打/接听事实另存。',
+      '五档/FIFO总序、手工启动、联系限制、在途/未知和必要归档守卫继续，旧人员历史不迁移。'],None),
+  25:(None,[
+      'CURRENT保持owner/run/租户阶段和封存事实，当前执行安排先服从后继节点捕获策略。新MANUAL明确清前seat并待分配，SPECIFIC_SEAT才可按本节点、同tenant/method及有效资源沿用或确认。',
+      'OTHER仍按原合法目标转交后封截止、切归属并清当前安排；旧无策略快照按原解释，不读取时迁移。'],[
+      '不得用前节点已指定seat覆盖新MANUAL的待分配意图，也不因人工待分配擅自改变业务归属。']),
+  30:(None,[
+      '列表/详情明确人工分配或指定坐席、任务/场景及五档状态；MANUAL缺seat显示待分配，AI/PRED不因人员空值显示待安排。',
+      '实际及历史人员只读展示，配置/导入/分配无独立责任人控件；待执行按原统一五档/FIFO推荐。'],None)
+}
+for number,(title,deliverables,risks) in ASSIGNMENT_SIMPLIFICATION_CHANGES.items():
+    group=next(x for x in GROUPS if x['id']==tid(number))
+    if title:group['title']=title
+    if deliverables:group['deliverables']=deliverables
+    if risks:group['risks']+=risks
+
+TASK_IMPORT_UNIFICATION_CHANGES={
+  14:('三入口共同分类字段与准确目标预检',[
+      '客户维护、AI任务和预外呼任务共用分类IMPORT及code/姓名/号码等系统必需schema，FOLLOWUP排除。',
+      '任务内固定准确task/必要scene并默认DIRECT，重核ADMIN+customer.import/模块/任务/来源及分类allowDirectFollowup；字段/映射/目标变化失效旧确认。',
+      '读取/预检采用exact context.importLimits；保原AI大众100/厚朴150000/其他2000行与16MB、PRED2000行/1MB，超限提示分批不截断。'],[
+      '不能因分类已绑模板要求任务DIRECT走模板，不能按手机号生成/认领业务，不把任意maxRows参数当权威目标限额。']),
+  15:('三入口统一业务及任务来源同请求保存',[
+      '纳入行全部同源校验通过后，同请求只写统一业务账本及DIRECT周期/必要模板运行，任务内不建run/node。',
+      '保存全部IMPORT规范值及本次定义/来源/参数快照、taskImportSource、逐行taskImportParameterSnapshot、批次和等级；UI列映射仅导入前校验，未知核原请求。',
+      '专业名单只读recordId投影，不新增原生行/第二账本或重复提交供应商，旧历史和同号其他业务不自动认领。'],None),
+  32:('AI场景供应商独立参数与弹窗配置',[
+      '按准确scene/platform保存schema2/importFieldCategoryId/importFieldPlatform/importFieldMappings，IMPORT_FIELD引用分类、CUSTOM_COLUMN定义本场景text/number/date列；同fieldId可映多个不同parameter，参数名唯一。',
+      '主场景保原“添加字段”唯一新增入口，点击后二选“选择导入字段”/“手工添加供应商字段”；手工“添加场景信息”沿线上业务信息只读、字段名称、参数名、必填/选填radio和取消/确定，类型次要行。子确认只入父草稿，主保存才持久，schema2/80与64约束不变。',
+      '固定供应商项按精确协议来源或本场景默认专业列处理，required不减；importFieldPlatform不符拒绝，切平台不混草稿，schema1和legacy customInputFields只读兼容，父保存升级才清旧重复定义。'],[
+      '场景配置权不授业务字段维护/任务导入权；业务定义不复制，专属列/值不污染分类，无固定值配置，FOLLOWUP/异分类/失效引用及重复参数拒绝。']),
+  34:('AI任务内DIRECT统一业务与名单投影',[
+      '保准确任务/历史查看；新任务导入用实际scene分类共同IMPORT+系统必需字段，固定task+scene建立统一DIRECT业务。',
+      'ADMIN+customer.import、原AI模块/任务/来源及分类DIRECT准入均核验；AI-only合法管理员不需Cloud菜单，ops不扩导入写权。',
+      '模板/列映射共用businessFields+本scene/platform customFields；供应商需值合并当前required，businessRequired保分类基础定义不改库；归一行拆业务fields/customValues，参数快照封customFields/customValues/parameters/mappings/fingerprint，不混record.fields。',
+      '专业名单按recordId只读投影，旧parser只历史兼容，无第二新写入口或重复供应商提交，后改配置不重绘历史。'],[
+      '不能按手机号绑定旧业务；新统一业务保存不等供应商受理/拨打，原未实现专业控制/导出仍不假成功。']),
+  43:(None,[
+      '原人工/接口客户任务、批次及联系档案保准确原身份/来源，旧专业数据不迁移到统一业务。',
+      'AI/PRED本轮新任务导入统一DIRECT并投影，不能把旧专业与统一业务各自分开的历史口径继续作为本轮完整入口规则。'],None),
+  45:('预外呼任务统一业务导入与原IVR边界',[
+      '预外呼任务内选实际分类，固定task并默认DIRECT/PRED；共同IMPORT+code等必需校验及五档保存，无额外seat/person选择。',
+      '保原接口/手工来源锁定、ADMIN+customer.import及Cloud/任务资格，2000行/1MB按exact目标校验；新名单只读统一recordId投影。',
+      '原任务资源、计划/重呼/参数及旧名单历史保持；IVR不扩DIRECT，不以统一写入追加原生行或重复供应商提交。'],None)
+}
+for number,(title,deliverables,risks) in TASK_IMPORT_UNIFICATION_CHANGES.items():
+    group=next(x for x in GROUPS if x['id']==tid(number))
+    if title:group['title']=title
+    if deliverables:group['deliverables']=deliverables
+    if risks:group['risks']+=risks
+
+group26=next(g for g in GROUPS if g['id']==tid(26))
+group26['local_ids']=unique(group26['local_ids']+['LOCAL-FLOW-ABANDONED-SETTLEMENT'])
+LIFECYCLE_AUDIT_CHANGES={
+  17:(None,[
+      '当前DIRECT周期完成仍依自身真实归档完成跟进或合法NO_CALL及原因；旧已弃历史按可靠异常收尾，不强求archived=true或把它计当前完成。',
+      'END历史来源保结构合法，但普通开关豁免仅准确首MANUAL当前cycle；resume三方式任何新cycle均核当前分类允许。'],[
+      '保原END/cycle历史，不伪改originCycleId；正常当前必要内容/真实在途unknown冲突不因旧弃结清被跳过。']),
+  18:(None,[
+      '新起呼/新派发与原受理事实入站分开；正常段先正常归档，旧弃可靠结清可供后继，不以正常archived=true一概扫描。',
+      'ABANDONING仍拒新起呼/派发；来源可靠、准确原seg/attempt迟到事实归原ID，不误挂当前或提前解锁。'],None),
+  19:(None,[
+      '按准确record/run/stage/followup/attempt记录真实拨打/接通/终态，停止请求不等真实停止。',
+      'ACTIVE/ABANDONING原已受理且未可靠关闭的事实照常登记去重计数；已闭段未知新attempt仍按EXECUTION_CLOSED/冲突，不抹真实事实或授权新派发。'],None),
+  24:(None,[
+      '原run执行END后CLOSE关闭，DIRECT_FOLLOWUP只建来源准确的首MANUAL周期，无自动起呼。',
+      '历史来源可保但当前例外须同record/owner/originCycle和MANUAL，后继resume任何新周期重验分类；原权限/资源/正常归档仍核。'],None),
+  26:('受控缺内容废弃及历史异常结清',[
+      '真实EXECUTION_ACTIVE/REQUEST_UNKNOWN/FACT_CONFLICT下ADMIN普通reason可先登记停止→ABANDONING，不先强未来内容确认；FOREIGN_CONTENT不当在途。',
+      '可靠停止后完成缺内容废弃才须当前ownerADMIN勾无法补填+原因及准确run/本tenant缺失指纹/record revision；正常archive与异常settlement分开。',
+      '原受理/在途/重试/unknown/冲突可靠收敛后才ABANDONED与新run，保缺失未完成，不代填/不假正常完成。',
+      '历史收尾确认不要求当前TEMPLATE；只更新本tenant旧seg.abandonmentSettlement与事件/revision，不废弃当前DIRECT或改当前run/exec/arrangement/字段。'],[
+      '不可代其他tenant确认；变更缺失范围重核，旧本人后来补录不把旧弃改正常完成；可靠旧弃收尾不得永久卡后继DIRECT。']),
+  28:(None,[
+      '同record显式启用当前模板仍核原路由/资料/权限；真实旧执行闭合，正常必要归档与旧可靠弃结清分别判。',
+      '不因所有旧abandoned段archived=false永久阻；不新增DIRECT开关前置，不重导入或让旧DIRECT事实完成新节点。'],None)
+}
+for number,(title,deliverables,risks) in LIFECYCLE_AUDIT_CHANGES.items():
+    group=next(g for g in GROUPS if g['id']==tid(number))
+    if title:group['title']=title
+    if deliverables:group['deliverables']=deliverables
+    if risks:group['risks']+=risks
+
+# Step48-54 replaces the active entry/reader contracts; old source decisions stay
+# in authored supersessions, not as contradictory current task instructions.
+ENTRY_CURRENT_TASK_CHANGES={
+  9:('分类双用途字段、业务域和入口资格',[
+      '分类独立维护IMPORT/FOLLOWUP、业务编码及业务域；基础配置和实际路由分别保存，引用后稳定身份保持保护。',
+      '分类列表添加导入名单，人工或接口均固定TEMPLATE；直接名单从准确AI/预外呼任务进入。旧allowDirectFollowup仅保原存量准入/历史解释，不恢复分类编辑切换开关。'],[
+      '任务DIRECT准入按准确当前合同重核，不因分类已有模板而强制走模板；共享分类不授跨租户业务数据权。']),
+  11:('四节点模板、正常结束与分租户执行安排',[
+      '四组件、显式入口、条件及唯一末位ELSE保持；CALL按MANUAL人工分配或SPECIFIC_SEAT指定坐席、PRED只任务、AI任务+scene及五档优先级配置本租户默认。',
+      '当前END仅正常CLOSE，不提供是否直接跟进配置；旧DIRECT_FOLLOWUP快照只按准确原run/cycle只读解释，不迁移或追改旧运行。'],[
+      '换方式重核目标，模板品牌配置权不授异租户资源使用权；未指定的人工可合法待分配。']),
+  13:('按准确方式与场景读取文件和列映射',[
+      '先由入口/任务/当前模板分流确定呼叫方式及必要AI场景，再形成正式导入字段；AI取该scene/platform的业务字段映射和供应商专属列，PRED取任务已关联分类IMPORT。',
+      '保CSV/TSV/XLSX、前导零、物理原始行号及显式列映射；文件异步回调按窗口/账号/租户/序号失效，变化使检查token失效。'],[
+      '模板下载的落地/回读是独立验收，上传成功或生成提示不等于下载通过；容量按准确context.importLimits，不截断。']),
+  14:('任务DIRECT与分类TEMPLATE两类入口预检',[
+      '任务内固定准确任务、已关联分类/AI场景及原手工/API来源，派生DIRECT；分类入口只人工/API进TEMPLATE，不再让导入时切办理模式。',
+      '同源schema校必需/必填、类型/选项、唯一性、原模块/任务/分类资格及当前任务/scene配置依据；TEMPLATE重算条件首组后确定各组场景字段。',
+      'AI纳入行须全部通过；PRED可仅确认已检查的有效子集，失败行继续原草稿；任何编辑/范围/字段/目标变化均需重新检查。'],[
+      '未知目录/原请求待核不当空或未发生；AI不借PRED的有效子集规则放行，不按首项/名称猜场景和任务。']),
+  15:('统一业务、导入入口标识与失败草稿',[
+      '只写统一业务账本，entrySource区分TASK/CATEGORY及MANUAL/API；任务DIRECT不创建模板run/node，分类TEMPLATE捕获当前方案。',
+      '准确taskImportSource与逐行参数/业务schema快照同次封存；PRED成功行移出剩余草稿且不重复保存，失败草稿保检查时物理原行信息，AI保全通过约束。',
+      '批次名和中档默认可自动带入，五档等选项收起为选填；成功完成后关闭文案与禁用状态同步，不自动起呼。'],[
+      '原请求未知先核同次，不允许关闭/重开逃避待核；专业表只读投影，不双写原生新行或重复提交供应商。']),
+  17:('TASK直接周期完成、再次办理与旧来源边界',[
+      '完成当前直接周期须真实执行/重试及必要本人内容归档收敛，或合法无需联系并说明依据；业务结论显式选择，不把归档视为业务达成。',
+      '新TASK DIRECT的再次周期沿准确当前任务/场景/分类/渠道资格，不读已移除的分类开关；旧无TASK来源按原准入，旧END例外仅准确原首MANUAL周期，不授新输入或其他周期。'],[
+      '新TASK来源不显示启用模板，不复制业务或清旧事实；旧unknown/在途/必要内容阻断新周期，不能借旧受控废弃确认覆盖新缺失。']),
+  24:('确认后继及正常END关闭',[
+      '按准确当前边与令牌显式推进；当前END仅CLOSE，关闭原run并保业务实际结论，不提供模板直接跟进设置。',
+      '存量DIRECT_FOLLOWUP运行来源只按原捕获计划/原首MANUAL周期解释；再次直接跟进须重新核普通准入，不用历史来源豁免新周期。'],[
+      '流程结束不等于业务达成，不自动拨打；旧来源快照不迁移或重写。']),
+  28:('旧无TASK直接业务的合法模板转换',[
+      '先核准确entrySource；新TASK DIRECT拒绝启用模板且不展示入口、不生成转换预检token，保持任务直接跟进。',
+      '仅旧无TASK标记的历史DIRECT沿原合法路由/资料/权限及执行/必要归档收敛条件显式转换，同record新run保旧周期快照及结论，不重导、不伪造TASK来源。'],[
+      '旧历史转换不能变成新TASK业务模板入口；旧周期事实不完成新CALL，不迁移来源或留下双执行入口。']),
+  30:('导入批次、独立业务名单与准确当前队列',[
+      '客户维护入口为导入批次查看，新增名单从分类行发起；原任务名单同表展示新recordId投影和旧原生历史，缺新增字段留空。',
+      '独立业务名单恢复不要求batchKey，详情仍须recordId；批次/全业务范围、账号/租户和撤权恢复分别核对。',
+      '当前run无有效安排不展示旧队列时间；排序依据独立使用可信当前队列/节点进入/当前周期开始，重分配同资源取得新队列身份，不让旧历史抢队。'],[
+      '实际人员保历史原值；AI空责任人行不冒充待分配或当前actor，不迁移旧事实。']),
+  32:('AI供应商参数弹窗、准确任务目录与草稿生命周期',[
+      '保单一添加字段入口和来源选择/配置弹窗，schema2的IMPORT_FIELD/CUSTOM_COLUMN按scene/platform独立；必填显示合并准确供应商/映射/引用字段要求，原协议表保持原值。',
+      '已确认关联的专业任务按准确tenant/account/task/scene只读进入原任务目录，不创建供应商任务；未知原统计保待核，不补0。',
+      '场景仅一个活动实例；取消后动画中的旧层在新初始化前移除，旧关闭定时器与迟到字段返回不得清空新抽屉或解锁新层；主保存才持久。'],[
+      '活动未保存草稿不能被另开场景替换；取消不污染映射/参数指纹，未知配置或来源仍拒绝。']),
+  34:('AI任务共享导入与原名单投影',[
+      '准确AI任务自动带入scene/class，不重复选择或重填业务元信息；手工入口共享填写/检查/确认，API入口只读接收该场景正式字段。',
+      '正式字段取对应scene/platform业务映射和CUSTOM_COLUMN，保分类定义/参数快照与专属值隔离；全行校验、权限、容量和原请求核对保持。',
+      '导入和执行使用一致的完整配置指纹/权威任务资格；已证明等价旧包装仅只读兼容，真实来源/映射/任务状态变化仍拒绝，不写回旧快照。'],[
+      '原任务表承接统一recordId投影和历史空字段，不建第二账本；保存业务不等供应商受理、拨打或已完成。']),
+  36:('原通话详情、录音及准确拒联入口',[
+      '原AI通话列表操作仅详情，准确详情保录音/文本/结果/信息页签；有权人工核实拒联保留在详情，按原来源/租户/供应商资格执行。',
+      'Cloud原话单、异常核对及原导出保持；媒体失败/无录音分别反馈，真实音频和无权反向点击仍需实际验证。'],[
+      '不在全部列表行追加确认拒联，不以通话状态或标签自动拒联；无新增限制保存证据不能宣称真实生效。']),
+  43:('原客户任务与统一业务批次阅读',[
+      '原人工/接口客户任务、批次及联系档案保稳定原身份、字段和合法原操作，不自动迁移、认领或覆盖。',
+      '新AI/PRED任务入口建立统一DIRECT并显示准确入口标识；客户维护导入批次只查看，分类行添加名单走模板。'],[
+      '原专业历史和新统一业务不能各自再写一份；品牌共享不授私有名单读取权。']),
+  45:('预外呼任务关联分类与共享客户导入',[
+      '在任务配置关联业务分类及原manual/api来源；任务内及列表顶部选择准确任务后同一导入界面自动带入分类与字段，不临时重复选择。',
+      '手工共享填写/检查/确认，2000行/1MB及五档沿准确context；API仅只读接收说明。新名单为统一DIRECT，PRED安排仅任务不加seat/person。',
+      '任务原资源/计划/重呼及旧历史原表保留；缺分类/关联失效引导维护任务配置，不能按首项或名字猜测。'],[
+      'IVR保原专业边界，不扩四节点CALL；新任务导入不双写原生行或重复供应商提交。']),
+  53:(None,None,[
+      '导入/分配可指定具体任务，起呼按保存目标解析原专业主叫/线路/号码池；不新增号码池随意挑选或放宽原用途/引用保护。'])
+}
+for number,(title,deliverables,risks) in ENTRY_CURRENT_TASK_CHANGES.items():
+    group=next(g for g in GROUPS if g['id']==tid(number))
+    if title:group['title']=title
+    if deliverables:group['deliverables']=deliverables
+    if risks is not None:group['risks']=risks
+for number,paths in {
+    15:['js/adapters/task-business-import.js','scripts/task-business-import-model.js'],
+    18:['js/adapters/four-node-execution.js'],
+    30:['js/components/session-store.js','js/adapters/task-roster-view.js'],
+    32:['js/adapters/ai-task-directory.js','scripts/ai_task_directory_build.py','scripts/ai_parity_build.py','scripts/ai-import-field-ui.js'],
+    34:['js/adapters/task-business-import.js','js/adapters/task-roster-view.js','js/adapters/four-node-execution.js'],
+    36:['scripts/ai_parity_build.py'],
+    45:['js/adapters/task-business-import.js','scripts/task_business_import_build.py'],
+}.items():
+    group=next(g for g in GROUPS if g['id']==tid(number));group['prototype_reference_files']=unique(group['prototype_reference_files']+paths)
+
 def topological(tasks):
     deps={t['id']:set(t['depends_on']) for t in tasks};order=[]
     while deps:
@@ -246,8 +464,11 @@ def render(out=OUT):
     tasks=plan['tasks'];tm={t['id']:t for t in tasks};lm={l['id']:l for l in plan['logic']['locals']}
     operations=read(ROOT/'原专业操作任务映射.json')['operations'];gate=read(ROOT/'交接检查/handoff-gates.json')
     global_ready=next(g['status']=='passed' for g in gate['gates'] if g['id']=='G-GLOBAL')
+    current=read(ROOT.parent.parent/'prototype/memory/http-e2e-acceptance-verification-20261101.json')
+    current_reg=current['currentRegression'];current_http=current['groupCounts']
+    current_scope='最新Step54记录'+str(current_reg['suites'])+'套/'+str(current_reg['structuredPassed'])+'结构化用例通过、'+str(current_reg['structuredFailed'])+'失败；实际HTTP'+str(current_http['passed'])+'组已验/'+str(current_http['partial'])+'组部分已验。当前原型三条有限Mock主链已实际闭环，完整验收未授予；本包只核回归对应源码身份，不冒充重跑或补齐未验。'
     esc=lambda v:str(v).replace('|','／').replace('\n',' ')
-    lines=['# 实施任务索引','','[返回交接入口](README.md)','','56个业务实施任务包覆盖完整当前产品；任务按可验收的职责分组，不是56个按钮或新增功能。每个LOCAL恰好有一个主实施任务，任务CHECK与本版产品规范逐项一致；相对上版的规则变更和验收修订保留溯源。','',
+    lines=['# 实施任务索引','','[返回交接入口](README.md)','',''+str(len(tasks))+'个业务实施任务包覆盖完整当前产品；任务按可验收的职责分组，不按按钮计新增功能。每个LOCAL恰好有一个主实施任务，任务CHECK与本版产品规范逐项一致；相对上版的规则变更和验收修订保留溯源。','',
       '开发负责补目标仓库、实际模块/文件/物理接口及测试命令。空allowed_files不授代码写入权；本文逻辑依赖不增加用户操作门槛，也不代表共享真实文件已允许并行修改。','',
       '| 任务 | 实施结果 | 局部动作数 | 前置任务 |','|---|---|---|---|']
     for ident in index['task_order']:
@@ -280,7 +501,7 @@ def render(out=OUT):
        '| 后端与模块 | 服务边界、责任、错误和未知处理、每个LOCAL的实际模块归属 | local.module与工程模块、技术方案一致 |',
        f"| 数据职责 | {len(plan['logic']['fields'])}字段的物理保存/读取/原子与唯一性映射、租户及版本控制 | persistence.mapping具体；未来事实快照与当前值不混；不新增旧规划迁移 |",
        '| 接口 | 真实输入/输出、角色/范围、事件身份/终态、重试/幂等/取消/核对证据 | 字段interfaces/interface_note与契约一致，缺能力有正式差异结论 |',
-       '| 精确文件与依赖 | 56任务的真实allowed_files/context_files/changes和模块责任 | 文件集合一致，创建/更新状态正确，共享写入有先后依赖 |',
+       '| 精确文件与依赖 | '+str(len(tasks))+'任务的真实allowed_files/context_files/changes和模块责任 | 文件集合一致，创建/更新状态正确，共享写入有先后依赖 |',
        f"| 验证 | 当前{len(plan['acceptance_checks'])}项CHECK的层次、环境、命令及结果，跨任务批次和供应商联调 | 同ID验收正文不改；非空命令真实可执行，人工步骤可复现 |",
        '', '## 现有12组工程问题','', '| 问题 | 当前待交证据 | 受影响任务 |','|---|---|---|']
     for q in plan['open_questions']:
@@ -291,10 +512,10 @@ def render(out=OUT):
     lines=['# 交接门禁检查','','[返回交接入口](README.md)','','本轮检查分为产品/任务资料承接、原型有限Mock制作验收、工程开工与版本批准。资料可交开发补工程，不等于允许直接实施业务代码。','',
        '| 门禁 | 当前结果 | 关闭依据 / 下一步 |','|---|---|---|']
     for g in gate['gates']:lines.append('| '+' | '.join(map(esc,[g['name'],g['status'],g['summary']]))+' |')
-    lines+=['','## 已执行与未执行','',('本轮当前原型已经实际完成41步骤复验、38组523本地用例、五角色91页面检查、最终两种模式UI主链及图集/四视图/版本复验；原型由受控工具完成S7/S8/S9，final快照干净。产品/任务/源与包核查另列。范围是有限本地Mock与获准HTTP，不含真实CTI/供应商/认证/账务、file自动验证或业务运营批准。检查器本身只读，不生成工程执行授权。' if global_ready else '当前原型或验证结果已变化，须按本包原始门禁重新核验；产品/任务资料与工程真实服务分层，检查器不生成批准或执行授权。'),'',
+    lines+=['','## 已执行与未执行','',current_scope+' 产品/任务/源与包核查另列。下载落地、真实音频、未知回执/停止等未验组合及file/真实CTI/供应商/认证/账务分列，不生成工程执行授权。','',
        '完整机器结果：[handoff-gates.json](handoff-gates.json)。原始检查：[证据目录](gate-evidence/README.md)。',
        '', '## 原型正式门禁的具体处理','',
-       ('当前S8/final制作门禁已经按有限Mock范围实际补验。旧日志及原验收全文保留，当前准则与证据逐行对齐；原16条Partial分别核定原型/工程责任，R154真实供应商能力明确Deferred，其他真实子条件继续由开发核证。源码/标准变化后仍须重新验证，不能复用旧通过。' if global_ready else '当前S8/final制作门禁尚需关闭，按实际错误补验后用受控工具记录。历史报告只保当时事实，不能替代当前内容的通过；工程真实子条件继续由开发核证。'),
+       ('当前S8/final制作门禁的状态以本页门禁表及准确证据为准。原16条Partial的历史处置保留溯源；当前Step54实际覆盖和工程真实子条件分别核定。源码/标准变化后仍须重新验证，不能复用旧通过。' if global_ready else '当前S8/final制作门禁保持阻塞，按实际缺证补验后用受控工具记录。历史Step28、localTenant、旧S8/final只保当时事实，不能替代当前Step54；9组部分已验不自动等同9个产品缺陷，真实服务与工程子条件继续由开发核证。'),
        '', '| 类别 | 数量 | 责任与关闭办法 |','|---|---|---|']
     for group in gate['prototype_blocker_groups']:lines.append('| '+' | '.join(map(esc,[group['category'],group['count'],group['action']]))+' |')
     lines+=['','## 原16条Partial的范围核定','','下表只关闭已实测的原型部分；真实供应商、认证/CTI/账务等工程要求保留，不改为生产通过。旧原文/状态及当前对照均保留。','','| 原条目 | 关联任务 | 原型结论 / 开发责任 |','|---|---|---|']
@@ -303,7 +524,7 @@ def render(out=OUT):
         lines.append('| '+' | '.join(map(esc,[row['requirement_id'],', '.join(row['task_ids']),row['status']+'；'+row['prototype_scope']+'；开发：'+', '.join(row['development_open_questions'])]))+' |')
     lines+=['', '## 正式确认与导出','',
        '当前版本台账没有正式阶段批准记录，现规划使用current/standalone。产品语义复核是真实Codex复核，不等于业务/运营或开发联合批准。责任人实际审阅当前内容/摘要后，通过受控版本工具登记证据；源或工程变化后重新检查，旧批准不能复用。',
-       '', '正式导出仍使用原项目与规划工具的检查；此检查报告及56个任务不生成execution-authority，也不替代开工前check-package。']
+       '', '正式导出仍使用原项目与规划工具的检查；此检查报告及'+str(len(tasks))+'个任务不生成execution-authority，也不替代开工前check-package。']
     md(out/'交接门禁.md','\n'.join(lines))
     # Scoped acceptance batches reuse CHECK IDs; no duplicate test ownership.
     batches=[('BATCH-01','身份/租户/模块/撤权及资源权限',list(range(1,8))+[49,50,51,52,53,54,55,56]),
@@ -312,7 +533,7 @@ def render(out=OUT):
              ('BATCH-04','TEMPLATE入口/条件/流转/转交/结束与再次办理',[18,19,20,21,23,24,25,26,27,29,30]),
              ('BATCH-05','原AI/Cloud/IVR/接口/报表/服务专业能力',list(range(32,57))),
              ('BATCH-06','未知/重试/并发/迟到/同号限制/跨域可见性',[6,14,15,18,19,20,21,22,25,26,28,29,30,31,38,39,46])]
-    lines=['# 接包与验收执行顺序','','[返回交接入口](README.md)','','1. 产品/开发/测试先选任务，沿LOCAL/FIELD/UI/CHECK核对职责和异常；本次任务依赖是实施关系，不新增运行时前置步骤。','2. 开发交回工程七项、目标仓库与12组契约证据，绑定精确文件、模块、数据/接口和命令；补共享文件依赖后才能决定真正的并行范围。','3. 各实现任务保原验收ID、步骤和预期，先验证本动作，再按下面批次做联调；人工方案不代表已有自动化脚本。','4. 当前原型有限Mock全局与final已有新鲜受控结果；开发实现/源变化后按同准则复验，真实服务/供应商联调仍由对应负责人提供证据。','5. 完成当前版本真实业务/运营/工程联合复核和标准快照记录，重新validate/review --stage development，正式导出并在开工前现场check-package。','',
+    lines=['# 接包与验收执行顺序','','[返回交接入口](README.md)','','1. 产品/开发/测试先选任务，沿LOCAL/FIELD/UI/CHECK核对职责和异常；本次任务依赖是实施关系，不新增运行时前置步骤。','2. 开发交回工程七项、目标仓库与12组契约证据，绑定精确文件、模块、数据/接口和命令；补共享文件依赖后才能决定真正的并行范围。','3. 各实现任务保原验收ID、步骤和预期，先验证本动作，再按下面批次做联调；人工方案不代表已有自动化脚本。','4. '+current_scope+'开发实现/源变化后按同准则复验，真实服务/供应商联调仍由对应负责人提供证据。','5. 完成当前版本真实业务/运营/工程联合复核和标准快照记录，重新validate/review --stage development，正式导出并在开工前现场check-package。','',
        '工程未绑定前可以进行开发设计和技术验证；本包不授予正式业务实现许可。','', '## 跨任务验收批次','']
     batch_rows=[]
     for ident,name,nums in batches:
@@ -325,7 +546,7 @@ def render(out=OUT):
     write(out/'handoff-gates.json',gate)
     evidence=out/'gate-evidence';evidence.mkdir(exist_ok=True)
     for f in (ROOT/'交接检查').rglob('*.json'):write(evidence/f.relative_to(ROOT/'交接检查'),read(f))
-    md(evidence/'README.md','# 本轮交接检查证据\n\n这些文件是实际只读检查结果，不是业务/运营批准。product-validation.json、development-validation.json为原工具完整结果；prototype-*.json为实际预检；task-coverage.json为逻辑任务覆盖；source-fingerprints.json为源/既有验证指纹；version-state.json保留当前版本阶段状态。')
+    md(evidence/'README.md','# 本轮交接检查证据\n\n这些文件是实际只读检查结果，不是业务/运营批准。product-validation.json、development-validation.json为原工具完整结果；prototype-s7/s8/final.json为本次实际预检；task-coverage.json为逻辑任务覆盖；source-fingerprints.json/current-runtime-summary.json核最新Step54回归对应源码身份，未重复跑66套；current-http-acceptance.json保13组已验/9组部分已验及未验子项。其余旧prototype-*报告只保各自日期/范围，不代替最新Step54；version-state.json保留真实版本阶段状态。')
     # Keep the real independent product review without inventing a development review.
     review=read(WS/'product-review.json');write(out/'product-review.json',review)
     source_evidence=Path(review['evidence']['path']);md(out/'product-semantic-review.md',source_evidence.read_text())
@@ -341,7 +562,7 @@ def render(out=OUT):
     a=text.index('## 从这里开始')
     text=text[:a]+'''## 本次接包入口
 
-- [56个实施任务](实施任务索引.md)：目标、依赖、LOCAL/FIELD/UI/CHECK及责任。
+- [实施任务索引](实施任务索引.md)：稳定任务ID、目标、依赖、LOCAL/FIELD/UI/CHECK及责任。
 - [交接门禁结果](交接门禁.md)：通过项、原型全局复验项、工程和真实评审责任。
 - [开发工程绑定清单](开发工程绑定清单.md)：由开发决定的内容及关闭条件。
 - [接包和验收执行顺序](接包执行顺序.md)：开发绑定、逐任务、跨任务联调和正式导出顺序。
@@ -356,13 +577,13 @@ def render(out=OUT):
     md(entry,text)
     if (ROOT/'续接记录/projection-result.json').exists():
         text=entry.read_text();marker='## 本次接包入口'
-        intro='<!-- CURRENT-PROTOTYPE-RESUME -->\n本版已按当前原型步骤29～41续接，完成审计修复及有限Mock的S8/final全局验收；原56任务号保留，现为'+str(len(plan['logic']['locals']))+'个局部动作、'+str(len(plan['logic']['fields']))+'个当前逻辑字段及'+str(len(read(WS/'product-ir.json')['acceptance']))+'个验收条目。两个已移除的END配置逻辑字段保原ID溯源，不改客户字段身份；原型实现差异与本轮修复见验收报告。\n\n[原型改动与任务续接](原型续接差异.md)列明12个变化点。当前规范输入位于工作资料/续接输入，原型目录内未同步的旧规范JSON不作为本版交接依据。\n<!-- /CURRENT-PROTOTYPE-RESUME -->\n\n'
+        intro='<!-- CURRENT-PROTOTYPE-RESUME -->\n本版已承接当前原型步骤29～54。入口分为任务DIRECT与业务分类TEMPLATE：任务按既有AI/预外呼手工或接口来源锁定任务/场景/分类，分类只人工/接口入模板；不新增AI第三来源，不保留模板直接跟进设置。AI场景schema2按scene/platform配置IMPORT_FIELD与CUSTOM_COLUMN，保唯一“添加字段”入口及选择/配置弹窗；实际导入字段先确定方式和场景。任务原表合并新统一业务与旧历史，旧缺新字段留空；五档、人工分配、PRED只任务和原权限保持。受控缺内容废弃与正常archive分开，停止中原受理事实按原ID收敛，新运行不沿用旧队列事实；历史END来源仍只按准确旧周期解释。AI准确已有任务目录、任务导入到执行的配置指纹、有效必填展示、主名单刷新和场景快速重开均承接当前修复。原'+str(len(tasks))+'任务号保留，现为'+str(len(plan['logic']['locals']))+'个局部动作、'+str(len(plan['logic']['fields']))+'个当前逻辑字段及'+str(len(read(WS/'product-ir.json')['acceptance']))+'个验收条目。'+current_scope+'\n\n[当前HTTP实际验收与修复报告](../../prototype/'+current['report']+')、[当前需求记录](../../prototype/docs/四节点与客户跟进闭环需求记录.md)、[当前产品内容复核](../工作资料/Step48-54产品内容复核-20261102.md)和[开发验证边界](当前原型验证边界.md)分别说明事实、规则、复核及未验范围。当前规范输入位于工作资料/续接输入；原始审计与冻结保其原结论，旧字段只保追溯，不恢复当前已移除控件。\n<!-- /CURRENT-PROTOTYPE-RESUME -->\n\n'
         md(entry,text.replace(marker,intro+marker,1))
     if (ROOT/'审计整改记录-20261030.md').exists():
-        text=entry.read_text();line='\n[本轮审计整改记录](../工作资料/审计整改记录-20261030.md)：逐项问题、实际修复、复验结果与保留门禁。\n'
+        text=entry.read_text();line='\n[历史20261030审计整改记录](../工作资料/审计整改记录-20261030.md)：仅保当时问题、修复、复验及门禁范围，不代替当前Step54结论。\n'
         if line.strip() not in text:md(entry,text+line)
     if (ROOT/'原型全局验收报告-20261030.md').exists():
-        text=entry.read_text();line='\n[产品与原型S8/final全局验收报告](../工作资料/原型全局验收报告-20261030.md)：当前受控通过范围、修复与工程边界。\n'
+        text=entry.read_text();line='\n[历史20261030原型S8/final报告](../工作资料/原型全局验收报告-20261030.md)：仅保当时受控范围、修复与工程边界，不代替当前Step54结论。\n'
         if line.strip() not in text:md(entry,text+line)
     from developer_appendices import render as render_appendices
     render_appendices(out)

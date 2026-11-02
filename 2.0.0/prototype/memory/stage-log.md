@@ -246,3 +246,547 @@ decision: 交接资料目录收拢后的文档链接收尾复检
 next_stage: none
 blocked_by: none
 notes: 仅README交接路径更新；运行文件与已验实现逐项一致，验收准则和产品范围未变。仍执行完整final预检，未生成业务/运营审批。
+
+date: 2026-10-31T20:28:03
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: af1a35223b67
+preflight_result_hash: 1804dc18cfaa0424
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: fail
+decision: S6 blocked by preflight s7
+next_stage: S7
+blocked_by: preflight s7
+notes: Loop preflight FAIL: /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype [s7]
+
+date: 2026-10-31T20:28:32
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: cc8188d83780
+preflight_result_hash: none
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: inputs/execution-arrangement-authorization-20261031.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage s6 --change-id execution-arrangement-priority-20261031
+gate_result: invalidated
+decision: 当前用户授权增量重开；原阶段证据保留为历史，不用于本轮通过
+next_stage: S7
+blocked_by: 待本轮重新实现与验证
+notes: 受控reopen已置pending但未追加下游失效日志；调用控制器既有日志函数补录实际失效结果，未伪造pass。
+
+date: 2026-10-31T20:28:32
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 7f15d3abed76
+preflight_result_hash: none
+stage: S7
+stage_name: 实现与单步验证循环
+input_artifacts: inputs/execution-arrangement-authorization-20261031.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage s6 --change-id execution-arrangement-priority-20261031
+gate_result: invalidated
+decision: 当前用户授权增量重开；原阶段证据保留为历史，不用于本轮通过
+next_stage: S8
+blocked_by: 待本轮重新实现与验证
+notes: 受控reopen已置pending但未追加下游失效日志；调用控制器既有日志函数补录实际失效结果，未伪造pass。
+
+date: 2026-10-31T20:28:32
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 203d81c919c5
+preflight_result_hash: none
+stage: S8
+stage_name: 全局验证
+input_artifacts: inputs/execution-arrangement-authorization-20261031.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage s6 --change-id execution-arrangement-priority-20261031
+gate_result: invalidated
+decision: 当前用户授权增量重开；原阶段证据保留为历史，不用于本轮通过
+next_stage: S9
+blocked_by: 待本轮重新实现与验证
+notes: 受控reopen已置pending但未追加下游失效日志；调用控制器既有日志函数补录实际失效结果，未伪造pass。
+
+date: 2026-10-31T20:28:32
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 034588faa043
+preflight_result_hash: none
+stage: S9
+stage_name: 按需补充与收尾
+input_artifacts: inputs/execution-arrangement-authorization-20261031.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage s6 --change-id execution-arrangement-priority-20261031
+gate_result: invalidated
+decision: 当前用户授权增量重开；原阶段证据保留为历史，不用于本轮通过
+next_stage: none
+blocked_by: 待本轮重新实现与验证
+notes: 受控reopen已置pending但未追加下游失效日志；调用控制器既有日志函数补录实际失效结果，未伪造pass。
+
+date: 2026-10-31T20:28:33
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 2e6863a79b6c
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-10-31T21:21:17
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 23985a1be4b0
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T08:31:52
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: cd8df30e4a98
+preflight_result_hash: none
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: inputs/task-business-import-authorization-20261101.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage S6 --change-id task-business-import-20261101
+gate_result: invalidated
+decision: 本次任务内统一导入增量重开；旧证据保持历史
+next_stage: S7
+blocked_by: 待本轮实现与验证
+notes: reopen已实际置pending但未自动追加失效日志；调用控制器现有函数补录实际结果，不生成通过。
+
+date: 2026-11-01T08:31:52
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: be0edd5bec50
+preflight_result_hash: none
+stage: S7
+stage_name: 实现与单步验证循环
+input_artifacts: inputs/task-business-import-authorization-20261101.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage S6 --change-id task-business-import-20261101
+gate_result: invalidated
+decision: 本次任务内统一导入增量重开；旧证据保持历史
+next_stage: S8
+blocked_by: 待本轮实现与验证
+notes: reopen已实际置pending但未自动追加失效日志；调用控制器现有函数补录实际结果，不生成通过。
+
+date: 2026-11-01T08:31:52
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: c900f36889c3
+preflight_result_hash: none
+stage: S8
+stage_name: 全局验证
+input_artifacts: inputs/task-business-import-authorization-20261101.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage S6 --change-id task-business-import-20261101
+gate_result: invalidated
+decision: 本次任务内统一导入增量重开；旧证据保持历史
+next_stage: S9
+blocked_by: 待本轮实现与验证
+notes: reopen已实际置pending但未自动追加失效日志；调用控制器现有函数补录实际结果，不生成通过。
+
+date: 2026-11-01T08:31:52
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 371a7308abed
+preflight_result_hash: none
+stage: S9
+stage_name: 按需补充与收尾
+input_artifacts: inputs/task-business-import-authorization-20261101.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage S6 --change-id task-business-import-20261101
+gate_result: invalidated
+decision: 本次任务内统一导入增量重开；旧证据保持历史
+next_stage: none
+blocked_by: 待本轮实现与验证
+notes: reopen已实际置pending但未自动追加失效日志；调用控制器现有函数补录实际结果，不生成通过。
+
+date: 2026-11-01T08:31:53
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 7195ba750aa3
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T10:46:13
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: c9f86fb14147
+preflight_result_hash: none
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: inputs/lifecycle-audit-fix-authorization-20261101.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage S6 --change-id lifecycle-audit-fix-20261101
+gate_result: invalidated
+decision: 本次生命周期审计修复重开；旧证据只保历史
+next_stage: S7
+blocked_by: 待本轮实现与验证
+notes: 受控reopen实际置pending；用控制器既有函数补录失效日志，不伪造pass。
+
+date: 2026-11-01T10:46:13
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: d3923d0bc7d8
+preflight_result_hash: none
+stage: S7
+stage_name: 实现与单步验证循环
+input_artifacts: inputs/lifecycle-audit-fix-authorization-20261101.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage S6 --change-id lifecycle-audit-fix-20261101
+gate_result: invalidated
+decision: 本次生命周期审计修复重开；旧证据只保历史
+next_stage: S8
+blocked_by: 待本轮实现与验证
+notes: 受控reopen实际置pending；用控制器既有函数补录失效日志，不伪造pass。
+
+date: 2026-11-01T10:46:13
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: ca186a97237d
+preflight_result_hash: none
+stage: S8
+stage_name: 全局验证
+input_artifacts: inputs/lifecycle-audit-fix-authorization-20261101.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage S6 --change-id lifecycle-audit-fix-20261101
+gate_result: invalidated
+decision: 本次生命周期审计修复重开；旧证据只保历史
+next_stage: S9
+blocked_by: 待本轮实现与验证
+notes: 受控reopen实际置pending；用控制器既有函数补录失效日志，不伪造pass。
+
+date: 2026-11-01T10:46:13
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 5fc2259425cd
+preflight_result_hash: none
+stage: S9
+stage_name: 按需补充与收尾
+input_artifacts: inputs/lifecycle-audit-fix-authorization-20261101.json
+output_artifacts: config/workflow.json
+preflight: python3 tools/loop_run.py reopen . --stage S6 --change-id lifecycle-audit-fix-20261101
+gate_result: invalidated
+decision: 本次生命周期审计修复重开；旧证据只保历史
+next_stage: none
+blocked_by: 待本轮实现与验证
+notes: 受控reopen实际置pending；用控制器既有函数补录失效日志，不伪造pass。
+
+date: 2026-11-01T10:47:29
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 84714449f484
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T12:04:23
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 44279165442c
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T12:04:35
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 0ca7341cd15f
+preflight_result_hash: none
+stage: S7
+stage_name: 实现与单步验证循环
+input_artifacts: inputs/ai-provider-field-dialog-authorization-20261101.json
+output_artifacts: new verification epoch; S6 completed in new pass
+preflight: tools/loop_run.py reopen . --stage S6 --change-id ai-provider-field-dialog-20261101
+gate_result: invalidated
+decision: user-approved provider field/modal correction
+next_stage: S8
+blocked_by: none
+notes: Downstream historical evidence retained; no new pass inferred.
+
+date: 2026-11-01T12:04:35
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: fdabe274482d
+preflight_result_hash: none
+stage: S8
+stage_name: 全局验证
+input_artifacts: inputs/ai-provider-field-dialog-authorization-20261101.json
+output_artifacts: new verification epoch; S6 completed in new pass
+preflight: tools/loop_run.py reopen . --stage S6 --change-id ai-provider-field-dialog-20261101
+gate_result: invalidated
+decision: user-approved provider field/modal correction
+next_stage: S9
+blocked_by: none
+notes: Downstream historical evidence retained; no new pass inferred.
+
+date: 2026-11-01T12:04:35
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: c920b8778c82
+preflight_result_hash: none
+stage: S9
+stage_name: 按需补充与收尾
+input_artifacts: inputs/ai-provider-field-dialog-authorization-20261101.json
+output_artifacts: new verification epoch; S6 completed in new pass
+preflight: tools/loop_run.py reopen . --stage S6 --change-id ai-provider-field-dialog-20261101
+gate_result: invalidated
+decision: user-approved provider field/modal correction
+next_stage: none
+blocked_by: none
+notes: Downstream historical evidence retained; no new pass inferred.
+
+date: 2026-11-01T14:02:23
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 09dfb713d3d2
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T14:02:23
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: c4a39c6926e6
+preflight_result_hash: none
+stage: S7
+stage_name: 实现与单步验证循环
+input_artifacts: inputs/scene-driven-import-prototype-authorization-20261101.json
+output_artifacts: current verification epoch; development package held
+preflight: official reopen S6 scene-driven-import-prototype-20261101
+gate_result: invalidated
+decision: new user confirmed prototype-only scope; S6 completed
+next_stage: S8
+blocked_by: none
+notes: Historical evidence retained, no pass inherited.
+
+date: 2026-11-01T14:02:23
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 1dec110d4b04
+preflight_result_hash: none
+stage: S8
+stage_name: 全局验证
+input_artifacts: inputs/scene-driven-import-prototype-authorization-20261101.json
+output_artifacts: current verification epoch; development package held
+preflight: official reopen S6 scene-driven-import-prototype-20261101
+gate_result: invalidated
+decision: new user confirmed prototype-only scope; S6 completed
+next_stage: S9
+blocked_by: none
+notes: Historical evidence retained, no pass inherited.
+
+date: 2026-11-01T14:02:23
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: bf67df903478
+preflight_result_hash: none
+stage: S9
+stage_name: 按需补充与收尾
+input_artifacts: inputs/scene-driven-import-prototype-authorization-20261101.json
+output_artifacts: current verification epoch; development package held
+preflight: official reopen S6 scene-driven-import-prototype-20261101
+gate_result: invalidated
+decision: new user confirmed prototype-only scope; S6 completed
+next_stage: none
+blocked_by: none
+notes: Historical evidence retained, no pass inherited.
+
+date: 2026-11-01T16:13:35
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 5e090fa0359b
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T17:07:08
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: fc008c08b8f4
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T18:11:52
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 74fadd7f2f65
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T19:13:14
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 7f7bedf4d490
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T21:09:17
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 2cbb4d64d95e
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T21:43:41
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: f96d5d17233c
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-01T22:34:51
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 8fa9e0251639
+preflight_result_hash: 66c5b2e5fa629773
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: fail
+decision: S6 blocked by preflight s7
+next_stage: S7
+blocked_by: preflight s7
+notes: Loop preflight FAIL: /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype [s7]
+
+date: 2026-11-01T22:35:26
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: cb80397a1e21
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none
+
+date: 2026-11-02T12:54:12
+writer: tools/loop_run.py
+record_id_version: project-salted-v2
+record_id: 21d21bbc2ff8
+preflight_result_hash: 3668ad2f3551d453
+stage: S6
+stage_name: 需求实现拆分
+input_artifacts: none
+output_artifacts: none
+preflight: /usr/local/bin/python3 /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype/tools/loop_preflight.py /Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/prototype --stage s7 --completing-stage S6
+gate_result: pass
+decision: S6 completed
+next_stage: S7
+blocked_by: none
+notes: none

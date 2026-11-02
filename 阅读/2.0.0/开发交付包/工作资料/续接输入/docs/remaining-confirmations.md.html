@@ -2,9 +2,9 @@
 
 本轮无需要用户再次决定的业务项。以下为开发阶段必须补齐的工程证据，不把本地Mock当作生产验证。
 
-ENG-FLOW-PERSISTENCE（data）：生产业务/运行/跟进/通话/请求的物理模型、事务与唯一约束如何映射当前产品字段及同次结果？
+ENG-FLOW-PERSISTENCE（data）：生产业务/运行/跟进/通话/请求的物理模型、事务与唯一约束如何映射当前产品字段及同次结果？ Step44统一taskImportSource/逐行参数快照/原始与批次依据及只读recordId投影的真实事务、隔离和同请求唯一约束须工程映射，不持久第二份专业业务行。
 
-ENG-FLOW-EXECUTION（api）：真实AI/预外呼/人工执行的请求ID、供应商callId、事件身份与最终重试收敛怎样准确关联？
+ENG-FLOW-EXECUTION（api）：真实AI/预外呼/人工执行的请求ID、供应商callId、事件身份与最终重试收敛怎样准确关联？ 本次具体resourceId与真实供应商任务/坐席的准确映射、五档及入队FIFO的真实派发顺序/容量约束需工程证据；本地模拟顺序不证明供应商已支持优先级。
 
 ENG-FLOW-SCENE（backend）：AI场景与supplier/tenant/type/tagScene/category/brand/revision的最小只读投影由哪个生产服务提供？
 
@@ -18,7 +18,7 @@ EQ-PLAT-ACCEPTED-CALL（api）：各供应商已接收未拨号码的阻止/取�
 
 EQ-PLAT-REMOTE（api）：真实天润type/useRange参数、source footprints、共享来源解除、幂等重试及终态回执字段/安全验证需对接证据。
 
-EQ-PLAT-PROFESSIONAL（verification）：每专业动作真实授权码/路由/供应商取数、状态枚举、资源用途与导出字段映射需核证；本地Mock不能证明部署或远端成功。；另保留ISSUE-2018：核源ISSUE-11214的前序v1.1.1正式专业基底契约，v1.2冻结/本地Mock既有证据不重复核验，前序正式来源缺证未完成。
+EQ-PLAT-PROFESSIONAL（verification）：每专业动作真实授权码/路由/供应商取数、状态枚举、资源用途与导出字段映射需核证；本地Mock不能证明部署或远端成功。；另保留ISSUE-2018：核源ISSUE-11214的前序v1.1.1正式专业基底契约，v1.2冻结/本地Mock既有证据不重复核验，前序正式来源缺证未完成。 Step44供应商固定导入项/参数映射/各目标容量与配置型待分配客户任务的真实适配、后续执行证据继续待工程核证，统一账本/投影不是供应商导入受理证明。
 
 EQ-PLAT-DELETE（api）：真实删除实体、引用解析与最终并发资格校验、幂等请求及可靠读回终态接口需证据，HTTP200/列表消失不能单独证明删除。
 

@@ -8,6 +8,29 @@ def one(code, old, new):
         raise ValueError('AI parity source anchor changed: ' + old[:100])
     return code.replace(old, new, 1)
 
+SCENE_LIFECYCLE = r'''  function dScenePrepareOpen(){
+    const layers=Array.from(document.querySelectorAll('#bizAddSceneBackdrop'));
+    if(layers.some(layer=>layer.getAttribute('data-scene-closing')!=='1')){showToast('请先保存或关闭当前业务场景，再打开其他场景。','warning');return false;}
+    // Only an already-authorized close can mark a layer. Remove it before any
+    // ID-based form initialization so a new drawer cannot bind to old nodes.
+    layers.forEach(layer=>layer.remove());return true;
+  }
+'''
+
+def scene_lifecycle_transform(code):
+    """Single live scene drawer; delayed close owns only its captured layer."""
+    if '  function dScenePrepareOpen()' in code:
+        if SCENE_LIFECYCLE not in code:raise ValueError('AI scene lifecycle source differs; rebuild before checking')
+        return code
+    code=one(code,'  var dSceneWrite=null,',SCENE_LIFECYCLE+'  var dSceneWrite=null,')
+    code=one(code,'  function showAddModal(modalTitle) {','  function showAddModal(modalTitle) {\n    if(!dScenePrepareOpen())return false;')
+    code=one(code,'  function showEditModal(sceneId) {','  function showEditModal(sceneId) {\n    if(!dScenePrepareOpen())return false;')
+    start=code.index('  function closeAddModal(e) {');end=code.index('  function updateCharCount(',start)
+    section=code[start:end]
+    section=one(section,'    if (!backdrop && !drawer) return;','    if (!backdrop && !drawer) return;\n    if(backdrop)backdrop.setAttribute(\'data-scene-closing\',\'1\');')
+    section=one(section,"      document.body.style.overflow = '';","      if(!document.getElementById('bizAddSceneBackdrop'))document.body.style.overflow = '';")
+    return code[:start]+section+code[end:]
+
 SCENE = r'''  var dSceneWrite=null,dSceneDraftBase='',dSceneStartEditingId=null,dSceneClosing=false;
   function dSceneSignature(){
     var form=document.getElementById('bizAddSceneDrawer');if(!form)return '';
@@ -95,6 +118,7 @@ def transform(kind,path,code):
         code=one(code,marker,SCENE+marker+'\n    integrationSceneGuard:dSceneGuard,')
         code=one(code,'    closeAddModal: closeAddModal,','    closeAddModal: dSceneClose,')
         code=one(code,'    submitAddModal: submitAddModal,','    submitAddModal: dSceneSubmit,')
+        code=scene_lifecycle_transform(code)
     if path=='js/pages/report-call.js':
         start=code.index('  function doQuery() {');end=code.index('  function resetFilters() {',start)
         code=code[:start]+DATES+CALL_QUERY+code[end:]

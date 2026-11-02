@@ -1,4 +1,4 @@
-# TASK-045 预外呼/IVR任务配置和名单导入
+# TASK-045 预外呼任务关联分类与共享客户导入
 
 **DRAFT — 供讨论与补充，尚未完成本阶段交接**
 
@@ -8,13 +8,13 @@
 
 ## 目标
 
-查询及维护原任务、计划、唯一执行资源和名单导入，方式与资源用途不能混用。；供应商流程/本地映射、计划起止、主叫/号码池、任务内重呼等原参数按规格解释。
+在任务配置关联业务分类及原manual/api来源；任务内及列表顶部选择准确任务后同一导入界面自动带入分类与字段，不临时重复选择。；手工共享填写/检查/确认，2000行/1MB及五档沿准确context；API仅只读接收说明。新名单为统一DIRECT，PRED安排仅任务不加seat/person。；任务原资源/计划/重呼及旧历史原表保留；缺分类/关联失效引导维护任务配置，不能按首项或名字猜测。
 
 ## 产品依据
 
 - FUNC-2002 进入有权工作位置与保留专业能力：当前五顶栏只负责功能归位。按稳定页面/动作身份保留AI与Cloud现行专业操作、状态、资源、报表和业务接口，分别校验模块、成员、对象、读写/导出权。；来源 documentation/input/functions.json#FUNC-2002
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 
@@ -43,11 +43,11 @@
 
 先读 [全局逻辑](../global-logic.md)，再读本任务关联的局部逻辑与字段定义。
 
-全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
+全局规则：[GR-AUTH](../global-logic.md#GR-AUTH)、[GR-IDENTITY](../global-logic.md#GR-IDENTITY)、[GR-LIST-ORDER](../global-logic.md#GR-LIST-ORDER)、[GR-SCOPE](../global-logic.md#GR-SCOPE)、[GR-TASK-UNIFIED-IMPORT](../global-logic.md#GR-TASK-UNIFIED-IMPORT)、[GR-UNKNOWN](../global-logic.md#GR-UNKNOWN)
 
 局部逻辑：[LOCAL-PLAT-CLOUD-TASK-QUERY](../local-logic/LOCAL-PLAT-CLOUD-TASK-QUERY.md)、[LOCAL-PLAT-CLOUD-TASK-SAVE](../local-logic/LOCAL-PLAT-CLOUD-TASK-SAVE.md)、[LOCAL-PLAT-CLOUD-TASK-IMPORT](../local-logic/LOCAL-PLAT-CLOUD-TASK-IMPORT.md)
 
-字段：[FIELD-PLAT-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)、[FIELD-PLAT-IMPORT-BATCH](../field-specs.md#FIELD-PLAT-IMPORT-BATCH)、[FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)、[FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)、[FIELD-PLAT-PAGING](../field-specs.md#FIELD-PLAT-PAGING)、[FIELD-PLAT-QUERY](../field-specs.md#FIELD-PLAT-QUERY)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)、[FIELD-PLAT-RESOURCE-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)、[FIELD-PLAT-REVISION](../field-specs.md#FIELD-PLAT-REVISION)、[FIELD-PLAT-TASK-AGENT-TIMEOUT](../field-specs.md#FIELD-PLAT-TASK-AGENT-TIMEOUT)、[FIELD-PLAT-TASK-ANSWER-RATE](../field-specs.md#FIELD-PLAT-TASK-ANSWER-RATE)、[FIELD-PLAT-TASK-BUSINESS-TAGS](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-TAGS)、[FIELD-PLAT-TASK-CALL-STRATEGY](../field-specs.md#FIELD-PLAT-TASK-CALL-STRATEGY)、[FIELD-PLAT-TASK-CALLER-NAV](../field-specs.md#FIELD-PLAT-TASK-CALLER-NAV)、[FIELD-PLAT-TASK-CALLER-POOLS](../field-specs.md#FIELD-PLAT-TASK-CALLER-POOLS)、[FIELD-PLAT-TASK-CALLPRIORITY](../field-specs.md#FIELD-PLAT-TASK-CALLPRIORITY)、[FIELD-PLAT-TASK-CALLROUTE](../field-specs.md#FIELD-PLAT-TASK-CALLROUTE)、[FIELD-PLAT-TASK-CNOS](../field-specs.md#FIELD-PLAT-TASK-CNOS)、[FIELD-PLAT-TASK-COMPLETE](../field-specs.md#FIELD-PLAT-TASK-COMPLETE)、[FIELD-PLAT-TASK-CONCURRENCY](../field-specs.md#FIELD-PLAT-TASK-CONCURRENCY)、[FIELD-PLAT-TASK-CONTACT-FLOW](../field-specs.md#FIELD-PLAT-TASK-CONTACT-FLOW)、[FIELD-PLAT-TASK-CUSTOMER-TIMEOUT](../field-specs.md#FIELD-PLAT-TASK-CUSTOMER-TIMEOUT)、[FIELD-PLAT-TASK-DESC](../field-specs.md#FIELD-PLAT-TASK-DESC)、[FIELD-PLAT-TASK-FAILURES](../field-specs.md#FIELD-PLAT-TASK-FAILURES)、[FIELD-PLAT-TASK-FORCEEND](../field-specs.md#FIELD-PLAT-TASK-FORCEEND)、[FIELD-PLAT-TASK-GROUP-TYPE](../field-specs.md#FIELD-PLAT-TASK-GROUP-TYPE)、[FIELD-PLAT-TASK-ID](../field-specs.md#FIELD-PLAT-TASK-ID)、[FIELD-PLAT-TASK-IVR-ID](../field-specs.md#FIELD-PLAT-TASK-IVR-ID)、[FIELD-PLAT-TASK-MAXWAIT](../field-specs.md#FIELD-PLAT-TASK-MAXWAIT)、[FIELD-PLAT-TASK-MIN-AGENTS](../field-specs.md#FIELD-PLAT-TASK-MIN-AGENTS)、[FIELD-PLAT-TASK-MODE](../field-specs.md#FIELD-PLAT-TASK-MODE)、[FIELD-PLAT-TASK-NAME](../field-specs.md#FIELD-PLAT-TASK-NAME)、[FIELD-PLAT-TASK-OUTBOUND-GROUP](../field-specs.md#FIELD-PLAT-TASK-OUTBOUND-GROUP)、[FIELD-PLAT-TASK-PREDICTADJUST](../field-specs.md#FIELD-PLAT-TASK-PREDICTADJUST)、[FIELD-PLAT-TASK-QUOTIETY](../field-specs.md#FIELD-PLAT-TASK-QUOTIETY)、[FIELD-PLAT-TASK-RESOURCES](../field-specs.md#FIELD-PLAT-TASK-RESOURCES)、[FIELD-PLAT-TASK-RETRY-POLICY](../field-specs.md#FIELD-PLAT-TASK-RETRY-POLICY)、[FIELD-PLAT-TASK-RETRYTODAY](../field-specs.md#FIELD-PLAT-TASK-RETRYTODAY)、[FIELD-PLAT-TASK-REWARM](../field-specs.md#FIELD-PLAT-TASK-REWARM)、[FIELD-PLAT-TASK-SCHEDULE](../field-specs.md#FIELD-PLAT-TASK-SCHEDULE)、[FIELD-PLAT-TASK-SCHEDULE-AT](../field-specs.md#FIELD-PLAT-TASK-SCHEDULE-AT)、[FIELD-PLAT-TASK-SCHEDULE-MODE](../field-specs.md#FIELD-PLAT-TASK-SCHEDULE-MODE)、[FIELD-PLAT-TASK-STATE](../field-specs.md#FIELD-PLAT-TASK-STATE)、[FIELD-PLAT-TASK-STOP-AT](../field-specs.md#FIELD-PLAT-TASK-STOP-AT)、[FIELD-PLAT-TASK-STOP-SCHEDULED](../field-specs.md#FIELD-PLAT-TASK-STOP-SCHEDULED)、[FIELD-PLAT-TASK-WARMUP](../field-specs.md#FIELD-PLAT-TASK-WARMUP)、[FIELD-PLAT-TASK-WRAP](../field-specs.md#FIELD-PLAT-TASK-WRAP)
+字段：[FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP](../field-specs.md#FIELD-FLOW-ALLOW-DIRECT-FOLLOWUP)、[FIELD-FLOW-CATEGORY-ID](../field-specs.md#FIELD-FLOW-CATEGORY-ID)、[FIELD-FLOW-CATEGORY-IMPORT-REFS](../field-specs.md#FIELD-FLOW-CATEGORY-IMPORT-REFS)、[FIELD-FLOW-DIRECT-CYCLE-ID](../field-specs.md#FIELD-FLOW-DIRECT-CYCLE-ID)、[FIELD-FLOW-EXECUTION-PRIORITY](../field-specs.md#FIELD-FLOW-EXECUTION-PRIORITY)、[FIELD-FLOW-HANDLING-MODE](../field-specs.md#FIELD-FLOW-HANDLING-MODE)、[FIELD-FLOW-IMPORT-ORIGINAL](../field-specs.md#FIELD-FLOW-IMPORT-ORIGINAL)、[FIELD-FLOW-IMPORT-VALUES](../field-specs.md#FIELD-FLOW-IMPORT-VALUES)、[FIELD-FLOW-RECORD-ID](../field-specs.md#FIELD-FLOW-RECORD-ID)、[FIELD-FLOW-TASK-IMPORT-PARAMETERS](../field-specs.md#FIELD-FLOW-TASK-IMPORT-PARAMETERS)、[FIELD-FLOW-TASK-IMPORT-SOURCE](../field-specs.md#FIELD-FLOW-TASK-IMPORT-SOURCE)、[FIELD-PLAT-AUDIT](../field-specs.md#FIELD-PLAT-AUDIT)、[FIELD-PLAT-IMPORT-BATCH](../field-specs.md#FIELD-PLAT-IMPORT-BATCH)、[FIELD-PLAT-IMPORT-ROWS](../field-specs.md#FIELD-PLAT-IMPORT-ROWS)、[FIELD-PLAT-OP-STATE](../field-specs.md#FIELD-PLAT-OP-STATE)、[FIELD-PLAT-PAGING](../field-specs.md#FIELD-PLAT-PAGING)、[FIELD-PLAT-QUERY](../field-specs.md#FIELD-PLAT-QUERY)、[FIELD-PLAT-REQUEST](../field-specs.md#FIELD-PLAT-REQUEST)、[FIELD-PLAT-RESOURCE-SCOPE](../field-specs.md#FIELD-PLAT-RESOURCE-SCOPE)、[FIELD-PLAT-REVISION](../field-specs.md#FIELD-PLAT-REVISION)、[FIELD-PLAT-TASK-AGENT-TIMEOUT](../field-specs.md#FIELD-PLAT-TASK-AGENT-TIMEOUT)、[FIELD-PLAT-TASK-ANSWER-RATE](../field-specs.md#FIELD-PLAT-TASK-ANSWER-RATE)、[FIELD-PLAT-TASK-BUSINESS-RECORD-ID](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-RECORD-ID)、[FIELD-PLAT-TASK-BUSINESS-TAGS](../field-specs.md#FIELD-PLAT-TASK-BUSINESS-TAGS)、[FIELD-PLAT-TASK-CALL-STRATEGY](../field-specs.md#FIELD-PLAT-TASK-CALL-STRATEGY)、[FIELD-PLAT-TASK-CALLER-NAV](../field-specs.md#FIELD-PLAT-TASK-CALLER-NAV)、[FIELD-PLAT-TASK-CALLER-POOLS](../field-specs.md#FIELD-PLAT-TASK-CALLER-POOLS)、[FIELD-PLAT-TASK-CALLPRIORITY](../field-specs.md#FIELD-PLAT-TASK-CALLPRIORITY)、[FIELD-PLAT-TASK-CALLROUTE](../field-specs.md#FIELD-PLAT-TASK-CALLROUTE)、[FIELD-PLAT-TASK-CNOS](../field-specs.md#FIELD-PLAT-TASK-CNOS)、[FIELD-PLAT-TASK-COMPLETE](../field-specs.md#FIELD-PLAT-TASK-COMPLETE)、[FIELD-PLAT-TASK-CONCURRENCY](../field-specs.md#FIELD-PLAT-TASK-CONCURRENCY)、[FIELD-PLAT-TASK-CONTACT-FLOW](../field-specs.md#FIELD-PLAT-TASK-CONTACT-FLOW)、[FIELD-PLAT-TASK-CUSTOMER-TIMEOUT](../field-specs.md#FIELD-PLAT-TASK-CUSTOMER-TIMEOUT)、[FIELD-PLAT-TASK-DESC](../field-specs.md#FIELD-PLAT-TASK-DESC)、[FIELD-PLAT-TASK-FAILURES](../field-specs.md#FIELD-PLAT-TASK-FAILURES)、[FIELD-PLAT-TASK-FORCEEND](../field-specs.md#FIELD-PLAT-TASK-FORCEEND)、[FIELD-PLAT-TASK-GROUP-TYPE](../field-specs.md#FIELD-PLAT-TASK-GROUP-TYPE)、[FIELD-PLAT-TASK-ID](../field-specs.md#FIELD-PLAT-TASK-ID)、[FIELD-PLAT-TASK-IVR-ID](../field-specs.md#FIELD-PLAT-TASK-IVR-ID)、[FIELD-PLAT-TASK-MAXWAIT](../field-specs.md#FIELD-PLAT-TASK-MAXWAIT)、[FIELD-PLAT-TASK-MIN-AGENTS](../field-specs.md#FIELD-PLAT-TASK-MIN-AGENTS)、[FIELD-PLAT-TASK-MODE](../field-specs.md#FIELD-PLAT-TASK-MODE)、[FIELD-PLAT-TASK-NAME](../field-specs.md#FIELD-PLAT-TASK-NAME)、[FIELD-PLAT-TASK-OUTBOUND-GROUP](../field-specs.md#FIELD-PLAT-TASK-OUTBOUND-GROUP)、[FIELD-PLAT-TASK-PREDICTADJUST](../field-specs.md#FIELD-PLAT-TASK-PREDICTADJUST)、[FIELD-PLAT-TASK-QUOTIETY](../field-specs.md#FIELD-PLAT-TASK-QUOTIETY)、[FIELD-PLAT-TASK-RESOURCES](../field-specs.md#FIELD-PLAT-TASK-RESOURCES)、[FIELD-PLAT-TASK-RETRY-POLICY](../field-specs.md#FIELD-PLAT-TASK-RETRY-POLICY)、[FIELD-PLAT-TASK-RETRYTODAY](../field-specs.md#FIELD-PLAT-TASK-RETRYTODAY)、[FIELD-PLAT-TASK-REWARM](../field-specs.md#FIELD-PLAT-TASK-REWARM)、[FIELD-PLAT-TASK-SCHEDULE](../field-specs.md#FIELD-PLAT-TASK-SCHEDULE)、[FIELD-PLAT-TASK-SCHEDULE-AT](../field-specs.md#FIELD-PLAT-TASK-SCHEDULE-AT)、[FIELD-PLAT-TASK-SCHEDULE-MODE](../field-specs.md#FIELD-PLAT-TASK-SCHEDULE-MODE)、[FIELD-PLAT-TASK-STATE](../field-specs.md#FIELD-PLAT-TASK-STATE)、[FIELD-PLAT-TASK-STOP-AT](../field-specs.md#FIELD-PLAT-TASK-STOP-AT)、[FIELD-PLAT-TASK-STOP-SCHEDULED](../field-specs.md#FIELD-PLAT-TASK-STOP-SCHEDULED)、[FIELD-PLAT-TASK-WARMUP](../field-specs.md#FIELD-PLAT-TASK-WARMUP)、[FIELD-PLAT-TASK-WRAP](../field-specs.md#FIELD-PLAT-TASK-WRAP)
 
 ## UI 依据
 
@@ -58,10 +58,10 @@
 
 ## 实现要求
 
-- 查询及维护原任务、计划、唯一执行资源和名单导入，方式与资源用途不能混用。
-- 供应商流程/本地映射、计划起止、主叫/号码池、任务内重呼等原参数按规格解释。
-- 专业IVR保原能力，不新增为四节点CALL方式或要求新业务选择任务/队列。
-- 预外呼/IVR页面保原列表/查询/重置/空态，不增加今日任务名单分布；不删除独立专业报表能力。
+- 在任务配置关联业务分类及原manual/api来源；任务内及列表顶部选择准确任务后同一导入界面自动带入分类与字段，不临时重复选择。
+- 手工共享填写/检查/确认，2000行/1MB及五档沿准确context；API仅只读接收说明。新名单为统一DIRECT，PRED安排仅任务不加seat/person。
+- 任务原资源/计划/重呼及旧历史原表保留；缺分类/关联失效引导维护任务配置，不能按首项或名字猜测。
+- IVR保原专业边界，不扩四节点CALL；新任务导入不双写原生行或重复供应商提交。
 - 按所引LOCAL逐动作落实触发/前后置/分支；业务定义只读同源规格，不另抄一套规则。
 - 依赖表示实施契约/共享守卫先就绪，不新增用户操作门槛；跨任务端到端由验收批次合并检查。
 - 目标库、模块/服务/表/接口、精确可写文件及命令由开发在开工前绑定；当前空文件清单不授代码写入权。
@@ -83,13 +83,19 @@
 - **AC-2148**：预外呼及IVR页不额外显示“今日任务名单分布”，保原任务查询/筛选/空态/重置和专业报表口径；不因此删除底层任务状态或统计能力。
   依据：docs/functional-spec.json#AC-2148
 
+- **AC-2160**：当前由入口决定办理模式：准确AI/预外呼任务入口固定TASK/DIRECT，按任务MANUAL/API渠道导入；业务分类入口固定CATEGORY/TEMPLATE，人工或接口进入当前分类模板。没有中央模式选择、分类允许直接跟进开关或AI第三种FLOW来源，TEMPLATE失败不降级。旧无TASK来源的DIRECT及旧已捕获END来源分别只按原历史合同核验，不补新来源。 任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 统一业务及批次保存entrySource.kind=TASK/CATEGORY、importChannel=MANUAL/API、handlingMode及准确分类/租户；TASK的taskImportSource按schema2保存method/taskId/aiSceneId?/categoryId/tenantId/brandId/batchId/importChannel/dataImportSource及targetFingerprint/parameterMappingFingerprint。每行规范业务值与独立供应商customValues/定义/参数快照同次捕获；不把供应商专属值混record.fields，不持久第二份专业业务行，不按手机号认领旧业务或重复供应商导入。
+  依据：docs/functional-spec.json#AC-2160
+
+- **AC-2162**：当前TASK导入ADMIN+customer.import叠原模块/准确任务/渠道资格，AI-only不需Cloud菜单，不增Cloud授权；API仅可读字段/要求与已有记录，接口接入待开发。AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。
+  依据：docs/functional-spec.json#AC-2162
+
 ## 测试要求（尚未执行）
 
 ### CHECK-PLAT-CLOUD-TASK-QUERY / manual
 
-步骤：按当前续接版本执行：预外呼或IVR任务页查询/查看。前提：相应方式原任务读权。操作：按mode分别读取准确任务，不混淆IVR与预外呼资源/状态；任务详情显示已受理与远端终态、名单及失败分类；列表更新时间倒序后分页，任务ID及当前scope进入详情复核。分别构造：前提、字段及对象修订校验通过且结果明确成功；无权/字段不合法/对象失效/修订冲突；提交失败或结果未知。
+步骤：按当前三入口统一导入规则：预外呼或IVR任务页查询/查看；按mode分别读取准确任务，不混淆IVR与预外呼资源/状态；任务详情显示已受理与远端终态、名单及失败分类；列表更新时间倒序后分页，任务ID及当前scope进入详情复核；本轮新AI/PRED业务仅按准确taskImportSource和原任务读取权投影recordId/必要字段；旧专业名单/历史依其原身份显示，不能按手机号补链，不以业务记录数改写供应商受理或通话事实；投影办理模式及详情副标题读当前有权业务的真实handlingMode；新TASK DIRECT不启用模板；旧无TASK历史明确合法启用后才可TEMPLATE，不能以导入来源硬写DIRECT；转出方仅本方截止历史 业务分类列表提供导入名单并锁定准确分类；原导入与分配改为导入批次，业务名单保独立，业务名单保独立，业务名单保独立，业务名单保独立，以批次结果/详情为主。独立业务名单保工作队列、原单条/同组批量手动分配及明确发起；主菜单打开/刷新不带临时批次过滤，准确批次详情和recordId详情各保自身上下文，账号/租户/撤权重新核验。； ； ； ； ； ； ； ； ； ；。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：准确原专业任务可查；查看不授控制、导入或导出；准确原专业任务可查；查看不授控制、导入或导出；明确显示本次拒绝原因，保留可继续的输入和已确认原值，不作变更；失败保留原确认值；未知显示待核并按同请求核对，不重复提交或假报成功。
+预期：准确原专业任务可查；查看不授控制、导入或导出；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2068, AC-2069, AC-2070, AC-2071, AC-2148
 
@@ -103,16 +109,25 @@
 
 ### CHECK-PLAT-CLOUD-TASK-IMPORT / manual
 
-步骤：在准确有权范围触发“向预外呼／IVR任务导入名单”；分别执行正常输入、明确无权/失效/冲突、失败及未知结果分支；按所列字段边界复查保存与显示。
+步骤：按当前三入口统一导入规则：准确专业任务选择名单并独立确认导入；预外呼明确本次有效且任务配置关联分类，按共同IMPORT+code/姓名/号码基础schema逐行校类型/选项/必填/映射/重复编码；FOLLOWUP排除；任务及接口/手工来源锁定继续。IVR仍原专业校验，不创建本轮DIRECT；共享读取/预检采用准确目标context.importLimits而非任意调用参数：保AI大众100行、厚朴150000行、其他2000行及16MB文件，预外呼2000行/1MB；超限明示分批且不截断，旧AI parser只作历史兼容不成第二新写入口；预外呼默认DIRECT/PREDICTIVE并固定当前准确taskId与租户/修订，五档默认中；不另选seat/person，不建run/node；相关字段/任务/来源变化使旧确认失效；原配置校验完整且状态/来源允许的待分配客户任务可导入，包括既有flat/alictiCreateDraft配置型任务，不要求先有原生名单或旧目录已发布方案；缺配置/无权/停用/在途仍拒绝，不伪造供应商发布/受理；预外呼同请求只写一次统一业务及直接周期，完整值/快照/taskImportSource保存；当前专业名单按recordId只读投影，不新建原生行或重提供应商；未知核原请求。IVR及旧数据维持原独立专业结果。构造无权、来源锁定、字段/任务/窗口变化及失败/未知。
 
-预期：准确任务合法名单导入；异常行有定位和可恢复结果；无权及非法输入不得写入；失败与未知分别显示且不扩范围、不重复产生副作用。
+预期：预外呼创建当前准确任务的统一DIRECT业务/周期和完整IMPORT字段/快照/来源/等级，专业名单只读投影；原IVR/旧专业历史保留各自事实；原资格/历史/未知守卫保持，不把新统一记录或投影说成供应商已受理/拨打。
 
 覆盖：AC-2068, AC-2070, AC-2071
 
+### CHECK-FLOW-PRED-TASK-DIRECT-IMPORT / manual
+
+步骤：预外呼4步配置保存分类；从行内/顶部选同任务导入，实际CSV有空行/前导零及1有效1错误，保存有效子集再恢复失败草稿续入。
+
+预期：任务配置保存准确业务分类；AI从准确场景取得分类和供应商映射，PRED从任务配置取得分类。导入自动带入并锁定，不在导入时临时重选或按名称/首项猜。顶部入口只选择目标任务，随即同窗展示相同导入表。缺失、冲突、失效关联到任务/场景配置维护。MANUAL任务仅手工上传/粘贴，AUTO/API仅只读接收字段与要求；本地静态演示不提供真实接口上传或假造API结果。 AI/PRED共用轻量导入：文件或粘贴名单→检查及逐行编辑→确认。主区不要求重填场景、分类、批次或优先级；批次默认文件名或任务名+本次窗口时间，选填折叠项可修改，五档默认中。文件读取中禁用旧检查；0有效确认禁用且底部说明/表外行号编码原因可见，编辑后旧结果失效需重检。AI全部行通过才确认；PRED允许当前检查的合法有效子集二次确认。成功行封存不重导，剩余失败草稿可保留/重开/更正后以新请求重检续入，原物理行号与当前编辑行号明确区分，成功后关闭按钮显示关闭。 原专业名单直接在原列表展示：保姓名、电话、批次、原操作与原统计，新业务按准确recordId只读回链；旧原生行缺业务编码/业务分类/五档执行优先级/导入入口四项时直接留空，不单列历史名单、不按手机号补链。统一业务数/办理状态不冒充供应商受理、真实拨打、接通或话单数。
+
+覆盖：AC-2160, AC-2162
+
 ## 完成条件
 
-- 查询及维护原任务、计划、唯一执行资源和名单导入，方式与资源用途不能混用。
-- 供应商流程/本地映射、计划起止、主叫/号码池、任务内重呼等原参数按规格解释。
+- 在任务配置关联业务分类及原manual/api来源；任务内及列表顶部选择准确任务后同一导入界面自动带入分类与字段，不临时重复选择。
+- 手工共享填写/检查/确认，2000行/1MB及五档沿准确context；API仅只读接收说明。新名单为统一DIRECT，PRED安排仅任务不加seat/person。
+- 任务原资源/计划/重呼及旧历史原表保留；缺分类/关联失效引导维护任务配置，不能按首项或名字猜测。
 - 本任务全部同ID验收检查有当前实现、正常/拒绝/失败/未知证据，关联页面五态及字段权限符合原规格。
 - 开发完成目标库/精确文件/模块/数据接口/测试执行绑定，必要共享文件先后依赖已补齐，工程问题有可靠结论。
 - 产品变动回产品规格重审；不可用局部实现或Mock结论替代真实远端与正式开工许可。
@@ -128,6 +143,8 @@
 
 - [module-host.js](../../../prototype/js/components/module-host.js) · 只读行为参考，非生产可写目标
 - [customer-import-enhancements.js](../../../prototype/js/adapters/customer-import-enhancements.js) · 只读行为参考，非生产可写目标
+- [task-business-import.js](../../../prototype/js/adapters/task-business-import.js) · 只读行为参考，非生产可写目标
+- [task_business_import_build.py](../../../prototype/scripts/task_business_import_build.py) · 只读行为参考，非生产可写目标
 
 需开发处理的问题：EQ-PLAT-PROFESSIONAL, EQ-PLAT-ACCEPTED-CALL。
 

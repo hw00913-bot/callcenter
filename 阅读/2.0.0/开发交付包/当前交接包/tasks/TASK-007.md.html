@@ -16,7 +16,7 @@
 - FUNC-2028 删除无引用且无其他租户关联的准确账号：沿独立原删除权，最终一致校验引用/关联/修订；引用未知不删，不等同成员移除或坐席删除，保必要审计。；来源 documentation/input/functions.json#FUNC-2028
 - FUNC-2029 删除无业务引用的准确租户：沿独立原删除权及默认管理组保护，引用/权限/修订终提交再验；不级联清账、任务、品牌和其他租户。；来源 documentation/input/functions.json#FUNC-2029
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 

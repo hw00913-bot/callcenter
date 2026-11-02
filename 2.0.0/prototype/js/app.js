@@ -64,7 +64,7 @@
     document.getElementById('area-nav').innerHTML=DNav.areas.filter(a=>pages.some(p=>p.area===a)).map(a=>'<button data-area="'+e(a)+'" class="'+(a===area?'active':'')+'">'+e(a)+'</button>').join('');
     const areaPages=pages.filter(p=>p.area===area), ordered=[], used=new Set();
     areaPages.forEach(p=>{if(used.has(p.id))return;const members=p.group?areaPages.filter(x=>x.group===p.group):[p];members.forEach(x=>{ordered.push(x);used.add(x.id);});});
-    const parentMenu={'PAGE-2226':'PAGE-2204','PAGE-2227':'PAGE-2204','PAGE-2225':'PAGE-2202'};
+    const parentMenu={'PAGE-2227':'PAGE-2226','PAGE-2225':'PAGE-2202'};
     const currentId=parentMenu[id]||id;
     const item=(p,child)=>{const name=p.id==='PAGE-2106'&&DSession.context().scope.grant.role==='finance'?'服务汇总导出':p.name;return '<button data-page="'+e(p.id)+'" class="d-nav-item '+(child?'d-nav-child ':'')+(p.id===currentId?'active':'')+'" '+(p.id===currentId?'aria-current="page"':'')+'>'+(!child?'<span class="d-nav-icon" aria-hidden="true">'+e(name.slice(0,1))+'</span>':'')+e(name)+'</button>';};
     const rendered=new Set();
@@ -103,7 +103,7 @@
     const apply=()=>{
       try{
         const restored={...DSession.filters(id),...safePosition(options.nativeOptions),...(options.pageFilters||{})};
-        if(options.menuEntry&&id==='PAGE-2204'){for(const key of ['recordId','batchKey','batchId','originBatch','mechanism','assignmentView'])delete restored[key];options.nativeOptions={batchKey:'',batchId:'',primaryNavigation:true};}
+        if(options.menuEntry&&['PAGE-2204','PAGE-2226'].includes(id)){for(const key of ['recordId','batchKey','batchId','originBatch','mechanism','assignmentView','batchDetail','importCategoryId','importLaunchId','importBrandId'])delete restored[key];options.nativeOptions={recordId:'',batchKey:'',batchId:'',originBatch:null,batchDetail:false,primaryNavigation:true};}
         if(options.initial||activePage!==id||options.nativeOptions||options.pageFilters||options.menuEntry)DSession.remember(id,restored);
         activePage=id;renderNav(id);
         const host=document.getElementById('app');

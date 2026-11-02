@@ -565,3 +565,69 @@
 | FIELD-PLAT-TAG-SUPPLIER-CODE | 标签供应商本地编码 | aiTagSupplier.localCode | string | 提交该实体的新建或修改时必填；nullable=False | AI标签配置中的准确场景/供应商目录创建、允许编辑或启停明确保存成功时；删除须无配置引用，保已有执行结果 |
 | FIELD-PLAT-TAG-SUPPLIER-NAME | 标签供应商名称 | aiTagSupplier.name | string | 提交该实体的新建或修改时必填；nullable=False | AI标签配置中的准确场景/供应商目录创建、允许编辑或启停明确保存成功时；删除须无配置引用，保已有执行结果 |
 | FIELD-PLAT-TAG-SUPPLIER-STATE | 标签供应商状态 | aiTagSupplier.status | string | 提交该实体的新建或修改时必填；nullable=False | AI标签配置中的准确场景/供应商目录创建、允许编辑或启停明确保存成功时；删除须无配置引用，保已有执行结果 |
+
+
+## 2026-10-31 执行安排增量字段
+
+| 字段 | 含义 | 约束 |
+| --- | --- | --- |
+| FLD-EXECUTION-TARGET | 当前具体执行目标resourceId及其租户/方式/任务或坐席展示快照 | 当前tenant有效同方式资源，AI须与所选场景适配；跨租户不沿用 |
+| FLD-EXECUTION-PRIORITY | 当前执行优先级executionPriority | 1最低、2低、3中、4高、5最高；缺省3；可由模板默认及本次明确安排确定 |
+| FLD-EXECUTION-QUEUED-AT | 当前安排进入待执行队列时间 | 同级FIFO，读取/普通编辑不重置；新节点/新安排显式产生 |
+| FLD-NODE-EXECUTION-DEFAULTS | 节点默认优先级及分租户的资源安排 | 品牌共用配置不授予其他租户资源访问/修改权；当前承接租户精确解析 |
+
+
+## Step43 字段职责修正
+
+人工坐席安排策略：人工分配（默认）／指定坐席；前者resourceId可空并明确待分配，后者必填有效坐席并从绑定账号确定承接人。FIELD-FLOW-EXECUTION-RESOURCE对AI/预外呼仍为具体任务必填。原责任人字段仅供历史只读及系统派生实际人员，不再作为模板、导入或分配的独立用户输入。FIELD-FLOW-EXECUTION-PRIORITY及入队总序继续适用。
+
+
+## Step44 · 任务内统一导入字段
+
+| Field ID | 当前事实 | 约束 |
+| --- | --- | --- |
+| FLD-TASK-IMPORT-SOURCE | taskImportSource的方法/任务/场景/租户/批次及来源快照 | 准确当前任务，DIRECT无run/node；一个权威业务记录；不按手机号认领历史 |
+| FLD-TASK-IMPORT-FIELD-REFERENCE | 实际业务分类IMPORT字段稳定ID/业务编码/类型/选项/必填及快照 | 排除FOLLOWUP；模板下载/映射/校验/值保存同源；新导入用当前定义，历史保持 |
+| FLD-TASK-IMPORT-PARAMETER-MAPPING | AI场景引用共享字段到供应商参数的映射 | 固定专业参数保留；参数/字段身份唯一并按当前租户分类核验，不以同名猜测 |
+
+
+## Step45 · 生命周期收尾字段事实
+
+| Field ID | 当前事实 | 约束 |
+| --- | --- | --- |
+| FLD-MISSING-CONTENT-CONFIRMATION | 当前owner ADMIN对无法补填的显式确认及原因/账号/时间/原run/seg/实际人或UNKNOWN/冻结字段与接听范围 | 仅明确确认，绑定runId与expectedRevision及缺失指纹；变化失效，不能代填/豁免真实停止或跨run复用 |
+| FLD-ABANDONMENT-SETTLEMENT | 原跟进独立的可靠废弃收尾事实 | 与normal archived/completed分开，缺失及未完成保留；可靠结束/无重试、冲突、unknown后才可结清，不永久阻后继 |
+| FLD-STOPPING-RECEIPT | 原accepted且未可靠停止的seg/attempt准确事实 | ACTIVE/ABANDONING回执归原ID并去重统计，不是新派发；已关闭未知新attempt仍按原守卫/冲突处理 |
+| FLD-END-CURRENT-CYCLE-ADMISSION | END历史来源与本周期准入例外 | 例外只原首MANUAL准确cycle；resume三方式均核当前allowDirect，历史来源不删/不成为永久准入 |
+
+Step45存储契约：confirmMissingContent及confirmationFingerprint为本次提交控制值，runId/expectedRevision复用原事务字段；正式异常决议写入原seg.abandonmentSettlement复合快照（含confirmMissingContent、confirmedBy/Role/TenantId/At、reason、missingContextFingerprint/context/history），run.abandonTenantId记录原负责租户。abandonedSettled由可靠停止及实际本人补录或准确异常决议推导；不写正常archived/contentSaved/completedFollowup。actual queued/dialed事实沿原calls账本，不加第二回执表。
+
+
+## Step46 用户纠正
+
+Step46沿现有场景映射字段扩为schema2：每行稳定id、source IMPORT_FIELD/CUSTOM_COLUMN、fieldId（引用时）、parameter、label、type、required；场景专属额外导入列与分类IMPORT分离，逐行参数及定义/值快照捕获；临时子弹窗草稿只主确认进入场景草稿。
+
+Step46最终存储：scene.importFieldMappingSchema=2、importFieldCategoryId及自动importFieldPlatform；importFieldMappings每行id/source/fieldId?/parameter/label/type/required。legacy schema1及customInputFields只读解释，父主保存才升级。customFields使用AI_CUSTOM、usage SUPPLIER_PARAMETER及scene/platform/row.id无歧义key；context.fields为业务+专属列联合，businessRequired保分类基础要求，任务row.customValues独立于row.fields。record.taskImportParameterSnapshot与originalImportSnapshot内保原mappings/parameters/customFields/customValues，后者number/date按声明规范化；当前定义变化不重写原值。
+
+
+## Step48已确认原型修改
+
+Step48统一fields/customFields/schemaReady/discoverySchema/needsGroupDiscovery/fieldBasisToken；row.customValues独立，aiImportParameterSnapshots保存准确tenant/scene/source/node/mappings/parameters/定义值。source为明确MANUAL/AUTO/FLOW，legacy importType精确兼容，未知冲突fail-closed。
+
+
+## 2026-11-01 按入口区分导入（Step49）
+
+Step49导入入口/渠道：entry=TASK或CATEGORY；importChannel=MANUAL或API；任务来源保准确method/taskId/tenantId/categoryId/aiSceneId及参数版本快照。任务DIRECT无run/node，分类TEMPLATE捕获路由。现有allowDirectFollowup不再可编辑；旧历史字段保留不回写。
+
+
+### 2026-11-01 Step49实页反馈修正（继续同一步）
+
+用户截图AI任务24被导入执行目录挡成不存在；预外呼不接受替换成通用业务导入弹窗。用户明确确认在预外呼任务配置关联准确业务分类，导入沿原界面自动带入分类和IMPORT字段、不临时重选。任务分类保存为本地业务关联，不混供应商payload；M/API同源锁定，缺/冲突/失效时明确去编辑任务补齐，旧记录只读不因现配置失效而丢失。AI导入按原任务来源/导入资格独立读取，起呼可用资源目录不能误作导入目录；未知/终态/权限守卫保留并显示准确原因。入口模式、来源标识、五档、手动分配及开发包冻结保持。原56套/876结果是本次追加前候选证据，不替代修正后的重新验证。
+
+
+Step49实页反馈已实现：AI24采用独立导入资格和准确专业任务ID关联；仅缺省来源的准确旧场景可从真实任务来源只读继承，并捕获来源依据，不迁移原场景。mock/data.js只为原Task24/Scene12补明确本地租户、分类及双专业ID关联，不按名称猜或扩品牌。预外呼业务分类在任务向导/编辑配置保存，导入锁定自动带入；原PlatformUI导入布局、步骤、逐行检查编辑/有效子集二次核验和五档保留。实际HTTP已保存AI24合成1条、PRED合成2条，无新拨打；57套914候选通过，最终等待只读状态文案修正后的再次冻结验证。开发包继续未动。
+
+
+## 2026-11-01 Step51交互与名单展示修正
+
+Step51新表projection只为已存在事实返回businessCode/category/entrySource/businessExecutionPriority等；native历史原字段原样、新列缺失输出空。stable businessFlowRecordId/fourNodeRecordId关联可去重，普通native id/phone/name不跨namespace合并。

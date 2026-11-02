@@ -132,6 +132,74 @@ project-startup-plan.md保留原批准快照，不改盖旧摘要。acceptance-m
     write(AUTHOR/'assembly-counts.json',{'features':len(features),'acceptance':len(ac),'locals':len(locals_),'fields':len(fields),'checks':len(checks),'current_pages':len(upages),'original_operations':len(ps['retained_capability_specs'])})
     print('Prepared current product source',read(AUTHOR/'assembly-counts.json'))
 
+def current_entry_global_projection(plan, business, rules, locals_):
+    """Project the latest authored entry contract over historical summary prose.
+
+    Keep every invariant, flow/step identity and valid shared guard. Earlier
+    delta summaries remain applicable only when no current-entry source exists.
+    """
+    delta=business.get('entry_import_current_delta')
+    if not delta:return
+    rm={row['id']:row['statement'] for row in rules}
+    changes={row['id']:row['statement'] for row in delta['changes']}
+    lm={row['id']:row for row in locals_}
+    required_rules=['GR-NAVIGATION','GR-HANDLING-MODE','GR-FIELDS','GR-LOCAL-ROUTE','GR-ASSIGNMENT-SIMPLIFICATION','GR-EXECUTION-ARRANGEMENT','GR-DATA-FACTS','GR-PRIVACY','GR-LIFECYCLE-SETTLEMENT','GR-END-ACTION','GR-LIST-ORDER']
+    required_changes=['CHG-048-SCENE-SCHEMA','CHG-049-ENTRY-MODE','CHG-050-IMPORT-REQUEST','CHG-051-SIMPLE-IMPORT','CHG-052-DETAIL-REFUSAL','CHG-053-IMPORT-FEEDBACK','CHG-054-CURRENT-HTTP-FIXES']
+    if any(key not in rm for key in required_rules) or any(key not in changes for key in required_changes):
+        raise ValueError('Current entry summary needs complete authored rules and changes')
+    g=plan['logic']['global']
+    g['overview']='\n\n'.join(uniq([
+        '当前2.0.0按准确入口决定办理方式，原43个FUNC及222项专业能力的身份、对象与权限保持；以下只投影当前规范，不让旧增量摘要恢复已撤配置。',
+        rm['GR-NAVIGATION'],rm['GR-HANDLING-MODE'],changes['CHG-048-SCENE-SCHEMA'],
+        changes['CHG-051-SIMPLE-IMPORT'],rm['GR-ASSIGNMENT-SIMPLIFICATION'],
+        rm['GR-EXECUTION-ARRANGEMENT'],rm['GR-DATA-FACTS'],rm['GR-PRIVACY'],
+        rm['GR-LOCAL-ROUTE'],rm['GR-LIFECYCLE-SETTLEMENT'],
+        changes['CHG-052-DETAIL-REFUSAL'],changes['CHG-054-CURRENT-HTTP-FIXES'],delta['limits']]))
+    def replace_shared(prefix, value):
+        rows=g['shared_state_rules']
+        if value in rows:return
+        found=[i for i,text in enumerate(rows) if text.startswith(prefix)]
+        if len(found)!=1:raise ValueError('Current shared summary anchor changed: '+prefix)
+        rows[found[0]]=value
+    replace_shared('导入整批明确DIRECT/TEMPLATE。', changes['CHG-049-ENTRY-MODE']+' '+changes['CHG-048-SCENE-SCHEMA']+' '+changes['CHG-051-SIMPLE-IMPORT'])
+    replace_shared('仅TEMPLATE在正式导入/再次办理或DIRECT显式启用流程时创建run；',
+        'CATEGORY/TEMPLATE正式导入或合法再次办理才捕获当前方案并建run；TASK/DIRECT只建独立直接周期，不建run/node，也不能启用流程。仅旧无TASK来源历史DIRECT按LOCAL-FLOW-ENABLE-TEMPLATE的独立前置显式转换，不要求先完成周期，但原真实执行、正常必要归档及旧废弃可靠结清必须满足；旧事实不完成新节点。')
+    replace_shared('普通业务/历史列表更新时间倒序后分页；',rm['GR-LIST-ORDER']+' '+rm['GR-EXECUTION-ARRANGEMENT'])
+    replace_shared('END来源接续按可信原run/节点/租户/周期证明校验，',rm['GR-END-ACTION'])
+    replace_shared('当前演示流转台账采用schema4且已明确允许一次舍弃旧演示数据；',
+        '演示流转台账schema4及最初受控舍弃旧演示数据仅保原授权背景；本次资料更新/发布不新增清空、重置或迁移操作，生产工程不复制Mock重置机制。')
+    replace_shared('三入口业务IMPORT定义唯一：',changes['CHG-048-SCENE-SCHEMA'])
+    replace_shared('任务内新统一DIRECT仍须ADMIN+customer.import和原模块/任务/来源/分类准入，',
+        '任务新DIRECT须当前ADMIN+customer.import及原模块、准确任务/场景/分类/渠道资格，不读旧allowDirect开关授新资格；AI-only合法管理员无需Cloud菜单，运营不扩大导入写权。准确context.importLimits保原专业容量，超限明示分批，不截断。')
+    replace_shared('历史END来源合法不等本周期豁免：',
+        '旧END来源结构合法只证明原历史；仅准确record/owner/origin directCycleId的首MANUAL当前周期保原例外。'+lm['LOCAL-FLOW-RESUME-DIRECT']['steps'][0]['action'])
+    g['data_ownership'][2]='当前安排不设独立责任跟进人；人工由明确坐席及真实拨打/接听事实识别，AI系统归档主体不冒充人工；历史明确人员按原快照保留。谁实际办理/接听谁填写自己的准确段，管理/核对资格不能代填。'
+    flowmap={flow['id']:flow for flow in g['flows']}
+    def note(flow_id,index,local_id,text):
+        step=flowmap[flow_id]['steps'][index]
+        if step['local_id']!=local_id:raise ValueError('Current flow summary identity changed: '+flow_id)
+        step['action']=text
+    flowmap['FLOW-MAIN-DIRECT-FOLLOWUP']['name']='任务直接跟进：准确任务自动上下文→本次schema导入→同租户明确执行→归档及明确完成'
+    for index,lid,text in [
+        (0,'CATEGORY-EDIT','配置准备仅在任务/场景的准确关联缺失或失效时维护实际分类；已有有效关联从准确AI/预外呼任务入口直接使用，不要求每次编辑分类，不提供分类直接跟进开关。'),
+        (1,'IMPORT-MAP',changes['CHG-049-ENTRY-MODE']),
+        (2,'AI-SCENE','TASK初始方式/必要AI场景由准确任务自动带入锁定，不在导入重选或猜首项；后续合法调整按各自当前动作资格另核。'),
+        (3,'IMPORT-PREVIEW',changes['CHG-048-SCENE-SCHEMA']+' '+changes['CHG-051-SIMPLE-IMPORT']),
+        (4,'IMPORT-COMMIT','同一原请求保存批次/业务、TASK来源/渠道及准确任务/场景、DIRECT周期与规范业务值/独立参数快照；没有run/node/templateRef，不生成第二份专业业务或重复供应商提交。')]:
+        note('FLOW-MAIN-DIRECT-FOLLOWUP',index,'LOCAL-FLOW-'+lid,text)
+    flowmap['FLOW-MAIN-DIRECT-RESUME']['name']='直接完成后：重核当前来源资格→独立新直接周期→重新确认执行安排→明确呼叫'
+    note('FLOW-MAIN-DIRECT-RESUME',0,'LOCAL-FLOW-RESUME-DIRECT','；'.join(lm['LOCAL-FLOW-RESUME-DIRECT']['preconditions'])+'；'+lm['LOCAL-FLOW-RESUME-DIRECT']['steps'][0]['action'])
+    flowmap['FLOW-MAIN-ENABLE-TEMPLATE']['name']='仅旧无TASK历史DIRECT：原执行及归档结清→准确路由/资料预检→显式转换新run'
+    note('FLOW-MAIN-ENABLE-TEMPLATE',0,'LOCAL-FLOW-ENABLE-TEMPLATE','；'.join(lm['LOCAL-FLOW-ENABLE-TEMPLATE']['preconditions'])+'；'+lm['LOCAL-FLOW-ENABLE-TEMPLATE']['steps'][0]['action'])
+    note('FLOW-MAIN-DIRECT-CALL',2,'LOCAL-FLOW-AI-SCENE','CATEGORY/TEMPLATE实际首组为本租户AI CALL时才明确该组准确场景；首组识别不建record或发正式token，必要场景与正式schema齐全后再正式逐行检查。非AI及先转交路径不代选目标私有场景。')
+    note('FLOW-MAIN-DIRECT-CALL',3,'LOCAL-FLOW-IMPORT-PREVIEW',changes['CHG-048-SCENE-SCHEMA']+'；本链CATEGORY/TEMPLATE的正式纳入范围须全部通过，不因路由或资料失败转DIRECT。')
+    for fid,name in [('FLOW-MAIN-AI-TASK-IMPORT','AI任务导入：准确任务自动带入场景/分类→场景schema及逐行检查→DIRECT账本→原表回读'),('FLOW-MAIN-PRED-TASK-IMPORT','预外呼任务导入：准确任务分类/渠道自动带入→有效子集核验→DIRECT账本→原表回读')]:
+        flowmap[fid]['name']=name
+        for step in flowmap[fid]['steps']:
+            if step['local_id']=='LOCAL-PLAT-AI-IMPORT-TEMPLATE':step['action']='当前准确场景模板下载为可选准备；已有本次有效模板或直接粘贴时无需重复下载。'+changes['CHG-048-SCENE-SCHEMA']
+            if step['local_id']=='LOCAL-FLOW-IMPORT-PREVIEW':step['action']=changes['CHG-051-SIMPLE-IMPORT']+'；这是任务同一次检查内部复用，不增加第二套用户预检。'
+
+
 def build_plan():
     bs,ps,u=load_all();parts=[bs,ps];ws=AUTHOR/'规划工作区'
     plan=read(ws/'plan.json');inv=read(ws/'logic-inventory.json')
@@ -164,7 +232,7 @@ def build_plan():
             if s.startswith(('FIELD-','INTERFACE-','CATEGORY-','TEMPLATE-','ROUTE-')):return 'CATALOG'
             if s.startswith(('IMPORT-','ASSIGN','AI-SCENE')):return 'IMPORT'
             if s in ['START','START-BATCH','CALL-FACTS','SAVE-CONTENT','ARCHIVE','EVALUATE','ADVANCE','TRANSFER','END-HANDOFF']:return 'EXECUTION'
-            if s in ['CORRECT','ABANDON','REOPEN','RECLASSIFY','ENABLE-TEMPLATE','COMPLETE-DIRECT','RESUME-DIRECT']:return 'LIFECYCLE'
+            if s in ['CORRECT','ABANDON','ABANDONED-SETTLEMENT','REOPEN','RECLASSIFY','ENABLE-TEMPLATE','COMPLETE-DIRECT','RESUME-DIRECT']:return 'LIFECYCLE'
             if s in ['QUERY','BATCH-READ','DETAIL','CUSTOMER-TIMELINE','HANDLER-INBOX']:return 'BUSINESS-READ'
             return 'RECONCILE'
         s=lid.removeprefix('LOCAL-PLAT-')
@@ -193,12 +261,12 @@ def build_plan():
           'action':notes.get(n,lm['LOCAL-FLOW-'+x]['trigger']), 'local_id':'LOCAL-FLOW-'+x,
           'on_failure':'停留准确当前节点／归属，保留输入和事实；明确失败修正后重验，未知先核同次请求，不继续下游执行'} for n,x in enumerate(chain)],
           'source_keys':[],'test_refs':uniq([t for x in chain for t in lm['LOCAL-FLOW-'+x]['test_refs']])})
-    main_flow('FLOW-MAIN-DIRECT-CALL','模板本租户首CALL：确认路由→本租户AI先选场景→严格导入→分配跟进人→起呼→归档→确认后继',
+    main_flow('FLOW-MAIN-DIRECT-CALL','模板本租户首CALL：确认路由→严格导入及具体执行安排→起呼→归档→确认后继',
       ['ROUTE-BIND','IMPORT-MAP','AI-SCENE','IMPORT-PREVIEW','IMPORT-COMMIT','ASSIGN','START','CALL-FACTS','SAVE-CONTENT','ARCHIVE','EVALUATE','ADVANCE'],{
        0:'配置准备：业务分类必须有已确认兼容路由；尚未绑定／配置变化时由配置管理人办理，已有有效路由无需每次重新保存',
        2:'若本次直接进入本租户AI CALL，导入检查前必须选择本租户准确AI场景；非直接AI入口此处不要求场景',
        3:'逐行核导入字段和首次路径；直接AI场景与数据／schema／路由一起纳入确认依据，任何纳入行失败都不能正式导入',
-       5:'首个CALL方式已由路由及导入资料确定；当前管理员仅安排本租户责任跟进人，必要AI场景仍核原准确依据，不由分配改呼叫方式',
+       5:'首个CALL方式由路由及导入资料确定；若导入尚未安排，沿原单条/批量入口选择本租户具体任务或坐席、责任跟进人、必要AI场景和五档等级；已同次安排则读取同一权威安排，不重复分配或改方式',
        8:'只有实际人工拨打／接听的段由准确本人正式填写；纯AI或明确无人不生成假人工内容，由系统保存准确事实',
        9:'系统在所有呼叫／重试结束、必要内容和依赖证据齐备后唯一归档',
        11:'明确命中合法后继CALL／TRANSFER／END时由有权人确认推进到该节点；进入TRANSFER后另行判断和确认转交，不把进入节点当归属已切换；全不匹配留原节点，未知阻止继续'})
@@ -209,7 +277,7 @@ def build_plan():
        2:'仅DIRECT+AI必须明确本租户当前有效场景；非AI跳过，仍核实际专业能力',
        3:'逐行严格校验；仅豁免路由分流附加资料，不能豁免基础导入要求',
        4:'同次建立批次、业务、DIRECT模式/方式及首直接周期；无run、node或templateRef',
-       5:'只选择当前本租户跟进人，必要AI场景在同一安排入口明确，不改owner或自动呼叫',
+       5:'导入可同次明确本租户具体任务/坐席、跟进人、必要场景及五档等级；若选择稍后安排，沿原单条/批量手动分配入口补齐，不改owner或自动呼叫',
        6:'按准确directCycleId重核串行、本人/资源/场景和联系限制后明确起呼，真实受理不等于拨打',
        8:'准确实际办理/接听本人保存；快照、当前值和原段权限与模板模式保持同一要求',
        9:'全部真实终态、重试及必要本人内容可靠收敛后唯一归档；无模板节点推进或跨租户转交',
@@ -224,7 +292,7 @@ def build_plan():
        2:'按每行导入资料核首个转交方向和第一个CALL方式；来源租户不能替目标租户挑私有AI场景；目标承接或映射不明时不能靠任意场景兜底',
        4:'进入TRANSFER按导入／填写等准确条件有序判断；首次尚无执行段，不要求先拨打一通或制造跟进归档',
        5:'当前有权方确认合法HQ↔STORE目标；成功后同次切负责方、新增接续轮次并清旧安排，未知先核同次归属结果',
-       6:'目标租户管理员在新归属下另行分配责任跟进人；来源方不替目标指派人员',
+       6:'目标租户管理员在新归属下确认本节点的本租户默认安排或明确选择具体任务/坐席、责任跟进人及五档等级；来源方不替目标选择私有资源或人员',
        7:'目标首CALL为AI时，由目标租户有权成员选择本租户准确场景并核下游标签依赖；来源租户场景不沿用',
        10:'真实人工办理／接听人填写自己的准确段；无人或纯AI由系统按真实事实归档，不生成假人工确认',
        11:'系统在必要终态、重试、内容及依赖证据明确后唯一归档',
@@ -256,6 +324,34 @@ def build_plan():
     if bs.get('prototype_resume_delta'):
         plan['logic']['global']['overview']='五区、品牌字段与实际数据范围保持。正常导航仅核身份/普通草稿，不用电话phase拦离开。当前新TEMPLATE方案所有出口有唯一末位ELSE，选填IMPORT缺列只在可靠新输入捕获时规范化null，未知通话/填写仍PENDING。条件优先、即时编辑与无环保存不改变已捕获事实。CURRENT分支只在本租户确认后继，OTHER才按原合法锚定转交。END明确CLOSE或DIRECT_FOLLOWUP，先结束原run，再关闭或在同业务/当前tenant建立无模板人工周期，不自动起呼；合法END来源与普通DIRECT准入开关分开，DIRECT无当前run/节点引用但可保已结束历史。普通DIRECT/直接完成和再次跟进、启用流程仍按现行资格、事实和快照规则办理；人工/预外呼路由使用准确客户侧SIP结果，原AI及222专业能力不被混用。'
         plan['logic']['global']['shared_state_rules']+=['END来源接续按可信原run/节点/租户/周期证明校验，不能由前端伪造以绕普通DIRECT开关；CLOSE不产生新直接周期或成交推断。','当前演示流转台账采用schema4且已明确允许一次舍弃旧演示数据；这不是生产数据清空或旧业务兼容需求，工程不复制Mock重置机制。']
+    if bs.get('execution_arrangement_delta'):
+        plan['logic']['global']['overview']+=' TEMPLATE与DIRECT均可在导入或原手动单条/批量分配中明确具体AI/预外呼任务或人工坐席、责任跟进人及五档执行优先级，默认中；模板CALL给默认等级及分租户安排。实际起呼重核准确resourceId；同号与同资源均使用五档降序、入队时间/稳定序号FIFO、稳定业务ID的同一总序，独立资源可办理，不抢占在途。旧分类0～999仅保历史/原专业兼容，当前UI只读且不参与新排序。'
+        plan['logic']['global']['shared_state_rules']=[text.replace('普通列表更新时间倒序后分页；分支、字段、选项和时间线维持其业务语义顺序。','普通业务/历史列表更新时间倒序后分页；待执行推荐视图按同资源五档及入队FIFO，分支、字段、选项和时间线维持其业务语义顺序。') for text in plan['logic']['global']['shared_state_rules']]
+        plan['logic']['global']['shared_state_rules']+=['具体任务/坐席、责任跟进人、必要场景、五档等级及入队事实在同一执行安排保存；明确安排可覆盖本租户节点默认，失效或并发变化保草稿重验。导入未安排时保原手动分配入口，不自动起呼。','同号与同资源遵循同一五档/FIFO总序，旧分类权重不夹在等级与FIFO之间；资源不可用、未到联系时间或其他准入失败时显示原因，不能绕限制抢占或自动续拨。']
+    if bs.get('execution_assignment_simplification'):
+        plan['logic']['global']['overview']+=' 当前Step43修正：人工默认MANUAL人工分配，可无seat先保存模板/导入待分配；SPECIFIC_SEAT指定坐席才必选有效seat，实际起呼前再落实且仅本人办理。预外呼只任务，AI任务+scene；模板默认、导入和分配无独立责任人控件，新AI/PRED不伪填actor为负责人。实际人员由seat分配/真实发起拨打接听记录，历史不回改，删除person必填不放宽任何任务/模块/租户权限。'
+        plan['logic']['global']['overview']=plan['logic']['global']['overview'].replace('明确具体AI/预外呼任务或人工坐席、责任跟进人及五档执行优先级','按方式确认具体任务或人工分配方式/坐席及五档执行优先级')
+        plan['logic']['global']['shared_state_rules']=[text.replace('具体任务/坐席、责任跟进人、必要场景、五档等级及入队事实','本方式任务或人工分配方式/坐席、必要场景、五档等级及入队事实') for text in plan['logic']['global']['shared_state_rules']]
+        plan['logic']['global']['shared_state_rules']+=['人工MANUAL可先待分配，SPECIFIC_SEAT才必选seat；PRED只任务、AI任务+scene，不依赖独立assignedAccountId/followupAccountId。人工实际责任从seat账号派生，实际actor、拨打、接听及archiver分别保事实。']
+        plan['logic']['global']['shared_state_rules']=[text.replace('CURRENT本租户路径保持owner/run/租户阶段及既有安排和封存结果，只确认合法后继','CURRENT本租户路径保持owner/run/租户阶段和封存结果，执行安排按后继节点本次策略：新MANUAL清前seat并待分配，SPECIFIC_SEAT才可按本节点/同tenant/method及有效资源沿用或确认；旧无策略快照保原解释') for text in plan['logic']['global']['shared_state_rules']]
+        for flow in flows:
+            flow['name']=flow['name'].replace('重新分人','重新安排执行').replace('分配跟进人','确认执行安排')
+            for step in flow['steps']:
+                if step['local_id']=='LOCAL-FLOW-ASSIGN':step['action']='按当前负责租户和已确定方式确认执行安排；人工MANUAL可先待分配，SPECIFIC_SEAT才必选seat；PRED只任务、AI任务+scene，不选择独立责任人。导入已同次安排的读取同一权威安排，不强制重复操作。'
+                if step['local_id'] in ['LOCAL-FLOW-ADVANCE','LOCAL-FLOW-TRANSFER']:step['action']+='；后继新人工节点先服从本次策略：MANUAL明确待分配，不继承前seat；SPECIFIC_SEAT仅按本节点及同tenant/method有效资源沿用或确认；旧无策略快照不迁移'
+    if bs.get('task_import_delta'):
+        plan['logic']['global']['overview']+=' 当前Step44：客户维护、AI任务及预外呼任务三入口共用实际分类IMPORT及code等系统必需schema。AI场景只保存fieldId到供应商参数映射，固定专业项保留；任务内以原ADMIN+customer.import、模块/任务/来源及分类DIRECT准入固定当前task/scene创建统一业务/直接周期。完整值、定义/原始证据、taskImportSource、逐行参数快照和五档同次保存；专业名单只读recordId投影，不写新原生行或重复提交供应商。场景可独立于模板DIRECT，旧专业/业务历史不迁移，同号不自动认领。'
+        plan['logic']['global']['shared_state_rules']+=['三入口业务IMPORT定义唯一：系统code/姓名/号码及分类必填/类型/选项/映射校验共用，FOLLOWUP排除；AI任务从场景实际分类取，预外呼明确本次分类，不能按同名、手机号或旧场景自由定义补造。','任务内新统一DIRECT仍须ADMIN+customer.import和原模块/任务/来源/分类准入，AI-only合法管理员不需Cloud菜单，ops不扩导入写权。准确context.importLimits保原专业容量，超限明示分批不截断。','统一记录只写一个权威账本；taskImportSource及单行taskImportParameterSnapshot/原始证据/批次同请求封存，专业名单按recordId只读投影。旧原生行无可靠回链不按手机号认领，不再写一份原生新行或重复供应商提交。']
+        for ident,name,chain in [
+          ('FLOW-MAIN-AI-TASK-IMPORT','AI任务独立导入：准确场景分类→共同校验→统一DIRECT业务→只读任务投影',['LOCAL-PLAT-AI-TASK-QUERY','LOCAL-PLAT-AI-IMPORT-TEMPLATE','LOCAL-FLOW-IMPORT-PREVIEW','LOCAL-PLAT-AI-LIST-IMPORT','LOCAL-FLOW-IMPORT-COMMIT','LOCAL-PLAT-AI-TASK-QUERY']),
+          ('FLOW-MAIN-PRED-TASK-IMPORT','预外呼任务独立导入：原来源锁定→分类IMPORT→统一DIRECT业务→只读任务投影',['LOCAL-PLAT-CLOUD-TASK-QUERY','LOCAL-FLOW-IMPORT-PREVIEW','LOCAL-PLAT-CLOUD-TASK-IMPORT','LOCAL-FLOW-IMPORT-COMMIT','LOCAL-PLAT-CLOUD-TASK-QUERY'])]:
+            flows.append({'id':ident,'name':name,'steps':[{'id':ident+'-STEP-'+str(n+1),'actor':'系统' if lid=='LOCAL-FLOW-IMPORT-COMMIT' else '用户','action':lm[lid]['trigger']+('；由任务入口同一次确认内部复用统一提交，不增加第二次用户确认或供应商提交' if lid=='LOCAL-FLOW-IMPORT-COMMIT' else '；按当前任务/分类/来源准确上下文，读取/查看不授导入写权'),'local_id':lid,'on_failure':'保准确任务、原输入和已生效事实；缺权/源锁定/过期预检不提交，未知核同请求，不重造业务或原生行'} for n,lid in enumerate(chain)],'source_keys':[],'test_refs':uniq([t for lid in chain for t in lm[lid]['test_refs']])})
+    if bs.get('lifecycle_audit_delta'):
+        plan['logic']['global']['overview']+=' Step45将正常archive与可靠受控废弃结清分开：缺必要本人内容仅当前ownerADMIN确认无法补填+原因/准确run/本tenant缺失指纹及版本，真实执行停止/重试/unknown/冲突收敛后可ABANDONED，保缺失未完成，不代填或计正常完成。历史旧弃确认只改该旧段证据/事件/修订，不改当前DIRECT/run/exec/字段；旧本人后补或合法结清不永久卡后继。END历史结构与准确首MANUAL当期例外分开，resume新周期核分类。停止请求不是真停止，原受理迟到事实仍归原ID计数，不授新派发或提前解锁。'
+        plan['logic']['global']['overview']+=' Step46允许按scene/platform独立配置IMPORT_FIELD引用及CUSTOM_COLUMN专属供应商列，同业务字段可映多个不同参数。业务定义仍从分类权威读取，专属定义/规范值与参数快照独立，不混record.fields；选择/配置均弹窗，子确认只入父草稿，主保存才持久，取消不升级旧配置。'
+        plan['logic']['global']['overview']+=' Step47仅把既有AI字段配置呈现收口为主场景唯一添加字段→来源选择→导入字段或手工添加；手工沿线上添加场景信息布局及radio，类型次要行保留，不改schema2或业务规则。'
+        plan['logic']['global']['shared_state_rules']+=['正常归档与异常废弃结清是不同判据，不用所有历史seg.archived=true一概阻后继；当前正常必要内容/执行仍满足原条件，缺失确认不贡献正常完成数或豁免实质冲突。','仅当前ownerADMIN可确认本tenant准确旧ABANDONED段缺失；runId/confirmationFingerprint/expectedRevision一起核，不要求当前mode=TEMPLATE，不修改当前DIRECT/运行/执行安排/字段；其它tenant欠项不代确认。','历史END来源合法不等本周期豁免：只有准确origin首MANUAL当前cycle可用，resume任何新cycle重核当前分类允许。','ABANDONING禁止新派发但接收原已受理未可靠关闭的准确seg/attempt真实事实；停止受理不是真停止，原事实去重计数不挂新run、不提前释放，已闭未知新attempt仍原拒/冲突规则。']
+    current_entry_global_projection(plan, bs, rules, locals_)
     # Source inventory is mechanical; mappings below use explicit stable IDs and authored page/action/local relations.
     coverage=[]
     ac_to_checks=defaultdict(list)

@@ -1,0 +1,679 @@
+{
+  "schema": "step54-fixes-report-draft@1",
+  "generatedAt": "2026-11-02T12:41:50.587984+08:00",
+  "authorScope": "Read-only comparison and /tmp draft only; no source/planning/project docs/package writes",
+  "notAFullAcceptanceResult": true,
+  "countingPolicy": "按可靠根因链与展示主题分组；不从group数量推出缺陷总数，不把构建产物更新、fixture错误或无效观察计为新增业务缺陷。",
+  "freezeComparison": {
+    "baseline": "memory/offline-e2e-audit-20261101/freeze-baseline.json",
+    "baselineRuntimeKey": "productBeforeAudit (root task中runtimeBefore的实际字段)",
+    "requirementFiles": 9,
+    "changedRequirements": [],
+    "baselineProductFiles": 71,
+    "changedExistingRuntimeFiles": [
+      {
+        "path": "index.html",
+        "before": "8cf742c035a4213c7301590dad0ef16b4ef52b869ef3100c3cf093c3f5f92fdc",
+        "after": "5c42446a4ee4b0bedfa493039ef1eda312318e78dc96ca7795abce1537b4adad"
+      },
+      {
+        "path": "js/adapters/four-node-execution.js",
+        "before": "f5ce15c5e43025d87ea4ed7c3dab59822a02eed4c8d349b64e6133d2868a0b79",
+        "after": "92538d255555e953fa59401790ec47511443a34eff3cbd1e406933caa4eedc53"
+      },
+      {
+        "path": "js/adapters/four-node-workspace.js",
+        "before": "20bbee1163e4f0c87b1c7cea8198179bd6568fbb7d1d7f2cdddc92ac8b9543ff",
+        "after": "f6809f4a5dcff8d8597e58ac65b96a8b428fc33cbbba706150b288b83ade3a97"
+      },
+      {
+        "path": "js/adapters/task-business-import.js",
+        "before": "60ecb2eb6f235693253fa89fbd4cf3097e3c5f49c39750246929bd1dd8950a95",
+        "after": "c04888dc37ffb1f09c05907962b2f25c79509fa7f1518e43cbe2cfffdfd46c01"
+      },
+      {
+        "path": "js/components/module-host.js",
+        "before": "325972de05577856e9bf3ecdddff2b27f8494618fe236970faf3ca7d64c98de4",
+        "after": "3ebc3cb7ce3c9a48f5efbbd8100951c2b1609abde958478c5b6cdeb61dd7fdd5"
+      },
+      {
+        "path": "js/components/session-store.js",
+        "before": "df00d346656e05b2f2cd654a7385146f7632769399b9d81a138747729b6fec51",
+        "after": "80e546714eef39e9ec1397743b426271ada87236722eee53639e01c3765b176a"
+      },
+      {
+        "path": "js/modules/ai.bundle.js",
+        "before": "25edad6b70ed1f53d0f6b37cfc5e231432d50201e60583113a1da6cef087d0be",
+        "after": "7d9af90842e19ea79c642e7d77884c06d908d9028e071d60874970aa411a6933"
+      },
+      {
+        "path": "js/modules/cloud.bundle.js",
+        "before": "a64bf80138eb449b182980fd98ca54a6c30947844e54b26d96b375a1fed59b3a",
+        "after": "4e0bf158158fc09c65cc9df0445245d4f1ad576a76d3e4c1d5a1d7f08f415313"
+      }
+    ],
+    "addedRuntimeFiles": [
+      {
+        "path": "js/adapters/ai-task-directory.js",
+        "sha256": "da290a257cb0d90b70c8fd20591c37b01adaf4ebb1424b81f5b22ff5e7e7cf7d"
+      }
+    ],
+    "missingRuntimeFiles": [],
+    "generatedArtifactNote": "index.html变化含当前脚本/样式内容指纹注册，ai/cloud bundle为源码重新构建，不单计缺陷。",
+    "scriptComparisonLimit": "初始71文件runtime快照未包含scripts/，故脚本文件只列归因来源和当前SHA，不声称有逐文件初始脚本diff。"
+  },
+  "confirmedRootCauseGroups": [
+    {
+      "id": "AI-DIRECTORY",
+      "title": "已确认的厚朴既有专业任务未进入原任务目录",
+      "classification": "confirmed-product-defect",
+      "severity": null,
+      "severityNote": "未独立定级，交由root按实际影响判断；组数不等于缺陷条数。",
+      "rootCause": "保存查询成功的HP004场景只持久化sceneRows，原任务卡片和currentWorkflowTasks仅遍历MockSceneList；既有专业任务事实未被准确关联到该同一入口。修复为无写入的准确投影，非创建供应商任务。",
+      "sourceFiles": [
+        "js/adapters/ai-task-directory.js",
+        "scripts/ai_task_directory_build.py",
+        "js/components/module-host.js",
+        "scripts/build-modules.py"
+      ],
+      "beforeEvidence": [
+        {
+          "tag": "ai-04-scene-saved",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-04-scene-saved.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-04-scene-saved.png",
+          "observationValid": null,
+          "observed": "Parent save returnedSceneSaved toast; new QA54 scene should be verified from list and fresh reload, not toast alone."
+        },
+        {
+          "tag": "ai-05-scene-reload-mapping",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-05-scene-reload-mapping.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-05-scene-reload-mapping.png",
+          "observationValid": null,
+          "observed": "Browser reload preserved newHP scene19/HP-SCENE-004, category, manual source, budgetext1 and scene-onlyremark mapping."
+        },
+        {
+          "tag": "ai-06-missing-task-by-scene",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-06-missing-task-by-scene.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-06-missing-task-by-scene.png",
+          "observationValid": null,
+          "observed": "Saved+reloaded HP004 scene exists, but AI task query exact scene name returns no task; current flow cannot reach task import."
+        },
+        {
+          "tag": "ai-07-missing-task-by-remote",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-07-missing-task-by-remote.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-07-missing-task-by-remote.png",
+          "observationValid": null,
+          "observed": "Query existing linked task HP-DEMO-售后满意度回访 also returns no card, after confirmed saved/reloaded sceneHP-SCENE-004; precise task-directory continuity defect."
+        }
+      ],
+      "afterEvidence": [
+        {
+          "tag": "ai-08-directory-fixed",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-08-directory-fixed.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-08-directory-fixed.png",
+          "observationValid": null,
+          "observed": "Fresh runtime now exposes exactlyQA54 scene task, unstarted/manual, unknown supplier countersPending; original tasks retained."
+        },
+        {
+          "tag": "ai-09-exact-task-detail",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-09-exact-task-detail.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-09-exact-task-detail.png",
+          "observationValid": null,
+          "observed": "Recovered task detail shows exactHP004 taskId/account/remoteName/bot, not task24; supplier counters remainPending."
+        },
+        {
+          "tag": "ai-10-dynamic-import-context",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-10-dynamic-import-context.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-10-dynamic-import-context.png",
+          "observationValid": null,
+          "observed": "New exact task opens shared importer with lockedQA54 category and5 scene-derived columns: code/name/phone/budget/supplierRemark, no scene/category reselect."
+        },
+        "memory/http-e2e-acceptance-20261101/step54-ai-task-directory-source.json",
+        "memory/http-e2e-acceptance-20261101/regression-final/check-ai-task-directory.json"
+      ],
+      "preservedGuards": [
+        "精确tenant/brand/native-owner/account/taskId/唯一场景，不按名称猜测",
+        "原001–003卡片、状态与对象保留",
+        "稳定字符串身份、安全onclick/lookup、冷读/删除/改绑无幽灵派生行",
+        "实时remote状态；未知受理/拨打统计不补0"
+      ],
+      "impact": "已保存场景无法继续进入任务导入和执行，是实际完整链断点。"
+    },
+    {
+      "id": "AI-EXECUTION",
+      "title": "任务导入和明确执行的资格及配置指纹口径不一致",
+      "classification": "confirmed-product-defect",
+      "severity": null,
+      "severityNote": "未独立定级，交由root按实际影响判断；组数不等于缺陷条数。",
+      "rootCause": "同一原生明确未启动状态被raw status=unknown占位再次拒绝；私有导入保存原catalog完整scene包装FP，而无标签依赖执行用底层executionFP；任务导入basis多了已知成功准入字段且键序不同。三个表示/资格差异连续阻断同一完整链，不作为三个独立业务功能缺陷夸大统计。",
+      "sourceFiles": [
+        "js/adapters/four-node-execution.js"
+      ],
+      "beforeEvidence": [
+        {
+          "tag": "ai-14-imported-needs-scene-review",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-14-imported-needs-scene-review.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-14-imported-needs-scene-review.png",
+          "observationValid": null,
+          "observed": "New exact task saved2uniqueDIRECT rows in original list, but work stateNeedsAISceneReview, so execution continuity still needs diagnosis; not markedcomplete."
+        },
+        {
+          "tag": "ai-15-execution-signature-mismatch",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-15-execution-signature-mismatch.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-15-execution-signature-mismatch.png",
+          "observationValid": null,
+          "observed": "Immediately after successful unchanged-scene task import, both records areNeedsAISceneReview withSceneConfigChanged, so start blocked despite exact same scene/category/task. No source config edit after import."
+        },
+        {
+          "tag": "ai-16-execution-directory-empty",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-16-execution-directory-empty.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-16-execution-directory-empty.png",
+          "observationValid": null,
+          "observed": "Assignment diagnosis without changing fields: scene selected but task invalid/out-of-scope placeholder and no current resource candidates. No reassignment saved to mask import defect."
+        },
+        "memory/http-e2e-acceptance-20261101/step54-ai-chain-before.json"
+      ],
+      "afterEvidence": [
+        {
+          "tag": "ai-17-unchanged-records-ready",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-17-unchanged-records-ready.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-17-unchanged-records-ready.png",
+          "observationValid": null,
+          "observed": "After adapter fix and reload, untouched imported001 isReadyToCall,002blocked onlyFIFO; originalupdatedAt unchanged and saved supplier values retained, no manual reselection."
+        },
+        {
+          "tag": "ai-19-active-reload",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-19-active-reload.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-19-active-reload.png",
+          "observationValid": true,
+          "observed": "Current build restored same accepted AI followup after browser reload; no new call or segment was created by viewing."
+        },
+        {
+          "tag": "ai-20-system-archive-snapshot",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-20-system-archive-snapshot.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-20-system-archive-snapshot.png",
+          "observationValid": true,
+          "observed": "AI archived snapshot shows system content subject; empty obsolete responsible-person field omitted, imported data retained."
+        },
+        {
+          "tag": "ai-21-direct-completed",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-21-direct-completed.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-21-direct-completed.png",
+          "observationValid": true,
+          "observed": "AI001 completed localMock full chain with system archive and explicitOther conclusion; sourceTask/DIRECT and values retained."
+        },
+        "memory/http-e2e-acceptance-20261101/regression-final/check-task-import-execution-chain.json"
+      ],
+      "preservedGuards": [
+        "权威状态未知/null仍拒绝，PRED规则不变",
+        "新导入使用相同执行配置口径；TEMPLATE标签依赖保全FP",
+        "旧schema2 TASK DIRECT必须完整身份及已知wrapper/basis可证明等价，不写回历史快照",
+        "映射/来源/模板/任务状态/未知额外keys/schema/未知联系事实继续拒绝",
+        "新旧表示仍服从同任务FIFO"
+      ],
+      "impact": "两条未修改场景的已导入业务被错误要求重选，且任务候选为空；修后原记录不重选即可明确发起。"
+    },
+    {
+      "id": "TASK-IMPORT-VIEW",
+      "title": "任务导入成功与失败剩余行的反馈未同步原始事实",
+      "classification": "confirmed-product-view-defect",
+      "severity": null,
+      "severityNote": "未独立定级，交由root按实际影响判断；组数不等于缺陷条数。",
+      "rootCause": "部分成功后剩余编辑行重新编号，原检查或文件物理行依据未就近标注；完成后controls状态变更但关闭按钮仍保留取消文案。修复保留原消息并显式标注检查时原始行，刷新结束态文案。",
+      "sourceFiles": [
+        "js/adapters/task-business-import.js"
+      ],
+      "beforeEvidence": [
+        {
+          "tag": "pred-07-partial-saved",
+          "dom": "memory/http-e2e-acceptance-20261101/pred-07-partial-saved.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/pred-07-partial-saved.png",
+          "observationValid": null,
+          "observed": "Exactly1DIRECT record saved; bad-name row retained, High priority preserved. UI inconsistency: displayed current row2 but retained schema message still refers original row3."
+        },
+        {
+          "tag": "pred-10-resumed-saved",
+          "dom": "memory/http-e2e-acceptance-20261101/pred-10-resumed-saved.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/pred-10-resumed-saved.png",
+          "observationValid": null,
+          "observed": "Failed002 successfully continued; input/check/submit disabled and saved status visible. Footer still saysCancel instead ofClose, a visible stale-caption defect queued for fix."
+        },
+        "memory/http-e2e-acceptance-20261101/step54-partial-line-before.json"
+      ],
+      "afterEvidence": [
+        {
+          "tag": "pred-08-partial-restored",
+          "dom": "memory/http-e2e-acceptance-20261101/pred-08-partial-restored.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/pred-08-partial-restored.png",
+          "observationValid": null,
+          "observed": "Closed with keep-draft and reopened same task: only QA54-PRED-002 remains; successful001 not repeated; priorityHigh retained."
+        },
+        {
+          "tag": "pred-09-repaired-ready",
+          "dom": "memory/http-e2e-acceptance-20261101/pred-09-repaired-ready.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/pred-09-repaired-ready.png",
+          "observationValid": null,
+          "observed": "Retained failed row edited; old token invalidated; fresh preview1valid0failed, confirmation enabled, successful001 not in this submission."
+        },
+        {
+          "tag": "pred-11-original-list",
+          "dom": "memory/http-e2e-acceptance-20261101/pred-11-original-list.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/pred-11-original-list.png",
+          "observationValid": null,
+          "observed": "Original task table has exactly001 and002 once, priorityHigh and correct batch; total2 while accepted0/calls0, no fake execution."
+        },
+        {
+          "tag": "ai-13-imported-close-fixed",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-13-imported-close-fixed.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-13-imported-close-fixed.png",
+          "observationValid": null,
+          "observed": "Exact new task import saved2DIRECT records, no call; successful footer nowClose rather thanCancel, validating caption fix in live sharedAI UI."
+        },
+        {
+          "tag": "file-02-csv-partial-origin-fixed",
+          "dom": "memory/http-e2e-acceptance-20261101/file-02-csv-partial-origin-fixed.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/file-02-csv-partial-origin-fixed.png",
+          "observationValid": true,
+          "observed": "CSV valid000054003 saved once; retained bad000054004 current row2 explicitly identifies original fileline4; no silent code conversion."
+        },
+        {
+          "tag": "file-03-csv-origin-restored",
+          "dom": "memory/http-e2e-acceptance-20261101/file-03-csv-origin-restored.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/file-03-csv-origin-restored.png",
+          "observationValid": true,
+          "observed": "Kept and reopened failedCSV draft; current row2 still correctlypoints to original physicalline4 and successful003 is not resubmitted."
+        },
+        "memory/http-e2e-acceptance-20261101/step54-partial-line-after.json",
+        "memory/http-e2e-acceptance-20261101/regression-final/check-simple-task-import-ui.json"
+      ],
+      "preservedGuards": [
+        "成功行封存不重导、失败草稿续入",
+        "原错误消息及供应商行号不被猜测改写",
+        "CSV空行/前导零真实解析依据保留",
+        "编辑使token失效，未知原请求身份及有效子集守卫不变"
+      ],
+      "impact": "用户难判断错误对应哪一行及当前是否已经保存，容易误认按钮无效或重复提交。"
+    },
+    {
+      "id": "CATEGORY-PREFLIGHT-VIEW",
+      "title": "分类导入准备阶段数量和未配置路由提示误导",
+      "classification": "confirmed-product-view-defect",
+      "severity": null,
+      "severityNote": "未独立定级，交由root按实际影响判断；组数不等于缺陷条数。",
+      "rootCause": "用于字段推导的单条schema探针被显示成真实名单数量；尚未关联路由和已引用模板不存在共用失真提示。分别改为检查后确定数量与精确维护指引，原未配置阻断保留。",
+      "sourceFiles": [
+        "js/adapters/four-node-workspace.js"
+      ],
+      "beforeEvidence": [
+        {
+          "tag": "cat-03-unconfigured-import-blocked",
+          "dom": "memory/http-e2e-acceptance-20261101/cat-03-unconfigured-import-blocked.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cat-03-unconfigured-import-blocked.png",
+          "observationValid": null,
+          "observed": "Saved QA54 category without route; category import locks category/TEMPLATE, disables check/submit and clearly blocks missing workflow. No direct-mode escape."
+        },
+        {
+          "tag": "cat-08-empty-import",
+          "dom": "memory/http-e2e-acceptance-20261101/cat-08-empty-import.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cat-08-empty-import.png",
+          "observationValid": null,
+          "observed": "Bound category imports fixedTEMPLATE with5 dynamic columns and manual assignment/Highest. Empty roster incorrectly shows group1 row from field-inference placeholder; presentation fix queued."
+        },
+        "memory/http-e2e-acceptance-20261101/step54-category-count-before.json"
+      ],
+      "afterEvidence": [
+        {
+          "tag": "cat-10-empty-count-fixed",
+          "dom": "memory/http-e2e-acceptance-20261101/cat-10-empty-count-fixed.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cat-10-empty-count-fixed.png",
+          "observationValid": null,
+          "observed": "After current build/reload, empty import arrangement saysCheckToDetermineCount, no fictional1 row."
+        },
+        {
+          "tag": "cat-11-numeric-rejected",
+          "dom": "memory/http-e2e-acceptance-20261101/cat-11-numeric-rejected.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cat-11-numeric-rejected.png",
+          "observationValid": null,
+          "observed": "Category mandatory numeric budgetabc rejected with exactrow/column; confirm remains disabled, no business record created."
+        },
+        {
+          "tag": "cat-12-count-invalidated",
+          "dom": "memory/http-e2e-acceptance-20261101/cat-12-count-invalidated.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cat-12-count-invalidated.png",
+          "observationValid": null,
+          "observed": "Successful preview showed actual2 rows. Editing roster clears old count/token back toCheckToDetermineCount and disables confirm."
+        },
+        {
+          "tag": "cat-28-unconfigured-route-fixed",
+          "dom": "memory/http-e2e-acceptance-20261101/cat-28-unconfigured-route-fixed.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cat-28-unconfigured-route-fixed.png",
+          "observationValid": true,
+          "observed": "从回访分类发起导入精确提示尚未配置模板，不再误报已删除；确认禁用"
+        },
+        "memory/http-e2e-acceptance-20261101/step54-category-count-after.json",
+        "memory/http-e2e-acceptance-20261101/regression-final/check-execution-arrangement-workspace.json"
+      ],
+      "preservedGuards": [
+        "空名单不创建业务、不补假1行",
+        "修改名单重新检查数量和token",
+        "分类入口固定TEMPLATE，无DIRECT绕行",
+        "确有引用而模板缺失时仍保真实错误"
+      ],
+      "impact": "空输入被误报1条；未配置分类被误报关联流程已不存在，用户维护方向不清。"
+    },
+    {
+      "id": "CURRENT-RUN-QUEUE",
+      "title": "新运行未分配却残留上次运行排队事实",
+      "classification": "confirmed-product-logic-and-view-defect",
+      "severity": null,
+      "severityNote": "未独立定级，交由root按实际影响判断；组数不等于缺陷条数。",
+      "rootCause": "排队时间和顺序曾从记录级旧安排回落到新运行，未明确当前run/node/有效安排归属；新运行与旧未分配残留可能被当成已入队。修复按当前安排/运行读取，保留旧封存历史。",
+      "sourceFiles": [
+        "scripts/four-node-model.js",
+        "js/adapters/four-node-workspace.js",
+        "scripts/four_node_model_build.py"
+      ],
+      "beforeEvidence": [
+        "memory/http-e2e-acceptance-20261101/step54-reopen-queue-before.json",
+        "memory/http-e2e-acceptance-20261101/step54-reopen-queue-ui-before.json"
+      ],
+      "afterEvidence": [
+        {
+          "tag": "cat-25-new-run-after-abandon",
+          "dom": "memory/http-e2e-acceptance-20261101/cat-25-new-run-after-abandon.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cat-25-new-run-after-abandon.png",
+          "observationValid": null,
+          "observed": "Explicit re-open created new independent run after controlled abandonment, reset to manual assignment without new call; old missing content and prior call remain historical."
+        },
+        {
+          "tag": "cat-26-reopen-cleanup",
+          "dom": "memory/http-e2e-acceptance-20261101/cat-26-reopen-cleanup.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cat-26-reopen-cleanup.png",
+          "observationValid": null,
+          "observed": "New run was created without new call, then explicitly abandoned as unexecuted synthetic cleanup. Old required-content omission and one original attempt preserved."
+        },
+        {
+          "tag": "cat-27-unqueued-display-fixed",
+          "dom": "memory/http-e2e-acceptance-20261101/cat-27-unqueued-display-fixed.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cat-27-unqueued-display-fixed.png",
+          "observationValid": null,
+          "observed": "Current build respects empty queue time for no current arrangement; old abandoned run histories/calls remain."
+        },
+        "memory/http-e2e-acceptance-20261101/step54-reopen-queue-ui-after.json",
+        "memory/http-e2e-acceptance-20261101/step54-reopen-queue-current-built-summary.json",
+        "memory/http-e2e-acceptance-20261101/regression-final/check-execution-arrangement.json"
+      ],
+      "preservedGuards": [
+        "不迁移、不删除旧执行/缺失内容/队列历史",
+        "当前同资源重存仍保已有FIFO",
+        "新运行需重新分配且不自动起呼",
+        "受控废弃及实际办理人必填约束保持"
+      ],
+      "impact": "当前排队事实可能引用旧运行，影响列表显示和新安排顺序。"
+    },
+    {
+      "id": "WORKSPACE-RESTORE",
+      "title": "独立业务名单刷新回读到旧导入批次",
+      "classification": "confirmed-product-session-defect",
+      "severity": null,
+      "severityNote": "未独立定级，交由root按实际影响判断；组数不等于缺陷条数。",
+      "rootCause": "会话恢复将PAGE-2226独立业务列表当成必须带批次身份的上下文页，合法空过滤位置回落到PAGE-2204并带回原批次；只修独立列表恢复资格，详情仍需准确记录。",
+      "sourceFiles": [
+        "js/components/session-store.js",
+        "index.html"
+      ],
+      "beforeEvidence": [
+        "memory/http-e2e-acceptance-20261101/qa54-session-restore-repro.json",
+        "memory/http-e2e-acceptance-20261101/step54-workspace-position-before.json"
+      ],
+      "afterEvidence": [
+        {
+          "tag": "cross-03-before-restore-fix-reload",
+          "dom": "memory/http-e2e-acceptance-20261101/cross-03-before-restore-fix-reload.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cross-03-before-restore-fix-reload.png",
+          "observationValid": null,
+          "observed": "Actual main menu nowPAGE2226 and broad32records, no batch. Reload next checks repaired session contract."
+        },
+        {
+          "tag": "cross-04-main-restore-fixed",
+          "dom": "memory/http-e2e-acceptance-20261101/cross-04-main-restore-fixed.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/cross-04-main-restore-fixed.png",
+          "observationValid": null,
+          "observed": "After actual menu2226→browserreload, URL remains2226 and independent business list remains broad32, no oldAI batch restored."
+        },
+        "memory/http-e2e-acceptance-20261101/step54-workspace-position-after.json",
+        "memory/http-e2e-acceptance-20261101/regression-final/check-workspace-position.json"
+      ],
+      "preservedGuards": [
+        "记录详情仍要求recordId",
+        "批次位置保原准确批次",
+        "账号/租户隔离和权限撤回仍复核",
+        "不迁移或清除旧会话位置"
+      ],
+      "impact": "用户从独立业务名单刷新后位置和过滤范围改变，难以找到当前完整名单。"
+    },
+    {
+      "id": "AI-ARCHIVE-RESPONSIBILITY-VIEW",
+      "title": "AI系统归档快照沿用空责任跟进人字段",
+      "classification": "confirmed-product-view-defect",
+      "severity": null,
+      "severityNote": "未独立定级，交由root按实际影响判断；组数不等于缺陷条数。",
+      "rootCause": "AI无独立责任跟进人的现行模型仍使用旧责任字段表格行，空值展示使系统归档主体语义不清。仅在无明确AI责任事实时省略旧空行，历史明确人名/标签保留。",
+      "sourceFiles": [
+        "js/adapters/four-node-workspace.js"
+      ],
+      "beforeEvidence": [
+        "memory/http-e2e-acceptance-20261101/step54-ai-responsibility-before.json"
+      ],
+      "afterEvidence": [
+        {
+          "tag": "ai-20-system-archive-snapshot",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-20-system-archive-snapshot.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-20-system-archive-snapshot.png",
+          "observationValid": true,
+          "observed": "AI archived snapshot shows system content subject; empty obsolete responsible-person field omitted, imported data retained."
+        },
+        "memory/http-e2e-acceptance-20261101/step54-ai-responsibility-after-final.json",
+        "memory/http-e2e-acceptance-20261101/regression-final/check-execution-arrangement-workspace.json"
+      ],
+      "preservedGuards": [
+        "历史明确责任人仍保原标签和人名",
+        "不代填、不重写业务快照",
+        "AI系统归档不冒充人工结果"
+      ],
+      "impact": "归档事实展示不符合现行AI责任语义；修前ai-18截图无效，不能当独立UI复现，采用已保留的正确行为断言。"
+    },
+    {
+      "id": "AI-EFFECTIVE-REQUIRED-VIEW",
+      "title": "场景参数有效必填显示遗漏显式映射",
+      "classification": "confirmed-product-view-defect",
+      "severity": null,
+      "severityNote": "未独立定级，交由root按实际影响判断；组数不等于缺陷条数。",
+      "rootCause": "下方场景表对原模板已有参数仍画vendor row.required，未合并该准确mapping.required及所引用分类字段要求；保存和实际导入校验未丢必填。上方原供应商模板表本应保持raw。",
+      "sourceFiles": [
+        "scripts/ai-import-field-ui.js"
+      ],
+      "beforeEvidence": [
+        {
+          "tag": "ai-02-reference-mapping",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-02-reference-mapping.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-02-reference-mapping.png",
+          "observationValid": null,
+          "observed": "OriginalAddField opens source dialog; only current category IMPORT fields shown, type follows numeric field; empty param rejected; mapped budget to confirmedHP ext1."
+        },
+        {
+          "tag": "ai-03-scene-draft",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-03-scene-draft.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-03-scene-draft.png",
+          "observationValid": null,
+          "observed": "HP004 existing task queried, budget mappedext1, scene-only QA54 supplier remark mappedremark, manual source/category fixed, source-picker and param validation exercised."
+        },
+        {
+          "tag": "ai-05-scene-reload-mapping",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-05-scene-reload-mapping.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-05-scene-reload-mapping.png",
+          "observationValid": null,
+          "observed": "Browser reload preserved newHP scene19/HP-SCENE-004, category, manual source, budgetext1 and scene-onlyremark mapping."
+        },
+        {
+          "tag": "ai-11-custom-required-rejected",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-11-custom-required-rejected.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-11-custom-required-rejected.png",
+          "observationValid": null,
+          "observed": "AI task importer rejects missing scene-only supplierRemark onrow3; no partial confirmation allowed."
+        },
+        "memory/http-e2e-acceptance-20261101/step54-required-display-before.json"
+      ],
+      "afterEvidence": [
+        {
+          "tag": "ai-25-effective-required-readback",
+          "dom": "memory/http-e2e-acceptance-20261101/ai-25-effective-required-readback.txt",
+          "screenshot": "memory/http-e2e-acceptance-20261101/ai-25-effective-required-readback.png",
+          "observationValid": true,
+          "observed": "最终构建实页回读：上方供应商原模板ext1/remark仍否；下方准确场景映射均是，未保存配置"
+        },
+        "memory/http-e2e-acceptance-20261101/step54-required-display-after.json",
+        "memory/http-e2e-acceptance-20261101/regression-final/check-ai-import-field-dialogs.json"
+      ],
+      "preservedGuards": [
+        "供应商强制必填不弱化",
+        "按精确parameter唯一映射及准确fieldId合并，不广播所有分类required",
+        "CUSTOM_COLUMN只取对应列；未读/失效/重复显示待核",
+        "只读显示，不改变mapping/draft/save/validator/参数FP；上方raw仍否"
+      ],
+      "impact": "用户勾选并保存必填后下方仍否，容易误以为配置未保存，实际schema却拒绝缺失值。"
+    }
+  ],
+  "duringStepRegressions": [
+    {
+      "id": "STEP54-ORDERING-REGRESSION",
+      "classification": "introduced-and-repaired-during-step54",
+      "notCountedAsAuditBaselineDefect": true,
+      "title": "排队归属修正过程中出现的待办排序/分页回归",
+      "rootCause": "去除旧排队回落后，当前未分配待办仍用了不合适的历史时间或普通列表排序依据；按当前节点进入/当前运行开始排序，同时不伪造排队时间。",
+      "sourceFiles": [
+        "js/adapters/four-node-workspace.js",
+        "scripts/four-node-model.js"
+      ],
+      "beforeEvidence": [
+        "memory/http-e2e-acceptance-20261101/regression-final/regression-difference.json",
+        "memory/http-e2e-acceptance-20261101/step54-pending-current-basis-before-actual-built.json",
+        "/tmp/step54-regression-current/check-business-rules-workspace.json"
+      ],
+      "afterEvidence": [
+        "memory/http-e2e-acceptance-20261101/step54-pending-current-basis-after.json",
+        "memory/http-e2e-acceptance-20261101/regression-final/check-business-rules-workspace.json"
+      ],
+      "note": "该项按root要求单列为本轮修复阶段排序回归，不算审计起点缺陷；候选FIFO分页断言1失败不能归类成fixture错误，最终原断言与新增未分配时间边界均通过。"
+    }
+  ],
+  "fixtureErrors": [
+    {
+      "id": "FIXTURE-MISSING-HOST-DEPENDENCY",
+      "classification": "test-infrastructure-fixture-error-not-product-logic-defect",
+      "rootCause": "独立提取currentWorkflowTasks时未加载新增currentNativeAITasks依赖；执行适配器捕获ReferenceError后呈空候选，导致标签测试在arrange前失败。",
+      "files": [
+        "scripts/check-four-node-execution.cjs",
+        "scripts/check-reference-audit.cjs"
+      ],
+      "beforeEvidence": [
+        "memory/http-e2e-acceptance-20261101/step54-chain-check-four-node-execution.cjs.json",
+        "/tmp/step54-regression-current/check-reference-audit.json"
+      ],
+      "afterEvidence": [
+        "memory/http-e2e-acceptance-20261101/regression-final/check-four-node-execution.json",
+        "memory/http-e2e-acceptance-20261101/regression-final/check-reference-audit.json"
+      ],
+      "guards": "只补提取依赖；原20/13断言保留；任务原code1前提未改，未将未知状态伪造为已知。",
+      "failureShapes": {
+        "check-four-node-execution.cjs": "2个直接ReferenceError，未到原行为断言",
+        "check-reference-audit.cjs": "9个标签用例因任务目录求值错误被捕获成空候选，在arrange前失败"
+      }
+    }
+  ],
+  "invalidObservations": [
+    {
+      "tag": "ai-18-started-snapshot-before-copy-fix",
+      "classification": "invalid-observation-not-product-failure-and-not-pass-evidence",
+      "reason": "Capture did not contain the intended snapshot dialog; not counted as snapshot evidence. Earlier live DOM output showed the issue; source red/green evidence is retained.",
+      "checks": []
+    },
+    {
+      "tag": "ai-23-xlsx-real-saved",
+      "classification": "invalid-observation-not-product-failure-and-not-pass-evidence",
+      "reason": "点击后读取实际成功状态，未重复提交",
+      "checks": [
+        {
+          "text": "已导入",
+          "present": false
+        },
+        {
+          "text": "关闭",
+          "present": true
+        },
+        {
+          "text": "000054575",
+          "present": true
+        }
+      ]
+    }
+  ],
+  "unverifiedAndBoundary": {
+    "offline": {
+      "status": "blocked-tool-policy-not-verified",
+      "reference": "memory/offline-e2e-audit-20261101/final-status.json",
+      "note": "HTTP验收为用户后续明确改用的方式；不证明双击file://可用，未尝试替代surface绕过。"
+    },
+    "download": {
+      "status": "not-confirmed",
+      "evidence": [
+        "memory/http-e2e-acceptance-20261101/download-before.json",
+        "memory/http-e2e-acceptance-20261101/download-after-csv.json",
+        "memory/http-e2e-acceptance-20261101/download-after-excel.json",
+        "memory/http-e2e-acceptance-20261101/chrome-template-download.txt",
+        "memory/http-e2e-acceptance-20261101/chrome-template-download.png"
+      ],
+      "observed": "两次点击后匹配的旧下载文件均未newOrChanged，未确认新CSV/XLSX模板实际落盘。",
+      "interpretation": "不得计通过，也没有足够证据单独定为产品缺陷；生成/保存调用或解析用例不能替代实际下载。",
+      "contrast": "实际CSV/XLSX文件上传、解析、检查和保存已有独立实页证据，不能借此宣称模板下载通过。"
+    },
+    "externalServices": "仅有限本地Mock，无真实供应商创建/呼叫、CTI、签名鉴权或生产接口验收。",
+    "acceptanceCaseDisposition": "actual-click-checklist仍是root待汇总的22case清单；本草稿只提供根因与证据，不自行写整体验收通过。"
+  },
+  "finalRegression": {
+    "path": "memory/http-e2e-acceptance-20261101/regression-final/summary.json",
+    "suites": 66,
+    "failedSuites": 0,
+    "structuredPassed": 1099,
+    "structuredFailed": 0,
+    "sourceBuildTestFiles": 178,
+    "stable": true,
+    "changedDuringFinalRun": [],
+    "candidateDiff": "memory/http-e2e-acceptance-20261101/regression-final/regression-difference.json",
+    "note": "自动回归不代替root实际HTTP主流程观察；单个无结构化计数脚本只计exit成功。"
+  },
+  "browserLogSnapshot": {
+    "file": "memory/http-e2e-acceptance-20261101/browser-evidence-log.json",
+    "entries": 91,
+    "explicitValid": 23,
+    "explicitInvalid": 2,
+    "withoutFormalValidityFlag": 66,
+    "lastTag": "pred-19-history-original-table",
+    "note": "无显式valid字段的早期记录不自动视为无效或通过，应由root根据实际DOM/截图配对判定。"
+  },
+  "currentSourceHashes": {
+    "js/adapters/ai-task-directory.js": "da290a257cb0d90b70c8fd20591c37b01adaf4ebb1424b81f5b22ff5e7e7cf7d",
+    "scripts/ai_task_directory_build.py": "f6753323f34c2d135b7d8102d31546a82d8be4247894fa79b450296dac45035a",
+    "js/components/module-host.js": "3ebc3cb7ce3c9a48f5efbbd8100951c2b1609abde958478c5b6cdeb61dd7fdd5",
+    "scripts/build-modules.py": "faee252607efbded428b64adfabe33d35011d43e96ded763d1772852b1e35b24",
+    "js/adapters/four-node-execution.js": "92538d255555e953fa59401790ec47511443a34eff3cbd1e406933caa4eedc53",
+    "js/adapters/task-business-import.js": "c04888dc37ffb1f09c05907962b2f25c79509fa7f1518e43cbe2cfffdfd46c01",
+    "js/adapters/four-node-workspace.js": "f6809f4a5dcff8d8597e58ac65b96a8b428fc33cbbba706150b288b83ade3a97",
+    "scripts/four-node-model.js": "e403863bf527279283cfe7d5c599ede3f8b8418e2111f2a3324d6bba8ed84bd6",
+    "scripts/four_node_model_build.py": "ffa586b794554e85403649f44016520f9ecd59b6b8b8e930ea177631e2494f97",
+    "js/components/session-store.js": "80e546714eef39e9ec1397743b426271ada87236722eee53639e01c3765b176a",
+    "index.html": "5c42446a4ee4b0bedfa493039ef1eda312318e78dc96ca7795abce1537b4adad",
+    "scripts/ai-import-field-ui.js": "9a5f477e64d6b0c7c2453073236e2cad65d7eec2175700e459ff0c0ad5ff6032"
+  },
+  "missingEvidenceReferences": []
+}

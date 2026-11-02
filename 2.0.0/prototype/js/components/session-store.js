@@ -134,7 +134,7 @@
     function storedPosition(id) {
       const c=context();if(!c)return null;const account=preferences().accounts[accountId]||{};const key=isGlobalManagementPage(id,c)?'global:'+authorityScopeId(c):scopeId;return (account.positions||{})[key]||null;
     }
-    function hasPositionContext(id,filters) {return id==='PAGE-2227'?!!filters?.recordId:id==='PAGE-2226'?!!filters?.batchKey:true;}
+    function hasPositionContext(id,filters) {return id==='PAGE-2227'?!!filters?.recordId:true;}
     function position() {
       const saved=storedPosition();return saved&&allowed(saved.pageId)&&hasPositionContext(saved.pageId,saved.filters)?{...copy(saved),filters:isGlobalManagementPage(saved.pageId)?filters(saved.pageId):copy(saved.filters||{})}:null;
     }

@@ -18,7 +18,7 @@
 - FUNC-2006 修改有权租户基础资料：超管或有本租户tenant.update权的租户管理员维护允许的名称、联系人、说明；品牌/组织/门店编码/资源关联、商业标记和开通按独立权限与引用保护办理。；来源 documentation/input/functions.json#FUNC-2006
 - FUNC-2007 维护租户品牌与组织身份：超管按单品牌/品牌唯一总部/门店编码唯一维护归属。有现行业务引用或引用状态不明禁止换绑；不做旧v2数据迁移。；来源 documentation/input/functions.json#FUNC-2007
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`0904ba9de2798ea9878d0602f5fbc337ae523a60911c1b10dac967c13febffbe`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`b0292b83ba50e66ed754b44bc97cfa25bab040c4f00b70baa8e542df666aeccf`
 
 ## 前置任务
 

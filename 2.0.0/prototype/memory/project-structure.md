@@ -132,3 +132,8 @@ mock/data.js
 related-systems/index.html
 version-history.html
 ```
+
+
+## 2026-11-01 Step44增量落点
+
+共享任务导入由scripts/task-business-import-model.js插入现有业务事务闭包，scripts/task_business_import_build.py连接原AI/预外呼任务入口，js/adapters/task-business-import.js及同名CSS加载到两模块。AI映射纯校验在js/adapters/ai-import-field-mapping.js，编辑器scope辅助在scripts/ai-import-field-ui.js及ai_import_field_mapping_build.py；task-business-access.js仅提供AI-only任务同步业务作用域。父桥module-host/business-link继续核原入口及准确任务来源。各专项位于scripts/check-task-*.cjs及check-ai-import-field-mapping.cjs；bundle仍由原build-modules.py单点产生，不新建原型或台账。

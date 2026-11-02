@@ -107,4 +107,37 @@ def memory_texts(author, features, fields, rules, pages, ui, locals_):
                 '旧六区、空白节点、按坐席/任务分配和旧v2迁移规则被替代，追溯见 `../docs/change-log.json`。', '']
     for row in rules:
         business += ['## ' + row['id'], '', row['statement'], '']
+    # Current prose is sourced from the same authored rules as the JSON plan.
+    # Historical memory/table metadata remains provenance, never a parallel rule.
+    import json
+    current=json.loads((author/'fragments/business.json').read_text()).get('entry_import_current_delta')
+    if current:
+        rm={row['id']:row['statement'] for row in rules}
+        cm={row['id']:row['statement'] for row in current['changes']}
+        version=current['version']
+        current_boundary=[rm[key] for key in ['GR-HANDLING-MODE','GR-ASSIGNMENT-SIMPLIFICATION','GR-EXECUTION-ARRANGEMENT','GR-LIFECYCLE-SETTLEMENT']]
+        fieldtext=['# 当前字段映射与产品规则','',
+            '基线：'+version+'。136个原页面字段组及当前FIELD身份保持；当前字段含义以规范JSON与逐字段规格为准，不将历史描述恢复为新输入。','',
+            '## 当前关键边界','']+['- '+text for text in current_boundary+[cm['CHG-048-SCENE-SCHEMA'],cm['CHG-050-IMPORT-REQUEST']]]+['']+fieldtext[fieldtext.index('## Fields'):]
+        featuretext[2]=str(len(features))+'个差异FUNC和222项原专业能力保留身份；TASK/DIRECT与CATEGORY/TEMPLATE按准确入口派生，不提供中央模式选择。旧分析和冻结启动计划只保来源及未被替代边界。'
+        directory=project[project.index('## 页面目录'):project.index('## 交付与证据')]
+        ac_count=len({aid for feature in features for aid in feature['acceptance_ids']})
+        project=['# D联络云 v2.0.0 当前产品规格与Mock原型','',
+            '当前基线：'+version+'。规范化输入和产品规格只投影已确认当前事实；历史来源/冻结计划不并行授权已撤配置，不改变原审批记录。','',
+            '## 产品目标','',str(len(features))+'个FUNC、'+str(ac_count)+'个AC、43个当前PAGE及222项专业能力保留身份。'+rm['GR-HANDLING-MODE'],'',
+            '## 目标用户','','平台超级管理员、租户管理员、运营与有权读取者按当前授权进入；实际拨打/接听填写权与管理/核对资格分开。','',
+            '## 核心页面列表','','坐席工作台、业务分类、业务字段、流转模板、导入批次、业务名单、业务详情及客户档案，和原AI/Cloud执行、记录、资源、报表、系统管理页面。','',
+            '## 核心用户路径','',cm['CHG-049-ENTRY-MODE'],cm['CHG-051-SIMPLE-IMPORT'],
+            '分类路径按实际首组/场景正式预检→CATEGORY/TEMPLATE记录与运行→合法执行安排→明确起呼→实际本人或系统准确归档→有权确认后继/正常END。任务路径自动带入准确任务配置→本次schema检查→TASK/DIRECT账本→明确执行与周期结论。',
+            rm['GR-ASSIGNMENT-SIMPLIFICATION'],'',
+            '## 主要数据对象','','账号、租户、品牌、成员授权、IMPORT/FOLLOWUP字段、业务分类、单模板路由、批次、entrySource任务/分类来源及渠道、统一业务记录、DIRECT周期、TEMPLATE运行/节点、准确执行/通话、内容及供应商参数快照、联系限制和审计。旧allowDirect/END来源仅按准确历史合同读取，不成为当前新配置。','',
+            '## 交付方式','','本版静态HTTP/本地查看入口及规范输入用于产品对齐；本次规格组装和发布不修改原型运行代码、不新增清空或迁移、不给予正式业务/运营/工程批准。file方式和真实服务验证保各次未验边界。','',
+            '## 范围','',cm['CHG-048-SCENE-SCHEMA'],rm['GR-LOCAL-ROUTE'],rm['GR-EXECUTION-ARRANGEMENT'],
+            rm['GR-DATA-FACTS'],rm['GR-PRIVACY'],rm['GR-LIFECYCLE-SETTLEMENT'],'',
+            '## 非本期范围','','通用CRM或统一任务引擎、自动新起呼/推进/转交、跨品牌客户共享、按手机号合并业务、重写已捕获旧周期/快照、真实接口或生产批准。旧无TASK历史的合法转换保持精确旧范围，不授新TASK启用流程。','']+directory+[
+            '## 交付与证据','',current['limits'],
+            '当前逐项事实见规范JSON和对应真实验证记录；DRAFT产品规格及完整性检查不等于全量运行、离线、供应商或正式工程门禁通过。']
+        first_rule=next(i for i,text in enumerate(business) if text.startswith('## GR-'))
+        business=['# 当前业务规则','',
+            '当前规范见../docs/rules-appendix.json，局部动作见../documentation/input/functions.json。TASK/DIRECT与CATEGORY/TEMPLATE按准确入口派生；已替代的中央模式选择/分类DIRECT开关/AI第三FLOW来源不并行生效。旧已捕获事实按下列精确历史边界保留，当前具体任务/坐席执行安排及五档优先级保持。','']+business[first_rule:]
     return {'project.md': project, 'field-map.md': fieldtext, 'feature-list.md': featuretext, 'business-rules.md': business}

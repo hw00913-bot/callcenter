@@ -52,6 +52,8 @@
   superGrant.brandIds=DSeed.brands.map(b=>b.id);superGrant.delegableRoles=delegates;
   // Explicit local examples, not inferred production identity correspondence.
   DSeed.aiSceneRelations=[
+    // Exact local identity repair for the existing native HP task24/scene12 import pair.
+    {tenantId:'TEN-NISSAN-HQ',sceneId:'12',executionSceneId:'HP-SCENE-001',professionalTaskId:'HP-TASK-20260714-001',platform:'厚朴',categoryId:'lead'},
     {tenantId:'TEN-NISSAN-HQ',sceneId:'1',executionSceneId:'2021498427234983938',platform:'一知科技',supplierId:'yzzh',tagSceneId:'xxs',tenantType:'headquarters'},
     {tenantId:'TEN-NISSAN-HQ',sceneId:'6',executionSceneId:'ZKJ20260601001',platform:'中科金智能',supplierId:'zkj',tagSceneId:'xxs',tenantType:'headquarters'},
     {tenantId:'TEN-NISSAN-SH',sceneId:'6',executionSceneId:'ZKJ20260601001',platform:'中科金智能',supplierId:'zkj',tagSceneId:'xxs',tenantType:'store'},
