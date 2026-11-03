@@ -1,0 +1,135 @@
+{
+  "schema": "ai-full-phone-profile-verification@1",
+  "at": "2026-11-03T10:29:24.184483+08:00",
+  "step": "step-59",
+  "result": "bounded-local-http-pass",
+  "productFact": "按用户确认：AI生产源手机号完整，不需要脱敏号码待核业务；当前原型只保客户主列表。",
+  "changes": [
+    "删除待核第二表、专用openUnlinked/API、只读动作白名单与CSS，不折叠保留该业务",
+    "仅在构建期显式修正七个旧demo phone字面量；原五全号和所有回访/话单其它字段不变",
+    "保租户/企业/账号/来源身份及异常读取提示，回访不等于实际拨打"
+  ],
+  "demo": "mock/ai-profile-phone-facts.json声明DEMO_ONLY，不在runtime按掩码/冲突callid恢复真实号码、不改用户保存内容或原参考。",
+  "redGreen": {
+    "beforeData": {
+      "file": "before-data.json",
+      "passed": 9,
+      "failed": 11,
+      "infrastructureErrors": 0
+    },
+    "beforeUI": {
+      "file": "before-ui.json",
+      "passed": 31,
+      "failed": 1
+    },
+    "afterData": {
+      "file": "after-data.json",
+      "passed": 20,
+      "failed": 0
+    },
+    "afterUI": {
+      "file": "regression-final/check-customer-profile-workspace.cjs.json",
+      "passed": 32,
+      "failed": 0
+    },
+    "retainedDiagnostics": [
+      "before-data-initial-assertion-fixture.json：初次日期mutation测试定位错误，已修测试，仅最终before-data计红证据。",
+      "candidate-ai-source-legacy-fixture-count.json：原fullphone==5断言跟随生产样例更新为12，四个独立客户gap等断言全部保留。"
+    ]
+  },
+  "currentRegression": {
+    "file": "regression-final/summary.json",
+    "suites": 8,
+    "passed": 198,
+    "failed": 0,
+    "allExitCodesZero": true
+  },
+  "actualHttp": {
+    "url": "http://127.0.0.1:56348/2.0.0/prototype/index.html#PAGE-2203",
+    "observations": 12,
+    "before": 1,
+    "after": 11,
+    "evidence": "browser-evidence.json",
+    "checks": [
+      "原第二表7条实际复现",
+      "修后只有1张主表，额外待核表0",
+      "全号13511223344准确1客户，原回访资料1/原话单1",
+      "档案保两条原回访内容，仍仅一条实际话单/拨打；原时间不替换",
+      "原AI回访页面12条全号码，准确原详情打开/返回",
+      "同一AI号码筛原云呼叫为0，切回AI为1，无第二表干扰",
+      "完整刷新恢复查询/来源与档案事实",
+      "门店云呼叫客户13971207174在门店可见，在总部查不到",
+      "最终切回门店全号AI样例，仍仅主表"
+    ],
+    "sourceVersions": {
+      "ai": "48a9c64071",
+      "cloud": "a30d9082b4"
+    },
+    "finalScreenshot": "after-11-final-single-profile.png",
+    "writes": "仅通过原UI检索/原详情/刷新/切范围，未新增业务、导入、任务或呼叫；未直接读取或改写浏览器存储。导航筛选偏好仍按原页面保存。",
+    "diagnostics": [
+      "一次租户切换后顶栏点击报shadow-root检查错误，随后新DOM确认未导航，再按当前区域语义按钮点击成功；未盲目重复提交。",
+      "原OBS-PROFILE-STARTUP-01启动MutationObserver无来源栈2条保留，不声称修复或零console。"
+    ],
+    "network": {
+      "file": "server.log",
+      "observedGetCount": 16,
+      "statusCodes": [
+        "200",
+        "304"
+      ],
+      "failedObservedRequests": []
+    }
+  },
+  "integrity": {
+    "existingRuntimeChecked": 178,
+    "changed": [
+      "js/adapters/cloud.js",
+      "js/adapters/customer-profile-workspace.css",
+      "js/adapters/customer-profile-workspace.js",
+      "js/modules/ai.bundle.js",
+      "js/modules/cloud.bundle.js",
+      "scripts/check-customer-profile-workspace.cjs",
+      "scripts/build-modules.py",
+      "scripts/check-customer-profile-chain.cjs",
+      "scripts/check-ai-customer-profile.cjs"
+    ],
+    "added": [
+      "mock/ai-profile-phone-facts.json",
+      "scripts/ai_profile_demo_build.py",
+      "scripts/check-ai-profile-demo-phones.cjs"
+    ],
+    "modelUnchanged": true,
+    "aiSourceAdapterUnchanged": true,
+    "roleUnchanged": true,
+    "sessionUnchanged": true,
+    "parentBridgeUnchanged": true,
+    "aiBundle": "48a9c64071b2eddd4633805adf71f97da0c29a4977ff6c9dcec988410a9a4995",
+    "cloudBundle": "a30d9082b40fcb97c06e782ec53b346f4a662d4d0898463bf2de18233f4f13fe",
+    "provenanceResourceReferences": 243,
+    "frozenFiles": 9,
+    "frozenChanged": [],
+    "developerFiles": 627,
+    "developerChanged": [],
+    "developerNew": [],
+    "gitTrackedStatusUnchanged": true
+  },
+  "independentReviews": [
+    "independent-data-review.json",
+    "independent-ui-review.json"
+  ],
+  "publication": "当前原型及增量口径说明已更新；开发包与GitLab/GitHub远端未更新。",
+  "limits": [
+    "用户确认的生产口径仅用于本地原型，不宣称真实供应商接口已验证。",
+    "file自动未验；原参考、冻结输入、G3/整版S8及正式开发审批保持。",
+    "异常输入的无效号码与身份冲突守卫仍存在；它们不是独立脱敏核对产品功能。"
+  ],
+  "independentEvidenceReview": {
+    "file": "independent-evidence-review.json",
+    "result": "pass-no-blocking-findings",
+    "observations": 12,
+    "associatedFileHashes": 24,
+    "keyScreenshotsInspected": 8,
+    "captureLimit": "before-01 PNG仅为旧页顶部；同次完整DOM证明第二表及7条，未声称该PNG完整显示7行。"
+  }
+}

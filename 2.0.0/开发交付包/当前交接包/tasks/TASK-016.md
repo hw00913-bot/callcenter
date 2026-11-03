@@ -18,7 +18,7 @@
 - FUNC-2034 创建四节点流转模板：以字段参考分类读取条件来源，在唯一开始锚点编排转交、呼叫、结束；每CALL单方式、有序首命中路径。人工默认MANUAL可无seat先保存，SPECIFIC_SEAT才必选有效seat；PRED默认只任务，AI默认任务+scene，无默认责任人控件。CALL默认五档等级与分租户目标维护不扩大资源权，保存模板不绑定业务。；来源 documentation/input/functions.json#FUNC-2034
 - FUNC-2037 分配本租户具体任务或坐席及执行优先级：DIRECT与TEMPLATE共用任务或人工分配方式/坐席及五档等级：人工默认待分配、指定坐席才必选seat；PRED只任务，AI任务+scene。模板/导入/分配无独立责任人输入，实际人员由坐席分配及真实执行/接听事实记录；保留原单条/批量分配，不改owner或自动起呼。；来源 documentation/input/functions.json#FUNC-2037
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`edc5225b5022e6100a5e5848c84fb590eba1e70c2a584fffa610b9133c191a29`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`ac24ea3af455fa8052e0daeaa799eea0265f5d02f520b26bdd98ac1e620a1a6c`
 
 ## 前置任务
 

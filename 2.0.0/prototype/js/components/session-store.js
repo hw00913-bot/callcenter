@@ -34,12 +34,20 @@
       }
       const result=(a.memberships||[]).filter(m=>m.enabled).map(m=>{
         const tenant=seed.tenants.find(t=>t.id===m.tenantId&&t.enabled);
-        return tenant ? {id:tenant.id,label:tenant.name,kind:'tenant',tenant:copy(tenant),grant:effectiveMember(m)} : null;
+        return tenant ? {id:tenant.id,label:tenant.name,kind:'tenant',tenant:copy(tenant),grant:effectiveMember(m,tenant)} : null;
       }).filter(Boolean);
       if(a.platform)result.push({id:a.platform.id,label:a.platform.label,kind:'platform',grant:copy(a.platform)});
       return result;
     }
-    function effectiveMember(member){const m=copy(member);if(m.role==='seat')m.role='operator';if(['admin','operator'].includes(m.role)){m.moduleRoles={ai:m.modules.includes('ai')?m.role:'',cloud:m.modules.includes('cloud')?m.role:''};}return m;}
+    function effectiveMember(member,tenant){
+      const m=copy(member);if(m.role==='seat')m.role='operator';
+      if(['admin','operator'].includes(m.role))m.moduleRoles={ai:m.modules.includes('ai')?m.role:'',cloud:m.modules.includes('cloud')?m.role:''};
+      // These public configuration entries belong to the confirmed tenant-admin
+      // role. Older organization snapshots predate the complete menu list;
+      // restore only its effective projection, without rewriting saved grants.
+      if(['hq_admin','store_admin'].includes(window.DRolePermissions?.memberRole(m,tenant)))m.pages=[...new Set([...(m.pages||[]),'PAGE-2006','PAGE-2223','PAGE-2228'])];
+      return m;
+    }
     const context = () => {
       const a=actor(),s=scopes().find(row=>row.id===scopeId);
       return a&&s?{account:{id:a.id,name:a.name,label:a.label,nativeProfile:a.nativeProfile||'',platformAdministrator:managesTenants(a)},scope:s}:null;

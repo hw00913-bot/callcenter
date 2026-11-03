@@ -20,7 +20,7 @@
 - FUNC-2041 查看当前模板及绑定方案说明：只读查看四节点/入口/条件/承接方/方式，区分字段参考和实际应用分类，实际路由预览使用目标目录当前标签；不展示分类V1/V2选择。；来源 documentation/input/functions.json#FUNC-2041
 - FUNC-2042 删除当前未被使用的模板定义：当前分类仍绑定或配置操作待核则阻删；否则在对象/品牌/并发依据一致时移除当前定义，不建旧模板归档兼容索引，已开始run靠完整planSnapshot继续办理。；来源 documentation/input/functions.json#FUNC-2042
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`edc5225b5022e6100a5e5848c84fb590eba1e70c2a584fffa610b9133c191a29`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`ac24ea3af455fa8052e0daeaa799eea0265f5d02f520b26bdd98ac1e620a1a6c`
 
 ## 前置任务
 

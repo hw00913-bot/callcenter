@@ -35,6 +35,8 @@ from task_roster_build import transform as task_roster_transform, runtime_source
 from ai_task_directory_build import transform as ai_task_directory_transform, runtime_source as ai_task_directory_source
 from ai_customer_profile_build import transform as ai_customer_profile_transform, runtime_source as ai_customer_profile_source
 from customer_profile_build import transform as customer_profile_transform, model_source as customer_profile_model, runtime_source as customer_profile_source, style_source as customer_profile_style
+from task_creation_access_build import transform as task_creation_access_transform
+from ai_profile_demo_build import transform as ai_profile_demo_transform
 ROOT=Path(__file__).resolve().parents[1]
 PROJECT=ROOT.parents[2]
 SOURCES={'ai':PROJECT/'DCC&AI 外呼/AI 外呼','cloud':ROOT.parents[1]/'1.2.0/prototype-class-flow'}
@@ -85,6 +87,11 @@ def menu_presentation(kind,path,code):
     for old,new in fragments.get((kind,path),[]):
         if old not in code:raise ValueError('Menu presentation source changed: '+path+' / '+old)
         code=code.replace(old,new)
+    if kind=='ai' and path=='js/pages/scene-list.js':
+        supplier_badge="""        '<div class="card-tag" style="background:' + pt.bg + ';color:' + pt.color + ';border:1px solid ' + pt.border + '">' + platformName + '</div>' +
+"""
+        if code.count(supplier_badge)!=1:raise ValueError('AI task card supplier badge source changed')
+        code=code.replace(supplier_badge,'',1)
     # The original routes still own permissions/secondary navigation; only their
     # labels and breadcrumb strings follow the one current menu directory.
     if kind=='cloud' and path=='js/nav.js':
@@ -964,8 +971,10 @@ def build(kind,source):
         code=ai_import_field_mapping_transform(kind,path,code)
         code=task_business_import_transform(kind,path,code)
         code=task_roster_transform(kind,path,code)
+        code=task_creation_access_transform(kind,path,code)
         code=ai_task_directory_transform(kind,path,code)
         code=ai_customer_profile_transform(kind,path,code)
+        code=ai_profile_demo_transform(kind,path,code)
         code=customer_profile_transform(kind,path,code)
         code=category_import_entry_transform(kind,path,code)
         code=menu_presentation(kind,path,code)
@@ -1053,6 +1062,8 @@ provenance['localAdapters']={str(path.relative_to(ROOT)):hashlib.sha256(path.rea
 provenance['localTransforms']['taskBusinessImport']={'schema':'task-direct-shared-import-fields@1','authorization':'inputs/task-business-import-authorization-20261101.json','resources':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['scripts/task-business-import-model.js','scripts/four_node_model_build.py','scripts/task_business_import_build.py','scripts/ai_import_field_mapping_build.py','scripts/ai-import-field-ui.js','js/adapters/task-business-import.js','js/adapters/task-business-import.css','js/adapters/task-business-access.js','js/adapters/ai-import-field-mapping.js','js/adapters/four-node-execution.js','js/components/module-host.js','js/components/business-link.js']},'scope':'AI tasks follow exact native source and scene with independent import eligibility; PRED restores native import layout and row review, inherits locked task category from wizard/editor and confirms a freshly checked valid subset; one DIRECT ledger, TASK/channel/source snapshots and five priorities; API readonly requirements view, old professional histories retained','execution':'new imports never write supplier receipts or auto-start; one business ledger, native task list is a scoped read projection; AI-only shared business invocation never grants Cloud capability, menus or configuration writes'}
 for out,payload in generated:out.write_text(payload)
 provenance['localTransforms']['customerProfileAggregation']={'schema':'authorized-readonly-customer-profile@1','authorization':'inputs/customer-profile-integration-authorization-20261102.json','resources':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['js/components/customer-profile.js','js/adapters/customer-profile-workspace.js','js/adapters/customer-profile-workspace.css','js/adapters/ai-customer-profile.js','scripts/ai_customer_profile_build.py','scripts/customer_profile_build.py','js/adapters/four-node-workspace.js','js/components/module-host.js']},'data':'read-only projection of authorized business timelines and original native contact/AI sources; no copied business/customer/call store','identity':'tenant, enterprise and complete original actual phone; no masked/name/first-row guess; explicit mirror references only','facts':'accepted/queued, actual dial, content archive and business outcome remain separate; old actual phone and authorized history cutoff retained','media':'exact original detail and current permissions; no media URL in AI DTO; finite Mock only'}
+provenance['localTransforms']['taskCreationAccessFeedback']={'schema':'task-create-access-feedback@1','authorization':'inputs/predictive-create-feedback-authorization-20261103.json','resources':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['scripts/task_creation_access_build.py','scripts/check-task-create-permission.cjs','js/components/role-permissions.js','js/adapters/cloud-resources.js']},'scope':'existing predictive and IVR creation eligibility drives disabled entry and visible reason; original start rechecks and explains denied or invalid entry before draft writes','authority':'original canUseWorkspace, action and object guards retained; no new SUPER or tenant capability','boundary':'local UI feedback only; task persistence and provider execution unchanged'}
+provenance['localTransforms']['aiProfileFullPhone']={'schema':'ai-profile-full-phone-production-fact@1','authorization':'inputs/ai-full-phone-production-clarification-20261103.json','resources':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['mock/ai-profile-phone-facts.json','scripts/ai_profile_demo_build.py','scripts/check-ai-profile-demo-phones.cjs','js/adapters/customer-profile-workspace.js','js/adapters/customer-profile-workspace.css','js/adapters/cloud.js']},'scope':'single customer list and complete original AI phone values; no separate masked-phone pending workflow','demo':'explicit seven fixture phone assignments at build time only; original five full phones and all call/followup facts retained','authority':'no production or saved-data phone repair, runtime identity guess, new permission or fabricated actual dial'}
 (ROOT/'memory/reuse-provenance.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2)+'\n')
 
 # Refresh local cache revisions after producing artifacts; still works when opened directly.

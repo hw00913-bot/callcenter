@@ -529,3 +529,25 @@ R-006／R-007导入分流提示增量通过：合法数据依赖不提前红，�
 | R-275 | 客户档案全来源只读归集 | 准确身份/计数/来源与历史权限，AI/PRED新旧记录可见且不写新业务或通话 | Step55本地HTTP实点及当前70套1222；见customer-profile-integration-20261102/verification-proof.json | Pass（局部） | 用户明确修复档案遗漏 | FUNC2038/2039；PAGE2203/2108/2208 | step-55 |
 
 | R-276 | 模板AI具体任务选择入口 | 任务先选、准确场景联动、权限禁用与明确后续安排，保存/重开及执行前校验保持 | Step56当前70套1241／built48及实际HTTP；template-ai-task-entry-20261102/verification-proof.json | Pass（局部） | 既有具体任务规则的交互修复 | FUNC2031/2038；PAGE2228 | step-56 |
+
+
+## 2026-11-03 Step57
+
+Step57：HQ/门店admin旧快照三配置页恢复；ops、禁用/未知身份、跨租户和独立模块保边界；原组织存储不写；HTTP三页点击/刷新另验。
+
+| R-277 | 租户管理员旧菜单快照兼容 | 合法总部／门店admin三配置页恢复；运营、禁用和模块／对象边界保留；原存储不写 | memory/tenant-business-management-20261103/verification-proof.json；21条有效HTTP实点、六次运营直访拒绝、当前7套91项回归 | Pass（局部HTTP） | 用户继续权限问题并授权重启预览；file及整版真实接口不升级 | FUNC2001/2031；PAGE2006/2223/2228 | step-57 |
+
+
+## 2026-11-03 Step58
+
+| R-278 | 预外呼创建权限反馈 | 原F33拒绝时按钮禁用及可见原因；start准确反馈；合法成员原向导保持 | memory/predictive-create-permission-20261103/verification-proof.json；18条HTTP观察、四角色向导/放弃、8套134项当前built回归 | Pass（局部HTTP） | 用户明确预外呼新建问题；共用IVR同路径，角色与真实提交规则不变 | FUNC2019/2031；PAGE2205/2206 | step-58 |
+
+
+## 2026-11-03 Step59
+
+| R-279 | AI完整号码客户单列表 | 完整源号码原档案；撤独立待核表；归属/异常/统计守卫不变 | memory/ai-full-phone-profile-20261103/verification-proof.json；当前8套198项及12条HTTP观察、原来源/筛选/刷新/租户 | Pass（局部HTTP） | 用户明确生产AI不脱敏；demo只做显式样例事实修正 | FUNC2038/2039；PAGE2203/2109 | step-59 |
+
+
+## 2026-11-03 Step60
+
+| R-280 | AI卡片标签精简 | 列表不显示供应商徽标，保导入方式与供应商筛选/详情 | memory/ai-task-card-label-20261103/verification-proof.json；精确差异、既有检查及实际26卡/平台筛选 | Pass（局部HTTP） | 用户截图明确要求 | FUNC2019；PAGE2103 | step-60 |

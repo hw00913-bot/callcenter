@@ -1,0 +1,135 @@
+{
+  "schema": "tenant-business-management-independent-review@1",
+  "reviewer": "audit_tenant_business_permission",
+  "at": "2026-11-03T01:09:57.135Z",
+  "status": "pass-with-browser-verification-pending",
+  "scope": "Independent read-only inspection of current role projection and native shared-configuration consumption; isolated synthetic in-memory execution only",
+  "findings": [],
+  "conclusions": [
+    {
+      "topic": "Narrow role projection",
+      "result": "Only effectiveMember copies for DRolePermissions.memberRole hq_admin/store_admin receive PAGE-2006/PAGE-2223/PAGE-2228; current known tenant membership is required; role/operator normalization and source membership arrays are retained.",
+      "references": [
+        "js/components/session-store.js:35",
+        "js/components/session-store.js:42",
+        "js/components/session-store.js:48"
+      ]
+    },
+    {
+      "topic": "Unrelated conditional and module rights",
+      "result": "policyPage explicit-page intersection, pageAvailability, actual ai/cloud module checks and role matrix remain unchanged. No blanket conditional bypass is introduced.",
+      "references": [
+        "js/components/session-store.js:75",
+        "js/components/session-store.js:84"
+      ]
+    },
+    {
+      "topic": "Native shared-configuration connection",
+      "result": "Cloud DSharedConfiguration.access reads live parent.DSession.context and allowed(currentPage); canManage reads live parent.canWrite and current role. CustomerBusiness built canManage uses DSharedConfiguration.canManage while active; BusinessFlowStore built access uses DSharedConfiguration.access. These paths do not recheck stale organization membership.pages.",
+      "references": [
+        "js/adapters/cloud.js:160",
+        "js/adapters/cloud.js:164",
+        "js/adapters/cloud.js:165",
+        "js/components/business-link.js:12",
+        "scripts/build-modules.py:837",
+        "scripts/build-modules.py:840",
+        "scripts/build-modules.py:876"
+      ]
+    },
+    {
+      "topic": "Cross-tenant and unknown identities",
+      "result": "Tenant scopes are still constructed only from enabled memberships and enabled matching tenants. Unknown organization or role is not projected. Switching to operator or an absent membership does not carry recovered rights.",
+      "references": [
+        "js/components/session-store.js:35",
+        "js/components/session-store.js:48",
+        "js/components/session-store.js:51"
+      ]
+    },
+    {
+      "topic": "Test design",
+      "result": "Regression executes actual current role/session/organization sources and actual app.renderNav extracted by function boundary. It asserts authorized/denied outcomes and storage bytes; it does not duplicate effectiveMember implementation. Fixtures are synthetic memory stores and never read user browser storage."
+    }
+  ],
+  "testEvidence": {
+    "before": {
+      "file": "memory/tenant-business-management-20261103/before.json",
+      "passed": 10,
+      "failed": 10,
+      "sourceSha256": "80e546714eef39e9ec1397743b426271ada87236722eee53639e01c3765b176a",
+      "classification": "10 correct-behavior assertion failures reproducing original bug; no fixture/infrastructure error in final before evidence"
+    },
+    "after": {
+      "file": "memory/tenant-business-management-20261103/after.json",
+      "passed": 20,
+      "failed": 0
+    },
+    "independentNativeExecution": {
+      "source": "Exact DSharedConfiguration declarations/access/canManage from js/adapters/cloud.js evaluated against actual current DSession and DOrganization using a stale synthetic snapshot lacking all three pages",
+      "checks": [
+        {
+          "page": "PAGE-2006",
+          "valid": true,
+          "roleCode": "ADMIN",
+          "canManage": true,
+          "tenantIds": [
+            "TEN-NISSAN-HQ"
+          ]
+        },
+        {
+          "page": "PAGE-2223",
+          "valid": true,
+          "roleCode": "ADMIN",
+          "canManage": true,
+          "tenantIds": [
+            "TEN-NISSAN-HQ"
+          ]
+        },
+        {
+          "page": "PAGE-2228",
+          "valid": true,
+          "roleCode": "ADMIN",
+          "canManage": true,
+          "tenantIds": [
+            "TEN-NISSAN-HQ"
+          ]
+        },
+        {
+          "liveRevocation": "member",
+          "context": null,
+          "sharedAccessValid": false,
+          "canManage": false
+        },
+        {
+          "liveRevocation": "tenant",
+          "context": null,
+          "sharedAccessValid": false,
+          "canManage": false
+        },
+        {
+          "liveRevocation": "account",
+          "context": null,
+          "sharedAccessValid": false,
+          "canManage": false
+        }
+      ],
+      "passed": 6,
+      "failed": 0,
+      "persistence": "Synthetic org snapshot explicitly rewritten only by the isolated test to simulate revocation; no user browser data or runtime store touched"
+    }
+  },
+  "limitations": [
+    "Actual HTTP browser click verification remains pending because the previously used local servers refused connections, as separately established by root. This review cannot establish the exact user session cause.",
+    "No claim of full global acceptance, real provider/CTI verification, development-package update or remote publication.",
+    "The specific three pages are now role-derived for known tenant admins, consistent with the frozen five-role matrix; intentionally granular custom admin revocation for those same pages would require a separate explicit product rule and is not currently modeled."
+  ],
+  "sourceHashes": {
+    "js/components/session-store.js": "32e28afcfdca498eed1444bafd8fcda05a44a38a486aa515537731a706017aba",
+    "js/components/role-permissions.js": "21d6e43deea2257dbcb47e471a558584b03ba182c2577de653b6bf78018513c6",
+    "js/components/organization-store.js": "ecb13f753e099ce98ca2eb767d7e466281ab491f0962d70955b1083fb4f6a8d7",
+    "js/adapters/cloud.js": "22309206a8e01f548c1d50878c70241fb1e01a675809586727bb9282371bef4d",
+    "js/components/business-link.js": "1b6a052b3260016b4731dc31c6b938f8cfc67aa1613590024b2c9807a79af5a7",
+    "js/modules/cloud.bundle.js": "6742fb6ee9b29f4b81d6bf356f127910e4dd56c2366d2c44889b52d211a17a2f",
+    "js/modules/ai.bundle.js": "fbc54f4f18d23e11874e12b7b4be39e16d8d6512645791bb09181e179a8b2ba5",
+    "scripts/check-tenant-business-management.cjs": "e04fcfb4dcdf437e59c94fac839ba365ff608b4959d0a9a7c51bdfa527545ce5"
+  }
+}

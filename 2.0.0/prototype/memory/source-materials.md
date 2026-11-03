@@ -107,3 +107,33 @@ Step51来源最新用户三截图及inputs/unified-task-import-roster-authorizat
 ## Step56 AI任务选择入口
 
 依据本轮用户问题及既有具体执行任务授权，补模板节点任务入口/准确场景联动；范围见execution-steps.md Step56与inputs/template-ai-task-entry-authorization-20261102.json。当前待验，仅本地原型。
+
+
+## 2026-11-03 Step57
+
+本轮用户反馈「租户管理员为什么没有了业务管理的功能」与既有审计直接修复授权，见inputs/tenant-business-management-authorization-20261103.json；不将纯内存复现等同用户现场已经核验。
+
+
+## 2026-11-03 Step57 HTTP续验
+
+补充用户明确授权「那你重启吧」「继续完成上述管理权限问题」，见inputs/tenant-management-http-resume-authorization-20261103.json。HTTP当前实点、四身份及截图证据在memory/tenant-business-management-20261103/http-actual/；先前不可达状态保留为历史，未改原冻结输入。
+
+
+## 2026-11-03 Step58
+
+用户反馈超级管理员新建无响应，经追问明确为预外呼新建任务；见inputs/predictive-create-feedback-authorization-20261103.json，HTTP修前证据before-01/02。
+
+
+## 2026-11-03 Step58验证
+
+Step58修前点击无响应与修后18条HTTP观察见memory/predictive-create-permission-20261103/browser-evidence.json；原矩阵F33/F34维持SUPER拒绝，新建并非授权给超管。用户限定预外呼，共用IVR用同一UI/handler收敛。
+
+
+## 2026-11-03 Step59
+
+用户明确AI外呼生产环境用户手机号未脱敏，不用考虑该场景。见inputs/ai-full-phone-production-clarification-20261103.json；替代先前建议保留折叠待核表，当前只保主客户列表。
+
+
+## 2026-11-03 Step60
+
+Step60用户截图明确删除厚朴等供应商卡片标签，见inputs/ai-task-card-label-authorization-20261103.json。

@@ -2452,3 +2452,143 @@ AI任务显式放在场景前，未选场景也可从原已核目录选择任务
 ### Verification Skill
 
 prototype-verifier
+
+
+## Step 57: 租户管理员旧菜单快照兼容
+
+### Expected Change
+
+update
+
+### Goal
+
+已确认总部／门店管理员的业务管理权限不因旧组织快照缺页消失；保持原身份、模块和对象边界。
+
+### Files
+
+`js/components/session-store.js`、`scripts/check-tenant-business-management.cjs`、构建维护的`index.html`和`memory/reuse-provenance.json`；授权`inputs/tenant-business-management-authorization-20261103.json`及本步可变计划、日志、`memory/tenant-business-management-20261103/`证据。不改冻结需求、原专业执行包、开发包或远端。
+
+### Inputs
+
+现行五角色矩阵和实际导航；本轮用户反馈与既有发现问题直接修复授权；旧组织快照纯内存复现。
+
+### Work
+
+只在合法租户成员的有效会话投影中补总部／门店管理员的业务分类、业务字段、流转模板固定入口；不重写旧组织快照、不放宽全部conditional、不复制业务数据。
+
+### Acceptance
+
+总部和门店旧快照缺三项时应恢复菜单及原配置能力；刷新/重新加载仍可用；运营即使旧快照有页也拒绝。禁用账号／成员／租户、未知组织／角色、其它租户、独立模块和其它缺页conditional不扩大。原存储字节与开发包保持。
+
+### Verification
+
+正确行为红绿、当前源适用权限／导航／业务bridge回归、JS语法与资源指纹。CUA在可访问HTTP原型逐项点业务&客户→业务管理→三个页面并刷新；服务不可达时明确保留实点未验，不以脚本替代、不判定本步完成。file／真实接口／整版S8/G3不升级。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 58: 预外呼新建任务权限反馈
+
+### Expected Change
+
+update
+
+### Goal
+
+超级管理员原F33创建权限为拒绝时，不再出现可点击却静默无响应的新建按钮；有权租户成员保持原新建流程。
+
+### Files
+
+`scripts/task_creation_access_build.py`、`scripts/build-modules.py`、`scripts/check-task-create-permission.cjs`、`js/modules/cloud.bundle.js`、`index.html`、`memory/reuse-provenance.json`及本步授权、计划、验证日志和`memory/predictive-create-permission-20261103/`证据。AI包只核字节不变，不改专业参考、权限矩阵、任务保存/创建模型、冻结需求、开发包和远端。
+
+### Inputs
+
+inputs/predictive-create-feedback-authorization-20261103.json；当前五角色F33/F34矩阵、DProductionAccess和AppState实际权限；当前HTTP点击无响应复现。
+
+### Work
+
+原工作区创建资格判断提供准确原因供列表和原start入口共用；无权按钮禁用并在列表直接显示解释，陈旧入口调用仍提示且不创建草稿/持久写。预外呼与共用IVR入口一致；合法成员进入原向导，原草稿恢复和保存继续原逻辑。
+
+### Acceptance
+
+SUPER新建受限且原因就近可见；原任务列表仍可查看；陈旧入口、失效范围和撤权不静默且无草稿副作用。总部/门店管理员与运营合法权限下按钮可用并能进入原向导；不得将拒绝解释改为授新权。
+
+### Verification
+
+当前built正确行为红绿；适用权限/预外呼分类/导入/草稿和任务回归；当前bundle/源/资源指纹。CUA实际HTTP复现与修后SUPER禁用+可见原因、合法管理员/运营新建进入与取消、IVR共用路径；不保存供应商任务或发起呼叫。保旧Observer诊断、file和真实接口未验及整版S8/G3限制。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 59: AI完整手机号生产口径与客户单列表
+
+### Expected Change
+
+update
+
+### Goal
+
+按用户确认AI生产源完整手机号，撤除脱敏历史待核第二表；示例回访正常归入唯一客户表，不新增待核业务。
+
+### Files
+
+`mock/ai-profile-phone-facts.json`、`scripts/ai_profile_demo_build.py`、`scripts/check-ai-profile-demo-phones.cjs`、`js/adapters/customer-profile-workspace.js`及其CSS、`js/adapters/cloud.js`、`scripts/check-customer-profile-workspace.cjs`、`scripts/check-customer-profile-chain.cjs`、`scripts/check-ai-customer-profile.cjs`、`scripts/build-modules.py`、生成的AI/Cloud包、index及reuse-provenance；本步授权、当前可变口径说明、计划和验证证据。原参考、模型/数据权限、冻结9、开发包和远端不改。
+
+### Inputs
+
+inputs/ai-full-phone-production-clarification-20261103.json；当前统一档案来源与权限；用户截图及当前HTTP双表复现。
+
+### Work
+
+仅对7条固定旧脱敏demo回访用显式DEMO_ONLY映射在构建期替换完整号码，5条原全号及其它来源时间/状态/回访内容/次数保持；不对真实或浏览器保存数据补号。撤除独立pendingTable/openUnlinked及专用白名单，保notice、单表筛选/分页、原来源详情及归属冲突守卫。回访仍不充当拨打。
+
+### Acceptance
+
+当前12条demo回访均为完整源号码并准确进主客户档案，7条不再悬挂第二表；能按全号搜索、打开原回访、切来源/租户和刷新。正文不出现脱敏核对业务；异常输入仍不造客户、不吞未知来源/读取失败。无业务记录/供应商写入或权限扩大。
+
+### Verification
+
+当前built demo正确行为红绿，单列表/异常提示正确行为断言；档案模型/UI/chain/AI源权限及相关回归；两个构建资源和原参考/冻结/开发包hash。CUA实际HTTP修前第二表、修后全号搜索、原回访/通话详情、筛选、刷新与租户边界。file和真实接口及整版S8/G3不升级。
+
+### Verification Skill
+
+prototype-verifier
+
+
+## Step 60: AI任务卡片去供应商标签
+
+### Expected Change
+
+update
+
+### Goal
+
+按截图删除AI任务列表卡片的供应商徽标，保留其它卡片信息。
+
+### Files
+
+`scripts/build-modules.py`、`js/modules/ai.bundle.js`、`index.html`、`memory/reuse-provenance.json`及本步授权/可变计划/验证日志。Cloud包仅核字节不变；原参考、业务数据、权限、开发包和远端不改。
+
+### Inputs
+
+inputs/ai-task-card-label-authorization-20261103.json及用户截图红框。
+
+### Work
+
+现有menu_presentation中精确删除renderCard唯一供应商标签片段；保绿色导入方式、筛选刷新和详情的供应商信息。
+
+### Acceptance
+
+所有列表卡片与筛选刷新不再显示供应商徽标，其它字段/布局/动作保留。
+
+### Verification
+
+构建语法与精确差异、适用既有继承/AI任务目录检查；CUA HTTP卡片与供应商筛选后实页核验。不新增低影响展示测试。
+
+### Verification Skill
+
+prototype-verifier

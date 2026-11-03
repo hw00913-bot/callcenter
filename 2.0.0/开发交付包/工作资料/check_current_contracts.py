@@ -130,7 +130,8 @@ check('AI refusal remains an authorized detail action rather than an every-row l
 delta=business.get('entry_import_current_delta',{})
 check('Step54 evidence metadata retains partial HTTP and non-production non-approval status',delta.get('stable_product_ids') is True and delta.get('actual_http_groups')=={'passed':13,'partial':9} and delta.get('formal_approval') is False and delta.get('production_verified') is False and all(s in delta.get('limits','') for s in ['66套1102','13组已验','9组部分已验','下载落地','真实音频','未全部验证','DRAFT']))
 # Step55/56 current product contracts are checked alongside all earlier guards.
-from profile_template_current_delta import FIELD_IDS as PROFILE_FIELDS, PROFILE, PROFILE_IDENTITY, PROFILE_AUTH, PROFILE_SOURCES, PROFILE_COUNTS, PROFILE_REFRESH, TEMPLATE, TEMPLATE_LOAD, TEMPLATE_AUTH
+from profile_template_current_delta import FIELD_IDS as PROFILE_FIELDS, PROFILE_IDENTITY, PROFILE_AUTH, PROFILE_COUNTS, PROFILE_REFRESH, TEMPLATE, TEMPLATE_LOAD, TEMPLATE_AUTH
+from management_profile_current_delta import PROFILE, PROFILE_SOURCES
 profile_local=locals_by_id['LOCAL-FLOW-CUSTOMER-TIMELINE'];profile_page=next(row for row in plan['ui']['pages'] if row['id']=='UI-PAGE-2203');template_page=next(row for row in plan['ui']['pages'] if row['id']=='UI-PAGE-2228')
 profile_text=dump(profile_local,profile_page);template_text=dump(template_page,locals_by_id['LOCAL-FLOW-TEMPLATE-CREATE'],locals_by_id['LOCAL-FLOW-TEMPLATE-EDIT'])
 check('Step55 uses one current customer list rather than obsolete dual main tabs',not any(clause in profile_text for clause in ['客户档案业务跟进与联系档案分视图','切换业务跟进或联系档案','业务跟进/联系档案统一页签与tabpanel']) and '统一' in profile_local['title'])
@@ -153,6 +154,6 @@ if options.package:
   text=(OUT/rel).read_text();check('export active ELSE rule consistent: '+rel,not any(x in text for x in blocked))
  text=(OUT/'README.md').read_text();check('draft content review distinct from formal semantic handoff gate','DRAFT未声明正式语义交接门禁通过' in text and '草稿，未声明语义门禁通过 | PM' not in text)
  text=(OUT/'开发工程绑定清单.md').read_text();check('binding list uses current authored field/check counts',str(len(plan['logic']['fields']))+'字段' in text and str(len(plan['acceptance_checks']))+'项CHECK' in text)
- text=(OUT/'当前原型验证边界.md').read_text();check('handoff distinguishes latest local regression from earlier full HTTP partial coverage',all(value in text for value in ['Step55','Step56','70套脚本','1241结构化用例','Step54','66套脚本','1102结构化用例','13组已验','9组部分已验','全量验收未授予','DRAFT','未知回执','file://']))
+ text=(OUT/'当前原型验证边界.md').read_text();check('handoff distinguishes latest local regression from earlier full HTTP partial coverage',all(value in text for value in ['Step55','Step56','Step57','Step58','Step59','Step60','73套脚本','1306结构化用例','Step54','66套脚本','1102结构化用例','13组已验','9组部分已验','全量验收未授予','DRAFT','未知回执','file://']))
  check('export remains unapproved draft',read(OUT/'manifest.json')['status']=='draft' and not read(OUT/'handoff-gates.json')['formal_development_ready'])
 result={'schema':'audited-current-contract-check@1','passed':not errors,'errors':errors,'checks':checked};dest=ROOT/'交接检查/current-contracts.json';dest.parent.mkdir(exist_ok=True);dest.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n');print(json.dumps({'passed':not errors,'checks':len(checked),'errors':errors},ensure_ascii=False));sys.exit(bool(errors))

@@ -141,8 +141,9 @@ def memory_texts(author, features, fields, rules, pages, ui, locals_):
         business=['# 当前业务规则','',
             '当前规范见../docs/rules-appendix.json，局部动作见../documentation/input/functions.json。TASK/DIRECT与CATEGORY/TEMPLATE按准确入口派生；已替代的中央模式选择/分类DIRECT开关/AI第三FLOW来源不并行生效。旧已捕获事实按下列精确历史边界保留，当前具体任务/坐席执行安排及五档优先级保持。','']+business[first_rule:]
     if json.loads((author/'fragments/business.json').read_text()).get('profile_template_current_delta'):
-        from profile_template_current_delta import VERSION, PROFILE, TEMPLATE, BOUNDARY
-        project+=['','## Step55～56当前补充','',PROFILE,TEMPLATE,BOUNDARY]
-        fieldtext+=['','## 只读客户投影与模板默认安排','',PROFILE,TEMPLATE]
-        business+=['','## Step55～56当前读取和配置合同','',PROFILE,TEMPLATE,BOUNDARY]
+        from profile_template_current_delta import TEMPLATE
+        from management_profile_current_delta import VERSION, PROFILE, CURRENT, BOUNDARY
+        project+=['','## Step55～60当前补充','',PROFILE,TEMPLATE,CURRENT,BOUNDARY]
+        fieldtext+=['','## 只读客户投影与模板默认安排','',PROFILE,TEMPLATE,CURRENT]
+        business+=['','## Step55～60当前读取和配置合同','',PROFILE,TEMPLATE,CURRENT,BOUNDARY]
     return {'project.md': project, 'field-map.md': fieldtext, 'feature-list.md': featuretext, 'business-rules.md': business}

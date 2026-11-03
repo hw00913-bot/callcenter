@@ -14,7 +14,7 @@
 
 - FUNC-2027 导出当前租户AI服务汇总8列：仅有原财务导出权超管按当前授权AI租户精确映射和同次可靠服务快照导出固定8列；未知字段或范围不可靠阻止文件。；来源 documentation/input/functions.json#FUNC-2027
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`edc5225b5022e6100a5e5848c84fb590eba1e70c2a584fffa610b9133c191a29`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`ac24ea3af455fa8052e0daeaa799eea0265f5d02f520b26bdd98ac1e620a1a6c`
 
 ## 前置任务
 

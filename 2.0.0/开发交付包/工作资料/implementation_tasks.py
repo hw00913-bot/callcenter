@@ -381,6 +381,8 @@ for number,paths in {
 
 from profile_template_current_delta import apply_task_groups
 GROUPS=apply_task_groups(GROUPS)
+from management_profile_current_delta import apply_task_groups as apply_management_task_groups
+GROUPS=apply_management_task_groups(GROUPS)
 
 def topological(tasks):
     deps={t['id']:set(t['depends_on']) for t in tasks};order=[]
@@ -470,7 +472,7 @@ def render(out=OUT):
     current=read(ROOT.parent.parent/'prototype/memory/http-e2e-acceptance-verification-20261101.json')
     latest=read(ROOT/'交接检查/current-runtime-summary.json')
     current_reg={'suites':latest['script_count'],'structuredPassed':latest['passed_cases'],'structuredFailed':latest['failed_cases']};current_http=current['groupCounts']
-    current_scope='最新Step56记录'+str(current_reg['suites'])+'套/'+str(current_reg['structuredPassed'])+'结构化用例通过、'+str(current_reg['structuredFailed'])+'失败；Step55客户档案及Step56模板任务入口局部实际HTTP已核。Step54全流程仍'+str(current_http['passed'])+'组已验/'+str(current_http['partial'])+'组部分已验，完整验收未授予；本包只核对应源码身份，未重复跑回归或补齐未验。'
+    current_scope='本次Step60发布前完整自动矩阵记录'+str(current_reg['suites'])+'套/'+str(current_reg['structuredPassed'])+'结构化用例通过、'+str(current_reg['structuredFailed'])+'失败；Step55/56及Step57～60各独立局部HTTP已核；管理员入口/新建反馈/全号单表/卡片标签按现行规则承接。Step54全流程仍'+str(current_http['passed'])+'组已验/'+str(current_http['partial'])+'组部分已验，完整验收未授予；本次已实际执行完整矩阵，本包维护检查只重核对应源码身份；未补齐原HTTP未验。'
     esc=lambda v:str(v).replace('|','／').replace('\n',' ')
     lines=['# 实施任务索引','','[返回交接入口](README.md)','',''+str(len(tasks))+'个业务实施任务包覆盖完整当前产品；任务按可验收的职责分组，不按按钮计新增功能。每个LOCAL恰好有一个主实施任务，任务CHECK与本版产品规范逐项一致；相对上版的规则变更和验收修订保留溯源。','',
       '开发负责补目标仓库、实际模块/文件/物理接口及测试命令。空allowed_files不授代码写入权；本文逻辑依赖不增加用户操作门槛，也不代表共享真实文件已允许并行修改。','',
@@ -550,7 +552,7 @@ def render(out=OUT):
     write(out/'handoff-gates.json',gate)
     evidence=out/'gate-evidence';evidence.mkdir(exist_ok=True)
     for f in (ROOT/'交接检查').rglob('*.json'):write(evidence/f.relative_to(ROOT/'交接检查'),read(f))
-    md(evidence/'README.md','# 本轮交接检查证据\n\n这些文件是实际只读检查结果，不是业务/运营批准。product-validation.json、development-validation.json为原工具完整结果；prototype-s7/s8/final.json为本次实际预检；task-coverage.json为逻辑任务覆盖；source-fingerprints.json/current-runtime-summary.json核最新Step56回归对应191文件身份，未重复跑70套；current-http-acceptance.json保Step54的13组已验/9组部分已验及Step55/56独立局部结果和未验边界。其余旧prototype-*报告只保各自日期/范围，不代替当前Step56局部或Step54部分结论；version-state.json保留真实版本阶段状态。')
+    md(evidence/'README.md','# 本轮交接检查证据\n\n这些文件是实际只读检查结果，不是业务/运营批准。product-validation.json、development-validation.json为原工具完整结果；prototype-s7/s8/final.json为本次实际预检；task-coverage.json为逻辑任务覆盖；source-fingerprints.json/current-runtime-summary.json核本次Step60发布前73套完整矩阵的190文件身份；维护检查只核SHA不重跑矩阵；current-http-acceptance.json保Step54的13组已验/9组部分已验及Step55～60独立局部结果和未验边界。其余旧prototype-*报告只保各自日期/范围，不代替当前Step57～60局部或Step54部分结论；version-state.json保留真实版本阶段状态。')
     # Keep the real independent product review without inventing a development review.
     review=read(WS/'product-review.json');write(out/'product-review.json',review)
     source_evidence=Path(review['evidence']['path']);md(out/'product-semantic-review.md',source_evidence.read_text())
@@ -581,7 +583,7 @@ def render(out=OUT):
     md(entry,text)
     if (ROOT/'续接记录/projection-result.json').exists():
         text=entry.read_text();marker='## 本次接包入口'
-        intro='<!-- CURRENT-PROTOTYPE-RESUME -->\n本版已承接当前原型步骤29～56。客户档案全来源统一只读归集，模板AI任务先选、自动目录和准确场景带出，冷恢复与滚动保持按最新局部规格执行。入口分为任务DIRECT与业务分类TEMPLATE：任务按既有AI/预外呼手工或接口来源锁定任务/场景/分类，分类只人工/接口入模板；不新增AI第三来源，不保留模板直接跟进设置。AI场景schema2按scene/platform配置IMPORT_FIELD与CUSTOM_COLUMN，保唯一“添加字段”入口及选择/配置弹窗；实际导入字段先确定方式和场景。任务原表合并新统一业务与旧历史，旧缺新字段留空；五档、人工分配、PRED只任务和原权限保持。受控缺内容废弃与正常archive分开，停止中原受理事实按原ID收敛，新运行不沿用旧队列事实；历史END来源仍只按准确旧周期解释。AI准确已有任务目录、任务导入到执行的配置指纹、有效必填展示、主名单刷新和场景快速重开均承接当前修复。原'+str(len(tasks))+'任务号保留，现为'+str(len(plan['logic']['locals']))+'个局部动作、'+str(len(plan['logic']['fields']))+'个当前逻辑字段及'+str(len(read(WS/'product-ir.json')['acceptance']))+'个验收条目。'+current_scope+'\n\n[当前HTTP实际验收与修复报告](../../prototype/'+current['report']+')、[当前需求记录](../../prototype/docs/四节点与客户跟进闭环需求记录.md)、[当前产品内容复核](product-semantic-review.md)和[开发验证边界](当前原型验证边界.md)分别说明事实、规则、复核及未验范围。当前规范输入位于工作资料/续接输入；原始审计与冻结保其原结论，旧字段只保追溯，不恢复当前已移除控件。\n<!-- /CURRENT-PROTOTYPE-RESUME -->\n\n'
+        intro='<!-- CURRENT-PROTOTYPE-RESUME -->\n本版已承接当前原型步骤29～60。租户管理员三业务页仅恢复本次有效投影不改旧组织；SUPER新建PRED/IVR仍拒绝但明确禁用原因。AI生产来源为完整号码，客户档案只保主表，七条旧演示样例仅DEMO_ONLY显式修正，无运行时补号或存储迁移；任务卡去供应商徽标但保导入方式、平台筛选与详情。客户档案全来源统一只读归集，模板AI任务先选、自动目录和准确场景带出，冷恢复与滚动保持按最新局部规格执行。入口分为任务DIRECT与业务分类TEMPLATE：任务按既有AI/预外呼手工或接口来源锁定任务/场景/分类，分类只人工/接口入模板；不新增AI第三来源，不保留模板直接跟进设置。AI场景schema2按scene/platform配置IMPORT_FIELD与CUSTOM_COLUMN，保唯一“添加字段”入口及选择/配置弹窗；实际导入字段先确定方式和场景。任务原表合并新统一业务与旧历史，旧缺新字段留空；五档、人工分配、PRED只任务和原权限保持。受控缺内容废弃与正常archive分开，停止中原受理事实按原ID收敛，新运行不沿用旧队列事实；历史END来源仍只按准确旧周期解释。AI准确已有任务目录、任务导入到执行的配置指纹、有效必填展示、主名单刷新和场景快速重开均承接当前修复。原'+str(len(tasks))+'任务号保留，现为'+str(len(plan['logic']['locals']))+'个局部动作、'+str(len(plan['logic']['fields']))+'个当前逻辑字段及'+str(len(read(WS/'product-ir.json')['acceptance']))+'个验收条目。'+current_scope+'\n\n[当前HTTP实际验收与修复报告](../../prototype/'+current['report']+')、[当前需求记录](../../prototype/docs/四节点与客户跟进闭环需求记录.md)、[当前产品内容复核](product-semantic-review.md)和[开发验证边界](当前原型验证边界.md)分别说明事实、规则、复核及未验范围。当前规范输入位于工作资料/续接输入；原始审计与冻结保其原结论，旧字段只保追溯，不恢复当前已移除控件。\n<!-- /CURRENT-PROTOTYPE-RESUME -->\n\n'
         md(entry,text.replace(marker,intro+marker,1))
     if (ROOT/'审计整改记录-20261030.md').exists():
         text=entry.read_text();line='\n[历史20261030审计整改记录](../工作资料/审计整改记录-20261030.md)：仅保当时问题、修复、复验及门禁范围，不代替当前Step54结论。\n'

@@ -122,7 +122,7 @@ window.applyDOrganizationBinding=function(ledger){
   const readers={
     'report-center':new Set(['query','reset','setPage','drill','drillPage','openCall','openCustomer','openLead','openTask','openLeadCall','openLeadCustomer','openLeadTask']),
     'customer-directory':new Set(['query','resetFilters','refresh','openDetail','setPage','setCallPage','setBatchPage','setCallFilter','openImportRecord','openCall']),
-    CustomerProfiles:new Set(['query','reset','setPage','reload','openDetail','openSource','openUnlinked','close','refreshDetail']),
+    CustomerProfiles:new Set(['query','reset','setPage','reload','openDetail','openSource','close','refreshDetail']),
     'cloud-call-records':new Set(['query','resetFilters','setPage','setType','openCall']),
     BusinessFlow:new Set(['query','resetFilters','open','back','refresh','closeDialog','locateBatch','legacy']),
     FourNodeWorkspace:new Set(['query','reset','setPage','setQueue','setDirectoryView','directoryTabKey','refreshDirectory','setDirectoryPage','queryBusinessDirectory','setTimelinePage','setBatchPage','showBatch','clearBatch','openLegacyRecords','loadValueDifferences','openRecord','back','openFollowupSnapshot','openCall','openBusinessTimeline','closeHistory']),

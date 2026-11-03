@@ -18,7 +18,7 @@
 - FUNC-2024 统一检查所有新外呼、重呼和补提交：公共明确拒联阻止本租户AI/人工/PRED/IVR；每次新发起实时检查，失败/未知不放行；正常呼入继续接听，已在途电话不静默取消。；来源 documentation/input/functions.json#FUNC-2024
 - FUNC-2043 导出当前专业任务客户明细：入口位于当前预外呼任务详情客户名单，按准确taskId与当前筛选授权明细生成文件；不改成导入批次导出。；来源 documentation/input/functions.json#FUNC-2043
 
-来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`edc5225b5022e6100a5e5848c84fb590eba1e70c2a584fffa610b9133c191a29`
+来源根：`/Users/huhaowen/Documents/038-云外呼平台/Demo_Protype_2/2.0.0/开发交付包/工作资料/续接输入`；来源指纹：`ac24ea3af455fa8052e0daeaa799eea0265f5d02f520b26bdd98ac1e620a1a6c`
 
 ## 前置任务
 
