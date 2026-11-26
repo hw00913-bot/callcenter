@@ -1,426 +1,95 @@
-window.DNav = {
-  "areas": [
-    "坐席工作台",
-    "业务&客户",
-    "呼叫中心",
-    "报表中心",
-    "系统管理"
-  ],
-  "pages": [
-    {
-      "id": "PAGE-2202",
-      "name": "坐席作业",
-      "area": "坐席工作台",
-      "group": "",
-      "menu": true,
-      "module": "cloud",
-      "route": "seat-workbench",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2006",
-      "name": "业务分类",
-      "area": "业务&客户",
-      "group": "业务管理",
-      "menu": true,
-      "module": "public",
-      "route": "business-categories#directory",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2223",
-      "name": "业务字段",
-      "area": "业务&客户",
-      "group": "业务管理",
-      "menu": true,
-      "module": "public",
-      "route": "business-categories#fields",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2228",
-      "name": "流转模板",
-      "area": "业务&客户",
-      "group": "业务管理",
-      "menu": true,
-      "module": "public",
-      "route": "",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2204",
-      "name": "导入批次",
-      "area": "业务&客户",
-      "group": "客户维护",
-      "menu": true,
-      "module": "cloud",
-      "route": "customer-tasks",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2203",
-      "name": "客户档案",
-      "area": "业务&客户",
-      "group": "客户维护",
-      "menu": true,
-      "module": "cloud",
-      "route": "customer-directory",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2109",
-      "name": "AI线索回访记录",
-      "area": "业务&客户",
-      "group": "客户维护",
-      "menu": true,
-      "module": "ai",
-      "route": "result-clue",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2007",
-      "name": "呼叫拦截",
-      "area": "业务&客户",
-      "group": "",
-      "menu": true,
-      "module": "public",
-      "route": "",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2103",
-      "name": "AI外呼任务",
-      "area": "呼叫中心",
-      "group": "呼叫执行",
-      "menu": true,
-      "module": "ai",
-      "route": "scene-list",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2205",
-      "name": "预外呼任务",
-      "area": "呼叫中心",
-      "group": "呼叫执行",
-      "menu": true,
-      "module": "cloud",
-      "route": "predictive-tasks",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2206",
-      "name": "IVR外呼任务",
-      "area": "呼叫中心",
-      "group": "呼叫执行",
-      "menu": true,
-      "module": "cloud",
-      "route": "ivr-tasks",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2207",
-      "name": "呼入服务",
-      "area": "呼叫中心",
-      "group": "",
-      "menu": true,
-      "module": "cloud",
-      "route": "inbound-service",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2108",
-      "name": "AI通话记录",
-      "area": "呼叫中心",
-      "group": "通话记录",
-      "menu": true,
-      "module": "ai",
-      "route": "result-records",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2208",
-      "name": "云呼叫记录",
-      "area": "呼叫中心",
-      "group": "通话记录",
-      "menu": true,
-      "module": "cloud",
-      "route": "cloud-call-records",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2110",
-      "name": "AI业务场景",
-      "area": "呼叫中心",
-      "group": "AI配置",
-      "menu": true,
-      "module": "ai",
-      "route": "sys-scene",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2111",
-      "name": "AI标签配置",
-      "area": "呼叫中心",
-      "group": "AI配置",
-      "menu": true,
-      "module": "ai",
-      "route": "sys-tags",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2210",
-      "name": "坐席管理",
-      "area": "呼叫中心",
-      "group": "坐席资源",
-      "menu": true,
-      "module": "cloud",
-      "route": "agent-maintenance",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2211",
-      "name": "技能管理",
-      "area": "呼叫中心",
-      "group": "坐席资源",
-      "menu": true,
-      "module": "cloud",
-      "route": "skill-mappings",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2212",
-      "name": "外呼组管理",
-      "area": "呼叫中心",
-      "group": "坐席资源",
-      "menu": true,
-      "module": "cloud",
-      "route": "outbound-group-management",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2213",
-      "name": "队列管理",
-      "area": "呼叫中心",
-      "group": "坐席资源",
-      "menu": true,
-      "module": "cloud",
-      "route": "queue-management",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2214",
-      "name": "坐席配置记录",
-      "area": "呼叫中心",
-      "group": "坐席资源",
-      "menu": true,
-      "module": "cloud",
-      "route": "sync-records",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2215",
-      "name": "号码管理",
-      "area": "呼叫中心",
-      "group": "呼叫资源",
-      "menu": true,
-      "module": "cloud",
-      "route": "numbers",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2216",
-      "name": "号码池管理",
-      "area": "呼叫中心",
-      "group": "呼叫资源",
-      "menu": true,
-      "module": "cloud",
-      "route": "number-pools",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2217",
-      "name": "分机管理",
-      "area": "呼叫中心",
-      "group": "呼叫资源",
-      "menu": true,
-      "module": "cloud",
-      "route": "extensions",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2218",
-      "name": "时间条件",
-      "area": "呼叫中心",
-      "group": "呼叫资源",
-      "menu": true,
-      "module": "cloud",
-      "route": "time-conditions",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2105",
-      "name": "AI通话统计",
-      "area": "报表中心",
-      "group": "AI报表",
-      "menu": true,
-      "module": "ai",
-      "route": "report-call",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2106",
-      "name": "AI计费统计",
-      "area": "报表中心",
-      "group": "AI报表",
-      "menu": true,
-      "module": "ai",
-      "route": "report-billing",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2107",
-      "name": "AI线索统计",
-      "area": "报表中心",
-      "group": "AI报表",
-      "menu": true,
-      "module": "ai",
-      "route": "report-clue",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2209",
-      "name": "云呼叫报表",
-      "area": "报表中心",
-      "group": "",
-      "menu": true,
-      "module": "cloud",
-      "route": "cloud-overview-report",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2003",
-      "name": "账号管理",
-      "area": "系统管理",
-      "group": "组织与权限",
-      "menu": true,
-      "module": "public",
-      "route": "sys-account",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2004",
-      "name": "租户管理",
-      "area": "系统管理",
-      "group": "组织与权限",
-      "menu": true,
-      "module": "public",
-      "route": "sys-tenant",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2005",
-      "name": "品牌管理",
-      "area": "系统管理",
-      "group": "组织与权限",
-      "menu": true,
-      "module": "public",
-      "route": "",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2219",
-      "name": "云呼叫账号",
-      "area": "系统管理",
-      "group": "接入管理",
-      "menu": true,
-      "module": "cloud",
-      "route": "alicti-accounts",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2220",
-      "name": "应用接入",
-      "area": "系统管理",
-      "group": "接入管理",
-      "menu": true,
-      "module": "cloud",
-      "route": "application-access",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2102",
-      "name": "AI服务与用量",
-      "area": "系统管理",
-      "group": "AI服务",
-      "menu": true,
-      "module": "ai",
-      "route": "usage",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2112",
-      "name": "AI充值管理",
-      "area": "系统管理",
-      "group": "AI服务",
-      "menu": true,
-      "module": "ai",
-      "route": "finance-service",
-      "phoneDomain": "outside"
-    },
-    {
-      "id": "PAGE-2222",
-      "name": "操作审计",
-      "area": "系统管理",
-      "group": "",
-      "menu": true,
-      "module": "cloud",
-      "route": "audit",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2221",
-      "name": "通话记录核对",
-      "area": "系统管理",
-      "group": "",
-      "menu": true,
-      "module": "cloud",
-      "route": "event-callbacks",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2225",
-      "name": "坐席事件记录",
-      "area": "坐席工作台",
-      "group": "",
-      "menu": false,
-      "module": "cloud",
-      "route": "seat-event-history",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2226",
-      "name": "业务名单",
-      "area": "业务&客户",
-      "group": "客户维护",
-      "menu": true,
-      "module": "public",
-      "route": "",
-      "phoneDomain": "cloud"
-    },
-    {
-      "id": "PAGE-2227",
-      "name": "业务记录详情",
-      "area": "业务&客户",
-      "group": "",
-      "menu": false,
-      "module": "public",
-      "route": "",
-      "phoneDomain": "cloud"
-    }
-  ],
-  "areaAliases": {
-    "工作台": "坐席工作台",
-    "业务中心": "业务&客户",
-    "客户中心": "业务&客户"
+(function () {
+  'use strict';
+
+  var _config = null;
+  var _currentPage = 'index';
+
+  /* ---- Load nav config from config/nav.json ---- */
+  function loadConfig() {
+    return fetch('config/nav.json')
+      .then(function (res) { return res.json(); })
+      .then(function (cfg) {
+        _config = cfg;
+        render();
+      })
+      .catch(function (err) {
+        console.warn('Failed to load config/nav.json, using empty menu:', err);
+        var navEl = document.getElementById('main-nav');
+        if (navEl) {
+          navEl.innerHTML = '<p style="padding:16px;color:#ff4d4f;font-size:12px;line-height:1.6;">⚠️ 导航加载失败<br>请通过 HTTP 服务器打开页面：<br><code>python3 -m http.server 8080</code></p>';
+        }
+      });
   }
-};
+
+  /* ---- Render menu tree into #main-nav ---- */
+  function render() {
+    var navEl = document.getElementById('main-nav');
+    if (!navEl || !_config || !_config.menu) return;
+    var html = buildTree(_config.menu, 0);
+    navEl.innerHTML = html;
+    bindClicks(navEl);
+    highlightCurrent();
+  }
+
+  function buildTree(items, depth) {
+    if (!items || !items.length) return '';
+    var cls = depth === 0 ? 'nav-list nav-list--root' : 'nav-list nav-list--sub';
+    return '<ul class="' + cls + '">' + items.map(function (item) {
+      var hasChildren = item.children && item.children.length;
+      var linkCls = 'nav-link' + (hasChildren ? ' nav-link--group' : '');
+      var icon = item.icon ? '<span class="nav-icon">' + item.icon + '</span>' : '';
+      var href = item.href || '#';
+      var pageAttr = item.href ? '' : ' data-page="' + (item.key || '') + '"';
+      return '<li class="nav-item' + (hasChildren ? ' nav-item--group' : '') + '">' +
+        '<a href="' + href + '" class="' + linkCls + '"' + pageAttr + '>' +
+        icon + '<span class="nav-label">' + (item.label || '') + '</span></a>' +
+        (hasChildren ? buildTree(item.children, depth + 1) : '') +
+        '</li>';
+    }).join('') + '</ul>';
+  }
+
+  function bindClicks(navEl) {
+    var links = navEl.querySelectorAll('.nav-link[data-page]');
+    Array.prototype.forEach.call(links, function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var pageKey = this.getAttribute('data-page');
+        if (pageKey) window.navigateTo(pageKey);
+      });
+    });
+  }
+
+  function highlightCurrent() {
+    var navEl = document.getElementById('main-nav');
+    if (!navEl) return;
+    var prev = navEl.querySelector('.nav-link.active');
+    if (prev) prev.classList.remove('active');
+    var cur = navEl.querySelector('.nav-link[data-page="' + _currentPage + '"]');
+    if (cur) cur.classList.add('active');
+  }
+
+  /* ---- Navigate to page ---- */
+  window.navigateTo = function (pageKey) {
+    _currentPage = pageKey;
+    var page = window.Pages && window.Pages[pageKey];
+    if (!page || typeof page.render !== 'function') return;
+    document.getElementById('app').innerHTML = page.render();
+    if (typeof page.init === 'function') page.init();
+    highlightCurrent();
+  };
+
+  window.getCurrentPage = function () {
+    return _currentPage;
+  };
+
+  window.getNavConfig = function () {
+    return _config;
+  };
+
+  /* ---- Init ---- */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadConfig);
+  } else {
+    loadConfig();
+  }
+})();

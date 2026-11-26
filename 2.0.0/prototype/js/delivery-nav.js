@@ -2,6 +2,8 @@
   'use strict';
 
   var EMBED_PARAM = 'delivery_embed';
+  var includeBusinessFlow = false;
+  var includeSequenceFlow = false;
 
   function bindEmbeddedActions() {
     document.addEventListener('click', function (event) {
@@ -37,17 +39,18 @@
       ? 'business-flow'
       : pathname.indexOf('/flowcharts/sequence-interaction.html') >= 0
         ? 'sequence-flow'
-        : pathname.indexOf('/related-systems/') >= 0
-          ? 'related-systems'
-          : 'prototype';
+        : 'prototype';
   var versionsUrl = new URL('version-history.html', root);
   var items = [
     { key: 'prototype', label: '原型页面', href: new URL('index.html', root).href },
     { key: 'versions', label: '版本与变更', href: versionsUrl.href },
     { key: 'business-flow', label: '业务流程图', href: new URL('flowcharts/business-process.html', root).href },
-    { key: 'sequence-flow', label: '时序交互图', href: new URL('flowcharts/sequence-interaction.html', root).href },
-    { key: 'related-systems', label: '关联系统展示', href: new URL('related-systems/index.html', root).href }
+    { key: 'sequence-flow', label: '时序交互图', href: new URL('flowcharts/sequence-interaction.html', root).href }
   ];
+  items = items.filter(function (item) {
+    return (item.key !== 'business-flow' || includeBusinessFlow) &&
+      (item.key !== 'sequence-flow' || includeSequenceFlow);
+  });
   if (includeInteractionDoc) {
     items.splice(1, 0, {
       key: 'docs',
@@ -172,7 +175,7 @@
   });
 
   window.addEventListener('popstate', function (event) {
-    var hashMatch = window.location.hash.match(/^#delivery=(prototype|versions|docs|business-flow|sequence-flow|related-systems)$/);
+    var hashMatch = window.location.hash.match(/^#delivery=(prototype|versions|docs|business-flow|sequence-flow)$/);
     setView(event.state && event.state.deliveryKey ? event.state.deliveryKey : (hashMatch ? hashMatch[1] : hostKey), false);
   });
 
@@ -180,7 +183,7 @@
   document.body.insertBefore(nav, document.body.firstChild);
   document.body.appendChild(frame);
 
-  var initialMatch = window.location.hash.match(/^#delivery=(prototype|versions|docs|business-flow|sequence-flow|related-systems)$/);
+  var initialMatch = window.location.hash.match(/^#delivery=(prototype|versions|docs|business-flow|sequence-flow)$/);
   setView(initialMatch ? initialMatch[1] : hostKey, false);
   }
 

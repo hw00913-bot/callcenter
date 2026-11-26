@@ -224,14 +224,14 @@
   }
   function stageName(name) { return STAGES[name] || text(name, '阶段未命名'); }
 
-  function renderDetail(document, target, version, focusedChange, navigate) {
+  function renderDetail(document, target, version, focusedChange, navigate, archive) {
     target.replaceChildren();
     var overview = append(target, element(document, 'section', 'version-card'));
     var header = append(overview, element(document, 'div', 'version-detail__header'));
     var title = append(header, element(document, 'div'));
     append(title, element(document, 'h2', '', version.label));
     append(title, element(document, 'p', 'version-muted', '版本标识：' + version.version_id));
-    if (version.working_href) append(header, link(document, '打开此版本工作版', version.working_href, 'version-button version-button--primary'));
+    if (version.working_href && !archive) append(header, link(document, '打开此版本工作版', version.working_href, 'version-button version-button--primary'));
     var summary = append(overview, element(document, 'div', 'version-detail__summary'));
     append(summary, element(document, 'span', '', version.changes.length + ' 项业务变更'));
     append(summary, element(document, 'span', '', version.snapshots.length + ' 份只读快照'));
@@ -296,6 +296,7 @@
   }
 
   function renderHistory(document, window, host, index) {
+    var archive = host.hasAttribute('data-version-history-archive');
     var message = host.querySelector('[data-version-message]');
     var layout = host.querySelector('[data-version-layout]');
     var list = host.querySelector('[data-version-list]');
@@ -334,10 +335,10 @@
         button.setAttribute('data-version-id', version.version_id);
         append(button, element(document, 'span', 'version-option__title', version.label));
         append(button, element(document, 'span', 'version-option__meta', version.changes.length + ' 项变更 · ' + version.snapshots.length + ' 份快照'));
-        if (version.version_id === index.current_version_id) append(button, element(document, 'span', 'version-option__badge', '当前版本'));
+        if (version.version_id === index.current_version_id) append(button, element(document, 'span', 'version-option__badge', archive ? '归档时版本' : '当前版本'));
         button.addEventListener('click', function () { navigate(version.version_id, ''); detail.focus({ preventScroll: true }); });
       });
-      renderDetail(document, detail, selected.version, selected.change_id, navigate);
+      renderDetail(document, detail, selected.version, selected.change_id, navigate, archive);
       if (index.warnings) append(detail, element(document, 'p', 'version-warning-note', index.warnings + ' 条不符合公开链接或只读快照规则的记录已隐藏。'));
     }
     window.addEventListener('popstate', render);
@@ -366,7 +367,7 @@
     function showUnavailable() {
       if (historyHost) {
         var message = historyHost.querySelector('[data-version-message]');
-        if (message) { message.hidden = false; message.textContent = '项目公开版本投影缺失或无效。请核对固定的版本清单.js及生成记录；当前批准状态未知。'; }
+        if (message) { message.hidden = false; message.textContent = historyHost.hasAttribute('data-version-history-archive') ? '历史阶段清单不可用；不影响当前 2.0.0 版本。' : '项目公开版本投影缺失或无效。请核对固定的版本清单.js及生成记录；当前批准状态未知。'; }
         var layout = historyHost.querySelector('[data-version-layout]');
         if (layout) layout.hidden = true;
       }
