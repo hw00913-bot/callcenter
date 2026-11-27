@@ -109,8 +109,11 @@
       '</small></div><span class="sf-chain-arrow" aria-hidden="true">→</span>' +
       '<div class="sf-chain-card"><span class="sf-chain-label">培育策略</span>' +
       (enters ? templateText(view,'nurtureTemplates',nurture) : stop) +
-      (nurture ? '<small>下发模板 ' + e(delivery?.name || '待选择') +
-        (view.step === 1 ? ' <button type="button" class="btn-link" data-flow-edit-delivery>配置</button>' : '') +
+      (nurture ? '<small>选中策略后只编辑这一条。</small>' : '') + '</div>' +
+      '<span class="sf-chain-arrow" aria-hidden="true">→</span><div class="sf-chain-card"><span class="sf-chain-label">本轮结束后</span>' +
+      (enters ? '<small>先判下发，未命中再判后续培育</small>' : stop) +
+      (nurture ? '<small>共享下发模板：' + templateText(view,'deliveryTemplates',delivery) +
+        (view.step === 1 ? ' <button type="button" class="btn-link" data-flow-edit-delivery>查看配置</button>' : '') +
         '</small>' : '') + '</div>';
   }
 
@@ -176,8 +179,9 @@
     const kind = 'nurtureTemplates';
     const intro = '<div class="sf-policy-intro" data-flow-policy-intro>' + (nurture && !nurture.strategyTree ?
         '<p>当前模板使用旧版平铺规则。可在编辑区转为树形后，按各父策略配置自己的后续规则。</p>' :
+        '<details class="sf-policy-help"><summary>查看判定顺序与兜底说明</summary>' +
         '<p>每轮培育结束后，先按培育模板关联的下发模板判断，再检查当前策略的后续规则。</p>' +
-        '<p class="sf-muted">同组普通策略均明确未命中时，执行该组已配置的兜底。完成轮次后无后续去向时，任务结束。</p>') + '</div>';
+        '<p class="sf-muted">同组普通策略均明确未命中时，执行该组已配置的兜底。完成轮次后无后续去向时，任务结束。</p></details>') + '</div>';
     return intro + templatePicker(view,kind,nurture,'引用已有培育模板','创建培育模板') +
       '<p class="sf-current-nurture" data-flow-current-nurture>' + currentNurture(view,nurture) + '</p>' +
       '<p class="sf-reference" data-flow-references="' + kind + '">' + e(referenceSummary(view,kind,nurture)) + '</p>' +
@@ -466,7 +470,8 @@
         if (editor) {
           editor.open = true;
           editor.scrollIntoView({block:'nearest'});
-          editor.querySelector('[name="name"]')?.focus({preventScroll:true});
+          (editor.querySelector('[data-config-strategy-select][aria-current="true"]') ||
+            editor.querySelector('.sc-workspace-template summary, [name="name"]'))?.focus({preventScroll:true});
         }
       }
       if (flowEditDelivery !== undefined) openDeliverySettings(view,button);

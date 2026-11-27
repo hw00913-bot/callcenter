@@ -66,6 +66,8 @@
     configurationState(row) === 'disabled' ? '已停用' : '不可用';
   const boundValuePickerHosts = new WeakSet();
   const strategyTreeExpansions = new WeakMap();
+  const strategyWorkspaceSelections = new WeakMap();
+  const strategyWorkspaceBasicOpen = new WeakSet();
   const dateTime = new Intl.DateTimeFormat('zh-CN', {
     timeZone:'Asia/Shanghai', dateStyle:'short', timeStyle:'short', hour12:false
   });
@@ -890,7 +892,7 @@
       conditions(rule.conditions,conditionPath,purpose,empty,available,'添加下发条件',view.context,view.draft.categoryId) + '</section>';
   }
 
-  function strategyFields(view,rule,path,entry,fixedAction = false) {
+  function strategyFields(view,rule,path,entry,fixedAction = false,workspace = false) {
     const {draft} = view;
     const action = rule.actions.find(value => value !== '继续') || '';
     const sendsToDelivery = isDeliveryStrategy(rule);
@@ -903,6 +905,12 @@
     const criteria = rule.fallback ? (action === '转冷线索' ? ruleConditions(view,rule,'') : '') :
       ruleConditions(view,rule,logic + strategyConditions(view,rule,path,entry,action));
     const direct = isDirectDeliveryRule(rule,entry) && !rule.fallback;
+    if (workspace) return (!rule.fallback ? '<div class="sc-grid">' +
+      input([...path,'name'],rule.name,'策略名称',{max:60,name:'strategyName'}) + '</div>' : '') +
+      (criteria ? '<section class="sc-workspace-next"><h3>' +
+        (sendsToDelivery && !direct ? '下发判断条件' : '什么时候命中') + '</h3>' + criteria + '</section>' : '') +
+      '<section class="sc-workspace-next"><h3>命中后做什么</h3><div class="sc-grid">' + actionField + '</div>' +
+      execution + (direct || (!rule.fallback && sendsToDelivery) ? '' : entryDestination(action,entry)) + '</section>';
     return '<div class="sc-grid">' +
       (rule.fallback ? '' : input([...path,'name'],rule.name,'策略名称',{max:60,name:'strategyName'})) + actionField + '</div>' +
       (direct ? criteria + execution : execution + (rule.fallback || !sendsToDelivery ? entryDestination(action,entry) : '') + criteria);
@@ -992,11 +1000,80 @@
       '均明确未命中的客户，进入已配置的兜底策略。</p>' + body + '</section>';
   }
 
+  // Alternate presentation of the existing draft: paths, commands and save handlers are unchanged.
+  function strategyWorkspace(view) {
+    const {draft} = view;
+    const nodes = new Map();
+    const templateDelivery = usesTemplateDelivery(view);
+    const actionOf = rule => rule.actions.find(value => value !== '继续') || '';
+    const visibleChildren = rule => rule.children.some(child => !templateDelivery || !isDeliveryStrategy(child));
+    function group(rows,path,parent = null,trail = []) {
+      const entry = !parent;
+      const ordinary = strategyPeers(rows,entry,false);
+      const oldDelivery = entry || templateDelivery ? [] : strategyPeers(rows,false,true);
+      const fallback = rows.findIndex(rule => rule.fallback);
+      function item(index,peers,tag) {
+        const rule = rows[index];
+        const id = String(rule.id);
+        const name = rule.name || (rule.fallback ? '兜底策略' : '未命名策略');
+        const info = {rule,name,index,path:[...path,index],groupPath:path,entry,peers,tag,trail};
+        nodes.set(id,info);
+        const sortable = !rule.fallback && peers.length > 1;
+        return '<li class="sc-workspace-node" data-config-strategy-node="' + e(id) + '"' +
+          (sortable ? priorityRow(path,index,'strategy') : '') + '>' +
+          '<div class="sc-workspace-row" data-config-priority-drop>' + (sortable ? priorityHandle() : '') +
+          '<button type="button" class="sc-workspace-pick" data-config-strategy-select="' + e(id) +
+          '"><span class="sc-workspace-title" data-config-strategy-title>' + e(name) + '</span>' +
+          '<span class="sc-workspace-meta">' + e(tag) + ' · ' +
+          e(strategyActionLabel(actionOf(rule),rule.fallback,entry) || '待选动作') + '</span></button></div>' +
+          (!rule.fallback && visibleChildren(rule) ? group(rule.children,[...info.path,'children'],rule,[...trail,name]) : '') + '</li>';
+      }
+      return '<ul class="sc-workspace-list">' + oldDelivery.map((index,pos) => item(index,oldDelivery,'历史下发 ' + (pos+1))).join('') +
+        ordinary.map((index,pos) => item(index,ordinary,'优先级 ' + (pos+1))).join('') +
+        (fallback < 0 ? '' : item(fallback,[],'兜底')) + '</ul>';
+    }
+    const listing = group(draft.rules,['rules']);
+    const selectedId = strategyWorkspaceSelections.get(draft);
+    const [id,info] = nodes.has(selectedId) ? [selectedId,nodes.get(selectedId)] : nodes.entries().next().value || [];
+    if (id) strategyWorkspaceSelections.set(draft,id);
+    else strategyWorkspaceSelections.delete(draft);
+    const rootAdd = control('添加接入策略','strategy-add',['rules']) +
+      (!draft.rules.some(rule=>rule.fallback) ? control('添加一级兜底','strategy-add-fallback',['rules']) : '');
+    function detail() {
+      if (!info) return '<p class="sc-workspace-empty">从左侧添加接入策略。条件和处理方式会在这里显示。</p>';
+      const {rule,name,index,path,groupPath,entry,peers,tag,trail} = info;
+      const action = actionOf(rule);
+      const canHaveChildren = !rule.fallback && (catalog.nurtureStrategyActions.includes(action) || rule.children.length);
+      const childPath = [...path,'children'];
+      const next = canHaveChildren ? '<section class="sc-workspace-next"><h3>本轮结束后</h3><p class="sc-note">先判断下发；未命中再按组内优先级判断后续培育。</p>' +
+        '<div class="sc-inline-tools">' +
+        control(visibleChildren(rule) ? '添加同级后续策略' : '添加后续策略','strategy-add',childPath) +
+        (draft.categoryId !== 'lxs' ? control('添加转冷规则','strategy-add-cold',childPath) : '') +
+        (!rule.children.some(child=>child.fallback) ? control('添加本组兜底','strategy-add-fallback',childPath) : '') +
+        (visibleChildren(rule) ? control(templateDelivery ? '清空后续培育' : '清空本轮结束后的配置','strategy-remove-next',childPath) : '') +
+        '</div></section>' : '';
+      return '<header class="sc-workspace-heading"><span>' + e(['接入后',...trail,tag].join(' / ')) +
+        '</span><h3>' + e(name) + '</h3></header><div class="sc-row-actions">' +
+        (!rule.fallback && peers.length > 1 ?
+          control('上移','strategy-up',groupPath,index,peers[0] === index) +
+          control('下移','strategy-down',groupPath,index,peers.at(-1) === index) : '') +
+        control(rule.fallback ? '移除兜底策略' : '移除策略','strategy-remove',groupPath,index) + '</div>' +
+        '<div data-config-nurture-rule>' + strategyFields(view,rule,path,entry,false,true) + '</div>' + next;
+    }
+    return '<div class="sc-strategy-tree" data-config-strategy-tree><div class="sc-editor-heading"><h2>培育策略</h2></div>' +
+      '<div class="sc-workspace"><nav aria-label="培育策略列表" class="sc-workspace-nav" data-config-strategy-nav data-config-strategy-group="root">' +
+      '<div class="sc-workspace-nav-title"><strong>接入后</strong><span>同组可拖动排序</span></div>' +
+      listing + '<div class="sc-workspace-add">' + rootAdd + '</div></nav>' +
+      '<section class="sc-workspace-detail" aria-label="当前策略配置" data-config-strategy-detail>' +
+      detail() + '</section></div></div>';
+  }
+
   function nurtureStrategyTree(view) {
     const {draft,readOnly} = view;
     const migration = !readOnly && catalog.hasLegacyFallback(draft.rules) ?
       '<div class="sc-inline-tools"><p class="sc-note" role="status">部分旧兜底包含多个动作或后续组。保存新版前请整理。</p>' +
       '<button type="button" class="btn btn-sm" data-config-normalize-fallback>整理旧兜底配置</button></div>' : '';
+    if (view.inFlow) return migration + strategyWorkspace(view);
     return migration + '<div class="sc-strategy-tree" data-config-strategy-tree><div class="sc-editor-heading">' +
       '<h2>培育策略树</h2></div><p class="sc-note">每轮先判断下发，再判断后续培育。两个判断各自按组内优先级执行，缺少影响判断的数据时转待处理。</p>' +
       (readOnly ? '' : '<p class="sc-note">拖动策略左侧把手调整同组优先级，也可展开后使用上移、下移。</p>') +
@@ -1162,15 +1239,23 @@
     const typeField = readOnly || draft.id ?
       '<div class="sc-field"><span>二级分类</span><p class="sc-value">' + e(typeLabel(draft,types)) + '</p></div>' :
       select(['categoryId'],draft.categoryId,'二级分类',[emptyOption('请选择二级分类'),...types],'category');
-    return '<fieldset class="sc-form"' + (readOnly ? ' disabled' : '') + '><div class="sc-form-heading"><h3>基本信息</h3></div>' +
-      '<div class="sc-grid">' + input(['name'],draft.name,page.name + '名称',{max:60}) +
-      typeField + '</div>' + editorFields(view) + '</fieldset>';
+    const basic = '<div class="sc-grid">' + input(['name'],draft.name,page.name + '名称',{max:60}) + typeField + '</div>';
+    const workspace = view.inFlow && page.kind === 'nurtureTemplates' && draft.strategyTree;
+    return '<fieldset class="sc-form"' + (readOnly ? ' disabled' : '') + '>' +
+      (workspace ? editorFields(view) + '<details class="sc-workspace-template"' +
+        (strategyWorkspaceBasicOpen.has(draft) ? ' open' : '') + '><summary>模板基本信息</summary>' + basic + '</details>' :
+      '<div class="sc-form-heading"><h3>基本信息</h3></div>' + basic + editorFields(view)) + '</fieldset>';
   }
 
   function mountFields({host,kind,draft,book,context,afterTask,state,onChange}) {
     const page = pages.find(item => item.kind === kind);
     const view = {page,draft,book,context,afterTask,state,inFlow:true};
     const render = restorePath => {
+      const basic = host.querySelector('.sc-workspace-template');
+      if (basic) {
+        if (basic.open) strategyWorkspaceBasicOpen.add(draft);
+        else strategyWorkspaceBasicOpen.delete(draft);
+      }
       host.innerHTML = '<form data-flow-config-form novalidate>' + configFields(view) + '</form>';
       const form = host.querySelector('form');
       form.onsubmit = event => event.preventDefault();
@@ -1537,6 +1622,8 @@
   function focusField(host, restorePath) {
     if (restorePath) {
       const field = Array.from(host.querySelectorAll('[data-config-path]')).find(node => node.dataset.configPath === restorePath);
+      const basic = field?.closest('.sc-workspace-template');
+      if (basic) basic.open = true;
       field?.focus({preventScroll:true});
       return field;
     }
@@ -1974,11 +2061,14 @@
     const operation = controlElement.dataset.configOperation;
     const index = Number(controlElement.dataset.configIndex);
     const refresh = (focusPath,strategyId) => {
+      if (strategyId && view.inFlow) strategyWorkspaceSelections.set(view.draft,String(strategyId));
       const refreshed = render();
-      if (focusPath) focusField(refreshed,JSON.stringify(focusPath))?.scrollIntoView({block:'nearest'});
-      else if (strategyId) refreshed.querySelector('[data-config-strategy-node="' + CSS.escape(strategyId) + '"] > summary')
-        ?.focus();
-      else (refreshed.querySelector('[data-config-strategy-node][open] > summary') ||
+      const field = focusPath && focusField(refreshed,JSON.stringify(focusPath));
+      if (field) field.scrollIntoView({block:'nearest'});
+      else if (strategyId) refreshed.querySelector('[data-config-strategy-node="' + CSS.escape(strategyId) + '"]')
+        ?.querySelector(':scope > summary, :scope > div > [data-config-strategy-select]')?.focus();
+      else (refreshed.querySelector('[data-config-strategy-select][aria-current="true"]') ||
+        refreshed.querySelector('[data-config-strategy-node][open] > summary') ||
         refreshed.querySelector('[data-config-strategy-group="root"] button[data-config-operation="strategy-add"]'))?.focus({preventScroll:true});
       onChange();
     };
@@ -1989,9 +2079,21 @@
       const node = rows[index];
       if (!wholeGroup && !node) return;
       const apply = () => {
+        let selection;
+        if (view.inFlow) {
+          const parent = path.length > 1 ? pathValue(view.draft,path.slice(0,-1)) : null;
+          if (wholeGroup) selection = parent?.id;
+          else {
+            const peers = node.fallback ? strategyPeers(rows,!parent,false) :
+              strategyPeers(rows,!parent,isDeliveryStrategy(node)).filter(position => position !== index);
+            const next = peers.find(position => position > index) ?? peers.at(-1);
+            const sibling = rows[next] || (!node.fallback && !isDeliveryStrategy(node) && rows.find(rule=>rule.fallback));
+            selection = sibling?.id || parent?.id;
+          }
+        }
         if (wholeGroup) setPath(view.draft,path,keepDelivery ? rows.filter(isDeliveryStrategy) : []);
         else rows.splice(index,1);
-        refresh(wholeGroup ? [...path.slice(0,-1),'name'] : null);
+        refresh(wholeGroup && !view.inFlow ? [...path.slice(0,-1),'name'] : null,selection);
       };
       if (wholeGroup || node.children.length) {
         const headline = wholeGroup ? (keepDelivery ? '清空后续培育' : '清空本轮结束后的配置') : '移除策略';
@@ -2256,6 +2358,17 @@
     bindValuePickers(form);
     bindOutboundTaskFields(view,form,render);
     bindStrategyExpansion(view,form);
+    const nav = form.querySelector('[data-config-strategy-nav]');
+    if (nav) {
+      const selected = strategyWorkspaceSelections.get(view.draft);
+      nav.querySelector('[data-config-strategy-select="' + CSS.escape(selected || '') + '"]')?.setAttribute('aria-current','true');
+      const basic = form.querySelector('.sc-workspace-template');
+      basic?.addEventListener('toggle',() => {
+        if (!form.isConnected) return;
+        if (basic.open) strategyWorkspaceBasicOpen.add(view.draft);
+        else strategyWorkspaceBasicOpen.delete(view.draft);
+      });
+    }
     if (!view.readOnly && form.querySelector('[data-config-priority-handle]')) {
       bindPriorityDrag(view,form,render,onChange);
     }
@@ -2288,8 +2401,12 @@
         if (condition) condition.textContent = coldWindowConditionText(value);
       }
       if (element.name === 'strategyName') {
-        const summary = element.closest('[data-config-strategy-node]')?.querySelector('[data-config-strategy-title]');
-        if (summary) summary.textContent = value.trim() || '未命名策略';
+        const title = value.trim() || '未命名策略';
+        const summary = element.closest('[data-config-strategy-node]')?.querySelector('[data-config-strategy-title]') ||
+          form.querySelector('[data-config-strategy-select][aria-current="true"] [data-config-strategy-title]');
+        if (summary) summary.textContent = title;
+        const heading = form.querySelector('.sc-workspace-heading h3');
+        if (heading) heading.textContent = title;
       }
       onChange();
     };
@@ -2404,6 +2521,16 @@
       onChange();
     };
     form.onclick = event => {
+      const pick = event.target.closest('[data-config-strategy-select]');
+      if (pick) {
+        const id = pick.dataset.configStrategySelect;
+        if (strategyWorkspaceSelections.get(view.draft) !== id) {
+          strategyWorkspaceSelections.set(view.draft,id);
+          const refreshed = render();
+          refreshed.querySelector('[data-config-strategy-select="' + CSS.escape(id) + '"]')?.focus();
+        }
+        return;
+      }
       const rebind = event.target.closest('[data-config-rebind-application]');
       if (rebind) {
         const result = window.DIntegrationApplications?.resolveScenarioApplication(view.context,
