@@ -1,0 +1,297 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>核心需求确认摘要.md</title><style>body{max-width:1080px;margin:40px auto;padding:0 24px;color:#263746;background:#f4f6f8;font:15px/1.7 -apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif}a{color:#176dd1}h1{font-size:27px}section,pre{background:#fff;padding:20px;border:1px solid #dce3eb;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.8 ui-monospace,monospace}li{margin:8px 0}.note{color:#657281}</style><body><p><a href="../../index.html">返回资料索引</a> · <a href="../../../2.0.0/%E9%9C%80%E6%B1%82/%E6%A0%B8%E5%BF%83%E9%9C%80%E6%B1%82%E7%A1%AE%E8%AE%A4%E6%91%98%E8%A6%81.md">原始 Markdown</a></p><h1>核心需求确认摘要.md</h1><pre># D联络云 v2.0.0 已确认业务规则基线
+
+基线编号：D-V200-CONFIRMED-RULES-20261022-01　冻结日期：2026-10-22
+
+本次整理为 43 条有明确确认依据的业务规则，供后续重构作为起点。不是整版需求最终冻结，不代表接口已实现、生产已验证或原型整版验收通过。新版依赖尚未给出具体变更，所有条目的新版适用性待对照；没有变化的方向沿用，只重新确认冲突、受影响和新增内容。
+
+原型页面、图集、资源及内部记录保持原样，待新规则确认后再决定原型处理方式。
+
+[结构化冻结规则](已确认规则基线.json) · [冻结摘要](已确认规则基线.lock.json) · [待确认与重构差异](待确认与重构差异清单.md)
+
+## 冻结规则
+
+### 范围与界面
+
+**CBR-001　版本与名称**
+
+整合项目定位为v2.0.0，平台名称为D联络云。
+
+确认依据：[SRC-2007／## C32 ](分析工作区/inputs/user-confirmations.md)；[SRC-2037／## 名称与多租户](分析工作区/inputs/user-four-area-and-reuse-directions-20261017.md)
+
+**CBR-002　已有功能承接范围**
+
+接入AI现有可用功能及云呼叫既有功能，沿用各自业务规则；原占位页面不自动新增开发。历史Cloud范围以当时确认的v1.1.0完成后能力为参照，具体清单需与新版依赖重新对账。
+
+确认依据：[SRC-2007／## C01 ](分析工作区/inputs/user-confirmations.md)；[SRC-2038／## 原交互复用](分析工作区/inputs/user-four-area-and-reuse-directions-20261017.md)
+
+**CBR-003　本期业务边界**
+
+先整合AI外呼与云呼叫，并依后续确认承接v1.2品牌和同品牌线索流转；完整DCC业务和通用自动规则引擎留待后续。
+
+确认依据：[SRC-2010／whole confirmation question and answer](分析工作区/inputs/user-g1-confirmation-20261015.md)；[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)
+
+**CBR-004　四区域导航与过渡入口替换**
+
+顶层采用坐席工作台、呼叫中心、报表中心、公共能力；替代旧AI／云呼叫工作区切换展示及v1.2过渡外链，两模块的开通及业务权限分别控制。
+
+确认依据：[SRC-2035／## 四区域导航](分析工作区/inputs/user-four-area-and-reuse-directions-20261017.md)；[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)
+
+**CBR-005　首页与重复概览**
+
+本版不新增统一首页，取消独立运营概览；重复能力按已确认方向归并，不据此新增报表指标或业务权限。
+
+确认依据：[SRC-2007／## C21 ](分析工作区/inputs/user-confirmations.md)；[SRC-2036／## 概览归并](分析工作区/inputs/user-four-area-and-reuse-directions-20261017.md)
+
+**CBR-006　复用交互与业务文案**
+
+AI和云呼叫对应页面尽量直接复用原有布局与交互；有业务逻辑冲突时按确认规则调整，业务页面不展示仅供技术人员阅读的信息。
+
+确认依据：[SRC-2037／## 名称与多租户](分析工作区/inputs/user-four-area-and-reuse-directions-20261017.md)；[SRC-2038／## 原交互复用](分析工作区/inputs/user-four-area-and-reuse-directions-20261017.md)
+
+### 身份、授权与工作位置
+
+**CBR-007　存量身份基准**
+
+以AI生产账号、租户及历史归属为存量身份基准，云呼叫映射接入。具体跨服务身份匹配和认证实现不在本次冻结中。
+
+确认依据：[SRC-2007／## C15 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C16 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-008　多租户登录**
+
+先验证账号，再进入有权租户；单租户直接进入，多租户首次选择，之后恢复上次仍合法的租户，并允许从顶栏切换。
+
+确认依据：[SRC-2037／## 名称与多租户](分析工作区/inputs/user-four-area-and-reuse-directions-20261017.md)
+
+**CBR-009　模块独立开通**
+
+AI外呼、云呼叫按租户独立开通，支持单独或同时使用，分别满足各自资源条件；已有AI生产开通与启停状态沿用。
+
+确认依据：[SRC-2007／## C17 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-010　超管与租户管理员分工**
+
+租户模块开通归超管；具成员管理权限的租户管理员，在本租户已开通模块及允许的业务角色范围内为成员授权。
+
+确认依据：[SRC-2007／## C19 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C20 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-011　成员模块权限分开**
+
+同一账号在同一租户的AI、云呼叫业务权限分别授予，可拥有不同角色；公共管理权限按对应管理规则控制。
+
+确认依据：[SRC-2007／## C18 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C20 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-012　全局与租户停用范围**
+
+租户管理员停用本租户访问，超管停用整个登录账号；本租户停用不影响该账号其他租户授权，历史任务、通话和操作记录保留。
+
+确认依据：[SRC-2007／## C30 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-013　停用时当前通话收尾**
+
+停用范围内立即禁止新操作，仅允许已接通的当前通话及必要话后保存，完成后结束该范围的使用。
+
+确认依据：[SRC-2024／whole confirmation question and answer](分析工作区/inputs/user-g2-disable-call-confirmation-20261016.md)
+
+**CBR-014　已受理后台任务继续**
+
+停用前已受理的AI／预外呼／IVR任务作为租户任务按原条件继续；停用者不能再操作，其他已有权人员依原权限管理，不自动转交任务。
+
+确认依据：[SRC-2025／whole confirmation question and answer](分析工作区/inputs/user-g2-disable-task-confirmation-20261016.md)
+
+**CBR-015　首次与后续业务入口**
+
+不新增首页；首次在合法权限和开通条件下优先云呼叫入口，之后恢复上次合法工作位置。无明确坐席作业／监管默认入口且同时有导入分配和云报表权限的首次用户，优先进入导入与分配。
+
+确认依据：[SRC-2007／## C21 ](分析工作区/inputs/user-confirmations.md)；[SRC-2039／whole confirmation question and answer](分析工作区/inputs/user-decision-IA-CHOICE-02A-20261017.json)
+
+**CBR-016　页面与筛选恢复**
+
+同一账号、同一租户返回业务位置时恢复仍有权页面和列表筛选，重新校验权限并刷新业务数据。
+
+确认依据：[SRC-2007／## C22 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-017　公共管理进入与返回**
+
+公共管理在同一窗口进入并返回原业务位置；仅有公共管理权时登录直达首个有权管理页。同次登录再次进入时恢复当前账号、当前租户的上次合法管理页和筛选；首次或失效时进入首个有权页，不保留未提交草稿。
+
+确认依据：[SRC-2032／whole confirmation question and answer](分析工作区/inputs/user-page-management-landing-confirmation-20261016.md)；[SRC-2033／whole confirmation question and answer](分析工作区/inputs/user-page-public-same-window-confirmation-20261016.md)；[SRC-2034／whole confirmation question and answer](分析工作区/inputs/user-page-public-location-memory-confirmation-20261016.md)
+
+**CBR-018　电话切换边界**
+
+沿原云呼叫电话范围：Cloud页面之间包括Cloud报表保留原电话条和检查；进入AI、公共能力或切换租户前，先完成本人通话、必要话后并确认离线。仅监管他人且本人无电话会话，不按他人坐席状态拦截。
+
+确认依据：[SRC-2040／whole confirmation question and answer](分析工作区/inputs/user-decision-IA-CHOICE-03-20261017.json)；[SRC-2007／## C23 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-019　未保存内容保护**
+
+普通未保存表单沿原保存、放弃或取消交互处理，保留相应保护；切换业务区域不等于停止后台任务。
+
+确认依据：[SRC-2007／## C23 ](分析工作区/inputs/user-confirmations.md)；[原确认稿Q08.2](分析工作区/inputs/confirmed-drafts/需求草稿.md)
+
+### 公共能力与业务保护
+
+**CBR-020　公共对象统一维护**
+
+统一管理系统账号、租户基础资料、公共业务分类和本租户黑名单，避免两套独立维护；供应商账号、机器人、人工坐席和专业执行配置仍在原模块维护。
+
+确认依据：[SRC-2007／## C02 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C03 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C04 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C05 ](分析工作区/inputs/user-confirmations.md)；[SRC-2038／## 原交互复用](分析工作区/inputs/user-four-area-and-reuse-directions-20261017.md)
+
+**CBR-021　租户公共分类目录**
+
+租户管理员维护本租户公共分类，两个模块共用线索类、活动类；AI新／冷线索细分和具体活动沿原专业配置及执行规则。
+
+确认依据：[SRC-2007／## C04 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C24 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C25 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C28 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-022　AI场景分类关联**
+
+沿原标签管理→场景配置入口，按本租户具体业务场景关联公共分类，保留原AI类型、标签和供应商参数；公共目录维护不自动下放AI专业配置权。
+
+确认依据：[SRC-2007／## C26 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C27 ](分析工作区/inputs/user-confirmations.md)；[SRC-2026／whole confirmation question and answer](分析工作区/inputs/user-g2-category-granularity-confirmation-20261016.md)
+
+**CBR-023　公共分类停用**
+
+停用只限制新选择和新关联，原场景保留关联并继续按原规则创建任务；已受理任务及历史保留。
+
+确认依据：[SRC-2058／whole confirmation question and answer](分析工作区/inputs/user-category-disable-confirmation-20261019.json)
+
+**CBR-024　名单维护与来源范围**
+
+当前租户集中维护黑名单，保留原分组、来源、适用范围及供应商同步状态；不因同品牌自动跨租户共享。
+
+确认依据：[SRC-2007／## C05 ](分析工作区/inputs/user-confirmations.md)；[SRC-2038／## 原交互复用](分析工作区/inputs/user-four-area-and-reuse-directions-20261017.md)
+
+**CBR-025　公共拒联与专项名单**
+
+公共明确拒联对AI、人工、预外呼、IVR四种外呼生效，正常呼入继续接听；AI意向保护等专项名单保留原范围和期限。
+
+确认依据：[SRC-2007／## C06 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C09 ](分析工作区/inputs/user-confirmations.md)；[SRC-2059／whole confirmation question and answer](分析工作区/inputs/user-historical-restriction-confirmation-20261019.json)
+
+**CBR-026　人工拒联自动入库**
+
+有权坐席成功保存客户明确拒绝联系的处理结果后，自动加入当前租户公共禁呼，保留来源通话、操作人及时间。
+
+确认依据：[SRC-2007／## C07 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-027　AI拒联人工核实**
+
+AI结果本版先由有权管理员或单独获新增授权的运营人员核实后加入公共禁呼；不按无意向、拒接或挂机自动入库，新增权不包含解除权。
+
+确认依据：[SRC-2007／## C08 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C29 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-028　明确拒联有效期与解除**
+
+明确拒联长期有效，须有权本租户管理员或有该租户管理权限的平台管理员手动解除，填写原因并保留操作人和时间。
+
+确认依据：[SRC-2007／## C09 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C10 ](分析工作区/inputs/user-confirmations.md)
+
+**CBR-029　历史名单分流承接**
+
+按证据和当前有效状态分流：有效且有明确拒联证据的记录经对账纳入公共拒联；专项维持原范围和期限；已解除或到期不复活，含义不明保留原约束待核，不自动永久化。
+
+确认依据：[SRC-2059／whole confirmation question and answer](分析工作区/inputs/user-historical-restriction-confirmation-20261019.json)
+
+**CBR-030　AI服务汇总导出口径**
+
+AI服务汇总导出采用当前分钟与服务口径，替换旧金额和大小模型独立余额列；财务权限及有权租户范围仍独立校验，不因此改造其他计费统计。
+
+确认依据：[SRC-2070／whole confirmation question and answer](分析工作区/inputs/user-current-service-export-confirmation-20261019.json)
+
+**CBR-031　账号和租户删除政策**
+
+只有无任务、通话、账务等业务引用的对象才允许按原权限删除；账号另有关联租户时也禁止删除。有业务历史继续保留，必要操作审计保留。本条不授权实际删除。
+
+确认依据：[SRC-2077／whole confirmation question and answer](分析工作区/inputs/user-reference-guarded-deletion-confirmation-20261019.json)
+
+### 品牌与同品牌线索流转
+
+**CBR-032　品牌与租户关系**
+
+每租户至多关联一个品牌，每品牌至多一个总部并可关联多个独立门店；新建业务租户必选品牌，历史未关联租户保留原功能并逐步补齐。
+
+确认依据：[SRC-2007／## C12 ](分析工作区/inputs/user-confirmations.md)；[SRC-2007／## C13 ](分析工作区/inputs/user-confirmations.md)；[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11202]](分析工作区/inputs/v120-frozen-facts-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11203]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-033　品牌管理职责与关联列表**
+
+品牌资料和品牌／总部／门店关联由具相应对象范围的超管维护，租户管理员只读本租户归属；提供有权关联租户基础资料列表，同品牌不自动授予跨租户业务或任务权限。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11201]](分析工作区/inputs/v120-frozen-facts-20261021.json)；[SRC-2043／whole confirmation question and answer](分析工作区/inputs/user-decision-brand-related-tenants-20261017.json)
+
+**CBR-034　已有线索后的关联锁定**
+
+已有线索且已绑定的租户禁止改品牌及总部／门店身份；历史未关联租户允许首次绑定，绑定后锁定，同原值重提不算变更。首次绑定不迁移历史线索或初始化历史轮次。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11217]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-035　品牌加线索编码识别**
+
+同一品牌内使用统一唯一线索编码识别业务线索，跨媒体、门店来源沿用；同手机号异码分别处理，不按手机号归并新线索。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11212]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-036　当前租户逐次串行培育**
+
+每轮由当前负责租户人员逐次选择并启动AI、预外呼或人工，同一线索按顺序执行，不并行呼叫，不引入自动条件衔接。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11206]](分析工作区/inputs/v120-frozen-facts-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11208]](分析工作区/inputs/v120-frozen-facts-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11213]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-037　启动下一种方式的条件**
+
+同一线索上一种方式执行结束且结果保存后，业务人员才能启动下一种方式。受理、执行结束和结果保存不视为同一状态。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11215]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-038　转交前结束该条并确认不再呼叫**
+
+先结束该条线索的执行安排，确认不再呼叫才允许转交；进行中通话、排队或待重呼未处理时不满足条件。这与下一种方式要求前段结果保存的条件分别核对。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11210]](分析工作区/inputs/v120-frozen-facts-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11215]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-039　转交方向与生效**
+
+总部下发同品牌门店；门店仅交回同品牌唯一总部，不能直接转另一门店。成功后切换归属，由目标租户接续，无需接收方另行确认。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11204]](分析工作区/inputs/v120-frozen-facts-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11205]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-040　转交岗位**
+
+本租户租户管理员、运营人员及该线索当前负责坐席可发起总部下发或门店上交；当前岗位和目标范围仍按其实际资格校验。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11214]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-041　接续资料与历史截止**
+
+当前接收方按资格查看线索基本信息和历轮结果；已转出方只能查看转出前已发生的历史结果，当前接续资料不包含跨租户录音共享。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11207]](分析工作区/inputs/v120-frozen-facts-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11208]](分析工作区/inputs/v120-frozen-facts-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11211]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-042　再次回到同一租户新增轮次**
+
+同条线索再次回到总部或同一门店时沿用线索编码，新增培育轮次，保留历轮结果。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/memory/business-rules.json/content/business_rules[id=BR-11209]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+**CBR-043　入站与既有回传责任**
+
+平台提供线索传入接口，由外部业务系统主动调用；不以外部提供拉取API为前提。既有出站回传保持原范围，不自动新增每轮触发、目标或载荷改造；正式技术字段与鉴权不在本次冻结范围。
+
+确认依据：[SRC-2081／whole confirmation question and answer](分析工作区/inputs/user-v120-inheritance-20261021.json)；[SRC-2082／facts/interfaces/interface-index.json/content/interfaces[id=API-11209]](分析工作区/inputs/v120-frozen-facts-20261021.json)；[SRC-2082／facts/interfaces/interface-index.json/content/interfaces[id=API-11207]](分析工作区/inputs/v120-frozen-facts-20261021.json)
+
+## 已被后续确认覆盖的旧内容
+
+以下保留历史事实，不继续作为当前待选方案，也不进入上面的有效规则：
+
+- AI／云呼叫工作区切换器＋公共管理独立按钮作为最终导航 → 四区域导航；v1.2两系统切换及AI外链仅为过渡。
+- 同品牌允许多个总部租户的旧表述 → 按用户要求承接v1.2单总部、多独立门店。
+- 品牌维护仅以未明确对应的“平台管理员”名称描述 → 品牌与关联按v1.2由具相应对象范围的超管维护。
+- 21场景、29功能、旧页面数量代表最终整合范围 → 范围后续加入v1.2品牌及线索流转；场景/页面/候选数量均不是本次冻结规则。
+- 分类停用后是否强制旧场景更换、旧名单是否全部维持原范围、服务汇总是否保留旧金额列等旧待选项 → 分别按已确认分类停用、历史分流、当前分钟服务导出执行方向。
+
+- 早期21场景范围中将跨租户线索流转全部留待后续 → 后续明确要求承接v1.2同品牌线索流转；完整DCC和通用自动引擎仍未因此纳入。
+
+## 使用限制
+
+- 规则冻结与实现证据、测试许可分开；上面的业务要求不等于当前代码或供应商已满足。
+- v1.2产品规则按明确继承指示引用；其风险接受和G3不自动变为v2批准。
+- 原型和过程稿不能反向增加规则。原有分析状态、问题清单和阶段通过记录不因本次整理而修改。
+- 今后调整本冻结内容应形成明确变更和新版本，不静默改写本次快照。
+</pre></body></html>
