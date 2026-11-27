@@ -68,6 +68,7 @@
   const strategyTreeExpansions = new WeakMap();
   const strategyWorkspaceSelections = new WeakMap();
   const strategyWorkspaceBasicOpen = new WeakSet();
+  const deliveryChannelTabs = new WeakMap();
   const dateTime = new Intl.DateTimeFormat('zh-CN', {
     timeZone:'Asia/Shanghai', dateStyle:'short', timeStyle:'short', hour12:false
   });
@@ -1136,18 +1137,50 @@
       (external ? applicationBindingHint(context,'下发',handling.deliveryTargetId,handling.application,[...path,'application']) : '') + '</section>';
   }
 
+  function deliveryOutputFields(draft,context,kind,channel,readOnly) {
+    const ai = channel==='ai';
+    const fields = catalog.deliveryOutputFieldsFor(context,draft.categoryId,draft.mapping || []);
+    const sources = ai ? catalog.aiDeliveryOutputSources(context,draft.categoryId) : [];
+    const rows = draft.fieldsByChannel?.[kind]?.[channel] || [];
+    const path = ['fieldsByChannel',kind,channel];
+    const used = new Set(rows.map(row=>row.fieldId));
+    return '<section class="sc-block sc-output-fields" data-config-delivery-output="'+e(channel)+'"><div class="sc-section-head"><h4>下发字段</h4>'+
+      (readOnly ? '' : control('添加下发字段','delivery-output-add',path,null,rows.length>=50 || !fields.some(field=>!used.has(field.id))))+
+      '</div><p class="sc-note">指定值留空时，'+(ai ? '从所选的本轮 AI 结果取值。' : '直接取本轮坐席已保存的填写值。')+
+      '标记为接收方必填的字段取不到值时不会下发，选填字段取不到则不传。线索编号和门店仍由系统处理。</p>'+
+      (rows.length ? '' : '<p class="sc-note">'+(fields.length ? '未增配业务字段，保留原有下发映射。' : '当前分类暂无可配置的填写字段。')+'</p>')+
+      rows.map((row,index)=>{
+        const p=[...path,index];
+        const choices=fields.filter(field=>field.id===row.fieldId || !used.has(field.id)).map(field=>({value:field.id,label:field.label}));
+        const fixed=Boolean(String(row.fixedValue ?? '').trim());
+        return '<div class="sc-output-row" data-config-delivery-output-row><div class="sc-grid">'+
+          select([...p,'fieldId'],row.fieldId,'下发字段',[emptyOption('请选择填写字段'),...includeStoredOption(choices,row.fieldId,row.label)],'delivery-output-field')+
+          input([...p,'fixedValue'],row.fixedValue,'指定下发值（选填）',{max:500,placeholder:'留空取本轮结果'})+
+          (ai ? select([...p,'sourceId'],row.sourceId,'留空时的 AI 取数来源',
+            [emptyOption(fixed ? '已指定值，可不选' : '请选择本轮 AI 来源'),...includeStoredOption(sources,row.sourceId,row.sourceLabel)]) : '')+
+          '</div><div class="sc-output-row-tools"><label><input type="checkbox" data-config-path="'+pathData([...p,'required'])+
+          '"'+(row.required?' checked':'')+'> 接收方必填</label>'+
+          (readOnly?'':control('移除','remove',path,index,false,'移除下发字段 '+(index+1)))+'</div></div>';
+      }).join('')+'</section>';
+  }
+
   function deliveryRules(draft,readOnly,context) {
     const fields = catalog.deliveryRuleFieldsFor(context,draft.categoryId);
     const aiFields = catalog.aiDeliveryRuleFieldsFor(context,draft.categoryId);
     const aiSource = catalog.aiDeliveryOptions(context,draft.categoryId);
+    const tabs = deliveryChannelTabs.get(draft) || {};
     function group(label,path,rules,directory,isAI=false) {
-      return '<div class="sc-block" data-config-delivery-mode="' + (isAI ? 'ai' : 'manual') + '"><div class="sc-section-head">' +
-        '<h4>' + e(label) + '</h4>' + control('添加下发规则','delivery-rule',path) + '</div>' +
+      const channel = isAI ? 'ai' : 'manual';
+      const kind = path[1];
+      const selected = tabs[kind] || 'manual';
+      return '<div class="sc-block" data-config-delivery-mode="' + channel + '"' + (readOnly || channel===selected?'':' hidden') + '><div class="sc-section-head">' +
+        '<h4>' + (readOnly?e(label)+' · ':'') + '下发条件</h4>' + (readOnly?'':control('添加下发规则','delivery-rule',path)) + '</div>' +
         (isAI ? '<p class="sc-note">标签读取当前租户类型和二级业务分类下已启用的供应商标签。' +
           (aiSource.status!=='ready' ? '暂无可读取的标签配置。' : !aiSource.tags.length ? '当前分类暂无可用标签。' : '') +
           '状态和时长取本轮 AI 话单，缺值不会按 0 秒处理。</p>' : '') +
         (rules.length ? '' : '<p class="sc-note">暂无规则。</p>') +
-        rules.map((rule,index)=>deliveryRule(rule,[...path,index],index,rules.length,label,directory)).join('') + '</div>';
+        rules.map((rule,index)=>deliveryRule(rule,[...path,index],index,rules.length,label,directory)).join('') +
+        deliveryOutputFields(draft,context,kind,channel,readOnly) + '</div>';
     }
     return '<p class="sc-note">按本轮呼叫方式选择条件组，意向下发优先。人工外呼和预外呼取本轮填写值及话单。</p>' +
       (readOnly && draft.aiCriteria === undefined ? '<p class="sc-note">此版本尚未单独配置 AI 下发条件；历史版本执行逻辑不变。</p>' : '') +
@@ -1156,6 +1189,10 @@
         const handling = draft.handlingByKind ? draft.handlingByKind[value] || {} : catalog.deliveryHandling(draft,value);
         return '<section class="sc-block" data-config-delivery-type="' + e(value) + '" data-config-ai-delivery><h3>' +
           e(label) + '规则</h3>' +
+          (readOnly?'':'<div class="sc-output-tabs" role="group" aria-label="'+e(label+'的呼叫渠道')+'">' +
+          [['manual','人工外呼／预外呼'],['ai','AI 外呼']].map(([key,title])=>
+            '<button type="button" class="btn btn-sm" data-config-delivery-tab="'+key+'" data-config-delivery-kind="'+e(value)+
+            '" aria-pressed="'+String((tabs[value]||'manual')===key)+'">'+e(title)+'</button>').join('') + '</div>') +
           group('人工外呼／预外呼',['criteria',value],draft.criteria?.[value] || [],fields) +
           group('AI 外呼',['aiCriteria',value],draft.aiCriteria?.[value] || [],aiFields,true) +
           deliveryBehaviorFields(handling,context,type) + '</section>';
@@ -1896,6 +1933,13 @@
   function arrayAction(view, button) {
     const path = JSON.parse(button.dataset.configArray);
     const operation = button.dataset.configOperation;
+    if (operation==='delivery-output-add') {
+      const byKind = view.draft.fieldsByChannel ||= {};
+      const channels = byKind[path[1]] ||= {};
+      const fields = channels[path[2]] ||= [];
+      fields.push({fieldId:'',fixedValue:'',required:false,sourceId:''});
+      return fields.length-1;
+    }
     const current = pathValue(view.draft,path);
     const rows = current ?? [];
     if (current === undefined) setPath(view.draft,path,rows);
@@ -2149,6 +2193,15 @@
       if (node.open) expanded.add(id);
       else expanded.delete(id);
     }
+  }
+
+  function switchDeliveryChannel(view,button) {
+    const tabs = deliveryChannelTabs.get(view.draft) || {};
+    tabs[button.dataset.configDeliveryKind] = button.dataset.configDeliveryTab;
+    deliveryChannelTabs.set(view.draft,tabs);
+    const section = button.closest('[data-config-delivery-type]');
+    for (const tab of section.querySelectorAll('[data-config-delivery-tab]')) tab.setAttribute('aria-pressed',String(tab===button));
+    for (const panel of section.querySelectorAll('[data-config-delivery-mode]')) panel.hidden = panel.dataset.configDeliveryMode !== button.dataset.configDeliveryTab;
   }
 
   function bindEditor(view) {
@@ -2482,6 +2535,9 @@
         if ((headquartersOnly || autoExternal) && parent.deliveryMode === 'oneToMany') {
           parent.deliveryMode = 'oneToOne';
         }
+      } else if (reactive === 'delivery-output-field') {
+        parent.fixedValue = '';
+        parent.sourceId = '';
       } else if (reactive === 'direct-delivery-value-field') {
         delete parent.label;
       } else if (reactive === 'direct-delivery-target-type') {
@@ -2521,6 +2577,8 @@
       onChange();
     };
     form.onclick = event => {
+      const tab = event.target.closest('[data-config-delivery-tab]');
+      if (tab) { switchDeliveryChannel(view,tab); return; }
       const pick = event.target.closest('[data-config-strategy-select]');
       if (pick) {
         const id = pick.dataset.configStrategySelect;
@@ -2616,6 +2674,11 @@
           return;
         }
         const movedIndex = arrayAction(view,button);
+        if (valueOperation==='delivery-output-add') {
+          render(JSON.stringify([...JSON.parse(button.dataset.configArray),movedIndex,'fieldId']));
+          onChange();
+          return;
+        }
         const nextIndex = button.dataset.configIndex === undefined ? undefined : String(movedIndex);
         const refreshed = render();
         const controls = [...refreshed.querySelectorAll('[data-config-operation]:enabled')]

@@ -927,6 +927,13 @@
 
   function enterDelivery(state, context, task, plan, policy) {
     const automatic = automaticDelivery(policy);
+    const output = automatic ? deliveryOutput(task,policy,plan.deliveryGate?.type) : {entries:[]};
+    if (output.error) {
+      task.skynet = {...task.skynet,processing:{...task.skynet.processing,status:'待处理',destination:'待核对下发字段',waitingForDeliveryFields:true}};
+      task.taskStatus = '待处理';
+      task.waitReason = output.error;
+      return {status:'待处理',reason:output.error};
+    }
     const internal = policy.targetType === 'internalTenant';
     const direct = policy.directStore;
     const at = new Date().toISOString();
@@ -953,7 +960,7 @@
       const values = taskIntakeValues(task,originalIntake(state,context,task));
       Object.assign(delivery,{mode:direct ? 'oneToOne' : 'automatic',modeLabel:direct ? '接入直发' : '自动下发',simulated:true,
         operatorName:'系统自动执行',sentAt:at,
-        mappedFields:deliveryMappedFields(policy.template,values,policy),
+        mappedFields:deliveryMappedFields(policy.template,values,policy,output.entries),
         ...(policy.target?.application ? {externalId:'MOCK-DELIVERY-' + task.skynet.roundId,
           application:structuredClone(policy.target.application)} : {}),
         decisionEvidence:{outcome:plan.outcome,
@@ -2867,7 +2874,7 @@
   }
 
   function canRetryDecision(processing) {
-    return Boolean(processing?.missingFields?.length || processing?.waitingForCold || processing?.waitingForTemplate ||
+    return Boolean(processing?.missingFields?.length || processing?.waitingForCold || processing?.waitingForTemplate || processing?.waitingForDeliveryFields ||
       processing?.waitingForTarget || processing?.waitingForDeliveryTarget || processing?.waitingForFieldLinkage);
   }
 
@@ -3036,7 +3043,7 @@
     if (!processing.waitingForTarget) commitStrategy(task,plan);
     if (deliveryActions.has(plan.action)) {
       const delivery = enterDelivery(state,context,task,plan,policy);
-      return {status:delivery.status,action:plan.action,delivery,warning:''};
+      return {status:delivery.status,action:plan.action,...(delivery.reason ? {warning:delivery.reason} : {delivery,warning:''})};
     }
     if (plan.action === '结束培育') {
       const endReason = plan.endReason || (plan.outcome === 'notMatched' ? '无后续培育规则命中' : '结束培育');
@@ -3316,7 +3323,7 @@
     }
     if (deliveryActions.has(plan.action)) {
       const delivery = enterDelivery(state,context,task,plan,policy);
-      return {status:delivery.status,action:plan.action,delivery,warning:''};
+      return {status:delivery.status,action:plan.action,...(delivery.reason ? {warning:delivery.reason} : {delivery,warning:''})};
     }
     return {status:task.taskStatus,action:plan.action,warning:canRetryDecision(processing) || unmatched ? waitReason : ''};
   }
@@ -3407,6 +3414,8 @@
     if (policy.error) return {error:policy.error};
     const {mode,error} = deliveryDispatchMode(policy,requestedMode);
     if (error) return {error};
+    const output = deliveryOutput(task,policy);
+    if (output.error) return output;
     if (!settings.deliveryModes.some(option => option.value === mode)) return {error:'请选择一种可用的下发方式。'};
     if (policy.targetType === 'internalTenant') return chosenDeliveryTargets(state,context,task,mode,receiverTenantIds);
     const plan = policy.directStore ? directDeliveryAssignments(state,context,task,policy.directStore) :
@@ -3423,7 +3432,49 @@
     return {stores:[store],assignments:deliveryNativeLeads(state,context,task).map(lead=>({kind:'native',lead,store}))};
   }
 
-  function deliveryMappedFields(template, values, policy) {
+  // Resolve only the completed round bound to this delivery; never read a previous visit or intake for configured fields.
+  function deliveryOutput(task, policy, type) {
+    const template = policy.template;
+    if (policy.directDeliveryTarget || policy.directStore || !template.fieldsByChannel) return {entries:[]};
+    const roundId = task.skynet.roundId;
+    const round = task.skynet.lastRound?.roundId === roundId ? task.skynet.lastRound : null;
+    const visits = (task.followupHistory || []).filter(visit=>visit?.roundId===roundId);
+    const visit = visits.length===1 && (!visits[0].taskId || visits[0].taskId===task.taskId) ? visits[0] : null;
+    const callMethod = nurtureMethod(round?.callMethod || visit?.callMode || visit?.callType);
+    const channel = callMethod === 'AI 外呼' ? 'ai' : ['人工外呼','预外呼'].includes(callMethod) ? 'manual' : '';
+    const fields = template.fieldsByChannel[type || task.skynet.delivery?.type ||
+      task.skynet.processing?.deliveryGate?.type || 'intent'];
+    if (!channel && !callMethod && fields && Object.values(fields).some(rows=>rows?.length)) {
+      return {error:'无法确认本轮呼叫渠道，未下发。请核对本轮回访或 AI 话单。'};
+    }
+    const rows = fields?.[channel] || [];
+    const entries = [], missing = [];
+    const present = value => (typeof value==='number' && Number.isFinite(value)) || typeof value==='boolean' ||
+      typeof value==='string' && Boolean(value.trim()) ||
+      Array.isArray(value) && value.length>0 && value.every(item=>typeof item==='string'&&Boolean(item.trim()) || typeof item==='number'&&Number.isFinite(item));
+    for (const row of rows) {
+      let value = row.fixedValue;
+      if (!present(value)) {
+        if (channel==='manual' && visit) {
+          const key = row.followupKey;
+          value = key && Object.hasOwn(visit.details || {},key) ? visit.details[key] :
+            {visitResult:visit.result,contactStatus:visit.contact,visitDesc:visit.note,nextVisitTime:visit.nextAt}[key];
+        } else if (channel==='ai' && round) {
+          if (row.sourceId==='status') value = round.aiCallStatus;
+          else if (row.sourceId==='duration') value = settings.durationSeconds(round.aiDurationSeconds);
+          else if (row.sourceSupplierId && round.aiSupplierId===row.sourceSupplierId &&
+              Array.isArray(round.aiTags) && row.sourceAliases?.some(alias=>round.aiTags.includes(alias))) value = row.sourceTagName;
+        }
+      }
+      if (!present(value)) {
+        if (row.required) missing.push(row.label);
+        else entries.push([row.target,undefined]);
+      } else entries.push([row.target,structuredClone(value)]);
+    }
+    return missing.length ? {error:'本轮缺少必填下发字段：'+missing.join('、')+'。未下发，请核对本轮结果。'} : {entries};
+  }
+
+  function deliveryMappedFields(template, values, policy, roundOutput = []) {
     const fixed = policy?.directDeliveryTarget?.fields || [];
     const configured = new Map(fixed.map(({key,value})=>[key,value]));
     const aliases = new Set();
@@ -3438,13 +3489,18 @@
     for (const [key,value] of configured) {
       if (!aliases.has(key) && !routingTargets.has(key)) entries.push([key,value]);
     }
-    return Object.fromEntries(entries);
+    const result = new Map(entries);
+    for (const [target,value] of roundOutput) {
+      if (value===undefined) result.delete(target);
+      else result.set(target,value);
+    }
+    return Object.fromEntries(result);
   }
 
-  function deliveryLeadRows(state, task, template, assignments, policy) {
+  function deliveryLeadRows(state, task, template, assignments, policy, roundOutput = []) {
     const nurtureResult = getDeliveryNurtureResult(task);
     const mappedFields = (values,localLeadCode,storeId) =>
-      deliveryMappedFields(template,{...values,originalKey:localLeadCode,dealer:storeId},policy);
+      deliveryMappedFields(template,{...values,originalKey:localLeadCode,dealer:storeId},policy,roundOutput);
     let existingCodes;
     let sequence = 1;
     return assignments.map(({kind,lead,store}) => {
@@ -3478,6 +3534,8 @@
       return {error:'直发对象和门店已按原来件确定。'};
     }
     const {template} = policy;
+    const output = deliveryOutput(task,policy);
+    if (output.error) return output;
     const selected = settings.deliveryModes.find(option => option.value === mode);
     const legacy = !template.criteria && settings.legacyDeliveryModes.find(option => option.value === mode);
     if (!selected && !legacy) return {error:'请选择一种可用的下发方式。'};
@@ -3509,7 +3567,7 @@
       targets:selection.targets || (policy.target ? [policy.target] : []),
       ...(selection.storeMatch || policy.storeMatch ? {storeMatch:structuredClone(selection.storeMatch || policy.storeMatch)} : {}),
       ...(selection.matching ? {matching:selection.matching} : {}),
-      receipt,values,stores,assignments,originals,targetLabel};
+      receipt,values,stores,assignments,originals,targetLabel,roundOutput:output.entries};
   }
 
   function deliveryReviewFingerprint(prepared) {
@@ -3525,7 +3583,7 @@
 
   function deliveryReviewContent(task, policy, prepared) {
     const leads = prepared.internal ? prepared.originals : (prepared.assignments || []).map(item=>item.lead);
-    const content=[deliveryMappedFields(policy.template,prepared.values,policy),leads.map(lead=>lead.values),getDeliveryNurtureResult(task)];
+    const content=[deliveryMappedFields(policy.template,prepared.values,policy,prepared.roundOutput),leads.map(lead=>lead.values),getDeliveryNurtureResult(task)];
     if (prepared.storeMatch) content.push(internalMatchSignature(prepared.storeMatch));
     return JSON.stringify(content);
   }
@@ -3702,8 +3760,8 @@
 
   function finishDispatch(state, context, task, pending, policy, prepared, operator) {
     const {template} = policy;
-    const {mode,label,internal,targets,receipt,values,stores,assignments,originals,targetLabel,storeMatch} = prepared;
-    const leads = assignments && deliveryLeadRows(state,task,template,assignments,policy);
+    const {mode,label,internal,targets,receipt,values,stores,assignments,originals,targetLabel,storeMatch,roundOutput} = prepared;
+    const leads = assignments && deliveryLeadRows(state,task,template,assignments,policy,roundOutput);
     const delivery = {
       ...pending,templateName:pending.templateName || template.name,status:'已下发',
       mode,modeLabel:label,simulated:true,trigger:'manual',
@@ -3717,7 +3775,7 @@
       ...(leads ? {leads} : {}),
       ...(targetLabel ? {targetLabel} : {}),
       ...(storeMatch ? {storeMatch:structuredClone(storeMatch)} : {}),
-      mappedFields:deliveryMappedFields(template,values,policy)
+      mappedFields:deliveryMappedFields(template,values,policy,roundOutput)
     };
     const previous = {taskStatus:task.taskStatus,skynet:task.skynet,waitReason:task.waitReason};
     const previousReceipts = state.skynetReceipts;
@@ -3733,8 +3791,9 @@
           localLeadCode:lead.localLeadCode,sourceLeadCode:lead.sourceLeadCode,nurtureResult:lead.nurtureResult,
           leadDelivery:{...(internal ? {status:'已下发',receiverTenantIds:targets.map(target=>target.id),sentAt:delivery.sentAt} :
             {status:'已下发',storeId:lead.storeId,storeName:lead.storeName,sentAt:delivery.sentAt}),
-            ...(policy.directDeliveryTarget?.fields?.length ? {
-              mappedFields:lead.mappedFields || deliveryMappedFields(template,lead.values,policy)
+            ...(policy.directDeliveryTarget?.fields?.length || roundOutput?.length ? {
+              mappedFields:lead.mappedFields || deliveryMappedFields(template,
+                {...lead.values,originalKey:lead.localLeadCode},policy,roundOutput)
             } : {})}} : item;
       });
     }

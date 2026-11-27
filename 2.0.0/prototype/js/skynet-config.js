@@ -1316,6 +1316,69 @@
     });
   }
 
+  const deliveryOutputChannels = ['manual','ai'];
+  const protectedDeliveryOutput = new Set(['originalKey','dealer','intentStore','sourceLeadCode','localLeadCode','clueid','hclueid',
+    '线索编号','原线索编号','意向门店','接收门店','下发门店','__proto__','constructor','prototype']);
+  function deliveryOutputFieldsFor(context,categoryId,mapping = []) {
+    const {model,source} = categoryDirectory(context);
+    let definitions = [];
+    try {
+      const rows = model?.fields?.(categoryId,source);
+      if (Array.isArray(rows)) definitions = rows;
+    } catch (_) { return []; }
+    const reserved = new Set([...protectedDeliveryOutput,...mapping.filter(row=>protectedDeliveryOutput.has(row.source)).map(row=>row.target)]);
+    return directDeliveryFieldOptions(context,categoryId).flatMap(field=>{
+      const definition = (definitions || []).find(row=>row.id===field.id);
+      const followupKey = window.DReview21DccFollowupFields?.fieldKey?.(definition || {}) || 'field:'+field.id;
+      const alias = mapping.find(row=>row.source===field.key);
+      const target = alias?.target || field.key;
+      return reserved.has(field.key) || reserved.has(followupKey) || reserved.has(target) ||
+        mapping.some(row=>row.target===target && row.source!==field.key) ? [] : [{...field,followupKey,target}];
+    });
+  }
+
+  function aiDeliveryOutputSources(context,categoryId) {
+    const {tags} = aiDeliveryOptions(context,categoryId);
+    return [
+      {value:'status',label:'本轮 AI 通话状态'},
+      {value:'duration',label:'本轮 AI 通话时长（秒）'},
+      ...tags.map(tag=>({value:'tag:'+tag.value,label:tag.label,supplierId:tag.supplierId,tagName:tag.tagName || tag.label,
+        aliases:[...new Set([tag.value,...(tag.aliases||[]).filter(alias=>tags.filter(other=>
+          other.supplierId===tag.supplierId && other.aliases?.includes(alias)).length===1)])]}))
+    ];
+  }
+
+  function normalizeDeliveryOutput(fields,context,categoryId,mapping) {
+    requireValue(fields && typeof fields==='object' && !Array.isArray(fields) &&
+      Object.keys(fields).every(key=>deliveryTypes.some(type=>type.value===key)), '下发字段配置无效。');
+    const definitions = deliveryOutputFieldsFor(context,categoryId,mapping);
+    const aiSources = aiDeliveryOutputSources(context,categoryId);
+    return Object.fromEntries(Object.entries(fields).flatMap(([kind,channels])=>{
+      requireValue(channels && typeof channels==='object' && !Array.isArray(channels) &&
+        Object.keys(channels).every(key=>deliveryOutputChannels.includes(key)), '下发字段的呼叫渠道无效。');
+      return [[kind,Object.fromEntries(Object.entries(channels).map(([channel,rows])=>{
+        requireValue(Array.isArray(rows) && rows.length<=50,'每类下发最多配置 50 个字段。');
+        const targets = new Set();
+        return [channel,rows.map(row=>{
+          const field = definitions.find(item=>item.id===row?.fieldId);
+          requireValue(field && !targets.has(field.target),'请选择有效且不重复的下发字段，线索编号和门店不可覆盖。');
+          targets.add(field.target);
+          requireValue(row.required===undefined || typeof row.required==='boolean','下发字段的必填标识无效。');
+          requireValue(row.fixedValue===undefined || typeof row.fixedValue==='string','指定下发值须为文本。');
+          const fixedValue = text(row.fixedValue);
+          requireValue(fixedValue.length<=500,'指定下发值最多 500 字。');
+          const item = {fieldId:field.id,key:field.key,label:field.label,target:field.target,required:row.required===true};
+          if (fixedValue) return {...item,fixedValue};
+          if (channel==='manual') return {...item,followupKey:field.followupKey};
+          const source = aiSources.find(option=>option.value===row.sourceId);
+          requireValue(source,'「'+field.label+'」请指定下发值或选择本轮 AI 取数来源。');
+          return {...item,sourceId:source.value,sourceLabel:source.label,...(source.supplierId ?
+            {sourceSupplierId:source.supplierId,sourceTagName:source.tagName,sourceAliases:source.aliases} : {})};
+        })];
+      }))]];
+    }));
+  }
+
   function deliveryHandling(template, kind, {defaults = false} = {}) {
     const source = template?.handlingByKind?.[kind] ?? template ?? {};
     return Object.fromEntries(deliveryHandlingKeys.flatMap(key => Object.hasOwn(source,key) ?
@@ -1567,7 +1630,7 @@
       if (asDraft) {
         const fields = kind === 'rules' ? ['cleaning','nodes','inTransitFilter','requiresReview'] :
           kind === 'nurtureTemplates' ? ['deliveryTemplateId','rules','strategyTree','roundFlow','outboundTargetBinding'] :
-          ['criteria','aiCriteria','modes','mapping','handlingByKind',...deliveryHandlingKeys];
+          ['criteria','aiCriteria','modes','mapping','fieldsByChannel','handlingByKind',...deliveryHandlingKeys];
         for (const key of fields) {
           if (Object.hasOwn(draft,key)) saved[key] = copy(draft[key]);
           else if (prior && Object.hasOwn(prior,key)) saved[key] = copy(prior[key]);
@@ -1621,6 +1684,8 @@
           modes:modes.map(mode => mode.value),
           mapping:deliveryMapping({...draft,mapping:draft.mapping ?? prior?.mapping})
         });
+        const output = draft.fieldsByChannel ?? prior?.fieldsByChannel;
+        if (output !== undefined) saved.fieldsByChannel = normalizeDeliveryOutput(output,actual,categoryId,saved.mapping);
       }
       if (status === 'enabled') requireValue(enabledReferences(book,actual,kind,saved),
         '请先启用或替换此配置引用的配置。');
@@ -1703,6 +1768,7 @@
     historySources,historyLookupFields,defaultExternalQuery,
     deliveryActions,deliveryTypes,deliveryConditionFields,deliveryRuleFieldsFor,aiDeliveryRuleFieldsFor,aiDeliveryOptions,aiDeliveryTagKey,aiDeliveryStatusKey,aiDurationKey,aiDurationOperators,durationSeconds,matchAiDeliveryDuration,deliveryModes,legacyDeliveryModes,defaultDeliveryCriteria,validateDeliveryRule,
     deliveryHandling,isDeliveryTemplateConfigured,deliveryTargetOptions,resolveDeliveryTarget,defaultDeliveryMapping,
+    deliveryOutputFieldsFor,aiDeliveryOutputSources,
     mappingFields:intakeFields,matches,matchRule
   });
 })();
