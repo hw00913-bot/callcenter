@@ -444,6 +444,13 @@
       if (matches.length>1) return {status:'unavailable',message:'当前租户有重复的'+typeFor(type).label+'配置。'};
       const row = matches[0];
       const dependency = isDependencyType(type);
+      if (row && isAgent(type) && row.directBailian===true) {
+        if (row.enabled && row.secretVerifier && !duplicateAgentId(rows,[row],{tenants:[tenant]})) {
+          return {status:'connected',application:{id:row.id,appId:row.id,name:row.name,workspaceId:row.workspaceId,
+            connectionKey:'bailian-direct:'+fingerprint([row.id,row.workspaceId,row.secretVerifier])}};
+        }
+        return {status:'unconnected',message:'阿里百炼应用未配置、未启用或应用 ID 冲突。'};
+      }
       if (row && isAgent(type) && hasInterfaceReference(row)) {
         if (!row.enabled) return {status:'unconnected',message:typeFor(type).label+'未接入或未启用。'};
         const selected=resolveInterface(rows,row.interfaceKey,tenant);
@@ -483,7 +490,8 @@
     const brandIds = hasScope(row) ? row.brandIds : [tenant.brandId];
     const tenantIds = hasScope(row) ? row.tenantIds : [tenant.id];
     const selected=isAgent(row.type) && hasInterfaceReference(row) ? resolveInterface(rows,row.interfaceKey,tenant) : null;
-    const reference=isAgent(row.type) ? {interfaceAvailable:Boolean(selected),
+    const reference=isAgent(row.type) ? {interfaceAvailable:row.directBailian===true ? Boolean(secretVerifier) : Boolean(selected),
+      ...(row.directBailian===true ? {directBailian:true,appId:row.id,workspaceId:row.workspaceId} : {}),
       ...(hasInterfaceReference(row) ? {interfaceKey:row.interfaceKey,
         interfaceName:selected?.interfaceName || row.interfaceName || '',appId:selected?text(selected.id):text(row.interfaceAppId),
         ...(selected ? {id:text(selected.id) || dependencyKey(selected)} : {})} : {})} : {};
@@ -580,6 +588,9 @@
       const {bytes,rows} = read();
       const previous = rows.find(row => row.tenantId===tenantId && row.type===type.key);
       if (previous && !canEdit(context,tenant,previous)) return failure('当前账号没有此配置的编辑权限。');
+      if (isAgent(type.key) && previous?.directBailian===true && id!==previous.id) {
+        return failure('修改应用 ID 时，请在智能体关联重新填写 API Key。');
+      }
       if (isAgent(type.key) && previous && hasInterfaceReference(previous) && id!==previous.id) {
         return failure('此智能体已关联百炼接口，请重新选择接口后保存。');
       }
@@ -806,6 +817,46 @@
     }
   }
 
+  // Demo stores proof of a configured key, never the raw key or a usable credential.
+  async function directAgentInput(input,previous) {
+    const appId=text(input.appId),workspaceId=text(input.workspaceId),apiKey=text(input.apiKey);
+    if (!appId || appId.length>120) return failure('请填写 1 至 120 字的应用 ID。');
+    if (workspaceId.length>120) return failure('业务空间 ID 最多 120 字。');
+    if (apiKey.length>300) return failure('API Key 最多 300 字。');
+    const prior=previous?.directBailian===true && (previous.appId || previous.id)===appId ? previous.secretVerifier : '';
+    if (!apiKey && !prior) return failure('请输入 API Key。');
+    return {ok:true,appId,workspaceId,secretVerifier:apiKey ? await dependencySecret(apiKey) : prior};
+  }
+
+  async function saveDirectBinding(context,{tenantId,type,expected,input}={}) {
+    const options=applicableOptions(context),tenant=options.tenants.find(row=>row.id===tenantId);
+    if (!tenant || !window.DSession.canWrite('PAGE-2220') || !isAgent(type)) return failure('当前账号没有此智能体的配置权限。');
+    if (!input || !text(input.name) || text(input.name).length>60 || text(input.remarks).length>300)
+      return failure('请填写有效的智能体名称及备注。');
+    try {
+      const {bytes,rows}=read();
+      const visible=listRows(context,tenant,rows,options).filter(row=>isAgent(row.type));
+      if (expected!==JSON.stringify(visible)) return failure('智能体配置已变化，请重新打开后保存。');
+      const previous=rows.find(row=>row.tenantId===tenantId && row.type===type);
+      if ((previous && !canEdit(context,tenant,previous)) || visible.some(row=>row.type===type && row.editable===false))
+        return failure('当前账号没有此智能体的编辑权限。');
+      const scope=scopeInput(input,previous,tenant,options);
+      if (!scope.ok) return scope;
+      const config=await directAgentInput(input,previous);
+      if (!config.ok) return config;
+      const next={...scope.value,tenantId,type,id:config.appId,name:text(input.name),remarks:text(input.remarks),
+        updatedAt:new Date().toISOString(),enabled:true,directBailian:true,workspaceId:config.workspaceId,secretVerifier:config.secretVerifier};
+      const remaining=rows.filter(row=>row!==previous);
+      const conflict=scopeConflict(remaining,next,options);
+      if (conflict) return failure(conflictMessage(conflict));
+      if (duplicateAgentId(remaining,[next],options)) return failure(duplicateAgentMessage);
+      if (!canWriteDependencies(context,tenantId) || localStorage.getItem(storageKey)!==bytes)
+        return failure('智能体配置或账号已变化，请重新打开后保存。');
+      persist([...remaining,next]);
+      return {ok:true};
+    } catch (_) {return failure('智能体配置尚未保存，请确认浏览器允许本地存储后重试。');}
+  }
+
   // Registrations are intentionally not part of built-in binding resolution.
   const customAgentStorageKey = window.DSession.prefix + 'custom-agent-registrations-v1';
   const customAgentId = /^custom-agent-[a-f0-9-]{36}$/;
@@ -817,7 +868,8 @@
     if (data?.version!==1 || !Array.isArray(rows) || rows.some(row=>
       !row || !customAgentId.test(row.id) || !text(row.tenantId) || !text(row.name) ||
       row.name.length>60 || typeof row.remarks!=='string' || row.remarks.length>300 ||
-      !text(row.interfaceKey) || typeof row.interfaceName!=='string' ||
+      (row.directBailian===true ? !text(row.appId) || typeof row.workspaceId!=='string' || !row.secretVerifier :
+        !text(row.interfaceKey) || typeof row.interfaceName!=='string') ||
       !validIds(row.brandIds) || !validIds(row.tenantIds)) ||
       new Set(rows.map(row=>row.id)).size!==rows.length) throw Error('Invalid custom agent data');
     return {bytes,rows};
@@ -828,8 +880,10 @@
     const rows=state.rows.filter(row=>applies(row,tenant) || global && row.tenantId===tenant.id).map(row=>{
       const scope=options.tenants.filter(target=>applies(row,target));
       const source=resolveInterface(dependencies,row.interfaceKey,tenant);
-      return {id:row.id,name:row.name,remarks:row.remarks,interfaceKey:row.interfaceKey,
-        interfaceName:source?.interfaceName || row.interfaceName,interfaceAvailable:Boolean(source),
+      return {id:row.id,name:row.name,remarks:row.remarks,
+        ...(row.directBailian===true ? {directBailian:true,appId:row.appId,workspaceId:row.workspaceId,
+          secretConfigured:Boolean(row.secretVerifier),interfaceAvailable:Boolean(row.secretVerifier)} :
+          {interfaceKey:row.interfaceKey,appId:text(source?.id),interfaceName:source?.interfaceName || row.interfaceName,interfaceAvailable:Boolean(source)}),
         brandIds:[...new Set(scope.map(target=>target.brandId))],tenantIds:scope.map(target=>target.id),
         editable:canEdit(context,tenant,row) && window.DSession.canWrite('PAGE-2220')};
     });
@@ -882,8 +936,35 @@
     } catch (_) { return failure('自定义智能体尚未保存，请稍后重试。'); }
   }
 
+  async function saveDirectCustomAgent(context,{tenantId,recordId,expected,input}={}) {
+    const options=applicableOptions(context),tenant=options.tenants.find(row=>row.id===tenantId);
+    if (!tenant || !window.DSession.canWrite('PAGE-2220')) return failure('当前账号没有此租户的自定义智能体配置权限。');
+    if (!input || !text(input.name) || text(input.name).length>60 || text(input.remarks).length>300)
+      return failure('请填写有效的智能体名称及备注。');
+    try {
+      const state=readCustomAgents();
+      if (expected!=='custom-agent-v1:'+fingerprint(state.bytes)) return failure('自定义智能体配置已变化，请重新打开后保存。');
+      const previous=recordId===undefined ? null : state.rows.find(row=>row.id===recordId);
+      if (recordId!==undefined && (!previous || !canEdit(context,tenant,previous))) return failure('当前账号没有此自定义智能体的编辑权限。');
+      const scope=scopeInput(input,previous,tenant,options);
+      if (!scope.ok) return scope;
+      const targets=options.tenants.filter(row=>scope.value.tenantIds.includes(row.id));
+      if (scope.value.brandIds.some(brandId=>!targets.some(row=>row.brandId===brandId))) return failure('请核对适用品牌与租户。');
+      const config=await directAgentInput(input,previous);
+      if (!config.ok) return config;
+      const id=previous?.id || 'custom-agent-'+window.crypto.randomUUID();
+      const row={...scope.value,id,tenantId,name:text(input.name),remarks:text(input.remarks),directBailian:true,
+        appId:config.appId,workspaceId:config.workspaceId,secretVerifier:config.secretVerifier};
+      if (!canWriteDependencies(context,tenantId) || localStorage.getItem(customAgentStorageKey)!==state.bytes)
+        return failure('自定义智能体配置或账号已变化，请重新打开后保存。');
+      localStorage.setItem(customAgentStorageKey,JSON.stringify({version:1,rows:previous ?
+        state.rows.map(item=>item===previous?row:item) : [...state.rows,row]}));
+      return {ok:true,id};
+    } catch (_) {return failure('自定义智能体尚未保存，请稍后重试。');}
+  }
+
   window.DIntegrationApplications = Object.freeze({
-    types,agentTypes,status,list,save,tenants,applicableOptions,bindings,saveBindings,bailianInterfaces,customAgents,saveCustomAgent,
+    types,agentTypes,status,list,save,tenants,applicableOptions,bindings,saveBindings,bailianInterfaces,customAgents,saveCustomAgent,saveDirectBinding,saveDirectCustomAgent,
     dependencyTypes,dependencyScenarios,dependencyScenario,dependencies,canWriteDependencies,saveDependency,deleteDependency,
     scenarioApplications,resolveScenarioApplication,scenarioBindings,saveScenarioBindings,resolveScenarioBinding,canWriteScenarioBindings,
     dependencyReferences,recordScenarioCall,scenarioCalls,

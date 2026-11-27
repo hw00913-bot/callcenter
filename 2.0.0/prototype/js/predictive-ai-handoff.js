@@ -2,10 +2,14 @@
   'use strict';
   const navValue = value => typeof value==='string' ? value.trim() :
     Number.isSafeInteger(value) && value>0 ? String(value) : '';
+  const navigationFields = Object.freeze(['ivrId','ivrName','voiceNavigation']);
   function read(call) {
     const local=call?.predictiveCallback;
-    if (local && typeof local.callbackId==='string' && local.callbackId.trim() && Object.hasOwn(local,'voiceNavigation')) {
-      const navigation=navValue(local.voiceNavigation);
+    if (local && typeof local.callbackId==='string' && local.callbackId.trim() &&
+        navigationFields.some(key=>Object.hasOwn(local,key))) {
+      const official=Object.hasOwn(local,'ivrId') || Object.hasOwn(local,'ivrName');
+      const id=navValue(local.ivrId);
+      const navigation=official ? (/^0+$/.test(id) ? '' : id) || navValue(local.ivrName) : navValue(local.voiceNavigation);
       return {received:true,transferred:Boolean(navigation),navigation};
     }
     // Query/list CDRs can echo an IVR identifier even when both sides answered.
@@ -16,7 +20,7 @@
     const {transferred} = read(call);
     return transferred===null ? '待确认' : transferred ? '是' : '否';
   };
-  window.DPredictiveAiHandoff=Object.freeze({read,label,navValue});
+  window.DPredictiveAiHandoff=Object.freeze({read,label,navigationFields});
 })();
 
 (() => {

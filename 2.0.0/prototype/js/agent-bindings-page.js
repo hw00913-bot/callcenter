@@ -10,7 +10,7 @@
   const identity = context => JSON.stringify([context?.account?.id,context?.scope?.id]);
   const labelOf = type => type.label.replace(/ Agent$/, '');
   const nameOf = (type,record) => !record?.name || record.name===type.label ? labelOf(type) : record.name;
-  const interfaceOf = record => !record?'未关联':!record.interfaceKey?'未选择接口':record.interfaceName || '接口名称待核对';
+  const interfaceOf = record => !record?'未配置':record.directBailian?'已配置 · '+record.appId:!record.interfaceKey?'待补全应用配置':record.interfaceName || '接口名称待核对';
 
   function init(context) {
     const host = document.querySelector('[data-agent-bindings]');
@@ -65,14 +65,13 @@
       }).join('') : '';
       const toolbar=custom.ok?'<div class="list-toolbar"><div class="toolbar-primary"><button type="button" class="btn btn-primary" data-custom-agent-add>新增自定义智能体</button></div></div>':'';
       host.innerHTML = tenantPicker + toolbar + (result.ok ? `<div class="table-card"><div class="table-scroll" role="region" aria-label="智能体列表" tabindex="0">
-        <table class="platform-table"><thead><tr><th scope="col">智能体名称</th><th scope="col">阿里百炼接口</th>
+        <table class="platform-table"><thead><tr><th scope="col">智能体名称</th><th scope="col">阿里百炼应用</th>
           <th scope="col">适用品牌</th><th scope="col">适用租户</th><th scope="col">备注</th>
           <th scope="col">操作</th></tr></thead><tbody>${tableRows}${customRows}</tbody></table>
         </div></div>` : `<p class="form-error" role="alert">${e(result.message)}</p>`) + (custom.ok?'':`<p class="form-error" role="alert">${e(custom.message)}</p>`);
       host.querySelector('[data-agent-tenant]').value = tenantId;
     }
 
-    let editorCount=0;
     function edit(type,onSaved,customId) {
       const custom = type===null;
       const editedTenant = tenantId;
@@ -84,110 +83,71 @@
       }
       const record = custom ? result.rows.find(row=>row.id===customId) : result.rows.find(row=>row.type===type.key);
       if (record?.editable===false || customId!==undefined && !record) return;
-      let directory=null;
-      const hintId='agent-interface-hint-'+(++editorCount);
-      const legacyValue='__legacy_interface__',unavailableValue='__unavailable_interface__';
+      const appId=record?.appId || (!custom ? record?.id || '' : '');
+      const keySaved=record?.directBailian===true && record.secretConfigured===true;
       const modal = DUI.dialog(custom?(record?'编辑自定义智能体':'新增自定义智能体'):'配置'+labelOf(type),`<form class="form-grid" data-agent-binding-editor>
         <label class="field"><span>智能体名称 <span aria-hidden="true">*</span></span>
           <input name="name" value="${e(custom ? record?.name || '' : nameOf(type,record))}" maxlength="60" required autocomplete="off"></label>
-        <label class="field"><span>阿里百炼接口${record && !custom?'':' <span aria-hidden="true">*</span>'}</span>
-          <select name="interfaceKey" aria-describedby="${hintId}"${record && !custom?'':' required'} disabled><option value="">正在读取阿里百炼接口…</option></select>
-          <small class="field-hint" id="${hintId}" data-agent-interface-hint role="status">从当前租户可用的外部依赖中选择。</small>
-        </label>
+        <label class="field"><span>应用 ID <span aria-hidden="true">*</span></span>
+          <input name="appId" value="${e(appId)}" maxlength="120" required autocomplete="off" placeholder="请输入阿里百炼应用 ID"></label>
+        <label class="field"><span>API Key <span aria-hidden="true">*</span></span>
+          <input type="password" name="apiKey" maxlength="300"${keySaved?'':' required'} autocomplete="new-password" placeholder="${keySaved?'留空保留原 API Key':'请输入 API Key'}">
+          <small class="field-hint">原型只验证配置，请使用测试值，不要输入真实密钥。</small></label>
+        <label class="field"><span>业务空间 ID</span>
+          <input name="workspaceId" value="${e(record?.workspaceId || '')}" maxlength="120" autocomplete="off" placeholder="选填"></label>
         ${scopeUI.fields(current,editedTenant,record)}
         <label class="field full"><span>备注</span>
           <textarea name="remarks" maxlength="300" rows="3">${e(record?.remarks || '')}</textarea></label>
+        ${record && !custom?'<div class="full"><button type="button" class="btn-link" data-agent-unlink>解除关联</button></div>':''}
         <p class="form-error full" data-agent-binding-error role="alert" hidden></p>
       </form>`,[
         {label:'取消',run:close=>close()},
-        {label:'保存',primary:true,run:close=>{
+        {label:'保存',primary:true,run:async close=>{
           if (!active() || tenantId!==editedTenant) {
-            error.textContent='配置租户或账号已切换。请关闭窗口，在当前租户重新打开。';
-            error.hidden=false;
-            return;
+            error.textContent='配置租户或账号已切换，请重新打开。';error.hidden=false;return;
           }
           if (!form.reportValidity()) return;
-          const interfaceKey=form.elements.interfaceKey.value;
-          if([legacyValue,unavailableValue].includes(interfaceKey)) {
-            error.textContent=interfaceKey===legacyValue?'原关联未选择接口，请重新选择阿里百炼接口后保存。':(custom?'原接口已失效，请重新选择阿里百炼接口。':'原接口已失效，请重新选择阿里百炼接口或解除关联。');
-            error.hidden=false;form.elements.interfaceKey.focus();return;
-          }
-          if(interfaceKey && (!directory?.ok || !directory.rows.some(row=>row.key===interfaceKey))) {
-            error.textContent='请选择当前可用的阿里百炼接口。';error.hidden=false;return;
-          }
-          const scope=scopeUI.read(form);
-          if(custom){
-            const eligible=directory?.rows?.find(row=>row.key===interfaceKey)?.tenantIds || [];
-            if (!scope.tenantIds.length || scope.tenantIds.some(id=>!eligible.includes(id))){
-              error.textContent='请至少选择一个租户，并移除超出所选百炼接口范围的租户。';
-              error.hidden=false;
-              return;
-            }
-          }
-          const input={interfaceKey,expectedInterfaceRevision:directory?.revision,
-            name:form.elements.name.value,remarks:form.elements.remarks.value,...scope};
-          const saved=custom ? catalog.saveCustomAgent(DSession.context(),{
-            tenantId:editedTenant,recordId:customId,expected:result.revision,input
-          }) : catalog.saveBindings(DSession.context(),{
-            tenantId:editedTenant,expected:result.revision,changes:{[type.key]:input}
-          });
-          if (!saved.ok) {
-            error.textContent = saved.message;
-            error.hidden = false;
-            return;
-          }
+          error.hidden=true;
+          modal.buttons.at(-1).disabled=true;
+          const input={...scopeUI.read(form)};
+          for (const key of ['name','remarks','appId','apiKey','workspaceId']) input[key]=form.elements[key].value;
+          let saved;
+          try {
+            saved=custom ? await catalog.saveDirectCustomAgent(current,{tenantId:editedTenant,recordId:customId,expected:result.revision,input}) :
+              await catalog.saveDirectBinding(current,{tenantId:editedTenant,type:type.key,expected:result.revision,input});
+          } catch (_) {saved={ok:false,message:'配置未保存，请重试。'};}
+          if (!form.isConnected) return;
+          modal.buttons.at(-1).disabled=false;
+          if (!saved.ok) {error.textContent=saved.message;error.hidden=false;return;}
+          form.elements.apiKey.value='';
           close();
           draw();
           if (typeof onSaved==='function') onSaved(saved);
           else if(custom) (host.querySelector(`[data-custom-agent-edit="${saved.id}"]`) || host.querySelector('[data-custom-agent-add]'))?.focus();
           else host.querySelector(`[data-agent-edit="${type.key}"]`)?.focus();
-          DUI.toast(custom?'自定义智能体已保存。':'智能体关联已保存。');
+          DUI.toast(custom?'自定义智能体已保存。':'智能体配置已保存。');
         }}
       ],{dismissible:true,stack:true});
       const form = modal.element.querySelector('form');
       const error = form.querySelector('[data-agent-binding-error]');
-      const interfaceSelect=form.elements.interfaceKey;
-      const hint=form.querySelector('[data-agent-interface-hint]');
-      const saveButton=modal.buttons.at(-1);
-      saveButton.disabled=true;
-      const scopeControl=scopeUI.bind(form);
-      const syncScope=()=>{
-        if(!custom || !scopeControl)return;
-        const selected=directory?.rows?.find(row=>row.key===interfaceSelect.value);
-        scopeControl.restrictTo(selected ? selected.tenantIds : null);
-        if (selected && scopeUI.read(form).tenantIds.some(id=>!selected.tenantIds.includes(id))) {
-          error.textContent='已选租户超出接口适用范围，请移除不适用的租户。';
-          error.hidden=false;
-        }
-      };
-      interfaceSelect.addEventListener('change',()=>{error.hidden=true;syncScope();});
-      form.querySelector('[data-integration-scope]')?.addEventListener('change',()=>{error.hidden=true;syncScope();});
-      form.querySelector('[data-integration-scope]')?.addEventListener('click',event=>{
-        if(event.target.closest('[data-scope-remove]')){error.hidden=true;syncScope();}
+      scopeUI.bind(form);
+      form.querySelector('[data-agent-unlink]')?.addEventListener('click',()=>{
+        DUI.dialog('解除智能体关联','<p>解除后，当前关联范围内的业务将不再使用此智能体。</p>',[
+          {label:'取消',run:close=>close()},
+          {label:'确认解除',primary:true,run:close=>{
+            if (!active() || tenantId!==editedTenant) return close();
+            const removed=catalog.saveBindings(current,{tenantId:editedTenant,expected:result.revision,
+              changes:{[type.key]:{interfaceKey:''}}});
+            close();
+            if (!removed.ok) {error.textContent=removed.message;error.hidden=false;return;}
+            modal.close();draw();host.querySelector(`[data-agent-edit="${type.key}"]`)?.focus();
+            DUI.toast('智能体关联已解除。');
+          }}
+        ],{dismissible:true,stack:true});
       });
-      form.onsubmit = event=>{
-        event.preventDefault();
-        modal.buttons.at(-1).click();
-      };
-      void (async()=>{
-        try {directory=await catalog.bailianInterfaces(DSession.context(),editedTenant);}
-        catch (_) {directory={ok:false,message:'阿里百炼接口目录暂时无法读取。',rows:[]};}
-        if(!form.isConnected || !active() || tenantId!==editedTenant)return;
-        const rows=directory?.ok && Array.isArray(directory.rows)?directory.rows:[];
-        const selected=record?.interfaceKey && rows.some(row=>row.key===record.interfaceKey);
-        const initial=record && !record.interfaceKey?legacyValue:record?.interfaceKey && !selected?unavailableValue:record?.interfaceKey || '';
-        interfaceSelect.innerHTML=(record && !custom?'<option value="">解除当前关联</option>':'<option value="" disabled>请选择阿里百炼接口</option>')+
-          (initial===legacyValue?`<option value="${legacyValue}" disabled>原关联未选择接口，请重新选择</option>`:'')+
-          (initial===unavailableValue?`<option value="${unavailableValue}" disabled>原接口已失效，请重新选择</option>`:'')+
-          rows.map(row=>`<option value="${e(row.key)}">${e(row.label || [row.name,row.interfaceName].filter(Boolean).join(' · '))}</option>`).join('');
-        interfaceSelect.value=initial;
-        syncScope();
-        interfaceSelect.disabled=!rows.length && (custom || !record);
-        saveButton.disabled=!rows.length && (custom || !record);
-        hint.textContent=!directory?.ok?directory?.error || directory?.message || '阿里百炼接口目录暂时无法读取，请重新打开后重试。':
-          !rows.length?'暂无可用的阿里百炼接口，请先在应用接入→外部依赖配置。':
-          custom?'选择当前可用的阿里百炼接口，不会替换内置关联。':record?'选择已有接口后保存；选择“解除当前关联”可移除本智能体关联。'+(record.enabled===false?'保存有效接口后将重新启用。':''):'只显示当前租户可用的阿里百炼接口。';
-      })();
+      const appInput=form.elements.appId,keyInput=form.elements.apiKey;
+      appInput.addEventListener('input',()=>{keyInput.required=!keySaved || appInput.value.trim()!==appId;});
+      form.onsubmit = event=>{event.preventDefault();modal.buttons.at(-1).click();};
     }
 
     host.onchange = event=>{
@@ -227,7 +187,7 @@
         <dl class="rating-rules-context">
           <div><dt>配置租户</dt><dd>${e(tenant?.name || editedTenant)}</dd></div>
           <div><dt>所属品牌</dt><dd>${e(brand?.name || tenant?.brandId || '未关联品牌')}</dd></div>
-          <div><dt>阿里百炼接口</dt><dd data-rating-rules-interface></dd></div>
+          <div><dt>阿里百炼应用</dt><dd data-rating-rules-interface></dd></div>
         </dl>
         <p class="rating-rules-association" data-rating-rules-association></p>
         <p class="rating-rules-readonly" data-rating-rules-readonly hidden></p>

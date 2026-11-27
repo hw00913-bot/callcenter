@@ -3164,10 +3164,11 @@
     const scope={tenant:task.tenant,brandId:task.brandId,taskId:task.taskId,roundId:task.roundId,callId:id};
     let call;
     if (type==='predictive') {
-      if (!clean(event.callbackId) || !Object.hasOwn(event,'voiceNavigation') ||
-          event.voiceNavigation != null && !['string','number'].includes(typeof event.voiceNavigation)) return {error:'预外呼回调缺少可核对的语音导航结果。'};
-      call={...scope,callType:'预外呼',predictiveCallback:{callbackId:clean(event.callbackId),
-        voiceNavigation:window.DPredictiveAiHandoff.navValue(event.voiceNavigation)}};
+      const fields=window.DPredictiveAiHandoff.navigationFields.filter(key=>Object.hasOwn(event,key));
+      if (!clean(event.callbackId) || !fields.length ||
+          fields.some(key=>event[key] != null && !['string','number'].includes(typeof event[key]))) return {error:'预外呼回调缺少可核对的语音导航结果。'};
+      const navigation=Object.fromEntries(fields.map(key=>[key,typeof event[key]==='string' ? event[key].trim() : event[key] ?? null]));
+      call={...scope,callType:'预外呼',predictiveCallback:{callbackId:clean(event.callbackId),...navigation}};
     } else {
       if (!clean(event.predictiveCallId) || event.predictiveCallId===id || event.final!==true)
         return {error:'AI 结果须明确为最终结果并关联原预外呼通话。'};
