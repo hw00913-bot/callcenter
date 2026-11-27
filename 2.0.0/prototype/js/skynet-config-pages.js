@@ -69,6 +69,7 @@
   const strategyWorkspaceSelections = new WeakMap();
   const strategyWorkspaceBasicOpen = new WeakSet();
   const deliveryChannelTabs = new WeakMap();
+  const templateDraftFamilies = new WeakMap();
   const dateTime = new Intl.DateTimeFormat('zh-CN', {
     timeZone:'Asia/Shanghai', dateStyle:'short', timeStyle:'short', hour12:false
   });
@@ -1270,13 +1271,41 @@
     return deliveryRules(draft,readOnly,context);
   }
 
+  const templateCategoryTree = context => catalog.categoryTree(context,{includeEmpty:true});
+  const familyOfCategory = (tree,id) => tree.find(family => family.children.some(type => type.value === id));
+
+  function templateCategoryFields(view,types) {
+    const {context,draft,readOnly} = view;
+    const tree = templateCategoryTree(context);
+    const boundFamily = familyOfCategory(tree,draft.categoryId);
+    if (readOnly || draft.id) {
+      const shown = (label,value) => '<div class="sc-field"><span>' + label + '</span><p class="sc-value">' + e(value) + '</p></div>';
+      return shown('一级分类',boundFamily?.label || '—') + shown('二级分类',typeLabel(draft,types) || '—');
+    }
+    const familyId = templateDraftFamilies.has(draft) ? templateDraftFamilies.get(draft) : boundFamily?.value;
+    const parent = tree.find(family => family.value === familyId);
+    const children = parent?.children || [];
+    const secondaryHint = !parent ? '请先选择一级分类' : children.length ? '请选择二级分类' : '该一级分类暂无可用二级分类';
+    const primary = '<label class="sc-field"><span>一级分类</span><select name="categoryFamilyId" data-config-template-family>' +
+      options([emptyOption('请选择一级分类'),...tree],parent?.value || '') + '</select></label>';
+    return primary + select(['categoryId'],children.some(type => type.value === draft.categoryId) ? draft.categoryId : '',
+      '二级分类',[emptyOption(secondaryHint),...children],'category');
+  }
+
+  function clearTemplateCategoryDependency(view) {
+    if (view.page.kind !== 'nurtureTemplates') return;
+    view.draft.deliveryTemplateId = '';
+    delete view.deliveryDraft;
+  }
+
   function configFields(view) {
     const {page,draft,readOnly,context} = view;
     const types = catalog.businessTypes(context);
     const typeField = readOnly || draft.id ?
       '<div class="sc-field"><span>二级分类</span><p class="sc-value">' + e(typeLabel(draft,types)) + '</p></div>' :
       select(['categoryId'],draft.categoryId,'二级分类',[emptyOption('请选择二级分类'),...types],'category');
-    const basic = '<div class="sc-grid">' + input(['name'],draft.name,page.name + '名称',{max:60}) + typeField + '</div>';
+    const basic = '<div class="sc-grid">' + input(['name'],draft.name,page.name + '名称',{max:60}) +
+      (page.kind === 'rules' ? typeField : templateCategoryFields(view,types)) + '</div>';
     const workspace = view.inFlow && page.kind === 'nurtureTemplates' && draft.strategyTree;
     return '<fieldset class="sc-form"' + (readOnly ? ' disabled' : '') + '>' +
       (workspace ? editorFields(view) + '<details class="sc-workspace-template"' +
@@ -1475,22 +1504,28 @@
     const {root,book,page} = view;
     const entries = catalog.list(book,page.kind);
     const types = catalog.businessTypes(view.context);
-    const filterTypes = new Map(types.map(type => [type.value,type]));
+    const isRules = page.kind === 'rules';
+    const tree = isRules ? [] : templateCategoryTree(view.context);
+    const categoryFamily = id => familyOfCategory(tree,id);
+    const familyFilter = tree.find(family => family.value === view.familyFilter);
+    if (!isRules && view.familyFilter && !familyFilter) view.familyFilter = '';
+    const filterTypes = new Map((familyFilter ? familyFilter.children : types).map(type => [type.value,type]));
     for (const item of entries) {
-      if (!filterTypes.has(item.categoryId)) {
+      if (!familyFilter && !filterTypes.has(item.categoryId)) {
         filterTypes.set(item.categoryId,{value:item.categoryId,label:typeLabel(item,types)});
       }
     }
-    const shown = entries.filter(item => (!view.categoryFilter || item.categoryId === view.categoryFilter) &&
+    const shown = entries.filter(item => (!familyFilter || filterTypes.has(item.categoryId)) &&
+      (!view.categoryFilter || item.categoryId === view.categoryFilter) &&
       (!view.statusFilter || configurationState(item) === view.statusFilter));
-    const isRules = page.kind === 'rules';
     const rows = shown.map(item => {
       const date = Date.parse(item.savedAt);
       const status = configurationState(item);
       const enabled = status === 'enabled';
       const id = e(item.id);
       return '<tr data-config-row="' + id + '"><td class="table-main">' + e(item.name) + '</td>' +
-        (isRules ? '<td><code data-config-rule-id>' + id + '</code></td>' : '') + '<td>' + e(typeLabel(item,types)) + '</td>' +
+        (isRules ? '<td><code data-config-rule-id>' + id + '</code></td>' :
+          '<td>' + e(categoryFamily(item.categoryId)?.label || '—') + '</td>') + '<td>' + e(typeLabel(item,types)) + '</td>' +
         '<td><span class="sc-version" data-config-current-version>' + e(versionLabel(item.version)) + '</span></td>' +
         '<td><span class="sc-list-state" data-config-status="' + status + '">' +
         statusLabels[status] + '</span>' +
@@ -1508,7 +1543,10 @@
     const host = root.querySelector('[data-config-body]');
     const canCreate = types.length > 0;
     const canViewRecords = page.kind === 'deliveryTemplates' && window.DSkynetDeliveryRecords?.canView('sent');
-    const toolbar = '<div class="list-toolbar sc-list-toolbar"><label class="sc-type-filter"><span>二级分类</span>' +
+    const toolbar = '<div class="list-toolbar sc-list-toolbar">' +
+      (isRules ? '' : '<label class="sc-type-filter"><span>一级分类</span><select data-config-family-filter>' +
+        options([emptyOption('全部一级分类'),...tree],view.familyFilter || '') + '</select></label>') +
+      '<label class="sc-type-filter"><span>二级分类</span>' +
       '<select data-config-type-filter>' + options([emptyOption('全部二级分类'),...filterTypes.values()],view.categoryFilter) + '</select></label>' +
       '<label class="sc-type-filter"><span>状态</span><select data-config-status-filter>' +
       options([emptyOption('全部状态'),...Object.entries(statusLabels).map(([value,label]) => ({value,label}))],view.statusFilter) +
@@ -1521,11 +1559,19 @@
       '<div class="table-scroll" role="region" tabindex="0" aria-label="' + e(page.name) + '列表">' +
       '<table class="platform-table"><thead><tr><th scope="col">' + e(page.name) + '名称</th>' +
       (isRules ? '<th scope="col">分配规则 ID</th>' : '') +
+      (isRules ? '' : '<th scope="col">一级分类</th>') +
       '<th scope="col">二级分类</th><th scope="col">当前版本</th><th scope="col">状态</th>' +
       '<th scope="col">更新时间</th><th scope="col">操作</th></tr></thead>' +
-      '<tbody>' + (rows || '<tr><td class="sc-empty" colspan="' + (isRules ? 7 : 6) + '">' + (view.categoryFilter || view.statusFilter ? '当前筛选条件下暂无' : '暂无') +
+      '<tbody>' + (rows || '<tr><td class="sc-empty" colspan="7">' + (view.familyFilter || view.categoryFilter || view.statusFilter ? '当前筛选条件下暂无' : '暂无') +
         e(page.name) + '</td></tr>') +
       '</tbody></table></div></div>';
+    const familyPicker = host.querySelector('[data-config-family-filter]');
+    if (familyPicker) familyPicker.onchange = event => {
+      view.familyFilter = event.target.value;
+      view.categoryFilter = '';
+      displayList(view);
+      host.querySelector('[data-config-family-filter]').focus({preventScroll:true});
+    };
     host.querySelector('[data-config-type-filter]').onchange = event => {
       view.categoryFilter = event.target.value;
       displayList(view);
@@ -1668,12 +1714,20 @@
 
   function selectDraft(view, item) {
     const selected = view.list.categoryFilter || category.categoryId;
-    const initial = catalog.businessType(view.context,selected)?.value || catalog.businessTypes(view.context)[0]?.value || '';
-    if (!item) view.draft = initialDraft(view.page.kind,initial);
+    const family = view.list.familyFilter && templateCategoryTree(view.context).find(row => row.value === view.list.familyFilter);
+    const initial = family ? family.children.find(type => type.value === selected)?.value || '' :
+      catalog.businessType(view.context,selected)?.value || catalog.businessTypes(view.context)[0]?.value || '';
+    if (!item) {
+      view.draft = initialDraft(view.page.kind,initial);
+      if (family) templateDraftFamilies.set(view.draft,family.value);
+    }
     else view.draft = view.page.kind === 'rules' ? catalog.ruleForEditing(item) : structuredClone(item);
     view.expected = item?.version;
     view.savedData = JSON.stringify(view.draft);
-    if (!view.readOnly && view.page.kind === 'nurtureTemplates') view.draft = catalog.nurtureTemplateForEditing(view.draft);
+    if (!view.readOnly && view.page.kind === 'nurtureTemplates') {
+      view.draft = catalog.nurtureTemplateForEditing(view.draft);
+      if (!item && family) templateDraftFamilies.set(view.draft,family.value);
+    }
     displayEditor(view);
   }
 
@@ -2473,6 +2527,17 @@
     }
     form.onchange = event => {
       const element = event.target;
+      if (element.matches('[data-config-template-family]')) {
+        if (view.readOnly || view.draft.id) return;
+        const family = templateCategoryTree(view.context).find(row => row.value === element.value);
+        templateDraftFamilies.set(view.draft,family?.value || '');
+        view.draft.categoryId = '';
+        clearTemplateCategoryDependency(view);
+        rememberStrategyExpansion(view,form);
+        render()?.querySelector('[data-config-template-family]')?.focus();
+        onChange();
+        return;
+      }
       if (element.dataset.configValues) {
         const group = form.querySelectorAll('[data-config-values]');
         const values = Array.from(group).filter(input => input.dataset.configValues === element.dataset.configValues && input.checked)
@@ -2566,7 +2631,7 @@
         delete parent.reason;
         delete parent.nurtureTemplateId;
       } else if (reactive === 'category') {
-        if (view.page.kind === 'nurtureTemplates') view.draft.deliveryTemplateId = '';
+        clearTemplateCategoryDependency(view);
       } else if (reactive === 'nurture-action' && element.value === '人工外呼') {
         pathValue(view.draft,path.slice(0,-2)).manualAssignment ||= defaultManualAssignment();
       } else if (reactive === 'strategy-action' && element.value === '人工外呼') {
@@ -2699,8 +2764,11 @@
         '<div data-config-body><p role="status">正在读取当前租户配置…</p></div></section>',
       async init(context) {
         const root = document.querySelector('[data-skynet-config="' + page.kind + '"]');
+        if (page.kind !== 'rules') {
+          try { await window.DModuleHost?.prepareIntegration?.(); } catch (_) { /* state load reports a stale or unavailable scope */ }
+        }
         const state = await DReview21.ensureState();
-        const view = {root,page,context,identity:identity(context),state,categoryFilter:'',statusFilter:''};
+        const view = {root,page,context,identity:identity(context),state,categoryFilter:'',familyFilter:'',statusFilter:''};
         if (!root || !active(view)) return;
         if (!state) {
           root.querySelector('[data-config-body]').innerHTML = '<p role="alert">未能读取当前租户配置，请重试。</p>';

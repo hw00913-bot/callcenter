@@ -393,7 +393,7 @@
     return row.businessFamily === 'LEAD' || row.family === 'LEAD' ? 'LEAD' : 'ORDINARY';
   }
 
-  function categoryTree(context) {
+  function categoryTree(context,{includeEmpty = false} = {}) {
     const {types,families,model} = categoryDirectory(context);
     const groups = new Map(families.filter(family => text(family?.id) && text(family?.label))
       .map(({id,label}) => [id,{value:id,label,children:[]}]));
@@ -408,7 +408,7 @@
       }
       groups.get(familyId).children.push({value,label});
     }
-    return [...groups.values()].filter(group => group.children.length);
+    return [...groups.values()].filter(group => includeEmpty || group.children.length);
   }
 
   function businessType(context, id) {

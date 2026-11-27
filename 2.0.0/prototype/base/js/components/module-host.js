@@ -1002,18 +1002,75 @@
   function profileHistoryStamp(value){
     return frames.cloud?.contentWindow?.CustomerProfile?.stamp?.(value) ?? -Infinity;
   }
+  function profileVisitIntent(visit){
+    const fields=visit.details&&typeof visit.details==='object'&&!Array.isArray(visit.details)?visit.details:{};
+    const storeValue=fields.intentStore??visit.intentStore, snapshot=visit.intentStoreIdentity;
+    const label=storeValue!=null&&snapshot?.value===storeValue?snapshot.store?.name:'';
+    return {level:fields.intentLevel??visit.intentLevel??'',series:fields.intentCar??fields.intentSeries??visit.intentCar??'',
+      store:label||storeValue||''};
+  }
+  function profileSavedVisitFields(visit){
+    const details=visit.details&&typeof visit.details==='object'&&!Array.isArray(visit.details)?visit.details:{};
+    const snapshot=Array.isArray(visit.detailFields)?visit.detailFields.filter(field=>
+      Array.isArray(field)&&typeof field[0]==='string'&&field[0]&&typeof field[1]==='string'&&field[1]):[];
+    const core={contactStatus:visit.contact,visitResult:visit.result,visitDesc:visit.note,nextVisitTime:visit.nextAt};
+    const labels={contactStatus:'接触状态',visitResult:'回访结果',visitDesc:'回访描述',nextVisitTime:'下次回访时间',
+      intentLevel:'意向级别',intentCar:'意向车系',intentStore:'意向门店'};
+    const definitions=snapshot.length?snapshot:Object.keys(details).map(key=>[key,labels[key]||key]);
+    const seen=new Set();
+    return [...definitions,...Object.keys(core).map(key=>[key,labels[key]])].flatMap(([key,label])=>{
+      if(seen.has(key))return [];
+      seen.add(key);
+      const value=Object.hasOwn(details,key)?details[key]:core[key];
+      return value==null||value===''||Array.isArray(value)&&!value.length?[]:[[label,value]];
+    });
+  }
   function profileTaskHistory(state,record,includeFields=false){
     const saved=Array.isArray(record.followupHistory)?record.followupHistory:[];
-    const visits=saved.filter(visit=>visit&&typeof visit==='object'&&(!visit.taskId||String(visit.taskId)===String(record.taskId)));
-    if(!saved.length&&(record.followupResult||record.followupNote))visits.push({
-      result:record.followupResult,note:record.followupNote,at:record.lastFollowupAt,nextAt:record.nextAt
+    const seen=new Set();
+    const visits=saved.slice().reverse().filter(visit=>{
+      if(!visit||typeof visit!=='object'||(visit.taskId&&String(visit.taskId)!==String(record.taskId)))return false;
+      const id=visit.visitId||visit.id;
+      if(!id)return true;
+      const key=JSON.stringify([visit.roundId||'',String(id)]);
+      if(seen.has(key))return false;
+      seen.add(key);return true;
     });
-    return visits.reverse().map(visit=>({
+    return visits.map(visit=>({
       result:visit.result||'',note:visit.note||'',at:[visit.at,visit.date].find(value=>profileHistoryStamp(value)!==-Infinity)??'',
       by:state.seats.find(seat=>seat.tenant===record.tenant&&seat.id===visit.seat)?.name||'',
       roundId:visit.roundId||'',roundNumber:visit.roundNumber,method:visit.callMode||visit.callType||'',
-      ...(includeFields?{fields:DReview21Workbench.followupFields(visit)}:{})
+      ...(includeFields?{intent:profileVisitIntent(visit),fields:profileSavedVisitFields(visit)}:{})
     })).sort((a,b)=>profileHistoryStamp(b.at)-profileHistoryStamp(a.at));
+  }
+  function profileTaskDeliveries(record,tenantId,ledger,ownTask){
+    const delivery=record.skynet?.delivery;
+    if(delivery?.status!=='已下发'||!delivery.sentAt||!delivery.roundId||
+       delivery.taskId!==record.taskId||delivery.roundId!==record.skynet.roundId)return [];
+    const service=window.DSkynetDeliveryRecords;
+    const exact=ledger.filter(row=>row.senderTenantId===tenantId&&row.taskId===record.taskId&&
+      row.roundId===delivery.roundId&&row.sentAt===delivery.sentAt);
+    const own=ownTask&&!exact.length?service?.forResponsibleSeat?.(record.taskId,delivery.roundId)?.rows||[]:[];
+    const targets=exact.length?exact:own.length?own:
+      (Array.isArray(delivery.targets)&&delivery.targets.length?delivery.targets.map(target=>({target})):
+       delivery.target?[{target:delivery.target}]:[{}]);
+    const onlyTarget=targets.length===1;
+    const fields=values=>values&&typeof values==='object'&&!Array.isArray(values)?Object.entries(values):[];
+    const savedLeads=Array.isArray(delivery.leads)?delivery.leads:[];
+    return targets.map(row=>{
+      const store=row.storeName||delivery.directStore?.name||(!onlyTarget?'':delivery.storeMatch?.storeName||'');
+      const name=row.target?.label||row.target?.name||(onlyTarget?delivery.targetLabel:'')||store||row.target?.id||'目标未记录';
+      const status=row.status&&service?.statusLabel?service.statusLabel(row):'已下发 · 回执待核';
+      const payloads=savedLeads.filter(lead=>row.target?.type==='externalSystem'&&onlyTarget||
+        row.storeCode&&lead.storeId===row.storeCode||row.target?.id&&lead.storeId===row.target.id)
+        .map(lead=>({leadCode:lead.localLeadCode||lead.sourceLeadCode||'',store:lead.storeName||lead.storeId||'',
+          fields:fields(lead.mappedFields)}));
+      return {roundId:delivery.roundId,at:delivery.sentAt,target:name,store,
+        mode:row.modeLabel||delivery.modeLabel||'',template:row.templateName||delivery.templateName||'',
+        templateVersion:row.templateVersion||delivery.templateVersion||'',
+        status,requestId:row.requestId||'',receiptId:row.receiptId||'',payloads,
+        fields:savedLeads.length?[]:fields(delivery.mappedFields)};
+    });
   }
   function currentCustomerProfileWork(){
     try{
@@ -1029,12 +1086,14 @@
       if(!enterpriseId||state?.tenant!==tenantId)return {status:'loading',data:{rows:[],kinds}};
 
       const rows=[];
+      const ledger=assignments&&window.DSkynetDeliveryRecords?.canView('sent')?
+        window.DSkynetDeliveryRecords.list('sent').rows||[]:[];
       const seatName=id=>state.seats.find(seat=>seat.id===id)?.name||'';
       for(const record of state.records) {
         if(record?.tenant!==tenantId||!record.taskId||!record.phone)continue;
         const ownTask=own&&state.seatId&&record.ownerId===state.seatId;
         if(!ownTask&&!assignments)continue;
-        const history=profileTaskHistory(state,record);
+        const history=profileTaskHistory(state,record,true);
         const taskAt=[record.createdAt,record.skynet?.internalHandoff?.taskCreatedAt,record.receivedAt]
           .find(value=>profileHistoryStamp(value)!==-Infinity)??'';
         const kind='NURTURE_TASK',recordId=String(record.id||record.taskId),taskId=String(record.taskId);
@@ -1043,7 +1102,9 @@
           relatedCode:record.originalKey||'',tenantId,enterpriseId,phone:record.phone,name:record.name||'',
           category:record.category||'',owner:seatName(record.ownerId),
           status:record.taskStatus||'',
-          taskAt,history,
+          taskAt,history,deliveries:profileTaskDeliveries(record,tenantId,ledger,ownTask),
+          assignmentRule:[record.skynet?.assignmentRuleName||record.skynet?.assignmentRuleId,
+            record.skynet?.assignmentRuleVersion?'v'+record.skynet.assignmentRuleVersion:''].filter(Boolean).join(' '),
           nextAt:record.nextAt||'',updatedAt:record.updatedAt||history[0]?.at||taskAt||record.assignedOn||'',
           sourceRef:{kind,recordId,taskId,tenantId,enterpriseId}
         });
@@ -1069,10 +1130,10 @@
       const records=state.records.filter(row=>row.tenant===tenantId&&String(row.id||row.taskId)===reference.recordId&&String(row.taskId)===reference.taskId);
       if(records.length!==1)throw Error('当前培育任务无法唯一定位，请刷新档案。');
       const [record]=records;
-      const history=profileTaskHistory(state,record,true);
+      const {history,deliveries}=matches[0];
       const fields=DReview21Operations.taskDetailFields(state,record,record.ownerId);
       fields.push(['外呼方式',record.requiredMode],['下次回访',record.nextAt?.replace('T',' ')||'未安排']);
-      return importClone({ok:true,data:{fields,history}});
+      return importClone({ok:true,data:{fields,history,deliveries}});
     }catch(error){return {ok:false,message:error.message||'当前培育任务无法打开。'};}
   }
   function customerProfileFilters(adapter,frame){

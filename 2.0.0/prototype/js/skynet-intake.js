@@ -4152,8 +4152,27 @@
     };
   }
 
+  function profileSampleBinding(state,context){
+    const current=activeContext(context);
+    if(!current||state?.tenant!==current.scope.id)return null;
+    const book=settings.read(state);
+    const routes=settings.activeList(book,'rules').filter(rule=>assignmentRuleInScope(rule,current))
+      .flatMap(rule=>{
+        const resolved=resolveTaskBinding(book,rule,rule.cleaning.nurtureTemplateId,rule.categoryId);
+        const delivery=resolved&&settings.version(book,'deliveryTemplates',resolved.binding.deliveryTemplateId,resolved.binding.deliveryTemplateVersion);
+        return delivery?[{rule,delivery}]:[];
+      });
+    return routes.find(row=>row.rule.id===settings.defaultRuleId)||routes[0]||null;
+  }
+  function profileSampleDelivery(template,history,mapped,type='intent'){
+    if(!template||!history?.roundId)return null;
+    const task={skynet:{roundId:history.roundId},followupHistory:[history]};
+    const output=deliveryOutput(task,{template},type);
+    return output.error?null:deliveryMappedFields(template,mapped||{},{template},output.entries);
+  }
+
   window.DSkynetIntake = Object.freeze({
-    isTask, isRetiredContact:retiredContact, inScope, canRead, canSubmit,
+    isTask, isRetiredContact:retiredContact, inScope, canRead, canSubmit,profileSampleBinding,profileSampleDelivery,
     hasWorkbenchSamples, usesLocalPredictiveSample, stageWorkbenchSamples, generateAssignmentSamples,
     canStageWorkbenchDeliverySamples,stageWorkbenchDeliverySamples,
     configuration:context => canRead(context) || canSubmit(context) ? config : null,
