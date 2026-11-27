@@ -2834,8 +2834,7 @@
     const predictive = linked || (predictions.length===1 ? predictions[0] : null);
     if (!predictive) return {stage:predictions.length ? 'callbackConflict' : 'awaitCallback'};
     const callId = callIdentity(predictive);
-    const facts = nativeWindow?.AliCtiReportFacts?.read?.(predictive);
-    const callback = window.DPredictiveAiHandoff.read(predictive,facts);
+    const callback = window.DPredictiveAiHandoff.read(predictive);
     if (!callback.received || !callId) return {...callback,stage:'awaitCallback'};
     if (!callback.transferred) return {...callback,stage:'manual',callId};
     const ai = matchingRoundCalls(state,context,task,null,nativeWindow,true).calls.filter(row=>
