@@ -2,7 +2,7 @@
   'use strict';
 
   const page = {id:'PAGE-21008',route:'nurture-task-assignment',name:'分配审核',
-    description:'按分配场景查看任务并指派本租户坐席。'};
+    description:'按分配场景查看任务、指派本租户坐席，或核对待管理员判断的下发任务。'};
   const workbench = DNav.pages.findIndex(page=>page.id==='PAGE-2202');
   const seatPage = DNav.pages[workbench];
   DNav.areaAliases['管理员工作台'] = seatPage.area;
@@ -44,10 +44,10 @@
   `;
   const entries = new WeakMap();
   let pendingTask;
-  const assignmentStatuses = [['待分配','人工外呼待分配'],['待指定','企微待指定'],['待改派','企微待改派'],['待下发','下发坐席待指派']];
+  const assignmentStatuses = [['待分配','人工外呼待分配'],['待指定','企微待指定'],['待改派','企微待改派'],['待下发','下发坐席待指派'],['待管理员判断','待管理员判断']];
   const assignmentLabels = new Map(assignmentStatuses);
   const e = value => DUI.esc(String(value??''));
-  const statusTone = {待分配:'warning',待指定:'warning',待改派:'warning',待下发:'processing'};
+  const statusTone = {待分配:'warning',待指定:'warning',待改派:'warning',待下发:'processing',待管理员判断:'warning'};
   const available = (value,fallback='—') => value==null||value==='' ? fallback : value;
   const seatName = (state,id) => state.seats.find(seat=>seat.id===id)?.name || '—';
   const ops = () => window.DReview21Operations;
@@ -55,6 +55,8 @@
   const emptyFilters = () => ({keyword:''});
   function assignmentState(state,task) {
     if (!ops().isSkynetTask(task)) return '';
+    const handoff=task.skynet?.predictiveHandoff;
+    if (task.taskStatus==='待处理' && handoff?.stage==='admin' && handoff.roundId===task.roundId) return '待管理员判断';
     const wecom = wecomAssignment(state,task);
     if (wecom) return ['待指定','待改派'].includes(wecom.status) ? wecom.status : '';
     if (ops().canQueue(state,task)) return ops().awaitsDeliveryOwner(task) ? '待下发' : '待分配';
@@ -96,6 +98,7 @@
         if (status==='待指定') return '指定企微坐席';
         if (status==='待改派') return '改派企微坐席';
         if (status==='待下发') return '指派下发坐席';
+        if (status==='待管理员判断') return '核对转 AI 后是否下发';
         return '指派人工外呼坐席';
       }],
       ['跟进坐席',({task})=>seatName(state,task.ownerId)],

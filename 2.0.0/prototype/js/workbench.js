@@ -1094,6 +1094,7 @@
       const responsibility = fields?.length ? "当前跟进坐席" :
         processing?.waitingForTarget || processing?.waitingForTemplate || processing?.waitingForCold ||
           processing?.waitingForDeliveryTarget ? "配置人员核对" :
+        processing?.waitingForPredictiveHandoff ? (record.skynet.predictiveHandoff?.stage==="admin"?"管理员人工判断":"等待本轮回调或 AI 结果") :
         missingKeys.includes("previous.tags") ? "等待对应话单的通话标签" :
         processing?.followupRoundId && missingKeys.some(key=>key.endsWith(".callStatus")) ? "等待本轮对应话单" :
         processing?.missingFields?.length ? "等待规则所需的业务数据" : "等待核对任务";

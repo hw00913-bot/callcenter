@@ -2797,7 +2797,7 @@
     return Number.isFinite(value) ? String(value) : clean(value);
   }
 
-  function matchingRoundCalls(state, context, task, visit, nativeWindow) {
+  function matchingRoundCalls(state, context, task, visit, nativeWindow, preferHandoff = false) {
     const nativeContext = nativeWindow?.DNativeContext?.context;
     const nativeCalls = accountScope(context).every((value,index) => value === accountScope(nativeContext)[index]) &&
       Array.isArray(nativeWindow?.CloudCallData?.calls) ? nativeWindow.CloudCallData.calls : [];
@@ -2808,16 +2808,78 @@
       (!call.roundId || call.roundId === task.roundId) &&
       (callId ? callIdentity(call) === String(callId) : call.taskId === task.taskId && call.roundId === task.roundId));
     const unique = new Map();
-    for (const call of matching) unique.set(callIdentity(call) || call,call);
+    for (const call of matching) {
+      const id = callIdentity(call) || call;
+      const prior = unique.get(id);
+      if (!preferHandoff || !prior || !(prior.predictiveCallback || prior.aiResultFinal) || call.predictiveCallback || call.aiResultFinal) {
+        unique.set(id,call);
+      }
+    }
     return {calls:[...unique.values()],explicit:Boolean(callId)};
+  }
+
+  function plannedRoundMethod(task,nurture) {
+    const parent = strategyPathFor(nurture?.rules || [],task.skynet.strategyNodeId)?.at(-1);
+    return nurtureMethod((parent && nurtureAction(parent)) || task.skynet.processing?.targetTaskType || task.requiredMode || task.skynet.action);
+  }
+
+  function predictiveRoundHandoff(state,context,task,planned,nativeWindow) {
+    if (!window.DPredictiveAiHandoff || planned!=='预外呼') return null;
+    const predictions = matchingRoundCalls(state,context,task,null,nativeWindow,true).calls
+      .filter(row=>row.taskId===task.taskId && row.roundId===task.roundId &&
+        nurtureMethod(row.callType || row.callMode)==='预外呼');
+    const visit = task.followupHistory?.at(-1);
+    const explicit = visit?.roundId===task.roundId ? clean(visit.predictiveCallId || visit.callId || visit.cdrId || visit.callRecordId) : '';
+    const linked = explicit && predictions.find(row=>callIdentity(row)===explicit);
+    const predictive = linked || (predictions.length===1 ? predictions[0] : null);
+    if (!predictive) return {stage:predictions.length ? 'callbackConflict' : 'awaitCallback'};
+    const callId = callIdentity(predictive);
+    const facts = nativeWindow?.AliCtiReportFacts?.read?.(predictive);
+    const callback = window.DPredictiveAiHandoff.read(predictive,facts);
+    if (!callback.received || !callId) return {...callback,stage:'awaitCallback'};
+    if (!callback.transferred) return {...callback,stage:'manual',callId};
+    const ai = matchingRoundCalls(state,context,task,null,nativeWindow,true).calls.filter(row=>
+      row.taskId===task.taskId && row.roundId===task.roundId && row.predictiveParentCallId===callId &&
+      nurtureMethod(row.callType || row.callMode)==='AI 外呼' && row.aiResultFinal===true && callIdentity(row));
+    return {...callback,callId,stage:ai.length>1 ? 'aiConflict' : ai.length===1 ? 'aiReady' : 'awaitAi',
+      ...(ai.length===1 ? {ai:ai[0]} : {})};
+  }
+
+  const predictiveWaitMessages = {
+    awaitCallback:'等待预外呼通话结果回调，暂不判定下发。',
+    callbackConflict:'本轮存在无法唯一核对的预外呼回调，暂不下发。',
+    awaitAi:'预外呼已转 AI，等待同一任务、同一轮的 AI 结果。',
+    aiConflict:'同轮 AI 结果关联不唯一，暂不下发。',
+    admin:'本轮预外呼已转 AI，但原绑定版本未配置 AI 外呼下发条件，待管理员判断。',
+    templateUnavailable:'原任务绑定的下发模板版本暂不可用，待核对后再判断。'
+  };
+
+  function predictiveHandoffSummary(evidence,stage=evidence.stage) {
+    return {stage,plannedMethod:'预外呼',transferred:evidence.transferred ?? null,
+      ...(evidence.callId ? {predictiveCallId:evidence.callId} : {}),
+      ...(evidence.navigation ? {navigation:evidence.navigation} : {}),
+      ...(evidence.transferred ? {actualMethod:'AI 外呼'} : evidence.transferred===false ? {actualMethod:'预外呼'} : {}),
+      ...(evidence.ai ? {aiCallId:callIdentity(evidence.ai)} : {})};
+  }
+
+  function predictiveHandoffStage(evidence,delivery,binding) {
+    if (evidence?.transferred !== true) return evidence?.stage;
+    if (!delivery && binding.templateId) return 'templateUnavailable';
+    const hasAi = settings.deliveryTypes.some(type=>delivery?.aiCriteria?.[type.value]?.some(rule=>rule.conditions?.length));
+    return hasAi ? evidence.stage : 'admin';
+  }
+
+  function predictiveWaitPlan(evidence,stage) {
+    return {...nurtureDecision(roundCompleteEvent,'unavailable',[],null,'转待处理',['转待处理']),
+      predictiveHandoff:predictiveHandoffSummary(evidence,stage),status:predictiveWaitMessages[stage]};
   }
 
   function previousCallEvidence(state, context, task, nurture, {nativeWindow,callMode,tags} = {}) {
     const latest = task.followupHistory?.at(-1);
     const visit = latest?.roundId === task.roundId ? latest : null;
     const completed = task.skynet.lastRound?.roundId === task.roundId ? task.skynet.lastRound : null;
-    const parent = strategyPathFor(nurture?.rules || [],task.skynet.strategyNodeId)?.at(-1);
-    const planned = nurtureMethod((parent && nurtureAction(parent)) || task.requiredMode || task.skynet.action);
+    const planned = plannedRoundMethod(task,nurture);
+    const handoff = predictiveRoundHandoff(state,context,task,planned,nativeWindow);
     const recorded = nurtureMethod(visit?.callMode) || nurtureMethod(visit?.callType) || nurtureMethod(callMode) ||
       nurtureMethod(completed?.callMethod);
     if ((recorded || planned) === '企微培育') return {callMethod:'企微培育',tags:undefined};
@@ -2827,31 +2889,35 @@
       const method = nurtureMethod(call.callType || call.callMode || call.mode);
       return expected ? method === expected || (explicit && !method) : Boolean(method);
     });
-    const call = candidates.length === 1 ? candidates[0] : null;
-    const callMethod = recorded || nurtureMethod(call?.callType || call?.callMode || call?.mode) || planned;
+    const call = handoff?.transferred ? handoff.ai || null : candidates.length === 1 ? candidates[0] : null;
+    const callMethod = handoff?.transferred ? 'AI 外呼' : handoff?.stage==='manual' ? '预外呼' :
+      recorded || nurtureMethod(call?.callType || call?.callMode || call?.mode) || planned;
     if (!callMethod || callMethod === '企微培育') return {callMethod,tags:undefined};
     const tagMode = clean(visit?.tagCallMode || visit?.tagMethod);
     const visitTags = !tagMode || nurtureMethod(tagMode) === callMethod ? visit?.tags : undefined;
     const linkedTags = call?.tags ?? call?.labels;
     const completedTags = nurtureMethod(completed?.callMethod) === callMethod ? completed?.callTags : undefined;
-    const base={callMethod,tags:normalizedCallTags(linkedTags ?? visitTags ?? tags ?? completedTags)};
+    const base={callMethod,tags:normalizedCallTags(handoff?.transferred ? linkedTags : linkedTags ?? visitTags ?? tags ?? completedTags),
+      ...(handoff ? {handoff} : {})};
     if(callMethod!=='AI 外呼')return base;
     const target=task.skynet.processing?.targetTaskType==='AI 外呼' ? task.skynet.processing.targetTaskId : '';
     const profile=target ? window.DSkynetOutboundTargets?.conditionProfile?.(context,'AI 外呼',target) : null;
-    const rawTags=call?.aiSupplierTags ?? call?.supplierTags ?? call?.tags ?? call?.labels ?? visit?.aiSupplierTags ?? visitTags;
+    const rawTags=call?.aiSupplierTags ?? call?.supplierTags ?? call?.tags ?? call?.labels ??
+      (handoff?.transferred ? undefined : visit?.aiSupplierTags ?? visitTags);
     const readTags=rawTags==null ? undefined : [...new Set([...(normalizedCallTags(rawTags)||[]),
       ...(Array.isArray(rawTags)?rawTags:[rawTags]).flatMap(item=>item&&typeof item==='object' ?
         [item.tagId,item.id,item.platformTagId].filter(value=>typeof value==='number'||typeof value==='string').map(String) : [])])];
-    const rawStatus=call?.aiCallStatus ?? call?.callStatus ?? call?.status ?? visit?.aiCallStatus;
+    const rawStatus=call?.aiCallStatus ?? call?.callStatus ?? call?.status ?? (handoff?.transferred ? undefined : visit?.aiCallStatus);
     const domain=call?.statusDomain || call?.rawStatusDomain || 'DCC_LOCAL_LABEL';
     const normalize=nativeWindow?.DFlowNormalizeStatus;
     const rawCode=call?.rawStatusCode ?? rawStatus;
     const status=normalize?.('DCC_LOCAL_LABEL',domain,taskResultText(rawCode));
     const trustedStatus=taskResultText(rawStatus);
-    return {...base,aiSupplierId:clean(call?.supplierId || visit?.aiSupplierId || task.skynet.processing?.targetTaskSupplierId || profile?.supplierId),
+    return {...base,aiSupplierId:clean(call?.supplierId || (!handoff?.transferred &&
+      (visit?.aiSupplierId || task.skynet.processing?.targetTaskSupplierId || profile?.supplierId))),
       aiTags:readTags,
       aiCallStatus:status?.state==='KNOWN' ? status.value : domain==='DCC_LOCAL_LABEL' ? (trustedStatus==='未接听'?'无人接听':trustedStatus) : '',
-      aiDurationSeconds:settings.durationSeconds(call?.durationSeconds ?? call?.duration ?? visit?.durationSeconds)};
+      aiDurationSeconds:settings.durationSeconds(call?.durationSeconds ?? call?.duration ?? (handoff?.transferred ? undefined : visit?.durationSeconds))};
 
   }
 
@@ -2875,11 +2941,11 @@
 
   function canRetryDecision(processing) {
     return Boolean(processing?.missingFields?.length || processing?.waitingForCold || processing?.waitingForTemplate || processing?.waitingForDeliveryFields ||
-      processing?.waitingForTarget || processing?.waitingForDeliveryTarget || processing?.waitingForFieldLinkage);
+      processing?.waitingForTarget || processing?.waitingForDeliveryTarget || processing?.waitingForFieldLinkage || processing?.waitingForPredictiveHandoff);
   }
 
-  function roundDecision(book, state, context, task, input) {
-    if (!taskSeat(state,context,task) || reachedDelivery(task) || !clean(input.result)) return null;
+  function roundDecision(book, state, context, task, input, trustedCallback = false) {
+    if ((!trustedCallback && (!taskSeat(state,context,task) || !clean(input.result))) || reachedDelivery(task)) return null;
     const {nurtureTemplateId,nurtureTemplateVersion,processing} = task.skynet;
     if (processing?.followupRoundId === task.roundId && !canRetryDecision(processing)) return null;
     const nurture = settings.version(book,'nurtureTemplates',nurtureTemplateId,nurtureTemplateVersion);
@@ -2888,9 +2954,18 @@
         status:'绑定的培育模板版本暂不可用。'};
     }
     const evidence = previousCallEvidence(state,context,task,nurture,input);
+    const binding = deliveryBinding(task.skynet);
+    const delivery = deliveryTemplate(book,binding,categoryOf(task));
+    const handoff = evidence.handoff;
+    const stage = predictiveHandoffStage(handoff,delivery,binding);
+    if (predictiveWaitMessages[stage]) return predictiveWaitPlan(handoff,stage);
+    if (trustedCallback && !handoff) return null;
+    const effective = handoff?.transferred ? {result:handoff.ai.aiResult || handoff.ai.result,details:handoff.ai.aiDetails || {},
+      callStatus:evidence.aiCallStatus,leadStatus:handoff.ai.leadStatus,completedAt:handoff.ai.endedAt} : input;
+    if (!clean(effective.result) && !handoff?.transferred) return null;
     const facts = withPreRating(context,
-      currentRoundFacts(task,taskIntakeValues(task,originalIntake(state,context,task)),{...input,...evidence}),task);
-    const delivery = deliveryTemplate(book,deliveryBinding(task.skynet),categoryOf(task));
+      currentRoundFacts(task,taskIntakeValues(task,originalIntake(state,context,task)),{...effective,...evidence}),task);
+    if (handoff) facts.round.predictiveHandoff = predictiveHandoffSummary(handoff,stage);
     if (nurture.roundFlow || nurture.rules.some(rule => rule.event === roundCompleteEvent)) {
       return {...planFor(nurture,roundCompleteEvent,facts,{strategyParentId:task.skynet.strategyNodeId,delivery}),round:facts.round};
     }
@@ -2918,6 +2993,7 @@
       ...(processing.targetTaskId ? {targetTaskId:processing.targetTaskId,targetTaskName:processing.targetTaskName} : {})};
     const completedRounds = (task.skynet.completedRounds || []).filter(item => item.roundId !== latest.roundId);
     task.skynet = {...task.skynet,roundId:latest.roundId,roundNumber:round.number,lastRound:round,
+      ...(round.predictiveHandoff ? {predictiveHandoff:{...round.predictiveHandoff,roundId:latest.roundId}} : {}),
       completedRounds:[...completedRounds,round],action:plan.action,plannedActions:[...plan.actions],
       decisionEvent:plan.event,processing};
     if (round.leadStatus) task.leadStatus = round.leadStatus;
@@ -3011,16 +3087,30 @@
     if (window.DLeadRatingWorkbench?.pending(task)) return {status:task.taskStatus,action:'线索评级中',warning:task.waitReason};
     let latest = task?.followupHistory?.at(-1);
     if (!latest?.roundId || latest.roundId !== task.roundId || latest.result !== task.followupResult || latest.seat !== task.ownerId) return null;
-    const aiLinkage = applyAiFieldLinkage(state,context,task,latest,nativeWindow);
+    const book = settings.read(state);
+    const nurture = task.skynet && settings.version(book,'nurtureTemplates',task.skynet.nurtureTemplateId,task.skynet.nurtureTemplateVersion);
+    const predictive = task.skynet && window.DPredictiveAiHandoff && plannedRoundMethod(task,nurture)==='预外呼';
+    const aiLinkage = predictive ? null : applyAiFieldLinkage(state,context,task,latest,nativeWindow);
     if (aiLinkage?.denied || aiLinkage?.skip) return null;
     if (aiLinkage?.error) return holdAiFieldLinkage(task,latest,aiLinkage.error);
     latest = aiLinkage?.visit || latest;
-    const book = settings.read(state);
     const input = {...roundFollowupInput(latest),nativeWindow,
       callMethod:nurtureMethod(latest.callMode || latest.callType),
       callStatus:callStatus || latest.contact,leadStatus:leadStatus || latest.leadStatus};
     const plan = roundDecision(book,state,context,task,input);
     if (!plan) { aiLinkage?.rollback();return null; }
+    return applyCompletedRound(state,context,task,book,latest,input,plan);
+  }
+
+  function applyCompletedRound(state,context,task,book,latest,input,plan) {
+    if (plan.predictiveHandoff) {
+      const summary = {...plan.predictiveHandoff,roundId:task.roundId};
+      const processing = {...task.skynet.processing,status:'待处理',followupRoundId:task.roundId,
+        waitingForPredictiveHandoff:true,destination:summary.stage==='admin' ? '待管理员判断' : '待核对预外呼回调或 AI 结果'};
+      task.skynet = {...task.skynet,processing,predictiveHandoff:summary};
+      Object.assign(task,{taskStatus:'待处理',waitReason:plan.status});
+      return {status:'待处理',action:'转待处理',warning:plan.status};
+    }
     if (!plan.round) plan.round = currentRoundFacts(task,taskIntakeValues(task,originalIntake(state,context,task)),input).round;
     if (plan.legacyFallback) return completeLegacyRound(task,latest,plan);
     const policy = deliveryActions.has(plan.action) ? taskDeliveryPolicy(state,context,task,book,plan.deliveryGate?.type) : null;
@@ -3056,6 +3146,53 @@
       }
     }
     return {status:task.taskStatus,action:plan.action,warning:canRetryDecision(processing) ? waitReason : ''};
+  }
+
+  function applyPredictiveResult(state,context,task,event = {},nativeWindow) {
+    const current=activeContext(context);
+    if (!current || !inScope(current,task) || state?.tenant!==current.scope.id || !state.records?.includes(task) ||
+        !task.skynet || !window.DReview21.isLatest(state) ||
+        !(taskSeat(state,current,task) || window.DReview21Operations?.canManage(current))) return {error:'不能在当前租户核对该任务。'};
+    if (event.taskId!==task.taskId || event.roundId!==task.roundId || task.roundId!==task.skynet.roundId) return {ignored:true};
+    if (reachedDelivery(task) || ['已结束','已归档','已结案','已撤回','已取消'].includes(task.taskStatus) ||
+        task.skynet.processing?.followupRoundId===task.roundId && !canRetryDecision(task.skynet.processing)) return {ignored:true};
+    const book=settings.read(state);
+    const nurture=settings.version(book,'nurtureTemplates',task.skynet.nurtureTemplateId,task.skynet.nurtureTemplateVersion);
+    if (!window.DPredictiveAiHandoff || !nurture || nurture.categoryId!==categoryOf(task) || plannedRoundMethod(task,nurture)!=='预外呼')
+      return {error:'原轮次不是有效的预外呼节点。'};
+    const id=clean(event.callId), type=event.type;
+    if (!id || id.length>160 || !['predictive','ai'].includes(type)) return {error:'回调缺少有效的通话编号或类型。'};
+    const scope={tenant:task.tenant,brandId:task.brandId,taskId:task.taskId,roundId:task.roundId,callId:id};
+    let call;
+    if (type==='predictive') {
+      if (!clean(event.callbackId) || !Object.hasOwn(event,'voiceNavigation') ||
+          event.voiceNavigation != null && !['string','number'].includes(typeof event.voiceNavigation)) return {error:'预外呼回调缺少可核对的语音导航结果。'};
+      call={...scope,callType:'预外呼',predictiveCallback:{callbackId:clean(event.callbackId),
+        voiceNavigation:window.DPredictiveAiHandoff.navValue(event.voiceNavigation)}};
+    } else {
+      if (!clean(event.predictiveCallId) || event.predictiveCallId===id || event.final!==true)
+        return {error:'AI 结果须明确为最终结果并关联原预外呼通话。'};
+      const labels=normalizedCallTags(event.aiTags);
+      const tags=labels===undefined ? undefined : [...new Set([...labels,...(Array.isArray(event.aiTags)?event.aiTags:[event.aiTags])
+        .flatMap(tag=>tag && typeof tag==='object' ? [tag.tagId,tag.id,tag.platformTagId].map(taskResultText).filter(Boolean) : [])])];
+      call={...scope,callType:'AI 外呼',predictiveParentCallId:clean(event.predictiveCallId),aiResultFinal:true,
+        supplierId:clean(event.supplierId),...(tags!==undefined ? {aiSupplierTags:tags} : {}),
+        aiCallStatus:clean(event.aiCallStatus),durationSeconds:settings.durationSeconds(event.durationSeconds),
+        aiResult:clean(event.result),aiDetails:structuredClone(event.details || {}),endedAt:clean(event.endedAt)};
+    }
+    const calls=state.callRecords || [];
+    const existing=calls.find(row=>row.taskId===scope.taskId&&row.roundId===scope.roundId&&historicalRowInScope(row,current)&&callIdentity(row)===id);
+    if (existing) return JSON.stringify(existing)===JSON.stringify(call) ? {ok:true,duplicate:true} : {error:'同一通话收到不同回调，保留已记录结果，需人工核对。'};
+    return saveRoundMutation(state,task,()=>{
+      state.callRecords=[...calls,call];
+      const latest=task.followupHistory?.at(-1);
+      const savedVisit=latest?.roundId===task.roundId && latest.seat===task.ownerId && latest.result===task.followupResult ? latest : null;
+      const input=savedVisit ? {...roundFollowupInput(savedVisit),callStatus:savedVisit.contact,leadStatus:savedVisit.leadStatus,nativeWindow} : {nativeWindow};
+      const plan=roundDecision(book,state,current,task,input,true);
+      if (!plan) return {ok:true,recorded:true};
+      const outcome=applyCompletedRound(state,current,task,book,savedVisit || {roundId:task.roundId,at:call.endedAt || new Date().toISOString()},input,plan);
+      return {ok:true,outcome};
+    },'原轮回调未保存，请重试。');
   }
 
   function retiredRatingWait(task) {
@@ -4032,7 +4169,7 @@
       return plan?.outcome === 'notMatched' ? null : plan;
     },
     nurtureMethod,roundSupplementFields,supplementRound,
-    completeRound,completeFollowup,tickColdNurture:(state,context)=>tickColdNurture(state,context),deliveryState,canDispatchDelivery,deliveryTargetWarning,
+    completeRound,completeFollowup,applyPredictiveResult,tickColdNurture:(state,context)=>tickColdNurture(state,context),deliveryState,canDispatchDelivery,deliveryTargetWarning,
     wecomAssignmentState,wecomSeatEligibility,assignWecomSeat,wecomWorkbenchState,simulateWecomAction,
     workbenchNativeLeads,deliveryTargets,deliveryReceiverOptions,internalDeliveryMatch,confirmIntentStore,previewDelivery,dispatchDelivery,
     deliveryReviewRequired,deliveryReviewQueue,reviewDelivery,generateDeliveryReviewSamples

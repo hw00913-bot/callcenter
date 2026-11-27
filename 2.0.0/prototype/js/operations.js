@@ -216,7 +216,14 @@
           '第 ' + processing.ruleNumber + ' 条' + priority]);
         if (processing.missingFields?.length) fields.push(['缺少的字段',processing.missingFields.join('、')]);
       }
-      if (record.ownerId && record.taskStatus === '待处理' && record.waitReason) fields.push(['等待原因',record.waitReason]);
+      const handoff=record.skynet.predictiveHandoff;
+      if (handoff?.roundId===roundId) {
+        fields.push(['计划呼叫渠道','预外呼'],['是否转 AI',handoff.transferred===true?'是':handoff.transferred===false?'否':'待确认']);
+        if (handoff.actualMethod) fields.push(['实际呼叫渠道',handoff.actualMethod]);
+        if (handoff.predictiveCallId) fields.push(['预外呼通话编号',handoff.predictiveCallId]);
+        if (handoff.aiCallId) fields.push(['AI 通话编号',handoff.aiCallId]);
+      }
+      if (record.taskStatus === '待处理' && record.waitReason && (record.ownerId || handoff?.stage==='admin')) fields.push(['等待原因',record.waitReason]);
       if (latestIntakeId && latestIntakeId !== intakeId) fields.push(['最近来件编号',latestIntakeId]);
       if (assignment) fields.push(['指派记录',assignment.operatorName+' · '+dt(assignment.at)]);
       const delivery = deliveryState(record);
