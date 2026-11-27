@@ -2811,9 +2811,7 @@
     for (const call of matching) {
       const id = callIdentity(call) || call;
       const prior = unique.get(id);
-      if (!preferHandoff || !prior || !(prior.predictiveCallback || prior.aiResultFinal) || call.predictiveCallback || call.aiResultFinal) {
-        unique.set(id,call);
-      }
+      if (!preferHandoff || !prior || !(prior.predictiveCallback || prior.aiResultFinal)) unique.set(id,call);
     }
     return {calls:[...unique.values()],explicit:Boolean(callId)};
   }
@@ -3183,7 +3181,7 @@
     const calls=state.callRecords || [];
     const existing=calls.find(row=>row.taskId===scope.taskId&&row.roundId===scope.roundId&&historicalRowInScope(row,current)&&callIdentity(row)===id);
     if (existing) return JSON.stringify(existing)===JSON.stringify(call) ? {ok:true,duplicate:true} : {error:'同一通话收到不同回调，保留已记录结果，需人工核对。'};
-    return saveRoundMutation(state,task,()=>{
+    const saved=saveRoundMutation(state,task,()=>{
       state.callRecords=[...calls,call];
       const latest=task.followupHistory?.at(-1);
       const savedVisit=latest?.roundId===task.roundId && latest.seat===task.ownerId && latest.result===task.followupResult ? latest : null;
@@ -3193,6 +3191,8 @@
       const outcome=applyCompletedRound(state,current,task,book,savedVisit || {roundId:task.roundId,at:call.endedAt || new Date().toISOString()},input,plan);
       return {ok:true,outcome};
     },'原轮回调未保存，请重试。');
+    if (saved?.ok && type==='predictive') window.DPredictiveAiHandoff.refreshCdrLabels?.();
+    return saved;
   }
 
   function retiredRatingWait(task) {

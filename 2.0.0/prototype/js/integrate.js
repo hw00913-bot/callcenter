@@ -609,8 +609,37 @@
         } else info?.remove();
     }
 
+    let predictiveLedger;
+    function predictiveCallbackRows(viewer, callId) {
+        const c=context(),tenant=scopeKey(c);
+        if (!tenant || !viewer || identity(viewer)!==identity(c) || scopeKey(viewer)!==tenant ||
+            viewer.scope.tenant?.brandId!==c.scope.tenant?.brandId ||
+            String(viewer.scope.tenant?.enterpriseId)!==String(c.scope.tenant?.enterpriseId) ||
+            !DSession.allowed('PAGE-2208',c)) return null;
+        try {
+            const bytes=localStorage.getItem(readPrefix+tenant);
+            if (predictiveLedger?.tenant!==tenant || predictiveLedger.bytes!==bytes) {
+                const rows=new Map();
+                const ledger=readReviewBytes(bytes);
+                if (bytes!==null && ledger?.tenant!==tenant) return null;
+                for (const row of Array.isArray(ledger?.callRecords)?ledger.callRecords:[]) {
+                    if (row?.callType!=='预外呼' || row.tenant!==tenant || !row.predictiveCallback || !row.callId) continue;
+                    if (!rows.has(row.callId)) rows.set(row.callId,[]);
+                    rows.get(row.callId).push(row);
+                }
+                predictiveLedger={tenant,bytes,rows};
+            }
+            return predictiveLedger.rows.get(callId) || [];
+        } catch (_) { return null; }
+    }
+
+    window.addEventListener('storage',event=>{
+        if (event.key===readPrefix+scopeKey(context()) || event.key===null)
+            window.DPredictiveAiHandoff?.refreshCdrLabels();
+    });
+
     window.DReview21={openSection,
-        context, isAdmin, allowedScope, canUseWorkbench,isLatest,saveFailure,
+        context, isAdmin, allowedScope, canUseWorkbench,isLatest,saveFailure,predictiveCallbackRows,
         async ensureState({reload = false} = {}) {
             const c=context(); if (!allowedScope(c)) return null;
             let frame=getCloudFrame();

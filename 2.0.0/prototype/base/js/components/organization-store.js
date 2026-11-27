@@ -203,7 +203,7 @@
     function setModule(tenantId,module,enabled,requestId){requirePermission('module.open',tenantId);if(!['ai','cloud'].includes(module))throw Error('模块不存在。');return commit('调整模块开通',tenantId,(d)=>{requirePermission('module.open',tenantId);const t=tenant(d,tenantId);if(module==='cloud'&&enabled){if(!t.enterpriseId)throw Error('请先在租户资料中关联云呼叫账号，再开通云呼叫。');resource(d,t,t.enterpriseId);}t.modules[module]=!!enabled;return {id:tenantId,module,enabled:t.modules[module],modules:clone(t.modules)};},requestId);}
     function validateMember(d,tenantId,grants,existing={}){const t=tenant(d,tenantId),c=ctx();const allowed=c.scope.grant.delegableRoles||{};
       for(const module of ['ai','cloud']){const role=grants[module]||'';if(!role)continue;if(!roles.includes(role)||!(allowed[module]||[]).includes(role))throw Error('该业务角色超出你的可授权范围。');if(!t.modules[module]&&!(existing.modules||[]).includes(module))throw Error('该租户尚未开通'+(module==='ai'?'AI外呼':'云呼叫')+'。');}
-      const modules=['ai','cloud'].filter(k=>grants[k]);return {modules,contactAdd:grants.publicAdd===true,moduleRoles:{ai:grants.ai||'',cloud:grants.cloud||''},pages:seed.rolePages.publicOperator.concat(grants.publicAdd===true?['PAGE-2007']:[],...modules.map(k=>seed.rolePages[k][grants[k]]))};
+      const modules=['ai','cloud'].filter(k=>grants[k]);return {modules,moduleRoles:{ai:grants.ai||'',cloud:grants.cloud||''},pages:seed.rolePages.publicOperator.concat(...modules.map(k=>seed.rolePages[k][grants[k]]))};
     }
     // The account profile is global; membership role/status and module grants are tenant-local.
     function accountLogin(a){const fixture=seed.demoLogin?.accounts?.[a.id];return a.login&&a.login!==a.id?a.login:fixture?.username||a.login||a.id;}
